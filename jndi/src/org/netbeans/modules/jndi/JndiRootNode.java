@@ -73,7 +73,6 @@ public final class JndiRootNode extends AbstractNode{
      */
     public JndiRootNode() {
         super(new JndiRootNodeChildren());
-        instance = this;
         this.refresher = new RequestProcessor ("Jndi-Browser-Rehresh"); // No I18N
         setName("JNDI");
         setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiRootNode.NB_ROOT));
@@ -81,6 +80,9 @@ public final class JndiRootNode extends AbstractNode{
 
 
     public static JndiRootNode getDefault () {
+	if (instance == null) {
+            instance = new JndiRootNode ();
+	}
         return instance;
     }
 

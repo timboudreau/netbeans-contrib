@@ -8,6 +8,3 @@ OpenIDE-Module-IDE-Dependencies: IDE/1 > 2.3
 OpenIDE-Module-Package-Dependencies: javax.naming[Context]
 Class-Path: docs/jndi.jar
 
-Name: org/netbeans/modules/jndi/JndiRootNode.class
-OpenIDE-Module-Class: Node
-Type: Environment
