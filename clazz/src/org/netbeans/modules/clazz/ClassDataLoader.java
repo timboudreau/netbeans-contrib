@@ -135,7 +135,7 @@ public final class ClassDataLoader extends MultiFileLoader {
     * @return the entry
     */
     protected MultiDataObject.Entry createSecondaryEntry (MultiDataObject obj, FileObject secondaryFile) {
-        return new FileEntry.Numb(obj, secondaryFile);
+        return new FileEntry(obj, secondaryFile);
     }
 
     /** Utility method, finds primary class file for given class file.
