@@ -58,6 +58,8 @@ import org.openide.filesystems.FileObject;
 
 import org.netbeans.modules.corba.CORBASupport;
 import org.netbeans.modules.corba.IDLDataLoader;
+import org.netbeans.modules.corba.browser.ir.Repository;
+import org.netbeans.modules.corba.browser.ns.NamingServiceChild;
 
 import org.netbeans.modules.corba.utils.FullBeanContextSupport;
 
@@ -512,19 +514,64 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
         //System.out.println ("setNamingServiceChildren: " + children); // NOI18N
         _M_naming_children = __children;
     }
+    
+    public void addNamingService (NamingServiceChild ns) {
+        _M_naming_children.add (ns);
+        this.firePropertyChange ("namingServiceChildren",null,null);
+    }
+    
+    public void removeNamingService (NamingServiceChild ns) {
+        _M_naming_children.remove (ns);
+        this.firePropertyChange ("namingServiceChildren",null,null);
+    }
+    
+    public void removeNamingService (String name, String kind) {
+        for (Iterator it = _M_naming_children.iterator(); it.hasNext(); ) {
+            NamingServiceChild cld = (NamingServiceChild) it.next();
+            if (cld.getName().equals (name) && cld.getKind().equals(kind)) {
+                this.removeNamingService (cld);
+                break;
+            }
+        }
+    }
 
     public Vector getInterfaceRepositoryChildren () {
-        //System.out.println ("getInterfaceRepositoryChildren: " + _M_ir_children.size ()); // NOI18N
 	if (_M_ir_children == null) {
-	    //System.out.println ("_M_ir_children == null");
 	    _M_ir_children = new Vector ();
 	}
         return _M_ir_children;
     }
 
+    /** Should be depricated
+     */
     public void setInterfaceRepositoryChildren (Vector __children) {
-        //System.out.println ("setInterfaceRepositoryChildren: " + children.size ()); // NOI18N
         _M_ir_children = __children;
+    }
+    
+    /** Adds new repository into list of repositories
+     */
+    public void addInterfaceRepository (Repository repository) {
+        _M_ir_children.add (repository);
+        this.firePropertyChange ("interfaceRepositoryChildren",null,null);
+    }
+    
+    /** Removes interface repository of corresponding name from list of interface repositories
+     */
+    public void removeInterfaceRepository (String name) {
+        for (Iterator it = _M_ir_children.iterator(); it.hasNext();) {
+            Repository repository = (Repository) it.next();
+            if (repository.getName().equals (name)) {
+                this.removeInterfaceRepository (repository);
+                break;
+            }
+        }
+    }
+    
+    /** Removes repository from list of repositories
+     */
+    public void removeInterfaceRepository (Repository repository) {
+       _M_ir_children.remove (repository);
+       this.firePropertyChange ("interfaceRepositoryChildren",null,null);
     }
 
 

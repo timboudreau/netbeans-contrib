@@ -61,7 +61,6 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
     private boolean _loaded = false;
 
     private Vector contexts;
-    private Vector naming_children;
 
 
     private static HashMap localNameServices;
@@ -249,8 +248,9 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
     public void restore () {
         if (DEBUG)
             System.out.println ("load from storage :-))");
-        CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
-        naming_children = css.getNamingServiceChildren ();
+        if (this.css == null)
+            this.lazyInit ();
+        Vector naming_children = css.getNamingServiceChildren ();
         if (DEBUG) {
             for (int i = 0; i< naming_children.size(); i++)
                 System.out.println (i+"\t"+naming_children.get(i).getClass());
@@ -269,9 +269,6 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
                     contexts.addElement (cn);
                 }
             }
-        }
-        else {
-            naming_children = new Vector ();
         }
         _loaded = true;
         if (DEBUG)
@@ -362,7 +359,9 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
             cn.setKind (kind);
             contexts.addElement (cn);
             if (root() && loaded () && persistent) {
-                naming_children.addElement (new NamingServiceChild (name, kind, url, ior));
+                if (this.css == null)
+                    lazyInit ();
+                css.addNamingService (new NamingServiceChild (name, kind, url, ior));
             }
         }
         else {
@@ -427,16 +426,9 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
                 else {
                     // is root
                     ((ContextNode)getParentNode ()).getContexts ().remove (this);
-                    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
-                    for (int i=0; i<css.getNamingServiceChildren ().size (); i++) {
-                        NamingServiceChild child
-                        = (NamingServiceChild)css.getNamingServiceChildren ().elementAt (i);
-                        if (child.getName ().equals (getName ())
-                                && child.getKind ().equals (getKind ())) {
-                            css.getNamingServiceChildren ().remove (i);
-                            break;
-                        }
-                    }
+                    if (this.css == null)
+                        this.lazyInit ();
+                    this.css.removeNamingService (this.getName(), this.getKind());
                     ((ContextChildren)((ContextNode)getParentNode ()).getChildren ()).addNotify ();
                 }
 

@@ -57,6 +57,10 @@ public class Repository implements Serializable {
     public org.omg.CORBA.Container getRepository () {
         return repository;
     }
+    
+    void setRepository (org.omg.CORBA.Container repository) {
+        this.repository = repository;
+    }
 
     public String getURL () {
         return url;

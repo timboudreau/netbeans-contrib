@@ -37,6 +37,7 @@ public abstract class NamingServiceNode extends AbstractNode {
     private ResourceBundle bundle;
     private boolean interfaceInitialized;
     private org.omg.CORBA.InterfaceDef interfaceDef;
+    protected CORBASupportSettings css;
 
     /** Creates new NamingServiceNode */
     public NamingServiceNode(Children cld) {
@@ -148,7 +149,7 @@ public abstract class NamingServiceNode extends AbstractNode {
     }
     
     protected void lazyInit () {
-        CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
+        css = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
         this.orb = css.getORB ();
     }
     

@@ -19,6 +19,7 @@ import java.util.Vector;
 import java.io.*;
 import org.openide.nodes.*;
 import org.openide.*;
+import org.netbeans.modules.corba.settings.CORBASupportSettings;
 import org.netbeans.modules.corba.browser.ir.nodes.IRRepositoryNode;
 import org.netbeans.modules.corba.browser.ir.nodes.IRFailedRepositoryNode;
 
@@ -30,6 +31,8 @@ import org.netbeans.modules.corba.*;
  */
 
 public class IRRootNodeChildren extends Children.Keys {
+
+    private CORBASupportSettings css;
 
     //private ContextNode _context_node;
     private IRRootNode _root_node;
@@ -54,31 +57,9 @@ public class IRRootNodeChildren extends Children.Keys {
             System.out.println ("createKeys ()");
         if (!getRootNode ().loaded ())
             getRootNode ().restore ();
-
-        Vector keys = new Vector ();
-        //Vector names = getRootNode ().getNames ();
-        //Vector repos = getRootNode ().getRepositories ();
-        Vector repositories = getRootNode ().getRepositories ();
-
-        /*
-          for (int i=0; i<repositories.size (); i++) {
-          keys.addElement (new RepositoryNode 
-          (((Repository)repositories.elementAt (i)).getName (), 
-          ((Repository)repositories.elementAt (i)).getRepository ()));
-          }
-          *
-          /*
-            try {
-            ORB orb = getContextNode ().getORB ();
-            if (DEBUG) 
-            System.out.println ("createKeys ();");
-            if (!getContextNode ().loaded ()) {
-            getContextNode ().restore ();
-            }
-            setKeys (getContextNode ().getContexts ());
-            return;
-            }
-        */
+	if (css == null)
+	    css = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
+        Vector repositories = css.getInterfaceRepositoryChildren ();
         setKeys (repositories);
     }
 

@@ -46,8 +46,6 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
     private static IRRootNode instance;
 
     private ORB orb;
-
-    private Vector repositories;
     
     private RequestProcessor rqProcessor;
 
@@ -98,7 +96,6 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
         if (DEBUG) {
             System.out.println ("IRRootNode::init ()");
         }
-        repositories = new Vector ();
         setIconBase (ICON_BASE_ROOT);
         setDisplayName (getName ());
 
@@ -123,22 +120,16 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
         for (int i=0; i<tmp_repositories.size (); i++) {
             Repository child = (Repository)tmp_repositories.elementAt (i);
             try {
-                restoreRepository (child.getName (), child.getURL (), child.getIOR ());
+                restoreRepository (child);
             } catch (Exception e) {
                 // Handling the error while reading repisitories
                 child.setFailed(true);
-                this.repositories.addElement(child);
             }
         }
-        if (DEBUG)
-            System.out.println ("no of IR children: " + repositories.size ());
 
         _loaded = true;
         if (DEBUG)
             System.out.println ("on end of restore - loaded?: " + loaded ());
-        if (css == null)
-            lazyInit();
-        css.setInterfaceRepositoryChildren (repositories);
     }
 
 
@@ -150,15 +141,16 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
     }
 
 
-    public void restoreRepository (String name, String url, String ior)
+    public void restoreRepository (Repository repository)
         throws java.net.MalformedURLException,
         java.io.IOException {
 
             
         org.omg.CORBA.Container rep = null;
-
-        if (DEBUG)
-            System.out.println ("IRRootNode::addRepository (...);");
+        String url = repository.getURL();
+        String ior = repository.getIOR();
+        String name = repository.getName();
+        
         if (!url.equals ("")) {
             //try {
             URL uc = new URL (url);
@@ -190,14 +182,8 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
           ((ContextChildren)getChildren ()).addNotify ();
           }
         */
-        boolean exc = false;
-        try {
-            Contained[] contents = rep.contents (DefinitionKind.dk_all, false);
-        } catch (Exception e) {
-            exc = true;
-        }
-        if (!exc)
-            repositories.addElement (new Repository (name, rep, url, ior));
+        Contained[] contents = rep.contents (DefinitionKind.dk_all, false);
+        repository.setRepository (rep);
     }
 
 
@@ -238,20 +224,18 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
         }
         if (DEBUG)
             System.out.println ("loaded?: " + loaded ());
-        repositories.addElement (new Repository (name, rep, url, ior));
-
+        if (this.css == null)
+            this.lazyInit ();
+        this.css.addInterfaceRepository (new Repository (name, rep, url, ior));
         if (loaded ())
             ((IRRootNodeChildren)getChildren ()).addNotify ();
     }
 
 
     public void removeRepository (String name) {
-        for (int i=0; i<repositories.size (); i++) {
-            if (((Repository)repositories.elementAt (i)).getName ().equals (name)) {
-                repositories.remove (i);
-                break;
-            }
-        }
+        if (this.css == null)
+            this.lazyInit ();
+        this.css.removeInterfaceRepository (name);
         ((IRRootNodeChildren)getChildren ()).addNotify ();
     }
 
@@ -261,10 +245,6 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
 
     public String getName () {
         return name;
-    }
-
-    public Vector getRepositories () {
-        return repositories;
     }
 
     public ORB getORB () {
