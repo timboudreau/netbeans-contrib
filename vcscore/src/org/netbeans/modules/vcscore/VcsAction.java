@@ -43,9 +43,16 @@ public class VcsAction extends NodeAction implements ActionListener {
 
     protected VcsFileSystem fileSystem = null;
     protected FileObject selectedFileObject = null;
+    
+    private int actionCommandSubtree; // the command subtree to construct actions from
 
     public VcsAction(VcsFileSystem fileSystem) {
+        this(fileSystem, 0);
+    }
+
+    public VcsAction(VcsFileSystem fileSystem, int commandSubtree) {
         this(fileSystem, null);
+        actionCommandSubtree = commandSubtree;
     }
 
     public VcsAction(VcsFileSystem fileSystem, FileObject fo) {
@@ -378,11 +385,10 @@ public class VcsAction extends NodeAction implements ActionListener {
                 parent.addSeparator();
                 continue;
             }
-            if (onDir && !VcsCommandIO.getBooleanPropertyAssumeTrue(cmd, VcsCommand.PROPERTY_ON_DIR)
+            if (cmd.getDisplayName() == null
+                || onDir && !VcsCommandIO.getBooleanPropertyAssumeTrue(cmd, VcsCommand.PROPERTY_ON_DIR)
                 || onFile && !VcsCommandIO.getBooleanPropertyAssumeTrue(cmd, VcsCommand.PROPERTY_ON_FILE)
-                || !onRoot && VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_ON_ROOT_ONLY)
-                || onRoot && VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_NOT_ON_ROOT)
-                ||  VcsCommand.DISPLAY_NAME_NOT_SHOW.equals(cmd.getDisplayName())) {
+                || onRoot && !VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_ON_ROOT)) {
 
                 continue;
             }
@@ -417,9 +423,9 @@ public class VcsAction extends NodeAction implements ActionListener {
         boolean onRoot = isOnRoot();
         Children children = commands.getChildren();
         Node[] commandRoots = children.getNodes();
-        if (commandRoots.length == 0) return null;
+        if (commandRoots.length <= actionCommandSubtree) return null;
         //int first = 0;
-        String name = commandRoots[0].getDisplayName();
+        String name = commandRoots[actionCommandSubtree].getDisplayName();
         /*
         if (len > 0) {
             VcsCommand uc = (VcsCommand) commands.get(first);
@@ -434,7 +440,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
          */
         JMenu menu = new JMenuPlus(name);
-        addMenu(commandRoots[0], /*first, lastOrder, */menu, onDir, onFile, onRoot);
+        addMenu(commandRoots[actionCommandSubtree], /*first, lastOrder, */menu, onDir, onFile, onRoot);
         return menu;
     }
 

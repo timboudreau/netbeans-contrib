@@ -30,9 +30,7 @@ import org.netbeans.modules.vcscore.cache.CacheHandler;
 import org.netbeans.modules.vcscore.caching.VcsCacheFile;
 import org.netbeans.modules.vcscore.caching.VcsCacheDir;
 import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
-import org.netbeans.modules.vcscore.commands.VcsCommand;
-import org.netbeans.modules.vcscore.commands.VcsCommandIO;
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.exec.*;
 import org.netbeans.modules.vcscore.cmdline.VcsListCommand;
 
@@ -50,6 +48,11 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
     private Hashtable vars = null ;
     //private VcsCacheDir dir=null ;
     private String path;
+
+    private ArrayList commandOutputListener = new ArrayList(); 
+    private ArrayList commandErrorOutputListener = new ArrayList(); 
+    private ArrayList commandDataOutputListener = new ArrayList(); 
+    private ArrayList commandDataErrorOutputListener = new ArrayList(); 
 
     private boolean shouldFail = false ;
     private int exitStatus;
@@ -89,6 +92,41 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         D.deb ("DIR="+(String)vars.get("DIR")); // NOI18N
     }
 
+
+    /**
+     * Add the listener to the standard output of the command. The listeners are removed
+     * when the command finishes.
+     */
+    public synchronized void addOutputListener(CommandOutputListener l) {
+        if (commandOutputListener != null) commandOutputListener.add(l);
+    }
+    
+    /**
+     * Add the listener to the error output of the command. The listeners are removed
+     * when the command finishes.
+     */
+    public synchronized void addErrorOutputListener(CommandOutputListener l) {
+        if (commandErrorOutputListener != null) commandErrorOutputListener.add(l);
+    }
+    
+    /**
+     * Add the listener to the data output of the command. This output may contain
+     * a parsed information from its standard output or some other data provided
+     * by this command. The listeners are removed when the command finishes.
+     */
+    public synchronized void addDataOutputListener(CommandDataOutputListener l) {
+        if (commandDataOutputListener != null) commandDataOutputListener.add(l);
+    }
+
+    /**
+     * Add the listener to the data error output of the command. This output may contain
+     * a parsed information from its error output or some other data provided
+     * by this command. If there are some data given to this listener, the command
+     * is supposed to fail. The listeners are removed when the command finishes.
+     */
+    public synchronized void addDataErrorOutputListener(CommandDataOutputListener l) {
+        if (commandDataErrorOutputListener != null) commandDataErrorOutputListener.add(l);
+    }
 
     /**
      * The executed command.
@@ -147,9 +185,33 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         return rawData;
     }
 
+    private void printOutput(String line) {
+        for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandOutputListener) it).outputLine(line);
+        }
+    }
 
-    private void runCommand(String exec, OutputContainer container){
-        ExternalCommand ec=new ExternalCommand(exec);
+    private void printErrorOutput(String line) {
+        for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandOutputListener) it).outputLine(line);
+        }
+    }
+
+    private void printDataOutput(String[] data) {
+        for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandDataOutputListener) it).outputData(data);
+        }
+    }
+
+    private void printDataErrorOutput(String[] data) {
+        for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandDataOutputListener) it).outputData(data);
+        }
+    }
+
+
+    private void runCommand(String exec) {
+        ExternalCommand ec = new ExternalCommand(exec);
         //ec.setTimeout(list.getTimeout());
         ec.setInput((String) list.getProperty(UserCommand.PROPERTY_INPUT));
         //D.deb("list.getInput()='"+list.getInput()+"'"); // NOI18N
@@ -158,12 +220,13 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         //D.deb("dataRegex="+list.getDataRegex()); // NOI18N
         //final File parent = new File(dir.getAbsolutePath());
         try{
-            ec.addStdoutRegexListener(new RegexListener () {
-                                          public void match(String[] elements){
+            ec.addStdoutRegexListener(new CommandDataOutputListener () {
+                                          public void outputData(String[] elements) {
                                               //D.deb("stdout match:"+MiscStuff.arrayToString(elements)); // NOI18N
                                               //fileSystem.debug("stdout: "+MiscStuff.arrayToString(elements)); // NOI18N
                                               elements = translateElements(elements, list);
                                               rawData.addElement(elements);
+                                              printDataOutput(elements);
                                               //CacheFile file = RefreshCommandSupport.matchToFile(elements, list, fileSystem.getPossibleFileStatusesTable(), fileSystem.getCacheIdStr(), parent);
                                               //if(file instanceof VcsCacheDir) {
                                                   //String parent = dir.getPath ();
@@ -173,54 +236,62 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
                                               //D.deb("file="+file+", status = "+file.getStatus()); // NOI18N
                                               //dir.add(file);
                                           }
-                                      },dataRegex);
+                                      }, dataRegex);
         }
-        catch (BadRegexException e){
+        catch (BadRegexException e) {
             E.err(e,"bad regex"); // NOI18N
         }
 
         String errorRegex = (String) list.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
         //D.deb("errorRegex="+list.getErrorRegex()); // NOI18N
         try{
-            ec.addStderrRegexListener(new RegexListener () {
-                                          public void match(String[] elements){
+            ec.addStderrRegexListener(new CommandDataOutputListener () {
+                                          public void outputData(String[] elements) {
                                               //D.deb("stderr match:"+MiscStuff.arrayToString(elements)); // NOI18N
-                                              fileSystem.debug("stderr: "+MiscStuff.arrayToString(elements)); // NOI18N
-                                              shouldFail=true ;
+                                              //fileSystem.debug("stderr: "+MiscStuff.arrayToString(elements)); // NOI18N
+                                              printDataErrorOutput(elements);
+                                              shouldFail = true;
                                           }
-                                      },errorRegex);
+                                      }, errorRegex);
         }
-        catch (BadRegexException e){
+        catch (BadRegexException e) {
             E.err(e,"bad regex"); // NOI18N
         }
 
-        ec.addStdoutNoRegexListener(container);
-        ec.addStderrNoRegexListener(container);
+        //ec.addStdoutNoRegexListener(container);
+        //ec.addStderrNoRegexListener(container);
 
         D.deb("ec="+ec); // NOI18N
-        TopManager.getDefault().setStatusText(g("MSG_Command_name_running", list.getName()));
+        //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", list.getName()));
+        for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
+            ec.addStdoutListener((CommandOutputListener) it.next());
+        }
+        for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
+            ec.addStderrListener((CommandOutputListener) it.next());
+        }
+
         exitStatus = ec.exec();
 
         if (shouldFail) {
-            fileSystem.debug("LIST: "+g("MSG_Match_on_stderr")+"\n"); // NOI18N
-            exitStatus=ExternalCommand.FAILED;
+            //fileSystem.debug("LIST: "+g("MSG_Match_on_stderr")+"\n"); // NOI18N
+            exitStatus = VcsCommandExecutor.FAILED;
         }
 
         switch (exitStatus) {
-            case ExternalCommand.SUCCESS:
-                fileSystem.debug("LIST: "+g("MSG_Command_succeeded")+"\n"); // NOI18N
+            case VcsCommandExecutor.SUCCEEDED:
+                //fileSystem.debug("LIST: "+g("MSG_Command_succeeded")+"\n"); // NOI18N
                 //TopManager.getDefault().setStatusText(g("MSG_Command_name_succeeded", list.getName()));
                 break ;
-            case ExternalCommand.FAILED_ON_TIMEOUT:
-                fileSystem.debug("LIST: "+g("MSG_Timeout")); // NOI18N
-            case ExternalCommand.FAILED:
-                fileSystem.debug("LIST: "+g("MSG_List_command_failed")+"\n"); // NOI18N
+            case VcsCommandExecutor.INTERRUPTED:
+                //fileSystem.debug("LIST: "+g("MSG_Timeout")); // NOI18N
+            case VcsCommandExecutor.FAILED:
+                //fileSystem.debug("LIST: "+g("MSG_List_command_failed")+"\n"); // NOI18N
                 //TopManager.getDefault().setStatusText(g("MSG_Command_name_failed", list.getName()));
                 shouldFail=true ;
         }
     }
 
-    private void runClass(String className, StringTokenizer tokens, OutputContainer container) {
+    private void runClass(String className, StringTokenizer tokens) {
         E.deb("runClass: "+className); // NOI18N
         E.deb("Creating new CvsListCommand"); // NOI18N
         Class listClass = null;
@@ -228,8 +299,9 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
             listClass =  Class.forName(className, true,
                                        org.openide.TopManager.getDefault().currentClassLoader());
         } catch (ClassNotFoundException e) {
-            fileSystem.debug ("LIST: "+g("ERR_ClassNotFound", className)); // NOI18N
-            container.match("LIST: "+g("ERR_ClassNotFound", className)); // NOI18N
+            //fileSystem.debug ("LIST: "+g("ERR_ClassNotFound", className)); // NOI18N
+            //container.match("LIST: "+g("ERR_ClassNotFound", className)); // NOI18N
+            printErrorOutput("CLASS LIST: "+g("ERR_ClassNotFound", className)); // NOI18N
             shouldFail = true;
             return;
         }
@@ -238,13 +310,15 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         try {
             listCommand = (VcsListCommand) listClass.newInstance();
         } catch (InstantiationException e) {
-            fileSystem.debug ("LIST: "+g("ERR_CanNotInstantiate", listClass)); // NOI18N
-            container.match("LIST: "+g("ERR_CanNotInstantiate", listClass)); // NOI18N
+            //fileSystem.debug ("LIST: "+g("ERR_CanNotInstantiate", listClass)); // NOI18N
+            //container.match("LIST: "+g("ERR_CanNotInstantiate", listClass)); // NOI18N
+            printErrorOutput("CLASS LIST: "+g("ERR_CanNotInstantiate", listClass)); // NOI18N
             shouldFail = true;
             return;
         } catch (IllegalAccessException e) {
-            fileSystem.debug ("LIST: "+g("ERR_IllegalAccessOnClass", listClass)); // NOI18N
-            container.match(g("LIST: "+"ERR_IllegalAccessOnClass", listClass)); // NOI18N
+            //fileSystem.debug ("LIST: "+g("ERR_IllegalAccessOnClass", listClass)); // NOI18N
+            //container.match(g("LIST: "+"ERR_IllegalAccessOnClass", listClass)); // NOI18N
+            printErrorOutput("CLASS LIST: "+g("ERR_IllegalAccessOnClass", listClass)); // NOI18N
             shouldFail = true;
             return;
         }
@@ -262,15 +336,28 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
             vars.put("INPUT", (String) list.getProperty(UserCommand.PROPERTY_INPUT)); // NOI18N
             //vars.put("TIMEOUT", new Long(list.getTimeout())); // NOI18N
             TopManager.getDefault().setStatusText(g("MSG_Command_name_running", list.getName()));
-            shouldFail = !listCommand.list(vars, args, filesByName, container, container, null,
-                                           (String) list.getProperty(UserCommand.PROPERTY_DATA_REGEX),
-                                           new RegexListener () {
-                                               public void match(String[] elements){
-                                                   //D.deb("stderr match:"+MiscStuff.arrayToString(elements)); // NOI18N
-                                                   fileSystem.debug("stderr: "+MiscStuff.arrayToString(elements)); // NOI18N
-                                                   //shouldFail=true ;
+            shouldFail = !listCommand.list(vars, args, filesByName,
+                                           new CommandOutputListener() {
+                                               public void outputLine(String line) {
+                                                   printOutput(line);
                                                }
-                                           }, (String) list.getProperty(UserCommand.PROPERTY_ERROR_REGEX));
+                                           },
+                                           new CommandOutputListener() {
+                                               public void outputLine(String line) {
+                                                   printErrorOutput(line);
+                                               }
+                                           },
+                                           new CommandDataOutputListener() {
+                                               public void outputData(String[] data) {
+                                                   printDataOutput(data);
+                                               }
+                                           }, (String) list.getProperty(UserCommand.PROPERTY_DATA_REGEX),
+                                           new CommandDataOutputListener() {
+                                               public void outputData(String[] data) {
+                                                   printDataErrorOutput(data);
+                                               }
+                                           }, (String) list.getProperty(UserCommand.PROPERTY_ERROR_REGEX)
+                                          );
             E.deb("shouldFail = "+shouldFail+" after list with "+filesByName.size()+" elements"); // NOI18N
             /*
             for(Enumeration e = filesByName.keys(); e.hasMoreElements() ;) {
@@ -307,13 +394,13 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         //}
         if (shouldFail) {
             exitStatus = VcsCommandExecutor.FAILED;
-            fileSystem.debug("LIST: "+g("MSG_List_command_failed")+"\n"); // NOI18N
-            container.match("LIST: "+g("MSG_List_command_failed")); // NOI18N
+            //fileSystem.debug("LIST: "+g("MSG_List_command_failed")+"\n"); // NOI18N
+            //container.match("LIST: "+g("MSG_List_command_failed")); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_failed", list.getName()));
         } else {
             exitStatus = VcsCommandExecutor.SUCCEEDED;
-            fileSystem.debug("LIST: "+g("MSG_Command_succeeded")+"\n"); // NOI18N
-            container.match("LIST: "+g("MSG_Command_succeeded")); // NOI18N
+            //fileSystem.debug("LIST: "+g("MSG_Command_succeeded")+"\n"); // NOI18N
+            //container.match("LIST: "+g("MSG_Command_succeeded")); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_succeeded", list.getName()));
         }
 
@@ -323,25 +410,25 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
     public void run() {
         String exec = (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
         exec = Variables.expand(vars, exec, true).trim();
-        fileSystem.debug("LIST: "+exec); // NOI18N
+        //fileSystem.debug("LIST: "+exec); // NOI18N
 
-        ErrorCommandDialog errDlg = fileSystem.getErrorDialog(); //new ErrorCommandDialog(list, new JFrame(), false);
-        OutputContainer container = new OutputContainer(list);
-        container.match("LIST: "+exec); // NOI18N
+        //ErrorCommandDialog errDlg = fileSystem.getErrorDialog(); //new ErrorCommandDialog(list, new JFrame(), false);
+        //OutputContainer container = new OutputContainer(list);
+        //container.match("LIST: "+exec); // NOI18N
 
         StringTokenizer tokens = new StringTokenizer(exec);
         String first = tokens.nextToken();
         E.deb("first = "+first); // NOI18N
         if (first != null && (first.toLowerCase().endsWith(".class"))) { // NOI18N
-            runClass(first.substring(0, first.length() - ".class".length()), tokens, container); // NOI18N
+            runClass(first.substring(0, first.length() - ".class".length()), tokens); // NOI18N
         } else
-            runCommand(exec, container);
+            runCommand(exec);
 
-        if(shouldFail){
-            errDlg.putCommandOut(container.getMessages());
-            errDlg.showDialog();
+        if(shouldFail) {
+            //errDlg.putCommandOut(container.getMessages());
+            //errDlg.showDialog();
             fileSystem.setPassword(null);
-            fileSystem.debug(g("ERR_LISTFailed")); // NOI18N
+            //fileSystem.debug(g("ERR_LISTFailed")); // NOI18N
             //D.deb("failed reading of dir="+dir); // NOI18N
             /*
             if( dir.getName ().equals("") ){ // NOI18N
@@ -369,6 +456,10 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         // After refresh I should ensure, that the next automatic refresh will work if something happens in numbering
         fileSystem.removeNumDoAutoRefresh((String)vars.get("DIR")); // NOI18N
         //D.deb("run(LIST) '"+dir.name+"' finished"); // NOI18N
+        commandOutputListener = null;
+        commandErrorOutputListener = null;
+        commandDataOutputListener = null;
+        commandDataErrorOutputListener = null;
     }
 
     /**
@@ -379,104 +470,6 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         return exitStatus;
     }
 
-    /*
-     * Create a new VcsCacheFile or VcsCacheDir from reader data
-     * @param elements the data obtained from the reader
-     * @param list the list command
-     * @return the created VcsFile
-     *
-    public static CacheFile matchToFile(String[] elements, UserCommand list, String cacheName, File parent) {
-        return matchToFile(elements, list, null, cacheName, parent);
-    }
-
-    /*
-     * Create a new VcsCacheFile or VcsCacheDir from reader data
-     * @param elements the data obtained from the reader
-     * @param list the list command
-     * @param statusTr the transformation table of file statuses.
-     * @return the created VcsFile
-     *
-    public static CacheFile matchToFile(String[] elements, UserCommand list,
-                                        HashMap statusTr, String cacheName, File parent) {
-        //System.err.println("matchToFile("+MiscStuff.arrayToString(elements)+")");
-
-        /*
-        CacheFile file = (CacheFile) CacheHandler.getInstance().getCacheFile(
-                    fileSystem.getFile(path),
-                    CacheHandler.STRAT_TEMP_DISK, fileSystem.getCacheIdStr());
-         *//*
-        CacheFile file = new VcsCacheFile(cacheName);
-
-        int fileNameIndex = VcsCommandIO.getIntegerPropertyAssumeNegative(list,
-                            UserCommand.PROPERTY_LIST_INDEX_FILE_NAME);
-        if (MiscStuff.withinRange(0, fileNameIndex, elements.length - 1)) {
-            String name = elements[fileNameIndex].trim();
-            file.setName (name);
-            if (name.endsWith("/")) { // NOI18N
-                file = (VcsCacheDir) CacheHandler.getInstance().getCacheFile(
-                        new File(parent, name.substring(0,name.length()-1)),
-                        CacheHandler.STRAT_TEMP_DISK, cacheName);
-                if (file == null) {
-                    file = new VcsCacheDir(cacheName, new File(parent, name.substring(0,name.length()-1)));
-                }
-            }
-        }
-        
-        int statusIndex = VcsCommandIO.getIntegerPropertyAssumeNegative(list,
-                          UserCommand.PROPERTY_LIST_INDEX_STATUS);
-        if (MiscStuff.withinRange(0, statusIndex, elements.length - 1)) {
-            String status = elements[statusIndex].trim();
-            String trans = (statusTr != null) ? (String) statusTr.get(status) : null;
-            if (trans == null) {
-                file.setStatus (status);
-            } else {
-                file.setStatus(trans);
-            }
-        }
-        
-        int lockerIndex = VcsCommandIO.getIntegerPropertyAssumeNegative(list,
-                          UserCommand.PROPERTY_LIST_INDEX_LOCKER);
-        if (MiscStuff.withinRange(0, lockerIndex, elements.length - 1)) {
-            String locker = elements[lockerIndex].trim();
-            file.setLocker (locker);
-        }
-        
-        int attrIndex = VcsCommandIO.getIntegerPropertyAssumeNegative(list,
-                        UserCommand.PROPERTY_LIST_INDEX_ATTR);
-        if (MiscStuff.withinRange(0, attrIndex, elements.length - 1)) {
-            String attr = elements[attrIndex].trim();
-            file.setAttr (attr);
-        }
-        
-        int dateIndex = VcsCommandIO.getIntegerPropertyAssumeNegative(list,
-                        UserCommand.PROPERTY_LIST_INDEX_DATE);
-        if (MiscStuff.withinRange(0, dateIndex, elements.length - 1)) {
-            String date = elements[dateIndex].trim();
-            file.setDate (date);
-        }
-        
-        int timeIndex = VcsCommandIO.getIntegerPropertyAssumeNegative(list,
-                        UserCommand.PROPERTY_LIST_INDEX_TIME);
-        if (MiscStuff.withinRange(0, timeIndex, elements.length - 1)) {
-            String time = elements[timeIndex].trim();
-            file.setTime (time);
-        }
-        
-        int sizeIndex = VcsCommandIO.getIntegerPropertyAssumeNegative(list,
-                        UserCommand.PROPERTY_LIST_INDEX_SIZE);
-        if (MiscStuff.withinRange(0, sizeIndex, elements.length - 1)) {
-            String size = elements[sizeIndex].trim();
-            try {
-                file.setSize (Integer.parseInt(size));
-            }
-            catch (NumberFormatException e) {
-                file.setSize (0);
-            }
-        }
-        //System.err.println("file="+file);
-        return file;
-    }
-     */
     
     /**
      * Translate elements obtained from the command line reader to elements used by {@link RefreshCommandSupport}
@@ -502,49 +495,6 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         }
         return elements;
     }
-
-    /*
-    public static String[] makeElements(VcsCacheFile file, UserCommand list) {
-        int n = RefreshCommandSupport.NUM_ELEMENTS;
-        int[] index = new int[n];
-        index[0] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_FILE_NAME);
-        index[1] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_STATUS);
-        index[2] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_LOCKER);
-        index[3] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_REVISION);
-        index[4] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_ATTR);
-        index[5] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_DATE);
-        index[6] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_TIME);
-        index[7] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_SIZE);
-        /*
-        for(int i = 0; i < 7; i++) {
-            if (index[i] > n) n = index[i];
-        }
-        n++;
-         *//*
-        String[] elements = new String[n];
-        //Vector elements = new Vector(n);
-        /*
-        for(int i = 0; i < n; i++) elements.add("");
-        if (index[0] >= 0) elements.setElementAt(file.getName(), index[0]);
-        if (index[1] >= 0) elements.setElementAt(file.getStatus(), index[1]);
-        if (index[2] >= 0) elements.setElementAt(file.getLocker(), index[2]);
-        if (index[3] >= 0) elements.setElementAt(file.getAttr(), index[3]);
-        if (index[4] >= 0) elements.setElementAt(file.getDate(), index[4]);
-        if (index[5] >= 0) elements.setElementAt(file.getTime(), index[5]);
-        if (index[6] >= 0) elements.setElementAt(Integer.toString(file.getSize()), index[6]);
-        return (String[]) elements.toArray(new String[0]);
-         *//*
-        if (index[0] >= 0) elements[index[0]] = file.getName();
-        if (index[1] >= 0) elements[index[1]] = file.getStatus();
-        if (index[2] >= 0) elements[index[2]] = file.getLocker();
-        if (index[3] >= 0) elements[index[3]] = file.getRevision();
-        if (index[4] >= 0) elements[index[4]] = file.getAttr();
-        if (index[5] >= 0) elements[index[5]] = file.getDate();
-        if (index[6] >= 0) elements[index[6]] = file.getTime();
-        if (index[7] >= 0) elements[index[7]] = Integer.toString(file.getSize());
-        return elements;
-    }
-     */
 
     //-------------------------------------------
     String g(String s) {

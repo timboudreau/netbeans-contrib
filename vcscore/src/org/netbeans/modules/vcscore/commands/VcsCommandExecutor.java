@@ -67,26 +67,41 @@ public interface VcsCommandExecutor extends Runnable {
      * The path is relative to file system root.
      */
     public String getPath();
-    
-    ///**
-    // * Tests if this command is alive. A command is alive if it has been started and has not yet died.
-    // * @return   true if this command is alive; false otherwise.
-    // */
-    //public boolean isAlive();
-    
-    ///**
-    // * Interrupts this command.
-    // */
-    //public void interrupt();
-
-    //public void addCommandListener(CommandListener listener);
-    //public void removeCommandListener(CommandListener listener);
-    
+        
     /**
      * Get the exit status of the execution.
      * @return the exit value, it may be one of {@link SUCCEEDED}, {@link FAILED}, {@link INTERRUPTED}.
      */
     public int getExitStatus();
+    
+    /**
+     * Add the listener to the standard output of the command. The listeners should be
+     * released by the implementing class, when the command finishes.
+     */
+    public void addOutputListener(CommandOutputListener l);
+    
+    /**
+     * Add the listener to the error output of the command. The listeners should be
+     * released by the implementing class, when the command finishes.
+     */
+    public void addErrorOutputListener(CommandOutputListener l);
+    
+    /**
+     * Add the listener to the data output of the command. This output may contain
+     * a parsed information from its standard output or some other data provided
+     * by this command. The listeners should be released by the implementing class,
+     * when the command finishes.
+     */
+    public void addDataOutputListener(CommandDataOutputListener l);
+    
+    /**
+     * Add the listener to the data error output of the command. This output may contain
+     * a parsed information from its error output or some other data provided
+     * by this command. If there are some data given to this listener, the command
+     * is supposed to fail. The listeners should be released by the implementing class,
+     * when the command finishes.
+     */
+    public void addDataErrorOutputListener(CommandDataOutputListener l);
 
 }
 

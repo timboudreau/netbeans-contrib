@@ -145,6 +145,11 @@ public class CommandsPool extends Object /*implements CommandListener */{
         TopManager.getDefault().setStatusText(message);
     }
     
+    /**
+     * Start the executor. The method starts the executor in a separate thread
+     * and does not wait for it to finish.
+     * @param vce the executor
+     */
     public void startExecutor(final VcsCommandExecutor vce) {
         final Thread t = new Thread(group, vce, "VCS Command Execution Thread");
         //System.out.println("startExecutor("+vce.getCommand()+")");
@@ -196,10 +201,17 @@ public class CommandsPool extends Object /*implements CommandListener */{
          */
     }
     
+    /**
+     * Tells whether the executor is still running.
+     * @param vce the executor
+     */
     public synchronized boolean isRunning(VcsCommandExecutor vce) {
         return (commands.get(vce) != null);
     }
     
+    /**
+     * Get display names of running commands.
+     */
     public synchronized String[] getRunningCommandsLabels() {
         LinkedList names = new LinkedList();
         for(Enumeration enum = commands.keys(); enum.hasMoreElements(); ) {
@@ -315,7 +327,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
     
     /**
-     * Kill all running commands.
+     * Kill all running executors. It tries to interrupt them, it is up to
+     * executor implementations if they will terminate or not.
      */
     public synchronized void killAll() {
         Set set = commands.entrySet();
@@ -331,7 +344,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
     
     /**
-     * Kill the executor if it is running.
+     * Kill the executor if it is running. It tries to interrupt it, it is up to
+     * executor implementation if it will terminate or not.
      */
     public synchronized void kill(VcsCommandExecutor vce) {
         Thread t = (Thread) commands.get(vce);
@@ -356,10 +370,16 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
      */
 
+    /**
+     * Add a command listener.
+     */
     public synchronized void addCommandListener(CommandListener listener) {
         commandListeners.add(listener);
     }
     
+    /**
+     * Remove a command listener.
+     */
     public synchronized void removeCommandListener(CommandListener listener) {
         commandListeners.remove(listener);
     }

@@ -14,8 +14,10 @@
 package org.netbeans.modules.vcscore;
 
 import java.util.Hashtable;
+import java.util.ArrayList;
 
 import org.openide.util.actions.SystemAction;
+import org.openide.nodes.Node;
 
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
@@ -41,9 +43,11 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
         this.fileSystem = fileSystem;
     }
 
+    /*
     public VcsAdvancedCustomizer getVcsAdvancedCustomizer() {
         return null;
     }
+     */
     
     /**
      * Get the VCS directory reader.
@@ -117,7 +121,18 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      */
     public SystemAction[] getActions() {
         //return new SystemAction[] { getVcsAction() };
-        return null;
+        ArrayList actions = new ArrayList();
+        Node commands = fileSystem.getCommands();
+        Node[] commandRoots = commands.getChildren().getNodes();
+        for (int i = 0; i < commandRoots.length; i++) {
+            VcsCommand cmd = (VcsCommand) commandRoots[i].getCookie(VcsCommand.class);
+            if (cmd != null &&
+                VcsCommandIO.getIntegerPropertyAssumeZero(cmd, VcsCommand.PROPERTY_NUM_REVISIONS) == 0) {
+                    actions.add(new VcsAction(fileSystem, i));
+            }
+        }
+        if (actions.size() == 0) return null;
+        return (SystemAction[]) actions.toArray(new SystemAction[0]);
     }
     
     /**

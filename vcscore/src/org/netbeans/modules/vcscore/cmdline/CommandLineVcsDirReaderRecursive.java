@@ -26,8 +26,7 @@ import org.netbeans.modules.vcscore.caching.VcsCacheFile;
 import org.netbeans.modules.vcscore.caching.VcsCacheDir;
 import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
 import org.netbeans.modules.vcscore.cmdline.exec.*;
-import org.netbeans.modules.vcscore.commands.VcsCommand;
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.*;
 
 /**
  * Read VCS directory recursively.
@@ -43,6 +42,11 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
     private Hashtable vars = null;
     //private VcsCacheDir dir = null;
     private String path = null;
+
+    private ArrayList commandOutputListener = new ArrayList(); 
+    private ArrayList commandErrorOutputListener = new ArrayList(); 
+    private ArrayList commandDataOutputListener = new ArrayList(); 
+    private ArrayList commandDataErrorOutputListener = new ArrayList(); 
 
     private boolean shouldFail=false;
     private int exitStatus;
@@ -69,6 +73,41 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         //dir.setName(MiscStuff.getFileNamePart(path));
         //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
         D.deb("DIR="+(String)vars.get("DIR")); // NOI18N
+    }
+
+    /**
+     * Add the listener to the standard output of the command. The listeners are removed
+     * when the command finishes.
+     */
+    public synchronized void addOutputListener(CommandOutputListener l) {
+        if (commandOutputListener != null) commandOutputListener.add(l);
+    }
+    
+    /**
+     * Add the listener to the error output of the command. The listeners are removed
+     * when the command finishes.
+     */
+    public synchronized void addErrorOutputListener(CommandOutputListener l) {
+        if (commandErrorOutputListener != null) commandErrorOutputListener.add(l);
+    }
+    
+    /**
+     * Add the listener to the data output of the command. This output may contain
+     * a parsed information from its standard output or some other data provided
+     * by this command. The listeners are removed when the command finishes.
+     */
+    public synchronized void addDataOutputListener(CommandDataOutputListener l) {
+        if (commandDataOutputListener != null) commandDataOutputListener.add(l);
+    }
+
+    /**
+     * Add the listener to the data error output of the command. This output may contain
+     * a parsed information from its error output or some other data provided
+     * by this command. If there are some data given to this listener, the command
+     * is supposed to fail. The listeners are removed when the command finishes.
+     */
+    public synchronized void addDataErrorOutputListener(CommandDataOutputListener l) {
+        if (commandDataErrorOutputListener != null) commandDataErrorOutputListener.add(l);
     }
 
     /**
@@ -123,13 +162,38 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         return (String) vars.get("DIR");
     }
     
-    private void runCommand(String exec, OutputContainer container) {
-        fileSystem.debug("LIST_SUB: "+g("MSG_List_command_failed")+"\n"); // NOI18N
+    private void printOutput(String line) {
+        for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandOutputListener) it).outputLine(line);
+        }
+    }
+
+    private void printErrorOutput(String line) {
+        for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandOutputListener) it).outputLine(line);
+        }
+    }
+
+    private void printDataOutput(String[] data) {
+        for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandDataOutputListener) it).outputData(data);
+        }
+    }
+
+    private void printDataErrorOutput(String[] data) {
+        for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandDataOutputListener) it).outputData(data);
+        }
+    }
+
+    private void runCommand(String exec) {
+        //fileSystem.debug("LIST_SUB: "+g("MSG_List_command_failed")+"\n"); // NOI18N
+        printErrorOutput("LIST_SUB: "+g("MSG_List_command_failed")+"\n"); // NOI18N
         exitStatus = VcsCommandExecutor.FAILED;
         shouldFail=true ;
     }
 
-    private void runClass(String className, StringTokenizer tokens, OutputContainer container) {
+    private void runClass(String className, StringTokenizer tokens) {
         E.deb("runClass: "+className); // NOI18N
         E.deb("Creating new CvsListCommand"); // NOI18N
         Class listClass = null;
@@ -137,8 +201,9 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
             listClass =  Class.forName(className, true,
                                        org.openide.TopManager.getDefault().currentClassLoader());
         } catch (ClassNotFoundException e) {
-            fileSystem.debug ("LIST_SUB: "+g("ERR_ClassNotFound", className)); // NOI18N
-            container.match("LIST_SUB: "+g("ERR_ClassNotFound", className)); // NOI18N
+            //fileSystem.debug ("LIST_SUB: "+g("ERR_ClassNotFound", className)); // NOI18N
+            //container.match("LIST_SUB: "+g("ERR_ClassNotFound", className)); // NOI18N
+            printErrorOutput("LIST_SUB: "+g("ERR_ClassNotFound", className)); // NOI18N
             shouldFail = true;
             return;
         }
@@ -147,13 +212,15 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         try {
             listCommand = (VcsListRecursiveCommand) listClass.newInstance();
         } catch (InstantiationException e) {
-            fileSystem.debug ("LIST_SUB: "+g("ERR_CanNotInstantiate", listClass)); // NOI18N
-            container.match("LIST_SUB: "+g("ERR_CanNotInstantiate", listClass)); // NOI18N
+            //fileSystem.debug ("LIST_SUB: "+g("ERR_CanNotInstantiate", listClass)); // NOI18N
+            //container.match("LIST_SUB: "+g("ERR_CanNotInstantiate", listClass)); // NOI18N
+            printErrorOutput("LIST_SUB: "+g("ERR_CanNotInstantiate", listClass)); // NOI18N
             shouldFail = true;
             return;
         } catch (IllegalAccessException e) {
-            fileSystem.debug ("LIST_SUB: "+g("ERR_IllegalAccessOnClass", listClass)); // NOI18N
-            container.match(g("LIST_SUB: "+"ERR_IllegalAccessOnClass", listClass)); // NOI18N
+            //fileSystem.debug ("LIST_SUB: "+g("ERR_IllegalAccessOnClass", listClass)); // NOI18N
+            //container.match(g("LIST_SUB: "+"ERR_IllegalAccessOnClass", listClass)); // NOI18N
+            printErrorOutput(g("LIST_SUB: "+"ERR_IllegalAccessOnClass", listClass)); // NOI18N
             shouldFail = true;
             return;
         }
@@ -170,16 +237,29 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
             vars.put("ERRORREGEX", (String) listSub.getProperty(UserCommand.PROPERTY_ERROR_REGEX)); // NOI18N
             vars.put("INPUT", (String) listSub.getProperty(UserCommand.PROPERTY_INPUT)); // NOI18N
             //vars.put("TIMEOUT", new Long(listSub.getTimeout())); // NOI18N
-            TopManager.getDefault().setStatusText(g("MSG_Command_name_running", listSub.getName()));
-            shouldFail = !listCommand.listRecursively(vars, args, filesByName, container, container,
-                         null, (String) listSub.getProperty(UserCommand.PROPERTY_DATA_REGEX),
-                         new RegexListener () {
-                             public void match(String[] elements){
-                                 //D.deb("stderr match:"+MiscStuff.arrayToString(elements)); // NOI18N
-                                 fileSystem.debug("stderr: "+MiscStuff.arrayToString(elements)); // NOI18N
-                                 //shouldFail=true ;
-                             }
-                         }, (String) listSub.getProperty(UserCommand.PROPERTY_ERROR_REGEX));
+            //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", listSub.getName()));
+            shouldFail = !listCommand.listRecursively(vars, args, filesByName,
+                                           new CommandOutputListener() {
+                                               public void outputLine(String line) {
+                                                   printOutput(line);
+                                               }
+                                           },
+                                           new CommandOutputListener() {
+                                               public void outputLine(String line) {
+                                                   printErrorOutput(line);
+                                               }
+                                           },
+                                           new CommandDataOutputListener() {
+                                               public void outputData(String[] data) {
+                                                   printDataOutput(data);
+                                               }
+                                           }, (String) listSub.getProperty(UserCommand.PROPERTY_DATA_REGEX),
+                                           new CommandDataOutputListener() {
+                                               public void outputData(String[] data) {
+                                                   printDataErrorOutput(data);
+                                               }
+                                           }, (String) listSub.getProperty(UserCommand.PROPERTY_ERROR_REGEX)
+                                          );
             //E.deb("shouldFail = "+shouldFail+" after list with "+filesByName.size()+" elements"); // NOI18N
             /*
             for(Enumeration e = filesByName.keys(); e.hasMoreElements() ;) {
@@ -195,13 +275,13 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         //putFilesToDirRecursively(dir, filesByName, rawData);
         if (shouldFail) {
             exitStatus = VcsCommandExecutor.FAILED;
-            fileSystem.debug("LIST_SUB: "+g("MSG_List_command_failed")+"\n"); // NOI18N
-            container.match("LIST_SUB: "+g("MSG_List_command_failed")); // NOI18N
+            //fileSystem.debug("LIST_SUB: "+g("MSG_List_command_failed")+"\n"); // NOI18N
+            //container.match("LIST_SUB: "+g("MSG_List_command_failed")); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_failed", listSub.getName()));
         } else {
             exitStatus = VcsCommandExecutor.SUCCEEDED;
-            fileSystem.debug("LIST_SUB: "+g("MSG_Command_succeeded")+"\n"); // NOI18N
-            container.match("LIST_SUB: "+g("MSG_Command_succeeded")); // NOI18N
+            //fileSystem.debug("LIST_SUB: "+g("MSG_Command_succeeded")+"\n"); // NOI18N
+            //container.match("LIST_SUB: "+g("MSG_Command_succeeded")); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_succeeded", listSub.getName()));
         }
 
@@ -276,25 +356,25 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
     public void run() {
         String exec = (String) listSub.getProperty(VcsCommand.PROPERTY_EXEC);
         exec = Variables.expand(vars, exec, true).trim();
-        fileSystem.debug("LIST_SUB: "+exec); // NOI18N
+        //fileSystem.debug("LIST_SUB: "+exec); // NOI18N
 
-        ErrorCommandDialog errDlg = fileSystem.getErrorDialog(); //new ErrorCommandDialog(list, new JFrame(), false);
-        OutputContainer container = new OutputContainer(listSub);
-        container.match("LIST_SUB: "+exec); // NOI18N
+        //ErrorCommandDialog errDlg = fileSystem.getErrorDialog(); //new ErrorCommandDialog(list, new JFrame(), false);
+        //OutputContainer container = new OutputContainer(listSub);
+        //container.match("LIST_SUB: "+exec); // NOI18N
 
         StringTokenizer tokens = new StringTokenizer(exec);
         String first = tokens.nextToken();
         E.deb("first = "+first); // NOI18N
         if (first != null && (first.toLowerCase().endsWith(".class"))) { // NOI18N
-            runClass(first.substring(0, first.length() - ".class".length()), tokens, container); // NOI18N
+            runClass(first.substring(0, first.length() - ".class".length()), tokens); // NOI18N
         } else
-            runCommand(exec, container);
+            runCommand(exec);
 
         if(shouldFail){
-            errDlg.putCommandOut(container.getMessages());
-            errDlg.showDialog();
-            fileSystem.setPassword(null);
-            fileSystem.debug(g("ERR_LISTFailed")); // NOI18N
+            //errDlg.putCommandOut(container.getMessages());
+            //errDlg.showDialog();
+            //fileSystem.setPassword(null);
+            //fileSystem.debug(g("ERR_LISTFailed")); // NOI18N
             //D.deb("failed reading of dir="+dir); // NOI18N
             /*
             if(!dir.getName ().equals("")) { // NOI18N

@@ -26,7 +26,6 @@ import org.netbeans.modules.vcscore.util.*;
 /**
  *
  * @author  Pavel Buzek, Martin Entlicher
- * @version 
  */
 
 public class VcsConfigVariable extends Object implements Cloneable, Serializable {
@@ -147,12 +146,12 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
     }
 
 
-    /** Read list of VCS variables from properties. Variables are stored as
+    /* Read list of VCS variables from properties. Variables are stored as
     * var.<NAME>.value and optionaly var.<NAME>.label, var.<NAME>.basic,
     * var.<NAME>.localFile or var.<NAME>.localDir.
     * If there is only value specified, label is empty string and basic, localFile
     * and localDir are false.
-    */
+    *
     public static Vector readVariables(Properties props){
         Vector result=new Vector(20);
         String VAR_PREFIX = "var."; // NOI18N
@@ -201,15 +200,16 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
         result = VcsConfigVariable.sortVariables(result);
         return result;
     }
+     */
 
-    /**
+    /*
      * Write the configuration properties into the file.
      * @param file the file into which the properties will be stored.
      * @param label the label to use.
      * @param vars the variables to save.
      * @param advanced the advanced configuration properties (commands).
      * @param cust the advanced customizer used to write the advanced properties.
-     */
+     *
     public static void writeConfiguration (FileObject file, String label, Vector vars,
                                            Object advanced, VcsAdvancedCustomizer cust) {
         Properties props=new Properties();
@@ -241,7 +241,9 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
             E.err(e,g("EXC_Problems_while_writting_user_defined_configuration",file.getName())); // NOI18N
         }
     }
+     */
 
+    /*
     private static boolean bundleListContains(FileObject[] list, String name) {
         for(int i = 0; i < list.length; i++) {
             String buName = list[i].getName();
@@ -250,9 +252,9 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
         return false;
     }
 
-    /**
+    /*
      * Find out whether the locale extension exists as a locale name.
-     */
+     *
     private static boolean isLocale(String localeExt) {
         String lang;
         int index = localeExt.indexOf('_');
@@ -262,12 +264,13 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
         List list = Arrays.asList(languages);
         return list.contains(lang);
     }
+     */
     
-    /** Read list of available confugurations from the directory.
+    /* Read list of available confugurations from the directory.
      * All files with extension ".properties" are considered to be configurations.
      * However only properties with current localization are read.
      * @return the available configurations.
-     */
+     *
     public static Vector readConfigurations(FileObject file) {
         Vector res = new Vector(5);
         FileObject[] ch = file.getChildren();
@@ -306,11 +309,12 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
         }
         return res;
     }
+     */
 
-    /** Open file and load properties from it.
+    /* Open file and load properties from it.
      * @param configRoot the directory which contains properties.
      * @param name the name of properties to read.
-     */
+     *
     public static Properties readPredefinedProperties(FileObject configRoot, String name){
         Properties props=new Properties();
         FileObject config = configRoot.getFileObject(name);
@@ -331,6 +335,7 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
         }
         return props;
     }
+     */
 
     /*
     public static void main (String args[]) {
@@ -377,6 +382,7 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
         return sorted;
     }
 
+    /*
     //-------------------------------------------
     static String g(String s) {
         return NbBundle.getBundle
@@ -391,6 +397,7 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
     static String g(String s, Object obj1, Object obj2, Object obj3) {
         return MessageFormat.format (g(s), new Object[] { obj1, obj2, obj3 });
     }
+     */
 }
 
 /*

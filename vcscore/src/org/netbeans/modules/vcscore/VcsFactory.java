@@ -23,12 +23,11 @@ import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 /**
  *
  * @author  Pavel Buzek, Martin Entlicher
- * @version 
  */
 
 public interface VcsFactory {
     
-    public VcsAdvancedCustomizer getVcsAdvancedCustomizer ();
+    //public VcsAdvancedCustomizer getVcsAdvancedCustomizer ();
 
     /**
      * Get the VCS directory reader.

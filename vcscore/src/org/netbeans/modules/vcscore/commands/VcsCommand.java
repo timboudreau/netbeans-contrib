@@ -49,15 +49,17 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public static final String NAME_REVISION_OPEN = "REVISION_OPEN";
     
-    /**
+    /*
      * Label of the command which will not appear in the popup menu.
-     */
+     *
     public static final String DISPLAY_NAME_NOT_SHOW = "NO_LABEL";
-    
-    /**
-     * The object denoting a separator in the list of children commands.
      */
+    
+    /*
+     * The object denoting a separator in the list of children commands.
+     *
     public static final Object COMMAND_SEPARATOR = new String("SEPARATOR");
+     */
 
     /**
      * Command may set this property which will be visible on the VariableInputDialog.
@@ -84,14 +86,16 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public static final String PROPERTY_ON_DIR = "onDir";
     /**
-     * A boolean property, if true, the command can act only on the root of the filesystem.
+     * A boolean property, if true, the command can act on the root of the filesystem,
+     * if false, the command can act everywhere but on the root.
      */
-    public static final String PROPERTY_ON_ROOT_ONLY = "onRoot";
-    /**
+    public static final String PROPERTY_ON_ROOT = "onRoot";
+    /*
      * A boolean property, if true, the command can act everywhere but on the root.
-     */
+     *
     public static final String PROPERTY_NOT_ON_ROOT = "notOnRoot";
-    /**
+     */
+    /*
      * Display the textual output of the command.
      *
     public static final String PROPERTY_DISPLAY = "display";
@@ -105,11 +109,11 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public static final String PROPERTY_REFRESH_PARENT_FOLDER = "refreshParentFolder";
     /**
-     * Pattern that when matched, the refresh is performed recursively.
+     * Pattern that when matched from the exec string, the refresh is performed recursively.
      */
     public static final String PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED = "refreshRecursivelyPatternMatched";
     /**
-     * Pattern that when not matched, the refresh is performed recursively.
+     * Pattern that when not matched from the exec string, the refresh is performed recursively.
      */
     public static final String PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED = "refreshRecursivelyPatternUnmatched";
     
@@ -187,59 +191,28 @@ public interface VcsCommand extends VcsCommandCookie {
     public void setName(String name);
     /**
      * Get the display name of the command. It will be visible on the popup menu under this name.
+     * When <code>null</code>, the command will not be visible on the popup menu.
      */
     public String getDisplayName();
     /**
      * Set the display name of the command. It will be visible on the popup menu under this name.
+     * When <code>null</code>, the command will not be visible on the popup menu.
      */
     public void setDisplayName(String displayName);
-    
-    /**
-     * Get the order of the command in the popup menu.
-     * <p>
-     * One digit order (e.g.: {2}) means position in the VCS popup menu,
-     * order that contain more than one digit (e.g.: {2, 0}) means the appropriate submenu of the VCS popup menu.
-     *
-    public int[] getOrder();
-    /**
-     * Get the String representation of the order of the command.
-     *
-    public String getOrderString();
-    /**
-     * Sets the order of this command in the VCS popup menu.
-     * @param orderArr the array of order indexes in the VCS popup menu.
-     *
-    public void setOrder(int[] orderArr);
-     */
-    
-    /**
-     * Get the list of children commands.
-     * @return the list of children or null.
-     *
-    public ArrayList getChildrenCommands();
-     */
-    
+        
     /**
      * Get the names of all supported properties.
      * @return the array of properties names
      */
     public String[] getPropertyNames();
-    ///**
-     //* Get the bean info of the command class.
-     //* Additional command properties can be specified in this BeanInfo.
-     //*/
-    //public BeanInfo getCommandInfo();
+
     /**
      * Get the additional command property.
      * @param propertyName the name of the property
      * @return the value of the property
      */
     public Object getProperty(String propertyName);
-    ///**
-     //* Set the bean info of the command class.
-     //* Additional command properties can be specified in this BeanInfo.
-     //*/
-    //public BeanInfo createCommandInfo();
+
     /**
      * Set the additional property to the command.
      * @param propertyName the name of the property

@@ -21,7 +21,9 @@ import org.openide.util.NbBundle;
 import org.apache.regexp.*;
 
 import org.netbeans.modules.vcscore.util.*;
-
+import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.CommandOutputListener;
+import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 
 /** Single external command to be executed. See {@link TestCommand} for typical usage.
  * 
@@ -32,26 +34,30 @@ public class ExternalCommand {
     private Debug E=new Debug("ExternalCommand",true); // NOI18N
     private Debug D=new Debug("ExternalCommand",true); // NOI18N
 
-    public static final int SUCCESS=0;
-    public static final int FAILED=1;
-    public static final int FAILED_ON_TIMEOUT=2;
+    //public static final int SUCCESS=0;
+    //public static final int FAILED=1;
+    //public static final int FAILED_ON_TIMEOUT=2;
 
-    private String command=null;
-    private long timeoutMilis = 0;
-    private int exitStatus=SUCCESS;
-    private String inputData=null;
+    private String command = null;
+    //private long timeoutMilis = 0;
+    private int exitStatus = VcsCommandExecutor.SUCCEEDED;
+    private String inputData = null;
 
-    private Object stdoutLock=new Object();
-    private RegexListener[] stdoutListeners=new RegexListener[0];
-    private RE[] stdoutRegexps=new RE[0];
+    private Object stdOutDataLock = new Object();
+    //private RegexListener[] stdoutListeners = new RegexListener[0];
+    private ArrayList stdOutDataListeners = new ArrayList();
+    private ArrayList stdOutRegexps = new ArrayList();
 
-    private Object stderrLock=new Object();
-    private RegexListener[] stderrListeners=new RegexListener[0];
-    private RE[] stderrRegexps=new RE[0];
-    private Object stdOutErrLock = new Object(); // synchronizes stdout and stderr
+    private Object stdErrDataLock = new Object();
+    //private RegexListener[] stderrListeners = new RegexListener[0];
+    private ArrayList stdErrDataListeners = new ArrayList();
+    private ArrayList stdErrRegexps = new ArrayList();
+    //private Object stdOutErrLock = new Object(); // synchronizes stdout and stderr
 
-    private Vector stdoutNoRegexListeners = new Vector();
-    private Vector stderrNoRegexListeners = new Vector();
+    private Object stdOutLock = new Object();
+    private Object stdErrLock = new Object();
+    private ArrayList stdOutListeners = new ArrayList();
+    private ArrayList stdErrListeners = new ArrayList();
 
     /*
     private volatile Vector commandOutput = null;
@@ -59,54 +65,54 @@ public class ExternalCommand {
     private static final String STDERR = "Following output comes from the Error Output of the command:"; // NOI18N
     */
 
-    //-------------------------------------------
-    public ExternalCommand(){
+    /** Creates new ExternalCommand */
+    public ExternalCommand() {
     }
 
     //-------------------------------------------
-    public ExternalCommand(String command){
+    public ExternalCommand(String command) {
         setCommand(command);
     }
 
     //-------------------------------------------
-    public ExternalCommand(String command, long timeoutMilis){
+    public ExternalCommand(String command, String input) {
         setCommand(command);
-        setTimeout(timeoutMilis);
-    }
-
-    //-------------------------------------------
-    public ExternalCommand(String command, long timeoutMilis, String input){
-        setCommand(command);
-        setTimeout(timeoutMilis);
+        //setTimeout(timeoutMilis);
         setInput(input);
     }
 
 
 
     //-------------------------------------------
-    public void setCommand(String command){
-        this.command=command;
+    public void setCommand(String command) {
+        this.command = command;
     }
 
 
-    //-------------------------------------------
+    /*
+     * WE DO NOT SUPPORT TIMEOUTS ANY MORE !!
+     * You may explicitly kill the command if it blocks somewhere.
     public void setTimeout(long timeoutMilis){
         this.timeoutMilis=timeoutMilis;
     }
+     */
 
 
-    //-------------------------------------------
-    public void setInput(String inputData){
-        this.inputData=inputData;
+    /**
+     * Set the input, which will be send to the command standard input.
+     */
+    public void setInput(String inputData) {
+        this.inputData = inputData;
     }
 
 
-    //-------------------------------------------
-    private void setExitStatus(int exitStatus){
-        this.exitStatus=exitStatus;
+    private void setExitStatus(int exitStatus) {
+        this.exitStatus = exitStatus;
     }
 
-    //-------------------------------------------
+    /**
+     * Get the exit status of the command.
+     */
     public int getExitStatus(){
         return exitStatus;
     }
@@ -223,7 +229,9 @@ public class ExternalCommand {
         return ret;
     }
 
-    //-------------------------------------------
+    /**
+     * Executes the external command.
+     */
     public int exec(){
         //D.deb("exec()"); // NOI18N
         Process proc=null;
@@ -250,27 +258,27 @@ public class ExternalCommand {
             catch (IOException e){
                 E.err("Runtime.exec failed."); // NOI18N
                 stderrNextLine(g("EXT_CMD_RuntimeFailed", command)); // NOI18N
-                setExitStatus(FAILED);
+                setExitStatus(VcsCommandExecutor.FAILED);
                 return getExitStatus();
             }
 
-            watchDog=new WatchDog("VCS-WatchDog",timeoutMilis,Thread.currentThread(), proc); // NOI18N
+            //watchDog = new WatchDog("VCS-WatchDog",timeoutMilis,Thread.currentThread(), proc); // NOI18N
             // timeout 0 means no dog is waitng to eat you
-            if (timeoutMilis>0) {
-                watchDog.start();
-            }
+            //if (timeoutMilis > 0) {
+            //    watchDog.start();
+            //}
             //D.deb("New WatchDog with timeout = "+timeoutMilis); // NOI18N
 
-            stdoutGrabber=new StdoutGrabber(proc.getInputStream());
-            stdoutThread=new Thread(stdoutGrabber,"VCS-StdoutGrabber"); // NOI18N
+            stdoutGrabber = new StdoutGrabber(proc.getInputStream());
+            stdoutThread = new Thread(stdoutGrabber,"VCS-StdoutGrabber"); // NOI18N
 
-            stderrGrabber=new StderrGrabber(proc.getErrorStream());
-            stderrThread=new Thread(stderrGrabber,"VCS-StderrGrabber"); // NOI18N
+            stderrGrabber = new StderrGrabber(proc.getErrorStream());
+            stderrThread = new Thread(stderrGrabber,"VCS-StderrGrabber"); // NOI18N
 
             stdoutThread.start();
             stderrThread.start();
 
-            if( inputData!=null ){
+            if (inputData != null) {
                 try{
                     DataOutputStream os=new DataOutputStream(proc.getOutputStream());
                     //D.deb("stdin>>"+inputData); // NOI18N
@@ -283,7 +291,7 @@ public class ExternalCommand {
                 }
             }
 
-            int exit=proc.waitFor();
+            int exit = proc.waitFor();
             //D.deb("process exit="+exit); // NOI18N
 
             //D.deb("stdoutThread.join()"); // NOI18N
@@ -295,7 +303,8 @@ public class ExternalCommand {
             //D.deb("watchDog.cancel()"); // NOI18N
             //watchDog.cancel();
 
-            setExitStatus( exit==0 ? SUCCESS : FAILED );
+            setExitStatus(exit == 0 ? VcsCommandExecutor.SUCCEEDED
+                                    : VcsCommandExecutor.FAILED);
         }
         catch(InterruptedException e){
             D.deb("Ring from the WatchDog."); // NOI18N
@@ -308,7 +317,7 @@ public class ExternalCommand {
             stopThread(stderrThread,stderrGrabber);
             //D.deb("Destroy process."); // NOI18N
             proc.destroy();
-            setExitStatus(FAILED_ON_TIMEOUT);
+            setExitStatus(VcsCommandExecutor.INTERRUPTED);
         } finally {
             D.deb("Processing command output"); // NOI18N
             //processCommandOutput();
@@ -391,7 +400,7 @@ public class ExternalCommand {
 
 
     //-------------------------------------------
-    public class StdoutGrabber implements SafeRunnable {
+    private class StdoutGrabber implements SafeRunnable {
         private Debug D=new Debug("StdoutGrabber",true); // NOI18N
         private boolean shouldStop=false;
         private InputStreamReader is=null;
@@ -457,7 +466,7 @@ public class ExternalCommand {
 
 
     //-------------------------------------------
-    public class StderrGrabber implements SafeRunnable {
+    private class StderrGrabber implements SafeRunnable {
         private Debug D=new Debug("StderrGrabber",true); // NOI18N
         private boolean shouldStop=false;
         private InputStreamReader is=null;
@@ -520,169 +529,93 @@ public class ExternalCommand {
     } //StderrGrabber
 
 
-    //-------------------------------------------
-    private RegexListener[] addListener(RegexListener[] la, RegexListener l){
-        int len=la.length;
-        RegexListener[] nla=new RegexListener[len+1];
-        System.arraycopy(la,0,nla,0,len);
-        nla[len]=l;
-        return nla;
-    }
-
-
-    //-------------------------------------------
-    private RE[] addRegex(RE[] ra, RE r){
-        int len=ra.length;
-        RE[] nra=new RE[len+1];
-        System.arraycopy(ra,0,nra,0,len);
-        nra[len]=r;
-        return nra;
-    }
-
-
-    //-------------------------------------------
-    public void addStdoutRegexListener(RegexListener l, String regex) throws BadRegexException {
-        synchronized(stdoutLock){
-            int len=stdoutListeners.length;
-            for(int i=0;i<len;i++){
-                if( stdoutListeners[i]==l ){
-                    return;
-                }
-            }
-
-            RE pattern=null;
-            try{
-                pattern=new RE(regex);
-            }catch(RESyntaxException e){
+    /**
+     * Add a listener to the standard output with a specific regular expression.
+     */
+    public void addStdoutRegexListener(CommandDataOutputListener l, String regex) throws BadRegexException {
+        synchronized(stdOutDataLock) {
+            if (stdOutDataListeners.contains(l)) return;
+            RE pattern = null;
+            try {
+                pattern = new RE(regex);
+            } catch(RESyntaxException e) {
                 //E.err(e,"RE failed regexp"); // NOI18N
-                throw new BadRegexException("Bad regexp.",e); // NOI18N
+                throw new BadRegexException("Bad regexp.", e); // NOI18N
             }
 
-            stdoutListeners=addListener(stdoutListeners,l);
-            stdoutRegexps=addRegex(stdoutRegexps,pattern);
+            stdOutDataListeners.add(l);
+            stdOutRegexps.add(pattern);
         }
 
     }
 
 
-    //-------------------------------------------
-    public void addStderrRegexListener(RegexListener l, String regex) throws BadRegexException {
-        synchronized(stderrLock){
-            int len=stderrListeners.length;
-            for(int i=0;i<len;i++){
-                if( stderrListeners[i]==l ){
-                    return;
-                }
-            }
-
-            RE pattern=null;
-            try{
-                pattern=new RE(regex);
-            }catch(RESyntaxException e){
+    /**
+     * Add a listener to the standard error output with a specific regular expression.
+     */
+    public void addStderrRegexListener(CommandDataOutputListener l, String regex) throws BadRegexException {
+        synchronized(stdErrDataLock) {
+            if (stdErrDataListeners.contains(l)) return;
+            RE pattern = null;
+            try {
+                pattern = new RE(regex);
+            } catch(RESyntaxException e) {
                 //E.err(e,"RE failed regexp"); // NOI18N
-                throw new BadRegexException("Bad regexp.",e); // NOI18N
+                throw new BadRegexException("Bad regexp.", e); // NOI18N
             }
+            stdErrDataListeners.add(l);
+            stdErrRegexps.add(pattern);
+        }
+    }
 
-            stderrListeners=addListener(stderrListeners,l);
-            stderrRegexps=addRegex(stderrRegexps,pattern);
+
+    /**
+     * Add a listener to the standard output.
+     */
+    public void addStdoutListener(CommandOutputListener l) {
+        synchronized(stdOutLock) {
+            this.stdOutListeners.add(l);
+        }
+    }
+
+
+    /**
+     * Add a listener to the standard error output.
+     */
+    public void addStderrListener(CommandOutputListener l) {
+        synchronized(stdErrLock) {
+            this.stdErrListeners.add(l);
+        }
+    }
+
+    /**
+     * Remove a standard output data listener.
+     */
+    public void removeStdoutRegexListener(CommandDataOutputListener l) {
+        synchronized(stdOutDataLock) {
+            int index = stdOutDataListeners.indexOf(l);
+            if (index < 0) return;
+            stdOutDataListeners.remove(index);
+            stdOutRegexps.remove(index);
+        }
+    }
+
+
+    /**
+     * Remove an error output data listener.
+     */
+    public void removeStderrRegexListener(CommandDataOutputListener l) {
+        synchronized(stdErrDataLock) {
+            int index = stdErrDataListeners.indexOf(l);
+            if (index < 0) return;
+            stdErrDataListeners.remove(index);
+            stdErrRegexps.remove(index);
         }
     }
 
 
     //-------------------------------------------
-    public void addStdoutNoRegexListener(NoRegexListener l) {
-        synchronized(stdoutLock){
-            this.stdoutNoRegexListeners.addElement(l);
-        }
-    }
-
-
-    //-------------------------------------------
-    public void addStderrNoRegexListener(NoRegexListener l) {
-        synchronized(stderrLock){
-            this.stderrNoRegexListeners.addElement(l);
-        }
-    }
-
-    //-------------------------------------------
-    private int findInArray(RegexListener[] la, RegexListener l){
-        int len=la.length;
-        for(int i=0;i<len;i++){
-            if(la[i]==l){
-                return i;
-            }
-        }
-        return -1;
-    }
-
-
-    //-------------------------------------------
-    private RegexListener[] removeListenerAt(RegexListener[] la, int index){
-        int len=la.length;
-        RegexListener[] nla=new RegexListener[len-1];
-        /* e.g. We want to remove second element in 'la' index=1; len=4
-        la     = [ a, b, c, d ]
-        nla    = [ 0, 0, 0 ]
-        index  =      1   
-          */
-        System.arraycopy(la,0,nla,0,len-1);
-        /*
-        la      = [ a, b, c, d ]
-        nla     = [ a, b, c ]
-        index   =      1
-        */
-        if( index!=len-1 ){
-            nla[index]=la[len-1];
-        }
-        /*
-          stdoutListeners = [ a, b, c, d ]
-          nla             = [ a, d, c ]
-          index           =      1
-        */
-        return nla;
-    }
-
-
-    //-------------------------------------------
-    private RE[] removeRegexAt(RE[] ra, int index){
-        int len=ra.length;
-        RE[] nra=new RE[len-1];
-        System.arraycopy(ra,0,nra,0,len-1);
-        if( index != len-1 ){
-            nra[index]=ra[len-1];
-        }
-        return nra;
-    }
-
-
-    //-------------------------------------------
-    public void removeStdoutRegexListener(RegexListener l){
-        synchronized(stdoutLock){
-            int index=findInArray(stdoutListeners,l);
-            if(index<0){
-                return;
-            }
-            stdoutListeners=removeListenerAt(stdoutListeners,index);
-            stdoutRegexps=removeRegexAt(stdoutRegexps,index);
-        }
-    }
-
-
-    //-------------------------------------------
-    public void removeStderrRegexListener(RegexListener l){
-        synchronized(stderrLock){
-            int index=findInArray(stderrListeners,l);
-            if(index<0){
-                return;
-            }
-            stderrListeners=removeListenerAt(stderrListeners,index);
-            stderrRegexps=removeRegexAt(stderrRegexps,index);
-        }
-    }
-
-
-    //-------------------------------------------
-    private String[] matchToStringArray(RE pattern, String line){
+    private String[] matchToStringArray(RE pattern, String line) {
         Vector v=new Vector(5);
         if (!pattern.match(line)) {
             return new String[0];
@@ -700,60 +633,38 @@ public class ExternalCommand {
         return sa;
     }
 
-    /*
-    public synchronized void stdoutNextLine(String line){
-      synchronized(stdOutErrLock) {
-        commandOutput.addElement(STDOUT);
-        commandOutput.addElement(line);
-      }
-}
-    */
-
     //-------------------------------------------
-    public synchronized void stdoutNextLine(String line){
-        synchronized(stdOutErrLock) {
-            synchronized(stdoutLock){
-                //D.deb("stdout <<"+line); // NOI18N
-                int len=stdoutListeners.length;
-                for(int i=0;i<len;i++){
-                    RE pattern=stdoutRegexps[i];
-                    String[] sa=matchToStringArray(pattern, line);
-                    if (sa != null && sa.length > 0) stdoutListeners[i].match(sa);
-                }
-                // call No Regex Listeners, which match the whole line
-                Enumeration enum = stdoutNoRegexListeners.elements();
-                while(enum.hasMoreElements()) {
-                    ((NoRegexListener) enum.nextElement()).match(line);
-                }
+    private void stdoutNextLine(String line) {
+        synchronized(stdOutDataLock) {
+            int n = stdOutDataListeners.size();
+            for (int i = 0; i < n; i++) {
+                RE pattern = (RE) stdOutRegexps.get(i);
+                String[] sa = matchToStringArray(pattern, line);
+                if (sa != null && sa.length > 0) ((CommandDataOutputListener) stdOutListeners.get(i)).outputData(sa);
+            }
+        }
+        synchronized(stdOutLock) {
+            Iterator it = stdOutListeners.iterator();
+            while(it.hasNext()) {
+                ((CommandOutputListener) it.next()).outputLine(line);
             }
         }
     }
 
-    /*
-    public synchronized void stderrNextLine(String line){
-      synchronized(stdOutErrLock) {
-        commandOutput.addElement(STDERR);
-        commandOutput.addElement(line);
-      }
-}
-    */
-
     //-------------------------------------------
-    public void stderrNextLine(String line){
-        synchronized(stdOutErrLock) {
-            synchronized(stderrLock){
-                //D.deb("stderr <<"+line); // NOI18N
-                int len=stderrListeners.length;
-                for(int i=0;i<len;i++){
-                    RE pattern=stderrRegexps[i];
-                    String[] sa=matchToStringArray(pattern, line);
-                    if (sa != null && sa.length > 0) stderrListeners[i].match(sa);
-                }
-                // call No Regex Listeners, which match the whole line
-                Enumeration enum = stderrNoRegexListeners.elements();
-                while(enum.hasMoreElements()) {
-                    ((NoRegexListener) enum.nextElement()).match(line);
-                }
+    private void stderrNextLine(String line) {
+        synchronized(stdErrDataLock) {
+            int n = stdErrDataListeners.size();
+            for (int i = 0; i < n; i++) {
+                RE pattern = (RE) stdErrRegexps.get(i);
+                String[] sa = matchToStringArray(pattern, line);
+                if (sa != null && sa.length > 0) ((CommandDataOutputListener) stdErrListeners.get(i)).outputData(sa);
+            }
+        }
+        synchronized(stdErrLock) {
+            Iterator it = stdErrListeners.iterator();
+            while(it.hasNext()) {
+                ((CommandOutputListener) it.next()).outputLine(line);
             }
         }
     }
@@ -774,33 +685,4 @@ public class ExternalCommand {
     }
     //-------------------------------------------
 }
-
-
-/*
- * Log
- *  16   Jaga      1.10.1.4    4/11/00  Petr Jiricka    New RegExp in 
- *       org.openide.util
- *  15   Jaga      1.10.1.3    3/21/00  Martin Entlicher Fixed for different 
- *       character sets.
- *  14   Jaga      1.10.1.2    3/9/00   Martin Entlicher Change back the output 
- *       to be fired immediatelly.
- *  13   Jaga      1.10.1.1    3/8/00   Martin Entlicher Change the stdout and 
- *       errout output to be buffered for synchronization reasons.
- *  12   Jaga      1.10.1.0    2/24/00  Martin Entlicher Default timeout 
- *       increased.
- *  11   Gandalf   1.10        2/8/00   Martin Entlicher 
- *  10   Gandalf   1.9         1/15/00  Ian Formanek    NOI18N
- *  9    Gandalf   1.8         1/6/00   Martin Entlicher 
- *  8    Gandalf   1.7         12/20/99 Martin Entlicher 
- *  7    Gandalf   1.6         12/16/99 Martin Entlicher 
- *  6    Gandalf   1.5         11/30/99 Martin Entlicher 
- *  5    Gandalf   1.4         10/25/99 Pavel Buzek     
- *  4    Gandalf   1.3         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  3    Gandalf   1.2         10/7/99  Pavel Buzek     
- *  2    Gandalf   1.1         10/5/99  Pavel Buzek     VCS at least can be 
- *       mounted
- *  1    Gandalf   1.0         9/30/99  Pavel Buzek     
- * $
- */
 

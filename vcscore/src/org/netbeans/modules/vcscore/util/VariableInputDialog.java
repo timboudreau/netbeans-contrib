@@ -19,11 +19,13 @@ import java.io.*;
 
 import org.openide.TopManager;
 
+import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.commands.*;
+
 /**
  * Dialog that enables users to set variable values before running the command.
  *
  * @author  Martin Entlicher
- * @version 
  */
 public class VariableInputDialog extends javax.swing.JDialog {
 
@@ -47,6 +49,9 @@ public class VariableInputDialog extends javax.swing.JDialog {
     
     private VariableInputDialog.FilePromptDocumentListener docListener = null;
     private Object docIdentif = null;
+    
+    private VcsFileSystem fileSystem = null;
+    private Hashtable vars = null;
 
     static final long serialVersionUID = 8363935602008486018L;
     /** Creates new form VariableInputDialog */
@@ -220,6 +225,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
     /** Closes the dialog */
     private void closeDialog(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_closeDialog
         setVisible (false);
+        fileSystem = null; // Free the reference to the file system
         dispose ();
     }//GEN-LAST:event_closeDialog
 
@@ -236,13 +242,23 @@ public class VariableInputDialog extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
 
     /**
+     * Set the VCS file system, that is needed to execute the selector command
+     * and the variables table.
+     */
+    public void setVCSFileSystem(VcsFileSystem fileSystem, Hashtable vars) {
+        this.fileSystem = fileSystem;
+        this.vars = vars;
+    }
+    
+    /**
      * Set the file name.
      */
     private void initFileLabel(String file) {
-        if (file == null) return;
+        if (file == null || file.trim().length() == 0) return;
         javax.swing.JLabel label;
         if (file.endsWith(java.io.File.separator)) {
             file = file.substring(0, file.length() - 1);
+            if (file.trim().length() == 0) return;
             label = new javax.swing.JLabel(
                 java.text.MessageFormat.format(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.folderLabel"),
                                                new Object[] { file }));
@@ -255,7 +271,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
         //gridBagConstraints1.gridx = 0;
         //gridBagConstraints1.gridy = i + labelOffset;
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints1.insets = new java.awt.Insets (8, 8, 0, 0);
+        gridBagConstraints1.insets = new java.awt.Insets (8, 8, 0, 8);
         inputPanel.add(label, gridBagConstraints1, 0);
         pack();
     }
@@ -304,6 +320,9 @@ public class VariableInputDialog extends javax.swing.JDialog {
                 addBrowseDir(variablePanel, field, i + labelOffset);
             } else if (PROMPT_DATE_CVS.equals(varType)) {
                 addDateCVS(variablePanel, field, i + labelOffset);
+            } else if (varType.startsWith("[") && varType.endsWith("]")) {
+                addSelector(variablePanel, field, i + labelOffset,
+                            varType.substring(1, varType.length() - 1));
             }
         }
         labelOffset += i;
@@ -336,6 +355,59 @@ public class VariableInputDialog extends javax.swing.JDialog {
     
     private void addDateCVS(final javax.swing.JPanel panel, final javax.swing.JTextField field, int y) {
         field.setToolTipText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.DateCVS"));
+    }
+
+    private void addSelector(final javax.swing.JPanel panel, final javax.swing.JTextField field, int y,
+                             final String commandName) {
+        java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = y;
+        gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 0);
+        javax.swing.JButton button = new javax.swing.JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Select"));
+        panel.add(button, gridBagConstraints);
+        button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Thread selection = new Thread("VCS Variable Selector Command") {
+                    public void run() {
+                        String selected = getSelectorText(commandName, field.getText());
+                        System.out.println("selected = "+selected);
+                        if (selected != null) {
+                            field.setText(selected);
+                        }
+                    }
+                };
+                selection.start();
+            }
+        });
+    }
+    
+    private String getSelectorText(String commandName, String oldText) {
+        VcsCommand cmd = fileSystem.getCommand(commandName);
+        //OutputContainer container = new OutputContainer(cmd);
+        VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+        //ec.setErrorNoRegexListener(container);
+        //ec.setOutputNoRegexListener(container);
+        //ec.setErrorContainer(container);
+        final StringBuffer selectorOutput = new StringBuffer();
+        final boolean[] selectorMatched = new boolean[] { false };
+        ec.addDataOutputListener(new CommandDataOutputListener() {
+            public void outputData(String[] elements) {
+                System.out.println("getSelectorText(): match = "+elements);
+                if (elements != null) {
+                    System.out.println("match:'"+MiscStuff.array2string(elements).trim()+"'");
+                    selectorMatched[0] = true;
+                    selectorOutput.append(MiscStuff.array2string(elements).trim());
+                }
+            }
+        });
+        CommandsPool pool = fileSystem.getCommandsPool();
+        pool.add(ec);
+        pool.startExecutor(ec);
+        pool.waitToFinish(ec);
+        if (ec.getExitStatus() == VcsCommandExecutor.SUCCEEDED
+            && selectorMatched[0]) {
+            return selectorOutput.toString();
+        } else return null;
     }
 
     /**

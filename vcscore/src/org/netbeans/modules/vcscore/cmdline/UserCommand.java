@@ -434,28 +434,29 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
         return str;
     }
     
-    /**
+    /*
      * Add a subcommand to this command.
-     */
+     *
     public void addChildCommand(UserCommand cmd) {
         if (children == null) children = new ArrayList();
         children.add(cmd);
     }
     
-    /**
+    /*
      * Add a subcommand separator.
-     */
+     *
     public void addChildSeparatorSeparator() {
         if (children == null) children = new ArrayList();
         children.add(VcsCommand.COMMAND_SEPARATOR);
     }
 
-    /**
+    /*
      * Get the list of children commands.
-     */
+     *
     public ArrayList getChildrenCommands() {
         return children;
     }
+     */
     
     private static void assignPreCommands(List commands) {
         for(int i = 0; i < commands.size(); i++) {
@@ -535,10 +536,12 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
             setProperty(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, new Boolean(doRefresh/*isDoRefresh()*/ && refreshParent));//isRefreshParent()));
             setProperty(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, new Boolean(doRefresh && !refreshParent));
             setProperty(UserCommand.PROPERTY_CHECK_FOR_MODIFICATIONS, new Boolean(checkForModifications));
+            if (onRoot == true) onFile = onDir = false; // The meaning has changed. Instead "on root only" it means "on root too".
+            else onRoot = true;                         // if onRoot == false, it means "not on root, but everywhere.
             setProperty(VcsCommand.PROPERTY_ON_FILE, new Boolean(onFile));
             setProperty(VcsCommand.PROPERTY_ON_DIR, new Boolean(onDir));
-            setProperty(VcsCommand.PROPERTY_ON_ROOT_ONLY, new Boolean(onRoot));
-            setProperty(VcsCommand.PROPERTY_NOT_ON_ROOT, new Boolean(notOnRoot));
+            setProperty(VcsCommand.PROPERTY_ON_ROOT, new Boolean(onRoot));
+            //setProperty(VcsCommand.PROPERTY_NOT_ON_ROOT, new Boolean(notOnRoot));
             setProperty(VcsCommand.PROPERTY_CONFIRMATION_MSG, confirmationMsg);
             setProperty(VcsCommand.PROPERTY_PROCESS_ALL_FILES, new Boolean(processAllFiles));
             setProperty(VcsCommand.PROPERTY_NUM_REVISIONS, new Integer(numRevisions));

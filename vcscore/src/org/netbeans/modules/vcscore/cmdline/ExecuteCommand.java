@@ -42,15 +42,20 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private Hashtable vars = null;
     private String preferredExec = null;
 
-    private RegexListener stdoutListener = null;
-    private RegexListener stderrListener = null;
+    //private RegexListener stdoutListener = null;
+    //private RegexListener stderrListener = null;
 
-    private NoRegexListener stdoutNoRegexListener = null;
-    private NoRegexListener stderrNoRegexListener = null;
+    //private NoRegexListener stdoutNoRegexListener = null;
+    //private NoRegexListener stderrNoRegexListener = null;
 
-    private OutputContainer errorContainer = null;
+    //private OutputContainer errorContainer = null;
+    
+    private ArrayList commandOutputListener = new ArrayList(); 
+    private ArrayList commandErrorOutputListener = new ArrayList(); 
+    private ArrayList commandDataOutputListener = new ArrayList(); 
+    private ArrayList commandDataErrorOutputListener = new ArrayList(); 
 
-    private int exitStatus=0;
+    private int exitStatus = 0;
 
     //private ArrayList commandListeners = new ArrayList();
 
@@ -73,6 +78,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //fileSystem.getCommandsPool().add(this);
     }
 
+    /*
     //-------------------------------------------
     public void setErrorContainer(OutputContainer errorContainer) {
         this.errorContainer = errorContainer;
@@ -82,7 +88,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     public OutputContainer getErrorContainer() {
         return this.errorContainer;
     }
+     */
 
+    /*
     //-------------------------------------------
     public void setOutputListener(RegexListener listener){
         stdoutListener=listener;
@@ -103,6 +111,42 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     //-------------------------------------------
     public void setErrorNoRegexListener(NoRegexListener listener){
         stderrNoRegexListener=listener;
+    }
+     */
+    
+    /**
+     * Add the listener to the standard output of the command. The listeners are removed
+     * when the command finishes.
+     */
+    public synchronized void addOutputListener(CommandOutputListener l) {
+        if (commandOutputListener != null) commandOutputListener.add(l);
+    }
+    
+    /**
+     * Add the listener to the error output of the command. The listeners are removed
+     * when the command finishes.
+     */
+    public synchronized void addErrorOutputListener(CommandOutputListener l) {
+        if (commandErrorOutputListener != null) commandErrorOutputListener.add(l);
+    }
+    
+    /**
+     * Add the listener to the data output of the command. This output may contain
+     * a parsed information from its standard output or some other data provided
+     * by this command. The listeners are removed when the command finishes.
+     */
+    public synchronized void addDataOutputListener(CommandDataOutputListener l) {
+        if (commandDataOutputListener != null) commandDataOutputListener.add(l);
+    }
+
+    /**
+     * Add the listener to the data error output of the command. This output may contain
+     * a parsed information from its error output or some other data provided
+     * by this command. If there are some data given to this listener, the command
+     * is supposed to fail. The listeners are removed when the command finishes.
+     */
+    public synchronized void addDataErrorOutputListener(CommandDataOutputListener l) {
+        if (commandDataErrorOutputListener != null) commandDataErrorOutputListener.add(l);
     }
 
     public VcsCommand getCommand() {
@@ -125,6 +169,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      */
     
     private void commandFinished(String exec, boolean success) {
+        commandOutputListener.clear();
+        commandErrorOutputListener.clear();
+        commandDataOutputListener.clear();
+        commandDataErrorOutputListener.clear();
+        commandOutputListener = null;
+        commandErrorOutputListener = null;
+        commandDataOutputListener = null;
+        commandDataErrorOutputListener = null;
         if (success) {
             String path = (String) vars.get("DIR") + "/" + (String) vars.get("FILE");
             path.replace(java.io.File.separatorChar, '/');
@@ -221,12 +273,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //String exec=cmd.getExec();
         //fileSystem.debug(cmd.getName()+": "+exec); // NOI18N
 
-        //Variables v=new Variables();
         exec = Variables.expand(vars,exec, true);
 
         //fileSystem.debugClear();
-        fileSystem.debug(cmd.getName()+": "+exec); // NOI18N
-        if (stdoutNoRegexListener != null) stdoutNoRegexListener.match(cmd.getName()+": "+exec); // NOI18N
+        //fileSystem.debug(cmd.getName()+": "+exec); // NOI18N
+        //if (stdoutNoRegexListener != null) stdoutNoRegexListener.match(cmd.getName()+": "+exec); // NOI18N
 
         ExternalCommand ec = new ExternalCommand(exec);
         //ec.setTimeout(cmd.getTimeout());
@@ -234,9 +285,13 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //D.deb(cmd.getName()+".getInput()='"+cmd.getInput()+"'"); // NOI18N
 
         String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
-        try{
-            ec.addStdoutRegexListener(new RegexListener () {
-                                          public void match(String[] elements) {
+        try {
+            for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
+                ec.addStdoutRegexListener((CommandDataOutputListener) it.next(), dataRegex);
+            }
+            /*
+            ec.addStdoutRegexListener(new CommandDataOutputListener () {
+                                          public void outputData(String[] elements) {
                                               //D.deb("stdout match:"+MiscStuff.arrayToString(elements)); // NOI18N
                                               //fileSystem.debug(cmd.getName()+":stdout: "+MiscStuff.arrayToString(elements)); // NOI18N
                                               if (stdoutListener != null) {
@@ -244,13 +299,19 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                                               }
                                           }
                                       }, dataRegex);
+             */
         }
         catch (BadRegexException e) {
-            E.err(e,"bad regex"); // NOI18N
+            TopManager.getDefault().notifyException(e);
+            //E.err(e,"bad regex"); // NOI18N
         }
 
         String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
-        try{
+        try {
+            for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
+                ec.addStderrRegexListener((CommandDataOutputListener) it.next(), errorRegex);
+            }
+            /*
             ec.addStderrRegexListener(new RegexListener () {
                                           public void match(String[] elements) {
                                               //D.deb("stderr match:"+MiscStuff.arrayToString(elements)); // NOI18N
@@ -262,23 +323,31 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                                               }
                                           }
                                       }, errorRegex);
+             */
         }
         catch (BadRegexException e) {
             E.err(e,"bad regex"); // NOI18N
         }
 
-        if (stdoutNoRegexListener != null) ec.addStdoutNoRegexListener(stdoutNoRegexListener);
-        if (stderrNoRegexListener != null) ec.addStderrNoRegexListener(stdoutNoRegexListener);
+        for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
+            ec.addStdoutListener((CommandOutputListener) it.next());
+        }
+        for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
+            ec.addStderrListener((CommandOutputListener) it.next());
+        }
 
         //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", cmd.getName())); -- moved to CommandsPool
         E.deb("ec="+ec); // NOI18N
         exitStatus = ec.exec();
         E.deb("Command exited with exit status = "+exitStatus); // NOI18N
-        D.deb("errorContainer = "+errorContainer); // NOI18N
+        //D.deb("errorContainer = "+errorContainer); // NOI18N
         switch (exitStatus) {
-        case ExternalCommand.SUCCESS:
+        case VcsCommandExecutor.SUCCEEDED:
             commandFinished(exec, true);
-            fileSystem.debug(cmd.getName()+": "+g("MSG_Command_succeeded")+"\n"); // NOI18N
+            
+            // !! ALL  DEBUGGING REMOVED, IT SHOULD BE IMPLEMENTED IN COMMANDS POOL !!
+            
+            //fileSystem.debug(cmd.getName()+": "+g("MSG_Command_succeeded")+"\n"); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_succeeded", cmd.getName()));
             //if( fileSystem.isAdditionalCommand(cmd.getName())==false ){
             /*
@@ -292,27 +361,53 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             fileSystem.setLastCommandState(true);
             //if (errorContainer != null) errorDialog.removeCommandOut(); //cancelDialog(); -- not necessary
             break;
-        case ExternalCommand.FAILED_ON_TIMEOUT:
+        case VcsCommandExecutor.INTERRUPTED:
             commandFinished(exec, false);
-            fileSystem.debug(cmd.getName()+": "+g("MSG_Timeout")+"\n"); // NOI18N
-            if (errorContainer != null) errorContainer.match(cmd.getName()+": "+g("MSG_Timeout")); // NOI18N
-        case ExternalCommand.FAILED:
+            //fileSystem.debug(cmd.getName()+": "+g("MSG_Timeout")+"\n"); // NOI18N
+            //if (errorContainer != null) errorContainer.match(cmd.getName()+": "+g("MSG_Timeout")); // NOI18N
+        case VcsCommandExecutor.FAILED:
             commandFinished(exec, false);
             //D.deb("exec failed "+ec.getExitStatus()); // NOI18N
-            fileSystem.debug(cmd.getName()+": "+g("MSG_Command_failed")+"\n"); // NOI18N
+            //fileSystem.debug(cmd.getName()+": "+g("MSG_Command_failed")+"\n"); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_failed", cmd.getName()));
-            if (errorContainer != null) errorContainer.match(cmd.getName()+": "+g("MSG_Command_failed")); // NOI18N
+            //if (errorContainer != null) errorContainer.match(cmd.getName()+": "+g("MSG_Command_failed")); // NOI18N
+            /*
             ErrorCommandDialog errorDialog = fileSystem.getErrorDialog();
             if (errorDialog != null && errorContainer != null) {
                 errorDialog.putCommandOut(errorContainer.getMessages());
                 errorDialog.showDialog();
             }
+             */
             fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
             fileSystem.setLastCommandState(false);
             break;
         }
 
         D.deb("run("+cmd.getName()+") finished"); // NOI18N
+    }
+    
+    private void printOutput(String line) {
+        for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandOutputListener) it).outputLine(line);
+        }
+    }
+
+    private void printErrorOutput(String line) {
+        for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandOutputListener) it).outputLine(line);
+        }
+    }
+
+    private void printDataOutput(String[] data) {
+        for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandDataOutputListener) it).outputData(data);
+        }
+    }
+
+    private void printDataErrorOutput(String[] data) {
+        for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
+            ((CommandDataOutputListener) it).outputData(data);
+        }
     }
 
     /**
@@ -329,9 +424,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             execClass =  Class.forName(className, true,
                                        org.openide.TopManager.getDefault().currentClassLoader());
         } catch (ClassNotFoundException e) {
-            fileSystem.debug ("EXEC: " + g("ERR_ClassNotFound", className)); // NOI18N
+            //fileSystem.debug ("EXEC: " + g("ERR_ClassNotFound", className)); // NOI18N
+            printErrorOutput("CLASS EXEC: " + g("ERR_ClassNotFound", className)); // NOI18N
+            /*
             if (stderrNoRegexListener != null)
                 stderrNoRegexListener.match("EXEC: " + g("ERR_ClassNotFound", className)); // NOI18N
+             */
             success = false;
             return;
         }
@@ -340,15 +438,21 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         try {
             execCommand = (VcsAdditionalCommand) execClass.newInstance();
         } catch (InstantiationException e) {
+            printErrorOutput("CLASS EXEC: "+g("ERR_CanNotInstantiate", execClass)); // NOI18N
+            /*
             fileSystem.debug ("EXEC: "+g("ERR_CanNotInstantiate", execClass)); // NOI18N
             if (stderrNoRegexListener != null)
                 stderrNoRegexListener.match("EXEC: "+g("ERR_CanNotInstantiate", execClass)); // NOI18N
+             */
             success = false;
             return;
         } catch (IllegalAccessException e) {
+            printErrorOutput("CLASS EXEC: "+g("ERR_IllegalAccessOnClass", execClass)); // NOI18N
+            /*
             fileSystem.debug ("EXEC: "+g("ERR_IllegalAccessOnClass", execClass)); // NOI18N
             if (stderrNoRegexListener != null)
                 stderrNoRegexListener.match("EXEC: "+g("ERR_IllegalAccessOnClass", execClass)); // NOI18N
+             */
             success = false;
             return;
         }
@@ -368,22 +472,33 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             if (input != null) vars.put("INPUT", input); // NOI18N
             //vars.put("TIMEOUT", new Long(cmd.getTimeout())); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", cmd.getName()));
-            success = execCommand.exec(vars, args, stdoutNoRegexListener, stderrNoRegexListener,
-                                       stdoutListener, dataRegex, new RegexListener () {
-                                           public void match(String[] elements){
-                                               //D.deb("stderr match:"+MiscStuff.arrayToString(elements)); // NOI18N
-                                               fileSystem.debug(cmd.getName()+":stderr: "+MiscStuff.arrayToString(elements)); // NOI18N
-                                               if( stderrListener!=null ){
-                                                   stderrListener.match(elements);
-                                               }
+            success = execCommand.exec(vars, args,
+                                       new CommandOutputListener() {
+                                           public void outputLine(String line) {
+                                               printOutput(line);
+                                           }
+                                       },
+                                       new CommandOutputListener() {
+                                           public void outputLine(String line) {
+                                               printErrorOutput(line);
+                                           }
+                                       },
+                                       new CommandDataOutputListener() {
+                                           public void outputData(String[] data) {
+                                               printDataOutput(data);
+                                           }
+                                       }, dataRegex,
+                                       new CommandDataOutputListener() {
+                                           public void outputData(String[] data) {
+                                               printDataErrorOutput(data);
                                            }
                                        }, errorRegex
                                       );
         }
-        D.deb("class finished with "+success+", errorContainer = "+errorContainer); // NOI18N
+        //D.deb("class finished with "+success+", errorContainer = "+errorContainer); // NOI18N
         if (success) {
-            exitStatus = ExternalCommand.SUCCESS;
-            fileSystem.debug(cmd.getName()+": "+g("MSG_Command_succeeded")+"\n"); // NOI18N
+            exitStatus = VcsCommandExecutor.SUCCEEDED;
+            //fileSystem.debug(cmd.getName()+": "+g("MSG_Command_succeeded")+"\n"); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_succeeded", cmd.getName()));
             //if( fileSystem.isAdditionalCommand(cmd.getName())==false ){
             /*
@@ -411,6 +526,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 exitStatus = VcsCommandExecutor.FAILED;
             }
             commandFinished(exec, false);
+            /*
             fileSystem.debug(cmd.getName()+": "+g("MSG_Command_failed")+"\n"); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_failed", cmd.getName()));
             if (errorContainer != null) errorContainer.match(cmd.getName()+": "+g("MSG_Command_failed")); // NOI18N
@@ -419,7 +535,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 errorDialog.putCommandOut(errorContainer.getMessages());
                 errorDialog.showDialog();
             }
-            fileSystem.removeNumDoAutoRefresh((String)vars.get("DIR")); // NOI18N
+             */
+            fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
             fileSystem.setLastCommandState(false);
         }
     }
@@ -433,13 +550,15 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             ((CommandListener) it.next()).commandStarted(this);
         }
          */
+        //isRunning = true;
+        //hasStarted = true;
         String exec;
         if (preferredExec != null) exec = preferredExec;
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec != null) exec = exec.trim();
         fileSystem.setLastCommandFinished(false);
         fileSystem.debug(cmd.getName()+": "+exec); // NOI18N
-        if (stdoutNoRegexListener != null) stdoutNoRegexListener.match(cmd.getName()+": "+exec); // NOI18N
+        //if (stdoutNoRegexListener != null) stdoutNoRegexListener.match(cmd.getName()+": "+exec); // NOI18N
 
         StringTokenizer tokens = new StringTokenizer(exec);
         String first = tokens.nextToken();
@@ -510,6 +629,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
     */
     
+
     //-------------------------------------------
     String g(String s) {
         return NbBundle.getBundle
