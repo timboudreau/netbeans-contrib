@@ -79,7 +79,9 @@ public class PvcsDatabaseSelectorPanel extends javax.swing.JPanel implements jav
         dbRadioButtonCustom.setMnemonic(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("LABEL_DatabaseLocation_Mnemonic").charAt(0));  // NOI18N
         customDbBrowseButton.setMnemonic(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("LABEL_Browse_Mnemonic").charAt(0));  // NOI18N
         dbRadioButtonGUI.setMnemonic(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("LABEL_SelectGUIDatabases_Mnemonic").charAt(0));  // NOI18N
+        dbRadioButtonGUI.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(PvcsDatabaseSelectorPanel.class, "ACS_LABEL_SelectGUIDatabasesA11yDesc")); // NOI18N
         dbRadioButtonSearch.setMnemonic(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("LABEL_SearchInFolder_Mnemonic").charAt(0));  // NOI18N
+        dbRadioButtonSearch.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(PvcsDatabaseSelectorPanel.class, "ACS_TEXTFIELD_SearchInFolderA11yDesc")); // NOI18N
         dbFolderBrowseButton.setMnemonic(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("LABEL_BrowseSubfolder_Mnemonic").charAt(0));  // NOI18N
         getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_DatabaseSelectorPanelA11yName"));  // NOI18N
         getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_DatabaseSelectorPanelA11yDesc"));  // NOI18N
