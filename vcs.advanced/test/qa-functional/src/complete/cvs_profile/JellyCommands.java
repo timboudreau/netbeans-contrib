@@ -13,6 +13,7 @@
 
 package complete.cvs_profile;
 
+import complete.GenericStub;
 import complete.GenericStub.GenericNode;
 import java.awt.Color;
 import java.awt.Component;
@@ -42,7 +43,7 @@ public class JellyCommands extends CVSStub {
     }
     
     public static Test suite() {
-//        JellyStub.DEBUG = true;
+//        GenericNode.DEBUG = true;
         TestSuite suite = new NbTestSuite();
         suite.addTest(new JellyCommands("configure"));
         suite.addTest(new JellyCommands("testRelease"));
@@ -363,7 +364,7 @@ public class JellyCommands extends CVSStub {
     public void testDefaultAnnotate () {
         closeAllVCSOutputs();
         GenericNode annofile = new GenericNode (initdir, "annofile");
-        if (!JellyStub.DEBUG) {
+        if (!GenericStub.DEBUG) {
             annofile.save ("Commit-1.1 - Line1\nCommit-1.1 - Line2\nCommit-1.1 - Line4\nCommit-1.1 - Line5\n");
             refresh(initdir);
             annofile.cvsNode ();
