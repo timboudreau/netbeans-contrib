@@ -119,14 +119,18 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
             else
                 return fs.getProfile().getDisplayName();            
         } else {
-            String displayType = (String) additionalVars.get(CommandLineVcsFileSystem.VAR_FS_DISPLAY_NAME);
-            if (displayType == null) {
-                System.err.println("default2");
+            Profile profile = ProfilesFactory.getDefault().getProfile(profileName);
+            if(profile == null)
                 return DEFAULT_DISPLAY_TYPE;
-            } else {
-                System.err.println("dispType:"+displayType);
+            else
+                return profile.getDisplayName();
+            /*
+            String displayType = (String) additionalVars.get(CommandLineVcsFileSystem.VAR_FS_DISPLAY_NAME);
+            if (displayType == null) {                
+                return DEFAULT_DISPLAY_TYPE;
+            } else {                
                 return displayType;
-            }
+            }*/
         }
     }
    
