@@ -40,6 +40,10 @@ Microsystems, Inc. All Rights Reserved.
     </not>
   </condition>
   
+  <condition var="IS_OS2">
+    <var name="os.name" value="OS/2"/>
+  </condition>
+  
   <condition var="IS_BUILT-IN_AND_WIN9X">
     <var name="IS_WIN9X" value="true"/>
     <var name="BUILT-IN" value="true"/>
@@ -113,14 +117,16 @@ Microsystems, Inc. All Rights Reserved.
       <value>Locally Removed, Needs Checkout, Dead</value>
     </variable>
     <variable name="RUNCDW" basic="false">
-      <value unless="IS_WINDOWS">/bin/sh -c "${CD} ${QUOTE}${WORKDIR}${QUOTE};</value>
       <value if="IS_WINDOWS" unless="IS_WIN9X">cmd /X /C "${CD} ${QUOTE}${WORKDIR}${QUOTE}&amp;&amp;  </value>
       <value if="IS_WIN9X">${SHELL} -c "${CD} ${QUOTE}${WORKDIR}${QUOTE}&amp;&amp;  </value>
+      <value if="IS_OS2">cmd /C "${CD} ${QUOTE}${WORKDIR}${QUOTE}&amp;&amp;  </value>
+      <value>/bin/sh -c "${CD} ${QUOTE}${WORKDIR}${QUOTE};</value>
     </variable>
     <variable name="RUNCDM" basic="false">
-      <value unless="IS_WINDOWS">/bin/sh -c "${CD} ${QUOTE}${ROOTDIR}${PS}${MODULE}${QUOTE};</value>
+      <value if="IS_WINDOWS" unless="IS_WIN9X">cmd /X /C "${CD} ${QUOTE}${ROOTDIR}${PS}${MODULE}${PS}.${QUOTE}&amp;&amp;  </value>
       <value if="IS_WIN9X">${SHELL} -c "${CD} ${QUOTE}${ROOTDIR}${PS}${MODULE}${PS}.${QUOTE}&amp;&amp;  </value>
-      <value>cmd /X /C "${CD} ${QUOTE}${ROOTDIR}${PS}${MODULE}${PS}.${QUOTE}&amp;&amp;  </value>
+      <value if="IS_OS2">cmd /C "${CD} ${QUOTE}${ROOTDIR}${PS}${MODULE}${PS}.${QUOTE}&amp;&amp;  </value>
+      <value>/bin/sh -c "${CD} ${QUOTE}${ROOTDIR}${PS}${MODULE}${QUOTE};</value>
     </variable>
     <variable name="PS" basic="false">
       <value>${path.separator}</value>
@@ -173,12 +179,14 @@ Microsystems, Inc. All Rights Reserved.
       <value>${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []</value>
     </variable>
     <variable name="RUN" basic="false">
-      <value unless="IS_WINDOWS">/bin/sh -c "${CD} ${QUOTE}${ROOTDIR}${QUOTE}; </value>
       <value if="IS_WINNT">cmd /X /C "${CD} ${QUOTE}${ROOTDIR}${PS}.${QUOTE}&amp;&amp;  </value>
-      <value>${SHELL} -c "${CD} ${QUOTE}${ROOTDIR_\/}${QUOTE}&amp;&amp;  </value>
+      <value if="IS_WIN9X">${SHELL} -c "${CD} ${QUOTE}${ROOTDIR_\/}${QUOTE}&amp;&amp;  </value>
+      <value if="IS_OS2">cmd /C "${CD} ${QUOTE}${ROOTDIR}${PS}.${QUOTE}&amp;&amp;  </value>
+      <value>/bin/sh -c "${CD} ${QUOTE}${ROOTDIR}${QUOTE}; </value>
     </variable>
     <variable name="QUOTE" basic="false">
       <value if="BUILT-IN">"</value>
+      <value if="IS_OS2">"</value>
       <value if="IS_WIN9X" unless="BUILT-IN">\"\"</value>
       <value>\"</value>
     </variable>
