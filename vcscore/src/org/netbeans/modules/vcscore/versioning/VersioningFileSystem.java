@@ -35,6 +35,7 @@ import org.openide.util.NbBundle;
 
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningDataLoader;
+import org.netbeans.modules.vcscore.versioning.impl.VersioningFolderDataLoader;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 
@@ -103,10 +104,19 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
      */
     protected java.lang.ref.Reference createReference(final FileObject fo) {
         try {
-            org.openide.loaders.DataLoaderPool.setPreferredLoader(fo,
-                (VersioningDataLoader) org.openide.util.SharedClassObject.findObject(VersioningDataLoader.class, true));
+            if (!fo.isFolder()) {
+                org.openide.loaders.DataLoaderPool.setPreferredLoader(fo,
+                    (VersioningDataLoader) org.openide.util.SharedClassObject.findObject(VersioningDataLoader.class, true));
+            }
         } catch (java.io.IOException exc) {}
-        return super.createReference(fo);
+        java.lang.ref.Reference toReturn = super.createReference(fo);
+        try {
+            if (fo.isFolder()) {
+                org.openide.loaders.DataLoaderPool.setPreferredLoader(fo,
+                    (VersioningFolderDataLoader) org.openide.util.SharedClassObject.findObject(VersioningFolderDataLoader.class, true));
+            }
+        } catch (java.io.IOException exc) {}
+        return toReturn;
     }
     
 
@@ -290,8 +300,10 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         
         public java.lang.Object readAttribute(String name, String attrName) {
             HashMap attrs = (HashMap) files.get(name);
-            if (attrs == null) return null;
-            else return attrs.get(attrName);
+            Object toReturn = null;
+            if (attrs == null) toReturn =  null;
+            else toReturn = attrs.get(attrName);
+            return toReturn;
         }
         
     }
