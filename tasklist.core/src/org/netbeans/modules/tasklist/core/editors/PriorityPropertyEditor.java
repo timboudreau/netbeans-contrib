@@ -13,25 +13,17 @@
 
 package org.netbeans.modules.tasklist.core.editors;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.FeatureDescriptor;
 import java.beans.PropertyEditorSupport;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import org.netbeans.api.tasklist.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 import org.netbeans.modules.tasklist.core.Task;
-import org.openide.ErrorManager;
-import org.openide.explorer.propertysheet.ExPropertyEditor;
-import org.openide.explorer.propertysheet.PropertyEnv;
 import org.openide.explorer.propertysheet.editors.EnhancedPropertyEditor;
-import org.openide.nodes.Node;
 
 /**
  * PropertyEditor for task priorities.

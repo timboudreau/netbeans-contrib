@@ -13,7 +13,6 @@
 
 package org.netbeans.modules.tasklist.core.editors;
 
-import java.beans.PropertyEditorSupport;
 import org.openide.filesystems.FileObject;
 
 /**

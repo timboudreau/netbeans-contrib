@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -141,10 +141,11 @@ public final class TaskTransfer implements ExClipboard.Convertor {
         public Transferable paste() throws IOException {
             try {
                 Task item = (Task)t.getTransferData(TODO_FLAVOR);
-                if (after.getParent() == null)
+                if (after.getParent() == null) {
                     after.addSubtask(item);
-                else
+                } else {
                     after.getParent().addSubtask(item, after);
+                }
             } catch (UnsupportedFlavorException ufe) {
                 // Should not happen.
                 IOException ioe = new IOException(ufe.toString());

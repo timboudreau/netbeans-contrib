@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.tasklist.core;
@@ -18,12 +18,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 import org.netbeans.api.tasklist.Suggestion;
 import org.netbeans.api.tasklist.SuggestionPriority;
@@ -585,7 +583,7 @@ public class Task extends Suggestion implements Cloneable {
      * @see generate */
     public static Task parse(Reader r) throws IOException {
         BufferedReader reader = new BufferedReader(r);
-        List notes = new LinkedList(); // List<Note>
+        //List notes = new LinkedList(); // List<Note>
         String line;
         while ((line = reader.readLine()) != null) {
 	    // XXX TodoTransfer's convert

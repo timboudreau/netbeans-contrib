@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -123,11 +123,7 @@ public class TaskList { // XXX remove the publicness
 	}
 	
 	if (addList != null) {
-	    it = addList.listIterator();
-	    while (it.hasNext()) {
-		Task task = (Task)it.next();
-                modified = true;
-            }
+            modified = true;
 
 	    // User insert: prepend to the list
             parent.addSubtasks(addList, append, after);

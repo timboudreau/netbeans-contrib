@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -37,19 +37,13 @@ import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeMemberEvent;
 import org.openide.nodes.Sheet;
-import org.openide.nodes.Index;
 
-import org.openide.nodes.FilterNode;
-import org.openide.nodes.Node;
-import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
-import org.openide.nodes.Sheet.Set;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListener;
-import org.openide.util.actions.ActionPerformer;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.PasteType;

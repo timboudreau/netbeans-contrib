@@ -7,19 +7,23 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.core;
 
+import javax.swing.text.*;
 
+import java.net.URL;
+import java.net.MalformedURLException;
 import org.openide.cookies.LineCookie;
 import org.openide.loaders.DataObject;
 import org.openide.text.Line;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
-import javax.swing.text.*;
+import org.openide.filesystems.URLMapper;
+import org.openide.filesystems.FileObject;
 
 /** 
  * Various utility methods shared by the various tasklist related modules
@@ -351,6 +355,45 @@ public final class TLUtils {
         return false;
     }
 
+    /** Given a file object, produce a URL suitable for inclusion
+     * in a tasklist (e.g. it must be persistent, not based on some
+     * currently assigned webserver port etc.) */
+    public static String toURL(FileObject fo) {
+        // Try to construct our own URL since 
+        /*
+        File file = FileUtil.toFile(fo);
+        String filename;
+        if (file == null) {
+            URL url = URLMapper.findURL(fo, URLMapper.INTERNAL);
+            filename = url.toExternalForm();
+            // System.out.println("INTERNAL URL was " + filename);
+            // url = URLMapper.findURL(fo, URLMapper.EXTERNAL);
+            // filename = url.toExternalForm();
+            // System.out.println("EXTERNAL URL was " + filename);
+            // url = URLMapper.findURL(fo, URLMapper.NETWORK);
+            // filename = url.toExternalForm();
+            // System.out.println("NETWORK URL was " + filename);
+            return null;
+        } else {
+            filename = "file:" + file.getPath(); // NOI18N
+        }
+        return filename;
+        */
+        return URLMapper.findURL(fo, URLMapper.INTERNAL).toExternalForm();
+    }
+
+    /** Given a URL created by fileToURL, return a file object representing
+     * the given file. Returns null if the URL can (no longer) be resolved.
+     */
+    public static FileObject[] fromURL(String urlString) {
+        URL url;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+        return URLMapper.findFileObjects(url);
+    }
 }
 
 

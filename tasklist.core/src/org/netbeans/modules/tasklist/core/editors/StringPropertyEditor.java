@@ -13,21 +13,8 @@
 
 package org.netbeans.modules.tasklist.core.editors;
 
-import java.awt.event.ActionListener;
-import java.beans.FeatureDescriptor;
 import java.beans.PropertyEditorSupport;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.SwingConstants;
-import org.netbeans.api.tasklist.SuggestionPriority;
-import org.openide.ErrorManager;
-import org.openide.explorer.propertysheet.ExPropertyEditor;
-import org.openide.explorer.propertysheet.PropertyEnv;
-import org.openide.explorer.propertysheet.editors.EnhancedPropertyEditor;
-import org.openide.nodes.Node;
-import org.openide.text.Line;
 
 /**
  * PropertyEditor for String.class.

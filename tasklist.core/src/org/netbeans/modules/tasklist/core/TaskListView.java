@@ -26,11 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.lang.reflect.Method;
 
 import java.awt.Dimension;
 import java.awt.Image;
@@ -38,8 +35,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -48,7 +43,6 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
-import javax.swing.tree.TreePath;
 
 
 import org.openide.filesystems.FileObject;
@@ -59,19 +53,14 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
-import org.openide.nodes.Node.Property;
-import org.openide.nodes.Node.PropertySet;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.text.Annotation;
 import org.openide.awt.StatusDisplayer;
 import org.openide.ErrorManager;
-import org.openide.actions.DeleteAction;
 import org.openide.actions.FindAction;
 import org.openide.explorer.ExplorerPanel;
-import org.openide.explorer.view.Visualizer;
 import org.openide.text.Line;
 import org.openide.util.actions.ActionPerformer;
 import org.openide.util.actions.SystemAction;
@@ -80,7 +69,6 @@ import org.openide.windows.Workspace;
 import org.openide.windows.WindowManager;
 import org.openide.util.actions.CallbackSystemAction;
 
-import org.openide.util.Utilities;
 
 
 /** View showing the todo list items
@@ -112,7 +100,7 @@ public abstract class TaskListView extends ExplorerPanel
     */
     transient protected String title = null;
     
-    transient private ActionPerformer deletePerformer;
+    //transient private ActionPerformer deletePerformer;
     
     /** Annotation showing the current position */
     transient protected TaskAnnotation taskMarker = null;
@@ -340,7 +328,7 @@ public abstract class TaskListView extends ExplorerPanel
     }
 
     private void setRoot() {
-        Task root = tasklist.getRoot();
+        //tasklist.getRoot();
         rootNode = createRootNode();
 
         if (filter != null) {
@@ -492,10 +480,12 @@ public abstract class TaskListView extends ExplorerPanel
 	    this.uid = uid;
             this.width = width;
             setValue ("ColumnDescriptionTTV", hint); // NOI18N
-            if (sortable)
+            if (sortable) {
                 setValue("ComparableColumnTTV", Boolean.TRUE);// NOI18N
-            if (!defaultVisibility)
+            }
+            if (!defaultVisibility) {
                 setValue("InvisibleInTreeTableView", Boolean.TRUE);// NOI18N
+            }
         }
 
 	// Used for the Tree column (column 0)
@@ -520,8 +510,9 @@ public abstract class TaskListView extends ExplorerPanel
 	    this.uid = uid;
             this.width = width;
             setValue( "TreeColumnTTV", Boolean.TRUE );// NOI18N
-            if (sortable)
+            if (sortable) {
                 setValue ("ComparableColumnTTV", Boolean.TRUE);// NOI18N
+            }
         }       
         
         public Object getValue() {
@@ -1099,8 +1090,9 @@ public abstract class TaskListView extends ExplorerPanel
                               final boolean noSorting) {
         Comparator rowComparator = new Comparator() {
                     public int compare(Object o1, Object o2) {
-                        if (o1 == o2)
+                        if (o1 == o2) {
                             return -1;
+                        }
 
                         Node n1 = (Node)o1;
                         Node n2 = (Node)o2;
@@ -1280,8 +1272,6 @@ public abstract class TaskListView extends ExplorerPanel
                            boolean sortAscending,
                            boolean sortedByName,
                            boolean noSorting) {
-        Task task = TaskNode.getTask(node);
-
         // Only sort by the top/first level nodes
         Node[] firstNodes = node.getChildren().getNodes();
         ArrayList nodes = new ArrayList(firstNodes.length);
