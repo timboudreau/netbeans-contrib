@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<?xml-stylesheet type="text/xml" href="http://openide.netbeans.org/fs/filesystem.xsl"?>
+<filesystem>
+    <folder name="Services">
+        <folder name="Browsers">
+            <attr boolvalue="true" name="org-netbeans-modules-calpanehtml-CalpaneBrowserImplFactory.instance/SwingBrowser.ser"/>
+            <file name="org-netbeans-modules-calpanehtml-CalpaneBrowserImplFactory.instance">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.calpanehtml.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/calpanehtml/browser.gif"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

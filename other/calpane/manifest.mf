@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.calpanehtml
+OpenIDE-Module-Specification-Version: 0.1
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/calpanehtml/Bundle.properties
+OpenIDE-Module-Layer: org/netbeans/modules/calpanehtml/layer.xml
+Class-Path: ext/calpahtml-2.021.jar
+

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="calpane" basedir="." default="all">
+
+    <target name="compile">
+        <javac srcdir="src" destdir="src">
+            <classpath>
+                <pathelement location="../../openide/netbeans/lib/openide.jar"/>
+                <pathelement location="external/calpahtml-2.021.jar"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="jars" depends="compile">
+        <mkdir dir="netbeans/modules"/>
+        <jar jarfile="netbeans/modules/calpane.jar" manifest="manifest.mf" compress="false">
+            <fileset dir="src" excludesfile="../../nbbuild/standard-jar-excludes.txt"/>
+        </jar>
+    </target>
+    
+    <target name="release">
+        <mkdir dir="netbeans/modules/ext"/>
+        <copy file="external/calpahtml-2.021.jar" tofile="netbeans/modules/ext/calpahtml-2.021.jar"/>
+    </target>
+
+    <target name="all" depends="jars,release" description="Build the module."/>
+
+    <!-- This target will only work *inside* the IDE! -->
+    <target name="reload" depends="all" description="Test the module inside the running IDE.">
+        <mkdir dir="reload"/>
+        <zip zipfile="reload/calpane.jar" compress="false">
+            <zipfileset src="netbeans/modules/calpane.jar"/>
+            <zipfileset src="netbeans/modules/ext/calpahtml-2.021.jar"><exclude name="META-INF/MANIFEST.MF"/></zipfileset>
+        </zip>
+        <nbinstaller module="reload/calpane.jar" action="reinstall"/>
+    </target>
+
+    <target name="nbm" depends="all" description="Prepare the module for distribution via Auto Update.">
+        <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../nbbuild/nbantext.jar"/>
+        <makenbm file="calpane.nbm"
+                 topdir="."
+                 module="netbeans/modules/calpane.jar"
+                 homepage="http://contrib.netbeans.org/">
+        </makenbm>
+        <license name="calpane-license.txt">
+            <text>For the Calpane HTML component:</text>
+            <file location="external/calpane-license.txt"/>
+	    <text>For the NetBeans integration module:</text>
+	    <file location="../../nbbuild/standard-nbm-license.txt"/>
+        </license>
+    </target>
+
+    <target name="clean" description="Clean all build products.">
+        <delete dir="netbeans"/>
+        <delete dir="Info"/>
+        <delete file="calpane.nbm"/>
+        <delete dir="reload"/>
+    </target>
+
+</project>
