@@ -67,11 +67,13 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                       (VcsFileSystem.PROP_VARIABLES, CommandLineVcsFileSystem.class, "getVariables", "setVariables"); // NOI18N
             variables.setPropertyEditorClass (org.netbeans.modules.vcs.advanced.UserVariablesEditor.class);
             variables.setExpert(true);
+            variables.setValue("canEditAsText", Boolean.FALSE);
 
             commands=new PropertyDescriptor
                      (VcsFileSystem.PROP_COMMANDS, CommandLineVcsFileSystem.class, "getCommands", "setCommands"); // NOI18N
             commands.setPropertyEditorClass (org.netbeans.modules.vcs.advanced.UserCommandsEditor.class);
             commands.setExpert(true);
+            commands.setValue("canEditAsText", Boolean.FALSE);
 
             cacheId=new PropertyDescriptor
                     ("cacheId", CommandLineVcsFileSystem.class, "getCacheId", null); // NOI18N

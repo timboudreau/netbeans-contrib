@@ -12,9 +12,13 @@
  */
 
 package org.netbeans.modules.vcs.advanced;
+
 import java.awt.*;
 import java.util.*;
 import java.beans.*;
+
+import org.openide.util.NbBundle;
+
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 
 import org.netbeans.modules.vcscore.*;
@@ -40,7 +44,7 @@ public class UserConditionedVariablesEditor implements PropertyEditor {
     //-------------------------------------------
     public String getAsText(){
         // null if the value can't be expressed as an editable string...
-        return cvars.toString(); // NOI18N
+        return NbBundle.getMessage(UserConditionedVariablesEditor.class, "PROP_Variables"); // NOI18N
     }
 
     //-------------------------------------------

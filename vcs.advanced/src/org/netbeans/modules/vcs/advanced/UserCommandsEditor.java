@@ -17,6 +17,7 @@ import java.util.*;
 import java.beans.*;
 
 import org.openide.nodes.Node;
+import org.openide.util.NbBundle;
 
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
@@ -46,7 +47,7 @@ public class UserCommandsEditor implements PropertyEditor {
     //-------------------------------------------
     public String getAsText(){
         // null if the value can't be expressed as an editable string...
-        return ""+commands; // NOI18N
+        return NbBundle.getMessage(UserCommandsEditor.class, "PROP_commands"); // NOI18N
     }
 
     //-------------------------------------------

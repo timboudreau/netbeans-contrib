@@ -513,15 +513,19 @@ public final class ProfilesFactory extends Object {
                 properties[0].setDisplayName(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("PROP_Conditions"));
                 properties[0].setShortDescription(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("HINT_PPROP_Conditions"));
                 properties[0].setPropertyEditorClass(UserConditionsEditor.class);
+                properties[0].setValue("canEditAsText", Boolean.FALSE);
                 properties[1].setDisplayName(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("PROP_Variables"));
                 properties[1].setShortDescription(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("HINT_PPROP_Variables"));
                 properties[1].setPropertyEditorClass(UserConditionedVariablesEditor.class);
+                properties[1].setValue("canEditAsText", Boolean.FALSE);
                 properties[2].setDisplayName(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("PROP_Commands"));
                 properties[2].setShortDescription(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("HINT_PROP_Commands"));
                 properties[2].setPropertyEditorClass(UserConditionedCommandsEditor.class);
+                properties[2].setValue("canEditAsText", Boolean.FALSE);
                 properties[3].setDisplayName(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("PROP_GlobalCommands"));
                 properties[3].setShortDescription(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("HINT_PROP_GlobalCommands"));
                 properties[3].setPropertyEditorClass(UserConditionedCommandsEditor.class);
+                properties[3].setValue("canEditAsText", Boolean.FALSE);
                 
             } catch (java.beans.IntrospectionException intrexc) {
                 ErrorManager manager = (ErrorManager)Lookup.getDefault().lookup(ErrorManager.class);

@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.beans.*;
 
+import org.openide.util.NbBundle;
+
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.util.*;
 
@@ -39,7 +41,7 @@ public class UserConditionsEditor implements PropertyEditor {
     }
 
     public String getAsText(){
-        return conditions.toString(); // NOI18N
+        return NbBundle.getMessage(UserConditionsEditor.class, "PROP_Conditions"); // NOI18N
     }
 
     public void setAsText(String text) {

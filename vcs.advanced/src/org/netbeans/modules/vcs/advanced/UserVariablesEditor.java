@@ -12,9 +12,12 @@
  */
 
 package org.netbeans.modules.vcs.advanced;
+
 import java.awt.*;
 import java.util.*;
 import java.beans.*;
+
+import org.openide.util.NbBundle;
 
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.util.*;
@@ -40,7 +43,7 @@ public class UserVariablesEditor implements PropertyEditor {
     //-------------------------------------------
     public String getAsText(){
         // null if the value can't be expressed as an editable string...
-        return ""+variables; // NOI18N
+        return NbBundle.getMessage(UserVariablesEditor.class, "PROP_variables"); // NOI18N
     }
 
     //-------------------------------------------
