@@ -9,6 +9,7 @@ OpenIDE-Module-Specification-Version: 0.9
 OpenIDE-Module: com.netbeans.enterprise.modules.vcs.cmdline/1
 OpenIDE-Module-Description: com.netbeans.enterprise.modules.vcs.cmdlin
  e.docs.HelpSet
+OpenIDE-Module-Module-Dependencies: com.netbeans.developer.modules.vcs.cmdline/1
 
 Name: com/netbeans/enterprise/modules/vcs/cmdline/CommandLineVcsFileSy
  stem.class
