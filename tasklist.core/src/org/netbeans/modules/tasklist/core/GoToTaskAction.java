@@ -39,7 +39,7 @@ public class GoToTaskAction extends NodeAction {
         if (tlv != null) {
             Task item = TaskNode.getTask(nodes[0]); // safe - see enable check
             assert item != null;
-            tlv.showTask(item, null);
+            tlv.showTaskInEditor(item, null);
         } else {
             //XXX System.out.println("No current view!");
             Toolkit.getDefaultToolkit().beep();

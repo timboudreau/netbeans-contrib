@@ -949,7 +949,7 @@ err.log("Couldn't find current nodes...");
         private void clearMarker() {
             SuggestionsView tlv = SuggestionsView.getCurrentView();
             if (tlv != null) {
-                tlv.hideTask();
+                tlv.hideTaskInEditor();
             }
         }
 

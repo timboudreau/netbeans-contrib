@@ -463,7 +463,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
      * show the associated file position, and open up an area in the
      * tasklist view where the details of the task can be fully read.
      */
-    public void showTask(Task item, TaskAnnotation annotation) {
+    public void showTaskInEditor(Task item, TaskAnnotation annotation) {
         UserTask task = (UserTask)item;
         UserTask prevTask = null;
         if ((taskMarker != null) &&
@@ -474,7 +474,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
             task.getAnnotation().detach();
             task.setAnnotation(null);
         }
-        super.showTask(item, annotation);
+        super.showTaskInEditor(item, annotation);
         if (prevTask != null) {
             if ((prevTask.getLine() != null) && (task.getAnnotation() == null)) {
                 TaskAnnotation anno = new TaskAnnotation(prevTask, false);

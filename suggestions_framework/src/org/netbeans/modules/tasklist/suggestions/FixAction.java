@@ -100,7 +100,7 @@ public final class FixAction extends NodeAction {
             if (confirmation != null) {
                 // Show in source editor as well, if possible
                 if (tlv != null) {
-                    tlv.showTask(item, new SuggestionAnno(item));
+                    tlv.showTaskInEditor(item, new SuggestionAnno(item));
                     tlv.select(item);
                 }
 
@@ -193,7 +193,7 @@ public final class FixAction extends NodeAction {
                 Object pressedButton = dlg.getValue();
 
                 if (tlv != null) {
-                    tlv.showTask(null, null);
+                    tlv.showTaskInEditor(null, null);
                 }
                 
                 if (pressedButton == cancelButton) {

@@ -304,6 +304,11 @@ public abstract class TaskListView extends TopComponent
         getMiniStatus().setText(text);
     }
 
+    // XXX probably new instance per view would be better
+    // or explicit hideTaskInEditor should not hide foreign annotations
+    // but showTaskInEditor's call to hideTaskInEditor should hide them
+    private TaskEditorListener annotationManager = TaskEditorListener.getDefault();
+
     /** Show the given task. "Showing" means getting the editor to
      * show the associated file position, and open up an area in the
      * tasklist view where the details of the task can be fully read.
@@ -312,45 +317,19 @@ public abstract class TaskListView extends TopComponent
      * @param annotation annotation to use or null for
      *        default view provided annotation.
      */
-    public void showTask(Task item, TaskAnnotation annotation) {
-        hideTask();
-        if (item == null) {
-            return;
-        }
-
-        StatusDisplayer.getDefault().setStatusText(item.getSummary());
-        Line l = item.getLine();
-        if (l != null) {
-            if (taskMarker == null) {
-                if (annotation != null) {
-                    taskMarker = annotation;
-                } else {
-                    taskMarker = getAnnotation(item);
-                }
-            } else {
-                taskMarker.detach();
-            }
-            if (l != null) {
-                taskMarker.attach(l);
-                // Show the line!
-                l.show(Line.SHOW_GOTO);
-            } else {
-                taskMarker = null;
-            }
-        }
+    public void showTaskInEditor(Task item, TaskAnnotation annotation) {
+        if (annotation == null) annotation = getAnnotation(item);
+        annotationManager.showTask(item, annotation);
     }
 
     /**
      * Called to indicate that a particular task should be hidden.
      * This typically means that the task was deleted so it should
      * no longer have any visual cues. The task referred to is the
-     * most recent task passed to showTask.
+     * most recent task passed to showTaskInEditor.
      */
-    public void hideTask() {
-        if (taskMarker != null) {
-            taskMarker.detach();
-            taskMarker = null;
-        }
+    public void hideTaskInEditor() {
+        annotationManager.hideTask();
     }
 
     /**
@@ -433,7 +412,7 @@ public abstract class TaskListView extends TopComponent
      * of getting opened.
      */
     protected void componentOpened() {
-        // Register listeners, such as the editor support bridge module
+        // Register listeningViews, such as the editor support bridge module
         // TODO: Listeners from Lookup will not be collected
         // registerListeners();
 
@@ -529,7 +508,7 @@ public abstract class TaskListView extends TopComponent
 
     /** Called when the window is closed. Cleans up. */
     protected void componentClosed() {
-        hideTask();
+        hideTaskInEditor();
         hideList();
 
         // Remove any task markers we've added to the editor
@@ -537,7 +516,7 @@ public abstract class TaskListView extends TopComponent
             removedTask(null, unshowItem); // TODO cannot find the parent of unshowItem
         }
 
-        // Unregister listeners
+        // Unregister listeningViews
         unregisterListeners();
         
         storeColumnsConfiguration();
@@ -876,14 +855,14 @@ for (int i = 0; i < columns.length; i++) {
      */
     /*
     public void show(Task item, Annotation anno) {
-	if (listeners != null) {
+	if (listeningViews != null) {
 	    // Stash item so I can notify of deletion -- see TaskViewListener
 	    // doc
 	    unshowItem = item;
-	    int n = listeners.size();
+	    int n = listeningViews.size();
 	    for (int i = 0; i < n; i++) {
-		TaskViewListener tl = (TaskViewListener)listeners.get(i);
-		tl.showTask(item, anno);
+		TaskViewListener tl = (TaskViewListener)listeningViews.get(i);
+		tl.showTaskInEditor(item, anno);
 	    }
 	}
     }
@@ -895,14 +874,14 @@ for (int i = 0; i < columns.length; i++) {
         if (item != unshowItem) {
             return;
         }
-	if (listeners != null) {
+	if (listeningViews != null) {
 	    // Stash item so I can notify of deletion -- see TaskViewListener
 	    // doc
 	    unshowItem = null;
-	    int n = listeners.size();
+	    int n = listeningViews.size();
 	    for (int i = 0; i < n; i++) {
-		TaskViewListener tl = (TaskViewListener)listeners.get(i);
-		tl.hideTask();
+		TaskViewListener tl = (TaskViewListener)listeningViews.get(i);
+		tl.hideTaskInEditor();
 	    }
 	}
     }
@@ -1002,14 +981,14 @@ for (int i = 0; i < columns.length; i++) {
 
     /** List of TaskViewListener object listening on the tasklist view
      for visibility, selection, etc. */
-    private ArrayList listeners = null;
+    private List listeningViews = null;
 
-    protected ArrayList getListeners() {
-        return listeners;
+    protected final List getListeningViews() {
+        return (listeningViews == null) ? Collections.EMPTY_LIST : listeningViews;
     }
 
     /** 
-     * Locate all tasklist listeners and add them to our property
+     * Locate all tasklist listeningViews and add them to our property
      * change listener setup.
      * @todo Decide whether to unregister and reregister repeatedly;
      * this has the advantage of working with dynamic module
@@ -1027,18 +1006,18 @@ for (int i = 0; i < columns.length; i++) {
         Lookup.Template template = new Lookup.Template(TaskViewListener.class);
         Iterator it = l.lookup(template).allInstances().iterator();
         if (it.hasNext()) {
-            listeners = new ArrayList(4);
+            listeningViews = new ArrayList(4);
         }
         while (it.hasNext()) {
             TaskViewListener tl = (TaskViewListener) it.next();
-            listeners.add(tl);
+            listeningViews.add(tl);
         }
     }
 
-    /** Unregister the listeners registered in registerListener such
+    /** Unregister the listeningViews registered in registerListener such
      that they are no longer notified of changes */
     void unregisterListeners() {
-        listeners = null;
+        listeningViews = null;
     }
 
     // TODO Pick a better name!
@@ -1057,17 +1036,20 @@ for (int i = 0; i < columns.length; i++) {
 
     /** 
      * Called to indicate that a particular task is made current.
-     * Do what you can to "select" this task. 
+     * Do what you can to "select" this task.
+     *
+     * <p>
+     * Dispatches {@link TaskViewListener#showTask} to all registered views.
      */
     public void selectedTask(Task item) {
-        if (listeners != null) {
+        if (listeningViews != null) {
             // Stash item so I can notify of deletion -- see TaskViewListener
             // doc
             unshowItem = item;
-            int n = listeners.size();
+            int n = listeningViews.size();
             for (int i = 0; i < n; i++) {
-                TaskViewListener tl = (TaskViewListener) listeners.get(i);
-                tl.showTask(item, null);
+                TaskViewListener tl = (TaskViewListener) listeningViews.get(i);
+                tl.showTask(item, getAnnotation(item));
             }
         }
     }
@@ -1079,13 +1061,13 @@ for (int i = 0; i < columns.length; i++) {
      */
     public void warpedTask(Task item) {
         // XXX currently identical to selectedTask above!
-        if (listeners != null) {
+        if (listeningViews != null) {
             // Stash item so I can notify of deletion -- see TaskViewListener
             // doc
             unshowItem = item;
-            int n = listeners.size();
+            int n = listeningViews.size();
             for (int i = 0; i < n; i++) {
-                TaskViewListener tl = (TaskViewListener) listeners.get(i);
+                TaskViewListener tl = (TaskViewListener) listeningViews.get(i);
                 tl.showTask(item, null);
             }
         }
@@ -1096,11 +1078,11 @@ for (int i = 0; i < columns.length; i++) {
     }
 
     public void removedTask(Task pt, Task task) {
-        if ((task == unshowItem) && (listeners != null)) {
+        if ((task == unshowItem) && (listeningViews != null)) {
             unshowItem = null;
-            int n = listeners.size();
+            int n = listeningViews.size();
             for (int i = 0; i < n; i++) {
-                TaskViewListener tl = (TaskViewListener) listeners.get(i);
+                TaskViewListener tl = (TaskViewListener) listeningViews.get(i);
                 tl.hideTask();
             }
         }
@@ -1448,7 +1430,7 @@ for (int i = 0; i < columns.length; i++) {
             if (nextTask.getLine() != null) {
                 TaskAnnotation anno = getAnnotation(nextTask);
                 if (anno != null) {
-                    showTask(nextTask, anno);
+                    showTaskInEditor(nextTask, anno);
                 }
             }
             select(nextTask); // XXX call EM directly
@@ -1521,7 +1503,7 @@ for (int i = 0; i < columns.length; i++) {
             if (prevTask.getLine() != null) {
                 TaskAnnotation anno = getAnnotation(prevTask);
                 if (anno != null) {
-                    showTask(prevTask, anno);
+                    showTaskInEditor(prevTask, anno);
                 }
             }
             select(prevTask); // XXX call EM directly
@@ -1538,7 +1520,7 @@ for (int i = 0; i < columns.length; i++) {
     }
 
     protected void componentHidden() {
-        hideTask();
+        hideTaskInEditor();
 
         // Remove jump actions
         // Cannot do this, because componentHidden can be called

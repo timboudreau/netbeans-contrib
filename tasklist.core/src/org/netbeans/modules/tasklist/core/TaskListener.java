@@ -24,8 +24,7 @@ import java.util.EventListener;
 public interface TaskListener extends EventListener {
 
     /** Called to indicate that a particular task is made current.
-	Do what you can to "select" this task. 
-     * @deprecated should be removed to split the model from the view
+	 * Do what you can to "select" this task.
      */
     void selectedTask(Task t);
 

@@ -15,10 +15,14 @@ package org.netbeans.modules.tasklist.core;
 
 import org.openide.text.Line;
 import org.openide.text.Annotation;
+import org.openide.text.Annotatable;
 
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.core.TaskViewListener;
 import org.netbeans.modules.tasklist.core.TaskAnnotation;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 /**
  * Listener which when notified off changes in current task
@@ -28,8 +32,9 @@ import org.netbeans.modules.tasklist.core.TaskAnnotation;
  *       encounter a Task in the user's view
  *
  * @author Tor Norbye
+ * @author Petr Kuzel
  */
-public final class TaskEditorListener implements TaskViewListener {
+public final class TaskEditorListener implements TaskViewListener, PropertyChangeListener {
     /** Annotation showing the current position */
     transient private Annotation taskMarker = null;
 
@@ -42,38 +47,27 @@ public final class TaskEditorListener implements TaskViewListener {
     static TaskEditorListener deflt = null;
 
     static TaskEditorListener getDefault() {
-        return deflt;
+        return (deflt == null) ? new TaskEditorListener() : deflt;
     }
 
-    /** Show the given task. "Showing" means getting the editor to
+    /**
+     * Show the given task. "Showing" means getting the editor to
      * show the associated file position, and open up an area in the
      * tasklist view where the details of the task can be fully read.
+     *
+     * @param item task to annotate (subject of <code>item.getLine()</code>)
+     * @param annotation marker to user or <code>null</code> for default one
      */
     public void showTask(Task item, Annotation annotation) {
         hideTask();
-        if (item == null) {
-            return;
-        }
+        if (item == null) return;
 
         Line l = item.getLine();
         if (l != null) {
-            if (taskMarker == null) {
-                if (annotation != null) {
-                    taskMarker = annotation;
-                } else {
-                    taskMarker = new TaskAnnotation(item);
-                }
-            } else {
-                taskMarker.detach();
-            }
-            if (l != null) {
-                taskMarker.attach(l);
-                // Show the line!
-                //l.show (Line.SHOW_SHOW);
-                l.show(Line.SHOW_GOTO);
-            } else {
-                taskMarker = null;
-            }
+            taskMarker = (annotation != null) ? annotation : new TaskAnnotation(item);
+            taskMarker.attach(l);
+            l.addPropertyChangeListener(this); // detach on line edit
+            l.show(Line.SHOW_GOTO);
         }
 
     }
@@ -81,12 +75,20 @@ public final class TaskEditorListener implements TaskViewListener {
     /** Called to indicate that a particular task should be hidden.
      This typically means that the task was deleted so it should
      no longer have any visual cues. The task referred to is the
-     most recent task passed to showTask.
+     most recent task passed to showTaskInEditor.
      */
     public void hideTask() {
         if (taskMarker != null) {
+            Annotatable line = taskMarker.getAttachedAnnotatable();
+            line.removePropertyChangeListener(this);
             taskMarker.detach();
             taskMarker = null;
+        }
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (Annotatable.PROP_TEXT.equals(evt.getPropertyName())) {
+            hideTask();
         }
     }
 
