@@ -24,6 +24,7 @@ import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.cache.CacheFile;
 import org.netbeans.modules.vcscore.caching.VcsCacheFile;
 import org.netbeans.modules.vcscore.caching.VcsCacheDir;
+import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
 import org.netbeans.modules.vcscore.cmdline.exec.*;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
@@ -40,7 +41,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
     private VcsFileSystem fileSystem = null;
     private UserCommand listSub = null;
     private Hashtable vars = null;
-    private VcsCacheDir dir = null;
+    //private VcsCacheDir dir = null;
     private String path = null;
 
     private boolean shouldFail=false;
@@ -58,12 +59,12 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         this.fileSystem = fileSystem;
         this.listSub = listSub;
         this.vars = vars;
-        String path = (String)vars.get("DIR"); // NOI18N
-        this.path = path;
+        this.path = (String)vars.get("DIR"); // NOI18N
         D.deb ("DIR="+(String)vars.get("DIR")); // NOI18N
         //dir = new VcsDir();
         path = path.replace (java.io.File.separatorChar, '/');
-        dir = new VcsCacheDir(fileSystem.getCacheIdStr(), fileSystem.getFile(path));
+        path = fileSystem.getFile(path).getAbsolutePath().replace(java.io.File.separatorChar, '/');
+        //dir = new VcsCacheDir(fileSystem.getCacheIdStr(), fileSystem.getFile(path));
         //dir.setPath (path);
         //dir.setName(MiscStuff.getFileNamePart(path));
         //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
@@ -97,6 +98,13 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
     }
     
     /**
+     * Get the updated execution string. It may contain user input now.
+     */
+    public String getExec() {
+        return (String) listSub.getProperty(VcsCommand.PROPERTY_EXEC);
+    }
+    
+    /**
      * Get the set of files being processed by the command.
      * @return the set of files of type <code>String</code>
      */
@@ -105,6 +113,14 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         HashSet set = new HashSet(1);
         set.add(file);
         return set;
+    }
+    
+    /**
+     * Get the path of the processed files.
+     * The path is relative to file system root.
+     */
+    public String getPath() {
+        return (String) vars.get("DIR");
     }
     
     private void runCommand(String exec, OutputContainer container) {
@@ -173,8 +189,10 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         }
             */
         }
-        rawData = new VcsDirContainer();
-        putFilesToDirRecursively(dir, filesByName, rawData);
+        rawData = filesByName;
+        //rawData = new VcsDirContainer();
+        translateElementsRecursively(rawData);
+        //putFilesToDirRecursively(dir, filesByName, rawData);
         if (shouldFail) {
             exitStatus = VcsCommandExecutor.FAILED;
             fileSystem.debug("LIST_SUB: "+g("MSG_List_command_failed")+"\n"); // NOI18N
@@ -188,7 +206,24 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         }
 
     }
+    
+    private void translateElementsRecursively(VcsDirContainer rawData) {
+        Hashtable filesByName = (Hashtable) rawData.getElement();
+        Hashtable filesByNameTranslated = new Hashtable();
+        for (Enumeration enum = filesByName.keys(); enum.hasMoreElements(); ) {
+            String name = (String) enum.nextElement();
+            String[] elements = (String[]) filesByName.get(name);
+            elements = CommandLineVcsDirReader.translateElements(elements, listSub);
+            filesByNameTranslated.put(name, elements);
+        }
+        rawData.setElement(filesByNameTranslated);
+        VcsDirContainer[] subdirs = rawData.getSubdirContainers();
+        for(int i = 0; i < subdirs.length; i++) {
+            translateElementsRecursively(subdirs[i]);
+        }
+    }
 
+    /*
     private void putFilesToDirRecursively(VcsCacheDir dir, VcsDirContainer filesByName,
                                               VcsDirContainer rawData) {
         D.deb("putFilesToDirRecursively("+filesByName.getPath()+")");
@@ -226,7 +261,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
             //E.deb("Processing: "+fileName+"|"+elements); // NOI18N
             //fileSystem.debug("stdout: "+MiscStuff.arrayToString(elements)); // NOI18N
             rawData.addElement(elements);
-            CacheFile file = CommandLineVcsDirReader.matchToFile(elements, listSub, fileSystem.getPossibleFileStatusesTable(), fileSystem.getCacheIdStr(), parent);
+            CacheFile file = RefreshCommandSupport.matchToFile(elements, listSub, fileSystem.getPossibleFileStatusesTable(), fileSystem.getCacheIdStr(), parent);
             if(file instanceof VcsCacheDir) {
                 //String parent = dir.getPath ();
                 //((VcsDir)file).setPath (((parent.length() > 0) ? parent + "/" : "") + file.getName ()); // NOI18N
@@ -236,6 +271,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
             dir.add(file);
         }
     }
+     */
 
     public void run() {
         String exec = (String) listSub.getProperty(VcsCommand.PROPERTY_EXEC);
@@ -259,21 +295,25 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
             errDlg.showDialog();
             fileSystem.setPassword(null);
             fileSystem.debug(g("ERR_LISTFailed")); // NOI18N
-            D.deb("failed reading of dir="+dir); // NOI18N
+            //D.deb("failed reading of dir="+dir); // NOI18N
+            /*
             if(!dir.getName ().equals("")) { // NOI18N
                 dir.setStatus (g("MSG_VCS_command_failed")); // NOI18N
             }
             dir.setLoadedRecursive(true); // failed, but loaded
-            listener.readDirFinishedRecursive(dir, rawData, !shouldFail);
+            listener.readDirFinishedRecursive(rawData, !shouldFail);
+             */
         }
+        /*
         else{
             //errDlg.removeCommandOut();
             //errDlg.cancelDialog();
             //fileSystem.debug("LIST command finished successfully"); // NOI18N
             dir.setLoadedRecursive(true);
-            listener.readDirFinishedRecursive(dir, rawData, !shouldFail);
+            listener.readDirFinishedRecursive(rawData, !shouldFail);
         }
-
+         */
+        listener.readDirFinishedRecursive(rawData, !shouldFail);
         // After refresh I should ensure, that the next automatic refresh will work if something happens in numbering
         fileSystem.removeNumDoAutoRefresh((String)vars.get("DIR")); // NOI18N
         //D.deb("run(LIST) '"+dir.name+"' finished"); // NOI18N

@@ -247,12 +247,13 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public void setProperty(String propertyName, Object value);
     
-    /**
+    /*
      * This method is called after read of all commands from an external source.
      * Allows some more settings to be done. This method should be static.
      * @param cmds the <code>Vector</code> containing all read commands. 
-     */
+     *
     public void readFinished(java.util.Vector cmds);
+     */
     
 }
 

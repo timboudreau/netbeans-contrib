@@ -17,6 +17,7 @@ import java.util.*;
 
 import org.openide.TopManager;
 
+import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.util.Table;
 
 /**
@@ -58,13 +59,16 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private int collectMax = 10;
     
     private ArrayList commandListeners = new ArrayList();
+    
+    private VcsFileSystem fileSystem;
 
     /** Creates new CommandsPool */
-    public CommandsPool() {
+    public CommandsPool(VcsFileSystem fileSystem) {
         commandsToRun = new ArrayList();
         commands = new Table();
         commandsFinished = new ArrayList();
         group = new ThreadGroup("VCS Commands Goup");
+        this.fileSystem = fileSystem;
     }
 
     public void setCollectFinishedCmds(boolean collectFinishedCmds) {
@@ -101,17 +105,17 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     private void commandStarted(VcsCommandExecutor vce) {
         TopManager.getDefault().setStatusText(g("MSG_Command_name_running", vce.getCommand().getDisplayName()));
-        System.out.println("command "+vce.getCommand()+" STARTED.");
+        //System.out.println("command "+vce.getCommand()+" STARTED.");
         synchronized (commandListeners) {
             for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
                 ((CommandListener) it.next()).commandStarted(vce);
             }
         }
-        System.out.println("command "+vce.getCommand()+" STARTED, LISTENERS DONE.");
+        //System.out.println("command "+vce.getCommand()+" STARTED, LISTENERS DONE.");
     }
     
     private void commandDone(VcsCommandExecutor vce) {
-        System.out.println("command "+vce.getCommand()+" DONE.");
+        //System.out.println("command "+vce.getCommand()+" DONE.");
         synchronized (this) {
             commands.remove(vce);
             commandsFinished.add(vce);
@@ -122,13 +126,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 ((CommandListener) it.next()).commandDone(vce);
             }
         }
-        System.out.println("command "+vce.getCommand()+" DONE, LISTENERS DONE.");
+        //System.out.println("command "+vce.getCommand()+" DONE, LISTENERS DONE.");
         int exit = vce.getExitStatus();
         String name = vce.getCommand().getDisplayName();
         String message = "";
         switch (exit) {
             case VcsCommandExecutor.SUCCEEDED:
                 message = g("MSG_Command_name_finished", name);
+                CommandExecutorSupport.doRefresh(fileSystem, vce);
                 break;
             case VcsCommandExecutor.FAILED:
                 message = g("MSG_Command_name_failed", name);
@@ -142,19 +147,19 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     public void startExecutor(final VcsCommandExecutor vce) {
         final Thread t = new Thread(group, vce, "VCS Command Execution Thread");
-        System.out.println("startExecutor("+vce.getCommand()+")");
+        //System.out.println("startExecutor("+vce.getCommand()+")");
         synchronized (this) {
             commandsToRun.remove(vce);
             commands.put(vce, t);
         }
         t.start();
-        System.out.println("startExecutor, thread started.");
+        //System.out.println("startExecutor, thread started.");
         commandStarted(vce);
         new Thread(group, "VCS Command Execution Waiter") {
             public void run() {
-                System.out.println("startExecutor.Waiter: thread checking ...");
+                //System.out.println("startExecutor.Waiter: thread checking ...");
                 while (t.isAlive()) {
-                    System.out.println("startExecutor.Waiter: thread is Alive");
+                    //System.out.println("startExecutor.Waiter: thread is Alive");
                     try {
                         t.join();
                     } catch (InterruptedException exc) {
@@ -164,7 +169,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 commandDone(vce);
             }
         }.start();
-        System.out.println("startExecutor, waiter started.");
+        //System.out.println("startExecutor, waiter started.");
     }
 
     

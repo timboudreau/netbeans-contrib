@@ -43,7 +43,7 @@ import org.netbeans.modules.vcscore.caching.VcsCacheDir;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
-//import org.netbeans.modules.vcscore.revision.RevisionListener;
+import org.netbeans.modules.vcscore.revision.RevisionListener;
 
 /** Generic VCS filesystem.
  * 
@@ -131,7 +131,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     protected transient VcsFSCache cache = null;
 
-    private long cacheId = 0;
+    //private long cacheId = 0;
     //private String cacheRoot = null; // NOI18N
 
     private transient VcsAction action = null;
@@ -187,7 +187,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private volatile transient CommandsPool commandsPool = null;
     
-    //private ArrayList revisionListeners;
+    private ArrayList revisionListeners;
 
     private volatile boolean offLine = false;
 
@@ -262,7 +262,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public boolean isOffLine() {
         return offLine;
     }
-    /*
+
     public void addRevisionListener(RevisionListener listener) {
         if (revisionListeners == null) revisionListeners = new ArrayList();
         revisionListeners.add(listener);
@@ -279,7 +279,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             ((RevisionListener) it.next()).revisionsChanged(whatChanged, fo, info);
         }
     }
-    */
     
     /**
      * Get whether to perform the auto-refresh in the given directory path.
@@ -573,7 +572,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
 
-    //-------------------------------------------
+    /*
     private void createDir(String path) {
         File dir = new File(path);
         if (dir.isDirectory()) {
@@ -584,6 +583,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             debug(g("MSG_UnableToCreateDirectory", path)); // NOI18N
         }
     }
+     */
 
     /*
     //-------------------------------------------
@@ -621,7 +621,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         } catch (IOException e) {
             // Could not set root directory
         }
-        commandsPool = new CommandsPool();
+        commandsPool = new CommandsPool(this);
     }
 
 
@@ -647,12 +647,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     public String[] getPossibleFileStatuses() {
-        String[] statuses = new String[possibleFileStatusesMap.size()];
-        int i = 0;
-        for(Iterator it = possibleFileStatusesMap.entrySet().iterator(); it.hasNext(); i++) {
-            Object obj = it.next();
-            System.out.println("getPossibleFileStatuses(): '"+obj+"', class = "+obj.getClass());
-            if (obj instanceof String) statuses[i] = (String) obj;
+        String[] statuses;
+        synchronized (possibleFileStatusesMap) {
+            statuses = new String[possibleFileStatusesMap.size()];
+            int i = 0;
+            for(Iterator it = possibleFileStatusesMap.keySet().iterator(); it.hasNext(); i++) {
+                Object obj = it.next();
+                //System.out.println("getPossibleFileStatuses(): '"+obj+"', class = "+obj.getClass());
+                if (obj instanceof String) statuses[i] = (String) obj;
+            }
         }
         D.deb("getPossibleFileStatuses() return = "+MiscStuff.array2string(statuses));
         return statuses;
@@ -662,7 +665,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Get a copy of stauses transfer table.
      */
     public HashMap getPossibleFileStatusesTable() {
-        return new HashMap(possibleFileStatusesMap);
+        HashMap statusesTable;
+        synchronized (possibleFileStatusesMap) {
+            statusesTable = new HashMap(possibleFileStatusesMap);
+        }
+        return statusesTable;
     }
 
     public ErrorCommandDialog getErrorDialog() {
@@ -674,9 +681,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     //-------------------------------------------
-    public long getCacheId(){
-        return cacheId;
-    }
+    //public long getCacheId(){
+    //    return cacheId;
+    //}
 
     //-------------------------------------------
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
@@ -1336,34 +1343,34 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return result;
         }
 
+        String status;
+        String locker;
         if (len == 1) {
             FileObject ff = (FileObject) oo[0];
             fullName = ff.getPackageNameExt('/','.');
-            //fileName=MiscStuff.getFileNamePart(fullName);
-
-            String status = cache.getFileStatus(fullName).trim();
-            //D.deb("name = "+fullName+": status = "+status);
-            if (status.length() >0) {
-                result = name + " ["+status+"]"; // NOI18N
-            }
-            String locker = cache.getFileLocker(fullName);
-            //D.deb("locker = '"+locker+"'");
-            if (locker != null && locker.length() > 0) {
-                result += " ("+locker+")";  // NOI18N
+            status = cache.getFileStatus(fullName).trim();
+            locker = cache.getFileLocker(fullName);
+        } else {
+            Vector importantFiles = getImportantFiles(oo);
+            status = cache.getStatus(importantFiles).trim();
+            locker = cache.getLocker(importantFiles);
+        }
+        String trans = null;
+        if (possibleFileStatusesMap != null) {
+            synchronized (possibleFileStatusesMap) {
+                trans = (String) possibleFileStatusesMap.get(status);
             }
         }
-        else{
-            Vector importantFiles = getImportantFiles(oo);
-            String status = cache.getStatus(importantFiles).trim();
-            //D.deb("status = "+status);
-            if (status.length() > 0) {
-                result = name + " ["+status+"]"; // NOI18N
-            }
-            String locker = cache.getLocker(importantFiles);
-            //D.deb("locker = '"+locker+"'");
-            if (locker != null && locker.length() > 0) {
-                result += " ("+locker+")";  // NOI18N
-            }
+        if (trans != null) {
+            status = trans;
+        }
+        //D.deb("name = "+fullName+": status = "+status);
+        if (status.length() > 0) {
+            result = name + " ["+status+"]"; // NOI18N
+        }
+        //D.deb("locker = '"+locker+"'");
+        if (locker != null && locker.length() > 0) {
+            result += " ("+locker+")";  // NOI18N
         }
 
         //System.out.println("annotateName("+name+") -> result='"+result+"'");
@@ -1620,13 +1627,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         if (!ready) {
             D.deb("not ready"); // NOI18N
-            System.out.println("children: not ready !!"); // NOI18N
+            //System.out.println("children: not ready !!"); // NOI18N
             return new String[0];
         }
 
         if (cache.isDir(name)) {
             vcsFiles = cache.getFilesAndSubdirs(name);
-            D.deb("vcsFiles=" + MiscStuff.arrayToString(vcsFiles)); // NOI18N
+            //D.deb("vcsFiles=" + MiscStuff.arrayToString(vcsFiles)); // NOI18N
             /*
             String p=""; // NOI18N
             try{
@@ -1642,10 +1649,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         if (vcsFiles == null) files = getLocalFiles(name);
         else files = addLocalFiles(name, vcsFiles);
-        D.deb("children('"+name+"') = "+MiscStuff.arrayToString(files));
+        //D.deb("children('"+name+"') = "+MiscStuff.arrayToString(files));
         VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
         if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal()))) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
-        System.out.println("children = "+files);
+        //System.out.println("children = "+files);
         return files;
     }
 
@@ -2061,8 +2068,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void statusChanged(CacheHandlerEvent event) {
         D.deb("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         D.deb("statusChanged called for:" + event.getCacheFile().getAbsolutePath());
-        System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-        System.out.println("statusChanged called for:" + event.getCacheFile().getAbsolutePath());
+        //System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+        //System.out.println("statusChanged called for:" + event.getCacheFile().getAbsolutePath());
         String root = getRootDirectory().getAbsolutePath();
         String absPath = event.getCacheFile().getAbsolutePath();
         if (absPath.startsWith(root)) { // it belongs to this FS -> do something
@@ -2211,7 +2218,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected String g(String s) {
         D.deb("getting "+s);
         if (resourceBundle == null) {
-            synchronized (resourceBundle) {
+            synchronized (this) {
                 if (resourceBundle == null) {
                     resourceBundle = NbBundle.getBundle(VcsFileSystem.class);
                 }
@@ -2229,7 +2236,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return MessageFormat.format (g(s), new Object[] { obj1, obj2, obj3 });
     }
     
-      private void D(String debug) {
+    private void D(String debug) {
         System.out.println("VcsFileSystem(): "+debug);
     }
     //-------------------------------------------

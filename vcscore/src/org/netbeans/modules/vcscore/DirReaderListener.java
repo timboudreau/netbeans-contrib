@@ -24,8 +24,8 @@ import org.netbeans.modules.vcscore.caching.VcsCacheDir;
 //-------------------------------------------
 public interface DirReaderListener {
 
-    public void readDirFinished(VcsCacheDir dir, Vector rawData, boolean success);
-    public void readDirFinishedRecursive(VcsCacheDir dir, VcsDirContainer rawData, boolean success);
+    public void readDirFinished(String path, Collection rawData, boolean success);
+    public void readDirFinishedRecursive(VcsDirContainer rawData, boolean success);
 
 }
 

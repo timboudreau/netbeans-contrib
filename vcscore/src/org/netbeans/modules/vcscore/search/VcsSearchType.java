@@ -26,7 +26,6 @@ import org.openide.util.NbBundle;
 /**
  *
  * @author  Martin Entlicher
- * @version 
  */
 public class VcsSearchType extends org.netbeans.modules.search.types.DataObjectType /*SearchType*/ {
 
@@ -47,9 +46,7 @@ public class VcsSearchType extends org.netbeans.modules.search.types.DataObjectT
     private void addStatuses(String[] possibleStatuses) {
         if (possibleStatuses == null) return;
         for(int i = 0; i < possibleStatuses.length; i++) {
-            //System.out.println("VcsSeatchType: addStatuses(): adding "+possibleStatuses[i]);
             if (!statuses.contains(possibleStatuses[i])) statuses.add(possibleStatuses[i]);
-            //System.out.println("this = "+this+", statuses = "+statuses);
         }
         String[] sorted = (String[]) statuses.toArray(new String[0]);
         Arrays.sort(sorted);

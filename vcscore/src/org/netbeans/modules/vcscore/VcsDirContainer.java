@@ -119,6 +119,19 @@ public class VcsDirContainer extends Object {
     }
 
     /**
+     * Get all subdirectories.
+     * @return the array of subdirectories.
+     */
+    public VcsDirContainer[] getSubdirContainers() {
+        int subdirsLen = subdirs.size();
+        VcsDirContainer[] subDirs = new VcsDirContainer[subdirsLen];
+        for(int i = 0; i < subdirsLen; i++){
+            subDirs[i] = (VcsDirContainer) subdirs.elementAt(i);
+        }
+        return subDirs;
+    }
+
+    /**
      * Add a subdirectory with the given path.
      * @param path the path of new directory
      * @return new directory container

@@ -110,7 +110,7 @@ public class VcsAction extends NodeAction implements ActionListener {
      */
     public void doList(String path) {
         //D.deb("doList('"+path+"')"); // NOI18N
-        System.out.println("VcsAction.doList("+path+")");
+        //System.out.println("VcsAction.doList("+path+")");
         VcsFSCache cache = fileSystem.getCache();
         if (cache.isDir(path)) {
             cache.refreshDir(path);
@@ -187,7 +187,7 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @return the command executor of the last executed command.
      */
     public static VcsCommandExecutor doCommand(Table files, VcsCommand cmd, Hashtable additionalVars, VcsFileSystem fileSystem) {
-        System.out.println("doCommand("+files+", "+cmd+")");
+        //System.out.println("doCommand("+files+", "+cmd+")");
         boolean[] askForEachFile = null;
         if (files.size() > 1) {
             askForEachFile = new boolean[1];
@@ -214,7 +214,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             }
              */
             fileSystem.getCommandsPool().waitToRun(cmd, fullName);
-            vars.putAll(additionalVars);
+            if (additionalVars != null) vars.putAll(additionalVars);
             ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
             if (ec == null) return null; // No executor for this command.
             fileSystem.getCommandsPool().add(ec);
@@ -248,61 +248,7 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
      */
     private void doCommand(Table files, VcsCommand cmd) {
-        doCommand(files, cmd, null, fileSystem);
-        /*
-        D.deb("doCommand("+files+","+cmd+")"); // NOI18N
-        System.out.println("doCommand("+files+", "+cmd+")");
-        boolean[] askForEachFile = null;
-        if (files.size() > 1) {
-            askForEachFile = new boolean[1];
-            askForEachFile[0] = true;
-        }
-        Hashtable vars = fileSystem.getVariablesAsHashtable();
-        VcsCommandExecutor ec = null;
-        //Integer synchAccess = new Integer(0);
-        //int n = files.size();
-        Enumeration filesEnum = files.keys();
-        while(filesEnum.hasMoreElements()) {
-            String fullName = (String) filesEnum.nextElement();
-            if (!filesEnum.hasMoreElements() && askForEachFile != null && askForEachFile[0] == true) {
-                askForEachFile = null; // Do not show the check box for the last file.
-            }
-            /*
-            boolean concurrentExecution = false;
-            if (!concurrentExecution && ec != null) {
-                try {
-                    ec.join();
-                } catch (InterruptedException e) {
-                    // ignoring the interruption -- continuing for next command
-                }
-            }
-             *//*
-            fileSystem.getCommandsPool().waitToRun(cmd, fullName);
-            vars.putAll(additionalVars);
-            ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
-            if (ec == null) return; // No executor for this command.
-            fileSystem.getCommandsPool().add(ec);
-            String exec = prepareCommandToExecute(ec, cmd, vars, /*additionalVars, *//*fullName, (FileObject) files.get(fullName), askForEachFile);
-            if (exec == null) return; // The whole command is canceled
-            if (exec.length() == 0) continue; // The command is canceled for this file
-            //OutputContainer container = new OutputContainer(cmd);
-            //ec = new ExecuteCommand(fileSystem, cmd, vars, exec);
-            //ec.setErrorNoRegexListener(container);
-            //ec.setOutputNoRegexListener(container);
-            //ec.setErrorContainer(container);
-            ec.updateExec(exec);
-            fileSystem.getCommandsPool().startExecutor(ec);
-            //ec.start();
-            //cache.setFileStatus(fullName,"Unknown"); // NOI18N
-            synchronized (vars) {
-                if (askForEachFile != null && askForEachFile[0] == true) {
-                    vars = new Hashtable(fileSystem.getVariablesAsHashtable());
-                } else {
-                    vars = new Hashtable(vars);
-                }
-            }
-        }
-        */
+        VcsAction.doCommand(files, cmd, null, fileSystem);
     }
 
     /**
@@ -572,7 +518,7 @@ public class VcsAction extends NodeAction implements ActionListener {
     }
     
     protected void performCommand(final String cmdName, final Node[] nodes) {
-        System.out.println("performCommand("+cmdName+") on "+nodes.length+" nodes.");
+        //System.out.println("performCommand("+cmdName+") on "+nodes.length+" nodes.");
         if (cmdName.equals("KILL_ALL_CMDS")) {
             killAllCommands();
             return;
@@ -629,7 +575,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         //if (mimeType != null) additionalVars.put("MIMETYPE", mimeType); // NOI18N
         //D.deb("I have MIME = "+mimeType); // NOI18N
 
-        System.out.println("refreshDone = "+refreshDone+", files.size() = "+files.size());
+        //System.out.println("refreshDone = "+refreshDone+", files.size() = "+files.size());
         if (!refreshDone && files.size() > 0) {
             doCommand (files, cmd);
         }
@@ -637,12 +583,12 @@ public class VcsAction extends NodeAction implements ActionListener {
 
     public void performAction(Node[] nodes) {
         //D.deb("performAction()"); // NOI18N
-        System.out.println("performAction("+nodes+")");
+        //System.out.println("performAction("+nodes+")");
     }
 
     public void actionPerformed(final java.awt.event.ActionEvent e){
         //D.deb("actionPerformed("+e+")"); // NOI18N
-        System.out.println("actionPerformed("+e+")");
+        //System.out.println("actionPerformed("+e+")");
         final String cmdName = e.getActionCommand();
         //D.deb("cmd="+cmd); // NOI18N
         Runnable cpr;

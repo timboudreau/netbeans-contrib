@@ -23,38 +23,12 @@ import org.openide.NotifyDescriptor;
 /**
  *
  * @author  Martin Entlicher
- * @version 
  */
 public class VcsCommandIO extends Object {
 
     /** Creates new VcsCommandIO */
     public VcsCommandIO() {
     }
-    
-    /**
-     * Get the property of the command.
-     * Search the command's BeanInfo for that property.
-     * @return the value of the property or null when the property was not found.
-     *
-    public static Object getCommandProperty(VcsCommand command, String propertyName) {
-        return getCommandProperty(command, propertyName, null);
-    }
-    
-    /**
-     * Get the property of the command.
-     * Search the command's BeanInfo for property of a given type.
-     * @return the value of the property or null when the property was not found.
-     *
-    public static Object getCommandProperty(VcsCommand command, String propertyName, Class type) {
-        BeanInfo info = command.getCommandInfo();
-        PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
-        for(int i = 0; i < descriptors.length; i++) {
-            Object value = descriptors[i].getValue(propertyName);
-            if (value != null && (type == null || type.isInstance(value))) return value;
-        }
-        return null;
-    }
-     */
     
     /**
      * Get the boolean value of the command property.
@@ -228,6 +202,7 @@ public class VcsCommandIO extends Object {
         }
     }
      */
+    /*
     private static void fillCommandProperties(String name, VcsCommand vc, Properties props) {
         String[] propertyNames = vc.getPropertyNames();
         //PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
@@ -272,10 +247,11 @@ public class VcsCommandIO extends Object {
                 }
                 value = vector;
             }
-             */
+             *
             vc.setProperty(attrName, value);
         }
     }
+     */
 
     /**
      * Write the commands properties.

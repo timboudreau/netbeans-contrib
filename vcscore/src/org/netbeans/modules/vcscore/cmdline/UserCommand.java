@@ -42,7 +42,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     public static final String PROPERTY_CHECK_FOR_MODIFICATIONS = "checkForModifications";
     public static final String PROPERTY_PRECOMMANDS = "preCommands";
     public static final String PROPERTY_PRECOMMANDS_EXECUTE = "preCommandsExecute";
-
+    
     public static final String PROPERTY_LIST_INDEX_FILE_NAME = "data.fileName.index";
     public static final String PROPERTY_LIST_INDEX_STATUS = "data.status.index";
     public static final String PROPERTY_LIST_INDEX_LOCKER = "data.locker.index";
@@ -52,7 +52,6 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     public static final String PROPERTY_LIST_INDEX_DATE = "data.date.index";
     public static final String PROPERTY_LIST_INDEX_TIME = "data.time.index";
     public static final String PROPERTY_LIST_INDEX_SIZE = "data.size.index";
-    
     
     // Properties:
     private String name="";          // e.g. "CHECKIN" // NOI18N
@@ -171,11 +170,24 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     static final long serialVersionUID =6658759487911693730L;
 
     //-------------------------------------------
-    public UserCommand(){
+    public UserCommand() {
         // I am JavaBean...
         preCommands = new Vector();
+        setPropertiesFromFields();
     }
-
+    
+    /** @deprecated
+     * This constructor is necessary for backward compatibility to be able to read
+     * the command from properties file.
+     */
+    public UserCommand(String name) {
+        this.name = name;
+        //this.exec = exec;
+        preCommands = new Vector();
+        properties = null;
+        setPropertiesFromFields();
+        //System.out.println("UserCommand("+name+") from filelds = "+getPropertyNames().length);
+    }
 
     //-------------------------------------------
     public Object clone(){
@@ -197,12 +209,25 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
         orderArr = new int[uc.orderArr.length];
         for(int i = 0; i < orderArr.length; i++) orderArr[i] = uc.orderArr[i];
          */
-        String[] properties = getPropertyNames();
+        String[] properties = uc.getPropertyNames();
         for (int i = 0; i < properties.length; i++) {
             Object property = uc.getProperty(properties[i]);
             Object newProperty;
             if (property instanceof Boolean) {
                 newProperty = new Boolean(((Boolean) property).booleanValue());
+            } else if (property instanceof Integer) {
+                newProperty = new Integer(((Integer) property).intValue());
+                /*
+            } else if (property instanceof Cloneable) {
+                try {
+                    newProperty = ((Cloneable) property.).clone();
+                } catch (CloneNotSupportedException exc) {
+                    newProperty = property;
+                }
+            } else {
+                newProperty = property;
+            }
+                 */
             } else if (property instanceof String) {
                 newProperty = new String((String) property);
             } else {
@@ -307,7 +332,15 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     //public boolean isRefreshParent() { return refreshParent; }
     //public void   setCheckForModifications (boolean checkForModifications) { this.checkForModifications = checkForModifications; }
     //public boolean isCheckForModifications() { return checkForModifications; }
+    
+    /**
+     * @deprecated The order of individual commands should not be set.
+     * The position in the popup menu is given by the hierarchical structure of nodes.
+     */    
     public void   setOrder (int[] orderArr) { this.orderArr = (int[]) orderArr.clone(); }
+    /**
+     * @deprecated See {@link setOrder} for description.
+     */    
     public int[]  getOrder () { return (int[]) orderArr.clone(); }
     //public boolean isOnFile () { return onFile; }
     //public void    setOnFile (boolean onFile) { this.onFile = onFile; }
@@ -424,7 +457,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
         return children;
     }
     
-    private static void assignPreCommands(Vector commands) {
+    private static void assignPreCommands(List commands) {
         for(int i = 0; i < commands.size(); i++) {
             UserCommand uc = (UserCommand) commands.get(i);
             UserCommand[] pc = uc.getPreCommands();
@@ -481,12 +514,11 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
      * Allows some more settings to be done.
      * @param cmds the <code>Vector</code> containing all read commands. 
      */
-    public void readFinished(java.util.Vector cmds) {
+    public static void readFinished(java.util.List cmds) {
         assignPreCommands(cmds);
     }
     
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
+    private void setPropertiesFromFields() {
         if (properties == null) { // Have to create and fill in all properties
             properties = new HashMap();
             if (exec == null) return; // Label command ==> no properties
@@ -525,6 +557,11 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
                 setProperty(UserCommand.PROPERTY_LIST_INDEX_SIZE, new Integer(sizeIndex));
             }
         }
+    }
+    
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        setPropertiesFromFields();
     }
     
     static String g(String s) {

@@ -52,10 +52,21 @@ public interface VcsCommandExecutor extends Runnable {
     public void updateExec(String exec);
     
     /**
+     * Get the updated execution string. It may contain user input now.
+     */
+    public String getExec();
+    
+    /**
      * Get the set of files being processed by the command.
      * @return the set of files of type <code>String</code>
      */
     public Set getFiles();
+    
+    /**
+     * Get the path of the processed files.
+     * The path is relative to file system root.
+     */
+    public String getPath();
     
     ///**
     // * Tests if this command is alive. A command is alive if it has been started and has not yet died.

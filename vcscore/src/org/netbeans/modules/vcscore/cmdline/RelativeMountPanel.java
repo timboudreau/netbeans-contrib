@@ -31,18 +31,19 @@ import org.netbeans.modules.vcscore.*;
  * @author  mkleint
  * @version 
  */
-public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelectionListener, javax.swing.event.TreeExpansionListener {
+public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelectionListener {//, javax.swing.event.TreeExpansionListener {
     
     static final long serialVersionUID =-6389940806020132699L;
-    DefaultMutableTreeNode rootNode;
-    String cvsRoot;
+    //DefaultMutableTreeNode rootNode;
+    //String cvsRoot;
     
     public RelativeMountPanel() {
         initComponents ();
         //isValid = false;
-        trRelMount.addTreeSelectionListener(this);
-        trRelMount.addTreeExpansionListener(this);
-        cvsRoot = "";
+        addTreeListeners();
+        //trRelMount.addTreeSelectionListener(this);
+        //trRelMount.addTreeExpansionListener(this);
+        //cvsRoot = "";
     }
 
     /** This method is called from within the constructor to
@@ -183,6 +184,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
         return txRelMount.getText();
     }
 
+    /*
     private void doMarkParent(DefaultMutableTreeNode parent, File current) {
        MyFile fl = (MyFile)parent.getUserObject(); 
        if (!parent.equals(rootNode)) {
@@ -240,22 +242,81 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
         }
       return toReturn;
     }
+     */
+
+    private void addTreeListeners() {
+        trRelMount.addTreeSelectionListener(this);
+        trRelMount.addTreeWillExpandListener(new TreeWillExpandListener() {
+            public void treeWillExpand(TreeExpansionEvent evt) {
+                TreePath path = evt.getPath();
+                final MyTreeNode node = (MyTreeNode) path.getLastPathComponent();
+                Runnable treeBuild = new Runnable() {
+                    public void run() {
+                        folderTreeNodes(node);
+                    }
+                };
+                new Thread(treeBuild, "Mount Panel Tree Build").start();
+            }
+            public void treeWillCollapse(TreeExpansionEvent evt) {
+            }
+        });
+    }
 
     private void createTree(String rootString) {
-        setTreeModel(new DefaultTreeModel(new DefaultMutableTreeNode()));
-        MyFile rootDir = new MyFile(rootString);
+        setTreeModel(new DefaultTreeModel(new MyTreeNode()));
+        File rootDir = new File(rootString);
         if (rootDir.isDirectory()) {
-            DefaultMutableTreeNode root = new DefaultMutableTreeNode(rootDir);
-            rootNode = root;
-            rootDir.setLocal(false);
-            cvsRoot = "";
-            recursiveTreeNodes(root);
+            final MyTreeNode root = new MyTreeNode(rootDir);
+            Runnable treeBuild = new Runnable() {
+                public void run() {
+                    //recursiveTreeNodes(root);
+                    folderTreeNodes(root);
+                }
+            };
+            new Thread(treeBuild, "Mount Panel Tree Build").start();
             DefaultTreeCellRenderer  def = new MyTreeCellRenderer();
             trRelMount.setCellRenderer(def);
             trRelMount.setModel(new DefaultTreeModel(root));
         }
     }
     
+    private void folderTreeNodes(final MyTreeNode parent) {
+        boolean hasChild = false;
+        synchronized (trRelMount) {
+            parent.removeAllChildren();
+            File parentFile = (File) parent.getUserObject();
+            MyTreeNode child;
+            File childFile;
+            File[] list = parentFile.listFiles();
+            Arrays.sort(list);
+            for (int index = 0; index < list.length; index++) {
+                if (list[index].isDirectory() && list[index].exists()) {
+                    childFile = list[index];
+                    if (!childFile.getName().equals("CVS")) { //CVS dirs go out..
+                        hasChild = true;
+                        child = new MyTreeNode(new File(childFile.getAbsolutePath()));
+                        child.setAllowsChildren(true);
+                        parent.add(child);
+                    }
+                }
+            }
+            if (!hasChild) {
+                parent.setAllowsChildren(false);
+                trRelMount.collapsePath(new TreePath(parent.getPath()));
+            }
+        }
+        ((DefaultTreeModel) trRelMount.getModel()).nodeStructureChanged(parent);
+        if (hasChild) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    trRelMount.scrollPathToVisible(new TreePath(((MyTreeNode) parent.getLastChild()).getPath()));
+                    trRelMount.scrollPathToVisible(new TreePath(((MyTreeNode) parent.getFirstChild()).getPath()));
+                }
+            });
+        }
+    }
+    
+    /*
     private void recursiveTreeNodes(DefaultMutableTreeNode parent) {
         File parentFile = (File)parent.getUserObject();
         DefaultMutableTreeNode child;
@@ -276,12 +337,14 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
             }
         }
     }
+     */
     
     public void valueChanged(TreeSelectionEvent e) {
         TreePath path = trRelMount.getSelectionPath();
         if (path != null) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+            MyTreeNode node = (MyTreeNode) path.getLastPathComponent();
             File selFile = (File) node.getUserObject();
+            MyTreeNode rootNode = (MyTreeNode) node.getRoot();
             File rootFile = (File) rootNode.getUserObject();
             if (rootFile.getAbsolutePath().equals(selFile.getAbsolutePath())) {
                 txRelMount.setText("");
@@ -293,7 +356,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
             }
             txRelMount.setText(toWrite);
         } else {
-          txRelMount.setText("");  
+            txRelMount.setText("");  
         }
     }
     
@@ -305,8 +368,8 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     public void initTree(String rootDir, String relMount) {
         //if (fs != null) {
             createTree(rootDir);
-            trRelMount.setSelectionModel(new MySelectionModel()); // because of not allowing to select local dirs
-//            trRelMount.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+            //trRelMount.setSelectionModel(new MySelectionModel()); // because of not allowing to select local dirs
+            trRelMount.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         //}
         setInitSelect(relMount);
         txRelMount.setText(relMount);
@@ -315,16 +378,16 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     private void setInitSelect(String pathToNode) {
         pathToNode = pathToNode.replace(File.separatorChar, '/');
         StringTokenizer token = new StringTokenizer(pathToNode, "/", false);
-        DefaultMutableTreeNode parent = (DefaultMutableTreeNode)trRelMount.getModel().getRoot();
+        MyTreeNode parent = (MyTreeNode) trRelMount.getModel().getRoot();
         TreePath path = new TreePath(parent);
-        DefaultMutableTreeNode child;
+        MyTreeNode child;
         File childFile;
         String directoryName;
         outerWhile:
             while (token.hasMoreTokens()) {
                 directoryName = token.nextToken();
                 try {
-                    child = (DefaultMutableTreeNode)parent.getFirstChild();
+                    child = (MyTreeNode) parent.getFirstChild();
                     do {
                         if (child == null) break;
                         childFile = (File) child.getUserObject();
@@ -333,7 +396,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                             path = path.pathByAddingChild(child);
                             continue outerWhile;
                         }
-                        child = (DefaultMutableTreeNode)parent.getChildAfter(child);
+                        child = (MyTreeNode) parent.getChildAfter(child);
                     } while (true);
                 } catch (NoSuchElementException exc){
                 }
@@ -345,6 +408,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
 //        System.out.println("Cust4MountPanel(): "+debug);
     }
 
+    /*
     public void treeCollapsed(final javax.swing.event.TreeExpansionEvent p1) {
        //for root node.. if not enabled, unselect everything upon colapsing
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)p1.getPath().getLastPathComponent();
@@ -357,7 +421,24 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     public void treeExpanded(final javax.swing.event.TreeExpansionEvent p1) {
         //DO nothing
     }
- 
+     */
+    
+    private class MyTreeNode extends DefaultMutableTreeNode {
+        
+        static final long serialVersionUID = 2478352100056378993L;
+        
+        public MyTreeNode() {
+            super();
+        }
+        
+        public MyTreeNode(Object userObject) {
+            super(userObject);
+        }
+
+        public boolean isLeaf() {
+            return !getAllowsChildren();
+        }
+    }
     
     private class MyTreeCellRenderer extends DefaultTreeCellRenderer {
         String DEFAULT_FOLDER = "/org/openide/resources/defaultFolder.gif";
@@ -381,23 +462,18 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                 JLabel label = (JLabel) comp;
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
                 if (node != null) {
-                  Object userObj = node.getUserObject();
-                  if (userObj != null) {
-                    MyFile fl = (MyFile)userObj;
-                    String lbl = fl.getName();
-                    if (fl.isLocal()) {
-                        lbl = lbl + " [Local]";
-                        label.setEnabled(false);
+                    Object userObj = node.getUserObject();
+                    if (userObj != null) {
+                        File file = (File) userObj;
+                        label.setText(file.getName());
                     }
-                    label.setText(lbl);
-                  }
                 }
                 if (!expanded) {
-                  java.net.URL url1 = this.getClass().getResource(DEFAULT_FOLDER);
-                  label.setIcon(new ImageIcon(url1));
+                    java.net.URL url1 = this.getClass().getResource(DEFAULT_FOLDER);
+                    label.setIcon(new ImageIcon(url1));
                 } else {
-                  java.net.URL url2 = this.getClass().getResource(DEFAULT_OPEN_FOLDER);
-                  label.setIcon(new ImageIcon(url2));
+                    java.net.URL url2 = this.getClass().getResource(DEFAULT_OPEN_FOLDER);
+                    label.setIcon(new ImageIcon(url2));
 //                  label.setIcon(new ImageIcon(new java.net.URL("org.netbeans.openide.resources.defaultFolder.gif")));
                 }
 
@@ -407,6 +483,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
         
     }
     
+    /*
     class MyFile extends java.io.File {
         private boolean local;
 
@@ -438,5 +515,5 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
          super.setSelectionPath(path);
        }
     }
-    
+     */
 }
