@@ -44,23 +44,25 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
             this._alias = alias;
         }
     
-        public String generateHead (int indent) {
-            return "";
+        public String generateHead (int indent, StringHolder currentPrefix) {
+            return Util.generatePreTypePragmas (_alias.id(), _alias.absolute_name(), currentPrefix, indent);
         }
     
-        public String generateSelf (int indent) {
-            String code ="";
+        public String generateSelf (int indent, StringHolder currentPrefix) {
+            String fill ="";
+            String code = generateHead (indent, currentPrefix);
             for (int i=0; i<indent; i++)
-                code = code + SPACE;
-            code = code + "typedef ";
+                fill = fill + SPACE;
+            code = code + fill + "typedef ";
             StringHolder dimension = new StringHolder();
             code = code + Util.typeCode2TypeString (_alias.original_type_def().type(), dimension) + " ";
-            code = code + _alias.name()+((dimension.value==null)?"":dimension.value)+";\n\n";
+            code = code + _alias.name()+((dimension.value==null)?"":dimension.value)+";\n";
+            code = code + generateTail (indent);
             return code;
         }
     
         public String generateTail (int indent) {
-            return "";
+            return Util.generatePostTypePragmas (_alias.name(), _alias.id(), indent) + "\n";
         }
     
     }
@@ -162,11 +164,12 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
             stack.add(((GenerateSupportFactory)node).createGenerator());
             node = node.getParentNode();
         }
+        StringHolder currentPrefix = new StringHolder ("");
         int size = stack.size();
         for (int i = size - 1; i>=0; i--)
-            code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1));
+            code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1), currentPrefix);
         // Generate element itself
-        code = code + this.createGenerator().generateSelf(size);
+        code = code + this.createGenerator().generateSelf(size, currentPrefix);
         //Generate tail of namespace
         for (int i = 0; i< stack.size(); i++)
             code = code + ((GenerateSupport)stack.get(i)).generateTail((size -i));

@@ -46,51 +46,55 @@ public class IRRepositoryNode extends IRContainerNode implements Node.Cookie, Re
             this.name = name;
         }
     
-        public String generateHead (int indent){
+        /** Does not have prefix, cause its not Contained type
+         */
+        public String generateHead (int indent, StringHolder currentPrefix){
             String code ="";
             for (int i=0; i<indent; i++)
                 code =code + SPACE;
             return code + "// Repository: " + name + "\n";
         }
     
-        public String generateSelf (int indent){
-            String code = generateHead(indent);
+        public String generateSelf (int indent, StringHolder currentPrefix){
+            String code = generateHead(indent, currentPrefix);
+            String prefixBackup = currentPrefix.value;
             Contained[] contained = container.contents (DefinitionKind.dk_all, true);
             for (int i=0 ; i < contained.length; i++){
                 switch (contained[i].def_kind().value()){
                 case DefinitionKind._dk_Interface:
-                    code = code + IRInterfaceDefNode.createGeneratorFor(contained[i]).generateSelf(indent);
+                    code = code + IRInterfaceDefNode.createGeneratorFor(contained[i]).generateSelf(indent, currentPrefix);
                     break;
                 case DefinitionKind._dk_Module:
-                    code = code + IRModuleDefNode.createGeneratorFor (contained[i]).generateSelf(indent);
+                    code = code + IRModuleDefNode.createGeneratorFor (contained[i]).generateSelf(indent, currentPrefix);
                     break;
                 case DefinitionKind._dk_Exception:
-                    code = code + IRExceptionDefNode.createGeneratorFor (contained[i]).generateSelf(indent);
+                    code = code + IRExceptionDefNode.createGeneratorFor (contained[i]).generateSelf(indent, currentPrefix);
                     break;
                 case DefinitionKind._dk_Struct:
-                    code = code + IRStructDefNode.createGeneratorFor (contained[i]).generateSelf(indent);
+                    code = code + IRStructDefNode.createGeneratorFor (contained[i]).generateSelf(indent, currentPrefix);
                     break;
                 case DefinitionKind._dk_Union:
-                    code = code + IRUnionDefNode.createGeneratorFor (contained[i]).generateSelf(indent);
+                    code = code + IRUnionDefNode.createGeneratorFor (contained[i]).generateSelf(indent, currentPrefix);
                     break;
                 case DefinitionKind._dk_Constant:
-                    code = code + IRConstantDefNode.createGeneratorFor (contained[i]).generateSelf(indent);
+                    code = code + IRConstantDefNode.createGeneratorFor (contained[i]).generateSelf(indent, currentPrefix);
                     break;
                 case DefinitionKind._dk_Attribute:
-                    code = code + IRAttributeDefNode.createGeneratorFor (contained[i]).generateSelf(indent);
+                    code = code + IRAttributeDefNode.createGeneratorFor (contained[i]).generateSelf(indent, currentPrefix);
                     break;
                 case DefinitionKind._dk_Operation:
-                    code = code + IROperationDefNode.createGeneratorFor (contained[i]).generateSelf(indent);
+                    code = code + IROperationDefNode.createGeneratorFor (contained[i]).generateSelf(indent, currentPrefix);
                     break;
                 case DefinitionKind._dk_Alias:
-                    code = code + IRAliasDefNode.createGeneratorFor (contained[i]).generateSelf(indent);
+                    code = code + IRAliasDefNode.createGeneratorFor (contained[i]).generateSelf(indent, currentPrefix);
                     break;
                 case DefinitionKind._dk_Enum:
-                    code = code + IREnumDefNode.createGeneratorFor (contained[i]).generateSelf(indent);
+                    code = code + IREnumDefNode.createGeneratorFor (contained[i]).generateSelf(indent, currentPrefix);
                     break;
                 }
             }
             code = code + generateTail(indent);
+            currentPrefix.value = prefixBackup;
             return code;
         }
     

@@ -35,11 +35,15 @@ public class IRPrimitiveNode extends IRLeafNode {
             this.name = name;
         }
     
-        public String generateHead(int indent){
+        public String generateHead(int indent, StringHolder currentPrefix){
+            // Can not have its own prefix
             return "";
         }
     
-        public String generateSelf (int indent){
+        /** Because this type of entity has weak identity and is identified by its name and parent
+         *  there is no Repository for it, that implies fact that this can't have pragmas at all
+         */
+        public String generateSelf (int indent, StringHolder currentPrefix){
             String code = "";
             for (int i=0; i<indent; i++)
                 code =code + SPACE;

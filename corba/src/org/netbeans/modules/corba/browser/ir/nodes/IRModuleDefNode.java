@@ -35,52 +35,56 @@ public class IRModuleDefNode extends IRContainerNode {
             this._module = module;
         }
     
-        public String generateHead (int indent){
-            String code = "";
+        public String generateHead (int indent, StringHolder currentPrefix){
+            String code = Util.generatePreTypePragmas (_module.id(), _module.absolute_name(), currentPrefix, indent);
+            String fill = "";
             for (int i=0; i<indent; i++)
-                code = code + SPACE;
-            return code + "module " + _module.name() +" {\n";
+                fill = fill + SPACE;
+            return code + fill +"module " + _module.name() +" {\n";
         }
     
-        public String generateSelf (int indent){
+        public String generateSelf (int indent, StringHolder currentPrefix){
             String code = "";
-            code = code + generateHead(indent);
+            code = code + generateHead(indent, currentPrefix);
+            String prefixBackUp = currentPrefix.value;
             Contained[] contained = _module.contents (DefinitionKind.dk_all, true);
             for (int i=0 ; i < contained.length; i++){
                 switch (contained[i].def_kind().value()){
                 case DefinitionKind._dk_Interface:
-                    code = code + IRInterfaceDefNode.createGeneratorFor(contained[i]).generateSelf(indent+1);
+                    code = code + IRInterfaceDefNode.createGeneratorFor(contained[i]).generateSelf(indent+1, currentPrefix);
                     break;
                 case DefinitionKind._dk_Module:
-                    code = code + IRModuleDefNode.createGeneratorFor (contained[i]).generateSelf(indent+1);
+                    code = code + IRModuleDefNode.createGeneratorFor (contained[i]).generateSelf(indent+1, currentPrefix);
                     break;
                 case DefinitionKind._dk_Exception:
-                    code = code + IRExceptionDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1);
+                    code = code + IRExceptionDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
                     break;
                 case DefinitionKind._dk_Struct:
-                    code = code + IRStructDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1);
+                    code = code + IRStructDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
                     break;
                 case DefinitionKind._dk_Union:
-                    code = code + IRUnionDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1);
+                    code = code + IRUnionDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
                     break;
                 case DefinitionKind._dk_Constant:
-                    code = code + IRConstantDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1);
+                    code = code + IRConstantDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
                     break;
                 case DefinitionKind._dk_Attribute:
-                    code = code + IRAttributeDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1);
+                    code = code + IRAttributeDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
                     break;
                 case DefinitionKind._dk_Operation:
-                    code = code + IROperationDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1);
+                    code = code + IROperationDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
                     break;
                 case DefinitionKind._dk_Alias:
-                    code = code + IRAliasDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1);
+                    code = code + IRAliasDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
                     break;
                 case DefinitionKind._dk_Enum:
-                    code = code + IREnumDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1);
+                    code = code + IREnumDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
                     break;
                 }
             }
             code = code + generateTail(indent);
+            // We go out of scope, restore prefix
+            currentPrefix.value = prefixBackUp;
             return code;
         }
     
@@ -88,7 +92,7 @@ public class IRModuleDefNode extends IRContainerNode {
             String code ="";
             for (int i=0; i<indent; i++)
                 code = code + SPACE;
-            return code + "}; // "+_module.name() + "\n\n";
+            return code + "}; // "+_module.name() + "\n" + Util.generatePostTypePragmas(_module.name(), _module.id(), indent)+"\n";
         }
     } // End of Inner Class
 

@@ -79,11 +79,12 @@ public abstract class IRContainerNode extends IRAbstractNode implements Node.Coo
             node = node.getParentNode();
         }
         int size = stack.size();
+        org.omg.CORBA.StringHolder currentPrefix = new org.omg.CORBA.StringHolder ();
         for (int i = size -1 ; i>=0; i--)
-            code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1));
+            code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1), currentPrefix);
 
         // Generate element itself
-        code = code + this.createGenerator().generateSelf(size);
+        code = code + this.createGenerator().generateSelf(size, currentPrefix);
         //Generate tail of namespace
         for (int i = 0; i< stack.size(); i++)
             code = code + ((GenerateSupport)stack.get(i)).generateTail((size -i));

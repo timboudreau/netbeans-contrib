@@ -33,14 +33,16 @@ public class IRAttributeDefNode extends IRLeafNode {
             this._attribute = attribute;
         }
     
-        public String generateHead (int indent){
-            return "";      //NOI18N
+        public String generateHead (int indent, StringHolder currentPrefix){
+            return Util.generatePreTypePragmas (_attribute.id(), _attribute.absolute_name(), currentPrefix, indent);      //NOI18N
         }
     
-        public String generateSelf (int indent){
-            String code = "";
+        public String generateSelf (int indent, StringHolder currentPrefix){
+            String code = generateHead (indent, currentPrefix);
+            String fill = "";
             for (int i=0; i<indent; i++)
-                code = code + SPACE;
+                fill = fill + SPACE;
+            code = code + fill;
             switch (_attribute.mode().value()){
             case AttributeMode._ATTR_NORMAL:
                 code = code + "attribute ";         //NOI18N
@@ -51,11 +53,12 @@ public class IRAttributeDefNode extends IRLeafNode {
             }
             code = code + Util.typeCode2TypeString (_attribute.type())+" ";     //NOI18N
             code = code + _attribute.name() + ";\n";        //NOI18N
+            code = code + generateTail (indent);
             return code;  
         }
     
         public String generateTail (int indent){
-            return "";      //NOI18N
+            return Util.generatePostTypePragmas (_attribute.name(), _attribute.id(), indent);      //NOI18N
         }
     
     }

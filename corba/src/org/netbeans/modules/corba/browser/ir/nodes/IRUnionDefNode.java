@@ -38,17 +38,18 @@ public class IRUnionDefNode extends IRContainerNode {
             this._union = union;
         }
     
-        public String generateHead (int indent){
-            String code = "";
+        public String generateHead (int indent, StringHolder currentPrefix) {
+            String code = Util.generatePreTypePragmas (_union.id(), _union.absolute_name(), currentPrefix, indent);
+            String fill = "";
             for (int i=0; i<indent; i++)
-                code =code + SPACE;
-            code = code + "union " + _union.name() + " switch ( " +Util.typeCode2TypeString(_union.discriminator_type())+ " ) {\n";
+                fill = fill + SPACE;
+            code = code + fill + "union " + _union.name() + " switch ( " +Util.typeCode2TypeString(_union.discriminator_type())+ " ) {\n";
             return code;
         }
     
-        public String generateSelf (int indent){
+        public String generateSelf (int indent, StringHolder currentPrefix){
             String code = "";
-            code = code + generateHead(indent);
+            code = code + generateHead(indent, currentPrefix);
             String fill = "";
             for (int i=0; i<=indent; i++)
                 fill =fill + SPACE;
@@ -117,7 +118,7 @@ public class IRUnionDefNode extends IRContainerNode {
             String code = "";
             for (int i=0; i<indent; i++)
                 code =code + SPACE;
-            return code + "}; // " + _union.name() +"\n\n";
+            return code + "}; // " + _union.name() +"\n"+Util.generatePostTypePragmas(_union.name(),_union.id(),indent)+"\n";
         }
     
     }

@@ -50,23 +50,25 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
             this._constant = constant;
         }
     
-        public String generateHead (int indent){
-            return "";
+        public String generateHead (int indent, StringHolder currentPrefix){
+            return Util.generatePreTypePragmas (_constant.id(), _constant.absolute_name(), currentPrefix, indent);
         }
     
-        public String generateSelf (int indent){
-            String code ="";
+        public String generateSelf (int indent, StringHolder currentPrefix){
+            String code = generateHead (indent, currentPrefix);
+            String  fill = "";
             for (int i=0; i<indent; i++)
-                code = code + SPACE;
-            code = code + "const ";
+                fill = fill + SPACE;
+            code = code + fill + "const ";
             code = code + Util.typeCode2TypeString ( _constant.value().type())+ " ";
             code = code + _constant.name() + " = ";
-            code = code + ConstantCodeGenerator.getValue(this._constant) + ";\n\n";
+            code = code + ConstantCodeGenerator.getValue(this._constant) + ";\n";
+            code = code + generateTail(indent) +"\n";
             return code;
         }
     
         public String generateTail (int indent){
-            return "";
+            return Util.generatePostTypePragmas (_constant.name(), _constant.id(), indent);
         }
     
         /** Returns the value of constant as String
@@ -78,13 +80,13 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
             case TCKind._tk_boolean:
                 return new Boolean (value.extract_boolean()).toString();
             case TCKind._tk_char:
-                return new Character(value.extract_char()).toString();
+                return "\'" + new Character(value.extract_char()).toString() + "\'";
             case TCKind._tk_wchar:
-                return new Character(value.extract_char()).toString();
+                return "\'" + new Character(value.extract_wchar()).toString() + "\'";
             case TCKind._tk_string:
-                return value.extract_string();
+                return "\"" + value.extract_string() + "\"";
             case TCKind._tk_wstring:
-                return value.extract_wstring();
+                return "\"" + value.extract_wstring() + "\"";
             case TCKind._tk_float:
                 return new Float(value.extract_float()).toString();
             case TCKind._tk_double:
@@ -211,11 +213,12 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
             stack.add(((GenerateSupportFactory)node).createGenerator());
             node = node.getParentNode();
         }
+        StringHolder currentPrefix = new StringHolder ("");
         int size = stack.size();
         for (int i = size -1 ; i>=0; i--)
-            code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1));
+            code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1), currentPrefix);
         // Generate element itself
-        code = code + this.createGenerator().generateSelf(size);
+        code = code + this.createGenerator().generateSelf(size, currentPrefix);
         //Generate tail of namespace
         for (int i = 0; i< stack.size(); i++)
             code = code + ((GenerateSupport)stack.get(i)).generateTail((size -i));

@@ -35,16 +35,17 @@ public class IREnumDefNode extends IRContainerNode {
             this._enum = enum;
         }
     
-        public String generateHead (int indent){
-            String code ="";
+        public String generateHead (int indent, StringHolder currentPrefix){
+            String code = Util.generatePreTypePragmas ( _enum.id(), _enum.absolute_name(), currentPrefix, indent);
+            String fill ="";
             for (int i=0; i<indent; i++)
-                code = code + SPACE;
-            code = code + "enum " + _enum.name()+" { ";
+                fill = fill + SPACE;
+            code = code + fill + "enum " + _enum.name()+" { ";
             return code;
         }
     
-        public String generateSelf (int indent){
-            String code = generateHead(indent);
+        public String generateSelf (int indent, StringHolder currentPrefix){
+            String code = generateHead(indent, currentPrefix);
             String[] members = _enum.members();
             for (int i = 0; i < members.length; i++){
                 if (i != 0)
@@ -56,7 +57,7 @@ public class IREnumDefNode extends IRContainerNode {
         }
     
         public String generateTail (int indent){
-            return "};\n\n";	 
+            return "};\n"+Util.generatePostTypePragmas(_enum.name(),_enum.id(), indent)+"\n";	 
         }
     
     }

@@ -33,16 +33,18 @@ public class IROperationDefNode extends IRLeafNode {
             this._operation = operation;
         }
     
-        public String generateHead (int indent){
-            return "";
+        public String generateHead (int indent, StringHolder currentPrefix){
+            return Util.generatePreTypePragmas (_operation.id(), _operation.absolute_name(), currentPrefix, indent);
         }
     
-        public String generateSelf (int indent){
-            String code = "";
+        public String generateSelf (int indent, StringHolder currentPrefix){
+            String code = generateHead (indent, currentPrefix);
+            String fill = "";
             for (int i=0; i<indent; i++)
-                code =code + SPACE;
+                fill = fill + SPACE;
+            code = code + fill;
             if (_operation.mode() == OperationMode.OP_ONEWAY)
-                code = code + "oneway ";
+                code = code + fill + "oneway ";
             code = code + Util.typeCode2TypeString(_operation.result())+" ";
             code = code + _operation.name() + " (";
             ParameterDescription[] params = _operation.params();
@@ -53,33 +55,34 @@ public class IROperationDefNode extends IRLeafNode {
                 code = code + Util.typeCode2TypeString (params[i].type) + " ";
                 code = code + params[i].name;
             }
-            code = code +" ) ";
+            code = code +")";
             ExceptionDef[] exceptions = _operation.exceptions();
             if (exceptions.length > 0){
-                code = code +"raises (";
+                code = code +" raises (";
                 for (int i=0; i<exceptions.length; i++){
                     if ( i!= 0)
                         code = code+", ";
                     code = code + exceptions[i].name();
                 }
-                code = code +" )";
+                code = code +")";
             }
             String[] context = _operation.contexts();
             if (context.length >0){
-                code = code + "context ( ";
+                code = code + " context (";
                 for (int i=0; i< context.length; i++){
                     if (i != 0)
                         code = code+", ";
                     code = code + "\""+ context[i]+"\"";
                 } 
-                code = code +" )";
+                code = code +")";
             }
             code = code + ";\n";
+            code = code + generateTail (indent);
             return code;
         }
     
         public String generateTail (int indent){
-            return "";
+            return Util.generatePostTypePragmas (_operation.name(), _operation.id(), indent);
         }
     
         public static String pm2Str(ParameterMode pm){

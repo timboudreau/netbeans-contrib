@@ -24,6 +24,7 @@ import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
  * @author  Tomas Zezula
  * @version 
  */
+
 public class IRExceptionDefNode extends IRContainerNode {
 
     private ExceptionDef _exception;
@@ -37,16 +38,17 @@ public class IRExceptionDefNode extends IRContainerNode {
             this._exception = exception;
         }
     
-        public String generateHead (int indent){
-            String code = "";
+        public String generateHead (int indent, StringHolder currentPrefix){
+            String code = Util.generatePreTypePragmas (_exception.id(), _exception.absolute_name(), currentPrefix, indent);
+            String fill = "";
             for (int i=0; i<indent; i++)
-                code = code + SPACE;
-            code = code + "exception " + _exception.name() + " {\n";
+                fill = fill + SPACE;
+            code = code + fill + "exception " + _exception.name() + " {\n";
             return code;	
         }
     
-        public String generateSelf (int indent){
-            String code = generateHead(indent);
+        public String generateSelf (int indent, StringHolder currentPrefix){
+            String code = generateHead(indent, currentPrefix);
             String fill = "";
             for (int i=0; i<=indent; i++)
                 fill = fill + SPACE;
@@ -64,7 +66,8 @@ public class IRExceptionDefNode extends IRContainerNode {
             String code = "";
             for (int i=0; i<indent; i++)
                 code = code + SPACE;
-            code = code + "}; // Exception " + _exception.name() + "\n\n";
+            code = code + "}; // Exception " + _exception.name() + "\n";
+            code = code + Util.generatePostTypePragmas (_exception.name(),_exception.id(),indent)+"\n";
             return code;
         }
     

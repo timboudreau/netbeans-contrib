@@ -34,18 +34,19 @@ public class IRStructDefNode extends IRContainerNode {
             this._struct = struct;
         }
     
-        public String generateHead (int indent) {
-            String code = "";
+        public String generateHead (int indent, StringHolder currentPrefix) {
+            String code = Util.generatePreTypePragmas (_struct.id(), _struct.absolute_name(), currentPrefix, indent);
+            String fill = "";
             for (int i=0; i<indent; i++)
-                code =code + SPACE;
-            code = code + "struct " + _struct.name() + " {\n";
+                fill = fill + SPACE;
+            code = code + fill + "struct " + _struct.name() + " {\n";
             return code;
         }
     
-        public String generateSelf (int indent) {
+        public String generateSelf (int indent, StringHolder currentPrefix) {
             String code = "";
             String fill = "";
-            code = code + generateHead (indent);
+            code = code + generateHead (indent, currentPrefix);
             StructMember[] members = _struct.members();
             for (int i=0; i<= indent; i++)
                 fill = fill + SPACE;
@@ -61,7 +62,7 @@ public class IRStructDefNode extends IRContainerNode {
             String code = "";
             for (int i=0; i<indent; i++)
                 code =code + SPACE;
-            code = code + "}; //" + _struct.name() + "\n\n";
+            code = code + "}; //" + _struct.name() + "\n"+Util.generatePostTypePragmas(_struct.name(),_struct.id(),indent)+"\n";
             return code;
         }
     
