@@ -36,6 +36,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="compile" depends="precompile-rmic">
   <javac srcdir="src" destdir="src">
       <classpath>
+        <pathelement location="libsrc"/>
         <pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
 	<pathelement location="${nbroot}/openidex/netbeans/lib/ext/openidex.jar"/>
@@ -98,6 +99,10 @@ Microsystems, Inc. All Rights Reserved.
   <target name="clean">
     <delete>
       <fileset dir="src">
+        <include name="**/*.class"/>
+        <include name="**/*.jar"/>
+      </fileset>	
+      <fileset dir="libsrc">
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
       </fileset>	
