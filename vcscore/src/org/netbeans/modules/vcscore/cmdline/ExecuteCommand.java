@@ -1254,7 +1254,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 if (commonParent != null) {
                     file = commonParent + "/" + file;
                 }
-                files.add(file.replace(separatorChar, '/'));
+                file = file.replace(separatorChar, '/');
+                if (".".equals(file)) file = ""; // NOI18N
+                files.add(file);
                 begin = index + 2;
             } while (begin < len);
             return Collections.unmodifiableList(files);
@@ -1264,10 +1266,17 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             file = valueAdjustment.revertAdjustedVarValue(file);
             path = valueAdjustment.revertAdjustedVarValue(path);
             if (path != null) {
-                if (commonParent != null) {
+                if (commonParent != null && commonParent.length() > 0) {
                     path = commonParent + "/" + path;
                 }
-                String fullPath = ((path.length() > 0) ? path.replace(separatorChar, '/') : "") + ((file == null) ? "" : "/" + file);
+                path = path.replace(separatorChar, '/');
+                if (file == null) file = "";
+                String fullPath;
+                if (path.length() > 0 && file.length() > 0) {
+                    fullPath = path + "/" + file;
+                } else {
+                    fullPath = path + file; // one of them is empty
+                }
                 return Collections.singleton(fullPath);
             } else {
                 return Collections.EMPTY_SET;
