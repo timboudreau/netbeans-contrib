@@ -46,7 +46,7 @@ Microsystems, Inc. All Rights Reserved.
                  homepage="http://${nbm.domain}.${homepage.base}/"
                  distribution="http://${dist.base}/${nbm}"
                  needsrestart="${nbm.needs.restart}">
-            <license file="${external.dir}/mdr-license.txt"/>
+            <license file="${external.dir}/mof-license.txt"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
     </target>
