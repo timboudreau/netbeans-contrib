@@ -409,11 +409,17 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 	  cachedAnnotatedFullName.equals(fullName) ){
 	return cachedAnnotatedResult;
       }
-      result=fileName+" ["+cache.getFileStatus(fullName)+"]";
+      String status=cache.getFileStatus(fullName).trim();
+      if( status.length()>0 ){
+	result=fileName+" ["+status+"]";
+      }
     }
     else{
       Vector/*<VcsFile>*/ importantFiles=getImportantFiles(oo);
-      result=name+" ["+cache.getStatus(importantFiles)+"]";
+      String status=cache.getStatus(importantFiles).trim();
+      if( status.length()>0 ){
+	result=name+" ["+status+"]";
+      }
     }
 
     cachedAnnotatedFullName=fullName;
@@ -603,6 +609,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
    */
   public void createFolder (String name) throws java.io.IOException {
     D.deb("createFolder('"+name+"')");
+    if( name.startsWith("/") ){
+      // Jarda TODO
+      name=name.substring(1);
+      D.deb("corrected name='"+name+"'");
+    }
+
     File f = getFile (name);
     Object[] errorParams = new Object[] {
       f.getName (),
@@ -622,6 +634,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     if (!b) {
       throw new IOException(MessageFormat.format (g("EXC_CannotCreateF"), errorParams));
     }
+    cache.addFolder(name);
   }
 
   //-------------------------------------------
@@ -634,6 +647,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
    */
   public void createData (String name) throws IOException {
     D.deb("createData("+name+")");
+    if( name.startsWith("/") ){
+      // Jarda TODO
+      name=name.substring(1);
+      D.deb("corrected name='"+name+"'");
+    }
+
     File f = getFile (name);
     Object[] errorParams = new Object[] {
       f.getName (),
@@ -821,6 +840,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  31   Gandalf   1.30        6/8/99   Michal Fadljevic 
  *  30   Gandalf   1.29        6/4/99   Michal Fadljevic 
  *  29   Gandalf   1.28        6/1/99   Michal Fadljevic 
  *  28   Gandalf   1.27        6/1/99   Michal Fadljevic 
