@@ -20,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JCheckBox;
 import java.awt.Dialog;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -453,7 +454,38 @@ public class CommandExecutorSupport extends Object {
 
         return result ;
     }
+    
+    private static void addComponentsWithPrecommands(VariableInputComponent component,
+                                                     ArrayList componentsWithPrecommands) {
+        if (component.needsPreCommandPerform()) componentsWithPrecommands.add(component);
+        VariableInputComponent[] components = component.subComponents();
+        if (components != null) {
+            for (int i = 0; i < components.length; i++) {
+                addComponentsWithPrecommands(components[i], componentsWithPrecommands);
+            }
+        }    
+    }
 
+    private static void processPrecommands(VcsFileSystem fileSystem, Hashtable vars,
+                                           VariableInputDescriptor inputDescriptor) {
+        VariableInputComponent[] components = inputDescriptor.components();
+        ArrayList componentsWithPrecommands = new ArrayList();
+        for (int i = 0; i < components.length; i++) {
+            addComponentsWithPrecommands(components[i], componentsWithPrecommands);
+        }
+        if (componentsWithPrecommands.size() > 0) {
+            String[] defVals = new String[componentsWithPrecommands.size()];
+            for (int i = 0; i < defVals.length; i++) {
+                defVals[i] = ((VariableInputComponent) componentsWithPrecommands.get(i)).getDefaultValue();
+            }
+            PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
+            String[] values = cmdPerf.process(defVals);
+            for (int i = 0; i < values.length; i++) {
+                ((VariableInputComponent) componentsWithPrecommands.get(i)).setValue(values[i]);
+            }
+        }
+    }
+    
     /** The table of FS and its global descriptor string. */
     private static Hashtable globalInputStrs = new Hashtable();
     /** The table of FS and its parsed global descriptor */
@@ -478,8 +510,8 @@ public class CommandExecutorSupport extends Object {
                 //inputDescriptorStr = Variables.expand(vars, inputDescriptorStr, true);
                 //System.out.println("FILES_IS_FOLDER = '"+vars.get("FILES_IS_FOLDER")+"'");
                 //System.out.println("promptForVariables(): after expand: inputDescriptorStr = "+inputDescriptorStr);
-                PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
-                inputDescriptorStr = cmdPerf.process(inputDescriptorStr);
+                //PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
+                //inputDescriptorStr = cmdPerf.process(inputDescriptorStr);
                 try {
                     inputDescriptor = VariableInputDescriptor.parseItems(inputDescriptorStr);
                 } catch (VariableInputFormatException exc) {
@@ -490,6 +522,7 @@ public class CommandExecutorSupport extends Object {
                 cmd.setProperty(INPUT_DESCRIPTOR_PARSED, inputDescriptor);
             }
         }
+        if (inputDescriptor != null) processPrecommands(fileSystem, vars, inputDescriptor);
         synchronized (vars) {
             if (needPromptForPR("PASSWORD", exec, vars)) { // NOI18N
                 String password = fileSystem.getPassword();
