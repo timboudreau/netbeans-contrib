@@ -10,5 +10,5 @@ OpenIDE-Module-Module-Dependencies: org.openide.src > 1.0,
 OpenIDE-Module-Implementation-Version: @tl.checkstyle.impl@
 OpenIDE-Module-Build-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Public-Packages: -
-Class-Path: ext/checkstyle-all-3.3.jar
+Class-Path: ext/checkstyle-all.jar
 
