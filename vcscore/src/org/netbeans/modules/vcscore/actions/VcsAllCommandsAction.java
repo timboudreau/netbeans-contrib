@@ -121,7 +121,15 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
             }            
             items.add(item);
         }
-        menu.setMenuItems((JMenuItem[])items.toArray(new JMenuItem[items.size()]));       
+        JMenuItem[] itemsArr = (JMenuItem[])items.toArray(new JMenuItem[items.size()]);
+        Arrays.sort(itemsArr, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                JMenu m1 = (JMenu) o1;
+                JMenu m2 = (JMenu) o2;
+                return m1.getText().compareTo(m2.getText());
+            }
+        });
+        menu.setMenuItems(itemsArr);
         return menu;
     } 
     
