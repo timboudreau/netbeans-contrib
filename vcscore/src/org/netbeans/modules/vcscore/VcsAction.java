@@ -189,7 +189,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_EDIT);
         if (cmd != null) {
             doCommand(files, cmd);
-            fileSystem.getCommandsPool().waitToFinish(cmd, files.keySet());
+            //fileSystem.getCommandsPool().waitToFinish(cmd, files.keySet());
         }
     }
 
