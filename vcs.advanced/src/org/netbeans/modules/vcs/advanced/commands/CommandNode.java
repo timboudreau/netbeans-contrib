@@ -154,7 +154,6 @@ public class CommandNode extends AbstractNode {
     
     private void init() {
         if (cmd != null) {
-            setName(cmd.getName());
             setDisplayName(cmd.getDisplayName());
             setShortDescription(NbBundle.getMessage(CommandNode.class, "CommandNode.Description",
                                 (cmd.getDisplayName() == null) ? cmd.getName() : cmd.getDisplayName()));
@@ -166,6 +165,40 @@ public class CommandNode extends AbstractNode {
         index = new CommandsIndex();
         getCookieSet().add(index);
         fireIconChange();
+    }
+    
+    public void setName(String name) {
+        if (cmd != null) {// && !name.equals(cmd.getDisplayName())) {
+            String displayName = cmd.getDisplayName();
+            if (displayName == null) {
+                cmd.setName(name);
+                setDisplayName(null);
+                // Necessary to refresh the "Name" property
+                firePropertyChange("name", null, name);
+            } else {
+                cmd.setDisplayName(name);
+                setDisplayName(name);
+                // Necessary to refresh the "Name" property
+                firePropertyChange("label", null, name);
+            }
+            // Necessary to refresh the name of the Node
+            fireNameChange(null, name);
+        } else {
+            super.setName(name);
+        }
+    }
+    
+    public String getName() {
+        if (cmd != null) {
+            String displayName = cmd.getDisplayName();
+            if (displayName == null) {
+                return cmd.getName();
+            } else {
+                return displayName;
+            }
+        } else {
+            return super.getName();
+        }
     }
     
     public void setDisplayName(String s) {
@@ -397,7 +430,7 @@ public class CommandNode extends AbstractNode {
                     
                     public void setValue(Object value) {
                         cmd.setDisplayName((String) value);
-                        CommandNode.this.setDisplayName((String) value);
+                        CommandNode.this.fireNameChange(null, (String) value);
                         //cmd.fireChanged();
                     }
                     
@@ -407,7 +440,7 @@ public class CommandNode extends AbstractNode {
                     
                     public void restoreDefaultValue() {
                         cmd.setDisplayName(null);
-                        CommandNode.this.setDisplayName(null);
+                        CommandNode.this.fireNameChange(null, null);
                     }
                 });
         set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), g("HINT_Name")) {
