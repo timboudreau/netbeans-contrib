@@ -20,6 +20,7 @@ import org.openide.nodes.Node;
 import org.openide.util.RequestProcessor;
 
 import java.util.Collections;
+import java.util.ArrayList;
 
 /**
  * Node visualization of TaskList. It creates children
@@ -135,7 +136,8 @@ public final class TaskListNode extends AbstractNode {
         public void run() {
             batchSetKeys = null;
             if (active) {
-                setKeys(list.getTasks());
+                // #43166 clone list, TODO there is not TaskList synchronization model yet (a RW lock) 
+                setKeys(new ArrayList(list.getTasks()));
             }
         }
 
