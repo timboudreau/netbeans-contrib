@@ -13,13 +13,14 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
+import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
+
 import org.netbeans.modules.tasklist.suggestions.SuggestionList;
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.api.tasklist.Suggestion;
 
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 /**
  * Lists suggestions for current project or source file.

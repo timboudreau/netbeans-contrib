@@ -25,13 +25,10 @@ import org.openide.util.RequestProcessor;
 import org.openide.loaders.DataObject;
 import org.openide.ErrorManager;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.*;
 import org.netbeans.api.tasklist.SuggestionManager;
-import org.netbeans.modules.tasklist.core.TaskList;
 import org.netbeans.modules.tasklist.suggestions.SuggestionManagerImpl;
 import org.netbeans.modules.tasklist.suggestions.SuggestionList;
-import org.netbeans.modules.tasklist.suggestions.ScanSuggestionsAction;
 import org.netbeans.modules.tasklist.suggestions.SuggestionsScanner;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 

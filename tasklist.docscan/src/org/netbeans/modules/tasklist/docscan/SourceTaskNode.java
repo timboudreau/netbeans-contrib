@@ -133,15 +133,15 @@ final class SourceTaskNode extends TaskNode {
             PropertySupport.Reflection p;
             p = new PropertySupport.Reflection(item, String.class, "getSummary", null /* Don't allow users to edit this "setDescription" */); // NOI18N
             p.setName(TaskListView.PROP_TASK_SUMMARY);
-            p.setDisplayName(NbBundle.getMessage(SuggestionsView.class, "SuggestionsRoot")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SuggestionsView.class, "SuggestionsRootHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(SourceTaskNode.class, "SuggestionsRoot")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(SourceTaskNode.class, "SuggestionsRootHint")); // NOI18N
             ss.put(p);
 
 
             p = new PropertySupport.Reflection(item, String.class, "getDetails", null); // NOI18N
             p.setName(SourceTasksView.PROP_SUGG_DETAILS);
-            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Details")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "DetailsHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(SourceTaskNode.class, "Details")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(SourceTaskNode.class, "DetailsHint")); // NOI18N
             ss.put(p);
 
 
@@ -149,22 +149,22 @@ final class SourceTaskNode extends TaskNode {
                     "getPriority", null); // NOI18N
             p.setName(SourceTasksView.PROP_SUGG_PRIO);
             p.setPropertyEditorClass(PriorityPropertyEditor.class);
-            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Priority")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "PriorityHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(SourceTaskNode.class, "Priority")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(SourceTaskNode.class, "PriorityHint")); // NOI18N
             ss.put(p);
 
 
             p = new PropertySupport.Reflection(item, String.class, "getFileBaseName", null /* Don't allow users to edit this! "setFileBaseName" */); // NOI18N
             p.setName(SourceTasksView.PROP_SUGG_FILE);
-            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "File")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "FileHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(SourceTaskNode.class, "File")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(SourceTaskNode.class, "FileHint")); // NOI18N
             ss.put(p);
 
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getLineNumber", null /* Don't allow users to edit this! "setLineNumber" */); // NOI18N
             p.setName(SourceTasksView.PROP_SUGG_LINE);
             p.setPropertyEditorClass(LineNumberPropertyEditor.class);
-            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Line")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "LineHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(SourceTaskNode.class, "Line")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(SourceTaskNode.class, "LineHint")); // NOI18N
             ss.put(p);
 
         } catch (NoSuchMethodException nsme) {
@@ -215,7 +215,7 @@ final class SourceTaskNode extends TaskNode {
             return c;
         }
         if (cl.isAssignableFrom(Suggestion.class)) {
-            return (SuggestionImpl) item;
+            return (SuggestionImpl) item;  // FIXME wrong dependency, you can use lookup instead
         }
         Line l = item.getLine();
         if (l != null) {

@@ -13,21 +13,6 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import org.netbeans.modules.tasklist.core.TaskListView;
-import org.netbeans.modules.tasklist.core.ColumnProperty;
-import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.modules.tasklist.core.TaskList;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
-import org.netbeans.modules.tasklist.suggestions.*;
-import org.netbeans.api.tasklist.SuggestionPriority;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.openide.util.actions.SystemAction;
-import org.openide.filesystems.FileObject;
-import org.openide.awt.StatusDisplayer;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -35,6 +20,22 @@ import java.io.ObjectOutput;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.lang.reflect.InvocationTargetException;
+
+import javax.swing.*;
+
+import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
+import org.openide.util.actions.SystemAction;
+import org.openide.filesystems.FileObject;
+
+import org.netbeans.modules.tasklist.core.TaskListView;
+import org.netbeans.modules.tasklist.core.ColumnProperty;
+import org.netbeans.modules.tasklist.core.TaskNode;
+import org.netbeans.modules.tasklist.core.TaskList;
+import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
+import org.netbeans.modules.tasklist.suggestions.*;
+import org.netbeans.api.tasklist.SuggestionPriority;
+
 
 /**
  * View containing only source tasks (TODOs).
@@ -107,8 +108,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return new ColumnProperty(
                 MAIN_COLUMN_UID, // UID -- never change (part of serialization
                 PROP_TASK_SUMMARY,
-                NbBundle.getMessage(SuggestionsView.class, "SuggestionsRoot"), // NOI18N
-                NbBundle.getMessage(SuggestionsView.class, "SuggestionsRoot"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "SuggestionsRoot"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "SuggestionsRoot"), // NOI18N
                 true,
                 width
         );
@@ -120,8 +121,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 PRIORITY_COLUMN_UID, // UID -- never change (part of serialization
                 PROP_SUGG_PRIO,
                 SuggestionPriority.class,
-                NbBundle.getMessage(SuggestionsView.class, "Priority"), // NOI18N
-                NbBundle.getMessage(SuggestionsView.class, "PriorityHint"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "Priority"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "PriorityHint"), // NOI18N
                 true,
                 visible,
                 width
@@ -133,8 +134,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 FILE_COLUMN_UID, // UID -- never change (part of serialization
                 PROP_SUGG_FILE,
                 String.class,
-                NbBundle.getMessage(SuggestionsView.class, "File"), // NOI18N
-                NbBundle.getMessage(SuggestionsView.class, "FileHint"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "File"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "FileHint"), // NOI18N
                 true,
                 visible,
                 width
@@ -146,8 +147,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 LINE_COLUMN_UID, // UID -- never change (part of serialization
                 PROP_SUGG_LINE,
                 Integer.TYPE,
-                NbBundle.getMessage(SuggestionsView.class, "Line"), // NOI18N
-                NbBundle.getMessage(SuggestionsView.class, "LineHint"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "Line"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "LineHint"), // NOI18N
                 true,
                 visible,
                 width
@@ -160,8 +161,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 DETAILS_COLUMN_UID, // UID -- never change (part of serialization
                 PROP_SUGG_DETAILS,
                 String.class,
-                NbBundle.getMessage(SuggestionsView.class, "Details"), // NOI18N
-                NbBundle.getMessage(SuggestionsView.class, "DetailsHint"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "Details"), // NOI18N
+                NbBundle.getMessage(SourceTaskNode.class, "DetailsHint"), // NOI18N
                 true,
                 visible,
                 width
@@ -176,7 +177,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public SystemAction[] getToolBarActions() {
         return new SystemAction[] {
-            SystemAction.get(ShowSuggestionAction.class),
             SystemAction.get(FilterSourceTasksAction.class),
             SystemAction.get(RemoveFilterAction.class)
         };

@@ -13,29 +13,19 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import org.netbeans.api.tasklist.*;
-import org.netbeans.modules.tasklist.core.*;
-import org.netbeans.modules.tasklist.*;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
-import org.netbeans.spi.tasklist.SuggestionContext;
-
 import java.beans.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.ListIterator;
-
 import java.util.regex.*;
 import java.io.IOException;
 
 import org.openide.ErrorManager;
-import org.openide.text.Line;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
+
+import org.netbeans.api.tasklist.*;
+import org.netbeans.modules.tasklist.core.*;
+import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.spi.tasklist.SuggestionContext;
 
 // I was tempted to use BaseDocument here, since it has various
 // advantages such as utilities for computing line numbers, access

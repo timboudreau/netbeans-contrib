@@ -17,11 +17,13 @@ import java.util.ArrayList;
 import java.awt.Component;
 import java.beans.FeatureDescriptor;
 import java.beans.PropertyEditorSupport;
-import org.netbeans.api.tasklist.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.Task;
+
 import org.openide.explorer.propertysheet.ExPropertyEditor;
 import org.openide.explorer.propertysheet.PropertyEnv;
 import org.openide.nodes.Node;
+
+import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.core.Task;
 
 /**
  * PropertyEditor for task tags

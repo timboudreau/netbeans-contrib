@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Component;
 import java.awt.Dimension;
+
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JList;
@@ -27,12 +28,14 @@ import javax.swing.DefaultListModel;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
-import org.netbeans.api.tasklist.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
+
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.awt.Mnemonics;
 import org.openide.util.NbBundle;
+
+import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.core.Task;
+import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 
 /**
  * Customizer panel for the set of tags scanned from source.

@@ -17,9 +17,10 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.regex.*;
+
 import org.openide.ErrorManager;
 
-import java.util.regex.*;
 
 /** Represents a set of tags in the user's source code that marks
  * lines describing tasks
