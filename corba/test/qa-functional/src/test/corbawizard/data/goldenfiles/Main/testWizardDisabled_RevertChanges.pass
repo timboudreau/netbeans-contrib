@@ -16,3 +16,6 @@ Bind: true
 Client: A
 CallBack: A
 File: 
+ORB: JDK 1.4 ORB
+Server: NS
+Client: NS

@@ -485,6 +485,12 @@ public class Main extends JellyTestCase {
         out.println ("File: " + fb.txtIORFileName().getText ());
         fb.cancel ();
 
+        ev.waitNoEvent(1000);
+        try { Thread.sleep (1000); } catch (Exception e) {}
+        out.println ("ORB: " + Environment.getActiveORBName ());
+        out.println ("Server: " + Environment.getServerBindingName ());
+        out.println ("Client: " + Environment.getClientBindingName ());
+        
         compareReferenceFiles ();
     }
     
