@@ -61,7 +61,9 @@ public class VssGlobalRegister extends Object implements VcsAdditionalCommand {
         String workPath = (String)vars.get("ROOTDIR");                        //NOI18N
         if(workPath != null) addVars.put("ROOTDIR",workPath);           //NOI18N
         String username = (String)vars.get("USER_NAME");                        //NOI18N
-        if(username != null) addVars.put("USER_NAME",username);         //NOI18N     
+        if(username != null) addVars.put("USER_NAME",username);         //NOI18N 
+        String password = (String)vars.get("PASSWORD");                 //NOI18N
+        if (password != null) addVars.put("PASSWORD", password);
         
         File dir = new File(workPath);
         FSRegistry registry = FSRegistry.getDefault();               
