@@ -31,6 +31,16 @@ Microsystems, Inc. All Rights Reserved.
       System.setProperties (props);]]>
     </template-code>
     
+    <template-code name='HANDLER_INIT_DEF'>
+      <![CDATA[private org.omg.CORBA.BOA boa;
+      
+      public void init(org.omg.CORBA.BOA _boa) {
+        boa = _boa;
+      }]]>
+    </template-code>
+
+    <template-code name='HANDLER_INIT'>handler.init(boa);<![CDATA[]]></template-code>
+
     <template-code name='POA_INIT'><![CDATA[org.omg.CORBA.BOA boa = ((com.visigenic.vbroker.orb.ORB)orb).BOA_init ();]]>
     </template-code>
 

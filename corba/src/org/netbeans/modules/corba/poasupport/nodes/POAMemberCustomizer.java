@@ -48,7 +48,7 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
     /** Initializes the Form */
     public POAMemberCustomizer(POAMemberElement _element) {
         element = _element;
-
+        
         FileObject fo = null;
         try {
             fo = ((DataObject)element.getDeclaringClass().getSource().getCookie(DataObject.class)).getPrimaryFile().getParent();
@@ -62,7 +62,7 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
             availableImpls = finder.getAvailableImpls(fo, ImplFinder.ADAPTER_ACTIVATOR);
         else
             availableImpls = finder.getAvailableImpls(fo, ImplFinder.SERVANT);
-        initComponents ();
+        initComponents();
         initDynamicComponents();
         varNameLabel.setDisplayedMnemonic(POASupport.getString("MNE_POAMemberCustomizer_VarName").charAt(0));
         genCheckBox.setMnemonic(POASupport.getString("MNE_POAMemberCustomizer_Gen").charAt(0));
@@ -75,17 +75,6 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
             }
         }
         );
-        Component[] _comps = constructorComboBox.getComponents();
-        int _idx;
-        for (_idx = 0; _idx < _comps.length; _idx++)
-            if (_comps[_idx] instanceof javax.swing.JTextField)
-                break;
-        _comps[_idx].addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                constructorComboBoxFocusGained(evt);
-            }
-        }
-        );
     }
     
     public void initContent() {
@@ -93,6 +82,7 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
         if (element instanceof ServantElement)
             setID(""); // NOI18N
         typeNameComboBox.setSelectedItem(element.getTypeName());
+        updateConstructors();
         String ctor = element.getConstructor();
         if (ctor != null) {
             int idx = ctor.lastIndexOf(POASettings.DOT, ctor.indexOf(POASettings.LBR));
@@ -226,24 +216,27 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
         add(constructorComboBox, gridBagConstraints1);
         
     }//GEN-END:initComponents
-
+    
     private void typeNameComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_typeNameComboBoxActionPerformed
         String newName = (String)typeNameComboBox.getSelectedItem();
-        if ((newName == null) || (newName.equals (""))) { // NOI18N
+        String oldName = element.getTypeName();
+        if ((newName == null) || (newName.equals(""))) { // NOI18N
+            ce = null;
             element.setTypeName(null);
+            if ((oldName != null) && (!oldName.equals(""))) // NOI18N
+                updateConstructors();
             return;
         }
         if (POAChecker.checkTypeName(newName, true)) {
-            ce = getClassElementFromTypeName();
-            String oldName = element.getTypeName();
+            ce = ClassElement.forName(newName);
             element.setTypeName(newName);
+            typeNameComboBox.getEditor().setItem(newName); // dirty hack
             if (!newName.equals(oldName))
                 updateConstructors();
+            return;
         }
-        else {
-            typeNameComboBox.setSelectedItem(element.getTypeName());
-            typeNameComboBox.requestFocus();
-        }
+        typeNameComboBox.setSelectedItem(oldName);
+        typeNameComboBox.requestFocus();
     }//GEN-LAST:event_typeNameComboBoxActionPerformed
     
     private void varNameTextFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_varNameTextFieldFocusGained
@@ -288,7 +281,7 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
             }
         }
     }
-
+    
     private void genCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genCheckBoxActionPerformed
         if (genCheckBox.isSelected()) {
             if (!POAChecker.checkPOAMemberVarName(varNameTextField.getText(), element, true, true)) {
@@ -301,13 +294,13 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
             constructorLabel.setEnabled(true);
             constructorComboBox.setEnabled(true);
             String newName = (String)typeNameComboBox.getSelectedItem();
-            if ((newName == null) || (newName.equals (""))) { // NOI18N
+            if ((newName == null) || (newName.equals(""))) { // NOI18N
                 element.setTypeName(null);
             }
             else
                 element.setTypeName(newName);
             String newCtor = (String)constructorComboBox.getSelectedItem();
-            if ((newCtor == null) || (newCtor.equals (""))) { // NOI18N
+            if ((newCtor == null) || (newCtor.equals(""))) { // NOI18N
                 element.setConstructor(null);
             }
             else {
@@ -331,15 +324,9 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
         }
     }//GEN-LAST:event_genCheckBoxActionPerformed
     
-    private void constructorComboBoxFocusGained(java.awt.event.FocusEvent evt) {
-        String item = (String)constructorComboBox.getSelectedItem();
-        if (item == null || item.equals("")) // NOI18N
-            updateConstructors();
-    }
-
     private void constructorComboBoxActionPerformed(java.awt.event.ActionEvent evt) {
         String newCtor = (String)constructorComboBox.getSelectedItem();
-        if ((newCtor == null) || (newCtor.equals (""))) { // NOI18N
+        if ((newCtor == null) || (newCtor.equals(""))) { // NOI18N
             element.setConstructor(null);
             return;
         }
@@ -349,6 +336,7 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
                 element.setConstructor(tie + POASettings.LBR + POASettings.NEW + ce.getSource().getPackage() + POASettings.DOT + newCtor+ POASettings().RBR);
             else
  */
+        constructorComboBox.getEditor().setItem(newCtor); // dirty hack
         String packageName = (String)typeNameComboBox.getSelectedItem();
         if (packageName != null) {
             int idx = packageName.lastIndexOf(POASettings.DOT);
@@ -424,20 +412,20 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
     
     private void setVarName(String name) {
         String n = name;
-        if (name == null || name.length () == 0)
+        if (name == null || name.length() == 0)
             n =  element.getVarName();
         
         varNameTextField.getDocument().removeDocumentListener(this);
         varNameTextField.setText(n);
         varNameTextField.getDocument().addDocumentListener(this);
         
-        if (name == null || name.length () == 0)
-            varNameTextField.selectAll ();
+        if (name == null || name.length() == 0)
+            varNameTextField.selectAll();
     }
     
     private void setID(String name) {
         String n = name;
-        if (name == null || name.length () == 0) {
+        if (name == null || name.length() == 0) {
             if (((ServantElement)element).getIDAssignmentMode() == POASettings.SERVANT_WITH_SYSTEM_ID)
                 n = ((ServantElement)element).getIDVarName();
             else
@@ -448,19 +436,11 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
         idTextField.setText(n);
         idTextField.getDocument().addDocumentListener(this);
         
-        if (name == null || name.length () == 0)
-            idTextField.selectAll ();
-    }
-    
-    private ClassElement getClassElementFromTypeName() {
-        ClassElement cle = null;
-        if (genCheckBox.isSelected())
-            cle = ClassElement.forName( (String)typeNameComboBox.getSelectedItem() );
-        return cle;
+        if (name == null || name.length() == 0)
+            idTextField.selectAll();
     }
     
     private void updateConstructors() {
-        constructorComboBox.setSelectedItem(null);
         constructorComboBox.removeAllItems();
         if (ce != null) {
             ConstructorElement[] ctors = ce.getConstructors();
@@ -483,31 +463,33 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
         }
         else {
             String type = (String)typeNameComboBox.getSelectedItem();
-            int idx = type.lastIndexOf(POASettings.DOT);
-            if (idx != -1)
-                type = type.substring(idx+1);
-            if (!type.equals("")) // NOI18N
-                constructorComboBox.addItem(type + POASettings.LBR + POASettings.RBR);
+            if (type != null) {
+                int idx = type.lastIndexOf(POASettings.DOT);
+                if (idx != -1)
+                    type = type.substring(idx+1);
+                if (!type.equals("")) // NOI18N
+                    constructorComboBox.addItem(type + POASettings.LBR + POASettings.RBR);
+            }
         }
-        
+        constructorComboBox.setSelectedItem(null);
     }
     
     public void changedUpdate(javax.swing.event.DocumentEvent p1) {
-        if (p1.getDocument () == varNameTextField.getDocument ()) {
-            SwingUtilities.invokeLater (new Runnable () {
-                public void run () {
-                    if (varNameTextField.getText().equals ("")) { // NOI18N
-                        setVarName (""); // NOI18N
+        if (p1.getDocument() == varNameTextField.getDocument()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    if (varNameTextField.getText().equals("")) { // NOI18N
+                        setVarName(""); // NOI18N
                     }
                 }
             });
             return;
         }
-        if ((idTextField != null) && (p1.getDocument () == idTextField.getDocument ())) {
-            SwingUtilities.invokeLater (new Runnable () {
-                public void run () {
-                    if (idTextField.getText().equals ("")) { // NOI18N
-                        setID (""); // NOI18N
+        if ((idTextField != null) && (p1.getDocument() == idTextField.getDocument())) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    if (idTextField.getText().equals("")) { // NOI18N
+                        setID(""); // NOI18N
                     }
                 }
             });

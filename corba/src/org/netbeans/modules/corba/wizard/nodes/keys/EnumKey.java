@@ -20,20 +20,26 @@ package org.netbeans.modules.corba.wizard.nodes.keys;
  */
 public class EnumKey extends NamedKey {
   
-    private String values;
+    private String initialValues;
 
     /** Creates new EnumKey */
     public EnumKey (int type, String name, String values) {
         super (type, name);
-        this.values = values;
+        this.initialValues = values;
     }
   
     public String getValues () {
-        return this.values;
+        return this.initialValues;
     }
     
-    public void setValues (String values) {
-        this.values = values;
+    /** getValuesAndClear
+     * Does the same job as getValues but gives a chance to GC
+     * to free initialValues
+     */
+    public String getValuesAndClear () {
+        String tmp = this.initialValues;
+        this.initialValues = null;
+        return tmp;
     }
   
     public String toString () {

@@ -43,10 +43,10 @@ public class AliasNode extends AbstractMutableLeafNode {
         if (key.getLength().length () > 0) {
             StringTokenizer tk = new StringTokenizer (key.getLength(),",");
             while (tk.hasMoreTokens ()) {
-                code = code +"["+ tk.nextToken () +"] ";
+                code = code +"["+ tk.nextToken().trim() +"] ";
             }
         }
-        code = code +";\n";
+        code = code.substring(0,code.length()-1) + ";\n";
         return code;
     }
     

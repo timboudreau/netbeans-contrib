@@ -57,7 +57,10 @@ public class ValueTypeNode extends InterfaceNode implements ValueCreator, ValueF
             code = code + "custom ";    // No I18N
         code  = code + "valuetype " + this.getName () +" "; // No I18N
         if (key.getbaseInterfaces().length() > 0) {
-            code = code +": "+ key.getbaseInterfaces()+ " ";
+            code = code +": ";
+            if (key.isTruncatable())
+                code = code + "truncatable ";
+            code = code + key.getbaseInterfaces()+ " ";
         }
         if (key.getSupports().length() > 0) {
             code = code +"supports "+key.getSupports()+ " ";
@@ -100,8 +103,9 @@ public class ValueTypeNode extends InterfaceNode implements ValueCreator, ValueF
                     if (event.getActionCommand ().equals(ExDialogDescriptor.OK)) {
                         String name = p.getName();
                         String base = p.getType();
+                        String length = p.getLength();
                         boolean pub = p.isPublic();
-                        ValueKey key = new ValueKey (MutableKey.VALUE,name,base, pub);
+                        ValueKey key = new ValueKey (MutableKey.VALUE,name,base,length,pub);
                         ((MutableChildren)ValueTypeNode.this.getChildren()).addKey (key);
                     }
                     dlg.setVisible (false);

@@ -18,6 +18,7 @@ import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.corba.wizard.nodes.keys.*;
 import org.netbeans.modules.corba.wizard.nodes.actions.*;
 import org.netbeans.modules.corba.wizard.nodes.gui.UnionMemberPanel;
+import org.netbeans.modules.corba.wizard.nodes.gui.AliasPanel;
 import org.netbeans.modules.corba.wizard.nodes.gui.ExPanel;
 
 /** 
@@ -70,28 +71,59 @@ public class UnionMemberNode extends AbstractMutableLeafNode {
     }
     
     public ExPanel getEditPanel () {
-        UnionMemberPanel p = new UnionMemberPanel();
-        p.setName (this.getName());
-        p.setType (((UnionMemberKey)this.key).getType());
-        p.setLabel (((UnionMemberKey)this.key).getLabel());
-        return p;
+        UnionMemberKey key = (UnionMemberKey) this.key;
+        
+        if (key.isDefaultValue()) {
+            AliasPanel p = new AliasPanel ();
+            p.setName (this.getName());
+            p.setType (((UnionMemberKey)this.key).getType());
+            p.setLength (((UnionMemberKey)this.key).getLength());
+            return p;
+        }
+        else {
+            UnionMemberPanel p = new UnionMemberPanel();
+            p.setName (this.getName());
+            p.setType (((UnionMemberKey)this.key).getType());
+            p.setLabel (((UnionMemberKey)this.key).getLabel());
+            p.setLength (((UnionMemberKey)this.key).getLength());
+            return p;
+        }
     }
     
     public void reInit (ExPanel p) {
+        String newName;
+        String newType;
+        String newLabel;
+        String newLength;
+        
         if (p instanceof UnionMemberPanel) {
             UnionMemberPanel up = (UnionMemberPanel) p;
-            String newName = up.getName();
-            String newType = up.getType();
-            String newLabel = up.getLabel();
-            UnionMemberKey key = (UnionMemberKey) this.key;
-            if (! key.getName().equals(newName)) {
-                this.setName (newName);
-                key.setName (newName);
-            }
-            if (! key.getType().equals(newType))
-                key.setType (newType);
-            if (! key.getLabel().equals(newLabel))
-                key.setLabel (newLabel);
+            newName = up.getName();
+            newType = up.getType();
+            newLabel = up.getLabel();
+            newLength = up.getLength();
+            
         }
+        else if ( p instanceof AliasPanel) {
+            AliasPanel ap = (AliasPanel) p;
+            newName = ap.getName();
+            newType = ap.getType();
+            newLength = ap.getLength();
+            newLabel = null;
+        }
+        else 
+            return;
+        
+        UnionMemberKey key = (UnionMemberKey) this.key;
+        if (! key.getName().equals(newName)) {
+            this.setName (newName);
+            key.setName (newName);
+        }
+        if (! key.getType().equals(newType))
+            key.setType (newType);
+        if (newLabel!=null && !key.getLabel().equals(newLabel))
+            key.setLabel (newLabel);
+        if (! key.getLength().equals(newLength))
+            key.setLength (newLength);
     }
 }

@@ -414,7 +414,11 @@ public class POANode extends AbstractNode implements java.beans.PropertyChangeLi
                         return POASupport.getString("FMT_Unknown_ORB");
                 }
                 public void setValue(Object value) {
-                    ORBSettings _os = POASupport.getCORBASettings().getSettingByName((String)value);
+                    ORBSettings _os;
+                    if (value == null)
+                        _os = POASupport.getCORBASettings().getActiveSetting();
+                    else
+                        _os = POASupport.getCORBASettings().getSettingByName((String)value);
                     if (_os != null)
                         ((RootPOAElement)getPOAElement()).setORBTag(_os.getORBTag());
                 }
@@ -422,7 +426,7 @@ public class POANode extends AbstractNode implements java.beans.PropertyChangeLi
                         return (((RootPOAElement)getPOAElement()).getORBTag() == null) ? false : true;
                 }
 		public PropertyEditor getPropertyEditor() {
-		    return new OrbPropertyEditor ();
+		    return new OrbPropertyEditor (true);
 		}
             });
             sheet.put(ps);

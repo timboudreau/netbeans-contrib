@@ -13,21 +13,25 @@
 
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
 /**
  *
  * @author  tzezula
  */
-public class ValueTypePanel extends ExPanel implements javax.swing.event.DocumentListener, javax.swing.event.ChangeListener {
+public class ValueTypePanel extends ExPanel implements javax.swing.event.DocumentListener, ActionListener {
 
     /** Creates new form ValueTypePanel */
     public ValueTypePanel() {
         initComponents();
-        this.custom.addChangeListener (this);
-        this.abst.addChangeListener (this);
-        this.truncatable.addChangeListener (this);
+        this.custom.addActionListener (this);
+        this.abst.addActionListener (this);
+        this.truncatable.addActionListener (this);
         this.base.getDocument().addDocumentListener (this);
         this.name.getDocument().addDocumentListener (this);
         this.supports.getDocument().addDocumentListener (this);
+        this.truncatable.setEnabled (false);
     }
     
     public boolean isAbstract () {
@@ -55,15 +59,15 @@ public class ValueTypePanel extends ExPanel implements javax.swing.event.Documen
     }
     
     public String getName () {
-        return this.name.getText();
+        return this.name.getText().trim();
     }
     
     public String getBase () {
-        return this.base.getText();
+        return this.base.getText().trim();
     }
     
     public String getSupports () {
-        return this.supports.getText();
+        return this.supports.getText().trim();
     }
     
     public void setName (String name) {
@@ -209,24 +213,38 @@ public class ValueTypePanel extends ExPanel implements javax.swing.event.Documen
         checkState ();
     }
     
-    public void stateChanged(javax.swing.event.ChangeEvent event) {
+    public void actionPerformed (ActionEvent event) {
         checkState();
-        Object source = event.getSource();
+        java.lang.Object source = event.getSource();
+        
         if (source == this.truncatable) {
             if (this.truncatable.isSelected()) {
                 this.abst.setEnabled (false);
-                this.abst.setEnabled (false);
+                this.custom.setEnabled (false);
             }
             else {
                 this.abst.setEnabled (true);
-                this.abst.setEnabled (true);
+                this.custom.setEnabled (true);
             }
         }
-        else if (source == this.abst && this.abst.isSelected() && this.custom.isSelected()) {
-            this.custom.setSelected (false);
-        } 
-        else if (source == this.custom && this.custom.isSelected() && this.abst.isSelected()) {
-            this.abst.setSelected (false);
+        if (source == this.abst) {
+            if (this.abst.isSelected()) {
+                this.custom.setEnabled (false);
+                this.truncatable.setEnabled (false);
+            }else {
+                this.custom.setEnabled (true);
+                this.truncatable.setEnabled (true);
+            }
+        }
+        if (source == this.custom) {
+            if (this.custom.isSelected()) {
+                this.abst.setEnabled (false);
+                this.truncatable.setEnabled (false);
+            }
+            else {
+                this.abst.setEnabled (true);
+                this.truncatable.setEnabled (true);
+            }
         }
     }
     
@@ -239,10 +257,10 @@ public class ValueTypePanel extends ExPanel implements javax.swing.event.Documen
             if (this.truncatable.isEnabled())
                 this.truncatable.setEnabled (false);
         }
-        if (name.getText().length() == 0 )
-            this.disableOk();
-        else
+        if (IdlUtilities.isValidIDLIdentifier(name.getText()))
             this.enableOk();
+        else
+            this.disableOk();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

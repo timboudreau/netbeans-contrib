@@ -14,13 +14,15 @@
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ChangeListener;
 import java.util.StringTokenizer;
+import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
 /** 
  *
  * @author  root
  * @version 
  */
-public class OperationPanel extends ExPanel implements DocumentListener {
+public class OperationPanel extends ExPanel implements DocumentListener, ChangeListener {
 
     /** Creates new form OperationPanel */
     public OperationPanel() {
@@ -29,7 +31,7 @@ public class OperationPanel extends ExPanel implements DocumentListener {
     }
   
     public String getName () {
-        return this.name.getText ();
+        return this.name.getText().trim();
     }
     
     public void setName (String name) {
@@ -37,7 +39,7 @@ public class OperationPanel extends ExPanel implements DocumentListener {
     }
   
     public String getReturnType () {
-        return this.ret.getText ();
+        return this.ret.getText().trim();
     }
     
     public void setReturnType (String ret) {
@@ -45,7 +47,7 @@ public class OperationPanel extends ExPanel implements DocumentListener {
     }
   
     public String getParameters () {
-        return this.params.getText ();
+        return this.params.getText().trim();
     }
     
     public void setParameters (String params) {
@@ -53,15 +55,15 @@ public class OperationPanel extends ExPanel implements DocumentListener {
     }
   
     public String getExceptions () {
-        return this.except.getText ();
+        return this.except.getText().trim();
     }
     
     public void setExceptions (String except) {
-	this.except.setText (except);
+	this.except.setText(except);
     }
   
     public String getContext () {
-        return this.ctx.getText ();
+        return this.ctx.getText();
     }
     
     public void setContext (String context) {
@@ -80,6 +82,9 @@ public class OperationPanel extends ExPanel implements DocumentListener {
         this.name.getDocument().addDocumentListener (this);
         this.ret.getDocument().addDocumentListener(this);
         this.params.getDocument().addDocumentListener (this);
+        this.ctx.getDocument().addDocumentListener (this);
+        this.except.getDocument().addDocumentListener (this);
+        this.oneway.addChangeListener (this);
     }
 
     /** This method is called from within the constructor to
@@ -317,11 +322,18 @@ public class OperationPanel extends ExPanel implements DocumentListener {
     }
 
     private void checkState () {
-        if (this.name.getText().length() >0 && this.ret.getText().length() >0 && acceptableArguments (this.params.getText())) {
+        if (IdlUtilities.isValidIDLIdentifier(this.name.getText()) && 
+	    this.ret.getText().length() >0 && 
+	    acceptableArguments (this.params.getText())) {
             enableOk();
         }
         else {
             disableOk();
         }
     }
+    
+    public void stateChanged(javax.swing.event.ChangeEvent changeEvent) {
+        checkState();
+    }
+    
 }

@@ -14,6 +14,7 @@
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
 import javax.swing.event.DocumentListener;
+import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
 /** 
  *
  * @author  root
@@ -28,7 +29,7 @@ public class UnionMemberPanel extends ExPanel implements DocumentListener {
     }
   
     public String getName () {
-        return this.name.getText ();
+        return this.name.getText().trim();
     }
     
     public void setName (String name) {
@@ -36,7 +37,7 @@ public class UnionMemberPanel extends ExPanel implements DocumentListener {
     }
   
     public String getType () {
-        return this.type.getText ();
+        return this.type.getText().trim();
     }
     
     public void setType (String type) {
@@ -44,7 +45,7 @@ public class UnionMemberPanel extends ExPanel implements DocumentListener {
     }
   
     public String getLength () {
-        return this.length.getText ();
+        return this.length.getText();
     }
     
     public void setLength (String length) {
@@ -52,7 +53,7 @@ public class UnionMemberPanel extends ExPanel implements DocumentListener {
     }
   
     public String getLabel () {
-        return this.label.getText ();
+        return this.label.getText().trim();
     }
     
     public void setLabel (String label) {
@@ -63,6 +64,7 @@ public class UnionMemberPanel extends ExPanel implements DocumentListener {
         this.name.getDocument().addDocumentListener ( this);
         this.type.getDocument().addDocumentListener (this);
         this.label.getDocument().addDocumentListener (this);
+        this.length.getDocument().addDocumentListener (this);
     }
 
     /** This method is called from within the constructor to
@@ -202,7 +204,10 @@ public class UnionMemberPanel extends ExPanel implements DocumentListener {
     }
 
     private void checkState () {
-        if (this.name.getText().length() >0 && this.type.getText().length() >0 && this.label.getText().length() >0) {
+        if (IdlUtilities.isValidIDLIdentifier(this.name.getText()) && 
+	    this.type.getText().length() >0 && 
+	    this.label.getText().length() >0 &&
+            IdlUtilities.validLength(this.length.getText())) {
             enableOk();
         }
         else {

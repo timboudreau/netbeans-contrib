@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
+import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
 /**
  *
  * @author  tzezula
@@ -27,11 +28,11 @@ public class ValueBoxPanel extends ExPanel implements javax.swing.event.Document
     }
     
     public String getName () {
-        return this.name.getText();
+        return this.name.getText().trim();
     }
     
     public String getType () {
-        return this.type.getText();
+        return this.type.getText().trim();
     }
     
     public void setName (String name) {
@@ -123,7 +124,7 @@ public class ValueBoxPanel extends ExPanel implements javax.swing.event.Document
     private void checkState () {
         String name = this.name.getText();
         String type = this.type.getText();
-        if (name.length() > 0 && type.length() > 0)
+        if (IdlUtilities.isValidIDLIdentifier(name)  && type.length() > 0)
             enableOk();
         else
             disableOk();

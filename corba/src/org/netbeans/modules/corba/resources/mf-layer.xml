@@ -43,15 +43,15 @@ Microsystems, Inc. All Rights Reserved.
       <folder name="POA">
 	<file name="AdapterActivator.java" url="templates/AdapterActivator.jtemplate">
 	  <attr name="template" boolvalue="true"/>
-	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ClientMain.html"/>
+	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/AdapterActivator.html"/>
 	</file>
 	<file name="ServantActivator.java" url="templates/ServantActivator.jtemplate">
 	  <attr name="template" boolvalue="true"/>
-	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ClientMain.html"/>
+	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ServantActivator.html"/>
 	</file>
 	<file name="ServantLocator.java" url="templates/ServantLocator.jtemplate">
 	  <attr name="template" boolvalue="true"/>
-	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ClientMain.html"/>
+	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ServantLocator.html"/>
 	</file>
       </folder>
     </folder>

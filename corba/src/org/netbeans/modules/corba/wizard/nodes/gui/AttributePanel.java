@@ -14,12 +14,15 @@
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ChangeListener;
+import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
+
 /** 
  *
  * @author  root
  * @version 
  */
-public class AttributePanel extends ExPanel implements DocumentListener {
+public class AttributePanel extends ExPanel implements DocumentListener, ChangeListener {
 
     /** Creates new form AttributePanel */
     public AttributePanel() {
@@ -28,7 +31,7 @@ public class AttributePanel extends ExPanel implements DocumentListener {
     }
   
     public String getName () {
-        return this.name.getText ();
+        return this.name.getText().trim();
     }
     
     public void setName (String name) {
@@ -36,7 +39,7 @@ public class AttributePanel extends ExPanel implements DocumentListener {
     }
   
     public String getType () {
-        return this.type.getText ();
+        return this.type.getText().trim();
     }
     
     public void setType (String type) {
@@ -54,6 +57,7 @@ public class AttributePanel extends ExPanel implements DocumentListener {
     private void postInitComponents () {
         this.name.getDocument().addDocumentListener (this);
         this.type.getDocument().addDocumentListener (this);
+        this.readonly.addChangeListener (this);
     }
 
     /** This method is called from within the constructor to
@@ -150,9 +154,14 @@ public class AttributePanel extends ExPanel implements DocumentListener {
     public void insertUpdate(final javax.swing.event.DocumentEvent p1) {
         checkState ();
     }
+    
+    public void stateChanged (javax.swing.event.ChangeEvent event) {
+        checkState ();
+    }
 
     private void checkState () {
-        if (this.name.getText().length() >0 && this.type.getText().length() >0) {
+        if (IdlUtilities.isValidIDLIdentifier(this.name.getText()) && 
+            this.type.getText().length() > 0) {
             enableOk();
         }
         else {

@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.corba.wizard.nodes;
 
+import java.util.StringTokenizer;
 import org.openide.TopManager;
 import org.openide.DialogDescriptor;
 import org.openide.nodes.Node;
@@ -46,7 +47,16 @@ public class ValueNode extends AbstractMutableLeafNode {
             code = code + "public ";
         else
             code = code + "private ";
-        code = code + key.getType() + " "+key.getName()+";\n";
+        code = code + key.getType() + " "+key.getName()+ " ";
+        String length = key.getLength ();
+        if (length != null && length.length() > 0) {
+            StringTokenizer tk = new StringTokenizer (length, ",");
+            while (tk.hasMoreTokens()) {
+                String token = tk.nextToken().trim();
+                code = code + "[" + token+"] ";
+            }
+        }
+        code = code.substring(0,code.length()-1) + ";\n";
         return code;
     }
     
@@ -56,6 +66,7 @@ public class ValueNode extends AbstractMutableLeafNode {
         p.setName (key.getName());
         p.setType (key.getType());
         p.setPublic (key.isPublic());
+        p.setLength (key.getLength());
         return p;
     }
     
@@ -65,6 +76,7 @@ public class ValueNode extends AbstractMutableLeafNode {
             ValueKey key = (ValueKey) this.key;
             String newName = vp.getName();
             String newType = vp.getType();
+            String newLength = vp.getLength();
             boolean newPublic = vp.isPublic();
             if (!this.getName().equals(newName)) {
                 this.setName (newName);
@@ -72,6 +84,9 @@ public class ValueNode extends AbstractMutableLeafNode {
             }
             if (!key.getType().equals(newType)) {
                 key.setType (newType);
+            }
+            if (!key.getLength().equals(newLength)) {
+                key.setLength (newLength);
             }
             key.setPublic (newPublic);
         }

@@ -39,7 +39,7 @@ public class ValueBoxNode extends AbstractMutableLeafNode {
 	String fill = "";
 	for (int i=0; i< indent; i++)
 	    fill = fill + SPACE;
-	fill = fill + "valuetype " + this.getName () + ((AliasKey)this.key).getType()+"\n";
+	fill = fill + "valuetype " + this.getName () +" "+((AliasKey)this.key).getType()+";\n";
 	return fill;
     }
     

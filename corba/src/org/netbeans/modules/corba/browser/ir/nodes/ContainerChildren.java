@@ -87,35 +87,21 @@ public class ContainerChildren extends Children {
      */
     
     public org.openide.nodes.Node[] createNodes (java.lang.Object key) {
-        boolean operation = false;
         DefinitionKind dk = null;
         if (key != null){
             if (key instanceof IRContainedKey) {
                 try{
                     Node[] nodes = new Node[1];
                     Contained contained = ((IRContainedKey)key).contained;
-                   // Workaround for bug in ORBacus 4.x implementation
-                    // instead of operation is_abstract special type 
-                    // AbstractInterfaceDef exists.
-                    // Has to be tested before def_kind, because it returns
-                    // value over the limit.
-                   if (contained._is_a ("IDL:omg.org/CORBA/AbstractInterfaceDef:1.0")) {
-                        nodes[0] = new IRInterfaceDefNode(ContainerHelper.narrow (contained), true);
-                        return nodes;
-                    }
-                     // Workaround for bug in Jdk 1.2 implementation
-                    // if MARSHAL exception ocured, try to introspect
-                    // object in another way.
-                    try{
-                        dk = contained.def_kind();
-                    }catch (org.omg.CORBA.MARSHAL marshalException){
-                        if (contained._is_a("IDL:omg.org/CORBA/OperationDef:1.0")){
-                            operation = true;
-                        }
-                        else
-                            throw new RuntimeException("Inner exception is: " + marshalException);
-                    }
-                    
+		    // Workaround to allow operation on JDK where Sun's implementation
+		    // is not removed from rt.jar or third party ORB is not in boot classpath.
+		    // In this situations the Sun's DefinitionKind is taken and it is out of date
+		    // which causes RuntimeException durring run!!!!!!!!
+		    if (contained._is_a("IDL:omg.org/CORBA/AbstractInterfaceDef:1.0") || contained._is_a("IDL:omg.org/CORBA/AbstractInterfaceDef:2.3")) {
+		      nodes[0] = new IRInterfaceDefNode (ContainerHelper.narrow (contained), true);
+		      return nodes;
+		    }
+		    dk = contained.def_kind();
                     if (dk == DefinitionKind.dk_Module) {
                         Container container = ContainerHelper.narrow (contained);
                         nodes[0] = new IRModuleDefNode (container);
@@ -146,7 +132,7 @@ public class ContainerChildren extends Children {
                         nodes[0] = new IRAttributeDefNode(contained);
                         return nodes;
                     }
-                    else if (dk == DefinitionKind.dk_Operation || operation){
+                    else if (dk == DefinitionKind.dk_Operation){
                         nodes[0] = new IROperationDefNode(contained);
                         return nodes;
                     }

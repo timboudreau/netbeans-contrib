@@ -95,6 +95,7 @@ Microsystems, Inc. All Rights Reserved.
 	<include name="org/netbeans/modules/corba/idl/compiler/jdk13ibm/Compiler.class"/>
 	<include name="org/netbeans/modules/corba/idl/compiler/jdk13sun/Compiler.class"/>
 	<include name="org/netbeans/modules/corba/idl/compiler/orbix32/Compiler.class"/>
+	<include name="org/netbeans/modules/corba/idl/compiler/openorb1x/Compiler.class"/>
       </fileset>
     </jar>
   </target>

@@ -14,6 +14,7 @@
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
 import java.util.StringTokenizer;
+import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
 /**
  *
  * @author  tzezula
@@ -28,7 +29,7 @@ public class ValueFactoryPanel extends ExPanel implements javax.swing.event.Docu
     }
     
     public String getName () {
-        return this.name.getText();
+        return this.name.getText().trim();
     }
     
     public void setName (String name) {
@@ -36,7 +37,7 @@ public class ValueFactoryPanel extends ExPanel implements javax.swing.event.Docu
     }
     
     public String getParams () {
-        return this.params.getText();
+        return this.params.getText().trim();
     }
     
     public void setParams (String params) {
@@ -116,7 +117,7 @@ public class ValueFactoryPanel extends ExPanel implements javax.swing.event.Docu
     }
     
     private void checkState () {
-        if (name.getText().length() > 0 && isArgValid())
+        if (IdlUtilities.isValidIDLIdentifier(this.name.getText()) && isArgValid())
             enableOk();
         else 
             disableOk();

@@ -86,9 +86,15 @@ public class IDLInitDclNode extends IDLAbstractNode {
 			    for (int __i=1; __i<__members.size (); __i++) {
 				InitParamDeclElement __param 
 				    = (InitParamDeclElement)__members.elementAt (__i);
-				DeclaratorElement __declarator 
-				    = (DeclaratorElement)__param.getMembers ().elementAt (0);
-				__params = __params + "in " + __param.getType ().getName () + " " // NOI18N
+				int __index_of_declarator = 0;
+				if (!(__param.getMembers ().get (0)
+				      instanceof DeclaratorElement))
+				    __index_of_declarator = 1;
+				DeclaratorElement __declarator
+				    = (DeclaratorElement)__param.getMembers ().get
+				    (__index_of_declarator);
+				__params = __params + "in "
+				    + __param.getType ().getName () + " " // NOI18N
 				    + __declarator.getName () + ", "; // NOI18N
 			    }
 			    // if operation has some parameters we will destroy last ", " // NOI18N

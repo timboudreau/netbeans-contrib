@@ -36,7 +36,6 @@ public class StructChildren extends Children {
     }
 
     public void addNotify(){
-        System.out.println ("addNotify");
         synchronized (this) {
             if (this.state == SYNCHRONOUS) {
                 this.createKeys();

@@ -38,6 +38,16 @@
     System.setProperties (props);]]>
   </template-code>
   
+  <template-code name='HANDLER_INIT_DEF'>
+    <![CDATA[private ORB orb;
+
+    public void init (ORB _orb) {
+        orb = _orb;
+    }]]>
+  </template-code>
+
+  <template-code name='HANDLER_INIT'><![CDATA[handler.init(orb);]]></template-code>
+
   <template-code name='ORB_INIT'><![CDATA[ORB orb = ORB.init (args, props);]]>
   </template-code>
 

@@ -42,11 +42,17 @@ public class ConstantNode extends AbstractMutableLeafNode {
         ConstKey key = (ConstKey) this.key;
         String type = key.getType();
         String value = key.getValue();
-        if ("char".equals(type.trim()) && !value.trim().startsWith("\'")) {
+        if ("char".equals(type) && !value.startsWith("\'")) {
             value = "\'" + value + "\'";
         }
-        else if ("string".equals(type.trim()) && !value.trim().startsWith("\"")) {
+        else if ("string".equals(type) && !value.startsWith("\"")) {
             value = "\"" + value + "\"";
+        }
+        else if ("wchar".equals(type) && !value.startsWith("L\'")) {
+            value = "L\'"+value+"\'";
+        }
+        else if ("wstring".equals(type) && !value.startsWith("L\"")) {
+            value = "L\""+value+"\"";
         }
         code = fill + "const "+ type + " "+ this.getName()+ " = "+ value +";\n"; // No I18N
         return code;

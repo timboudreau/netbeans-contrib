@@ -13,11 +13,14 @@
 
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ChangeListener;
+import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
 /**
  *
  * @author  tzezula
  */
-public class ValuePanel extends ExPanel implements javax.swing.event.DocumentListener {
+public class ValuePanel extends ExPanel implements DocumentListener, ChangeListener {
 
     /** Creates new form Value */
     public ValuePanel() {
@@ -27,6 +30,9 @@ public class ValuePanel extends ExPanel implements javax.swing.event.DocumentLis
         group.add (this.pri);
         this.name.getDocument().addDocumentListener (this);
         this.type.getDocument().addDocumentListener (this);
+        this.length.getDocument().addDocumentListener (this);
+        this.pub.addChangeListener (this);
+        this.pri.addChangeListener (this);
         this.pri.setSelected (true);
     }
     
@@ -49,11 +55,11 @@ public class ValuePanel extends ExPanel implements javax.swing.event.DocumentLis
     }
     
     public String getName () {
-        return this.name.getText();
+        return this.name.getText().trim();
     }
     
     public String getType () {
-        return this.type.getText();
+        return this.type.getText().trim();
     }
     
     public void setName (String name) {
@@ -62,6 +68,14 @@ public class ValuePanel extends ExPanel implements javax.swing.event.DocumentLis
     
     public void setType (String type) {
         this.type.setText (type);
+    }
+    
+    public String getLength () {
+        return this.length.getText();
+    }
+    
+    public void setLength (String length) {
+        this.length.setText (length);
     }
     
 
@@ -75,33 +89,31 @@ public class ValuePanel extends ExPanel implements javax.swing.event.DocumentLis
         name = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         type = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        length = new javax.swing.JTextField();
         pri = new javax.swing.JRadioButton();
         pub = new javax.swing.JRadioButton();
+        
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
         
         jLabel1.setText(bundle.getString("TXT_ValueName"));
-        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints1.insets = new java.awt.Insets(8, 8, 4, 4);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(jLabel1, gridBagConstraints1);
         
-        
         name.setToolTipText(bundle.getString("TIP_ValueName"));
-        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
-        gridBagConstraints1.gridwidth = 0;
+        gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints1.insets = new java.awt.Insets(8, 4, 4, 8);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints1.weightx = 1.0;
         add(name, gridBagConstraints1);
         
-        
-        jLabel2.setText(bundle.getString("TXT_ValueType"));
-        
+        jLabel2.setText(bundle.getString("TXT_Type"));
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 1;
@@ -109,38 +121,50 @@ public class ValuePanel extends ExPanel implements javax.swing.event.DocumentLis
         gridBagConstraints1.insets = new java.awt.Insets(4, 8, 4, 4);
         add(jLabel2, gridBagConstraints1);
         
-        
         type.setToolTipText(bundle.getString("TIP_ValueType"));
-        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 1;
-        gridBagConstraints1.gridwidth = 0;
+        gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints1.insets = new java.awt.Insets(4, 4, 4, 8);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints1.weightx = 1.0;
         add(type, gridBagConstraints1);
         
-        
-        pri.setText(bundle.getString("TXT_ValuePrivate"));
-        
+        jLabel3.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_Length"));
+        jLabel3.setLabelFor(length);
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 2;
-        gridBagConstraints1.gridwidth = 0;
+        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.insets = new java.awt.Insets(4, 8, 4, 4);
+        add(jLabel3, gridBagConstraints1);
+        
+        length.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TIP_ValueLength"));
+        gridBagConstraints1 = new java.awt.GridBagConstraints();
+        gridBagConstraints1.gridx = 1;
+        gridBagConstraints1.gridy = 2;
+        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.insets = new java.awt.Insets(4, 4, 4, 8);
+        gridBagConstraints1.weightx = 1.0;
+        add(length, gridBagConstraints1);
+        
+        pri.setText(bundle.getString("TXT_ValuePrivate"));
+        gridBagConstraints1 = new java.awt.GridBagConstraints();
+        gridBagConstraints1.gridx = 0;
+        gridBagConstraints1.gridy = 3;
+        gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints1.insets = new java.awt.Insets(4, 8, 4, 8);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(pri, gridBagConstraints1);
         
-        
         pub.setText(bundle.getString("TXT_ValuePublic"));
-        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 3;
-        gridBagConstraints1.gridwidth = 0;
+        gridBagConstraints1.gridy = 4;
+        gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints1.insets = new java.awt.Insets(4, 8, 8, 8);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -160,18 +184,28 @@ public class ValuePanel extends ExPanel implements javax.swing.event.DocumentLis
         checkState();
     }
     
+    public void stateChanged (javax.swing.event.ChangeEvent event) {
+        checkState();
+    }
+    
     private void checkState () {
-        if (this.name.getText().length() > 0 && this.type.getText().length() > 0) 
+        if (IdlUtilities.isValidIDLIdentifier(this.name.getText()) && 
+	    this.type.getText().length() > 0 &&
+            IdlUtilities.validLength (this.length.getText())) 
             this.enableOk ();
         else 
             disableOk ();
     }
+    
+    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField name;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField type;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JTextField length;
     private javax.swing.JRadioButton pri;
     private javax.swing.JRadioButton pub;
     // End of variables declaration//GEN-END:variables

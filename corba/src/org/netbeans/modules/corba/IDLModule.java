@@ -31,7 +31,7 @@ import org.openide.filesystems.FileSystem;
 import org.openide.TopManager;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.XMLDataObject;
-import org.openidex.util.Utilities2;
+//import org.openidex.util.Utilities2;
 import org.openide.src.nodes.FilterFactory;
 
 import org.netbeans.modules.java.settings.JavaSettings;
@@ -97,7 +97,7 @@ public class IDLModule extends ModuleInstall {
      *  Removes CorbaWizardAction
      */
     public void uninstalled () {
-        removeAction();
+        //removeAction();
         invokeDynamic( "org.netbeans.modules.java.JavaDataObject", // NOI18N
                        "removeExplorerFilterFactory", // NOI18N
                        factory );
@@ -149,19 +149,19 @@ public class IDLModule extends ModuleInstall {
         }
     }
     */    
-    
-    private void removeAction () {
-        try {
-            DataFolder toolsFolder = DataFolder.create(TopManager.getDefault().getPlaces().folders().menus(),"Tools"); // NOI18N
-            if (toolsFolder != null) {
-                Utilities2.removeAction (org.netbeans.modules.corba.wizard.CorbaWizardAction.class, toolsFolder);
-            }
-        }catch (Exception e) {
-            if (Boolean.getBoolean ("netbeans.debug.exceptions"))  // NOI18N
-                e.printStackTrace();
-        }
-    }
-
+    /*
+      private void removeAction () {
+      try {
+      DataFolder toolsFolder = DataFolder.create(TopManager.getDefault().getPlaces().folders().menus(),"Tools"); // NOI18N
+      if (toolsFolder != null) {
+      Utilities2.removeAction (org.netbeans.modules.corba.wizard.CorbaWizardAction.class, toolsFolder);
+      }
+      }catch (Exception e) {
+      if (Boolean.getBoolean ("netbeans.debug.exceptions"))  // NOI18N
+      e.printStackTrace();
+      }
+      }
+    */
     private void invokeDynamic( String className, String methodName, FilterFactory factory ) {
 
         try {

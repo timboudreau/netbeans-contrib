@@ -41,12 +41,18 @@ public class ValueChildren extends Children implements Refreshable {
     }
     
     public void addNotify () {
-        synchronized (this) {
-            this.state = TRANSIENT;
-        }
-        this.waitNode = new WaitNode ();
-        this.add ( new Node[] { this.waitNode});
-        org.netbeans.modules.corba.browser.ir.IRRootNode.getDefault().performAsync (this);
+	synchronized (this) {
+	    if (this.state == SYNCHRONOUS) {
+		this.createKeys();
+		this.state = INITIALIZED;
+	    }
+	    else {
+    		this.state = TRANSIENT;
+    		this.waitNode = new WaitNode ();
+    		this.add ( new Node[] { this.waitNode});
+    		org.netbeans.modules.corba.browser.ir.IRRootNode.getDefault().performAsync (this);
+	    }
+	}
     }
     
      public void createKeys() {
@@ -76,20 +82,16 @@ public class ValueChildren extends Children implements Refreshable {
             else if (key instanceof IRContainedKey) {
                 Node[] nodes = new Node[1];
                 DefinitionKind dk = null;
-                boolean operation = false;
                 Contained contained = ((IRContainedKey)key).contained;
-                // Workaround for bug in Jdk 1.2 implementation
-                // if MARSHAL exception ocured, try to introspect
-                // object in another way.
-                try{
-                    dk = contained.def_kind();
-                }catch (org.omg.CORBA.MARSHAL marshalException) {
-                    if (contained._is_a("IDL:omg.org/CORBA/OperationDef:1.0")){
-                    operation = true;
-                }
-                else
-                    throw new RuntimeException("Inner exception is: " + marshalException);
-                }    
+		// Workaround to allow operation on JDK where Sun's implementation
+		// is not removed from rt.jar or third party ORB is not in boot classpath.
+		// In this situations the Sun's DefinitionKind is taken and it is out of date
+		// which causes RuntimeException durring run!!!!!!!!
+		if (contained._is_a("IDL:omg.org/CORBA/AbstractInterfaceDef:1.0") || contained._is_a("IDL:omg.org/CORBA/AbstractInterfaceDef:2.3")) {
+		      nodes[0] = new IRInterfaceDefNode (ContainerHelper.narrow (contained), true);
+		      return nodes;
+		}
+		dk = contained.def_kind();
                 if (dk == DefinitionKind.dk_Exception){
                     nodes[0] = new IRExceptionDefNode (contained);
                     return nodes;
@@ -110,7 +112,7 @@ public class ValueChildren extends Children implements Refreshable {
                     nodes[0] = new IRAttributeDefNode(contained);
                     return nodes;
                 }
-                else if (dk == DefinitionKind.dk_Operation || operation) {
+                else if (dk == DefinitionKind.dk_Operation ) {
                     nodes[0] = new IROperationDefNode(contained);
                     return nodes;
                 }

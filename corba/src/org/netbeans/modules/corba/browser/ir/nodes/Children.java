@@ -55,6 +55,12 @@ public abstract class Children extends org.openide.nodes.Children.Keys implement
         return this.state;
     }
     
+    public void removeNotify () {
+	synchronized (this) {
+	    this.state = NOT_INITIALIZED;
+	}
+    }
+    
     public void preinvoke () {
     }
     

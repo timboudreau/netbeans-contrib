@@ -21,12 +21,14 @@ package org.netbeans.modules.corba.wizard.nodes.keys;
 public class ValueKey extends NamedKey {
 
     String type;
+    String length;
     boolean pub;
     
     /** Creates new Value */
-    public ValueKey(int kind, String name, String type, boolean pub) {
+    public ValueKey(int kind, String name, String type, String length, boolean pub) {
         super (kind, name);
         this.type = type;
+        this.length =length;
         this.pub = pub;
     }
     
@@ -44,6 +46,14 @@ public class ValueKey extends NamedKey {
     
     public void setType (String type) {
         this.type = type;
+    }
+    
+    public String getLength () {
+        return this.length;
+    }
+    
+    public void setLength (String length) {
+        this.length = length;
     }
     
     public String toString () {

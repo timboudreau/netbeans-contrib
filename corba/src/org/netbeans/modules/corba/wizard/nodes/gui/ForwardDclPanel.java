@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
+import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
 /**
  *
  * @author  tzezula
@@ -38,7 +39,7 @@ public class ForwardDclPanel extends ExPanel implements javax.swing.event.Docume
     }
     
     public String getName () {
-        return this.jTextField1.getText();
+        return this.jTextField1.getText().trim();
     }
     
     public void setName (String name) {
@@ -153,7 +154,7 @@ public class ForwardDclPanel extends ExPanel implements javax.swing.event.Docume
     private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle");    
 
     private void checkState () {
-        if (this.jTextField1.getText().length() > 0)
+        if (IdlUtilities.isValidIDLIdentifier(this.jTextField1.getText()))
             this.enableOk();
         else
             this.disableOk();

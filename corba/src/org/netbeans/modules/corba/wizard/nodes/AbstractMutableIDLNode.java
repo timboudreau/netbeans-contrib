@@ -14,11 +14,14 @@
 package org.netbeans.modules.corba.wizard.nodes;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import org.openide.nodes.Node;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.actions.SystemAction;
+import org.netbeans.modules.corba.wizard.nodes.keys.MutableKey;
 import org.netbeans.modules.corba.wizard.nodes.keys.NamedKey;
+import org.netbeans.modules.corba.wizard.nodes.keys.UnionMemberKey;
 import org.netbeans.modules.corba.wizard.nodes.utils.EditCookie;
 import org.netbeans.modules.corba.wizard.nodes.utils.MoveableCookie;
 /** 
@@ -78,11 +81,15 @@ abstract public class AbstractMutableIDLNode extends AbstractNode implements Edi
             Children cld = parent.getChildren();
             if (!(cld instanceof MutableChildren))
                 return false;
-            Node[] nodes = cld.getNodes();
-            if (nodes[0] != this)
-                return true;
-        }catch (Exception e) {}
-        return false;
+            ArrayList keys = ((MutableChildren)cld).getKeys();
+            if (keys.get(0).equals(this.key))
+                return false;
+            if ((this.key instanceof UnionMemberKey) && (((UnionMemberKey)this.key).isDefaultValue()))
+                return false;
+        }catch (Exception e) {
+            return false;
+        }
+        return true;
     }
     
     public boolean canMoveDown () {
@@ -93,11 +100,19 @@ abstract public class AbstractMutableIDLNode extends AbstractNode implements Edi
             Children cld = node.getChildren();
             if (!(cld instanceof MutableChildren))
                 return false;
-            Node[] nodes = cld.getNodes();
-            if (nodes[nodes.length-1] != this)
-                return true;
-        }catch (Exception e) {}
-        return false;
+            ArrayList keys = ((MutableChildren)cld).getKeys();
+            if (keys.get(keys.size()-1).equals (this.key))
+                return false;
+            if (this.key instanceof UnionMemberKey) {
+                int index = keys.indexOf (this.key);
+                MutableKey followingKey = (MutableKey) keys.get (index+1);
+                if ((followingKey instanceof UnionMemberKey) && (((UnionMemberKey)followingKey).isDefaultValue()))
+                    return false;
+            }
+        }catch (Exception e) {
+            return false;
+        }
+        return true;
     }
   
     public void destroy () {

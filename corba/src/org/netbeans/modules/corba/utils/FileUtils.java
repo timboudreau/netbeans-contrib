@@ -39,6 +39,15 @@ public class FileUtils {
         }
     }
     
+    public static String getRealPackageName (FileObject fo) {
+        try {
+            return getRealFileName (fo.getParent ());
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }        
+    
     public static String convert2Canonical (String path) {
         String __canonical = "";
         try {

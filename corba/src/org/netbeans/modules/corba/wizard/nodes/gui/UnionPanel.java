@@ -14,6 +14,8 @@
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
 import javax.swing.event.DocumentListener;
+import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
+
 /** 
  *
  * @author  root
@@ -94,7 +96,7 @@ public class UnionPanel extends ExPanel implements DocumentListener {
     }//GEN-END:initComponents
 
     public String getName () {
-        return this.name.getText();
+        return this.name.getText().trim();
     }
     
     public void setName (String name) {
@@ -102,7 +104,7 @@ public class UnionPanel extends ExPanel implements DocumentListener {
     }
   
     public String getType () {
-        return this.type.getText();
+        return this.type.getText().trim();
     }
     
     public void setType (String type) {
@@ -120,7 +122,8 @@ public class UnionPanel extends ExPanel implements DocumentListener {
 
 
     private void checkState () {
-        if (name.getText().length() >0 && type.getText().length() >0) {
+        if (IdlUtilities.isValidIDLIdentifier(name.getText()) && 
+	    type.getText().length() >0) {
             enableOk();
         }
         else {

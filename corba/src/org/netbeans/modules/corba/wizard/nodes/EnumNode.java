@@ -20,6 +20,7 @@ import org.openide.TopManager;
 import org.openide.DialogDescriptor;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
@@ -43,7 +44,7 @@ public class EnumNode extends AbstractMutableContainerNode implements Node.Cooki
         this.getCookieSet().add (this);
         this.setName (key.getName());
         this.setIconBase (ICON_BASE);
-        this.buildEntries ();
+        this.buildEntries (((EnumKey)this.key).getValuesAndClear());
     }
   
     public SystemAction[] createActions () {
@@ -60,7 +61,7 @@ public class EnumNode extends AbstractMutableContainerNode implements Node.Cooki
         for (int i=0; i< indent; i++) {
             code = code + SPACE;
         }
-        code = code + "enum "+ this.getName() +" { "; // No I18N
+        code = code + "enum "+ this.getName() +" {"; // No I18N
         Children cld = this.getChildren();
         Node[] nodes = cld.getNodes();
         for (int i=0; i< nodes.length; i++ ) {
@@ -94,7 +95,15 @@ public class EnumNode extends AbstractMutableContainerNode implements Node.Cooki
     public ExPanel getEditPanel () {
         EnumPanel p = new EnumPanel ();
         p.setName (this.getName());
-        p.setValues (((EnumKey)this.key).getValues());
+        ArrayList list = ((MutableChildren)this.getChildren()).getKeys();
+        Iterator it = list.iterator();
+        String entries = "";
+        for  (int i=0; it.hasNext(); i++) {
+            if (i!=0)
+                entries = entries + ", ";
+            entries = entries +((NamedKey)it.next()).getName();
+        }
+        p.setValues (entries);
         return p;
     }
     
@@ -107,21 +116,18 @@ public class EnumNode extends AbstractMutableContainerNode implements Node.Cooki
                 this.setName(newName);
                 key.setName (newName);
             }
-            if (!key.getValues().equals(newValues)) {
-                key.setValues (newValues);
-                ((MutableChildren)this.getChildren()).removeAllKeys(false);
-                buildEntries();
-            }
+            buildEntries (newValues);
         }
     }
   
-    private void buildEntries () {
-        StringTokenizer tk = new StringTokenizer (((EnumKey)this.key).getValues(),",");
+    private void buildEntries (String initialKeys) {
+        StringTokenizer tk = new StringTokenizer (initialKeys,",");
         ArrayList keys = new ArrayList();
         while (tk.hasMoreTokens ()){
             String name = tk.nextToken().trim();
             keys.add (new NamedKey (MutableKey.ENUM_MBR, name));
         }
+        ((MutableChildren)this.getChildren()).removeAllKeys(false);
         ((MutableChildren)this.getChildren()).addKeys (keys);
     }
 }

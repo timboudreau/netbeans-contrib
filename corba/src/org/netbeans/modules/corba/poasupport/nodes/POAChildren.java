@@ -91,8 +91,11 @@ public class POAChildren extends Children.Keys {
             if (sourceMaker != null)
                 if (evt.getSource() == sourceMaker) {
                     if (sourceMaker.checkForPOA()) {
+                        poaElement.removePropertyChangeListener((POANode)getNode());
                         poaElement = sourceMaker.scanPOAHierarchy();
+                        poaElement.addPropertyChangeListener((POANode)getNode());
                         createKeys();
+                        ((POANode)getNode()).propertyChange(new java.beans.PropertyChangeEvent(poaElement, null, null, null));
                         ((POANode)getNode()).setActions();
                     }
                     else {
@@ -111,9 +114,12 @@ public class POAChildren extends Children.Keys {
                     RequestProcessor.postRequest (new Runnable () {
                         public void run () {
                             if (sourceMaker.isSourceModified()) {
+                                poaElement.removePropertyChangeListener((POANode)getNode());
                                 poaElement = sourceMaker.scanPOAHierarchy();
+                                poaElement.addPropertyChangeListener((POANode)getNode());
                                 createKeys();
                                 ((POANode)getNode()).setActions();
+                                ((POANode)getNode()).propertyChange(new java.beans.PropertyChangeEvent(poaElement, null, null, null));
                                 if (isZombie) {
                                     parentChildren.add(new Node[] {
                                         getNode()

@@ -13,7 +13,9 @@
 
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
+import java.util.StringTokenizer;
 import javax.swing.event.DocumentListener;
+import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
 /** 
  *
  * @author  root
@@ -28,7 +30,7 @@ public class EnumPanel extends ExPanel implements DocumentListener {
     }
   
     public String getName () {
-        return this.name.getText();
+        return this.name.getText().trim();
     }
     
     public void setName (String name) {
@@ -132,11 +134,26 @@ public class EnumPanel extends ExPanel implements DocumentListener {
     }
 
     private void checkState () {
-        if (name.getText().length() >0 && values.getText().length() >0 ) {
-            enableOk();
+        if (!IdlUtilities.isValidIDLIdentifier(name.getText()) || 
+            values.getText().length() == 0 ) {
+            disableOk();
         }
         else {
-            disableOk();
+            String val = values.getText().trim();
+            if (val.charAt (val.length()-1) == ',') {
+                disableOk();
+            }
+            else {
+                StringTokenizer tk = new StringTokenizer (val,",");
+                while (tk.hasMoreTokens()) {
+                    String token = tk.nextToken();
+                    if (!IdlUtilities.isValidIDLIdentifier (token)) {
+                        disableOk();
+                        return;
+                    }
+                }
+                enableOk();
+            }
         }
     }
 }

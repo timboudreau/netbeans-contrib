@@ -49,8 +49,10 @@ public class InterfaceNode extends FMNode implements Node.Cookie,
         for (int i=0; i< indent; i++)
             fill = fill + SPACE;
         if (((InterfaceKey)key).isAbstract())
-            fill = fill + "abstract "; // No I18N
-        code = fill + "interface " +  this.getName () + " ";  // No I18N
+            code = fill + "abstract "; // No I18N
+        else
+            code = fill;
+        code = code + "interface " +  this.getName () + " ";  // No I18N
         if (((InterfaceKey)this.key).getbaseInterfaces().length() > 0) {
             code = code + ": " + ((InterfaceKey)this.key).getbaseInterfaces() + " "; // No I18N
         }
@@ -130,6 +132,7 @@ public class InterfaceNode extends FMNode implements Node.Cookie,
         InterfacePanel p = new InterfacePanel();
         p.setName (this.getName());
         p.setBase (((InterfaceKey)this.key).getbaseInterfaces());
+        p.setAbstract (((InterfaceKey)this.key).isAbstract());
         return p;
     }
     

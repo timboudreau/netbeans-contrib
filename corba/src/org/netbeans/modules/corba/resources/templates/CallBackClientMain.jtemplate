@@ -15,20 +15,13 @@ __CLIENT_BINDING_IMPORT__
  * @version 
  */
 public class CallBackClientMain implements Runnable {
-
-    private ORB orb;
-
+    __HANDLER_INIT_DEF__
     public void run() {
         try {
             __ORB_SERVER_RUN__
     	} catch (Exception ex) {
             ex.printStackTrace ();
 	}
-    }
-
-    /** Creates new __NAME__ */
-    public CallBackClientMain (ORB _orb) {
-        orb = _orb;
     }
 
     /**
@@ -45,7 +38,9 @@ public class CallBackClientMain implements Runnable {
 	    __SERVANTS_ACTIVATION__
 	    __POA_ACTIVATION__
             // run CORBA request handling asynchronously
-	    new Thread(new __NAME__(orb)).start();
+            __NAME__ handler = new __NAME__();
+            __HANDLER_INIT__
+	    new Thread(handler).start();
 
             // bind to server object
 

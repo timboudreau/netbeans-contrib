@@ -25,6 +25,10 @@
   <template-code name='ORB_PROPERTIES'><![CDATA[Properties props = System.getProperties ();]]>
   </template-code>
 
+  <template-code name='HANDLER_INIT_DEF'><![CDATA[]]></template-code>
+
+  <template-code name='HANDLER_INIT'><![CDATA[]]></template-code>
+
   <template-code name='ORB_INIT'><![CDATA[ORB orb = ORB.init (args, props);]]>
   </template-code>
 

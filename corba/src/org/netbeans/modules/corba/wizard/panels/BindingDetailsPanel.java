@@ -76,7 +76,8 @@ public class BindingDetailsPanel extends AbstractCORBAWizardPanel implements jav
                 }
             }
         }
-        if ((mode & CorbaWizardData.CLIENT) == CorbaWizardData.CLIENT) {
+        if ((mode & CorbaWizardData.CLIENT) == CorbaWizardData.CLIENT ||
+            (mode & CorbaWizardData.CB_CLIENT) == CorbaWizardData.CB_CLIENT) {
             ListIterator bindings = orbSettings.getClientBindings ().listIterator();
             ORBBindingDescriptor bd = null;
             while (bindings.hasNext()) {

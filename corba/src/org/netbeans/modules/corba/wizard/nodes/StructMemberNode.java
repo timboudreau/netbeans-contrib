@@ -48,7 +48,7 @@ public class StructMemberNode extends AbstractMutableLeafNode  {
         code = code + this.getName ();
         if (key.getLength ().length () > 0) {
             StringTokenizer tk = new StringTokenizer (key.getLength(),",");
-            code = code + " [" + tk.nextToken() +"]";
+            code = code + " [" + tk.nextToken().trim() +"]";
         }
         code = code + ";\n"; // No I18N
         return code;

@@ -46,9 +46,6 @@ public class IRStructDefNode extends IRContainerNode{
             if (cld.getState() == Children.NOT_INITIALIZED)
                 ((Children)getChildren()).state = Children.SYNCHRONOUS;
             Node[] nodes = cld.getNodes();
-            for (int i=0; i< nodes.length; i++) {
-                System.out.println (nodes[i]);
-            }
             int varIndex = 0;
             for (int i = 0; i< nodes.length; i++) {
                 if (nodes[i] instanceof IRPrimitiveNode){

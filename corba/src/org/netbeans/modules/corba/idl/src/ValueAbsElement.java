@@ -51,6 +51,25 @@ public class ValueAbsElement extends IDLElement {
 
     public void jjtClose () {
         super.jjtClose ();
+        Vector __members = super.getMembers ();
+	//java.util.List __tm = new java.util.ArrayList ();
+	//__tm.addAll (__members);
+	//System.out.println (this + " -> __tm: " + __tm);
+	try {
+	    if (__members.size () > 0) {
+		ValueInheritanceSpecElement __inheritance
+		    = (ValueInheritanceSpecElement)__members.get (1);
+		//System.out.println ("inherited: " + __inheritance.getValues ()); // NOI18N
+		this.setParents (__inheritance.getValues ());
+	    }
+	} catch (ClassCastException __ex) {
+	    // this valuetype don't inherits any value
+	} catch (Exception __ex) {
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) { // NOI18N
+		__ex.printStackTrace ();
+		//System.out.println ("__ex for element: " + this + " from file: " + this.getFileName ());
+	    }
+	}
 
     }
 

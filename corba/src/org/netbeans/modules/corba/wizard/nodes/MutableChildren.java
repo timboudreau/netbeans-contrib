@@ -47,6 +47,13 @@ public class MutableChildren extends Children.Keys implements MoveableNode {
         this.subNodes.add (key);
         this.prepareKeys();
     }
+    
+    public void addKey (int index, MutableKey key) {
+        if (index < 0 || index > this.subNodes.size())
+            return;
+        this.subNodes.add (index, key);
+        this.prepareKeys ();
+    }
   
     public void addKeys (Collection keys) {
         this.subNodes.addAll (keys);
@@ -62,6 +69,24 @@ public class MutableChildren extends Children.Keys implements MoveableNode {
         this.subNodes.clear();
         if (notify)
             this.prepareKeys();
+    }
+    
+    public ArrayList getKeys () {
+        return this.subNodes;
+    }
+    
+    public ArrayList getKeysSafe() {
+        return (ArrayList)this.subNodes.clone();
+    }
+    
+    public int getKeysCount () {
+        return this.subNodes.size();
+    }
+    
+    public MutableKey getKey (int index) {
+        if (index < 0 || index>= this.subNodes.size())
+            return null;
+        return (MutableKey) this.subNodes.get (index);
     }
   
     public Node[] createNodes (Object key){

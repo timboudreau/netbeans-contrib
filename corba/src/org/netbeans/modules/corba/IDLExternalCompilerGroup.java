@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.Enumeration;
 
 import org.openide.compiler.ExternalCompilerGroup;
 import org.openide.compiler.ExternalCompiler;
@@ -41,11 +42,13 @@ import org.openide.TopManager;
 
 
 import org.netbeans.modules.corba.settings.*;
+import org.netbeans.modules.corba.utils.FileUtils;
 
 import org.netbeans.modules.java.JavaDataObject;
 import org.netbeans.modules.java.JavaCompilerType;
 import org.netbeans.modules.java.settings.JavaSettings;
 import org.netbeans.modules.java.JavaExternalCompilerType;
+
 /** External Compiler Group
   * 
   *
@@ -174,7 +177,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 
             css = (CORBASupportSettings) CORBASupportSettings.findObject
                   (CORBASupportSettings.class, true);
-            String params = " "; // NOI18N
+            String params = ""; // NOI18N
 	    IDLDataObject __ido = null;
 	    try {
 		__ido = (IDLDataObject)DataObject.find (fo);
@@ -190,8 +193,10 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 		__setting = css.getActiveSetting ();
 	    }
 
+	    if (__ido.getParams () != null)
+		params += __ido.getParams () + " ";
 	    if (__setting.getParams () != null)
-		params += __setting.getParams ();
+		params += __setting.getParams () + " ";
 	    if (__setting.isTie ())
 		params += __setting.getTieParam ();
 
@@ -200,6 +205,13 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 		__cpp_params += __ido.getCPPParams ();
 	    if (__setting.getCPPParams () != null) 
 		__cpp_params += " " + __setting.getCPPParams ();
+/*            for (Enumeration en = TopManager.getDefault().getRepository().fileSystems(); en.hasMoreElements();) {
+                FileSystem __file_system = (FileSystem)en.nextElement();
+                if (!__file_system.isDefault())
+                    __cpp_params += " -I\"" + __file_system.getDisplayName() + "\"";
+            }
+ */
+            __cpp_params += " -I\"" + FileUtils.getRealPackageName(fo) + "\"";
 	    
 
             java.util.Map map = getMap ();

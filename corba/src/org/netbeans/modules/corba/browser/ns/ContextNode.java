@@ -39,6 +39,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
     = "org/netbeans/modules/corba/browser/ns/resources/folder";
     static final String ICON_BASE_ROOT
     = "org/netbeans/modules/corba/browser/ns/resources/ns-root";
+    static final String ICON_BASE_FAILED
+    = "org/netbeans/modules/corba/browser/ns/resources/ns-failed";
 
     public static final boolean DEBUG = false;
     //public static final boolean DEBUG = true;
@@ -128,7 +130,6 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                             }
 			}
                     }
-                    localNameServices.put (new Short (port), wrapper);
                 }
             	String ior = wrapper.getIOR();
                 if (ior == null) {
@@ -136,7 +137,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                     TopManager.getDefault().notify(new NotifyDescriptor.Message (java.text.MessageFormat.format (NbBundle.getBundle(ContextNode.class).getString("TXT_BadPort"),new java.lang.Object[]{new Short (port)}),NotifyDescriptor.Message.ERROR_MESSAGE));
                     return;
 		}		
-		ContextNode.this.bind_new_context (name, __kind, "",ior);
+		ContextNode.this.bind_new_context (name, __kind, "",ior, false);
+                localNameServices.put (new Short (port), wrapper);
             }catch (Exception se) {
                 TopManager.getDefault().notify (new NotifyDescriptor.Message (se.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
             }
@@ -169,6 +171,15 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
         setName (binding.binding_name[0].id);
         setKind (binding.binding_name[0].kind);
         init ();
+    }
+    
+    public ContextNode (String name, String kind, String url, String ior) {
+        super (Children.LEAF);
+        setName (name);
+        setIconBase (ICON_BASE_FAILED);
+        systemActions = new SystemAction[] {
+                                SystemAction.get (org.netbeans.modules.corba.browser.ns.UnbindContext.class),
+                            };
     }
 
     public ContextNode (NamingContext nc) {
@@ -213,7 +224,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             setIconBase (ICON_BASE_ROOT);
             systemActions = new SystemAction[] {
                             SystemAction.get (org.netbeans.modules.corba.browser.ns.BindNewContext.class),
-							SystemAction.get (org.netbeans.modules.corba.browser.ns.StartLocal.class)
+                            SystemAction.get (org.netbeans.modules.corba.browser.ns.StartLocal.class)
                         };
 	    this.getCookieSet().add ( new CosNamingCookieImpl ());
         }
@@ -228,8 +239,11 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
         if (css == null)
             lazyInit();
         naming_children = css.getNamingServiceChildren ();
-        if (DEBUG)
+        if (DEBUG) {
+            for (int i = 0; i< naming_children.size(); i++)
+                System.out.println (i+"\t"+naming_children.get(i).getClass());
             System.out.println ("no of naming children: " + naming_children.size ());
+        }
 
         if (naming_children != null){
             for (int i=0; i<naming_children.size (); i++) {
@@ -239,7 +253,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                 } catch (Exception e) {
                     if (DEBUG)
                         e.printStackTrace ();
-                    naming_children.remove (i);
+                    ContextNode cn = new ContextNode (child.getName (), child.getKind (), child.getURL (), child.getIOR ());
+                    contexts.addElement (cn);
                 }
             }
         }
@@ -302,6 +317,15 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                 org.omg.CosNaming.NamingContextPackage.CannotProceed,
                 org.omg.CosNaming.NamingContextPackage.InvalidName,
         org.omg.CosNaming.NamingContextPackage.AlreadyBound {
+            this.bind_new_context (name, kind, url, ior, true);
+    }
+    
+    public void bind_new_context (String name, String kind, String url, String ior, boolean persistent)
+    throws java.net.MalformedURLException, java.io.IOException,
+                org.omg.CosNaming.NamingContextPackage.NotFound,
+                org.omg.CosNaming.NamingContextPackage.CannotProceed,
+                org.omg.CosNaming.NamingContextPackage.InvalidName,
+        org.omg.CosNaming.NamingContextPackage.AlreadyBound {
         NamingContext nc = null;
         if (DEBUG)
             System.out.println ("ContextNode::bind_new_context ();");
@@ -352,7 +376,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             cn.setName (name);
             cn.setKind (kind);
             contexts.addElement (cn);
-            if (root() && loaded ()) {
+            if (root() && loaded () && persistent) {
                 naming_children.addElement (new NamingServiceChild (name, kind, url, ior));
             }
         }

@@ -14,6 +14,7 @@
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
 import javax.swing.event.DocumentListener;
+import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
 /** 
  *
  * @author  root
@@ -28,7 +29,7 @@ public class ConstPanel extends ExPanel implements DocumentListener {
     }
   
     public String getName () {
-        return this.name.getText();
+        return this.name.getText().trim();
     }
     
     public void setName (String name) {
@@ -36,7 +37,7 @@ public class ConstPanel extends ExPanel implements DocumentListener {
     }
   
     public String getType () {
-        return this.type.getText();
+        return this.type.getText().trim();
     }
     
     public void setType (String type) {
@@ -44,7 +45,7 @@ public class ConstPanel extends ExPanel implements DocumentListener {
     }
   
     public String getValue () {
-        return this.value.getText();
+        return this.value.getText().trim();
     }
     
     public void setValue (String value) {
@@ -167,7 +168,9 @@ public class ConstPanel extends ExPanel implements DocumentListener {
     }
 
     private void checkState () {
-        if (name.getText().length() >0 && type.getText().length() >0 && value.getText().length() >0) {
+        if (IdlUtilities.isValidIDLIdentifier(name.getText()) && 
+            type.getText().length() >0 && 
+            value.getText().length() >0) {
             enableOk();
         }
         else {

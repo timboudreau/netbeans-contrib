@@ -25,7 +25,8 @@ import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
-
+import org.netbeans.modules.corba.settings.CORBASupportSettings;
+import org.omg.DynamicAny.*;
 /**
  *
  * @author  tzezula
@@ -34,6 +35,7 @@ import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 public class IRUnionMemberNode extends IRLeafNode {
     
     public UnionMember _mbr;
+    private ORB orb = null;
     
     private static final String PRIMITIVE_ICON_BASE=
         "org/netbeans/modules/corba/idl/node/declarator";
@@ -116,7 +118,7 @@ public class IRUnionMemberNode extends IRLeafNode {
                     return (holder.value==null)?"":holder.value;
             }
         });
-        set.put (new PropertySupport.ReadOnly (Util.getLocalizedString("TITLE_Label"), String.class, Util.getLocalizedString("TITLE_Dimension"), Util.getLocalizedString("TIP_UnionMemberLabel")) {
+        set.put (new PropertySupport.ReadOnly (Util.getLocalizedString("TITLE_Label"), String.class, Util.getLocalizedString("TITLE_Label"), Util.getLocalizedString("TIP_UnionMemberLabel")) {
             public java.lang.Object getValue () {
                 return getLabelValue (_mbr.label);
             }
@@ -147,11 +149,20 @@ public class IRUnionMemberNode extends IRLeafNode {
             case TCKind._tk_ulonglong:
                 return Long.toString ( any.extract_ulonglong());
             case TCKind._tk_enum:
-                // Workaround for some CORBA implementations, which do not support DynAny
                 try{
-                    org.omg.CORBA.portable.InputStream in = any.create_input_stream();
-                    int value = in.read_long();
-                    return tc.member_name(value);
+		    try {
+			if (this.orb == null) {
+			    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
+			    this.orb = css.getORB ();
+			}
+			DynAnyFactory factory = DynAnyFactoryHelper.narrow(orb.resolve_initial_references("DynAnyFactory"));
+			org.omg.DynamicAny.DynEnum denum = org.omg.DynamicAny.DynEnumHelper.narrow (factory.create_dyn_any (any));
+			return denum.get_as_string();
+		    }catch (org.omg.CORBA.ORBPackage.InvalidName invalidName) {
+			org.omg.CORBA.portable.InputStream in = any.create_input_stream(); 
+			int value = in.read_long();
+			return tc.member_name(value);
+		    }
                 }catch(Exception e){
                     return "?";
                 }

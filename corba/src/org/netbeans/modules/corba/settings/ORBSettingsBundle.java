@@ -31,6 +31,8 @@ public class ORBSettingsBundle {
 	("PROP_ORB"); // NOI18N
     public static final String HINT_ORB = ORBSettingsBundle.bundle.getString
 	("HINT_ORB"); // NOI18N
+    public static final String CTL_DEFAULT_ORB = ORBSettingsBundle.bundle.getString
+	("CTL_DEFAULT_ORB"); // NOI18N
 
     public static final String PROP_CLIENT_BINDING = ORBSettingsBundle.bundle.getString
 	("PROP_CLIENT_BINDING"); // NOI18N

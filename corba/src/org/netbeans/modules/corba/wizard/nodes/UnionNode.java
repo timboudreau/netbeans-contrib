@@ -16,6 +16,7 @@ package org.netbeans.modules.corba.wizard.nodes;
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import org.openide.TopManager;
 import org.openide.DialogDescriptor;
 import org.openide.nodes.Node;
@@ -83,7 +84,14 @@ public class UnionNode extends AbstractMutableContainerNode implements Node.Cook
                                                                                  String length = panel.getLength ();
                                                                                  String label = panel.getLabel ();
                                                                                  UnionMemberKey key = new UnionMemberKey (MutableKey.UNION_MBR, name, type, length, label);
-                                                                                 ((MutableChildren)getChildren ()).addKey (key);
+                                                                                 MutableChildren children = ((MutableChildren)UnionNode.this.getChildren());
+                                                                                 int lastIndex = children.getKeysCount();
+                                                                                 if (lastIndex > 0) {
+                                                                                     MutableKey lastKey = (MutableKey) children.getKey(lastIndex-1);
+                                                                                     if ((lastKey instanceof MutableKey) && (((UnionMemberKey)lastKey).isDefaultValue()))
+                                                                                         lastIndex--;
+                                                                                 }
+                                                                                 children.addKey (lastIndex,key);
                                                                              }
                                                                              dialog.setVisible (false);
                                                                              dialog.dispose ();

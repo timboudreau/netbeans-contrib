@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.netbeans.modules.corba.idl.src.ValueElement;
+import org.netbeans.modules.corba.idl.src.InterfaceElement;
+
 import org.netbeans.modules.corba.utils.ParentsExecutor;
 
 /*
@@ -30,6 +32,10 @@ public class SupportedInterfacesExecutor implements ParentsExecutor {
 	if (__element instanceof ValueElement) {
 	    ValueElement __value = (ValueElement)__element;
 	    __result.addAll (__value.getSupported ());
+	}
+	if (__element instanceof InterfaceElement) {
+	    InterfaceElement __interface = (InterfaceElement)__element;
+	    __result.addAll (__interface.getParents ());
 	}
 	return __result;
     }
