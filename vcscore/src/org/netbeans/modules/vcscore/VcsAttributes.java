@@ -45,6 +45,10 @@ import org.netbeans.modules.vcscore.runtime.RuntimeCommandsProvider;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
+import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.turbo.FileProperties;
+import org.netbeans.modules.vcscore.turbo.Statuses;
+import org.netbeans.modules.vcscore.turbo.TurboUtil;
 
 /**
  * Implementation of file attributes for version control systems. All attributes
@@ -74,7 +78,14 @@ public class VcsAttributes extends Attributes {
      * the vcs filesystem.
      */
     public static final String VCS_NATIVE_PACKAGE_NAME_EXT = "VcsFileSystemNativeFOPath";
-    
+
+    /**
+     * Name of attribute that contains VcsFilesystem fileobject or <code>null</code>.
+     * It's typical use case is a wormhole through {@link org.netbeans.modules.masterfs.MasterFileSystem}.
+     * It's read-only attribute. 
+     */
+    public static final String VCS_NATIVE_FILEOBJECT = "VCS-Native-FileObject";  // NOI18N
+
     /**
      * The name of FileObject attribute, that contains instance of VcsCommandsProvider
      * on VCS filesystems.
@@ -239,6 +250,19 @@ public class VcsAttributes extends Attributes {
         if (VCS_STATUS.equals(attrName)) {
             if (!fileSystem.getFile(name).exists()) return VCS_STATUS_MISSING;
 
+            if (Turbo.implemented()) {
+                FileObject fo = fileSystem.findResource(name);
+                FileProperties fprops = Turbo.getMeta(fo);
+                String status = FileProperties.getStatus(fprops);
+                if (Statuses.getLocalStatus().equals(status)) {
+                    return VCS_STATUS_LOCAL;
+                } else if (Statuses.getUnknownStatus().equals(status)) {
+                    return VCS_STATUS_UNKNOWN;
+                }
+                return VCS_STATUS_UP_TO_DATE;                                
+            }
+
+            // original implementation
             FileStatusProvider statusProvider = fileSystem.getStatusProvider();
             if (statusProvider != null) {
                 String status = statusProvider.getFileStatus(name);
@@ -255,12 +279,31 @@ public class VcsAttributes extends Attributes {
             return fileSystem;
         } else if (VCS_NATIVE_PACKAGE_NAME_EXT.equals(attrName)) {
             return name;
+        } else if (VCS_NATIVE_FILEOBJECT.equals(attrName)) {
+            return fileSystem.findResource(name);
         } else if (VCS_COMMANDS_PROVIDER_ATTRIBUTE.equals(attrName)) {
             return commandsProvider;
         } else if (VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE.equals(attrName)) {
             return fileSystem;
         }  else {
 
+            if (Turbo.implemented()) {
+                if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
+                    FileReference ref = fileSystem.getFileReference(name);
+                    if (ref != null && ref.wasVirtual()) {
+                        return VirtualsDataLoader.class.getName();
+                    }
+                } else if ("NetBeansAttrAssignedLoaderModule".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER_MODULE */  //NOI18N
+                    FileReference ref = fileSystem.getFileReference(name);
+                    if (ref != null && ref.wasVirtual()) {
+                        return "org.netbeans.modules.vcscore"; //NOI18N
+                    }
+                }
+
+                return super.readAttribute(name, attrName);
+            }
+
+            // the old implementation
             if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
                 CacheReference ref = fileSystem.getCacheReference(name);
                 if ( (ref != null) && ref.isVirtual()) {
@@ -327,6 +370,36 @@ public class VcsAttributes extends Attributes {
             super.writeAttribute(name, VCS_SCHEDULED_FILE_ATTR, value);
         } else {
 
+            if (Turbo.implemented()) {
+                if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
+                    if (value == null && !fileSystem.checkVirtual(name)) {
+                        FileReference ref = fileSystem.getFileReference(name);
+                        if (ref != null) {
+                            ref.setVirtual(false);
+                        }
+                        return;
+                    }
+                    else if (VirtualsDataLoader.class.getName().equals(value)) {
+                        FileReference ref = fileSystem.getFileReference(name);
+                        if (ref != null) {
+                            ref.setVirtual(true);
+                        }
+                        return;
+                    }
+                }
+                if ("NetBeansAttrAssignedLoaderModule".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER_MODULE */  //NOI18N
+                    if (value != null && "org.netbeans.modules.vcscore".equals(value.toString())  //NOI18N
+                        && fileSystem.checkVirtual(name)) {
+                       //don't write to .nbattrs file..
+                       return;
+                    }
+                    //System.out.println("write assigned module=" + value);
+                }
+                super.writeAttribute(name, attrName, value);
+                return;
+            }
+
+            // the old implementation
             if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
                 if (value == null) {
                     CacheReference ref = fileSystem.getCacheReference(name);
@@ -435,6 +508,16 @@ public class VcsAttributes extends Attributes {
         RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
             boolean rec = Boolean.TRUE.equals(recursive);
+
+                if (Turbo.implemented()) {
+                    FileObject fo = fileSystem.findFileObject(name);
+                    if (rec) {
+                        TurboUtil.refreshRecursively(fo);
+                    } else {
+                        TurboUtil.refreshFolder(fo);
+                    }
+                    return;
+                }
 
             FileCacheProvider cache = fileSystem.getCacheProvider();
             if (cache != null) {

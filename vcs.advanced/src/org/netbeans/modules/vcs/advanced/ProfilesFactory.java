@@ -98,16 +98,18 @@ public final class ProfilesFactory extends Object {
     // This is not necessary to do until we're asked for them.
     private boolean areLabelsResolved = false;
     private Map profileLabelsByName;
+    private Map profileTypesByName;
     private Map compatibleOSsByName;
     private Map uncompatibleOSsByName;
     private Map resourceBundlesByName;
     private Map profilesByName;
     
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-    
+
+    private static FileSystem registry;
+
     /** Creates a new instance of ProfilesFactory */
-    private ProfilesFactory() {
-        FileSystem dfs = Repository.getDefault().getDefaultFileSystem ();
+    private ProfilesFactory(FileSystem dfs) {
         profileRoot = dfs.findResource(PROFILE_ROOT);
         profileRootFolderListener = new ProfileRootFolderListener();
         profileRoot.addFileChangeListener(FileUtil.weakFileChangeListener(profileRootFolderListener,
@@ -120,24 +122,37 @@ public final class ProfilesFactory extends Object {
      */
     public static synchronized ProfilesFactory getDefault() {
         if (factory == null) {
-            factory = new ProfilesFactory();
+            factory = new ProfilesFactory(getRegistry());
         }
         return factory;
     }
-    
+
+    /** Unit tests entry point. */
+    static synchronized void setRegistry(FileSystem registrations) {
+        registry = registrations;
+    }
+
+    static synchronized FileSystem getRegistry() {
+        if (registry == null) {
+            registry = Repository.getDefault().getDefaultFileSystem ();
+        }
+        return registry;
+    }
     private void initProfilesInfo() {
         //System.out.println("ProfilesCache.initProfileLabels() root = "+profileRoot);
         profileNames = VariableIO.readConfigurations(profileRoot);
         profileLabels = new ArrayList(profileNames.size());
         profileLabelsByName = new HashMap();
+        profileTypesByName = new HashMap();
         compatibleOSsByName = new HashMap();
         uncompatibleOSsByName = new HashMap();
         resourceBundlesByName = new HashMap();
+        String[] typePtr = new String[1];
         for (int i = 0; i < profileNames.size(); i++) {
             String name = (String) profileNames.get(i);
             //StringBuffer compatibleOSs = new StringBuffer();
             //StringBuffer uncompatibleOSs = new StringBuffer();
-            String[] labelAndOSs = VariableIO.getConfigurationLabelAndOS(profileRoot, name);
+            String[] labelAndOSs = VariableIO.getConfigurationLabelAndOS(profileRoot, name, typePtr);
             if (labelAndOSs == null) {
                 profileNames.remove(i--);
                 continue;
@@ -145,6 +160,7 @@ public final class ProfilesFactory extends Object {
             String label = labelAndOSs[0];
             profileLabels.add(label);
             profileLabelsByName.put(name, label);
+            profileTypesByName.put(name, typePtr[0]);
             compatibleOSsByName.put(name, (labelAndOSs[1] != null) ? parseOSs(labelAndOSs[1]) : Collections.EMPTY_SET);
             uncompatibleOSsByName.put(name, (labelAndOSs[2] != null) ? parseOSs(labelAndOSs[2]) : Collections.EMPTY_SET);
             if (labelAndOSs.length > 3) {
@@ -154,6 +170,8 @@ public final class ProfilesFactory extends Object {
             }
             //System.out.println("name = "+profileNames.get(i)+", label = "+getProfileLabel((String) profileNames.get(i)));
         }
+        // TODO rewrite other methods to handle empty maps
+        assert profileNames.size() > 0 : "Other methods do not check empty maps.";  // NOI18N
         profilesByName = new HashMap();
     }
     
@@ -175,6 +193,10 @@ public final class ProfilesFactory extends Object {
         String[] profiles = new String[profileNames.size()];
         profileNames.toArray(profiles);
         return profiles;
+    }
+    
+    public synchronized String getProfileType(String profileName) {
+        return (String) profileTypesByName.get(profileName);
     }
     
     public synchronized String[] getProfilesDisplayNames() {
@@ -221,7 +243,8 @@ public final class ProfilesFactory extends Object {
         }
         return profile;
     }
-    
+
+
     public synchronized boolean isOSCompatibleProfile(String profileName) {
         String osName = System.getProperty ("os.name"); // NOI18N
         Set compatible = (Set) compatibleOSsByName.get(profileName);
@@ -265,7 +288,7 @@ public final class ProfilesFactory extends Object {
      * Add a new profile.
      */
     public synchronized Profile addProfile(String name, String displayName,
-                                           String[] resourceBundles,
+                                           String type, String[] resourceBundles,
                                            Set compatibleOSs, Set uncompatibleOSs,
                                            ConditionedVariables variables,
                                            ConditionedCommands commands) throws IOException {
@@ -276,6 +299,7 @@ public final class ProfilesFactory extends Object {
         name = profileFile.getNameExt();
         profileNames.add(name);
         profileLabels.add(displayName);
+        profileTypesByName.put(name, type);
         profileLabelsByName.put(name, displayName);
         resourceBundlesByName.put(name, resourceBundles);
         compatibleOSsByName.put(name, compatibleOSs);
@@ -285,8 +309,10 @@ public final class ProfilesFactory extends Object {
         firePropertyChange(PROP_PROFILE_ADDED, null, name);
         return profile;
     }
-    
-    
+
+
+
+
     public class ProfileImpl extends Profile implements FileChangeListener {
         
         private String profileName;
@@ -320,6 +346,10 @@ public final class ProfilesFactory extends Object {
         
         public String getDisplayName() {
             return getProfileDisplayName(profileName);
+        }
+        
+        public String getType() {
+            return getProfileType(profileName);
         }
         
         public synchronized void preLoadContent(boolean conditions, boolean variables,
@@ -529,6 +559,10 @@ public final class ProfilesFactory extends Object {
         
         private void saveConfig() throws org.w3c.dom.DOMException, java.io.IOException {
             org.w3c.dom.Document doc = org.openide.xml.XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, null, null);
+            String type = getType();
+            if (type != null) {
+                doc.getDocumentElement().setAttribute(VariableIO.CONFIG_TYPE_ATTR, type);
+            }
             String profileDisplayName = (String) profileLabelsByName.get(profileName);
             if (conditions != null) {
                 ConditionIO.writeConditions(doc, conditions);
@@ -672,13 +706,15 @@ public final class ProfilesFactory extends Object {
             List currentLocales = VariableIO.getLocalizedConfigurations(new FileObject[] { newData });
             if (!currentLocales.contains(newData)) return ; // Ignore other locales
             String name = newData.getNameExt();
-            String[] labelAndOSs = VariableIO.getConfigurationLabelAndOS(profileRoot, name);
+            String[] typePtr = new String[1];
+            String[] labelAndOSs = VariableIO.getConfigurationLabelAndOS(profileRoot, name, typePtr);
             if (labelAndOSs == null) {
                 return ;
             }
             String label = labelAndOSs[0];
             synchronized (ProfilesFactory.this) {
                 profileNames.add(name);
+                profileTypesByName.put(name, typePtr[0]);
                 profileLabelsByName.put(name, label);
                 if (areLabelsResolved) {
                     label = VcsUtilities.getBundleString((String[]) resourceBundlesByName.get(name), label);

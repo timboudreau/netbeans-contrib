@@ -16,7 +16,7 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<!ELEMENT configuration    (label, os?, (condition)*, variables, commands, globalCommands?)   >
+<!ELEMENT configuration    (label, resourceBundle?, os?, (condition)*, variables, commands, globalCommands?)   >
 <!ELEMENT resourceBundle   (#PCDATA)   >
 <!ELEMENT label            (#PCDATA)   >
 <!ELEMENT os               (compatible?, uncompatible?)   >
@@ -36,6 +36,9 @@ Microsystems, Inc. All Rights Reserved.
 <!ELEMENT property         (value)*   >
 <!ELEMENT value            (#PCDATA)   >
 
+<!ATTLIST configuration
+          type             CDATA #IMPLIED   >
+          
 <!ATTLIST condition
           var              CDATA #REQUIRED   >
 

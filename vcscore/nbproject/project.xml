@@ -99,6 +99,9 @@ Microsystems, Inc. All Rights Reserved.
                 <!-- XXX also used by some profiles: -->
                 <package>org.netbeans.modules.vcscore.versioning.impl</package>
                 <package>org.netbeans.modules.vcscore.versioning</package>
+                <!-- FileAttributes private contract -->
+                <package>org.netbeans.modules.vcscore.turbo</package>
+                <package>org.netbeans.modules.vcscore.turbo.local</package>
             </public-packages>
             <javadoc/>
         </data>

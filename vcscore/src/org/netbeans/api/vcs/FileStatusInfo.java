@@ -63,7 +63,9 @@ public abstract class FileStatusInfo extends Object {
     public static final FileStatusInfo MISSING = new DefaultFileStatusInfo("Missing",
                                                  NbBundle.getMessage(FileStatusInfo.class, "FileStatusInfo.missing"),
                                                  null);
-    
+
+    // TODO consider introducing: CONFLICT, SCHEDULED_ADD, SCHEDULED_REMOVE, UNKNOWN, IGNORED  
+
     /** The name of the status. */
     private String status;
     

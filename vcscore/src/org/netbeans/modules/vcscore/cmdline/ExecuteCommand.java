@@ -33,8 +33,10 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.cmdline.exec.*;
 import org.netbeans.modules.vcscore.*;
+import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.turbo.Statuses;
 import org.netbeans.modules.vcscore.cache.impl.RefreshCommandSupport;
-import org.netbeans.modules.vcscore.cache.impl.StatusFormat;
+import org.netbeans.modules.vcscore.caching.StatusFormat;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
@@ -117,13 +119,20 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                                       // Files, that were not refreshed when the command finish
                                       // will be refreshed by the LIST_FILE command (if present).
     private ArrayList refreshInfoElements;
-    /** The base folder, that will be prepended to the refreshed files, so that
-     * the result will be relative to FS root (work + relative mount point) */
+    /**
+     * The base folder, that will be prepended to the refreshed files, so that
+     * the result will be relative to FS root (work + relative mount point).
+     * Uses '/' file separator.
+     */
     private String refreshFilesBase = null;
-    /** The folder that the refreshed files must start with. This is important
+
+    /**
+     * The folder that the refreshed files must start with. This is important
      * if there is a non-empty relative mount point, but the files are relative
      * to working dir (the files must start with the relative mount point in this
-     * case). */
+     * case).
+     * Uses '/' file separator.
+     */
     private String refreshFilesMustStartWith = null;
     
     private boolean substituteStatuses = false;
@@ -628,6 +637,17 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * Execute a command-line command.
      */
     protected void runCommand(String[] execs) {
+
+        if (Boolean.getBoolean("netbeans.vcsdebug")) {  // NOI18N
+            // XXX debug
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < execs.length; i++) {
+                String exec = execs[i];
+                sb.append(exec);
+            }
+            System.err.println("CMD " + sb);
+        }
+
         //exec = Variables.expand(vars,exec, true);
         preferredExec = preferredExecExpanded = VcsUtilities.array2stringNl(execs);
         StringBuffer[] globalDataOutputWhole = null;
@@ -687,6 +707,19 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * Execute a command-line command.
      */
     protected void runCommand(StructuredExec exec) {
+
+        if (Boolean.getBoolean("netbeans.vcsdebug")) {  // NOI18N
+            //XXX log command execution for debugging purposes
+            StringBuffer sb = new StringBuffer(exec.getExecutable());
+            StructuredExec.Argument[] args = exec.getArguments();
+            for (int i = 0; i < args.length; i++) {
+                StructuredExec.Argument arg = args[i];
+                sb.append(" " + arg.getArgument());
+            }
+            System.err.println("CMD " + sb);  // NOI18N
+        }
+
+
         preferredExec = preferredExecExpanded = VcsUtilities.array2stringNl(ExternalCommand.parseParameters(exec));
         StringBuffer[] globalDataOutputWhole = null;
         Pattern[] globalRegexs = new Pattern[2];
@@ -797,6 +830,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * @param args the arguments
      */
     protected void runClass(String exec, String className, String[] args) {
+
+        if (Boolean.getBoolean("netbeans.vcsdebug")) {  // NOI18N
+            // XXX debug
+            System.err.println("CMD-class " + exec + " " + vars.get("MODULE") + File.separator + vars.get("PATH")); // NOI18N
+        }
 
         boolean success = true;
         Class execClass = null;
@@ -1226,7 +1264,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
     }
     
-    /** Initialize refreshFilesBase and refreshFilesMustStartWith fields. */
+    /** Initialize doFileRefresh, refreshFilesBase and refreshFilesMustStartWith fields. */
     private void createRefreshFilesBase() {
         refreshFilesBase = (String) cmd.getProperty(
                                 UserCommand.PROPERTY_REFRESH_FILE_RELATIVE_PATH);
@@ -1240,6 +1278,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             if (refreshFilesBase.length() <= relMountPoint.length()) {
                 if (!relMountPoint.startsWith(refreshFilesBase)) {
                     doFileRefresh = false; // The base and rel. mount point do not match!
+                    refreshFilesBase = null;
                     return ; // The file does not match with this relative mount point
                 }
                 //fileName = fileName.substring(commonParent.length() + 1);
@@ -1255,6 +1294,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             } else {
                 if (!refreshFilesBase.startsWith(relMountPoint)) {
                     doFileRefresh = false; // The base and rel. mount point do not match!
+                    refreshFilesBase = null;
                     //System.out.println("createRefreshFilesBase(): base '"+refreshFilesBase+"' does not start with Rel Mount '"+relMountPoint+"'!");
                     return ; // The common parent does not match with this relative mount point
                 }
@@ -1266,6 +1306,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 refreshFilesMustStartWith = null;
                 //System.out.println("createRefreshFilesBase(): base >= rel. M.: must start with '"+refreshFilesMustStartWith+"', base = '"+refreshFilesBase+"'");
             }
+        }
+
+        // #52123 normalize to netbeans file separators
+        if (refreshFilesBase != null && File.separatorChar != '/') {
+            refreshFilesBase = refreshFilesBase.replace(File.separatorChar, '/');
+        }
+        if (refreshFilesMustStartWith != null && File.separatorChar != '/') {
+            refreshFilesMustStartWith = refreshFilesMustStartWith.replace(File.separatorChar, '/');
         }
     }
     
@@ -1395,13 +1443,18 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                     }
                     elements[StatusFormat.ELEMENT_INDEX_FILE_NAME] = fileName;
                 }
+
                 if (substituteStatuses) {
+                    // extract VCS specifics status
+                    String[] originalElements = elements;
                     elements = performStatusSubstitution(elements);
                     if (elements == null) {
+                        ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "VCS.ExecuteCommand unexpected status=" + originalElements[StatusFormat.ELEMENT_INDEX_STATUS] + "relaxing to [unknown]..."); // NOI18N
+                        originalElements[StatusFormat.ELEMENT_INDEX_STATUS] = Statuses.getUnknownStatus();
+                        elements = originalElements;
                         if (!doPostExecutionRefresh) {
                             filesToRefresh.add(filePath);
                         }
-                        continue;
                     }
                 }
                 fileName = elements[StatusFormat.ELEMENT_INDEX_FILE_NAME];
@@ -1494,7 +1547,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
     
     private void refreshRemainingFiles() {
-        if (!UserCommand.NAME_REFRESH_FILE.equals(cmd.getName())) {
+        if (!UserCommand.NAME_REFRESH_FILE.equals(cmd.getName())) {  // XXX strange
             if (filesToRefresh != null && filesToRefresh.size() > 0) {
                 doRefreshFiles(fileSystem, filesToRefresh);
             } else if (VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_REFRESH_PROCESSED_FILES)) {
@@ -1539,7 +1592,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
     }
     
-    private HashMap lastCollectedFolder = new HashMap();
+    private Map lastCollectedFolder = new LinkedHashMap();
     private Set lastCollectedElements = null;
     
     /**

@@ -52,15 +52,28 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
     }
 
     public Action[] getActions(boolean context) {
-        return new SystemAction[]{
-            //SystemAction.get(DebugAction.class),
-            SystemAction.get(org.openide.actions.OpenLocalExplorerAction.class),
-            SystemAction.get(RefreshRevisionsAction.class),
-            SystemAction.get(org.openide.actions.FileSystemAction.class),
-            null,
-            SystemAction.get(org.openide.actions.ToolsAction.class),
-            SystemAction.get(org.openide.actions.PropertiesAction.class)
-        };
+        if (Boolean.getBoolean("netbeans.vcsdebug")) {  // NOI18N
+            return new SystemAction[]{
+                SystemAction.get(org.openide.actions.OpenLocalExplorerAction.class),
+                SystemAction.get(RefreshRevisionsAction.class),
+                SystemAction.get(org.openide.actions.FileSystemAction.class),
+                null,
+                SystemAction.get(org.openide.actions.ToolsAction.class),
+                SystemAction.get(org.openide.actions.PropertiesAction.class),
+                null,
+                SystemAction.get(DebugAction.class),
+            };
+        } else {
+            return new SystemAction[]{
+                SystemAction.get(org.openide.actions.OpenLocalExplorerAction.class),
+                SystemAction.get(RefreshRevisionsAction.class),
+                SystemAction.get(org.openide.actions.FileSystemAction.class),
+                null,
+                SystemAction.get(org.openide.actions.ToolsAction.class),
+                SystemAction.get(org.openide.actions.PropertiesAction.class),
+            };
+
+        }
     }
 
     public java.awt.Image getIcon (int type) {

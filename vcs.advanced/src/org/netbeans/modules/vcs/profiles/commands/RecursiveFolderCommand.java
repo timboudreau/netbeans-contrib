@@ -21,6 +21,7 @@ import org.openide.filesystems.FileUtil;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.VcsAction;
+import org.netbeans.modules.vcscore.turbo.*;
 import org.netbeans.modules.vcscore.cache.CacheFile;
 import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.cache.CacheHandler;
@@ -64,7 +65,8 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
     private String errorRegex;
     private Collection filteredFilesOut = null;
     private boolean filteredFilesOutCaseInsensitive = false;
-    
+
+    /** -l option passed. */
     private boolean localOnly;
     private boolean printOutput;
     private boolean printDebug;
@@ -143,6 +145,8 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
     
     private void waitToLoad(VcsCacheDir dir) throws InterruptedException {
 
+        assert Turbo.implemented() == false;
+
         //System.out.println("waitToLoad("+dir+")");
         if (!dir.isIgnoreListSet() && fileSystem.getIgnoreListSupport() != null) {
             dir.setIgnoreList(VcsUtilities.createIgnoreList(dir, dir.getFSPath(), fileSystem.getIgnoreListSupport()));
@@ -184,8 +188,60 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         return fileSystem.isProcessUnimportantFiles();
     }
 
+    private void fillDirFilesWithTurbo(Table files, FileObject dir, CommandInfo info, boolean recursive) {
+        String path = dir.getPath();
+        if (printDebug) stdoutListener.outputData(new String[] { "Collecting files for command "+info.cmd.getName()+" in folder '"+path+"'" });
+        FilenameFilter fsFilter = fileSystem.getFileFilter();
+        File dirFile = FileUtil.toFile(dir);
+        FileProperties fprops = Turbo.getMeta(dir);
+        if (info.canRunOnFolders) {
+            if ((info.canRunOnRoot || !(path.length() == 0 || ".".equals(path))) && info.canRunOnStatus(fprops.getStatus())) {
+                if (printDebug) stdoutListener.outputData(new String[] { " Processing folder = "+path });
+                files.put(path, (findFileResource) ? fileSystem.findResource(path) : null);
+            }
+        }
+        if (path.length() > 0) path += "/";
+        if (info.canRunOnFiles) {
+            FileObject[] subFiles = TurboUtil.listFiles(dir);
+            IgnoreList ilist = IgnoreList.forFolder(dir);
+            for (int i = 0; i < subFiles.length; i++) {
+                FileObject fo = subFiles[i];
+                FileProperties subfprops = Turbo.getMeta(fo);
+                String status = FileProperties.getStatus(subfprops);   // TODO revisit, it may return [unknown] status
+                if (info.canRunOnStatus(status) &&
+                    ilist.isIgnored(fo.getNameExt()) == false &&
+                    fsFilter.accept(dirFile, fo.getNameExt())) {
+                    if (NBATTRS.equals(fo.getNameExt())) continue;
+                    if (NBINTDB.equals(fo.getNameExt())) continue;
+                    String filePath = path + fo.getNameExt();
+                    if (printDebug) stdoutListener.outputData(new String[] { " Processing file = "+filePath });
+                    files.put(filePath, (findFileResource) ? fo : null);
+                }
+            }
+        }
+
+        if (recursive) {
+            FileObject[] subDirs = TurboUtil.listFolders(dir);
+            IgnoreList ilist = IgnoreList.forFolder(dir);
+            for (int i = 0; i < subDirs.length; i++) {
+                FileObject fo = subDirs[i];
+                if (ilist.isIgnored(fo.getNameExt()) == false &&
+                    fsFilter.accept(dirFile, fo.getNameExt())) {
+
+                    FileProperties subprops = Turbo.getMeta(fo);
+                    String status = FileProperties.getStatus(subprops); // TODO revisit, it may return [unknown] status
+                    if (info.canRunOnStatus(status)) {
+                        fillDirFilesWithTurbo(files, fo, info, recursive);
+                    }
+                }
+            }
+        }
+    }
+
     /** @deprecated use fillDirFilesWithTurbo */
     private void fillDirFiles(Table files, CacheDir dir, CommandInfo info, boolean recursive) {
+
+        assert Turbo.implemented() == false;
 
         String path;
         if (dir instanceof VcsCacheDir) {
@@ -277,7 +333,6 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         }
     }
 
-
     private void fillLocalDirFiles(Table files, CacheDir dir, File dirFile, CommandInfo info, boolean recursive) {
         String path = getFSPath(dirFile.getAbsolutePath());
         if (printDebug) stdoutListener.outputData(new String[] { "Collecting files for command "+info.cmd.getName()+" in folder '"+path+"'" });
@@ -328,8 +383,36 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         }
     }
 
+    /** Find out if native command supports recursion otherwise emulate it by iterating. */
+    private boolean runCommandsRecursivelyWithTurbo(FileObject dir, Collection cmdInfos) throws InterruptedException {
+        ArrayList realRecursiveCommands = new ArrayList();
+        ArrayList somewhatRecursiveCommands = new ArrayList();
+        if (printFilesToProcess) {
+            return printFilesRecursivelyWithTurbo(dir, cmdInfos);
+        }
+        for (Iterator it = cmdInfos.iterator(); it.hasNext(); ) {
+            CommandInfo info = (CommandInfo) it.next();
+            if (!localOnly && info.canRunOnMultipleFiles && !info.canRunOnMultipleFilesInFolder) {
+                realRecursiveCommands.add(info);
+            } else {
+                somewhatRecursiveCommands.add(info);
+            }
+        }
+        //System.out.println("runCommandsRecursively("+dir.getName()+", "+cmdInfos.size()+"): realRecursiveCommands = "+realRecursiveCommands+", somewhatRecursiveCommands = "+somewhatRecursiveCommands);
+        boolean status = true;
+        if (realRecursiveCommands.size() > 0) {
+            status = runCommandsReallyRecursivelyWithTurbo(dir, realRecursiveCommands);
+        }
+        if (somewhatRecursiveCommands.size() > 0) {
+            status &= runCommandsSomewhatRecursivelyWithTurbo(dir, somewhatRecursiveCommands);
+        }
+        return status;
+    }
+
     /** @deprecated use FileObject */
     private boolean runCommandsRecursively(VcsCacheDir dir, Collection cmdInfos) throws InterruptedException {
+
+        assert Turbo.implemented() == false;
 
         ArrayList realRecursiveCommands = new ArrayList();
         ArrayList somewhatRecursiveCommands = new ArrayList();
@@ -355,6 +438,38 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         return status;
     }
 
+    private boolean runCommandsReallyRecursivelyWithTurbo(FileObject dir, Collection cmdInfos) throws InterruptedException {
+        //String path = dir.getAbsolutePath().substring(fileSystem.getFile("").getAbsolutePath());
+        //while (path.startsWith("/")) path = path.substring(1);
+        //FileObject fo = fileSystem.findResource(path);
+        //files.put(path, fo);
+        boolean status = true;
+        CommandsPool cPool = fileSystem.getCommandsPool();
+        for (Iterator it = cmdInfos.iterator(); it.hasNext(); ) {
+            CommandInfo info = (CommandInfo) it.next();
+            Table files = new Table();
+            fillDirFilesWithTurbo(files, dir, info, true);
+            VcsCommandExecutor[] executors;
+            if (printOutput) {
+                executors = VcsAction.doCommand(files, info.cmd, info.vars, fileSystem,
+                    stdoutNRListener, stderrNRListener, null, null);
+            } else {
+                executors = VcsAction.doCommand(files, info.cmd, info.vars, fileSystem);
+            }
+            for (int i = 0; i < executors.length; i++) {
+                try {
+                    cPool.waitToFinish(executors[i]);
+                } catch (InterruptedException iexc) {
+                    for (int j = i; j < executors.length; j++) {
+                        cPool.kill(executors[j]);
+                    }
+                    throw iexc;
+                }
+                status &= (executors[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED);
+            }
+        }
+        return status;
+    }
 
     /** @deprecated use runCommandsReallyRecursivelyWithTurbo */
     private boolean runCommandsReallyRecursively(VcsCacheDir dir, Collection cmdInfos) throws InterruptedException {
@@ -391,12 +506,75 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         return status;
     }
 
+    /** Emulates recursive operations for commands that does not support it natively. */
+    private boolean runCommandsSomewhatRecursivelyWithTurbo(FileObject dir, Collection cmdInfos) throws InterruptedException {
+        //System.out.println("runCommandsSomewhatRecursively("+dir+"), localOnly = "+localOnly);
+        CommandsPool cPool = fileSystem.getCommandsPool();
+        FilenameFilter fsFilter = fileSystem.getFileFilter();
+        IgnoreList ilist = IgnoreList.forFolder(dir);
+
+        boolean status = true;
+        for (Iterator it = cmdInfos.iterator(); it.hasNext(); ) {
+            CommandInfo info = (CommandInfo) it.next();
+            Table files = new Table();
+            fillDirFilesWithTurbo(files, dir, info, false);
+            VcsCommandExecutor[] executors;
+            if (files.size() > 0) {
+                if (printOutput) {
+                    executors = VcsAction.doCommand(files, info.cmd, info.vars, fileSystem,
+                        stdoutNRListener, stderrNRListener, null, null);
+                } else {
+                    executors = VcsAction.doCommand(files, info.cmd, info.vars, fileSystem);
+                }
+                //System.out.println("doCommand("+files+", "+info.cmd.getName());
+            } else {
+                executors = new VcsCommandExecutor[0];
+                //System.out.println("do no Command("+files+", "+info.cmd.getName());
+            }
+
+            // join spawned command tasks
+
+            for (int i = 0; i < executors.length; i++) {
+                try {
+                    cPool.waitToFinish(executors[i]);
+                } catch (InterruptedException iexc) {
+                    for (int j = i; j < executors.length; j++) {
+                        fileSystem.getCommandsPool().kill(executors[j]);
+                    }
+                    throw iexc;
+                }
+                status &= (executors[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED);
+            }
+
+            // recursive descent
+
+            if (!localOnly) {
+                FileObject[] subDirs = TurboUtil.listFolders(dir);
+                File dirFile = FileUtil.toFile(dir);
+                for (int i = 0; i < subDirs.length; i++) {
+                    FileObject fo = subDirs[i];
+                    if (ilist.isIgnored(fo.getNameExt()) == false &&
+                        fsFilter.accept(dirFile, fo.getNameExt())) {
+                        FileProperties fprops = Turbo.getMeta(fo);
+                        String folderStatus = FileProperties.getStatus(fprops);
+                        if (info.canRunOnStatus(folderStatus)) {
+                            status &= runCommandsSomewhatRecursivelyWithTurbo(fo, cmdInfos);
+                        }
+                    }
+                }
+            }
+
+        }
+        return status;
+    }
 
     private boolean runCommandsSomewhatRecursively(VcsCacheDir dir, Collection cmdInfos) throws InterruptedException {
         return runCommandsSomewhatRecursively(dir, null, cmdInfos);
     }
     
     private boolean runCommandsSomewhatRecursively(VcsCacheDir dir, File dirFile, Collection cmdInfos) throws InterruptedException {
+
+        assert Turbo.implemented() == false;
 
         //System.out.println("runCommandsSomewhatRecursively("+dir+"), localOnly = "+localOnly);
         if (dirFile == null) waitToLoad(dir, false);
@@ -482,6 +660,21 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         return status;
     }
     
+    private boolean printFilesRecursivelyWithTurbo(FileObject dir, Collection cmdInfos) {
+        CommandInfo info;
+        if (cmdInfos.size() > 0) info = (CommandInfo) cmdInfos.iterator().next();
+        else info = new CommandInfo(new org.netbeans.modules.vcscore.cmdline.UserCommand(), null);
+        Table files = new Table();
+        fillDirFilesWithTurbo(files, dir, info, !localOnly);
+        File root = fileSystem.getFile("");
+        for (Iterator it = files.keySet().iterator(); it.hasNext(); ) {
+            String fsPath = (String) it.next();
+            String filePath = new File(root, fsPath).getAbsolutePath();
+            stdoutListener.outputData(new String[] { filePath});
+        }
+        return true;
+    }
+    
     private boolean printFilesRecursively(VcsCacheDir dir, Collection cmdInfos) {
         try {
             waitToLoad(dir, !localOnly);
@@ -535,6 +728,12 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
     }
     
     private boolean runCommandsRecursively(String path, Collection cmdInfos) throws InterruptedException {
+        if (Turbo.implemented()) {
+            FileObject fo = fileSystem.findResource(path);
+            FileProperties attrs = Turbo.getMeta(fo);
+            return runCommandsRecursivelyWithTurbo(fo, cmdInfos);
+        }  // else old approach
+
         //System.out.println("runCommandsRecursively("+path+", "+cmdInfos.size());
         cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
         if (cache != null) {

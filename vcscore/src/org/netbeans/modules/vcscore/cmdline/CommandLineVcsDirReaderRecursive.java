@@ -16,9 +16,12 @@ package org.netbeans.modules.vcscore.cmdline;
 import java.util.*;
 
 import org.openide.ErrorManager;
+import org.openide.filesystems.FileObject;
 import org.openide.util.*;
 
 import org.netbeans.modules.vcscore.*;
+import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.turbo.TurboUtil;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
 
@@ -221,6 +224,15 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
         String exec = getExec();
         if (exec == null || exec.trim().length() == 0) {
             //String dirName = (((String) vars.get("DIR"))).replace(((String) vars.get("PS")).charAt(0), '/');
+
+            if (Turbo.implemented()) {
+                FileObject folder = getFileSystem().findResource(path);
+                doRefreshRecursively(folder);
+                exitStatus = VcsCommandExecutor.SUCCEEDED;
+                return;
+            }
+
+            // original impl showing UI
             RetrievingDialog rd = new RetrievingDialog(getFileSystem(), path, new javax.swing.JFrame(), false);
             VcsUtilities.centerWindow(rd);
             rd.run();
@@ -230,15 +242,28 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
             try {
                 super.run();
             } finally {
-                int lastSlash = path.lastIndexOf('/');
-                if (lastSlash > 0) {
-                    path = path.substring(0, lastSlash);
+                try {
+                    listener.readDirFinishedRecursive(path, rawData, getExitStatus() == VcsCommandExecutor.SUCCEEDED);
+                } catch (ThreadDeath td) {
+                    throw td;
+                } catch (Throwable t) {
+                    ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
                 }
-                listener.readDirFinishedRecursive(path, rawData, getExitStatus() == VcsCommandExecutor.SUCCEEDED);
                 // After refresh I should ensure, that the next automatic refresh will work if something happens in numbering
                 getFileSystem().removeNumDoAutoRefresh(dir); // NOI18N
             }
         }
+    }
+    
+    private static boolean doRefreshRecursively(FileObject folder) {
+        boolean success = TurboUtil.refreshFolder(folder);
+        FileObject children[] = folder.getChildren();
+        for (int i = 0; i < children.length && success; i++) {
+            if (children[i].isFolder()) {
+                success = success && doRefreshRecursively(children[i]);
+            }
+        }
+        return success;
     }
 
     /**

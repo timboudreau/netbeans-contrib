@@ -121,6 +121,24 @@ Microsystems, Inc. All Rights Reserved.
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.search.Bundle" />
             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/search/find.gif" />
         </file>
+
+    </folder>
+
+    <!-- Plugins registration point defined by turbo.local package. -->
+    <folder name="FileAttributeProviders">
+        <folder name="Default"/>
+        <!--
+          - Until DefaultFileAttributeProvider is implemented Turbo
+          - registers here fallback provider for it's well known attribute.
+          - It must be always the last provider registered.
+          -->
+        <attr boolvalue="true" name="Default/Turbo"/>
+        <folder name="Turbo">
+            <file name="org-netbeans-modules-vcscore-turbo-DiskFileAttributeProvider.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.vcscore.turbo.DiskFileAttributeProvider.getDefault" />
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.vcscore.turbo.local.FileAttributeProvider" />
+            </file>
+        </folder>
     </folder>
   </folder>
 

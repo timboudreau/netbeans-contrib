@@ -14,19 +14,12 @@
 package org.netbeans.modules.vcs.profiles.testprofiles.list;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 
-import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.cache.impl.VcsCacheFile;
-import org.netbeans.modules.vcscore.caching.CacheStatuses;
 import org.netbeans.modules.vcscore.cmdline.VcsListCommand;
-import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 

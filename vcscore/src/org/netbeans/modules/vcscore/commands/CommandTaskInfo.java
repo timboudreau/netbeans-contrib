@@ -33,10 +33,17 @@ public abstract class CommandTaskInfo {
     private boolean interrupted = false;
     private long startTime = 0;
     private long finishTime = 0;
-    
+
+    private final Exception origin;
+
     public CommandTaskInfo() {
         synchronized (CommandTaskInfo.class) {
             id = lastId++;
+        }
+        if (Boolean.getBoolean("netbeans.vcsdebug")) { // NOI18N
+            origin = new Exception("Allocation stack trace");  // NOI18N
+        } else {
+            origin = null;
         }
     }
     
@@ -115,5 +122,11 @@ public abstract class CommandTaskInfo {
         } else {
             return 0;
         }
+    }
+
+    /** In debug mode returns allocation stack trace. */
+    public final Exception getOrigin() {
+        assert Boolean.getBoolean("netbeans.vcsdebug");  // NOI18N
+        return origin;
     }
 }

@@ -554,6 +554,8 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             List providerListeners = getCommandListenersForProvider(provider);
             if (providerListeners != null) commandListeners.addAll(providerListeners);
         }
+
+
         for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
             ((CommandProcessListener) it.next()).commandStarting(cw);
         }

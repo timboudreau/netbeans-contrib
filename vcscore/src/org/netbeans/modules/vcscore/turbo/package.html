@@ -1,0 +1,96 @@
+<body>
+
+Uniforms access to versioning file attributes in remote
+repositories and their local caching.
+
+<h2>The VCS File Attributes Implementation</h2>
+
+The implementation speedups VCS status access for
+remote repositories. It caches last know repository
+state. The state is assumed to not change too often.
+Note that final state check reponsibility is on
+particular VCS command. It's by nature distributed system
+and no shared state information exists.
+E.g. <code>cvs commit</code> must fail if someone have
+commited the same file into repository 1ms before.
+
+<p>
+The implementaion has two high level goals:
+<ul>
+  <li>reliability (#39817) never report false statuses
+  <li>performance and scalability (#41012) similar to local operations
+</ul>
+
+<p>
+The package fulfils several contracts. It defines {@link FileProperties}
+attribute descibing versioned file metadata. The attribute is integrated
+to NB filesystems world using {@link Turbo} class and {@link TurboUtil}
+utility class. {@link Statuses} class defines statuses assigned by
+turbo if original status cannot be retrieved. It covers <tt>unknown</tt>
+status used as fallback if no reliable status source exists.
+<p>
+Sibling {@link IgnoreList} class internaly parasites on <code>FileProperties</code>
+attribute. More clean approach is shown with {@link RepositoryFiles} class
+a courtesy to VCSFileSystem that supports <it>virtual files</it>. Both
+classes somehow utilizies information sharing, eliminating dedicated
+repository connections to address their highly specialized contracts.
+
+<h3>Architectural Notes</h3>
+
+<h4>FileObject Parameter</h4>
+It works over {@link FileSystem}. It's expected that clients do not need
+to store <code>FileProperties</code> for non-<code>FileObject</code>s.
+E.g. it's safe to call <code>findResource(path)</code> in FileSystem
+implementation except <code>children()</code>, <code>createData()</code>
+and <code>createFolder()</code> methods.
+
+<p><small>
+There is a backdoor allowing to set the attribute for a <code>File</code>
+to catch these <code>FileObject</code> prenatal situations. VCSFileSystem should
+be the only client.
+</small>
+
+<h4>Two Layers</h4>
+The implementation is a layer above <code>FileAttributeQuery</code> package.
+It implements and registers <i>fallback</i> <code>FileAttributeProvider</code>
+that can store <code>FileProperties</code> attribute.
+
+<h4>Assertions and Tests</h4>
+There are many asserts scattered all around the code guarding (un)documented
+assumptions.
+<p>
+Special test VCS <code>testprofile</code> is created. It has backdoor operations,
+programatically setting its state using XMLFS. It allows to simulate various
+situations.
+
+<h4>Postmortem Debuggibility</h4>
+The contract consists from methods without behaviour modification
+parameters. It uses a set of dedicated methods instead of a method
+taking a strategy constant (passed all around code). It allows to
+quickly analyze thread dumps (compare to <i>invisible</i> method parameters).
+<p><small>
+An exception exists here. A special care it taken to GUI thread,
+most methods assert if called from it, others speed up operation by returning
+intermidiate results (and firing an event later on). It does not complicate
+thread dump reading.
+</small>
+
+<h3>Status</h3>
+
+IMPLEMENTED, INTEGRATION IN PROGRESS - porting original cache clients. Famous OOME
+sanity check passes. Status coherence NOT yet tested.
+
+<p>
+Existing client code contains new code paths guarded by <code>Turbo.implemented()</code>
+checks. These are not ready to be used right now. There are still missing
+following client code (filesystem and commands) conversions
+(it obviously excludes cache and caching packages):
+<ul>
+  <li>VcsFilesystem.List.children() support for filtering out DEAD and scheduled files.
+      In AFS.List context we cannot use FileObject keyed access. Try VisibilityQuery approach.
+  <li>Documentation and tests are still immature.
+  <li>RepositoryFiles (virtuals) does not catch externaly locally deleted files
+</ul>
+
+
+</body>

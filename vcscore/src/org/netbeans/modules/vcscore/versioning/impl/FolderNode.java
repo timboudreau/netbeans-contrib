@@ -42,6 +42,9 @@ import java.util.Collections;
 import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
+import org.netbeans.modules.vcscore.turbo.FileProperties;
+import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.turbo.local.FileAttributeQuery;
 
 /**
  * Visualizes folder as much closely to FolderNode as possible
@@ -236,16 +239,29 @@ class FolderNode extends AbstractNode implements Node.Cookie {
     }
 
     public static SystemAction[] getFolderActions() {
-        return new SystemAction[] {
-            //SystemAction.get(DebugAction.class),
-            SystemAction.get (org.openide.actions.OpenLocalExplorerAction.class),
-            SystemAction.get (org.openide.actions.FindAction.class),
-            null,
-            SystemAction.get (org.openide.actions.FileSystemAction.class),
-            null,
-            SystemAction.get (org.openide.actions.ToolsAction.class),
-            SystemAction.get (org.openide.actions.PropertiesAction.class)
-        };
+        if (Boolean.getBoolean("netbeans.vcsdebug")) {  // NOI18N
+            return new SystemAction[] {
+                SystemAction.get (org.openide.actions.OpenLocalExplorerAction.class),
+                SystemAction.get (org.openide.actions.FindAction.class),
+                null,
+                SystemAction.get (org.openide.actions.FileSystemAction.class),
+                null,
+                SystemAction.get (org.openide.actions.ToolsAction.class),
+                SystemAction.get (org.openide.actions.PropertiesAction.class),
+                null,
+                SystemAction.get (DebugAction.class),
+            };
+        } else {
+            return new SystemAction[] {
+                SystemAction.get (org.openide.actions.OpenLocalExplorerAction.class),
+                SystemAction.get (org.openide.actions.FindAction.class),
+                null,
+                SystemAction.get (org.openide.actions.FileSystemAction.class),
+                null,
+                SystemAction.get (org.openide.actions.ToolsAction.class),
+                SystemAction.get (org.openide.actions.PropertiesAction.class),
+            };
+        }
     }
 
     public boolean canCopy() {
@@ -322,6 +338,7 @@ class FolderNode extends AbstractNode implements Node.Cookie {
     }
 
     private FileStatusProvider getFileStatusProvider() {
+        assert Turbo.implemented() == false;
         VersioningFileSystem vfs;
         vfs = VersioningFileSystem.findFor((FileSystem) file.getAttribute(VcsAttributes.VCS_NATIVE_FS));
         return vfs.getFileStatusProvider();
@@ -333,6 +350,15 @@ class FolderNode extends AbstractNode implements Node.Cookie {
      * @return Value of property status.
      */
     public String getStatus() {
+        if (Turbo.implemented()) {
+            if (status == null) {
+                FileProperties fprops = Turbo.getMeta(file);
+                status = FileProperties.getStatus(fprops);
+            }
+            return status;
+        }
+
+        // original implementation
         if (status == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
@@ -347,6 +373,15 @@ class FolderNode extends AbstractNode implements Node.Cookie {
      * @return Value of property locker.
      */
     public String getLocker() {
+        if (Turbo.implemented()) {
+            if (locker == null) {
+                FileProperties fprops = Turbo.getMeta(file);
+                locker = fprops != null ? fprops.getLocker() : null;
+            }
+            return locker;
+        }
+
+        // original implementation
         if (locker == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
@@ -361,6 +396,15 @@ class FolderNode extends AbstractNode implements Node.Cookie {
      * @return Value of property revision.
      */
     public String getRevision() {
+        if (Turbo.implemented()) {
+            if (revision == null) {
+                FileProperties fprops = Turbo.getMeta(file);
+                revision = fprops != null ? fprops.getRevision() : null;
+            }
+            return revision;
+        }
+
+        // original implementation
         if (revision == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
@@ -375,6 +419,15 @@ class FolderNode extends AbstractNode implements Node.Cookie {
      * @return Value of property sticky.
      */
     public String getSticky() {
+        if (Turbo.implemented()) {
+            if (sticky == null) {
+                FileProperties fprops = Turbo.getMeta(file);
+                sticky = fprops != null ? fprops.getSticky() : null;
+            }
+            return sticky;
+        }
+
+        // original implementation
         if (sticky == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
@@ -386,34 +439,48 @@ class FolderNode extends AbstractNode implements Node.Cookie {
 
     private class VCSFileStatusListener implements FileStatusListener {
         public void annotationChanged(FileStatusEvent ev) {
+            try {
+                assert ev.getFileSystem() == file.getFileSystem() : "FS mismatch " + file;
+            } catch (FileStateInvalidException e) {
+            }
             if (ev.hasChanged(file)) {
                 String name = (String) file.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
                 String newState;
                 String oldState;
                 FileStatusProvider statusProvider = null;
+                FileProperties fprops = null;
 
+                if (Turbo.implemented()) {
+                    fprops = Turbo.getMeta(file);
+                } else {
                     statusProvider = getFileStatusProvider();
                     if (statusProvider == null) return;
+                }
 
-                newState = statusProvider.getFileStatus(name);
+                newState = Turbo.implemented() ? FileProperties.getStatus(fprops) : statusProvider.getFileStatus(name);
                 if (status == null && newState != null || status != null && !status.equals(newState)) {
                     oldState = status;
                     status = newState;
                     firePropertyChange(PROP_STATUS, oldState, newState);
                 }
-                newState = statusProvider.getFileLocker(name);
+
+                if (fprops == null) {
+                    fprops = new FileProperties();  // unknown values
+                }
+
+                newState = Turbo.implemented() ? fprops.getLocker() : statusProvider.getFileLocker(name);
                 if (locker == null && newState != null || locker != null && !locker.equals(newState)) {
                     oldState = locker;
                     locker = newState;
                     firePropertyChange(PROP_LOCKER, oldState, newState);
                 }
-                newState = statusProvider.getFileRevision(name);
+                newState = Turbo.implemented() ? fprops.getRevision() : statusProvider.getFileRevision(name);
                 if (revision == null && newState != null || revision != null && !revision.equals(newState)) {
                     oldState = revision;
                     revision = newState;
                     firePropertyChange(PROP_REVISION, oldState, newState);
                 }
-                newState = statusProvider.getFileSticky(name);
+                newState = Turbo.implemented() ? fprops.getSticky() : statusProvider.getFileSticky(name);
                 if (sticky == null && newState != null || sticky != null && !sticky.equals(newState)) {
                     oldState = sticky;
                     sticky = newState;
@@ -441,9 +508,30 @@ class FolderNode extends AbstractNode implements Node.Cookie {
             return null;
         }
 
+        /**
+         * Do not run from AWT to get more accurate status.
+         * If invoked on "Yet Unknown" and obtaining some status
+         * it means missing event (typical for speculative result). 
+         */
+        protected boolean asynchronous() {
+            return true;
+        }
+
         protected void performAction(Node[] activatedNodes) {
             FolderNode self = (FolderNode) activatedNodes[0].getCookie(FolderNode.class);
             self.getHtmlDisplayName(); // put breakpoint here
+            if (Turbo.implemented()) {
+                FileObject fo = self.file;
+                StringBuffer sb = new StringBuffer("StatusCache: "); // NOI18N
+                if (FileAttributeQuery.getDefault().isPrepared(fo, FileProperties.ID)) {
+                    sb.append("MEM/AWT: "); // NOI18N
+                } else {
+                    sb.append("DISK: "); // NOI18N
+                }
+                FileProperties fprops = Turbo.getCachedMeta(fo);
+                sb.append(fprops);
+                System.err.println(sb);
+            }
         }
 
         protected boolean enable(Node[] activatedNodes) {

@@ -1,0 +1,6 @@
+<filesystem>
+  <folder name="stage1">
+      <file name="source.java"/>
+      <file name="new_source.java"/>
+  </folder>
+</filesystem>

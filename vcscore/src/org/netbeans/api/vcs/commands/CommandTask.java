@@ -40,8 +40,19 @@ public abstract class CommandTask extends Task {
     private volatile int status = STATUS_NOT_STARTED;
     
     private final Object notifyLock = new Object();
+    private final Object taskInfoLock = new Object();
     private CommandTaskInfo taskInfo;
-    
+
+    private final Exception origin;
+
+    protected CommandTask() {
+        if (Boolean.getBoolean("netbeans.vcsdebug")) { // NOI18N
+            origin = new Exception("Task allocation stack trace");  // NOI18N
+        } else {
+            origin = null;
+        }
+    }
+
     //private EventListenerList outputListeners = new EventListenerList();
     /**
      * Get the name of the command.
@@ -100,11 +111,21 @@ public abstract class CommandTask extends Task {
      * might be done asynchronously. In this case this method returns immediately.
      */
     public final void run() {
-        taskInfo = new CommandTaskInfoImpl(this);
+        synchronized (taskInfoLock) {
+            if (taskInfo != null) {
+                throw new IllegalStateException("This task was already executed. Use Command.execute() to run a new task.");
+            }
+            taskInfo = new CommandTaskInfoImpl(this);
+        }
         taskInfo.register();
         //throw new UnsupportedOperationException("Do not execute the task by this method. Put it into the CommandProcessor instead.");
     }
-    
+
+    /** Accessed by reflection from VcsRuntimeCommand */
+    final Exception getOrigin() {
+        return origin;
+    }
+
     final void runCommandTask() {
         status = STATUS_RUNNING;
         notifyRunning();

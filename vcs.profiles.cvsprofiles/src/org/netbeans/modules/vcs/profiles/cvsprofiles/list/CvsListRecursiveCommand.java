@@ -23,7 +23,7 @@ import org.openide.util.RequestProcessor;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsDirContainer;
-import org.netbeans.modules.vcscore.caching.CacheStatuses;
+import org.netbeans.modules.vcscore.turbo.Statuses;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsListRecursiveCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
@@ -511,7 +511,7 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
             if (fileStatuses == null) {
                 fileStatuses = new String[7];
                 fileStatuses[0] = fileName;
-                fileStatuses[1] = CacheStatuses.STATUS_DEAD;
+                fileStatuses[1] = Statuses.STATUS_DEAD;
                 filesByName.put(fileName, fileStatuses);
             }
             pos = eolIndex;
@@ -691,6 +691,10 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         */
         //getModulesPaths(vars);
         //Thread reposPathThread = new Thread("CVS_LIST_SUB_Repositories_Retrieval") { // NOI18N
+
+        // TODO My assumtion is that this method can be run concurently
+        // from multiple threads. Otherwise please assert it!
+        // FIXME Anyway this class is NOT properly synchronized
         RequestProcessor.Task reposPathTask = RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 getRepositoryPaths(new File(dir));

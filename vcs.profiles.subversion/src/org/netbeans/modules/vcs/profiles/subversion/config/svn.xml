@@ -769,7 +769,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "",ACCESSIBILITY(DESCRIPTION_Text f
                 <property name="runOnMultipleFiles">
                     <value xml:space="preserve">true</value>
                 </property>
-                <property name="refreshParentFolder">
+               <property name="refreshParentFolder">
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="supportsAdvancedMode">

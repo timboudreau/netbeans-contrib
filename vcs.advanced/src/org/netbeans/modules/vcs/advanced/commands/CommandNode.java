@@ -710,7 +710,7 @@ public class CommandNode extends AbstractNode {
                     set.put(p);
                 }
             } else {
-                //final PropertyEditor conditionedPropertyEditor = ConditionedObject.getConditionedPropertyEditor(valueClass);                
+                //final PropertyEditor conditionedPropertyEditor = ConditionedObject.getConditionedPropertyEditor(valueClass);
                 PropertySupport ps = new PropertySupport.ReadWrite(
                         propertyName, ConditionedObject.class,
                         label, tooltip

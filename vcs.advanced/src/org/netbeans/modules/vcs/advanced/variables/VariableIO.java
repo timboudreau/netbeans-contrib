@@ -27,6 +27,7 @@ import org.openide.loaders.XMLDataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.NbBundle;
 import org.openide.xml.XMLUtil;
+import org.openide.ErrorManager;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
@@ -40,6 +41,7 @@ public class VariableIO extends Object {
 
     public static final String CONFIG_FILE_EXT = "xml";                          // NOI18N
     public static final String CONFIG_ROOT_ELEM = "configuration";               // NOI18N
+    public static final String CONFIG_TYPE_ATTR = "type";                        // NOI18N
     public static final String RESOURCE_BUNDLE_TAG = "resourceBundle";           // NOI18N
     public static final String LABEL_TAG = "label";                              // NOI18N
     public static final String OS_TAG = "os";                                    // NOI18N
@@ -204,13 +206,19 @@ public class VariableIO extends Object {
     }
 
     /** Get the label and OS info.
+     * @param configRoot The root folder of all configurations
+     * @param name The name of the configuration
+     * @param typePtr The "pointer" (array of length 1) to a String into which
+     *                the configuration type is put
      * @return three items in String array: - label, which needs to be processed
      *                                        with VcsUtilities.getBundleString(),
      *                                      - compatible operating systems
      *                                      - uncompatible operating systems
      * The rest of the items are the resource bundles
      */
-    public static synchronized String[] getConfigurationLabelAndOS(FileObject configRoot, final String name) {
+    public static synchronized String[] getConfigurationLabelAndOS(final FileObject configRoot,
+                                                                   final String name,
+                                                                   final String[] typePtr) {
         FileObject config = configRoot.getFileObject(name);
         if (config == null) {
             org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
@@ -246,7 +254,9 @@ public class VariableIO extends Object {
                         exc, g("EXC_Problems_while_reading_predefined_properties", name)));
             }
         } catch (java.io.FileNotFoundException fnfExc) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, fnfExc);
         } catch (java.io.IOException ioExc) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioExc);
         }
         //System.out.println("  --> label = "+labelContentHandler.getLabel());
         if (labelContentHandler.getLabel() == null) {
@@ -262,6 +272,9 @@ public class VariableIO extends Object {
         labelAndOS[0] = labelContentHandler.getLabel();
         labelAndOS[1] = labelContentHandler.getCompatibleOSs();
         labelAndOS[2] = labelContentHandler.getUncompatibleOSs();
+        if (typePtr != null) {
+            typePtr[0] = labelContentHandler.getType();
+        }
         labelContentHandler.reset();
         if (resourceBundles != null) {
             System.arraycopy(resourceBundles, 0, labelAndOS, 3, resourceBundles.length);
@@ -714,6 +727,7 @@ public class VariableIO extends Object {
     
     private static class LabelContentHandler extends Object implements ContentHandler, EntityResolver {
         
+        private String type;
         private String[] resourceBundles; // The resource bundles defined in the profile.
         private String label;
         private String compatibleOSs;
@@ -724,6 +738,7 @@ public class VariableIO extends Object {
         boolean readUncompatibleOSs = false;
         
         public void reset() {
+            type = null;
             resourceBundles = null;
             label = null;
             compatibleOSs = null;
@@ -749,6 +764,9 @@ public class VariableIO extends Object {
         public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws org.xml.sax.SAXException {
             String elementName = ("".equals(localName)) ? qName : localName;
             //System.out.println("      startElement("+elementName+")");
+            if (CONFIG_ROOT_ELEM.equals(elementName)) {
+                type = atts.getValue(CONFIG_TYPE_ATTR);
+            }
             if (RESOURCE_BUNDLE_TAG.equals(elementName)) {
                 readRB = true;
                 if (resourceBundles == null) {
@@ -816,6 +834,10 @@ public class VariableIO extends Object {
         }
         
         public void setDocumentLocator(org.xml.sax.Locator locator) {
+        }
+        
+        public String getType() {
+            return type;
         }
         
         public String[] getResourceBundles() {

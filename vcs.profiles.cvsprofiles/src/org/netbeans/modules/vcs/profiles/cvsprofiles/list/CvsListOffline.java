@@ -27,6 +27,8 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsListCommand;
 
+import org.openide.ErrorManager;
+
 /**
  * The offline refresh of CVS folder
  * @author  Martin Entlicher
@@ -173,7 +175,7 @@ public class CvsListOffline extends VcsListCommand {
             return "File had conflicts on merge";
         }
         if (cvsDateStr.startsWith(DUMMY_TIMESTAMP)) {
-            return "Unknown";
+            return "Locally Added";
         }
         if (cvsDateStr.startsWith(INITIAL_TIMESTAMP)) {
             return "Locally Added";
@@ -187,18 +189,24 @@ public class CvsListOffline extends VcsListCommand {
         try {
             cvsDate = cvsDateFormat.parse(cvsDateStr);
         } catch (ParseException pExc) {
-            return "Unknown";
+            IllegalArgumentException iaex = new IllegalArgumentException("Unparsable date: "+cvsDateStr);
+            iaex.initCause(pExc);
+            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, iaex);
+            return "Error Date";
         }
         Date fileDate = new Date(realFile.lastModified());
-        // Compare only whole seconds
-        if (cvsDate.getTime()/1000 == fileDate.getTime()/1000) return "Up-to-date";
-        return "Locally Modified";
+        // WORKAROUND 4860999 Compare only whole seconds an dignore hour diffs
+        if (((cvsDate.getTime()/1000 - fileDate.getTime()/1000) % (60*60)) == 0) {
+            return "Up-to-date";
+        } else {
+            return "Locally Modified";
+        }
     }
     
     /**
      * Parse the Entry line.
      * @param entry one line of Entries file.
-     * @return the array of elements of this entry.
+     * @return the <code>String[5]</code> array of elements of this entry.
      */
     public static String[] parseEntry(String entry) {
         //System.out.println("parseEntry("+entry+")");
@@ -216,7 +224,9 @@ public class CvsListOffline extends VcsListCommand {
             }
             lastToken = entryElement;
         }
-        return (String[]) elements.toArray(new String[0]);
+        String[] ret = (String[]) elements.toArray(new String[5]);
+        if (ret[4] == null) ret[4] = "";
+        return ret;
     }
     
     private String getEntry(File dir, String file) {

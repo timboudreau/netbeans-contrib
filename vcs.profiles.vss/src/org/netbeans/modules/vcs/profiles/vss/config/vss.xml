@@ -138,6 +138,12 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT" basic="false">
       <value>"ResourceMsg(VSS_FileStatus_Short_Current)", "ResourceMsg(VSS_FileStatus_Short_Missing)", "ResourceMsg(VSS_FileStatus_Short_LM)"</value>
     </variable>
+    <variable name="NOT_MODIFIABLE_FILE_STATUSES">
+        <value>"Local", "Missing"</value>
+    </variable>
+    <variable name="GENERIC_STATUS_MODIFIED">
+        <value>"Locally Modified"</value>
+    </variable>
     <variable name="RUNPATH" basic="false">
       <value>cmd /X /C "(mkdir \"${ROOTDIR}${PS}${MODULE}${PS}${PATH}${PS}.\" 2>nul || echo.) &amp;&amp; cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp; \"${VSSCMD}\" workfold ${OPTIONS} \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp;</value>
       <value if="IS_WIN9X">${SHELL} -c "mkdir -p ${QUOTE}${ROOTDIR_\/}${PS}${MODULE_\/}${PS}${PATH_\/}${PS}.${QUOTE}; cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? PATH] [${PS}${PATH_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? PATH] [${PS}${PATH_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} workfold ${OPTIONS} ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? PATH] [${PS}${PATH_\/}] []${QUOTE} &amp;&amp;</value>
@@ -283,7 +289,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>1</value>
 	</property>
         <property name="refreshFileStatusSubstitutions">
-          <!-- Match anything, but "Unknown" status. -->
+          <!-- Match anything, but "Unknown" status. --> <!-- TODO may harm ExecuteCommand.performStatusSubstitution -->
           <value>"^($|[^U].*$|.[^n)].*$|..[^k].*$|...[^n].*$|....[^o].*$|.....[^w].*$|......[^n].*)$", "REG_EXP_PARSE_OUTPUT"</value>
         </property>
 	<property name="exec">

@@ -27,6 +27,7 @@ public interface FileReaderListener extends EventListener {
      * The reading of file attributes was finished.
      * @param path the path of the file relative to the file system root.
      * @param rawData the data with attributes of one or more files.
+     * Trailing '/' in file name denotes folder.
      */
     public void readFileFinished(String path, Collection rawData);
 }

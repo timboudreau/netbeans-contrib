@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
-<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN' 'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd'>
+<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN'
+ 'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd' [
+
+<!ENTITY versioned-statuses '"Up-to-date", "Locally Added", "Locally Modified", "Needs Checkout", "Needs Patch", "Needs Merge", "File had conflicts on merge", ""'>
+<!ENTITY local-statuses '"Local", "Ignored"'>
+]>
 <!--
                 Sun Public License Notice
 
@@ -14,20 +19,20 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 
-<configuration>
+<configuration type="netbeans.cvsprofile">
   <resourceBundle>org/netbeans/modules/vcs/profiles/cvsprofiles/config/BundleGlobal</resourceBundle>
   <resourceBundle>org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle</resourceBundle>
   <label>ResourceMsg(CVS_Label)</label>
   <!-- <label>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/BundleGlobal).getString(CVS_Label)</label> -->
-  
+
   <os>
     <compatible>"Unix", "Windows", "OpenVMS", "OS/2"</compatible>
   </os>
-  
+
   <condition var="IS_WINDOWS">
     <var name="os.name" valueContainsIgnoreCase="WINDOWS"/>
   </condition>
-  
+
   <condition var="IS_WIN9X">
     <or>
       <var name="os.name" value="Windows 95"/>
@@ -35,35 +40,35 @@ Microsystems, Inc. All Rights Reserved.
       <var name="os.name" value="Windows Me"/>
     </or>
   </condition>
-  
+
   <condition var="IS_WINNT">
     <var name="IS_WINDOWS" value="true"/>
     <not>
       <var name="IS_WIN9X" value="true"/>
     </not>
   </condition>
-  
+
   <condition var="IS_OS2">
     <var name="os.name" value="OS/2"/>
   </condition>
-  
+
   <condition var="IS_VMS">
     <var name="os.name" valueContainsIgnoreCase="OpenVMS"/>
   </condition>
 
-  
+
   <condition var="IS_BUILT-IN_AND_WIN9X">
     <var name="IS_WIN9X" value="true"/>
     <var name="BUILT-IN" value="true"/>
   </condition>
-  
+
   <condition var="IS_CMD-LINE_AND_WINDOWS">
     <var name="IS_WINDOWS" value="true"/>
     <not>
       <var name="BUILT-IN" value="true"/>
     </not>
   </condition>
-  
+
   <variables>
     <variable name="FS_DISPLAY_NAME" basic="false">
       <value>ResourceMsg(CVS_FS_DISPLAY_NAME)</value>
@@ -105,10 +110,10 @@ Microsystems, Inc. All Rights Reserved.
       <value>TEMPLATE_FILE</value>
     </variable>
     <variable name="POSSIBLE_FILE_STATUSES" basic="false">
-      <value>"Up-to-date", "Locally Modified", "Locally Added", "Locally Removed", "Needs Checkout", "Needs Patch", "Needs Merge", "File had conflicts on merge", "Unknown"</value>
+      <value>"Up-to-date", "Locally Modified", "Locally Added", "Locally Removed", "Needs Checkout", "Needs Patch", "Needs Merge", "File had conflicts on merge", "Unknown", ""</value>
     </variable>
     <variable name="GENERIC_STATUS_UP_TO_DATE" basic="false">
-      <value>"Up-to-date"</value>
+      <value>"Up-to-date", ""</value>
     </variable>
     <variable name="GENERIC_STATUS_OUT_OF_DATE" basic="false">
       <value>"Needs Patch", "Needs Merge"</value>
@@ -152,10 +157,10 @@ Microsystems, Inc. All Rights Reserved.
       <value if="IS_WINDOWS">false</value>
     </variable>
     <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED" basic="false">
-      <value>"ResourceMsg(CVS_Status_UTD)", "ResourceMsg(CVS_Status_LM)", "ResourceMsg(CVS_Status_LA)", "ResourceMsg(CVS_Status_LR)", "ResourceMsg(CVS_Status_NC)", "ResourceMsg(CVS_Status_NP)", "ResourceMsg(CVS_Status_NM)", "ResourceMsg(CVS_Status_FCM)", "ResourceMsg(CVS_Status_Unknown)"</value>
+      <value>"ResourceMsg(CVS_Status_UTD)", "ResourceMsg(CVS_Status_LM)", "ResourceMsg(CVS_Status_LA)", "ResourceMsg(CVS_Status_LR)", "ResourceMsg(CVS_Status_NC)", "ResourceMsg(CVS_Status_NP)", "ResourceMsg(CVS_Status_NM)", "ResourceMsg(CVS_Status_FCM)", "ResourceMsg(CVS_Status_Unknown)", "ResourceMsg(CVS_Status_Folder_Versioned)"</value>
     </variable>
     <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT" basic="false">
-      <value>"ResourceMsg(CVS_Status_short_UTD)", "ResourceMsg(CVS_Status_short_LM)", "ResourceMsg(CVS_Status_short_LA)", "ResourceMsg(CVS_Status_short_LR)", "ResourceMsg(CVS_Status_short_NC)", "ResourceMsg(CVS_Status_short_NP)", "ResourceMsg(CVS_Status_short_NM)", "ResourceMsg(CVS_Status_short_FCM)", "ResourceMsg(CVS_Status_short_Unknown)"</value>
+      <value>"ResourceMsg(CVS_Status_short_UTD)", "ResourceMsg(CVS_Status_short_LM)", "ResourceMsg(CVS_Status_short_LA)", "ResourceMsg(CVS_Status_short_LR)", "ResourceMsg(CVS_Status_short_NC)", "ResourceMsg(CVS_Status_short_NP)", "ResourceMsg(CVS_Status_short_NM)", "ResourceMsg(CVS_Status_short_FCM)", "ResourceMsg(CVS_Status_short_Unknown)", "ResourceMsg(CVS_Status_short_Folder_Versioned)"</value>
     </variable>
     <variable name="STATUS_SCHEDULED_ADD" basic="false">
       <value>Locally Added</value>
@@ -332,7 +337,7 @@ Microsystems, Inc. All Rights Reserved.
                                                                 TEXT(LOGGED_IN_TEXT, 1, 1, LINE_SINGLE)],
                                                                ["ResourceMsg(VAR_OFFLINE_MODE)", "true", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_OFFLINE_MODE);;MNEMONIC_ResourceMsg(VAR_OFFLINE_MODE_Mnemonic))"])
       </value>
-    </variable>      
+    </variable>
     <variable name="WIZARD_INPUT_DESCRIPTOR" basic="false">
       <value>PROMPT_FOR(ROOTDIR, "ResourceMsg(INPUT_WORKING_DIR)", "",
                         ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_INPUT_WORKING_DIR);;MNEMONIC_ResourceMsg(INPUT_WORKING_DIR_Mnemonic)),
@@ -374,41 +379,41 @@ Microsystems, Inc. All Rights Reserved.
     </variable>
     <variable name="DO_CHECKOUT" basic="false">
       <value></value>
-    </variable>  
+    </variable>
     <variable name="INITIAL_CO_MODULE" basic="false">
       <value>.</value>
-    </variable>  
+    </variable>
     <variable name="INITIAL_CO_MODULES" basic="false">
       <value></value>
-    </variable>  
+    </variable>
     <variable name="INITIAL_CO_TAG" basic="false">
       <value></value>
-    </variable>  
+    </variable>
     <variable name="INITIAL_CO_DATE" basic="false">
       <value></value>
-    </variable>  
+    </variable>
     <variable name="INITIAL_CO_FORCE_HEAD_MATCH" basic="false">
       <value></value>
-    </variable>  
+    </variable>
     <variable name="INITIAL_CO_PRUNE_EMPTY" basic="false">
       <value></value>
-    </variable>  
+    </variable>
     <variable name="INITIAL_CO_RUN_MODULE_PROGRAM" basic="false">
       <value></value>
-    </variable>  
+    </variable>
     <variable name="INITIAL_CO_RCS_KFLAG" basic="false">
       <value></value>
-    </variable>  
+    </variable>
     <variable name="INITIAL_CO_DIRECTORY" basic="false">
       <value></value>
-    </variable>  
+    </variable>
     <variable name="INITIAL_CO_DO_NOT_SHORTEN" basic="false">
       <value></value>
-    </variable>  
+    </variable>
     <variable name="INITIAL_CO_RECURSIVE" basic="false">
       <value></value>
-    </variable>  
-    <variable name="WIZARD_INPUT_DESCRIPTOR1" basic="false">      
+    </variable>
+    <variable name="WIZARD_INPUT_DESCRIPTOR1" basic="false">
       <value>LABEL(ResourceMsg(COMMAND_CHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_CHECKOUT_Label)))
                  
                  SELECT_RADIO(INITIAL_CO_MODULE, "", ".", ["ResourceMsg(COMMAND_CHECKOUT_All)", ".", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_CHECKOUT_All);;MNEMONIC_ResourceMsg(COMMAND_CHECKOUT_All_Mnemonic))"],
@@ -438,7 +443,7 @@ Microsystems, Inc. All Rights Reserved.
     <command name="ROOT" displayName="ResourceMsg1(CVS)">
       <property name="labelMnemonic">
         <value>ResourceMsg1(CVS_Mnemonic)</value>
-      </property>     
+      </property>
       <command name="LIST" displayName="ResourceMsg1(LIST)">
         <property name="labelMnemonic">
           <value>ResourceMsg1(LIST_Mnemonic)</value>
@@ -489,7 +494,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>false</value>
 	</property>
         <property name="disabledOnStatus">
-          <value>"Local"</value>
+          <value>&local-statuses;</value>
 	</property>
       </command>
       <command name="LIST_OFFLINE" displayName="ResourceMsg1(LIST_OFFLINE)">
@@ -542,7 +547,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>false</value>
 	</property>
         <property name="disabledOnStatus">
-          <value>"Local"</value>
+          <value>&local-statuses;</value>
 	</property>
       </command>
       <command name="LIST_FILE" displayName="ResourceMsg1(LIST)">
@@ -577,8 +582,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>6</value>
 	</property>
         <property name="refreshFileStatusSubstitutions">
-          <!-- Match anything, but "Unknown" status. -->
-          <value>"^($|[^U].*$|.[^n)].*$|..[^k].*$|...[^n].*$|....[^o].*$|.....[^w].*$|......[^n].*)$", "REG_EXP_PARSE_OUTPUT"</value>
+          <value>"^(.*)$", "REG_EXP_PARSE_OUTPUT"</value>
         </property>
 	<property name="input">
 	  <value></value>
@@ -604,6 +608,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="runOnMultipleFilesInFolder">
           <value>true</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <command name="LIST_SUB" displayName="ResourceMsg1(LIST_SUB)">
         <property name="labelMnemonic">
@@ -655,7 +662,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="disabledOnStatus">
-          <value>"Local"</value>
+          <value>&local-statuses;</value>
 	</property>
       </command>
       <command name="LIST_STATUS_CMD">
@@ -746,7 +753,7 @@ Microsystems, Inc. All Rights Reserved.
             ASK_FOR_EXPERT(FORCE, ResourceMsg1(COMMAND_COMMIT_Force), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_Force);;MNEMONIC_ResourceMsg1(ACS_COMMAND_COMMIT_Force_mnc)), "-f", "")                
             PROMPT_FOR_EXPERT(BRANCH, ResourceMsg1(COMMAND_COMMIT_To_Branch), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_To_Branch);;MNEMONIC_ResourceMsg1(ACS_COMMAND_COMMIT_To_Branch_mnc)), IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_BRANCHES)                
             ASK_FOR_EXPERT(RUN_MODULE_PROGRAM, ResourceMsg1(COMMAND_COMMIT_Run_Module_Program), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_Run_Module_Program);;MNEMONIC_ResourceMsg1(ACS_COMMAND_COMMIT_Run_Module_Program_mnc)), "", "-n")
-            IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg1(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Recursive_mnc)),"-R", "-l") 
+            IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg1(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Recursive_mnc)),"-R", "-l")
           </value>
 	</property>
         <property name="visualizer">
@@ -795,8 +802,8 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
         <property name="disabledOnStatus">
-          <value>"Local"</value>
-	</property>
+          <value>&local-statuses;, "Yet-Unknown"</value>
+	    </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.CommitCommandAction</value>
         </property>
@@ -833,7 +840,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
         <property name="runOnMultipleFiles">
           <value>true</value>
-        </property>        
+        </property>
       </command>
       <command name="COMMIT_TEMPLATE_GETTER_CMD" unless="IS_BUILT-IN_AND_WIN9X">
 	<property name="exec">
@@ -848,7 +855,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
         <property name="runOnMultipleFiles">
           <value>true</value>
-        </property>        
+        </property>
       </command>
       <command name="UPDATE_CMD" >
 	<property name="exec">
@@ -870,11 +877,11 @@ Microsystems, Inc. All Rights Reserved.
         <property name="visualizer">
           <value if="IS_CMD-LINE_AND_WINDOWS">org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.CvsUpdateVisualizerStdOut</value>
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.CvsUpdateVisualizer</value>
-        </property>        
+        </property>
       </command>
       <command name="UPDATE_CMD_STD">
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>          
+	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>
 	</property>
 	<property name="data.regex">
 	  <value>^([UPARMC]) (.*$)|^(.*) (already contains the differences)(.*)$</value>
@@ -890,7 +897,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="display">
 	  <value>true</value>
-	</property>               
+	</property>
       </command>
       <command name="UPDATE" displayName="ResourceMsg1(CVS_UPDATE)">
         <property name="labelMnemonic">
@@ -902,8 +909,8 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-	<property name="exec">          
-	  <value>vcs.commands.CvsUpdate.class $[? DISK_CHANGE] [-n ] []MODDIR $[? SEND_TO_STDOUT][UPDATE_CMD_STD] [UPDATE_CMD]</value>          
+	<property name="exec">
+	  <value>vcs.commands.CvsUpdate.class $[? DISK_CHANGE] [-n ] []MODDIR $[? SEND_TO_STDOUT][UPDATE_CMD_STD] [UPDATE_CMD]</value>
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg1(COMMAND_UPDATE_Label),
@@ -975,6 +982,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg1(CVS_GENERAL_ACTION_UPDATE)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
       </command>
       <command name="ADD_DIR_RECURSIVE" displayName="ResourceMsg1(CVS_ADD)">
         <property name="labelMnemonic">
@@ -1004,7 +1014,7 @@ Microsystems, Inc. All Rights Reserved.
                                                         ASK_FOR(DO_COMMIT, ResourceMsg1(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_DoCommit_mnc)))])
                  SELECT_COMBO_EXPERT(RCS_KFLAG, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)),["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
           </value>
-	</property>        
+	</property>
 	<property name="onDir">
 	  <value>true</value>
 	</property>
@@ -1038,6 +1048,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="commandsAfterSuccess">
           <value>$[? FOLDER_CONTENTS] [$[? DO_COMMIT] [COMMIT][]] [ADD_CMD]</value>
         </property>
+          <property name="disabledOnStatus">
+              <value>&versioned-statuses;, "Yet-Unknown"</value>
+          </property>
       </command>
       <!--
       <command name="ADD_DIR" displayName="ResourceMsg1(CVS_ADD)">
@@ -1112,7 +1125,7 @@ Microsystems, Inc. All Rights Reserved.
                 ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Description);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Description_mnc))) 
             ASK_FOR(DO_COMMIT, ResourceMsg1(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_DoCommit_mnc)))
             SELECT_COMBO_EXPERT(RCS_KFLAG, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)), ["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
-          </value>          
+          </value>
 	</property>
         <property name="visualizer">
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
@@ -1180,6 +1193,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="visualizer">
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
         </property>
+          <property name="disabledOnStatus">
+              <value>&versioned-statuses;, "Yet-Unknown"</value>
+          </property>
       </command>
       <command name="ADD_CMD">
 	<property name="exec">
@@ -1252,6 +1268,19 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
       </command>
 
+      <command name="INTERNAL_ADD_TO_IGNORELIST" displayName="ResourceMsg1(CVS_INTERNAL_ADD_TO_IGNORELIST)">
+            <property name="exec">
+                <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsAddToIgnoreList.class</value>
+            </property>
+            <property name="runOnMultipleFilesInFolder">
+                <value>true</value>
+            </property>
+            <property name="disabledOnStatus">
+                <!-- "Yet-Unknown"a nd "Ignored" are defined by vcscore: -->
+                <value>&versioned-statuses;, "Yet-Unknown", "Ignored"</value>
+            </property>
+        </command>
+
       <command name="REMOVE" displayName="ResourceMsg1(CVS_REMOVE)">
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_REMOVE_Mnemonic)</value>
@@ -1304,6 +1333,11 @@ Microsystems, Inc. All Rights Reserved.
         <property name="commandsAfterSuccess">
           <value>$[? DO_COMMIT] [COMMIT][]</value>
         </property>
+          <property name="disabledOnStatus">
+              <!-- "Yet-Unknown"a nd "Ignored" are defined by vcscore: -->
+              <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
+
       </command>
 
       <command name="SCHEDULE_REMOVE">
@@ -1352,6 +1386,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="commandsAfterSuccess">
           <value>DELETE_DIR</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
       </command>
       <command name="PRE_RELEASE">
 	<property name="exec">
@@ -1376,7 +1413,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} status ${VERBOSE} ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>         
+	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} status ${VERBOSE} ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_STATUS_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_STATUS_Label)))
@@ -1401,11 +1438,14 @@ Microsystems, Inc. All Rights Reserved.
         <property name="runOnMultipleFiles">
           <value>true</value>
         </property>
+          <property name="disabledOnStatus">
+              <value>&local-statuses;</value>
+          </property>
       </command>
-      <command name="STATUS_GET_TAGS">        
+      <command name="STATUS_GET_TAGS">
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} status -v $[? PATHS] [${QPATHS}] [] ${NUR}</value>          
-	</property>	
+	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} status -v $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	</property>
 	<property name="data.regex">
 	  <value>$ ^</value>
 	</property>
@@ -1414,12 +1454,15 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="onRoot">
 	  <value>true</value>
-	</property>        
+	</property>
       </command>
       <command name="SUBMENU_HISTORY" displayName="ResourceMsg1(CVS_SECTION_HISTORY)">
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_SECTION_HISTORY_Mnemonic)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
       <command name="LOG" displayName="ResourceMsg1(CVS_LOG)">
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_LOG_Mnemonic)</value>
@@ -1431,7 +1474,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} log ${ONLY_PRINT} ${NO_TAGS} $[? REVISIONS] [-r${QUOTE}${REVISIONS}${QUOTE}] [] $[? DATES] [-d ${QUOTE}${DATES}${QUOTE}] [] $[? STATES] [-s ${QUOTE}${STATES}${QUOTE}] [] $[? USERS] [-w${USERS}] [] ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>                    
+	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} log ${ONLY_PRINT} ${NO_TAGS} $[? REVISIONS] [-r${QUOTE}${REVISIONS}${QUOTE}] [] $[? DATES] [-d ${QUOTE}${DATES}${QUOTE}] [] $[? STATES] [-s ${QUOTE}${STATES}${QUOTE}] [] $[? USERS] [-w${USERS}] [] ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_LOG_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_LOG_Label)))
@@ -1528,8 +1571,8 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-	<property name="exec">	  
-          <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} annotate $[? SPEC_REVISION] [-r ${SPEC_REVISION}] [] $[? SPEC_DATE] [-D ${QUOTE}${SPEC_DATE}${QUOTE}] [] ${USE_HEAD} ${QFILE} ${NUR}</value>          
+	<property name="exec">
+          <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} annotate $[? SPEC_REVISION] [-r ${SPEC_REVISION}] [] $[? SPEC_DATE] [-D ${QUOTE}${SPEC_DATE}${QUOTE}] [] ${USE_HEAD} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_ANNOTATE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Label)))
@@ -1545,10 +1588,10 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>$ ^</value>
 	</property>
 	<property name="onRoot">
-          <value>false</value>	
+          <value>false</value>
 	</property>
         <property name="onDir">
-          <value>false</value>	  
+          <value>false</value>
 	</property>
         <property name="runOnMultipleFiles">
           <value>false</value>
@@ -1717,7 +1760,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>vcs.commands.CvsUpdate.class $[? DISK_CHANGE] [-n ] []ROOTDIR CHECKOUT_COMMAND</value>          
+	  <value>vcs.commands.CvsUpdate.class $[? DISK_CHANGE] [-n ] []ROOTDIR CHECKOUT_COMMAND</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_CHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_CHECKOUT_Label)))
@@ -1809,7 +1852,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="INITIAL_CHECKOUT">
 	<property name="exec">
-	  <value>vcs.commands.CvsUpdate.class $[? DISK_CHANGE] [-n ] []ROOTDIR INITIAL_CHECKOUT_COMMAND</value>          
+	  <value>vcs.commands.CvsUpdate.class $[? DISK_CHANGE] [-n ] []ROOTDIR INITIAL_CHECKOUT_COMMAND</value>
 	</property>
 	<property name="data.fileName.index">
 	  <value>0</value>
@@ -1900,12 +1943,18 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="error.regex">
 	  <value>$ ^</value>
 	</property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
       </command>
       <separator />
       <command name="SUBMENU_EDITING" displayName="ResourceMsg1(CVS_SECTION_EDITING)" unless="BUILT-IN">
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_SECTION_EDITING_Mnemonic)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
 	<command name="EDIT" displayName="ResourceMsg1(CVS_EDIT)">
           <property name="labelMnemonic">
             <value>ResourceMsg1(CVS_EDIT_Mnemonic)</value>
@@ -2056,6 +2105,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_SECTION_WATCHES_Mnemonic)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
 	<command name="WATCH_ON" displayName="ResourceMsg1(CVS_WATCH_ON)">
           <property name="labelMnemonic">
             <value>ResourceMsg1(CVS_WATCH_ON_Mnemonic)</value>
@@ -2242,6 +2294,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_SECTION_LOCKING_Mnemonic)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
         <command name="LOCK1" displayName="ResourceMsg1(CVS_LOCK)">
           <property name="labelMnemonic">
             <value>ResourceMsg1(CVS_LOCK_Mnemonic)</value>
@@ -2320,6 +2375,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_SECTION_BRANCHING_AND_TAGGING_Mnemonic)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
       <command name="TAGS" displayName="ResourceMsg1(CVS_ADD_TAG)">
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_ADD_TAG_Mnemonic)</value>
@@ -2463,6 +2521,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg1(CVS_GENERAL_ACTION_DIFF)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
       </command>
       <command name="DIFF_TEXT" displayName="ResourceMsg1(CVS_DIFF_TEXTUAL)">
         <property name="labelMnemonic">
@@ -2506,6 +2567,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="ignoreFail">
 	  <value>true</value>
 	</property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
       </command>
       <command name="DIFF_TEXT_FOLDER_ACTION">
 	<property name="advancedName">
@@ -2596,6 +2660,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="ignoreFail">
 	  <value>true</value>
 	</property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;, "Yet-Unknown"</value>
+          </property>
       </command>
       <separator />
       <command name="LIST_MODULES" displayName="ResourceMsg1(CVS_LIST_MODULES)" if="BUILT-IN">
@@ -2645,13 +2712,13 @@ Microsystems, Inc. All Rights Reserved.
         <property name="hiddenTestExpression">
           <value>$[? SERVERTYPE-PSERVER_VALUE] [Hide Me] [$[? CVS_SERVER] [] [Hide Me]]</value>
         </property>
-      </command>           
+      </command>
       <command name="LOGOUT" displayName="ResourceMsg1(CVS_LOGOUT, ${CVS_SERVER})" unless="BUILT-IN">
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_LOGOUT_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${EXECUTE} logout ${NUR}</value>      
+	  <value>${EXECUTE} logout ${NUR}</value>
 	</property>
         <property name="runOnMultipleFiles">
           <value>true</value>
@@ -2659,7 +2726,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="hiddenTestExpression">
           <value>$[? SERVERTYPE-PSERVER_VALUE] [Hide Me] [$[? CVS_SERVER] [] [Hide Me]]</value>
         </property>
-      </command>      
+      </command>
       <command name="CHECKOUT_CMD">
 	<property name="exec">
           <value>${CDW_EXECUTE} -f update ${RCS_KFLAG} -p $[? REVISION] [-r ${REVISION}] [] ${QFILE} &gt; ${QUOTE}${TEMPDIR}${PS}${FILE}${QUOTE} ${NUR}</value>
@@ -2724,12 +2791,12 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_MODULES_S_CMD">
         <property name="exec">
-          <value>${EXECUTE} -f checkout -s ${NUR}</value>          
+          <value>${EXECUTE} -f checkout -s ${NUR}</value>
 	</property>
       </command>
       <command name="CHECKOUT_MODULES_C_CMD">
         <property name="exec">
-          <value>${EXECUTE} -f checkout -c ${NUR}</value>          
+          <value>${EXECUTE} -f checkout -c ${NUR}</value>
 	</property>
       </command>
       <command name="WATCH_ACTION_STATUS">
@@ -2742,7 +2809,6 @@ Microsystems, Inc. All Rights Reserved.
 	    <value>${RUNCDW} ${CVS_DEF_EXE} -f watchers $[? FILE] [${QFILE}] [] ${NUR}</value>
 	</property>
       </command>
-
     </command> <!-- CVS popup -->
 
     <command name="RESOLVE_CONFLICTS" displayName="ResourceMsg1(CVS_RESOLVE_CONFLICTS)">
@@ -2963,7 +3029,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     -->
 
-    
+
     <command name="AUTO_FILL_CONFIG">
       <property name="exec">
         <value>vcs.commands.CvsAutoFillConfig.class</value>
@@ -2998,7 +3064,7 @@ Microsystems, Inc. All Rights Reserved.
       </property>
     </command>
     <command name="LOGIN_CHECK">
-      <property name="exec">        
+      <property name="exec">
         <value>${EXECUTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}</value>
       </property>
     </command>
@@ -3012,7 +3078,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
 
   </commands>
-  
+
   <globalCommands>
     <command name="ROOT" displayName="ResourceMsg(CVS)">
       <property name="labelMnemonic">
@@ -3148,7 +3214,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="commandsAfterSuccess">
           <value>GLOBAL_REGISTER</value>
         </property>
-      </command> 
+      </command>
       <command name="CONNECTION_LOGIN">
         <property name="exec">
           <value>vcs.commands.CvsLoginCheck.class -gui "${CVSROOT}" "${PASSWORD}"</value>
@@ -3158,7 +3224,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <command name="LOGIN_CHECK">
-        <property name="exec">        
+        <property name="exec">
           <value>${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}</value>
         </property>
       </command>
@@ -3172,7 +3238,7 @@ Microsystems, Inc. All Rights Reserved.
       <property name="ignoreFail">
         <value>true</value>
       </property>
-    </command>   
+    </command>
       <command name="AUTO_FILL_GLOBAL_CONFIG">
         <property name="exec">
           <value>vcs.commands.CvsAutoFillConfig.class</value>
@@ -3194,7 +3260,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="ignoreFail">
           <value>true</value>
         </property>
-      </command>      
+      </command>
       <command name="SELECTOR_MODULES">
         <property name="exec">
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsModuleSelector.class CHECKOUT_MODULES_S_CMD CHECKOUT_MODULES_C_CMD</value>
@@ -3207,7 +3273,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="exec">
           <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -s ${NUR}]
                                   [$[? IS_WIN9X][${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -s ${NUR}]
-                                  [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -s ${NUR}]] 
+                                  [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -s ${NUR}]]
           </value>
 	</property>
       </command>
@@ -3216,7 +3282,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}]
                                  [$[? IS_WIN9X][${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}]
                                  [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}]]
-          </value>     
+          </value>
 	</property>
       </command>
       <command name="IMPORT_CMD">
@@ -3365,6 +3431,6 @@ Microsystems, Inc. All Rights Reserved.
       </command>
     </command>
   </globalCommands>
-  
+
 </configuration>
 

@@ -13,10 +13,6 @@
 
 package org.netbeans.modules.vcscore.runtime;
 
-/**
- * The default implementation of RuntimeCommand.
- * @author  Milos Kleint
- */
 import org.openide.actions.PropertiesAction;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
@@ -34,6 +30,9 @@ import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.VcsCommandVisualizer;
 import org.netbeans.modules.vcscore.commands.VcsDescribedTask;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * The default implementation of RuntimeCommand. Gets the info that is needed by
@@ -149,22 +148,64 @@ public class VcsRuntimeCommand extends RuntimeCommand {
                             return CommandProcessor.getExitStatusString(executor.getExitStatus());
                         }
                 });
-        if (Boolean.getBoolean("netbeans.vcsdebug")) {
-        set.put(new PropertySupport.ReadOnly("startTime", String.class, "Start Time", null) {
+        if (Boolean.getBoolean("netbeans.vcsdebug")) { // NOI18N
+            set.put(new PropertySupport.ReadOnly("origin", String.class, "Task Trace", null) { // NOI18N
+                        public Object getValue() {
+                            StringBuffer sb = new StringBuffer();
+                            try {
+                                Class tclass = task.getClass();
+                                while (tclass != CommandTask.class) {
+                                    tclass = tclass.getSuperclass();
+                                }
+                                Method method = tclass.getDeclaredMethod("getOrigin", new Class[0]); // NOI18N
+                                method.setAccessible(true);
+                                Exception origin
+                                        = (Exception) method.invoke(task, new Object[0]);
+                                if (origin != null) {
+                                    sb.append("Task origin:");  // NOI18N
+                                    StackTraceElement[] el = origin.getStackTrace();
+                                    for (int i = 0; i < el.length; i++) {
+                                        StackTraceElement element = el[i];
+                                        sb.append("\n  ").append(element.toString()); // NOI18N
+                                    }
+                                }
+
+                                origin = taskInfo.getOrigin();
+                                if (origin != null) {
+                                    sb.append("\n\nTaskInfo origin:");  // NOI18N
+                                    StackTraceElement[] el = origin.getStackTrace();
+                                    for (int i = 0; i < el.length; i++) {
+                                        StackTraceElement element = el[i];
+                                        sb.append("\n  ").append(element.toString()); // NOI18N
+                                    }
+                                }
+
+                            } catch (NoSuchMethodException e) {
+                                sb.append("<unknown>");  // NOI18N
+                            } catch (IllegalAccessException e) {
+                                sb.append("<unknown>"); // NOI18N
+                            } catch (InvocationTargetException e) {
+                                sb.append("<unknown>"); // NOI18N
+                            }
+                            return sb.toString();
+                        }
+                });
+
+            set.put(new PropertySupport.ReadOnly("startTime", String.class, "Start Time", null) {
                         public Object getValue() {
                             long time = taskInfo.getStartTime();
                             if (time == 0) return null;
                             else return new java.util.Date(time).toLocaleString();
                         }
                 });
-        set.put(new PropertySupport.ReadOnly("finishTime", String.class, "Finish Time", null) {
+            set.put(new PropertySupport.ReadOnly("finishTime", String.class, "Finish Time", null) {
                         public Object getValue() {
                             long time = taskInfo.getFinishTime();
                             if (time == 0) return null;
                             else return new java.util.Date(time).toLocaleString();
                         }
                 });
-        set.put(new PropertySupport.ReadOnly("executionTime", String.class, "Execution Time", null) {
+            set.put(new PropertySupport.ReadOnly("executionTime", String.class, "Execution Time", null) {
                         public Object getValue() {
                             long time = taskInfo.getExecutionTime();
                             if (time == 0) return null;
@@ -191,7 +232,7 @@ public class VcsRuntimeCommand extends RuntimeCommand {
                             }
                         }
                 });
-        set.put(new PropertySupport.ReadOnly("variables", String.class, "Variables", null) {
+            set.put(new PropertySupport.ReadOnly("variables", String.class, "Variables", null) {
                     public Object getValue() {
                         if (executor != null) {
                             StringBuffer buff = new StringBuffer();

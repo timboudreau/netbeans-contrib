@@ -115,7 +115,7 @@ public class VcsSettingsNode extends AbstractNode {
                 return;
 
             String profileName = input.getInputText();
-            ProfilesFactory.getDefault().addProfile(profileName, profileName, null,
+            ProfilesFactory.getDefault().addProfile(profileName, profileName, null, null,
                 new HashSet(), new HashSet(), new ConditionedVariables(new ArrayList(), new HashMap(), new HashMap()),
                 new ConditionedCommandsBuilder(CommandsTree.EMPTY).getConditionedCommands());
         }

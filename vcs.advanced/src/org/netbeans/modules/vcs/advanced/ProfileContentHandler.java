@@ -55,6 +55,7 @@ import org.xml.sax.SAXException;
 public class ProfileContentHandler extends Object implements ContentHandler, EntityResolver {
     
     public static final String CONFIG_ROOT_ELEM = "configuration";               // NOI18N
+    public static final String CONFIG_TYPE_ATTR = "type";                        // NOI18N
     public static final String RESOURCE_BUNDLE_TAG = "resourceBundle";           // NOI18N
     public static final String LABEL_TAG = "label";                              // NOI18N
     public static final String OS_TAG = "os";                                    // NOI18N
@@ -151,6 +152,7 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
     
     private String[] resourceBundles;               // The resource bundles defined in the profile.
     private String label;
+    private String type;
     private String compatibleOSs;
     private String uncompatibleOSs;
     private List conditions;
@@ -201,6 +203,9 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
     public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
         if (skipping) return ;
         String elementName = ("".equals(localName)) ? qName : localName;
+        if (CONFIG_ROOT_ELEM.equals(elementName)) {
+            type = atts.getValue(CONFIG_TYPE_ATTR);
+        }
         //System.out.println("      startElement("+elementName+"), atts = "+atts);
         if (CONDITION_TAG.equals(elementName)) {
             if (!getConditions) {
@@ -504,6 +509,13 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
             return org.openide.xml.EntityCatalog.getDefault().resolveEntity(pubid, sysid);
         }
      }
+    
+    /**
+     * Get the type of the VCS configuration.
+     */
+    public String getType() {
+        return type;
+    }
     
     /**
      * Get the list of resource bundles, that are used to get the localized messages.

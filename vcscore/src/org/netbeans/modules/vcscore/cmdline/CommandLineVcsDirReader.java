@@ -21,7 +21,7 @@ import org.openide.util.*;
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.cache.impl.RefreshCommandSupport;
-import org.netbeans.modules.vcscore.cache.impl.StatusFormat;
+import org.netbeans.modules.vcscore.caching.StatusFormat;
 import org.netbeans.modules.vcscore.commands.*;
 
 /**
@@ -239,7 +239,13 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
                 commonParent = commonParent.replace (java.io.File.separatorChar, '/');
                 if (commonParent.length() > 0) dir = commonParent + "/" + dir;
             }
-            listener.readDirFinished(dir, rawData, getExitStatus() == VcsCommandExecutor.SUCCEEDED);
+            try {
+                listener.readDirFinished(dir, rawData, getExitStatus() == VcsCommandExecutor.SUCCEEDED);
+            } catch (ThreadDeath td) {
+                throw td;
+            } catch (Throwable t) {
+                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
+            }
             // After refresh I should ensure, that the next automatic refresh will work if something happens in numbering
             getFileSystem().removeNumDoAutoRefresh(dir); // NOI18N
         }

@@ -66,7 +66,7 @@ public class CvsCreateFolderIgnoreList extends Object implements VcsAdditionalCo
             dir = dir.substring(0, dir.length() - 1);
         String file = (String) vars.get("FILE");
         dir = dir + File.separator + file;
-        File filePath = new File(dir);
+        File filePath = new File(dir, ".cvsignore");  // NOI18N
         if (filePath.canRead()) {
             return filePath;
         } else {
@@ -93,15 +93,51 @@ public class CvsCreateFolderIgnoreList extends Object implements VcsAdditionalCo
                         CommandOutputListener stdoutListener, CommandOutputListener stderrListener,
                         CommandDataOutputListener stdoutDataListener, String dataRegex,
                         CommandDataOutputListener stderrDataListener, String errorRegex) {
+
+        assert false : "Replaced by list.CvsFileAttributeProvider IgnoreList.ID";  // NOI18N
+
         String parentIgnoreList = (String) vars.get("PARENT_IGNORE_LIST");
         String[] parentIgnoreListItems = VcsUtilities.getQuotedStrings(parentIgnoreList);
         ArrayList ignoreList = new ArrayList(Arrays.asList(parentIgnoreListItems));
         File file = getIgnoreFile(vars);
         if (file != null) {
-            CvsCreateInitialIgnoreList.addFileIgnoreList(file, ignoreList);
+            addFileIgnoreList(file, ignoreList);
         }
         CvsCreateInitialIgnoreList.returnIgnoreList(ignoreList, stdoutDataListener);
         return true;
     }
-    
+
+    /**
+     *
+     * @param file existing and readable .cvsignore file
+     * @param ignoreList
+     */
+    public static void addFileIgnoreList(File file, ArrayList ignoreList) {
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                StringTokenizer tk = new StringTokenizer(line);
+                while (tk.hasMoreTokens()) {
+                    String element = tk.nextToken().trim();
+                    if (element.length() ==0) {
+                        continue;
+                    } else if ("!".equals(element)) {
+                        ignoreList.clear();
+                        continue;
+                    } else {
+                        ignoreList.add(element);
+                    }
+                }
+            }
+        } catch (IOException e) {/*skip file, if can not be read*/}
+        finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException nestedIOException) {}
+            }
+        }
+    }
 }

@@ -55,8 +55,8 @@ final class FolderChildren extends Children.Keys implements FileChangeListener, 
     private Collection computeKeys() {
         Comparator comp = new Comparator() {
             public int compare(Object o1, Object o2) {
-                FileObject f1 = (FileObject) o1;
-                FileObject f2 = (FileObject) o2;
+                FileKey f1 = (FileKey) o1;
+                FileKey f2 = (FileKey) o2;
                 if (f1.isFolder() != f2.isFolder()) {
                     // if classes are different than the folder goes first
                     if (f1.isFolder()) {
@@ -75,7 +75,8 @@ final class FolderChildren extends Children.Keys implements FileChangeListener, 
         FileObject[] en = folder.getChildren();
         for (int i =0; i<en.length; i++) {
             if (VISIBILITY.isVisible(en[i])) {
-                keys.add(en[i]);
+                FileKey key = new FileKey(en[i]);
+                keys.add(key);
             }
         }
         return keys;
@@ -88,7 +89,9 @@ final class FolderChildren extends Children.Keys implements FileChangeListener, 
     }
 
     protected Node[] createNodes(Object key) {
-        FileObject fo = (FileObject) key;
+        FileKey fileKey = (FileKey) key;
+        String name = fileKey.getNameExt();
+        FileObject fo = folder.getFileObject(name);
         Node[] ret;
         if (fo.isData()) {
             ret = new Node[] {
@@ -102,10 +105,59 @@ final class FolderChildren extends Children.Keys implements FileChangeListener, 
         return ret;
     }
 
+    /**
+     * FileKey is more robust that plain FileObject, it's immutable.
+     * <p>
+     * Warning: there can exist two FileObjects for the same
+     * file and filesystem. One valid and one invalid. Due to
+     * this problem current implementation delegates to
+     * passed fileobject.
+     */
+    private static class FileKey {
+//        private final String name;
+//        private final boolean folder;
+        private final FileObject fo;
+
+        FileKey(FileObject fo) {
+//            name = fo.getNameExt();
+//            folder = fo.isFolder();
+            this.fo = fo;
+        }
+
+        public String getNameExt() {
+            return fo.getNameExt();
+        }
+
+        public boolean isFolder() {
+            return fo.isFolder();
+        }
+
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof FileKey)) return false;
+
+            final FileKey fileKey = (FileKey) o;
+            return fo.equals(fileKey.fo);
+//            if (folder != fileKey.folder) return false;
+//            if (name != null ? !name.equals(fileKey.name) : fileKey.name != null) return false;
+//
+//            return true;
+        }
+
+        public int hashCode() {
+            return fo.hashCode();
+//            int result;
+//            result = (name != null ? name.hashCode() : 0);
+//            result = 29 * result + (folder ? 1 : 0);
+//            return result;
+        }
+    }
+
+
     // FileChangeListener implementation ~~~~~~~~~~~~~~~~~
 
     public void fileFolderCreated(FileEvent fe) {
-        setKeys(computeKeys());
+        setKeys(computeKeys());      // XXX coming on main window activation => caused by FS refresh
     }
 
     public void fileDataCreated(FileEvent fe) {

@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
@@ -36,6 +37,7 @@ import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 
 import org.netbeans.modules.vcs.profiles.cvsprofiles.list.CvsListCommand;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.list.CvsListOffline;
+import org.openide.filesystems.FileObject;
 
 /**
  * This class assures the correct file status refresh after cvs update and cvs checkout commands.
@@ -134,7 +136,9 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         //collectRevisions(processingFiles, fsRootDir);
         Map foldersByProcessingFiles = null;
         if (doRefresh) {
-            foldersByProcessingFiles = getFoldersByProcessingFiles(processingFiles);
+            if (Turbo.implemented() == false) {
+                foldersByProcessingFiles = getFoldersByProcessingFiles(processingFiles);
+            }
         }
 
         final String rootDir = Variables.expand(vars, (String) vars.get(args[0]), false);
@@ -245,9 +249,29 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
             sendUpdatedFolders(foldersBuff, stdoutDataListener);
             sendRemovedFiles(removedFiles, stdoutDataListener);
             sendUpdateProcessedFiles(processingFiles, stdoutDataListener);
-            sendRemovedFolders(foldersByProcessingFiles,
-                               getFoldersByProcessingFiles(processingFiles),
-                               stdoutDataListener);
+
+
+            // Covers following case: a file have disappeared in repository
+            // and update have removed it locally. children must be updated.
+            // removed folders are unreported so cannot be catched by above sends
+
+            if (Turbo.implemented()) {
+                Iterator it = processingFiles.iterator();
+                while (it.hasNext()) {
+                    String processingFile = (String) it.next();
+                    FileObject fo = fileSystem.findResource(processingFile);
+                    if (fo != null && fo.isFolder()) {
+                        FileObject parent = fo.getParent();
+                        if (parent != null) {
+                            parent.refresh();
+                        }
+                    }
+                }
+            } else {
+                sendRemovedFolders(foldersByProcessingFiles,
+                                   getFoldersByProcessingFiles(processingFiles),
+                                   stdoutDataListener);
+            }
         }
         if (vce.getExitStatus() == VcsCommandExecutor.INTERRUPTED) {
             Thread.currentThread().interrupt(); // Set itself as interrupted when the sub-command was interrupted.

@@ -1,0 +1,31 @@
+<body>
+
+File attributes management framework. 
+
+<h2>Pluggable File Attributes package</h2>
+
+The package supports file attributes management. Attributes
+can be provided by plugged in providers, The implementation
+supports providers results caching.
+
+<h3>Clients Interface</h3>
+
+Clients should start at {@link FileAttributeQuery}
+class. It allows to query for attribute values,
+to determine their readiness, to write
+them down and supports listening on attribute
+changes.
+
+<h3>Providers Interface</h3>
+
+Attribute providers should start at {@link FileAttributeProvider}
+implement it and register it using system filesystem at
+<code>Services/FileAttributeProviders/Default</code>.
+
+<h3>Attribute Definition</h3>
+
+Both providers and clients must understand
+attribute definiton they are using. The attribute
+definitions are not covered by this package.
+
+</body>

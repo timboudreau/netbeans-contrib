@@ -5,4 +5,4 @@ OpenIDE-Module-Specification-Version: 1.12
 OpenIDE-Module-Implementation-Version: promotionD
 OpenIDE-Module-Layer: org/netbeans/modules/vcscore/resources/mf-layer.xml
 OpenIDE-Module-Requires: org.openide.windows.IOProvider
-
+OpenIDE-Module-Install: org/netbeans/modules/vcscore/VcsModule.class

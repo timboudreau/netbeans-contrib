@@ -96,7 +96,7 @@ public class VcsDirContainer extends Object {
 
     /**
      * Get the element belonging to this directory.
-     * @return the element.
+     * @return the element or <code>null</code> for empty folders.
      */
     public Object getElement() {
         return element;

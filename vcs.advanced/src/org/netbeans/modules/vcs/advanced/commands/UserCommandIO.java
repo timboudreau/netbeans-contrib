@@ -811,6 +811,7 @@ public class UserCommandIO extends Object {
     
     private static String[][] loadTranslateClassMap() throws IOException {
         URL table = UserCommandIO.class.getResource("cmdPackageTranslations.txt"); //NOI18N
+        if (table == null) return new String[0][0];
         ArrayList chunks = new ArrayList();
         loadTranslationFile(table, chunks);
         // post process

@@ -1114,6 +1114,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 try {
                     Profile fsProfile = fileSystem.getProfile();
                     profile = profilesFactory.addProfile(selected, configLabel,
+                        fsProfile.getType(),
                         (fsProfile != null) ? fsProfile.getResourceBundles() : null,
                         fileSystem.getCompatibleOSs(), fileSystem.getUncompatibleOSs(),
                         new ConditionedVariables(variables, Collections.EMPTY_MAP, Collections.EMPTY_MAP),

@@ -13,12 +13,8 @@
 
 package org.netbeans.modules.vcs.advanced;
 
-import java.beans.*;
-import javax.swing.*;
-
-import org.openide.util.NbBundle;
 import org.netbeans.modules.vcscore.annotation.*;
-import org.netbeans.modules.vcscore.cache.impl.RefreshCommandSupport;
+import org.netbeans.modules.vcscore.caching.StatusFormat;
 
 /** Property editor for annotation pattern properties
 *
@@ -60,7 +56,7 @@ public class CommandLineAnnotPatternEditor extends AnnotationPatternPropertyEdit
     }
     
     public String getDefaultAnnotationPattern() {
-       return RefreshCommandSupport.DEFAULT_ANNOTATION_PATTERN;   
+       return StatusFormat.DEFAULT_ANNOTATION_PATTERN;
     }
 
 }

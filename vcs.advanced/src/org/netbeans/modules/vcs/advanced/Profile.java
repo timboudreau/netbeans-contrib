@@ -50,6 +50,11 @@ public abstract class Profile extends Object {
     public abstract String getDisplayName();
     
     /**
+     * Get the type of the VCS support.
+     */
+    public abstract String getType();
+    
+    /**
      * Pre-load some properties from the persistent storage.
      * This method can be used for performance reasons, because the getters
      * for the preloaded properties should be fast.

@@ -24,6 +24,26 @@ import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 
 /**
+ * Creates folder context independent ignore list:
+ *
+ * <ul>
+ * <li> The CVS 1.11.18 list is initialized to include certain file name patterns: names associated with CVS administration, or with other common source control systems; common names for patch files, object files, archive files, and editor backup files; and other names that are usually artifacts of assorted utilities. Currently, the default list of ignored file name patterns is:
+ *
+ *   <pre>
+ *   RCS     SCCS    CVS     CVS.adm
+ *   RCSLOG  cvslog.*
+ *   tags    TAGS
+ *   .make.state     .nse_depinfo
+ *   *~      #*      .#*     ,*      _$*     *$
+ *   *.old   *.bak   *.BAK   *.orig  *.rej   .del-*
+ *   *.a     *.olb   *.o     *.obj   *.so    *.exe
+ *   *.Z     *.elc   *.ln
+ *   core
+ *   </pre>
+ *
+ * <li> The per-repository list in `$CVSROOT/CVSROOT/cvsignore' is appended to the list, if that file exists.
+ * <li> The per-user list in `.cvsignore' in your home directory is appended to the list, if it exists.
+ * <li> Any entries in the environment variable $CVSIGNORE is appended to the list.
  *
  * @author  Martin Entlicher
  */
@@ -87,7 +107,7 @@ public class CvsCreateInitialIgnoreList extends Object implements VcsAdditionalC
         }
         File home = new File(homeStr);
         File userIgnoreFile = new File(home, CVS_IGNORE_FILE_NAME);
-        addFileIgnoreList(userIgnoreFile, ignoreList);
+        CvsCreateFolderIgnoreList.addFileIgnoreList(userIgnoreFile, ignoreList);
     }
     
     private void addEnvironmentIgnoreList(ArrayList ignoreList) {
@@ -106,36 +126,7 @@ public class CvsCreateInitialIgnoreList extends Object implements VcsAdditionalC
             }
         }
     }
-    
-    static void addFileIgnoreList(File file, ArrayList ignoreList) {
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            String line = null;
-            while ((line = in.readLine()) != null) {
-                StringTokenizer tk = new StringTokenizer(line);
-                while (tk.hasMoreTokens()) {
-                    String element = tk.nextToken().trim();
-                    if (element.length() ==0) {
-                        continue;
-                    } else if ("!".equals(element)) {
-                        ignoreList.clear();
-                        continue;
-                    } else {
-                        ignoreList.add(element);
-                    }
-                }
-            }
-        } catch (java.io.IOException e) {/*skip file, if can not be read*/}
-        finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (java.io.IOException nestedIOException) {}
-            }
-        }
-    }
-    
+
     static void returnIgnoreList(ArrayList ignoreList, CommandDataOutputListener stdoutDataListener) {
         int n = ignoreList.size();
         for (int i = 0; i < n; i++) {
@@ -166,6 +157,7 @@ public class CvsCreateInitialIgnoreList extends Object implements VcsAdditionalC
         ArrayList ignoreList = new ArrayList();
         // Start with defaultly ingored files
         ignoreList.addAll(Arrays.asList(DEFAULT_IGNORE_FILES));
+        // TODO FIXME strange
         if (args.length < 1) {
             stderrListener.outputLine("A checkout command is expected as an argument!"); // NOI18N
             VcsCommand cmd = fileSystem.getCommand(args[0]);

@@ -44,6 +44,8 @@ import org.netbeans.spi.vcs.commands.CommandTaskSupport;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.DirReaderListener;
 import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.turbo.TurboUtil;
 import org.netbeans.modules.vcscore.cache.CacheHandler;
 import org.netbeans.modules.vcscore.cache.FileSystemCache;
 import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
@@ -226,7 +228,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             //System.out.println("\n\ncreateRefresh(), MODULE = "+vars.get("MODULE")+", DIR = "+vars.get("DIR"));
             return new CommandLineVcsDirReader(dirListener, fileSystem, uCmd, vars);
         } else {
-            spawnRefreshFile = new File(getRefreshDir(fileSystem, vars), "test");
+            spawnRefreshFile = createDirProbe(getRefreshDir(fileSystem, vars));
             spawnRefreshRecursively = false;
             return null;
         }
@@ -251,13 +253,21 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             this.cmd.setAdditionalVariables(vars);
             return new CommandLineVcsDirReaderRecursive(dirListener, fileSystem, uCmd, vars);
         } else {
-            spawnRefreshFile = new File(getRefreshDir(fileSystem, vars), "test");
+            spawnRefreshFile = createDirProbe(getRefreshDir(fileSystem, vars));
             spawnRefreshRecursively = true;
             return null;
         }
         
     }
-    
+
+    /** The original cache API was not able to refresh folder, it used a fake file trick*/
+    private File createDirProbe(File original) {
+        if (Turbo.implemented()) {
+            return original;
+        }
+        return new File(original, "test");
+    }
+
     /** This task should only spawn a refresh task. */
     boolean willSpawnRefresh() {
         return spawnRefreshFile != null;
@@ -265,6 +275,24 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     
     /** Spawn the refresh task. */
     void spawnRefresh(VcsFileSystem fileSystem) {
+        if (Turbo.implemented()) {
+            assert spawnRefreshFile != null;
+            final FileObject fo = FileUtil.toFileObject(spawnRefreshFile);
+            assert fo != null : "Missing fileobject for " + spawnRefreshFile.getAbsolutePath(); // NOI18N
+            // Spawn the refresh asynchronously, like the original implementation.
+            RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                    if (spawnRefreshRecursively) {
+                        TurboUtil.refreshRecursively(fo);
+                    } else {
+                        TurboUtil.refreshFolder(fo);
+                    }
+                }
+            });
+            return;
+        }
+
+        // original implementation
         FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
         Object locker = new Object();
         cache.getCacheFile(spawnRefreshFile,

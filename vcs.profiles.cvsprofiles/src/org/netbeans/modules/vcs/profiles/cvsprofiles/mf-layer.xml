@@ -55,4 +55,16 @@ Microsystems, Inc. All Rights Reserved.
       </file>
     </folder>
   </folder>
+
+    <!-- Default lookup registration point -->
+    <folder name="Services">
+        <folder name="FileAttributeProviders">
+            <folder name="Default">
+                <file name="org-netbeans-modules-vcs-profiles-cvsprofiles-list-CvsFileAttributeProvider.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.vcs.profiles.cvsprofiles.list.CvsFileAttributeProvider" />
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.vcscore.turbo.local.FileAttributeProvider" />
+                </file>
+            </folder>
+        </folder>
+    </folder>
 </filesystem>
