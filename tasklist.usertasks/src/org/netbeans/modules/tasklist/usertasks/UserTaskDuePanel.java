@@ -14,19 +14,24 @@
 package org.netbeans.modules.tasklist.usertasks;
 
 import org.openide.util.NbBundle;
+import org.openide.awt.Mnemonics;
 
 /**
  * OK, it might be "overkill" to use this class. I should rather use the
  * EditTaskPanel, (but I need to figure out where I can get all the information
  * I need ;) 
+ * Please read comment at the beginning of initA11y before editing
+ * this file using the form builder.
  *
  * @author  Trond Norbye
+ * @author  Tor Norbye
  */
 public class UserTaskDuePanel extends javax.swing.JPanel {
     
     /** Creates new form UserTaskDuePanel */
     public UserTaskDuePanel() {
         initComponents();
+        initA11y();
     }
     
     public UserTaskDuePanel(UserTask task) {
@@ -45,54 +50,89 @@ public class UserTaskDuePanel extends javax.swing.JPanel {
 
         jLabel1 = new javax.swing.JLabel();
         descriptionFld = new javax.swing.JTextField();
-        jPanel1 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         detailsArea = new javax.swing.JTextArea();
 
         setLayout(new java.awt.GridBagLayout());
 
-        jLabel1.setText(NbBundle.getMessage(UserTaskDuePanel.class, "Brief_Description")); // NOI18N();
+        jLabel1.setLabelFor(descriptionFld);
+        /*
+        jLabel1.setText("Summary:");
+        */
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel1, gridBagConstraints);
 
         descriptionFld.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(2, 12, 0, 12);
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(descriptionFld, gridBagConstraints);
 
-        jPanel1.setLayout(new java.awt.GridBagLayout());
+        jLabel2.setLabelFor(detailsArea);
+        /*
+        jLabel2.setText("Description:");
+        */
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        add(jLabel2, gridBagConstraints);
 
-        jPanel1.setBorder(new javax.swing.border.TitledBorder(NbBundle.getMessage(UserTaskDuePanel.class, "DetailsLabel"))); // NOI18N(());
         detailsArea.setPreferredSize(new java.awt.Dimension(400, 200));
         detailsArea.setEnabled(false);
         jScrollPane1.setViewportView(detailsArea);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        jPanel1.add(jScrollPane1, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(2, 12, 11, 11);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        add(jPanel1, gridBagConstraints);
+        add(jScrollPane1, gridBagConstraints);
 
     }//GEN-END:initComponents
     
+    private void initA11y() {
+        /*
+          I couldn't figure out how to use Mnemonics.setLocalizedText
+          to set labels and checkboxes with a mnemonic using the
+          form builder, so the closest I got was to use "/*" and "* /
+          as code pre-init/post-init blocks, such that I don't actually
+          execute the bundle lookup code - and then call it explicitly
+          below. (I wanted to keep the text on the components so that
+          I can see them when visually editing the GUI.
+        */
+
+        Mnemonics.setLocalizedText(jLabel1, NbBundle.getMessage(
+                UserTaskDuePanel.class, "Brief_Description")); // NOI18N
+        Mnemonics.setLocalizedText(jLabel2, NbBundle.getMessage(
+                UserTaskDuePanel.class, "DetailsLabel")); // NOI18N
+
+        // accessible 
+        this.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(UserTaskDuePanel.class, 
+                                    "ACSD_DuePanel")); // NOI18N
+        descriptionFld.getAccessibleContext().setAccessibleName(
+                NbBundle.getMessage(UserTaskDuePanel.class, 
+                                    "ACSD_Brief_Description")); // NOI18N
+        detailsArea.getAccessibleContext().setAccessibleName(
+                NbBundle.getMessage(UserTaskDuePanel.class, 
+                                    "ACSD_Details")); // NOI18N
+    }
+
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField descriptionFld;
     private javax.swing.JTextArea detailsArea;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel jLabel2;
     // End of variables declaration//GEN-END:variables
     
 }

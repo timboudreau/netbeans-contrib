@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.suggestions;
 
+import java.awt.Component;
 import java.awt.Dialog;
 import java.util.List;
 import java.util.ArrayList;
@@ -114,17 +115,40 @@ public class FixAction extends NodeAction {
                 Actions.setMenuText(fixButton,
                    NbBundle.getMessage(FixAction.class, "FixIt"), true); // NOI18N
                 
-                JButton fixAllButton = new JButton();
-                Actions.setMenuText(fixAllButton,
-                   NbBundle.getMessage(FixAction.class, "FixAll"), true); // NOI18N
-                
-                JButton skipButton = new JButton();
-                Actions.setMenuText(skipButton,
-                   NbBundle.getMessage(FixAction.class, "Skip"), true); // NOI18N
-                
+                JButton fixAllButton = null;
+                JButton skipButton = null;
+                if (node.length > 1) {
+                    fixAllButton = new JButton();
+                    Actions.setMenuText(fixAllButton,
+                                        NbBundle.getMessage(FixAction.class,
+                                                       "FixAll"), true); // NOI18N
+                    skipButton = new JButton();
+                    Actions.setMenuText(skipButton,
+                                        NbBundle.getMessage(FixAction.class,
+                                                       "Skip"), true); // NOI18N
+                    fixAllButton.getAccessibleContext().setAccessibleDescription(
+                        NbBundle.getMessage(FixAction.class,
+                                          "ACSD_FixAll")); // NOI18N
+                    skipButton.getAccessibleContext().setAccessibleDescription(
+                        NbBundle.getMessage(FixAction.class,
+                                          "ACSD_Skip")); // NOI18N
+                }
                 JButton cancelButton = new JButton();
                 Actions.setMenuText(cancelButton,
                    NbBundle.getMessage(FixAction.class, "Cancel"), true); // NOI18N
+
+                if (confirmation instanceof Component) {
+                    ((Component)confirmation).getAccessibleContext().
+                        setAccessibleDescription(
+                                   NbBundle.getMessage(FixAction.class,
+                                         "ACSD_Confirmation")); // NOI18N
+                }
+                fixButton.getAccessibleContext().setAccessibleDescription(
+                      NbBundle.getMessage(FixAction.class,
+                                          "ACSD_Fix")); // NOI18N
+                cancelButton.getAccessibleContext().setAccessibleDescription(
+                      NbBundle.getMessage(FixAction.class,
+                                          "ACSD_Cancel")); // NOI18N
                 
                 String title = NbBundle.getMessage(FixAction.class, "TITLE_fixconfirm");
                 DialogDescriptor dlg = new DialogDescriptor(

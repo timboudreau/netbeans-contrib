@@ -24,7 +24,8 @@ import org.openide.nodes.Node;
 /**
  * Represents a tasklist object in the Repository.
  *
- * @author Tor Norbye, Trond Norbye
+ * @author Tor Norbye
+ * @author Trond Norbye
  */
 public class TaskListDataObject extends MultiDataObject implements OpenCookie {
 
