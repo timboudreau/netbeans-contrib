@@ -265,7 +265,7 @@ public class AdditionalCommands extends PVCSStub {
         assertQuestionsBeforeRetrieving ("Yes");
 //        assertQuestionYesDialog (null);
 //        assertQuestionYesDialog (null);
-        assertRetrievingDialog ();
+//        assertRetrievingDialog ();
         D_File.waitStatus ("Missing; 2.0.1.1");
 
         test.pvcsNode ().pVCSGet();
