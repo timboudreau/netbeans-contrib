@@ -13,14 +13,6 @@ Name: org/netbeans/modules/rmi/RMIDataLoader.class
 OpenIDE-Module-Class: Loader
 Install-Before: org.netbeans.modules.java.JavaDataObject
 
-Name: org/netbeans/modules/rmi/registry/RMIRegistryNode.class
-OpenIDE-Module-Class: Node
-Type: Environment
-
-Name: org/netbeans/modules/rmi/activation/ActivationBrowserNode.class
-OpenIDE-Module-Class: Node
-Type: Environment
-
 Name: org/netbeans/modules/rmi/MarkRMIAction.class
 OpenIDE-Module-Class: Action
 
