@@ -33,6 +33,13 @@ public interface FileStatusProvider {
      * as keys and localized statuses as values.
      */
     public HashMap getPossibleFileStatusesTable();
+
+    /**
+     * Get the table of icon badges, that are displayed on the data objects' node.
+     * The table contains the original statuses (obtained from the VCS tool)
+     * as keys and the icons of type <code>Image</code> as values.
+     */
+    public HashMap getStatusIconMap();
     
     /**
      * Get the status that is displayed instead of the attribute value, when this
