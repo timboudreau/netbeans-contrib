@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ISO-8859-1'  ?>
 <!--
-*     Copyright 2002 Sun Microsystems, Inc. All rights reserved.
+*     Copyright 2004 Sun Microsystems, Inc. All rights reserved.
 *     Use is subject to license terms.
 -->
 
@@ -11,11 +11,11 @@
          "http://java.sun.com/products/javahelp/toc_1_0.dtd">
 
 <toc version="1.0">
-
+<tocitem text="Core IDE Help">
   <tocitem text="Jemmy Support Tools" target="jemmysupport_intro">
     <tocitem text="Jemmy Component Generator" target="jemmysupport_generator" />
     <tocitem text="Resource Bundle Lookup" target="jemmysupport_lookup" />
     <tocitem text="Component Name Lookup" target="jemmysupport_namelookup" />
   </tocitem>
-
+</tocitem>
 </toc>

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ISO-8859-1' ?>
 <!--
-*     Copyright 2002 Sun Microsystems, Inc. All rights reserved.
+*     Copyright 2004 Sun Microsystems, Inc. All rights reserved.
 *     Use is subject to license terms.
 -->
 
@@ -8,6 +8,7 @@
   PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
          "http://java.sun.com/products/javahelp/map_1_0.dtd">
 <map version="1.0">
+   <mapID target="org.netbeans.modules.jemmysupport.HOMEID" url="jemmysupport_intro.html" />
    <mapID target="jemmysupport_intro" url="jemmysupport_intro.html" />
    <mapID target="jemmysupport_generator" url="jemmysupport_generator.html" />
    <mapID target="jemmysupport_lookup" url="jemmysupport_lookup.html" />	

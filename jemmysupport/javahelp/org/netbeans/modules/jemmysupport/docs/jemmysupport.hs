@@ -14,7 +14,7 @@
   
   <!-- maps -->
   <maps>
-     <homeID>org.netbeans.modules.jemmysupport.docs</homeID><!-- .HOMEID</homeID> -->
+     <homeID>jemmysupport_intro</homeID><!-- .HOMEID</homeID> -->
      <mapref location="jemmysupportMap.jhm" />
   </maps>
   
