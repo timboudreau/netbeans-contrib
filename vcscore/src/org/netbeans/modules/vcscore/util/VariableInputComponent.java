@@ -34,10 +34,12 @@ public class VariableInputComponent extends Object {
     private String valueUnselected = null;
     private String defaultValue = null;
     private Dimension dimension = null;
+    private boolean multiLine = false;
     private HashSet enable = null;
     private HashSet disable = null;
     private String selector = null;
     private String validator = null;
+    private String style = null;
     private ArrayList subComponents = null;
     private String[] varConditions = new String[2];
     private String[] selectorVarConditions = new String[2];
@@ -175,6 +177,7 @@ public class VariableInputComponent extends Object {
         String value = getDefaultValue();
         if (value == null) return true;
         int index = value.indexOf("${");
+        if (index < 0) index = value.indexOf("$[?");
         if (index >= 0 && (index == 0 || value.charAt(index - 1) != '\\')) {
             return false;
         }
@@ -218,6 +221,14 @@ public class VariableInputComponent extends Object {
     
     public Dimension getDimension() {
         return dimension;
+    }
+    
+    public boolean isMultiLine() {
+        return multiLine;
+    }
+    
+    public void setMultiLine(boolean multiLine) {
+        this.multiLine = multiLine;
     }
     
     public void addEnable(String varName) {
@@ -272,6 +283,14 @@ public class VariableInputComponent extends Object {
     
     public VariableInputValidator validate() {
         return new VariableInputValidator(this, validator);
+    }
+    
+    public void setStyle(String style) {
+        this.style = style;
+    }
+    
+    public String getStyle() {
+        return style;
     }
     
     void addValuesToHistory() {

@@ -26,6 +26,7 @@ public class VariableInputDescriptor extends Object {
     public static final int INPUT_ACCESSIBILITY = 10;
     public static final int INPUT_PROMPT_FIELD = 1;
     public static final int INPUT_PROMPT_AREA = 2;
+    public static final int INPUT_PROMPT_PASSWD = 12;
     public static final int INPUT_ASK = 3;
     public static final int INPUT_SELECT_RADIO = 4;
     public static final int INPUT_RADIO_BTN = 5;
@@ -33,14 +34,17 @@ public class VariableInputDescriptor extends Object {
     public static final int INPUT_COMBO_ITEM = 7;
     public static final int INPUT_GLOBAL = 8;
     public static final int INPUT_SELECT_COMBO_EDITABLE = 9;
+    public static final int INPUT_TEXT = 11;
     
     public static final String INPUT_STR_LABEL = "LABEL";
     public static final String INPUT_STR_PROMPT_FIELD = "PROMPT_FOR";
     public static final String INPUT_STR_PROMPT_AREA = "PROMPT_FOR_FILE";
+    public static final String INPUT_STR_PROMPT_PASSWD = "PROMPT_FOR_PASSWORD";
     public static final String INPUT_STR_ASK = "ASK_FOR";
     public static final String INPUT_STR_SELECT_RADIO = "SELECT_RADIO";
     public static final String INPUT_STR_SELECT_COMBO = "SELECT_COMBO";
     public static final String INPUT_STR_SELECT_COMBO_EDITABLE = "SELECT_COMBO_EDITABLE";
+    public static final String INPUT_STR_TEXT = "TEXT";
     public static final String INPUT_STR_GLOBAL_PARAMS = "GLOBAL_PARAMS";
     public static final String INPUT_STR_GLOBAL_ALL_VARS = "ALL_VARIABLES";
     public static final String INPUT_IS_EXPERT = "_EXPERT";
@@ -59,6 +63,9 @@ public class VariableInputDescriptor extends Object {
     public static final String SELECTOR_DIR = SELECTOR + "DIR";
     public static final String SELECTOR_DATE_CVS = SELECTOR + "DATE_CVS";
     public static final String SELECTOR_CMD = SELECTOR + "CMD_";
+    
+    public static final String STYLE = "STYLE_";
+    public static final String STYLE_READ_ONLY = STYLE + "READ_ONLY";
     
     public static final String IF_VAR_NON_EMPTY_BEGIN = "IF_VAR_NON_EMPTY\"";
     public static final String IF_VAR_NON_EMPTY_END = "\"_";
@@ -88,11 +95,13 @@ public class VariableInputDescriptor extends Object {
                     inputMap.put(INPUT_STR_ACCESSIBILITY, new Integer(INPUT_ACCESSIBILITY));
                     inputMap.put(INPUT_STR_PROMPT_FIELD, new Integer(INPUT_PROMPT_FIELD));
                     inputMap.put(INPUT_STR_PROMPT_AREA, new Integer(INPUT_PROMPT_AREA));
+                    inputMap.put(INPUT_STR_PROMPT_PASSWD, new Integer(INPUT_PROMPT_PASSWD));
                     inputMap.put(INPUT_STR_ASK, new Integer(INPUT_ASK));
                     inputMap.put(INPUT_STR_SELECT_RADIO, new Integer(INPUT_SELECT_RADIO));
                     inputMap.put(INPUT_STR_SELECT_COMBO, new Integer(INPUT_SELECT_COMBO));
                     inputMap.put(INPUT_STR_SELECT_COMBO_EDITABLE, new Integer(INPUT_SELECT_COMBO_EDITABLE));
                     inputMap.put(INPUT_STR_GLOBAL_PARAMS, new Integer(INPUT_GLOBAL));
+                    inputMap.put(INPUT_STR_TEXT, new Integer(INPUT_TEXT));
                 }
             }
         }
@@ -352,10 +361,42 @@ public class VariableInputDescriptor extends Object {
     private static VariableInputComponent parseComponent(int id, String[] inputArgs, String inputArg) throws VariableInputFormatException {
         //System.out.println("parseComponent("+id+", "+VcsUtilities.arrayToString(inputArgs)+", "+inputArg+")");
         int len = inputArgs.length;
+        VariableInputComponent component;
+        if (id == INPUT_TEXT) {
+            component = new VariableInputComponent(id, inputArgs[0], "");
+            int grid;
+            int gridwidth;
+            if (len > 1) {
+                try {
+                    grid = Integer.parseInt(inputArgs[1]);
+                } catch (NumberFormatException exc) {
+                    throw new VariableInputFormatException(exc.getMessage());
+                }
+            } else {
+                grid = 0;
+            }
+            if (len > 2) {
+                try {
+                    gridwidth = Integer.parseInt(inputArgs[2]);
+                } catch (NumberFormatException exc) {
+                    throw new VariableInputFormatException(exc.getMessage());
+                }
+            } else {
+                gridwidth = 3;
+            }
+            component.setDimension(new Dimension(grid, gridwidth));
+            if (len > 3) {
+                if ("LINE_MULTI".equals(inputArgs[3])) {
+                    component.setMultiLine(true);
+                }
+            }
+            component.setDefaultValue("${"+component.getVariable()+"}");
+            component.setValue(component.getDefaultValue());
+            return component;
+        }
         if (len < 2) {
             throw new VariableInputFormatException(g("EXC_InsufficientArgs"));
         }
-        VariableInputComponent component;
         int argNum; // the number of currently processing argument
         
         if (len > 3 && inputArgs[3].startsWith(INPUT_STR_ACCESSIBILITY)) {
@@ -391,6 +432,14 @@ public class VariableInputDescriptor extends Object {
                 component.setSelectorVarConditions(varConditions);
                 argNum++;
             }
+        }
+        if (len > argNum && inputArgs[argNum].indexOf(STYLE) == 0) {
+            String style = inputArgs[argNum];
+            //String[] varConditions = new String[2];
+            //style = getVarConditions(style, varConditions);
+            component.setStyle(style);
+            //component.setStyleVarConditions(varConditions);
+            argNum++;
         }
         if (INPUT_PROMPT_AREA == id && len >= (argNum + 2)) {
             try {
