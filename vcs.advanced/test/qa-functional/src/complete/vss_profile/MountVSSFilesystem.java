@@ -16,7 +16,6 @@ package complete.vss_profile;
 import java.io.*;
 import junit.framework.*;
 import org.netbeans.junit.*;
-import org.netbeans.test.oo.gui.jelly.*;
 import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.TestOut;
 import org.netbeans.jemmy.util.PNGEncoder;
@@ -25,7 +24,7 @@ import org.netbeans.jellytools.modules.vcsgeneric.wizard.*;
 import org.openide.util.Utilities;
 import org.netbeans.jellytools.*;
 import org.netbeans.jellytools.nodes.Node;
-import org.netbeans.jellytools.actions.UnmountFSAction;
+import org.netbeans.jellytools.actions.*;
 
 
 /** XTest / JUnit test class performing mounting check of VSS filesystem.
@@ -69,14 +68,14 @@ public class MountVSSFilesystem extends NbTestCase {
      * output and maps main components.
      */
     protected void setUp() {
-        JellyProperties.setDefaults();
+        org.netbeans.test.oo.gui.jelly.JellyProperties.setDefaults();
         JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
     }
     
     /** Method called after each testcase. Resets Jemmy WaitComponentTimeout.
      */
     protected void tearDown() {
-        JellyProperties.setDefaults();
+        org.netbeans.test.oo.gui.jelly.JellyProperties.setDefaults();
     }
     
     /** Method will create a file and capture the screen.
@@ -96,7 +95,7 @@ public class MountVSSFilesystem extends NbTestCase {
      */
     public void testVSSSettings() throws Exception {
         System.out.print(".. Testing VSS settings ..");
-        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+        new ActionNoBlock(MOUNT_MENU, "Mount|Version Control|Generic VCS").perform();
         VCSWizardProfile wizard = new VCSWizardProfile();
         String profile = VCSWizardProfile.VSS_WIN_NT;
         int os = Utilities.getOperatingSystem();
@@ -134,7 +133,7 @@ public class MountVSSFilesystem extends NbTestCase {
      */
     public void testVSSConnection() throws Exception {
         System.out.print(".. Testing VSS filesystem connectivity ..");
-        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+        new ActionNoBlock(MOUNT_MENU, "Mount|Version Control|Generic VCS").perform();
         VCSWizardProfile wizard = new VCSWizardProfile();
         String profile = VCSWizardProfile.VSS_WIN_NT;
         int os = Utilities.getOperatingSystem();
