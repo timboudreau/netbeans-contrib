@@ -1055,7 +1055,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = gridy;
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints1.insets = new java.awt.Insets (0, leftInset, 8, 0);
+        gridBagConstraints1.insets = new java.awt.Insets (0, leftInset, 5, 0);
         gridBagConstraints1.gridwidth = 2;
         variablePanel.add(chbox, gridBagConstraints1);
         chbox.addActionListener(new ActionListener() {
@@ -1306,7 +1306,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = gridy;
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints1.insets = new java.awt.Insets (0, leftInset, 4, 0);
+        gridBagConstraints1.insets = new java.awt.Insets (0, leftInset, 0, 0);
         gridBagConstraints1.gridwidth = (firstSubLabelEmpty) ? 1 : 2;
         variablePanel.add(button, gridBagConstraints1);
         gridy++;
