@@ -612,9 +612,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public boolean isImportant(String name) {
         CacheReference ref = (CacheReference)findReference(name);
         if (ref != null) {
-            ref.isImportant();
+            return ref.isImportant();
         }
-        return true;
+        return false;
     }
 
     /**
