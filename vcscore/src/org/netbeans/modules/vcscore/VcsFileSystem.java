@@ -1334,12 +1334,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         //cache.setLocalFilesAdd (localFilesOn);
-        ProjectChangeHack.restored();
-        org.openide.util.RequestProcessor.postRequest(new Runnable () {
-            public void run() {
-                ProjectChangeHack.initSearchService();
-            }
-        });
         if (null == processUnimportantFiles) processUnimportantFiles = Boolean.FALSE;
         last_rootFile = new File(getFSRoot());
         //} catch (Throwable thr) {
