@@ -80,7 +80,7 @@ public class AddToGroupAction extends NodeAction {
     }
     
     public JMenuItem getPresenter(boolean isMenu){
-        JInlineMenu inlineMenu = new JInlineMenu();
+//        JInlineMenu inlineMenu = new JInlineMenu();
         String label;
         //JMenu menu=new JMenuPlus(g("CvsClientAction.displayName")); // NOI18N
         if (adding) {
