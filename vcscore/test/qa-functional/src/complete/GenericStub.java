@@ -40,6 +40,7 @@ import org.netbeans.jellytools.properties.StringProperty;
 import org.netbeans.jellytools.util.StringFilter;
 import org.netbeans.jemmy.JemmyException;
 import org.netbeans.jemmy.operators.*;
+import org.netbeans.jemmy.util.Dumper;
 import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.modules.vcscore.runtime.RuntimeCommand;
 import org.openide.filesystems.FileSystem;
@@ -433,8 +434,9 @@ public abstract class GenericStub extends JellyTestCase {
             history.print ();
         else
             info.println ("No History");
-    }
-    
+        if ("configure".equals (getName ()))
+            Dumper.dumpComponent(exp.repositoryTab().tree ().getSource(), getLog ("repository"));
+    }    
     protected void findFS () {
         String nRoot = nRootPrefix + clientDirectory;
         boolean found = false;
