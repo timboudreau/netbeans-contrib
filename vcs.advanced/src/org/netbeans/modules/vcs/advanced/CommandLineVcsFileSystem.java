@@ -200,14 +200,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return dir;
     }
 
-    protected void fsRemoved() {
-        super.fsRemoved();
+    public void removeNotify() {
         File dir = new File (cachePath);
         if(dir.exists () && dir.isDirectory () && dir.canWrite ()) {
             if(!VcsUtilities.deleteRecursive(dir)) {
                 // Ignored. Let it be, when I can not remove it.
             }
         }
+        super.removeNotify();
     }
     
     protected boolean readConfigurationCompat () {
