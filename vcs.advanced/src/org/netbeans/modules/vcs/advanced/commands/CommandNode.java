@@ -118,6 +118,7 @@ public class CommandNode extends AbstractNode {
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_COMMANDS_AFTER_FAIL, String.class);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_FILE_NAME, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_REMOVED_FILE_NAME, Integer.TYPE);
+        list_propertyClassTypes.put(UserCommand.PROPERTY_REFRESH_FILE_RELATIVE_PATH, String.class);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_STATUS, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_REFRESH_FILE_STATUS_SUBSTITUTIONS, String.class);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_LOCKER, Integer.TYPE);
