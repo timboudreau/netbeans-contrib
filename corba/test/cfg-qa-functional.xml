@@ -46,6 +46,14 @@ Microsystems, Inc. All Rights Reserved.
 		</testset>
 	</testbag>
 
+	<testbag testattribs="stable,full,synchro" executor="ide" name="testbag_Synchonization" resultsprocessor="qa-functional">
+		<testset dir="qa-functional/src">
+			<patternset>
+				<include name="test/synchro/Main.class"/>
+			</patternset>
+		</testset>
+	</testbag>
+
     <resultsprocessor name="qa-functional" antfile="build.xml" target="test_report"/>
     <compiler name="compile" default="true" antfile="build_qa-functional.xml" target="default-compiler"/>
     <executor name="ide" antfile="build_qa-functional.xml" target="runidetest"/>
