@@ -41,7 +41,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   AbstractFileSystem.Change, FileSystem.Status, Serializable {
 
   private Debug E=new Debug("CommandLineVcsFileSystem",true );
-  private Debug D=new Debug("CommandLineVcsFileSystem",false);
+  private Debug D=new Debug("CommandLineVcsFileSystem",true );
 
   private static final int REFRESH_TIME = 0;
 
@@ -71,7 +71,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   private static transient String CACHE_ROOT="vcscache";
   private static transient long CACHE_LAST_ID=0;
   
+  private transient VcsAction action=null;
 
+  //-------------------------------------------
+  public VcsCache getCache(){
+    return cache;
+  }
+  
   //-------------------------------------------
   private void createDir(String path){
     File dir=new File(path);
@@ -232,8 +238,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   public SystemAction[] getActions(){
+    if( action==null ){
+      action=new VcsAction(this);
+    }
     SystemAction [] actions=new SystemAction[1];
-    actions[0]=new VcsAction();
+    actions[0]=action;
     return actions;
   }
 
@@ -605,6 +614,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  12   Gandalf   1.11        5/6/99   Michal Fadljevic 
  *  11   Gandalf   1.10        5/4/99   Michal Fadljevic 
  *  10   Gandalf   1.9         5/4/99   Michal Fadljevic 
  *  9    Gandalf   1.8         4/29/99  Michal Fadljevic 
