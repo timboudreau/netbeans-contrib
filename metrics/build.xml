@@ -82,7 +82,7 @@ Microsystems, Inc. All Rights Reserved.
 	     homepage="http://metrics.${homepage.base}/"
 	     distribution="http://${dist.base}/metrics.nbm">
       <license file="${license.file}"/>
-      <!--signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"-->
+      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>
 
