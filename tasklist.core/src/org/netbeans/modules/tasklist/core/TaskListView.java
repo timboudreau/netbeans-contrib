@@ -37,6 +37,7 @@ import javax.swing.table.TableModel;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
+import org.netbeans.modules.tasklist.core.filter.FilterRepository;
 import org.netbeans.modules.tasklist.core.filter.NodeFilter;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.openide.filesystems.FileObject;
@@ -133,9 +134,8 @@ public abstract class TaskListView extends TopComponent
 
     private transient ObservableList tasklist = null;
 
-    private transient boolean filterEnabled =  false;
-    transient protected Filter filter = null;
-
+    transient protected FilterRepository filters = null;
+    
     /** Annotation showing the current position */
     transient protected TaskAnnotation taskMarker = null;
 
@@ -222,7 +222,7 @@ public abstract class TaskListView extends TopComponent
      */
     public void updateFilterCount() {
         JLabel filterLabel = (JLabel) getMiniStatus();
-        if (filterEnabled == false) {
+        if (getFilter() == null) {
             filterLabel.setText("");
         } else {
             int all = TLUtils.getChildrenCountRecursively(rootNode);
@@ -401,6 +401,38 @@ public abstract class TaskListView extends TopComponent
     }
 
 
+
+    /**
+     * Returns default configuration for visible columns
+     *
+     * @return default columns configuration
+     */
+    protected void loadFilters() {
+      FileSystem fs = Repository.getDefault().getDefaultFileSystem();
+      FileObject fo = fs.findResource("TaskList/" + category + "/filters.settings"); // NOI18N
+      assert fo != null : "Missing config TaskList/" + category + "/filters.settings";  // NOI18N
+
+      try {
+	DataObject dobj = DataObject.find(fo);
+	InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
+	filters = (FilterRepository) ic.instanceCreate();
+	
+	filters.addPropertyChangeListener(new PropertyChangeListener() {
+	    public void propertyChange(PropertyChangeEvent evt) {
+	      if (evt.getPropertyName().equals(FilterRepository.PROP_ACTIVE_FILTER)) setFiltered();
+	    }
+	  });     
+      
+      } catch (ClassNotFoundException e) {
+	ErrorManager.getDefault().notify(e);
+      } catch (DataObjectNotFoundException e) {
+	ErrorManager.getDefault().notify(e);
+      } catch (IOException e) {
+	ErrorManager.getDefault().notify(e);
+      }
+
+    }
+
     /** 
      * Called when the object is opened. Add the GUI.
      * @todo Trigger source listening on window getting VISIBLE instead
@@ -577,7 +609,7 @@ public abstract class TaskListView extends TopComponent
         if (isFiltered()) {
             // Create filtered view of the tasklist
             FilteredTaskChildren children =
-                new FilteredTaskChildren(this, rootNode, filter);
+                new FilteredTaskChildren(this, rootNode, getFilter());
             FilterNode n = new FilterTaskNode(rootNode, children, false);
             getExplorerManager().setRootContext(n);
         } else {
@@ -1203,32 +1235,31 @@ for (int i = 0; i < columns.length; i++) {
      * @return The toggle filter or <code>null</code> if not defined.
      */
     public final Filter getFilter() {
-        return filter;
+        return getFilters().getActive();
     }
 
+    /** 
+     * Returns the collection of filters assiciated with this view.
+     * @return FilterRepository, never null
+     */
+    public FilterRepository getFilters() {
+        if (filters == null) loadFilters();
+        assert filters != null : "Missing FilterRepository";  // NOI18N
+
+        return filters;
+    }
+    
     /** Create filter template. */
     public abstract Filter createFilter();
 
     /** Tests if any real filter is applied. */
     public final boolean isFiltered() {
-        return getFilter() != null && filterEnabled;
+        return getFilter() != null;
     }
 
-    /**
-     * Controls filter enableness.
-     * @param enableFilter
-     */
-    public final void setFiltered(boolean enableFilter) {
-        if (enableFilter == filterEnabled) return;
-        setFilteredImpl(enableFilter);
-    }
-
-    private void setFilteredImpl(boolean enableFilter) {
-        if (enableFilter == true) {
-            filterEnabled = true;
+    protected void setFiltered() {
+        if (getFilter() != null) {
             ((RemoveFilterAction) SystemAction.get(RemoveFilterAction.class)).enable();
-        } else {
-            filterEnabled = false;
         }
 
         // update view accordingly
@@ -1245,11 +1276,9 @@ for (int i = 0; i < columns.length; i++) {
     /**
      * Set the filter to be used (determined by isFiltered) in this view.
      * @param filter The filter to be set, or null, to remove filtering.
-     * @param enable Enable the filter right now
      */
-    public void setFilter(Filter filter, boolean enable) {
-        this.filter = filter;  // this is often the same instance filter action doe snot clone
-        if (filterEnabled || enable) setFilteredImpl(true);
+    public void setFilter(Filter filter) {         
+        this.getFilters().setActive(filter);  // this is often the same instance filter action doe snot clone
     }
 
     /**

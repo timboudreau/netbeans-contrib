@@ -24,6 +24,9 @@ import org.netbeans.modules.tasklist.core.filter.StringFilterCondition;
 import org.netbeans.modules.tasklist.suggestions.SuggestionFilter;
 import org.netbeans.modules.tasklist.suggestions.SuggestionImpl;
 import org.openide.util.NbBundle;
+import org.netbeans.modules.tasklist.core.filter.FilterConvertor;
+
+
 
 /**
  * Filter for user tasks
@@ -53,6 +56,19 @@ final class SourceTasksFilter extends Filter {
         super(name);
     }
     
+    public SourceTasksFilter(final SourceTasksFilter rhs) {
+        super(rhs);
+        
+    }
+    
+    public Object clone() {
+        return new SourceTasksFilter(this);
+    }
+
+    /** for deconvertization **/
+    private SourceTasksFilter() {}
+
+
     public String[] getProperties() {
         return PROPS;
     }
@@ -89,4 +105,16 @@ final class SourceTasksFilter extends Filter {
                 throw new InternalError("Wrong index");
         }
     }
+
+  private static class Convertor extends FilterConvertor {
+
+    public Convertor() {
+      super("SourceTasksFilter");
+    }
+
+    public static SourceTasksFilter.Convertor create() { return new SourceTasksFilter.Convertor();}
+
+    protected Filter createFilter() { return new SourceTasksFilter();}
+    
+  }
 }

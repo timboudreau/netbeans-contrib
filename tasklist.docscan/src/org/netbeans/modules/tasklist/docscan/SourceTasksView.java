@@ -15,6 +15,8 @@ package org.netbeans.modules.tasklist.docscan;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -25,6 +27,8 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.accessibility.AccessibleContext;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -33,6 +37,7 @@ import org.openide.util.UserCancelException;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.actions.SystemAction;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.*;
@@ -42,12 +47,16 @@ import org.openide.windows.TopComponent;
 
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.core.filter.Filter;
+import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
 import org.netbeans.modules.tasklist.suggestions.*;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.tasklist.core.filter.FilterRepository;
+import org.netbeans.spi.project.ui.support.LogicalViews;
+import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.Sources;
 import org.netbeans.spi.project.SourceGroup;
 
@@ -174,7 +183,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         KeyStroke filter = KeyStroke.getKeyStroke(KeyEvent.VK_F, 0);
         inputMap.put(filter, filter);
-        getActionMap().put(filter, new DelegateAction(getFilterMenu()));
+        getActionMap().put(filter, new DelegateAction(getFilterButton()));
 
         KeyStroke editor = KeyStroke.getKeyStroke(KeyEvent.VK_E, 0);
         inputMap.put(editor, editor);
@@ -730,13 +739,17 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private JButton filterButton;
 
-    private JButton getFilterMenu() {
+    private AbstractButton getFilterButton() {
+        
         if (filterButton == null) {
-            Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filterOperations.gif")); // NOI18N
-            filterButton = new JButton(icon);
+
+            filterButton = new JButton((isFiltered())?(getFilter().getName()):"No filter");
             filterButton.setToolTipText(Util.getString("filter_hint") + " (f)");  // NOI18N
             adjustHeight(filterButton);
             filterButton.addActionListener(dispatcher);
+	    Dimension dim = filterButton.getPreferredSize();
+	    dim.width = 300;
+	    filterButton.setPreferredSize(dim);
         }
         return filterButton;
     }
@@ -772,60 +785,32 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 handlePrev();
             } else if (obj == getNext()) {
                 handleNext();
-            } else if (obj == getFilterMenu()) {
-                JPopupMenu popup = new JPopupMenu();
-                ButtonGroup group = new ButtonGroup();
+            } else if (obj == getFilterCombo()) {
+	      if (((JComboBox)obj).getSelectedItem() != null) {
+		setFilter(((Filter.ListModelElement)((JComboBox)obj).getSelectedItem()).filter);
+	      }
+//                  JPopupMenu popup = new JPopupMenu();
 
-                JRadioButtonMenuItem activate = new JRadioButtonMenuItem(Util.getString("activate"));
-                activate.setMnemonic(Util.getChar("activate_mne"));
-                activate.setSelected(isFiltered());
-                activate.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (filter == null && isFiltered() == false) {
-                            SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
-                            updateMiniStatus();
-                            getTable().requestFocusInWindow();
-                        } else if (isFiltered() == false) {
-                            setFiltered(true);
-                            updateMiniStatus();
-                        } else {
-                            Toolkit.getDefaultToolkit().beep();
-                        }
-                    }
-                });
-                group.add(activate);
-                popup.add(activate);
 
-                JRadioButtonMenuItem deactivate = new JRadioButtonMenuItem(Util.getString("deactivate"));
-                deactivate.setMnemonic(Util.getChar("deactivate_mne"));
-                deactivate.setSelected(isFiltered() == false);
-                deactivate.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (isFiltered()) {
-                            setFiltered(false);
-                            updateMiniStatus();
-                            getTable().requestFocusInWindow();
-                        } else {
-                            Toolkit.getDefaultToolkit().beep();
-                        }
-                    }
-                });
-                group.add(deactivate);
-                popup.add(deactivate);
+// 		 Iterator it = getFilters().iterator();
+// 		 while (it.hasNext()) {
+// 		   final Filter f = (Filter)it.next();
+// 		   JMenuItem item = new JMenuItem(f.getName());
+// 		   item.addActionListener(new ActionListener() {
+// 		       public void actionPerformed(ActionEvent e) {
+// 			 setFilter(f);
+// 		       }
+// 		     });
+// 		   popup.add(item);
+// 		 }
 
-                popup.add(new JSeparator());
-
-                JMenuItem editFilter = new JMenuItem(Util.getString("edit"));
-                editFilter.setMnemonic(Util.getChar("edit_mne"));
-                editFilter.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
-                        updateMiniStatus();
-                    }
-                });
-                popup.add(editFilter);
-                popup.show(filterButton, 0, filterButton.getHeight() - 2);
-            }
+// 		 popup.show(filterButton, 0, filterButton.getHeight() - 2);
+		 
+	    } else if (obj == getFilterIconButton()) {
+	      SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
+	      // updateMiniStatus();
+	    }
+            
         }
     }
 
@@ -852,6 +837,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 //            button.setBorder(buttonBorder);
 //        }
 
+        adjustHeightComponent(button);
+    }
+    
+    private static void adjustHeightComponent(JComponent button) {
         // as we cannot get the button small enough using the margin and border...
         if (button.getBorder() instanceof CompoundBorder) { // from BasicLookAndFeel
             Dimension pref = button.getPreferredSize();
@@ -886,7 +875,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         toolbar.add(new JSeparator(JSeparator.VERTICAL));
         toolbar.add(getGoto());
         toolbar.add(getRefresh());
-        toolbar.add(getFilterMenu());
+	toolbar.add(getFilterIconButton());
+        toolbar.add(getFilterCombo());
         toolbar.add(new JSeparator(JSeparator.VERTICAL));
 
         JPanel rightpanel = new JPanel();
@@ -1236,14 +1226,14 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     /** Restore filter state from saved one for given mode. */
     private void loadFilterState(int mode) {  // XXX mode param could be replaced by getMode()
-        TabState state = tabStates[mode -1];
-        if (state != null) {
-            setFilter(state.filter, false);
-            setFiltered(state.filtered);
-        } else {
-            setFiltered(false);
-            setFilter(null, false);  // new filter instance request later on in FilterAction
-        }
+//         TabState state = tabStates[mode -1];
+//         if (state != null) {
+//             setFilter(state.filter, false);
+//             setFiltered(state.filtered);
+//         } else {
+//             setFiltered(false);
+//             setFilter(null, false);  // new filter instance request later on in FilterAction
+//         }
     }
 
     // XXX detects listener leaks
@@ -1302,7 +1292,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         try {
             Node[] selected = op.select(Util.getString("sel_title"), Util.getString("sel-head"), content, new NodeAcceptor() {
                 public boolean acceptNodes(Node[] nodes) {
-                    return nodes.length == 1 && nodes[0] != content && nodes[0].getLookup().lookup(FileObject.class) != null;
+                    return nodes.length == 1 && nodes[0] != content && nodes[0].getCookie(DataFolder.class) != null;
                 }
             });
 
@@ -1517,5 +1507,120 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         boolean filtered;  // filter enabled
         Filter filter; // last filter
     }
+
+    protected void setFiltered() {
+      super.setFiltered();
+      filterButton.setText(getFilter() == null ? ("No Filter") : (getFilter().getName()));
+    }
+
+  
+    private JButton filterIconButton = null;
+    private AbstractButton getFilterIconButton() {
+      if (filterIconButton == null) {
+            Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filterOperations.gif")); // NOI18N
+	    filterIconButton = new JButton(icon);
+	    adjustHeight(filterIconButton);
+	    filterIconButton.addActionListener(dispatcher);
+	    filterIconButton.setMnemonic(Util.getChar("edit_mne"));
+      }
+
+      return filterIconButton;
+    }
+
+    private JComboBox filterCombo = null;
+
+
+    private static class FiltersComboModel implements ComboBoxModel {
+        
+        public FiltersComboModel(FilterRepository rep) {
+            this.rep = rep;
+            rep.addPropertyChangeListener(new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent evt) {onFiltersChanged(evt);}
+            });
+        }
+        
+        public void addListDataListener(javax.swing.event.ListDataListener l) {
+            if (lsnrs.indexOf(l) == -1) {
+                lsnrs.add(l);
+            }
+        }        
+        
+        public Object getElementAt(int index) {
+            if (elements == null) prepareElements();
+            return elements[index];
+        }        
+
+        private void prepareElements() {
+          elements = new Filter.ListModelElement[rep.size()+1];
+	  elements[0] = new Filter.ListModelElement(null);
+
+          Iterator it = rep.iterator();
+          for (int i = 1; i < rep.size()+1; i++) 
+            elements[i] = new Filter.ListModelElement((Filter)it.next());
+          
+        }
+
+        public Object getSelectedItem() {
+	  if (elements == null) prepareElements();
+	  if (activei == -1) {
+	    Filter f = rep.getActive();
+	    for (int i = 0 ; i < elements.length; i++)
+	      if (elements[i].filter == f) { activei  = i; break;}
+	  }
+	  
+	  return (activei >= 0)?elements[activei]:null;
+        }
+        
+        public int getSize() {
+            return rep.size()+1;
+        }
+        
+        public void removeListDataListener(javax.swing.event.ListDataListener l) {
+            lsnrs.remove(l);
+        }
+        
+        public void setSelectedItem(Object anItem) {
+            rep.setActive(((Filter.ListModelElement)anItem).filter);
+        }
+        
+        private void onFiltersChanged(PropertyChangeEvent evt) {
+            if (evt.getPropertyName().equals(FilterRepository.PROP_FILTERS)) {
+	      elements = null; 
+	      fireContentsChanged();
+            } else 
+            if (evt.getPropertyName().equals(FilterRepository.PROP_ACTIVE_FILTER)) {
+                activei = -1;
+                fireContentsChanged();
+            }
+        }
+        
+        private void fireContentsChanged() {
+            ListDataEvent evt = new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, Integer.MAX_VALUE);
+            Iterator it = lsnrs.iterator();
+            while (it.hasNext()) { ((ListDataListener)it.next()).contentsChanged(evt);}          
+        }
+        
+        private LinkedList lsnrs = new LinkedList();
+        private Filter.ListModelElement [] elements = null;
+        private int activei = -1;
+        private FilterRepository rep = null;
+    }
+    
+    private JComponent getFilterCombo() {
+        if (filterCombo == null) {
+            filterCombo = new JComboBox(new FiltersComboModel(getFilters()));
+            filterCombo.addActionListener(dispatcher);
+            adjustHeightComponent(filterCombo);
+	    Dimension dim = filterCombo.getPreferredSize();
+	    dim.width = 150;
+	    filterCombo.setPreferredSize(dim);
+
+            filterCombo.setToolTipText(Util.getString("filter_hint") + " (f)");  // NOI18N
+        }
+        
+        return filterCombo;
+    }
+    
+
 
 }

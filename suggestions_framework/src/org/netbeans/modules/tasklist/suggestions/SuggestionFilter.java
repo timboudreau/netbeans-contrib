@@ -53,6 +53,15 @@ public class SuggestionFilter extends Filter {
     public SuggestionFilter(String name) {
         super(name);
     }
+
+    
+    public SuggestionFilter(SuggestionFilter rhs) {
+      super(rhs);
+    }
+
+    public Object clone() { return new SuggestionFilter(this);}
+
+    
     
     public String[] getProperties() {
         return PROPS;

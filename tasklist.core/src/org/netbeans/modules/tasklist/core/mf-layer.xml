@@ -58,7 +58,37 @@ Microsystems, Inc. All Rights Reserved.
                                 <folder name="columns">
                                     <file name="ColumnsConfiguration">
                                         <attr name="settings.providerPath"
-                                            stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_Columns_1_0"/>
+                                            stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_Columns_1_0.instance"/>
+                                    </file>
+                                </folder>
+
+                                <folder name="filter">
+                                    <file name="FilterRepository">
+                                        <attr name="settings.providerPath"
+                                            stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_Filters_1_0.instance"/>
+		                     </file>
+
+
+		                     
+                                    <file name="BooleanFilterCondition">
+                                        <attr name="settings.providerPath"
+                                            stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_BooleanCondition_1_0.instance"/>
+                                    </file>
+                                    <file name="IntegerFilterCondition">
+                                        <attr name="settings.providerPath"
+                                            stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_IntegerCondition_1_0.instance"/>
+                                    </file>
+                                    <file name="StringFilterCondition">
+                                        <attr name="settings.providerPath"
+                                            stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_StringCondition_1_0.instance"/>
+                                    </file>
+                                    <file name="DateFilterCondition">
+                                        <attr name="settings.providerPath"
+                                            stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_DateCondition_1_0.instance"/>
+                                    </file>
+                                    <file name="PriorityCondition">
+                                        <attr name="settings.providerPath"
+                                            stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_PriorityCondition_1_0.instance"/>
                                     </file>
                                 </folder>
                             </folder>
@@ -74,6 +104,35 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="hint.originalPublicID"
                         stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD Columns 1.0//EN"/>
                 </file>
+                <!-- filter repository -->
+                <file name="DTD_Filters_1_0" url="filter/filters-1_0.dtd">
+                    <attr name="hint.originalPublicID"
+                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD Filters 1.0//EN"/>
+                </file>
+
+	        <!-- condtitions -->
+                <file name="DTD_IntegerCondition_1_0" url="filter/conditions-1_0.dtd">
+                    <attr name="hint.originalPublicID"
+                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD IntegerCondition 1.0//EN"/>
+                </file>
+                <file name="DTD_StringCondition_1_0" url="filter/conditions-1_0.dtd">
+                    <attr name="hint.originalPublicID"
+                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD StringCondition 1.0//EN"/>
+                </file>
+                <file name="DTD_DateCondition_1_0" url="filter/conditions-1_0.dtd">
+                    <attr name="hint.originalPublicID"
+                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD DateCondition 1.0//EN"/>
+                </file>
+                <file name="DTD_PriorityCondition_1_0" url="filter/conditions-1_0.dtd">
+                    <attr name="hint.originalPublicID"
+                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD PriorityCondition 1.0//EN"/>
+                </file>
+                <file name="DTD_BooleanCondition_1_0" url="filter/conditions-1_0.dtd">
+                    <attr name="hint.originalPublicID"
+                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD BooleanCondition 1.0//EN"/>
+                </file>
+
+
             </folder>
         </folder>
         <folder name="lookups">
@@ -90,6 +149,55 @@ Microsystems, Inc. All Rights Reserved.
                       your setting is accessible via the Lookup API -->
                     <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration"/>
                 </file>
+
+	<!-- filter repository  -->
+                <file name="DTD_Filters_1_0.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.FilterRepositoryConvertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.FilterRepository"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.FilterRepository"/>
+                </file>
+
+	<!-- integer condition -->
+                <file name="DTD_IntegerCondition_1_0.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.IntegerFilterCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.IntegerFilterCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.IntegerFilterCondition"/>
+                </file>
+
+	<!-- string condition -->
+                <file name="DTD_StringCondition_1_0.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.StringFilterCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.StringFilterCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.StringFilterCondition"/>
+                </file>
+
+	<!-- date condition -->
+                <file name="DTD_DateCondition_1_0.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.DateFilterCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.DateFilterCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.DateFilterCondition"/>
+                </file>
+
+	<!-- boolean condition -->
+                <file name="DTD_BooleanCondition_1_0.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.BooleanFilterCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.BooleanFilterCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.BooleanFilterCondition"/>
+                </file>
+
+	<!-- priority condition -->
+                <file name="DTD_PriorityCondition_1_0.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.PriorityCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.PriorityCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.PriorityCondition"/>
+                </file>
+
             </folder>
         </folder>
     </folder>
