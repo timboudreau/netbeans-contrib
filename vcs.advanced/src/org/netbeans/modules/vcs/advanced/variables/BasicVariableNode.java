@@ -80,6 +80,7 @@ public class BasicVariableNode extends AbstractNode {
         this.var = var;
         this.list = list;
         getCookieSet().add(new VariablesIndex());
+        setIconBase("/org/netbeans/modules/vcs/advanced/variables/BasicVariables"); // NOI18N
     }
     
     public VcsConfigVariable getVariable() {
@@ -208,8 +209,8 @@ public class BasicVariableNode extends AbstractNode {
         if (Children.LEAF.equals(this.getChildren())) {
             actions.add(SystemAction.get(DeleteAction.class));
         }
-        actions.add(null);
-        actions.add(SystemAction.get(PropertiesAction.class));
+        //actions.add(null);
+        //actions.add(SystemAction.get(PropertiesAction.class));
         SystemAction[] array = new SystemAction [actions.size()];
         actions.toArray(array);
         return array;

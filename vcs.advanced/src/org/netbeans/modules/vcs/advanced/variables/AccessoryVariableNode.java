@@ -75,6 +75,7 @@ public class AccessoryVariableNode extends AbstractNode {
     private void init(Children.Array list, VcsConfigVariable var) {
         this.var = var;
         this.list = list;
+        setIconBase("/org/netbeans/modules/vcs/advanced/variables/AccessoryVariables"); // NOI18N
     }
 
     public VcsConfigVariable getVariable() {
@@ -174,8 +175,8 @@ public class AccessoryVariableNode extends AbstractNode {
         if (Children.LEAF.equals(this.getChildren())) {
             actions.add(SystemAction.get(DeleteAction.class));
         }
-        actions.add(null);
-        actions.add(SystemAction.get(PropertiesAction.class));
+        //actions.add(null);
+        //actions.add(SystemAction.get(PropertiesAction.class));
         SystemAction[] array = new SystemAction [actions.size()];
         actions.toArray(array);
         return array;
