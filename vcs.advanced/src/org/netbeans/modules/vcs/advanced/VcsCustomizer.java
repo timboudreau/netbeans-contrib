@@ -1822,12 +1822,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if(comp!=null) {
             ((java.awt.Window) comp).pack ();
         }
+        if (configInputPanel != null) {
+            configInputPanel.updateVariableValues(fsVars);
+        }
         for (Iterator it = autoFillVars.values().iterator(); it.hasNext(); ) {
             String cmd = (String) it.next();
             autoFillVariables(cmd);
-        }
-        if (configInputPanel != null) {
-            configInputPanel.updateVariableValues(fsVars);
         }
         updateAdvancedConfig();
     }
