@@ -204,6 +204,9 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 DataLoaderPool pool = (DataLoaderPool) Lookup.getDefault().lookup(DataLoaderPool.class);
                 pool.removeOperationListener(operationListener);
             }
+            if (turboListener != null) {
+                Turbo.singleton().removeTurboListener(turboListener);
+            }
         }
         // We must allow that the analyzar task can fire property changes,
         // so this must be outside of the synchronized block!
@@ -280,8 +283,13 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
     }
 
-    private void runWithTurbo() {
-
+    /**
+     * Get the created DataObject from the queue, analyze their files and
+     * add the file names into the integrity list if necessary.
+     * <p>
+     * Invoked from analyzer request processor
+     */
+    public void run() {
         Set paths;
         Set objects;
         boolean changed = false;
@@ -309,6 +317,8 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         for (Iterator objIt = objects.iterator(); objIt.hasNext(); ) {
             DataObject dobj = (DataObject) objIt.next();
             FileObject primary = dobj.getPrimaryFile();
+            primary = (FileObject) primary.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
+            if (primary == null) continue;
             FileSystem fs = (FileSystem) primary.getAttribute(VcsAttributes.VCS_NATIVE_FS);
             if (primary.isFolder() || !fileSystem.equals(fs)) {
                 //System.out.println("VOIS.run(): ignoring primary = "+primary+" from "+fs);
@@ -356,7 +366,8 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             Set fileSet = dobj.files();
             for (Iterator fileIt = fileSet.iterator(); fileIt.hasNext(); ) {
                 FileObject fo = (FileObject) fileIt.next();
-                if (primary.equals(fo)) continue;
+                fo = (FileObject) fo.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
+                if (fo == null || primary.equals(fo)) continue;
                 String filePath = fo.getPath();
                 fs = (FileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
                 File file = FileUtil.toFile(fo);
@@ -372,7 +383,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                     continue;
                 }
                 FileProperties fprops2 = Turbo.getCachedMeta(fo);
-                //System.out.println("   VOIS.run(): secondary '"+fo+"', cache = "+cFile);
+                //System.out.println("   VOIS.run(): secondary '"+fo+"', cache = "+fprops2);
                 if (fprops2 == null || fprops2.isLocal()) {
                     filesToAdd.add(filePath);
                 } else {
@@ -408,16 +419,6 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         if (changed) firePropertyChange();
     }
 
-    /**
-     * Get the created DataObject from the queue, analyze their files and
-     * add the file names into the integrity list if necessary.
-     * <p>
-     * Invoked from analyzer request processor
-     */
-    public void run() {
-        runWithTurbo();
-    }
-    
     /**
      * Return the map of primary file names with a set of local secondary files.
      */
