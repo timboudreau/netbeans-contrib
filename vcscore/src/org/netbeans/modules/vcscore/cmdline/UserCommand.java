@@ -39,7 +39,6 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     //public static final String PROPERTY_DISPLAY = "display";
     public static final String PROPERTY_DATA_REGEX = "data.regex";
     public static final String PROPERTY_ERROR_REGEX = "error.regex";
-    public static final String PROPERTY_CHECK_FOR_MODIFICATIONS = "checkForModifications";
     //public static final String PROPERTY_DOES_NOT_FAIL = "doesNotFail";
     //public static final String PROPERTY_PRECOMMANDS = "preCommands";
     //public static final String PROPERTY_PRECOMMANDS_EXECUTE = "preCommandsExecute";
@@ -544,7 +543,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
             setProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED, refreshRecursivelyPattern);//getRefreshRecursivelyPattern());
             setProperty(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, new Boolean(doRefresh/*isDoRefresh()*/ && refreshParent));//isRefreshParent()));
             setProperty(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, new Boolean(doRefresh && !refreshParent));
-            setProperty(UserCommand.PROPERTY_CHECK_FOR_MODIFICATIONS, new Boolean(checkForModifications));
+            setProperty(VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS, new Boolean(checkForModifications));
             if (onRoot == true) onFile = onDir = false; // The meaning has changed. Instead "on root only" it means "on root too".
             else onRoot = true;                         // if onRoot == false, it means "not on root, but everywhere.
             setProperty(VcsCommand.PROPERTY_ON_FILE, new Boolean(onFile));
