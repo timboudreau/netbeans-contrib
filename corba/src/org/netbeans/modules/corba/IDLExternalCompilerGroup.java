@@ -25,13 +25,14 @@ import org.openide.cookies.CompilerCookie;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
+import org.openide.TopManager;
 
 
 import com.netbeans.enterprise.modules.corba.settings.*;
 import com.netbeans.developer.modules.loaders.java.JavaDataObject;
 import com.netbeans.developer.modules.loaders.java.JavaCompilerType;
 import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
-
+import com.netbeans.developer.modules.loaders.java.JavaExternalCompilerType;
 /** External Compiler Group 
   * 
   *
@@ -122,7 +123,9 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 	  }
 	  Vector gens = ido.getGeneratedFileObjects ();
 	  JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
-	  JavaCompilerType jct = (JavaCompilerType)js.getCompiler ();
+	  //JavaCompilerType jct = (JavaCompilerType)js.getCompiler ();
+	  JavaCompilerType jct = (JavaCompilerType)TopManager.getDefault ().getServices 
+	    ().find(JavaExternalCompilerType.class);
 	  if (DEBUG)
 	    System.out.println ("generated files: " + gens);
 	  for (int j=0; j<gens.size (); j++) {
