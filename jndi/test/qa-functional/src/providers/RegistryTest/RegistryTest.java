@@ -118,11 +118,11 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
         log = getLog ();
         
         Node runtimeNode = TopManager.getDefault().getPlaces().nodes().environment();
-        Node jndiNode = findSubNode(runtimeNode, "JNDI");
+        Node jndiNode = waitSubNode(runtimeNode, "JNDI");
         if (jndiNode == null)
             throw new RuntimeException ("JNDI node does not exists!");
         Node jndiRootNode = jndiNode;
-        Node providersNode = findSubNode(jndiNode, "Providers");
+        Node providersNode = waitSubNode(jndiNode, "Providers");
         if (providersNode == null)
             throw new RuntimeException ("Providers node does not exists!");
 /*

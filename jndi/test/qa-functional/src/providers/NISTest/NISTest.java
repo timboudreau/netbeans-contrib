@@ -143,7 +143,7 @@ public class NISTest extends org.netbeans.junit.NbTestCase {
 */
         /* Add new context */
         JndiRootNode.getDefault ().addContext(name, "com.sun.jndi.nis.NISCtxFactory", System.getProperty ("NIS_SERVER"), System.getProperty ("NIS_CONTEXT"), "", "", "", new java.util.Vector());
-        Node testNode = findSubNode(jndiRootNode, name);
+        Node testNode = waitSubNode(jndiRootNode, name);
         if (testNode == null)
             throw new RuntimeException ("Cannot found context: " + name);
 
