@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This build file produces a jar file containing only
+a manifest (hence its name). The manifest declares
+dependency on execution - this is needed for the xtest
+framework to run. The reason for this is that the xtest
+assumes there is an output window. But the code creating
+the output window is contained in a module that is autoload
+module. It is enabled only when some other module declares
+a dependency on it. So this empty modules does exactly this.
+-->
+<project basedir="." default="all" name="dummy">
+
+    <target depends="all" name="netbeans"/>
+
+    <property name="nb_all" value="../../../.."/>
+
+    <property name="nbm_alias" value="nb_ide"/>
+    <property name="homepage.base" value="netbeans.org"/>
+    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
+    <property location="${nb_all}/nbbuild/standard-nbm-license.txt" name="license.file"/>
+
+    <taskdef classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="makenbm"/>
+    <taskdef classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="genlist"/>
+    <taskdef classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar" name="locjar"/>
+
+    <target name="jars">
+        <mkdir dir="netbeans/modules"/>
+        <jar compress="false" jarfile="netbeans/modules/dummy.jar" manifest="manifest.mf">
+        </jar>
+    </target>
+
+    <target depends="jars" description="Build the module." name="all"/>
+
+    <target description="Clean all build products." name="clean">
+        <delete dir="netbeans"/>
+        <delete dir="Info"/>
+        <delete dir="reload"/>
+    </target>
+
+</project>
