@@ -35,11 +35,9 @@ import com.netbeans.ide.filesystems.*;
 import com.netbeans.ide.loaders.*;
 import com.netbeans.ide.explorer.propertysheet.PropertySheet;
 import com.netbeans.ide.nodes.Node;
-import com.netbeans.ide.nodes.AbstractNode;
 import com.netbeans.ide.nodes.CookieSet;
 import com.netbeans.ide.src.SourceElement;
-import com.netbeans.ide.src.nodes.SourceChildren;
-import com.netbeans.ide.src.nodes.SourceElementFilter;
+
 
 
 /* TODO:
@@ -53,7 +51,7 @@ import com.netbeans.ide.src.nodes.SourceElementFilter;
 *
 * @author Jan Jancura, Ian Formanek, Petr Hamernik, Dafe Simonek
 */
-public class ClassDataObject extends MultiDataObject implements ElementCookie {
+public class ClassDataObject extends MultiDataObject {
   /** generated Serialized Version UID */
   static final long serialVersionUID = -7355104884002106137L;
 
@@ -198,36 +196,6 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   protected Node createNodeDelegate () {
     return new ClassDataNode (this);
   }
-
-
-  // implementation of ElementCookie ..........................................
-
-  /**
-   * Get the alternate node representation.
-   * @return the node
-   * @see com.netbeans.ide.loaders.DataObject#getNodeDelegate
-  */
-  public Node getElementsParent () {
-    ClassElementNodeFactory cef = new ClassElementNodeFactory ();
-    cef.setGenerateForTree (true);
-    SourceChildren sourceChildren = new SourceChildren (cef);
-    SourceElementFilter sourceElementFilter = new SourceElementFilter();
-    sourceElementFilter.setAllClasses (true);
-    sourceChildren.setFilter (sourceElementFilter);
-    try {
-      Class ourClass = instanceSupport.instanceClass();
-      sourceChildren.setElement (new SourceElement(new SourceElementImpl(ourClass)));
-    } catch (IOException ex) {
-    } catch (ClassNotFoundException ex) {
-    }
-
-    AbstractNode alteranteParent = new AbstractNode (sourceChildren);
-    CookieSet cs = alteranteParent.getCookieSet();
-    cs.add (sourceChildren);
-
-    return alteranteParent;
-  }
-  
 
   // implementation of ExecCookie ..........................................
 
@@ -464,6 +432,8 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  15   Gandalf   1.14        4/1/99   Ian Formanek    Rollback to make it 
+ *       compilable
  *  14   Gandalf   1.13        4/1/99   Jan Jancura     Object browser support
  *  13   Gandalf   1.12        3/26/99  Ian Formanek    
  *  12   Gandalf   1.11        3/26/99  Ian Formanek    Fixed use of obsoleted 

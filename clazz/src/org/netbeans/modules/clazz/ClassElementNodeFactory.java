@@ -16,15 +16,11 @@ package com.netbeans.developer.modules.loaders.clazz;
 import java.beans.*;
 
 import com.netbeans.ide.actions.PropertiesAction;
-import com.netbeans.ide.cookies.ElementCookie;
-import com.netbeans.ide.cookies.FilterCookie;
 import com.netbeans.ide.nodes.Node;
 import com.netbeans.ide.nodes.AbstractNode;
 import com.netbeans.ide.nodes.Children;
-import com.netbeans.ide.nodes.CookieSet;
 import com.netbeans.ide.src.*;
 import com.netbeans.ide.src.nodes.*;
-import com.netbeans.ide.util.NbBundle;
 import com.netbeans.ide.util.actions.SystemAction;
 
 /** The implementation of hierarchy nodes factory for the class loader.
@@ -38,25 +34,9 @@ final class ClassElementNodeFactory extends DefaultFactory {
   /** Array of the actions for element nodes */
   private static SystemAction[] defaultActions;
 
-  /** Create nodes for tree */
-  private boolean tree = false;
-
   /** Creates new factory. */
   public ClassElementNodeFactory() {
     super(false);
-  }
-  
-  /** If true generate nodes for tree.
-  */
-  public void setGenerateForTree (boolean tree) {
-    this.tree = tree;
-  }
-
-  /** Returns true if generate nodes for tree.
-  * @returns true if generate nodes for tree.
-  */
-  public boolean getGenerateForTree () {
-    return tree;
   }
 
   /** Returns the node asociated with specified element.
@@ -92,23 +72,10 @@ final class ClassElementNodeFactory extends DefaultFactory {
   /** Returns the node asociated with specified element.
   * @return ElementNode
   */
-  public Node createClassNode (final ClassElement element) {
+  public Node createClassNode(ClassElement element) {
     ClassElementNode n =
-      new ClassElementNode(element, tree ? Children.LEAF : createClassChildren(element), false);
-    CookieSet cs = n.getCookieSet ();
-    cs.add (new ElementCookie () {
-      public Node getElementsParent () {
-        ClassElementNode nn = new ClassElementNode (element, createClassChildren(element), false);
-        CookieSet css = nn.getCookieSet ();
-        css.add ((FilterCookie) nn.getChildren ());
-        return nn;
-      }
-    });
+      new ClassElementNode(element, createClassChildren(element), false);
     n.setActions(getDefaultActions());
-    if (tree)
-      n.setElementFormat(new ElementFormat (
-        NbBundle.getBundle (ClassElementNodeFactory.class).getString("CTL_Class_name_format")
-      ));
     return n;
   }
 
@@ -141,6 +108,8 @@ final class ClassElementNodeFactory extends DefaultFactory {
 
 /*
 * Log
+*  3    src-jtulach1.2         4/1/99   Ian Formanek    Rollback to make it 
+*       compilable
 *  2    src-jtulach1.1         4/1/99   Jan Jancura     Object browser support
 *  1    src-jtulach1.0         3/26/99  David Simonek   
 * $
