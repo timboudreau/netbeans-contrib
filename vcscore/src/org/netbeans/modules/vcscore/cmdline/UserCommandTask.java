@@ -493,8 +493,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         String concurrencyWith = (String) cmd.getProperty(VcsCommand.PROPERTY_CONCURRENT_EXECUTION_WITH);
         //System.out.println("  concurrency = "+concurrency+", concurrencyWith = "+concurrencyWith);
         boolean haveToWait = false;
-        if ((concurrency != VcsCommand.EXEC_CONCURRENT_ALL || concurrencyWith != null)
-            && concurrency != VcsCommand.EXEC_SERIAL_INERT) {
+        if (concurrency != VcsCommand.EXEC_SERIAL_INERT) {
             
             HashMap concurrencyMap = createConcurrencyMap(concurrencyWith);
             String name = cmd.getName();
@@ -503,10 +502,6 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             boolean serialWithParent = (concurrency & VcsCommand.EXEC_SERIAL_WITH_PARENT) != 0;
             boolean serialOfCommand = (concurrency & VcsCommand.EXEC_SERIAL_OF_COMMAND) != 0;
             boolean serialOfAll = (concurrency & VcsCommand.EXEC_SERIAL_ALL) != 0;
-            boolean matchOnFile = false;
-            boolean matchOnPackage = false;
-            boolean matchWithParent = false;
-            boolean matchOfCommand = false;
             //System.out.println("  serialOnFile = "+serialOnFile);
             //System.out.println("  serialOnPackage = "+serialOnPackage);
             //System.out.println("  serialWithParent = "+serialWithParent);
@@ -546,32 +541,21 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                     break;
                 }
                 String cmdName = uc.getName();
-                if (serialOnFile) {
-                    for(Iterator it = files.iterator(); it.hasNext(); ) {
-                        String file = (String) it.next();
-                        if (cmdFiles.contains(file)) {
-                            matchOnFile = true;
-                            break;
-                        }
+                haveToWait = matchSerial(name, cmdName, files, cmdFiles,
+                                         serialOnFile, serialOnPackage,
+                                         serialWithParent, serialOfCommand);
+                if (!haveToWait) {
+                    if ((cmdConcurrency & VcsCommand.EXEC_SERIAL_ALL) != 0) {
+                        haveToWait = true;
+                        break;
                     }
+                    haveToWait = matchSerial(cmdName, name, cmdFiles, files,
+                                             (cmdConcurrency & VcsCommand.EXEC_SERIAL_ON_FILE) != 0,
+                                             (cmdConcurrency & VcsCommand.EXEC_SERIAL_ON_PACKAGE) != 0,
+                                             (cmdConcurrency & VcsCommand.EXEC_SERIAL_WITH_PARENT) != 0,
+                                             (cmdConcurrency & VcsCommand.EXEC_SERIAL_OF_COMMAND) != 0);
                 }
-                if (serialOnPackage) {
-                    if (areFilesInSamePackage(files, cmdFiles)) {
-                        matchOnPackage = true;
-                    }
-                }
-                if (serialWithParent) {
-                    if (isParentFolder(files, cmdFiles)) {
-                        matchWithParent = true;
-                    }
-                }
-                if (serialOfCommand) {
-                    matchOfCommand = name.equals(cmdName);
-                }
-                // if (serialOfCommand && !matchOfCommand) do not wait
-                if ((!serialOfCommand || matchOfCommand) && (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand)) {
-                    //System.out.println("  matchOnFile = "+matchOnFile+", matchOnPackage = "+matchOnPackage+", matchWithParent = "+matchWithParent+", matchOfCommand = "+matchOfCommand);
-                    haveToWait = true;
+                if (haveToWait) {
                     break;
                 }
                 Integer concurrencyWithNum = (Integer) concurrencyMap.get(cmdName);
@@ -595,7 +579,57 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         return !haveToWait;
     }
     
-    private boolean haveToWaitFor(Collection files, Collection cmdFiles, int concurrency) {
+    /**
+     * Tell whether the serial execution is matched between two commands.
+     * @param name The name of the first command
+     * @param name2 The name of the second command
+     * @param files The collection of files the first command acts on
+     * @param files2 The collection of files the second command acts on
+     * @param serialOnFile Whether the first command deserves serial execution
+     *        on files
+     * @param serialOnPackage Whether the first command deserves serial execution
+     *        on files in a single package
+     * @param serialWithParent Whether the first command deserves serial execution
+     *        with commands running on the parent folder of it's files
+     * @param serialOfCommand Whether there can not be two commands of the same
+     *        name running.
+     */
+    private static boolean matchSerial(String name, String name2,
+                                       Collection files, Collection files2,
+                                       boolean serialOnFile, boolean serialOnPackage,
+                                       boolean serialWithParent, boolean serialOfCommand) {
+        boolean matchOnFile = false;
+        boolean matchOnPackage = false;
+        boolean matchWithParent = false;
+        boolean matchOfCommand = false;
+        if (serialOnFile) {
+            for(Iterator it = files.iterator(); it.hasNext(); ) {
+                String file = (String) it.next();
+                if (files2.contains(file)) {
+                    matchOnFile = true;
+                    break;
+                }
+            }
+        }
+        if (serialOnPackage) {
+            if (areFilesInSamePackage(files, files2)) {
+                matchOnPackage = true;
+            }
+        }
+        if (serialWithParent) {
+            if (isParentFolder(files, files2)) {
+                matchWithParent = true;
+            }
+        }
+        if (serialOfCommand) {
+            matchOfCommand = name.equals(name2);
+        }
+        // if (serialOfCommand && !matchOfCommand) do not wait
+        //System.out.println("  matchOnFile = "+matchOnFile+", matchOnPackage = "+matchOnPackage+", matchWithParent = "+matchWithParent+", matchOfCommand = "+matchOfCommand);
+        return (!serialOfCommand || matchOfCommand) && (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand);
+    }
+    
+    private static boolean haveToWaitFor(Collection files, Collection cmdFiles, int concurrency) {
         boolean serialOnFile = (concurrency & VcsCommand.EXEC_SERIAL_ON_FILE) != 0;
         boolean serialOnPackage = (concurrency & VcsCommand.EXEC_SERIAL_ON_PACKAGE) != 0;
         boolean serialWithParent = (concurrency & VcsCommand.EXEC_SERIAL_WITH_PARENT) != 0;
