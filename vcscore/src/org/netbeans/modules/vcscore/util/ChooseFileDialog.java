@@ -30,7 +30,6 @@ import org.openide.util.*;
 //-------------------------------------------
 public class ChooseFileDialog extends JDialog {
     private Debug E=new Debug("ChooseFileDialog", false); // NOI18N
-    private Debug D=E;
 
     private JFileChooser chooser = null ;
     private File initialDir = null;
