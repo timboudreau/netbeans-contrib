@@ -50,6 +50,10 @@ public class CommitInfoPanel extends AbstractOutputPanel{
         addKillActionListener(new CommitInfoPanel.StopActionListener());
     }
     
+    protected boolean isViewTextLogEnabled() {
+        return true;
+    }
+    
     protected JComponent getErrComponent() {
         if(errOutput == null){
             errOutput = new JTextArea();

@@ -48,6 +48,10 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
         addKillActionListener(new UpdateInfoPanel.StopActionListener());
     }
     
+    protected boolean isViewTextLogEnabled() {
+        return true;
+    }
+    
     protected JComponent getErrComponent() {
         if(errOutput == null){
             errOutput = new JTextArea();
