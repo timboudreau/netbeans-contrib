@@ -455,11 +455,13 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
     
     private void runExecutorStarterLoop() {
-        new Thread(group, new Runnable() {
+        Thread starterLoopThread = new Thread(group, new Runnable() {
             public void run() {
                 executorStarterLoop();
             }
-        }, "VCS Command Executor Starter Loop").start();
+        }, "VCS Command Executor Starter Loop");
+        starterLoopThread.setDaemon(true);
+        starterLoopThread.start();
         execStarterLoopStarted = true;
     }
 
