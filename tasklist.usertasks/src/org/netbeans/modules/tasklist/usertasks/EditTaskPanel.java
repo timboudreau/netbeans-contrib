@@ -13,20 +13,16 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
-import java.awt.Component;
-import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
-import java.beans.PropertyVetoException;
 import java.text.ParseException;
 import java.util.Date;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
-import java.util.Set;
 import java.util.Vector;
+import java.util.logging.Logger;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
@@ -36,16 +32,13 @@ import javax.swing.JList;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
+import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.core.TaskNode;
 import org.openide.awt.Mnemonics;
 import org.openide.DialogDescriptor;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
-import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.view.BeanTreeView;
-import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.DialogDisplayer;
@@ -58,9 +51,9 @@ import org.openide.DialogDisplayer;
  * @author Tor Norbye
  * @author Tim Lebedkov
  */
-
 class EditTaskPanel extends JPanel implements ActionListener {
-    private Task parent = null;
+    private static final Logger LOGGER = TLUtils.getLogger(EditTaskPanel.class);
+    
     private SimpleDateFormat format;
     private ComboBoxModel prioritiesModel = 
         new DefaultComboBoxModel(Task.getPriorityNames());
@@ -68,55 +61,18 @@ class EditTaskPanel extends JPanel implements ActionListener {
     
     private static boolean appendDefault = Settings.getDefault().getAppend();
     
-    /** Creates new form NewTodoItemPanel.
-        @param parent A possible suggestion for a parent 
-        @param item Item to edit. If null, create new.
+    /** 
+     * Creates new form NewTodoItemPanel.
+     *
+     * @param editing true = no append/prepend options
      */
-    EditTaskPanel(UserTaskList tlv, UserTask item, boolean editing) {
-        // Create a new item with the given suggested parent
-        this.parent = parent;
+    public EditTaskPanel(boolean editing) {
         initComponents();
         initA11y();
         
         priorityComboBox.setSelectedIndex(2);
         
         format = new SimpleDateFormat();
-        
-        // Initialize the Categories list
-        String[] categories = tlv.getCategories();
-        if (categories.length > 0) {
-            DefaultComboBoxModel model = new DefaultComboBoxModel(categories);
-            model.addElement(""); // Default to "nothing" -- make an option for default category?
-            categoryCombo.setModel(model);
-        }
-
-        // Create subtask model
-        Vector parents = new Vector(100);
-        parents.addElement(NbBundle.getMessage(EditTaskPanel.class,
-                                               "NoSubtasks")); // NOI18N
-        tlv.addAllTasks(parents);
-        
-        if (item != null) {
-            if (item.getSummary() != null) {
-                descriptionTextField.setText(item.getSummary());
-            }
-            int p = item.getPriority().intValue() - 1;
-            priorityComboBox.setSelectedIndex(p);
-            if (item.getFilename() != null) {
-                fileTextField.setText(item.getFilename());
-                fileCheckBox.setSelected(true);
-            }
-            if (item.getLineNumber() > 0) {
-                lineTextField.setText(Integer.toString(item.getLineNumber()));
-            }
-            if (item.getCategory() != null) {
-                categoryCombo.setSelectedItem(item.getCategory());
-            }
-            if (item.getDetails() != null) {
-                detailsTextArea.setText(item.getDetails());
-            }
-            setDueDate(item.getDueDate());
-        }
         
         addSourceButton.addActionListener(this);
         
@@ -135,6 +91,127 @@ class EditTaskPanel extends JPanel implements ActionListener {
                 beginningToggle.setSelected(true);
             }
         }
+    }
+    
+    /**
+     * Fills the panel with the values of a user task
+     *
+     * @param item a user task
+     */
+    public void fillPanel(UserTask item) {
+        if (item.getSummary() != null) {
+            descriptionTextField.setText(item.getSummary());
+        }
+        int p = item.getPriority().intValue() - 1;
+        priorityComboBox.setSelectedIndex(p);
+        if (item.hasAssociatedFilePos()) {
+            fileTextField.setText(item.getFilename());
+            if (fileTextField.getText().length() > 0)
+                fileTextField.setCaretPosition(fileTextField.getText().length()-1);
+            fileCheckBox.setSelected(true);
+            if (item.getLineNumber() > 0) {
+                lineTextField.setText(Integer.toString(item.getLineNumber()));
+            }
+        } else {
+            fileCheckBox.setSelected(false);
+        }
+        detailsTextArea.setText(item.getDetails());
+        setDueDate(item.getDueDate());
+
+        // Initialize the Categories list
+        String[] categories = ((UserTaskList) item.getList()).getCategories();
+        if (categories.length > 0) {
+            DefaultComboBoxModel model = new DefaultComboBoxModel(categories);
+            categoryCombo.setModel(model);
+            LOGGER.fine("categories.size = " + categories.length);
+        }
+        categoryCombo.setSelectedItem(item.getCategory());
+    }
+    
+    /**
+     * Fills an object with the values from this panel
+     *
+     * @param task a user object
+     */
+    public void fillObject(UserTask task) {
+        task.setSummary(descriptionTextField.getText().trim());
+        task.setDetails(detailsTextArea.getText().trim());
+        if (categoryCombo.getSelectedItem() == null)
+            task.setCategory("");
+        else
+            task.setCategory(categoryCombo.getSelectedItem().toString().trim());
+        task.setPriority(Task.getPriority(priorityComboBox.getSelectedIndex() + 1));
+        if (fileCheckBox.isSelected()) {
+            task.setFilename(fileTextField.getText().trim());
+            try {
+                task.setLineNumber(Integer.parseInt(lineTextField.getText()));
+            } catch (NumberFormatException e) {
+                // TODO validation
+            }
+        }
+        
+        task.setDueDate(getDueDate());
+    }
+    
+    /**
+     * Returns the value of the due date
+     *
+     * @return due date
+     */
+    private Date getDueDate() {
+        Date ret;
+        if (dueCheckBox.isSelected()) {
+            try {
+                ret = format.parse(dueDateTextField.getText());
+            } catch (ParseException e) {
+                ret = null;
+            }
+        } else {
+            ret = null;
+        }
+        return ret;
+    }
+    
+    /**
+     * TODO - preserve this setting from run to run! (Unless you change
+     * the default!)
+     *
+     * @return true = the task should be appended
+     */
+    public boolean getAppend() {
+        appendDefault = endToggle.isSelected();
+        return appendDefault;
+    }
+    
+    /**
+     * Set the due date field
+     *
+     * @param d the due date
+     */
+    private void setDueDate(Date d) {
+        String s = null;
+        
+        if (d != null) {
+            s = format.format(d);
+        }
+        
+        if (s != null) {
+            dueDateTextField.setText(s);
+            dueCheckBox.setSelected(true);
+            dueDateBrowseButton.setEnabled(true);
+            dueDateTextField.setEnabled(true);
+            dueDateTextField.setEditable(true);
+        } else {
+            dueDateTextField.setText("");
+            dueDateBrowseButton.setEnabled(false);
+            dueDateTextField.setEnabled(false);
+            dueCheckBox.setSelected(false);
+            dueDateTextField.setEditable(false);
+        }
+    }
+    
+    void setAssociatedFilePos(boolean set) {
+        fileCheckBox.setSelected(set);
     }
     
     /** This method is called from within the constructor to
@@ -453,7 +530,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
         // Gotta set accessible name - no more that I've set label for?
         // gotta set accessible description "everywhere" ?
-
     }
 
     private void fileCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_fileCheckBoxItemStateChanged
@@ -506,7 +582,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
         }
     }//GEN-LAST:event_dueDateBrowseButtonActionPerformed
     
-    // TODO prioGroup is unused; get rid of it 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup addButtonGroup;
     private javax.swing.JLabel addLabel;
@@ -533,107 +608,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JComboBox priorityComboBox;
     // End of variables declaration//GEN-END:variables
     
-    String getSummary() {
-        return descriptionTextField.getText().trim();
-    }
-    
-    String getDetails() {
-        return detailsTextArea.getText().trim();
-    }
-    
-    String getCategory() {
-        if (categoryCombo.getSelectedItem() == null)
-            return "";
-        else
-            return categoryCombo.getSelectedItem().toString().trim();
-    }
-    
-    int getPrio() {
-        return priorityComboBox.getSelectedIndex() + 1;
-    }
-    
-    boolean hasAssociatedFilePos() {
-        return fileCheckBox.isSelected();
-    }
-    
-    void setAssociatedFilePos(boolean set) {
-        fileCheckBox.setSelected(set);
-    }
-
-    String getFilename() {
-        return fileTextField.getText().trim();
-    }
-    
-    void setFilename(String filename) {
-        fileTextField.setText(filename);
-        fileTextField.setCaretPosition(fileTextField.getText().length()-1);
-    }
-    
-    int getLineNumber() {
-        try {
-            int i = Integer.parseInt(lineTextField.getText());
-            return i;
-        } catch (NumberFormatException e) {
-        }
-        return 0;
-    }
-    
-    void setLineNumber(int lineno) {
-        lineTextField.setText(Integer.toString(lineno));
-    }
-    
-    /**
-     * get the due date
-     * @return the due date or null
-     */
-    Date getDueDate() {
-        Date ret;
-        if (dueCheckBox.isSelected()) {
-            try {
-                ret = format.parse(dueDateTextField.getText());
-            } catch (ParseException e) {
-                ret = null;
-            }
-        } else {
-            ret = null;
-        }
-        return ret;
-    }
-    
-    /**
-     * Set the due date field
-     * @param d the due date
-     */
-    void setDueDate(Date d) {
-        String s = null;
-        
-        if (d != null) {
-            s = format.format(d);
-        }
-
-        if (s != null) {
-            dueDateTextField.setText(s);
-            dueCheckBox.setSelected(true);
-            dueDateBrowseButton.setEnabled(true);
-            dueDateTextField.setEnabled(true);
-            dueDateTextField.setEditable(true);
-        } else {
-            dueDateTextField.setText("");
-            dueDateBrowseButton.setEnabled(false);
-            dueDateTextField.setEnabled(false);
-            dueCheckBox.setSelected(false);            
-            dueDateTextField.setEditable(false);
-        }
-        
-    }
-    
-    // TODO - preserve this setting from run to run! (Unless you change
-    // the default!)
-    boolean getAppend() {
-        appendDefault = endToggle.isSelected();
-        return appendDefault;
-    }
-
     public void actionPerformed(ActionEvent actionEvent) {
         Object source = actionEvent.getSource();
         if (source == addSourceButton) {
@@ -668,40 +642,4 @@ class EditTaskPanel extends JPanel implements ActionListener {
            Toolkit.getDefaultToolkit().beep();
         }
     }
-
-    class TaskCellRenderer extends DefaultListCellRenderer {
-        private Icon taskIcon = null;
-        
-	public TaskCellRenderer() {
-            super();
-            taskIcon = new ImageIcon(Task.class.getResource (
-              "/org/netbeans/modules/tasklist/core/task.gif")); // NOI18N
-            
-	}
-     
-	public Component getListCellRendererComponent(JList list, Object value,
-                                                      int index,
-                                                      boolean isSelected,
-                                                      boolean cellHasFocus) {
-            Component c = super.getListCellRendererComponent(list, value,
-                                                             index, isSelected,
-                                                             cellHasFocus);
-            if (value instanceof UserTask) {
-                UserTask task = (UserTask)value;
-                String desc = task.getSummary();
-                // Indent subtasks
-                while ((task.getParent() != null) &&
-                       (task.getParent().getParent() != null)) {
-                    desc = "       " + desc;
-                    task = (UserTask)task.getParent();
-                }
-                setText(desc);
-                setIcon(taskIcon);
-            } else {
-                setText(value.toString());
-            }
-            return c;
-        }
-    }
-    
 }

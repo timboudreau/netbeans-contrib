@@ -94,10 +94,6 @@ class UserTaskNode extends TaskNode {
         }
     }
 
-    /**
-       @todo Should "task has associated filepos" and "task is sourcescan task"
-         have separate icons?
-    */
     protected void updateIcon() {
         UserTask uitem = (UserTask)item;
         if (uitem.getIcon() != null) {
@@ -118,19 +114,20 @@ class UserTaskNode extends TaskNode {
             // is there)
             return new SystemAction[] {
                 SystemAction.get(NewTaskAction.class),
-                SystemAction.get(NewSubtaskAction.class),
                 SystemAction.get(NewTaskListAction.class),
                 null,
                 SystemAction.get(PasteAction.class),
-                // "Global" actions (not node specific)
+                null,
+                SystemAction.get(FilterAction.class),
+                SystemAction.get(PurgeTasksAction.class),
+                SystemAction.get(ExpandAllAction.class),
                 null,
                 SystemAction.get(ImportAction.class),
-                SystemAction.get(ExportAction.class)
+                SystemAction.get(ExportAction.class),
             };
         } else {
             return new SystemAction[] {
                 SystemAction.get(NewTaskAction.class),
-                SystemAction.get(NewSubtaskAction.class),
                 SystemAction.get(NewTaskListAction.class),
                 null,
                 SystemAction.get(ShowTaskAction.class),
@@ -176,14 +173,6 @@ class UserTaskNode extends TaskNode {
             
             
             p = new Reflection(item, SuggestionPriority.class, "getPriority", "setPriority"); // NOI18N
-            /*    public Object getValue(String attributeName) {
-                    if (attributeName.equals("inplaceEditor")) {
-                        return PriorityInplaceEditor.getInstance();
-                    } else {
-                        return super.getValue(attributeName);
-                    }
-                }
-            }; todo inplace editor not yet implemented */
             p.setName(UserTaskView.PROP_TASK_PRIO);
             p.setPropertyEditorClass(PriorityPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Priority")); // NOI18N
@@ -245,20 +234,17 @@ class UserTaskNode extends TaskNode {
             
             p = new Reflection(item, String.class, "getCategory", "setCategory"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_CAT);
-            p.setPropertyEditorClass(CategoryPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Category")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "CategoryHint")); // NOI18N
             p.setValue("canEditAsText", Boolean.TRUE); // NOI18N
             ss.put(p);
 
-            //p = new PropertySupport.Reflection(item, String.class, "getCreatedDateString", null /* readonly*/); // NOI18N
             p = new Reflection(item, Date.class, "getCreatedDate", null /* readonly*/); // NOI18N
             p.setName(UserTaskView.PROP_TASK_CREATED);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Created")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "CreatedHint")); // NOI18N
             ss.put(p);
 
-            //p = new PropertySupport.Reflection(item, String.class, "getLastEditedDateString", null /* readonly*/); // NOI18N
             p = new Reflection(item, Date.class, "getLastEditedDate", null /* readonly*/); // NOI18N
             p.setName(UserTaskView.PROP_TASK_EDITED);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Edited")); // NOI18N
@@ -299,7 +285,14 @@ class UserTaskNode extends TaskNode {
     }    
     
     public javax.swing.Action getPreferredAction() {
-        return (Action) SystemAction.get(ShowTaskAction.class);
+        if (item.getParent() == null)
+            return (Action) SystemAction.get(NewTaskAction.class);
+        else
+            return (Action) SystemAction.get(ShowTaskAction.class);
+    }
+    
+    public boolean canRename() {
+        return (item.getParent() != null);
     }
 }
 
