@@ -45,7 +45,6 @@ import org.netbeans.modules.tasklist.providers.SuggestionContext;
  *
  * @todo If you have multiple hits on the same line, don't create a new
  *       task!
- * @todo PERFORMANCE OPTIMIZE scanCommnetsOnly()
  *
  * @author Tor Norbye
  * @author Trond Norbye
