@@ -39,7 +39,7 @@ public class HomeTab
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        homeBrowser = new HtmlBrowserWithScrollPosition(false, false);
+        homeBrowser = new HtmlBrowserWithScrollPosition();
 
         setLayout(new java.awt.BorderLayout());
 

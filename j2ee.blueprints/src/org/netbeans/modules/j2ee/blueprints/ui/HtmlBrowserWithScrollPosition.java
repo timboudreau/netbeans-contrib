@@ -13,30 +13,107 @@
 
 package org.netbeans.modules.j2ee.blueprints.ui;
 
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
+import java.io.*; 
+import java.awt.*; 
+import java.awt.event.*;
+import java.net.*;
+import javax.swing.*; 
+import javax.swing.event.*; 
+import javax.swing.text.*;
+import javax.swing.text.html.*;
 import javax.swing.Timer;
 import org.openide.awt.HtmlBrowser;
 
-/**
- * Html Browser component that allows the user to get and set the
- * scroll position.  Useful for implementing a forward/back button
- * mechanism.
- *
- * @author Mark Roth
- */
-public class HtmlBrowserWithScrollPosition 
-    extends HtmlBrowser
-{
+public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkListener { 
+
+    // for displaying in the external browser
+    private HtmlBrowser.URLDisplayer displayer = HtmlBrowser.URLDisplayer.getDefault();
     /** Timer to use for scrolling this tab */
     private Timer scrollTimer = null;
+    // html rendering pane
+    protected JEditorPane html;
+    // URL input field - not necessary for being used in the component
+    protected JTextField  inputURL;
     
-    /** Creates a new instance of HtmlBrowserWithScrollPosition */
-    public HtmlBrowserWithScrollPosition(boolean toolbar, boolean statusLine) {
-        super(toolbar, statusLine);
+    public HtmlBrowserWithScrollPosition() {
+        setLayout(new BorderLayout());
+
+        // construct html pane
+        html = new JEditorPane();
+        html.setEditorKitForContentType("text/html", new HTMLEditorKit()); //NOI18N
+        html.setEditable(false);
+        html.addHyperlinkListener(this);
+
+        // construct URL input field - not necessary for the component
+        inputURL = new JTextField();
+        inputURL.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionevent) {      
+                 try {
+                     setURL(new URL(inputURL.getText()));
+                 } catch (MalformedURLException e) {
+                     System.out.println("malformed url"); // NOI18N
+                     //ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                 }
+                 
+            }
+        });
+        // only for testing with main()
+        // add(inputURL, BorderLayout.NORTH);
+        add(new JScrollPane(html), BorderLayout.CENTER); 
+		
+	}
+
+    // override the method in HyperLinkListener
+    public void hyperlinkUpdate(HyperlinkEvent e) {
+        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            setURL(e.getURL());
+        }
+    }
+ 
+    protected void setURL(URL u) {
+        if (u!=null) {
+        String protocol = u.getProtocol();
+        // spawn the external browser for these types of links
+        if (protocol.equals("http") || protocol.equals("https")) {
+            displayer.showURL(u);
+        } else {
+            inputURL.setText(u.toString());
+            Cursor c = html.getCursor();
+            Cursor waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
+            html.setCursor(waitCursor);
+            SwingUtilities.invokeLater(new HtmlLoader(u, c));
+        }
+        }
+    } 
+
+    // Mostly copied from swing sample - this class may need to be synchronized
+    class HtmlLoader implements Runnable {
+        URL url;
+        Cursor cursor; 
+
+        HtmlLoader(URL u, Cursor c) {
+            url = u;
+            cursor = c;
+        } 
+
+        public void run() {
+            if (url == null) {
+                html.setCursor(cursor);
+                Container parent = html.getParent();
+                parent.repaint();
+            } else {
+                Document doc = html.getDocument();
+                try {
+                    html.setPage(url);
+                } catch (IOException e) {
+                    html.setDocument(doc);
+                    System.out.println("IOException" + e); // NOI18N
+                } finally {
+                    url = null;
+                    SwingUtilities.invokeLater(this);
+                }
+            }
+        }
     }
     
     /**
@@ -99,4 +176,4 @@ public class HtmlBrowserWithScrollPosition
         );
         this.scrollTimer.start();
     }
-}
+} 

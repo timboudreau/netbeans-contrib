@@ -40,7 +40,7 @@ public class DesignTab
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        designBrowser = new HtmlBrowserWithScrollPosition(false, false);
+        designBrowser = new HtmlBrowserWithScrollPosition();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -50,7 +50,7 @@ public class DesignTab
     // </editor-fold>//GEN-END:initComponents
     
     
-     // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel designBrowser;
     // End of variables declaration//GEN-END:variables
     

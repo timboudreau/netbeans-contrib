@@ -39,7 +39,7 @@ public class SolutionTab
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        solutionBrowser = new HtmlBrowserWithScrollPosition(false, false);
+        solutionBrowser = new HtmlBrowserWithScrollPosition();
 
         setLayout(new java.awt.BorderLayout());
 

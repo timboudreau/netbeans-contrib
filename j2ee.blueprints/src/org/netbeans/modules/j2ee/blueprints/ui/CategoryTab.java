@@ -39,7 +39,7 @@ public class CategoryTab
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        categoryBrowser = new HtmlBrowserWithScrollPosition(false, false);
+        categoryBrowser = new HtmlBrowserWithScrollPosition();
 
         setLayout(new java.awt.BorderLayout());
 
