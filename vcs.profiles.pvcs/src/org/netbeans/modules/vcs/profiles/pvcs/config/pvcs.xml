@@ -439,6 +439,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshRecursivelyPatternMatched">
           <value>-z</value>
         </property>
+        <property name="refreshOnFail">
+          <value>2</value>
+        </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.UpdateCommandAction</value>
         </property>
@@ -552,6 +555,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="refreshRecursivelyPatternMatched">
           <value>RecursiveFolderCommand</value>
+        </property>
+        <property name="refreshOnFail">
+          <value>2</value>
         </property>
         <property name="concurrentExec">
           <value>14</value>  <!-- ((SERIAL_ON_PACKAGE || SERIAL_WITH_PARENT) && SERIAL_OF_COMMAND) -->
