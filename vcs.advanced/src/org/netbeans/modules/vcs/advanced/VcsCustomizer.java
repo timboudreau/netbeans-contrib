@@ -1929,7 +1929,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                     for (Iterator it = variables.iterator(); it.hasNext(); ) {
                         VcsConfigVariable var = (VcsConfigVariable) it.next();
                         String value = (String) vars.get(var.getName());
-                        var.setValue(value);
+                        if (value != null) var.setValue(value);
                     }
                 }
                 // enable fs to react on change in variables
