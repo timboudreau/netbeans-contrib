@@ -113,6 +113,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                     
                     if ((!showEditor)||(ComponentsEditorPanel.showDialog(gen.getRoot(), gen.getNodes()))) {
 
+                        file=new File(directory+"/"+gen.getClassName()+".java");
                         out=new PrintStream(new FileOutputStream(file));
                         out.println(gen.getComponentCode());
                         out.close();
