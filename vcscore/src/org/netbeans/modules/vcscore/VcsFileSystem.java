@@ -1674,21 +1674,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             len = importantFiles.size();
             //System.out.println(" length of important = "+len);
             if (len == 1) {
-                FileObject ff = (FileObject) oo[0];
-                String fullName = ff.getPackageNameExt('/','.');
+                String fullName = (String) importantFiles.get(0);
+                //System.out.println(" fullName = "+fullName);
                 result = RefreshCommandSupport.getStatusAnnotation(name, fullName, annotationPattern, statusProvider);
-                /*
-                FileObject parent = ff.getParent();
-                if (parent != null && cache!=null) {
-                    CacheDir dir = this.cache.getDir (parent.getPackageNameExt('/','.'));
-                    if (dir != null && dir.isIgnored (ff.getNameExt())) {
-                        result = RefreshCommandSupport.getStatusAnnotation(name,fullName, annotationPattern);
-                    }
-                }
-                 */
             } else {
-                //oo = VcsUtilities.reorderFileObjects(files).toArray();
-                //ArrayList importantFiles = getImportantFiles(oo);
+                //System.out.println(" importantFiles = "+VcsUtilities.arrayToString((String[]) importantFiles.toArray(new String[0])));
                 result = RefreshCommandSupport.getStatusAnnotation(name, importantFiles, annotationPattern, statusProvider, multiFilesAnnotationTypes);
             }
         }
