@@ -387,9 +387,6 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="IS_FINISH_ENABLED" basic="false">
       <value>$[? DO_CHECKOUT][]["true"]</value>
     </variable>
-    <variable name="DO_CHECKOUT" basic="false">
-      <value></value>
-    </variable>
     <variable name="INITIAL_CO_MODULE" basic="false">
       <value>.</value>
     </variable>

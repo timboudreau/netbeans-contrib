@@ -69,6 +69,7 @@ public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
         String userName = null;
         String serverName = null;
         String serverPort = null;
+        boolean isDoCheckoutVar = vars.keySet().contains("DO_CHECKOUT");
         vars.clear(); // Not to alter other variables than that we want to set.
         if (dirFile.exists()) {
             BufferedReader buff = null;
@@ -104,9 +105,10 @@ public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
                     } catch (IOException eIO) {}
                 }
             }
-            vars.put("DO_CHECKOUT",""); // NOI18N
-        }else
-            vars.put("DO_CHECKOUT","true");// NOI18N
+            if (isDoCheckoutVar) vars.put("DO_CHECKOUT",""); // NOI18N
+        } else {
+            if (isDoCheckoutVar) vars.put("DO_CHECKOUT","true");// NOI18N
+        }
         if (serverType != null) vars.put("SERVERTYPE", serverType);// NOI18N
         if (repository != null) vars.put("CVS_REPOSITORY", repository);// NOI18N
         if (userName != null) vars.put("CVS_USERNAME", userName);// NOI18N
