@@ -366,8 +366,6 @@ public class CvsListFileCommand extends Object implements VcsAdditionalCommand, 
                               CommandDataOutputListener errorOutputListener) throws InterruptedException {
         VcsCommand cmd = fileSystem.getCommand(cmdName);
         if (cmd == null) return ;
-        // The user should be warned by the wrapper class and not the command itself.
-        cmd.setProperty(VcsCommand.PROPERTY_IGNORE_FAIL, Boolean.TRUE);
         VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         if (dataOutputListener != null) ec.addDataOutputListener(dataOutputListener);
         if (errorOutputListener != null) ec.addDataErrorOutputListener(errorOutputListener);
