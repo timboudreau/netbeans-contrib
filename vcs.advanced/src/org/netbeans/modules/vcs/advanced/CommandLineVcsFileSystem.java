@@ -288,6 +288,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public void setConfig(String label) {
         this.config = label;
         firePropertyChange(PROP_CONFIG, null, label);
+        firePropertyChange(PROP_DISPLAY_NAME, null, getDisplayName());
     }
     
     /**
