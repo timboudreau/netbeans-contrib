@@ -100,6 +100,10 @@ public class VcsAttributes extends DefaultAttributes {
         supporter = supp;
     }
     
+    public VcsActionSupporter getCurrentSupporter() {
+        return (VcsActionSupporter)supporter;
+    }
+    
     /**
      * Get the file attribute with the specified name.
      * @param name the file name
