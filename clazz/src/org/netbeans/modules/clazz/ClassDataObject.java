@@ -12,41 +12,46 @@
  */
 package org.netbeans.modules.clazz;
 
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import java.lang.reflect.Modifier;
-import java.lang.ref.*;
-import java.io.*;
-import java.util.*;
-
-import org.openide.cookies.ElementCookie;
-import org.openide.cookies.SourceCookie;
-import org.openide.cookies.InstanceCookie;
-
+import java.beans.PropertyChangeListener;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.FileEntry;
-import org.openide.loaders.InstanceSupport;
+
+import java.lang.reflect.Modifier;
+import org.openide.util.WeakListener;
+import org.openide.util.HelpCtx;
+
+import org.openide.nodes.Node.Cookie;
+import org.openide.nodes.CookieSet.Factory;
+import org.netbeans.modules.classfile.ClassFile;
 import org.openide.loaders.MultiDataObject;
+import org.openide.loaders.InstanceSupport;
+import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiFileLoader;
+import java.io.IOException;
+import org.openide.src.nodes.ElementNodeFactory;
+import org.openide.src.nodes.SourceElementFilter;
+import org.openide.src.nodes.SourceChildren;
+import org.openide.src.nodes.FilterFactory;
+import org.openide.src.ClassElement;
+import org.openide.src.SourceElement;
+import org.openide.src.ConstructorElement;
+import org.openide.src.Type;
 
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
+import org.openide.nodes.CookieSet;
+import java.util.ArrayList;
+import java.util.List;
+import org.openide.cookies.SourceCookie;
+import org.openide.cookies.ElementCookie;
+import org.openide.cookies.InstanceCookie;
 
-import org.openide.src.SourceElement;
-import org.openide.src.nodes.ElementNodeFactory;
-import org.openide.src.nodes.FilterFactory;
-import org.openide.src.nodes.SourceChildren;
-import org.openide.src.nodes.SourceElementFilter;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 
-import org.openide.util.HelpCtx;
-import org.openide.util.WeakListener;
-import org.openide.loaders.DataObjectExistsException;
-import org.netbeans.modules.classfile.ClassFile;
+
 
 
 /** This DataObject loads sourceless classes and provides a common framework
@@ -60,8 +65,7 @@ import org.netbeans.modules.classfile.ClassFile;
  * @author sdedic
  * @version 1.0
  */
-public class ClassDataObject extends org.openide.loaders.MultiDataObject 
-    implements ElementCookie, CookieSet.Factory, SourceCookie {
+public class ClassDataObject extends MultiDataObject implements Factory, SourceCookie, ElementCookie {
     public static final String PROP_CLASS_LOADING_ERROR = "classLoadingError"; // NOI18N
     /**
      * Holds an exception that occured during an attempt to create the class.
@@ -93,10 +97,11 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
     
     transient Reference srcEl = new WeakReference(null);
     
+    transient private ClassFile mainClass; // don't access directly, use getMainClass() instead
+    
     /** Creates a new sourceless DataObject.
      */
-    public ClassDataObject(final FileObject fo,final MultiFileLoader loader) 
-        throws org.openide.loaders.DataObjectExistsException {
+    public ClassDataObject(final FileObject fo, final MultiFileLoader loader) throws DataObjectExistsException {
         super(fo, loader);
     }
 
@@ -110,7 +115,7 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
         return new CompiledDataObject(fo, dl);
     }
     
-    private class PropL extends FileChangeAdapter implements PropertyChangeListener, Runnable {
+    private class PropL extends FileChangeAdapter implements Runnable, PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent ev) {
             String prop = ev.getPropertyName();
             if (PROP_PRIMARY_FILE.equals(prop)) {
@@ -167,13 +172,13 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
             if (s != null)
                 return s;
             sourceCreated = true;
-            s = new SourceElement(new SourceElementImpl(getMainClass(), this));
+            s = new SourceElement(new SourceElementImpl(getClassFile(), this));
             srcEl = new WeakReference(s);
         }
         return s;
     }
     
-    public Node.Cookie createCookie(Class desired) {
+    public Cookie createCookie(Class desired) {
         if (desired == InstanceCookie.class || desired == InstanceCookie.Origin.class) {
             return createInstanceSupport();
         }
@@ -181,9 +186,8 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
     }
     
     protected Throwable getClassLoadingError() {
-        if (!classLoaded)
-            getMainClass();
-        return this.classLoadingError;
+        getClassFile();
+        return classLoadingError;
     }
     
     /**
@@ -196,7 +200,7 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
         prevCookie = (InstanceCookie)getCookie(InstanceCookie.class);
         synchronized (this) {
             instanceSupport = null;
-            classLoaded = false;
+            mainClass = null;
         }
         // if the previous support was != null, it recreates the cookie
         // (and fires PROP_COOKIE change).
@@ -211,7 +215,7 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
             SourceCookie sc = (SourceCookie)getCookie(SourceCookie.class);
             SourceElementImpl impl = (SourceElementImpl)sc.getSource().getCookie(SourceElement.Impl.class);
             if (impl != null)
-                impl.setClassObject(getMainClass());
+                impl.setClassObject(getClassFile());
         }
     }
     
@@ -220,21 +224,35 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
      * cannot be loaded. In such case, it records the error trace into
      * {@link #classLoadingError} variable.
      */
-    protected ClassFile getMainClass() {
-        ClassFile mainClass = null; //can I cache it?
-        Throwable t = this.classLoadingError;
-        try {
-            mainClass = new ClassFile(getPrimaryEntry().getFile().getInputStream());            
-            // try to load the class.
-            //mainClass = createInstanceSupport().instanceClass();
+    protected ClassFile getClassFile() {
+        if (mainClass==null) {        
+            Throwable t = this.classLoadingError;
             classLoadingError = null;
-        } catch (RuntimeException ex) {
-            classLoadingError = ex;
-        } catch (IOException ex) {
-            classLoadingError = ex;
+            try {
+                mainClass = loadClassFile();            
+            } catch (RuntimeException ex) {
+                classLoadingError = ex;
+            } catch (IOException ex) {
+                classLoadingError = ex;
+            } catch (ClassNotFoundException ex) {
+                classLoadingError = ex;
+            }
+            if (classLoadingError != null)
+                firePropertyChange(PROP_CLASS_LOADING_ERROR, t, classLoadingError);
         }
-        firePropertyChange(PROP_CLASS_LOADING_ERROR, t, classLoadingError);
         return mainClass;
+    }
+    
+    protected ClassElement getMainClass() {
+        ClassElement ce[]=getSource().getClasses();
+        
+        if (ce.length==0)
+            return null;
+        return ce[0];
+    }
+    
+    protected ClassFile loadClassFile() throws IOException,ClassNotFoundException {
+        return new ClassFile(getPrimaryEntry().getFile().getInputStream(),false);            
     }
     
     /** Help context for this object.
@@ -252,18 +270,15 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
      * @see org.openide.loaders.DataObject#getNodeDelegate
     */
     public Node getElementsParent () {
+        SourceElement ourClass = getSource();
+        if (ourClass == null)
+            return null;
         ElementNodeFactory cef = getBrowserFactory();
         final SourceChildren sourceChildren = new SourceChildren (cef);
         SourceElementFilter sourceElementFilter = new SourceElementFilter();
         sourceElementFilter.setAllClasses (true);
         sourceChildren.setFilter (sourceElementFilter);
-
-        ClassFile ourClass = getMainClass();
-        if (ourClass == null)
-            return null;
-        sourceChildren.setElement (
-            new SourceElement(new SourceElementImpl(ourClass, this))
-        );
+        sourceChildren.setElement(ourClass);
 
         AbstractNode alteranteParent = new AbstractNode (sourceChildren) {
             {
@@ -272,6 +287,23 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
         };
 
         return alteranteParent;
+    }
+
+    // DataObject implementation .............................................
+
+    /** Getter for copy action.
+    * @return true if the object can be copied
+    */
+    public boolean isCopyAllowed () {
+        return true;    
+    }
+
+    public boolean isMoveAllowed () {
+        return !getPrimaryFile ().isReadOnly ();
+    }
+
+    public boolean isRenameAllowed () {
+        return !getPrimaryFile ().isReadOnly ();
     }
 
     // =======================================================================
@@ -290,22 +322,24 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
         return createInstanceSupport().isInterface ();
     }
 
-    public Class getSuperclass () throws IOException, ClassNotFoundException {
-        return createInstanceSupport().instanceClass ().getSuperclass ();
+    public String getSuperclass () {
+        ClassElement ce=getMainClass();
+        
+        if (ce==null)
+            return "";
+        return ce.getSuperclass().getFullName();
     }
 
     public String getModifiers () throws IOException, ClassNotFoundException {
-        return Modifier.toString (createInstanceSupport().instanceClass().getModifiers());
+        ClassElement ce=getMainClass();
+        
+        if (ce==null)
+            throw new ClassNotFoundException();
+        return Modifier.toString(ce.getModifiers());
     }
 
     public String getClassName () {
-        try {
-            return instanceSupport.instanceClass ().getName ();
-        } catch (Exception e) {
-            // ignore and return the instance name from the InstanceSupport,
-            // which is by default the file name of the original instance
-        }
-        return instanceSupport.instanceName ();
+        return createInstanceSupport().instanceName ();
     }
 
     public Class getBeanClass () throws IOException, ClassNotFoundException {
@@ -379,6 +413,13 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
     }
     
     protected final class ClazzInstanceSupport extends org.openide.loaders.InstanceSupport.Origin {
+
+        /** the class is bean */
+        private Boolean bean;
+
+        /** the class is executable */
+        private Boolean executable;
+
         ClazzInstanceSupport(MultiDataObject.Entry entry) {
             super(entry);
         }
@@ -410,6 +451,123 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
                     org.openide.TopManager.getDefault().currentClassLoader());
             loader.setDefaultPermissions(perms);
             return loader;
+        }
+        
+        /** Is this a JavaBean?
+         * @return <code>true</code> if this class represents JavaBean (is public and has a public default constructor).
+         */
+        public boolean isJavaBean() {
+        if (bean != null) return bean.booleanValue ();
+        
+        // if from ser file => definitely it is a java bean
+        if (isSerialized ()) {
+            bean = Boolean.TRUE;
+            return true;
+        }
+        
+        // try to find out...
+        try {
+            ClassElement clazz = getMainClass();
+            
+            if (clazz==null) return false;
+            int modif = clazz.getModifiers();
+            if (!Modifier.isPublic(modif) || Modifier.isAbstract(modif)) {
+                bean = Boolean.FALSE;
+                return false;
+            }
+            ConstructorElement c=clazz.getConstructor(new Type[0]);
+            if ((c == null) || !Modifier.isPublic(c.getModifiers())) {
+                bean = Boolean.FALSE;
+                return false;
+            }
+            // check: if the class is an inner class, all outer classes have
+            // to be public and in the static context:
+            
+            for (ClassElement outer = clazz.getDeclaringClass(); outer != null; outer = outer.getDeclaringClass()) {
+                // check if the enclosed class is static
+                if (!Modifier.isStatic(modif)) {
+                    bean = Boolean.FALSE;
+                    return false;
+                }
+                modif = outer.getModifiers();
+                // ... and the enclosing class is public
+                if (!Modifier.isPublic(modif)) {
+                    bean = Boolean.FALSE;
+                    return false;
+                }
+            }
+        } catch (RuntimeException ex) {
+            throw ex;
+        } catch (ThreadDeath t) {
+            throw t;
+        } catch (Throwable t) {
+            // false when other errors occur (NoClassDefFoundError etc...)
+            bean = Boolean.FALSE;
+            return false;
+        }
+        // okay, this is bean...
+        //    return isBean = java.io.Serializable.class.isAssignableFrom (clazz);
+        bean = Boolean.TRUE;
+        return true;   
+        }
+        
+        /** Is this an interface?
+         * @return <code>true</code> if the class is an interface
+         */
+        public boolean isInterface() {
+            ClassElement ce=getMainClass();
+            
+            return (ce==null)?false:ce.isInterface();
+        }
+                
+        public String instanceName() {
+            ClassElement ce=getMainClass();
+            
+            if (ce==null)
+                return super.instanceName();
+            return ce.getName().getFullName();
+        }
+        
+        /*Query to found out if the object created by this cookie is 
+        * instance of given type.
+        * @param type the class type we want to check
+        * @return true if this cookie can produce object of given type
+        */
+        public boolean instanceOf(Class type) {
+            String className=type.getName();
+            ClassElement ce=getMainClass();
+            
+            if (ce==null)
+                return false;
+            for (;;ce=ClassElement.forName(ce.getSuperclass().getFullName())) {
+                String fullName=ce.getName().getFullName();
+                
+                if (fullName.equals(className))
+                    return true;                
+                if (fullName.equals("java.lang.Object"))
+                    return false;
+            }
+        }
+
+        /** Is this a standalone executable?
+         * @return <code>true</code> if this class has main method
+         * (e.g., <code>public static void main (String[] arguments)</code>).
+         */
+        public boolean isExecutable() {
+            if (executable == null) {
+                ClassElement ce=getMainClass();
+
+                executable=new Boolean((ce==null)?false:ce.hasMainMethod());
+            }
+            return executable.booleanValue ();
+        }    
+        
+        /** Test whether the instance represents serialized version of a class
+         * or not.
+         * @return true if the file entry extension is ser
+         */
+        private boolean isSerialized () {
+            return instanceOrigin().getExt().equals("ser"); // NOI18N
         }
     }
 }

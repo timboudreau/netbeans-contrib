@@ -13,22 +13,19 @@
 
 package org.netbeans.modules.clazz;
 
-import java.io.IOException;
-
-import org.openide.cookies.InstanceCookie;
-import org.openide.filesystems.*;
-import org.openide.loaders.DataObjectExistsException;
+import org.openide.util.HelpCtx;
+import org.netbeans.modules.classfile.ClassFile;
 import org.openide.loaders.InstanceSupport;
-import org.openide.loaders.MultiFileLoader;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
-
+import org.openide.loaders.DataObjectExistsException;
 import org.openide.nodes.Node;
 import org.openide.nodes.CookieSet;
-import org.openide.TopManager;
+import java.io.InputStream;
+import org.openide.filesystems.FileObject;
 import org.openide.ErrorManager;
+import org.openide.TopManager;
+import org.openide.cookies.InstanceCookie;
+import java.io.IOException;
 
-import org.openide.util.HelpCtx;
 
 /** DataObject which represents JavaBeans (".ser" files).
 * This class is final only for performance reasons,
@@ -62,30 +59,6 @@ public final class SerDataObject extends ClassDataObject {
     public boolean isJavaBean() {
         return true;
     }
-    
-    /**
-     * All serialized objects can be copied using ordinary file copy.
-     * @returns true
-     */
-    public boolean isCopyAllowed() {
-        return true;
-    }
-
-    /**
-     * Move is allowed iff the primary file can be written to.
-     * @return true if the object can be moved.
-     */
-    public boolean isMoveAllowed () {
-        return !getPrimaryFile ().isReadOnly ();
-    }
-
-    /**
-     * Rename is allowed iff the primary file can be written to.
-     * @return true if the object can be renamed.
-     */
-    public boolean isRenameAllowed () {
-        return !getPrimaryFile ().isReadOnly ();
-    }
 
     /** 
      * Creates NodeDelegate for this DataObject
@@ -93,6 +66,17 @@ public final class SerDataObject extends ClassDataObject {
     */
     protected Node createNodeDelegate () {
         return new SerDataNode (this);
+    }
+
+
+    protected ClassFile loadClassFile() throws IOException,ClassNotFoundException {
+        Class clazz = createInstanceSupport().instanceClass();
+        String resourceName='/'+clazz.getName().replace('.','/')+".class"; // NOI18N
+        InputStream stream=clazz.getResourceAsStream(resourceName);
+
+        if (stream==null)
+            return null;
+        return new ClassFile(stream,false);
     }
 
     /**

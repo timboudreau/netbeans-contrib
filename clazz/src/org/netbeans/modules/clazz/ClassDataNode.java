@@ -58,9 +58,6 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
     */
     private boolean showDeclaredOnly = true;  // [PENDING - get default value from somewhere ?]
 
-    /** ClassDataObject that is represented */
-    protected ClassDataObject obj;
-
     /** The flag indicating whether right icon has been already found */
     transient boolean iconResolved = false;
 
@@ -79,7 +76,6 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
         super(obj, new SourceChildren(ClassElementNodeFactory.getInstance()));
         */
         super(obj, new SourceChildren( ClassDataObject.getExplorerFactory()) );
-        this.obj = obj;
         initialize();
     }
     
@@ -104,6 +100,7 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
     protected Sheet createSheet () {
         Sheet s = super.createSheet();
         ResourceBundle bundle = NbBundle.getBundle(ClassDataNode.class);
+        final ClassDataObject obj=(ClassDataObject)getDataObject();
         Sheet.Set ps = s.get(Sheet.PROPERTIES);
         ps.put(new PropertySupport.ReadOnly (
                    PROP_CLASS_NAME,
@@ -135,20 +132,12 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
                });
         ps.put(new PropertySupport.ReadOnly (
                    ElementProperties.PROP_SUPERCLASS,
-                   Class.class,
+                   String.class,
                    bundle.getString ("PROP_superclass"),
                    bundle.getString ("HINT_superclass")
                ) {
                    public Object getValue () throws InvocationTargetException {
-                       Object result = null;
-                       try {
-                           result = obj.getSuperclass();
-                       } catch (IOException ex) {
-                           // ignore - return null
-                       } catch (ClassNotFoundException ex) {
-                           // ignore - return null
-                       }
-                       return result;
+                       return obj.getSuperclass();
                    }
                });
         ps.put(new PropertySupport.ReadOnly (

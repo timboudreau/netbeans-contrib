@@ -118,69 +118,7 @@ public class CompiledDataObject extends ClassDataObject {
         return super.createCookie(c);
     }
 
-    // DataObject implementation .............................................
 
-    /** Getter for copy action.
-    * @return true if the object can be copied
-    */
-    public boolean isCopyAllowed () {
-        boolean isSerializable = false;
-        try {
-            isSerializable = Serializable.class.isAssignableFrom(createInstanceSupport().instanceClass());
-        } catch (Exception exc) {
-            // don't allow copying if some error appeared
-            // during serializability test
-        }
-        return isJavaBean () && isSerializable;
-    }
-
-    /** Class DO cannot be moved.
-    * @return false
-    */
-    public boolean isMoveAllowed () {
-        return false;
-    }
-
-    /** Class DO cannot be renamed.
-    * @return false
-    */
-    public boolean isRenameAllowed () {
-        return false;
-    }
-
-    /** Copies this object to a folder. The copy of the object is required to
-    * be deletable and movable.
-    *
-    * @param f the folder to copy object to
-    * @exception IOException if something went wrong
-    * @return the new object
-    */
-    protected DataObject handleCopy (DataFolder f) throws IOException {
-        String newName = existInFolder (f);
-        Object bean;
-        try {
-            bean = createInstanceSupport().instanceCreate();
-        } catch (ClassNotFoundException ex) {
-            throw new IOException (ex.toString ());
-        }
-        if (bean == null) throw new IOException ();
-        FileObject serFile = f.getPrimaryFile ().createData (newName, "ser"); // NOI18N
-        FileLock lock = null;
-        ObjectOutputStream oos = null;
-        try {
-            lock = serFile.lock ();
-            oos = new ObjectOutputStream (serFile.getOutputStream (lock));
-            oos.writeObject (bean);
-        }
-        finally {
-            if (lock != null)
-                lock.releaseLock ();
-            if (oos != null)
-                oos.close ();
-        }
-        return DataObject.find (serFile);
-    }
-    
     /**
     * @return class data node
     */
@@ -240,31 +178,6 @@ public class CompiledDataObject extends ClassDataObject {
     }
 
     // innerclasses .......................................................
-
-    /** The implementation of the source cookie.
-    * Class data object cannot implement source cookie directly,
-    * because it's optional (if there's no instance cookie, then also
-    * no source cookie is supported)
-    */
-    private static final class SourceSupport extends Object
-        implements SourceCookie {
-        /** The class which acts as a source element data */
-        private ClassFile data;
-        /** Reference to outer class */
-        private ClassDataObject cdo;
-
-        /** Creates source support with asociated class object */
-        SourceSupport (ClassFile data, ClassDataObject cdo) {
-            this.data = data;
-            this.cdo = cdo;
-        }
-
-        /** @return The source element for this class data object */
-        public SourceElement getSource () {
-            return new SourceElement(new SourceElementImpl(data, cdo));
-        }
-
-    } // the end of SourceSupport inner class
     
     private static class ExecSupport extends org.openide.loaders.ExecSupport {
         ExecSupport(MultiDataObject.Entry en) {

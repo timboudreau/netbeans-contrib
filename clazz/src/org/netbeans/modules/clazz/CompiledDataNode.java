@@ -16,6 +16,7 @@ import org.openide.nodes.PropertySupport;
 import org.openide.ErrorManager;
 import org.openide.TopManager;
 import org.openide.util.NbBundle;
+import org.openide.filesystems.FileObject;
 
 /**
  * This class overrides a few methods from ClassDataNode presenting the contents
@@ -91,19 +92,21 @@ public class CompiledDataNode extends ClassDataNode {
     /** Find right icon for this node. */
     protected void resolveIcons () {
         CompiledDataObject dataObj = getCompiledDataObject();
-        try {
-            dataObj.getBeanClass (); // check exception
-            if (dataObj.isJavaBean ()) {
+//        try {
+            FileObject fo=dataObj.getPrimaryFile();
+
+            if (!(dataObj.getClassName().equals(fo.getPackageName('.')))) {
+                setIconBase(ERROR_BASE);
+            } else if (dataObj.isJavaBean ()) {
                 if (dataObj.isExecutable ())
                     setIconBase(BEAN_MAIN_BASE);
                 else
                     setIconBase(BEAN_BASE);
-            } else
-                if (dataObj.isExecutable ())
-                    setIconBase(CLASS_MAIN_BASE);
-                else
-                    setIconBase(CLASS_BASE);
-        } catch (IOException ex) {
+            } else if (dataObj.isExecutable ())
+                setIconBase(CLASS_MAIN_BASE);
+            else
+                setIconBase(CLASS_BASE);
+/*        } catch (IOException ex) {
             // log exception only and set error tooltip
             TopManager.getDefault().getErrorManager().notify(
                 ErrorManager.INFORMATIONAL, ex
@@ -118,7 +121,7 @@ public class CompiledDataNode extends ClassDataNode {
             setIconBase(ERROR_BASE);
             setErrorToolTip(ex);
         }
-        iconResolved = true;
+*/        iconResolved = true;
     }
 
 }
