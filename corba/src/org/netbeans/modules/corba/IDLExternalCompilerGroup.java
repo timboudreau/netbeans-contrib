@@ -110,14 +110,12 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
             System.out.flush ();
         }
         //_files.add (type);
-        for (int i=0; i<files.length; i++) {
-            //_files.add (files[i]);
-            if (DEBUG) {
-                System.out.print (files[i] + ", "); // NOI18N
-                System.out.flush ();
+        if (DEBUG) {
+            for (int i=0; i<files.length; i++) {
+                System.out.print(files[i] + ", "); // NOI18N
+                System.out.flush();
             }
         }
-
         //fo = findFileObject (files[0]);
         fo = (FileObject)_file_objects.elementAt (0);
         return desc.exec (new IDLFormat (files, fo));

@@ -129,6 +129,8 @@ public class IDLDataObject extends MultiDataObject
     public static final int STYLE_FIRST_LEVEL_WITH_NESTED_TYPES = 2;
     public static final int STYLE_ALL = 3;
     
+    public static final String EXT_JAVA = "java";   // No I18N
+    
     private static RequestProcessor _S_request_processor
 	= new RequestProcessor("CORBA - IDL Parser"); // NOI18N
     private static RequestProcessor _S_request_processor2
@@ -367,16 +369,13 @@ public class IDLDataObject extends MultiDataObject
         //(__nb.getProcessName (), __new_args, __nb.getInfo ());
         ExternalCompiler __ec  = new IDLExternalCompiler
         (__fo, __type, __nb, __eexpr);
-        
-        __job.add(__ec);
-        
-        ArrayList __gens = this.getGeneratedFileObjects();
+        CompilerJob idlCompilerJob = new CompilerJob (Compiler.DEPTH_INFINITE);
+        idlCompilerJob.add(__ec);
+        ArrayList __gens = this.getGeneratedFileObjectNames();
         //JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
         //JavaCompilerType jct = (JavaCompilerType)js.getCompiler ();
         JavaCompilerType __jct = (JavaCompilerType)TopManager.getDefault().getServices
         ().find(JavaExternalCompilerType.class);
-        if (DEBUG)
-            System.out.println("generated files: " + __gens); // NOI18N
         FileSystem __fs = null;
         try {
             __fs = __fo.getFileSystem();
@@ -386,21 +385,13 @@ public class IDLDataObject extends MultiDataObject
         }
         
         String __package_name = ""; // NOI18N
-        for (int __j = 0; __j < __gens.size(); __j++) {
-            if (DEBUG)
-                System.out.println("add compiler to job for " // NOI18N
-                + ((FileObject)__gens.get(__j)).getName());
-            
-            __package_name = ((FileObject)__gens.get(__j)).getPackageNameExt('/', '.');
-            
-            if (DEBUG)
-                System.out.println("package name: " + __package_name); // NOI18N
-            
+        for (Iterator it = __gens.iterator();it.hasNext();) {
+            String javaFileName = (String) it.next ();
             // future extension: jct.prepareIndirectCompiler
             //                    (type, fs, package_name, "text to status line"); // NOI18N
-            __job.add(__jct.prepareIndirectCompiler(__type, __fs, __package_name));
+            __job.add(__jct.prepareIndirectCompiler(__type, __fs, javaFileName));
         }
-        
+        __job.dependsOn (idlCompilerJob);
         return __ec;
     }
     
@@ -652,11 +643,15 @@ public class IDLDataObject extends MultiDataObject
          */
         Iterator __iterator = __idl_constructs.iterator();
         while (__iterator.hasNext()) {
-            __name = ((IDLElement)__iterator.next()).getName();
-            if (__name != null && (!__name.equals(""))) { // NOI18N
-                __possible_names.put(__name + "Holder", ""); // NOI18N
-                __possible_names.put(__name + "Helper", ""); // NOI18N
-                __possible_names.put(__name, ""); // NOI18N
+            IDLElement idlElement = (IDLElement) __iterator.next();
+            __name = idlElement.getName();
+            if (idlElement instanceof ModuleElement && __name != null && __name.length()>0) {// NOI18N
+                __possible_names.put (__name,idlElement);   // NOI18N
+            }
+            else if (__name != null && __name.length()>0) {
+                __possible_names.put(__name + "Holder", idlElement); // NOI18N
+                __possible_names.put(__name + "Helper", idlElement); // NOI18N
+                __possible_names.put(__name, idlElement); // NOI18N
             }
         }
         // for idl interfaces
@@ -666,31 +661,32 @@ public class IDLDataObject extends MultiDataObject
          */
         __iterator = __idl_interfaces.iterator();
         while (__iterator.hasNext()) {
-            __name = ((IDLElement)__iterator.next()).getName();
+            IDLElement idlElement = (IDLElement) __iterator.next ();
+            __name = idlElement.getName();
             if (__name != null && (!__name.equals(""))) { // NOI18N
                 //
                 // now I comment *tie* names which classes are necesary to instantiate in server
                 // and it's better when user can see it in explorer
                 //
-                __possible_names.put("_" + __name + "Stub", ""); // NOI18N
+                __possible_names.put("_" + __name + "Stub", idlElement); // NOI18N
                 //possible_names.put ("POA_" + name + "_tie", ""); // NOI18N
                 //possible_names.put ("POA_" + name, ""); // NOI18N
-                __possible_names.put(__name + "POA", ""); // NOI18N
+                __possible_names.put(__name + "POA", idlElement); // NOI18N
                 //possible_names.put (name + "POATie", ""); // NOI18N
-                __possible_names.put(__name + "Operations", ""); // NOI18N
+                __possible_names.put(__name + "Operations", idlElement); // NOI18N
                 //possible_names.put ("_" + name + "ImplBase_tie", ""); // NOI18N
                 
                 // for JavaORB
-                __possible_names.put("StubFor" + __name, ""); // NOI18N
-                __possible_names.put("_" + __name + "ImplBase", ""); // NOI18N
+                __possible_names.put("StubFor" + __name, idlElement); // NOI18N
+                __possible_names.put("_" + __name + "ImplBase", idlElement); // NOI18N
                 // for VisiBroker
-                __possible_names.put("_example_" + __name, ""); // NOI18N
+                __possible_names.put("_example_" + __name, idlElement); // NOI18N
                 //possible_names.put ("_tie_" + name, ""); // NOI18N
-                __possible_names.put("_st_" + __name, ""); // NOI18N
+                __possible_names.put("_st_" + __name, idlElement); // NOI18N
                 // for OrbixWeb
-                __possible_names.put("_" + __name + "Skeleton", ""); // NOI18N
-                __possible_names.put("_" + __name + "Stub", ""); // NOI18N
-                __possible_names.put("_" + __name + "Operations", ""); // NOI18N
+                __possible_names.put("_" + __name + "Skeleton", idlElement); // NOI18N
+                __possible_names.put("_" + __name + "Stub", idlElement); // NOI18N
+                __possible_names.put("_" + __name + "Operations", idlElement); // NOI18N
                 // for idltojava - with tie
                 //possible_names.put ("_" + name + "Tie", ""); // NOI18N
                 // for hidding folders
@@ -700,9 +696,10 @@ public class IDLDataObject extends MultiDataObject
         }
         __iterator = __idl_values.iterator();
         while (__iterator.hasNext()) {
-            __name = ((IDLElement)__iterator.next()).getName();
+            IDLElement idlElement = (IDLElement) __iterator.next();
+            __name = idlElement.getName();
             if (__name != null && (!__name.equals(""))) { // NOI18N
-                __possible_names.put(__name + "ValueFactory", ""); // NOI18N
+                __possible_names.put(__name + "ValueFactory", idlElement); // NOI18N
             }
             
         }
@@ -751,7 +748,7 @@ public class IDLDataObject extends MultiDataObject
         }
         /*
           } catch (java.lang.NullPointerException __ex) {
-          //synchronized (_M_possible_names_lock) {
+          //synchronized (_lock) {
           synchronized (this) {
           // thread must wait for parser
           try {
@@ -1221,6 +1218,24 @@ public class IDLDataObject extends MultiDataObject
         //return new Hashtable ();
         // never execute
         return null;
+    }
+    
+    public ArrayList getGeneratedFileObjectNames () {
+        ArrayList result = new ArrayList ();
+        HashMap possibleNames = this.getPossibleNames ();
+        Iterator it = possibleNames.keySet().iterator ();
+        Iterator vit = possibleNames.values().iterator();
+        FileObject parent = this.getPrimaryFile().getParent();
+        String prefix = parent.getPackageNameExt ('/','.');
+        while (it.hasNext()) {
+            IDLElement idlElement = (IDLElement) vit.next();
+            String objectName = (String)it.next();
+            if (idlElement instanceof ModuleElement)
+                continue;
+            String name = prefix + '/' + objectName  + '.' + EXT_JAVA;
+            result.add (name);
+        }
+        return result;
     }
     
     public ArrayList getGeneratedFileObjects() {
