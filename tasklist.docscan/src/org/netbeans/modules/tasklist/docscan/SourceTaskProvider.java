@@ -101,6 +101,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
         // for recently opened document
         if (Settings.PROP_SCAN_TAGS.equals(ev.getPropertyName())
         ||  Settings.PROP_SCAN_SKIP.equals(ev.getPropertyName())) {
+            if (env == null) return;
             rescan();
         }
     }
