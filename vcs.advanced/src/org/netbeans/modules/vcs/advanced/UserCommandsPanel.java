@@ -22,6 +22,7 @@ import java.text.*;
 
 import com.netbeans.enterprise.modules.vcs.util.*;
 import org.openide.explorer.propertysheet.*;
+import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.util.*;
 
 /** User commands panel.
@@ -30,7 +31,7 @@ import org.openide.util.*;
  */
 //-------------------------------------------
 public class UserCommandsPanel extends JPanel 
-  implements NbCustomPropertyEditor {
+  implements EnhancedCustomPropertyEditor {
 
   private Debug E=new Debug("UserCommandsPanel",true);
   private Debug D=E;
@@ -294,6 +295,8 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  8    Gandalf   1.7         6/30/99  Ian Formanek    reflected change in 
+ *       enhanced property editors
  *  7    Gandalf   1.6         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
  *  6    Gandalf   1.5         5/27/99  Michal Fadljevic 
