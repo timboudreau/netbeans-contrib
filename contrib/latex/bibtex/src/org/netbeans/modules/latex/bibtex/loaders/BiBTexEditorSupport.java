@@ -61,7 +61,7 @@ public class BiBTexEditorSupport extends DataEditorSupport implements EditorCook
     public BiBTexEditorSupport(BiBTexDataObject obj) {
         super(obj, new TexEnv(obj));
         // Set a MIME type as needed, e.g.:
-        setMIMEType("text/plain");
+        setMIMEType("text/x-bibtex");
     }
     
     public void open() {

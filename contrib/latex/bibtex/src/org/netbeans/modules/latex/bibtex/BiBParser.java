@@ -14,26 +14,20 @@
  */
 package org.netbeans.modules.latex.bibtex;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PushbackReader;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Stack;
-import javax.swing.JFrame;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.modules.latex.editor.Utilities;
+import org.netbeans.modules.latex.editor.bibtex.BiBTeXLanguage;
 
 import org.netbeans.modules.latex.model.bibtex.Entry;
 import org.netbeans.modules.latex.model.bibtex.FreeFormEntry;
 import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
 import org.netbeans.modules.latex.model.bibtex.StringEntry;
 import org.netbeans.modules.latex.model.command.SourcePosition;
+import org.netbeans.modules.lexer.editorbridge.TokenRootElement;
 
 /**
  *
@@ -45,170 +39,53 @@ public class BiBParser {
     public BiBParser() {
     }
     
-    private static final int EOF        = (-1);
-    private static final int AT_CHAR    = 1;
-    private static final int OP_BRAC    = 2;
-    private static final int CL_BRAC    = 3;
-    private static final int TEXT       = 4;
-    private static final int STRING     = 5;
-    private static final int EQUALS     = 6;
-    private static final int COMMA      = 7;
-    private static final int WHITESPACE = 8;
-    private static final int SPECIAL    = 9;
-    
     private static final String STRING_TYPE = "STRING";
     private static final String COMMENT_TYPE = "COMMENT";
     private static final String PREAMBLE_TYPE = "PREAMBLE";
     
-    private int currentOffset;
     private Document source;
-    private String text;
-//    private PushbackReader input;
-    private char lastChar;
-    private String identifier;
+    private int index;
+    
+    private void setDocument(Document source, int offset) {
+        this.source = source;
+        index = Utilities.getTokenIndex(source, offset);
+    }
+    
+    private Token getNextToken() {
+        return Utilities.getTokenForIndex(source, index++);
+    }
     
     private SourcePosition getCurrentPosition() {
-        return new SourcePosition(source, currentOffset);
+        return new SourcePosition(source, Utilities.getTREImpl(source).getElementOffset(index - 1));
     }
-    
-    private String currentBuffer = null;
-    private int    currentBufferStart = -1;
-    private static final int BUFFER_LEN = 100;
-    
-    private int readNext() {
-        if (currentBuffer == null || currentBufferStart + currentBuffer.length() <=/*??=??*/ currentOffset ) {
-            try {
-                int len = BUFFER_LEN;
-                if (currentOffset + len >= source.getLength()) {
-                    len = source.getLength() - currentOffset;
-                }
-//                System.err.println("length=" + source.getLength());
-//                System.err.println("currentOffset = " + currentOffset );
-//                System.err.println("len = " + len );
-                currentBuffer = source.getText(currentOffset, len);
-                currentBufferStart = currentOffset;
-            } catch (BadLocationException e) {
-                e.printStackTrace();
-                return EOF; //TODO: make this sane, preferably using lexer...
-            }
-        }
-        
-        if ((currentOffset - currentBufferStart) < currentBuffer.length()) {
-//            System.err.print(currentBuffer.charAt(currentOffset - currentBufferStart));
-            return lastChar = currentBuffer.charAt(currentOffset++ - currentBufferStart);
-        } else
-            return EOF;
-    }
-    
-    private int getToken() throws IOException {
-        int c;
-        
-        while (true) {
-            c = readNext();
-        switch (c) {
-            case (-1): return EOF;
-            
-            case '@': return AT_CHAR;
-            
-            case '{':
-            case '(': return OP_BRAC;
-            
-            case '}':
-            case ')': return CL_BRAC;
-            
-            case '=': return EQUALS;
 
-            case ';':
-            case ',': return COMMA;
-            
-            case '"': return STRING;
-            
-            case ' ':
-            case '\t':
-            case '\n': return WHITESPACE;
-            
-            case '%': while ((c = readNext()) != EOF && c != '\n')//TODO: %is (probably) allowed in strings!
-                          ;
-                      if (c == EOF)
-                          return EOF;
-            
-                      currentOffset--;
-                      
-                      continue;
-                      
-            default: if (Character.isLetter((char) c))
-                          return readText((char) c);
-                     return SPECIAL;
-        }
-        }
-    }
     
-    private int readText(char first) throws IOException {
-        StringBuffer result = new StringBuffer();
-        int c;
-        
-        result.append(first);
-        
-        while ((c = readNext()) != (-1) && Character.isLetterOrDigit((char) c)) {
-            result.append((char) c);
-        }
-        
-        currentOffset--;
-        
-        identifier = result.toString();
-        
-        return TEXT;
+    private boolean isEOF() {
+        return index >= Utilities.getTREImpl(source).getElementCount();
     }
-    
-//    public synchronized Collection/*<Entry>*/ parseBiBFile(Document doc) throws IOException {
-//        //TODO: locking!!
-//        source = doc;
-////        text = doc.getText(0, doc.getLength());
-//        currentOffset = 0;
-//        Collection result = new ArrayList();
-//        
-//        Entry entry;
-//        
-//        while ((entry = parseEntry(-1)) != null) {
-//            result.add(entry);
-//        }
-//        
-//        return result;
-//    }
     
     public Entry parseEntry(Document doc, int startOffset) throws IOException {
-        source = doc;
-        currentOffset = startOffset;
+        setDocument(doc, startOffset);
         
         return parseEntry();
     }
     
-    private boolean isStopParsingInsideEntryToken(int token) {
-        return token == EOF || token == AT_CHAR;
+    private boolean isStopParsingInsideEntryToken(Token token) {
+        return token.getId() == BiBTeXLanguage.TYPE;
     }
     
     private Entry parseEntry() throws IOException {
-        int token;
+        Token token = null;
         
-        while ((token = getToken()) != AT_CHAR && token != EOF)
+        while (!isEOF() && (token = getNextToken()).getId() != BiBTeXLanguage.TYPE)
             ;
         
-        if (token == EOF)
+        if (isEOF())
             return null;
         
-        currentOffset--;
         SourcePosition start = getCurrentPosition();
-        currentOffset++;
         
-        token = getToken();
-        
-        if (isStopParsingInsideEntryToken(token))
-            return null;
-        
-        if (token != TEXT)
-            return null; //non-valid entry
-
-        String type = identifier.toString();
+        String type = getTypeString(token);
         Entry result;
         
         if (STRING_TYPE.equalsIgnoreCase(type)) {
@@ -229,22 +106,34 @@ public class BiBParser {
         return result;
     }
     
+    private String getTypeString(Token token) {
+        String text = token.getText().toString();
+                
+        assert BiBTeXLanguage.TYPE == token.getId() && text.length() > 0;
+        assert text.charAt(0) == '@';
+        
+        return text.substring(1);
+    }
+    
     private Entry parseStringEntry() throws IOException {
         StringEntry entry = new StringEntry();
-        int token = -2;
+        Token token = null;
         
-        while ((token = getToken()) != TEXT && !isStopParsingInsideEntryToken(token) && token != CL_BRAC)
+        while (!isEOF() && (token = getNextToken()).getId() != BiBTeXLanguage.TEXT && !isStopParsingInsideEntryToken(token) && token.getId() != BiBTeXLanguage.CL_BRAC)
             ;
         
-        if (token != TEXT)
+        if (isEOF())
             return entry;
         
-        String key = identifier.toString();
+        if (token.getId() != BiBTeXLanguage.TEXT)
+            return entry;
         
-        while ((token = getToken()) != EQUALS && !isStopParsingInsideEntryToken(token))
+        String key = token.getText().toString();
+        
+        while (!isEOF() && (token = getNextToken()).getId() != BiBTeXLanguage.EQUALS && !isStopParsingInsideEntryToken(token))
             ;
         
-        if (isStopParsingInsideEntryToken(token))
+        if (isEOF() || isStopParsingInsideEntryToken(token))
             return null;
 
         //TODO: this is not finished !
@@ -256,24 +145,24 @@ public class BiBParser {
 
     private Entry parseFreeFormEntry(String type) throws IOException {
         FreeFormEntry entry = new FreeFormEntry();
-        int token = -2;
+        Token token;
         
         entry.setType(type);
         
         Stack bracketStack = new Stack();
         
-        while ((token = getToken()) != OP_BRAC)
+        while ((token = getNextToken()).getId() != BiBTeXLanguage.OP_BRAC)
             ;
         
-        bracketStack.push(lastChar == '{' ? "{" : "(");
+        bracketStack.push(token.getText().charAt(0) == '{' ? "{" : "(");
         
         while (!bracketStack.isEmpty()) {
-            token = getToken();
+            token = getNextToken();
             
-            if (token == OP_BRAC)
-                bracketStack.push(lastChar == '{' ? "{" : "(");
+            if (token.getId() == BiBTeXLanguage.OP_BRAC)
+                bracketStack.push(token.getText().charAt(0) == '{' ? "{" : "(");
             
-            if (token == CL_BRAC)
+            if (token.getId() == BiBTeXLanguage.CL_BRAC)
                 bracketStack.pop(); //TODO: check the type of the bracket!
         }
         
@@ -282,23 +171,23 @@ public class BiBParser {
 
     private Entry parsePublicationEntry(String type) throws IOException {
         PublicationEntry entry = new PublicationEntry();
-        int token;
+        Token token = null;
         
         entry.setType(type.toUpperCase()); //TODO: is this correct and wanted behaviour?
         
-        while ((token = getToken()) != OP_BRAC && !isStopParsingInsideEntryToken(token))
+        while (!isEOF() && (token = getNextToken()).getId() != BiBTeXLanguage.OP_BRAC && !isStopParsingInsideEntryToken(token))
             ;
         
-        if (isStopParsingInsideEntryToken(token))
+        if (isEOF() || isStopParsingInsideEntryToken(token))
             return null;
         
-        while ((token = getToken()) != TEXT && !isStopParsingInsideEntryToken(token))
+        while (!isEOF() && (token = getNextToken()).getId() != BiBTeXLanguage.TEXT && !isStopParsingInsideEntryToken(token))
             ;
         
-        if (isStopParsingInsideEntryToken(token))
+        if (isEOF() || isStopParsingInsideEntryToken(token))
             return null;
         
-        entry.setTag(identifier);
+        entry.setTag(token.getText().toString());
         
         while (parseMap(entry))
             ;
@@ -307,17 +196,20 @@ public class BiBParser {
     }
     
     private boolean parseMap(PublicationEntry entry) throws IOException {
-        int token = -2;
+        Token token = null;
         
-        while ((token = getToken()) != TEXT && !isStopParsingInsideEntryToken(token) && token != CL_BRAC)
+        while (!isEOF() && (token = getNextToken()).getId() != BiBTeXLanguage.TEXT && !isStopParsingInsideEntryToken(token) && token.getId() != BiBTeXLanguage.CL_BRAC)
             ;
         
-        if (token != TEXT)
+        if (isEOF())
             return false;
         
-        String key = identifier;
+        if (token.getId() != BiBTeXLanguage.TEXT)
+            return false;
         
-        while ((token = getToken()) != EQUALS && !isStopParsingInsideEntryToken(token))
+        String key = token.getText().toString();
+        
+        while (!isEOF() && (token = getNextToken()).getId() != BiBTeXLanguage.EQUALS && !isStopParsingInsideEntryToken(token))
             ;
         
         if (isStopParsingInsideEntryToken(token))
@@ -327,52 +219,32 @@ public class BiBParser {
         return readValueString(entry, key);
     }
     
-    private void appendContent(StringBuffer buffer, int token) {
-        if (token == TEXT) {
-            buffer.append(identifier);
-        } else {
-            buffer.append(lastChar);
+    private void appendContent(StringBuffer buffer, Token token) {
+        String text = token.getText().toString();
+        
+        if (BiBTeXLanguage.STRING == token.getId() && text.length() > 0) {
+            int start = text.charAt(0) == '"' ? 1 : 0;
+            int end = text.length() - (text.charAt(text.length() - 1) == '"' ? 1 : 0);
+            
+            text = text.substring(start, end);
         }
         
+        buffer.append(text);
     }
+    
     private boolean readValueString(PublicationEntry entry, String key) throws IOException {
         StringBuffer result = new StringBuffer();
-        int token;
+        Token token = null;
         
-        while ((token = getToken()) != COMMA && !isStopParsingInsideEntryToken(token) && token != CL_BRAC) {
-            if (token == OP_BRAC) {//TODO: balanced brackets:
-                while ((token = getToken()) != CL_BRAC && !isStopParsingInsideEntryToken(token)) {
+        while (!isEOF() && (token = getNextToken()).getId() != BiBTeXLanguage.COMMA && !isStopParsingInsideEntryToken(token) && token.getId() != BiBTeXLanguage.CL_BRAC) {
+            if (token.getId() == BiBTeXLanguage.OP_BRAC) {//TODO: balanced brackets:
+                while ((token = getNextToken()).getId() != BiBTeXLanguage.CL_BRAC && !isStopParsingInsideEntryToken(token)) {
                     appendContent(result, token);
                 }
                 continue;
             }
-
-            if (token == STRING) {
-                //TODO: describe the error detection and correction used here!
-                int lastClosingBracket = -1;
-                
-                while ((token = getToken()) != STRING && !isStopParsingInsideEntryToken(token)) {
-                    if (token == CL_BRAC)
-                        lastClosingBracket = currentOffset;
-                    
-                    appendContent(result, token);
-                }
-                
-                //TODO: well, not sure whether this error correction is correct and whether it will work correctly under all circumstaces.
-                //Forcing a ".
-//                if ((supposedEnd != (-1) && currentOffset >= supposedEnd))
-//                    currentOffset--;
-                
-                if (isStopParsingInsideEntryToken(token)) {
-                    if (lastClosingBracket != (-1))
-                        currentOffset = lastClosingBracket;
-                    break;
-                }
-                
-                continue;
-            }
-
-            if (token != WHITESPACE) {
+            
+            if (token.getId() != BiBTeXLanguage.WHITESPACE) {
                 appendContent(result, token);
             }
         }
@@ -381,21 +253,6 @@ public class BiBParser {
         
         boolean isStopParsingInsideEntryToken = isStopParsingInsideEntryToken(token);
         
-        if (isStopParsingInsideEntryToken)
-            currentOffset--;
-        
-//        if (token == CL_BRAC) {
-//            System.err.println("CL_BRAC:" + getCurrentPosition().toString());
-//        }
-//        
-//        if (isStopParsingInsideEntryToken) {
-//            System.err.println("isStopParsingInsideEntryToken:" + getCurrentPosition().toString());
-//        }
-//        
-//        System.err.println("X");
-//        System.err.println("token = " + token );
-//        System.err.println("isStopParsingInsideEntryToken = " + isStopParsingInsideEntryToken );
-//        System.err.println("entry=" + entry);
-        return token != CL_BRAC && !isStopParsingInsideEntryToken;
+        return token.getId() != BiBTeXLanguage.CL_BRAC && !isStopParsingInsideEntryToken;
     }
 }

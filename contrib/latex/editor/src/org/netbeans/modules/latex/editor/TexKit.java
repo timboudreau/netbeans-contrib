@@ -144,6 +144,8 @@ public class TexKit extends NbEditorKit {
     }
     
     protected void initDocument(BaseDocument doc) {
+        super.initDocument(doc);
+        doc.putProperty("mime-type", TEX_MIME_TYPE);
 /*        try {
             System.err.println("Creating spelling layer:");*/
 //            if (!Dictionary.getDefault().isEmpty())

@@ -16,17 +16,18 @@ Microsystems, Inc. All Rights Reserved.
 
   <import file="../../nbbuild/templates/projectized.xml"/>
   
-  <target name="compile" depends="compile-language,projectized.compile" />
+  <target name="compile" depends="compile-language-tex,compile-language-bibtex,projectized.compile" />
   
-  <target name="compile-language">
-    <property name="grammar.name" value="Tex" />
-    <property name="grammar.pkg" value="org.netbeans.modules.latex.editor" />
-    <property name="grammar.root" value="." />
-    <property name="lexer.module.root" value="../../../../../../../../lexer" />
-    <property name="lang.description.xml.ignore" value="false" />
+  <target name="compile-language-tex">
     
     <ant dir="../../lexer/gen" /><!--inheritAll="false"/>-->
-    <ant dir="src/org/netbeans/modules/latex/editor" antfile="${lexer.module.root}/gen/src/org/netbeans/modules/lexer/gen/handcoded/handcodedLangBuild.xml" target="compile" />
+    <ant dir="src/org/netbeans/modules/latex/editor" antfile="../../../../../../../../lexer/gen/src/org/netbeans/modules/lexer/gen/handcoded/handcodedLangBuild.xml" target="compile">
+        <property name="grammar.name" value="Tex" />
+        <property name="grammar.pkg" value="org.netbeans.modules.latex.editor" />
+        <property name="grammar.root" value="." />
+        <property name="lexer.module.root" value="../../../../../../../../lexer" />
+        <property name="lang.description.xml.ignore" value="false" />
+    </ant>
   </target>
     
   <target name="do-editor-release">
@@ -35,6 +36,17 @@ Microsystems, Inc. All Rights Reserved.
     <chmod file="${netbeans.dest.dir}/${cluster.dir}/modules/bin/lide-editor-client" perm="uog+x" />
   </target>
   
+  <target name="compile-language-bibtex">
+    <ant dir="../../lexer/gen" /><!--inheritAll="false"/>-->
+    <ant dir="src/org/netbeans/modules/latex/editor/bibtex" antfile="../../../../../../../../../lexer/gen/src/org/netbeans/modules/lexer/gen/handcoded/handcodedLangBuild.xml" target="compile">
+         <property name="lexer.module.root" value="../../../../../../../../../lexer" />
+         <property name="grammar.name" value="BiBTeX" />
+         <property name="grammar.pkg" value="org.netbeans.modules.latex.editor.bibtex" />
+         <property name="grammar.root" value="." />
+         <property name="lang.description.xml.ignore" value="false" />
+    </ant>
+  </target>
+  
   <target name="netbeans-extra" depends="do-editor-release"/>
-
+  
 </project>

@@ -102,6 +102,7 @@ Microsystems, Inc. All Rights Reserved.
 	    </module-dependencies>
             <public-packages>
                 <package>org.netbeans.modules.latex.editor</package>
+                <package>org.netbeans.modules.latex.editor.bibtex</package>
             </public-packages>
         </data>
     </configuration>

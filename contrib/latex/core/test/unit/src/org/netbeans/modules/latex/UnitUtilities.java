@@ -144,9 +144,11 @@ public class UnitUtilities extends ProxyLookup {
             InputStream  fis = null;
             
             try {
-                fis = ((FileObject) obj).getInputStream();
+                FileObject   file = (FileObject) obj;
                 int          read;
                 StringBuffer test = new StringBuffer();
+                
+                fis = file.getInputStream();
                 
                 while ((read = fis.read()) != (-1)) {
                     test.append((char) read);
@@ -157,6 +159,14 @@ public class UnitUtilities extends ProxyLookup {
                     
                     doc.insertString(0, test.toString(), null);
                     doc.putProperty(Document.StreamDescriptionProperty,  obj);
+                    
+                    if ("tex".equals(file.getExt())) {
+                        doc.putProperty("mime-type", "text/x-tex");
+                    }
+                    
+                    if ("bib".equals(file.getExt())) {
+                        doc.putProperty("mime-type", "text/x-bibtex");
+                    }
                     
                     file2Document.put(obj, doc);
                     return doc;

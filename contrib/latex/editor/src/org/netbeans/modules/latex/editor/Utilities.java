@@ -14,23 +14,17 @@
  */
 package org.netbeans.modules.latex.editor;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import org.netbeans.api.lexer.Language;
 
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenId;
-import org.netbeans.api.lexer.swing.FlyChildrenElement;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.latex.model.command.ArgumentNode;
-import org.netbeans.modules.latex.model.command.CommandNode;
-import org.netbeans.modules.latex.model.command.DefaultTraverseHandler;
+import org.netbeans.modules.latex.editor.bibtex.BiBTeXLanguage;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.lexer.editorbridge.TokenRootElement;
 import org.netbeans.spi.lexer.inc.OffsetToken;
 
@@ -243,13 +237,28 @@ public final class Utilities {
         
     }
     
-    public static TexTokenRootElement getTREImpl(Document doc) {
+    private static TexTokenRootElement getTREImpl(Document doc, Language language) {
         Object tre = doc.getProperty(TokenRootElement.class);
         
         if (tre instanceof TexTokenRootElement)
             return (TexTokenRootElement) tre;
         else
-            return new TexTokenRootElement(doc, TexLanguage.get());
+            return new TexTokenRootElement(doc, language);
+    }
+    
+    public static TexTokenRootElement getTREImpl(Document doc) {
+        Object mimeType = doc.getProperty("mime-type");
+        
+        if (mimeType == null || !(mimeType instanceof String))
+            throw new IllegalStateException("Undeterminable mime type.");
+        
+        if ("text/x-tex".equals(mimeType))
+            return getTREImpl(doc, TexLanguage.get());
+        
+        if ("text/x-bibtex".equals(mimeType))
+            return getTREImpl(doc, BiBTeXLanguage.get());
+        
+        throw new IllegalStateException("Unknown mime type: " + mimeType);
     }
     
 }

@@ -56,7 +56,8 @@ public class ParserInput implements DocumentListener {
     
     private Document getDocument(FileObject fo, Collection documents) throws IOException {
         changed = false;
-        AbstractDocument ad = (AbstractDocument) Utilities.getDefault().openDocument(fo);
+        
+        Document ad = (Document) Utilities.getDefault().openDocument(fo);
         
         //TODO: ad may be null. is there something that can be done?:
         ad.addDocumentListener(this);

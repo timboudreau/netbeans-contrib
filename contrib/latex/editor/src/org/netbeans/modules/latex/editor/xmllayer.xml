@@ -60,6 +60,13 @@ Contributor(s): Jan Lahoda
                 </file>
             </folder>
           </folder>
+          
+         <folder name="x-bibtex">
+<!--            <file name="Settings.settings" url="TexOptions.settings"/>-->
+            <file name="EditorKit.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.editor.bibtex.BiBTeXKit"/>
+            </file>
+         </folder>
       </folder>
    </folder>
 </filesystem>

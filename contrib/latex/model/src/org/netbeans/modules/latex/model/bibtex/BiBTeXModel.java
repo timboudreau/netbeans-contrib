@@ -34,12 +34,6 @@ public abstract class BiBTeXModel {
     public abstract void removeBiBTexModelChangeListener(BiBTeXModelChangeListener l);
     
     public static synchronized BiBTeXModel getModel(Object file) {
-//        Lookup.Result r = Lookup.getDefault().lookup(new Lookup.Template(Object.class));
-//        
-//        for (Iterator i = r.allInstances().iterator(); i.hasNext(); ) {
-//            System.err.println(i.next());
-//        }
-        
         BiBTeXModelFactory factory = (BiBTeXModelFactory) Lookup.getDefault().lookup(BiBTeXModelFactory.class);
         
         return factory.get(file);

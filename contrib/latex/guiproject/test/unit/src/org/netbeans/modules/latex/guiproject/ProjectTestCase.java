@@ -128,8 +128,8 @@ public class ProjectTestCase extends NbTestCase {
         project2Files.add(copyFile("data/bibdatabase2a.bib", prj2, "bibdatabase2a", "bib"));
         project2Files.add(copyFile("data/bibdatabase2b.bib", prj2, "bibdatabase2b", "bib"));
         
-        project1Files.add(copyFile("data/public1.xml", prj1Impl, "public", "xml"));
-        project1Files.add(copyFile("data/private1.xml", prj1Impl, "private", "xml"));
+        /*project1Files.add(*/copyFile("data/public1.xml", prj1Impl, "public", "xml")/*)*/;
+        /*project1Files.add(*/copyFile("data/private1.xml", prj1Impl, "private", "xml")/*)*/;
 	
 	notIncluded = copyFile("data/notIncluded.tex", testDir, "noIncluded", "tex");
         
