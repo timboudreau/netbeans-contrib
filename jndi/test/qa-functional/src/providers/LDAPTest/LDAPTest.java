@@ -169,19 +169,21 @@ public class LDAPTest extends JellyTestCase {
             throw new AssertionFailedError ("Cannot find context: " + dirname);
 
         /* Print lookup and binding code */
-        MainWindowOperator.StatusTextTracer stt = MainWindowOperator.getDefault().getStatusTextTracer();
-        stt.start ();
+//        MainWindowOperator.StatusTextTracer stt = MainWindowOperator.getDefault().getStatusTextTracer();
+//        stt.start ();
         JdirNode.copyLookupCode();
-        stt.waitText("Lookup code generated to clipboard.", true);
-        stt.stop ();
+        MainWindowOperator.getDefault().waitStatusText("Lookup code generated to clipboard.");
+//        stt.waitText("Lookup code generated to clipboard.", true);
+//        stt.stop ();
 //        performAction(dirNode, LookupCopyAction.class);
         ref.println("Lookup copy code on node: " + "<LDAP_SUB_CONTEXT>");
         printClipboardToRef();
 
-        stt.start ();
+//        stt.start ();
         JdirNode.copyBindingCode();
-        stt.waitText("Binding code generated to clipboard.", true);
-        stt.stop ();
+        MainWindowOperator.getDefault().waitStatusText("Binding code generated to clipboard.");
+//        stt.waitText("Binding code generated to clipboard.", true);
+//        stt.stop ();
 //        performAction(dirNode, BindingCopyAction.class);
         ref.println("Binding copy code on node: " + "<LDAP_SUB_CONTEXT>");
         printClipboardToRef();
