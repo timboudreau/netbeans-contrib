@@ -35,6 +35,7 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
+import org.openide.util.HelpCtx;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListener;
 
@@ -61,6 +62,10 @@ public class CommandLineVcsFileSystemNode extends AbstractNode {
         setIconBase("org/netbeans/modules/vcs/advanced/vcsGeneric"); // NOI18N
         getCookieSet().add(ic);
         updateState();
+    }
+    
+    public HelpCtx getHelpCtx() {
+        return new HelpCtx(CommandLineVcsFileSystemNode.class);
     }
     
     private void updateState() {
