@@ -138,13 +138,10 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="corba.nbm"
              topdir="."
-	     manifest="manifest-subst.mf"
+             module="netbeans/modules/corba.jar"
 	     homepage="http://corba.${homepage.base}/corba.html"
 	     distribution="http://${dist.base}/corba.nbm" >
       <license file="${license.file}" />
-      <description>
-        CORBA ...
-      </description>
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>

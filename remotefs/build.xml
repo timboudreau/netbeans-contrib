@@ -50,13 +50,10 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="remotefs.nbm"
              topdir="."
-	     manifest="manifest-subst.mf"
+             module="netbeans/modules/remotefs.jar"
 	     homepage="http://remotefs.${homepage.base}/"
 	     distribution="http://${dist.base}/remotefs.nbm">
       <license file="${license.file}"/>
-      <description>
-        Remote file system support, currently FTP.
-      </description>
       <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
     </makenbm>
   </target>

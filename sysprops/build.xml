@@ -50,7 +50,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="sysprops.nbm"
              topdir="."
-	     manifest="manifest-subst.mf"
+             module="netbeans/modules/sysprops.jar"
 	     homepage="http://sysprops.${homepage.base}/"
 	     distribution="http://${dist.base}/sysprops.nbm">
       <license file="${license.file}"/>

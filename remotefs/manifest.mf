@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.remotefs/1
 OpenIDE-Module-Name: FTP FileSystem
+OpenIDE-Module-Long-Description: Remote file system support, currently FTP.
 OpenIDE-Module-Install: org/netbeans/modules/remotefs/ftpfs/FTPfsModule.class
 OpenIDE-Module-Specification-Version: 1.3
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@

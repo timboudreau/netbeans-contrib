@@ -67,13 +67,10 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="vcscore.nbm"
              topdir="."
-	     manifest="manifest-subst.mf"
+             module="netbeans/modules/autoload/vcscore.jar"
 	     homepage="http://vcscore.${homepage.base}/"
 	     distribution="http://${dist.base}/vcscore.nbm">
       <license file="${license.file}"/>
-      <description>
-        Core version-control support.
-      </description>
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>

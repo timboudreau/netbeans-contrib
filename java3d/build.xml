@@ -60,13 +60,10 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="java3d.nbm"
              topdir="."
-	     manifest="manifest-subst.mf"
+             module="netbeans/modules/java3d.jar"
 	     homepage="http://java3D.${homepage.base}/"
 	     distribution="http://{dist.base}/java3d.nbm">
       <license file="${license.file}"/>
-      <description>
-        Java 3D
-      </description>
     </makenbm>
   </target>
 

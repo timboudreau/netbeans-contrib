@@ -71,13 +71,10 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="jndi.nbm"
              topdir="."
-	     manifest="manifest-subst.mf"
+             module="netbeans/modules/jndi.jar"
 	     homepage="http://http://${homepage.base}/jndi.html"
 	     distribution="${dist.base}/jndi.nbm">
       <license file="${license.file}"/>
-      <description>
-        JNDI module
-      </description>
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>
