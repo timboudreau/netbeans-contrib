@@ -570,7 +570,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             stop.setToolTipText(Util.getString("stop_hint") + " (ESC)");  // NOI18N
             stop.setVisible(job == null);
             stop.addActionListener(dispatcher);
-            adjustHeight(stop);
+            adjustToobarButton(stop);
         }
         return stop;
     }
@@ -582,7 +582,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             button.setToolTipText(Util.getString("rescan_hint") + " (r)");  // NOI18N
             button.setEnabled(job == null);
             button.addActionListener(dispatcher);
-            adjustHeight(button);
+            adjustToobarButton(button);
 
             button.getAccessibleContext().setAccessibleName(Util.getString("rescan"));
             button.getAccessibleContext().setAccessibleDescription(Util.getString("rescan_hint"));
@@ -597,7 +597,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (prev == null) {
             JButton button = new JButton("Prev (Shift+F12)");
             button.addActionListener(dispatcher);
-            adjustHeight(button);
+            adjustToobarButton(button);
             prev = button;
         }
         return prev;
@@ -607,7 +607,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (next == null) {
             JButton button = new JButton("Next (F12)");
             button.addActionListener(dispatcher);
-            adjustHeight(button);
+            adjustToobarButton(button);
             next = button;
         }
         return next;
@@ -633,7 +633,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             group.add(button);
             button.setSelected(job == null);
             button.addActionListener(dispatcher);
-            adjustHeight(button);
+            adjustToobarButton(button);
 //            JButton pop = new JButton("V");
 //            adjustHeight(pop);
 //            JToggleButton both = new JToggleButton();
@@ -658,7 +658,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             JButton button = new DropDown();
             button.setToolTipText(Util.getString("selector_hint") + " (S)"); // NOI18N
             button.addActionListener(dispatcher);
-            adjustHeight(button);
+            adjustToobarButton(button);
 
             button.getAccessibleContext().setAccessibleName(Util.getString("select-folder"));
             button.getAccessibleContext().setAccessibleDescription(Util.getString("selector_hint"));
@@ -766,7 +766,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             group.add(button);
             button.setSelected(getMode() == OPENED_FILES_MODE);
             button.addActionListener(dispatcher);
-            adjustHeight(button);
+            adjustToobarButton(button);
 
             button.getAccessibleContext().setAccessibleName(Util.getString("opened"));
             button.getAccessibleContext().setAccessibleDescription(Util.getString("opened_desc"));
@@ -785,7 +785,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             group.add(button);
             button.setSelected(getMode() == CURRENT_FILE_MODE);
             button.addActionListener(dispatcher);
-            adjustHeight(button);
+            adjustToobarButton(button);
 
             button.getAccessibleContext().setAccessibleName(Util.getString("see-file"));
             button.getAccessibleContext().setAccessibleDescription(Util.getString("see-file_hint"));
@@ -803,7 +803,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             JButton button = new JButton(new ImageIcon(image));
             button.setToolTipText(Util.getString("goto_hint") + " (e)");  // NOI18N
             button.addActionListener(dispatcher);
-            adjustHeight(button);
+            adjustToobarButton(button);
 
             button.getAccessibleContext().setAccessibleName(Util.getString("goto"));
             button.getAccessibleContext().setAccessibleDescription(Util.getString("goto_hint"));
@@ -878,10 +878,26 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private final ActionListener dispatcher = new Dispatcher();
 
-    /** Toolbar controls must be smaller*/
-    private void adjustHeight(AbstractButton button) {
+    /** Toolbar controls must be smaller and should be tarnsparent*/
+    private void adjustToobarButton(final AbstractButton button) {
 
         button.setMargin(new Insets(0, 3, 0, 3));
+
+        // workaround for Ocean L&F clutter - toolbars use gradient.
+        // To make the gradient visible under buttons the content area must not
+        // be filled. To support rollover it must be temporarily filled 
+        if (button instanceof JToggleButton == false) {
+            button.setContentAreaFilled(false);
+            button.addMouseListener(new MouseAdapter() {
+                public void mouseEntered(MouseEvent e) {
+                    button.setContentAreaFilled(true);
+                }
+
+                public void mouseExited(MouseEvent e) {
+                    button.setContentAreaFilled(false);
+                }
+            });
+        }
 
 //        if (button instanceof JToggleButton) {
 //            if (buttonBorder == null) { // for some l&f's, core will supply one
@@ -899,10 +915,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 //            button.setBorder(buttonBorder);
 //        }
 
-        adjustHeightComponent(button);
+        adjustToolbarComponentSize(button);
     }
     
-    private void adjustHeightComponent(JComponent button) {
+    private void adjustToolbarComponentSize(JComponent button) {
         // as we cannot get the button small enough using the margin and border...
         if (button.getBorder() instanceof CompoundBorder) { // from BasicLookAndFeel
             Dimension pref = button.getPreferredSize();
@@ -942,6 +958,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         //JSeparator separator = new JSeparator(JSeparator.VERTICAL);  // Ocean L&F doe snot support vertical separators
         JPanel separator = new JPanel();
+        separator.setOpaque(false);  // Ocean L&F toolbars use gradients
         toolbar.add(separator);
         toolbar.add(getGoto());
         toolbar.add(getRefresh());
@@ -950,6 +967,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         //JSeparator separator2 = new JSeparator(JSeparator.VERTICAL);  // Ocean L&F doe snot support vertical separators
         JPanel separator2 = new JPanel();
+        separator2.setOpaque(false);   // Ocean L&F toolbars use gradients
         toolbar.add(separator2);
         toolbar.add(getMiniStatus());
         toolbar.add(getProgress());
@@ -1526,7 +1544,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
       if (filterIconButton == null) {
             Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filter.gif")); // NOI18N
 	    filterIconButton = new JButton(icon);
-	    adjustHeight(filterIconButton);
+	    adjustToobarButton(filterIconButton);
             filterIconButton.setToolTipText(Util.getString("filter_hint") + " (shift+f)");  // NOI18N
 	    filterIconButton.addActionListener(dispatcher);
 
@@ -1623,7 +1641,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (filterCombo == null) {
             filterCombo = new JComboBox(new FiltersComboModel(getFilters()));
             filterCombo.addActionListener(dispatcher);
-            adjustHeightComponent(filterCombo);
+            adjustToolbarComponentSize(filterCombo);
             Dimension dim = filterCombo.getPreferredSize();
             dim.width = 150;
             dim.height = getToolbarHeight();
