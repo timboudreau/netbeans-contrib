@@ -14,9 +14,8 @@
 package org.netbeans.modules.tasklist.core;
 
 import java.awt.Dimension;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.JTree;
+import java.awt.event.KeyEvent;
+import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import org.openide.explorer.view.TreeTableView;
@@ -45,7 +44,10 @@ final class MyTreeTableView extends TreeTableView implements TreeTableIntf {
         double height = new JLabel("Z").getPreferredSize().getHeight();
         int intheight = (int) height;
         table.setRowHeight(intheight);
-        
+
+        // #45006 "cancelEdit" bound to ESC eliminates our ESC handling
+        table.getInputMap(WHEN_FOCUSED).remove(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+
             /* Issue 23993 was fixed which probably makes this unnecessary:
 // Grid color: HIE's asked for (230,230,230) but that seems troublesome
 // since we'd have to make a GUI for customizing it. Instead, go

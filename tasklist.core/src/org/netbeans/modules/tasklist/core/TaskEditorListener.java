@@ -67,7 +67,14 @@ public final class TaskEditorListener implements TaskViewListener, PropertyChang
             taskMarker = (annotation != null) ? annotation : new TaskAnnotation(item);
             taskMarker.attach(l);
             l.addPropertyChangeListener(this); // detach on line edit
-            l.show(Line.SHOW_GOTO);
+            TaskListView view = TaskListView.getCurrent();
+
+            // #35917 do not move focus if in sliding mode
+            if (view.getClientProperty("isSliding") == Boolean.TRUE) {  // NOi18N
+                l.show(Line.SHOW_SHOW);
+            } else {
+                l.show(Line.SHOW_GOTO);
+            }
         }
 
     }
