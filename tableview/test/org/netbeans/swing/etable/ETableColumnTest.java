@@ -122,7 +122,7 @@ public class ETableColumnTest extends TestCase {
         System.out.println("testReadWriteSettings");
         ETableColumn etc1 = new ETableColumn(1, 90);
         etc1.setWidth(100);
-        etc1.setSorted(3, new ETable.RowComparator(1));
+        etc1.setSorted(3, etc1.getRowComparator(1));
         Properties p = new Properties();
         etc1.writeSettings(p, 1, "test");
         

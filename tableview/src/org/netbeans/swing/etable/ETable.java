@@ -701,8 +701,10 @@ public class ETable extends JTable {
     /**
      * Item to the collection when doing the sorting of table rows.
      */
-    static class RowMapping {
+    protected final static class RowMapping {
+        // index (of the row) in the TableModel
         private int originalIndex;
+        // table model of my table
         private TableModel model;
         public RowMapping(int index, TableModel model) {
             originalIndex = index;
@@ -716,38 +718,6 @@ public class ETable extends JTable {
         }
     }
     
-    /**
-     * Comparator used for sorting the rows according to value in
-     * a given column. Operates on the RowMapping objects.
-     */
-    static class RowComparator implements Comparator {
-        private int column;
-        public RowComparator(int column) {
-            this.column = column;
-        }
-        public int compare(Object o1, Object o2) {
-            RowMapping rm1 = (RowMapping)o1;
-            RowMapping rm2 = (RowMapping)o2;
-            Object obj1 = rm1.getModelObject(column);
-            Object obj2 = rm2.getModelObject(column);
-            if (obj1 == null && obj2 == null) {
-                return 0;
-            }
-            if (obj1 == null) {
-                return -1;
-            }
-            if (obj2 == null) {
-                return 1;
-            }
-            if ((obj1 instanceof Comparable) && (obj2 instanceof Comparable)){
-                Comparable c1 = (Comparable) obj1;
-                Comparable c2 = (Comparable) obj2;
-                return c1.compareTo(c2);
-            }
-            return obj1.toString().compareTo(obj2.toString());
-        }
-    }
-
     /** 
      * Comparator for RowMapping objects that sorts according
      * to the original indices of the rows in the model.

@@ -318,7 +318,7 @@ public class ETableColumn extends TableColumn implements Comparable {
         if (s3 != null) {
             sortRank = Integer.parseInt(s3);
             if (sortRank > 0) {
-                comparator = new ETable.RowComparator(modelIndex);
+                comparator = getRowComparator(modelIndex);
             }
         }
         headerValue = p.getProperty(myPrefix + PROP_HEADER_VALUE);
@@ -362,6 +362,13 @@ public class ETableColumn extends TableColumn implements Comparable {
         return 0;
     }
 
+    /**
+     * Allow subclasses to supply special row comparator object.
+     */
+    protected Comparator getRowComparator(int column) {
+        return new RowComparator(column);
+    }
+    
     /**
      * Overriden to return our special header renderer.
      */
@@ -478,6 +485,37 @@ public class ETableColumn extends TableColumn implements Comparable {
                 setIcon(null);
             }
             return this;
+        }
+    }
+    
+    /**
+     * Comparator used for sorting the rows according to value in
+     * a given column. Operates on the RowMapping objects.
+     */
+    public static class RowComparator implements Comparator {
+        private int column;
+        public RowComparator(int column) {
+            this.column = column;
+        }
+        public int compare(Object o1, Object o2) {
+            ETable.RowMapping rm1 = (ETable.RowMapping)o1;
+            ETable.RowMapping rm2 = (ETable.RowMapping)o2;
+            Object obj1 = rm1.getModelObject(column);
+            Object obj2 = rm2.getModelObject(column);
+            if (obj1 == null && obj2 == null) {
+                return 0;
+            }
+            if (obj1 == null) {
+                return -1;
+            }
+            if (obj2 == null) {
+                return 1;
+            }
+            if ((obj1 instanceof Comparable) && (obj1.getClass().isAssignableFrom(obj2.getClass()))){
+                Comparable c1 = (Comparable) obj1;
+                return c1.compareTo(obj2);
+            }
+            return obj1.toString().compareTo(obj2.toString());
         }
     }
 }

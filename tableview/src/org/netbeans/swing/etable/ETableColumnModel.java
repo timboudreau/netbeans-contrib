@@ -142,7 +142,7 @@ public class ETableColumnModel extends DefaultTableColumnModel {
             }
             updateRanks();
         } else {
-            etc.setSorted(sortedColumns.size()+1, new ETable.RowComparator(etc.getModelIndex()));
+            etc.setSorted(sortedColumns.size()+1, etc.getRowComparator(etc.getModelIndex()));
             sortedColumns.add(etc);
         }
     }
