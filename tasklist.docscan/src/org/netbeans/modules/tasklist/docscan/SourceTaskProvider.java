@@ -114,6 +114,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
         if ((newTasks == null) && (showingTasks == null)) {
             return;
         }
+
         manager.register(TYPE, newTasks, showingTasks, request);
         showingTasks = newTasks;
     }

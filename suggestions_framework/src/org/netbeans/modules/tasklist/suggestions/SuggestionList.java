@@ -99,9 +99,9 @@ public class SuggestionList extends TaskList {
             // Add the category in the given position
             SuggestionImpl after = findAfter(type);
             if (after != null) {
-                add(category, after);
+                addCategory(category, after);
             } else {
-                add(category, false);
+                addCategory(category, false);
             }
         }
         return category;
@@ -115,7 +115,7 @@ public class SuggestionList extends TaskList {
      * task)
      * @deprecated use Task.addSubtask(Task subtask, Task after) instead
      */
-    private void add(Task task, Task after) {
+    private void addCategory(Task task, Task after) {
         if (root == null) {
             root = getRoot();
         }
@@ -133,7 +133,7 @@ public class SuggestionList extends TaskList {
      * @param append If true, append the item to the list, otherwise prepend
      * @deprecated use Task.addSubtask(Task subtask, boolean append) instead
      */
-    private void add(Task task, boolean append) {
+    private void addCategory(Task task, boolean append) {
 
         // Q: what's this? why it not it added to root
         // instead of task.getParent?

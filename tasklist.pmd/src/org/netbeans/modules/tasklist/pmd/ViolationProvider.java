@@ -75,18 +75,30 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         return new String[] { TYPE };
     }
 
+    private Thread last;
+
     // javadoc in super()
     public void rescan(SuggestionContext env, Object request) {
-        this.env = env;
-        this.request = request;
-        List newTasks = scan(env);
-        SuggestionManager manager = SuggestionManager.getDefault();
+        assert last == null || last == Thread.currentThread() : "Concurent access by: " + last + " and: " + Thread.currentThread();
+        last = Thread.currentThread();
+        try {
+//            System.err.println("\nPMD.rescan" + request + "[" + ((this.env != null) ?  this.env.getFileObject().toString() : "null") + "]: " + showingTasks );
 
-        if ((newTasks == null) && (showingTasks == null)) {
-            return;
+            this.env = env;
+            this.request = request;
+            List newTasks = scan(env);
+            last = Thread.currentThread();
+            SuggestionManager manager = SuggestionManager.getDefault();
+
+            if ((newTasks == null) && (showingTasks == null)) {
+                return;
+            }
+
+            manager.register(TYPE, newTasks, showingTasks, request);
+            showingTasks = newTasks;
+        } finally {
+            last = null;
         }
-        manager.register(TYPE, newTasks, showingTasks, request);
-        showingTasks = newTasks;
     }
 
     void rescan() {
@@ -94,175 +106,183 @@ public class ViolationProvider extends DocumentSuggestionProvider {
     }
     
     public List scan(SuggestionContext env) {
-        List tasks = null;
+        assert last == null || last == Thread.currentThread() : "Concurent access by: " + last + " and: " + Thread.currentThread();
+        last = Thread.currentThread();
         try {
-            
-        SuggestionManager manager = SuggestionManager.getDefault();
-        if (!manager.isEnabled(TYPE)) {
-            return null;
-        }
+//            System.err.println("\nPMD.scan[" + ((env != null) ?  env.getFileObject().toString() : "null") + "]: " + showingTasks );
 
-        DataObject dataObject = DataObject.find(env.getFileObject());
-        SourceCookie cookie =
-            (SourceCookie)dataObject.getCookie(SourceCookie.class);
+            List tasks = null;
+            try {
 
-        // The file is not a java file
-        if(cookie == null) {
-            return null;
-        }
+            SuggestionManager manager = SuggestionManager.getDefault();
+            if (!manager.isEnabled(TYPE)) {
+                return null;
+            }
 
-        String text = (String) env.getCharSequence();
-        Reader reader = new StringReader(text);
-        // XXX got an unexplained NPE in here somewhere...
-        ClassElement[] topClazzes = cookie.getSource().getClasses();
-        if (topClazzes.length == 0) {
-            // Empty file, skip.
-            return null;
-        }
-        assert topClazzes[0] != null : cookie.getSource().getClass().getName();
-        Identifier topClazzName = topClazzes[0].getName();
-        assert topClazzName != null : topClazzes[0].getClass().getName();
-        String name = topClazzName.getFullName();
-        PMD pmd = new PMD();
-        RuleContext ctx = new RuleContext();
-        Report report = new Report();
-        ctx.setReport(report);
-        ctx.setSourceCodeFilename(name);
+            DataObject dataObject = DataObject.find(env.getFileObject());
+            SourceCookie cookie =
+                (SourceCookie)dataObject.getCookie(SourceCookie.class);
 
-        RuleSet set = new RuleSet();
-        List rlist = ConfigUtils.createRuleList(
-                             PMDOptionsSettings.getDefault().getRules());
-        Iterator it = rlist.iterator();
-        while(it.hasNext()) {
-            set.addRule((Rule)it.next());
-        }
-        try {
-            pmd.processFile(reader, set, ctx);
-        } catch (Exception e) {
-            // For some reason, some of the PMD classes
-            // throw RuntimeExceptions or PMDExceptions.
-            // I suspect PMD wasn't written with the intent of it being run
-            // on incomplete or invalid classes. So we just swallow the
-            // exceptions here
-            ; // Avoid PMD warning about empty catch block - this is intentional
-        } catch (Error e) {
-            // Ditto. It throws some non-exceptions like TokenMgrError
-            ; // Avoid PMD warning about empty catch block - this is intentional
-        }
-        Iterator iterator = ctx.getReport().iterator();
+            // The file is not a java file
+            if(cookie == null) {
+                return null;
+            }
 
-        Image taskIcon = Utilities.loadImage("org/netbeans/modules/tasklist/pmd/fixable.gif"); // NOI18N
+            String text = (String) env.getCharSequence();
+            Reader reader = new StringReader(text);
+            // XXX got an unexplained NPE in here somewhere...
+            ClassElement[] topClazzes = cookie.getSource().getClasses();
+            if (topClazzes.length == 0) {
+                // Empty file, skip.
+                return null;
+            }
+            assert topClazzes[0] != null : cookie.getSource().getClass().getName();
+            Identifier topClazzName = topClazzes[0].getName();
+            assert topClazzName != null : topClazzes[0].getClass().getName();
+            String name = topClazzName.getFullName();
+            PMD pmd = new PMD();
+            RuleContext ctx = new RuleContext();
+            Report report = new Report();
+            ctx.setReport(report);
+            ctx.setSourceCodeFilename(name);
 
-        if(!ctx.getReport().isEmpty()) {
-            while(iterator.hasNext()) {
-                final RuleViolation violation = (RuleViolation)iterator.next();
-                try {
-                    // Violation line numbers seem to be 0-based
-                    final Line line = TLUtils.getLineByNumber(dataObject, violation.getLine());
-                    
-                    //System.out.println("Next violation = " + violation.getRule().getName() + " with description " + violation.getDescription() + " on line " + violation.getLine());
-                    
-                    boolean fixable = false;
-                    SuggestionPerformer action = null;
-                    String rulename = violation.getRule().getName();
-                    if (rulename.equals("UnusedImports") || // NOI18N
-                        rulename.equals("ImportFromSamePackage") || // NOI18N
-                        rulename.equals("DontImportJavaLang") || // NOI18N
-                        rulename.equals("DuplicateImports")) { // NOI18N
-                        fixable = true;
-                        boolean comment = false;
-                        action = new ImportPerformer(line, violation, comment);
-                    } else if (rulename.equals("UnusedLocalVariable") && // NOI18N
-                               isDeleteSafe(line)) { // only a check
-                        fixable = true;
-                        action = new SuggestionPerformer() {
-                            public void perform(Suggestion s) {
-                                // Remove the particular line
-                                TLUtils.deleteLine(line, "");
-                            }
-                            public boolean hasConfirmation() {
-                                return true;
-                            }
-                            public Object getConfirmation(Suggestion s) {
-                                DataObject dao = DataEditorSupport.findDataObject(line);
-                                int linenumber = line.getLineNumber();
-                                String filename = dao.getPrimaryFile().getNameExt();
-                                String ruleDesc = violation.getRule().getDescription();
-                                String ruleExample = violation.getRule().getExample();
-                                String beforeDesc = NbBundle.getMessage(ViolationProvider.class,
-                                        "UnusedConfirmation"); // NOI18N
+            RuleSet set = new RuleSet();
+            List rlist = ConfigUtils.createRuleList(
+                                 PMDOptionsSettings.getDefault().getRules());
+            Iterator it = rlist.iterator();
+            while(it.hasNext()) {
+                set.addRule((Rule)it.next());
+            }
+            try {
+                pmd.processFile(reader, set, ctx);
+            } catch (Exception e) {
+                // For some reason, some of the PMD classes
+                // throw RuntimeExceptions or PMDExceptions.
+                // I suspect PMD wasn't written with the intent of it being run
+                // on incomplete or invalid classes. So we just swallow the
+                // exceptions here
+                ; // Avoid PMD warning about empty catch block - this is intentional
+            } catch (Error e) {
+                // Ditto. It throws some non-exceptions like TokenMgrError
+                ; // Avoid PMD warning about empty catch block - this is intentional
+            }
+            Iterator iterator = ctx.getReport().iterator();
 
-                                StringBuffer sb = new StringBuffer(200);
-                                Line l = line;
-                                sb.append("<html>"); // NOI18N
-                                TLUtils.appendSurroundingLine(sb, l, -1);
-                                sb.append("<br>");
-                                sb.append("<b><strike>");
-                                sb.append(line.getText());
-                                sb.append("</strike></b>");
-                                sb.append("<br>");
-                                TLUtils.appendSurroundingLine(sb, l, +1);
-                                sb.append("</html>"); // NOI18N
-                                String beforeContents = sb.toString();
+            Image taskIcon = Utilities.loadImage("org/netbeans/modules/tasklist/pmd/fixable.gif"); // NOI18N
 
-                                return new org.netbeans.modules.tasklist.core.ConfPanel(beforeDesc, 
-                                      beforeContents, null, null,
-                                      filename, linenumber, getBottomPanel(ruleDesc, ruleExample));
-                            }
-                        };
+            if(!ctx.getReport().isEmpty()) {
+                while(iterator.hasNext()) {
+                    final RuleViolation violation = (RuleViolation)iterator.next();
+                    try {
+                        // Violation line numbers seem to be 0-based
+                        final Line line = TLUtils.getLineByNumber(dataObject, violation.getLine());
 
-                    } else if (rulename.equals("UnusedPrivateField")) { // NOI18N
-                        fixable = true;
-                        boolean comment = false;
-                        action = new RemovePerformer(true, 
-                                                     line, violation, 
-                                                     comment);
-                    } else if (rulename.equals("UnusedPrivateMethod")) { // NOI18N
-                        fixable = true;
-                        boolean comment = false;
-                        action = new RemovePerformer(false,
-                                                     line, violation, 
-                                                     comment);
-                    } else {
-                        action = null;
+                        //System.out.println("Next violation = " + violation.getRule().getName() + " with description " + violation.getDescription() + " on line " + violation.getLine());
+
+                        boolean fixable = false;
+                        SuggestionPerformer action = null;
+                        String rulename = violation.getRule().getName();
+                        if (rulename.equals("UnusedImports") || // NOI18N
+                            rulename.equals("ImportFromSamePackage") || // NOI18N
+                            rulename.equals("DontImportJavaLang") || // NOI18N
+                            rulename.equals("DuplicateImports")) { // NOI18N
+                            fixable = true;
+                            boolean comment = false;
+                            action = new ImportPerformer(line, violation, comment);
+                        } else if (rulename.equals("UnusedLocalVariable") && // NOI18N
+                                   isDeleteSafe(line)) { // only a check
+                            fixable = true;
+                            action = new SuggestionPerformer() {
+                                public void perform(Suggestion s) {
+                                    // Remove the particular line
+                                    TLUtils.deleteLine(line, "");
+                                }
+                                public boolean hasConfirmation() {
+                                    return true;
+                                }
+                                public Object getConfirmation(Suggestion s) {
+                                    DataObject dao = DataEditorSupport.findDataObject(line);
+                                    int linenumber = line.getLineNumber();
+                                    String filename = dao.getPrimaryFile().getNameExt();
+                                    String ruleDesc = violation.getRule().getDescription();
+                                    String ruleExample = violation.getRule().getExample();
+                                    String beforeDesc = NbBundle.getMessage(ViolationProvider.class,
+                                            "UnusedConfirmation"); // NOI18N
+
+                                    StringBuffer sb = new StringBuffer(200);
+                                    Line l = line;
+                                    sb.append("<html>"); // NOI18N
+                                    TLUtils.appendSurroundingLine(sb, l, -1);
+                                    sb.append("<br>");
+                                    sb.append("<b><strike>");
+                                    sb.append(line.getText());
+                                    sb.append("</strike></b>");
+                                    sb.append("<br>");
+                                    TLUtils.appendSurroundingLine(sb, l, +1);
+                                    sb.append("</html>"); // NOI18N
+                                    String beforeContents = sb.toString();
+
+                                    return new org.netbeans.modules.tasklist.core.ConfPanel(beforeDesc,
+                                          beforeContents, null, null,
+                                          filename, linenumber, getBottomPanel(ruleDesc, ruleExample));
+                                }
+                            };
+
+                        } else if (rulename.equals("UnusedPrivateField")) { // NOI18N
+                            fixable = true;
+                            boolean comment = false;
+                            action = new RemovePerformer(true,
+                                                         line, violation,
+                                                         comment);
+                        } else if (rulename.equals("UnusedPrivateMethod")) { // NOI18N
+                            fixable = true;
+                            boolean comment = false;
+                            action = new RemovePerformer(false,
+                                                         line, violation,
+                                                         comment);
+                        } else {
+                            action = null;
+                        }
+
+                        Suggestion s = manager.createSuggestion(
+                            TYPE,
+                            rulename + " : " + // NOI18N
+                               violation.getDescription(),
+                            action,
+                            this);
+
+                        // Make sure PMD's rule range is still the same
+                        // as ours. If not, we've gotta scale it
+                        // JDK14: assert Rule.LOWEST_PRIORITY == 5;
+                        switch (violation.getRule().getPriority()) {
+                        case 1: s.setPriority(SuggestionPriority.HIGH); break;
+                        case 2: s.setPriority(SuggestionPriority.MEDIUM_HIGH); break;
+                        case 3: s.setPriority(SuggestionPriority.MEDIUM); break;
+                        case 4: s.setPriority(SuggestionPriority.MEDIUM_LOW); break;
+                        case 5: s.setPriority(SuggestionPriority.LOW); break;
+                        default: s.setPriority(SuggestionPriority.MEDIUM); break;
+                        }
+
+                        s.setLine(line);
+                        if (fixable) {
+                            s.setIcon(taskIcon);
+                        }
+                        if (tasks == null) {
+                            tasks = new ArrayList(ctx.getReport().size());
+                        }
+                        tasks.add(s);
+                    } catch (Exception e) {
+                        ErrorManager.getDefault().notify(e);
                     }
-                    
-                    Suggestion s = manager.createSuggestion(
-                        TYPE,
-                        rulename + " : " + // NOI18N
-                           violation.getDescription(),
-                        action,
-                        this);
-
-                    // Make sure PMD's rule range is still the same
-                    // as ours. If not, we've gotta scale it
-                    // JDK14: assert Rule.LOWEST_PRIORITY == 5;
-                    switch (violation.getRule().getPriority()) {
-                    case 1: s.setPriority(SuggestionPriority.HIGH); break;
-                    case 2: s.setPriority(SuggestionPriority.MEDIUM_HIGH); break;
-                    case 3: s.setPriority(SuggestionPriority.MEDIUM); break;
-                    case 4: s.setPriority(SuggestionPriority.MEDIUM_LOW); break;
-                    case 5: s.setPriority(SuggestionPriority.LOW); break;
-                    default: s.setPriority(SuggestionPriority.MEDIUM); break;
-                    }
-
-                    s.setLine(line);
-                    if (fixable) {
-                        s.setIcon(taskIcon);
-                    }
-                    if (tasks == null) {
-                        tasks = new ArrayList(ctx.getReport().size());
-                    }
-                    tasks.add(s);
-                } catch (Exception e) {
-                    ErrorManager.getDefault().notify(e);
                 }
             }
+            } catch (Exception e) {
+                ErrorManager.getDefault().notify(e);
+            }
+            return tasks;
+        } finally {
+            last = null;
         }
-        } catch (Exception e) {
-            ErrorManager.getDefault().notify(e);
-        }
-        return tasks;
     }
     
     /**
@@ -452,11 +472,20 @@ public class ViolationProvider extends DocumentSuggestionProvider {
 
     public void clear(SuggestionContext env,
                       Object request) {
-        if (showingTasks != null) {
-            SuggestionManager manager = SuggestionManager.getDefault();
-            manager.register(TYPE, null, showingTasks, request);
-	    showingTasks = null;
-	}     
+
+        assert last == null || last == Thread.currentThread() : "Concurent access by: " + last + " and: " + Thread.currentThread();
+        last = Thread.currentThread();
+
+        try {
+            if (showingTasks != null) {
+//                System.err.println("\nPMD.clear[" + ((this.env != null) ?  this.env.getFileObject().toString() : "null") + "]: " + showingTasks );
+                SuggestionManager manager = SuggestionManager.getDefault();
+                manager.register(TYPE, null, showingTasks, request);
+                showingTasks = null;
+            }
+        } finally {
+            last = null;
+        }
     }
 
     /** The list of tasks we're currently showing in the tasklist */

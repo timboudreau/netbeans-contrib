@@ -148,16 +148,6 @@ public final class SuggestionsBroker {
     private DataObject dataobject = null;
     private boolean notSaved = false;
 
-
-    /** Set to the request generation when a new file has been shown */
-    private volatile Long haveShown = null;
-
-    /** Set to the request generation when a file has been saved */
-    private volatile Long haveSaved = null;
-
-    /** Set to the request generation when a file has been edited */
-    private volatile Long haveEdited = null;
-
     /** Current request reference. Used to correlate register()
      * calls with requests sent to rescan()/clear()
      */
@@ -419,15 +409,6 @@ err.log("Couldn't find current nodes...");
         dataobject = dao;
         notSaved = dao.isModified();
 
-        // Is MAX_VALUE even feasible here? There's no greater/lessthan
-        // comparison, so wrapping around will work just fine, but I may
-        // have to check manually and do it myself in case some kind
-        // of overflow exception is thrown
-        //  Wait, I'm doing a comparison now - look for currRequest.longValue
-        assert currRequest.longValue() != Long.MAX_VALUE : "Wrap around logic needed!";
-        currRequest = new Long(currRequest.longValue() + 1);
-
-        haveShown = currRequest;
         addCaretListeners();
 
         // XXX Use scheduleRescan instead? (but then I have to call docShown instead of rescan;
@@ -458,25 +439,22 @@ err.log("Couldn't find current nodes...");
             }
         }
 
-        if (delayed) {
-            runTimer = new Timer(ManagerSettings.getDefault().getShowScanDelay(),
+        if (ManagerSettings.getDefault().isScanOnShow()) {
+            if (delayed) {
+                runTimer = new Timer(ManagerSettings.getDefault().getShowScanDelay(),
                     new ActionListener() {
                         public void actionPerformed(ActionEvent evt) {
                             runTimer = null;
-/*
-                             if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
-                                 err.log("Timer expired - time to scan " + dao);
-                             }
-                             */
                             performRescan(doc, dataobject);
                         }
                     });
-            runTimer.setRepeats(false);
-            runTimer.setCoalesce(true);
-            runTimer.start();
-        } else {
-            // Do it right away
-            performRescan(doc, dataobject);
+                runTimer.setRepeats(false);
+                runTimer.setCoalesce(true);
+                runTimer.start();
+            } else {
+                // Do it right away
+                performRescan(doc, dataobject);
+            }
         }
     }
 
@@ -495,6 +473,9 @@ err.log("Couldn't find current nodes...");
      */
     private void performRescan(final Document document,
                         final DataObject dataobject) {
+
+        // comes from timer-queue thread or awt-queue thread
+
         setScanning(true);
 
         if ((docSuggestions != null) && (docSuggestions.size() > 0)) {
@@ -524,28 +505,24 @@ err.log("Couldn't find current nodes...");
            iterating over providers in case a new request has arrived.
         */
 
+        // Is MAX_VALUE even feasible here? There's no greater/lessthan
+        // comparison, so wrapping around will work just fine, but I may
+        // have to check manually and do it myself in case some kind
+        // of overflow exception is thrown
+        //  Wait, I'm doing a comparison now - look for currRequest.longValue
+        assert currRequest.longValue() != Long.MAX_VALUE : "Wrap around logic needed!";
+        currRequest = new Long(currRequest.longValue() + 1);
         final Object origRequest = currRequest;
-        RequestProcessor.getDefault().post(new Runnable() {
+
+        // free AWT && Timer threads
+        serializeOnBackground(new Runnable() {
             public void run() {
+                // Stale request If so, just drop this one
+                if (origRequest != currRequest) return;
 
-                boolean saved = (haveSaved == currRequest);
-                boolean edited = (haveEdited == currRequest);
-                boolean shown = (haveShown == currRequest);
+                manager.dispatchRescan(document, dataobject, origRequest);
 
-                // Has the request changed? If so, just drop this one
-                if (origRequest != currRequest) {  //XXX works only for one request source (broker)
-                    return;                    // use Comparable instead defining that it
-                                               // must return 0 if compared to foreign request
-                }
-
-                if ((saved && ManagerSettings.getDefault().isScanOnSave())
-                || (edited && ManagerSettings.getDefault().isScanOnEdit())
-                || (shown && ManagerSettings.getDefault().isScanOnShow())
-                ) {
-                    manager.dispatchRescan(document, dataobject, currRequest);
-                }
-
-                // FIXME enforce comparable requests, works only for single request source
+                // enforce comparable requests, works only for single request source
                 if ((finishedRequest == null) ||
                         ((Comparable)origRequest).compareTo(finishedRequest) > 0) {
                     finishedRequest = (Comparable) origRequest;
@@ -557,6 +534,12 @@ err.log("Couldn't find current nodes...");
         });
     }
 
+    private RequestProcessor rp = new RequestProcessor("Suggestions Broker");  // NOI18N
+
+    /** Enqueue request and perform it on background later on. */
+    private void serializeOnBackground(Runnable request) {
+        rp.post(request, 0 , Thread.MIN_PRIORITY);
+    }
 
     /**
      * Grab all the suggestions associated with this document/dataobject
@@ -870,8 +853,9 @@ err.log("Couldn't find current nodes...");
             notSaved = mods.contains(dataobject);
             if (notSaved != wasModified) {
                 if (!notSaved) {
-                    haveSaved = currRequest;
-                    scheduleRescan(null, false, ManagerSettings.getDefault().getSaveScanDelay());
+                    if (ManagerSettings.getDefault().isScanOnSave()) {
+                        scheduleRescan(null, false, ManagerSettings.getDefault().getSaveScanDelay());
+                    }
                 }
             }
         }
@@ -899,16 +883,18 @@ err.log("Couldn't find current nodes...");
         }
 
         public void insertUpdate(DocumentEvent e) {
-            haveEdited = currRequest;
-            scheduleRescan(e, false, ManagerSettings.getDefault().getEditScanDelay());
+            if (ManagerSettings.getDefault().isScanOnEdit()) {
+                scheduleRescan(e, false, ManagerSettings.getDefault().getEditScanDelay());
+            }
 
             // If there's a visible marker annotation on the line, clear it now
             clearMarker();
         }
 
         public void removeUpdate(DocumentEvent e) {
-            haveEdited = currRequest;
-            scheduleRescan(e, false, ManagerSettings.getDefault().getEditScanDelay());
+            if (ManagerSettings.getDefault().isScanOnEdit()) {
+                scheduleRescan(e, false, ManagerSettings.getDefault().getEditScanDelay());
+            }
 
             // If there's a visible marker annotation on the line, clear it now
             clearMarker();

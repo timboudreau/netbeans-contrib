@@ -576,6 +576,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
             // This is a result from a previous request - e.g. a long
             // running request which was "cancelled" but too late to
             // stop the provider from computing and providing a result.
+            //System.err.println("[MGR] ignoring request: " + request + " remove:" + remove);
             return;
         }
 
@@ -594,7 +595,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
 
         SuggestionsBroker broker = SuggestionsBroker.getDefault();
 
-        if ((request != null) && (request == broker.getCurrRequest())) {
+        if ((request != null) /* once it was dispatched in must be completed regardless && (request == broker.getCurrRequest())*/) {
             return broker.getSuggestionsList();
         } else if (request != null) {
             return null;
@@ -688,18 +689,24 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      * @param document The document being edited
      * @param dataobject The Data Object for the file being opened
      */
-    void dispatchRescan(Document document, DataObject dataobject, Object request) {
+    void dispatchRescan(Document document, DataObject dataobject, final Object request) {
+
+        assert request != null : "Precondition for SuggestionsBroker.getCurrRequest()";  // NOI18N
+
         long start = 0, end = 0, total = 0;
         List providers = getDocProviders();
         Iterator it = providers.iterator();
 
+        SuggestionContext ctx = SPIHole.createSuggestionContext(dataobject);
         while (it.hasNext()) {
+            if (SuggestionsBroker.getDefault().getCurrRequest() != request) return;
+
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider) it.next();
             if ((unfiltered == null) || (provider == unfiltered)) {
                 if (stats) {
                     start = System.currentTimeMillis();
                 }
-                provider.rescan(SPIHole.createSuggestionContext(dataobject), request);
+                provider.rescan(ctx, request);
                 if (stats) {
                     end = System.currentTimeMillis();
                     System.out.println("Scan time for provider " + provider.getClass().getName() + " = " + (end - start) + " ms");

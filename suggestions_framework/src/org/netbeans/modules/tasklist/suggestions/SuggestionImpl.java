@@ -82,7 +82,7 @@ public class SuggestionImpl extends Task implements Node.Cookie {
      * Use generate() instead.
      * @return summary string */    
     public String toString() {
-        return "SuggestionImpl" + /*(" + super.toString() + ")" */ "[\"" + getSummary() + "\", " + getFileBaseName() + ":" + getLineNumber() + /* ", " + stype + */ "]"; // NOI18N
+        return "SuggestionImpl#" + System.identityHashCode(this) + /*(" + super.toString() + ")" */ "[\"" + getSummary() + "\", " + getFileBaseName() + ":" + getLineNumber() + /* ", " + stype + */ "]"; // NOI18N
     }
 
     /** Create a node for this item */
