@@ -887,18 +887,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 //D.deb("statusChanged("+path+")"); // NOI18N
                 FileObject fo = findResource(path);
                 if (fo == null) return;
-                //Enumeration enum = existingFileObjects(fo);
+                Enumeration enum = existingFileObjects(fo);
                 //D.deb("I have root = "+fo.getName()); // NOI18N
-                Enumeration enum = fo.getChildren(recursively);
+                //Enumeration enum = fo.getChildren(recursively);
                 HashSet hs = new HashSet();
                 while(enum.hasMoreElements()) {
-                    fo = (FileObject) enum.nextElement();
-                    hs.add(fo);
-                    /*
+                    //fo = (FileObject) enum.nextElement();
+                    //hs.add(fo);
                     FileObject chfo = (FileObject) enum.nextElement();
                     if (!fo.equals(chfo.getParent()) && !recursively) break;
                     hs.add(chfo);
-                    */
                     //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
                 }
                 Set s = Collections.synchronizedSet(hs);
@@ -918,7 +916,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         RequestProcessor.postRequest(new Runnable() {
             public void run() {
                 FileObject fo = findExistingResource(name);
-                //System.out.println("findResource("+name+") = "+fo);
+                //System.out.println("statusChanged: findResource("+name+") = "+fo);
                 if (fo == null) return;
                 fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, fo, true, true));
                 Set fileSet = Collections.singleton(fo);
@@ -2074,9 +2072,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return the annotation string
      */
     public String annotateName(String name, Set files) {
-        //String filesStr = "";
-        //for (Iterator it = files.iterator(); it.hasNext(); ) filesStr += ((FileObject) it.next()).getNameExt() + ", ";
-        //System.out.println("annotateName("+name+", "+filesStr.substring(0, filesStr.length() - 2)+")");
+        /*
+        boolean print = false; //"Class1".equals(name);
+        if (print) {
+            String filesStr = "";
+            for (Iterator it = files.iterator(); it.hasNext(); ) filesStr += ((FileObject) it.next()).getNameExt() + ", ";
+            System.out.println("annotateName("+name+", "+filesStr.substring(0, filesStr.length() - 2)+")");
+            Thread.currentThread().dumpStack();
+        }
+         */
         String result = name;
         if (result == null)
             return result;  // Null name, ignore it
@@ -2091,17 +2095,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             //System.out.println(" file objects reordered = "+oo.length);
             ArrayList importantFiles = getImportantFiles(oo);
             len = importantFiles.size();
-            //System.out.println(" length of important = "+len);
+            //if (print) System.out.println(" length of important = "+len);
             if (len == 1) {
                 String fullName = (String) importantFiles.get(0);
                 //System.out.println(" fullName = "+fullName);
                 result = RefreshCommandSupport.getStatusAnnotation(name, fullName, annotationPattern, statusProvider);
             } else {
-                //System.out.println(" importantFiles = "+VcsUtilities.arrayToString((String[]) importantFiles.toArray(new String[0])));
+                //if (print) System.out.println(" importantFiles = "+VcsUtilities.arrayToString((String[]) importantFiles.toArray(new String[0])));
                 result = RefreshCommandSupport.getStatusAnnotation(name, importantFiles, annotationPattern, statusProvider, multiFilesAnnotationTypes);
             }
         }
-        //System.out.println("  annotateName("+name+") -> result='"+result+"'");
+        //if (print) System.out.println("  annotateName("+name+") -> result='"+result+"'");
         //D.deb("annotateName("+name+") -> result='"+result+"'"); // NOI18N
         return result;
     }
@@ -2500,10 +2504,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (vcsFiles == null) return null;
         FileStatusProvider statusProvider = getStatusProvider();
         if (statusProvider == null) return vcsFiles;
+        FileCacheProvider cacheProvider = getCacheProvider();
+        // If the folder is not in the cache, do not search it's status
+        if (cacheProvider != null && !cacheProvider.isDir(name)) return vcsFiles;
         ArrayList files = new ArrayList(Arrays.asList(vcsFiles));
         int n = files.size();
         for (int i = 0; i < n; i++) {
             String file = (name.length() > 0) ? (name + "/" + (String) files.get(i)) : (String) files.get(i);
+            if (cacheProvider != null && !cacheProvider.isFile(file)) continue;
             if (VcsCacheFile.STATUS_DEAD.equals(statusProvider.getFileStatus(file))) {
                 files.remove(i--);
                 n--;

@@ -207,18 +207,16 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
                 FileObject fo = findResource(path);
                 if (fo == null) return;
                 //D.deb("I have root = "+fo.getName()); // NOI18N
-                //Enumeration enum = existingFileObjects(fo);
+                Enumeration enum = existingFileObjects(fo);
                 //D.deb("I have root = "+fo.getName()); // NOI18N
-                Enumeration enum = fo.getChildren(recursively);
+                //Enumeration enum = fo.getChildren(recursively);
                 HashSet hs = new HashSet();
                 while(enum.hasMoreElements()) {
-                    fo = (FileObject) enum.nextElement();
-                    hs.add(fo);
-                    /*
+                    //fo = (FileObject) enum.nextElement();
+                    //hs.add(fo);
                     FileObject chfo = (FileObject) enum.nextElement();
                     if (!fo.equals(chfo.getParent()) && !recursively) break;
                     hs.add(chfo);
-                    */
                     //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
                 }
                 Set s = Collections.synchronizedSet(hs);
