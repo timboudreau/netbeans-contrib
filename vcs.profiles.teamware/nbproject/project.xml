@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.00</specification-version>
+                        <specification-version>1.0</specification-version> <!-- XXX fix this to be accurate -->
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -33,7 +33,7 @@ Microsystems, Inc. All Rights Reserved.
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.00</specification-version>
+                        <specification-version>1.0</specification-version> <!-- XXX fix this to be accurate -->
                     </run-dependency>
                 </dependency>
             </module-dependencies>
