@@ -38,14 +38,11 @@ import org.openide.windows.WindowManager;
  */
 public class CvsAddVisualizer extends OutputVisualizer {
     
-    private static final String UNKNOWN = "server: nothing known about"; //NOI18N
     private static final String ADDED = " added to the repository"; //NOI18N
-    private static final String WARNING = "server: warning: "; //NOI18N
     private static final String ALREADY_ENTERED = " has already been entered"; //NOI18N
-    private static final String SCHEDULING = "server: scheduling file `"; //NOI18N
-    private static final String USE_COMMIT = "server: use 'cvs commit' "; //NOI18N
+    private static final String SCHEDULING = ": scheduling file `"; //NOI18N
     private static final String DIRECTORY = "Directory "; //NOI18N
-    private static final String READDING = "server: re-adding file "; //NOI18N
+    private static final String READDING = ": re-adding file "; //NOI18N
     private static final String RESURRECTED = ", resurrected"; //NOI18N
     private static final String RESUR_VERSION = ", version "; //NOI18N
     
@@ -98,8 +95,11 @@ public class CvsAddVisualizer extends OutputVisualizer {
         return output;
     }
     
+    private boolean isOpened = false;
     
     public void open(){
+        if (isOpened) return ;
+        isOpened = true;
         CommandOutputTopComponent out = CommandOutputTopComponent.getInstance();
         getOutputPanels();
         String title;
