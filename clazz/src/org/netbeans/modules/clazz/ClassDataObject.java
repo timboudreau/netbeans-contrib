@@ -118,8 +118,8 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   */
   public Node.Cookie getCookie (Class type) {
     if (!cookiesInitialized) {
-      initCookies();
       cookiesInitialized = true;
+      initCookies();
     }
     return super.getCookie(type);
   }
@@ -532,6 +532,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  25   Gandalf   1.24        8/18/99  Jaroslav Tulach #2641
  *  24   Gandalf   1.23        7/25/99  Ian Formanek    Fixed bug #2745 - 
  *       Property "Class Name" of serialized prototypes displays the file name 
  *       rather than the name of the class that is serialized in it.
