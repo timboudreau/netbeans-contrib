@@ -13,17 +13,15 @@ Microsystems, Inc. All Rights Reserved.
 -->
 <project default="netbeans" name="Looks2Aspects Bridge" >
     <property name="nb_all" location="../../.." />
-    <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
-    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-
-    <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-
+    
+    <import file="${nb_all}/nbbuild/default.xml" />
+    
     <target name="compile">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
             <classpath>
                 <pathelement location="${nb_all}/openide/util/netbeans/lib/openide-util.jar"/>
                 <pathelement location="${nb_all}/openide/nodes/netbeans/lib/openide-nodes.jar"/>
-                <pathelement location="${nb_all}/openide/looks/netbeans/modules/autoload/openide-looks.jar"/>
+                <pathelement location="${openide/looks.dir}/${nb.modules/autoload.dir}/openide-looks.jar"/>
                 <pathelement location="${nb_all}/contrib/aspects/netbeans/modules/autoload/aspects.jar"/>
             </classpath>
         </javac>

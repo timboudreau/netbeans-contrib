@@ -12,15 +12,17 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<project name="Aspects Tests" basedir="." default="all">
+<project name="Looks To Aspects Tests" basedir="." default="all">
+    <import file="../../../../nbbuild/default-properties.xml"/>
+
 
     <!-- Ant property. Value 'ignore' means that system classpath is ignored
          and only classpath specified in build file is used. -->
     <property name="build.sysclasspath" value="ignore"/>
 
     <!-- Points to directory with IDE to test-->
-    <property name="netbeans.home" location="../../../../nbbuild/netbeans"/>
-    
+		<property name="netbeans.dest.dir" location="../../../../nbbuild/netbeans"/>
+
     <!-- Name of tested module -->
     <property name="xtest.module" value="Looks To Aspects"/>
     

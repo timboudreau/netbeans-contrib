@@ -13,8 +13,6 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="Looks To Aspects Bridge Tests" basedir="." default="all">
-    <property name="nb_all" location="../../../.." />
-
 <!-- =================== -->
     <!-- Setting classpathes -->
     <!-- =================== -->
@@ -165,7 +163,7 @@ Microsystems, Inc. All Rights Reserved.
 	    <pathelement location="../src"/>
             <pathelement location="${nb_all}/openide/util/netbeans/lib/openide-util.jar"/>
             <pathelement location="${nb_all}/openide/nodes/netbeans/lib/openide-nodes.jar"/>
-            <pathelement location="${nb_all}/openide/looks/netbeans/modules/autoload/openide-looks.jar"/>
+      			<pathelement location="${openide/looks.dir}/${nb.modules/autoload.dir}/openide-looks.jar"/>
             <pathelement location="${nb_all}/contrib/aspects/netbeans/modules/autoload/aspects.jar"/>
 	</path>
     </target>
