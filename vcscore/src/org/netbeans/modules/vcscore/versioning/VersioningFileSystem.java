@@ -202,18 +202,15 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
      */
     protected java.lang.ref.Reference createReference(final FileObject fo) {
         try {
-            if (!fo.isFolder()) {
+            if (fo.isFolder()) {
+                org.openide.loaders.DataLoaderPool.setPreferredLoader(fo,
+                    (VersioningFolderDataLoader) org.openide.util.SharedClassObject.findObject(VersioningFolderDataLoader.class, true));
+            } else {
                 org.openide.loaders.DataLoaderPool.setPreferredLoader(fo,
                     (VersioningDataLoader) org.openide.util.SharedClassObject.findObject(VersioningDataLoader.class, true));
             }
         } catch (java.io.IOException exc) {}
         java.lang.ref.Reference toReturn = super.createReference(fo);
-        try {
-            if (fo.isFolder()) {
-                org.openide.loaders.DataLoaderPool.setPreferredLoader(fo,
-                    (VersioningFolderDataLoader) org.openide.util.SharedClassObject.findObject(VersioningFolderDataLoader.class, true));
-            }
-        } catch (java.io.IOException exc) {}
         return toReturn;
     }
     
