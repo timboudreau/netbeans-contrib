@@ -419,7 +419,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         advancedPanel.add(promptEditLabel, gridBagConstraints);
 
         promptEditTextField.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.promptTextField.textA11yDesc"));
-        promptEditTextField.addActionListener(formListener);
         promptEditTextField.addFocusListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -468,7 +467,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         advancedPanel.add(promptLockLabel, gridBagConstraints);
 
         promptLockTextField.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.lockTextField.textA11yDesc"));
-        promptLockTextField.addActionListener(formListener);
         promptLockTextField.addFocusListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -742,17 +740,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             else if (evt.getSource() == promptEditCheckBox) {
                 VcsCustomizer.this.promptEditCheckBoxActionPerformed(evt);
             }
-            else if (evt.getSource() == promptEditTextField) {
-                VcsCustomizer.this.promptEditTextFieldActionPerformed(evt);
-            }
             else if (evt.getSource() == lockCheckBox) {
                 VcsCustomizer.this.lockCheckBoxActionPerformed(evt);
             }
             else if (evt.getSource() == promptLockCheckBox) {
                 VcsCustomizer.this.promptLockCheckBoxActionPerformed(evt);
-            }
-            else if (evt.getSource() == promptLockTextField) {
-                VcsCustomizer.this.promptLockTextFieldActionPerformed(evt);
             }
             else if (evt.getSource() == debugCheckBox) {
                 VcsCustomizer.this.debugCheckBoxActionPerformed(evt);
@@ -854,18 +846,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         VcsConfigVariable var = getFSVariable(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
         var.setValue(promptLockTextField.getText());
     }//GEN-LAST:event_promptLockTextFieldFocusLost
-
-    private void promptLockTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promptLockTextFieldActionPerformed
-        // Add your handling code here:
-        VcsConfigVariable var = getFSVariable(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
-        var.setValue(promptLockTextField.getText());
-    }//GEN-LAST:event_promptLockTextFieldActionPerformed
-
-    private void promptEditTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promptEditTextFieldActionPerformed
-        // Add your handling code here:
-        VcsConfigVariable var = getFSVariable(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
-        var.setValue(promptEditTextField.getText());
-    }//GEN-LAST:event_promptEditTextFieldActionPerformed
 
     private HashMap fsVars = new HashMap();
     private VcsConfigVariable getFSVariable(String varName) {
