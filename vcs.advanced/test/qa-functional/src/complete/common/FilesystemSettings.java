@@ -16,15 +16,8 @@ package complete.common;
 import java.io.*;
 import junit.framework.*;
 import org.netbeans.junit.*;
-import org.netbeans.test.oo.gui.jello.JelloBundle;
-import org.netbeans.test.oo.gui.jello.JelloOKOnlyDialog;
-import org.netbeans.test.oo.gui.jelly.*;
 import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.util.PNGEncoder;
-import org.netbeans.jemmy.operators.JTreeOperator;
-import org.netbeans.jemmy.operators.JDialogOperator;
-import org.netbeans.jemmy.TestOut;
-import org.netbeans.test.oo.gui.jelly.vcscore.*;
 import org.openide.util.Utilities;
 import org.netbeans.jellytools.*;
 import org.netbeans.jellytools.nodes.Node;
@@ -44,9 +37,6 @@ public class FilesystemSettings extends NbTestCase {
     public static String UNMOUNT_MENU = "File|Unmount Filesystem";
     public static String workingDirectory;
     public static String filesystem;
-    private APIController api;
-    private Explorer explorer;
-    private APICommandsHistory history;
     
     /** Constructor required by JUnit.
      * @param testName Method name to be used as testcase.
@@ -82,18 +72,7 @@ public class FilesystemSettings extends NbTestCase {
      * output and maps main components.
      */
     protected void setUp() {
-        JellyProperties.setDefaults();
-        JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
-        api = new APIController ();
-        api.setOut(new PrintWriter(System.out, true));
-        explorer = api.getExplorer();
-        history = new APICommandsHistory(api);
-    }
-    
-    /** Method called after each testcase. Resets Jemmy WaitComponentTimeout.
-     */
-    protected void tearDown() {
-        JellyProperties.setDefaults();
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(org.netbeans.jemmy.TestOut.getNullOutput());
     }
     
     /** Mounts new filesystem using given profile.
@@ -101,26 +80,15 @@ public class FilesystemSettings extends NbTestCase {
      * @throws Any unexpected exception thrown during test.
      */
     private void mountFilesystem(String profile) throws Exception {
-        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+        new ActionNoBlock(MOUNT_MENU, null).perform();
         VCSWizardProfile wizard = new VCSWizardProfile();
         wizard.setWorkingDirectory(workingDirectory);
         wizard.checkOnlyCompatibleProfiles(false);
         wizard.setProfile(profile);
-        APIController.sleep(1000);
+        Thread.sleep(1000);
         wizard.finish();
     }
     
-    /** Selects desired node in explorer.
-     * @param node Path to the node like "CVS D:\test", "A_File [Local]".
-     * @param exactly Should the path be compared exactly ?
-     * @throws Any unexpected exception thrown during test.
-     */
-    public void selectNode(String[] node, boolean exactly) throws Exception {
-        JTreeOperator operator = explorer.getJTreeOperator();
-        javax.swing.tree.TreePath path = operator.findPath(node, exactly, true);
-        operator.selectPath(path);
-    }
-
     /** Creates new file or directory at given place.
      * @param name Name of directory or file to create.
      * @param isFile Should file be created or directory ?
@@ -164,371 +132,386 @@ public class FilesystemSettings extends NbTestCase {
      * @throws Any unexpected exception thrown during test.
      */
     public void testAnnotationPattern() throws Exception {
-        System.out.print(".. Testing annotation pattern property ..");
-        workingDirectory = getWorkDir().getAbsolutePath();
-        filesystem = "Empty " + workingDirectory;
-        mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
-        createFile(workingDirectory + File.separator + "A_File.java", true);
-        createFile(workingDirectory + File.separator + "A_File.class", true);
-        APIController.sleep(2000);
-        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
-        filesystemNode.expand();
-        new Action("View|Properties", null).perform(filesystemNode);
-        String property = JelloBundle.getString("org.netbeans.modules.vcs.advanced.Bundle", "PROP_annotationPattern");
-        PropertySheetOperator sheet = new PropertySheetOperator();
-        StringProperty annotationPattern = new StringProperty(sheet.getPropertySheetTabOperator("Properties"), property);
-        annotationPattern.setValue(">> ${fileName} $[? attribute][[Yes]][[No]] <<");
-        TextFieldProperty refreshTime = new TextFieldProperty(sheet.getPropertySheetTabOperator("Expert"), "Refresh Time For Local Files [ms]");
-        refreshTime.setValue("1000");
-        new Action("Versioning|Empty|Refresh", "Empty|Refresh").perform(filesystemNode);
-        String node = filesystem + "|>> A_File [No] <<";
-        assertNotNull("Can't select " + node, api.getFilesystemsTab().selectNode(node));
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
-        System.out.println(". done !");
+        try {
+            System.out.print(".. Testing annotation pattern property ..");
+            workingDirectory = getWorkDir().getAbsolutePath();
+            filesystem = "Empty " + workingDirectory;
+            mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+            createFile(workingDirectory + File.separator + "A_File.java", true);
+            createFile(workingDirectory + File.separator + "A_File.class", true);
+            Thread.sleep(2000);
+            Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+            filesystemNode.expand();
+            new Action("View|Properties", null).perform(filesystemNode);
+            PropertySheetOperator sheet = new PropertySheetOperator();
+            StringProperty annotationPattern = new StringProperty(sheet.getPropertySheetTabOperator("Properties"), "Annotation Pattern");
+            annotationPattern.setValue(">> ${fileName} $[? attribute][[Yes]][[No]] <<");
+            TextFieldProperty refreshTime = new TextFieldProperty(sheet.getPropertySheetTabOperator("Expert"), "Refresh Time For Local Files [ms]");
+            refreshTime.setValue("1000");
+            new Action("Versioning|Empty|Refresh", "Empty|Refresh").perform(filesystemNode);
+            Node fileNode = new Node(filesystemNode, ">> A_File [No] <<");
+            fileNode.select();
+            new UnmountFSAction().perform(filesystemNode);
+            System.out.println(". done !");
+        } catch (Exception e) {
+            captureScreen();
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath()));
+            throw e;
+        }
     }
     
     /** Checks whether "Command Notification" property works correctly.
      * @throws Any unexpected exception thrown during test.
      */
     public void testCommandNotification() throws Exception {
-        System.out.print(".. Testing command notification property ..");
-        filesystem = "CVS " + workingDirectory;
-        mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.CVS_UNIX : VCSWizardProfile.CVS_WIN_NT);
-        APIController.sleep(2000);
-        api.getFilesystemsTab();
-        selectNode(new String[] {filesystem, "A_File"}, false);
-        MainFrame.getMainFrame().pushMenuNoBlock(VERSIONING_MENU + "|CVS|Editing|Edit");
-        new JelloOKOnlyDialog("Information").ok();
-        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
-        new Action("View|Properties", null).perform(filesystemNode);
-        String property = JelloBundle.getString("org.netbeans.modules.vcs.advanced.Bundle", "PROP_commandNotification");
-        PropertySheetOperator sheet = new PropertySheetOperator();
-        ComboBoxProperty commandNotification = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Properties"), property);
-        commandNotification.setValue("False");
-        selectNode(new String[] {filesystem, "A_File"}, false);
-        MainFrame.getMainFrame().pushMenuNoBlock(VERSIONING_MENU + "|CVS|Editing|Edit");
-        long oldTimeout = JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
-        JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 5000);
         try {
-            new JDialogOperator("Information");
-            new JelloOKOnlyDialog("Information").ok();
+            System.out.print(".. Testing command notification property ..");
+            filesystem = "CVS " + workingDirectory;
+            mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.CVS_UNIX : VCSWizardProfile.CVS_WIN_NT);
+            Thread.sleep(2000);
+            Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+            Node fileNode = new Node(filesystemNode, "A_File");
+            new Action(null, "CVS|Editing|Edit").perform(fileNode);
+            new NbDialogOperator("Information").ok();
+            new Action("View|Properties", null).perform(filesystemNode);
+            PropertySheetOperator sheet = new PropertySheetOperator();
+            ComboBoxProperty commandNotification = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Properties"), "Command Notification");
+            commandNotification.setValue("False");
+            new Action(null, "CVS|Editing|Edit").perform(fileNode);
+            long oldTimeout = JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
+            JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 5000);
+            try {
+                new NbDialogOperator("Information").ok();
+                JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
+                fail("Command Notification property does not work.");
+            } catch (org.netbeans.jemmy.TimeoutExpiredException e) {}
             JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
-            fail("Command Notification property does not work.");
-        } catch (org.netbeans.jemmy.TimeoutExpiredException e) {}
-        JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
-        selectNode(new String[] {filesystem}, true);
-        MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
-        System.out.println(". done !");
+            new UnmountFSAction().perform(filesystemNode);
+            System.out.println(". done !");
+        } catch (Exception e) {
+            captureScreen();
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "CVS " + workingDirectory));
+            throw e;
+        }
     }
 
     /** Checks whether "Process All Files" property works correctly.
      * @throws Any unexpected exception thrown during test.
      */
     public void testProcessAllFiles() throws Exception {
-        System.out.print(".. Testing process all files property ..");
-        filesystem = "Empty " + workingDirectory;
-        mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
-        APIController.sleep(2000);
-        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
-        new Action("View|Properties", null).perform(filesystemNode);
-        String property = JelloBundle.getString("org.netbeans.modules.vcs.advanced.Bundle", "PROP_processAllFiles");
-        PropertySheetOperator sheet = new PropertySheetOperator();
-        ComboBoxProperty processAllFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Properties"), property);
-        processAllFiles.setValue("True");
-        selectNode(new String[] {filesystem, "A_File"}, false);
-        MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|Empty|Lock");
-        RuntimeTabOperator explorer = new ExplorerOperator().runtimeTab();
-        Node commandsHistory = new Node(explorer.getRootNode(), "VCS Commands|" + filesystem);
-        commandsHistory.tree().expandPath(commandsHistory.getTreePath());
-        int count = commandsHistory.getChildren().length;
-        boolean found = false;
-        for(int i=0; i<count; i++) {
-            Node command = new Node(commandsHistory, i);
-            if (!command.getText().equals("Lock")) continue;
-            command.select();
-            new Action("View|Properties", null).perform(command);
-            sheet = new PropertySheetOperator();
-            StringProperty files = new StringProperty(sheet.getPropertySheetTabOperator("Properties"), "Processed Files");
-            if (files.getStringValue().equals("A_File.class")) {
-                found = true;
-                break;
+        try {
+            System.out.print(".. Testing process all files property ..");
+            filesystem = "Empty " + workingDirectory;
+            mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+            Thread.sleep(2000);
+            Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+            new Action("View|Properties", null).perform(filesystemNode);
+            PropertySheetOperator sheet = new PropertySheetOperator();
+            ComboBoxProperty processAllFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Properties"), "Process All Files");
+            processAllFiles.setValue("True");
+            Node fileNode = new Node(filesystemNode, "A_File");
+            new Action(VERSIONING_MENU+"|Empty|Lock", null).perform(fileNode);
+            RuntimeTabOperator explorer = new ExplorerOperator().runtimeTab();
+            Node commandsHistory = new Node(explorer.getRootNode(), "VCS Commands|" + filesystem);
+            commandsHistory.tree().expandPath(commandsHistory.getTreePath());
+            int count = commandsHistory.getChildren().length;
+            boolean found = false;
+            for(int i=0; i<count; i++) {
+                Node command = new Node(commandsHistory, i);
+                if (!command.getText().equals("Lock")) continue;
+                command.select();
+                new Action("View|Properties", null).perform(command);
+                sheet = new PropertySheetOperator();
+                StringProperty files = new StringProperty(sheet.getPropertySheetTabOperator("Properties"), "Processed Files");
+                if (files.getStringValue().equals("A_File.class")) {
+                    found = true;
+                    break;
+                }
             }
-        }
-        if (!found) {
+            if (!found) {
+                captureScreen();
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Unable to find Lock command processed on A_File.class.");
+            }
+            new UnmountFSAction().perform(filesystemNode);
+            System.out.println(". done !");
+        } catch (Exception e) {
             captureScreen();
-            api.getFilesystemsTab();
-            selectNode(new String[] {filesystem}, true);
-            MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
-            throw new Exception("Error: Unable to find Lock command processed on A_File.class.");
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + workingDirectory));
+            throw e;
         }
-        api.getFilesystemsTab();
-        selectNode(new String[] {filesystem}, true);
-        MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
-        System.out.println(". done !");
     }
 
     /** Checks whether "Ignored Files" property works correctly.
      * @throws Any unexpected exception thrown during test.
      */
     public void testIgnoredFiles() throws Exception {
-        System.out.print(".. Testing ignored files property ..");
-        filesystem = "Empty " + workingDirectory;
-        mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
-        APIController.sleep(2000);
-        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
-        Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
-        filesystemNode.tree().expandPath(filesystemNode.getTreePath());
-        Node fileNode = new Node(explorer.getRootNode(), filesystem + "|A_File");
-        fileNode.select();
-        new Action("View|Properties", null).perform(filesystemNode);
-        PropertySheetOperator sheet = new PropertySheetOperator();
-        StringProperty ignoredFiles = new StringProperty(sheet.getPropertySheetTabOperator("Expert"), "Ignored Files");
-        ignoredFiles.setStringValue("A_File");
-        api.getFilesystemsTab();
-        filesystemNode.select();
-        if (filesystemNode.getChildren().length != 0) {
-            captureScreen();
-            String children = getChildren(filesystemNode);
+        try {
+            System.out.print(".. Testing ignored files property ..");
+            filesystem = "Empty " + workingDirectory;
+            mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+            Thread.sleep(2000);
+            RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+            Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
+            filesystemNode.tree().expandPath(filesystemNode.getTreePath());
+            Node fileNode = new Node(explorer.getRootNode(), filesystem + "|A_File");
+            fileNode.select();
+            new Action("View|Properties", null).perform(filesystemNode);
+            PropertySheetOperator sheet = new PropertySheetOperator();
+            StringProperty ignoredFiles = new StringProperty(sheet.getPropertySheetTabOperator("Expert"), "Ignored Files");
+            ignoredFiles.setStringValue("A_File");
+            filesystemNode.select();
+            if (filesystemNode.getChildren().length != 0) {
+                captureScreen();
+                String children = getChildren(filesystemNode);
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: A_File node has not disappeared." + children);
+            }
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: A_File node has not disappeared." + children);
+            System.out.println(". done !");
+        } catch (Exception e) {
+            captureScreen();
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + workingDirectory));
+            throw e;
         }
-        new UnmountFSAction().perform(filesystemNode);
-        System.out.println(". done !");
     }
 
     /** Checks whether "Filter Backup Files" and "Create Backup Files" properties work correctly.
      * @throws Any unexpected exception thrown during test.
      */
     public void testBackupProperties() throws Exception {
-        System.out.print(".. Testing backup files properties ..");
-        filesystem = "Empty " + workingDirectory;
-        mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
-        APIController.sleep(2000);
-        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
-        Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
-        filesystemNode.expand();
-        Thread.sleep(1000);
-        int count = filesystemNode.getChildren().length;
-        if (count != 1) {
-            captureScreen();
-            api.getFilesystemsTab();
-            filesystemNode.select();
-            String children = getChildren(filesystemNode);
-            new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: There are more nodes except A_File. " + count);
-        }
-        filesystemNode.select();
-        new Action("View|Properties", null).perform();
-        PropertySheetOperator sheet = new PropertySheetOperator();
-        PropertySheetTabOperator expertTab;
         try {
-            expertTab = sheet.getPropertySheetTabOperator("Expert");
-        } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
-            captureScreen();
-            api.getFilesystemsTab();
+            System.out.print(".. Testing backup files properties ..");
+            filesystem = "Empty " + workingDirectory;
+            mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+            Thread.sleep(2000);
+            RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+            Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
+            filesystemNode.expand();
+            Thread.sleep(1000);
+            int count = filesystemNode.getChildren().length;
+            if (count != 1) {
+                captureScreen();
+                filesystemNode.select();
+                String children = getChildren(filesystemNode);
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: There are more nodes except A_File. " + count);
+            }
             filesystemNode.select();
-            new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Can't find Expert property tab.");
-        }
-        ComboBoxProperty filterBackupFiles = new ComboBoxProperty(expertTab, "Filter Backup Files");
-        ComboBoxProperty createBackupFiles = new ComboBoxProperty(expertTab, "Create Backup Files");
-        TextFieldProperty refreshTime = new TextFieldProperty(expertTab, "Refresh Time For Local Files [ms]");
-        filterBackupFiles.setValue("False");
-        createBackupFiles.setValue("False");
-        refreshTime.setValue("5000");
-        APIController.sleep(5000);
-        if (filesystemNode.getChildren().length != 1) {
-            captureScreen();
-            api.getFilesystemsTab();
+            new Action("View|Properties", null).perform();
+            PropertySheetOperator sheet = new PropertySheetOperator();
+            PropertySheetTabOperator expertTab;
+            try {
+                expertTab = sheet.getPropertySheetTabOperator("Expert");
+            } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+                captureScreen();
+                filesystemNode.select();
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Can't find Expert property tab.");
+            }
+            ComboBoxProperty filterBackupFiles = new ComboBoxProperty(expertTab, "Filter Backup Files");
+            ComboBoxProperty createBackupFiles = new ComboBoxProperty(expertTab, "Create Backup Files");
+            TextFieldProperty refreshTime = new TextFieldProperty(expertTab, "Refresh Time For Local Files [ms]");
+            filterBackupFiles.setValue("False");
+            createBackupFiles.setValue("False");
+            refreshTime.setValue("5000");
+            Thread.sleep(5000);
+            if (filesystemNode.getChildren().length != 1) {
+                captureScreen();
+                filesystemNode.select();
+                String children = getChildren(filesystemNode);
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Some backup files appeared unintentionally." + children);
+            }
+            Node fileNode = new Node(filesystemNode, "A_File");
+            new OpenAction().perform(fileNode);
+            EditorOperator editor = new EditorOperator(new EditorWindowOperator(), "A_File");
+            editor.insert("// The first added line.\n");
+            new SaveAction().perform();
+            Thread.sleep(10000);
+            if (filesystemNode.getChildren().length != 1) {
+                captureScreen();
+                filesystemNode.select();
+                String children = getChildren(filesystemNode);
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Create backup files does not work." + children);
+            }
             filesystemNode.select();
-            String children = getChildren(filesystemNode);
-            new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Some backup files appeared unintentionally." + children);
-        }
-        Node fileNode = new Node(filesystemNode, "A_File");
-        new OpenAction().perform(fileNode);
-        EditorOperator editor = new EditorOperator(new EditorWindowOperator(), "A_File");
-        editor.insert("// The first added line.\n");
-        new SaveAction().perform();
-        APIController.sleep(10000);
-        if (filesystemNode.getChildren().length != 1) {
-            captureScreen();
-            api.getFilesystemsTab();
+            sheet = new PropertySheetOperator();
+            try {
+                expertTab = sheet.getPropertySheetTabOperator("Expert");
+            } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+                captureScreen();
+                filesystemNode.select();
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Can't find Expert property tab.");
+            }
+            createBackupFiles = new ComboBoxProperty(expertTab, "Create Backup Files");
+            createBackupFiles.setValue("True");
+            editor.insert("// The second added line.\n");
+            editor.requestFocus();
+            new SaveAction().perform();
+            Thread.sleep(10000);
+            if (filesystemNode.getChildren().length != 2) {
+                captureScreen();
+                filesystemNode.select();
+                String children = getChildren(filesystemNode);
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Backup files properties do not work." + children);
+            }
             filesystemNode.select();
-            String children = getChildren(filesystemNode);
-            new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Create backup files does not work." + children);
-        }
-        filesystemNode.select();
-        sheet = new PropertySheetOperator();
-        try {
-            expertTab = sheet.getPropertySheetTabOperator("Expert");
-        } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
-            captureScreen();
-            api.getFilesystemsTab();
+            sheet = new PropertySheetOperator();
+            try {
+                expertTab = sheet.getPropertySheetTabOperator("Expert");
+            } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+                captureScreen();
+                filesystemNode.select();
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Can't find Expert property tab.");
+            }
+            filterBackupFiles = new ComboBoxProperty(expertTab, "Filter Backup Files");
+            filterBackupFiles.setValue("True");
+            Thread.sleep(10000);
             filesystemNode.select();
+            if (filesystemNode.getChildren().length != 1) {
+                captureScreen();
+                String children = getChildren(filesystemNode);
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Filter backup files does not work." + children);
+            }
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Can't find Expert property tab.");
-        }
-        createBackupFiles = new ComboBoxProperty(expertTab, "Create Backup Files");
-        createBackupFiles.setValue("True");
-        editor.insert("// The second added line.\n");
-        editor.requestFocus();
-        new SaveAction().perform();
-        APIController.sleep(10000);
-        if (filesystemNode.getChildren().length != 2) {
+            System.out.println(". done !");
+        } catch (Exception e) {
             captureScreen();
-            api.getFilesystemsTab();
-            filesystemNode.select();
-            String children = getChildren(filesystemNode);
-            new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Backup files properties do not work." + children);
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + workingDirectory));
+            throw e;
         }
-        filesystemNode.select();
-        sheet = new PropertySheetOperator();
-        try {
-            expertTab = sheet.getPropertySheetTabOperator("Expert");
-        } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
-            captureScreen();
-            api.getFilesystemsTab();
-            filesystemNode.select();
-            new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Can't find Expert property tab.");
-        }
-        filterBackupFiles = new ComboBoxProperty(expertTab, "Filter Backup Files");
-        filterBackupFiles.setValue("True");
-        APIController.sleep(10000);
-        api.getFilesystemsTab();
-        filesystemNode.select();
-        if (filesystemNode.getChildren().length != 1) {
-            captureScreen();
-            String children = getChildren(filesystemNode);
-            new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Filter backup files does not work." + children);
-        }
-        new UnmountFSAction().perform(filesystemNode);
-        System.out.println(". done !");
     }
 
     /** Checks whether "Refresh Time For Local Files [ms]" property works correctly.
      * @throws Any unexpected exception thrown during test.
      */
     public void testRefreshTime() throws Exception {
-        System.out.print(".. Testing refresh time property ..");
-        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
-        String[] filesystems = explorer.getRootNode().getChildren();
-        int count = filesystems.length;
-        for(int i=0; i<count; i++)
-            if (filesystems[i].startsWith("Empty "))
-                new UnmountFSAction().perform(new Node(explorer.getRootNode(), filesystems[i]));
-        mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
-        APIController.sleep(2000);
-        filesystem = "Empty " + workingDirectory;
-        Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
-        filesystemNode.expand();
-        new Action("View|Properties", null).perform(filesystemNode);
-        PropertySheetOperator sheet = new PropertySheetOperator();
-        PropertySheetTabOperator expertTab;
         try {
-            expertTab = sheet.getPropertySheetTabOperator("Expert");
-        } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
-            captureScreen();
-            api.getFilesystemsTab();
+            System.out.print(".. Testing refresh time property ..");
+            RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+            String[] filesystems = explorer.getRootNode().getChildren();
+            int count = filesystems.length;
+            for(int i=0; i<count; i++)
+                if (filesystems[i].startsWith("Empty "))
+                    new UnmountFSAction().perform(new Node(explorer.getRootNode(), filesystems[i]));
+            mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+            Thread.sleep(2000);
+            filesystem = "Empty " + workingDirectory;
+            Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
+            filesystemNode.expand();
+            new Action("View|Properties", null).perform(filesystemNode);
+            PropertySheetOperator sheet = new PropertySheetOperator();
+            PropertySheetTabOperator expertTab;
+            try {
+                expertTab = sheet.getPropertySheetTabOperator("Expert");
+            } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+                captureScreen();
+                filesystemNode.select();
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Can't find Expert property tab.");
+            }
+            TextFieldProperty refreshTime = new TextFieldProperty(expertTab, "Refresh Time For Local Files [ms]");
+            refreshTime.setValue("1000");
+            createFile(workingDirectory + File.separator + "B_File.java", true);
+            Thread.sleep(2000);
+            String[] children = filesystemNode.getChildren();
+            count = children.length;
+            boolean found = false;
+            for(int i=0; i<count; i++) if (children[i].startsWith("B_File")) found = true;
             filesystemNode.select();
+            if (!found) {
+                captureScreen();
+                String childs = getChildren(filesystemNode);
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Refresh time does not work." + childs);
+            }
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Can't find Expert property tab.");
-        }
-        TextFieldProperty refreshTime = new TextFieldProperty(expertTab, "Refresh Time For Local Files [ms]");
-        refreshTime.setValue("1000");
-        createFile(workingDirectory + File.separator + "B_File.java", true);
-        Thread.sleep(2000);
-        String[] children = filesystemNode.getChildren();
-        count = children.length;
-        boolean found = false;
-        for(int i=0; i<count; i++) if (children[i].startsWith("B_File")) found = true;
-        api.getFilesystemsTab();
-        filesystemNode.select();
-        if (!found) {
+            System.out.println(". done !");
+        } catch (Exception e) {
             captureScreen();
-            String childs = getChildren(filesystemNode);
-            new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Refresh time does not work." + childs);
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + workingDirectory));
+            throw e;
         }
-        new UnmountFSAction().perform(filesystemNode);
-        System.out.println(". done !");
     }
 
     /** Checks whether "Hide Shadow Files" property works correctly.
      * throws Exception Any unexpected exception thrown during test.
      */
     public void testHideShadowFiles() throws Exception {
-        System.out.print(".. Testing hide shadow files property ..");
-        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
-        String[] filesystems = explorer.getRootNode().getChildren();
-        int count = filesystems.length;
-        for(int i=0; i<count; i++)
-            if (filesystems[i].startsWith("Empty "))
-                new UnmountFSAction().perform(new Node(explorer.getRootNode(), filesystems[i]));
-        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
-        VCSWizardProfile profilePage = new VCSWizardProfile();
-        filesystem = "Empty " + workingDirectory;
-        profilePage.setWorkingDirectory(workingDirectory);
-        String profile = Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN;
-        profilePage.setProfile(profile);
-        profilePage.next();
-        VCSWizardAdvanced advancedPage = new VCSWizardAdvanced();
-        advancedPage.editCommands();
-        CommandEditor commandEditor = new CommandEditor();
-        commandEditor.selectCommand("Empty|Refresh");
-        NbDialogOperator dialog = new NbDialogOperator("Command Editor");
-        PropertySheetOperator sheet = new PropertySheetOperator(dialog);
-        PropertySheetTabOperator sheetTab = sheet.getPropertySheetTabOperator("Properties");
-        TextFieldProperty exec = new TextFieldProperty(sheetTab, "Exec");
-        exec.setValue(Utilities.isUnix() ? "sh -c \"echo C_File.java\"" : "cmd /x /c \"echo C_File.java\"");
-        TextFieldProperty dataRegex = new TextFieldProperty(sheet.getPropertySheetTabOperator("Expert"), "Data Regex");
-        dataRegex.setValue("^(.*)");
-        TextFieldProperty fileIndex = new TextFieldProperty(sheet.getPropertySheetTabOperator("Refresh Info"), "File Index");
-        fileIndex.setValue("0");
-        commandEditor.ok();
-        advancedPage.finish();
-        APIController.sleep(2000);
-        Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
-        filesystemNode.tree().expandPath(filesystemNode.getTreePath());
-        filesystemNode.select();
-        MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|Empty|Refresh");
-        Node fileNode = new Node(filesystemNode, "C_File");
-        fileNode.select();
-        new Action("View|Properties", null).perform(filesystemNode);
-        sheet = new PropertySheetOperator();
-        PropertySheetTabOperator expertTab;
         try {
-            expertTab = sheet.getPropertySheetTabOperator("Expert");
-        } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
-            captureScreen();
-            api.getFilesystemsTab();
+            System.out.print(".. Testing hide shadow files property ..");
+            RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+            String[] filesystems = explorer.getRootNode().getChildren();
+            int count = filesystems.length;
+            for(int i=0; i<count; i++)
+                if (filesystems[i].startsWith("Empty "))
+                    new UnmountFSAction().perform(new Node(explorer.getRootNode(), filesystems[i]));
+            new ActionNoBlock(MOUNT_MENU, null).perform();
+            VCSWizardProfile profilePage = new VCSWizardProfile();
+            filesystem = "Empty " + workingDirectory;
+            profilePage.setWorkingDirectory(workingDirectory);
+            String profile = Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN;
+            profilePage.setProfile(profile);
+            profilePage.next();
+            VCSWizardAdvanced advancedPage = new VCSWizardAdvanced();
+            advancedPage.editCommands();
+            CommandEditor commandEditor = new CommandEditor();
+            commandEditor.selectCommand("Empty|Refresh");
+            NbDialogOperator dialog = new NbDialogOperator("Command Editor");
+            PropertySheetOperator sheet = new PropertySheetOperator(dialog);
+            PropertySheetTabOperator sheetTab = sheet.getPropertySheetTabOperator("Properties");
+            TextFieldProperty exec = new TextFieldProperty(sheetTab, "Exec");
+            exec.setValue(Utilities.isUnix() ? "sh -c \"echo C_File.java\"" : "cmd /x /c \"echo C_File.java\"");
+            TextFieldProperty dataRegex = new TextFieldProperty(sheet.getPropertySheetTabOperator("Expert"), "Data Regex");
+            dataRegex.setValue("^(.*)");
+            TextFieldProperty fileIndex = new TextFieldProperty(sheet.getPropertySheetTabOperator("Refresh Info"), "File Index");
+            fileIndex.setValue("0");
+            commandEditor.ok();
+            advancedPage.finish();
+            Thread.sleep(2000);
+            Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
+            filesystemNode.expand();
+            new Action(VERSIONING_MENU+"|Empty|Refresh", null).perform(filesystemNode);
+            Node fileNode = new Node(filesystemNode, "C_File");
+            new Action("View|Properties", null).perform(filesystemNode);
+            sheet = new PropertySheetOperator();
+            PropertySheetTabOperator expertTab;
+            try {
+                expertTab = sheet.getPropertySheetTabOperator("Expert");
+            } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+                captureScreen();
+                filesystemNode.select();
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Can't find Expert property tab.");
+            }
+            ComboBoxProperty hideShadowFiles = new ComboBoxProperty(expertTab, "Hide Shadow Files");
+            hideShadowFiles.setValue("True");
             filesystemNode.select();
+            new Action(VERSIONING_MENU+"|Empty|Refresh", null).perform(filesystemNode);
+            Thread.sleep(1000);
+            String[] children = filesystemNode.getChildren();
+            count = children.length;
+            boolean found = false;
+            for(int i=0; i<count; i++) if (children[i].startsWith("C_File")) found = true;
+            filesystemNode.select();
+            if (found) {
+                captureScreen();
+                String childs = getChildren(filesystemNode);
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Hide shadow files does not work." + childs);
+            }
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Can't find Expert property tab.");
-        }
-        ComboBoxProperty hideShadowFiles = new ComboBoxProperty(expertTab, "Hide Shadow Files");
-        hideShadowFiles.setValue("True");
-        filesystemNode.select();
-        MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|Empty|Refresh");
-        APIController.sleep(1000);
-        String[] children = filesystemNode.getChildren();
-        count = children.length;
-        boolean found = false;
-        for(int i=0; i<count; i++) if (children[i].startsWith("C_File")) found = true;
-        api.getFilesystemsTab();
-        filesystemNode.select();
-        if (found) {
+            System.out.println(". done !");
+        } catch (Exception e) {
             captureScreen();
-            String childs = getChildren(filesystemNode);
-            new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Hide shadow files does not work." + childs);
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + workingDirectory));
+            throw e;
         }
-        new UnmountFSAction().perform(filesystemNode);
-        System.out.println(". done !");
     }
 }
