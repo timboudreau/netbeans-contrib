@@ -22,7 +22,7 @@ import java.text.*;
 import org.openide.NotifyDescriptor;
 import org.openide.util.*;
 
-import org.netbeans.modules.vcscore.util.*;
+import org.netbeans.modules.vcscore.util.Debug;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 

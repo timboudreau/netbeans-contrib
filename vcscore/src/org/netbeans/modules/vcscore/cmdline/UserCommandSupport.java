@@ -101,7 +101,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     private static final String PROPERTY_PARSED_ATTR_VALUES_VARS = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesValuesVars"; // NOI18N
     
     private UserCommand cmd;
-    private VcsFileSystem fileSystem;
     private CommandExecutionContext executionContext;
     //private Hashtable variableMap;
     private String displayName;
@@ -118,11 +117,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         super(getClassesForCommand(cmd));
         this.cmd = cmd;
         this.executionContext = executionContext;
-        if (executionContext instanceof VcsFileSystem) {
-            this.fileSystem = (VcsFileSystem) executionContext;
-        } else {
-            this.fileSystem = null;
-        }
         if (executionContext != null) {
             String label = cmd.getDisplayName();
             if (label != null && label.indexOf('$') >= 0) {
@@ -189,14 +183,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     public UserCommand getVcsCommand() {
         return cmd;
     }
-    
-    /**
-     * Get the VCS filesystem, that is associated with this support.
-     *
-    public VcsFileSystem getVcsFileSystem() {
-        return fileSystem;
-    }
-     */
     
     /**
      * Get the execution context, that is associated with this support.
@@ -267,9 +253,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             wt.runTasks();
             return wt;
         } else {
-        //Hashtable vars = fileSystem.getVariablesAsHashtable();
-        //vars.putAll(dCommand.getAdditionalVariables());
-        //ExecuteCommand ec = new ExecuteCommand(fileSystem, cmd, vars, dCommand.getPreferredExec());
             return new UserCommandTask(this, dCommand);//, ec);
         }
     }
@@ -294,13 +277,11 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (!(task instanceof UserCommandTask)) return task.STATUS_FAILED;
         UserCommandTask userTask = (UserCommandTask) task;
         if (userTask.willSpawnRefresh()) {
-            userTask.spawnRefresh(fileSystem);
+            userTask.spawnRefresh((VcsFileSystem) executionContext);
             return task.STATUS_SUCCEEDED;
         }
         VcsDescribedCommand dCommand = (VcsDescribedCommand) command;
-        //Hashtable vars = fileSystem.getVariablesAsHashtable();
-        //vars.putAll(dCommand.getAdditionalVariables());
-        VcsCommandExecutor ec = userTask.getExecutor();//new ExecuteCommand(fileSystem, cmd, vars, dCommand.getPreferredExec());
+        VcsCommandExecutor ec = userTask.getExecutor();
         //if (ec == null) return task.STATUS_FAILED; ec must NOT be null !
         java.util.EventListener[] listeners = getListeners(TextOutputListener.class, command);
         if (listeners != null) {
@@ -403,7 +384,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 return null;
             }
         }
-        if (fileSystem != null) {
+        if (executionContext instanceof VcsFileSystem) {
             files = VcsUtilities.convertFileObjects(files);
         }
         FileObject[] appFiles = CommandCustomizationSupport.getApplicableFiles(executionContext, cmd, files);
@@ -430,8 +411,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         super.initializeCommand(cmd);
         VcsDescribedCommand vcmd = (VcsDescribedCommand) cmd;
         vcmd.setVcsCommand(this.cmd);
-        if (fileSystem != null) {
-            FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
+        if (executionContext instanceof VcsFileSystem) {
+            FileSystemCache cache = CacheHandler.getInstance().getCache(((VcsFileSystem) executionContext).getCacheIdStr());
             if (cache instanceof FileReaderListener) {
                 vcmd.addFileReaderListener((FileReaderListener) cache);
             }
@@ -469,6 +450,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             // fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
             files = null;
         }
+        VcsFileSystem fileSystem = null;
+        if (executionContext instanceof VcsFileSystem) fileSystem = (VcsFileSystem) executionContext;
         if ("LIST".equals(cmd.getName()) && fileSystem != null && fileSystem.isOffLine() &&
             fileSystem.getCommand(org.netbeans.modules.vcscore.commands.VcsCommand.NAME_REFRESH +
                                   org.netbeans.modules.vcscore.commands.VcsCommand.NAME_SUFFIX_OFFLINE) == null) {
@@ -534,13 +517,12 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (files != null) {
             subFiles = setupRestrictedFileMap(files, vars, vcsCmd);
             setVariables(subFiles, vars, valueAdjustment, cacheProvider,
-                         (fileSystem != null) ? fileSystem.getRelativeMountPoint() : "",
+                         (executionContext instanceof VcsFileSystem) ? ((VcsFileSystem) executionContext).getRelativeMountPoint() : "",
                          true);
         } else {
             subFiles = null;
         }
         //System.out.println("subFiles = "+subFiles+", files = "+files+", MODULE = "+vars.get("MODULE")+", DIR = "+vars.get("DIR"));
-        //Hashtable vars = fileSystem.getVariablesAsHashtable();
         //System.out.println("\nVARS for cmd = "+cmd+" ARE:"+vars+"\n");
         String commandExec = (String) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC);
         StructuredExec structuredExec = (StructuredExec) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC_STRUCTURED);
@@ -623,7 +605,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         Table subFiles = setupRestrictedFileMap(files, cmdCanRunOnMultipleFiles,
                                                 cmdCanRunOnMultipleFilesInFolder);
         setVariables(subFiles, vars, valueAdjustment, cacheProvider,
-                     (fileSystem != null) ? fileSystem.getRelativeMountPoint() : "",
+                     (executionContext instanceof VcsFileSystem) ? ((VcsFileSystem) executionContext).getRelativeMountPoint() : "",
                      true);
         cmd.setAdditionalVariables(vars);
         // Suppose, that the command is already preprocessed.
@@ -676,7 +658,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     private VcsDescribedCommand createNextCommand(Table files, VcsDescribedCommand oldCommand) {
         VcsDescribedCommand command = (VcsDescribedCommand) oldCommand.clone();//createCommand();
         command.setAdditionalVariables(cloneFileArgs(command.getAdditionalVariables()));
-        setCommandFilesFromTable(command, files, fileSystem);
+        setCommandFilesFromTable(command, files, executionContext);
         command.setExpertMode(oldCommand.isExpertMode());
         command.setGUIMode(oldCommand.isGUIMode());
         //command.setAdditionalVariables(null); // re-set the map of additional variables
@@ -743,7 +725,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         Table files = new Table();
         FileObject[] fos = cmd.getFiles();
         if (fos != null) {
-            if (fileSystem != null) {
+            if (executionContext instanceof VcsFileSystem) {
                 for (int i = 0; i < fos.length; i++) {
                     files.put(fos[i].getPath(), fos[i]);
                 }
@@ -759,8 +741,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (cmd instanceof VcsDescribedCommand) {
             java.io.File[] diskFiles = ((VcsDescribedCommand) cmd).getDiskFiles();
             if (diskFiles != null) {
-                if (fileSystem != null) {
-                    String root = fileSystem.getFile("").getAbsolutePath();
+                if (executionContext instanceof VcsFileSystem) {
+                    String root = ((VcsFileSystem) executionContext).getFile("").getAbsolutePath();
                     for (int i = 0; i < diskFiles.length; i++) {
                         String path = diskFiles[0].getAbsolutePath();
                         if (path.indexOf(root) == 0) {
@@ -815,7 +797,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     Table subFiles = new Table();
                     subFiles.put(singleFile, files.get(singleFile));
                     setVariables(subFiles, vars, valueAdjustment, cacheProvider,
-                                 (fileSystem != null) ? fileSystem.getRelativeMountPoint() : "",
+                                 (executionContext instanceof VcsFileSystem) ? ((VcsFileSystem) executionContext).getRelativeMountPoint() : "",
                                  true);
                     command.setAdditionalVariables(vars);
                     //System.out.println("RestrictedFileMap = "+subFiles+", files = "+files+", MODULE = "+command.getAdditionalVariables().get("MODULE")+", DIR = "+command.getAdditionalVariables().get("DIR"));
@@ -898,7 +880,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      *        Can be <code>null</code>, in which case java.io.Files are created
      *        directly from the file name.
      */
-    public static void setCommandFilesFromTable(Command command, Table files, VcsFileSystem fileSystem) {
+    public static void setCommandFilesFromTable(Command command, Table files, CommandExecutionContext executionContext) {
         ArrayList diskFiles = new ArrayList();
         ArrayList foFiles = new ArrayList();
         for (Iterator it = files.keySet().iterator(); it.hasNext(); ) {
@@ -907,8 +889,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             if (fo != null) {
                 foFiles.add(fo);
             } else {
-                if (fileSystem != null) {
-                    diskFiles.add(fileSystem.getFile(name));
+                if (executionContext instanceof VcsFileSystem) {
+                    diskFiles.add(((VcsFileSystem) executionContext).getFile(name));
                 } else {
                     diskFiles.add(new java.io.File(name));
                 }
