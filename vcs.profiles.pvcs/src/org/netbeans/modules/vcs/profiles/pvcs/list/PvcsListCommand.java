@@ -62,6 +62,7 @@ public class PvcsListCommand extends AbstractListCommand {
     private static final String LOCK_INFO_LOCKED_BY = "Locked By:"; // NOI18N
     private static final String LOCK_INFO_END = "]"; // NOI18N
     private static final String LOCKS_SEPARATOR = " : "; // NOI18N
+    private static final String ARCHIVE_REVISION_COUNT = "Archive:RevisionCount="; // NOI18N
     
     private static final String NO_ENTITIES_REGEX = "^The entity \\(or entities\\) for .* could not be loaded\\.$";
     
@@ -351,7 +352,7 @@ public class PvcsListCommand extends AbstractListCommand {
                 String name = elements[0].substring(ENTITY_NAME.length());
                 File file = new File(dir, name);
                 if (folder) name += "/";
-                fileStatuses = new String[5];
+                fileStatuses = new String[6];
                 fileStatuses[0] = name.intern();
                 if (file.exists()) {
                     fileStatuses[1] = NO_STATUS;
@@ -368,6 +369,10 @@ public class PvcsListCommand extends AbstractListCommand {
                     archivesByNames.put(fileStatuses[0], archive);
                     fileStatuses[4] = archive;
                 }
+            }
+            if (elements[0].startsWith(ARCHIVE_REVISION_COUNT) && fileStatuses != null) {
+                String revisionCount = elements[0].substring(ARCHIVE_REVISION_COUNT.length());
+                fileStatuses[5] = revisionCount;
             }
             if (elements[0].startsWith(ARCHIVE_LOCK_INFO) && fileStatuses != null) {
                 String lockInfo = elements[0].substring(ARCHIVE_LOCK_INFO.length());

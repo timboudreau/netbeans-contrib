@@ -9,7 +9,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -179,6 +179,9 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="MAX_CMD_LENGTH" basic="false" if="IS_WINDOWS">
       <value>1000</value>
     </variable>
+    <variable name="ZERO" basic="false">
+      <value>0</value>
+    </variable>
     <variable name="CONFIG_INPUT_DESCRIPTOR" basic="false">
       <value>PROMPT_FOR(PROJECT_DB, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_ProjectDatabase)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_ProjectDatabase);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_ProjectDatabase_mnc)), SELECTOR_CMD_PROJECT_DATABASE_SELECTOR)
              PROMPT_FOR(USER_NAME, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_UserName)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_UserName);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_UserName_mnc)))
@@ -209,7 +212,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>-1</value>
 	</property>
 	<property name="data.size.index">
-	  <value>-1</value>
+	  <value>5</value> <!-- The number of revisions is stored here -->
 	</property>
 	<property name="data.locker.index">
 	  <value>2</value>
@@ -309,8 +312,8 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="displayInteractive">
 	  <value>true</value>
 	</property>
-        <property name="disabledWhenNotLocked">
-          <value>true</value>
+        <property name="disabledWhenNotLockedConditioned">
+          <value>$[? CACHED_SIZE] [$[? CACHED_SIZE-ZERO] [true] [false]] [true]</value>
 	</property>
 	<property name="data.regex">
 	  <value>$ ^</value>
