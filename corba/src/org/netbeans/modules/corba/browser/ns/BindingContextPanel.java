@@ -51,6 +51,12 @@ public class BindingContextPanel extends javax.swing.JPanel {
     public BindingContextPanel() {
 
         initComponents ();
+        
+        java.util.ResourceBundle b = org.openide.util.NbBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle"); //NOI18N
+        nameLabel.setDisplayedMnemonic(b.getString("CTL_LabelName1_MNE").charAt(0));    //NOI18N
+        urlLabel.setDisplayedMnemonic(b.getString("CTL_LabelURL1_MNE").charAt(0));      //NOI18N
+        kindLabel.setDisplayedMnemonic(b.getString("CTL_LabelKind1_MNE").charAt(0));         //NOI18N
+        iorLabel.setDisplayedMnemonic(b.getString("CTL_LabelIOR1_MNE").charAt(0));      //NOI18N
 
     }
 
@@ -66,103 +72,106 @@ public class BindingContextPanel extends javax.swing.JPanel {
 
      */
 
-    private void initComponents () {//GEN-BEGIN:initComponents
-        setLayout (new java.awt.GridBagLayout ());
-        java.awt.GridBagConstraints gridBagConstraints1;
-        setBorder (new javax.swing.border.EmptyBorder(new java.awt.Insets(8, 8, 8, 8)));
+    private void initComponents() {//GEN-BEGIN:initComponents
+        java.awt.GridBagConstraints gridBagConstraints;
 
-        nameLabel = new javax.swing.JLabel ();
-        nameLabel.setText (NbBundle.getBundle(ContextNode.class).getString("CTL_LabelName"));
+        nameLabel = new javax.swing.JLabel();
+        nameField = new javax.swing.JTextField();
+        kindLabel = new javax.swing.JLabel();
+        kindField = new javax.swing.JTextField();
+        urlLabel = new javax.swing.JLabel();
+        urlField = new javax.swing.JTextField();
+        iorLabel = new javax.swing.JLabel();
+        iorField = new javax.swing.JTextField();
+        fillPanel = new javax.swing.JPanel();
 
+        setLayout(new java.awt.GridBagLayout());
 
-        gridBagConstraints1 = new java.awt.GridBagConstraints ();
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 0;
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        add (nameLabel, gridBagConstraints1);
+        nameLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelName1"));
+        nameLabel.setName("null");
+        nameLabel.setLabelFor(nameField);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        add(nameLabel, gridBagConstraints);
 
-        nameField = new javax.swing.JTextField ();
+        nameField.setColumns(20);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(12, 10, 0, 11);
+        add(nameField, gridBagConstraints);
 
+        kindLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelKind1"));
+        kindLabel.setLabelFor(kindField);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.insets = new java.awt.Insets(10, 12, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        add(kindLabel, gridBagConstraints);
 
-        gridBagConstraints1 = new java.awt.GridBagConstraints ();
-        gridBagConstraints1.gridx = 1;
-        gridBagConstraints1.gridy = 0;
-        gridBagConstraints1.gridwidth = 0;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.insets = new java.awt.Insets (0, 8, 8, 0);
-        gridBagConstraints1.weightx = 1.0;
-        add (nameField, gridBagConstraints1);
+        kindField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                kindFieldActionPerformed(evt);
+            }
+        });
 
-        kindLabel = new javax.swing.JLabel ();
-        kindLabel.setText (NbBundle.getBundle(ContextNode.class).getString("CTL_LabelKind"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 11);
+        add(kindField, gridBagConstraints);
 
+        urlLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelURL1"));
+        urlLabel.setLabelFor(urlField);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.insets = new java.awt.Insets(10, 12, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        add(urlLabel, gridBagConstraints);
 
-        gridBagConstraints1 = new java.awt.GridBagConstraints ();
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 2;
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        add (kindLabel, gridBagConstraints1);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 11);
+        add(urlField, gridBagConstraints);
 
-        kindField = new javax.swing.JTextField ();
-        kindField.addActionListener (new java.awt.event.ActionListener () {
-                                         public void actionPerformed (java.awt.event.ActionEvent evt) {
-                                             kindFieldActionPerformed (evt);
-                                         }
-                                     }
-                                    );
+        iorLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelIOR1"));
+        iorLabel.setLabelFor(iorField);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.insets = new java.awt.Insets(10, 12, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        add(iorLabel, gridBagConstraints);
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 11);
+        add(iorField, gridBagConstraints);
 
-        gridBagConstraints1 = new java.awt.GridBagConstraints ();
-        gridBagConstraints1.gridx = 1;
-        gridBagConstraints1.gridy = 2;
-        gridBagConstraints1.gridwidth = 0;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.insets = new java.awt.Insets (0, 8, 8, 0);
-        add (kindField, gridBagConstraints1);
-
-        urlLabel = new javax.swing.JLabel ();
-        urlLabel.setText (NbBundle.getBundle(ContextNode.class).getString("CTL_LabelURL"));
-
-
-        gridBagConstraints1 = new java.awt.GridBagConstraints ();
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 3;
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        add (urlLabel, gridBagConstraints1);
-
-        urlField = new javax.swing.JTextField ();
-
-
-        gridBagConstraints1 = new java.awt.GridBagConstraints ();
-        gridBagConstraints1.gridx = 1;
-        gridBagConstraints1.gridy = 3;
-        gridBagConstraints1.gridwidth = 0;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.insets = new java.awt.Insets (0, 8, 8, 0);
-        gridBagConstraints1.weightx = 1.0;
-        add (urlField, gridBagConstraints1);
-
-        iorLabel = new javax.swing.JLabel ();
-        iorLabel.setText (NbBundle.getBundle(ContextNode.class).getString("CTL_LabelIOR"));
-
-
-        gridBagConstraints1 = new java.awt.GridBagConstraints ();
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 4;
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        add (iorLabel, gridBagConstraints1);
-
-        iorField = new javax.swing.JTextField ();
-
-
-        gridBagConstraints1 = new java.awt.GridBagConstraints ();
-        gridBagConstraints1.gridx = 1;
-        gridBagConstraints1.gridy = 4;
-        gridBagConstraints1.gridwidth = 0;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.insets = new java.awt.Insets (0, 8, 8, 0);
-        gridBagConstraints1.weightx = 1.0;
-        add (iorField, gridBagConstraints1);
+        fillPanel.setPreferredSize(new java.awt.Dimension(0, 0));
+        fillPanel.setMinimumSize(new java.awt.Dimension(0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.gridheight = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(fillPanel, gridBagConstraints);
 
     }//GEN-END:initComponents
 
@@ -175,12 +184,13 @@ public class BindingContextPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel nameLabel;
     private javax.swing.JTextField nameField;
-    private javax.swing.JLabel kindLabel;
-    private javax.swing.JTextField kindField;
-    private javax.swing.JLabel urlLabel;
-    private javax.swing.JTextField urlField;
     private javax.swing.JLabel iorLabel;
     private javax.swing.JTextField iorField;
+    private javax.swing.JLabel kindLabel;
+    private javax.swing.JLabel urlLabel;
+    private javax.swing.JTextField kindField;
+    private javax.swing.JTextField urlField;
+    private javax.swing.JPanel fillPanel;
     // End of variables declaration//GEN-END:variables
 
 
