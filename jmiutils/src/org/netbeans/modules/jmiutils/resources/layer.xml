@@ -30,9 +30,9 @@ Microsystems, Inc. All Rights Reserved.
     <file name="org-netbeans-lib-jmi-xmi-XmiDtdProducer.instance"/>
 
     <folder name="JMIMapper">
-        <attr name="OpenIDE-Folder-Order" stringvalue="org-netbeans-lib-jmi-mapping-JMIMapperImpl.settings" />
+        <attr name="OpenIDE-Folder-Order" stringvalue="org-netbeans-lib-jmi-mapping-JMIMapperImpl.instance" />
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jmiutils.resources.Bundle"/>
-        <file name="org-netbeans-lib-jmi-mapping-JMIMapperImpl.settings" url="JMIMapperImpl.settings">
+        <file name="org-netbeans-lib-jmi-mapping-JMIMapperImpl.instance">
             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/jmiutils/resources/mapper.gif"/>
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jmiutils.resources.Bundle"/>
         </file>
