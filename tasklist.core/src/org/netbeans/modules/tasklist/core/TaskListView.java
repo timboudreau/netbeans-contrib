@@ -526,6 +526,8 @@ public abstract class TaskListView extends ExplorerPanel
 	    }
 	    views.put(category, this);
 	}
+        
+        deletePerformer = new DeleteActionPerformer(this.getExplorerManager());
     }
 
     /** Write out relevant settings in the window (visible
