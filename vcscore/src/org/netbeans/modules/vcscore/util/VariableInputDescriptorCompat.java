@@ -171,7 +171,7 @@ public final class VariableInputDescriptorCompat extends Object {
             int end = index2 + 1;
             String str = exec.substring(index, index2);
             String var = varNameGenerator();
-            exec.replace(begin, end, "${"+var+"}");
+            exec.replace(begin, end, var);
             inputDescriptor.append(VariableInputDescriptor.INPUT_STR_ASK + "(" + var + ", \"" + str + "\") ");
             num++;
             //pos = index2;
