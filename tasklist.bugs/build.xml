@@ -50,12 +50,31 @@ Microsystems, Inc. All Rights Reserved.
         </jar>
     </target>
 
-    <target name="netbeans" depends="jars">
+    <target name="netbeans" depends="jars, simulate_module_autorecognition">
         <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/tasklist-bugs.jar">
             <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
                 <patternset refID="tasklist/bugs.files"/>
            </fileset>
         </genlist>
+    </target>
+
+    <!--
+        NetBeans 4.0 is not able to generate this information in runtime anymore.
+        Missing information confuses system (and users).
+        It's done for standard distribution on centralized place in nbbuild/build.xml.
+    -->
+    <target name="simulate_module_autorecognition">
+
+        <echo message="Simulating module autorecognition in ${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules ..."/>
+
+        <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="../../nbbuild/nbantext.jar"/>
+
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules"/>
+        <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
+          <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
+            <include name="${nb.modules.dir}/tasklist-bugs.jar"/>
+          </enabled>
+        </createmodulexml>
     </target>
 
     <target name="nbm" depends="netbeans">

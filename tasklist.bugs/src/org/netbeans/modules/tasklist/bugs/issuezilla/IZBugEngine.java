@@ -214,12 +214,12 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
     }
 
     /** View a particular bug. */
-    public void viewBug(Bug bug) {
-	String urlstring = "http://www.netbeans.org/issues/show_bug.cgi?id=" +
-	    bug.getId();
+    public void viewBug(Bug bug, String service) {
+//	String urlstring = "http://www.netbeans.org/issues/show_bug.cgi?id=" +
+//	    bug.getId();
 	// Show URL
 	try {
-	    URL url = new URL(urlstring);
+	    URL url = new URL(new URL(service), "issues/show_bug.cgi?id=" + bug.getId());
 	    HtmlBrowser.URLDisplayer.getDefault().showURL(url);
 	} catch (MalformedURLException e) {
 	    ErrorManager.getDefault().notify(e);

@@ -22,6 +22,8 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.InputSource;
 
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.NbBundle;
@@ -166,7 +168,7 @@ public final class Bugzilla extends java.lang.Object {
                     
                     Issue[] arr;
                     try {
-                        arr = getBugs(is);
+                        arr = getBugs(is, urlBase);
                     } finally {
                         is.close();
                     }
@@ -296,10 +298,12 @@ public final class Bugzilla extends java.lang.Object {
      * @return Issue[] objects from the InputStream containing
      * their XML representation.
      */
-    private Issue[] getBugs(InputStream in)
+    private Issue[] getBugs(InputStream in, URL source)
     throws SAXException, IOException  {
         BugzillaXMLHandler handler = new BugzillaXMLHandler();
-        saxParser.parse(in, handler);
+        InputSource input = new InputSource(in);
+        input.setSystemId(source.toExternalForm());
+        saxParser.parse(input, handler);
         return getBugsFromHandler(handler);
     }
     

@@ -189,15 +189,16 @@ public class BZBugEngine implements BugEngine { // XXX remove the publicness
     }
 
     /** View a particular bug. */
-    public void viewBug(Bug bug) {
+    public void viewBug(Bug bug, String server) {
 //	String urlstring = "http://192.168.3.3/bugzilla/show_bug.cgi?id=" + bug.getId();
-        String urlstring = "http://bugzilla.mozilla.org/show_bug.cgi?id=" + bug.getId();
-	// Show URL
-	try {
-	    URL url = new URL(urlstring);
-	    HtmlBrowser.URLDisplayer.getDefault().showURL(url);
-	} catch (MalformedURLException e) {
-	    ErrorManager.getDefault().notify(e);
-	}	
+//        String urlstring = "http://bugzilla.mozilla.org/show_bug.cgi?id=" + bug.getId();
+        // Show URL
+        try {
+            // XXX why server/service doe not contain bugzilla too?
+            URL url = new URL(new URL(server), "bugzilla/show_bug.cgi?id=" + bug.getId());
+            HtmlBrowser.URLDisplayer.getDefault().showURL(url);
+        } catch (MalformedURLException e) {
+            ErrorManager.getDefault().notify(e);
+        }
     }
 }

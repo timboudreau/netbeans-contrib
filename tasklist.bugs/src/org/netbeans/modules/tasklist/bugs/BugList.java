@@ -92,8 +92,8 @@ public class BugList extends TaskList { // XXX remove the publicness
     /** View a particular bug. */
     public void viewBug(Bug bug) {
         // Do in the background
-	BugEngine engine = bug.getEngine();
-	engine.viewBug(bug);
+	    BugEngine engine = bug.getEngine();
+	    engine.viewBug(bug, mQuery.getBaseUrl());
     }
 
     BugEngine getDefaultEngine() {

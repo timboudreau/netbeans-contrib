@@ -17,8 +17,11 @@ import java.util.Date;
 
 
 import org.netbeans.modules.tasklist.core.*;
+import org.netbeans.modules.tasklist.core.filter.FilterAction;
+import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.actions.SystemAction;
 import org.openide.nodes.Node;
 
 
@@ -301,5 +304,14 @@ public class BugsView extends TaskListView implements TaskListener {
     public org.netbeans.modules.tasklist.core.filter.Filter createFilter() {
         return null; // TODO
     }
-    
+
+    protected SystemAction[] getToolBarActions() {
+        return new SystemAction[] {
+            SystemAction.get(RefreshAction.class),
+            SystemAction.get(ViewBugAction.class),
+//            SystemAction.get(FilterAction.class),
+//            SystemAction.get(RemoveFilterAction.class)
+        };
+    }
+
 }

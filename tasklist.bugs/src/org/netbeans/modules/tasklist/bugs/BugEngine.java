@@ -25,7 +25,7 @@ public interface BugEngine {
     void refresh(BugQuery query);
 
     /** View a particular bug. */
-    void viewBug(Bug bug);
+    void viewBug(Bug bug, String serverURL);
 
     /** Return the user name of the engine */
     String getName();
