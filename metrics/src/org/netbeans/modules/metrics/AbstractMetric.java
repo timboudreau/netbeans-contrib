@@ -21,8 +21,7 @@ package org.netbeans.modules.metrics;
 
 import org.netbeans.modules.metrics.options.*;
 
-import java.awt.Component;
-import java.awt.Event;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyEditor;
@@ -137,6 +136,33 @@ public abstract class AbstractMetric implements Metric {
         DetailsViewer() {
             text = new TextPanel(AbstractMetric.this.getDetails());
         }
+
+	public boolean isPaintable() {
+	    return true;
+	}
+
+	public void paintValue(Graphics g, Rectangle r) {
+	    Color color;
+	    switch (AbstractMetric.this.getWarningLevel()) {
+	      case Metric.METRIC_FAIL:
+		color = Color.red;
+		break;
+	      case Metric.METRIC_WARN:
+		color = Color.yellow;
+		break;
+	      default:
+		color = Color.black;
+	    }
+            String text = getAsText();
+	    Color oldColor = g.getColor();
+	    g.clearRect(r.x, r.y, r.width, r.height);
+	    g.setColor(color);
+	    FontMetrics fm = g.getFontMetrics();
+	    int h = fm.getAscent() + fm.getDescent();
+	    int y = ((r.height - h) / 2) + fm.getAscent() + r.y;
+	    g.drawString(text, 0, y);
+	    g.setColor(oldColor);
+	}
 
         public String getAsText() {
             return getValue().toString();
