@@ -176,7 +176,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
         RuntimeSupport.addWaiting(runtimeNode, vce, this);
         int preprocessStatus = CommandExecutorSupport.preprocessCommand(fileSystem, vce, vars, askForEachFile);
         if (PREPROCESS_CANCELLED == preprocessStatus) {
+            synchronized (this) {
+                commandsToRun.remove(vce);
+                //commandsFinished.add(vce);
+                notifyAll();
+            }
             fileSystem.debug(g("MSG_Command_cancelled", name));
+            //RuntimeSupport.addCancelled(runtimeNode, vce, this);
+            RuntimeSupport.removeDone(vce);
         }
         return preprocessStatus;
     }
@@ -608,7 +615,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
      */
     private class CommandOutputCollector implements CommandListener {
         
-        //private VcsCommandExecutor vce;
+        private VcsCommandExecutor vce;
         private ArrayList stdOutput = new ArrayList();
         private ArrayList errOutput = new ArrayList();
         private ArrayList stdDataOutput = new ArrayList();
@@ -620,7 +627,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         private ArrayList errDataOutputListeners = new ArrayList();
         
         public CommandOutputCollector(VcsCommandExecutor vce/*, boolean errOnly*/) {
-            //this.vce = vce;
+            this.vce = vce;
             //if (!errOnly) {
                 vce.addOutputListener(new CommandOutputListener() {
                     public void outputLine(String line) {
@@ -685,6 +692,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
          * This method is called when the command is done.
          */
         public void commandDone(VcsCommandExecutor vce) {
+            if (!this.vce.equals(vce)) return ;
             Runnable later = new Runnable() {
                 public void run() {
                     try {
