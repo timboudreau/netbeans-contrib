@@ -31,10 +31,16 @@ import java.lang.ref.WeakReference;
 import org.netbeans.modules.vcscore.grouping.VcsGroupNode;
 
 
-/** Action sensitive to the node selection that does something useful.
- * All subclasses don't process the activated nodes by themselves, but rather
- * use the AbstractCommandAction for this purpose. 
- * 
+/** 
+ * Action sensitive to nodes, that delegates the enable/perform processing
+ * to CommandActionSupporter instances.
+ * First all te fileobject that belong to the activated nodes are extracted.
+ * Then the CommandActionSupporter instances are found (these are attributes fo fileobjects)
+ * in case all the nodes have one supporter, the nodes are grouped by supporters
+ * and the supporters are asked about enabled() state.
+ * All supporters need to allow this action to be enabled.
+ * When performing the action the again the performing code is delegated to the supporters.
+ * Each supporter is given the fileobjects that belong to him.
  *
  * @author  Milos Kleint
  */
@@ -86,8 +92,7 @@ public class GeneralCommandAction extends NodeAction {
     
     /**
      * This method doesn't extract the fileobjects from the activated nodes itself, but rather
-     * consults the AbstractCommandAction to get a list of supporters.
-     * On this list then performs the action.
+     * consults delegates to  a list of supporters.
      */
     protected void performAction (Node[] nodes) {
         if (nodes == null || nodes.length == 0) return;
@@ -106,9 +111,8 @@ public class GeneralCommandAction extends NodeAction {
     }
 
     /**
-     * This method doesn't extract the fileobjects from the activated nodes itself, but rather
-     * consults the AbstractCommandAction to get a list of supporters.
-     * On each supporter then checks if if it enables the action.
+     * 
+     * Each supporter are checked if if they enable the action.
      * All supporters need to come to a concensus in order for the action to be enabled.
      * *experimental* annotates the toolbar tooltip according to the supporter's requests.
      */
