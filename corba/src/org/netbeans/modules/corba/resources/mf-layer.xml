@@ -138,8 +138,21 @@ Microsystems, Inc. All Rights Reserved.
     </file>
     <file name="ORBSettings.dtd" url="impls/ORBSettings.dtd">
     </file>
-    
+    </folder>
+
+	<folder name="Services">
+        <folder name="IDEConfiguration">
+            <folder name="DistributedAndEmbeddedTools">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.Bundle"/>
+                <!-- Settings -->
+                <file name="CORBASupportSettings.settings" url="CORBASupportSettings.settings">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.settings.Bundle"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/corba/settings/orb.gif"/>
+                </file>
+            </folder>
+        </folder>
   </folder>
+
   <folder name="Menu">
     <folder name="Tools">
       <file name="CORBA Wizard[org-netbeans-modules-corba-wizard-CorbaWizardAction].instance" />
