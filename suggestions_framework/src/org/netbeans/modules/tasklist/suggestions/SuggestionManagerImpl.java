@@ -729,6 +729,8 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
 
         assert request != null : "Precondition for SuggestionsBroker.getCurrRequest()";  // NOI18N
 
+        if (dataobject.isValid() == false) return;
+        
         long start = 0, end = 0, total = 0;
         List providers = getDocProviders();
         Iterator it = providers.iterator();
