@@ -88,6 +88,10 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
     public boolean isRoot() {
         return this.index != -1;
     }
+    
+    public boolean canDestroy () {
+        return ! this.isRoot();
+    }
 
     /** This method creates template for accessing this node
      *  @return String java source code

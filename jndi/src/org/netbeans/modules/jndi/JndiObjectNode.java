@@ -78,7 +78,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
     }
 
     /** @return @link isRoot */
-    public final boolean canDestroy() {
+    public boolean canDestroy() {
         return true;
     }
 
