@@ -23,7 +23,7 @@ import com.netbeans.editor.SettingsUtil;
 import com.netbeans.editor.SettingNames;
 import com.netbeans.editor.Coloring;
 import com.netbeans.editor.Syntax;
-import com.netbeans.editor.BaseSettingsInitializer;
+import com.netbeans.editor.SettingDefaults;
 import com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLKit;
 import com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLSyntax;
 
@@ -39,8 +39,8 @@ public class IDLEditorSettingsInitializer implements Settings.Initializer {
 
       settingsMap.put (SettingNames.ABBREV_MAP, getIDLAbbrevMap());
 
-      Font boldFont = BaseSettingsInitializer.defaultFont.deriveFont(Font.BOLD);
-      Font italicFont = BaseSettingsInitializer.defaultFont.deriveFont(Font.ITALIC);
+      Font boldFont = SettingDefaults.defaultFont.deriveFont(Font.BOLD);
+      Font italicFont = SettingDefaults.defaultFont.deriveFont(Font.ITALIC);
       Settings.Substituter boldSubst = new SettingsUtil.FontStylePrintColoringSubstituter(Font.BOLD);
       Settings.Substituter italicSubst = new SettingsUtil.FontStylePrintColoringSubstituter(Font.ITALIC);
       Settings.Substituter lightGraySubst = new SettingsUtil.ForeColorPrintColoringSubstituter(Color.lightGray);
@@ -182,6 +182,7 @@ public class IDLEditorSettingsInitializer implements Settings.Initializer {
 
 /*
  * <<Log>>
+ *  2    Jaga      1.1         3/22/00  Miloslav Metelka fix
  *  1    Jaga      1.0         3/15/00  Miloslav Metelka 
  * $
  */
