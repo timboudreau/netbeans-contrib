@@ -43,7 +43,7 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 					"getHide", "setHide")
 		    };
 	    // hidden options for serialization
-	    descriptors[0].setHidden (true);
+	    // descriptors[0].setHidden (true);
 
 	    //System.out.println ("// initialization of the array of descriptors");
 	} catch (IntrospectionException ex) {
@@ -96,6 +96,17 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
         } catch (IntrospectionException e) {
             e.printStackTrace ();
         }
+    }
+    
+    public BeanInfo[] getAdditionalBeanInfo() {
+        try {
+            return new BeanInfo[] {
+                java.beans.Introspector.getBeanInfo(org.openide.loaders.MultiFileLoader.class)
+            };
+        } catch (IntrospectionException e) {
+            // ignore
+        }
+        return super.getAdditionalBeanInfo();
     }
 
 }
