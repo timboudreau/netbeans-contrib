@@ -83,6 +83,13 @@ public class VirtualsDataObject extends MultiDataObject {
                 setDisplayName(newDisplayName);
         }
         
+        /**
+         * Returns <code>null</code> preferred action.
+         */
+        public javax.swing.Action getPreferredAction() {
+            return null;
+        }
+        
         
     }
     
