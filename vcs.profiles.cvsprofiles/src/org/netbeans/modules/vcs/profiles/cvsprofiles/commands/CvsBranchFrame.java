@@ -22,6 +22,7 @@ import org.openide.DialogDisplayer;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 
 /**
  *
@@ -219,15 +220,19 @@ public class CvsBranchFrame extends javax.swing.JFrame {
 
     private void diffButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_diffButtonActionPerformed
         // Add your handling code here:
-        String revision1 = revATextField.getText();
-        String revision2 = revBTextField.getText();
-        if (revision1.length() == 0) revision1 = null;
-        if (revision2.length() == 0) revision2 = null;
-        if (!branches.doDiff(revision1, revision2)) {
-            DialogDisplayer.getDefault ().notify (new org.openide.NotifyDescriptor.Message(/*java.text.MessageFormat.format (*/
-                org.openide.util.NbBundle.getBundle(CvsBranchFrame.class).getString("CvsBranchFrame.diffCommandFailed")/*, new Object[] { file } )*/));
-        }
-
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                String revision1 = revATextField.getText();
+                String revision2 = revBTextField.getText();
+                if (revision1.length() == 0) revision1 = null;
+                if (revision2.length() == 0) revision2 = null;
+                if (!branches.doDiff(revision1, revision2)) {
+                    DialogDisplayer.getDefault().notify(new org.openide.NotifyDescriptor.Message(/*java.text.MessageFormat.format (*/
+                    org.openide.util.NbBundle.getBundle(CvsBranchFrame.class).getString("CvsBranchFrame.diffCommandFailed")/*, new Object[] { file } )*/));
+                }
+            }
+        });
+        
     }//GEN-LAST:event_diffButtonActionPerformed
 
     /** Exit the Application */
