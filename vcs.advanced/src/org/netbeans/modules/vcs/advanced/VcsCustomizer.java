@@ -1184,7 +1184,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         // Add your handling code here:
         String label = (String) configCombo.getSelectedItem ();
         NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation (g("DLG_DeleteConfig", label), NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
-        if(NotifyDescriptor.Confirmation.CANCEL_OPTION.equals (TopManager.getDefault ().notify (nd))) return;
+        if (!NotifyDescriptor.Confirmation.OK_OPTION.equals (TopManager.getDefault ().notify (nd))) return;
         FileObject file = fileSystem.getConfigRootFO();
         if (file != null) file = file.getFileObject(cache.getProfileName(label));//(String) configNamesByLabel.get (label));
         if (file != null) {
