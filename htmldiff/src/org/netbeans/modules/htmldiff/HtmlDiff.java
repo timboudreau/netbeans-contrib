@@ -144,7 +144,7 @@ public final class HtmlDiff extends Object {
 
             switch (state) {
             case 1: // character
-                if (Character.isLetter ((char)ch)) {
+                if (!Character.isSpaceChar ((char)ch) && ch != '<' && ch != '\n') {
                     word.append ((char)ch);
                     break;
                 } else {
@@ -154,7 +154,7 @@ public final class HtmlDiff extends Object {
                     // fall thru
                 }
             case 0: // white line
-                if (Character.isLetter((char)ch)) {
+                if (!Character.isSpaceChar ((char)ch) && ch != '<' && ch != '\n') {
                     word = new StringBuffer ();
                     word.append ((char)ch);
                     state = 1;

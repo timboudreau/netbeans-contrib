@@ -58,7 +58,6 @@ public final class DiffTest extends NbTestCase {
         }
         
         String s = b.toString();
-        System.out.println("test:  " + b);
         
         for (int i = 1; i < vzor.length() - 1; i++) {
             if (vzor.charAt (i) != ' ' && vzor.charAt (i - 1) == ' ' && vzor.charAt (i + 1) == ' ') {
