@@ -96,6 +96,10 @@ Microsystems, Inc. All Rights Reserved.
       <value>cmd /X /C "(mkdir \"${ROOTDIR}${PS}${MODULE}${PS}.\" 2>nul || echo. >nul) &amp;&amp; cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []\" >nul &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []\" >nul &amp;&amp; \"${VSSCMD}\" workfold ${OPTIONS} \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []\" >nul &amp;&amp;</value>
       <value if="IS_WIN9X">${SHELL} -c "mkdir -p ${QUOTE}${ROOTDIR_\/}${PS}${MODULE_\/}${PS}.${QUOTE} >/dev/null; cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []${QUOTE} >/dev/null &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} workfold ${OPTIONS} ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []${QUOTE} >/dev/null &amp;&amp;</value>
     </variable>
+    <variable name="RUN_GLOBAL" basic="false">
+      <value>cmd /X /C "cd /D \"${ROOTDIR}\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}\" &amp;&amp; \"${VSSCMD}\" workfold ${OPTIONS} \"${ROOTDIR}\" &amp;&amp;</value>
+      <value if="IS_WIN9X">${SHELL} -c "cd ${QUOTE}${ROOTDIR_\/}${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} workfold ${OPTIONS} ${QUOTE}${ROOTDIR_\/}${QUOTE} &amp;&amp;</value>
+    </variable>
     <variable name="QUOTE" basic="false">
       <value>\"</value>
       <value if="IS_WIN9X">\"\"</value>
@@ -1334,5 +1338,84 @@ Microsystems, Inc. All Rights Reserved.
         </property>
     </command>
   </commands>
+  
+  <globalCommands>
+      <command name="GET_CONFIRM">
+        <property name="exec">
+          <value>${RUNPATH_NMK} ${QUOTE}${VSSCMD}${QUOTE} get ${RECURSIVE} ${RW_MODE} ${GET_OPTIONS} -I-N ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
+        </property>
+	<property name="error.regex">
+	  <value>(^.*)$</value>
+	</property>
+        <property name="ignoreFail">
+  	  <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+      </command>
+      <command name="GET_FILES_CONFIRMED">
+        <property name="exec">
+          <value>${RUN_GLOBAL} ${QUOTE}${VSSCMD}${QUOTE} get ${RW_MODE} ${GET_OPTIONS} -I-Y ${IDENT} ${QFILES} ${NUR}</value>
+        </property>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+      </command>
+      <command name="GET_LATEST" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_LATEST)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_Mnemonic)</value>
+        </property>
+	<property name="exec">
+	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N GET_CONFIRM GET_FILES_CONFIRMED ${RECURSIVE}</value>
+	</property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+         </property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_GET)))
+                 PROMPT_FOR(ROOTDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_WORK), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_WORK_mnc)), SELECTOR_DIR)
+                 PROMPT_FOR(ENVIRONMENT_VAR_SSDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_SSDIR), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_SSDIR_mnc)), SELECTOR_DIR)
+                 PROMPT_FOR(PROJECT, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_PROJECT), "$/", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_PROJECT_mnc)))
+                 PROMPT_FOR(VSSCMD_EXE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_Command), "C:\Program Files\Microsoft Visual Studio\VSS\win32\SS.EXE", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_EXE_mnc)), SELECTOR_FILE)
+                 PROMPT_FOR(USER_NAME, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_UserName), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UserName_Mnemonic)))
+                 ASK_FOR(RW_MODE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
+                 ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GETR_Rec), "true", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_Rec_mnc)), "-R", "-R-")
+                 PROMPT_FOR_EXPERT(GET_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_Options_mnc)))
+          </value>
+	</property>
+	<property name="onFile">
+	  <value>false</value>
+	</property>
+	<property name="data.regex">
+	  <value>(.*$)</value>
+	</property>
+	<property name="error.regex">
+	  <value>(.*$)</value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="checkForModifications">
+	  <value>true</value>
+	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value>-R-</value>
+        </property>
+        <property name="refreshOnFail">
+          <value>1</value>
+        </property>
+        <property name="concurrentExec">
+          <value>-1</value>
+        </property>
+      </command>
+  </globalCommands>
+  
 </configuration>
 
