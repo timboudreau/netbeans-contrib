@@ -96,7 +96,12 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
             this.dir = ""; // NOI18N
             //vars.put("DIR","."); // NOI18N
         }
-        this.dirPath = new String(dir.replace(java.io.File.separatorChar, '/')); // I have to be sure that I make new object
+        String commonParent = (String) vars.get("COMMON_PARENT");
+        if (commonParent != null && commonParent.length() > 0) {
+            this.dirPath = new String(commonParent.replace(java.io.File.separatorChar, '/') + "/" + this.dir.replace(java.io.File.separatorChar, '/'));
+        } else {
+            this.dirPath = new String(dir.replace(java.io.File.separatorChar, '/')); // I have to be sure that I make new object
+        }
         String module = (String) vars.get("MODULE"); // NOI18N
         D.deb("rootDir = "+rootDir+", module = "+module+", dir = "+dir); // NOI18N
         if (dir.equals("")) { // NOI18N
