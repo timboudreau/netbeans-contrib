@@ -3977,6 +3977,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                             throw (UserQuestionException) ErrorManager.getDefault().annotate(
                                 new UserQuestionException(message) {
                                     public void confirmed() {
+                                        CommandTask exec = null;
                                         synchronized (editCommandExecutors) {
                                             CommandTask executor = (CommandTask) editCommandExecutors.get(filePath);
                                             if (executor != null) {
@@ -3990,36 +3991,43 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                 command.setFiles(new FileObject[] { findResource(name) });
                                                 boolean customized = VcsManager.getDefault().showCustomizer(command);
                                                 if (customized) {
-                                                    CommandTask exec = command.execute();
+                                                    exec = command.execute();
                                                     if (exec != null) {
                                                         editCommandExecutors.put(filePath, exec);
-                                                        try {
-                                                            exec.waitFinished(0);
-                                                        } catch (InterruptedException iex) {
-                                                            // Interrupted, so we continue...
-                                                        }
                                                     }
                                                 }
+                                            }
+                                        }
+                                        if (exec != null) {
+                                            try {
+                                                exec.waitFinished(0);
+                                            } catch (InterruptedException iex) {
+                                                // Interrupted, so we continue...
                                             }
                                         }
                                     }
                                 }, g("EXC_CannotDeleteReadOnly", file.toString()));
                         } else {
-                            if (!editCommandExecutors.containsKey(filePath)) {
-                                CommandSupport cmd = getCommandSupport("EDIT");
-                                Command command = cmd.createCommand();
-                                command.setFiles(new FileObject[] { findResource(name) });
-                                boolean customized = VcsManager.getDefault().showCustomizer(command);
-                                if (customized) {
-                                    CommandTask exec = command.execute();
-                                    if (exec != null) {
-                                        editCommandExecutors.put(filePath, exec);
-                                        try {
-                                            exec.waitFinished(0);
-                                        } catch (InterruptedException iex) {
-                                            // Interrupted, so we continue...
+                            CommandTask exec = null;
+                            synchronized (editCommandExecutors) {
+                                if (!editCommandExecutors.containsKey(filePath)) {
+                                    CommandSupport cmd = getCommandSupport("EDIT");
+                                    Command command = cmd.createCommand();
+                                    command.setFiles(new FileObject[] { findResource(name) });
+                                    boolean customized = VcsManager.getDefault().showCustomizer(command);
+                                    if (customized) {
+                                        exec = command.execute();
+                                        if (exec != null) {
+                                            editCommandExecutors.put(filePath, exec);
                                         }
                                     }
+                                }
+                            }
+                            if (exec != null) {
+                                try {
+                                    exec.waitFinished(0);
+                                } catch (InterruptedException iex) {
+                                    // Interrupted, so we continue...
                                 }
                             }
                         }
@@ -4047,6 +4055,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         else message = g("MSG_LockFileCh");
                         throw new UserQuestionException(message) {
                             public void confirmed() {
+                                CommandTask exec = null;
                                 synchronized (lockCommandExecutors) {
                                     CommandTask executor = (CommandTask) lockCommandExecutors.get(filePath);
                                     if (executor != null) {
@@ -4060,36 +4069,43 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                         command.setFiles(new FileObject[] { findResource(name) });
                                         boolean customized = VcsManager.getDefault().showCustomizer(command);
                                         if (customized) {
-                                            CommandTask exec = command.execute();
+                                            exec = command.execute();
                                             if (exec != null) {
                                                 lockCommandExecutors.put(filePath, exec);
-                                                try {
-                                                    exec.waitFinished(0);
-                                                } catch (InterruptedException iex) {
-                                                    // Interrupted, so we continue...
-                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
-                        };
-                    } else {
-                        if (!lockCommandExecutors.containsKey(filePath)) {
-                            CommandSupport cmd = getCommandSupport("LOCK");
-                            Command command = cmd.createCommand();
-                            command.setFiles(new FileObject[] { findResource(name) });
-                            boolean customized = VcsManager.getDefault().showCustomizer(command);
-                            if (customized) {
-                                CommandTask exec = command.execute();
                                 if (exec != null) {
-                                    lockCommandExecutors.put(filePath, exec);
                                     try {
                                         exec.waitFinished(0);
                                     } catch (InterruptedException iex) {
                                         // Interrupted, so we continue...
                                     }
                                 }
+                            }
+                        };
+                    } else {
+                        CommandTask exec = null;
+                        synchronized (lockCommandExecutors) {
+                            if (!lockCommandExecutors.containsKey(filePath)) {
+                                CommandSupport cmd = getCommandSupport("LOCK");
+                                Command command = cmd.createCommand();
+                                command.setFiles(new FileObject[] { findResource(name) });
+                                boolean customized = VcsManager.getDefault().showCustomizer(command);
+                                if (customized) {
+                                    exec = command.execute();
+                                    if (exec != null) {
+                                        lockCommandExecutors.put(filePath, exec);
+                                    }
+                                }
+                            }
+                        }
+                        if (exec != null) {
+                            try {
+                                exec.waitFinished(0);
+                            } catch (InterruptedException iex) {
+                                // Interrupted, so we continue...
                             }
                         }
                     }
