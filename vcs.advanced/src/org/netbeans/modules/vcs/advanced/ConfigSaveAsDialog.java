@@ -197,10 +197,10 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
             if (ch[i].getExt().equalsIgnoreCase(VariableIO.CONFIG_FILE_EXT)) {
                 model.addElement(ch[i].getName());
                 String label = null;
-                try {
-                    label = VariableIO.getConfigurationLabel(VariableIO.readPredefinedConfigurations(dir, ch[i].getNameExt()));
-                } catch (org.w3c.dom.DOMException dexc) {
-                    TopManager.getDefault().notifyException(dexc);
+                org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(dir, ch[i].getNameExt());
+                if (doc != null) {
+                    label = VariableIO.getConfigurationLabel(doc);
+                } else {
                     label = org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("CTL_No_label_configured");
                 }
                 configLabels.put(ch[i].getName(), label);
