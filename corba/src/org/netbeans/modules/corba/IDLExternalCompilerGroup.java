@@ -175,16 +175,31 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
             css = (CORBASupportSettings) CORBASupportSettings.findObject
                   (CORBASupportSettings.class, true);
             String params = " "; // NOI18N
-	    if (css.getActiveSetting ().getParams () != null)
-		params += css.getActiveSetting ().getParams ();
-	    if (css.getActiveSetting ().isTie ())
-		params += css.getActiveSetting ().getTieParam ();
+	    IDLDataObject __ido = null;
+	    try {
+		__ido = (IDLDataObject)DataObject.find (fo);
+	    } catch (DataObjectNotFoundException __ex) {
+		if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		    __ex.printStackTrace ();
+	    }
+	    ORBSettings __setting;
+	    if (__ido.getOrbForCompilation () != null) {
+		__setting = css.getSettingByName (__ido.getOrbForCompilation ());
+	    }
+	    else {
+		__setting = css.getActiveSetting ();
+	    }
+
+	    if (__setting.getParams () != null)
+		params += __setting.getParams ();
+	    if (__setting.isTie ())
+		params += __setting.getTieParam ();
 
             java.util.Map map = getMap ();
 
             map.put (TAG_RTCLASSPATH, getRTClasspath ());
             map.put (TAG_PACKAGEROOT, getPackageRoot (fo));
-	    map.put (TAG_OUTPUTDIR_PARAM, css.getActiveSetting ().getDirParam ());
+	    map.put (TAG_OUTPUTDIR_PARAM, __setting.getDirParam ());
 
             // workaround for compilation of file which is in root of repository
             if (is_in_root) {
@@ -192,7 +207,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
                 map.put (TAG_PACKAGE, ""); // NOI18N
             }
             else {
-		map.put (TAG_PACKAGE_PARAM, css.getActiveSetting ().getPackageParam ());
+		map.put (TAG_PACKAGE_PARAM, __setting.getPackageParam ());
 		map.put (TAG_PACKAGE, getPackage (fo));
             }
             map.put (TAG_PARAMS, params);
@@ -235,8 +250,22 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
     public static String getPackage (FileObject fo) {
         CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                    (CORBASupportSettings.class, true);
-
-        return fo.getParent ().getPackageName (css.getActiveSetting ().delim ());
+	IDLDataObject __ido = null;
+	try {
+	    __ido = (IDLDataObject)DataObject.find (fo);
+	} catch (DataObjectNotFoundException __ex) {
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		__ex.printStackTrace ();
+	}
+	ORBSettings __setting;
+	if (__ido.getOrbForCompilation () != null) {
+	    __setting = css.getSettingByName (__ido.getOrbForCompilation ());
+	}
+	else {
+	    __setting = css.getActiveSetting ();
+	}
+	
+        return fo.getParent ().getPackageName (__setting.delim ());
     }
 
     public static String getPackageRoot(FileObject fo) throws IllegalArgumentException {
