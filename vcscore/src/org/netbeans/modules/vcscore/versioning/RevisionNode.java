@@ -75,6 +75,8 @@ public class RevisionNode extends AbstractNode implements OpenCookie {
         if (item != null && !item.isBranch()) {
             getCookieSet().add(this);
         }
+        if (list != null) getCookieSet().add(list);
+        if (item != null) getCookieSet().add(item);
     }
     
     private void setIcon() {
@@ -247,15 +249,19 @@ public class RevisionNode extends AbstractNode implements OpenCookie {
     }
     
     public void open() {
-        VersioningSystem vs = getVersioningSystem();
-        //RevisionAction action = new RevisionAction(fs, getFileObject());
-        //RevisionAction.openAction(item.getRevisionVCS(), vs, getFileObject());
-        VcsFileObject vfo = getFileObject();
-        final VersioningEditorSupport.VersioningEnvironment env = new VersioningEditorSupport.VersioningEnvironment(vfo, item.getRevisionVCS());
-        final VersioningEditorSupport editor = new VersioningEditorSupport(env);
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+        org.openide.util.RequestProcessor.postRequest(new Runnable() {
             public void run() {
-                editor.open();
+                VersioningSystem vs = getVersioningSystem();
+                //RevisionAction action = new RevisionAction(fs, getFileObject());
+                //RevisionAction.openAction(item.getRevisionVCS(), vs, getFileObject());
+                VcsFileObject vfo = getFileObject();
+                final VersioningEditorSupport.VersioningEnvironment env = new VersioningEditorSupport.VersioningEnvironment(vfo, item.getRevisionVCS());
+                final VersioningEditorSupport editor = new VersioningEditorSupport(env);
+                javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        editor.open();
+                    }
+                });
             }
         });
     }
