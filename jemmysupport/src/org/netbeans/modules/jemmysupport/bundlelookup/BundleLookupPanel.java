@@ -35,6 +35,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.datatransfer.ExClipboard;
@@ -179,6 +180,10 @@ public class BundleLookupPanel extends TopComponent  {
         TextRegCheck.setEnabled(enableRegExp);
     }
 
+    public HelpCtx getHelpCtx() {
+        return new HelpCtx(BundleLookupPanel.class);
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

@@ -31,11 +31,38 @@
                 <file name="org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
         </folder>
+        <folder name="Help">
+           <folder name="HelpShortcuts">
+               <attr name="org-netbeans-modules-usersguide-sep.instance/org-netbeans-modules-jemmysupport-mainpage.xml" boolvalue="true"/>
+               <file name="org-netbeans-modules-jemmysupport-mainpage.xml">
+                   <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jemmysupport.Bundle"/>
+                      <![CDATA[
+                          <?xml version="1.0"?>
+                          <!DOCTYPE helpctx PUBLIC "-//NetBeans//DTD Help Context 1.0//EN" "http://www.netbeans.org/dtds/helpcontext-1_0.dtd">
+                          <helpctx id="jemmysupport_intro"/>
+                      ]]>
+               </file>
+               <attr name="org-netbeans-modules-jemmysupport-mainpage.xml/org-netbeans-modules-usersguide-lower-sep.instance" boolvalue="true"/>
+            </folder>
+        </folder>
     </folder>
     <folder name="Toolbars">
         <folder name="Jemmy Support">
                 <file name="org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <attr name="org-netbeans-modules-usersguide-above-regular.txt/org-netbeans-modules-jemmysupport-helpset.xml" boolvalue="true"/>
+            <file name="org-netbeans-modules-jemmysupport-helpset.xml">
+                <![CDATA[
+                    <?xml version="1.0"?>
+                    <!DOCTYPE helpsetref PUBLIC "-//NetBeans//DTD JavaHelp Help Set Reference 1.0//EN" "http://www.netbeans.org/dtds/helpsetref-1_0.dtd">
+                    <helpsetref url="nbdocs:/org/netbeans/modules/jemmysupport/docs/jemmysupport.hs"/>
+                ]]>
+            </file>
+            <attr name="org-netbeans-modules-jemmysupport-helpset.xml/org-netbeans-modules-usersguide-below-regular.txt" boolvalue="true"/>
         </folder>
     </folder>
 </filesystem>

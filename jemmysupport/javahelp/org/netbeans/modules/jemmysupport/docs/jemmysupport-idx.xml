@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!--
+*     Copyright 2002 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+
+<!DOCTYPE index 
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Index Version 1.0//EN"  
+         "http://java.sun.com/products/javahelp/index_1_0.dtd">  
+
+<index version="1.0">
+
+
+   <indexitem text=" " />
+   <indexitem><b>====================================</b></indexitem>
+   <indexitem><b>JemmySupport</b></indexitem>
+   <indexitem><b>====================================</b></indexitem>
+
+   <indexitem text=" " />
+   <indexitem><b>-B-</b></indexitem>
+      <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
+
+   <indexitem text=" " />
+   <indexitem><b>-G-</b></indexitem>
+      <indexitem text="generator of Jemmy components" target="jemmysupport_generator" />
+  
+   <indexitem text=" " />
+   <indexitem><b>-J-</b></indexitem>
+   <indexitem text="Jemmy Support Module" target="jemmysupport_intro">
+      <indexitem text="about the module" target="jemmysupport_intro" />
+      <indexitem text="generator of Jemmy components" target="jemmysupport_generator" />
+      <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
+   </indexitem>
+
+   <indexitem text=" " />
+   <indexitem><b>-L-</b></indexitem>
+      <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
+
+   <indexitem text=" " />
+   <indexitem><b>-R-</b></indexitem>
+      <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
+  
+</index>

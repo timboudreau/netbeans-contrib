@@ -13,9 +13,14 @@
 
 package org.netbeans.modules.jemmysupport.generator;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.StringTokenizer;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.loaders.DataFolder;
 import org.openide.nodes.Node;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
 /*
@@ -29,7 +34,7 @@ import org.openide.util.NbBundle;
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
  * @version 0.2
  */
-public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.beans.PropertyChangeListener, java.beans.VetoableChangeListener, org.openide.loaders.DataFilter {
+public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.beans.PropertyChangeListener, java.beans.VetoableChangeListener, org.openide.loaders.DataFilter, ActionListener {
 
     /** root node */
     private Node rootNode;
@@ -45,10 +50,10 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     public static void showDialog(Node[] nodes){
         if (dialog==null) {
             panel = new ComponentGeneratorPanel(nodes);
-            dialog = org.openide.DialogDisplayer.getDefault().createDialog(new org.openide.DialogDescriptor(panel, NbBundle.getMessage(ComponentGeneratorPanel.class, "Title"), false, new Object[0], null, org.openide.DialogDescriptor.BOTTOM_ALIGN, null, null)); // NOI18N
+            dialog = DialogDisplayer.getDefault().createDialog(new DialogDescriptor(panel, NbBundle.getMessage(ComponentGeneratorPanel.class, "Title"), false, new Object[]{DialogDescriptor.CLOSED_OPTION}, null, DialogDescriptor.BOTTOM_ALIGN, new HelpCtx(ComponentGeneratorPanel.class), panel)); // NOI18N
             dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowClosing(java.awt.event.WindowEvent evt) {
-                    panel.closeButtonActionPerformed(null);
+                    panel.actionPerformed(null);
                 }
             });
         }
@@ -137,7 +142,6 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         stopButton = new javax.swing.JButton();
         startButton = new javax.swing.JButton();
         stopButton.setVisible(false);
-        closeButton = new javax.swing.JButton();
         screenShot = new javax.swing.JCheckBox();
         showEditor = new javax.swing.JCheckBox();
         mergeConflicts = new javax.swing.JCheckBox();
@@ -201,10 +205,10 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(17, 12, 12, 0);
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 12, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -221,33 +225,14 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(17, 12, 12, 0);
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 12, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         add(startButton, gridBagConstraints);
-
-        closeButton.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("MNM_Close").charAt(0));
-        closeButton.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_Close"));
-        closeButton.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Close"));
-        closeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                closeButtonActionPerformed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(17, 5, 12, 12);
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        add(closeButton, gridBagConstraints);
 
         screenShot.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("MNM_ScreenShot").charAt(0));
         screenShot.setText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "CTL_ScreenShot"));
@@ -268,10 +253,10 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 0);
         add(showEditor, gridBagConstraints);
 
         mergeConflicts.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/jemmysupport/generator/Bundle").getString("MNM_Merge").charAt(0));
@@ -282,17 +267,11 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 12);
         add(mergeConflicts, gridBagConstraints);
 
     }//GEN-END:initComponents
-
-    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-        stopButtonActionPerformed(evt);
-        dialog.dispose();
-        dialog=null;
-    }//GEN-LAST:event_closeButtonActionPerformed
 
     private void stopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButtonActionPerformed
         if (thread!=null) {
@@ -391,7 +370,6 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     private org.openide.explorer.ExplorerPanel packagesPanel;
     private javax.swing.JButton stopButton;
     private javax.swing.JCheckBox showEditor;
-    private javax.swing.JButton closeButton;
     private javax.swing.JCheckBox mergeConflicts;
     private javax.swing.JCheckBox screenShot;
     // End of variables declaration//GEN-END:variables
@@ -401,6 +379,15 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
      */    
     public static void main(String args[]) {
         showDialog(null);
+    }
+    
+    /** Invoked when an action occurs.
+     *
+     */
+    public void actionPerformed(ActionEvent evt) {
+        stopButtonActionPerformed(evt);
+        dialog.dispose();
+        dialog=null;
     }
     
 }

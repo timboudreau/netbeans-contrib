@@ -23,6 +23,7 @@ Microsystems, Inc. All Rights Reserved.
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" value="${nbext}/standard-nbm-license.txt"/>
 
+  <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
@@ -39,6 +40,7 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="netbeans/modules/ext/jemmy.jar"/>
         <pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar" />
+        <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar" />
         <!-- Hopefully set up by nbbuild/build.xml: -->
         <pathelement location="${jdkhome}/lib/tools.jar"/>
       </classpath>
@@ -79,7 +81,7 @@ Microsystems, Inc. All Rights Reserved.
     </locjar>
   </target>
 
-  <target name="netbeans" depends="jars">
+  <target name="netbeans" depends="jars,javahelp">
     <genlist targetname="nbm" outputfiledir="netbeans"/>
   </target>
 
@@ -110,6 +112,25 @@ Microsystems, Inc. All Rights Reserved.
     <delete dir="netbeans/docs"/>
     <delete dir="netbeans/modules"/>
     <delete dir="Info"/>
+    <delete dir="javahelp/org/netbeans/modules/jemmysupport/docs/JavaHelpSearch2"/>
+    <delete dir="javahelp/org/netbeans/modules/usersguide"/>
+  </target>
+
+  <target name="javahelp">
+    <mkdir dir="javahelp/org/netbeans/modules/jemmysupport/docs/JavaHelpSearch2"/>
+    <jhindexer basedir="javahelp/org/netbeans/modules/jemmysupport/docs/"
+               db="javahelp/org/netbeans/modules/jemmysupport/docs/JavaHelpSearch2"
+               jhall="${nbroot}/nbbuild/external/jhall-1.1.2_02.jar">
+      <include name="**/*.html"/>
+      <exclude name="JavaHelpSearch2/"/>
+      <exclude name="credits.html"/>
+    </jhindexer>
+    <mkdir dir="javahelp/org/netbeans/modules/usersguide"/>
+    <copy file="${nbroot}/usersguide/javahelp/org/netbeans/modules/usersguide/ide.css" tofile="javahelp/org/netbeans/modules/usersguide/ide.css"/>
+    <mkdir dir="netbeans/modules/docs"/>
+    <locjar jarfile="netbeans/modules/docs/jemmysupport.jar" compress="true">
+        <fileset dir="javahelp" excludesfile="${nbext}/standard-jar-excludes.txt" excludes="org/netbeans/modules/usersguide/"/>
+    </locjar>
   </target>
 
 </project>

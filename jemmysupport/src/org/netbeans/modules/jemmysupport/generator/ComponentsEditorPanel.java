@@ -41,6 +41,7 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeNode;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -215,6 +216,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
      * @return boolean false when operation canceled */    
     public static boolean showDialog(ComponentGenerator gen) {
         DialogDescriptor desc = new DialogDescriptor(new ComponentsEditorPanel(gen), NbBundle.getMessage(ComponentsEditorPanel.class, "ComponentsEditor_Title"), true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, null); // NOI18N
+        desc.setHelpCtx(new HelpCtx(ComponentsEditorPanel.class));
         org.openide.DialogDisplayer.getDefault().createDialog(desc).show();
         return desc.getValue()==DialogDescriptor.OK_OPTION;
     }
