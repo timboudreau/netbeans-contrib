@@ -98,7 +98,12 @@ public class VcsRuntimeCommand extends RuntimeCommand {
     }
 
     public SystemAction[] getActions() {
-        return new SystemAction[] { CommandOutputViewAction.getInstance() , SystemAction.get(PropertiesAction.class) };    }    
+        return new SystemAction[] {
+            CommandOutputViewAction.getInstance(),
+            KillRunningCommandAction.getInstance(),
+            SystemAction.get(PropertiesAction.class)
+        };
+    }    
     
     public String getId() {
         Object obj = executor;
@@ -110,6 +115,7 @@ public class VcsRuntimeCommand extends RuntimeCommand {
      * this method will be called and should attempt  to stop the running command.
      */
     public void killCommand() {
+        pool.kill(executor);
     }
     
 }
