@@ -54,7 +54,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
       variables=new PropertyDescriptor
 	("variables",CommandLineVcsFileSystem.class,"getVariables","setVariables");
       variables.setPropertyEditorClass
-	(com.netbeans.developer.modules.vcs.UserVariablesEditor.class);
+	(com.netbeans.enterprise.modules.vcs.cmdline.UserVariablesEditor.class);
 
       commands=new PropertyDescriptor
 	("commands",CommandLineVcsFileSystem.class,"getCommands","setCommands");
@@ -114,13 +114,14 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
   public BeanDescriptor getBeanDescriptor(){
     D.deb("getBeanDescriptor()");
-    return new BeanDescriptor(CommandLineVcsFileSystem.class, com.netbeans.developer.modules.vcs.VcsCustomizer.class);
+    return new BeanDescriptor(CommandLineVcsFileSystem.class, com.netbeans.enterprise.modules.vcs.cmdline.VcsCustomizer.class);
   }
   
 }
 
 /*
 * <<Log>>
+*  17   Gandalf   1.16        11/24/99 Martin Entlicher 
 *  16   Gandalf   1.15        10/25/99 Pavel Buzek     copyright
 *  15   Gandalf   1.14        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment

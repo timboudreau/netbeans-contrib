@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<Form version="1.0" type="com.netbeans.developer.modules.loaders.form.forminfo.JPanelFormInfo">
+
+  <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout"/>
+  <SubComponents>
+    <Component class="javax.swing.JButton" name="advancedButton">
+      <Properties>
+        <Property name="label" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Advanced..."/>
+      </Properties>
+
+      <Events>
+        <EventHandler event="actionPerformed" handler="advancedButtonActionPerformed"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="1" gridX="0" gridY="2" insetsBottom="8" insetsLeft="8" insetsRight="4" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Container class="javax.swing.JPanel" name="propsPanel">
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="0" gridY="1" insetsBottom="8" insetsLeft="8" insetsRight="8" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JLabel" name="jLabel2">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Root Directory:"/>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="1" gridX="0" gridY="2" insetsBottom="4" insetsLeft="4" insetsRight="4" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JTextField" name="rootDirTextField">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="."/>
+            <Property name="nextFocusableComponent" type="java.awt.Component" editor="com.netbeans.developer.modules.loaders.form.RADConnectionPropertyEditor">
+              <Connection component="browseButton" type="bean"/>
+            </Property>
+          </Properties>
+
+          <Events>
+            <EventHandler event="actionPerformed" handler="rootDirTextFieldActionPerformed"/>
+            <EventHandler event="focusLost" handler="rootDirTextFieldFocusLost"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="2" insetsBottom="4" insetsLeft="4" insetsRight="4" insetsTop="4" ipadX="0" ipadY="0" weightX="0.8" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JButton" name="browseButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Browse..."/>
+            <Property name="nextFocusableComponent" type="java.awt.Component" editor="com.netbeans.developer.modules.loaders.form.RADConnectionPropertyEditor">
+              <Connection component="refreshTextField" type="bean"/>
+            </Property>
+          </Properties>
+
+          <Events>
+            <EventHandler event="actionPerformed" handler="browseButtonActionPerformed"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="0" gridX="2" gridY="2" insetsBottom="4" insetsLeft="4" insetsRight="4" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel4">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Refresh Period (milliseconds):"/>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="1" gridX="0" gridY="3" insetsBottom="4" insetsLeft="4" insetsRight="4" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JTextField" name="refreshTextField">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="0"/>
+          </Properties>
+
+          <Events>
+            <EventHandler event="actionPerformed" handler="refreshTextFieldActionPerformed"/>
+            <EventHandler event="focusLost" handler="refreshTextFieldFocusLost"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="3" insetsBottom="4" insetsLeft="4" insetsRight="4" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="vcsPanel">
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="0" gridY="0" insetsBottom="0" insetsLeft="8" insetsRight="8" insetsTop="8" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JComboBox" name="configCombo">
+          <Properties>
+            <Property name="nextFocusableComponent" type="java.awt.Component" editor="com.netbeans.developer.modules.loaders.form.RADConnectionPropertyEditor">
+              <Connection component="saveAsButton" type="bean"/>
+            </Property>
+          </Properties>
+
+          <Events>
+            <EventHandler event="itemStateChanged" handler="configComboItemStateChanged"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="-1" gridY="-1" insetsBottom="4" insetsLeft="4" insetsRight="4" insetsTop="4" ipadX="0" ipadY="0" weightX="0.8" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JButton" name="saveAsButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Save as..."/>
+            <Property name="nextFocusableComponent" type="java.awt.Component" editor="com.netbeans.developer.modules.loaders.form.RADConnectionPropertyEditor">
+              <Connection component="removeConfigButton" type="bean"/>
+            </Property>
+          </Properties>
+
+          <Events>
+            <EventHandler event="actionPerformed" handler="saveAsButtonActionPerformed"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="1" gridX="-1" gridY="-1" insetsBottom="4" insetsLeft="4" insetsRight="4" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JButton" name="removeConfigButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Remove"/>
+            <Property name="nextFocusableComponent" type="java.awt.Component" editor="com.netbeans.developer.modules.loaders.form.RADConnectionPropertyEditor">
+              <Connection component="propsPanel" type="bean"/>
+            </Property>
+          </Properties>
+
+          <Events>
+            <EventHandler event="actionPerformed" handler="removeConfigButtonActionPerformed"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="10" fill="2" gridHeight="1" gridWidth="0" gridX="2" gridY="0" insetsBottom="4" insetsLeft="4" insetsRight="4" insetsTop="4" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+      </SubComponents>
+    </Container>
+  </SubComponents>
+</Form>
