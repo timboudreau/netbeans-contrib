@@ -2952,11 +2952,12 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="advancedName">
 	  <value>init</value>
 	</property>
-	<property name="exec">
-	  <value>/bin/sh -c "${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}:local:${CVS_REPOSITORY}${QUOTE} init"</value>
-	  <value if="IS_WINNT">cmd /X /C "echo . >nul &amp;&amp; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}:local:${CVS_REPOSITORY}${QUOTE} init"</value>
-	  <value if="IS_WIN9X">"${CVS_EXE}" -d ":local:${CVS_REPOSITORY}" init</value>
-	</property>
+        <run>
+          <executable value="${CVS_EXE}"/>
+          <arg value="-d"/>
+          <arg value=":local:${CVS_REPOSITORY}"/>
+          <arg value="init"/>
+        </run>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg(COMMAND_INIT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_INIT_Label)))
                  
