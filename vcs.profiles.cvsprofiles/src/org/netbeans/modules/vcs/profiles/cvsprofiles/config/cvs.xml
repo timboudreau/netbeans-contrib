@@ -266,14 +266,8 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="GLOBAL_INPUT_DESCRIPTOR" basic="false">
       <value>LABEL(ResourceMsg(CVS_OPTIONS_GLOBAL_Label),
                 ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_Label)))
-             SELECT_COMBO(QUIETNESS, "ResourceMsg(CVS_OPTIONS_GLOBAL_QUIETNESS_Label)","",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_QUIETNESS_Label);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_QUIETNESS_Label_mnc)),
-                 ["ResourceMsg(CVS_OPTIONS_GLOBAL_QUIETNESS_No)", ""],
-                 ["ResourceMsg(CVS_OPTIONS_GLOBAL_QUIETNESS_Somewhat)", "-q"],
-                 ["ResourceMsg(CVS_OPTIONS_GLOBAL_QUIETNESS_Really)", "-Q"])
              ASK_FOR(DISK_CHANGE, "ResourceMsg(CVS_OPTIONS_GLOBAL_PREVIEW)","",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_PREVIEW);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_PREVIEW_mnc)))
-             ASK_FOR(TRACE, "ResourceMsg(CVS_OPTIONS_GLOBAL_TRACE)","",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_TRACE);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_TRACE_mnc)))
              ASK_FOR(CHECKOUT_RO_RW, "ResourceMsg(CVS_OPTIONS_GLOBAL_RO)", "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_RO);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_RO_mnc)) ,"-r", "")
-             ASK_FOR(NOT_USE_CVSRC, "ResourceMsg(CVS_OPTIONS_GLOBAL_NORC)", "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_NORC);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_NORC_mnc)), "-f", "")
              SELECT_COMBO(COMPRESSION, "ResourceMsg(CVS_OPTIONS_GLOBAL_COMPRESSION_Label)", "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_COMPRESSION_Label);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_COMPRESSION_Label_mnc)),
                  ["ResourceMsg(CVS_OPTIONS_GLOBAL_COMPRESSION_Level_0)", ""],
                  ["ResourceMsg(CVS_OPTIONS_GLOBAL_COMPRESSION_Level_1)", "-z 1"],
@@ -286,6 +280,10 @@ Microsystems, Inc. All Rights Reserved.
                  ["ResourceMsg(CVS_OPTIONS_GLOBAL_COMPRESSION_Level_8)", "-z 8"],
                  ["ResourceMsg(CVS_OPTIONS_GLOBAL_COMPRESSION_Level_9)", "-z 9"])
       </value>
+    </variable>
+    <variable name="NOT_USE_CVSRC" basic="false">
+        <!-- #52139 ASK_FOR(NOT_USE_CVSRC, "ResourceMsg(CVS_OPTIONS_GLOBAL_NORC)", "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_NORC);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_NORC_mnc)), "-f", "") -->
+        <value>-f</value>
     </variable>
     <variable name="GLOBAL_INPUT_EXPRESSION" basic="false">
       <value>$[? QUIETNESS] [${QUIETNESS} ][]$[? DISK_CHANGE] [-n ] []$[? TRACE] [-t ] []$[? CHECKOUT_RO_RW] [${CHECKOUT_RO_RW} ][]$[? NOT_USE_CVSRC] [${NOT_USE_CVSRC} ][]${COMPRESSION}</value>
