@@ -22,6 +22,9 @@ Microsystems, Inc. All Rights Reserved.
         <variable basic="false" name="ClearCaseCMD">
             <value>cleartool</value>
         </variable>
+        <variable basic="false" name="ClearCaseDLG">
+            <value>cleardlg</value>
+        </variable>
         <variable basic="false" name="RUNW">
             <value>cmd /X /C &quot;cd /D \&quot;${ROOTDIR}${PS}${MODULE} \&quot;&amp;&amp; </value>
         </variable>
@@ -151,10 +154,7 @@ Microsystems, Inc. All Rights Reserved.
             </command>
             <command displayName="Add To Source Control" name="ADD">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} mkelem -c \&quot;${REASON}\&quot; ${FILE} ${NUR}</value>
-                </property>
-                <property name="inputDescriptor">
-                    <value>LABEL(Add To Source Control) PROMPT_FOR(REASON, &quot;Reason:&quot;) </value>
+                    <value>${RUN} ${ClearCaseDLG} /addtosrc ${FILE} ${NUR}</value>
                 </property>
                 <property name="onRoot">
                     <value>true</value>
@@ -177,7 +177,7 @@ Microsystems, Inc. All Rights Reserved.
             </command>
             <command displayName="History" name="HISTORY">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} lshistory ${FILE} ${NUR}</value>
+                    <value>${RUN} ${ClearCaseCMD} lshistory -graphical ${FILE} ${NUR}</value>
                 </property>
                 <property name="display">
                     <value>true</value>
@@ -188,7 +188,7 @@ Microsystems, Inc. All Rights Reserved.
             </command>
             <command displayName="Version Tree" name="VERSION TREE">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} lsvtree ${FILE} ${NUR}</value>
+                    <value>${RUN} clearvtree ${FILE} ${NUR}</value>
                 </property>
                 <property name="display">
                     <value>true</value>
