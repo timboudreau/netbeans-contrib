@@ -100,6 +100,8 @@ public class NotChangedFilesPanel extends javax.swing.JPanel {
         spNotChangedFiles = new javax.swing.JScrollPane();
         tblNotChangedFiles = new javax.swing.JTable();
 
+        FormListener formListener = new FormListener();
+
         setLayout(new java.awt.GridBagLayout());
 
         setPreferredSize(new java.awt.Dimension(250, 250));
@@ -115,13 +117,11 @@ public class NotChangedFilesPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 11);
         add(jTextArea1, gridBagConstraints);
+        jTextArea1.getAccessibleContext().setAccessibleName(NbBundle.getBundle("src/org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_NotChangedFilesPanel.TextArea"));
+        jTextArea1.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("src/org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_NotChangedFilesPanel.TextArea"));
 
         cbPerform.setText(org.openide.util.NbBundle.getBundle(NotChangedFilesPanel.class).getString("NotChangedFilesPanel.cbPerform.text"));
-        cbPerform.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbPerformActionPerformed(evt);
-            }
-        });
+        cbPerform.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -159,6 +159,16 @@ public class NotChangedFilesPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 30, 11, 11);
         add(spNotChangedFiles, gridBagConstraints);
 
+    }
+
+    // Code for dispatching events from components to event handlers.
+
+    private class FormListener implements java.awt.event.ActionListener {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            if (evt.getSource() == cbPerform) {
+                NotChangedFilesPanel.this.cbPerformActionPerformed(evt);
+            }
+        }
     }//GEN-END:initComponents
 
     private void cbPerformActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbPerformActionPerformed
@@ -169,13 +179,13 @@ public class NotChangedFilesPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JCheckBox cbPerform;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JRadioButton rbAll;
+    private javax.swing.JRadioButton rbSelectedOnly;
     private javax.swing.JScrollPane spNotChangedFiles;
     private javax.swing.JTable tblNotChangedFiles;
-    private javax.swing.JRadioButton rbSelectedOnly;
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JRadioButton rbAll;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JCheckBox cbPerform;
     // End of variables declaration//GEN-END:variables
 
     private static final long serialVersionUID = 6175263517053478465L;    
