@@ -516,7 +516,7 @@ public class CommandNode extends AbstractNode {
                     ) {
                         public Object getValue() {
                             //System.out.println("getName: cmd = "+cmd);
-                            String name = getName();
+                            String name = CommandNode.this.getName();
                             Object value = cmd.getProperty(name);
                             /*
                             Class valueType = getValueType();
@@ -541,9 +541,9 @@ public class CommandNode extends AbstractNode {
 
                         public void setValue(Object value) {
                             Object old = getValue();
-                            cmd.setProperty(getName(), value);
-                            firePropertyChange(getName(), old, value);
-                            if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(getName())) {
+                            cmd.setProperty(CommandNode.this.getName(), value);
+                            firePropertyChange(CommandNode.this.getName(), old, value);
+                            if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(CommandNode.this.getName())) {
                                 cmd.setProperty(CommandExecutorSupport.INPUT_DESCRIPTOR_PARSED, null);
                             }
                             //cmd.fireChanged();
@@ -555,9 +555,9 @@ public class CommandNode extends AbstractNode {
                         
                         public void restoreDefaultValue() {
                             Object old = getValue();
-                            cmd.setProperty(getName(), defaultValue);
-                            firePropertyChange(getName(), old, defaultValue);
-                            if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(getName())) {
+                            cmd.setProperty(CommandNode.this.getName(), defaultValue);
+                            firePropertyChange(CommandNode.this.getName(), old, defaultValue);
+                            if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(CommandNode.this.getName())) {
                                 cmd.setProperty(CommandExecutorSupport.INPUT_DESCRIPTOR_PARSED, null);
                             }
                         }
