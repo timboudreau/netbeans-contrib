@@ -756,6 +756,29 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
         envScrollPane.setPreferredSize(new java.awt.Dimension(10, 10));
         envTable.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_userEnvTable.textA11yDesc"));
+        envTable.setModel(new javax.swing.table.DefaultTableModel(
+           new Object [][] {
+               {null, null},
+               {null, null},
+               {null, null}
+           },
+           new String [] {
+               "Variable Name", "Variable Value"
+           }
+         ) {
+           Class[] types = new Class [] {
+               java.lang.String.class, java.lang.String.class
+           };
+           boolean[] canEdit = new boolean [] {
+               false, true
+           };
+           public Class getColumnClass(int columnIndex) {
+               return types [columnIndex];
+           }
+           public boolean isCellEditable(int rowIndex, int columnIndex) {
+               return canEdit [columnIndex];
+           }
+        });
         envTable.setPreferredScrollableViewportSize(new java.awt.Dimension(0, 0));
         envScrollPane.setViewportView(envTable);
 
@@ -813,6 +836,32 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
         systemEnvScrollPane.setPreferredSize(new java.awt.Dimension(32, 32));
         systemEnvTable.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_systemEnvTable.textA11yDesc"));
+        systemEnvTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Variable Name", "Variable Value", "Use in VCS"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         systemEnvTable.setPreferredScrollableViewportSize(new java.awt.Dimension(0, 0));
         systemEnvScrollPane.setViewportView(systemEnvTable);
 
@@ -2068,7 +2117,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             } catch (IOException ioExc) {}
         }
         cache = new ProfilesCache(fileSystem.getConfigRootFO());
-        rootDirTextField.setText (""/*defaultRoot*/);
+        rootDirTextField.setText (defaultRoot);
         lastRootDir = defaultRoot;
         refreshTextField.setText (""+fileSystem.getCustomRefreshTime ()); // NOI18N
         String module = fileSystem.getRelativeMountPoint();
