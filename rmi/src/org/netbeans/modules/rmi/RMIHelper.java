@@ -23,13 +23,16 @@ import org.openide.src.*;
 
 public class RMIHelper extends Object {
 
-  public static final String REMOTE = "java.rmi.Remote";
+  /** Name of the remote interface. */
+  public static final String REMOTE = "java.rmi.Remote"; // NOI18N
   
   /** Creates new RMIHelper. */
   public RMIHelper() {
   }
   
   /** Test if ce1 implements given class or if interface ce1 extends given class.
+  * @param ce1 - class element
+  * @param classname - name of the class that ce1 could implement
   */
   public static boolean implementsClass(ClassElement ce1, String classname) {
     Identifier cn = Identifier.create(classname);
@@ -67,6 +70,7 @@ public class RMIHelper extends Object {
 
 /* 
 * <<Log>>
+*  3    Gandalf-post-FCS1.1.1.0     3/20/00  Martin Ryzl     localization
 *  2    Gandalf   1.1         1/28/00  Martin Ryzl     
 *  1    Gandalf   1.0         1/24/00  Martin Ryzl     
 * $ 
