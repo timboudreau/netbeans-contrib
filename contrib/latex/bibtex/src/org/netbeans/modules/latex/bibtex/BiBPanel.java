@@ -416,8 +416,8 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
         add(tBookTitle, gridBagConstraints);
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(

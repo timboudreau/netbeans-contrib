@@ -31,7 +31,8 @@ Microsystems, Inc. All Rights Reserved.
   </target>
   
   <target name="do-editor-release">
-    <copy file="../client/src/client" tofile="${netbeans.dest.dir}/${cluster.dir}/modules/bin/lide-editor-client" />
+    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/bin" />
+    <copy file="../client/src/client" tofile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/bin/lide-editor-client" failonerror="false" />
     <chmod file="${netbeans.dest.dir}/${cluster.dir}/modules/bin/lide-editor-client" perm="uog+x" />
   </target>
   
