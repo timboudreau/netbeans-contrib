@@ -59,6 +59,9 @@ Microsystems, Inc. All Rights Reserved.
       <value>/bin/sh -c "cd \"${ROOTDIR}\"; </value>
       <value if="IS_WINNT">cmd /X /C "cd /D \"${ROOTDIR}\"&amp;&amp;</value>
     </variable>
+    <variable name="PCLI_CMD">
+      <value>org.netbeans.modules.vcs.profiles.pvcs.commands.PCLICommand.class</value>
+    </variable>
     <variable name="PROJECT_DB" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectDatabase)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectDatabase_Menmonic)" localFile="false" localDir="true" executable="false" order="0">
       <value>/usr/pvcs/vm/sampledb</value>
       <value if="IS_WINDOWS">c:\Program Files\pvcs\vm\sampledb</value>
@@ -72,8 +75,8 @@ Microsystems, Inc. All Rights Reserved.
     </variable>
     <!-- Quotation that is used for PCLI commands (it contains a workaround for bug in older versions of PVCS) -->
     <variable name="QUOTE" basic="false">
-      <value>$[? PCLI_OLDSTYLE_QUOTING] [\\\"] [\"]</value>
-      <value if="IS_WINNT">\"</value>
+      <value>$[? PCLI_OLDSTYLE_QUOTING] [\"] ["]</value>
+      <value if="IS_WINNT">"</value>
     </variable>
     <variable name="PCLI_OLDSTYLE_QUOTING" basic="false" unless="IS_WINNT">
       <value></value>
@@ -157,12 +160,6 @@ Microsystems, Inc. All Rights Reserved.
     </variable>
     <variable name="AUTO_FILL_VARS" basic="false">
       <value>PROJECT_DB, AUTO_FILL_CONFIG, PROJECT, AUTO_FILL_CONFIG, USER_NAME, AUTO_FILL_CONFIG</value>
-    </variable>
-    <variable name="ADJUST_CHARS" basic="false" if="IS_WINDOWS">
-      <value>\\</value>
-    </variable>
-    <variable name="ADJUST_VARS" basic="false" if="IS_WINDOWS">
-      <value>"ROOTDIR", "PROJECT_DB", "ARCHIVE", "WORKFILE", "CACHED_ATTR"</value>
     </variable>
     <variable name="ARGUMENT_FILES_TO_CLONE" basic="false">
       <value>DESCRIPTION_FILE</value>
@@ -252,9 +249,10 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <separator />
       <command name="CREATE_PROJECT_DATABASE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT_DATABASE)">
-        <property name="exec">
-          <value>${RUN} pcli CreateProjectDB ${PRID} -w${QUOTE}${ROOTDIR}${QUOTE} ${NUR}</value>
-	</property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="CreateProjectDB ${PRID} -w${QUOTE}${ROOTDIR}${QUOTE}"/>
+        </run>
         <property name="onFile">
           <value>false</value>
 	</property>
@@ -263,9 +261,10 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <command name="CREATE_PROJECT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT)">
-        <property name="exec">
-          <value>${RUN} pcli CreateProject ${PRIDPP} ${QFILE} ${NUR}</value>
-        </property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="CreateProject ${PRIDPP} ${QFILE}"/>
+        </run>
         <property name="onFile">
           <value>false</value>
 	</property>
@@ -284,9 +283,10 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-	<property name="exec">
-	  <value>${RUNR} pcli Put ${PRIDPP} ${FORCE_PUT} $[? CHECK_IN_OUT] [$[? CHECK_IN_OUT_LOCK] [-l${QUOTE}${LOCK_DESCRIPTION}${QUOTE}] [-u]] [] $[? ASSIGN_REVISION] [-r${ASSIGN_REVISION}] [] $[? ASSIGN_VERSION] [-v${QUOTE}${ASSIGN_VERSION}${QUOTE}] [] $[? FLOATING_LABEL] [-fv] [] ${START_BRANCH} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-m${QUOTE}${message}${QUOTE}] -ym ${QFILES} ${NUR}</value>
-	</property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="Put ${PRIDPP} ${FORCE_PUT} $[? CHECK_IN_OUT] [$[? CHECK_IN_OUT_LOCK] [-l${QUOTE}${LOCK_DESCRIPTION}${QUOTE}] [-u]] [] $[? ASSIGN_REVISION] [-r${ASSIGN_REVISION}] [] $[? ASSIGN_VERSION] [-v${QUOTE}${ASSIGN_VERSION}${QUOTE}] [] $[? FLOATING_LABEL] [-fv] [] ${START_BRANCH} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-m${QUOTE}${message}${QUOTE}] -ym ${QFILES}"/>
+        </run>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKIN),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKIN)))
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
@@ -339,8 +339,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKIN_TEMPLATE_GETTER">
 	<property name="exec">
-	  <value>$[? message] [echo "${message}"] []</value>
-	  <value if="IS_WINNT">$[? message] [cmd /X /C "echo ${message}"] []</value>
+	  <value>$[? message] [org.netbeans.modules.vcs.profiles.commands.Echo.class "${message}"] []</value>
 	</property>
       </command>
       <command name="CHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT)">
@@ -350,9 +349,10 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-	<property name="exec">
-	  <value>${RUNW} pcli Get ${PRIDPP} ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} $[? FILE] [${QFILES}] [.]  ${NUR}</value>
-	</property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="Get ${PRIDPP} ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} $[? FILE] [${QFILES}] [.]"/>
+        </run>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
                  ASK_FOR(SHOULD_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
@@ -412,9 +412,10 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-        <property name="exec">
-          <value>${RUNR} pcli AddFiles ${PRIDPP} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${QMPATHS} ${NUR}</value>
-        </property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="AddFiles ${PRIDPP} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${QABSPATHS}"/>
+        </run>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_ADD)))
                  PROMPT_FOR(WF_DESCRIPTION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
@@ -468,9 +469,11 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-        <property name="exec">
-          <value>$[? RECURSIVE] [org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand.class -o ADD_IN_FOLDER_CMD] [${RUN} pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${RECURSIVE} @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD(0)} ${NUR}]</value>
-        </property>
+        <run>
+          <executable value="$[? RECURSIVE] [org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand.class] [${PCLI_CMD}]"/>
+          <arg value="$[? RECURSIVE] [-o] [AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${RECURSIVE} @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD(0)}]"/>
+          <arg value="$[? RECURSIVE] [ADD_IN_FOLDER_CMD] []"/>
+        </run>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_ADD)))
                  PROMPT_FOR(WF_DESCRIPTION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
@@ -519,16 +522,13 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <command name="ADD_IN_FOLDER_CMD">
-        <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD_Mnemonic)</value>
-        </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-        <property name="exec">
-          <value>${RUN} pcli CreateProject ${PRIDPP} ${QUOTE}${FILE}${QUOTE} $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [; pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
-          <value if="IS_WINNT">${RUN} (pcli CreateProject ${PRIDPP} ${QUOTE}${FILE}${QUOTE} || echo.>nul) $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [&amp;&amp; pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
-        </property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="CreateProject ${PRIDPP} ${QUOTE}${FILE}${QUOTE}"/>
+        </run>
 	<property name="onFile">
 	  <value>false</value>
 	</property>
@@ -544,6 +544,27 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>14</value>  <!-- ((SERIAL_ON_PACKAGE || SERIAL_WITH_PARENT) && SERIAL_OF_COMMAND) -->
         </property>
+	<property name="ignoreFail">
+	  <value>true</value>
+	</property>
+        <property name="commandsAfterSuccess">
+          <value>$[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [ADD_INSIDE_FOLDER_CMD]</value>
+        </property>
+        <property name="commandsAfterFail">
+          <value>$[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [ADD_INSIDE_FOLDER_CMD]</value>
+        </property>
+      </command>
+      <command name="ADD_INSIDE_FOLDER_CMD">
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}"/>
+        </run>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
       </command>
       <command name="DUMMY_FILE_CMD_FOR_ADD">
 	<property name="onDir">
@@ -576,9 +597,10 @@ Microsystems, Inc. All Rights Reserved.
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE_Mnemonic)</value>
         </property>
-	<property name="exec">
-	  <value>${RUNR} pcli vdel ${PRIDPP} $[? REMOVE_WHAT] [-r$[? REVISION - REVISION_OPERATION_IDENT] [${REVISION}] []] [$[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] []] ${QFILES} ${NUR}</value>
-	</property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="vdel ${PRIDPP} $[? REMOVE_WHAT] [-r$[? REVISION - REVISION_OPERATION_IDENT] [${REVISION}] []] [$[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] []] ${QFILES}"/>
+        </run>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_REMOVE)))
                  SELECT_RADIO(REMOVE_WHAT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REMOVE_What), "-r",
@@ -628,9 +650,10 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <separator />
       <command name="EDIT">
-	<property name="exec">
-	  <value>${RUN} pcli get ${PRIDPP} ${SHOULD_LOCK} -w ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
-	</property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="Get ${PRIDPP} ${SHOULD_LOCK} -w ${QUOTE}${FILE}${QUOTE}"/>
+        </run>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
                  ASK_FOR(SHOULD_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
@@ -653,9 +676,10 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <command name="LOCK">
-	<property name="exec">
-	  <value>${RUN} pcli get ${PRIDPP} -l -w ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
-	</property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="Get ${PRIDPP} -l -w ${QUOTE}${FILE}${QUOTE}"/>
+        </run>
 	<property name="input">
 	  <value></value>
 	</property>
@@ -679,9 +703,10 @@ Microsystems, Inc. All Rights Reserved.
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK_Mnemonic)</value>
         </property>
-	<property name="exec">
-	  <value>${RUN} pcli Lock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] ${RECURSIVE} ${QFILES} ${NUR}</value>
-	</property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="Lock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] ${RECURSIVE} ${QFILES}"/>
+        </run>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_LOCK)))
                  PROMPT_FOR(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_Revision), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_Revision_mnc)))
@@ -726,9 +751,10 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-	<property name="exec">
-	  <value>${RUN} pcli Unlock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] $[? USER] [-u${QUOTE}${USER}${QUOTE}] [] ${RECURSIVE} ${QFILES} ${NUR}</value>
-	</property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="Unlock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] $[? USER] [-u${QUOTE}${USER}${QUOTE}] [] ${RECURSIVE} ${QFILES}"/>
+        </run>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_UNLOCK),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_UNLOCK)))
                  PROMPT_FOR(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_REVISION_Revision), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_REVISION_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_REVISION_Revision_mnc)))
@@ -772,9 +798,10 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-	<property name="exec">
-	  <value>${RUNR} pcli vlog ${PRIDPP} ${REPORT_TYPE} $[? REVISION] [-r${REVISION}] [] $[? AUTHORS] [-a${AUTHORS}] [] $[? LOCKERS] [-l${LOCKERS}] [] $[? OWNERS] [-o${OWNERS}] [] $[? DATE_FROM] [-ds${QUOTE}${DATE_FROM}${QUOTE}] [] $[? DATE_TO] [-de${QUOTE}${DATE_TO}${QUOTE}] [] ${RECURSIVE} ${QFILES} ${NUR}</value>
-	</property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="vlog ${PRIDPP} ${REPORT_TYPE} $[? REVISION] [-r${REVISION}] [] $[? AUTHORS] [-a${AUTHORS}] [] $[? LOCKERS] [-l${LOCKERS}] [] $[? OWNERS] [-o${OWNERS}] [] $[? DATE_FROM] [-ds${QUOTE}${DATE_FROM}${QUOTE}] [] $[? DATE_TO] [-de${QUOTE}${DATE_TO}${QUOTE}] [] ${RECURSIVE} ${QFILES}"/>
+        </run>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_STATUS),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_STATUS)))
                  SELECT_COMBO_EXPERT(REPORT_TYPE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_STATUS_ReportType), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_STATUS_ReportType);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_STATUS_ReportType_mnc)),
@@ -880,10 +907,13 @@ Microsystems, Inc. All Rights Reserved.
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_APPLY_DELTA_Mnemonic)</value>
         </property>
-	<property name="exec">
-	  <value>${RUN} regen ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${DELTA_FILE}${CMD_QUOTE} &gt; ${CMD_QUOTE}${TEMPORARY_FILE}${CMD_QUOTE}&amp;&amp; cp ${CMD_QUOTE}${TEMPORARY_FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${NUR}</value>
-	  <value if="IS_WINNT">${RUN} regen ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${DELTA_FILE}${CMD_QUOTE} &gt; ${CMD_QUOTE}${TEMPORARY_FILE}${CMD_QUOTE}&amp;&amp; copy ${CMD_QUOTE}${TEMPORARY_FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${NUR}</value>
-	</property>
+        <run dir="${WORKDIR}">
+          <executable value="regen"/>
+          <arg value="${WORKDIR}${PS}${FILE}"/>
+          <arg value="${DELTA_FILE}"/>
+          <arg value="&gt;"/>
+          <arg value="${TEMPORARY_FILE}"/>
+        </run>
   	<property name="inputDescriptor">
  	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_APPLY_DELTA_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_APPLY_DELTA_Label)))
                  PROMPT_FOR(DELTA_FILE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_APPLY_DELTA_DeltaFile), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_APPLY_DELTA_DeltaFile);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_APPLY_DELTA_DeltaFile_mnc)), SELECTOR_FILE)
@@ -898,6 +928,20 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
         </property>
+        <property name="checkForModifications">
+	  <value>true</value>
+	</property>
+        <property name="commandsAfterSuccess">
+          <value>COPY_APPLIED_DELTA</value>
+        </property>
+      </command>
+      <command name="COPY_APPLIED_DELTA">
+        <run>
+          <executable value="cp" unless="IS_WINNT"/>
+          <executable value="copy" if="IS_WINNT"/>
+          <arg value="${TEMPORARY_FILE}"/>
+          <arg value="${WORKDIR}${PS}${FILE}"/>
+        </run>
         <property name="checkForModifications">
 	  <value>true</value>
 	</property>
@@ -1038,10 +1082,10 @@ Microsystems, Inc. All Rights Reserved.
       </command>
 
       <command name="LIST_PROJECT">
-        <property name="exec">
-          <value>${RUNR} pcli list ${PRID} -pp${QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -l -a $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
-          <value if="IS_WINNT">${RUNR} pcli list ${PRID} -pp${QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -l -a * ${NUR}</value>
-        </property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="list ${PRID} -pp${QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -l -a *"/>
+        </run>
         <property name="error.regex">
           <value>^PVCS Version Manager \(VMGUI\) v([0-9]+)\.([0-9\.]+) .*$</value>
         </property>
@@ -1053,19 +1097,19 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <command name="LIST_PROJECT_REC">
-        <property name="exec">
-          <value>${RUNR} pcli list ${PRID} -pp${QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -l -a -z $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
-          <value if="IS_WINNT">${RUNR} pcli list ${PRID} -pp${QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -l -a -z * ${NUR}</value>
-        </property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="list ${PRID} -pp${QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -l -a -z *"/>
+        </run>
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
         </property>
       </command>
       <command name="LIST_SUBPROJECTS">
-        <property name="exec">
-          <value>${RUN} pcli list ${PRID} -pp${QUOTE}/$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -tProject $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
-          <value if="IS_WINNT">${RUN} pcli list ${PRID} -pp${QUOTE}/$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -tProject * ${NUR}</value>
-        </property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="list ${PRID} -pp${QUOTE}/$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -tProject *"/>
+        </run>
         <property name="ignoreFail">
           <value>true</value>
         </property>
@@ -1237,11 +1281,10 @@ Microsystems, Inc. All Rights Reserved.
       </property>
     </command>
     <command name="LIST_PROJECT_DB">
-      <property name="exec">
-        <value>${RUN} pcli ListProjectDB $[? GUI_DEF] [-a] [-z ${SEARCH_PATH}] $[? USER_NAME] [-id${QUOTE}${USER_NAME}:${PASSWORD}${QUOTE}] [] ${NUR}</value>
-        <!-- Not executed in cmd, because kill of cmd does not kill pcli. -->
-        <value if="IS_WINNT">pcli ListProjectDB $[? GUI_DEF] [-a] [-z ${SEARCH_PATH}] $[? USER_NAME] [-id"${USER_NAME}:${PASSWORD}"] []</value>
-      </property>
+      <run>
+        <executable value="${PCLI_CMD}"/>
+        <arg value="ListProjectDB $[? GUI_DEF] [-a] [-z ${QUOTE}${SEARCH_PATH}${QUOTE}] $[? USER_NAME] [-id${QUOTE}${USER_NAME}:${PASSWORD}${QUOTE}] []"/>
+      </run>
       <property name="concurrentExec">
         <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
       </property>
@@ -1258,18 +1301,19 @@ Microsystems, Inc. All Rights Reserved.
       </property>
     </command>
     <command name="GET_ARCHIVE_LOCATION">
-      <property name="exec">        
-        <value>$[? CACHED_ATTR] [echo "${CACHED_ATTR}"] [${RUN} pcli GetArchiveLocation ${PRID} /${QUOTE}${PROJECT}/$[? COMMON_PARENT] [${COMMON_PARENT}/] []$[? DIR] [${DIR}/] []${FILE}${QUOTE}]</value>
-        <value if="IS_WINNT">$[? CACHED_ATTR] [cmd /X /C "echo "${CACHED_ATTR}""] [${RUN} pcli GetArchiveLocation ${PRID} /${QUOTE}${PROJECT_\/}/$[? COMMON_PARENT] [${COMMON_PARENT_\/}/] []$[? DIR] [${DIR_\/}/] []${FILE}${QUOTE}]</value>
-      </property>
+      <run>
+        <executable value="$[? CACHED_ATTR] [org.netbeans.modules.vcs.profiles.commands.Echo.class] [${PCLI_CMD}]"/>
+        <arg value="$[? CACHED_ATTR] [${CACHED_ATTR}] [GetArchiveLocation ${PRID} /${QUOTE}${PROJECT_\/}/$[? COMMON_PARENT] [${COMMON_PARENT_\/}/] []$[? DIR] [${DIR_\/}/] []${FILE}${QUOTE}]"/>
+      </run>
       <property name="concurrentExec">
         <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
       </property>
     </command>
     <command name="GET_WORK_LOCATION">
-      <property name="exec">
-        <value>${RUN} pcli GetWorkLocation ${PRID} -pp${QUOTE}${PROJECT}${QUOTE} ${NUR}</value>
-      </property>
+      <run>
+        <executable value="${PCLI_CMD}"/>
+        <arg value="GetWorkLocation ${PRID} -pp${QUOTE}${PROJECT}${QUOTE}"/>
+      </run>
       <property name="concurrentExec">
         <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
       </property>
@@ -1278,9 +1322,10 @@ Microsystems, Inc. All Rights Reserved.
 
   <globalCommands>
       <command name="CREATE_PROJECT_DATABASE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GLOBAL_PVCS_CREATE_PROJECT_DATABASE)">
-        <property name="exec">
-          <value>pcli CreateProjectDB -pr"${DB_PATH}" $[? DB_NAME] [-n"${DB_NAME}"] [] -w"${DB_WORK}" ${NUR}</value>
-	</property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="CreateProjectDB -pr${QUOTE}${DB_PATH}${QUOTE} $[? DB_NAME] [-n${QUOTE}${DB_NAME}${QUOTE}] [] -w${QUOTE}${DB_WORK}${QUOTE}"/>
+        </run>
 	<property name="inputDescriptor">
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT_DATABASE), ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_CREATE_PROJECT_DATABASE_Label)))
                  PROMPT_FOR(DB_PATH, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Database)", "",
@@ -1301,9 +1346,10 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-	<property name="exec">
-	  <value>pcli Get "-pr${PROJECT_DB}" $[? USER_NAME] ["-id${USER_NAME}:${PASSWORD}"] [] "-pp${PROJECT}" $[? WORK_PATH] ["-a${WORK_PATH}" -o] [] ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] ["-v${VERSION}"] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} /</value>
-	</property>
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="Get -pr${QUOTE}${PROJECT_DB}${QUOTE} $[? USER_NAME] [-id${QUOTE}${USER_NAME}:${PASSWORD}${QUOTE}] [] -pp${QUOTE}${PROJECT}${QUOTE} $[? WORK_PATH] [-a${QUOTE}${WORK_PATH}${QUOTE} -o] [] ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} /"/>
+        </run>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
                  PROMPT_FOR(PROJECT_DB, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Database)", "",
