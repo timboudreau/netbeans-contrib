@@ -356,7 +356,12 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         if (!assertNotNull()) {
             return;
         }
-        statusInformation.setWorkingRevision(line.trim().intern());
+        line = line.trim();
+        int space = line.indexOf('\t');
+        if (space > 0) {
+            line = line.substring(0, space);
+        }
+        statusInformation.setWorkingRevision(line.intern());
     }
 
     private void processRepRev(String line) {
