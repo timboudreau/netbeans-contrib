@@ -292,7 +292,10 @@ public final class SuggestionsScanner implements Cancellable {
                 (EditorCookie) dobj.getCookie(EditorCookie.class);
         if (edit == null) return;
 
-        boolean isPrimed = edit.getDocument() == null;
+        String extension = dobj.getPrimaryFile().getExt();
+        boolean directAccess = "java".equals(extension) || "properties".equals(extension);  // #38476
+        boolean isPrimed = edit.getDocument() == null && directAccess == false;
+
         SuggestionContext env = SPIHole.createSuggestionContext(dobj);
 
         if (progressMonitor == null) {
