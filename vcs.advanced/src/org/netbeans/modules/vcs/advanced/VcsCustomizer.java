@@ -2228,7 +2228,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         public void editingStopped(javax.swing.event.ChangeEvent e) {
             VcsConfigVariable var = (VcsConfigVariable) envVariables.get(name);
             if (var != null) {
-                var.setValue((String) envTable.getValueAt(row, col));
+                String value = (String) envTable.getValueAt(row, col);
+                var.setValue(value);
+                fileSystem.setEnvironmentVar(name, value);
+                fileSystem.variableChanged(var.getName());
             }
         }
     }
