@@ -72,8 +72,10 @@ public final class ManagerSettings implements Node.Handle {
 
     public static ManagerSettings getDefault() {
         // note the diference in lifecycle, this singleton may
-        // bacome dean and get reloaded again
-        return (ManagerSettings) Lookup.getDefault().lookup(ManagerSettings.class);
+        // become dead and get reloaded again
+        ManagerSettings cfg = (ManagerSettings) Lookup.getDefault().lookup(ManagerSettings.class);
+        assert cfg != null : "#45809 default lookup has failed to locate ...suggestions.settings.ManagerSettings!";  // NOI18N
+        return cfg;
     }
 
     public static ManagerSettings layerEntryPoint() {
