@@ -309,15 +309,16 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
     
     private void translateElementsRecursively(VcsDirContainer rawData) {
         Hashtable filesByName = (Hashtable) rawData.getElement();
-        if (filesByName == null) return ;
-        Hashtable filesByNameTranslated = new Hashtable();
-        for (Enumeration enum = filesByName.keys(); enum.hasMoreElements(); ) {
-            String name = (String) enum.nextElement();
-            String[] elements = (String[]) filesByName.get(name);
-            elements = CommandLineVcsDirReader.translateElements(elements, listSub);
-            filesByNameTranslated.put(name, elements);
+        if (filesByName != null) {
+            Hashtable filesByNameTranslated = new Hashtable();
+            for (Enumeration enum = filesByName.keys(); enum.hasMoreElements(); ) {
+                String name = (String) enum.nextElement();
+                String[] elements = (String[]) filesByName.get(name);
+                elements = CommandLineVcsDirReader.translateElements(elements, listSub);
+                filesByNameTranslated.put(name, elements);
+            }
+            rawData.setElement(filesByNameTranslated);
         }
-        rawData.setElement(filesByNameTranslated);
         VcsDirContainer[] subdirs = rawData.getSubdirContainers();
         for(int i = 0; i < subdirs.length; i++) {
             translateElementsRecursively(subdirs[i]);
