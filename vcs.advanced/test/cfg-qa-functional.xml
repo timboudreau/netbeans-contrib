@@ -28,7 +28,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,validation,cvs_profile_JellyBranch" name="cvs_profile_JellyBranch">
+    <testbag testattribs="full,cvs_profile_JellyBranch" name="cvs_profile_JellyBranch">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyBranch.class"/>
