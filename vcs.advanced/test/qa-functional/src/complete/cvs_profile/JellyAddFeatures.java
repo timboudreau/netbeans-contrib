@@ -450,6 +450,7 @@ public class JellyAddFeatures extends JellyStub {
         closeAllVCSOutputs ();
         JellyStub.viewOutput(rc);
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("Remove");
+        assertTrue ("Execution string does not contain -t", coo.txtExecutionString().getText ().indexOf ("-t") >= 0);
         /*String str = coo.txtStandardOutput().getText ();
         assertTrue ("Standard Output does not contain text: -> main loop with CVSROOT=", str.indexOf ("-> main loop with CVSROOT=") >= 0);
         assertTrue ("Standard Output does not contain text: cvs remove: file `text5' still in working directory", str.indexOf ("cvs remove: file `text5' still in working directory") >= 0);
