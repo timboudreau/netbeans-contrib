@@ -45,8 +45,8 @@ public class CvsRevisionListGetter extends java.lang.Object implements VcsAdditi
     private static final String linesStr = "lines"; // NOI18N
     private static final String symbNamesStr = "symbolic names"; // NOI18N
     private static final String descriptionStr = "description:"; // NOI18N
-    private static final String nextRevisionStr = "---------------"; // NOI18N
-    private static final String nextFileStr = "=================="; // NOI18N
+    private static final String nextRevisionStr = "----------------------------"; // NOI18N
+    private static final String nextFileStr = "============================================================================="; // NOI18N
     private static final char ATTR_DELIM = ';'; // Attribute delimeter for date, author, state, lines
     private static final char ATTR_NAME_END = ':'; // The end of attribute name
 
@@ -365,7 +365,7 @@ public class CvsRevisionListGetter extends java.lang.Object implements VcsAdditi
                 bEnd = elements[0].indexOf(';', bBegin);
                 if (bEnd < 0) bEnd = elements[0].length();
             }
-        } else if (elements[0].indexOf(nextRevisionStr) != 0 && elements[0].indexOf(nextFileStr) != 0 &&
+        } else if (!elements[0].equals(nextRevisionStr) && !elements[0].equals(nextFileStr) &&
                     revisionItems.size() > 0) {
             RevisionItem item = getLastRevisionItem();
             String msg = item.getMessage();

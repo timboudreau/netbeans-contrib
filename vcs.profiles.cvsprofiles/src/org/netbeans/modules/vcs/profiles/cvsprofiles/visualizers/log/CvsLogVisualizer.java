@@ -62,7 +62,7 @@ public class CvsLogVisualizer extends OutputVisualizer {
     private static final String STATE = "  state: ";                        //NOI18N
     private static final String LINES = "  lines: ";                        //NOI18N
     private static final String SPLITTER = "----------------------------";  //NOI18N
-    private static final String FINAL_SPLIT = "=============";              //NOI18N
+    private static final String FINAL_SPLIT = "=============================================================================";              //NOI18N
     private static final String ERROR = "server: nothing known about ";     //NOI18N
     private static final String NO_FILE = "no file";                        //NOI18N
     
@@ -186,7 +186,7 @@ public class CvsLogVisualizer extends OutputVisualizer {
      */
     public void stdOutputLine(String line) {        
         debug("output:"+line);
-        if (line.startsWith(FINAL_SPLIT)) {
+        if (line.equals(FINAL_SPLIT)) {
             if (addingDescription) {
                 addingDescription = false;
                 logInfo.setDescription(tempBuffer.toString());
