@@ -34,6 +34,7 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
       
       protected HashMap columnLabels;
       protected HashMap columnValueSetters;
+      protected HashMap columnValueParams;
       protected HashMap columnSorted;
       protected HashMap columnComparators;
       
@@ -46,6 +47,7 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
           columnLabels = new HashMap();
           columnSorted = new HashMap();
           columnValueSetters = new HashMap();
+          columnValueParams = new HashMap();
           columnComparators = new HashMap();
           setDirection(true);
           setActiveColumn(0);
@@ -65,10 +67,11 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
           Integer columnInt = new Integer(column);
           Object info = list.get(row);
           Method getter = (Method)columnValueSetters.get(columnInt);
+          Object[] params = (Object[])columnValueParams.get(columnInt);
           TableInfoComparator comparator = (TableInfoComparator)columnComparators.get(columnInt);
           if (getter == null) return "";
           try {
-              Object value = getter.invoke(info, null);
+              Object value = getter.invoke(info, params);
               if (comparator != null) {
                   return comparator.getDisplayValue(value, info);
               }
@@ -120,6 +123,19 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
             columnLabels.put(integ, label);
             columnSorted.put(integ, new Boolean(sorted));
             columnValueSetters.put(integ, reflectionGetter);
+            columnValueParams.put(integ, null);
+            columnComparators.put(integ, comp);
+      }
+
+      
+      public void setColumnDefinition(int columnNumber, String label,  
+                                      Method reflectionGetter, Object[] params, boolean sorted, TableInfoComparator comp) 
+      {
+            Integer integ = new Integer(columnNumber);
+            columnLabels.put(integ, label);
+            columnSorted.put(integ, new Boolean(sorted));
+            columnValueSetters.put(integ, reflectionGetter);
+            columnValueParams.put(integ, params);
             columnComparators.put(integ, comp);
       }
       
@@ -174,13 +190,14 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
     public int compare(java.lang.Object obj1,java.lang.Object obj2) {
         Integer columnInt = new Integer(getActiveColumn());
         Method getter = (Method)columnValueSetters.get(columnInt);
+        Object[] params = (Object[])columnValueParams.get(columnInt);
         TableInfoComparator comparator = (TableInfoComparator)columnComparators.get(columnInt);
         if (getter == null) return 0;
         Object value1 = null;
         Object value2 = null;
         try {
-            value1 = getter.invoke(obj1, null);
-            value2 = getter.invoke(obj2, null);
+            value1 = getter.invoke(obj1, params);
+            value2 = getter.invoke(obj2, params);
         } catch (IllegalAccessException exc) {
             return 0;
         } catch (IllegalArgumentException exc2) {
