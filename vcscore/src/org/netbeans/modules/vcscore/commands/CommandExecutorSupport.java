@@ -33,6 +33,7 @@ import java.util.WeakHashMap;
 
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.util.RequestProcessor;
 import org.openide.util.UserCancelException;
 
@@ -53,7 +54,7 @@ import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.NotifyDescriptorInputPassword;
 import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionListener;
-import org.openide.DialogDisplayer;
+import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 
 /**
  * This class contains a support for VCS commands execution.
@@ -594,7 +595,12 @@ public class CommandExecutorSupport extends Object {
             String[] files = (String[]) vce.getFiles().toArray(new String[0]);
             for (int i = 0; i < files.length; i++) {
                 Object fo = fileSystem.findResource(files[i]);
-                if (fo == null) fo = fileSystem.getVersioningFileSystem().findResource(files[i]);
+                if (fo == null) {
+                    VersioningFileSystem vfs = fileSystem.getVersioningFileSystem();
+                    if (vfs != null) {
+                        fo = vfs.findResource(files[i]);
+                    }
+                }
                 if (fo != null) {
                     RevisionEvent event = new RevisionEvent(fo);
                     event.setRevisionChangeID(whatChanged);
