@@ -213,6 +213,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onFile">
 	  <value>false</value>
 	</property>
+        <property name="disabledOnStatus">
+          <value>"Local"</value>
+        </property>
         <property name="concurrentExec">
           <value>-1</value>
         </property>
@@ -278,6 +281,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+        <property name="disabledOnStatus">
+          <value>"Local"</value>
+        </property>
         <property name="concurrentExec">
           <value>-1</value>
         </property>
