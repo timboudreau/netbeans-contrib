@@ -81,6 +81,10 @@ public class CreateAttributePanel extends javax.swing.JPanel implements ListSele
         name.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString ("AD_AttributeName"));
         newAttrValue.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString ("AD_AttributeValues"));
         values.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString("AD_AttributeValue"));
+        jButton1.setMnemonic(JndiRootNode.getLocalizedString ("TXT_AddValue_Mnemonic").charAt(0));
+        jButton1.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString ("ACSD_AddValue"));
+        jButton3.setMnemonic(JndiRootNode.getLocalizedString ("TXT_Rem_Mnemonic").charAt(0));
+        jButton3.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString ("ACSD_Rem"));
     }
     
     /** This method is called from within the constructor to
