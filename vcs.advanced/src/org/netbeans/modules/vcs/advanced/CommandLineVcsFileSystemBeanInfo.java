@@ -37,6 +37,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
     PropertyDescriptor variables=null;
     PropertyDescriptor commands=null;
     PropertyDescriptor cacheId=null;
+    PropertyDescriptor config=null;
+    
 
     try {
       rootDirectory=new PropertyDescriptor
@@ -57,9 +59,12 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
       cacheId=new PropertyDescriptor
 	("cacheId",CommandLineVcsFileSystem.class,"getCacheId",null);
 
+      config=new PropertyDescriptor
+	("config",CommandLineVcsFileSystem.class,"getConfig",null);
+
 
       desc = new PropertyDescriptor[] {
-	rootDirectory, debug, variables, commands, cacheId
+	rootDirectory, debug, variables, commands, cacheId, config
       };
 
       ResourceBundle bundle = NbBundle.getBundle
@@ -74,6 +79,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
       commands.setShortDescription      (bundle.getString("HINT_commands"));
       cacheId.setDisplayName            (bundle.getString("PROP_cacheId"));
       cacheId.setShortDescription       (bundle.getString("HINT_cacheId"));
+      config.setDisplayName             (bundle.getString("PROP_config"));
+      config.setShortDescription        (bundle.getString("HINT_config"));
 
     } catch (IntrospectionException ex) {
       ex.printStackTrace ();
@@ -97,6 +104,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  9    Gandalf   1.8         5/19/99  Michal Fadljevic 
 *  8    Gandalf   1.7         5/14/99  Michal Fadljevic 
 *  7    Gandalf   1.6         5/4/99   Michal Fadljevic 
 *  6    Gandalf   1.5         5/4/99   Michal Fadljevic 

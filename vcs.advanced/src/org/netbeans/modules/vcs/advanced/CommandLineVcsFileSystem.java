@@ -54,6 +54,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   private boolean debug=true;
   
+  private String config="Empty";
+
   /** user variables Vector<String> 'name=value' */
   private Vector variables=new Vector(10);
 
@@ -75,6 +77,18 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   
   private transient VcsAction action=null;
 
+
+  //-------------------------------------------
+  public void setConfig(String label){
+    this.config=label;
+  }
+  
+
+  //-------------------------------------------
+  public String getConfig(){
+    return config;
+  }
+  
 
   //-------------------------------------------
   public void debugClear(){
@@ -147,12 +161,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     cacheId=getNewCacheId();
     init();
 
-    // this should read empty.properties in future - to be changed
-    Properties props=UserCommand.readPredefinedProperties(CONFIG_ROOT+File.separator+"st30.properties");
+    Properties props=UserCommand.readPredefinedProperties(CONFIG_ROOT+File.separator+"empty.properties");
     variables=UserCommand.readVariables(props);
     commands=UserCommand.readCommands(props);
-
   }
+
 
 
   //-------------------------------------------
@@ -730,6 +743,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  18   Gandalf   1.17        5/19/99  Michal Fadljevic 
  *  17   Gandalf   1.16        5/18/99  Michal Fadljevic 
  *  16   Gandalf   1.15        5/14/99  Michal Fadljevic 
  *  15   Gandalf   1.14        5/13/99  Michal Fadljevic 
