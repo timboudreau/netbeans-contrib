@@ -49,6 +49,7 @@ public class MountVSSFilesystem extends NbTestCase {
      */
     public static junit.framework.Test suite() {
         TestSuite suite = new NbTestSuite();
+        if (Utilities.isUnix()) return suite;
         suite.addTest(new MountVSSFilesystem("testVSSSettings"));
         return suite;
     }
@@ -90,7 +91,7 @@ public class MountVSSFilesystem extends NbTestCase {
      * @throws Exception any unexpected exception thrown during test.
      */
     public void testVSSSettings() throws Exception {
-        System.out.print(".. Testing versioning menu ..");
+        System.out.print(".. Testing VSS settings ..");
         MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
         VCSWizardProfile wizard = new VCSWizardProfile();
         String profile = VCSWizardProfile.VSS_WIN_NT;
