@@ -128,6 +128,10 @@ public class Main extends JellyTestCase {
     }
     
     public void printTreePath (TreePath tp) {
+        printTreePath (tp, out);
+    }
+
+    public void printTreePath (TreePath tp, PrintStream out) {
         out.print ("Path: ");
         if (tp == null)
             out.println ("<NULL>");
@@ -201,7 +205,7 @@ public class Main extends JellyTestCase {
         SelectSourceIDLStep ss = new SelectSourceIDLStep ();
         ss.verify ();
         out.println ("IDLFileName: " + ss.getIDLFileName());
-        printTreePath (ss.tree().getSelectionPath());
+        printTreePath (ss.tree().getSelectionPath(), getLog ()); // unstable
         printButtons (ss);
         new Node (ss.tree (), "").select();
         ev.waitNoEvent(1000);
@@ -464,7 +468,7 @@ public class Main extends JellyTestCase {
         SelectSourceIDLStep ss = new SelectSourceIDLStep ();
         ss.verify ();
         out.println ("IDLFileName: " + ss.getIDLFileName());
-//        printTreePath (ss.tree().getSelectionPath());
+        printTreePath (ss.tree().getSelectionPath(), getLog ()); // unstable
         ss.next ();
         ta = new TypeAplicationStep ();
         ta.verify ();
