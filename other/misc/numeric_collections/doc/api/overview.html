@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<html>
+  <head>
+    <title>Numeric Collections API</title>
+  </head>
+  <body>
+  <h1>Numeric Collections</h1>
+  This library provides a few collections-like classes which operate over,
+  and handle primitive types.  Primarily these are useful in performance
+  sensitive situations and situations involving large amounts of data.
+  Since these classes can take advantage of primitive arrays, it is also
+  possible to make use of binary searches for fast indexing.  Typically
+  they require numbers to be added in ascending order - but often it is 
+  possible to organize data this way.
+  <p>
+  Essentially, these are a few classes originally written for high performance
+  in the NetBeans 4.0 output window, which their author found so useful he
+  kept copying them into other projects.  So they got a home of their own.
+  <p>
+  Generally what's here:
+  <ul>
+  <li><code>IntList</code> A list of integers, which must be sequenced in
+   ascending order</li>
+  <li><code>LongList</code> A list of longs, which must be sequenced in 
+   ascending order</li>
+  <li><code>IntMap</code> A map between two arrays of integers</li>
+  <li><code>SparseIntList</code> A somewhat unusual list-like class, in which
+   each element is assumed to take up a value of 1, unless some other value
+   has been set.  Useful if you have large amount of data which is usually the same, and 
+   occasionally has some elements for which a value > 1 is needed (originally
+   used to save the wrap count of lines in the output window, only for those 
+   lines that are were wrapped).  So you can have what appears to be a very
+   large list, but only unique elements are actually saved.  So, for example,
+   <pre>
+   SparseIntList l = new SparseIntList();
+   l.add (100, 5); //Means that index 5 is worth 100
+   </pre>
+   means that
+   <pre>
+   l.get(0) = 0;
+   l.get(1) = 1;
+   l.get(2) = 2;
+   l.get(3) = 3;
+   l.get(4) = 4;
+   l.get(5) = 5;
+   l.get(6) = 106;
+   l.get(7) = 107;
+   ...
+   </pre>
+   In fact, the only values being stored in the list are two integers - 5 for
+   the index and 100 for the value.
+  </li>
+  </ul>
+  
+  </body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<html>
+  <head>
+    <title>Cache API</title>
+  </head>
+  <body>
+  <h1>Cache API</h1>
+  The purpose of this library is to provide a convenient way to build data 
+  caches - that is, some data which is stored persistently, but has minimal
+  retrieval overhead.
+  <p>
+  Essentially, a Cache acts as an indexed list of <code>java.nio.ByteBuffer</code>s
+  which may have data appended, deleted or replaced.  They are 
+  optimized for data which mainly grows - that is, data is appended to the
+  end.  If you are dealing with data in which arbitrary elements from 
+  arbitrary positions may change frequently, this library is probably 
+  not for you - but it may be
+  worth exploring whether there are patterns in your data that can be 
+  exploited to operate more in this fashion (batching deletions so they
+  are infrequent).  The performance will be quite good.
+  <p>
+  Caches use NIO memory mapped files for their operation - so cached
+  data is not on the java heap, but rather used in-place, taking maximum
+  advantage of the operating system's memory manager.
+  <p>
+  Often you will want to have objects of some implementation class which 
+  represent the data which is being cached.  The ideal implementation of such
+  objects keeps them very lightweight - simply keep a reference to the Cache
+  in the object's constructor, and in integer indicating the index of the
+  entry.  On demand, parse/fetch/deserialize data from the cache.  A
+  trivial example:
+  <pre>
+  public class CachedObject {
+     private final Cache cache;
+     private final int index;
+     
+     public CachedObject (Cache cache, int index) {
+         this.cache = cache;
+         this.index = index;
+     }
+     
+     public MyObject getMyData() {
+         ByteBuffer bb = cache.getBuffer(index);
+         //parse the data and return something
+     }
+  }
+  </pre>
+  <p>
+  The primary use case for Caches is where there is some large number of
+  objects that need to be persisted, it is not desirable to create all
+  of those objects on startup, and the objects should not take up much
+  space, but the data needs to be quickly available
+  on demand.
+  <p>
+  As a practical example of what this is used for, this class was originally
+  created to enable local caching of mail messages - most message data is
+  only interesting if a UI needs to display a message or its headers, and
+  the common case is for messages to be added to a folder - delete operations
+  are less common and can afford the (slight) additional overhead.
+  </body>
+</html>
