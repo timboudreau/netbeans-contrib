@@ -85,9 +85,9 @@ public class AddToGroupAction extends NodeAction {
         String label;
         //JMenu menu=new JMenuPlus(g("CvsClientAction.displayName")); // NOI18N
         if (adding) {
-            label = NbBundle.getMessage(AddToGroupAction.class, "LBL_AddToGroupAction");
+            label = NbBundle.getMessage(AddToGroupAction.class, "LBL_AddToGroupAction"); // NOI18N
         } else {
-            label = NbBundle.getMessage(AddToGroupAction.class, "LBL_MoveToVcsGroupAction");
+            label = NbBundle.getMessage(AddToGroupAction.class, "LBL_MoveToVcsGroupAction"); // NOI18N
         }
         JMenu menu=new JMenuPlus(label); // NOI18N
         Actions.setMenuText (menu, label, isMenu);
