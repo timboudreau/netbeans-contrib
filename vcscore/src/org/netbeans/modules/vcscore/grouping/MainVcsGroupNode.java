@@ -88,9 +88,7 @@ public class MainVcsGroupNode extends AbstractNode   {
     }
 
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
-        // When you have help, change to:
-        // return new HelpCtx (MainVcsGroupNode.class);
+        return new HelpCtx (MainVcsGroupNode.class);
     }
 
 

@@ -105,9 +105,7 @@ public class GeneralVcsSettingsNode extends AbstractNode {
     }
 
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
-        // When you have help, change to:
-        // return new HelpCtx (GeneralVcsSettingsNodeNode.class);
+        return new HelpCtx (GeneralVcsSettingsNode.class);
     }
 
     
