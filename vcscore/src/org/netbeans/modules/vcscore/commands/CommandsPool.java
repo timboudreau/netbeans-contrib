@@ -109,6 +109,14 @@ public class CommandsPool extends Object {
         }
         return PREPROCESS_DONE;
     }
+
+    /**
+     * Start the executor. The method starts the executor in a separate thread.
+     * @param vce the executor
+     */
+    public void startExecutor(final VcsCommandExecutor vce) {
+        startExecutor(vce, null);
+    }
     
     /**
      * Start the executor. The method starts the executor in a separate thread.
