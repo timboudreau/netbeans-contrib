@@ -73,11 +73,19 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   
   private transient VcsAction action=null;
 
+
+  //-------------------------------------------
+  public void setImportant(boolean important){
+    D.deb("setImportant("+important+")");
+  }
+
+  
   //-------------------------------------------
   public VcsCache getCache(){
     return cache;
   }
   
+
   //-------------------------------------------
   private void createDir(String path){
     File dir=new File(path);
@@ -88,7 +96,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
       E.err("Unable to create directory "+path);
     }
   }
-  
+
+
   //-------------------------------------------
   private void init(){
     CACHE_ROOT=System.getProperty("netbeans.home")+
@@ -99,9 +108,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     cache=new VcsCache(this,cacheDir);
   }
 
+
   //-------------------------------------------
   public CommandLineVcsFileSystem () {
-    D.deb("CommandLineVcsFileSystem()");
+    //D.deb("CommandLineVcsFileSystem()");
     info = this;
     change = this;
     DefaultAttributes a = new DefaultAttributes (info, change, this);
@@ -118,15 +128,18 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     init();
   }
 
+
   //-------------------------------------------
   public static long getNewCacheId(){
     return ++CACHE_LAST_ID;
   }
 
+
   //-------------------------------------------
   public long getCacheId(){
     return cacheId;
   }
+
 
   //-------------------------------------------
   private void readObject(ObjectInputStream in) throws 
@@ -138,6 +151,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     //D.deb("readObject() - restoring bean");
   }
 
+
   //-------------------------------------------
   private void writeObject(ObjectOutputStream out) throws IOException {
     //D.deb("writeObject() - saving bean");
@@ -145,20 +159,24 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     out.defaultWriteObject();
   }  
   
+
   //-------------------------------------------
   public void setDebug(boolean debug){
     this.debug=debug;
   }
+
 
   //-------------------------------------------
   public boolean getDebug(){
     return debug;
   }  
 
+
   //-------------------------------------------
   public Vector getVariables(){
     return variables;
   }
+
 
   //-------------------------------------------
   public void setVariables(Vector variables){
@@ -187,10 +205,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     return result;
   }
 
+
   //-------------------------------------------
   public Vector getCommands(){
     return commands;
   }
+
 
   //-------------------------------------------
   public void setCommands(Vector commands){
@@ -203,6 +223,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     }
   }
 
+
   //-------------------------------------------
   public UserCommand getCommand(String name){
     if( commandsByName==null ){
@@ -211,10 +232,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     return (UserCommand)commandsByName.get(name);
   }
 
+
   //-------------------------------------------
   public FileSystem.Status getStatus(){
     return this;
   }
+
 
   //-------------------------------------------
   public Image annotateIcon(Image icon, int iconType, Set files) {
@@ -223,30 +246,71 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   }
 
 
-  //-------------------------------------------
-  public String annotateName(String name, Set files) {
-    //D.deb("annotateName("+name+","+files.size()+")");
-    Object[] oo=files.toArray();
-    if( oo.length==0 || name.indexOf("Root of")>=0){
-      return name;
-    }
-    return name;
-    /*    int len=oo.length;
-    String[] statusArr=new String[len];
-    for(int i=0;i<len;i++){
-      FileObject ff=(FileObject)oo[i]; 
-      D.deb("annotateName('"+name+"') oo["+i+"]="+ff);
-      String fullName=ff.getPackageNameExt('/','.');
-      D.deb("fullName="+fullName);
-      statusArr[i]=cache.getFileStatus(fullName);
-    }
-    D.deb("statusArr="+MiscStuff.arrayToString(statusArr));
-    return name+" "+MiscStuff.arrayToString(statusArr) ;
-    */
-  }
+  private String cachedAnnotatedFullName=null;
+  private String cachedAnnotatedResult=null;
 
   //-------------------------------------------
+  public String annotateName(String name, Set files) {
+    String result=name;
+    String fullName="";
+    String fileName="";
+
+    Object[] oo=files.toArray();
+    int len=oo.length;
+    if( len==0 || name.indexOf("Root of")>=0){
+      return result;
+    }
+
+    if( len==1 ){
+      FileObject ff=(FileObject)oo[0];
+      fullName=ff.getPackageNameExt('/','.');
+      fileName=cache.getFileNamePart(fullName);
+
+      if( cachedAnnotatedFullName!=null && 
+	  cachedAnnotatedFullName.equals(fullName) ){
+	return cachedAnnotatedResult;
+      }
+      result=fileName+" "+cache.getFileStatus(fullName);
+    }
+    else{
+      Vector/*<VcsFile>*/ importantFiles=getImportantFiles(oo);
+      result=name+" "+cache.getStatus(importantFiles);
+    }
+
+    cachedAnnotatedFullName=fullName;
+    cachedAnnotatedResult=result;
+    return result;
+  }
+  
+
+  //-------------------------------------------
+  private Vector/*VcsFile*/ getImportantFiles(Object[] oo){
+    Vector result=new Vector(3);
+    int len=oo.length;
+    
+    for(int i=0;i<len;i++){
+      FileObject ff=(FileObject)oo[i]; 
+      String fullName=ff.getPackageNameExt('/','.');
+      String fileName=cache.getFileNamePart(fullName);
+
+      VcsFile file=cache.getFile(fullName);
+      if( file==null ){
+	//D.deb("no such file '"+fullName+"'");
+	continue ;
+      }
+      //if( file.isImportant() ){ // TODO Change this line !!!
+      if( fileName.indexOf(".class")<0 ){ 
+	result.addElement(file);
+      }
+    }
+    
+    return result;  
+  }
+
+  
+  //-------------------------------------------
   public SystemAction[] getActions(){
+    D.deb("getActions()");
     if( action==null ){
       action=new VcsAction(this);
     }
@@ -255,10 +319,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     return actions;
   }
 
+
   //-------------------------------------------
   /* Human presentable name */
   public String getDisplayName() {
-    D.deb("getDisplayName() isValid="+isValid());
+    //D.deb("getDisplayName() isValid="+isValid());
     if(!isValid())
       return getString("LAB_FileSystemInvalid", rootFile.toString ());
     else
@@ -372,8 +437,19 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     }
     
     files=MiscStuff.mergeArrays(vcsFiles,localFiles);
-    D.deb("files="+MiscStuff.arrayToString(files));
-    return files;
+    //D.deb("files="+MiscStuff.arrayToString(files));
+
+    String p="";
+    try{
+      p=rootFile.getCanonicalPath();
+    }
+    catch (IOException e){
+      E.err(e,"getCanonicalPath() failed");
+    }
+    String[] files2=cache.dirsFirst(p+File.separator+name,files);
+    D.deb("files2="+MiscStuff.arrayToString(files2));
+
+    return files2;
   }
 
   //-------------------------------------------
@@ -576,6 +652,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   */
   public void markUnimportant (String name) {
     D.deb("markUnimportant("+name+")");
+    VcsFile file=cache.getFile(name);
+    if( file==null ){
+      E.err("no such file '"+name+"'");
+      return ;
+    }
+    file.setImportant(false);
   }
 
   //-------------------------------------------
@@ -625,6 +707,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  14   Gandalf   1.13        5/11/99  Michal Fadljevic 
  *  13   Gandalf   1.12        5/7/99   Michal Fadljevic 
  *  12   Gandalf   1.11        5/6/99   Michal Fadljevic 
  *  11   Gandalf   1.10        5/4/99   Michal Fadljevic 
