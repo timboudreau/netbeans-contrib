@@ -24,44 +24,46 @@ Microsystems, Inc. All Rights Reserved.
 
     <property name="nb_all" location="../../.."/>
 
-    <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-
-    <property name="nbm_alias" value="nb_ide"/>
-    <property name="homepage.base" value="netbeans.org"/>
-    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-    <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
+    <import file="${nb_all}/nbbuild/default.xml"/>    
     <property file="../../version.properties"/>
   
     <target name="compile">        
          <ant dir=".." target="compile"/>
     </target>
 
-    <target name="jars" depends="compile">
-        <mkdir dir="netbeans/modules"/>
+    <target name="init" depends="default.init">
+      <patternset id="tasklist/suggestions/ui.files">
+        <include name="${nb.modules.dir}/tasklist-suggestions.jar"/>
+      </patternset>
+    </target>
+    
+    <target name="jars" depends="compile, init">
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <filter filtersfile="../../version.properties"/>
         <filter token="tl.suggestions_ui.spec" value="${tl.suggestions_ui.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/tasklist-suggestions.jar"
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/tasklist-suggestions.jar"
                 manifest="manifest-subst.mf"
                 basedir="../src"
 	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
 	        compress="false">
-            <locale name="ja"/>
             <include name="org/netbeans/modules/tasklist/suggestions/ui/*"/>
-        </locjar>
+        </jar>
     </target>
 
     <target name="netbeans" depends="jars">
-        <genlist targetname="nbm" outputfiledir="netbeans"/>
+        <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/tasklist-suggestions.jar">
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+                <patternset refID="tasklist/suggestions/ui.files"/>
+           </fileset>
+        </genlist>
     </target>
-
+    
     <target name="nbm" depends="netbeans">
-        <makenbm file="../../tasklist-suggestions.nbm"
-                 topdir="."
-                 module="netbeans/modules/tasklist-suggestions.jar"
+        <makenbm file="tasklist-suggestions.nbm"
+                 productdir="${netbeans.dest.dir}/${cluster.dir}"
+                 module="${nb.modules.dir}/tasklist-suggestions.jar"
                  homepage="http://tasklist.${homepage.base}/updates/tasklist-suggestions.html"
                  distribution="http://${dist.base}/tasklist-suggestions.nbm"
                  needsrestart="false">
@@ -74,14 +76,17 @@ Microsystems, Inc. All Rights Reserved.
         <style in="module-updates.xml" out="../../www/updates/tasklist-suggestions.html" style="../../www/updates/updates.xsl"/>
     </target>
     
-    <target name="clean">
+    <target name="clean" depends="init">
         <delete>
             <fileset dir="../src">
                 <include name="**/*.class"/>
             </fileset>
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+               <patternset refID="tasklist/suggestions/ui.files"/>
+            </fileset>            
         </delete>
         <delete file="manifest-subst.mf"/>
-        <delete file="../../tasklist-suggestions.nbm"/>
+        <delete file="tasklist-suggestions.nbm"/>
         <delete dir="netbeans"/>
         <delete dir="Info"/>
         <delete dir="javadoc"/>
