@@ -20,7 +20,7 @@ Microsystems, Inc. All Rights Reserved.
     <javac srcdir="libsrc" destdir="libsrc">
       <classpath>
         <pathelement location="../utilities/netbeans/modules/utilities.jar"/>
-        <pathelement location="../editor/netbeans/lib/ext/nb-editor.jar"/>
+        <pathelement location="../editor/netbeans/modules/ext/nb-editor.jar"/>
         <pathelement location="../openidex/netbeans/lib/ext/openidex.jar"/>
         <pathelement location="../openide/netbeans/lib/openide.jar"/>
         <pathelement location="../core/release/lib/ext/regexp.jar"/>
