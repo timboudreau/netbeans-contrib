@@ -79,7 +79,7 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
     * @param basic whether this variable is basic or not. Basic variables can be set in the Customizer.
     * @param localFile whether this variable is a local file. Browse buttom will be created for this variable.
     * @param localDir whether this variable is a local directory. Browse buttom will be created for this variable.
-    * @param customSelector the custom selector for this variable. It can be a subclass of <code>VcsVariableSelector</code> or an executable.
+    * @param customSelector the custom selector for this variable. It can be a subclass of <code>VcsAdditionalCommand</code> or an executable.
     */
     public VcsConfigVariable(String name, String label, String value,
                              boolean basic, boolean localFile, boolean localDir,
@@ -94,7 +94,7 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
     * @param basic whether this variable is basic or not. Basic variables can be set in the Customizer.
     * @param localFile whether this variable is a local file. Browse buttom will be created for this variable.
     * @param localDir whether this variable is a local directory. Browse buttom will be created for this variable.
-    * @param customSelector the custom selector for this variable. It can be a subclass of <code>VcsVariableSelector</code> or an executable.
+    * @param customSelector the custom selector for this variable. It can be a subclass of <code>VcsAdditionalCommand</code> or an executable.
     * @param order the order of this variable in the Customizer.
     */
     public VcsConfigVariable(String name, String label, String value,
