@@ -1,0 +1,386 @@
+Adding IR
+Done
+01_SOURCE vs. 01_IRTOIDL
+======
+A !!! A
+B !!! B
+C !!! C
+CH !!! CH
+CR !!! CR
+D !!! D
+E !!! E
+Exc !!! Exc
+FL !!! FL
+LO !!! LO
+M !!! M
+S !!! S
+SEQSEQ !!! SEQSEQ
+STR !!! STR
+U !!! U
+VT !!! VT
+VT2 !!! VT2
+VT3 !!! VT3
+VT4 !!! VT4
+VT410 !!! VT410
+VT5 !!! VT5
+VT6 !!! VT6
+------
+  properties -- properties
+    name vs. name
+    abstract vs. abstract
+    inherited vs. inherited
+A vs. A
+======
+opA !!! opA
+------
+  properties -- properties
+    name vs. name
+    result vs. result
+    attribute vs. attribute
+    params vs. params
+    exceptions vs. exceptions
+    contexts vs. contexts
+opA vs. opA
+======
+------
+  properties -- properties
+    name vs. name
+    abstract vs. abstract
+    inherited vs. inherited
+B vs. B
+======
+opB !!! opB
+------
+  properties -- properties
+    name vs. name
+    result vs. result
+    attribute vs. attribute
+    params vs. params
+    exceptions vs. exceptions
+    contexts vs. contexts
+opB vs. opB
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+C vs. C
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    exp vs. exp
+CH vs. CH
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+CR vs. CR
+======
+------
+  properties -- properties
+    name vs. name
+    custom vs. custom
+    inherited vs. inherited
+    supported vs. supported
+D vs. D
+======
+opD !!! opD
+------
+  properties -- properties
+    name vs. name
+    result vs. result
+    attribute vs. attribute
+    params vs. params
+    exceptions vs. exceptions
+    contexts vs. contexts
+opD vs. opD
+======
+------
+  properties -- properties
+    name vs. name
+    custom vs. custom
+    inherited vs. inherited
+    supported vs. supported
+E vs. E
+======
+aa !!! aa
+bo !!! bo
+init !!! init
+init2 !!! init2
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    readonly vs. readonly
+aa vs. aa
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+    modifier vs. modifier
+bo vs. bo
+======
+------
+  properties -- properties
+    name vs. name
+    params vs. params
+init vs. init
+======
+------
+  properties -- properties
+    name vs. name
+    params vs. params
+init2 vs. init2
+======
+------
+  properties -- properties
+    name vs. name
+Exc vs. Exc
+======
+message !!! message
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+message vs. message
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    exp vs. exp
+FL vs. FL
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    exp vs. exp
+LO vs. LO
+======
+------
+  properties -- properties
+    name vs. name
+M vs. M
+======
+A !!! A
+B !!! B
+------
+  properties -- properties
+    name vs. name
+    abstract vs. abstract
+    inherited vs. inherited
+A vs. A
+======
+op !!! op
+------
+  properties -- properties
+    name vs. name
+    result vs. result
+    attribute vs. attribute
+    params vs. params
+    exceptions vs. exceptions
+    contexts vs. contexts
+op vs. op
+======
+------
+  properties -- properties
+    name vs. name
+    abstract vs. abstract
+    inherited vs. inherited
+B vs. B
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+S vs. S
+======
+LL !!! LL
+S2 !!! S2
+sss !!! sss
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+LL vs. LL
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+S2 vs. S2
+======
+bb !!! bb
+cc !!! cc
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+bb vs. bb
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+cc vs. cc
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+sss vs. sss
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+SEQSEQ vs. SEQSEQ
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    exp vs. exp
+STR vs. STR
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    switch type vs. switch type
+U vs. U
+======
+B1 !!! B1
+L1 !!! L1
+S1 !!! S1
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+    case vs. case
+B1 vs. B1
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+    case vs. case
+L1 vs. L1
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+    case vs. case
+S1 vs. S1
+======
+------
+  properties -- properties
+    name vs. name
+    custom vs. custom
+    inherited vs. inherited
+    supported vs. supported
+VT vs. VT
+======
+PA !!! PA
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    readonly vs. readonly
+PA vs. PA
+======
+------
+  properties -- properties
+    name vs. name
+    custom vs. custom
+    inherited vs. inherited
+    supported vs. supported
+VT2 vs. VT2
+======
+PL !!! PL
+ax !!! ax
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+    modifier vs. modifier
+PL vs. PL
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+    modifier vs. modifier
+ax vs. ax
+======
+------
+  properties -- properties
+    name vs. name
+    custom vs. custom
+    inherited vs. inherited
+    supported vs. supported
+VT3 vs. VT3
+======
+------
+  properties -- properties
+    name vs. name
+    custom vs. custom
+    inherited vs. inherited
+    supported vs. supported
+VT4 vs. VT4
+======
+ax !!! ax
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+    modifier vs. modifier
+ax vs. ax
+======
+------
+  properties -- properties
+    name vs. name
+    type vs. type
+    dimension vs. dimension
+VT410 vs. VT410
+======
+------
+  properties -- properties
+    name vs. name
+    custom vs. custom
+    inherited vs. inherited
+    supported vs. supported
+VT5 vs. VT5
+======
+------
+  properties -- properties
+    name vs. name
+    custom vs. custom
+    inherited vs. inherited
+    supported vs. supported
+VT6 vs. VT6
+======
+------
+Removing IR
+Done

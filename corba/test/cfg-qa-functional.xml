@@ -85,6 +85,7 @@ Microsystems, Inc. All Rights Reserved.
 			<patternset>
 				<include name="test/ircopycode/Main.class"/>
 				<include name="test/irnodes/Main.class"/>
+				<include name="test/irtoidl/Main.class"/>
 			</patternset>
 		</testset>
 	</testbag>
