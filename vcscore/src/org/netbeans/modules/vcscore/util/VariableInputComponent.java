@@ -313,4 +313,127 @@ public class VariableInputComponent extends Object {
             return (VariableInputComponent[]) subComponents.toArray(new VariableInputComponent[0]);
         }
     }
+    
+    public String toString() {
+        return toString(false);
+    }
+    
+    /**
+     * @param cutCompVar Whether to cut the component name and variable.
+     */
+    private String toString(boolean cutCompVar) {
+        // varConditions, name, expert, variable, label, defaultValue, a11n,
+        // validator, selector, dimension, valueSelected, valueUnselected,
+        // enable, disable, subComponents
+        StringBuffer items = new StringBuffer();
+        if (!cutCompVar) {
+            putVarConditionsStr(items, varConditions);
+            String name = VariableInputDescriptor.getInputIdString(component);
+            items.append(name);
+            if (expert) {
+                items.append(VariableInputDescriptor.INPUT_IS_EXPERT);
+            }
+            items.append(VariableInputDescriptor.INPUT_STR_ARG_OPEN);
+            items.append('\"');
+            items.append(variable);
+            items.append("\", ");
+        }
+        items.append('\"');
+        items.append(label);
+        if (value == null) {
+            items.append("\", \"\"");
+        } else {
+            items.append("\", \"");
+            items.append(value);
+            items.append('\"');
+        }
+        if (a11yName != null || a11yDescription != null || labelMnemonic != null) {
+            VariableInputDescriptor.appendAccessibility(items, a11yName,
+                                                        a11yDescription,
+                                                        labelMnemonic);
+        }
+        if (validator != null) {
+            items.append(", \"");
+            items.append(validator);
+            items.append('\"');
+        }
+        if (selector != null) {
+            items.append(", \"");
+            putVarConditionsStr(items, selectorVarConditions);
+            items.append(selector);
+            items.append('\"');
+        }
+        if (dimension != null) {
+            items.append(", ");
+            items.append(dimension.width);
+            items.append(", ");
+            items.append(dimension.height);
+        }
+        if (component == VariableInputDescriptor.INPUT_ASK) {
+            if (valueSelected != null) {
+                items.append(", \"");
+                items.append(valueSelected);
+                items.append('\"');
+                if (valueUnselected != null) {
+                    items.append(", \"");
+                    items.append(valueUnselected);
+                    items.append('\"');
+                }
+            }
+        }
+        if (enable != null && !enable.isEmpty()) {
+            items.append(", ");
+            items.append(VariableInputDescriptor.INPUT_STR_ENABLE +
+                         VariableInputDescriptor.INPUT_STR_ARG_OPEN);
+            for (Iterator it = enable.iterator(); ; ) {
+                String varName = (String) it.next();
+                items.append(varName);
+                if (it.hasNext()) {
+                    items.append(", ");
+                } else {
+                    break;
+                }
+            }
+            items.append(VariableInputDescriptor.INPUT_STR_ARG_CLOSE);
+        }
+        if (disable != null && !disable.isEmpty()) {
+            items.append(", ");
+            items.append(VariableInputDescriptor.INPUT_STR_DISABLE +
+                         VariableInputDescriptor.INPUT_STR_ARG_OPEN);
+            for (Iterator it = disable.iterator(); ; ) {
+                String varName = (String) it.next();
+                items.append(varName);
+                if (it.hasNext()) {
+                    items.append(", ");
+                } else {
+                    break;
+                }
+            }
+            items.append(VariableInputDescriptor.INPUT_STR_ARG_CLOSE);
+        }
+        VariableInputComponent[] subComponents = subComponents();
+        for (int i = 0; i < subComponents.length; i++) {
+            items.append(", [");
+            items.append(subComponents[i].toString(true));
+            items.append(']');
+        }
+        if (!cutCompVar) {
+            items.append(VariableInputDescriptor.INPUT_STR_ARG_CLOSE);
+        }
+        return items.toString();
+    }
+    
+    private static void putVarConditionsStr(StringBuffer items, String[] varConditions) {
+        if (varConditions[0] != null) {
+            items.append(VariableInputDescriptor.IF_VAR_EMPTY_BEGIN);
+            items.append(varConditions[0]);
+            items.append(VariableInputDescriptor.IF_VAR_EMPTY_END);
+        }
+        if (varConditions[1] != null) {
+            items.append(VariableInputDescriptor.IF_VAR_NON_EMPTY_BEGIN);
+            items.append(varConditions[1]);
+            items.append(VariableInputDescriptor.IF_VAR_NON_EMPTY_END);
+        }
+    }
+    
 }

@@ -235,6 +235,66 @@ public class VariableInputDescriptor extends Object {
             comps[i].setDefaultValues();
         }
     }
+    
+    /**
+     * Get the string representation of this VariableInputDescriptor.
+     * The returned string can be parsed to the same VariableInputDescriptor
+     * as is this object.
+     */
+    public String getStringInputItems() {
+        StringBuffer items = new StringBuffer();
+        if (label != null) {
+            items.append(INPUT_STR_LABEL + INPUT_STR_ARG_OPEN);
+            //items.append('\"');
+            items.append(label);
+            //items.append('\"');
+            if (a11yName != null || a11yDescription != null) {
+                appendAccessibility(items, a11yName, a11yDescription, null);
+            }
+            items.append(INPUT_STR_ARG_CLOSE+"\n");
+        }
+        for (Iterator it = components.iterator(); it.hasNext(); ) {
+            VariableInputComponent component = (VariableInputComponent) it.next();
+            items.append(component.toString());
+            items.append('\n');
+        }
+        return items.toString();
+    }
+        
+    static void appendAccessibility(StringBuffer items, String a11yName, String a11yDescription, Character mnemonic) {
+        items.append(", "+INPUT_STR_ACCESSIBILITY + INPUT_STR_ARG_OPEN);
+        boolean delimeter = false;
+        if (a11yName != null) {
+            items.append(INPUT_STR_A11Y_NAME);
+            items.append(a11yName);
+            delimeter = true;
+        }
+        if (a11yDescription != null) {
+            if (delimeter) {
+                items.append(INPUT_STR_A11Y_DELIMETER);
+            }
+            items.append(INPUT_STR_A11Y_DESCRIPTION);
+            items.append(a11yDescription);
+            delimeter = true;
+        }
+        if (mnemonic != null) {
+            if (delimeter) {
+                items.append(INPUT_STR_A11Y_DELIMETER);
+            }
+            items.append(INPUT_STR_MNEMONIC);
+            items.append(mnemonic.charValue());
+        }
+        items.append(INPUT_STR_ARG_CLOSE);
+    }
+    
+    /**
+     * Get the string representation of this VariableInputDescriptor.
+     * The returned string can be parsed to the same VariableInputDescriptor
+     * as is this object.
+     */
+    public String toString() {
+        return getStringInputItems();
+    }
 
     /** Get the variables, that will be checked for a presence of the input item.
      * @param inputStr the input item
@@ -269,6 +329,17 @@ public class VariableInputDescriptor extends Object {
                       g("EXC_UnrecognizedComponent", inputStr));
         }
         return id.intValue();
+    }
+    
+    static String getInputIdString(int id) {
+        for (Iterator it = inputMap.keySet().iterator(); it.hasNext(); ) {
+            String inputStr = (String) it.next();
+            Integer testID = (Integer) inputMap.get(inputStr);
+            if (testID.intValue() == id) {
+                return inputStr;
+            }
+        }
+        return "Unknown"; // NOI18N
     }
     
     /**
