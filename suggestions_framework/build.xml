@@ -37,6 +37,7 @@ Microsystems, Inc. All Rights Reserved.
                 <!-- tasklist core -->
                 <pathelement path="../core/src"/>
                 <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
+		<pathelement path="../../core/external/xml-apis-1.0b2.jar"/>
             </classpath>
         </javac>
     </target>
