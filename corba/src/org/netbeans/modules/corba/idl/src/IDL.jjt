@@ -32,9 +32,66 @@ PARSER_BEGIN(IDLParser)
 package org.netbeans.modules.corba.idl.src;
 
 import java.util.Vector;
+import java.util.Map;
+import java.util.HashMap;
 
 public class IDLParser {
 
+  public static Map _S_keyword_map;
+
+  static {
+    // I use this map for checking if some identifier don't clash with IDL keyword
+    // => so I put all keyword lowercase.
+    _S_keyword_map = new HashMap ();
+    _S_keyword_map.put ("abstract", null);
+    _S_keyword_map.put ("any", null);
+    _S_keyword_map.put ("attribute", null);
+    _S_keyword_map.put ("boolean", null);
+    _S_keyword_map.put ("case", null);
+    _S_keyword_map.put ("char", null);
+    _S_keyword_map.put ("const", null);
+    _S_keyword_map.put ("context", null);
+    _S_keyword_map.put ("custom", null);
+    _S_keyword_map.put ("default", null);
+    _S_keyword_map.put ("double", null);
+    _S_keyword_map.put ("enum", null);
+    _S_keyword_map.put ("exception", null);
+    _S_keyword_map.put ("factory", null);
+    _S_keyword_map.put ("false", null);
+    _S_keyword_map.put ("fixed", null);
+    _S_keyword_map.put ("float", null);
+    _S_keyword_map.put ("in", null);
+    _S_keyword_map.put ("inout", null);
+    _S_keyword_map.put ("interface", null);
+    _S_keyword_map.put ("long", null);
+    _S_keyword_map.put ("module", null);
+    _S_keyword_map.put ("native", null);
+    _S_keyword_map.put ("object", null);
+    _S_keyword_map.put ("octet", null);
+    _S_keyword_map.put ("oneway", null);
+    _S_keyword_map.put ("out", null);
+    _S_keyword_map.put ("private", null);
+    _S_keyword_map.put ("public", null);
+    _S_keyword_map.put ("raises", null);
+    _S_keyword_map.put ("readonly", null);
+    _S_keyword_map.put ("sequence", null);
+    _S_keyword_map.put ("short", null);
+    _S_keyword_map.put ("string", null);
+    _S_keyword_map.put ("struct", null);
+    _S_keyword_map.put ("supports", null);
+    _S_keyword_map.put ("switch", null);
+    _S_keyword_map.put ("true", null);
+    _S_keyword_map.put ("truncatable", null);
+    _S_keyword_map.put ("typedef", null);
+    _S_keyword_map.put ("unsigned", null);
+    _S_keyword_map.put ("union", null);
+    _S_keyword_map.put ("ValueBase", null);
+    _S_keyword_map.put ("valuetype", null);
+    _S_keyword_map.put ("void", null);
+    _S_keyword_map.put ("wchar", null);
+    _S_keyword_map.put ("wstring", null);
+  }
+  
   public static void main (String args[]) {
     IDLParser parser = null;
     if (args.length == 0) {
@@ -85,6 +142,8 @@ SKIP :
 | < "\r" >
 
 | < "//" (~["\n"])* "\n" >
+ /* added for skipping comment at the end of file without newline */
+| < "//" (~["\n"])* >
 | <"/*" (~["*"])* "*" (~["/"] (~["*"])* "*")* "/">
 
 | <"#" ([" ","\t"])* (["0"-"9"])+ (["a"-"z","A"-"Z","0"-"9","_"])*
@@ -98,7 +157,7 @@ SKIP :
 	  | <"#" ([" ","\t"])* (["a"-"z","A"-"Z","0"-"9","_"])+ ([" ","\t"])*  
 	  (["a"-"z","A"-"Z","0"-"9","_","/", "\\", " ", "<", ">", "\"", "."])* (["\n"])* >
 	*/
-| <"#" ([" ","\t", "a"-"z","A"-"Z","0"-"9","_","/", "\\", "<", ">", "\"", ".", ":"])* (["\n"])* >
+| <"#" ([" ", "~", "{", "}", ":", ",", "=", "+", "-", "(", ")", "<", ">", "[", "]", "'", "\"", "\\", "|", "^", "&", "*", "/", "%", "~", "\t", "a"-"z", "A"-"Z", "0"-"9", "_", ".", "!", "?", "'", "`"])* (["\n"])* >
 	/*
 	  | <"#" ([" ","\t"])* (["a"-"z","A"-"Z","0"-"9","_"])+ ([" ","\t"])*  
 	  (["a"-"z","A"-"Z","0"-"9"])+ (["\""])+ (["a"-"z","A"-"Z","0"-"9","_"])+ (["\""])+ (["\n"])* >
@@ -156,7 +215,9 @@ void module() #ModuleElement :
    { jjtThis.setName (id.getName ()); 
      jjtThis.setLine (id.getLine ());
      jjtThis.setColumn (id.getColumn ()); } 
-  "{" ( definition() )* "}"
+  /*  "{" ( definition() )* "}" */
+  // I prefer not empty module as described in IDL grammer
+  "{" ( definition() )+ "}"
 }
 
 /* Production 4 */
@@ -388,7 +449,7 @@ void value_header() #ValueHeaderElement :
 {
   [ "custom" { jjtThis.setCustom (true);} ] 
   "valuetype" 
-  name = identifier() 
+  name = identifier()
   { 
     jjtThis.setName (name.getName ());
     jjtThis.setLine (name.getLine ());
@@ -1206,9 +1267,10 @@ IDLType struct_type() #StructTypeElement :
 void member_list() :
 {}
 {
-  /*  ( member() )+ */
+  /* I prefer not empty struct as described in IDL grammer */
+  ( member() )+
   /* for allowing user type empty struct */
-  ( member() )*  
+  /* ( member() )*  */
 }
 
 /* Production 71 */
@@ -1600,7 +1662,34 @@ Vector context_expr() :
   { String name; Vector cs = new Vector ();}
   "context" "(" name = string_literal() { cs.addElement (name);}
              ( "," name = string_literal() { cs.addElement (name);} )* ")"
-  { return cs;}
+  {
+      for (int __i=0; __i<cs.size (); __i++) {
+	  // convert from "this_is_context3*" to this_is_context3*
+          String __str = ((String)cs.elementAt (__i)).substring 
+	      (1, ((String)cs.elementAt (__i)).length () - 1);
+	  //System.out.println ("context: " + __str);
+	  //System.out.println ("character1: " + __str.charAt (0));
+          if (!Character.isLetter (__str.charAt (0)))
+              throw new ParseException 
+		  ("bad character '" + __str.charAt (0) + "' in context: " + __str);
+          for (int __j=1; __j<__str.length () - 1; __j++) {
+	      char __char = __str.charAt (__j);
+	      //System.out.println ("character2 '" + __char + "'");
+              if (!Character.isLetterOrDigit (__char))
+                  if (__char != '_' && __char != '.')
+                      throw new ParseException 
+			  ("bad character '" + __char + "' in context2: " + __str);
+          }
+	  char __char = __str.charAt (__str.length () - 1);
+	  //System.out.println ("character3 '" + __char + "'");
+          if (!Character.isLetterOrDigit (__char))
+              if (__char != '_' && __char != '.' && __char != '*')
+                  throw new ParseException 
+		      ("bad character '" + __char + "' in context3: " + __str);
+
+      }
+      return cs;
+  }
 }
 
 /* Production 95 */
@@ -1664,19 +1753,21 @@ Identifier identifier() #Identifier :
 }
 {
   t=<ID>
-/*
-  {
-     Element parent = ((Element)jjtThis.jjtGetParent ());
-     if (parent != null)
-        parent.setName (t.image);
-*/
 /*  -- run well but very bad idea to setLine on Identifier except on IDL Construct (Element) */
   {
-     jjtThis.setName (t.image); 
-     jjtThis.setLine (t.beginLine);
-     jjtThis.setColumn (t.beginColumn - 1);
-     //jjtThis.setColumn (t.endColumn);
-     return jjtThis;
+      String __id = t.image;
+      if (_S_keyword_map.containsKey (__id.toLowerCase ())) {
+	  // this identifier colide with some IDL keyword
+	  ParseException __ex = new ParseException ("identifier colide with IDL keyword: " + __id + " at line " + t.beginLine + " on column " + t.beginColumn);
+	  __ex.currentToken = t;
+	  throw __ex;
+      }
+
+      jjtThis.setName (t.image); 
+      jjtThis.setLine (t.beginLine);
+      jjtThis.setColumn (t.beginColumn - 1);
+      //jjtThis.setColumn (t.endColumn);
+      return jjtThis;
   }
 }
 
@@ -1719,7 +1810,16 @@ String character_literal() :
 }
 {
   t = <CHARACTER>
-  { return t.image;}
+  { 
+      String __literal = t.image;
+      //System.out.println ("character literal: `" + __literal + "'");
+      if (__literal.equals ("'\\0'")) {
+	  ParseException __ex = new ParseException ("bad character literal: " + __literal + " at line " + t.beginLine + " on column " + t.beginColumn);
+	  __ex.currentToken = t;
+	  throw __ex;
+      }
+      return t.image;
+  }
 }
 
 String wide_character_literal() :
@@ -1728,7 +1828,16 @@ String wide_character_literal() :
 }
 {
   t = <WCHARACTER>
-  { return t.image;}
+  { 
+      String __literal = t.image;
+      //System.out.println ("character literal: `" + __literal + "'");
+      if (__literal.equals ("L'\\0'")) {
+	  ParseException __ex = new ParseException ("bad wide character literal: " + __literal + " at line " + t.beginLine + " on column " + t.beginColumn);
+	  __ex.currentToken = t;
+	  throw __ex;
+      }
+      return t.image;
+  }
 }
 
 String floating_pt_literal() :
@@ -1754,7 +1863,9 @@ String fixed_pt_literal() :
 
 TOKEN :
 {
-  <  ID : ["a"-"z","A"-"Z", "_"] (["a"-"z","A"-"Z","0"-"9","_"])* >
+  <  ID : ( (["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])* )
+	 |  ( "_" (["a"-"z","A"-"Z","0"-"9","_"])+ ) ) 
+  >
 | <  OCTALINT : "0" (["0"-"7"])* (["u","U","l","L"])? >
 | <  DECIMALINT : ["1"-"9"] (["0"-"9"])* (["u","U","l","L"])? >
 | <  HEXADECIMALINT : ("0x"|"0X") (["0"-"9","a"-"f","A"-"F"])+ (["u","U","l","L"])? >
@@ -1767,61 +1878,100 @@ TOKEN :
    | ("\\" (
              ["n","t","v","b","r","f","a","\\","?","'","\""]
             |
-             "0" (["0"-"7"])*
+             /* (["0"-"7"]){1,3} */
+	     ["0"-"7"]
+	    |
+	     ["0"-"7"] ["0"-"7"]
+	    |
+	     ["0"-"7"] ["0"-"7"] ["0"-"7"]
+	     /*            |
+			   ["1"-"9"] (["0"-"9"])* */
             |
-             ["1"-"9"] (["0"-"9"])*
-            |
-             ("0x" | "0X") (["0"-"9","a"-"f","A"-"F"])+
+             /* ("x" | "X") (["0"-"9","a"-"f","A"-"F"])+ */
+	     "x" ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "x" ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"]
            )
      )
    )
    "'" >
-| <  WCHARACTER : ( "L" | "" ) "'"
+| <  WCHARACTER : "L" "'"
    (   (~["'","\\","\n","\r"])
    | ("\\" (
              ["n","t","v","b","r","f","a","\\","?","'","\""]
             |
-             "0" (["0"-"7"])*
-            |
-             ["1"-"9"] (["0"-"9"])*
-            |
-             ("0x" | "0X") (["0"-"9","a"-"f","A"-"F"])+
+	     ["0"-"7"]
 	    |
-	     ("u" | "U") (["0"-"9","a"-"f","A"-"F"])+
-           )
-     )
-   )
+	     ["0"-"7"] ["0"-"7"]
+	    |
+	     ["0"-"7"] ["0"-"7"] ["0"-"7"]
+            |
+	     "x" ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "x" ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "u" ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "u" ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "u" ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "u" ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"]
+	   )
+      )
+    )
    "'" >
-| <  STRING : "\""
+| <  STRING : ( "\""
    ( ( ~["\"","\\","\n","\r"])
    | ("\\" (
              ["n","t","v","b","r","f","a","\\","?","'","\""]
             |
-             "0" (["0"-"7"])*
+	     ["0"-"7"]
+	    |
+	     ["0"-"7"] ["0"-"7"]
+	    |
+	     ["0"-"7"] ["0"-"7"] ["0"-"7"]
             |
-             ["1"-"9"] (["0"-"9"])*
-            |
-             ("0x" | "0X") (["0"-"9","a"-"f","A"-"F"])+
+	     "x" ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "x" ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"]
            )
      )
    )*
-   "\"" >
-| <  WSTRING : ( "L" | "" ) "\""
+   "\"" 
+   )+ >
+| <  WSTRING : "L" ( "\""
    ( ( ~["\"","\\","\n","\r"])
    | ("\\" (
              ["n","t","v","b","r","f","a","\\","?","'","\""]
             |
-             "0" (["0"-"7"])*
+	     ["0"-"7"]
+	    |
+	     ["0"-"7"] ["0"-"7"]
+	    |
+	     ["0"-"7"] ["0"-"7"] ["0"-"7"]
             |
-             ["1"-"9"] (["0"-"9"])*
-            |
-             ("0x" | "0X") (["0"-"9","a"-"f","A"-"F"])+
+	     "x" ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "x" ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "u" ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "u" ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "u" ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"]
+	    |
+	     "u" ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"] ["0"-"9","a"-"f","A"-"F"]
            )
      )
    )*
-   "\"" >
-| < FIXED : ( (["0"-"9"])+ "." (["0"-"9"])* | (["0"-"9"])* "." (["0"-"9"])+)
-   (["d","D"])  >
+   "\"" 
+   )+ >
+| < FIXED : ( (["0"-"9"])+ "." (["0"-"9"])* 
+	      | (["0"-"9"])* "." (["0"-"9"])+
+	      | (["0"-"9"])+ 
+	      )
+       (["d","D"])  >
 }
 
 
