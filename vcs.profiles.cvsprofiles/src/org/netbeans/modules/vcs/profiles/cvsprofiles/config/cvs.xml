@@ -240,13 +240,21 @@ Microsystems, Inc. All Rights Reserved.
       <value>${QUOTE}${CVS_EXE}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] []</value>
       <value if="IS_WIN9X">${QUOTE}${CVS_EXE_\/}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] []</value>
     </variable>
+    <variable name="CVS_DEF_EXE_D" basic="false">
+      <value>${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE}</value>
+      <value if="IS_WIN9X">${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE}</value>
+    </variable>
     <variable name="EXECUTE" basic="false">
       <value>${RUN} ${CVS_DEF_EXE} </value>
       <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] [] </value>
     </variable>
+    <variable name="EXECUTE_D" basic="false">
+      <value>${RUN} ${CVS_DEF_EXE_D} </value>
+      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} </value>
+    </variable>
       <variable name="EXECUTE_NO_CD" basic="false">
-        <value>${RUN_NO_CD} ${CVS_DEF_EXE} </value>
-        <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] [] </value>
+        <value>${RUN_NO_CD} ${CVS_DEF_EXE_D} </value>
+        <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class -d ${QUOTE}${CVSROOT}${QUOTE} </value>
       </variable>
 
     <variable name="CDM_EXECUTE" basic="false">
@@ -1622,7 +1630,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
 	<property name="exec">
-	  <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${INITIAL_CO_FORCE_HEAD_MATCH} ${INITIAL_CO_DO_NOT_SHORTEN} ${INITIAL_CO_RCS_KFLAG} ${INITIAL_CO_RUN_MODULE_PROGRAM} $[? INITIAL_CO_DIRECTORY] [-d ${INITIAL_CO_DIRECTORY}] [] $[? INITIAL_CO_TAG] [-r ${INITIAL_CO_TAG}] [] $[? INITIAL_CO_DATE] [-D ${QUOTE}${INITIAL_CO_DATE}${QUOTE}] [] ${INITIAL_CO_PRUNE_EMPTY}  ${INITIAL_CO_RECURSIVE} $[? INITIAL_CO_MODULE] [${INITIAL_CO_MODULE}] [${INITIAL_CO_MODULES}] ${NUR}</value>
+	  <value>${EXECUTE_D} ${USER_GLOBAL_PARAM} checkout ${INITIAL_CO_FORCE_HEAD_MATCH} ${INITIAL_CO_DO_NOT_SHORTEN} ${INITIAL_CO_RCS_KFLAG} ${INITIAL_CO_RUN_MODULE_PROGRAM} $[? INITIAL_CO_DIRECTORY] [-d ${INITIAL_CO_DIRECTORY}] [] $[? INITIAL_CO_TAG] [-r ${INITIAL_CO_TAG}] [] $[? INITIAL_CO_DATE] [-D ${QUOTE}${INITIAL_CO_DATE}${QUOTE}] [] ${INITIAL_CO_PRUNE_EMPTY}  ${INITIAL_CO_RECURSIVE} $[? INITIAL_CO_MODULE] [${INITIAL_CO_MODULE}] [${INITIAL_CO_MODULES}] ${NUR}</value>
 	</property>
 	<property name="display">
 	  <value>true</value>
@@ -2580,7 +2588,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg1(CVS_LOGOUT_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${EXECUTE} logout ${NUR}</value>
+	  <value>${EXECUTE_D} logout ${NUR}</value>
 	</property>
         <property name="runOnMultipleFiles">
           <value>true</value>
@@ -2656,12 +2664,12 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_MODULES_S_CMD">
         <property name="exec">
-          <value>${EXECUTE} -f checkout -s ${NUR}</value>
+          <value>${EXECUTE_D} -f checkout -s ${NUR}</value>
 	</property>
       </command>
       <command name="CHECKOUT_MODULES_C_CMD">
         <property name="exec">
-          <value>${EXECUTE} -f checkout -c ${NUR}</value>
+          <value>${EXECUTE_D} -f checkout -c ${NUR}</value>
 	</property>
       </command>
       <command name="WATCH_ACTION_STATUS">
@@ -2851,7 +2859,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <command name="CHECKOUT_IGNORE_LIST_CMD">
         <property name="exec">
-            <value>${CDW_EXECUTE} -f checkout -p CVSROOT/cvsignore</value>
+            <value>${EXECUTE_D} -f checkout -p CVSROOT/cvsignore</value>
         </property>
         <property name="ignoreFail">
             <value>true</value>
