@@ -1150,8 +1150,8 @@ Microsystems, Inc. All Rights Reserved.
           <arg value="$[? OUT_FILE] [-o${OUT_FILE}] []"/>
           <arg value="{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})"/>
         </run>
-        <property name="confirmationMsg">
-          <value>{INSERT_OUTPUT_OF_BACKUP_FILE(0)}</value>
+        <property name="preCommands">
+          <value>BACKUP_FILE</value>
         </property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg(COMMAND_PVCS_MERGE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Label)))
