@@ -103,14 +103,18 @@ public class ClusteringAction extends GeneralCommandAction  {
         public void menuKeyTyped(javax.swing.event.MenuKeyEvent p1) {
         }
         public void menuKeyPressed(javax.swing.event.MenuKeyEvent p1) {
-            boolean newCTRL_Down = "Ctrl".equals(p1.getKeyText(p1.getKeyCode())) || !p1.isControlDown(); // NOI18N            
-            changeCtrlSigns(newCTRL_Down);
-            CTRL_Down = newCTRL_Down;
+            boolean CTRL_IsDown = p1.getKeyCode() == javax.swing.event.MenuKeyEvent.VK_CONTROL; // NOI18N            
+            if (CTRL_IsDown) {
+                changeCtrlSigns(CTRL_IsDown);
+                CTRL_Down = CTRL_IsDown;
+            }
         }
         public void menuKeyReleased(javax.swing.event.MenuKeyEvent p1) {
-            boolean newCTRL_Down = "Ctrl".equals(p1.getKeyText(p1.getKeyCode())) || !p1.isControlDown(); // NOI18N            
-            changeCtrlSigns(!newCTRL_Down);
-            CTRL_Down = !newCTRL_Down;
+            boolean CTRL_IsUp = p1.getKeyCode() == javax.swing.event.MenuKeyEvent.VK_CONTROL; // NOI18N            
+            if (CTRL_IsUp) {
+                changeCtrlSigns(!CTRL_IsUp);
+                CTRL_Down = !CTRL_IsUp;
+            }
         }
     };
             

@@ -425,18 +425,22 @@ public class CommandMenu extends JMenuPlus {
         public void menuKeyTyped(javax.swing.event.MenuKeyEvent p1) {
         }
         public void menuKeyPressed(javax.swing.event.MenuKeyEvent p1) {
-            boolean newCTRL_Down = "Ctrl".equals(p1.getKeyText(p1.getKeyCode())) || p1.isControlDown(); // NOI18N
+            boolean CTRL_IsDown = p1.getKeyCode() == javax.swing.event.MenuKeyEvent.VK_CONTROL;
 //            System.out.println("key pressed=" + newCTRL_Down);
 //            System.out.println("is down=" + p1.isControlDown());
-            changeCtrlSigns(newCTRL_Down);
-            CTRL_Down[0] = newCTRL_Down;
+            if (CTRL_IsDown) {
+                changeCtrlSigns(CTRL_IsDown);
+                CTRL_Down[0] = CTRL_IsDown;
+            }
         }
         public void menuKeyReleased(javax.swing.event.MenuKeyEvent p1) {
-            boolean newCTRL_Down = "Ctrl".equals(p1.getKeyText(p1.getKeyCode())) || !p1.isControlDown(); // NOI18N
+            boolean CTRL_IsUp = p1.getKeyCode() == javax.swing.event.MenuKeyEvent.VK_CONTROL;
 //            System.out.println("key Released=" + newCTRL_Down);
 //            System.out.println("keykode=" + p1.getKeyText(p1.getKeyCode()));
-            changeCtrlSigns(!newCTRL_Down);
-            CTRL_Down[0] = !newCTRL_Down;
+            if (CTRL_IsUp) {
+                changeCtrlSigns(!CTRL_IsUp);
+                CTRL_Down[0] = !CTRL_IsUp;
+            }
         }
         
         private void changeCtrlSigns(boolean newValue) {
