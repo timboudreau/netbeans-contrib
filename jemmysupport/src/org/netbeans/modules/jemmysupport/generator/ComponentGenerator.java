@@ -336,6 +336,22 @@ public class ComponentGenerator {
          * @return formated component code
          */        
         public String getComponentCode(int i) {
+            /** Only for editable JComboBox add method to type text in it.
+             * It is temporary workaround. It would be better to implement
+             * a more general way how to handle conditional code generation.
+             */
+            if(getComponentClass().equals("JComboBox") && i==2) {
+                if(((JComboBoxOperator)getComponentOperator()).isEditable()) {
+                    StringBuffer template = new StringBuffer(_operator.getComponentCode(i));
+                    template.append("\n    /** types text for __NAME__");
+                    template.append("\n     * @param text String text");
+                    template.append("\n     */");
+                    template.append("\n    public void type__SHORTNAME__(String text) {");
+                    template.append("\n        __NAME__().typeText(text);");
+                    template.append("\n    }\n");
+                    return formate(template.toString(), ""); // NOI18N
+                }
+            }
             return formate(_operator.getComponentCode(i),""); // NOI18N
         }
 
