@@ -38,6 +38,12 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
   </folder>
 
+  <folder name="Menu">
+    <folder name="Versioning">
+      <file name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance" /> 
+    </folder>
+  </folder>
+
   <folder name="Toolbars">
      <folder name="Versioning">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle"/>
