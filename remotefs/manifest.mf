@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Install: org/netbeans/modules/remotefs/ftpfs/FTPfsModule.class
+Created-By: Forte for Java v. 1.0 beta
+OpenIDE-Module: org.netbeans.modules.remotefs/1
+OpenIDE-Module-Name: FTP FileSystem
+OpenIDE-Module-Implementation-Version: 1.0
+
+Name: org/netbeans/modules/remotefs/ftpfs/FTPFileSystem.class
+Display-name: FTP FileSystem
+OpenIde-Module-Class: Filesystem
+
+Name: org/netbeans/modules/remotefs/ftpfs/FTPSettings.class
+OpenIDE-Module-Class: Option
+
