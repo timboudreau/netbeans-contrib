@@ -40,8 +40,8 @@ import org.netbeans.modules.tasklist.core.export.OpenFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
 import org.netbeans.modules.tasklist.usertasks.UTUtils;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
-import org.netbeans.modules.tasklist.usertasks.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.dependencies.Dependency;
 import org.openide.DialogDisplayer;
@@ -570,6 +570,21 @@ public class ICalImportFormat implements ExportImportFormat {
                         d.type = Dependency.BEGIN_BEGIN;
                 }
                 dependencies.add(d);
+            } else if ("X-NETBEANS-WORK-PERIOD".equals(name)) { // NOI18N
+                int pos = param.indexOf('=');
+                if (pos >= 0) {
+                    String t = param.substring(pos + 1);
+                    try {
+                        int dur = Integer.parseInt(value);
+                        long start = formatter.parse(t).getTime();
+                        UserTask.WorkPeriod wp = new UserTask.WorkPeriod(start, dur);
+                        task.getWorkPeriods().add(wp);
+                    } catch (ParseException e) {
+                        ErrorManager.getDefault().notify(e);
+                    } catch (NumberFormatException e) {
+                        ErrorManager.getDefault().notify(e);
+                    }
+                }
 //            } else if ("X-NETBEANS-STARTTIME".equals(name)) { // NOI18N  
 //                long start = Long.MAX_VALUE;
 //                try {

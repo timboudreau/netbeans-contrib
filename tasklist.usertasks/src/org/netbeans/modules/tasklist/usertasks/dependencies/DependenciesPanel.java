@@ -9,7 +9,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;

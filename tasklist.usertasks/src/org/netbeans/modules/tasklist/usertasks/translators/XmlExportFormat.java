@@ -37,9 +37,10 @@ import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
+import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
-import org.netbeans.modules.tasklist.usertasks.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
@@ -242,6 +243,21 @@ public class XmlExportFormat implements ExportImportFormat {
         }
         
         node.appendChild(doc.createTextNode(LINE_SEPARATOR));
+        
+        ObjectList wps = task.getWorkPeriods();
+        if (wps.size() > 0) {
+            Element workPeriods = doc.createElement("work-periods"); // NOI18N
+            node.appendChild(workPeriods);
+            for (int i = 0; i < wps.size(); i++) {
+                UserTask.WorkPeriod wp = (UserTask.WorkPeriod) wps.get(i);
+                Element period = doc.createElement("period"); // NOI18N
+                period.setAttribute("start", // NOI18N
+                    dateToString(new Date(task.getCompletedDate())));
+                period.setAttribute("duration", // NOI18N
+                    Integer.toString(wp.getDuration()));
+                workPeriods.appendChild(period);
+            }
+        }
         
         Iterator it = task.getSubtasks().iterator();
         while (it.hasNext()) {

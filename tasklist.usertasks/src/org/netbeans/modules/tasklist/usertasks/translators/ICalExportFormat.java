@@ -32,9 +32,10 @@ import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
+import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
-import org.netbeans.modules.tasklist.usertasks.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.dependencies.Dependency;
 import org.openide.ErrorManager;
@@ -367,6 +368,17 @@ public class ICalExportFormat implements ExportImportFormat {
             writer.write("\r\n"); // NOI18N
         }
 
+        ObjectList wks = task.getWorkPeriods();
+        for (int i = 0; i < wks.size(); i++) {
+            UserTask.WorkPeriod wk = (UserTask.WorkPeriod) wks.get(i);
+            writer.write("X-NETBEANS-WORK-PERIOD;"); // NOI18N
+            writer.write("START="); // NOI18N
+            writer.write(sdf.format(new Date(wk.getStart())));
+            writer.write(":"); // NOI18N
+            writer.write(Integer.toString(wk.getDuration()));
+            writer.write("\r\n"); // NOI18N
+        }
+        
         Date d = task.getDueDate();
         if (d != null) {
             writer.write("X-NETBEANS-DUETIME:"); // NOI18N

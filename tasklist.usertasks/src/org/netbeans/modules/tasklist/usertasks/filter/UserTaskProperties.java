@@ -18,7 +18,7 @@ import java.util.Date;
 
 import org.netbeans.modules.tasklist.core.TaskProperties;
 import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 
 public class UserTaskProperties extends TaskProperties {
     public static final String PROPID_PRIORITY = "priority"; // NOI18N

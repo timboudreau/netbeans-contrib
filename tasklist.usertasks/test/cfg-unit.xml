@@ -17,9 +17,7 @@ Microsystems, Inc. All Rights Reserved.
    <testbag testattribs="stable" executor="unit-executor" name="Unit tests">
         <testset dir="unit/src">
             <patternset>
-                <exclude name="org/netbeans/modules/tasklist/usertasks/UserTaskViewTest.class"/>
-                <include name="org/netbeans/modules/tasklist/usertasks/*Test.class"/>
-                <include name="org/netbeans/modules/tasklist/usertasks/ics/*Test.class"/>
+                <include name="org/netbeans/modules/tasklist/usertasks/model/*Test.class"/>
             </patternset>
         </testset>
     </testbag>

@@ -17,7 +17,7 @@ import java.text.MessageFormat;
 
 import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.Settings;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.openide.util.NbBundle;
 
 /**
@@ -32,7 +32,7 @@ public class DurationPropertyEditor extends StringPropertyEditor {
     
     public String getAsText() {
         int duration = ((Integer) getValue()).intValue();
-        UserTask.Duration d = UserTask.splitDuration(duration,
+        Duration d = new Duration(duration,
             Settings.getDefault().getHoursPerDay(), 
             Settings.getDefault().getDaysPerWeek());
 

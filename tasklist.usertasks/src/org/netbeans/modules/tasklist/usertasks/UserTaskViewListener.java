@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks;
 
 import org.openide.text.Annotation;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 
 
 /**

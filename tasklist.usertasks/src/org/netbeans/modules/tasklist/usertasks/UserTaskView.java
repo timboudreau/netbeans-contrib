@@ -51,6 +51,7 @@ import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.RemoveFilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter;
+import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
 import org.netbeans.modules.tasklist.usertasks.translators.HtmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
@@ -66,7 +67,6 @@ import org.openide.actions.FindAction;
 import org.openide.cookies.InstanceCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
-import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
@@ -83,6 +83,8 @@ import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 
 /** 
  * View showing the user tasks.
@@ -363,7 +365,7 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
             String uid = (String) objectInput.readObject();
             
             // started task
-            if (UserTaskList.getStarted() == null && uid != null) {
+            if (StartedUserTask.getStarted() == null && uid != null) {
                 UserTask ut = tasklist.findItem(
                     tasklist.getSubtasks().iterator(), uid);
                 if (ut != null)
@@ -424,15 +426,13 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
         // Write out the UID of the currently selected task, or null if none
         objectOutput.writeObject(null); // Not yet implemented
 
-        UserTaskList tl = (UserTaskList)getUserTaskList();
-        tl.save(); // Only does something if the list has changed...        
-        
         // Here I should record a few things; in particular, sorting order, view
         // preferences, etc.
         // Since I'm not doing that yet, let's at a minimum put in a version
         // byte so we can do the right thing later without corrupting the userdir
         objectOutput.write(6); // SERIAL VERSION
 
+        UserTaskList tl = (UserTaskList)getUserTaskList();
         if (!default_) {
             FileObject fo = tl.getFile();
         
@@ -454,9 +454,10 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
             objectOutput.writeObject(null);
         
         // started task
-        if (UserTaskList.getStarted() != null && 
-            UserTaskList.getStarted().getList() == tasklist) {
-            objectOutput.writeObject(UserTaskList.getStarted().getUID());
+        if (StartedUserTask.getStarted() != null && 
+            StartedUserTask.getStarted().getList() == tasklist) {
+            objectOutput.writeObject(StartedUserTask.getStarted().getUID());
+            StartedUserTask.start(null);
         } else {
             objectOutput.writeObject(null);
         }
@@ -472,6 +473,8 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
         m.put("columns", cc); // NOI18N
         
         objectOutput.writeObject(m);
+
+        tl.save(); // Only does something if the list has changed...        
     }
 
     /**

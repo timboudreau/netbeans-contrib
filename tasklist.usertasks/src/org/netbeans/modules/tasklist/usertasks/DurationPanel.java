@@ -16,6 +16,8 @@ package org.netbeans.modules.tasklist.usertasks;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import org.netbeans.modules.tasklist.usertasks.model.Duration;
+
 /**
  * Panel for duration
  *
@@ -59,7 +61,7 @@ public class DurationPanel extends javax.swing.JPanel {
      * @param minutes new duration in minutes
      */
     public void setDuration(int minutes) {
-        UserTask.Duration d = UserTask.splitDuration(minutes,
+        Duration d = new Duration(minutes,
             Settings.getDefault().getHoursPerDay(), 
             Integer.MAX_VALUE);
         

@@ -7,7 +7,7 @@ import java.text.MessageFormat;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.Settings;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.Duration;
 
 import org.openide.util.NbBundle;
 
@@ -21,7 +21,7 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
     private static final MessageFormat SHORT_EFFORT_FORMAT = 
         new MessageFormat(NbBundle.getMessage(DurationTableCellRenderer.class, 
             "ShortEffortFormat")); // NOI18N
-    protected UserTask.Duration duration;
+    protected Duration duration;
 
     public Component getTableCellRendererComponent(javax.swing.JTable table, 
         Object value, boolean isSelected, boolean hasFocus, 
@@ -38,11 +38,11 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
      * @param obj object from the getTableCellRendererComponent method
      * @return duration or null
      */
-    protected UserTask.Duration getDuration(Object obj) {
+    protected Duration getDuration(Object obj) {
         if (obj == null)
             return null;
         else
-            return UserTask.splitDuration(((Integer) obj).intValue(),
+            return new Duration(((Integer) obj).intValue(),
                 Settings.getDefault().getHoursPerDay(), Settings.getDefault().getDaysPerWeek());
     }
     

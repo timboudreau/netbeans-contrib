@@ -29,6 +29,7 @@ import java.util.Date;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -37,6 +38,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
 import org.netbeans.modules.tasklist.usertasks.dependencies.DependenciesPanel;
+import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.renderers.PriorityListCellRenderer;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -46,6 +48,7 @@ import org.openide.awt.Mnemonics;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 
 /**
  * Panel used to enter/edit a user task.
@@ -241,6 +244,25 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         
         jTextFieldOwner.setText(item.getOwner());
         jLabelCompleted.setText(df.format(new Date(item.getCompletedDate())));
+        
+        DefaultListModel dlm = new DefaultListModel();
+        for (int i = 0; i < item.getWorkPeriods().size(); i++) {
+            UserTask.WorkPeriod wp = (UserTask.WorkPeriod)
+                item.getWorkPeriods().get(i);
+            dlm.addElement(
+                df.format(new Date(wp.getStart())) + ", " + // NOI18N
+                new Duration(wp.getDuration(), 
+                    Settings.getDefault().getHoursPerDay(),
+                    Settings.getDefault().getDaysPerWeek()
+                ).format()
+            );
+        }
+        jListWorkPeriods.setModel(dlm);
+        
+        jLabelSpentTimeToday.setText(
+            new Duration(item.getSpentTimeToday(),
+                Settings.getDefault().getHoursPerDay(),
+                Settings.getDefault().getDaysPerWeek()).format());
     }
     
     /**
@@ -477,6 +499,11 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         jLabel2 = new javax.swing.JLabel();
         jLabelCompleted = new javax.swing.JLabel();
         jPanelDependencies = new javax.swing.JPanel();
+        jPanel8 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jListWorkPeriods = new javax.swing.JList();
+        jLabel3 = new javax.swing.JLabel();
+        jLabelSpentTimeToday = new javax.swing.JLabel();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -942,6 +969,36 @@ public class EditTaskPanel extends JPanel implements ActionListener {
 
     jTabbedPane.addTab(org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("LBL_DependenciesTab"), jPanelDependencies);
 
+    jPanel8.setLayout(new java.awt.GridBagLayout());
+
+    jScrollPane1.setViewportView(jListWorkPeriods);
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+    gridBagConstraints.weightx = 1.0;
+    gridBagConstraints.weighty = 1.0;
+    gridBagConstraints.insets = new java.awt.Insets(11, 11, 0, 12);
+    jPanel8.add(jScrollPane1, gridBagConstraints);
+
+    jLabel3.setText(org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("SpentTimeToday"));
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 11, 12, 11);
+    jPanel8.add(jLabel3, gridBagConstraints);
+
+    org.openide.awt.Mnemonics.setLocalizedText(jLabelSpentTimeToday, "\"\"");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 12, 12);
+    jPanel8.add(jLabelSpentTimeToday, gridBagConstraints);
+
+    jTabbedPane.addTab(org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("WordPeriods"), jPanel8);
+
     add(jTabbedPane, java.awt.BorderLayout.CENTER);
 
     }//GEN-END:initComponents
@@ -1116,11 +1173,14 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JComboBox jComboBoxProgress;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabelCompleted;
     private javax.swing.JLabel jLabelCreated;
     private javax.swing.JLabel jLabelLastEdited;
+    private javax.swing.JLabel jLabelSpentTimeToday;
+    private javax.swing.JList jListWorkPeriods;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1128,6 +1188,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanelDependencies;
     private javax.swing.JPanel jPanelEffort;
     private javax.swing.JPanel jPanelGeneral;
@@ -1137,6 +1198,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JRadioButton jRadioButtonEffort;
     private javax.swing.JRadioButton jRadioButtonProgress;
     private javax.swing.JRadioButton jRadioButtonSpent;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane;
     private javax.swing.JTextField jTextFieldOwner;
     private javax.swing.JLabel lineLabel;

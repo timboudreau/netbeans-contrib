@@ -21,7 +21,7 @@ import java.awt.Image;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.openide.util.Utilities;
 
 /**

@@ -56,6 +56,8 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 
 /**
  * TT for user tasks
@@ -164,9 +166,6 @@ public class UserTasksTreeTable extends NodesTreeTable {
 
     public void createDefaultColumnsFromModel() {
         super.createDefaultColumnsFromModel();
-        UTUtils.LOGGER.fine("creating columns"); // NOI18N
-        if (UTUtils.LOGGER.isLoggable(Level.FINE))
-            Thread.dumpStack();
             
         TableColumnModel tcm = getColumnModel();
         if (tcm.getColumnCount() < 14)
@@ -292,5 +291,12 @@ public class UserTasksTreeTable extends NodesTreeTable {
             }
         }
         return result;
+    }
+
+    public void setColumnModel(TableColumnModel columnModel) {
+        if (UTUtils.LOGGER.isLoggable(Level.FINE))
+            Thread.dumpStack();
+        
+        super.setColumnModel(columnModel);
     }
 }

@@ -20,13 +20,13 @@ Microsystems, Inc. All Rights Reserved.
 <!ELEMENT tasks (task)*>
 
 <!--
-    due, created, completed and modified - date format: YYYY-MM-DDThh:mm:ssTZD 
+    due, created, completed, start and modified - date format: YYYY-MM-DDThh:mm:ssTZD 
         (see http://www.w3.org/TR/NOTE-datetime)
     line - 1 = the first line in a file
     effort - effort in minutes
     spent - spent time in minutes
 -->
-<!ELEMENT task (summary, details?, (task)*)>
+<!ELEMENT task (summary, details?, work-periods?, (task)*)>
 <!ATTLIST task 
     priority (high|medium-high|medium|medium-low|low)  "medium"
     category CDATA #IMPLIED
@@ -46,3 +46,14 @@ Microsystems, Inc. All Rights Reserved.
 >
 
 <!ELEMENT details (#PCDATA)>
+<!ELEMENT work-periods (period)+>
+
+<!ELEMENT period EMPTY>
+
+<!--
+    duration - duration of a work period in minutes
+-->
+<!ATTLIST period
+    start CDATA #REQUIRED
+    duration CDATA #REQUIRED
+>

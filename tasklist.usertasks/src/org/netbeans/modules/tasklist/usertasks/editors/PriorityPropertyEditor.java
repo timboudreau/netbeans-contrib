@@ -18,7 +18,7 @@ import javax.swing.JLabel;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 
-import org.netbeans.modules.tasklist.usertasks.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 
 /**
  * PropertyEditor for task priorities.

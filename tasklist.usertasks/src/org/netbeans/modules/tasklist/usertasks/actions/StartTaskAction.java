@@ -13,7 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
-import org.netbeans.modules.tasklist.usertasks.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;

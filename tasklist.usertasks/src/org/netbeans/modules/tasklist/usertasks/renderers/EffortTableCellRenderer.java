@@ -4,7 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import org.netbeans.modules.tasklist.usertasks.Settings;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.Duration;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 
 /**
  * Renderer for the effort
@@ -38,12 +39,12 @@ public class EffortTableCellRenderer extends DurationTableCellRenderer {
         return this;
     }
 
-    protected org.netbeans.modules.tasklist.usertasks.UserTask.Duration getDuration(Object obj) {
+    protected Duration getDuration(Object obj) {
         UserTask ut = (UserTask) obj;
         if (ut == null) {
             return null;
         } else {
-            return UserTask.splitDuration(ut.getEffort(),
+            return new Duration(ut.getEffort(),
                 Settings.getDefault().getHoursPerDay(), 
                 Settings.getDefault().getDaysPerWeek());
         }

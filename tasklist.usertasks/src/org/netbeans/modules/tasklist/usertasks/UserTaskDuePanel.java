@@ -15,6 +15,7 @@ package org.netbeans.modules.tasklist.usertasks;
 
 import org.openide.awt.Mnemonics;
 import org.openide.util.NbBundle;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 
 /**
  * OK, it might be "overkill" to use this class. I should rather use the

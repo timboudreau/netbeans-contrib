@@ -15,8 +15,8 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 
 import java.util.Iterator;
 
-import org.netbeans.modules.tasklist.usertasks.UserTask;
-import org.netbeans.modules.tasklist.usertasks.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskListNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.openide.DialogDisplayer;

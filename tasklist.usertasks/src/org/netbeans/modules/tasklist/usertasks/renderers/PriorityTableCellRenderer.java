@@ -18,7 +18,7 @@ import java.awt.Component;
 import java.awt.Image;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.openide.util.Utilities;
 
 /**
