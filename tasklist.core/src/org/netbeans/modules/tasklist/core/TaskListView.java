@@ -1169,7 +1169,7 @@ public abstract class TaskListView extends ExplorerPanel
             getExplorerManager().setSelectedNodes(new Node[0]);
         } catch (PropertyVetoException e) {
         }
-        if (showStatusBar && filter.hasConstraints()) {
+        if (filter != null && showStatusBar && filter.hasConstraints()) {
             setRoot();
             setNorthComponentVisible(true);
             updateFilterCount();
