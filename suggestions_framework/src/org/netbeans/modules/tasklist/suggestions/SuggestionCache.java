@@ -181,9 +181,15 @@ class SuggestionCache implements DocumentListener, PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent ev) {
         String prop = ev.getPropertyName();
         if (prop.equals(EditorCookie.Observable.PROP_DOCUMENT)) {
-            EditorCookie ec = (EditorCookie)ev.getSource();
-            Document doc = ec.getDocument();
-            invalidate(doc);
+            try {		
+                EditorCookie ec = (EditorCookie)ev.getSource();
+                Document doc = ec.getDocument();
+                invalidate(doc);
+            } catch (Exception e) {
+                ErrorManager.getDefault().log("ev.getSource().getClass() = " + ev.getSource().getClass().getName());
+		ErrorManager.getDefault().
+		     notify(ErrorManager.INFORMATIONAL, e);
+            }
         }
     }    
 
