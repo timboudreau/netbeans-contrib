@@ -415,7 +415,7 @@ public class LogInfoPanel extends SingleNodeView {
         spRevLog.setMinimumSize(new java.awt.Dimension(300, 100));
         spRevLog.setPreferredSize(new java.awt.Dimension(300, 100));
         taRevLog.setEditable(false);
-        taRevLog.setFont(new java.awt.Font("Default", 0, 11));
+        taRevLog.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, taRevLog.getFont().getSize() - 1));
         taRevLog.setMinimumSize(new java.awt.Dimension(300, 40));
         spRevLog.setViewportView(taRevLog);
 
