@@ -2065,7 +2065,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             // Do not synchronize the execution of the command.
             // If the command would block, the IDE will deadlock.
             Hashtable vars = fileSystem.getVariablesAsHashtable();
-            HashMap varsOrig = (configInputPanels != null) ? new HashMap(vars) : null;
+            HashMap varsOrig = new HashMap(vars);
             VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
             CommandsPool pool = fileSystem.getCommandsPool();
             pool.startExecutor(vce, fileSystem);
