@@ -15,13 +15,16 @@
     <taskdef classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar" name="locjar"/>
 
     <target name="compile">
+        <ant dir="${nb_all}/installer/external"/>
         <javac destdir="src" srcdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+            <exclude name="org/netbeans/modules/zeroadmin/ConfigStorageBean.java"/>
             <classpath>
                 <!-- Whatever you need, based on your dependencies. -->
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
                 <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
                 <pathelement location="${nb_all}/core/netbeans/lib/core.jar"/>
                 <pathelement location="${j2ee.home}/lib/j2ee.jar"/>
+                <pathelement location="${nb_all}/installer/external/jnlp.jar"/>
                 <fileset dir="${nb_all}/core/external">
                     <include name="xml-apis*.jar"/>
                     <include name="xerces*.jar"/>
@@ -30,7 +33,25 @@
         </javac>
     </target>
 
-    <target depends="compile" name="ejbs">
+    <target name="compile-server" unless="no-server-components">
+        <javac destdir="src" srcdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+            <include name="org/netbeans/modules/zeroadmin/ConfigStorageBean.java"/>
+            <classpath>
+                <!-- Whatever you need, based on your dependencies. -->
+                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+                <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
+                <pathelement location="${nb_all}/core/netbeans/lib/core.jar"/>
+                <pathelement location="${j2ee.home}/lib/j2ee.jar"/>
+                <pathelement location="${nb_all}/installer/external/jnlp.jar"/>
+                <fileset dir="${nb_all}/core/external">
+                    <include name="xml-apis*.jar"/>
+                    <include name="xerces*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <target depends="compile, compile-server" name="ejbs" unless="no-server-components">
         <exec vmlauncher="false" dir="${nb_all}/contrib/zeroadmin" executable="${j2ee.home}/bin/packager" failonerror="true">
             <arg value="-ejbJar"/>
             <arg value="src"/>
@@ -92,6 +113,7 @@
         <delete file="zeroadmin.nbm"/>
         <delete dir="reload"/>
         <delete file="c.jar"/>
+        <delete file="src/c.jar"/>
         <delete file="c.ear"/>
         <delete file="c1.ear"/>
         <delete file="cs.jar"/>

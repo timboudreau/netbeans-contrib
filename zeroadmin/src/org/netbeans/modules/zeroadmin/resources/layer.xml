@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <folder name="Zeroadmin">
+        <file name="initialContext.instance">
+            <attr name="instanceClass" stringvalue="javax.naming.Context" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.modules.zeroadmin.ZeroAdminProjectManager.createInitialContext" />
+        </file>
+    </folder>
+
     <folder name="Menu">
-        
         <folder name="Tools">
-            
             <file name="org-netbeans-modules-zeroadmin-actions-ResetConfigAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.zeroadmin.actions.ResetConfigAction"/>
             </file>
