@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.sysprops
 OpenIDE-Module-Name: System Properties
-OpenIDE-Module-Specification-Version: 0.1
+OpenIDE-Module-Specification-Version: 1.0
 
-Name: org/netbeans/modules/sysprops/AllPropsNode.class
+Name: org/netbeans/modules/sysprops/SystemPropertiesNode.class
 OpenIDE-Module-Class: Node
 Type: Environment
