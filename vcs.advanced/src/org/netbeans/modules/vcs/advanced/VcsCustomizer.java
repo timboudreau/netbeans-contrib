@@ -1803,9 +1803,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 configInputPanels[i] = dlg;
                 dlg.addPropertyChangeListener(new PropertyChangeListener() {
                     public void propertyChange(PropertyChangeEvent evt) {
+                        String name = evt.getPropertyName();
+                        if (name.equals(VariableInputDialog.PROP_VARIABLES_CHANGED)) {
+                            Collection changedProps = (Collection) evt.getNewValue();
+                            variablesChanged(changedProps, fsVars);
+                            return ;
+                        }
                         // If propagation ID is defined, the var value should not be reset.
                         if (evt.getPropagationId() != null) return ;
-                        String name = evt.getPropertyName();
                         if (name.startsWith(VariableInputDialog.PROP_VAR_CHANGED)) {
                             String varName = name.substring(VariableInputDialog.PROP_VAR_CHANGED.length());
                             variableChanged(varName, (String) evt.getOldValue(), (String) evt.getNewValue(), fsVars);
@@ -1956,6 +1961,50 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         updateAdvancedConfig();
     }
     
+    private void variablesChanged(Collection changedProps, Hashtable fsVars) {
+        //System.out.println("VcsCustomizer.variablesChanged("+changedProps.size()+")");
+        Vector vars = fileSystem.getVariables();
+        Set autoFillCommands = null;
+        for (Iterator it = changedProps.iterator(); it.hasNext(); ) {
+            PropertyChangeEvent evt = (PropertyChangeEvent) it.next();
+            // If propagation ID is defined, the var value should not be reset.
+            if (evt.getPropagationId() != null) continue ;
+            String name = evt.getPropertyName();
+            if (name.startsWith(VariableInputDialog.PROP_VAR_CHANGED)) {
+                String varName = name.substring(VariableInputDialog.PROP_VAR_CHANGED.length());
+                //variableChanged(varName, (String) evt.getOldValue(), (String) evt.getNewValue(), fsVars);
+                String newValue = (String) evt.getNewValue();
+                VcsConfigVariable var = (VcsConfigVariable) fsVarsByName.get(varName);
+                if (var == null) {
+                    var = new VcsConfigVariable(varName, null, newValue, false, false, false, null);
+                    vars.add(var);
+                    fsVarsByName.put(varName, var);
+                } else {
+                    var.setValue(newValue);
+                }
+                //System.out.println("  "+varName+"="+newValue);
+                fsVars.put(varName, newValue);
+                if (!setSpecialProperties(varName, newValue, fsVars)) {
+                    String cmd = (String) autoFillVars.get(varName);
+                    if (cmd != null) {
+                        if (autoFillCommands == null) {
+                            autoFillCommands = new HashSet();
+                        }
+                        autoFillCommands.add(cmd);
+                    }
+                }
+            }
+        }
+        fileSystem.setVariables(vars);
+        if (autoFillCommands != null) {
+            for (Iterator it = autoFillCommands.iterator(); it.hasNext(); ) {
+                String cmd = (String) it.next();
+                autoFillVariables(cmd);
+            }
+        }
+        updateConditionalValues();
+    }
+    
     private void variableChanged (String varName, String oldValue, String newValue, Hashtable fsVars) {
         //System.out.println("VcsCustomizer.variableChanged("+varName+", "+oldValue+" => "+newValue+".");
         VcsConfigVariable var;
@@ -1991,6 +2040,16 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
         fsVars.put(varName, newValue);
         fileSystem.setVariables(vars);
+        if (!setSpecialProperties(varName, newValue, fsVars)) {
+            String cmd = (String) autoFillVars.get(varName);
+            if (cmd != null) {
+                autoFillVariables(cmd);
+            }
+        }
+        updateConditionalValues();
+    }
+    
+    private boolean setSpecialProperties(String varName, String newValue, Hashtable fsVars) {
         if ("ROOTDIR".equals(varName)) {
             rootDirTextField.setText(newValue);
             changeRootDir(newValue);
@@ -2016,12 +2075,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             } catch (IOException ioex) {}
             rootDirChanged();
         } else {
-            String cmd = (String) autoFillVars.get(varName);
-            if (cmd != null) {
-                autoFillVariables(cmd);
-            }
+            return false;
         }
-        updateConditionalValues();
+        return true;
     }
 
     private void variableChanged (java.awt.AWTEvent evt) {
@@ -2081,13 +2137,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
             CommandsPool pool = fileSystem.getCommandsPool();
             pool.startExecutor(vce, fileSystem);
-            //System.out.println("RUNNING AUTOFILL...");
+            //System.out.println("RUNNING AUTOFILL ("+cmd.getName()+")...");
             try {
                 pool.waitToFinish(vce);
             } catch (InterruptedException iexc) {
                 return ;
             }
-            //System.out.println("AUTOFILL FINISHED.");
+            //System.out.println("AUTOFILL FINISHED ("+cmd.getName()+").");
             int len = varTextFields.size();
             for (int i = 0; i < len; i++) {
                 VcsConfigVariable var = (VcsConfigVariable) varVariables.get(i);
@@ -2108,16 +2164,18 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                     String value = (String) vars.get(var.getName());
                     if (value != null) var.setValue(value);
                 }
+                /*
                 if (varsOrig != null) {
                     for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
                         String name = (String) it.next();
                         if (!varsOrig.containsKey(name)) {
                             VcsConfigVariable var = new VcsConfigVariable(name, null, (String) vars.get(name), false, false, false, null);
                             variables.add(var);
-                            //System.out.println("  Adding variable \""+name+"\" = '"+vars.get(name)+"' to fileSystem.");
+                            System.out.println("  Adding variable \""+name+"\" = '"+vars.get(name)+"' to fileSystem.");
                         }
                     }
                 }
+                 */
             }
             // enable fs to react on change in variables
             fileSystem.setVariables(variables);
@@ -2136,6 +2194,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
      * the variable values only when the condition result actually change.
      */
     private void updateConditionalValues() {
+        //System.out.println("updateConditionalValues()");
         Profile profile = fileSystem.getProfile();
         if (profile == null) return ;
         ConditionedVariables cVars = profile.getVariables();
@@ -2149,8 +2208,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             String name = (String) it.next();
             Condition[] conditions = (Condition[]) conditionsByVariables.get(name);
             for (int i = 0; i < conditions.length; i++) {
+                //System.out.println("  Conditioned var '"+conditions[i].getName()+"' "+(conditions[i].isSatisfied(vars) ? "is" : "is not")+" satisfied");
                 if (conditions[i].isSatisfied(vars)) {
                     VcsConfigVariable var = (VcsConfigVariable) varsByConditions.get(conditions[i]);
+                    //System.out.println("  Conditioned var '"+conditions[i].getName()+"' = "+(var == null ? "''" : "'"+var.getValue()+"'"));
                     if (var != null) {
                         String value = (String) lastConditionValues.get(name);
                         if (!var.getValue().equals(value)) {
