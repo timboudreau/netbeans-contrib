@@ -204,7 +204,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             }
     }
     
-    private void autoFillVariables(String cmdName) {        
+    private void autoFillVariables(String cmdName) {
         VcsCommandsProvider provider = executionContext.getCommandsProvider();
         VcsDescribedCommand cmd = (VcsDescribedCommand)provider.createCommand(cmdName);
         if (cmd == null) return ;
@@ -1111,9 +1111,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
             public void focusGained(FocusEvent fevt) {}
             public void focusLost(FocusEvent fevt) {                
                 Object oldValue = component.getValue();
-                doAutofill(component.getVariable());
                 component.setValue(field.getText());
-                firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), oldValue, component.getValue());
+                if (!component.getValue().equals(oldValue)) {
+                    doAutofill(component.getVariable());
+                    firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), oldValue, component.getValue());
+                }
             }
         });
         focusListenersToCallBeforeValidate.add(l);
@@ -2455,8 +2457,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 for (Iterator it = actionList.iterator(); it.hasNext(); ) {
                     ActionListener listener = (ActionListener) it.next();
                     listener.actionPerformed(null);
-            }            
-            cmd.setAdditionalVariables(vars);
+                }
+                cmd.setAdditionalVariables(vars);
             } finally {
                 // We have to reset the variables back!
                 vars = origVars;
@@ -2467,7 +2469,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 return;            
             VcsDescribedTask descTask = (VcsDescribedTask)cmdTask;            
             Hashtable varsAfterChange = new Hashtable(descTask.getVariables()); 
-            updateVariableValues(varsAfterChange);           
+            updateVariableValues(varsAfterChange, false);           
         }
     }
    
