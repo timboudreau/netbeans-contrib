@@ -330,7 +330,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             if (varLocalFilterCS != null) {
                 localFileFilterCaseSensitive = varLocalFilterCS.getValue().equalsIgnoreCase("true");
             }
-            String[] files = VcsUtilities.getQuotedStrings(varLocalFilter.getValue());
+            String qfiles = varLocalFilter.getValue();
+            if (!localFileFilterCaseSensitive) qfiles = qfiles.toUpperCase();
+            String[] files = VcsUtilities.getQuotedStrings(qfiles);
             localFilesFilteredOut = new Vector(Arrays.asList(files));
         } else localFilesFilteredOut = null;
     }
