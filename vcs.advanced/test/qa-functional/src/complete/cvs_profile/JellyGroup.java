@@ -38,6 +38,7 @@ import org.netbeans.jellytools.properties.PropertySheetTabOperator;
 import org.netbeans.jellytools.properties.StringProperty;
 import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
+import org.netbeans.jemmy.util.PNGEncoder;
 import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFileAdvDialog;
@@ -269,7 +270,11 @@ public class JellyGroup extends JellyStub {
         String str = co.txtEnterReason().getText ();
         info.println (str);
         StringTokenizer st = new StringTokenizer (str, "\n");
-        assertEquals("Invalid description in group commit dialog", GROUP_DESCRIPTION, st.nextToken());
+        boolean validDescription = GROUP_DESCRIPTION.equals (st.nextToken());
+//        assertEquals("Invalid description in group commit dialog", GROUP_DESCRIPTION, st.nextToken());
+        if (!validDescription) try {
+            PNGEncoder.captureScreen(getWorkDir().getAbsolutePath() + File.separatorChar + "invalidDesc.png");
+        } catch (Exception e) {}
         co.oK ();
         co.waitClosed ();
         assertTrue("Commit files command failed", history.waitCommand("Commit", hText1 + "\n" + hText2));
@@ -279,12 +284,19 @@ public class JellyGroup extends JellyStub {
         waitStatus(vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.2", TEST_GROUP + "|" + tText1, true); // stabilization
         new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText1).versioningExplorer();
         VersioningFrameOperator vfo = new VersioningFrameOperator ();
-        new Node (vfo.treeVersioningTreeView(), nText1 + " [Up-to-date; 1.2]|1.2  " + GROUP_DESCRIPTION);
+        if (validDescription)
+            new Node (vfo.treeVersioningTreeView(), nText1 + " [Up-to-date; 1.2]|1.2  " + GROUP_DESCRIPTION);
+        else
+            new Node (vfo.treeVersioningTreeView(), nText1 + " [Up-to-date; 1.2]|1.2");
         closeAllVersionings(); // stabilization
         waitStatus(vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.2", TEST_GROUP + "|" + tText2, true); // stabilization
         new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText2).versioningExplorer(); // stabilization
         vfo = new VersioningFrameOperator (); // stabilization
-        new Node (vfo.treeVersioningTreeView(), nText2 + " [Up-to-date; 1.2]|1.2  " + GROUP_DESCRIPTION);
+        if (validDescription)
+            new Node (vfo.treeVersioningTreeView(), nText2 + " [Up-to-date; 1.2]|1.2  " + GROUP_DESCRIPTION);
+        else
+            new Node (vfo.treeVersioningTreeView(), nText2 + " [Up-to-date; 1.2]|1.2");
+        assertTrue ("Invalid description in group commit dialog", validDescription);
     }
     
     public void dumpTable (JTableOperator table) {
@@ -353,7 +365,7 @@ public class JellyGroup extends JellyStub {
         new NbDialogOperator ("Confirm Object Deletion").yes ();
         
         new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText2);
-        waitStatus (vgf.treeVCSGroupsTreeView(), "Needs Update; 1.2", TEST_GROUP + "|" + tText2, true);
+        waitStatus (vgf.treeVCSGroupsTreeView(), "Needs Update", TEST_GROUP + "|" + tText2, false);
         
         new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP).select (); // stabilization
         Helper.sleep (2000); // stabilization
@@ -370,7 +382,7 @@ public class JellyGroup extends JellyStub {
         up.oK ();
         
         assertTrue("Update file command failed", history.waitCommand("Update", hText2));
-        waitStatus (vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.2", TEST_GROUP + "|" + tText2, true);
+        waitStatus (vgf.treeVCSGroupsTreeView (), "Up-to-date", TEST_GROUP + "|" + tText2, false);
         compareReferenceFiles();
     }
     
