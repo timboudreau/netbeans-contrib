@@ -80,6 +80,11 @@ public class VariableIO extends Object {
         return list.contains(lang);
     }
     
+    private static boolean isResourceBundle(FileObject fo) {
+        return fo.getName().startsWith("Bundle") &&
+               fo.getExt().equalsIgnoreCase("properties");
+    }
+    
     /** Read list of available confugurations from the directory.
      * All files with extension ".properties" are considered to be configurations.
      * However only properties with current localization are read.
@@ -94,7 +99,8 @@ public class VariableIO extends Object {
             String ext = fo.getExt();
             if (!ext.equalsIgnoreCase(CONFIG_FILE_EXT)
                 && !ext.equalsIgnoreCase(VariableIOCompat.CONFIG_FILE_EXT)
-                || CommandLineVcsFileSystem.isTemporaryConfig(fo.getName())) {
+                || CommandLineVcsFileSystem.isTemporaryConfig(fo.getName())
+                || isResourceBundle(fo)) {
                 list.remove(i);
                 i--;
             }
