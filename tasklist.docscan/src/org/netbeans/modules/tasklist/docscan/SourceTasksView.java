@@ -885,16 +885,19 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         // workaround for Ocean L&F clutter - toolbars use gradient.
         // To make the gradient visible under buttons the content area must not
-        // be filled. To support rollover it must be temporarily filled 
+        // be filled. To support rollover it must be temporarily filled
         if (button instanceof JToggleButton == false) {
             button.setContentAreaFilled(false);
+            button.setBorderPainted(false);
             button.addMouseListener(new MouseAdapter() {
                 public void mouseEntered(MouseEvent e) {
                     button.setContentAreaFilled(true);
+                    button.setBorderPainted(true);
                 }
 
                 public void mouseExited(MouseEvent e) {
                     button.setContentAreaFilled(false);
+                    button.setBorderPainted(false);
                 }
             });
         }
@@ -952,6 +955,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         // wrapped in JPanel it looks better on Ocean, GTK+ plaf worse on Metal
         JPanel wrapper = new JPanel();
+        wrapper.setOpaque(false);   // Ocean L&F toolbars use gradients
         wrapper.setLayout(new FlowLayout(FlowLayout.CENTER,0,0));
         wrapper.add(getFolderSelector());
         toolbar.add(wrapper);
