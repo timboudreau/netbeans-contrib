@@ -214,7 +214,7 @@ Microsystems, Inc. All Rights Reserved.
     </variable>
     <variable name="EXECUTE" basic="false">
       <value>${RUN} ${CVS_DEF_EXE} </value>
-      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} </value>
+      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} </value>
     </variable>
     <variable name="CDM_EXECUTE" basic="false">
       <value>${RUNCDM} ${CVS_DEF_EXE} </value>
