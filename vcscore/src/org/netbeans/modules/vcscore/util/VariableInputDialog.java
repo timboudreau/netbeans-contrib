@@ -2005,6 +2005,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         variablePanel.add(button, gridBagConstraints1);
         gridy++;
         ArrayList componentVarsList = new ArrayList();
+        final Component componentFor; // The component to get focus when the button is selected
         for (int i = 0; i < subComponents.length; i++) {
             int inset;
             if (i == 0 && firstSubLabelEmpty) {
@@ -2016,6 +2017,18 @@ public class VariableInputDialog extends javax.swing.JPanel {
             gridy = addComponent(subComponents[i], gridy, variablePanel, inset,
                                  varsToEnableDisable, new java.awt.Component[1]);
             componentVarsList.add(subComponents[i].getVariable());
+        }
+        // Set the componentFor to the first AWT sub-component if there's just one
+        // logical sub-component. That gets focus when this button gets selected.
+        if (subComponents.length == 1) {
+            java.awt.Component[] components = (java.awt.Component[]) awtComponentsByVars.get(subComponents[0].getVariable());
+            if (components != null && components.length > 0) {
+                componentFor = components[0];
+            } else {
+                componentFor = null;
+            }
+        } else {
+            componentFor = null;
         }
         String value = component.getValue();
         if (value == null) value = "";
@@ -2103,6 +2116,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     Object oldValue = superComponent.getValue();
                     superComponent.setValue(component.getValue());
                     firePropertyChange(PROP_VAR_CHANGED + superComponent.getVariable(), oldValue, superComponent.getValue());
+                    if (componentFor != null) {
+                        componentFor.requestFocus();
+                    }
                     //System.out.println("component '"+superComponent.getVariable()+"' setValue("+component.getValue()+"), old value = '"+oldValue+"'");
                 }
             }
