@@ -302,6 +302,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
+	</property>
         <property name="concurrentExec">
           <value>-1</value> <!-- EXEC_SERIAL_INERT -->
         </property>
@@ -340,6 +343,9 @@ Microsystems, Inc. All Rights Reserved.
         </run>
         <property name="onFile">
           <value>false</value>
+	</property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
 	</property>
         <property name="refreshParentFolder">
           <value>true</value>
@@ -446,10 +452,13 @@ Microsystems, Inc. All Rights Reserved.
                   [ResourceMsg(COMMAND_PVCS_CHECKOUT_InBefore), "D", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_InBefore);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_InBefore_mnc)),
                     PROMPT_FOR_EXPERT(DATE_BEFORE, "")])
                  ASK_FOR_EXPERT(SET_CURR_TIME, ResourceMsg(COMMAND_PVCS_CHECKOUT_SetCurrTime), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_SetCurrTime);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_SetCurrTime_mnc)), "-t", "")
-                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_CHECKOUT_Recursive), "true", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
+                 IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_CHECKOUT_Recursive), "$[? recursionBanned] [] [-z]", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
           </value>
 	</property>
 	<property name="onDir">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
 	<property name="onRoot">
@@ -597,13 +606,16 @@ Microsystems, Inc. All Rights Reserved.
                  ASK_FOR(KEEP_LOCK, ResourceMsg(COMMAND_PVCS_ADD_KeepLocked), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_KeepLocked);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_KeepLocked_mnc)), "-l", "")
                  PROMPT_FOR_EXPERT(ASSIGN_VERSION, ResourceMsg(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
                  ASK_FOR_EXPERT(FLOATING_LABEL, ResourceMsg(COMMAND_PVCS_CHECKIN_FloatingLabel), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_FloatingLabel);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_FloatingLabel_mnc)))
-                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_ADD_Recursive), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_Recursive_mnc)), "-z", "")
+                 IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_ADD_Recursive), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_Recursive_mnc)), "-z", "")
           </value>
 	</property>
 	<property name="onFile">
 	  <value>false</value>
 	</property>
 	<property name="onDir">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
 	<property name="onRoot">
@@ -884,10 +896,13 @@ Microsystems, Inc. All Rights Reserved.
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_LOCK),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_LOCK)))
                  PROMPT_FOR(REVISION, ResourceMsg(COMMAND_PVCS_REVISION_RevPromGVersion), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_REVISION_RevPromGVersion);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_REVISION_RevPromGVersion_mnc)))
-                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_LOCK_Recursive), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_LOCK_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_LOCK_Recursive_mnc)), "-z", "")
+                 IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_LOCK_Recursive), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_LOCK_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_LOCK_Recursive_mnc)), "-z", "")
           </value>
 	</property>
 	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
         <property name="runOnMultipleFilesInFolder">
@@ -933,10 +948,13 @@ Microsystems, Inc. All Rights Reserved.
           <value>LABEL(ResourceMsg(PVCS_UNLOCK),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_UNLOCK)))
                  PROMPT_FOR(REVISION, ResourceMsg(COMMAND_PVCS_REVISION_RevPromGVersion), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_REVISION_RevPromGVersion);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_REVISION_RevPromGVersion_mnc)))
                  PROMPT_FOR_EXPERT(USER, ResourceMsg(COMMAND_PVCS_UNLOCK_User), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_UNLOCK_User);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_UNLOCK_User_mnc)))
-                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_UNLOCK_Recursive), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_UNLOCK_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_UNLOCK_Recursive_mnc)), "-z", "")
+                 IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_UNLOCK_Recursive), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_UNLOCK_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_UNLOCK_Recursive_mnc)), "-z", "")
           </value>
 	</property>
 	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
         <property name="runOnMultipleFilesInFolder">
@@ -993,10 +1011,13 @@ Microsystems, Inc. All Rights Reserved.
                  PROMPT_FOR_EXPERT(OWNERS, ResourceMsg(COMMAND_PVCS_STATUS_Owners), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_Owners);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_Owners_mnc)))
                  PROMPT_FOR_EXPERT(DATE_FROM, ResourceMsg(COMMAND_PVCS_STATUS_DateFrom), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_DateFrom);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_DateFrom_mnc)))
                  PROMPT_FOR_EXPERT(DATE_TO, ResourceMsg(COMMAND_PVCS_STATUS_DateTo), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_DateTo);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_DateTo_mnc)))
-                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_STATUS_Recursive), "true", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_Recursive_mnc)), "-z", "")
+                 IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_PVCS_STATUS_Recursive), "$[? recursionBanned] [] [-z]", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_Recursive_mnc)), "-z", "")
           </value>
 	</property>
 	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
         <property name="runOnMultipleFilesInFolder">
@@ -1215,6 +1236,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value>
         </property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
+	</property>
         <property name="runOnMultipleFiles">
           <value>true</value>
         </property>

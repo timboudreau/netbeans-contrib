@@ -271,6 +271,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onFile">
 	  <value>false</value>
 	</property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
+	</property>
         <property name="disabledOnStatus">
           <value>"Local"</value>
         </property>
@@ -428,7 +431,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_CHECKIN),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CHECKIN)))
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_CHECKIN_Reason),"",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Reason_mnc)))
-                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_CHECKIN_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Rec_mnc)), "-R", "-R-")
+                 IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_CHECKIN_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(CHECKIN_OPTIONS, ResourceMsg(COMMAND_VSS_CHECKIN_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Options_mnc)))
           </value>
 	</property>
@@ -447,11 +450,14 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
+	</property>
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
-        <property name="refreshRecursivelyPatternMatched">
-          <value>-R</value>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value>-R-</value>
         </property>
         <property name="refreshOnFail">
           <value>1</value>
@@ -576,7 +582,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CHECKOUT)))
-                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_CHECKOUT_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Rec_mnc)), "-R", "-R-")
+                 IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_CHECKOUT_Rec), "$[? recursionBanned] [-l] [-R]", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, ResourceMsg(COMMAND_VSS_CHECKOUT_Options), "-GWA", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Options_mnc)))
           </value>
 	</property>
@@ -584,6 +590,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>false</value>
 	</property>
 	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
 	<property name="checkForModifications">
@@ -704,7 +713,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(COMMAND_VSS_UNCHECKOUTR_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_UNCHECKOUTR_Label)))
-                 ASK_FOR(RECURSIVELY, ResourceMsg(COMMAND_VSS_UNCHECKOUTR_Recursively), "true",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_UNCHECKOUTR_Recursively_mnc)) ,"-R", "-R-")
+                 IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSIVELY, ResourceMsg(COMMAND_VSS_UNCHECKOUTR_Recursively), "$[? recursionBanned] [-R-] [-R]",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_UNCHECKOUTR_Recursively_mnc)) ,"-R", "-R-")
                  PROMPT_FOR_EXPERT(CMD_OPTIONS, ResourceMsg(COMMAND_VSS_UNCHECKOUT_Options), "",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_UNCHECKOUT_Options_mnc)))
           </value>
 	</property>
@@ -712,6 +721,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>false</value>
 	</property>
 	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
 	<property name="checkForModifications">
@@ -848,7 +860,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_GET),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_GET)))
                  ASK_FOR(RW_MODE, ResourceMsg(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
-                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_GETR_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Rec_mnc)), "-R", "-R-")
+                 IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_GETR_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(GET_OPTIONS, ResourceMsg(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Options_mnc)))
           </value>
 	</property>
@@ -862,6 +874,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>(.*$)</value>
 	</property>
 	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
 	<property name="checkForModifications">
@@ -988,12 +1003,15 @@ Microsystems, Inc. All Rights Reserved.
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_ADD)))
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_ADD_Reason),"",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Reason_mnc)))
-                 ASK_FOR(IS_RECURSIVE, ResourceMsg(COMMAND_VSS_ADD_ALL_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_ALL_Rec_mnc)), "true", "")
+                 IF_VAR_EMPTY"recursionBanned"_ASK_FOR(IS_RECURSIVE, ResourceMsg(COMMAND_VSS_ADD_ALL_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_ALL_Rec_mnc)), "true", "")
                  PROMPT_FOR_EXPERT(RELEVANT_MASK, ResourceMsg(COMMAND_VSS_ADD_ALL_RelevantMask), "{INSERT_OUTPUT_OF_GET_ADJUSTED_RELEVANT_MASKS(0)}", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_ALL_RelevantMask_mnc)))
                  PROMPT_FOR_EXPERT(ADD_OPTIONS, ResourceMsg(COMMAND_VSS_ADD_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Options_mnc)))
           </value>
 	</property>
 	<property name="onDir">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
 	<property name="onRoot">
@@ -1098,6 +1116,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onFile">
 	  <value>false</value>
 	</property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
+	</property>
 	<property name="data.regex">
 	  <value>(.*$)</value>
 	</property>
@@ -1131,8 +1152,8 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="REMOVE_CONFIRM">
 	<property name="exec">
-	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} -I-N ${IDENT} ${QPATHS} ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} -I-N ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
+	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} ${RECURSIVE} -I-N ${IDENT} ${QPATHS} ${NUR}</value>
+	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} ${RECURSIVE} -I-N ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
 	</property>
 	<property name="error.regex.global">
 	  <value>(^.*)\(Y/N\)N$</value>
@@ -1146,8 +1167,8 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="REMOVE_DO">
 	<property name="exec">
-	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QPATHS} ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
+	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} ${RECURSIVE} -I-Y ${IDENT} ${QPATHS} ${NUR}</value>
+	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} ${RECURSIVE} -I-Y ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
 	</property>
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
@@ -1162,6 +1183,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(COMMAND_VSS_REMOVE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_REMOVE_Label)))
+                 IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg(COMMAND_VSS_REMOVE_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_REMOVE_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(CMD_OPTIONS, ResourceMsg(COMMAND_VSS_REMOVE_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_REMOVE_Options_mnc)))
           </value>
 	</property>
@@ -1175,6 +1197,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>(.*$)</value>
 	</property>
 	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
         <property name="refreshParentFolder">
@@ -1207,13 +1232,14 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_RECOVER_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} recover ${RECOVER_OPTIONS} ${OPTIONS} ${QFILES} ${NUR}</value>
+	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} recover ${RECOVER_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QFILES} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_RECOVER),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_RECOVER)))
+                 IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg(COMMAND_VSS_RECOVER_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_RECOVER_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(RECOVER_OPTIONS, ResourceMsg(COMMAND_VSS_RECOVER_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_RECOVER_Options_mnc)))
           </value>
 	</property>
@@ -1226,6 +1252,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
+	</property>
 	<property name="checkForModifications">
 	  <value>true</value>
 	</property>
@@ -1235,8 +1264,8 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
-        <property name="refreshRecursivelyPatternMatched">
-          <value>recover</value>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value>-R-</value>
         </property>
         <property name="runOnMultipleFilesInFolder">
           <value>true</value>
@@ -1260,14 +1289,15 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_HISTORY_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} history ${HISTORY_OPTIONS} ${OPTIONS} ${QPATHS} ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} history ${HISTORY_OPTIONS} ${OPTIONS} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
+	  <value>${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} history ${HISTORY_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QPATHS} ${NUR}</value>
+	  <value if="IS_WIN9X">${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} history ${HISTORY_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_HISTORY),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_HISTORY)))
+                 IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg(COMMAND_VSS_HISTORY_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_HISTORY_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(HISTORY_OPTIONS, ResourceMsg(COMMAND_VSS_HISTORY_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_HISTORY_Options_mnc)))
           </value>
 	</property>
@@ -1281,6 +1311,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>(.*$)</value>
 	</property>
 	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
         <property name="runOnMultipleFiles" unless="IS_WIN9X">
@@ -1301,14 +1334,15 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_PROPERTIES_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} properties ${PROPERTIES_OPTIONS} ${OPTIONS} ${QPATHS} ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} properties ${PROPERTIES_OPTIONS} ${OPTIONS} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
+	  <value>${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} properties ${PROPERTIES_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QPATHS} ${NUR}</value>
+	  <value if="IS_WIN9X">${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} properties ${PROPERTIES_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_PROPERTIES),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_PROPERTIES)))
+                 IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg(COMMAND_VSS_PROPERTIES_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_PROPERTIES_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(PROPERTIES_OPTIONS, ResourceMsg(COMMAND_VSS_PROPERTIES_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_PROPERTIES_Options_mnc)))
           </value>
 	</property>
@@ -1322,6 +1356,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>(.*$)</value>
 	</property>
 	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
         <property name="runOnMultipleFiles" unless="IS_WIN9X">
