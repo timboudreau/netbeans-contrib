@@ -149,6 +149,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
             if (!isOpened()) {
                 Node root = null;
                 root = GroupUtils.getMainVcsGroupNodeInstance();
+                GroupUtils.getDefaultGroupInstance(); // here just to make sure the default is created.
                 ExplorerManager manager = getExplorerManager();
                 
                 manager.setRootContext(root);
@@ -163,6 +164,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
             if (!isOpened()) {
                 Node root = null;
                 root = GroupUtils.getMainVcsGroupNodeInstance();
+                GroupUtils.getDefaultGroupInstance(); // here just to make sure the default is created.
                 ExplorerManager manager = getExplorerManager();
                 
                 manager.setRootContext(root);
