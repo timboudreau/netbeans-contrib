@@ -21,6 +21,7 @@ import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.PopupMenuListener;
@@ -1630,11 +1631,17 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         
         private void fireContentsChanged() {
             ListDataEvent evt = new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, Integer.MAX_VALUE);
-            Iterator it = lsnrs.iterator();
-            while (it.hasNext()) { ((ListDataListener)it.next()).contentsChanged(evt);}          
+            List clone = null;
+            synchronized(lsnrs) {
+                clone = new ArrayList(lsnrs);
+            }
+            Iterator it = clone.iterator();
+            while (it.hasNext()) {
+                ((ListDataListener)it.next()).contentsChanged(evt);
+            }          
         }
         
-        private LinkedList lsnrs = new LinkedList();
+        private List lsnrs = Collections.synchronizedList(new LinkedList());
         private Filter.ListModelElement [] elements = null;
         private int activei = -1;
         private FilterRepository rep = null;
