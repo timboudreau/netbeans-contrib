@@ -30,6 +30,9 @@ Microsystems, Inc. All Rights Reserved.
        <pathelement location="release/lib/ext/portfolio.jar"/>
        <pathelement location="release/lib/ext/StarfireExt.jar"/>
        <pathelement location="release/lib/ext/j3dedit.jar"/>
+       <pathelement location="release/lib/ext/j3dfly.jar"/>
+       <pathelement location="release/lib/ext/j3dfly-utils.jar"/>
+
        <pathelement location="../core/netbeans/lib/core.jar"/>
       </classpath>
     </javac>
@@ -60,10 +63,13 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="java3d.nbm"
              topdir="."
-             module="netbeans/modules/java3d.jar"
+	     manifest="manifest-subst.mf"
 	     homepage="http://java3D.${homepage.base}/"
 	     distribution="http://{dist.base}/java3d.nbm">
       <license file="${license.file}"/>
+      <description>
+        Java 3D
+      </description>
     </makenbm>
   </target>
 
