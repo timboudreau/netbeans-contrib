@@ -52,7 +52,7 @@ public class VcsManagerAction extends CallableSystemAction {
      * @return the help context for this action
      */
     public HelpCtx getHelpCtx () {
-        return new HelpCtx (VcsManagerAction.class);
+        return null;
     }
 
     /** This method is called by one of the "invokers" as a result of
@@ -66,7 +66,6 @@ public class VcsManagerAction extends CallableSystemAction {
         desc.setOptions(options);
         desc.setValue(options[0]);
         desc.setClosingOptions(options);        
-        desc.setHelpCtx(getHelpCtx());
         desc.setModal(false);
                                                      
         final Dialog dlg = DialogDisplayer.getDefault ().createDialog (desc);
