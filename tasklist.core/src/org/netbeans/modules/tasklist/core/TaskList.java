@@ -124,8 +124,11 @@ public class TaskList implements ObservableList, TaskListener {
                 }
                 parent.addSubtasks(addList, append, after);
             } else {
-                assert (after == null) : "After inserting is not implemented.";
-                addTasks(addList, append);
+                if (after != null) {
+                    addTasks(addList, after);
+                } else {
+                    addTasks(addList, append);
+                }
             }
         }
 
@@ -152,6 +155,21 @@ public class TaskList implements ObservableList, TaskListener {
                 this.tasks.add(0, task);
             }
             fireAdded(task);     // TODO silent update?
+        }
+    }
+
+    private void addTasks(List tasks, Task after) {
+        int index = tasks.indexOf(after);
+        if (index == -1) {
+            addTasks(tasks, true);
+        } else {
+            tasks.addAll(index+1, tasks);
+            Iterator it = tasks.iterator();
+            while (it.hasNext()) {
+                Task task = (Task) it.next();
+                task.addTaskListener(this);
+                fireAdded(task);
+            }
         }
     }
 

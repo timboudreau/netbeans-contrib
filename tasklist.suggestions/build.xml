@@ -43,6 +43,7 @@ Microsystems, Inc. All Rights Reserved.
         <filter filtersfile="../../version.properties"/>
         <filter token="tl.suggestions_ui.spec" value="${tl.suggestions_ui.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+        <echo message="Packaging to : ${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/tasklist-suggestions.jar"/>
         <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/tasklist-suggestions.jar"
                 manifest="manifest-subst.mf"
                 basedir="../src"
@@ -52,7 +53,7 @@ Microsystems, Inc. All Rights Reserved.
         </jar>
     </target>
 
-    <target name="netbeans" depends="jars">
+    <target name="netbeans" depends="jars, simulate_module_autorecognition">
         <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/tasklist-suggestions.jar">
             <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
                 <patternset refID="tasklist/suggestions/ui.files"/>
@@ -75,7 +76,33 @@ Microsystems, Inc. All Rights Reserved.
     <target name="changelog">
         <style in="module-updates.xml" out="../../www/updates/tasklist-suggestions.html" style="../../www/updates/updates.xsl"/>
     </target>
-    
+ 
+    <!--
+        NetBeans 4.0 is not able to generate this information in runtime anymore.
+        Missing information confuses system (and users).
+        It's done for standard distribution on centralized place in nbbuild/build.xml.
+    -->
+    <target name="simulate_module_autorecognition">
+
+        <echo message="Simulating module autorecognition in ${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules ..."/>
+
+        <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="../../../nbbuild/nbantext.jar"/>
+
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules"/>
+        <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
+          <!--enabled dir="${netbeans.dest.dir}/${one.cluster.dir}">
+            <include name="${nb.modules.dir}/*.jar"/>
+          </enabled>
+          <autoload dir="${netbeans.dest.dir}/${one.cluster.dir}">
+            <include name="${nb.modules/autoload.dir}/*.jar"/>
+          </autoload-->
+          <eager dir="${netbeans.dest.dir}/${cluster.dir}">
+            <include name="${nb.modules.dir}/tasklist-suggestions.jar"/>
+          </eager>
+        </createmodulexml>
+    </target>
+
+   
     <target name="clean" depends="init">
         <delete>
             <fileset dir="../src">
