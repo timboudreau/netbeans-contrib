@@ -27,6 +27,8 @@ import org.openide.util.*;
 import org.openide.filesystems.*;
 
 import com.netbeans.developer.modules.vcs.util.*;
+import com.netbeans.developer.modules.vcs.cmdline.*;
+import com.netbeans.developer.modules.vcs.cmdline.exec.*;
 import com.netbeans.developer.modules.vcs.*;
 
 /** Customizer
@@ -565,6 +567,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
         gridBagConstraints1.gridy = varLabels.size () + 4;
         gridBagConstraints1.insets = new java.awt.Insets (4, 4, 4, 4);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints1.weightx = 0;
         propsPanel.add (lb, gridBagConstraints1);
          tf.addActionListener (new java.awt.event.ActionListener () {
           public void actionPerformed (java.awt.event.ActionEvent evt) {
@@ -581,6 +584,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
         
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.weightx = 1;
         propsPanel.add (tf, gridBagConstraints1);
         varVariables.add (var);
         String varLabel = var.getLabel ().trim ();
@@ -590,14 +594,22 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
         if (var.isLocalFile ()) {
           button = new JButton ();
           button.addActionListener (new BrowseLocalFile (tf));
+          button.setText ("Browse...");
         } else if (var.isLocalDir ()) {
           button = new JButton ();
           button.addActionListener (new BrowseLocalDir (tf));
+          button.setText ("Browse...");
+        }
+        String selector = var.getCustomSelector();
+        if (selector != null && selector.length() > 0) {
+          button = new JButton ();
+          button.addActionListener (new RunCustomSelector (tf, var));
+          button.setText ("Select...");
         }
         if (button != null) {
-          button.setText ("Browse...");
           gridBagConstraints1.gridx = 2;
-          gridBagConstraints1.fill = java.awt.GridBagConstraints.NONE;
+          gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+          gridBagConstraints1.weightx = 0;
           propsPanel.add (button, gridBagConstraints1);
         }
         varButtons.add (button);
@@ -861,6 +873,42 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       variableChanged(new java.awt.event.ActionEvent(tf, 0, "")); // NOI18N
     }
   }
+  
+  private class RunCustomSelector implements java.awt.event.ActionListener {
+    
+    private JTextField tf;
+    private VcsConfigVariable selector;
+    
+    public RunCustomSelector(JTextField tf, VcsConfigVariable selector) {
+      this.tf = tf;
+      this.selector = selector;
+    }
+
+    public void actionPerformed (java.awt.event.ActionEvent evt) {
+      OutputContainer container = new OutputContainer(g("MSG_VariableSelector"));
+      final ExecuteSelector es = new ExecuteSelector(fileSystem, selector.getCustomSelector(), selector.getName(),
+                                                        fileSystem.getVariablesAsHashtable());
+      es.setErrorNoRegexListener(container);
+      es.setOutputNoRegexListener(container);
+      es.setErrorContainer(container);
+      new Thread ("VCS-CustomSelector") {
+        public void run() {
+          es.start();
+          try {
+            es.join();
+          } catch (InterruptedException e) {
+            return;
+          }
+          String selection = es.getSelection();
+          if (selection != null && selection.length() > 0) {
+            tf.setText(selection);
+            variableChanged(new java.awt.event.ActionEvent(tf, 0, "")); // NOI18N
+            //rootDirChanged(false);
+          }
+        }
+      }.start();
+    }
+  }
 
   //-------------------------------------------
   String g(String s) {
@@ -882,6 +930,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  16   Jaga      1.11.1.3    3/21/00  Martin Entlicher Variable selector added.
 *  15   Jaga      1.11.1.2    3/15/00  Martin Entlicher Sort of properties' 
 *       labels
 *  14   Jaga      1.11.1.1    3/9/00   Martin Entlicher Fix of long width of 
