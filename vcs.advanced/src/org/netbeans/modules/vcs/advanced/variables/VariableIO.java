@@ -27,6 +27,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.NbBundle;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 
@@ -217,7 +218,7 @@ public class VariableIO extends Object {
                 Node subNode = textList.item(0);
                 if (subNode instanceof Text) {
                     Text textNode = (Text) subNode;
-                    label = textNode.getData();
+                    label = VcsUtilities.getBundleString(textNode.getData());
                 }
             }
         }
@@ -298,6 +299,7 @@ public class VariableIO extends Object {
                 }
                 VcsConfigVariable var;
                 Node basicAttr = varAttrs.getNamedItem(VARIABLE_BASIC_ATTR);
+                value = VcsUtilities.getBundleString(value);
                 if (basicAttr != null && BOOLEAN_VARIABLE_TRUE.equalsIgnoreCase(basicAttr.getNodeValue())) {
                     var = getBasicVariable(name, value, varNode, varAttrs);
                 } else {
@@ -325,7 +327,7 @@ public class VariableIO extends Object {
         String customSelector = "";
         int order = -1;
         Node attrNode = varAttrs.getNamedItem(VARIABLE_LABEL_ATTR);
-        if (attrNode != null) label = attrNode.getNodeValue();
+        if (attrNode != null) label = VcsUtilities.getBundleString(attrNode.getNodeValue());
         localFile = getBooleanAttrVariable(VARIABLE_LOCAL_FILE_ATTR, varAttrs);
         localDir = getBooleanAttrVariable(VARIABLE_LOCAL_DIR_ATTR, varAttrs);
         executable = getBooleanAttrVariable(VARIABLE_EXECUTABLE_ATTR, varAttrs);
