@@ -147,7 +147,9 @@ public class SuggestionList extends TaskList {
         SuggestionImpl after = null;
         int pos = type.getPosition();
         Iterator it = getTasks().iterator();
+        int i = 0;
         while (it.hasNext()) {
+            i++;
             SuggestionImpl s = (SuggestionImpl)it.next();
             int spos = s.getSType().getPosition();
             if (spos > pos) {
@@ -157,7 +159,12 @@ public class SuggestionList extends TaskList {
             }
         }
 
-        return after;
+        // #42618 hotfix
+        if (i == getTasks().size()) {
+            return null;
+        } else {
+            return after;
+        }
     }
 
     /** Remove the given category node, if unused.
