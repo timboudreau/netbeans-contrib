@@ -92,7 +92,7 @@ public class JellyOverall extends CVSStub {
     
     public void testInit() {
         root.cvsNode ().cVSInit();
-        history.getWaitCommand("Init", root.node ());
+        history.getWaitCommand("Init", root.history ());
     }
     
     public void testCheckOut() {
