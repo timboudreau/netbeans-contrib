@@ -32,6 +32,9 @@ public class PathComparator implements TableInfoComparator {
     public String getDisplayValue(Object obj, Object rowObject) {
         File file = (File)obj;
         String path = file.getAbsolutePath().substring(localPath.length());
+        if (path.length() == 0) {
+            return "";
+        }
         if (path.charAt(0) == File.separatorChar && path.length() > 1) {
             path = path.substring(1);
         }
