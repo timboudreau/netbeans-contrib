@@ -41,16 +41,17 @@ Microsystems, Inc. All Rights Reserved.
 	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
 	 compress="false"/>
   </target>
-
+<!--
   <target name="javahelp">
     <copydir src="javahelp" dest="netbeans/docs"/>
   </target>
+-->
 
   <target name="release">
     <copydir src="release" dest="netbeans"/>
   </target>
 
-  <target name="netbeans" depends="jars,javahelp,release"/>
+  <target name="netbeans" depends="jars,release"/>
 <!--
   <target name="nbm" depends="netbeans">
     <makenbm file="jndi.nbm"
