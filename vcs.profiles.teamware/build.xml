@@ -104,6 +104,13 @@ Microsystems, Inc. All Rights Reserved.
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>
+  
+  <target name="reload" depends="jars">
+    <mkdir dir="test"/>
+    <copy file="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/teamware-profile.jar"
+        tofile="test/teamware-profile.jar"/>
+    <nbinstaller module="test/teamware-profile.jar" action="reinstall"/>
+  </target>
 
   <target name="clean" depends="init">
     <delete>
@@ -115,6 +122,7 @@ Microsystems, Inc. All Rights Reserved.
       <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
         <patternset refID="vcsgeneric/profiles/teamware.files"/>
       </fileset>
+      <fileset dir="test"/>
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="teamware-profile.nbm"/>

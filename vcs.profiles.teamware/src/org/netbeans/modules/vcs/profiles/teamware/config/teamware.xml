@@ -50,18 +50,6 @@ Contributor(s): Daniel Blaukopf.
     </variables>
     
     <commands>
-        <command name="CREATE_INITIAL_IGNORE_LIST">
-            <property name="exec">
-                <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareInitialIgnoreListCommand.class</value>
-            </property>
-        </command>
-
-        <command name="CREATE_FOLDER_IGNORE_LIST">
-            <property name="exec">
-                <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareFolderIgnoreListCommand.class</value>
-            </property>
-        </command>
-
         <command displayName="Teamware" name="ROOT">
             <command displayName="Edit" name="EDIT">
                 <run dir="${WORKDIR}">
@@ -102,7 +90,7 @@ Contributor(s): Daniel Blaukopf.
                     <value>false</value>
                 </property>
                 <property name="disabledOnStatus">
-                    <value>"Local", "Ignored"</value>
+                    <value>"Local", "Checked in", "Ignored"</value>
                 </property>
             </command>
             <command displayName="Commit" name="CHECKIN">
@@ -319,6 +307,14 @@ You will lose any changes.</value>
                     <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareRevisionListCommand.class</value>
                 </property>
             </command>
+            <command basic="false" name="REVISION_OPEN_LAST">
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="get"/>
+                    <arg value="-p"/>
+                    <arg value="${FILE}"/>
+                </run>
+            </command>
             <command name="REVISION_OPEN">
                 <run dir="${WORKDIR}">
                     <executable value="${SCCS}"/>
@@ -326,10 +322,10 @@ You will lose any changes.</value>
                     <arg value="-p"/>
                     <arg value="-r${REVISION}"/>
                     <arg value="${FILE}"/>
-              </run>
-              <property name="numRevisions">
-                <value>1</value>
-              </property>
+                </run>
+                <property name="numRevisions">
+                    <value>1</value>
+                </property>
             </command>
             <separator/>
             <command displayName="Create Patch" name="CREATE_PATCH">
@@ -353,6 +349,32 @@ You will lose any changes.</value>
                     <value>"Local", "Ignored"</value>
                 </property>
             </command>
+        </command>
+        <command name="CREATE_INITIAL_IGNORE_LIST">
+            <property name="exec">
+                <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareInitialIgnoreListCommand.class</value>
+            </property>
+        </command>
+        <command name="CREATE_FOLDER_IGNORE_LIST">
+            <property name="exec">
+                <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareFolderIgnoreListCommand.class</value>
+            </property>
+        </command>
+        <command name="REVISION_DIFF" displayName="Diff With This Revision">
+            <property name="exec">
+                <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareRevisionDiffCommand.class</value>
+            </property>
+            <property name="numRevisions">
+                <value>1</value>
+            </property>
+        </command>
+        <command name="REVISION_DIFF2" displayName="Diff Between These Revisions">
+            <property name="exec">
+                <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareRevisionDiffCommand.class ${REVISION1}</value>
+            </property>
+            <property name="numRevisions">
+                <value>2</value>
+            </property>
         </command>
     </commands>
     

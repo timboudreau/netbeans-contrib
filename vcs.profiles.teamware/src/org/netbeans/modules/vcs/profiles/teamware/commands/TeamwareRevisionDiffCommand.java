@@ -17,13 +17,16 @@
 package org.netbeans.modules.vcs.profiles.teamware.commands;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Hashtable;
+import java.util.Iterator;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -35,6 +38,7 @@ import org.openide.DialogDisplayer;
 import org.openide.windows.TopComponent;
 
 import org.netbeans.api.diff.Diff;
+import org.netbeans.api.diff.Difference;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
@@ -48,7 +52,7 @@ import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem;
 import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList;
 
-public class TeamwareRevisionListCommand implements VcsAdditionalCommand {
+public class TeamwareRevisionDiffCommand implements VcsAdditionalCommand {
 
     private VcsFileSystem fileSystem;
     
@@ -71,16 +75,38 @@ public class TeamwareRevisionListCommand implements VcsAdditionalCommand {
             baseDir = new File(baseDir, dirName);
         }
         final File file = new File(baseDir, (String) vars.get("FILE"));
-        SFile sFile = new SFile(file);
-        RevisionList list = sFile.getRevisions();
-        String encodedList = null;
+        String revision1 = (String) vars.get("REVISION1");
+        String revision2 = (String) vars.get("REVISION2");
+        Component c = null;
         try {
-            encodedList = VcsUtilities.encodeValue(list);
+            if (revision2 == null) {
+                // diff between current version and specified revision
+                String name1 = file.getName();
+                String name2 = name1 + ": " + revision1;
+                String s = TeamwareSupport.getRevision(fileSystem, file, revision1);
+                c = Diff.getDefault().createDiff(
+                    name1, name1, new FileReader(file),
+                    name2, name2, new StringReader(s), "text/java");
+            } else {
+                String name1 = file.getName() + ": " + revision1;
+                String name2 = file.getName() + ": " + revision2;
+                String s1 = TeamwareSupport.getRevision(fileSystem, file, revision1);
+                String s2 = TeamwareSupport.getRevision(fileSystem, file, revision2);
+                c = Diff.getDefault().createDiff(
+                    name1, name1, new StringReader(s1),
+                    name2, name2, new StringReader(s2), "text/java");
+            }
+            if (c != null) {
+                ((TopComponent) c).open();
+            }
+            return true;
+        } catch (InterruptedException e) {
+            stderr.outputLine(e.toString());
+            return false;
         } catch (IOException e) {
-            // output null
+            stderr.outputLine(e.toString());
+            return false;
         }
-        stdoutData.outputData(new String[] { encodedList });
-        return true;
     }
 
 }
