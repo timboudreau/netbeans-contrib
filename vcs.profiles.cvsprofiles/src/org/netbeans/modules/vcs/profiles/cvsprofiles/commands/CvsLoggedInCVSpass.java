@@ -39,6 +39,10 @@ public class CvsLoggedInCVSpass implements VcsAdditionalCommand {
         if (args.length > 0) {
             connectStr = args[0];
         }
+        if (connectStr == null) {
+            stderrNRListener.outputLine("Variable 'CVSROOT' is not defined. Can not verify login state.");
+            return false;
+        }
         connectStr = Variables.expand(vars, connectStr, false);
         boolean loggedIn = false;
         CVSPasswd pasFile = new CVSPasswd((String)null);
