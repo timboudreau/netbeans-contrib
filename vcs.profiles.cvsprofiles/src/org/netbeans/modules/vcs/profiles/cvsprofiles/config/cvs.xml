@@ -1683,7 +1683,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>${CDW_EXECUTE} annotate $[? SPEC_REVISION] [-r ${SPEC_REVISION}] [] $[? SPEC_DATE] [-D ${QUOTE}${SPEC_DATE}${QUOTE}] [] ${USE_HEAD} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
-	  <value>VARIABLE_DEFAULTS(SPEC_REVISION USER, SPEC_DATE USER, USE_HEAD USER)
+	  <value>VARIABLE_DEFAULTS(SPEC_DATE USER, USE_HEAD USER)
                  LABEL(ResourceMsg1(COMMAND_ANNOTATE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Label)))
                  PROMPT_FOR_EXPERT(SPEC_REVISION, ResourceMsg1(COMMAND_ANNOTATE_Spec_Revision), "${CACHED_REVISION}", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Spec_Revision);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ANNOTATE_Spec_Revision_mnc)))
                  PROMPT_FOR_EXPERT(SPEC_DATE, ResourceMsg1(COMMAND_ANNOTATE_Spec_Date), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Spec_Date);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ANNOTATE_Spec_Date_mnc)))
