@@ -83,6 +83,7 @@ public class PackagePanel extends AbstractCORBAWizardPanel implements PropertyCh
         
         this.tree.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_PackageChooser"));
         this.jLabel3.setDisplayedMnemonic (this.bundle.getString("TXT_Name_MNE").charAt(0));
+        this.jLabel1.setDisplayedMnemonic (this.bundle.getString("TXT_FileSystems_MNE").charAt(0));
         this.getAccessibleContext().setAccessibleDescription(this.bundle.getString ("AD_PackagePanel"));
         this.fireChange(this);
     }
@@ -172,6 +173,7 @@ public class PackagePanel extends AbstractCORBAWizardPanel implements PropertyCh
         jPanel1 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         idlName = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -179,17 +181,17 @@ public class PackagePanel extends AbstractCORBAWizardPanel implements PropertyCh
         setMinimumSize(new java.awt.Dimension(480, 320));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
         add(tree, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
@@ -200,21 +202,32 @@ public class PackagePanel extends AbstractCORBAWizardPanel implements PropertyCh
         jLabel3.setLabelFor(idlName);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 6);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel3, gridBagConstraints);
 
         idlName.setToolTipText(bundle.getString("TIP_NameOfIdlFile"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(12, 6, 6, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 6, 6, 12);
         add(idlName, gridBagConstraints);
+
+        jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_FileSystems"));
+        jLabel1.setName("null");
+        jLabel1.setLabelFor(tree);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 12);
+        add(jLabel1, gridBagConstraints);
 
     }//GEN-END:initComponents
     
@@ -222,6 +235,7 @@ public class PackagePanel extends AbstractCORBAWizardPanel implements PropertyCh
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private org.openide.explorer.ExplorerPanel tree;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField idlName;
     // End of variables declaration//GEN-END:variables
