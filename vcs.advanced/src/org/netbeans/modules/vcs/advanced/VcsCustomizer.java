@@ -517,6 +517,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
         DialogDescriptor dd = new DialogDescriptor (variablePanel, org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("TIT_VariablesEditor"));//, "Advanced Properties Editor");
         TopManager.getDefault ().createDialog (dd).setVisible(true);
+        variableEditor.setValue(variablePanel.getPropertyValue());
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
             fileSystem.setVariables ((Vector) variableEditor.getValue ());
         }
