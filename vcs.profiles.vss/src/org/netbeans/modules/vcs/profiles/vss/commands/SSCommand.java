@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import javax.swing.SwingUtilities;
 import org.netbeans.modules.vcs.advanced.ProfilesFactory;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
@@ -250,7 +251,14 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
         }
     }
     
+    /**
+     * Prompt for a password with a given description.
+     * @return The new password or <code>null</code> when the prompt was canceled.
+     */
     private static String getPassword(String description) {
+        if (!isAWTLive(500)) { // If AWT is out of order, do not prompt for anything
+            return null;
+        }
         NotifyDescriptorInputPassword nd;
         if (description == null) {
             nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
@@ -262,6 +270,27 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
         } else {
             return null;
         }
+    }
+    
+    /** Check whether the AWT event queue is live and the requests are being processed. */
+    private static boolean isAWTLive(long timeout) {
+        final boolean[] gotNotification = new boolean[] { false };
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                synchronized (gotNotification) {
+                    gotNotification[0] = true;
+                    gotNotification.notifyAll();
+                }
+            }
+        });
+        synchronized (gotNotification) {
+            if (!gotNotification[0]) {
+                try {
+                    gotNotification.wait(timeout);
+                } catch (InterruptedException iex) {}
+            }
+        }
+        return gotNotification[0];
     }
     
     /*  (Uncomment if you're able to grab the prompt from error output)
