@@ -61,9 +61,6 @@ public class VcsMountFromTemplateAction extends NodeAction {
     /** Last node selected reference to (Node). */
     private static Reference where = new WeakReference (null);
 
-    /** wizard */
-    private static TemplateWizard defaultWizard;
-
     /** Standard wizard (unmodified).*/
     private static Reference standardWizardRef;
     
@@ -114,9 +111,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
             }
         }
         
-        if (defaultWizard == null) {
-            defaultWizard = getStandardWizard();
-        }
+        TemplateWizard    defaultWizard = getStandardWizard();
 
         //targetFolder = n == null ? null :(DataFolder)n.getCookie (DataFolder.class);
          //don't show help button!

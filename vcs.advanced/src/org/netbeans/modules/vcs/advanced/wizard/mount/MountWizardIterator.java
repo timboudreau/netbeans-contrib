@@ -136,6 +136,7 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
         data.removePropertyChangeListener(this);
         data = null;
         listenerList = null;
+        this.templateWizard = null;
     }
     
     public void removeChangeListener(javax.swing.event.ChangeListener changeListener) {
