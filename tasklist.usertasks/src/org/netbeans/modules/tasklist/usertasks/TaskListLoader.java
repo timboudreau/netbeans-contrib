@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -38,9 +38,8 @@ import org.openide.util.actions.SystemAction;
  *  Recognizes TaskList files such as iCalendar files that the user
  *  can browse, open etc.
  *
- * @author Tor Norbye
-*/
-
+ * @author Tor Norbye, Trond Norbye
+ */
 public final class TaskListLoader extends UniFileLoader {
     
     /** Serial version number */
@@ -51,7 +50,7 @@ public final class TaskListLoader extends UniFileLoader {
 
     /** The suffix list for tasklists. Does not include .xml which we
         handle separately. */
-    private static final String[] hdrExtensions = { "ics", "xcs" }; //NOI18N
+    private static final String[] hdrExtensions = { "ics" }; //NOI18N
     
     public TaskListLoader() {
         super("org.netbeans.modules.tasklist.usertasks.TaskListDataObject");//NOI18N
@@ -59,7 +58,6 @@ public final class TaskListLoader extends UniFileLoader {
 	// These extensions MUST match the ones in the editor kits...
 	ExtensionList extensions = new ExtensionList();
         extensions.addExtension("ics"); // NOI18N   iCalendar
-        extensions.addExtension("xcs"); // NOI18N   xCalendar
         setExtensions(extensions);
     }
 

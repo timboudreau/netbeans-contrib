@@ -66,11 +66,6 @@ Microsystems, Inc. All Rights Reserved.
            <attr name="template" boolvalue="true"/>
            <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/tasklist/usertasks/emptyicalendar.html" />
        </file>
-       <file name="tasklist.xcs" url="tasklist.xcs">
-           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
-           <attr name="template" boolvalue="true"/>
-           <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/tasklist/usertasks/emptyxcalendar.html" />
-       </file>
      </folder>
    </folder>
 
