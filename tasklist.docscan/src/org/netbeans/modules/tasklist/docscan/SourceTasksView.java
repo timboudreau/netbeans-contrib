@@ -83,6 +83,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     static final String PROP_SUGG_LINE = "suggLine"; // NOI18N
     static final String PROP_SUGG_CAT = "suggCat"; // NOI18N
 
+    private static final int CURRENT_FILE_MODE = 1;
+    private static final int OPENED_FILES_MODE = 2;
+    private static final int SELECTED_FOLDER_MODE = 3;
+
     // current job or null if snapshot
     private SuggestionsBroker.Job job;
 
@@ -101,11 +105,16 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private static final int RECENT_ITEMS_COUNT = 4;
     private ArrayList recentFolders = new ArrayList(RECENT_ITEMS_COUNT);
 
+    /** Active opened files job or null */
+    private SuggestionsBroker.AllOpenedJob allJob;
+
     private static Border buttonBorder;
 
     private final int CURRENT_FILE_TAB = 0;
     private final int SELECTED_FOLDER_TAB = 1;
     private final TabState[] tabStates = new TabState[2];
+
+
 
     /**
      * Externalization entry point (readExternal).
@@ -177,6 +186,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         inputMap.put(current, current);
         getActionMap().put(current, new DelegateAction(getCurrentFile()));
 
+        KeyStroke opened = KeyStroke.getKeyStroke(KeyEvent.VK_O, 0);
+        inputMap.put(opened, opened);
+        getActionMap().put(opened, new DelegateAction(getOpenedFiles()));
+
         KeyStroke folder = KeyStroke.getKeyStroke(KeyEvent.VK_S, 0);
         inputMap.put(folder, folder);
         getActionMap().put(folder, new DelegateAction(getAllFiles()));
@@ -200,6 +213,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private ColumnProperty[] allFilesColumns;
     private ColumnProperty[] currentFileColumns;
 
+    /** Create columes according to current getMode(). */
     protected ColumnProperty[] createColumns() {
         // No point allowing other attributes of the task since that's
         // all we support for scan items (they are not created by
@@ -207,25 +221,34 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         // See overridden loadColumnConfiguration to supress
         // loading from sourcetasks_columns.xml
-        if (job == null) {
-            if (allFilesColumns == null) {
-                allFilesColumns = new ColumnProperty[]{
-                    createMainColumn(800),
-                    createPriorityColumn(false, 100),
-                    createFileColumn(true, 150),
-                    createLineColumn(true, 50)
-                };
-            }
-            return allFilesColumns;
-        } else {
-            if (currentFileColumns == null) {
-                currentFileColumns = new ColumnProperty[]{
-                    createMainColumn(800),
-                    createPriorityColumn(false, 100),
-                    createLineColumn(true, 50)
-                };
-            }
-            return currentFileColumns;
+
+        switch (getMode()) {
+            case CURRENT_FILE_MODE:
+                if (currentFileColumns == null) {
+                    currentFileColumns = new ColumnProperty[]{
+                        createMainColumn(800),
+                        createPriorityColumn(false, 100),
+                        createLineColumn(true, 50)
+                    };
+                }
+                return currentFileColumns;
+
+            case OPENED_FILES_MODE:
+            case SELECTED_FOLDER_MODE:
+                if (allFilesColumns == null) {
+                    allFilesColumns = new ColumnProperty[]{
+                        createMainColumn(800),
+                        createPriorityColumn(false, 100),
+
+                        // TODO merge these two properties into one - location (file:line)
+                        createFileColumn(true, 150),
+                        createLineColumn(true, 50)
+                    };
+                }
+                return allFilesColumns;
+
+            default:
+                throw new IllegalStateException();
         }
     }
 
@@ -299,7 +322,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     protected void componentOpened() {
         super.componentOpened();
         setNorthComponentVisible(true);
-        if (job == null) {
+        if (job == null) {  // XXX how relates to deserialization?, is it called at all?
             handleCurrentFile();
         }
     }
@@ -313,6 +336,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (job != null) {
             job.stopBroker();
             job = null;
+        }
+        if (allJob != null) {
+            allJob.stopBroker();
+            allJob = null;
         }
         // keep on mind that it's still alive, just invisible
         // Until garbage collected it can be reopen at any time
@@ -371,6 +398,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         objectOutput.writeObject(recent);
     }
 
+    // TODO support de/seriliazation for "all oponed" mode
     public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException {
 
         super.category = CATEGORY;
@@ -477,11 +505,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             stop = new JButton(Util.getString("stop"));
             stop.setToolTipText(Util.getString("stop_hint") + " (ESC)");  // NOI18N
             stop.setVisible(job == null);
-            stop.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    handleStop();
-                }
-            });
+            stop.addActionListener(dispatcher);
             adjustHeight(stop);
         }
         return stop;
@@ -493,11 +517,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             JButton button = new JButton(new ImageIcon(image));
             button.setToolTipText(Util.getString("rescan_hint") + " (r)");  // NOI18N
             button.setEnabled(job == null);
-            button.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    handleRefresh();
-                }
-            });
+            button.addActionListener(dispatcher);
             adjustHeight(button);
             refresh = button;
         }
@@ -507,11 +527,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private JComponent getPrev() {
         if (prev == null) {
             JButton button = new JButton("Prev (Shift+F12)");
-            button.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    handlePrev();
-                }
-            });
+            button.addActionListener(dispatcher);
             adjustHeight(button);
             prev = button;
         }
@@ -521,11 +537,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private JComponent getNext() {
         if (next == null) {
             JButton button = new JButton("Next (F12)");
-            button.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    handleNext();
-                }
-            });
+            button.addActionListener(dispatcher);
             adjustHeight(button);
             next = button;
         }
@@ -547,11 +559,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             }
             group.add(button);
             button.setSelected(job == null);
-            button.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    handleAllFiles();
-                }
-            });
+            button.addActionListener(dispatcher);
             adjustHeight(button);
 //            JButton pop = new JButton("V");
 //            adjustHeight(pop);
@@ -572,15 +580,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (folderSelector == null) {
             JButton button = new DropDown();
             button.setToolTipText(Util.getString("selector_hint") + " (S)"); // NOI18N
-            button.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    if (recentFolders.size() > 0 || selectedFolder != null) {
-                        showFolderSelectorPopup();
-                    } else {
-                        handleSelectFolder();
-                    }
-                }
-            });
+            button.addActionListener(dispatcher);
             folderSelector = button;
         }
         return folderSelector;
@@ -673,6 +673,22 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
+    private AbstractButton openedFiles;
+
+    private AbstractButton getOpenedFiles() {
+        if (openedFiles == null) {
+            // TODO i18n
+            JToggleButton button = new JToggleButton("Opened Files");
+            button.setToolTipText("Shows tasks in all edited files (o)");
+            group.add(button);
+            button.setSelected(getMode() == OPENED_FILES_MODE);
+            button.addActionListener(dispatcher);
+            adjustHeight(button);
+            openedFiles = button;
+        }
+        return openedFiles;
+    }
+
     private AbstractButton currentFile;
 
     private AbstractButton getCurrentFile() {
@@ -680,12 +696,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             JToggleButton button = new JToggleButton(Util.getString("see-file"));
             button.setToolTipText(Util.getString("see-file_hint") + " (c)");  // NOI18N
             group.add(button);
-            button.setSelected(job != null);
-            button.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    handleCurrentFile();
-                }
-            });
+            button.setSelected(getMode() == CURRENT_FILE_MODE);
+            button.addActionListener(dispatcher);
             adjustHeight(button);
             currentFile = button;
         }
@@ -699,16 +711,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/gotosource.gif"); // NOI18N
             JButton button = new JButton(new ImageIcon(image));
             button.setToolTipText(Util.getString("goto_hint") + " (e)");  // NOI18N
-            button.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    GoToTaskAction gotoAction = (GoToTaskAction) SystemAction.get(GoToTaskAction.class);
-                    if (gotoAction.isEnabled()) {
-                        gotoAction.performAction();
-                    } else {
-                        Toolkit.getDefaultToolkit().beep();
-                    }
-                }
-            });
+            button.addActionListener(dispatcher);
             adjustHeight(button);
             gotoPresenter = button;
         }
@@ -723,63 +726,98 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             filterButton = new JButton(icon);
             filterButton.setToolTipText(Util.getString("filter_hint") + " (f)");  // NOI18N
             adjustHeight(filterButton);
-            filterButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JPopupMenu popup = new JPopupMenu();
-                    ButtonGroup group = new ButtonGroup();
-
-                    JRadioButtonMenuItem activate = new JRadioButtonMenuItem(Util.getString("activate"));
-                    activate.setMnemonic(Util.getChar("activate_mne"));
-                    activate.setSelected(isFiltered());
-                    activate.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            if (filter == null && isFiltered() == false) {
-                                SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
-                                updateMiniStatus();
-                            } else if (isFiltered() == false) {
-                                setFiltered(true);
-                                updateMiniStatus();
-                            } else {
-                                Toolkit.getDefaultToolkit().beep();
-                            }
-                        }
-                    });
-                    group.add(activate);
-                    popup.add(activate);
-
-                    JRadioButtonMenuItem deactivate = new JRadioButtonMenuItem(Util.getString("deactivate"));
-                    deactivate.setMnemonic(Util.getChar("deactivate_mne"));
-                    deactivate.setSelected(isFiltered() == false);
-                    deactivate.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            if (isFiltered()) {
-                                setFiltered(false);
-                                updateMiniStatus();
-                            } else {
-                                Toolkit.getDefaultToolkit().beep();
-                            }
-                        }
-                    });
-                    group.add(deactivate);
-                    popup.add(deactivate);
-
-                    popup.add(new JSeparator());
-
-                    JMenuItem editFilter = new JMenuItem(Util.getString("edit"));
-                    editFilter.setMnemonic(Util.getChar("edit_mne"));
-                    editFilter.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
-                            updateMiniStatus();
-                        }
-                    });
-                    popup.add(editFilter);
-                    popup.show(filterButton, 0, filterButton.getHeight() - 2);
-                }
-            });
+            filterButton.addActionListener(dispatcher);
         }
         return filterButton;
     }
+
+    /** Eliminates action listener inner classes. */
+    private class Dispatcher implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            Object obj = e.getSource();
+            if (obj == getGoto()) {
+                GoToTaskAction gotoAction = (GoToTaskAction) SystemAction.get(GoToTaskAction.class);
+                if (gotoAction.isEnabled()) {
+                    gotoAction.performAction();
+                } else {
+                    Toolkit.getDefaultToolkit().beep();
+                }
+            } else if (obj == getCurrentFile()) {
+                handleCurrentFile();
+            } else if (obj == getOpenedFiles()) {
+                handleOpenedFiles();
+            } else if (obj == getStop()) {
+                handleStop();
+            } else if (obj == getFolderSelector()) {
+                if (recentFolders.size() > 0 || selectedFolder != null) {
+                    showFolderSelectorPopup();
+                } else {
+                    handleSelectFolder();
+                }
+            } else if (obj == getAllFiles()) {
+                handleAllFiles();
+            } else if (obj == getRefresh()) {
+                handleRefresh();
+            } else if (obj == getPrev()) {
+                handlePrev();
+            } else if (obj == getNext()) {
+                handleNext();
+            } else if (obj == getFilterMenu()) {
+                JPopupMenu popup = new JPopupMenu();
+                ButtonGroup group = new ButtonGroup();
+
+                JRadioButtonMenuItem activate = new JRadioButtonMenuItem(Util.getString("activate"));
+                activate.setMnemonic(Util.getChar("activate_mne"));
+                activate.setSelected(isFiltered());
+                activate.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        if (filter == null && isFiltered() == false) {
+                            SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
+                            updateMiniStatus();
+                        } else if (isFiltered() == false) {
+                            setFiltered(true);
+                            updateMiniStatus();
+                        } else {
+                            Toolkit.getDefaultToolkit().beep();
+                        }
+                    }
+                });
+                group.add(activate);
+                popup.add(activate);
+
+                JRadioButtonMenuItem deactivate = new JRadioButtonMenuItem(Util.getString("deactivate"));
+                deactivate.setMnemonic(Util.getChar("deactivate_mne"));
+                deactivate.setSelected(isFiltered() == false);
+                deactivate.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        if (isFiltered()) {
+                            setFiltered(false);
+                            updateMiniStatus();
+                        } else {
+                            Toolkit.getDefaultToolkit().beep();
+                        }
+                    }
+                });
+                group.add(deactivate);
+                popup.add(deactivate);
+
+                popup.add(new JSeparator());
+
+                JMenuItem editFilter = new JMenuItem(Util.getString("edit"));
+                editFilter.setMnemonic(Util.getChar("edit_mne"));
+                editFilter.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
+                        updateMiniStatus();
+                    }
+                });
+                popup.add(editFilter);
+                popup.show(filterButton, 0, filterButton.getHeight() - 2);
+            }
+        }
+    }
+
+    private final ActionListener dispatcher = new Dispatcher();
 
     /** Toolbar controls must be smaller*/
     private static void adjustHeight(AbstractButton button) {
@@ -825,6 +863,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         toolbar.setBorder(null);
 
         toolbar.add(getCurrentFile());
+        toolbar.add(getOpenedFiles());
         toolbar.add(getAllFiles());
         toolbar.add(getFolderSelector());
         toolbar.add(new JSeparator(JSeparator.VERTICAL));
@@ -1011,12 +1050,56 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return rootNode;
     }
 
+    /** User clicked all files mode. Start allJob. */
+    private void handleOpenedFiles() {
+
+        // we are still in old mode, stop it
+
+        switch (getMode()) {
+            case CURRENT_FILE_MODE:
+                job.stopBroker();
+                job = null;
+                break;
+            case OPENED_FILES_MODE:
+                return;
+            case SELECTED_FOLDER_MODE:
+                if (background != null) handleStop();
+                background = null;
+                break;
+        }
+
+        // enter new mode
+
+        allJob = SuggestionsBroker.getDefault().startAllOpenedBroker();
+
+        treeTable.setProperties(createColumns());
+        treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
+        TaskList list = allJob.getSuggestionList();
+        setModel(list);
+//        swapTabStates(CURRENT_FILE_TAB, SELECTED_FOLDER_TAB);
+        getRefresh().setEnabled(false);
+
+    }
+
     /** User clicked selected folder, restore from cache or ask for context */
     private void handleAllFiles() {
-        if (job != null) {
-            job.stopBroker();
-            job = null;
+
+        // terminate old mode
+
+        switch (getMode()) {
+            case CURRENT_FILE_MODE:
+                job.stopBroker();
+                job = null;
+                break;
+            case OPENED_FILES_MODE:
+                allJob.stopBroker();
+                allJob = null;
+                break;
+            case SELECTED_FOLDER_MODE:
+                break;
         }
+
+        // prepare (& check) new mode parameters
 
         if (selectedFolder == null) {
             if (recentFolders.size() > 0) {
@@ -1043,6 +1126,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 return;
             }
         }
+
+        // enter new mode
 
         allFilesButton.setToolTipText(Util.getMessage("see-folder-hint2", createLabel(selectedFolder)) + " (s)"); // NOI18N
         ((JToggleButton)allFilesButton).setSelected(true);
@@ -1107,7 +1192,14 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
+    /** Determine toggle buttons status from internal state. */
+    private int getMode() {
+        if (job != null) return CURRENT_FILE_MODE;
+        if (allJob != null) return OPENED_FILES_MODE;
+        return SELECTED_FOLDER_MODE;
+    }
 
+    /** Swap filter and its enableness  */
     private void swapTabStates(int oldTab, int newTab) {
         TabState oldState = (tabStates[oldTab] == null) ?
                 new TabState() : tabStates[oldTab];
@@ -1135,10 +1227,25 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     /** Switches to current file mode. */
     private void handleCurrentFile() {
-        if (job != null) return;
+
+        // terminate previous mode
+
+        switch (getMode()) {
+            case CURRENT_FILE_MODE:
+                return;
+            case OPENED_FILES_MODE:
+                allJob.stopBroker();
+                allJob = null;
+                break;
+            case SELECTED_FOLDER_MODE:
+                if (background != null) handleStop();
+                background = null;
+                break;
+        }
+
+        // enter new mode
+
         try {
-            if (background != null) handleStop();
-            background = null;
             job = SuggestionsBroker.getDefault().startBroker();
             treeTable.setProperties(createColumns());
             treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
@@ -1179,6 +1286,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
+    /** @deprecated logical view over repository */
     private Node repositoryView() {
         Node repo = RepositoryNodeFactory.getDefault().repository(new DataFilter() {
             public boolean acceptDataObject(DataObject obj) {
@@ -1210,6 +1318,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
 
+    /** Logical view over project */
     private Node projectView() {
 
         Children kids = new Children.Array();

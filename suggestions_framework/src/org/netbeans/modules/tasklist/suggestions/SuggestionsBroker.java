@@ -73,6 +73,7 @@ public final class SuggestionsBroker {
 
     private int allOpenedClientsCount = 0;
 
+    /** all opened mode is a client of currently opened  job (this field). */
     private Job allOpenedJob;
 
     private SuggestionList allOpenedList;
@@ -622,9 +623,6 @@ err.log("Couldn't find current nodes...");
                     openedFilesSuggestionsMap.put(lastOpenedFileObject, clones);
 
                     getAllOpenedSuggestionList().addRemove(clones, previous, false, null, null);
-
-                    // TODO remove on enabling
-                    getAllOpenedSuggestionList().print();
                 }
 
                 // enforce comparable requests, works only for single request source
