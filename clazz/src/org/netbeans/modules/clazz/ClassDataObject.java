@@ -11,7 +11,7 @@
  * Copyright 1997-2000 Sun Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.developer.modules.loaders.clazz; 
+package com.netbeans.developer.modules.loaders.clazz;
 
 import java.applet.Applet;
 import java.awt.datatransfer.Clipboard;
@@ -167,7 +167,6 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   */
   protected DataObject handleCopy (DataFolder f) throws IOException {
     String newName = existInFolder (f);
-    if (newName == null) throw new IOException ();
     Object bean;
     try {
       bean = instanceSupport.instanceCreate();
@@ -227,7 +226,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
     return alteranteParent;
   }
-  
+
 
   // implementation of ExecCookie ..........................................
 
@@ -360,12 +359,13 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   // other methods ..............................................................................
 
   /** Check if in specific folder exists .ser fileobject with the same name.
-  * If it exists user is asked for confirmation to rewrite, rename or cancel operation.
+  * If it exists user is asked for confirmation to rewrite, rename or
+  * cancel operation. Throws UserCancelException if user pressed cancel
+  * button.
   * @param f destination folder
-  * @return new Name of file in destination folder or null if operation should be
-  *     canceled.
+  * @return new Name of file in destination
   */
-  private String existInFolder(DataFolder f) {
+  private String existInFolder(DataFolder f) throws UserCancelException {
     FileObject fo = getPrimaryFile();
     String name = fo.getName();
     String ext = "ser";
@@ -373,21 +373,20 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
     if (f.getPrimaryFile().getFileObject(name, ext) != null) {
       // file with the same name exists - ask user what to do
       ResourceBundle bundle = NbBundle.getBundle(ClassDataObject.class);
-      final String rewriteStr = bundle.getString("CTL_Rewrite");
-      final String renameStr = bundle.getString("CTL_Rename");
+      String rewriteStr = bundle.getString("CTL_Rewrite");
+      String renameStr = bundle.getString("CTL_Rename");
+      String cancelStr = bundle.getString("CTL_Cancel");
       NotifyDescriptor nd = new NotifyDescriptor.Confirmation(
         new MessageFormat(bundle.getString("MSG_SerExists")).
           format(new Object[] { name, f.getName() }));
-      nd.setOptions(new Object[] { rewriteStr, renameStr,
-                    NotifyDescriptor.CANCEL_OPTION });
-      Object ret = TopManager.getDefault().notify(nd);
-
-      if (NotifyDescriptor.CANCEL_OPTION.equals(ret)) return null;
-      String retStr = ((JButton)ret).getText();
-      if (rewriteStr.equals(retStr))
+      nd.setOptions(new Object[] { rewriteStr, renameStr, cancelStr });
+      String retStr = (String)TopManager.getDefault().notify(nd);
+      if (cancelStr.equals(retStr)) // user cancelled the dialog
+        throw new UserCancelException();
+      if (renameStr.equals(retStr))
         destName = FileUtil.findFreeFileName (
                     f.getPrimaryFile(), destName, ext);
-      if (renameStr.equals(retStr)) {
+      if (rewriteStr.equals(retStr)) {
         try {
           FileObject dest = f.getPrimaryFile().getFileObject(name, ext);
           FileLock lock = dest.lock();
@@ -464,6 +463,8 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  17   Gandalf   1.16        4/8/99   David Simonek   obscure dialog bugfix 
+ *       (#1411)
  *  16   Gandalf   1.15        4/2/99   Jan Jancura     ObjectBrowser support 
  *       II.
  *  15   Gandalf   1.14        4/1/99   Ian Formanek    Rollback to make it 
