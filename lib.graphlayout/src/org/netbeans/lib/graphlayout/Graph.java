@@ -28,7 +28,7 @@ public final class Graph extends Object {
     private int middleSize = 100;
     private int gridSize = 300;
     private java.awt.Dimension size;
-    double /*minX, minY,*/ maxX, maxY;
+    double minX, maxX, minY, maxY;
     
     /** Creates a new instance of Graph */
     private Graph () {
@@ -118,6 +118,51 @@ public final class Graph extends Object {
         return e;
     }
     
+    public void removeVertex (Vertex v) {
+        if (vertexes.remove (v)) {
+            Iterator it = edges.iterator ();
+            while (it.hasNext ()) {
+                Edge e = (Edge)it.next ();
+                if (e.getVertex1 () == v) {
+                    it.remove ();
+                    e.getVertex2 ().removeEdge (e);
+                    continue;
+                }
+                    
+                if (e.getVertex2 () == v) {
+                    it.remove ();
+                    e.getVertex1 ().removeEdge (e);
+                    continue;
+                }
+            }
+        }
+    }
+    
+    public void removeGroup (String info) {
+        Iterator ver = vertexes.iterator ();
+        while (ver.hasNext ()) {
+            Vertex v = (Vertex)ver.next ();
+            if (info.equals (v.info)) {
+                ver.remove ();
+                Iterator it = edges.iterator ();
+                while (it.hasNext ()) {
+                    Edge e = (Edge)it.next ();
+                    if (e.getVertex1 () == v) {
+                        it.remove ();
+                        e.getVertex2 ().removeEdge (e);
+                        continue;
+                    }
+
+                    if (e.getVertex2 () == v) {
+                        it.remove ();
+                        e.getVertex1 ().removeEdge (e);
+                        continue;
+                    }
+                }
+            }
+        }
+    }
+    
     private Vertex findVertex (String name, boolean createVertexesIfNecessary) {
         Iterator it = vertexes.iterator ();
         while (it.hasNext ()) {
@@ -184,14 +229,12 @@ public final class Graph extends Object {
 
         for (Iterator it = vertexes.iterator (); it.hasNext (); ) {
             Vertex v = (Vertex)it.next ();
-            v.applyEdgeRepulsion(gridSize);
-            
             for (Iterator inner = vertexes.iterator (); inner.hasNext (); ) {
                 Vertex n = (Vertex)inner.next ();
                 if (v == n) continue;
                 
-                v.applyRepulsion(n, gridSize);
-                n.applyRepulsion(v, gridSize);
+                v.applyRepulsion (n.x, n.y, gridSize);
+                n.applyRepulsion (v.x, v.y, gridSize);
             }
         }
         
@@ -211,11 +254,9 @@ public final class Graph extends Object {
         for (Iterator it = vertexes.iterator (); it.hasNext (); ) {
             Vertex v = (Vertex)it.next ();
             v.applyAllForces (minTime);
-
-            /*
+            
             if (minX > v.x) minX = v.x;
             if (minY > v.y) minY = v.y;
-             */
             if (maxX < v.x) maxX = v.x;
             if (maxY < v.y) maxY = v.y;
         }

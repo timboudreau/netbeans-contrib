@@ -133,8 +133,66 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
     // mouse operations
     //
     
+    private void popup (java.awt.event.MouseEvent e) {
+        final Vertex v = graph.findVertex (unzoom (e.getX ()), unzoom (e.getY ()), 20, 20);
+        if (v == null) {
+            return;
+        }
+        
+        javax.swing.JPopupMenu menu = new javax.swing.JPopupMenu (v.name);
+        final javax.swing.JMenuItem remove = menu.add ("Remove Vertex");
+        final javax.swing.JMenuItem removeGroup = menu.add ("Remove All " + v.info);
+        menu.addSeparator ();
+        final javax.swing.JMenuItem freeze = menu.add ("Freeze Vertex");
+        freeze.setEnabled (!v.isFixed ());
+        final javax.swing.JMenuItem release = menu.add ("Unfreeze Vertex");
+        menu.addSeparator ();
+        release.setEnabled (v.isFixed ());
+        final javax.swing.JMenuItem random = menu.add ("Randomize Vertex");
+
+        class Action implements java.awt.event.ActionListener {
+            public void actionPerformed (java.awt.event.ActionEvent ev) {
+                repaint ();
+                if (ev.getSource () == remove) {
+                    graph.removeVertex (v);
+                    return;
+                }
+                if (ev.getSource () == removeGroup) {
+                    graph.removeGroup (v.info);
+                    return;
+                }
+                if (ev.getSource () == freeze) {
+                    v.setFixed (true);
+                    return;
+                }
+                if (ev.getSource () == release) {
+                    v.setFixed (false);
+                    return;
+                }
+                if (ev.getSource () == random) {
+                    v.x = Math.random () * ((double)getSize ().width);
+                    v.y = Math.random () * ((double)getSize ().height);
+                    return;
+                }
+            }
+        }
+        Action a = new Action ();
+        remove.addActionListener (a);
+        removeGroup.addActionListener (a);
+        freeze.addActionListener (a);
+        release.addActionListener (a);
+        random.addActionListener (a);
+        
+        menu.show (this, e.getX (), e.getY ());
+    }
+    
     
     public void mouseClicked (java.awt.event.MouseEvent e) {
+        if (e.isPopupTrigger ()) {
+            popup (e);
+            return;
+        }
+        
         if (e.getClickCount () != 2) {
             return;
         }
@@ -148,6 +206,11 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
     }
     
     public void mousePressed (java.awt.event.MouseEvent e) {
+        if (e.isPopupTrigger ()) {
+            popup (e);
+            return;
+        }
+        
         Vertex v = graph.findVertex (unzoom (e.getX ()), unzoom (e.getY ()), 20, 20);
         if (v == null) {
             return;
@@ -163,6 +226,11 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
     }
     
     public void mouseReleased (java.awt.event.MouseEvent e) {
+        if (e.isPopupTrigger ()) {
+            popup (e);
+            return;
+        }
+        
         if (dragging == null) {
             return;
         }
