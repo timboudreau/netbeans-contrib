@@ -29,6 +29,9 @@ import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 
@@ -44,6 +47,7 @@ import org.netbeans.modules.vcscore.util.*;
 
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
+import org.netbeans.modules.vcs.advanced.projectsettings.CommandLineVcsFileSystemInstance;
 
 /** Generic command line VCS filesystem.
  * 
@@ -51,6 +55,11 @@ import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
  */
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends VcsFileSystem implements java.beans.PropertyChangeListener {
+
+    /**
+     * The FS Settings file extension.
+     */
+    public static final String SETTINGS_EXT = "xml"; // NOI18N
     
     public static final String PROP_SHORT_FILE_STATUSES = "shortFileStatuses"; // NOI18N
     public static final String PROP_CONFIG = "config"; // NOI18N
@@ -129,10 +138,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         //if (status == false) readConfigurationCompat(DEFAULT_CONFIG_NAME_COMPAT);
         setCommands(new VcsCommandNode(new Children.Array(), new UserCommand("NONE")));
         addPropertyChangeListener(this);
-        /*
         cacheRoot = System.getProperty("netbeans.user")+File.separator+
                     "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
-         */
         cachePath = createNewCacheDir();
         setCreateVersioningSystem(true);
         try {
@@ -147,6 +154,39 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
 
     public VcsFactory getVcsFactory () {
         return new CommandLineVcsFactory (this);
+    }
+    
+    /**
+     * Get the working directory, without the relative mount point.
+     */
+    public java.io.File getWorkingDirectory() {
+        String defaultRoot = VcsFileSystem.substractRootDir (getRootDirectory ().toString (), getRelativeMountPoint());
+        return new java.io.File(defaultRoot);
+    }
+    
+    /**
+     * Get the password that should be stored into FS settings.
+     * Can be used for possible encryption.
+     */
+    public String getPasswordStored() {
+        if (!isRememberPassword()) return null;
+        return getPassword();
+    }
+
+    /**
+     * Set the password that was stored in FS settings.
+     * Can be used for possible encryption.
+     */
+    public void setPasswordStored(String password) {
+        setPassword(password);
+    }
+    
+    public int getRefreshTimeStored() {
+        return getRefreshTime();
+    }
+    
+    public void setRefreshTimeStored(int refreshTime) {
+        setRefreshTime(refreshTime);
     }
 
     /**
@@ -173,9 +213,20 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         firePropertyChange(PROP_CONFIG, null, label);
     }
     
+    /**
+     * Get the configuration display name or null, when no configuration is loaded.
+     */
+    public String getConfig() {
+        return config;
+    }
+
     public void setConfigFileName(String configFileName) {
         this.configFileName = configFileName;
         firePropertyChange(PROP_CONFIG_FILE_NAME, null, configFileName);
+    }
+    
+    public String getConfigFileName() {
+        return configFileName;
     }
 
     private void setConfigFO() {
@@ -190,13 +241,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
         CONFIG_ROOT_FO = fo;
         firePropertyChange(PROP_CONFIG_ROOT_FO, null, fo);
-    }
-
-    /**
-     * Get the configuration display name or null, when no configuration is loaded.
-     */
-    public String getConfig() {
-        return config;
     }
 
     /*
@@ -219,6 +263,18 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             createNewCacheId();
         }
         return cacheId;
+    }
+
+    /**
+     * Set the ID of the disk cache. This method should be used ONLY by the
+     * settings storage process to restore the previous state.
+     * Note, that this does not have any connection to
+     * VcsFileSystem.getCacheIdStr(), which returns the string identification
+     * of a memory cache.
+     */
+    public void setCacheId(long cacheId) {
+        this.cacheId = cacheId;
+        this.cachePath = createNewCacheDir();
     }
 
     /**
@@ -246,8 +302,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
     
     private void createNewCacheId() {
-        cacheRoot = System.getProperty("netbeans.user")+File.separator+
-                    "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
         do {
             cacheId = 10000 * (1 + Math.round (Math.random () * 8)) + Math.round (Math.random () * 1000);
         } while (new File(cacheRoot+File.separator+cacheId).isDirectory ());
@@ -721,6 +775,60 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public void setUncompatibleOSs(java.util.Set uncompatibleOSs) {
         this.uncompatibleOSs = uncompatibleOSs;
         firePropertyChange(PROP_UNCOMPATIBLE_OS, null, uncompatibleOSs);
+    }
+    
+    private String createNewFSSettingsName(FileObject folderFO) {
+        String settingsName;
+        String baseName = getClass().getName().replace('.', '-');
+        int extNum = 0;
+        FileObject[] children = folderFO.getChildren();
+        boolean matched;
+        do {
+            matched = false;
+            settingsName = baseName + ((extNum == 0) ? "" : "_"+extNum);
+            for (int i = 0; i < children.length; i++) {
+                String name = children[i].getName();
+                if (name.equals(settingsName)) {
+                    matched = true;
+                    break;
+                }
+            }
+            extNum++;
+        } while (matched);
+        return settingsName;
+    }
+    
+    /**
+     * Create a DataObject, that have this filesystem as an InstanceCookie.
+     * @param folder the folder in which the DataObject should be created
+     * @return the DataObject
+     */
+    public DataObject createInstanceDataObject(DataFolder folder) {
+        FileObject folderFO = folder.getPrimaryFile();
+        String settingsName = createNewFSSettingsName(folderFO);
+        FileObject fo = null;
+        try {
+            fo = folderFO.createData(settingsName, SETTINGS_EXT);
+            org.w3c.dom.Document doc = CommandLineVcsFileSystemInstance.createEmptyFSPropertiesDocument();
+            try {
+                CommandLineVcsFileSystemInstance.writeFSProperties(this, doc);
+            } catch (org.w3c.dom.DOMException dExc) {
+                TopManager.getDefault().notifyException(dExc);
+            }
+            org.openide.xml.XMLUtil.write(doc, fo.getOutputStream(fo.lock()), null);
+            try {
+                DataObject myXMLDataObject = DataObject.find(fo);
+                //System.out.println("createInstanceDataObject() = "+myXMLDataObject);
+                return myXMLDataObject;
+            } catch (DataObjectNotFoundException donfExc) {}
+        } catch (IOException ioExc) {
+            if (fo != null) {
+                try {
+                    fo.delete(fo.lock());
+                } catch (IOException ioExc1) {}
+            }
+        }
+        return null;
     }
     
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {

@@ -76,8 +76,9 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     }
     
     public java.util.Set instantiate(org.openide.loaders.TemplateWizard templateWizard) throws java.io.IOException {
-        org.openide.loaders.DataObject dobj = templateWizard.getTemplate();
-        dobj = dobj.createFromTemplate(templateWizard.getTargetFolder());
+        org.openide.loaders.DataObject dobj = data.getFileSystem().createInstanceDataObject(templateWizard.getTargetFolder());
+        //org.openide.loaders.DataObject dobj = templateWizard.getTemplate();
+        //dobj = dobj.createFromTemplate(templateWizard.getTargetFolder());
         return Collections.singleton(dobj);
     }
     

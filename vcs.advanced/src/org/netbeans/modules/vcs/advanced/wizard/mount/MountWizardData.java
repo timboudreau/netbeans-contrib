@@ -62,6 +62,10 @@ public class MountWizardData {
     void removeProfileChangeListener(java.beans.PropertyChangeListener l) {
         customizer.removePropertyChangeListener(VcsCustomizer.PROP_PROFILE_SELECTION_CHANGED, l);
     }
+    
+    CommandLineVcsFileSystem getFileSystem() {
+        return fileSystem;
+    }
 
     /** Getter for property workingDir.
      * @return Value of property workingDir.
