@@ -68,7 +68,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private String configFileName = null;
     private transient Hashtable commandsByName=null;
     private HashMap additionalPossibleFileStatusesMap = null;
-    private HashMap additionalStatusIconMap = null;
+    private transient HashMap additionalStatusIconMap = null;
     private Vector localFilesFilteredOut = null;
     private boolean localFileFilterCaseSensitive = DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE;
     private Vector docCleanupRemoveItems = null;
@@ -298,17 +298,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
     
-    private void setPossibleFileStatusesAndIconsFromVars() {
+    private void setPossibleFileStatusesFromVars() {
         VcsConfigVariable varStatuses = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES);
         VcsConfigVariable varStatusesLclz = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES_LOCALIZED);
-        VcsConfigVariable varIcons = (VcsConfigVariable) variablesByName.get (VAR_ICONS_FOR_FILE_STATUSES);
         if (additionalPossibleFileStatusesMap != null) VcsUtilities.removeKeys(possibleFileStatusesMap, additionalPossibleFileStatusesMap);
-        if (additionalStatusIconMap != null) VcsUtilities.removeKeys(statusIconMap, additionalStatusIconMap);
         additionalPossibleFileStatusesMap = null;
-        additionalStatusIconMap = null;
         if (varStatuses != null) {
             additionalPossibleFileStatusesMap = new HashMap();
-            additionalStatusIconMap = new HashMap();
             String[] possStatuses = VcsUtilities.getQuotedStrings(varStatuses.getValue());
             String[] possStatusesLclz = null;
             if (varStatusesLclz != null) possStatusesLclz = VcsUtilities.getQuotedStrings(varStatusesLclz.getValue());
@@ -322,11 +318,22 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 additionalPossibleFileStatusesMap.put(possStatuses[i], possStatuses[i]);
             }
             possibleFileStatusesMap.putAll(additionalPossibleFileStatusesMap);
+        }
+    }
+    
+    private void setBadgeIconsFromVars() {
+        VcsConfigVariable varStatuses = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES);
+        VcsConfigVariable varIcons = (VcsConfigVariable) variablesByName.get (VAR_ICONS_FOR_FILE_STATUSES);
+        if (additionalStatusIconMap != null) VcsUtilities.removeKeys(statusIconMap, additionalStatusIconMap);
+        additionalStatusIconMap = null;
+        if (varStatuses != null) {
+            additionalStatusIconMap = new HashMap();
+            String[] possStatuses = VcsUtilities.getQuotedStrings(varStatuses.getValue());
             String[] iconResources = null;
             if (varIcons != null) iconResources = VcsUtilities.getQuotedStrings(varIcons.getValue());
             if (iconResources != null) {
                 FileSystem defaultFS = TopManager.getDefault().getRepository().getDefaultFileSystem();
-                for (i = 0; i < possStatuses.length && i < iconResources.length; i++) {
+                for (int i = 0; i < possStatuses.length && i < iconResources.length; i++) {
                     if (iconResources[i].length() == 0) continue;
                     FileObject resourceFile = defaultFS.findResource(iconResources[i]);
                     if (resourceFile == null) {
@@ -406,7 +413,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      */
     public void setVariables(Vector variables){
         super.setVariables(variables);
-        setPossibleFileStatusesAndIconsFromVars();
+        setPossibleFileStatusesFromVars();
+        setBadgeIconsFromVars();
         setNotModifiableStatusesFromVars();
         setLocalFileFilterFromVars();
         setDocumentCleanupFromVars();
@@ -507,6 +515,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         org.openide.util.RequestProcessor.postRequest(new Runnable() {
             public void run() {
                 loadCurrentConfig();
+                setBadgeIconsFromVars();
             }
         });
     }
