@@ -31,6 +31,7 @@ Microsystems, Inc. All Rights Reserved.
             <patternset>
                 <include name="complete/cvs_profile/JellyBranch.class"/>
                 <include name="complete/cvs_profile/JellyOverall.class"/>
+                <include name="complete/cvs_profile/JellyAddFeatures.class"/>
             </patternset>
         </testset>
     </testbag>
@@ -39,7 +40,6 @@ Microsystems, Inc. All Rights Reserved.
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyGroup.class"/>
-                <include name="complete/cvs_profile/JellyAddFeatures.class"/>
             </patternset>
         </testset>
     </testbag>
