@@ -498,7 +498,7 @@ public class VariableIO extends Object {
         return false;
     }
     
-    private static String translateVariableValue(String name, String value) {
+    public static String translateVariableValue(String name, String value) {
         if ("WRAPPER".equals(name)) {
             int classIndex = value.indexOf(".class");
             if (classIndex > 0) {

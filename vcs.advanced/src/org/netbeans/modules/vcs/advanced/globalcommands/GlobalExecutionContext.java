@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -57,6 +57,7 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
     private Hashtable variablesByNames;
     private Map defaultVariables;
     private VariableValueAdjustment varValueAdjustment;
+    private Vector variables;
     private String[] environmentVars;
     private CommandsTree commandsRoot;
     private Map commandsByName;
@@ -96,13 +97,10 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
         defaultVariables = getDefaultVariables();
         variablesByNames = new Hashtable(Variables.getDefaultVariablesMap());
         variablesByNames.putAll(defaultVariables);
-        Map variablesMap = profile.getVariables().getSelfConditionedVariableMap(profile.getConditions(), Variables.getDefaultVariablesMap());
-        variablesByNames.putAll(variablesMap);
         varValueAdjustment = new VariableValueAdjustment();
         updateEnvironmentVars();
         varValueAdjustment.setAdjust(variablesByNames);
         setPasswordDescription(variablesByNames);
-        setCommands(copySharedCommands(profile.getGlobalCommands().getCommands(variablesByNames)));
     }
     
     private Map getDefaultVariables() {
@@ -114,7 +112,7 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
     private void setPasswordDescription(Map varValuesByNames) {
         passwordDescription = (String) varValuesByNames.get(CommandLineVcsFileSystem.VAR_PASSWORD_DESCRIPTION);
         if (passwordDescription != null) {
-            passwordDescription = Variables.expand(getVariablesAsHashtable(), passwordDescription, false);
+            passwordDescription = Variables.expand(variablesByNames, passwordDescription, false);
             if (passwordDescription.trim().length() == 0) passwordDescription = null;
         }
     }
@@ -193,11 +191,18 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
         return (CommandSupport) commandsByName.get(name);
     }
     
-    public CommandsTree getCommands() {
+    public synchronized CommandsTree getCommands() {
+        if (commandsRoot == null) {
+            Profile profile = (Profile) profileRef.get();
+            if (profile != null) {
+                profile.preLoadContent(false, false, false, true);
+                setCommands(copySharedCommands(profile.getGlobalCommands().getCommands(variablesByNames)));
+            }
+        }
         return commandsRoot;
     }
     
-    private void setCommands(CommandsTree commands) {
+    private synchronized void setCommands(CommandsTree commands) {
         this.commandsRoot = commands;
         commandsByName = new Hashtable();
         addCommandsToHashTable(commands);
@@ -224,7 +229,7 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
     
     private void updateEnvironmentVars() {
         Map systemEnv = VcsUtilities.getSystemEnvVars();
-        Map env = VcsUtilities.addEnvVars(systemEnv, getVariablesAsHashtable(),
+        Map env = VcsUtilities.addEnvVars(systemEnv, variablesByNames,
                                           VcsFileSystem.VAR_ENVIRONMENT_PREFIX,
                                           VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX);
         environmentVars = VcsUtilities.getEnvString(env);
@@ -243,22 +248,33 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
      *
      */
     public Hashtable getVariablesAsHashtable() {
+        if (variables == null) {
+            getVariables();
+        }
         return new Hashtable(variablesByNames);
     }
     
-    public Vector getVariables() {
+    public synchronized Vector getVariables() {
         Profile profile = (Profile) profileRef.get();
         if (profile != null) {
-            ConditionedVariables cvariables = profile.getVariables();
-            if (cvariables != null) {
-                Map variableMap = cvariables.getVariableMap(Variables.getDefaultVariablesMap());
-                Map allVarsMap = new HashMap(Variables.getDefaultVariablesMap());
-                allVarsMap.putAll(variableMap);
-                Collection variables = cvariables.getVariables(allVarsMap);
-                return new Vector(variables);
-            } else{
-                return new Vector();
+            if (variables == null) {
+                ConditionedVariables cvariables = profile.getVariables();
+                if (cvariables != null) {
+                    profile.preLoadContent(true, true, false, false);
+                    Map variablesMap = profile.getVariables().getSelfConditionedVariableMap(profile.getConditions(), Variables.getDefaultVariablesMap());
+                    variablesByNames.putAll(variablesMap);
+                    varValueAdjustment = new VariableValueAdjustment();
+                    updateEnvironmentVars();
+                    varValueAdjustment.setAdjust(variablesByNames);
+                    setPasswordDescription(variablesByNames);
+                    Map allVarsMap = new HashMap(Variables.getDefaultVariablesMap());
+                    allVarsMap.putAll(variablesMap);
+                    variables = new Vector(cvariables.getVariables(allVarsMap));
+                } else{
+                    variables = new Vector();
+                }
             }
+            return variables;
         } else {
             return new Vector();
         }

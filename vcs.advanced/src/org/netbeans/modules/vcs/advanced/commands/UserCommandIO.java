@@ -127,7 +127,7 @@ public class UserCommandIO extends Object {
         }
     }
     
-    private static Object getPropertyValue(String name, String valueStr) {
+    public static Object getPropertyValue(String name, String valueStr) {
         Class type = CommandNode.getPropertyClass(name);
         if (Boolean.TYPE.equals(type)) {
             return Boolean.valueOf(valueStr);
@@ -735,7 +735,7 @@ public class UserCommandIO extends Object {
      * Perform a translation of command's property value. Currently just class names
      * are translated according to a translation table.
      */
-    private static String translateCommandProperty(String propertyName, String propertyValue) {
+    public static String translateCommandProperty(String propertyName, String propertyValue) {
         if (UserCommand.PROPERTY_EXEC.equals(propertyName)) {
             int classIndex = propertyValue.indexOf(".class");
             if (classIndex > 0) {

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -48,6 +48,16 @@ public abstract class Profile extends Object {
      * Get the display name of the profile.
      */
     public abstract String getDisplayName();
+    
+    /**
+     * Pre-load some properties from the persistent storage.
+     * This method can be used for performance reasons, because the getters
+     * for the preloaded properties should be fast.
+     */
+    public void preLoadContent(boolean conditions, boolean variables,
+                               boolean commands, boolean globalCommands) {
+        // The default implementation does nothing.
+    }
 
     public abstract Set getCompatibleOSs();
 

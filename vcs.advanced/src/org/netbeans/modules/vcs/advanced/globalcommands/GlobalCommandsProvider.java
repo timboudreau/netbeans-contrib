@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -65,7 +65,7 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
                 profilesByNames.put(names[i], profile);
                 profile.addPropertyChangeListener(this);
             }
-            collectCommands();
+            //collectCommands();
         }
     }
     
@@ -92,7 +92,8 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
      * @return The command or <code>null</code> when the command of the given
      * name does not exist.
      */
-    public Command createCommand(String cmdName) {
+    public synchronized Command createCommand(String cmdName) {
+        if (commands == null) collectCommands();
         CommandSupport support = (CommandSupport) commandSupportsByNames.get(cmdName);
         if (support != null) {
             return support.createCommand();
@@ -103,16 +104,22 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
     
     /** Get the list of VCS command names.
      */
-    public String[] getCommandNames() {
+    public synchronized String[] getCommandNames() {
+        if (commands == null) collectCommands();
         return commandNames;
     }
     
     /** Get the commands.
      * @return The root of the commands tree.
      */
-    public CommandsTree getCommands() {
+    public synchronized CommandsTree getCommands() {
+        if (commands == null) collectCommands();
         if (!runtimeCreated) {
-            new GlobalRuntimeCommandsProvider(); // Create new runtime commands provider, it will do itself what is necessary.
+            org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                    new GlobalRuntimeCommandsProvider(); // Create new runtime commands provider, it will do itself what is necessary.
+                }
+            });
             runtimeCreated = true;
         }
         return commands;

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -34,6 +34,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
@@ -46,6 +50,7 @@ import org.openide.util.WeakListener;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.xml.XMLUtil;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
@@ -281,6 +286,17 @@ public final class ProfilesFactory extends Object {
             return getProfileDisplayName(profileName);
         }
         
+        public synchronized void preLoadContent(boolean conditions, boolean variables,
+                                                boolean commands, boolean globalCommands) {
+            if (this.conditions != null) conditions = false;
+            if (this.variables != null) variables = false;
+            if (this.commands != null) commands = false;
+            if (this.globalCommands != null) globalCommands = false;
+            if (conditions || variables || commands || globalCommands) {
+                loadConfig(true, conditions, variables, commands, globalCommands);
+            }
+        }
+        
         public Set getCompatibleOSs() {
             synchronized (ProfilesFactory.this) {
                 return (Set) compatibleOSsByName.get(profileName);
@@ -295,37 +311,35 @@ public final class ProfilesFactory extends Object {
         
         public synchronized Condition[] getConditions() {
             if (conditions == null) {
-                loadConfig();
+                loadConfig(false, true, false, false, false);
             }
             return conditions;
         }
         
         public synchronized ConditionedVariables getVariables() {
             if (variables == null) {
-                loadConfig();
+                loadConfig(false, false, true, false, false);
             }
             return variables;
         }
         
         public synchronized ConditionedCommands getCommands() {
             if (commands == null) {
-                loadConfig();
+                loadConfig(false, false, false, true, false);
             }
             return commands;
         }
         
         public synchronized ConditionedCommands getGlobalCommands() {
             if (globalCommands == null) {
-                loadConfig();
+                loadConfig(false, false, false, false, true);
             }
             return globalCommands;
         }
         
         public boolean setConditions(Condition[] conditions) {
             synchronized (this) {
-                if (variables == null || commands == null) {
-                    loadConfig();
-                }
+                preLoadContent(true, true, true, true);
                 this.conditions = conditions;
                 try {
                     saveConfig();
@@ -343,9 +357,7 @@ public final class ProfilesFactory extends Object {
         
         public boolean setVariables(ConditionedVariables variables) {
             synchronized (this) {
-                if (commands == null) {
-                    loadConfig();
-                }
+                preLoadContent(true, true, true, true);
                 this.variables = variables;
                 try {
                     saveConfig();
@@ -363,9 +375,7 @@ public final class ProfilesFactory extends Object {
         
         public boolean setCommands(ConditionedCommands commands) {
             synchronized (this) {
-                if (variables == null) {
-                    loadConfig();
-                }
+                preLoadContent(true, true, true, true);
                 this.commands = commands;
                 try {
                     saveConfig();
@@ -383,9 +393,7 @@ public final class ProfilesFactory extends Object {
         
         public synchronized boolean setGlobalCommands(ConditionedCommands globalCommands) {
             synchronized (this) {
-                if (variables == null) {
-                    loadConfig();
-                }
+                preLoadContent(true, true, true, true);
                 this.globalCommands = globalCommands;
                 try {
                     saveConfig();
@@ -404,8 +412,75 @@ public final class ProfilesFactory extends Object {
         void unimplementableFromOutside() {
         }
         
+        private void loadConfig(boolean os, boolean conditions, boolean variables,
+                                boolean commands, boolean globalCommands) {
+            if (profileName == null) return ;
+            if (profileName.endsWith(VariableIOCompat.CONFIG_FILE_EXT)) {
+                loadConfig();
+            } else {
+                //System.out.println("loadConfig("+profileName+"; "+os+", "+conditions+", "+variables+", "+commands+", "+globalCommands+")");
+                //long start = System.currentTimeMillis();
+                FileObject profileFO = profileRoot.getFileObject(profileName);
+                if (profileFO == null) {
+                    org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
+                        public void run() {
+                            org.openide.ErrorManager.getDefault().notify(new FileNotFoundException("Problems while reading predefined properties.") {
+                                public String getLocalizedMessage() {
+                                    return NbBundle.getMessage(VariableIO.class, "EXC_Problems_while_reading_predefined_properties", profileName);
+                                }
+                            });
+                        }
+                    });
+                    //E.err(g("EXC_Problems_while_reading_predefined_properties",name)); // NOI18N
+                    return ;
+                }
+                ProfileContentHandler handler = new ProfileContentHandler(os, conditions, variables, commands, globalCommands, null);
+                //System.out.println("VariableIO.getConfigurationLabel("+config+")");
+                try {
+                    XMLReader reader = XMLUtil.createXMLReader();
+                    reader.setContentHandler(handler);
+                    reader.setEntityResolver(handler);
+                    InputSource source = new InputSource(profileFO.getInputStream());
+                    reader.parse(source);
+                } catch (SAXException exc) {
+                    if (!ProfileContentHandler.END_OF_PARSING.equals(exc.getMessage())) {
+                        org.openide.ErrorManager.getDefault().notify(
+                            org.openide.ErrorManager.getDefault().annotate(
+                                exc, NbBundle.getMessage(VariableIO.class, "EXC_Problems_while_reading_predefined_properties", profileName)));
+                        return ;
+                    }
+                } catch (java.io.FileNotFoundException fnfExc) {
+                    org.openide.ErrorManager.getDefault().notify(
+                        org.openide.ErrorManager.getDefault().annotate(
+                            fnfExc, NbBundle.getMessage(VariableIO.class, "EXC_Problems_while_reading_predefined_properties", profileName)));
+                    return ;
+                } catch (java.io.IOException ioExc) {
+                    org.openide.ErrorManager.getDefault().notify(
+                        org.openide.ErrorManager.getDefault().annotate(
+                            ioExc, NbBundle.getMessage(VariableIO.class, "EXC_Problems_while_reading_predefined_properties", profileName)));
+                    return ;
+                }
+                if (conditions) {
+                    this.conditions = handler.getConditions();
+                }
+                if (variables) {
+                    this.variables = handler.getVariables();
+                }
+                if (commands) {
+                    this.commands = handler.getCommands();
+                }
+                if (globalCommands) {
+                    this.globalCommands = handler.getGlobalCommands();
+                }
+                //long end = System.currentTimeMillis();
+                //System.out.println("  loadConfig(,,,,) took "+(end - start)+" milliseconds.");
+            }
+        }
+        
         private void loadConfig() {
             if (profileName == null) return ;
+            //System.out.println("loadConfig("+profileName+")");
+            //long start = System.currentTimeMillis();
             if (profileName.endsWith(VariableIOCompat.CONFIG_FILE_EXT)) {
                 Properties props = VariableIOCompat.readPredefinedProperties(profileRoot, profileName);
                 if (props == null) return ;
@@ -432,6 +507,8 @@ public final class ProfilesFactory extends Object {
                     org.openide.ErrorManager.getDefault().notify(exc);
                 }
             }
+            //long end = System.currentTimeMillis();
+            //System.out.println("  loadConfig() took "+(end - start)+" milliseconds.");
         }
         
         private void saveConfig() throws org.w3c.dom.DOMException, java.io.IOException {
