@@ -13,6 +13,9 @@
 
 package org.netbeans.api.web.dd;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import org.netbeans.modules.web.dd.impl.WebAppProxy;
 import org.openide.filesystems.*;
 import org.xml.sax.*;
@@ -74,6 +77,10 @@ public final class DDProvider {
         webApp=new WebAppProxy(original);
         ddMap.put(fo, webApp);
         return webApp;
+    }
+    
+    public WebApp getDDRoot(File f) throws IOException, SAXException {
+        return createWebApp(new FileInputStream(f), getVersion(new FileInputStream(f)));
     }
     
     private static WebApp createWebApp(java.io.InputStream is, String version) throws java.io.IOException{
