@@ -45,7 +45,9 @@ class RuntimeCommandNode extends AbstractNode {
         this.executor = vce;
         this.cpool = cpool;
         setName(vce.getCommand().getName());
-        setDisplayName(vce.getCommand().getDisplayName());
+        String displayName = vce.getCommand().getDisplayName();
+        if (displayName == null || displayName.length() == 0) displayName = vce.getCommand().getName();
+        setDisplayName(displayName);
     }
     
     void setState(int state) {
