@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.advanced.commands;
 
+import java.awt.Component;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -48,16 +49,23 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
     private StructuredExec execStructured;
     protected DefaultTableModel argTableModel;
     private VcsCommand cmd;
+    private boolean writable;
     
     /** Creates new form StructuredExecPanel */
     public StructuredExecPanel() {
-        this(null);
+        this(null,true);
     }
     
     /** Creates new form StructuredExecPanel */
     public StructuredExecPanel(VcsCommand cmd) {
+        this(cmd,true);
+    }
+    /** Creates new form StructuredExecPanel */
+    public StructuredExecPanel(VcsCommand cmd, boolean writable) {        
         this.cmd = cmd;
+        this.writable = writable;
         initComponents();
+        enableComponents();
         execButtonGroup.add(stringRadioButton);
         execButtonGroup.add(structuredRadioButton);
         stringTextField.setColumns(50);
@@ -69,6 +77,25 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
                 removeButton.setEnabled(argTable.getSelectedRows().length > 0);
             }
         });
+    }
+    
+    private void enableComponents(){
+        if(writable)
+            return;       
+        stringRadioButton.setEnabled(false);
+        stringTextField.setEditable(false);
+        stringEditButton.setEnabled(false);
+        structuredRadioButton.setEnabled(false);
+        workLabel.setEnabled(false);
+        workTextField.setEditable(false);
+        workButton.setEnabled(false);
+        execLabel.setEnabled(false);
+        execTextField.setEditable(false);
+        execButton.setEnabled(false);        
+        argTable.setEnabled(false);      
+        addButton.setEnabled(false);
+        editButton.setEnabled(false);
+        removeButton.setEnabled(false);      
     }
     
     /** This method is called from within the constructor to
@@ -328,7 +355,7 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
     private void stringEditButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stringEditButtonActionPerformed
         // Add your handling code here:
         PropertyEditor stringEditor = PropertyEditorManager.findEditor (String.class);
-        if (stringEditor == null) {
+        if ((stringEditor == null)||(!writable)) {
             stringEditButton.setEnabled(false);
         }
         stringEditor.setValue(stringTextField.getText());
@@ -443,23 +470,48 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         argTable.getColumnModel().getColumn(1).setMaxWidth(width + 24);
     }
     
-    private void enableString(boolean enable) {
-        stringTextField.setEnabled(enable);
-        stringEditButton.setEnabled(enable);
+    private void enableString(boolean enable) {        
+        if(writable){
+            stringEditButton.setEnabled(enable);
+            stringTextField.setEnabled(enable);
+            stringTextField.setEditable(enable);
+        }else{
+            stringEditButton.setEnabled(false);
+            stringTextField.setEnabled(false);
+            stringTextField.setEditable(false);
+        }
     }
     
     private void enableStructured(boolean enable) {
-        structuredPanel.setEnabled(enable);
-        workLabel.setEnabled(enable);
-        workTextField.setEnabled(enable);
-        workButton.setEnabled(enable);
-        execLabel.setEnabled(enable);
-        execTextField.setEnabled(enable);
-        execButton.setEnabled(enable);
-        argTable.setEnabled(enable);
-        addButton.setEnabled(enable);
-        editButton.setEnabled(enable);
-        removeButton.setEnabled(enable);
+        if(writable){
+            structuredPanel.setEnabled(enable);
+            workLabel.setEnabled(enable);
+            workTextField.setEnabled(enable);
+            workTextField.setEditable(enable);
+            workButton.setEnabled(enable);
+            execLabel.setEnabled(enable);
+            execTextField.setEnabled(enable);
+            execTextField.setEditable(enable);
+            execButton.setEnabled(enable);
+            argTable.setEnabled(enable);
+            addButton.setEnabled(enable);
+            editButton.setEnabled(enable);
+            removeButton.setEnabled(enable);
+        }else{
+            structuredPanel.setEnabled(false);
+            workLabel.setEnabled(false);
+            workTextField.setEnabled(false);
+            workTextField.setEditable(false);
+            workButton.setEnabled(false);
+            execLabel.setEnabled(false);
+            execTextField.setEnabled(false);
+            execTextField.setEditable(false);
+            execButton.setEnabled(false);
+            argTable.setEnabled(false);
+            addButton.setEnabled(false);
+            editButton.setEnabled(false);
+            removeButton.setEnabled(false);
+        }
     }
     
     protected void addArgTableRow() {

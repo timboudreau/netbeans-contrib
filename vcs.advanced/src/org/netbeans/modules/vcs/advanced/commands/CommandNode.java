@@ -636,7 +636,7 @@ public class CommandNode extends AbstractNode {
                             
                             public PropertyEditor getPropertyEditor() {
                                 if (VcsCommand.PROPERTY_EXEC_STRUCTURED.equals(this.getName())) {
-                                    return new StructuredExecEditor(cmd);
+                                    return new StructuredExecEditor(cmd,false);
                                 } else {
                                     return super.getPropertyEditor();
                                 }
@@ -699,7 +699,7 @@ public class CommandNode extends AbstractNode {
 
                             public PropertyEditor getPropertyEditor() {
                                 if (VcsCommand.PROPERTY_EXEC_STRUCTURED.equals(this.getName())) {
-                                    return new StructuredExecEditor(cmd);
+                                    return new StructuredExecEditor(cmd,true);
                                 } else {
                                     return super.getPropertyEditor();
                                 }
