@@ -1,0 +1,163 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; I; Linux 2.2.17pre15 i686) [Netscape]">
+   <title>Forte for Java - Requirements</title>
+<link REL="StyleSheet" HREF="Forte.css" TYPE="text/css" TITLE="Forte-Sun Style">
+</head>
+<body>
+
+<h1>
+Forte for Java: CORBA Support Module Requirements</h1>
+<b>Version:</b> <i>0.2</i>
+<br><b>Author:</b> Karel Gardas<i>, Sun Microsystems/NetBeans</i>
+<br>&nbsp;
+<dl>
+<dt>
+<b>Abstract:</b></dt>
+
+<dd>
+This document briefly describes the requiremnts for CORBA Support Module.
+This module adds support for programming CORBA based distributed applications
+into the IDE.</dd>
+</dl>
+
+<dl>
+<dt>
+<b>Document History:</b></dt>
+
+<dd>
+[00/00/0000] : version 0.1 : First requirements.</dd>
+</dl>
+
+<dl>
+<dt>
+<b>Contents:</b></dt>
+
+<dt>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Overall Description">Overall
+Description</a></dt>
+
+<dt>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#IDL and Editor">IDL
+and Editor</a></dt>
+
+<dt>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#IDL compilation">IDL
+compilation</a></dt>
+
+<dt>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Imlementation Generator">Imlementation
+Generator</a></dt>
+
+<dt>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Server and Client main classes">Server
+and Client main classes</a></dt>
+
+<dt>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#CORBA Wizard">CORBA
+Wizard</a></dt>
+
+<dt>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Browsers">Browsers</a></dt>
+
+<dt>
+<a href="#Browsers"></a></dt>
+
+<dt>
+<a href="#Browsers"></a></dt>
+
+<dt>
+</dt>
+
+<dt>
+</dt>
+
+<dt>
+</dt>
+
+<dt>
+<a NAME="Overall Description"></a><b><font size=+2>1. Overall Description</font></b></dt>
+
+<p><br>The User can use CORBA Support module&nbsp; for development, testing&nbsp;
+and debuging any kind of CORBA Application in NetBeans IDE. IDE will provide
+support for writting idl file in editor or generating it from various templates.
+This will be supported even for client and server main and implementation
+classes.
+<br>&nbsp;
+<p><a NAME="IDL and Editor"></a><b><font size=+2>IDL editing and parsing</font></b>
+<p>Editor for IDL will have syntax coloring and hooks functionality. After
+writting IDL code in the IDE's Editor - developer can browse this code
+(file) in Explorer throw the IDL Tree. This tree will be only read-only
+- so developer can't change and properties of any node in this tree. The
+IDE provides for developer full functional IDL Parser so if developer makes
+some bugs (parse error) in written IDL code - IDE can't parse this IDL
+file and nothing is displayed in IDL Tree except incorrect IDL code icon
+for this file.
+<br>&nbsp;
+<p><a NAME="IDL compilation"></a><b><font size=+2>IDL compilation</font></b>
+<p>After IDL code writting - IDE will help developer with compiling this
+code with vendor supplied IDL compiler. IDE can hide generated classes
+or not - it depends on setuped options for this orb.
+<br>&nbsp;
+<p><a NAME="Imlementation Generator"></a><b><font size=+2>Implementation
+Generator</font></b>
+<p>After writting IDL file - developer have to implement all interfaces
+which writes to this IDL file. Our IDE helps him with this task and throw
+Implementation generator will generate basic (whithout methods body) implementation
+for all interfaces from this IDL file. For this generation developer can
+setup some properties - e.g. what generate to methods bodies etc.
+<br>&nbsp;
+<p><a NAME="Server and Client main classes"></a><b><font size=+2>Server
+and Client main classes</font></b>
+<p>Developer can use IDE for very quick creating of server and client main
+class. This creation depends havilly on setuped properties - on setupped
+binding methods, orb version etc.
+<br>This code is generated throw the IDE templates and this code contains
+comments and hooks - where developer has to add your appropriate code such
+as servant variable etc.
+<dt>
+</dt>
+
+<dt>
+</dt>
+
+<dt>
+<a NAME="CORBA Wizard"></a><b><font size=+2>CORBA Wizard</font></b></dt>
+
+<dt>
+</dt>
+
+<dt>
+CORBA is very complex technology and using it isn't easy for begginer programmer.
+The IDE helps this programmer with very usefull wizard which helps them
+with first CORBA application development steps and will be very intuitive.</dt>
+</dl>
+
+<p><br><a NAME="Browsers"></a><b><font size=+2>CORBA Services Browsers</font></b>
+<p>CORBA platform provides to development and runtime many very usefull
+services. It will be reat if IDE support connecting to this services and
+browsing throw these servicies. very usefull will be browsers for Naming
+Service - which can developer use for development of server and client
+where he use binding method which use naming service. The second CORBA
+service which is very usefull to browse is Interface Repository. This browser
+will be usefull for developing client application for existing CORBA application
+even remotely. IDE will connect to the remote Interface Repository and
+develper can copy IDL code from it, compile it with IDL compiler and create
+client of even running CORBA server/service.
+</body>
+</html>
