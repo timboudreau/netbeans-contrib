@@ -89,7 +89,7 @@ public class Table extends AbstractMap {
         Object value = null;
         for(Iterator it = entries.iterator(); it.hasNext(); ) {
             Entry e = (Entry) it.next();
-            if (e.getKey() == key) {
+            if ((key == null && e.getKey() == null) || (key != null && key.equals(e.getKey()))) {
                 value = e.getValue();
                 break;
             }
