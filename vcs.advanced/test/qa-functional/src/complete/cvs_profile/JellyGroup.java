@@ -203,6 +203,13 @@ public class JellyGroup extends JellyTestCase {
         }
         serverDirectory = workroot + "/server";
         clientDirectory = workroot + "/client";
+        if (Utilities.isUnix ()) {
+            serverDirectory = serverDirectory.replace ('\\', '/');
+            clientDirectory = clientDirectory.replace ('\\', '/');
+        } else {
+            serverDirectory = serverDirectory.replace ('/', '\\');
+            clientDirectory = clientDirectory.replace ('/', '\\');
+        }
         
         new File(serverDirectory).mkdirs();
         new File(clientDirectory).mkdirs();
