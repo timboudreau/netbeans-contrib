@@ -35,8 +35,13 @@ public class TaskList implements ObservableList, TaskListener {
     // List category
     final static String USER_CATEGORY = "usertasks"; // NOI18N
 
-    // data holder
+    /** Data holder, you must synchonize property and keep listCopyIsFresh updated. */
     private List tasks = new LinkedList();
+
+    // #43166 this one is distributed to clients
+    private List listCopy = Collections.unmodifiableList(tasks);
+
+    private boolean listCopyIsFresh = true;
 
     private final ArrayList listeners = new ArrayList(67);
     
@@ -60,7 +65,14 @@ public class TaskList implements ObservableList, TaskListener {
 
     /** Read-only access to tasks held by this list. */
     public final List getTasks() {
-        return Collections.unmodifiableList(tasks);
+        synchronized(tasks) {
+            if (listCopyIsFresh == false) {
+                // clone it for iterators safeness
+                listCopy = Collections.unmodifiableList(new ArrayList(tasks));
+                listCopyIsFresh = true;
+            }
+            return listCopy;
+        }
     }
 
     /** Add a list of tasks to the tasklist, and remove a list of
@@ -145,17 +157,23 @@ public class TaskList implements ObservableList, TaskListener {
     }
 
     /**
-     * Add top level tasks to the list and fire event.
+     * Add top level tasks_ to the list and fire event.
      */
-    public final void addTasks(List tasks, boolean append) {
-        Iterator it = tasks.iterator();
+    public final void addTasks(List tasks_, boolean append) {
+        Iterator it = tasks_.iterator();
         while (it.hasNext()) {
             Task task = (Task) it.next();
             task.addTaskListener(this);
             if (append) {
-                this.tasks.add(task);
+                synchronized(tasks) {
+                    tasks.add(task);
+                    listCopyIsFresh = false;
+                }
             } else {
-                this.tasks.add(0, task);
+                synchronized(tasks) {
+                    tasks.add(0, task);
+                    listCopyIsFresh = false;
+                }
             }
             fireAdded(task);     // TODO silent update?
         }
@@ -181,7 +199,10 @@ public class TaskList implements ObservableList, TaskListener {
      */
     public final void appendTask(Task task) {
         task.addTaskListener(this);
-        tasks.add(task);
+        synchronized(tasks) {
+            tasks.add(task);
+            listCopyIsFresh = false;
+        }
         fireAdded(task);
     }
 
@@ -201,7 +222,12 @@ public class TaskList implements ObservableList, TaskListener {
      */
     public final void removeTask(Task task) {
         task.removeTaskListener(this);
-        if (tasks.remove(task)) {
+        boolean removed = false;
+        synchronized(tasks) {
+            removed = tasks.remove(task);
+            listCopyIsFresh = false;
+        }
+        if (removed) {
             fireRemoved(null, task); // TODO silent update?
         }
     }
@@ -339,7 +365,9 @@ public class TaskList implements ObservableList, TaskListener {
      * @deprecated use TLUtils#recursiveCount
      */
     public int size() {
-        return TLUtils.recursiveCount(tasks.iterator());
+        synchronized(tasks) {
+            return TLUtils.recursiveCount(tasks.iterator());
+        }
     }
 
     /** Return the translators capable of handling this tasklist.
@@ -358,17 +386,22 @@ public class TaskList implements ObservableList, TaskListener {
      * Remove all the tasks in this tasklist 
      */
     public void clear() {
-        tasks.clear();
+        synchronized(tasks) {
+            tasks.clear();
+            listCopyIsFresh = false;
+        }
         fireStructureChanged(null);
     }
 
     /** For debugging purposes, only. Writes directly to serr. */
     public void print() {
         System.err.println("\nTask List:\n-------------");
-        Iterator it = tasks.iterator();
-        while (it.hasNext()) {
-            Task next = (Task) it.next();
-            recursivePrint(next, 0);
+        synchronized(tasks) {
+            Iterator it = tasks.iterator();
+            while (it.hasNext()) {
+                Task next = (Task) it.next();
+                recursivePrint(next, 0);
+            }
         }
 
         System.err.println("\n\n");

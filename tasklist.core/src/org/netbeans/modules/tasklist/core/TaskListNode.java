@@ -136,8 +136,7 @@ public final class TaskListNode extends AbstractNode {
         public void run() {
             batchSetKeys = null;
             if (active) {
-                // #43166 clone list, TODO there is not TaskList synchronization model yet (a RW lock) 
-                setKeys(new ArrayList(list.getTasks()));
+                setKeys(list.getTasks());
             }
         }
 
