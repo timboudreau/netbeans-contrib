@@ -256,7 +256,8 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
             }
             for (int i = 0; i < subDirs.length; i++) {
                 if (!dir.isIgnored(subDirs[i].getName()) &&
-                    fsFilter.accept(dirFile, subDirs[i].getName())) {
+                    fsFilter.accept(dirFile, subDirs[i].getName()) &&
+                    canProcessFile(getFSPath(subDirs[i].getAbsolutePath()))) {
                     
                     fillDirFiles(files, subDirs[i], info, recursive);
                     if (localDirs != null) localDirs.remove(subDirs[i].getName());
@@ -266,7 +267,8 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                 for (Iterator it = localDirs.iterator(); it.hasNext(); ) {
                     String subDirName = (String) it.next();
                     if (!dir.isIgnored(subDirName) &&
-                        fsFilter.accept(dirFile, subDirName)) {
+                        fsFilter.accept(dirFile, subDirName) &&
+                        canProcessFile(path + subDirName)) {
                             
                         fillLocalDirFiles(files, dir, new File(dirFile, subDirName), info, recursive);
                     }
@@ -442,7 +444,8 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                 if (subDirs != null) {
                     for (int i = 0; i < subDirs.length; i++) {
                         if (!dir.isIgnored(subDirs[i].getName()) &&
-                            fsFilter.accept(dirFile, subDirs[i].getName())) {
+                            fsFilter.accept(dirFile, subDirs[i].getName()) &&
+                            canProcessFile(getFSPath(subDirs[i].getAbsolutePath()))) {
                                 
                             status &= runCommandsSomewhatRecursively((VcsCacheDir) subDirs[i], cmdInfos);
                             if (localDirs != null) localDirs.remove(subDirs[i].getName());
@@ -452,8 +455,11 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                 if (localDirs != null) {
                     for (Iterator ldit = localDirs.iterator(); ldit.hasNext(); ) {
                         String subDirName = (String) ldit.next();
+                        String path = getFSPath(dirFile.getAbsolutePath());
+                        if (path.length() > 0) path += "/";
                         if (!dir.isIgnored(subDirName) &&
-                            fsFilter.accept(dirFile, subDirName)) {
+                            fsFilter.accept(dirFile, subDirName) &&
+                            canProcessFile(path + subDirName)) {
                                 
                             status &= runCommandsSomewhatRecursively(dir,  // recursion
                                         new File(dirFile, subDirName), cmdInfos);
