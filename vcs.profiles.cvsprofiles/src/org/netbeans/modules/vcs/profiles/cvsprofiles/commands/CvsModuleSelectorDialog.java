@@ -369,8 +369,9 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
     private javax.swing.JTable tblModules;
     private javax.swing.JScrollPane listScrollPane;
     // End of variables declaration//GEN-END:variables
-   
-   class MyDefaultTableModel extends DefaultTableModel {
+
+    
+    private static class MyDefaultTableModel extends DefaultTableModel {
        
        static final long serialVersionUID = 4907156662613927521L;       
 
