@@ -544,6 +544,31 @@ public class VcsUtilities {
         return fileName;
     }
 
+    /**
+     * Get the top level ancestor of a component which is a Frame or Dialog.
+     * If no such ancestor is found a new JFrame is returned.
+     * @param c The component
+     * @param dialog_ptr The array in which the parent dialog is returned, if any
+     * @return The frame, if any. Either the frame or dialog is not null.
+     */
+    public static java.awt.Frame getAncestor(javax.swing.JComponent c, java.awt.Dialog[] dialog_ptr) {
+        java.awt.Frame frame = null;
+        java.awt.Dialog dialog = null;
+        java.awt.Container tparent = c.getTopLevelAncestor();
+        if (tparent instanceof java.awt.Frame) {
+            frame = (java.awt.Frame) tparent;
+            //System.out.println("getAncestor(): parent frame found.");
+        } else if (tparent instanceof java.awt.Dialog) {
+            dialog = (java.awt.Dialog) tparent;
+            //System.out.println("getAncestor(): parent dialog found.");
+        } else {
+            //System.out.println("getAncestor(): parent NOT found. Top-level = "+tparent+", parent = "+tparent.getParent());
+            frame = new javax.swing.JFrame();
+        }
+        dialog_ptr[0] = dialog;
+        return frame;
+    }
+
 
     //-------------------------------------------
     public static void centerWindow (Window w) {
