@@ -216,8 +216,13 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         return cat;
     }
     
-    private static synchronized String createLocalCatExec(String dir) {
-        File dirFile = new File(dir);
+    private static synchronized String createLocalCatExec(String dir, String relativePath) {
+        File dirFile;
+        if (relativePath == null) {
+            dirFile = new File(dir);
+        } else {
+            dirFile = new File(dir, relativePath);
+        }
         String cat = WIN_CAT_NAME + "." + WIN_CAT_EXT;
         File catFile;
         for (int i = 0; (catFile = new File(dirFile, cat)).exists(); i++) {
@@ -237,11 +242,18 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 } catch (IOException ioexc2) {}
             }
         }
+        catFile.deleteOnExit();
         return catFile.getName();
     }
     
-    private static synchronized void removeLocalCatExec(String dir, String catName) {
-        File catFile = new File(dir, catName);
+    private static synchronized void removeLocalCatExec(String dir, String relativePath, String catName) {
+        File dirFile;
+        if (relativePath == null) {
+            dirFile = new File(dir);
+        } else {
+            dirFile = new File(dir, relativePath);
+        }
+        File catFile = new File(dirFile, catName);
         catFile.delete();
     }
     
@@ -424,12 +436,14 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         char ps = (psStr == null || psStr.length() < 1) ? java.io.File.pathSeparatorChar : psStr.charAt(0);
         String fsRoot = ((String) vars.get("ROOTDIR")) + ps + vars.get("MODULE");
         String relativePath = (String) vars.get("COMMON_PARENT");
+        String relativeToFSRoot = null;
         if ("".equals(vars.get("MULTIPLE_FILES")) && !"".equals(vars.get("FILE_IS_FOLDER"))) {
             if (relativePath != null) {
                 relativePath = relativePath + "/" + (String) vars.get("PATH");
             } else {
                 relativePath = (String) vars.get("PATH");
             }
+            relativeToFSRoot = (String) vars.get("FILE");
         }
         if (relativePath != null) {
             relativePath = relativePath.replace(File.separatorChar, '/');
@@ -441,7 +455,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             wincat = createCatExec();
             if (wincat == null) {
                 haveLocalCat = true;
-                wincat = createLocalCatExec(fsRoot);
+                wincat = createLocalCatExec(fsRoot, relativeToFSRoot);
             }
             vars.put("WINCAT", wincat);
         }
@@ -496,7 +510,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             vars = new Hashtable(varsOriginal);
         } while (filePaths.size() > 0);
         //cpool.preprocessCommand(vce, vars);
-        if (haveLocalCat && wincat != null) removeLocalCatExec(fsRoot, wincat);
+        if (haveLocalCat && wincat != null) removeLocalCatExec(fsRoot, relativeToFSRoot, wincat);
         return true;
     }
     
