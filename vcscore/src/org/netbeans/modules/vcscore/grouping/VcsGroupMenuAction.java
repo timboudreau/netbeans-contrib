@@ -95,49 +95,10 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
     }
 
     // This is going to be called in AWT thread.
-    public void actionPerformed(java.awt.event.ActionEvent e){    
-        //        System.out.println("Performing cvs command.. :)");
-        Node root = null;
-        root = GroupUtils.getMainVcsGroupNodeInstance();
-/*        FileSystem defFs = TopManager.getDefault().getRepository().getDefaultFileSystem();
-        FileObject fo = defFs.findResource(MainVcsGroupNode.GROUPS_PATH + "/org-netbeans-modules-vcscore-grouping-MainVcsGroupNode.instance");
-        if (fo != null) {
-            DataObject dobj;
-            try {
-                dobj = DataObject.find(fo);
-            } catch (DataObjectNotFoundException exc) {
-                dobj = null;
-            }
-            if (dobj != null && dobj instanceof InstanceDataObject) {
-               InstanceDataObject ido = (InstanceDataObject)dobj;
-               InstanceCookie cook = (InstanceCookie)ido.getCookie(InstanceCookie.class);
-               root = ido.getNodeDelegate();
-            }
-        } 
-        if (root == null) {
-            return;
-        }        
- */
-        ExplorerPanel panel = null;
-        Iterator it = WindowManager.getDefault().getRegistry().getOpened().iterator();
-        while (it.hasNext()) {
-            TopComponent comp = (TopComponent)it.next();
-            if (comp instanceof GroupExplorerPanel) {
-                panel = (GroupExplorerPanel)comp;
-            }
-        }
-        
-        if (panel == null) {
-            panel = new GroupExplorerPanel();
-            Mode mode = WindowManager.getDefault().findMode("explorer"); // NOI18N
-            if(mode != null)
-                mode.dockInto(panel);
-        }
-        panel.getAccessibleContext().setAccessibleDescription(
-            org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSD_AddVcsGroupAction.dialog"));
-        panel.setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"));
+    public void actionPerformed(java.awt.event.ActionEvent e) {
+        TopComponent panel = GroupExplorerPanel.getDefault();
         panel.open();
-        panel.requestFocus();
+        panel.requestActive();
     }
     
 
@@ -145,43 +106,45 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         
         private static final long serialVersionUID = 7160066451512137154L;
         
-        public void open() {
-            if (!isOpened()) {
-                Node root = null;
-                String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
-                setName(modeName);
-                root = GroupUtils.getMainVcsGroupNodeInstance();
-                GroupUtils.getDefaultGroupInstance(); // here just to make sure the default is created.
-                ExplorerManager manager = getExplorerManager();
-                
-                manager.setRootContext(root);
-                BeanTreeView cvsBeanTreeView = new BeanTreeView();
-                initAccessibilityBTV(cvsBeanTreeView);
-                add(cvsBeanTreeView);
-                ExplorerActions actions = new ExplorerActions();
-                actions.attach(manager);
-            }
-            super.open();
+        private static GroupExplorerPanel component;
+        
+        public GroupExplorerPanel() {
+            initComponent();
+            getAccessibleContext().setAccessibleDescription(
+                org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSD_AddVcsGroupAction.dialog"));
+            setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"));
         }
         
-        public void open(org.openide.windows.Workspace workspace) {
-            if (!isOpened()) {
-                Node root = null;
-                String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
-                setName(modeName);
-
-                root = GroupUtils.getMainVcsGroupNodeInstance();
-                GroupUtils.getDefaultGroupInstance(); // here just to make sure the default is created.
-                ExplorerManager manager = getExplorerManager();
-                
-                manager.setRootContext(root);
-                BeanTreeView cvsBeanTreeView = new BeanTreeView();
-                initAccessibilityBTV(cvsBeanTreeView);
-                add(cvsBeanTreeView);
-                ExplorerActions actions = new ExplorerActions();
-                actions.attach(manager);
+        public static synchronized GroupExplorerPanel getDefault() {
+            if (component == null) {
+                component = new GroupExplorerPanel();
             }
-            super.open(workspace);
+            return component;
+        }
+        
+        private void initComponent() {
+            Node root = null;
+            String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
+            setName(modeName);
+            
+            root = GroupUtils.getMainVcsGroupNodeInstance();
+            GroupUtils.getDefaultGroupInstance(); // here just to make sure the default is created.
+            ExplorerManager manager = getExplorerManager();
+
+            manager.setRootContext(root);
+            BeanTreeView cvsBeanTreeView = new BeanTreeView();
+            initAccessibilityBTV(cvsBeanTreeView);
+            add(cvsBeanTreeView);
+            ExplorerActions actions = new ExplorerActions();
+            actions.attach(manager);
+        }
+        
+        public void open() {
+            Mode mode = WindowManager.getDefault().findMode("explorer"); // NOI18N
+            if (mode != null) {
+                mode.dockInto(this);
+            }
+            super.open();
         }
         
         private void initAccessibilityBTV(BeanTreeView BTV) {
@@ -195,6 +158,14 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
 //            super.updateTitle();
         }
         
+        public int getPersistenceType() {
+            return PERSISTENCE_ALWAYS;
+        }
+        
+        public void readExternal(java.io.ObjectInput oi) throws java.io.IOException, ClassNotFoundException {
+            super.readExternal(oi);
+            component = this;
+        }
         
     }
     

@@ -36,6 +36,7 @@ import org.openide.filesystems.*;
 
 import org.netbeans.modules.vcscore.grouping.*;
 import org.openide.DialogDisplayer;
+import org.openide.windows.TopComponent;
 
 /** Action sensitive to the node selection that does something useful.
  *
@@ -200,8 +201,12 @@ public class AddToGroupAction extends NodeAction {
         } else {
             movePerformed(actionEvent);
         }
-        VcsGroupMenuAction gropsOpenAction = (VcsGroupMenuAction) VcsGroupMenuAction.get(VcsGroupMenuAction.class);
-        gropsOpenAction.actionPerformed(null);
+        VcsGroupMenuAction.GroupExplorerPanel groups = VcsGroupMenuAction.GroupExplorerPanel.getDefault();
+        if (!groups.isOpened()) {
+            // Activate only when not opened.
+            groups.open();
+            groups.requestActive();
+        }
     }
     
 
