@@ -133,6 +133,7 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     public void uninitialize(org.openide.loaders.TemplateWizard templateWizard) {
         panels = null;
         names = null;
+        data.removePropertyChangeListener(this);
         data = null;
         listenerList = null;
     }

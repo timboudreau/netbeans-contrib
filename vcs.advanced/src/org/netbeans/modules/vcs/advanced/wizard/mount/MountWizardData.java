@@ -20,7 +20,6 @@ import org.netbeans.modules.vcscore.registry.FSRegistry;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.util.VariableInputValidator;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListeners;
 
 /**
  * The data set in the Generic VCS wizard.
@@ -84,11 +83,12 @@ public class MountWizardData {
     
     void addPropertyChangeListener(java.beans.PropertyChangeListener l){       
         customizer.addPropertyChangeListener(l);
-        fileSystem.addPropertyChangeListener(WeakListeners.propertyChange(l, fileSystem));
+        fileSystem.addPropertyChangeListener(l);
     }
     
     void removePropertyChangeListener(java.beans.PropertyChangeListener l) {    
         customizer.removePropertyChangeListener(l);
+        fileSystem.removePropertyChangeListener(l);
     }
     
     CommandLineVcsFileSystem getFileSystem() {
