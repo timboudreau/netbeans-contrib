@@ -16,6 +16,8 @@ package org.netbeans.modules.vcscore;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.io.NotActiveException;
@@ -91,10 +93,8 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     private boolean showUnimportantFiles = false;
     /** Holds value of property showLocalFiles. */
     private boolean showLocalFiles = true;
-    /** Holds value of property ignoredGarbageFiles -- regexp of ignorable children. */
-    private String ignoredGarbageFiles = ""; // NOI18N
-    /** regexp matcher for ignoredFiles, null if not needed */
-    private transient Pattern ignoredGarbageRE = null;
+    
+    private transient LocalFilenameFilter localFilenameFilter = null;
     
     /** Holds value of property messageLength. */
     private int messageLength = 50;    
@@ -124,6 +124,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         this.attr = new VcsVersioningAttrs();
         this.versions = new VersioningVersions();
         revisionListsByName = new Hashtable();
+        localFilenameFilter = new LocalFilenameFilter();
         initListeners();
         setCapability(null);//FileSystemCapability.DOC);
     }
@@ -232,29 +233,6 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         }
     }
 
-    public String getIgnoredGarbageFiles () {
-        return ignoredGarbageFiles;
-    }
-    
-    public synchronized void setIgnoredGarbageFiles (String nue) throws IllegalArgumentException {
-        if (! nue.equals (ignoredGarbageFiles)) {
-            if (nue.length () > 0) {
-                try {
-                    ignoredGarbageRE = Pattern.compile(nue);
-                } catch (PatternSyntaxException rese) {
-                    IllegalArgumentException iae = new IllegalArgumentException ();
-                    ErrorManager.getDefault().annotate (iae, rese);
-                    throw iae;
-                }
-            } else {
-                ignoredGarbageRE = null;
-            }
-            ignoredGarbageFiles = nue;
-            firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null, nue); // NOI18N
-            refreshExistingFolders();
-        }
-    }
-    
     /** Getter for property showMessages.
      * @return Value of property showMessages.
      */
@@ -431,6 +409,10 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     public void cacheAdded(CacheHandlerEvent event) {
     }
     
+    public FilenameFilter getFileFilter() {
+        return localFilenameFilter;
+    }
+    
     /*
     private class VersioningFileStatus extends Object implements VersioningFileSystem.Status {
 
@@ -447,15 +429,33 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
 
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         in.defaultReadObject();
-        if (ignoredGarbageFiles == null) {
-            ignoredGarbageFiles = "";
-        } else if (ignoredGarbageFiles.length () > 0) {
-            try {
-                ignoredGarbageRE = Pattern.compile(ignoredGarbageFiles);
-            } catch (PatternSyntaxException rese) {
-                ErrorManager.getDefault ().notify(rese);
+        localFilenameFilter = new LocalFilenameFilter();
+    }
+    
+    private class LocalFilenameFilter extends Object implements FilenameFilter {
+        
+        public boolean accept(File dir, String name) {
+            if (!fileSystem.getFileFilter().accept(dir, name)) {
+                return false;
+            }
+            if (!isShowUnimportantFiles()) {
+                File root = fileSystem.getRootDirectory();
+                File file = new File(dir, name);
+                String filePath;
+                try {
+                    filePath = file.getCanonicalPath();
+                } catch (IOException ioex) {
+                    filePath = file.getAbsolutePath();
+                }
+                String path = filePath.substring(root.getAbsolutePath().length());
+                path.replace(File.separatorChar, '/');
+                while (path.startsWith("/")) path = path.substring(1);
+                return fileSystem.isImportant(path);
+            } else {
+                return true;
             }
         }
+        
     }
     
     private class VersioningList extends Object implements AbstractFileSystem.List {
@@ -481,18 +481,6 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                 if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) ||
                     (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) && fileSystem.areOnlyHiddenFiles(files)) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
             }
-            //FileStatusProvider status = fileSystem.getStatusProvider();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].endsWith(fileSystem.getBackupExtension()) ||
-                    !isShowUnimportantFiles() &&
-                        !fileSystem.isImportant((name.length() == 0) ? files[i] : name + "/" + files[i]) ||
-                    //!isShowLocalFiles() && cache != null && status != null &&  -- makes problems, since every file is initially local
-                    //    status.getLocalFileStatus().equals(status.getFileStatus((name.length() == 0) ? files[i] : name + "/" + files[i])) ||
-                    ignoredGarbageRE != null && ignoredGarbageRE.matcher(files[i]).find()) {
-                
-                    files[i] = null;
-                }
-            }
             return files;
         }
 
@@ -506,6 +494,9 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         }
         
         public Object readAttribute(String name, String attrName) {
+            if (VERSIONING_NATIVE_FS.equals(attrName)) {
+                return VcsVersioningSystem.this;
+            }
             Object value = super.readAttribute(name, attrName);
             if (value == null) {
                 value = fileSystem.getVcsAttributes().readAttribute(name, attrName);

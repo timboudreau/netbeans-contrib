@@ -44,7 +44,6 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor messageLength = null;
         //PropertyDescriptor showUnimportantFiles = null;
         //PropertyDescriptor showLocalFiles = null;  -- makes problems, since every file is initially local
-        PropertyDescriptor ignoredGarbageFiles = null;
         
         try {
             showDeadFiles = new PropertyDescriptor
@@ -73,13 +72,8 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
             showLocalFiles.setShortDescription(NbBundle.getMessage(VcsVersioningSystem.class, "HINT_showLocalFiles"));
             showLocalFiles.setExpert(true);
              */
-            ignoredGarbageFiles = new PropertyDescriptor
-                          (VcsVersioningSystem.PROP_IGNORED_GARBAGE_FILES, VcsVersioningSystem.class, "getIgnoredGarbageFiles", "setIgnoredGarbageFiles"); // NOI18N
-            ignoredGarbageFiles.setDisplayName(NbBundle.getMessage(VcsVersioningSystem.class, "PROP_ignoredGarbageFiles"));
-            ignoredGarbageFiles.setShortDescription(NbBundle.getMessage(VcsVersioningSystem.class, "HINT_ignoredGarbageFiles"));
-            ignoredGarbageFiles.setExpert(true);
             
-            properties = new PropertyDescriptor[] { showDeadFiles, showMessages, messageLength, ignoredGarbageFiles };
+            properties = new PropertyDescriptor[] { showDeadFiles, showMessages, messageLength };
         } catch (IntrospectionException ex) {
            ErrorManager.getDefault().notify(ex);
         }

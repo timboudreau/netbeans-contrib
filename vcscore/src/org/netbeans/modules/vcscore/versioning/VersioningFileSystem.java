@@ -17,6 +17,7 @@ import java.beans.VetoableChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.FilenameFilter;
 import java.io.Serializable;
 import java.lang.reflect.*;
 import java.lang.ref.WeakReference;
@@ -64,8 +65,13 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
      * saveVersioningFileSystemProperties(String propName, Object newValue) to save the properties and also upon restart set the Versioning properties
      */
     public static final String VERSIONING_PROPERTIES_SAVE_METHOD = "saveVersioningFileSystemProperties"; //NOI18N
-    //protected FileSystem.Status status;
-    //protected VersioningFileSystem.Versions versions;
+    
+    /**
+     * Name of the attribute that contains the instance of the versioning filesystem that the
+     * fileobject belongs to.
+     */
+    public static final String VERSIONING_NATIVE_FS = "VersioningFileSystemAttributeIdentifier"; //NOI18N
+
     
     private AbstractFileSystem fileSystem;
     
@@ -431,6 +437,11 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
             listeners[i].vcsStatusChanged(ev);
         }
     }
+    
+    /**
+     * The filter of file names that should not be presented in GUI.
+     */
+    public abstract FilenameFilter getFileFilter();
     
     /**
      * A very simple implementation of attributes held in memory.

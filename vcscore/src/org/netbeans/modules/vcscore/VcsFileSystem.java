@@ -362,7 +362,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private Integer numberOfFinishedCmdsToCollect = new Integer(RuntimeFolderNode.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
     private int versioningFileSystemMessageLength = 50;
     private boolean versioningFileSystemShowMessage = true;
-    private String versioningFileSystemShowGarbageFiles = "";
     private boolean versioningFileSystemShowLocalFiles = true;
     private boolean versioningFileSystemShowUnimportantFiles = false;
     private boolean versioningFileSystemShowDeadFiles = false;
@@ -753,14 +752,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         versioningFileSystemShowUnimportantFiles = newVal;
     }
 
-    public String getVFSShowGarbageFiles() {
-        return versioningFileSystemShowGarbageFiles;
-    }
-    public void setVFSShowGarbageFiles(String newVal) {
-        if (newVal == null) newVal = "";
-        versioningFileSystemShowGarbageFiles = newVal;
-    }
-
     public boolean getVFSShowDeadFiles() {
         return versioningFileSystemShowDeadFiles;
     }
@@ -772,7 +763,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (versioningSystem != null && versioningSystem instanceof VcsVersioningSystem) {
             VcsVersioningSystem versFs = (VcsVersioningSystem)versioningSystem;
             setVFSMessageLength(versFs.getMessageLength());
-            setVFSShowGarbageFiles(versFs.getIgnoredGarbageFiles());
             setVFSShowLocalFiles(versFs.isShowLocalFiles());
             setVFSShowMessage(versFs.isShowMessages());
             setVFSShowUnimportantFiles(versFs.isShowUnimportantFiles());
@@ -1556,7 +1546,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private void assignVersioningProperties(VcsVersioningSystem vers) {
         vers.setShowDeadFiles(versioningFileSystemShowDeadFiles);
-        vers.setIgnoredGarbageFiles(versioningFileSystemShowGarbageFiles);
         vers.setShowLocalFiles(versioningFileSystemShowLocalFiles);
         vers.setShowMessages(versioningFileSystemShowMessage);
         vers.setShowUnimportantFiles(versioningFileSystemShowUnimportantFiles);
@@ -1832,9 +1821,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         last_useUnixShell = useUnixShell;
         updateEnvironmentVars();
         init();
-        if (versioningFileSystemShowGarbageFiles == null) {
-            versioningFileSystemShowGarbageFiles = "";
-        }
         //cache.setLocalFilesAdd (localFilesOn);
         processUnimportantFilesLock = new Object();
         if (null == processUnimportantFiles) processUnimportantFiles = Boolean.FALSE;
