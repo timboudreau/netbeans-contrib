@@ -30,6 +30,8 @@ import org.netbeans.modules.tasklist.usertasks.UTUtils;
 import org.openide.ErrorManager;
 import org.openide.awt.MouseUtils;
 import org.openide.explorer.ExplorerManager;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Utilities;
 
@@ -37,12 +39,32 @@ import org.openide.util.Utilities;
  * TreeTable with support for Nodes
  */
 public abstract class NodesTreeTable extends TreeTable {
-    private ExplorerManager em;
+    /**
+     * Root node for the selection
+     */
+    private static class RootNode extends AbstractNode {
+        /**
+         * Constructor
+         */
+        public RootNode() {
+            super(new Children.Array());
+        }
+    }
+    
+    private ExplorerManager em;     
+    
+    /** 
+     * This root node prevents double update of the properties view 
+     * after calling setRootContext and setExploredContext
+     */
+    private RootNode rootNode;
     
     /** Creates a new instance of NodesTreeTable */
     public NodesTreeTable(ExplorerManager explorerManager, TreeTableModel ttm) {
         super(ttm);
         this.em = explorerManager;
+        this.rootNode = new RootNode();
+        this.em.setRootContext(rootNode);
         
         addMouseListener(new MouseUtils.PopupMouseAdapter() {
             public void showPopup(MouseEvent e) {
@@ -104,10 +126,15 @@ public abstract class NodesTreeTable extends TreeTable {
                         nodes = new Node[0];
                 }
                 
+                Children.Array ch = (Children.Array) rootNode.getChildren();
+                ch.remove(ch.getNodes());
+                ch.add(nodes);
                 try {
-                    if (nodes.length > 0)
-                        em.setRootContext(nodes[0]);
-                    em.setSelectedNodes(nodes);
+                    if (nodes.length > 0) {
+                        em.setExploredContext(nodes[0], nodes);
+                    } else {
+                        em.setSelectedNodes(nodes);
+                    }
                 } catch (PropertyVetoException ex) {
                     ErrorManager.getDefault().notify(ex);
                 }
