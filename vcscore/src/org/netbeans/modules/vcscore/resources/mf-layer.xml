@@ -106,6 +106,10 @@ Microsystems, Inc. All Rights Reserved.
             <attr name="instanceCreate" newvalue="org.netbeans.modules.vcscore.registry.VcsFSProvider" />
             <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.registry.VcsFSProvider" />
         </file>
+        <file name="VcsCollocationQueryImpl.instance">
+            <attr name="instanceCreate" newvalue="org.netbeans.modules.vcscore.VcsCollocationQueryImpl" />
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.queries.CollocationQueryImplementation" />
+        </file>
         <folder name="VersionControl">
             <file name="org-netbeans-modules-vcscore-grouping-VcsGroupSettings.settings" url="VcsGroupSettings.settings">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.grouping.Bundle" />
