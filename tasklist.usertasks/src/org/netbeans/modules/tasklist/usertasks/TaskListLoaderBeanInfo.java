@@ -13,8 +13,9 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
-import java.beans.*;
 import java.awt.Image;
+import java.beans.SimpleBeanInfo;
+
 import org.openide.util.Utilities;
 
 /** 

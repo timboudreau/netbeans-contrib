@@ -21,36 +21,30 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.Date;
 import java.text.SimpleDateFormat;
-import java.util.Vector;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ButtonGroup;
+
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JPanel;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.ListCellRenderer;
-import javax.swing.JList;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.InputVerifier;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
 import javax.swing.text.JTextComponent;
+
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.openide.awt.Mnemonics;
 import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
-import org.openide.util.Lookup;
+import org.openide.awt.Mnemonics;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.DialogDisplayer;
 
 /**
  * Panel used to enter/edit a user task.

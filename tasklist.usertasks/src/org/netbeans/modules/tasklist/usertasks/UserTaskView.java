@@ -22,44 +22,42 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.swing.Action;
-import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.SwingUtilities;
-import org.openide.text.Annotation;
+
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
+import org.netbeans.modules.tasklist.core.ColumnProperty;
+import org.netbeans.modules.tasklist.core.ExportAction;
+import org.netbeans.modules.tasklist.core.GoToTaskAction;
+import org.netbeans.modules.tasklist.core.ObservableList;
+import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.modules.tasklist.core.Task;
+import org.netbeans.modules.tasklist.core.TaskAnnotation;
+import org.netbeans.modules.tasklist.core.TaskListView;
+import org.netbeans.modules.tasklist.core.TaskListener;
+import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.netbeans.modules.tasklist.core.*;
-import org.netbeans.modules.tasklist.core.editors.PriorityTableCellRenderer;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
-import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
-import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.openide.actions.DeleteAction;
-import org.openide.actions.PasteAction;
 import org.openide.awt.MouseUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.URLMapper;
-import org.openide.util.HelpCtx;
+import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.WindowManager;
-import org.openide.nodes.Node;
 
-
-
-/** View showing the todo list items
+/** 
+ * View showing the todo list items
+ *
  * @author Tor Norbye
  */
 public class UserTaskView extends TaskListView implements TaskListener {
@@ -71,15 +69,17 @@ public class UserTaskView extends TaskListView implements TaskListener {
         LOGGER.setLevel(Level.OFF);
     }
     
-    private TreeTable tt;
+    private UserTasksTreeTable tt;
     
-    /** Construct a new UserTaskView. Most work is deferred to
-	componentOpened. NOTE: this is only for use by the window
-	system when deserializing windows. Client code should not call
-	it. I can't make it protected because then the window system
-	wouldn't be able to get to this. But the code relies on
-	readExternal getting called after this constructor to finalize
-	construction of the window.*/
+    /** 
+     * Construct a new UserTaskView. Most work is deferred to
+     * componentOpened. NOTE: this is only for use by the window
+     * system when deserializing windows. Client code should not call
+     * it. I can't make it protected because then the window system
+     * wouldn't be able to get to this. But the code relies on
+     * readExternal getting called after this constructor to finalize
+     * construction of the window.
+     */
     public UserTaskView() {
         this(UserTaskList.getDefault(), true);
     }
@@ -523,7 +523,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     protected Node createRootNode() {
-        return new UserTaskListNode(getModel());
+        return new UserTaskListNode((UserTaskList) getModel(), null);
     }
 
     /** Show the given task. "Showing" means getting the editor to
@@ -580,5 +580,23 @@ public class UserTaskView extends TaskListView implements TaskListener {
         super.setFiltered();
         tt.setTreeTableModel(new UserTasksTreeTableModel((UserTaskList) getModel(), 
             tt.getSortingModel(), getFilter()));
+    }
+
+    protected void storeColumnsConfiguration() {
+        if (tt == null)
+            return;
+        
+        ColumnsConfiguration columns = getDefaultColumns();
+        tt.storeColumns(columns);
+    }
+
+    protected void loadColumnsConfiguration() {
+        if (LOGGER.isLoggable(Level.FINE))
+            Thread.dumpStack();
+        if (tt == null)
+            return;
+        
+        ColumnsConfiguration cc = getDefaultColumns();
+        tt.loadColumns(cc);
     }
 }

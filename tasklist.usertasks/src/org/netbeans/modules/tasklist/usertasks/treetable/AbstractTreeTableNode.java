@@ -13,9 +13,12 @@
 
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
+
 import javax.swing.tree.TreeNode;
 
 /**
@@ -97,5 +100,20 @@ public abstract class AbstractTreeTableNode implements TreeTableNode {
      */
     public void refreshChildren() {
         this.children = null;
+    }
+    
+    /**
+     * Returns path from this node to the root 
+     *
+     * @return path to the root
+     */
+    public TreeTableNode[] getPathToRoot() {
+        List path = new ArrayList();
+        TreeTableNode n = this;
+        while (n != null) {
+            path.add(0, n);
+            n = (TreeTableNode) n.getParent();
+        }
+        return (TreeTableNode[]) path.toArray(new TreeTableNode[path.size()]);
     }
 }

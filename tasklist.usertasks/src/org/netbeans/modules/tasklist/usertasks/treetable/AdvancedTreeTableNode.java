@@ -22,6 +22,8 @@ import java.util.Comparator;
  */
 public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     protected TreeTableNode[] unfilteredChildren;
+    protected FilterIntf filter;
+    protected Comparator comparator;
     
     /** 
      * Creates a new instance of AdvancedTreeTableNode 
@@ -33,15 +35,22 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     }
 
     /**
+     * Sets new comparator or null
+     *
+     * @param comparator new comparator
+     */
+    public void setComparator(Comparator comparator) {
+        this.comparator = comparator;
+        refreshChildren();
+    }
+    
+    /**
      * Gets a comparator
      *
      * @return comparator or null
      */
     public Comparator getComparator() {
-        if (getParent() instanceof AdvancedTreeTableNode)
-            return ((AdvancedTreeTableNode) getParent()).getComparator();
-        else
-            return null;
+        return comparator;
     }
     
     /**
@@ -50,12 +59,19 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
      * @return filter or null
      */
     public FilterIntf getFilter() {
-        if (getParent() instanceof AdvancedTreeTableNode)
-            return ((AdvancedTreeTableNode) getParent()).getFilter();
-        else
-            return null;
+        return filter;
     }
 
+    /**
+     * Sets new filter
+     *
+     * @param filter new filter or null
+     */
+    public void setFilter(FilterIntf filter) {
+        this.filter = filter;
+        refreshChildren();
+    }
+    
     /**
      * todo
      */

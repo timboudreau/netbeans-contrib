@@ -13,18 +13,35 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.*;
-import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
-import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.Action;
+
+import org.netbeans.modules.tasklist.core.ExpandAllAction;
+import org.netbeans.modules.tasklist.core.ExportAction;
+import org.netbeans.modules.tasklist.core.GoToTaskAction;
+import org.netbeans.modules.tasklist.core.ImportAction;
+import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.modules.tasklist.core.Task;
+import org.netbeans.modules.tasklist.core.TaskTransfer;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
-import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
+import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.openide.ErrorManager;
-import org.openide.actions.*;
-import org.openide.nodes.Node;
-import org.openide.nodes.PropertySupport;
-import org.openide.nodes.PropertySupport.Reflection;
+import org.openide.actions.CopyAction;
+import org.openide.actions.CutAction;
+import org.openide.actions.DeleteAction;
+import org.openide.actions.PasteAction;
+import org.openide.actions.PropertiesAction;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.HelpCtx;
@@ -33,56 +50,33 @@ import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.MultiTransferObject;
 import org.openide.util.datatransfer.PasteType;
-import org.netbeans.modules.tasklist.core.TaskChildren;
-
-import javax.swing.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyEditorManager;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
-final class UserTaskNode extends TaskNode {
+final class UserTaskNode extends AbstractNode {
     private static final Logger LOGGER = TLUtils.getLogger(UserTaskNode.class);
     
     static {
         LOGGER.setLevel(Level.OFF);
     }
+
+    private UserTask item;
     
-    // Leaf
+    /**
+     * TODO comment
+     */
     UserTaskNode(UserTask item) {
-        super(item);
-        init();
+        super(Children.LEAF);
+        this.item = item;
+        //init();
     } 
 
-    // Non-leaf/parent
-    UserTaskNode(UserTask item, TaskChildren children) {
-        super(item, children);
-        init();
+    /**
+     * TODO: comment
+     */
+    public UserTask getTask() {
+        return item;
     }
-
-    protected TaskChildren createChildren() {
-      return new UserTaskChildren(this.item);
-    }
-
-  // children for UserTaskNode , serve as a factory for nodes
-    static class UserTaskChildren extends TaskChildren {
-      
-      UserTaskChildren(Task parent) { super(parent);}
-
-      protected TaskNode createNode(Task task) {
-	return new UserTaskNode((UserTask)task);
-      }
-    }
-
+    
     /**
      * Common part of both constructors
      */
@@ -97,11 +91,6 @@ final class UserTaskNode extends TaskNode {
         });
     }
     
-    // Handle cloning specially (so as not to invoke the overhead of FilterNode):
-    public Node cloneNode () {
-	return new UserTaskNode((UserTask)item);
-    }
-
     protected void updateIcon() {
         UserTask uitem = (UserTask)item;
         if (uitem.getIcon() != null) {

@@ -18,10 +18,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+
 import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 
 /**

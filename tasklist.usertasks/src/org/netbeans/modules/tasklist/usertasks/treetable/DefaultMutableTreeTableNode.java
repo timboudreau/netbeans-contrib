@@ -3,6 +3,7 @@ package org.netbeans.modules.tasklist.usertasks.treetable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 

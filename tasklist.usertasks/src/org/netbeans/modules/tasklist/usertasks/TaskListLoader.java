@@ -15,6 +15,7 @@
 package org.netbeans.modules.tasklist.usertasks;
 
 import java.io.IOException;
+
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
 import org.openide.actions.DeleteAction;
@@ -25,7 +26,6 @@ import org.openide.actions.PropertiesAction;
 import org.openide.actions.SaveAsTemplateAction;
 import org.openide.actions.ToolsAction;
 import org.openide.filesystems.FileObject;
-
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.ExtensionList;
 import org.openide.loaders.MultiDataObject;

@@ -14,7 +14,6 @@
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
 import javax.swing.tree.MutableTreeNode;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableNode;
 
 /**
  * A Mutable node for a TreeTable

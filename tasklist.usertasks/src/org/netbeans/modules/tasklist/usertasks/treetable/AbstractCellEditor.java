@@ -17,10 +17,12 @@
  */
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
 import java.util.EventObject;
+
+import javax.swing.CellEditor;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.EventListenerList;
 
 /**
  * Abstract cell editor. Implement all abstract methods of CellEditor.
