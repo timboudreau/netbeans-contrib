@@ -277,6 +277,9 @@ public class CommandCustomizationSupport extends Object {
             }
         }
         if (fileObjects.size() > 0) {
+            if (VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)) {
+                fileObjects.clear();
+            }
             String hiddenTestExpression = (String) cmd.getProperty(VcsCommand.PROPERTY_HIDDEN_TEST_EXPRESSION);
             if (hiddenTestExpression != null) {
                 Hashtable variables = executionContext.getVariablesAsHashtable();
