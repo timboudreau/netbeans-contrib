@@ -324,8 +324,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
     
     public String getConfigFileModificationTimeStr() {
-        if (CONFIG_ROOT_FO == null) return "0";
+        if (CONFIG_ROOT_FO == null) return "0"; // NOI18N
         FileObject fo = CONFIG_ROOT_FO.getFileObject(configFileName);
+        if (fo == null) return "0"; // NOI18N
         return fo.lastModified().toGMTString();
     }
 
