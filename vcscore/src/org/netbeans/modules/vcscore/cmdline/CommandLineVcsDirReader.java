@@ -200,26 +200,34 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
     }
 
     private void printOutput(String line) {
-        for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandOutputListener) it.next()).outputLine(line);
+        if (commandOutputListener != null) {
+            for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
+                ((CommandOutputListener) it.next()).outputLine(line);
+            }
         }
     }
 
     private void printErrorOutput(String line) {
-        for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandOutputListener) it.next()).outputLine(line);
+        if (commandErrorOutputListener != null) {
+            for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
+                ((CommandOutputListener) it.next()).outputLine(line);
+            }
         }
     }
 
     private void printDataOutput(String[] data) {
-        for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandDataOutputListener) it.next()).outputData(data);
+        if (commandDataOutputListener != null) {
+            for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
+                ((CommandDataOutputListener) it.next()).outputData(data);
+            }
         }
     }
 
     private void printDataErrorOutput(String[] data) {
-        for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandDataOutputListener) it.next()).outputData(data);
+        if (commandDataErrorOutputListener != null) {
+            for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
+                ((CommandDataOutputListener) it.next()).outputData(data);
+            }
         }
     }
 
@@ -506,14 +514,24 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
     public static String[] translateElements(String[] cmdElements, UserCommand list) {
         int n = RefreshCommandSupport.NUM_ELEMENTS;
         int[] index = new int[n];
-        index[0] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_FILE_NAME);
-        index[1] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_STATUS);
-        index[2] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_LOCKER);
-        index[3] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_REVISION);
-        index[4] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_ATTR);
-        index[5] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_DATE);
-        index[6] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_TIME);
-        index[7] = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_SIZE);
+        index[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] =
+            VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_FILE_NAME);
+        index[RefreshCommandSupport.ELEMENT_INDEX_STATUS] =
+            VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_STATUS);
+        index[RefreshCommandSupport.ELEMENT_INDEX_LOCKER] =
+            VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_LOCKER);
+        index[RefreshCommandSupport.ELEMENT_INDEX_REVISION] =
+            VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_REVISION);
+        index[RefreshCommandSupport.ELEMENT_INDEX_STICKY] =
+            VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_STICKY);
+        index[RefreshCommandSupport.ELEMENT_INDEX_ATTR] =
+            VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_ATTR);
+        index[RefreshCommandSupport.ELEMENT_INDEX_DATE] =
+            VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_DATE);
+        index[RefreshCommandSupport.ELEMENT_INDEX_TIME] =
+            VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_TIME);
+        index[RefreshCommandSupport.ELEMENT_INDEX_SIZE] =
+            VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_SIZE);
         String[] elements = new String[n];
         int cmdn = cmdElements.length;
         for(int i = 0; i < n; i++) {
