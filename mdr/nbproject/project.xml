@@ -70,11 +70,6 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>org.netbeans.mdr</package>
-                <package>org.netbeans.mdr.handlers</package>
-                <package>org.netbeans.mdr.storagemodel</package>
-                <package>org.netbeans.mdr.persistence</package>		
-                <package>org.netbeans.mdr.util</package>
             </public-packages>
             <javadoc/>
         </data>

@@ -33,16 +33,21 @@ Microsystems, Inc. All Rights Reserved.
     </target>
     
     <target name="jar-with-module-deps" if="module.dependencies">
-        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" compress="false" manifest="${manifest.mf}">
+        <property file="../spec-vers.properties"/>
+        <copy file="manifest.mf" tofile="manifest-subst.mf">
+            <filterchain>
+                <expandproperties/>
+            </filterchain>
+        </copy>
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" compress="false" manifest="manifest-subst.mf">
             <manifest>
                 <attribute name="OpenIDE-Module-Public-Packages" value="${public.packages}"/>
                 <attribute name="OpenIDE-Module-IDE-Dependencies" value="${ide.dependencies}"/>
                 <attribute name="OpenIDE-Module-Module-Dependencies" value="javax.jmi.reflect/1,javax.jmi.model/1,org.netbeans.api.mdr/1,org.netbeans.modules.jmiutils/1 = ${mdr.jmiutils.impl.version}"/>
-                <!-- XXX make this conditional so can use OIDE-M-B-V instead -->
-                <attribute name="OpenIDE-Module-Implementation-Version" value="${buildnumber}"/>
             </manifest>
             <fileset dir="${build.classes.dir}"/>
         </jar>
+        <delete file="manifest-subst.mf"/>
     </target>
     
     <target name="netbeans-extra" depends="release"/>

@@ -3,6 +3,7 @@ OpenIDE-Module: org.netbeans.modules.mdr/1
 OpenIDE-Module-Install: org/netbeans/modules/mdr/MdrModule.class
 OpenIDE-Module-Layer: org/netbeans/modules/mdr/resources/mdr-layer.xml
 OpenIDE-Module-Specification-Version: 0.91
+OpenIDE-Module-Implementation-Version: ${mdr.module.impl.version}
 OpenIDE-Module-Provides: org.netbeans.api.mdr.MDRManager
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/mdr/Bundle.properties
 Class-Path: ext/mdr.jar
