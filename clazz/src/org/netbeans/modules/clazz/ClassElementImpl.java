@@ -69,9 +69,9 @@ final class ClassElementImpl extends MemberElementImpl
     return superClass;
   }
 
-  /** Not supported. Throws Unsupported exception */
-  public void setClassOrInterface(boolean isClass) {
-    throw new UnsupportedOperationException();
+  /** Not supported. Throws Source Exception */
+  public void setClassOrInterface(boolean isClass) throws SourceException {
+    throw new SourceException();
   }
 
   public boolean isClassOrInterface() {
@@ -356,6 +356,8 @@ final class ClassElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  7    src-jtulach1.6         3/31/99  David Simonek   setClassOrInterface now 
+*       throws SourceException
 *  6    src-jtulach1.5         3/26/99  David Simonek   properties, actions 
 *       completed, more robust now
 *  5    src-jtulach1.4         2/17/99  Petr Hamernik   serialization changed.
