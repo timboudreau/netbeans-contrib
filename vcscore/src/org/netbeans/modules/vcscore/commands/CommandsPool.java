@@ -107,6 +107,11 @@ public class CommandsPool extends Object /*implements CommandListener */{
 
     /** Creates new CommandsPool */
     public CommandsPool(final VcsFileSystem fileSystem) {
+        this(fileSystem, true);
+    }
+    
+    /** Creates new CommandsPool */
+    public CommandsPool(final VcsFileSystem fileSystem, boolean createRuntimeCommands) {
         commandsToRun = new ArrayList();
         commands = new Table();
         commandsFinished = new ArrayList();
@@ -115,16 +120,20 @@ public class CommandsPool extends Object /*implements CommandListener */{
         outputVisualizers = new Hashtable();
         group = new ThreadGroup("VCS Commands Group");
         this.fileSystem = new WeakReference(fileSystem);
-        runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
-        runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
-        runtimeNodePropertyChange = new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT.equals(evt.getPropertyName())) {
-                    collectFinishedCmdsNum = ((Integer) evt.getNewValue()).intValue();
+        if (createRuntimeCommands) {
+            runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
+            runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
+            runtimeNodePropertyChange = new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT.equals(evt.getPropertyName())) {
+                        collectFinishedCmdsNum = ((Integer) evt.getNewValue()).intValue();
+                    }
                 }
-            }
-        };
-        runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
+            };
+            runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
+        } else {
+            runtimeNode = null;
+        }
         FSDisplayPropertyChangeListener fsDisplayPropertyChange = new FSDisplayPropertyChangeListener();
         fileSystem.addPropertyChangeListener(WeakListener.propertyChange(fsDisplayPropertyChange, fileSystem));
         /*
@@ -151,12 +160,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * You will not be able to execute any command by CommandsPool after this method finishes !
      */
     public void cleanup() {
-        runtimeNode.removePropertyChangeListener(runtimeNodePropertyChange);
-        try {
-            runtimeNode.destroy();
-            runtimeNode = null;
-        } catch (java.io.IOException exc) {
-            TopManager.getDefault().notifyException(exc);
+        if (runtimeNode != null) {
+            runtimeNode.removePropertyChangeListener(runtimeNodePropertyChange);
+            try {
+                runtimeNode.destroy();
+                runtimeNode = null;
+            } catch (java.io.IOException exc) {
+                TopManager.getDefault().notifyException(exc);
+            }
         }
         synchronized (this) {
             //* The FS may still exist i.e. inside a MultiFileSystem => do not interrupt the loop now
@@ -183,7 +194,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
      */
     public void setCollectFinishedCmdsNum(int collectFinishedCmdsNum) {
         this.collectFinishedCmdsNum = collectFinishedCmdsNum;
-        runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
+        if (runtimeNode != null) {
+            runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
+        }
     }
     
     /**

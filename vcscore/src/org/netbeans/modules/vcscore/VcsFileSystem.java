@@ -279,6 +279,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private volatile boolean commandNotification = true;
 
     private Collection notModifiableStatuses = Collections.EMPTY_SET;
+    
+    private Boolean createRuntimeCommands = Boolean.TRUE;
 
     public boolean isLockFilesOn () {
         return lockFilesOn && isEnabledLockFiles();
@@ -867,7 +869,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (notModifiableStatuses == null) {
             notModifiableStatuses = Collections.EMPTY_SET;
         }
-        commandsPool = new CommandsPool(this);
+        if (createRuntimeCommands == null) createRuntimeCommands = Boolean.TRUE;
+        commandsPool = new CommandsPool(this, createRuntimeCommands.booleanValue());
         if (numberOfFinishedCmdsToCollect == null) {
             numberOfFinishedCmdsToCollect = new Integer(CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
         }
@@ -887,7 +890,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void addNotify() {
         //System.out.println("fileSystemAdded("+this+")");
         //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
-        commandsPool.setupRuntime();
+        if (Boolean.TRUE.equals(createRuntimeCommands)) commandsPool.setupRuntime();
         if (!isOffLine()
             && (getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_MOUNT_AND_RESTART
             || (deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_RESTART)
@@ -903,6 +906,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("fileSystem Removed("+this+")");
         commandsPool.cleanup();
         super.removeNotify();
+    }
+    
+    protected void setCreateRuntimeCommands(boolean createRuntimeCommands) {
+        this.createRuntimeCommands = new Boolean(createRuntimeCommands);
+    }
+    
+    protected boolean isCreateRuntimeCommands() {
+        return createRuntimeCommands.booleanValue();
     }
     
     private static final long serialVersionUID =8108342718973310275L;
@@ -954,6 +965,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public HashMap getPossibleFileStatusesTable() {
         HashMap statusesTable;
+        if (possibleFileStatusesMap == null) return null;
         synchronized (possibleFileStatusesMap) {
             statusesTable = new HashMap(possibleFileStatusesMap);
         }
