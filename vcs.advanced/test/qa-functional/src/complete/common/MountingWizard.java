@@ -433,7 +433,7 @@ public class MountingWizard extends NbTestCase {
             VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();
             wizardAdvanced.editCommands();
             CommandEditor commandEditor = new CommandEditor();
-            commandEditor.selectCommand("Empty|Refresh");
+            commandEditor.selectCommand("Empty|Lock");
             NbDialogOperator dialog = new NbDialogOperator("Command Editor");
             PropertySheetOperator sheet = new PropertySheetOperator(dialog);
             PropertySheetTabOperator sheetTab = sheet.getPropertySheetTabOperator("Properties");
@@ -445,7 +445,8 @@ public class MountingWizard extends NbTestCase {
             commandEditor.ok();
             wizardEnvironment.finish();
             Thread.sleep(2000);
-            VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Refresh");
+            new Action(null, "Empty|Lock").perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath()));
+            VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Lock");
             String output = outputWindow.txtStandardOutput().getText();
             String desired = Utilities.isUnix() ? "My name is: Jirka \nPath =\n" : "My name is: Jirka \nPath = %PATH%\n";
             outputWindow.close();
