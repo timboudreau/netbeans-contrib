@@ -56,25 +56,25 @@ public class CommandOutputTopComponent extends TopComponent {
     protected Object eventSource;
     private JPopupMenu menu;
     private static CommandOutputTopComponent outputTopComponent;
+    private static Mode lastMode;
     
     private static final long serialVersionUID = -8901733341334731237L;
     
     private CommandOutputTopComponent() {        
-        setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
-        putClientProperty("PersistenceType", "Never");        
+        setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));  //NOI18N
+        putClientProperty("PersistenceType", "Never");        //NOI18N
         initComponents();
-        setName(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.topName"));
+        setName(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.topName")); //NOI18N
         initPopupMenu();
-        new CommandOutputTopComponent.OutputTabPopupListener();
-        
+        new CommandOutputTopComponent.OutputTabPopupListener();  
+       
    }
     
     public static CommandOutputTopComponent getInstance(){
         if(outputTopComponent == null){
-            outputTopComponent = new CommandOutputTopComponent();
-            Workspace ws = WindowManager.getDefault().getCurrentWorkspace();
-            Mode mode = ws.findMode("output");
-            mode.dockInto(outputTopComponent);
+            outputTopComponent = new CommandOutputTopComponent();             
+            lastMode = WindowManager.getDefault().findMode("output");  //NOI18N
+            lastMode.dockInto(outputTopComponent);       
         }
         return outputTopComponent;
     }
@@ -151,11 +151,16 @@ public class CommandOutputTopComponent extends TopComponent {
     /**
      * Open the component on the given workspace.
      */
-    public void open() {                
+    public void open() {       
+        if((lastMode == null)||(lastMode.getName().startsWith("anonymous"))){     //NOI18N       
+            Mode mode = WindowManager.getDefault().findMode("output");            //NOI18N
+            mode.dockInto(outputTopComponent);
+        }else if(!isOpened())
+            lastMode.dockInto(outputTopComponent);
         super.open();
         requestVisible();
     }
-
+    
     public void addVisualizer(String name, JComponent component, boolean selected){
         tabPane.addTab(name,component);
         if(selected)
@@ -212,6 +217,7 @@ public class CommandOutputTopComponent extends TopComponent {
      * Called when the TopComponent is being to close.
      */
     private void closing() {
+       lastMode = WindowManager.getDefault().findMode(outputTopComponent);         
      //   outputPanel.removeKillActionListener(killListener);
         //synchronized (this) {
         //    pool = null;
