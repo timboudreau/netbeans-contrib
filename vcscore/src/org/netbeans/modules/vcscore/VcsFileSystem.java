@@ -995,7 +995,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             notModifiableStatuses = Collections.EMPTY_SET;
         }
         if (createRuntimeCommands == null) createRuntimeCommands = Boolean.TRUE;
-        commandsPool = new CommandsPool(this, createRuntimeCommands.booleanValue());
+        commandsPool = new CommandsPool(this, false);
         if (numberOfFinishedCmdsToCollect == null) {
             numberOfFinishedCmdsToCollect = new Integer(CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
         }
