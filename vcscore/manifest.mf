@@ -1,6 +1,6 @@
 OpenIDE-Module: org.netbeans.lib.vcscore/1
 OpenIDE-Module-Name: CVS
-OpenIDE-Module-Specification-Version: 1.1
+OpenIDE-Module-Specification-Version: 1.2
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Module-Dependencies: org.openidex.util/1, org.netbeans.modules.utilities/1
 Class-Path: ext/regexp.jar
