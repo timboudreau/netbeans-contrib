@@ -44,6 +44,8 @@ import org.openide.util.Utilities;
 import org.openide.text.DataEditorSupport;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
+import org.openide.src.ClassElement;
+import org.openide.src.Identifier;
 
 /**
  * This class uses the PMD rule checker to provide rule violation
@@ -111,7 +113,16 @@ public class ViolationProvider extends DocumentSuggestionProvider {
             return null;
         }
         Reader reader = new StringReader(text);
-        String name = cookie.getSource().getClasses()[0].getName().getFullName();
+        // XXX got an unexplained NPE in here somewhere...
+        ClassElement[] topClazzes = cookie.getSource().getClasses();
+        if (topClazzes.length == 0) {
+            // Empty file, skip.
+            return null;
+        }
+        assert topClazzes[0] != null : cookie.getSource().getClass().getName();
+        Identifier topClazzName = topClazzes[0].getName();
+        assert topClazzName != null : topClazzes[0].getClass().getName();
+        String name = topClazzName.getFullName();
         PMD pmd = new PMD();
         RuleContext ctx = new RuleContext();
         Report report = new Report();
