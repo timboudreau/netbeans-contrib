@@ -2507,7 +2507,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     String fullName = (String) it.next();
                     FileStatusInfo fileStatus = statusProvider.getFileStatusInfo(fullName);
                     if (status == null) status = fileStatus;
-                    if (!status.equals(fileStatus)) {
+                    if (status != null && !status.equals(fileStatus)) {
                         status = null;//statusProvider.getNotInSynchStatus();
                         break;
                     }
