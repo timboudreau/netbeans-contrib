@@ -366,6 +366,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private boolean versioningFileSystemShowDeadFiles = false;
 
     private transient ArrayList revisionListeners;
+    private transient Object revisionListenersLock;
 
     /** The offline mode.
      * Whether to run command when doing refresh of folders.
@@ -841,18 +842,26 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
 
     public void addRevisionListener(RevisionListener listener) {
-        if (revisionListeners == null) revisionListeners = new ArrayList();
-        revisionListeners.add(listener);
+        synchronized (revisionListenersLock) {
+            if (revisionListeners == null) revisionListeners = new ArrayList();
+            revisionListeners.add(listener);
+        }
     }
 
     public boolean removeRevisionListener(RevisionListener listener) {
-        if (revisionListeners == null) return false;
-        return revisionListeners.remove(listener);
+        synchronized (revisionListenersLock) {
+            if (revisionListeners == null) return false;
+            return revisionListeners.remove(listener);
+        }
     }
 
     public void fireRevisionsChanged(RevisionEvent event) {//int whatChanged, FileObject fo, Object info) {
-        if (revisionListeners == null) return;
-        for(Iterator it = revisionListeners.iterator(); it.hasNext(); ) {
+        java.util.List listeners;
+        synchronized (revisionListenersLock) {
+            if (revisionListeners == null) return;
+            listeners = new ArrayList(revisionListeners);
+        }
+        for(Iterator it = listeners.iterator(); it.hasNext(); ) {
             //((RevisionListener) it.next()).revisionsChanged(whatChanged, fo, info);
             ((RevisionListener) it.next()).stateChanged(event);
         }
@@ -1518,6 +1527,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * of this class is created and after deserialization. Subclasses should call super.init().
      */
     protected void init() {
+        revisionListenersLock = new Object();
         lockedFilesToBeModified = new HashMap();
         displayName = computeDisplayName();
         D.deb ("init()"); // NOI18N
