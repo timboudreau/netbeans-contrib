@@ -137,11 +137,11 @@ public class IOROutputStream {
     }
     
     public String toString () {
-	String res = "IOR:";
+	String res;
 	if (little_endian_)
 	    res = "01000000";
 	else
-	    res = res + "00000000";
+	    res = "00000000";
 	trim ();
 	res = res + Stringifier.stringify (buf_);
 	return res;
