@@ -168,7 +168,7 @@ public class PackagerProject implements Project {
         assert dir != null : "Source folder must be given";   //NOI18N
         
         final FileObject dirFO = createProjectDir (dir);
-        final AntProjectHelper h = ProjectGenerator.createProject(dirFO, PackagerProjectType.TYPE, name);
+        final AntProjectHelper h = ProjectGenerator.createProject(dirFO, PackagerProjectType.TYPE);
         
         final PackagerProject p = (PackagerProject) ProjectManager.getDefault().findProject(dirFO);
         try {
