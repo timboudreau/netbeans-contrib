@@ -1229,7 +1229,11 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>        
-      </command>     
+      </command>
+      <command name="SUBMENU_HISTORY" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_SECTION_HISTORY)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_SECTION_HISTORY_Mnemonic)</value>
+        </property>
       <command name="LOG" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOG)">
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOG_Mnemonic)</value>
@@ -1378,6 +1382,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>$ ^</value>
 	</property>
       </command>
+      </command> <!-- End section History -->
       <separator />
       <command name="IMPORT" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_IMPORT)">
         <property name="labelMnemonic">
