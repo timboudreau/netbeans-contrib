@@ -169,9 +169,7 @@ for more information.<p>List of the main features:</p>
         </question>
 -->
 <answer id="dep-non-nb">
-    <api group="java" name="Jakarta-Regexp-1.2" type="import" category="deprecated" url="http://jakarta.apache.org/regexp/apidocs/">
-    Regular expressions API - distributed with the IDE (in lib/ext/regexp-1.2.jar).
-    </api>
+    <p>None.</p>
 </answer>
 
 
