@@ -2,6 +2,8 @@ corba/src/org/netbeans/modules/corba/Bundle.properties
 corba/src/org/netbeans/modules/corba/browser/ir/Bundle.properties
 corba/src/org/netbeans/modules/corba/browser/ns/Bundle.properties
 corba/src/org/netbeans/modules/corba/idl/editor/settings/Bundle.properties
+corba/src/org/netbeans/modules/corba/idl/editor/indent/Bundle.properties
+corba/src/org/netbeans/modules/corba/idl/generator/Bundle.properties
 corba/src/org/netbeans/modules/corba/idl/node/Bundle.properties
 corba/src/org/netbeans/modules/corba/ioranalyzer/Bundle.properties
 corba/src/org/netbeans/modules/corba/poasupport/Bundle.properties
