@@ -13,11 +13,15 @@
 
 package org.netbeans.modules.corba.browser.ir.util;
 
-import org.omg.CORBA.StringHolder;
+/**
+ *
+ * @author  tzezula
+ * @version 
+ */
+public interface AsyncTarget {
 
-public interface GenerateSupport extends org.openide.nodes.Node.Cookie {
-    public String generateHead (int indent, StringHolder currentPrefix);
-    public String generateSelf (int indent, StringHolder currentPrefix);
-    public String generateTail (int indent);
-    public String getRepositoryId();
+    public void preinvoke ();
+    public void invoke();
+    public void postinvoke();
 }
+
