@@ -137,7 +137,7 @@ Microsystems, Inc. All Rights Reserved.
       <value></value>
     </variable>
     <variable name="VSSCMD_EXE" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Command)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Command_Mnemonic)" localFile="true" localDir="false" executable="false" order="2">
-      <value>C:\Program Files\Microsoft Visual Studio\Common\VSS\win32\SS.EXE</value>
+      <value>C:\Program Files\Microsoft Visual Studio\VSS\win32\SS.EXE</value>
     </variable>
     <variable name="PROJECT" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Project)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Project_Mnemonic)" localFile="false" localDir="false" executable="false" order="3">
       <value>$/</value>
@@ -153,7 +153,7 @@ Microsystems, Inc. All Rights Reserved.
       <value if="IS_WIN9X">${VSSCMD_EXE_\/}</value>
     </variable>
     <variable name="ENVIRONMENT_VAR_SSDIR" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_SSDIR)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_SSDIR_Mnemonic)" localDir="true" order="5">
-      <value>C:\Program Files\Microsoft Visual Studio\Common\VSS</value>
+      <value>C:\Program Files\Microsoft Visual Studio\VSS</value>
     </variable>
     <variable name="MSG_PROMPT_FOR_AUTO_EDIT" basic = "false">
       <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_MSG_PROMPT_FOR_AUTO_EDIT)</value>
