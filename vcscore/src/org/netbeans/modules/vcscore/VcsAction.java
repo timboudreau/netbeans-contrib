@@ -743,6 +743,10 @@ public class VcsAction extends NodeAction implements ActionListener {
                         menu.setIcon(getIcon());
                     }
                 }
+                boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
+                    (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
+                if (disabled && REMOVE_DISABLED) menu = null;
+                else if (menu != null) menu.setEnabled(!disabled);
             }
         }
         return menu;
