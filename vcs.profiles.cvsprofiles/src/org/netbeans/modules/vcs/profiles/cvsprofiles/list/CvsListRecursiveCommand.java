@@ -467,10 +467,14 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand implements 
             flushLastFile();
             String path;
             String relativeDirectory = line.substring(examiningIndex + CvsListCommand.EXAMINING_STR.length()).trim();
-            if (".".equals(relativeDirectory)) {
+            if (".".equals(relativeDirectory) || relativeDirectory.length() == 0) {
                 path = dirPath;
             } else {
-                path = dirPath + "/" + relativeDirectory;
+                if (dirPath.length() > 0) {
+                    path = dirPath + "/" + relativeDirectory;
+                } else {
+                    path = relativeDirectory;
+                }
             }
             VcsDirContainer filesByNameContDir = filesByNameCont.getContainerWithPath(path);
             if (filesByNameContDir == null) {
