@@ -34,7 +34,7 @@ public class ComponentGeneratorOperator extends JDialogOperator {
     /** Creates new ComponentGeneratorOperator that can handle it.
      */
     public ComponentGeneratorOperator() {
-        super("Jemmy Component Generator");
+        super("Jemmy Components Generator");
     }
 
     private JTreeOperator _treePackage;
@@ -184,7 +184,7 @@ public class ComponentGeneratorOperator extends JDialogOperator {
     }
 
     public static ComponentGeneratorOperator invoke() {
-        new Action("Tools|Jemmy Component Generator", null).performMenu();
+        new Action("Tools|Jemmy Components Generator", null).performMenu();
         return new ComponentGeneratorOperator();
     }
 }
