@@ -87,7 +87,10 @@ public class VcsRuntimeCommand extends RuntimeCommand {
         set.put(new PropertySupport.ReadOnly("status", String.class, g("CTL_Status"), "") {
                         public Object getValue() {
                             if (pool.isWaiting(executor)) return g("CTL_Status_Waiting");
-                            if (pool.isRunning(executor)) return g("CTL_Status_Running");
+                            if (pool.isRunning(executor)) {
+                                if (state == STATE_KILLED_BUT_RUNNING) return g("CTL_Status_Killed_But_Running");
+                                else return g("CTL_Status_Running");
+                            }
                             return CommandsPool.getExitStatusString(executor.getExitStatus());
                         }
                 });
@@ -117,6 +120,9 @@ public class VcsRuntimeCommand extends RuntimeCommand {
      */
     public void killCommand() {
         pool.kill(executor);
+        state = STATE_KILLED_BUT_RUNNING;
+        // to refresh the state we have to set it to the node.
+        RuntimeSupport.getInstance().findRuntimeNode(this).setState(state);
     }
     
     public int getState() {

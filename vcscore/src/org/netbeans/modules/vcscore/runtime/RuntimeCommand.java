@@ -58,6 +58,7 @@ public abstract class RuntimeCommand {
     
     public static final int STATE_CANCELLED = RuntimeCommandNode.STATE_CANCELLED;
     
+    public static final int STATE_KILLED_BUT_RUNNING = RuntimeCommandNode.STATE_KILLED_BUT_RUNNING;
     
     /** Creates new RuntimeCommand */
     public RuntimeCommand() {

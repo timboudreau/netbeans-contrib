@@ -33,10 +33,11 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  */
 public class RuntimeCommandNode extends AbstractNode {
 
-    static final int STATE_WAITING = 0;
-    static final int STATE_RUNNING = 1;
-    static final int STATE_DONE = 2;
-    static final int STATE_CANCELLED = 3;
+    static final int STATE_WAITING = 10;
+    static final int STATE_RUNNING = 11;
+    static final int STATE_DONE = 12;
+    static final int STATE_CANCELLED = 13;
+    static final int STATE_KILLED_BUT_RUNNING = 14;
     
     private static final int BADGE_ICON_SHIFT_X = 16;
     private static final int BADGE_ICON_SHIFT_Y = 8;
@@ -71,6 +72,7 @@ public class RuntimeCommandNode extends AbstractNode {
         Image badge = null;
         switch (state) {
             case STATE_RUNNING:
+            case STATE_KILLED_BUT_RUNNING:
                 badge = Utilities.loadImage("/org/netbeans/modules/vcscore/runtime/badgeRunning.gif");
                 break;
             case STATE_WAITING:

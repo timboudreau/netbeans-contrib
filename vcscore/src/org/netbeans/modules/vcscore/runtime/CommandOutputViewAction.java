@@ -27,9 +27,6 @@ import org.netbeans.modules.vcscore.commands.CommandsPool;
  */
 public class CommandOutputViewAction extends NodeAction {
 
-    private static final Object instanceLock = new Object();
-    private static CommandOutputViewAction instance = null;
-    
     private static final long serialVersionUID = 5124642672039783672L;
     
     /** Creates new CommandOutputViewAction */
@@ -37,14 +34,8 @@ public class CommandOutputViewAction extends NodeAction {
     }
     
     public static CommandOutputViewAction getInstance() {
-        if (instance == null) {
-            synchronized (instanceLock) {
-                if (instance == null) {
-                    instance = new CommandOutputViewAction();
-                }
-            }
-        }
-        return instance;
+        return (CommandOutputViewAction)
+            org.openide.util.actions.SystemAction.get(CommandOutputViewAction.class);
     }
 
     public String getName() {

@@ -26,9 +26,6 @@ import org.netbeans.modules.vcscore.runtime.*;
  */
 public class KillRunningCommandAction extends NodeAction {
 
-    private static final Object instanceLock = new Object();
-    private static KillRunningCommandAction instance = null;
-    
     private static final long serialVersionUID = 6386534364548632176L;
     
     /** Creates new KillRunningCommandAction */
@@ -36,14 +33,8 @@ public class KillRunningCommandAction extends NodeAction {
     }
     
     public static KillRunningCommandAction getInstance() {
-        if (instance == null) {
-            synchronized (instanceLock) {
-                if (instance == null) {
-                    instance = new KillRunningCommandAction();
-                }
-            }
-        }
-        return instance;
+        return (KillRunningCommandAction)
+            org.openide.util.actions.SystemAction.get(KillRunningCommandAction.class);
     }
 
     public String getName() {
@@ -65,7 +56,18 @@ public class KillRunningCommandAction extends NodeAction {
     }
 
     public boolean enable(Node[] nodes){
-        return nodes.length > 0;
+        boolean enabled = false;
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] instanceof RuntimeCommandNode) {
+                RuntimeCommandNode node = (RuntimeCommandNode) nodes[i];
+                final RuntimeCommand comm = node.getRuntimeCommand();
+                if (comm.getState() == comm.STATE_RUNNING) {
+                    enabled = true;
+                    break;
+                }
+            }
+        }
+        return enabled;
     }
 
     public HelpCtx getHelpCtx(){
