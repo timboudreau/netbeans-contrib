@@ -37,7 +37,6 @@ import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.RetrievingDialog;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
-import org.netbeans.modules.vcscore.revision.RevisionListener;
 import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
 import org.netbeans.modules.vcscore.util.VariableInputComponent;
 import org.netbeans.modules.vcscore.util.VariableInputDialog;
@@ -46,6 +45,8 @@ import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.NotifyDescriptorInputPassword;
+import org.netbeans.modules.vcscore.versioning.RevisionEvent;
+import org.netbeans.modules.vcscore.versioning.RevisionListener;
 
 /**
  * This class contains a support for VCS commands execution.
@@ -332,24 +333,31 @@ public class CommandExecutorSupport extends Object {
         }
         if (!(doRefreshCurrent || doRefreshParent)) fileSystem.removeNumDoAutoRefresh(dir); //(String)vars.get("DIR")); // NOI18N
     }
-    
+
     public static void checkRevisionChanges(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
-        int whatChanged = 0;
-        Object changedInfo = null;
+        int whatChanged = RevisionEvent.REVISION_NO_CHANGE;
+        String changedRevision = null;
         VcsCommand cmd = vce.getCommand();
         if (VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS)) {
-            whatChanged |= RevisionListener.NUM_REVISIONS_CHANGED;
+            whatChanged = RevisionEvent.REVISION_ALL_CHANGED;
         }
         if (VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_CHANGING_REVISION)) {
-            whatChanged |= RevisionListener.ONE_REVISION_CHANGED;
+            whatChanged = RevisionEvent.REVISION_CHANGED;
             Object varName = cmd.getProperty(VcsCommand.PROPERTY_CHANGED_REVISION_VAR_NAME);
-            if (varName != null) changedInfo = vce.getVariables().get(varName);
+            if (varName != null) changedRevision = (String) vce.getVariables().get(varName);
         }
-        if (whatChanged != 0) {
+        //System.out.println("checkRevisionChanges(): whatChanged = "+whatChanged);
+        if (whatChanged != RevisionEvent.REVISION_NO_CHANGE) {
             String[] files = (String[]) vce.getFiles().toArray(new String[0]);
             for (int i = 0; i < files.length; i++) {
-                org.openide.filesystems.FileObject fo = fileSystem.findFileObject(files[i]);
-                if (fo != null) fileSystem.fireRevisionsChanged(whatChanged, fo, changedInfo);
+                Object fo = fileSystem.findResource(files[i]);
+                if (fo == null) fo = fileSystem.getVersioningSystem().findResource(files[i]);
+                if (fo != null) {
+                    RevisionEvent event = new RevisionEvent(fo);
+                    event.setRevisionChangeID(whatChanged);
+                    event.setChangedRevision(changedRevision);
+                    fileSystem.fireRevisionsChanged(event);
+                }
             }
         }
     }

@@ -54,15 +54,13 @@ import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
-import org.netbeans.modules.vcscore.revision.RevisionListener;
+import org.netbeans.modules.vcscore.versioning.RevisionEvent;
+import org.netbeans.modules.vcscore.versioning.RevisionListener;
 import org.netbeans.modules.vcscore.versioning.VcsFileObject;
 import org.netbeans.modules.vcscore.versioning.VersioningSystem;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
-import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
-import org.netbeans.modules.vcscore.versioning.impl.FileSystemInfo;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
-import org.netbeans.modules.vcscore.versioning.impl.DefaultVersioningSystem;
 
 /** Generic VCS filesystem.
  * 
@@ -324,9 +322,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private transient Set unimportantFiles;
     
-    private transient DefaultVersioningSystem versioningSystem = null;
+    private transient VersioningSystem versioningSystem = null;
     
-    private transient Hashtable revisionListsByName = null;
+    private transient AbstractFileSystem.List vcsList = null;
+    
+//    private transient Hashtable revisionListsByName = null;
 
     public boolean isLockFilesOn () {
         return lockFilesOn && isEnabledLockFiles();
@@ -518,10 +518,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return revisionListeners.remove(listener);
     }
 
-    public void fireRevisionsChanged(int whatChanged, FileObject fo, Object info) {
+    public void fireRevisionsChanged(RevisionEvent event) {//int whatChanged, FileObject fo, Object info) {
         if (revisionListeners == null) return;
         for(Iterator it = revisionListeners.iterator(); it.hasNext(); ) {
-            ((RevisionListener) it.next()).revisionsChanged(whatChanged, fo, info);
+            //((RevisionListener) it.next()).revisionsChanged(whatChanged, fo, info);
+            ((RevisionListener) it.next()).stateChanged(event);
         }
     }
     
@@ -677,7 +678,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         fireFileStatusChanged (new FileStatusEvent(this, s, true, true));
         checkScheduledStates(s);
     }
-
+    
     /**
      * Perform refresh of status information of a file
      * @param name the full file name
@@ -1044,7 +1045,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         if (createRuntimeCommands == null) createRuntimeCommands = Boolean.TRUE;
         if (createVersioningSystem == null) createVersioningSystem = Boolean.FALSE;
-        if (revisionListsByName == null) revisionListsByName = new Hashtable();
+        //if (revisionListsByName == null) revisionListsByName = new Hashtable();
         commandsPool = new CommandsPool(this, false);
         if (numberOfFinishedCmdsToCollect == null) {
             numberOfFinishedCmdsToCollect = new Integer(CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
@@ -1059,6 +1060,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
         settings.addPropertyChangeListener(WeakListener.propertyChange(settingsChangeListener, settings));
         addPropertyChangeListener(new FSPropertyChangeListener());
+    }
+    
+    protected AbstractFileSystem.List getVcsList() {
+        return vcsList;
+    }
+    
+    protected AbstractFileSystem.Info getVcsInfo() {
+        return info;
     }
     
     /** Notifies this file system that it has been added to the repository. 
@@ -1079,7 +1088,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 public void run() {
                     //VersioningExplorer.getRevisionExplorer().open();
                     if (versioningSystem == null) {
-                        versioningSystem = new DefaultVersioningSystem(new VcsFileSystemInfo());
+                        versioningSystem = new VcsVersioningSystem(VcsFileSystem.this);//new DefaultVersioningSystem(new VcsFileSystemInfo());
+                        if (cache != null) {
+                            org.netbeans.modules.vcscore.cache.FileSystemCache fsCache =
+                                org.netbeans.modules.vcscore.cache.CacheHandler.getInstance().getCache(cache);
+                            if (fsCache != null) {
+                                fsCache.addCacheHandlerListener((CacheHandlerListener) WeakListener.create(CacheHandlerListener.class, (CacheHandlerListener) versioningSystem, fsCache));
+                            }
+                        }
                     }
                     VersioningRepository.getRepository().addVersioningSystem(versioningSystem);
                 }
@@ -1118,6 +1134,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return createVersioningSystem.booleanValue();
     }
     
+    public VersioningSystem getVersioningSystem() {
+        return versioningSystem;
+    }
+    
     private static final long serialVersionUID =8108342718973310275L;
 
     /**
@@ -1131,6 +1151,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         VcsAttributes a = new VcsAttributes (info, change, this, this, new VcsActionSupporter(this));
         attr = a;
         list = a;
+        vcsList = new VcsList();
         setRefreshTime (0); // due to customization
         refreshTimeToSet = last_refreshTime;
         /*
@@ -1190,6 +1211,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         } else {
             ((VcsAttributes) attr).setCurrentSupporter(new VcsActionSupporter(this));
         }
+        if (vcsList == null) vcsList = new VcsList();
         //last_rootFile = rootFile;
         last_refreshTime = getCustomRefreshTime ();
         last_useUnixShell = useUnixShell;
@@ -1635,7 +1657,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     /**
      * Get the annotate icon for a single file. It does not have to be represented by a FileObject.
      */
-    private Image annotateIcon(Image icon, int iconType, String fullName) {
+    Image annotateIcon(Image icon, int iconType, String fullName) {
         if (statusProvider != null) {
             String status = statusProvider.getFileStatus(fullName);
             if (status != null) {
@@ -1712,7 +1734,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     /**
      * Get the annotate name for a single file. It does not have to be represented by a FileObject.
      */
-    private String annotateName(String fullName, String displayName) {
+    String annotateName(String fullName, String displayName) {
         String result;
         if (statusProvider != null) {
             result = RefreshCommandSupport.getStatusAnnotation(displayName, fullName, annotationPattern, statusProvider);
@@ -2970,137 +2992,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
     
-    private static Object vsActionAccessLock = new Object();
+    private class VcsList implements AbstractFileSystem.List {
+        
+        public String[] children(String name) {
+            return list.children(name);
+        }
+        
+    }
 
-    private class VcsFileSystemInfo extends FileSystemInfo {
-        
-        private VersioningSystem.Status status;
-        private VersioningSystem.Versions versions;
-        
-        public VcsFileSystemInfo() {
-            status = new VersioningStatus();
-            versions = new VersioningVersions();
-        }
-        
-        public AbstractFileSystem.List getList() {
-            return VcsFileSystem.this;
-        }
-        
-        public VersioningSystem.Status getStatus() {
-            return status;
-        }
-        
-        public AbstractFileSystem.Info getInfo() {
-            return VcsFileSystem.this;
-        }
-        
-        public FileSystem getFileSystem() {
-            return VcsFileSystem.this;
-        }
-        
-        public VersioningSystem.Versions getVersions() {
-            return versions;
-        }
-        
-        public boolean canActOnVcsFileObjects() {
-            return true;
-        }
-                
-        public SystemAction[] getRevisionActions(VcsFileObject fo, Set revisionItems) {
-            VcsRevisionAction action = (VcsRevisionAction) SystemAction.get(VcsRevisionAction.class);
-            synchronized (vsActionAccessLock) {
-                action.setFileSystem(VcsFileSystem.this);
-                action.setFileObject(fo);
-                action.setSelectedRevisionItems(revisionItems);
-            }
-            return new SystemAction[] { action };
-        }
-        
-    }
-    
-    private class VersioningStatus extends Object implements VersioningSystem.Status {
-        public String annotateName(String fileName, String displayName) {
-            /*
-            FileObject fo = findFileObject(fileName);
-            if (fo != null) {*/
-            return VcsFileSystem.this.annotateName(fileName, displayName);
-            /*
-            } else {
-                return displayName;
-            }
-             */
-        }
-        
-        public java.awt.Image annotateIcon(String fileName, java.awt.Image icon, int iconType) {
-            //FileObject fo = findFileObject(fileName);
-            //if (fo != null) {
-            return VcsFileSystem.this.annotateIcon(icon, iconType, fileName);
-            //} else {
-            //    return icon;
-            //}
-        }
-    }
-    
-    private class VersioningVersions extends Object implements VersioningSystem.Versions {
-        public RevisionList getRevisions(final String name) {
-            RevisionList list = (RevisionList) revisionListsByName.get(name);//new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList();
-            if (list == null) {
-                //org.openide.util.RequestProcessor.postRequest(new Runnable() {
-                //    public void run() {
-                list = createRevisionList(name);
-                        //versioningSystem.fireRevisionChange(name);
-                //    }
-                //});
-                //System.out.println("createRevisionList("+name+") = "+list);
-            }
-            //list.add(new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem("1.1"));
-            //list.add(new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem("1.2"));
-            return list;
-        }
-        
-        private RevisionList createRevisionList(final String name) {
-            //System.out.println("createRevisionList("+name+")");
-            VcsCommand cmd = getCommand(VcsCommand.NAME_REVISION_LIST);
-            if (cmd == null) return null;
-            //VcsCommandExecutor vce = getVcsFactory().getCommandExecutor(cmd, getVariablesAsHashtable());
-            Table files = new Table();
-            files.put(name, findFileObject(name));
-            final StringBuffer dataBuffer = new StringBuffer();
-            CommandDataOutputListener dataListener = new CommandDataOutputListener() {
-                public void outputData(String[] data) {
-                    if (data != null && data.length > 0) {
-                        if (data[0] != null) dataBuffer.append(data[0]);
-                    }
-                }
-            };
-            VcsCommandExecutor[] vces = VcsAction.doCommand(files, cmd, null, VcsFileSystem.this, null, null, dataListener, null);
-            if (vces.length > 0) {
-                final VcsCommandExecutor vce = vces[0];
-                getCommandsPool().waitToFinish(vce);
-                addEncodedRevisionList(name, dataBuffer.toString());
-            }
-            return (RevisionList) revisionListsByName.get(name);
-        }
-        
-        private void addEncodedRevisionList(String name, String encodedRL) {
-            //System.out.println("addEncodedRevisionList("+name+", "+encodedRL.length()+")");
-            if (encodedRL.length() == 0) return ;
-            RevisionList list = null;
-            try {
-                list = (RevisionList) VcsUtilities.decodeValue(encodedRL);
-            } catch (IOException ioExc) {
-                ioExc.printStackTrace();
-                list = null;
-            }
-            if (list != null) revisionListsByName.put(name, list);
-            //versioningSystem.fireRevisionChange(name, new RevisionEvent());
-        }
-        
-        public java.io.InputStream inputStream(String name, String revision) throws java.io.FileNotFoundException {
-            return VcsFileSystem.this.inputStream(name);
-        }
-    }
-    
     private class VersioningFolderChangeListener extends Object implements FileChangeListener {
         
         /** the folder name */
@@ -3139,9 +3038,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         
         private void refreshVersioning() {
-            System.out.println("refreshVersioning("+name+")");
-            VcsFileObject fo = versioningSystem.findResource(name, false);
-            System.out.println("  resource = "+fo);
+            //System.out.println("refreshVersioning("+name+")");
+            VcsFileObject fo = versioningSystem.findExistingResource(name);
+            //System.out.println("  resource = "+fo);
             if (fo != null) fo.refresh();
         }
     }
