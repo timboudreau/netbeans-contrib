@@ -18,18 +18,14 @@ import java.io.FilenameFilter;
 import java.io.Serializable;
 import java.io.IOException;
 import java.util.*;
-import javax.swing.event.EventListenerList;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.util.actions.SystemAction;
 
-import org.netbeans.api.vcs.FileStatusInfo;
-
 import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
-import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 
 /**
@@ -42,7 +38,7 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
  * @author  Martin Entlicher
  * @author  Petr Kuzel (removed extends FileSystem)
  */
-public abstract class VersioningFileSystem implements VcsSearchTypeFileSystem {
+public abstract class VersioningFileSystem {
 
     private static final SystemAction[] NO_ACTIONS = new SystemAction[0];
 
@@ -206,27 +202,6 @@ public abstract class VersioningFileSystem implements VcsSearchTypeFileSystem {
      */
     public FileStatusProvider getFileStatusProvider() {
         return null;
-    }
-
-    /** It should return all possible VCS states in which the files in the filesystem
-     * can reside.
-     */
-    public String[] getPossibleFileStatuses() {
-        FileStatusProvider statusProvider = getFileStatusProvider();
-        if (statusProvider != null) {
-            Set statusInfos = statusProvider.getPossibleFileStatusInfos();
-            String[] statuses = new String[statusInfos.size()];
-            int i = 0;
-            for(Iterator it = statusInfos.iterator(); it.hasNext(); i++) {
-                FileStatusInfo statusInfo = (FileStatusInfo) it.next();
-                statuses[i] = statusInfo.getDisplayName();
-            }
-            //D.deb("getPossibleFileStatuses() return = "+VcsUtilities.array2string(statuses));
-            return statuses;
-            //return (String[]) statusProvider.getPossibleFileStatusesTable().values().toArray(new String[0]);
-        } else {
-            return new String[0];
-        }
     }
 
     protected final FileObject findResource(String name) {

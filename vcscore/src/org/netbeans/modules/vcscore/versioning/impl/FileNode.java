@@ -15,18 +15,9 @@ package org.netbeans.modules.vcscore.versioning.impl;
 
 import org.openide.filesystems.*;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.actions.NodeAction;
-import org.openide.util.NbBundle;
-import org.openide.util.WeakListeners;
 import org.openide.util.RequestProcessor;
-import org.openide.util.HelpCtx;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.ErrorManager;
-import org.openide.nodes.Node;
 
 import org.netbeans.modules.vcscore.versioning.*;
-import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 
 import javax.swing.*;
 import java.util.Iterator;
@@ -34,7 +25,6 @@ import java.util.Set;
 import java.util.Collections;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import java.awt.event.ActionEvent;
 
 /**
  * Node representing one versioned file. It adds

@@ -114,10 +114,6 @@ class VcsVersioningSystem extends VersioningFileSystem {
         return fileSystem.getStatusProvider();
     }
     
-    public String[] getStates(org.openide.loaders.DataObject dobj) {
-        return fileSystem.getStates(dobj);
-    }
-    
     public boolean isShowDeadFiles() {
         return fileSystem.isShowDeadFiles();
     }
