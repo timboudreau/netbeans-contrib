@@ -1724,7 +1724,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             }
             Set[] scheduled = (Set[]) ff.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
-            if (scheduled != null) {
+            if (scheduled != null && scheduled[0] != null) {
                 result.addAll(scheduled[0]);
             }
         }
@@ -2001,7 +2001,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         for (int i = 0; i < files.length; i++) {
             Set[] scheduled = (Set[]) attr.readAttribute(packageName + "/" + files[i], VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
             //System.out.println("filterScheduledSecondaryFiles("+packageName+"): "+ packageName + "/" + files[i]+" scheduled = "+scheduled);
-            if (scheduled != null) {
+            if (scheduled != null && scheduled[0] != null) {
                 LinkedList toRemove = new LinkedList();
                 for (Iterator it = scheduled[0].iterator(); it.hasNext(); ) {
                     String secFile = (String) it.next();
