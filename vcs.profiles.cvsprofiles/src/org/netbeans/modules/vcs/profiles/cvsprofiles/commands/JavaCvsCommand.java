@@ -198,10 +198,15 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
         // CVS_PASSFILE
         String cvsPassfile = System.getProperty("env-cvs_passfile");
         if (cvsPassfile == null) {
-            String home;
+            String home = null;
             if (org.openide.util.Utilities.isWindows()) {
-                home = System.getProperty("env-homedrive") + System.getProperty("env-homepath");
-            } else {
+                String drive = System.getProperty("Env-HOMEDRIVE");
+                String path = System.getProperty("Env-HOMEPATH");
+                if (drive != null && path != null) {
+                    home = drive + path;
+                }
+            }
+            if (home == null) {
                 home = System.getProperty("Env-HOME");
             }
             if (home != null) {
