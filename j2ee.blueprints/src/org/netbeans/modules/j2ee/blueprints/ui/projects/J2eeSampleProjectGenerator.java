@@ -31,7 +31,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-import org.xml.sax.InputSource;
+import org.xml.sax.*;
+//import org.xml.sax.InputSource;
 
 /**
  * Create a sample J2EE project by unzipping a template into some directory
@@ -45,7 +46,7 @@ public class J2eeSampleProjectGenerator {
     public static final String PROJECT_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/web-project/3";    //NOI18N
     public static final String PROJECT_CONFIGURATION_NS_FREE = "http://www.netbeans.org/ns/freeform-project/1";
     public static final String EJBJAR_NAMESPACE = "http://www.netbeans.org/ns/j2ee-ejbjarproject/2";
-    public static final String SUN_WEB_XMLLOC = "web/WEB-INF/sun-web.xml";
+    public static final String SUNWEBDD_XMLLOC = "web/WEB-INF/sun-web.xml";
 
     public static FileObject createProjectFromTemplate(final FileObject template, File projectLocation, final String name) throws IOException {
         FileObject prjLoc = null;
@@ -91,12 +92,14 @@ public class J2eeSampleProjectGenerator {
                 
                 // update sun-web.xml
                 
-                FileObject sunwebfile = prjLoc.getFileObject(SUN_WEB_XMLLOC);
+                FileObject sunwebfile = prjLoc.getFileObject(SUNWEBDD_XMLLOC);
                 // WebTier entry must have web/WEB-INF/sun-web.xml.
                 // If there isn't, assuming it's in other categories like SOA.
                 if (sunwebfile!=null) {
                     File sunwebXml = FileUtil.toFile(sunwebfile);
-                    Document swdoc = XMLUtil.parse(new InputSource(sunwebXml.toURI().toString()), false, true, null, null);
+                    // XMLUtil.parse seems to try to connect the internet even validation is false.
+                    // Creating entityResolver privately
+                    Document swdoc = XMLUtil.parse(new InputSource(sunwebXml.toURI().toString()), false, true, null, SunWebDDResolver.getInstance());
                     NodeList swnlist = swdoc.getElementsByTagName("context-root");      //NOI18N
                     // NodeList should contain only one, but just incase
                     if (swnlist != null) {
@@ -107,7 +110,7 @@ public class J2eeSampleProjectGenerator {
                             }
                             Element e = (Element)n;
                             replaceText(e, slashname);
-                            saveXml(swdoc, prjLoc, SUN_WEB_XMLLOC);
+                            saveXml(swdoc, prjLoc, SUNWEBDD_XMLLOC);
                         }
                     }
                 }
@@ -181,4 +184,30 @@ public class J2eeSampleProjectGenerator {
         }
     }
     
+        private static class SunWebDDResolver implements EntityResolver {
+        static SunWebDDResolver resolver;
+        static synchronized SunWebDDResolver getInstance() {
+            if (resolver==null) {
+                resolver=new SunWebDDResolver();
+            }
+            return resolver;
+        }        
+        public InputSource resolveEntity (String publicId, String systemId) {
+            String resource=null;
+            // return a proper input source
+            resource = "/org/netbeans/modules/j2ee/blueprints/ui/resources/sun-web-app_2_4-1.dtd"; //NOI18N
+/***
+            if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId)) { //NOI18N
+                resource="/org/netbeans/modules/j2ee/dd/impl/resources/web-app_2_3.dtd"; //NOI18N
+            } else if ("-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) { //NOI18N
+                resource="/org/netbeans/modules/j2ee/dd/impl/resources/web-app_2_2.dtd"; //NOI18N
+            } else if ("http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd".equals(systemId)) {
+                resource="/org/netbeans/modules/j2ee/dd/impl/resources/web-app_2_4.xsd"; //NOI18N
+            }
+            if (resource==null) return null;
+ ****/
+            java.net.URL url = this.getClass().getResource(resource);
+            return new InputSource(url.toString());
+        }
+    }
 }
