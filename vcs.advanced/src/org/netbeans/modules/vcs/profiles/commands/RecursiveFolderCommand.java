@@ -302,7 +302,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         FilenameFilter fsFilter = fileSystem.getLocalFileFilter();
         File dirFile = new File(dir.getAbsolutePath());
         if (info.canRunOnFolders) {
-            if (info.canRunOnStatus(dir.getStatus())) {
+            if ((info.canRunOnRoot || !(path.length() == 0 || ".".equals(path))) && info.canRunOnStatus(dir.getStatus())) {
                 if (printDebug) stdoutListener.outputData(new String[] { " Processing folder = "+path });
                 files.put(path, (findFileResource) ? fileSystem.findResource(path) : null);
             }
@@ -322,9 +322,13 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
             }
             // Add local files. Local files are not part of the cache.
             if (info.canRunOnStatus(fileSystem.getStatusProvider().getLocalFileStatus())) {
+                final Set cachedFilesSet = new HashSet();
+                for (int i = 0; i < subFiles.length; i++) {
+                    cachedFilesSet.add(subFiles[i].getName());
+                }
                 String[] localSubFiles = dirFile.list(new FilenameFilter() {
                     public boolean accept(File dir, String name) {
-                        return !new File(dir, name).isDirectory();
+                        return !new File(dir, name).isDirectory() && !cachedFilesSet.contains(name);
                     }
                 });
                 if (localSubFiles != null) {
@@ -380,7 +384,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         String path = getFSPath(dirFile.getAbsolutePath());
         if (printDebug) stdoutListener.outputData(new String[] { "Collecting files for command "+info.cmd.getName()+" in folder '"+path+"'" });
         FilenameFilter fsFilter = fileSystem.getLocalFileFilter();
-        if (info.canRunOnFolders) {
+        if (info.canRunOnFolders && (info.canRunOnRoot || !(path.length() == 0 || ".".equals(path)))) {
             if (printDebug) stdoutListener.outputData(new String[] { " Processing folder = "+path });
             files.put(path, (findFileResource) ? fileSystem.findResource(path) : null);
         }
@@ -512,13 +516,18 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                 fillLocalDirFiles(files, dir, dirFile, info, false);
             }
             VcsCommandExecutor[] executors;
-            if (printOutput) {
-                executors = VcsAction.doCommand(files, info.cmd, info.vars, fileSystem,
-                    stdoutNRListener, stderrNRListener, null, null);
+            if (files.size() > 0) {
+                if (printOutput) {
+                    executors = VcsAction.doCommand(files, info.cmd, info.vars, fileSystem,
+                        stdoutNRListener, stderrNRListener, null, null);
+                } else {
+                    executors = VcsAction.doCommand(files, info.cmd, info.vars, fileSystem);
+                }
+                //System.out.println("doCommand("+files+", "+info.cmd.getName());
             } else {
-                executors = VcsAction.doCommand(files, info.cmd, info.vars, fileSystem);
+                executors = new VcsCommandExecutor[0];
+                //System.out.println("do no Command("+files+", "+info.cmd.getName());
             }
-            //System.out.println("doCommand("+files+", "+info.cmd.getName());
             if (!localOnly) {
                 CacheDir[] subDirs = null;
                 if (dirFile == null) {
@@ -795,6 +804,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         public Hashtable vars;
         public boolean canRunOnFiles;
         public boolean canRunOnFolders;
+        public boolean canRunOnRoot;
         public boolean canRunOnMultipleFiles;
         public boolean canRunOnMultipleFilesInFolder;
         public boolean ignoresFail;
@@ -806,6 +816,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
             this.vars = vars;
             canRunOnFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_FILE);
             canRunOnFolders = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_DIR);
+            canRunOnRoot = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_ROOT);
             canRunOnMultipleFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
             canRunOnMultipleFilesInFolder = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER);
             ignoresFail = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_IGNORE_FAIL);
