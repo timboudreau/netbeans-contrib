@@ -39,7 +39,7 @@ import com.netbeans.developer.modules.vcs.util.*;
  * @author Michal Fadljevic
  */
 //-------------------------------------------
-public class CommandLineVcsFileSystem extends CvsFileSystem {
+public class CommandLineVcsFileSystem extends VcsFileSystem {
   private Debug D = new Debug ("CommandLineVcsFileSystem", false);
   private static transient String CONFIG_ROOT="vcs/config";
   private transient Hashtable commandsByName=null;
@@ -68,10 +68,18 @@ public class CommandLineVcsFileSystem extends CvsFileSystem {
     setVariables (VcsConfigVariable.readVariables(props));
     setAdvancedConfig (getVcsFactory ().getVcsAdvancedCustomizer().readConfig (props));
   }  
+
+  /*
+  protected String g(String s) {
+    return NbBundle.getBundle
+      ("com.netbeans.developer.modules.vcs.cmdline.BundleCVS").getString (s);
+  }
+  */
 }
 
 /*
  * <<Log>>
+ *  48   Gandalf   1.47        11/23/99 Martin Entlicher 
  *  47   Gandalf   1.46        10/25/99 Pavel Buzek     copyright
  *  46   Gandalf   1.45        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
