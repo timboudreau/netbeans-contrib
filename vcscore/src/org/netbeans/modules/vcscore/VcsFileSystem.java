@@ -701,7 +701,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             String attr = (String) fo.getAttribute(VcsAttributes.VCS_SCHEDULED_FILE_ATTR);
             //System.out.println("attr("+VcsAttributes.VCS_SCHEDULED_FILE_ATTR+") = "+attr);
             if (VcsAttributes.VCS_SCHEDULING_ADD.equals(attr) && scheduledStatusAdd != null &&
-                !scheduledStatusAdd.equals(status.getFileStatus(fo.getPackageNameExt('/', '.')))) {
+                !scheduledStatusAdd.equals(status.getFileStatus(fo.getPackageNameExt('/', '.'))) &&
+                isSchedulingDone(fo.getPackageNameExt('/', '.'))) {
                 try {
                     fo.setAttribute(VcsAttributes.VCS_SCHEDULED_FILE_ATTR, null);
                 } catch (IOException exc) {}
@@ -1965,7 +1966,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 //System.out.println("checkScheduledLocals("+name+")");
                 String attribute = (String) attr.readAttribute(name, VcsAttributes.VCS_SCHEDULED_FILE_ATTR);
                 //System.out.println("attr("+VcsAttributes.VCS_SCHEDULED_FILE_ATTR+") = "+attr);
-                if (!VcsAttributes.VCS_SCHEDULING_REMOVE.equals(attribute)) {
+                if (!VcsAttributes.VCS_SCHEDULING_REMOVE.equals(attribute) && isSchedulingDone(name)) {
                     removeScheduledFromPrimary(name, primary, 0);
                 }
             }
@@ -2034,6 +2035,26 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("children = "+files);
         //System.out.println("  children = "+VcsUtilities.arrayToString(files));
         return files;
+    }
+    
+    private transient Vector scheduledFilesToBeProcessed;
+    
+    void addScheduledFileToBeProcessed(String name) {
+        if (scheduledFilesToBeProcessed == null) {
+            scheduledFilesToBeProcessed = new Vector();
+        }
+        scheduledFilesToBeProcessed.add(name);
+    }
+    
+    void removeScheduledFileToBeProcessed(String name) {
+        if (scheduledFilesToBeProcessed == null) {
+            scheduledFilesToBeProcessed = new Vector();
+        }
+        scheduledFilesToBeProcessed.remove(name);
+    }
+    
+    private boolean isSchedulingDone(String name) {
+        return scheduledFilesToBeProcessed == null || !scheduledFilesToBeProcessed.contains(name);
     }
 
     private String[] filterScheduledSecondaryFiles(String packageName, String[] files, Map removedFiles) {

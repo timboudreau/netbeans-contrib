@@ -19,9 +19,11 @@ import java.util.*;
 
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
+import org.openide.filesystems.FileObject;
 import org.openide.util.RequestProcessor;
 
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
 import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
@@ -41,6 +43,10 @@ public class VcsAttributes extends DefaultAttributes {
      * Attribute name for a VCS action.
      */
     public static final String VCS_ACTION = "VCS_ACTION";
+    /**
+     * Attribute name for the refresh action on a VCS filesystem.
+     */
+    public static final String VCS_REFRESH = "VCS_REFRESH";
     /**
      * Attribute name for a VCS action, that schedules the VCS operation for later processing.
      * This action should be performed on important secondary file objects.
@@ -177,19 +183,40 @@ public class VcsAttributes extends DefaultAttributes {
      *                                 A subclass of IOException was chosen, since
      *                                 FileObject.setAttribute throws IOException.
      */
-    public void writeAttribute(String name, String attrName, Object value) throws IOException, java.net.UnknownServiceException {
+    public void writeAttribute(final String name, final String attrName, final Object value) throws IOException, java.net.UnknownServiceException {
         if (VCS_ACTION.equals(attrName) && value instanceof FeatureDescriptor) {
             performVcsAction(name, (FeatureDescriptor) value);
+        } else if (VCS_REFRESH.equals(attrName)) {
+            performRefresh(name, value);
         } else if (VCS_SCHEDULING_SECONDARY_FO_ACTION.equals(attrName) && value instanceof String) {
-            if (scheduleSecondaryFOVcsAction(name, (String) value)) {
-                super.writeAttribute(name, VCS_SCHEDULED_FILE_ATTR, value);
+            final FileObject fo = fileSystem.findFileObject(name);
+            //System.out.println("scheduleSecondaryFOVcsAction("+name+", "+actionName+") = "+fo);
+            if (fo == null) return ;
+            FileObject primary;
+            try {
+                org.openide.loaders.DataObject dobj = org.openide.loaders.DataObject.find(fo);
+                primary = dobj.getPrimaryFile();
+                //System.out.println("  primary("+primary+").equals("+fo+") = "+primary.equals(fo));
+                if (primary.equals(fo)) return ;
+            } catch (org.openide.loaders.DataObjectNotFoundException exc) {
+                exc.printStackTrace();
+                return ;
             }
+            startFileScheduling(name);
+            final FileObject primaryFO = primary;
+            RequestProcessor.postRequest(new Runnable() {
+                public void run() {
+                    scheduleSecondaryFOVcsAction(name, (String) value, fo, primaryFO);
+                }
+            });
+            super.writeAttribute(name, VCS_SCHEDULED_FILE_ATTR, value);
         } else {
             super.writeAttribute(name, attrName, value);
         }
     }
     
     private void performVcsAction(final String name, final FeatureDescriptor descriptor) throws java.net.UnknownServiceException {
+        //System.out.println("performVcsAction("+name+")");
         String cmdName = descriptor.getName();
         final VcsCommand cmd = fileSystem.getCommand(cmdName);
         if (cmd == null) throw new java.net.UnknownServiceException(cmdName);
@@ -213,36 +240,62 @@ public class VcsAttributes extends DefaultAttributes {
         });
     }
     
-    private boolean scheduleSecondaryFOVcsAction(final String name, final String actionName) {
-        org.openide.filesystems.FileObject fo = fileSystem.findFileObject(name);
-        if (fo == null) return false;
-        org.openide.filesystems.FileObject primary;
-        try {
-            org.openide.loaders.DataObject dobj = org.openide.loaders.DataObject.find(fo);
-            primary = dobj.getPrimaryFile();
-            if (primary.equals(fo)) return false;
-        } catch (org.openide.loaders.DataObjectNotFoundException exc) {
+    private void performRefresh(String name, Object recursive) {
+        boolean rec = Boolean.TRUE.equals(recursive);
+        FileCacheProvider cache = fileSystem.getCacheProvider();
+        if (cache != null) {
+            if (rec) {
+                cache.refreshCacheDirRecursive(name);
+            } else {
+                cache.refreshCacheDir(name);
+            }
+        }
+    }
+    
+    private boolean scheduleSecondaryFOVcsAction(final String name, final String actionName, FileObject fo, FileObject primary) {
+        if (VCS_STATUS_LOCAL.equals(primary.getAttribute(VCS_STATUS))) {
+            endFileScheduling(name);
             return false;
         }
-        if (VCS_STATUS_LOCAL.equals(primary.getAttribute(VCS_STATUS))) return false;
         int id;
+        FeatureDescriptor descriptor = new FeatureDescriptor() {
+            public void setValue(String attrName, Object value) {
+                if (VCS_ACTION_DONE.equals(attrName)) {
+                    fileSystem.removeScheduledFileToBeProcessed(name);
+                    endFileScheduling(name);
+                }
+                super.setValue(attrName, value);
+            }
+        };
+        boolean endOfScheduling = false;
         if (VCS_SCHEDULING_ADD.equals(actionName)) {
             //fileSystem.addScheduledSecondaryFO(name, VcsFileSystem.SCHEDULING_ACTION_ADD_ID);
-            FeatureDescriptor descriptor = new FeatureDescriptor();
+            //FeatureDescriptor descriptor = new FeatureDescriptor();
             descriptor.setName(VcsCommand.NAME_SCHEDULE_ADD);
             try {
+                fileSystem.addScheduledFileToBeProcessed(name);
                 performVcsAction(name, descriptor);
-            } catch (java.net.UnknownServiceException unsExc) {}
+            } catch (java.net.UnknownServiceException unsExc) {
+                fileSystem.removeScheduledFileToBeProcessed(name);
+                endOfScheduling = true;
+            }
             id = 1;
         } else if (VCS_SCHEDULING_REMOVE.equals(actionName)) {
             //fileSystem.addScheduledSecondaryFO(name, VcsFileSystem.SCHEDULING_ACTION_REMOVE_ID);
-            FeatureDescriptor descriptor = new FeatureDescriptor();
+            //FeatureDescriptor descriptor = new FeatureDescriptor();
             descriptor.setName(VcsCommand.NAME_SCHEDULE_REMOVE);
             try {
+                fileSystem.addScheduledFileToBeProcessed(name);
                 performVcsAction(name, descriptor);
-            } catch (java.net.UnknownServiceException unsExc) {}
+            } catch (java.net.UnknownServiceException unsExc) {
+                fileSystem.removeScheduledFileToBeProcessed(name);
+                endOfScheduling = true;
+            }
             id = 0;
-        } else return false;
+        } else {
+            endFileScheduling(name);
+            return false;
+        }
         Set[] scheduled = (Set[]) primary.getAttribute(VCS_SCHEDULED_FILES_ATTR);
         if (scheduled == null) scheduled = new HashSet[2];
         if (scheduled[id] == null) scheduled[id] = new HashSet();
@@ -250,9 +303,54 @@ public class VcsAttributes extends DefaultAttributes {
         try {
             primary.setAttribute(VCS_SCHEDULED_FILES_ATTR, scheduled);
         } catch (IOException ioExc) {
+            if (endOfScheduling) endFileScheduling(name);
             return false;
         }
+        if (endOfScheduling) endFileScheduling(name);
         return true;
+    }
+    
+    private transient Map schedulingFilesByFolders;
+    
+    private void startFileScheduling(String name) {
+        synchronized (this) {
+            if (schedulingFilesByFolders == null) {
+                schedulingFilesByFolders = new HashMap();
+            }
+            int index = name.lastIndexOf('/');
+            String dir = (index < 0) ? "" : name.substring(0, index);
+            String file = (index < 0) ? name : index < (name.length() - 1) ? name.substring(index + 1) : "";
+            Set files = (Set) schedulingFilesByFolders.get(dir);
+            if (files == null) {
+                files = new HashSet();
+            }
+            files.add(file);
+            schedulingFilesByFolders.put(dir, files);
+        }
+    }
+    
+    private void endFileScheduling(String name) {
+        Set files;
+        String dir;
+        synchronized (this) {
+            if (schedulingFilesByFolders == null) {
+                schedulingFilesByFolders = new HashMap();
+            }
+            int index = name.lastIndexOf('/');
+            dir = (index < 0) ? "" : name.substring(0, index);
+            String file = (index < 0) ? name : index < (name.length() - 1) ? name.substring(index + 1) : "";
+            files = (Set) schedulingFilesByFolders.get(dir);
+            if (files != null) {
+                files.remove(file);
+                if (files.size() == 0) files = null;
+            }
+            if (files == null) {
+                schedulingFilesByFolders.remove(dir);
+            }
+        }
+        if (files == null) {
+            performRefresh(dir, Boolean.FALSE);
+        }
     }
     
     private void readObject (java.io.ObjectInputStream ois)
