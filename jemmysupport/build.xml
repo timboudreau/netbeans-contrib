@@ -22,12 +22,10 @@ Microsystems, Inc. All Rights Reserved.
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" value="${nbext}/standard-nbm-license.txt"/>
 
-  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
-
     <target name="init" depends="default.init">
       <patternset id="jemmysupport.files">
         <!-- All files created for NBM -->
-        <include name="${nb.modules.dir}/jemmysupport.jar"/>
+        <include name="${nb.modules.dir}/org-netbeans-modules-jemmysupport.jar"/>
         <include name="${nb.modules/docs.dir}/jemmysupport.jar"/>
       </patternset>
     </target>
@@ -56,16 +54,21 @@ Microsystems, Inc. All Rights Reserved.
   <target name="jars" depends="compile">
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <locjar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/jemmysupport.jar"
+    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/org-netbeans-modules-jemmysupport.jar"
          manifest="manifest-subst.mf"
          basedir="src"
 	 excludesfile="../nbbuild/standard-jar-excludes.txt"
 	 compress="false">
-    </locjar>
+    </jar>
+    <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
+      <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
+        <include name="${nb.modules.dir}/org-netbeans-modules-jemmysupport.jar"/>
+      </enabled>
+    </createmodulexml>
   </target>
 
   <target name="netbeans" depends="jars,javahelp">
-    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/jemmysupport.jar">
+    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/org-netbeans-modules-jemmysupport.jar">
       <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
         <patternset refID="jemmysupport.files"/>
       </fileset>
@@ -75,7 +78,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="jemmysupport.nbm"
              productdir="${netbeans.dest.dir}/${cluster.dir}"
-             module="${nb.modules.dir}/jemmysupport.jar"
+             module="${nb.modules.dir}/org-netbeans-modules-jemmysupport.jar"
 	     homepage="http://jemmysupport.${homepage.base}"
 	     distribution="http://${dist.base}/jemmysupport.nbm">
       <license file="${license.file}"/>
