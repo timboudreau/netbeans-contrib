@@ -26,6 +26,8 @@ Microsystems, Inc. All Rights Reserved.
     <path id="cp">
       <pathelement location="${schema2beans/rt.dir}/${nb.modules/autoload.dir}/schema2beans.jar" />
       <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+      <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+      <pathelement location="${nb_root}/libs/external/xerces-2.6.0.jar"/>
     </path>
   </target>
 

@@ -54,28 +54,76 @@ public final class DDProvider {
      * @param fo FileObject representing the web.xml file
      * @return WebApp object - root of the deployment descriptor bean graph
      */
-    public WebApp getDDRoot(FileObject fo) throws java.io.IOException, SAXException {
+    public WebApp getDDRoot(FileObject fo) throws java.io.IOException {
+        
         WebAppProxy webApp = getFromCache (fo);
         if (webApp!=null) return webApp;
-        fo.addFileChangeListener(new FileChangeAdapter(){
+        
+        fo.addFileChangeListener(new FileChangeAdapter() {
             public void fileChanged(FileEvent evt) {
                 FileObject fo=evt.getFile();
                 try {
                     WebAppProxy webApp = getFromCache (fo);
                     if (webApp!=null) {
-                        String version = getVersion(fo.getInputStream());
-                        // replacing original file in proxy WebApp
-                        if (!version.equals(webApp.getVersion())) {
-                            webApp.setOriginal(createWebApp(fo.getInputStream(),version));
+                        String version = null;
+                        try {
+                            version = getVersion(fo.getInputStream());
+                            // preparsing
+                            SAXParseException error = parse(fo);
+                            if (error!=null) {
+                                webApp.setError(error);
+                                webApp.setStatus(WebApp.STATE_INVALID_PARSABLE);
+                            } else {
+                                webApp.setError(null);
+                                webApp.setStatus(WebApp.STATE_VALID);
+                            }
+                            WebApp original = createWebApp(fo.getInputStream(), version);
+                            // replacing original file in proxy WebApp
+                            if (!version.equals(webApp.getVersion())) {
+                                webApp.setOriginal(original);
+                            } else {// the same version
+                                // replacing original file in proxy WebApp
+                                if (webApp.getOriginal()==null) {
+                                    webApp.setOriginal(original);
+                                } else {
+                                    webApp.getOriginal().merge(original,WebApp.MERGE_UPDATE);
+                                }
+                            }
+                        } catch (SAXException ex) {
+                            if (ex instanceof SAXParseException) {
+                                webApp.setError((SAXParseException)ex);
+                            } else if ( ex.getException() instanceof SAXParseException) {
+                                webApp.setError((SAXParseException)ex.getException());
+                            }
+                            webApp.setStatus(WebApp.STATE_INVALID_UNPARSABLE);
+                            webApp.setOriginal(null);
+                            webApp.setProxyVersion(version);
                         }
                     }
-                } 
-                catch (java.io.IOException ex){}
-                catch (org.xml.sax.SAXException ex){}
+                } catch (java.io.IOException ex){}
             }
         });
-        WebApp original = createWebApp(fo.getInputStream(), getVersion(fo.getInputStream()));
-        webApp=new WebAppProxy(original);
+        
+        String version=null;
+        try {
+            version = getVersion(fo.getInputStream());
+            // preparsing
+            SAXParseException error = parse(fo);
+            WebApp original = createWebApp(fo.getInputStream(), version);
+            webApp=new WebAppProxy(original,version);
+            if (error!=null) {
+                webApp.setStatus(WebApp.STATE_INVALID_PARSABLE);
+                webApp.setError(error);
+            }
+        } catch (SAXException ex) {
+            webApp = new WebAppProxy(null,version);
+            webApp.setStatus(WebApp.STATE_INVALID_UNPARSABLE);
+            if (ex instanceof SAXParseException) {
+                webApp.setError((SAXParseException)ex);
+            } else if ( ex.getException() instanceof SAXParseException) {
+                webApp.setError((SAXParseException)ex.getException());
+            }
+        }
         ddMap.put(fo, new WeakReference (webApp));
         return webApp;
     }
@@ -102,24 +150,24 @@ public final class DDProvider {
         return createWebApp(new FileInputStream(f), getVersion(new FileInputStream(f)));
     }
     
-    private static WebApp createWebApp(java.io.InputStream is, String version) throws java.io.IOException{
-        WebApp webApp=null;
+    private static WebApp createWebApp(java.io.InputStream is, String version) throws java.io.IOException {
         if (WebApp.VERSION_2_3.equals(version)) {
-            webApp = org.netbeans.modules.web.dd.impl.model_2_3.WebApp.createGraph(is);
+            return org.netbeans.modules.web.dd.impl.model_2_3.WebApp.createGraph(is);
         } else {
-            webApp = org.netbeans.modules.web.dd.impl.model_2_4.WebApp.createGraph(is);
+            return org.netbeans.modules.web.dd.impl.model_2_4.WebApp.createGraph(is);
         }
-        return webApp;
     }
     
+    /** Parsing just for detecting the version  SAX parser used
+    */
     private static String getVersion(java.io.InputStream is) throws java.io.IOException, SAXException {
         javax.xml.parsers.SAXParserFactory fact = javax.xml.parsers.SAXParserFactory.newInstance();
         fact.setValidating(false);
         try {
             javax.xml.parsers.SAXParser parser = fact.newSAXParser();
             XMLReader reader = parser.getXMLReader();
-            reader.setContentHandler(new Handler());
-            reader.setEntityResolver(new DDResolver());
+            reader.setContentHandler(new VersionHandler());
+            reader.setEntityResolver(DDResolver.getInstance());
             try {
                 reader.parse(new InputSource(is));
             } catch (SAXException ex) {
@@ -136,7 +184,7 @@ public final class DDProvider {
         }
     }
     
-    private static class Handler extends org.xml.sax.helpers.DefaultHandler {
+    private static class VersionHandler extends org.xml.sax.helpers.DefaultHandler {
         public void startElement(String uri, String localName, String rawName, Attributes atts) throws SAXException {
             if ("web-app".equals(rawName)) { //NOI18N
                 String version = atts.getValue("version"); //NOI18N
@@ -146,7 +194,13 @@ public final class DDProvider {
     }
   
     private static class DDResolver implements EntityResolver {
-        
+        static DDResolver resolver;
+        static synchronized DDResolver getInstance() {
+            if (resolver==null) {
+                resolver=new DDResolver();
+            }
+            return resolver;
+        }        
         public InputSource resolveEntity (String publicId, String systemId) {
             if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId)) { //NOI18N
                   // return a special input source
@@ -154,12 +208,67 @@ public final class DDProvider {
             } else if ("-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) { //NOI18N
                   // return a special input source
              return new InputSource("nbres:/org/netbeans/modules/web/dd/impl/resources/web-app_2_2.dtd"); //NOI18N
+            } else if ("http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd".equals(systemId)) {
+                return new InputSource("nbres:/org/netbeans/modules/web/dd/impl/resources/web-app_2_4.xsd"); //NOI18N
             } else {
-                  // use the default behaviour
-            return null;
+                // use the default behaviour
+                return null;
             }
         }
     }
- 
+    
+    private static class ErrorHandler implements org.xml.sax.ErrorHandler {
+        private int errorType=-1;
+        SAXParseException error;
+
+        public void warning(org.xml.sax.SAXParseException sAXParseException) throws org.xml.sax.SAXException {
+            if (errorType<0) {
+                errorType=0;
+                error=sAXParseException;
+            }
+            //throw sAXParseException;
+        }
+        public void error(org.xml.sax.SAXParseException sAXParseException) throws org.xml.sax.SAXException {
+            if (errorType<1) {
+                errorType=1;
+                error=sAXParseException;
+            }
+            //throw sAXParseException;
+        }        
+        public void fatalError(org.xml.sax.SAXParseException sAXParseException) throws org.xml.sax.SAXException {
+            errorType=2;
+            throw sAXParseException;
+        }
+        
+        public int getErrorType() {
+            return errorType;
+        }
+        public SAXParseException getError() {
+            return error;
+        }        
+    }
+    
+    public SAXParseException parse (FileObject fo) 
+            throws org.xml.sax.SAXException, java.io.IOException {
+        javax.xml.parsers.SAXParserFactory fact = org.apache.xerces.jaxp.SAXParserFactoryImpl.newInstance();
+        fact.setValidating(true);
+        fact.setNamespaceAware(true);
+        DDProvider.ErrorHandler errorHandler = new DDProvider.ErrorHandler();
+        try {
+            javax.xml.parsers.SAXParser parser = fact.newSAXParser();
+            XMLReader reader = parser.getXMLReader();
+            reader.setErrorHandler(errorHandler);
+            reader.setEntityResolver(DDProvider.DDResolver.getInstance());
+            reader.setFeature("http://apache.org/xml/features/validation/schema", true); // NOI18N
+            reader.parse(new InputSource(fo.getInputStream()));
+            SAXParseException error = errorHandler.getError();
+            if (error!=null) return error;
+        } catch (SAXException ex) {
+            throw ex;
+        } catch(javax.xml.parsers.ParserConfigurationException ex) {
+            throw new SAXException(NbBundle.getMessage(DDProvider.class, "MSG_parserProblem"),ex);
+        }
+        return null;
+    }
 
 }

@@ -10,7 +10,13 @@
                 public void setVersion(java.lang.String value) {
                 }
                 public java.lang.String getVersion() {
-                        return VERSION_2_3; // NOI18N
+                        return VERSION_2_3;
+                }
+                public org.xml.sax.SAXParseException getError() {
+                    return null;
+                }
+                public int getStatus() {
+                    return STATE_VALID;
                 }
                 public void setJspConfig(org.netbeans.api.web.dd.JspConfig value) throws org.netbeans.api.web.dd.common.VersionNotSupportedException {
                     throw new org.netbeans.api.web.dd.common.VersionNotSupportedException(VERSION_2_3);

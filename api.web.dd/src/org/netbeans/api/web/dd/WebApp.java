@@ -26,12 +26,25 @@ public interface WebApp extends org.netbeans.api.web.dd.common.RootInterface {
         public static final String PROPERTY_VERSION="dd_version"; //NOI18N
         public static final String VERSION_2_3="2.3"; //NOI18N
         public static final String VERSION_2_4="2.4"; //NOI18N
+        public static final int STATE_VALID=0;
+        public static final int STATE_INVALID_PARSABLE=1;
+        public static final int STATE_INVALID_UNPARSABLE=2;
+        public static final String PROPERTY_STATUS="dd_status"; //NOI18N
     
 	//public void setVersion(java.lang.String value);
         /** Getter for version property.
          * @return property value
          */        
 	public java.lang.String getVersion();
+        /** Getter for SAX Parse Error property. 
+         * Used when deployment descriptor is in invalid state.
+         * @return property value or null if in valid state
+         */        
+	public org.xml.sax.SAXParseException getError();      
+        /** Getter for status property.
+         * @return property value
+         */        
+	public int getStatus();      
         /** Setter for distributable property.
          * @param value property value
          */

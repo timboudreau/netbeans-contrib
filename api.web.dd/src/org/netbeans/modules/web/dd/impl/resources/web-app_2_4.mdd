@@ -10,6 +10,12 @@
                 org.netbeans.api.web.dd.WebApp
             </implements>
             <user-code>
+                public org.xml.sax.SAXParseException getError() {
+                    return null;
+                }
+                public int getStatus() {
+                    return STATE_VALID;
+                }
                 // due to compatibility with servlet2.3
                 public void setTaglib(int index, org.netbeans.api.web.dd.Taglib valueInterface) throws org.netbeans.api.web.dd.common.VersionNotSupportedException {
                     throw new org.netbeans.api.web.dd.common.VersionNotSupportedException(VERSION_2_4);
