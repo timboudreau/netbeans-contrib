@@ -35,7 +35,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.RequestProcessor;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 /**
  * The maintainer of VcsObjectIntegritySupport objects. This service takes care
@@ -73,13 +73,13 @@ public final class IntegritySupportMaintainer extends Object
         saverTask.setPriority(Thread.MIN_PRIORITY);
         this.voisToSave = new HashMap();
         initVOIS();
-        fileSystem.addVetoableChangeListener(WeakListener.vetoableChange(this, fileSystem));
-        fileSystem.addPropertyChangeListener(WeakListener.propertyChange(this, fileSystem));
+        fileSystem.addVetoableChangeListener(WeakListeners.vetoableChange(this, fileSystem));
+        fileSystem.addPropertyChangeListener(WeakListeners.propertyChange(this, fileSystem));
     }
 
     private synchronized void initVOIS() {
         objectIntegritySupport = new VcsObjectIntegritySupport(new IntegritySupportMaintainer.VOISInitializer(fileSystem.getRoot()));
-        vOISChangeListener = WeakListener.propertyChange(this, objectIntegritySupport);
+        vOISChangeListener = WeakListeners.propertyChange(this, objectIntegritySupport);
         objectIntegrityActivator.activate(objectIntegritySupport);
         objectIntegritySupport.addPropertyChangeListener(vOISChangeListener);
         synchronized (VOISMap) {

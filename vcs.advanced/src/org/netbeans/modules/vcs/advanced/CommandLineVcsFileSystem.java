@@ -37,7 +37,6 @@ import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.util.actions.*;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListener;
 
 import org.netbeans.api.vcs.FileStatusInfo;
 
@@ -234,7 +233,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setCreateBackupFiles(true);
         sharedPasswordChangeListener = new SharedPasswordListener();
         SharedPasswords.getInstance().addPropertyChangeListener(
-            org.openide.util.WeakListener.propertyChange(sharedPasswordChangeListener,
+            org.openide.util.WeakListeners.propertyChange(sharedPasswordChangeListener,
                                         SharedPasswords.getInstance()));
     }
 

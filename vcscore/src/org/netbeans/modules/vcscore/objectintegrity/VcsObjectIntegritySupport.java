@@ -39,7 +39,6 @@ import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataLoaderPool;
@@ -50,7 +49,7 @@ import org.openide.loaders.OperationEvent;
 import org.openide.loaders.OperationListener;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 import org.netbeans.modules.vcscore.FileObjectExistence;
 import org.netbeans.modules.vcscore.VcsAttributes;
@@ -60,7 +59,6 @@ import org.netbeans.modules.vcscore.cache.CacheHandler;
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
 import org.netbeans.modules.vcscore.cache.FileSystemCache;
-import org.netbeans.modules.vcscore.util.Table;
 
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 
@@ -182,7 +180,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                                       FileObjectExistence foExistence) {
 
             this.cache = cache;
-            cacheHandlerListaner = (CacheHandlerListener) WeakListener.create(CacheHandlerListener.class, this, cache);
+            cacheHandlerListaner = (CacheHandlerListener) WeakListeners.create(CacheHandlerListener.class, this, cache);
             cache.addCacheHandlerListener(cacheHandlerListaner);
 
         this.fileSystem = fileSystem;
@@ -193,7 +191,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         this.analyzerTask = analyzerRequestProcessor.post(this, ANALYZER_SCHEDULE_TIME, Thread.MIN_PRIORITY);
         //analyzerTask.setPriority(Thread.MIN_PRIORITY);
         DataLoaderPool pool = (DataLoaderPool) Lookup.getDefault().lookup(DataLoaderPool.class);
-        operationListener = (OperationListener) WeakListener.create(OperationListener.class, this, pool);
+        operationListener = (OperationListener) WeakListeners.create(OperationListener.class, this, pool);
         pool.addOperationListener(operationListener);
         propertyChangeSupport = new PropertyChangeSupport(this);
         doFileChangeListener = new DOFileChangeListener();

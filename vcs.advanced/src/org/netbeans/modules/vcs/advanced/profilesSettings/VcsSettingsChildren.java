@@ -31,7 +31,7 @@ import org.openide.cookies.FilterCookie;
 import org.openide.filesystems.*;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataFilter;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
 
 /** Implements children for basic source code patterns
@@ -56,7 +56,7 @@ public class VcsSettingsChildren extends Children.Keys implements PropertyChange
         factory = ProfilesFactory.getDefault();
 
         // Add factory listener
-        factory.addPropertyChangeListener(WeakListener.propertyChange(this, factory));        
+        factory.addPropertyChangeListener(WeakListeners.propertyChange(this, factory));        
     }
 
     /** Called when the preparation of nodes is needed

@@ -45,8 +45,8 @@ import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
-import org.openide.util.WeakListener;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -110,7 +110,7 @@ public final class ProfilesFactory extends Object {
         FileSystem dfs = Repository.getDefault().getDefaultFileSystem ();
         profileRoot = dfs.findResource(PROFILE_ROOT);
         profileRootFolderListener = new ProfileRootFolderListener();
-        profileRoot.addFileChangeListener(WeakListener.fileChange(profileRootFolderListener,
+        profileRoot.addFileChangeListener(FileUtil.weakFileChangeListener(profileRootFolderListener,
                                                                   profileRoot));
         initProfilesInfo();
     }
@@ -309,7 +309,7 @@ public final class ProfilesFactory extends Object {
         
         public ProfileImpl(FileObject profileFile) {
             this.profileName = profileFile.getNameExt();
-            profileFile.addFileChangeListener(WeakListener.fileChange(this, profileFile));
+            profileFile.addFileChangeListener(FileUtil.weakFileChangeListener(this, profileFile));
         }
         
         public String getName() {

@@ -31,7 +31,7 @@ import org.openide.nodes.*;
 import org.openide.cookies.FilterCookie;
 import org.openide.filesystems.*;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 
 /** Implements children. Nodes representing registered filesystems.
@@ -51,7 +51,7 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
         debug("VcsChildren Init");
         registry = FSRegistry.getDefault();
         // Add registry listener
-        registry.addFSRegistryListener((FSRegistryListener) WeakListener.create(FSRegistryListener.class, this, registry));      
+        registry.addFSRegistryListener((FSRegistryListener) WeakListeners.create(FSRegistryListener.class, this, registry));      
     }
 
     /** Called when the preparation of nodes is needed
@@ -123,7 +123,7 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
             this.info = info;            
             setName(info.getFSRoot().toString());
             setDisplayName(info.getFSRoot().toString());
-            info.addPropertyChangeListener(WeakListener.propertyChange(this, info));
+            info.addPropertyChangeListener(WeakListeners.propertyChange(this, info));
         }
         
         /** Finds an icon for this node. The filesystem's icon is returned.

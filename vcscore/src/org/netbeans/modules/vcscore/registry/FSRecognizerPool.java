@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -19,7 +19,7 @@ import org.openide.filesystems.FileSystem;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 /**
  * The pool of filesystem recognizers.
@@ -36,7 +36,7 @@ class FSRecognizerPool extends Object implements LookupListener {
     /** Creates a new instance of FSRecognizerPool */
     private FSRecognizerPool() {
         Lookup.Result recognizersRes = Lookup.getDefault().lookup(new Lookup.Template(FSRecognizer.class));
-        recognizerLookupListener = (LookupListener) WeakListener.create(LookupListener.class, this, recognizersRes);
+        recognizerLookupListener = (LookupListener) WeakListeners.create(LookupListener.class, this, recognizersRes);
         recognizersRes.addLookupListener(recognizerLookupListener);
         synchronized (this) {
             recognizers = (FSRecognizer[]) recognizersRes.allInstances().toArray(new FSRecognizer[0]);
