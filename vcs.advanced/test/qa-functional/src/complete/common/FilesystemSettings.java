@@ -97,8 +97,8 @@ public class FilesystemSettings extends NbTestCase {
         wizard.setWorkingDirectory(workingDirectory);
         wizard.checkOnlyCompatibleProfiles(false);
         wizard.setProfile(profile);
+        APIController.sleep(1000);
         wizard.finish();
-        APIController.sleep(2000);
     }
     
     /** Selects desired node in explorer.
@@ -147,6 +147,7 @@ public class FilesystemSettings extends NbTestCase {
         APIController.sleep(2000);
         createContents();
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
+        explorer.pushPopupMenu("Properties", filesystem);
         PropertiesWindow properties = new PropertiesWindow(filesystem);
         String property = JelloBundle.getString("org.netbeans.modules.vcs.advanced.Bundle", "PROP_annotationPattern");
         properties.edit(property);
@@ -171,6 +172,7 @@ public class FilesystemSettings extends NbTestCase {
         MainFrame.getMainFrame().pushMenuNoBlock(VERSIONING_MENU + "|CVS|Editing|Edit");
         new JelloOKOnlyDialog("Information").ok();
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
+        explorer.pushPopupMenu("Properties", filesystem);
         PropertiesWindow properties = new PropertiesWindow(filesystem);
         String property = JelloBundle.getString("org.netbeans.modules.vcs.advanced.Bundle", "PROP_commandNotification");
         properties.edit(property);
@@ -200,6 +202,7 @@ public class FilesystemSettings extends NbTestCase {
         mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
         APIController.sleep(2000);
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
+        explorer.pushPopupMenu("Properties", filesystem);
         PropertiesWindow properties = new PropertiesWindow(filesystem);
         String property = JelloBundle.getString("org.netbeans.modules.vcs.advanced.Bundle", "PROP_processAllFiles");
         properties.edit(property);
