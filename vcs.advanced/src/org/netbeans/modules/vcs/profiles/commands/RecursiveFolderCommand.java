@@ -500,6 +500,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         //System.out.println("runCommandsSomewhatRecursively("+dir+"), localOnly = "+localOnly);
         if (dirFile == null) waitToLoad(dir, false);
         CommandsPool cPool = fileSystem.getCommandsPool();
+        FilenameFilter fsFilter = fileSystem.getLocalFileFilter();
         boolean status = true;
         for (Iterator it = cmdInfos.iterator(); it.hasNext(); ) {
             CommandInfo info = (CommandInfo) it.next();
@@ -536,15 +537,23 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                 }
                 if (subDirs != null) {
                     for (int i = 0; i < subDirs.length; i++) {
-                        status &= runCommandsSomewhatRecursively((VcsCacheDir) subDirs[i], cmdInfos);
-                        if (localDirs != null) localDirs.remove(subDirs[i].getName());
+                        if (!dir.isIgnored(subDirs[i].getName()) &&
+                            fsFilter.accept(dirFile, subDirs[i].getName())) {
+                                
+                            status &= runCommandsSomewhatRecursively((VcsCacheDir) subDirs[i], cmdInfos);
+                            if (localDirs != null) localDirs.remove(subDirs[i].getName());
+                        }
                     }
                 }
                 if (localDirs != null) {
                     for (Iterator ldit = localDirs.iterator(); ldit.hasNext(); ) {
                         String subDirName = (String) ldit.next();
-                        status &= runCommandsSomewhatRecursively(dir,
+                        if (!dir.isIgnored(subDirName) &&
+                            fsFilter.accept(dirFile, subDirName)) {
+                                
+                            status &= runCommandsSomewhatRecursively(dir,
                                         new File(dirFile, subDirName), cmdInfos);
+                        }
                     }
                 }
             }
