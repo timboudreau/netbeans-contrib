@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,6 +48,7 @@ import org.netbeans.modules.vcs.profiles.cvsprofiles.list.CvsListOffline;
 public class CvsUpdate extends Object implements VcsAdditionalCommand {
 
     private static final String CVS_ENTRIES = "CVS"+File.separator+"Entries"; // NOI18N
+    private static final String CONTAINS_DIFFERENCES = "already contains the differences"; // NOI18N
     
     private VcsFileSystem fileSystem = null;
 
@@ -119,6 +121,10 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         Collection processingFiles = ExecuteCommand.createProcessingFiles(fileSystem, vars);
         fsRootDir = fileSystem.getRootDirectory().getAbsolutePath();
         //collectRevisions(processingFiles, fsRootDir);
+        Map foldersByProcessingFiles = null;
+        if (doRefresh) {
+            foldersByProcessingFiles = getFoldersByProcessingFiles(processingFiles);
+        }
 
         final String rootDir = Variables.expand(vars, (String) vars.get(args[0]), false); // NOI18N
         final ArrayList filesBuff = new ArrayList();
@@ -130,8 +136,17 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         vce.addDataOutputListener(new CommandDataOutputListener() {
             public void outputData(String[] data) {
                 if (data != null && data.length > 1) {
-                    filesStatusBuff.add(data[0]);
-                    String file = (rootDir + File.separator + data[1]).
+                    String status;
+                    String fileName;
+                    if (CONTAINS_DIFFERENCES.equals(data[1])) {
+                        status = "U"; // NOI18N
+                        fileName = data[0];
+                    } else {
+                        status = data[0];
+                        fileName = data[1];
+                    }
+                    filesStatusBuff.add(status);
+                    String file = (rootDir + File.separator + fileName).
                                   replace('/', File.separatorChar);
                     filesBuff.add(file);
                 }
@@ -167,6 +182,9 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
             sendUpdatedFiles(filesBuff, filesStatusBuff, foldersBuff, stdoutDataListener);
             sendRemovedFiles(removedFiles, stdoutDataListener);
             sendUpdateProcessedFiles(processingFiles, stdoutDataListener);
+            sendRemovedFolders(foldersByProcessingFiles,
+                               getFoldersByProcessingFiles(processingFiles),
+                               stdoutDataListener);
         }
         return VcsCommandExecutor.SUCCEEDED == vce.getExitStatus();
     }
@@ -228,6 +246,35 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         }
     }
      */
+    
+    /** Create a map of collection of folders for each processing file */
+    private Map getFoldersByProcessingFiles(Collection processingFiles) {
+        HashMap map = new HashMap();
+        for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
+            String processingFile = (String) it.next();
+            String file = fsRootDir + File.separator + processingFile;
+            file.replace('/', File.separatorChar);
+            map.put(processingFile, getFoldersUnder(new File(file)));
+        }
+        return map;
+    }
+    
+    /** Collect all folders under a specified file. */
+    private static List getFoldersUnder(File file) {
+        ArrayList folders = new ArrayList();
+        if (file.isDirectory() && !"CVS".equalsIgnoreCase(file.getName())) {
+            folders.add(file.getAbsolutePath());
+            File[] subFolders = file.listFiles();//new java.io.FileFilter() {
+            if (subFolders != null) {
+                for (int i = 0; i < subFolders.length; i++) {
+                    if (subFolders[i].isDirectory()) {
+                        folders.addAll(getFoldersUnder(subFolders[i]));
+                    }
+                }
+            }
+        }
+        return folders;
+    }
     
     private void sendUpdatedFiles(ArrayList files, ArrayList states, ArrayList folders,
                                   CommandDataOutputListener stdoutDataListener) {
@@ -407,8 +454,7 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
                 statuses[1] = CvsListOffline.getStatusFromTime(entryElements[2], file);
             }
         } else {
-            statuses[1] = null;
-            /*
+            //statuses[1] = null;
             if (statuses[2].startsWith("-")) { // Negative revision
                 statuses[1] = "Locally Removed";
             } else if (statuses[2].equals("0")) { // Zero revision
@@ -416,12 +462,11 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
             } else {
                 statuses[1] = CvsListOffline.getStatusFromTime(entryElements[2], file);
             }
-             */
         }
         stdoutDataListener.outputData(statuses);
     }
     
-    private void sendRemovedFiles(ArrayList removedFiles,
+    private void sendRemovedFiles(List removedFiles,
                                   CommandDataOutputListener stdoutDataListener) {
         for (Iterator it = removedFiles.iterator(); it.hasNext(); ) {
             String file = (String) it.next();
@@ -431,6 +476,39 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
             //statuses[0] = filePath;
             statuses[7] = filePath;
             stdoutDataListener.outputData(statuses);
+        }
+    }
+    
+    private void sendRemovedFolders(Map oldFoldersMap, Map newFoldersMap,
+                                    CommandDataOutputListener stdoutDataListener) {
+        for (Iterator it = oldFoldersMap.keySet().iterator(); it.hasNext(); ) {
+            String processedFile = (String) it.next();
+            List oldFolders = (List) oldFoldersMap.get(processedFile);
+            List newFolders = (List) newFoldersMap.get(processedFile);
+            if (newFolders != null) {
+                oldFolders.removeAll(newFolders);
+                // We should not fire changes for removed children.
+                // This would cause creation of their removed parents.
+                removeChildren(oldFolders);
+                sendRemovedFiles(oldFolders, stdoutDataListener);
+            }
+        }
+    }
+    
+    /** Remove all children from this collection of folders. It's expected, that
+     * children always follow their parents. */
+    private static void removeChildren(List folders) {
+        String lastFolder = null;
+        for (int i = 0; i < folders.size(); i++) {
+            String folder = (String) folders.get(i);
+            if (lastFolder != null) {
+                if (folder.startsWith(lastFolder)) {
+                    folders.remove(folder);
+                    i--;
+                    continue;
+                }
+            }
+            lastFolder = folder;
         }
     }
     
