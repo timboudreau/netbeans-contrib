@@ -2065,6 +2065,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
     }
     
+    private String lastRootDir = null;
+
     //-------------------------------------------
     public void setObject(Object bean){
         //Thread.currentThread().dumpStack();
@@ -2090,6 +2092,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
         cache = new ProfilesCache(fileSystem.getConfigRootFO());
         rootDirTextField.setText (defaultRoot);
+        lastRootDir = defaultRoot;
         refreshTextField.setText (""+fileSystem.getCustomRefreshTime ()); // NOI18N
         String module = fileSystem.getRelativeMountPoint();
         if (module == null) module = "";
@@ -2131,72 +2134,60 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             }
         */
     }
-
+    
     private void rootDirChanged () {
         // root dir set by hand
-        String selected= rootDirTextField.getText ();
+        final String selected= rootDirTextField.getText ();
         if( selected==null ){
             //D.deb("no directory selected"); // NOI18N
             return ;
         }
-        /*
-        String module = getModuleValue();
-        String moduleDir = selected;
-        if (module != null && module.length() > 0) moduleDir += File.separator + module;
-        D.deb("rootDirChanged(): module = "+module+", selected = "+selected); // NOI18N
-        File dir=new File(moduleDir);
-        */
-        File root = new File(selected);
-        /*
-        if( !root.isDirectory() ){
-          E.err("not directory "+root);
-          final String badDir = root.toString();
-          javax.swing.SwingUtilities.invokeLater(new Runnable () {
-            public void run () {
-              if (isRootNotSetDlg) {
-                isRootNotSetDlg = false;
-                TopManager.getDefault ().notify (new NotifyDescriptor.Message(MessageFormat.format (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.notDirectory"), new Object[] { badDir } )));
-                isRootNotSetDlg = true;
-              }
-            }
-          });
-          return ;
-    }
-        */
-        try{
-            fileSystem.setRootDirectory(root);
-            //rootDirTextField.setText(selected);
-            String cmd = (String) autoFillVars.get("ROOTDIR");
-            if (cmd != null) autoFillVariables(cmd);
-        }
-        catch (PropertyVetoException veto){
-            javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    if (isRootNotSetDlg) {
-                        isRootNotSetDlg = false;
-                        TopManager.getDefault().notify(new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD")));
-                        isRootNotSetDlg = true;
+        RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                File root = new File(selected);
+                try{
+                    fileSystem.setRootDirectory(root);
+                    //rootDirTextField.setText(selected);
+                    String cmd = (String) autoFillVars.get("ROOTDIR");
+                    if (cmd != null) autoFillVariables(cmd);
+                    if (lastRootDir != null && !selected.equals(lastRootDir)) {
+                        lastRootDir = selected;
+                        if (!(new File(selected, relMountTextField.getText()).exists())) {
+                            relMountTextField.setText("");
+                            relMountPointChanged();
+                        }
                     }
+                } catch (PropertyVetoException veto){
+                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            if (isRootNotSetDlg) {
+                                isRootNotSetDlg = false;
+                                TopManager.getDefault().notify(new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD")));
+                                isRootNotSetDlg = true;
+                            }
+                        }
+                    });
+                    //fileSystem.debug(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD"));
+                    //E.err(veto,"setRootDirectory() failed"); // NOI18N
+                    rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), fileSystem.getRelativeMountPoint()));
+                    lastRootDir = rootDirTextField.getText();
+                } catch (IOException e){
+                    //E.err(e,"setRootDirectory() failed");
+                    final String badDir = root.toString();
+                    javax.swing.SwingUtilities.invokeLater(new Runnable () {
+                                                               public void run () {
+                                                                   if (isRootNotSetDlg) {
+                                                                       isRootNotSetDlg = false;
+                                                                       TopManager.getDefault ().notify (new NotifyDescriptor.Message(MessageFormat.format (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.cannotSetDirectory"), new Object[] { badDir } )));
+                                                                       isRootNotSetDlg = true;
+                                                                   }
+                                                               }
+                                                           });
+                    rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), fileSystem.getRelativeMountPoint()));
+                    lastRootDir = rootDirTextField.getText();
                 }
-            });
-            //fileSystem.debug(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD"));
-            //E.err(veto,"setRootDirectory() failed"); // NOI18N
-            rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), fileSystem.getRelativeMountPoint()));
-        }
-        catch (IOException e){
-            //E.err(e,"setRootDirectory() failed");
-            final String badDir = root.toString();
-            javax.swing.SwingUtilities.invokeLater(new Runnable () {
-                                                       public void run () {
-                                                           if (isRootNotSetDlg) {
-                                                               isRootNotSetDlg = false;
-                                                               TopManager.getDefault ().notify (new NotifyDescriptor.Message(MessageFormat.format (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.cannotSetDirectory"), new Object[] { badDir } )));
-                                                               isRootNotSetDlg = true;
-                                                           }
-                                                       }
-                                                   });
-            rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), fileSystem.getRelativeMountPoint()));
-        }
+            }
+        });
     }
 
     private void refreshChanged () {
