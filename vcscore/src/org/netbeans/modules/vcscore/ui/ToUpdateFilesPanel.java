@@ -167,8 +167,8 @@ public class ToUpdateFilesPanel extends javax.swing.JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 11);
         add(jTextArea1, gridBagConstraints);
-        jTextArea1.getAccessibleContext().setAccessibleName(NbBundle.getBundle("src/org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_ToUpdateFilesPanel.TextArea"));
-        jTextArea1.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("src/org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_ToUpdateFilesPanel.TextArea"));
+        jTextArea1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ToUpdateFilesPanel.class, "ACS_ToUpdateFilesPanel.TextArea"));
+        jTextArea1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ToUpdateFilesPanel.class, "ACSD_ToUpdateFilesPanel.TextArea"));
 
     }
 
