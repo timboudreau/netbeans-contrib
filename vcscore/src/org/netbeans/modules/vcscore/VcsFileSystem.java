@@ -2378,7 +2378,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param rootFile root directory for the filesystem
      * @return system name for the filesystem
      */
-    protected String computeSystemName (File rootFile) {
+    private String computeSystemNameBase (File rootFile) {
         //System.out.println("computeSystemName()");
         //D.deb("computeSystemName() ->"+rootFile.toString ().replace(File.separatorChar, '/') ); // NOI18N
         Hashtable vars = getVariablesAsHashtable();
@@ -2392,6 +2392,39 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return systemNameAnnotation;
         }
         return this.getClass().getName()+" "+rootFile.toString ().replace(File.separatorChar, '/');
+    }
+
+    /** Compute the system name of this file system for a given root directory.
+     * <P>
+     * The default implementation simply returns the filename separated by slashes
+     * or looks for special system name annotation variable.
+     * This method also assures, that the system name will be unique among
+     * mounted filesystems. Thus when this filesystem will be mounted it will
+     * not be invalidated.
+     * @see FileSystem#setSystemName
+     * @param rootFile root directory for the filesystem
+     * @return system name for the filesystem
+     */
+    protected String computeSystemName(File rootFile) {
+        String name = computeSystemNameBase(rootFile);
+        String testName = name;
+        int seed = 0;
+        do {
+            Enumeration en = TopManager.getDefault ().getRepository ().fileSystems ();
+            while (en.hasMoreElements ()) {
+                FileSystem fs = (FileSystem) en.nextElement ();
+                if (fs == this) continue;
+                if (fs.getSystemName().equals(testName)) {
+                    testName = name + " - " + (++seed);
+                    break;
+                }
+            }
+            if (!en.hasMoreElements()) {
+                name = testName;
+                testName = null;
+            }
+        } while (testName != null);
+        return name;
     }
 
     /** Get file representation for given string name.
