@@ -42,7 +42,7 @@ Microsystems, Inc. All Rights Reserved.
     <unzip src="../../external/${tomcat.filename}.zip" dest="${netbeans.dest.dir}/${cluster.dir}" />
     <!-- monitor -->
     <copy file="${schema2beans/rt.dir}/${nb.modules.dir}/org-netbeans-modules-schema2beans.jar" 
-          tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.27/common/lib/schema2beans.jar"/>
+          tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.27/common/lib/org-netbeans-modules-schema2beans.jar"/>
     <copy file="${monitor.dir}/${nb.modules.dir}/ext/httpmonitor.jar"
           tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.27/common/lib/httpmonitor.jar"/>
     <chmod perm="ugo+x">
