@@ -4138,68 +4138,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             throw new IOException ("Cannot Lock "+name); // NOI18N
         }
         if (isCallEditFilesOn()) {
-            synchronized (editCommandExecutors) {
-                CommandTask executor = (CommandTask) editCommandExecutors.get(filePath);
-                if (executor != null) {
-                    if (!CommandProcessor.getInstance().isRunning(executor)) {
-                        editCommandExecutors.remove(filePath);
-                    }
-                }
-                if (!file.canWrite ()) {
-                    VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
-                    if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
-                        if (isPromptForEditOn()) {
-                            VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
-                            String message;
-                            if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
-                            else message = g("MSG_EditFileCh");
-                            throw (UserQuestionException) ErrorManager.getDefault().annotate(
-                                new UserQuestionException(message) {
-                                    public void confirmed() {
-                                        CommandTask exec = null;
-                                        DialogVisualizerWrapper dialogWrapper = createDialogWrapper();
-                                        synchronized (editCommandExecutors) {
-                                            CommandTask executor = (CommandTask) editCommandExecutors.get(filePath);
-                                            if (executor != null) {
-                                                if (!CommandProcessor.getInstance().isRunning(executor)) {
-                                                    editCommandExecutors.remove(filePath);
-                                                }
-                                            }
-                                            if (!editCommandExecutors.containsKey(filePath)) {
-                                                Command command = createCommand("EDIT",  name, dialogWrapper);
-                                                boolean customized = VcsManager.getDefault().showCustomizer(command);
-                                                if (customized) {
-                                                    exec = command.execute();
-                                                    if (exec != null) {
-                                                        editCommandExecutors.put(filePath, exec);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        if (exec != null) {
-                                            waitForCommand(exec, dialogWrapper);
-                                        }
-                                    }
-                                }, g("EXC_CannotDeleteReadOnly", file.toString()));
-                        } else {
-                            CommandTask exec = null;
-                            DialogVisualizerWrapper dialogWrapper = createDialogWrapper();
-                            synchronized (editCommandExecutors) {
-                                if (!editCommandExecutors.containsKey(filePath)) {
-                                    Command command = createCommand("EDIT",  name, dialogWrapper);
-                                    boolean customized = VcsManager.getDefault().showCustomizer(command);
-                                    if (customized) {
-                                        exec = command.execute();
-                                        if (exec != null) {
-                                            editCommandExecutors.put(filePath, exec);
-                                        }
-                                    }
-                                }
-                            }
-                            if (exec != null) {
-                                waitForCommand(exec, dialogWrapper);
-                            }
-                        }
+            if (!file.canWrite ()) {
+                VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
+                if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
+                    if (isPromptForEditOn()) {
+                        VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
+                        String message;
+                        if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
+                        else message = g("MSG_EditFileCh");
+                        throw new FileLockUserQuestionException(message, "EDIT", name, filePath, editCommandExecutors);
+                    } else {
+                        runFileLockCommand("EDIT", name, filePath, editCommandExecutors);
                     }
                 }
             }
@@ -4208,66 +4157,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
             // *.orig is a temporary file created by AbstractFileObject
             // on saving every file to enable undo if saving fails
-            if (vcsFile==null || vcsFile.isLocal () || name.endsWith (".orig")) return; // NOI18N
-            synchronized (lockCommandExecutors) {
-                CommandTask executor = (CommandTask) lockCommandExecutors.get(filePath);
-                if (executor != null) {
-                    if (!CommandProcessor.getInstance().isRunning(executor)) {
-                        lockCommandExecutors.remove(filePath);
-                    }
-                }
-                if (shouldLock(name)) {
-                    if (isPromptForLockOn ()) {
-                        VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
-                        String message;
-                        if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
-                        else message = g("MSG_LockFileCh");
-                        throw new UserQuestionException(message) {
-                            public void confirmed() {
-                                CommandTask exec = null;
-                                DialogVisualizerWrapper dialogWrapper = createDialogWrapper();
-                                synchronized (lockCommandExecutors) {
-                                    CommandTask executor = (CommandTask) lockCommandExecutors.get(filePath);
-                                    if (executor != null) {
-                                        if (!CommandProcessor.getInstance().isRunning(executor)) {
-                                            lockCommandExecutors.remove(filePath);
-                                        }
-                                    }
-                                    if (!lockCommandExecutors.containsKey(filePath)) {
-                                        Command command = createCommand("LOCK",  name, dialogWrapper);
-                                        boolean customized = VcsManager.getDefault().showCustomizer(command);
-                                        if (customized) {
-                                            exec = command.execute();
-                                            if (exec != null) {
-                                                lockCommandExecutors.put(filePath, exec);
-                                            }
-                                        }
-                                    }
-                                }
-                                if (exec != null) {
-                                    waitForCommand(exec, dialogWrapper);
-                                }
-                            }
-                        };
-                    } else {
-                        CommandTask exec = null;
-                        DialogVisualizerWrapper dialogWrapper = createDialogWrapper();
-                        synchronized (lockCommandExecutors) {
-                            if (!lockCommandExecutors.containsKey(filePath)) {
-                                Command command = createCommand("LOCK",  name, dialogWrapper);
-                                boolean customized = VcsManager.getDefault().showCustomizer(command);
-                                if (customized) {
-                                    exec = command.execute();
-                                    if (exec != null) {
-                                        lockCommandExecutors.put(filePath, exec);
-                                    }
-                                }
-                            }
-                        }
-                        if (exec != null) {
-                            waitForCommand(exec, dialogWrapper);
-                        }
-                    }
+            if (shouldLock(name) && vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
+                if (isPromptForLockOn ()) {
+                    VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
+                    String message;
+                    if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
+                    else message = g("MSG_LockFileCh");
+                    throw new FileLockUserQuestionException(message, "LOCK", name, filePath, lockCommandExecutors);
+                } else {
+                    runFileLockCommand("LOCK", name, filePath, lockCommandExecutors);
                 }
             }
         }
@@ -4278,6 +4176,60 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     return g("EXC_CannotLockReadOnly", file.toString());
                 }
             };
+        }
+    }
+    
+    private final class FileLockUserQuestionException extends UserQuestionException {
+        
+        private String cmdName;
+        private String fileName;
+        private String filePath;
+        private Map commandExecutors;
+        
+        FileLockUserQuestionException(String message, String cmdName, String fileName,
+                                      String filePath, Map commandExecutors) {
+            super(message);
+            this.cmdName = cmdName;
+            this.fileName = fileName;
+            this.filePath = filePath;
+            this.commandExecutors = commandExecutors;
+        }
+        
+        public void confirmed() throws java.io.IOException {
+            runFileLockCommand(cmdName, fileName, filePath, commandExecutors);
+        }
+    }
+    
+    private void runFileLockCommand(String cmdName, String fileName,
+                                    String filePath, Map commandExecutors) {
+        CommandTask exec = null;
+        DialogVisualizerWrapper dialogWrapper = createDialogWrapper();
+        synchronized (commandExecutors) {
+            CommandTask executor = (CommandTask) commandExecutors.get(filePath);
+            if (executor != null) {
+                if (executor.isFinished()) {
+                    commandExecutors.remove(filePath);
+                }
+            }
+            if (!commandExecutors.containsKey(filePath)) {
+                Command command = createCommand(cmdName,  fileName, dialogWrapper);
+                boolean customized = VcsManager.getDefault().showCustomizer(command);
+                if (customized) {
+                    exec = command.execute();
+                    if (exec != null) {
+                        commandExecutors.put(filePath, exec);
+                    }
+                }
+            } else {
+                exec = executor;
+                dialogWrapper.setTask(exec);
+            }
+        }
+        if (exec != null) {
+            waitForCommand(exec, dialogWrapper);
+            synchronized (commandExecutors) {
+                commandExecutors.remove(filePath);
+            }
         }
     }
     
