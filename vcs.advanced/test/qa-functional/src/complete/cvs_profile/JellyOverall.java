@@ -42,8 +42,13 @@ import org.netbeans.jellytools.properties.StringProperty;
 import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStatusEvent;
+import org.openide.filesystems.FileStatusListener;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.Repository;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Utilities;
 import util.Helper;
 import util.History;
@@ -63,7 +68,7 @@ public class JellyOverall extends JellyTestCase {
         suite.addTest(new JellyOverall("testInit"));
         suite.addTest(new JellyOverall("testCheckOut"));
         suite.addTest(new JellyOverall("testAdd"));
-//        suite.addTest(new JellyOverall("testAddRecursive")); // fails due to bug #27582
+        //        suite.addTest(new JellyOverall("testAddRecursive")); // fails due to bug #27582
         suite.addTest(new JellyOverall("testAddTextFile"));
         suite.addTest(new JellyOverall("testAddBinaryFile"));
         suite.addTest(new JellyOverall("testCommitFiles"));
@@ -83,6 +88,9 @@ public class JellyOverall extends JellyTestCase {
     
     ExplorerOperator exp;
     StatusBarTracer sbt;
+    static FileSystem fs;
+    static FileStatusListener fsFSlistener;
+    static PrintStream fsFSlog;
     static String serverDirectory;
     static String clientDirectory;
     static String hRoot = ".", nRoot;
@@ -99,7 +107,7 @@ public class JellyOverall extends JellyTestCase {
     PrintStream out;
     PrintStream info;
     static History history;
-
+    
     public static void closeAllProperties() {
         for (;;) {
             NbFrameOperator fr = NbFrameOperator.find("Propert", 0);
@@ -111,7 +119,7 @@ public class JellyOverall extends JellyTestCase {
     }
     
     public void waitStatus(String status, String node) {
-        assertTrue ("waitStatus(status,node) precondition failed", status == null  ||  status.indexOf(';') < 0);
+        assertTrue("waitStatus(status,node) precondition failed", status == null  ||  status.indexOf(';') < 0);
         waitStatus(status, node, false);
     }
     
@@ -143,17 +151,66 @@ public class JellyOverall extends JellyTestCase {
         assertTrue("CVS File Status is not reached: Expected: " + status + " Got: " + ano, false);
     }
     
-    boolean equalPaths (String p1, String p2) {
-        p1 = p1.replace ('\\', '/');
-        p2 = p2.replace ('\\', '/');
+    boolean equalPaths(String p1, String p2) {
+        p1 = p1.replace('\\', '/');
+        p2 = p2.replace('\\', '/');
         return p1.equalsIgnoreCase(p2);
     }
     
-    protected void setUp() throws Exception {
+    public static void traversFileStatusLogging (FileObject fo, FileStatusEvent e) {
+        if (fo == null)
+            return;
+        if (e.hasChanged(fo)) {
+            String str = fo.getName();
+            try {
+                DataObject dao = DataObject.find (fo);
+                if (dao != null) {
+                    org.openide.nodes.Node node = dao.getNodeDelegate();
+                    if (node != null)
+                        str = node.getDisplayName();
+                }
+            } catch (DataObjectNotFoundException ee) {
+            }
+            fsFSlog.println (str);
+        }
+        FileObject[] fos = fo.getChildren();
+        if (fos == null)
+            return;
+        for (int a = 0; a < fos.length; a ++) {
+            traversFileStatusLogging (fos[a], e);
+        }
+    }
+    
+    public static void startFileStatusLogging(final PrintStream log) {
+        stopFileStatusLogging();
+        if (fs == null)
+            return;
+        fsFSlog = log;
+        fsFSlistener = new FileStatusListener() {
+            public void annotationChanged (FileStatusEvent e) {
+                fsFSlog.println ("==== IsNameChange: " + e.isNameChange() + ", IsIconChange: " + e.isIconChange());
+                traversFileStatusLogging (fs.getRoot(), e);
+            }
+        };
+        fs.addFileStatusListener(fsFSlistener);
+    }
+    
+    public static void stopFileStatusLogging() {
+        if (fs == null)
+            return;
+        fs.removeFileStatusListener(fsFSlistener);
+    }
+    
+    protected void setUp() {
         exp = new ExplorerOperator();
         sbt = new StatusBarTracer();
         out = getRef();
         info = getLog();
+        startFileStatusLogging(getLog("filestatus"));
+    }
+    
+    protected void tearDown() {
+        stopFileStatusLogging();
     }
     
     public void testWorkDir() {
@@ -165,12 +222,12 @@ public class JellyOverall extends JellyTestCase {
         }
         serverDirectory = workroot + "/server";
         clientDirectory = workroot + "/client";
-        if (Utilities.isUnix ()) {
-            serverDirectory = serverDirectory.replace ('\\', '/');
-            clientDirectory = clientDirectory.replace ('\\', '/');
+        if (Utilities.isUnix()) {
+            serverDirectory = serverDirectory.replace('\\', '/');
+            clientDirectory = clientDirectory.replace('\\', '/');
         } else {
-            serverDirectory = serverDirectory.replace ('/', '\\');
-            clientDirectory = clientDirectory.replace ('/', '\\');
+            serverDirectory = serverDirectory.replace('/', '\\');
+            clientDirectory = clientDirectory.replace('/', '\\');
         }
         
         new File(serverDirectory).mkdirs();
@@ -210,9 +267,10 @@ public class JellyOverall extends JellyTestCase {
             while (e.hasMoreElements()) {
                 FileSystem f = (FileSystem) e.nextElement();
                 info.println("Is it: " + f.getDisplayName());
-                if (equalPaths (f.getDisplayName(), nRoot)) {
+                if (equalPaths(f.getDisplayName(), nRoot)) {
                     info.println("Yes");
                     nRoot = f.getDisplayName();
+                    fs = f;
                     info.println("Working Directory nRoot: " + nRoot);
                     history = new History(f);
                     found = true;
@@ -277,13 +335,13 @@ public class JellyOverall extends JellyTestCase {
         co.setModuleS(hRoot);
         co.checkPruneEmptyFolders(false);
         Helper.sleep(1000);
-        getLog ().println (co.cbPruneEmptyFolders ().isSelected ());
+        getLog().println(co.cbPruneEmptyFolders().isSelected());
         co.oK();
         assertTrue("Check Out command failed", history.waitCommand("Check Out", hRoot));
-
+        
         // for assurance only
-        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("CHECKOUT_COMMAND");
-        voo.close(); 
+        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator("CHECKOUT_COMMAND");
+        voo.close();
         voo.waitClosed();
         
         waitStatus(null, nInitDir);
@@ -353,12 +411,12 @@ public class JellyOverall extends JellyTestCase {
             throw new AssertionFailedErrorException("IOException while creating text file", e);
         }
         new CVSFileNode(exp.repositoryTab().tree(), nInitDir).cVSRefresh();
-        assertTrue ("Refresh directory command failed", history.waitCommand("Refresh", hInitDir));
+        assertTrue("Refresh directory command failed", history.waitCommand("Refresh", hInitDir));
         new CVSFileNode(exp.repositoryTab().tree(), nText1);
         new CVSFileNode(exp.repositoryTab().tree(), nText2);
         waitStatus("Local", nText1);
         waitStatus("Local", nText2);
-        new CVSAddAction ().perform (new Node [] {
+        new CVSAddAction().perform(new Node [] {
             new CVSFileNode(exp.repositoryTab().tree(), nText1),
             new CVSFileNode(exp.repositoryTab().tree(), nText2),
         });
@@ -377,7 +435,7 @@ public class JellyOverall extends JellyTestCase {
             throw new AssertionFailedErrorException("IOException while creating binary file", e);
         }
         new CVSFileNode(exp.repositoryTab().tree(), nInitSubDir).cVSRefresh();
-        assertTrue ("Refresh directory command failed", history.waitCommand("Refresh", hInitSubDir));
+        assertTrue("Refresh directory command failed", history.waitCommand("Refresh", hInitSubDir));
         new CVSFileNode(exp.repositoryTab().tree(), nBinary);
         waitStatus("Local", nBinary);
         new CVSFileNode(exp.repositoryTab().tree(), nBinary).cVSAdd();
@@ -422,103 +480,103 @@ public class JellyOverall extends JellyTestCase {
         fr.write("Text\n");
         fr.close();
     }
-
-    public void testRefreshFile () {
-        new CVSFileNode (exp.repositoryTab ().tree (), nText2);
-        waitStatus ("Up-to-date; 1.1", nText2, true);
+    
+    public void testRefreshFile() {
+        new CVSFileNode(exp.repositoryTab().tree(), nText2);
+        waitStatus("Up-to-date; 1.1", nText2, true);
         try {
-            modifyFile (fText2);
+            modifyFile(fText2);
         } catch (IOException e) {
             throw new AssertionFailedErrorException("IOException while modifying text2 file", e);
         }
-        new CVSFileNode (exp.repositoryTab ().tree (), nText2).cVSRefresh ();
-        assertTrue ("Refresh files command failed", history.waitCommand("Refresh", hText2));
-        waitStatus ("Locally Modified; 1.1", nText2, true);
-    }
- 
-    public void testRefreshDirectory () {
-        new CVSFileNode (exp.repositoryTab ().tree (), nRoot).cVSRefreshRecursively ();
-        assertTrue ("Refresh files command failed", history.waitCommand("Refresh Recursively", hRoot));
-        new CVSFileNode (exp.repositoryTab ().tree (), nText1);
-        new CVSFileNode (exp.repositoryTab ().tree (), nBinary);
-        waitStatus (null, nInitDir);
-        waitStatus (null, nInitSubDir);
-        waitStatus ("Up-to-date; 1.1", nText1, true);
-        waitStatus ("Up-to-date; 1.1", nBinary, true);
- 
-        try {
-            modifyFile (fText1);
-            modifyFile (fBinary);
-        } catch (IOException e) {
-            throw new AssertionFailedErrorException("IOException while modifying text1 and binary files", e);
-        }
- 
-        new CVSFileNode (exp.repositoryTab ().tree (), nInitDir).cVSRefresh ();
-        assertTrue ("Refresh directory command failed", history.waitCommand("Refresh", hInitDir));
-        waitStatus (null, nInitDir);
-        waitStatus (null, nInitSubDir);
-        waitStatus ("Locally Modified; 1.1", nText1, true);
-        waitStatus ("Up-to-date; 1.1", nBinary, true);
+        new CVSFileNode(exp.repositoryTab().tree(), nText2).cVSRefresh();
+        assertTrue("Refresh files command failed", history.waitCommand("Refresh", hText2));
+        waitStatus("Locally Modified; 1.1", nText2, true);
     }
     
-    public void testRefreshRecursively () {
+    public void testRefreshDirectory() {
+        new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefreshRecursively();
+        assertTrue("Refresh files command failed", history.waitCommand("Refresh Recursively", hRoot));
+        new CVSFileNode(exp.repositoryTab().tree(), nText1);
+        new CVSFileNode(exp.repositoryTab().tree(), nBinary);
+        waitStatus(null, nInitDir);
+        waitStatus(null, nInitSubDir);
+        waitStatus("Up-to-date; 1.1", nText1, true);
+        waitStatus("Up-to-date; 1.1", nBinary, true);
+        
         try {
-            modifyFile (fText1);
-            modifyFile (fBinary);
+            modifyFile(fText1);
+            modifyFile(fBinary);
         } catch (IOException e) {
             throw new AssertionFailedErrorException("IOException while modifying text1 and binary files", e);
         }
- 
-        new CVSFileNode (exp.repositoryTab ().tree (), nInitDir).cVSRefreshRecursively ();
-        assertTrue ("Refresh recursively files command failed", history.waitCommand("Refresh Recursively", hInitDir));
-        waitStatus (null, nInitDir);
-        waitStatus (null, nInitSubDir);
-        waitStatus ("Locally Modified; 1.1", nText1, true);
-        waitStatus ("Locally Modified; 1.1", nBinary, true);
+        
+        new CVSFileNode(exp.repositoryTab().tree(), nInitDir).cVSRefresh();
+        assertTrue("Refresh directory command failed", history.waitCommand("Refresh", hInitDir));
+        waitStatus(null, nInitDir);
+        waitStatus(null, nInitSubDir);
+        waitStatus("Locally Modified; 1.1", nText1, true);
+        waitStatus("Up-to-date; 1.1", nBinary, true);
     }
- 
-    public void testAddTag () {
-        waitStatus ("Locally Modified; 1.1", nText2, true);
-        new CVSFileNode (exp.repositoryTab ().tree (), nText2).cVSBranchingAndTaggingAddTag ();
-        CVSAddTagFileAdvDialog add = new CVSAddTagFileAdvDialog ();
+    
+    public void testRefreshRecursively() {
+        try {
+            modifyFile(fText1);
+            modifyFile(fBinary);
+        } catch (IOException e) {
+            throw new AssertionFailedErrorException("IOException while modifying text1 and binary files", e);
+        }
+        
+        new CVSFileNode(exp.repositoryTab().tree(), nInitDir).cVSRefreshRecursively();
+        assertTrue("Refresh recursively files command failed", history.waitCommand("Refresh Recursively", hInitDir));
+        waitStatus(null, nInitDir);
+        waitStatus(null, nInitSubDir);
+        waitStatus("Locally Modified; 1.1", nText1, true);
+        waitStatus("Locally Modified; 1.1", nBinary, true);
+    }
+    
+    public void testAddTag() {
+        waitStatus("Locally Modified; 1.1", nText2, true);
+        new CVSFileNode(exp.repositoryTab().tree(), nText2).cVSBranchingAndTaggingAddTag();
+        CVSAddTagFileAdvDialog add = new CVSAddTagFileAdvDialog();
         add.checkBranchTag(true);
         add.setTagName("MyTag");
         add.select();
-        CVSRevisionSelectorDialog rev = new CVSRevisionSelectorDialog ();
+        CVSRevisionSelectorDialog rev = new CVSRevisionSelectorDialog();
         rev.lstCVSRevisionSelector().clickOnItem("1.1");
-        rev.oK ();
-        add.oK ();
-        assertTrue ("Add Tag command failed", history.waitCommand("Add Tag", hText2));
-        new NbDialogOperator ("Information").ok ();
+        rev.oK();
+        add.oK();
+        assertTrue("Add Tag command failed", history.waitCommand("Add Tag", hText2));
+        new NbDialogOperator("Information").ok();
     }
- 
-    public void testCommitToBranch () {
-        waitStatus ("Locally Modified; 1.1", nText2, true);
-        new CVSFileNode (exp.repositoryTab ().tree (), nText2).cVSCommit ();
-        CVSCommitFileAdvDialog co = new CVSCommitFileAdvDialog ();
+    
+    public void testCommitToBranch() {
+        waitStatus("Locally Modified; 1.1", nText2, true);
+        new CVSFileNode(exp.repositoryTab().tree(), nText2).cVSCommit();
+        CVSCommitFileAdvDialog co = new CVSCommitFileAdvDialog();
         co.select();
-        CVSBranchSelectorDialog br = new CVSBranchSelectorDialog ();
+        CVSBranchSelectorDialog br = new CVSBranchSelectorDialog();
         br.lstCVSBranchSelector().clickOnItem("1.1.2  MyTag");
-        br.oK ();
+        br.oK();
         co.txtEnterReason().setCaretPosition(0);
         co.txtEnterReason().typeText("Initial commit to branch");
-        co.oK ();
-        assertTrue ("Commit file command failed", history.waitCommand("Commit", hText2));
-        waitStatus ("Up-to-date; 1.1.2.1", nText2, true);
+        co.oK();
+        assertTrue("Commit file command failed", history.waitCommand("Commit", hText2));
+        waitStatus("Up-to-date; 1.1.2.1", nText2, true);
     }
-
-    public void testUpdate () {
-        new DeleteAction ().perform (new Node (exp.repositoryTab ().tree (), nBinary));
-        new NbDialogOperator ("Confirm Object Deletion").yes();
+    
+    public void testUpdate() {
+        new DeleteAction().perform(new Node(exp.repositoryTab().tree(), nBinary));
+        new NbDialogOperator("Confirm Object Deletion").yes();
         // workaround for issue #27589
-        new CVSFileNode (exp.repositoryTab ().tree (), nInitSubDir).cVSRefresh ();
-        assertTrue ("Refresh directory command failed", history.waitCommand("Refresh", hInitSubDir));
+        new CVSFileNode(exp.repositoryTab().tree(), nInitSubDir).cVSRefresh();
+        assertTrue("Refresh directory command failed", history.waitCommand("Refresh", hInitSubDir));
         //
-        waitStatus ("Needs Update; 1.1", nBinary, true);
-        new CVSFileNode (exp.repositoryTab ().tree (), nBinary).cVSUpdate ();
-        CVSUpdateFileAdvDialog up = new CVSUpdateFileAdvDialog ();
-        up.oK ();
-        waitStatus ("Up-to-date; 1.1", nBinary, true);
+        waitStatus("Needs Update; 1.1", nBinary, true);
+        new CVSFileNode(exp.repositoryTab().tree(), nBinary).cVSUpdate();
+        CVSUpdateFileAdvDialog up = new CVSUpdateFileAdvDialog();
+        up.oK();
+        waitStatus("Up-to-date; 1.1", nBinary, true);
     }
-
+    
 }
