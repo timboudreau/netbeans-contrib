@@ -36,7 +36,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <folder name="Templates">
      <folder name="Mount">
-        <!-- <file name="Generic_VCS"> -->
+       <folder name="VCS">
         <file name="org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings">
           <![CDATA[
           <!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
@@ -48,6 +48,7 @@ Microsystems, Inc. All Rights Reserved.
           <attr name="template" boolvalue="true"/>
           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
         </file>
+       </folder>
      </folder>
    </folder>
 </filesystem>
