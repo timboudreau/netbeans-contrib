@@ -820,7 +820,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (isValid ()) {
             D.deb("Filesystem valid, getting the refresh time "+getRefreshTime ()); // NOI18N
             return getRefreshTime ();
-        } else return refreshTimeToSet;
+        } else {
+            return refreshTimeToSet;
+        }
     }
     
     public void setZeroRefreshTime() {
@@ -1101,11 +1103,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             });
         }
+        enableRefresh();
     }
     
     /** Notifies this file system that it has been removed from the repository. 
      */
     public void removeNotify() {
+        disableRefresh();
         //System.out.println("fileSystem Removed("+this+")");
         commandsPool.cleanup();
         super.removeNotify();
