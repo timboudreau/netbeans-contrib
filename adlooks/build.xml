@@ -11,8 +11,8 @@ The Original Code is NetBeans. The Initial Developer of the Original
 Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
-<project default="netbeans" name="Aspects API" >
-    <property name="nb_all" value="../.." />
+<project default="netbeans" name="Looks2Aspects Bridge" >
+    <property name="nb_all" location="../../.." />
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
 
@@ -22,13 +22,16 @@ Microsystems, Inc. All Rights Reserved.
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
             <classpath>
                 <pathelement location="${nb_all}/openide/util/netbeans/lib/openide-util.jar"/>
+                <pathelement location="${nb_all}/openide/nodes/netbeans/lib/openide-nodes.jar"/>
+                <pathelement location="${nb_all}/openide/looks/netbeans/modules/autoload/openide-looks.jar"/>
+                <pathelement location="${nb_all}/contrib/aspects/netbeans/modules/autoload/aspects.jar"/>
             </classpath>
         </javac>
     </target>
 
     <target name="jars" depends="compile">
         <mkdir dir="netbeans/modules/autoload"/>
-        <jar jarfile="netbeans/modules/autoload/aspects.jar"
+        <jar jarfile="netbeans/modules/autoload/looks2aspects.jar"
              manifest="manifest.mf"
              basedir="src"
 	     excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
@@ -39,12 +42,12 @@ Microsystems, Inc. All Rights Reserved.
     
     <target name="reload" depends="jars">
         <mkdir dir="reload"/>
-        <copy file="netbeans/modules/autoload/aspects.jar" tofile="reload/aspects.jar"/>
-        <nbinstaller module="reload/aspects.jar" action="reinstall"/>
+        <copy file="netbeans/modules/autoload/looks2aspects.jar" tofile="reload/look2aspects.jar"/>
+        <nbinstaller module="reload/looks2aspects.jar" action="reinstall"/>
     </target>
  
     <target name="nbm" depends="netbeans">
-        <makenbm file="aspects.nbm"
+        <makenbm file="looks2aspects.nbm"
                  topdir="."
                  module="netbeans/modules/autoload/aspects.jar"
                  needsrestart="false"
@@ -60,7 +63,7 @@ Microsystems, Inc. All Rights Reserved.
                 <include name="**/*.class"/>
             </fileset>
         </delete>
-        <delete file="aspects.nbm"/>
+        <delete file="look2aspects.nbm"/>
         <delete dir="netbeans"/>
         <delete dir="Info"/>
     </target>
