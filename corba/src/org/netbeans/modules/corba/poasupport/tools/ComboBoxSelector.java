@@ -33,7 +33,7 @@ public class ComboBoxSelector extends NotifyDescriptor {
     }
     
     public ComboBoxSelector(final String text, final String label, final Vector values, final int optionType, final int messageType) {
-        super(null, NotifyDescriptor.getTitleForType(messageType), optionType, messageType, null, null);
+        super(null, getTitleForType(messageType), optionType, messageType, null, null);
         super.setMessage(createDesign(text, label, values));
     }
     

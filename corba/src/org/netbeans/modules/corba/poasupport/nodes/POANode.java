@@ -407,9 +407,9 @@ public class POANode extends AbstractNode implements java.beans.PropertyChangeLi
 	    ps.setShortDescription (POASupport.getString("MSG_POASheet_ORB"));
             ps.put(new PropertySupport.ReadWrite ("orb", String.class, POASupport.getString("LBL_POASheet_ORB"), POASupport.getString("MSG_POASheet_ORB")) { // NOI18N
                 public Object getValue () {
-                    String _tag = ((RootPOAElement)getPOAElement()).getORBTag();
-                    if (_tag != null)
-                        return POASupport.getCORBASettings().getSettingByTag(_tag).getName();
+                    String _tag2 = ((RootPOAElement)getPOAElement()).getORBTag();
+                    if (_tag2 != null)
+                        return POASupport.getCORBASettings().getSettingByTag(_tag2).getName();
                     else
                         return POASupport.getString("FMT_Unknown_ORB");
                 }
