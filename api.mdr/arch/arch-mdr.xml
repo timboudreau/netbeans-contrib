@@ -4,7 +4,7 @@
 ]>
 
 <api-answers
-  question-version="1.23"
+  question-version="1.24"
   module="NetBeans Metadata Repository"
   author="mmatula@netbeans.org"
 >
@@ -904,7 +904,13 @@ No.
 -->
 <answer id="resources-file">
 B-tree storage implementation works directly with files since it is a standalone
-    database independent from NetBeans and OpenAPI.
+    database independent from NetBeans and OpenAPI. <api category="private" group="java.io.File"
+    name="Btree-files" type="export">For every storage the b-tree database
+    creates two permanent files - index file (*.btx) and data file (*.btd). When modifying
+    data in the database the b-tree creates an additional backup file (*.btb), which is deleted
+    when the database is shutdown.</api> In the standalone mode, placement of the DB files can be
+    specified in a system property. When running in NetBeans, the files are located under
+    &amp;nbuserdir/var/cache/mdrstorage directory.
 </answer>
 
 
@@ -983,5 +989,38 @@ Yes. The implementation of MDR manager reads list of registered metadata reposit
     </ul>
 
 </answer>
+
+<!--
+        <question id="security-grant" when="final">
+            Does your code grant additional rights to some other code?
+            <hint>Avoid using a class loader that adds extra
+            permissions to loaded code unless really necessary.
+            Also note that your API implementation
+            can also expose unneeded permissions to enemy code by
+            calling AccessController.doPrivileged().</hint>
+        </question>
+-->
+ <answer id="security-grant">
+  <p>
+   TBA
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="security-policy" when="final">
+            Does your functionality require modifications to the standard policy file?
+            <hint>Your code might pass control to third-party code not
+            coming from trusted domains. This could be code downloaded over the
+            network or code coming from libraries that are not bundled
+            with NetBeans. Which permissions need to be granted to which domains?</hint>
+        </question>
+-->
+ <answer id="security-policy">
+  <p>
+   No.
+  </p>
+ </answer>
 
 </api-answers>
