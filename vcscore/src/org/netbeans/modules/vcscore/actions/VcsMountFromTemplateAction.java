@@ -26,6 +26,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import org.openide.*;
+import org.openide.actions.MoveDownAction;
+import org.openide.actions.MoveUpAction;
 import org.openide.awt.Actions;
 import org.openide.cookies.InstanceCookie;
 import org.openide.explorer.propertysheet.PropertySheet;
@@ -57,7 +59,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
     private static TemplateWizard defaultWizard;
 
     /** Standard wizard (unmodified).*/
-    private static TemplateWizard standardWizard;
+    private static Reference standardWizardRef;
     
     /** Target folder */
     private static DataFolder targetFolder;
@@ -116,11 +118,13 @@ public class VcsMountFromTemplateAction extends NodeAction {
     /** Getter for standard wizard.
     */
     static TemplateWizard getStandardWizard () {
+        TemplateWizard standardWizard = (standardWizardRef == null) ? null : (TemplateWizard) standardWizardRef.get();
         if (standardWizard == null) {
             standardWizard = new TW ();
-            standardWizard.setTemplatesFolder(getVCSFolder());
-            standardWizard.setTargetFolder(getTargetFolder());
+            standardWizardRef = new SoftReference(standardWizard);
         }
+        standardWizard.setTemplatesFolder(getVCSFolder());
+        standardWizard.setTargetFolder(getTargetFolder());
         return standardWizard;
     }
     
@@ -135,8 +139,8 @@ public class VcsMountFromTemplateAction extends NodeAction {
             
             // if folder is selected then set it as target
             //if (targetFolder != null) wizard.setTargetFolder(targetFolder);
-            wizard.setTemplatesFolder(getVCSFolder());
-            wizard.setTargetFolder(getTargetFolder());
+            //wizard.setTemplatesFolder(getVCSFolder());
+            //wizard.setTargetFolder(getTargetFolder());
 
             // instantiates
             wizard.instantiate ();
@@ -478,7 +482,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
     /** My special version of template wizard.
     */
     private static final class TW extends TemplateWizard 
-    implements WizardDescriptor.Panel {
+    implements WizardDescriptor.Panel, FileSystem.AtomicAction {
         /** the sheet component */
         private PropertySheet sheet;
         /** the node to display */
@@ -571,6 +575,40 @@ public class VcsMountFromTemplateAction extends NodeAction {
         public void removeChangeListener (ChangeListener l) {
         }
         
+        /** Calls iterator's instantiate. It is called when user selects
+         * a option which is not CANCEL_OPTION or CLOSED_OPTION.
+         */
+        protected synchronized java.util.Set handleInstantiate() throws java.io.IOException {
+            org.openide.filesystems.Repository.getDefault ().getDefaultFileSystem ().runAtomicAction (this);
+            
+            return retValue;
+        }
+
+        /** used for communication with handleInstantiate & run */
+        private java.util.Set retValue;
+        
+        /** Handles instantiate in atomic action.
+         */
+        public void run () throws java.io.IOException {
+            retValue = super.handleInstantiate();
+            
+            // order the objects, so the new created will be the last
+            java.util.Iterator it = retValue.iterator ();
+            while (it.hasNext ()) {
+                DataObject obj = (DataObject)it.next ();
+                DataFolder parent = obj.getFolder ();
+                java.util.List children = new java.util.ArrayList (
+                    java.util.Arrays.asList (parent.getChildren ())
+                );
+                // add the object to the end
+                children.remove (obj);
+                children.add (obj);
+                
+                // change the order
+                parent.setOrder ((DataObject[])children.toArray (new DataObject[0]));
+            }
+        }
+        
     } // end of TW
 
     /** A special filter node that adds Capabilities tab to regular
@@ -604,6 +642,17 @@ public class VcsMountFromTemplateAction extends NodeAction {
                     super.propertyChange (fn, ev);
                 }
             };
+        }
+
+        private static final SystemAction[] MOVEUPDOWN = new SystemAction[] {
+            SystemAction.get(MoveUpAction.class),
+            SystemAction.get(MoveDownAction.class),
+            null,
+        };
+        
+        public SystemAction[] getActions() {
+            // Cf. #9323:
+            return SystemAction.linkActions(MOVEUPDOWN, super.getActions());
         }
 
         public PropertySet[] getPropertySets () {
@@ -656,5 +705,29 @@ public class VcsMountFromTemplateAction extends NodeAction {
             }
             return s;
         }
+        
+        private static class CapHandle implements  Node.Handle {            
+            private static final long serialVersionUID = -610869089660411298L;                         
+            FileSystem fs;
+            private Node.Handle origHandle;
+                        
+            private CapHandle (Node origNode, FileSystem fs) {
+                this.fs = fs;
+                origHandle = origNode.getHandle();
+            }
+            /** Reconstitute the node for this handle.
+             *
+             * @return the node for this handle
+             * @exception IOException if the node cannot be created
+             */
+            public Node getNode() throws java.io.IOException {
+                return new CapNode (origHandle.getNode(), fs);
+            }
+            
+        }
+
+        public Node.Handle getHandle () {
+            return new CapHandle (getOriginal (), fs);
+        }  
     }
 }
