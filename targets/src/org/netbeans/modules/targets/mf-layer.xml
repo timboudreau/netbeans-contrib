@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE filesystem PUBLIC '-//NetBeans//DTD Filesystem 1.1//EN' 'http://www.netbeans.org/dtds/filesystem-1_1.dtd'>
+
+<filesystem>
+    <folder name="Actions" >
+        <folder name="Window">
+            <file name="org-netbeans-modules-targets-ShowTargets.instance"/>
+        </folder>
+    </folder>
+    <!-- Menu item -->
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="ShowTargets.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-targets-ShowTargets.instance"/>
+            </file>
+            <!-- Position of menu item in Window menu is not defined. It is good idea
+                 to defined its position relative to other menu items using attribute
+                 example from core-ui module:
+                 <attr name="org-netbeans-core-actions-NewTemplateCallableAction.instance/Separator1.instance" boolvalue="true" />
+                 You must know names of other items so you must check layer of other modules
+                 in IDE or application.  -->
+        </folder>
+    </folder>
+
+    <!-- Window system configuration --> 
+    <folder name="Windows2">
+        <folder name="Modes">
+            <file name="targets.wsmode" url="modes/targets.wsmode" />
+            <folder name="targets">
+                <file name="targets.wstcref" url="modes/targets/targets.wstcref" />
+            </folder>
+        </folder>
+        <folder name="Components">
+            <file name="targets.settings" url="components/targets.settings" />
+        </folder>
+    </folder>   
+    
+    <folder name="Targets">
+        <!-- Persisted targets will go here -->
+    </folder>
+   
+</filesystem>
+
