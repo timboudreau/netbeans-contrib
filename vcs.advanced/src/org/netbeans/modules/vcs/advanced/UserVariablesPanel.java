@@ -56,6 +56,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
     private AccessoryVariableNode accessoryRoot = null;
     private Children basicChildren = null;
     private Children.SortedArray accessoryChildren = null;
+    private Set filteredVariables = new HashSet();
 
     //-------------------------------------------
     static final long serialVersionUID =-4165869264994159492L;
@@ -157,8 +158,10 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
             } else {
                 if (name.indexOf(VcsFileSystem.VAR_ENVIRONMENT_PREFIX) == 0 ||
                     name.indexOf(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX) == 0 ||
-                    "MODULE".equals(name))
+                    "MODULE".equals(name)) {
+                    filteredVariables.add(var);
                     continue;
+                }
                 accessoryChildren.add(new AccessoryVariableNode[] { new AccessoryVariableNode(var) });
             }
         }
@@ -236,6 +239,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
             VcsConfigVariable var = varNode.getVariable();
             vars.add(var);
         }
+        vars.addAll(filteredVariables);
         return vars;
     }
     
