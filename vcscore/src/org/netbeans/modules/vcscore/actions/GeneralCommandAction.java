@@ -70,13 +70,9 @@ public class GeneralCommandAction extends NodeAction {
     public static final String GROUP_NAME_PROP = "GROUP_NAME"; //NOI18N
     
     
-    private transient javax.swing.JMenuItem menuPresent;
-    private transient javax.swing.JMenuItem popupPresent;
     private transient java.awt.Component toolBarPresent;
     
-    private Set menuNamesSet;
     private Set toolBarNamesSet;
-    private Set popupNamesSet;
     
     private boolean wasReset;
     
@@ -128,8 +124,6 @@ public class GeneralCommandAction extends NodeAction {
     
     protected boolean enable (Node[] nodes) {
         toolBarNamesSet = new HashSet();
-        menuNamesSet = new HashSet();
-        popupNamesSet = new HashSet();
         
         if (nodes == null || nodes.length == 0) {
             if (!wasReset) {
@@ -239,22 +233,6 @@ public class GeneralCommandAction extends NodeAction {
         return retValue;
     }    
 
-    public javax.swing.JMenuItem getPopupPresenter() {
-        javax.swing.JMenuItem retValue;
-        
-        retValue = super.getPopupPresenter();
-        popupPresent = retValue;
-        return retValue;
-    }
-    
-    public javax.swing.JMenuItem getMenuPresenter() {
-        javax.swing.JMenuItem retValue;
-        
-        retValue = super.getMenuPresenter();
-        menuPresent = retValue;
-        return retValue;
-    }
-   
     
     /**
      * returns a map with CommandActionSupporters as keys.

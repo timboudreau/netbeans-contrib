@@ -135,7 +135,6 @@ public abstract class FileStatusInfo extends Object {
      */
     private static final class DefaultFileStatusInfo extends FileStatusInfo {
         
-        private String status;
         private String displayedStatus;
         private String iconResource;
         

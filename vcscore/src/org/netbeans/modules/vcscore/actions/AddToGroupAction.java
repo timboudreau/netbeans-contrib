@@ -46,7 +46,6 @@ import org.openide.windows.TopComponent;
  */
 public class AddToGroupAction extends NodeAction implements ContextAwareDelegateAction.Delegatable {
     
-    private DataObject newDataObject = null;
     private boolean adding;
 
     private static final long serialVersionUID = -8318483915357096138L;
@@ -180,21 +179,17 @@ public class AddToGroupAction extends NodeAction implements ContextAwareDelegate
         if (children == null || children.length == 0) {
             return false;
         }
-        if (node != null) {
-            for (int i = 0; i < node.length; i++) {
-                DataObject dobj = (DataObject)node[i].getCookie(DataObject.class);
-                if (dobj != null) {
-                    if (!dobj.getPrimaryFile().isData()) {
-                        return false;
-                    }
-                } else {
+        for (int i = 0; i < node.length; i++) {
+            DataObject dobj = (DataObject)node[i].getCookie(DataObject.class);
+            if (dobj != null) {
+                if (!dobj.getPrimaryFile().isData()) {
                     return false;
                 }
+            } else {
+                return false;
             }
-            return true; // none of the nodes is a folder..
-        } else {
-            return false;
         }
+        return true; // none of the nodes is a folder..
     }    
 
     public javax.swing.Action createContextAwareInstance(Lookup actionContext) {

@@ -279,7 +279,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //private long cacheId = 0;
     //private String cacheRoot = null; // NOI18N
 
-    private transient VcsFSCommandsAction action = null;
     private transient VcsFactory factory = null;
     private transient VcsCommandsProvider commandsProvider = new DefaultVcsCommandsProvider(new CommandsTree(null));
 
@@ -2273,7 +2272,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             root = new File(rootDir);
             //D.deb("RootDirectory = "+rootDir);
         }
-        if( root == null || !root.isDirectory() ){
+        if(!root.isDirectory() ){
             //E.err("not directory "+root); // NOI18N
             D.deb("NOT DIRECTORY: "+root);
             final String badDir = root.toString();
@@ -2286,7 +2285,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         File moduleDir = new File(root, module);
         D.deb("moduleDir = "+moduleDir);
-        if (moduleDir == null || !moduleDir.isDirectory()) {
+        if (!moduleDir.isDirectory()) {
             D.deb("NOT DIRECTORY: "+moduleDir);
             //System.out.println("NOT DIRECTORY: "+moduleDir);
             final String badDir = module;
@@ -3098,7 +3097,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     String[] getLocalFiles(String name) {
         File dir = new File(getRootDirectory(), name);
-        if (dir == null || !dir.exists() || !dir.canRead()) return new String[0];
+        if (!dir.canRead()) return new String[0];
         localFilenameFilter.setOptionalFilter(getLocalFileFilter());
         String files[] = dir.list(localFilenameFilter);
         if (files == null) return new String[0]; // is null when dir is not a directory
@@ -4646,10 +4645,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private class FSPropertyChangeListener implements PropertyChangeListener {
 
-        private String oldFsSystemName;
-
         public FSPropertyChangeListener() {
-            oldFsSystemName = VcsFileSystem.this.getSystemName();
         }
 
         public void propertyChange(final PropertyChangeEvent event) {
@@ -4791,7 +4787,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     }
     
-    private class LocalFilenameFilter extends Object implements FilenameFilter {
+    private static class LocalFilenameFilter extends Object implements FilenameFilter {
         
         private final boolean ignoreCase;
         private FilenameFilter optionalFilter;

@@ -78,7 +78,6 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
     private Map filesByCommandProviders;
 
     // List of commands, that can switch the expert mode on/off
-    private List switchableList;
     boolean CTRL_Down = false;
 
     private static final long serialVersionUID = -4196511763565479366L;
@@ -234,7 +233,6 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
     public JMenuItem[] createMenuItems(boolean inMenu, Lookup lookup) {
         Map filesWithMessages = getSelectedFileObjectsFromActiveNodes (lookup);
         //System.out.println("VcsFSCommandsAction.getPresenter(): selected filesWithMessages: "+filesWithMessages);
-        switchableList = new ArrayList();
         ArrayList menuItems = new ArrayList();
         //CommandsTree[] commands = actionCommandsTree.children();
         filesByCommandProviders = findCommandProvidersForFiles(filesWithMessages);

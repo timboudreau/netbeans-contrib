@@ -31,9 +31,6 @@ import org.netbeans.modules.vcscore.util.*;
 
 public class AnnotPatternCustomEditor extends javax.swing.JPanel implements ExplorerManager.Provider {
 
-    
-    private String[] patterns;
-    private String[] displayNames;
     private ExplorerManager manager;
     private AnnotationPatternPropertyEditor editor;
     public AnnotPatternCustomEditor() {

@@ -283,7 +283,7 @@ public class AnnotationSupport extends Object {
     }
     
     
-    public class PatternType {
+    public static class PatternType {
 
         
         /** Holds value of property stringPattern. */

@@ -417,7 +417,7 @@ public class VcsAttributes extends Attributes {
                     status &= executors[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED;
                 }
                  */
-                descriptor.setValue(VCS_ACTION_DONE, new Boolean(status));
+                descriptor.setValue(VCS_ACTION_DONE, Boolean.valueOf(status));
             }
         });
     }
