@@ -92,9 +92,10 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     /** Does initialization. Initializes display name,
      * extension list and the actions. */
     protected void initialize() {
-        setDisplayName(NbBundle.getBundle(IDLDataLoader.class).
-        getString("PROP_IDLLoader_Name"));
-        setActions(new SystemAction[] {
+    }
+    
+    protected SystemAction[] defaultActions () {
+        return new SystemAction[] {
             SystemAction.get(OpenAction.class),
             SystemAction.get(FileSystemAction.class),
             null,
@@ -115,7 +116,11 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
             null,
             SystemAction.get(ToolsAction.class),
             SystemAction.get(PropertiesAction.class),
-        });
+        };
+    }
+    
+    protected String defaultDisplayName () {
+        return NbBundle.getBundle(IDLDataLoader.class).getString("PROP_IDLLoader_Name");
     }
     
     public ExtensionList getExtensions() {

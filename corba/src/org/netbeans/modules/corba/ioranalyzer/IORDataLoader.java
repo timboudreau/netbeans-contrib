@@ -25,7 +25,6 @@ public class IORDataLoader extends UniFileLoader {
 
     public IORDataLoader () {
         super (IORDataObject.class);
-        this.setDisplayName (NbBundle.getBundle(IORDataLoader.class).getString ("TXT_LoaderName"));
     } 
     
     public FileObject findPrimaryFile (FileObject fo) {
@@ -47,11 +46,8 @@ public class IORDataLoader extends UniFileLoader {
         }
     }
     
-    protected void initialize () {
-        ExtensionList eList = new ExtensionList();
-        eList.addExtension ("ior");
-        this.setExtensions (eList);
-	setActions ( new SystemAction[] {
+    protected SystemAction[] defaultActions () {
+        return new SystemAction[] {
 	    SystemAction.get (OpenAction.class),
 	    SystemAction.get (FileSystemAction.class),
 	    null,
@@ -67,7 +63,17 @@ public class IORDataLoader extends UniFileLoader {
 	    null,
 	    SystemAction.get (ToolsAction.class),
 	    SystemAction.get (PropertiesAction.class)
-	});
+	};
+    }
+    
+    protected String defaultDisplayName () {
+        return NbBundle.getBundle(IORDataLoader.class).getString ("TXT_LoaderName");
+    }
+    
+    protected void initialize () {
+        ExtensionList eList = new ExtensionList();
+        eList.addExtension ("ior");
+        this.setExtensions (eList);
     }
 
 }
