@@ -1864,7 +1864,7 @@ Microsystems, Inc. All Rights Reserved.
 	  </property>
 	  <property name="exec">
             <value>vcs.commands.CvsUnedit.class UNEDIT_TEST UNEDIT_CMD</value>
-	    <value if="IS_WINDOWS">vcs.commands.CvsUnedit.class -i UNEDIT_TEST UNEDIT_CMD</value>
+	    <value if="IS_WINDOWS">vcs.commands.CvsUnedit.class -fi UNEDIT_TEST UNEDIT_CMD</value>
 	  </property>
   	  <property name="inputDescriptor">
 	    <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_UNEDIT_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_UNEDIT_Label)))
@@ -1895,7 +1895,7 @@ Microsystems, Inc. All Rights Reserved.
 	<command name="UNEDIT_CMD">
 	  <property name="exec">
 	    <value>${RUNCDM} echo ${CMD_INPUT} | ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} unedit ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
-	    <value if="IS_WINDOWS">${RUNCDM} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} unedit ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	    <value if="IS_WINDOWS">${RUNCDM} type ${CMD_INPUT_FILE} | ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} unedit ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	  </property>
 	  <property name="data.regex">
 	    <value>$ ^</value>

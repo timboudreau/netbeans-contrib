@@ -13,6 +13,11 @@
 
 package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -71,7 +76,8 @@ public class CvsUnedit extends Object implements VcsAdditionalCommand {
             return false;
         }
         boolean stdInput = "-i".equals(args[0]); // NOI18N
-        if (stdInput) {
+        boolean fileInput = "-fi".equals(args[0]); // NOI18N
+        if (stdInput || fileInput) {
             String[] newArgs = new String[args.length - 1];
             System.arraycopy(args, 1, newArgs, 0, newArgs.length);
             args = newArgs;
@@ -100,13 +106,30 @@ public class CvsUnedit extends Object implements VcsAdditionalCommand {
         ArrayList modifiedFiles = getModifiedFiles(output);
         if (!warnOfModifiedFiles(modifiedFiles)) return true;
         cmd = fileSystem.getCommand(args[1]);
-        if (stdInput) {
+        File inputFile = null;
+        if (fileInput) {
+            try {
+                inputFile = createInputFile(getYes(modifiedFiles.size(), ""));
+                vars.put("CMD_INPUT_FILE", inputFile.getAbsolutePath());
+            } catch (IOException ioex) {
+                org.openide.ErrorManager.getDefault().notify(ioex);
+            }
+        } else if (stdInput) {
             cmd.setProperty(UserCommand.PROPERTY_INPUT, getYes(modifiedFiles.size(), "")); // NOI18N
         } else {
             vars.put("CMD_INPUT", getYes(modifiedFiles.size(), "\\\"")); // NOI18N
         }
         vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
+        try {
+            fileSystem.getCommandsPool().waitToFinish(vce);
+        } catch (InterruptedException iexc) {
+            fileSystem.getCommandsPool().kill(vce);
+            Thread.currentThread().interrupt();
+        }
+        if (inputFile != null) {
+            inputFile.delete();
+        }
         return true;
     }
     
@@ -145,10 +168,26 @@ public class CvsUnedit extends Object implements VcsAdditionalCommand {
         StringBuffer yes = new StringBuffer();
         yes.append(quote);
         while (num-- > 0) {
-            yes.append("y\n");
+            yes.append("y");
+            yes.append(System.getProperty("line.separator"));
         }
         yes.append(quote);
         return yes.toString();
+    }
+    
+    private File createInputFile(String content) throws IOException {
+        File tmp = File.createTempFile("input", "txt");
+        tmp.deleteOnExit();
+        OutputStream in = null;
+        try {
+            in = new BufferedOutputStream(new FileOutputStream(tmp));
+            in.write(content.getBytes());
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+        }
+        return tmp;
     }
     
 }
