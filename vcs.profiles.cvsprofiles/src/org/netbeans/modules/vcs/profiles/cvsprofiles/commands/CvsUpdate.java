@@ -249,6 +249,9 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
                                getFoldersByProcessingFiles(processingFiles),
                                stdoutDataListener);
         }
+        if (vce.getExitStatus() == VcsCommandExecutor.INTERRUPTED) {
+            Thread.currentThread().interrupt(); // Set itself as interrupted when the sub-command was interrupted.
+        }
         return VcsCommandExecutor.SUCCEEDED == vce.getExitStatus();
     }
     
