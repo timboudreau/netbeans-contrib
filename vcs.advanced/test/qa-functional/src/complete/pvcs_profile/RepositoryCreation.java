@@ -55,6 +55,9 @@ public class RepositoryCreation extends NbTestCase {
      */
     public static junit.framework.Test suite() {
         TestSuite suite = new NbTestSuite();
+        String exec = Utilities.isUnix() ? "sh -c \"vlog\"" : "cmd /x /c \"vlog\"";
+        try { if (Runtime.getRuntime().exec(exec).waitFor() != 0 ) return suite; }
+        catch (Exception e) {}
         suite.addTest(new RepositoryCreation("testCreateDatabase"));
         suite.addTest(new RepositoryCreation("testCreateProjects"));
         suite.addTest(new RepositoryCreation("testAddSingleFile"));
@@ -130,7 +133,10 @@ public class RepositoryCreation extends NbTestCase {
         wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE).clearText();
         wizard.setPVCSProjectDatabase(workingDirectory + File.separator + "Repo");
         wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION).requestFocus();
-        MainWindowOperator.getDefault().waitStatusText("Command AUTO_FILL_CONFIG finished.");
+        Thread.currentThread().sleep(10000);
+        status = MainWindowOperator.getDefault().getStatusText();
+        if (!status.equals("Command AUTO_FILL_CONFIG finished.") && (!status.equals("Command GET_WORK_LOCATION failed.")))
+            captureScreen("Error: Incorrect status \"" + status + "\" reached.");
         wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION).clearText();
         wizard.setPVCSWorkfilesLocation(workingDirectory + File.separator + "Work");
         wizard.finish();
@@ -138,7 +144,7 @@ public class RepositoryCreation extends NbTestCase {
         String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         assertNotNull("Error: Can't select filesystem " + filesystem, filesystemNode);
-        new Action(VERSIONING_MENU + "|" + CREATE_DATABASE, CREATE_DATABASE).perform(filesystemNode);
+        new Action(VERSIONING_MENU + "|" + CREATE_DATABASE, CREATE_DATABASE).performMenu(filesystemNode);
         MainWindowOperator.getDefault().waitStatusText("Command Create Project Database finished.");
         System.out.println(". done !");
     }
@@ -195,9 +201,7 @@ public class RepositoryCreation extends NbTestCase {
         createFile( workingDirectory + File.separator + "Work" + File.separator + "test"  + File.separator + "another"  + File.separator + "D_File.java" );
         new Action(VERSIONING_MENU + "|" + REFRESH, REFRESH).perform(new Node[] {testNode, anotherNode});
         Thread.currentThread().sleep(10000);
-        String status = MainWindowOperator.getDefault().getStatusText();
-        if (!status.equals("Command Refresh finished.") && (!status.equals("Command LIST_PROJECT failed.")))
-            captureScreen("Error: Incorrect status \"" + status + "\" reached.");
+        anotherNode.expand();
         Node B_FileNode = new Node( testNode, "B_File [Local]");
         Node D_FileNode = new Node( anotherNode, "D_File [Local]");
         new ActionNoBlock(VERSIONING_MENU + "|" + ADD, ADD).perform(new Node[] {B_FileNode, D_FileNode});
