@@ -15,8 +15,9 @@ package org.netbeans.modules.vcs.advanced;
 import java.beans.*;
 import java.util.ResourceBundle;
 
-import org.openide.util.NbBundle;
 import org.openide.filesystems.*;
+import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.settings.RefreshModePropertyEditor;
@@ -29,14 +30,11 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 //-------------------------------------------
 public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
-    /** Array of property descriptors. */
-    private static PropertyDescriptor[] desc;
-
-    /** Icon for VCS filesystem. */
-    private static java.awt.Image icon;
-    private static java.awt.Image icon32;
-
-    static {
+    /* Descriptor of valid properties
+    * @return array of properties
+    */
+    public PropertyDescriptor[] getPropertyDescriptors () {
+        PropertyDescriptor[] desc;
         PropertyDescriptor rootDirectory=null;
         PropertyDescriptor debug=null;
         PropertyDescriptor variables=null;
@@ -118,7 +116,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                                 ("rememberPassword", CommandLineVcsFileSystem.class, "isRememberPassword", "setRememberPassword"); // NOI18N
             rememberPassword.setExpert(true);
             shortStatuses = new PropertyDescriptor
-                                (CommandLineVcsFileSystem.PROP_SHORT_FILE_STATUSES, CommandLineVcsFileSystem.class, "isShortFileStatuses", "setShortFileStatuses");
+                                (CommandLineVcsFileSystem.PROP_SHORT_FILE_STATUSES, CommandLineVcsFileSystem.class, "isShortFileStatuses", "setShortFileStatuses"); // NOI18N
 
 
             desc = new PropertyDescriptor[] {
@@ -174,35 +172,26 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             shortStatuses.setShortDescription (bundle.getString("HINT_shortFileStatuses"));
 
         } catch (IntrospectionException ex) {
-            ex.printStackTrace ();
+            org.openide.TopManager.getDefault().notifyException(ex);
+            desc = null;
         }
+        return desc;
     }
 
     /* Provides the VCSFileSystem's icon */
     public java.awt.Image getIcon(int type) {
-        if (icon == null) {
-            icon = loadImage("/org/netbeans/modules/vcs/advanced/vcsGeneric.gif"); // NOI18N
-            icon32 = icon;
+        switch (type) {
+            case ICON_COLOR_16x16:
+                return Utilities.loadImage("/org/netbeans/modules/vcs/advanced/vcsGeneric.gif"); // NOI18N
         }
-        if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16))
-            return icon;
-        else
-            return icon32;
+        return null;
     }
-
-    /* Descriptor of valid properties
-    * @return array of properties
-    */
-    public PropertyDescriptor[] getPropertyDescriptors () {
-        return desc;
-    }
-
 
     public BeanDescriptor getBeanDescriptor() {
         BeanDescriptor bd = new BeanDescriptor(CommandLineVcsFileSystem.class,
                                                org.netbeans.modules.vcs.advanced.VcsCustomizer.class);
         bd.setValue(VcsFileSystem.VCS_PROVIDER_ATTRIBUTE, new Boolean(true));
-        bd.setValue(VcsFileSystem.VCS_FILESYSTEM_ICON_BASE, "/org/netbeans/modules/vcs/advanced/vcsGeneric");
+        bd.setValue(VcsFileSystem.VCS_FILESYSTEM_ICON_BASE, "/org/netbeans/modules/vcs/advanced/vcsGeneric"); // NOI18N
         
         return bd;
     }
