@@ -45,6 +45,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     /** A special list of children. If <code>null</code>, File.list() is used
      * instead. */
     private AbstractFileSystem.List childrenList = null;
+    private boolean resultRelativePaths;
     
     private boolean mouseEnter = false;
     
@@ -54,6 +55,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     
     public RelativeMountPanel(String label, char labelMnc, String moduleLabel, char moduleMnc) {
         initComponents ();
+        resultRelativePaths = true;
         if (label != null) {
             lbRmpSelect.setText(label);
         }
@@ -352,19 +354,17 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
 
     private void createTree(String rootString) {
         File rootDir = new File(rootString);
-        setTreeModel(new DefaultTreeModel(new MyTreeNode(rootDir)));
-        if (rootDir.isDirectory()) {
-            final MyTreeNode root = new MyTreeNode(rootDir);
-            Runnable treeBuild = new Runnable() {
-                public void run() {
-                    //recursiveTreeNodes(root);
-                    folderTreeNodes(root);
-                }
-            };
-            //new Thread(treeBuild, "Mount Panel Tree Build").start();
-            RequestProcessor.postRequest(treeBuild);
-            trRelMount.setModel(new DefaultTreeModel(root));
-        }
+        final MyTreeNode root = new MyTreeNode(rootString);
+        setTreeModel(new DefaultTreeModel(root));
+        Runnable treeBuild = new Runnable() {
+            public void run() {
+                //recursiveTreeNodes(root);
+                folderTreeNodes(root);
+            }
+        };
+        //new Thread(treeBuild, "Mount Panel Tree Build").start();
+        RequestProcessor.postRequest(treeBuild);
+        trRelMount.setModel(new DefaultTreeModel(root));
         trRelMount.setCellRenderer(new MyTreeCellRenderer());
     }
     
@@ -383,31 +383,37 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
             } catch (java.lang.reflect.InvocationTargetException itexc) {
                 // Ignored
             }
-            File parentFile = (File) parent.getUserObject(); 
-            File childFile;
-            File[] list;
+            String parentFileStr = (String) parent.getUserObject(); 
+            //File childFile;
+            String[] list;
             if (childrenList == null) {
-                list = parentFile.listFiles();
+                File parentFile = new File(parentFileStr);
+                list = parentFile.list(new FilenameFilter() {
+                    public boolean accept(File dir, String name) {
+                        if ("CVS".equals(name)) return false;
+                        File file = new File(dir, name);
+                        return file.isDirectory() && file.exists();
+                    }
+                });
             } else {
-                String[] childrenL = childrenList.children(parentFile.getAbsolutePath());
+                list = childrenList.children(parentFileStr);
+                /*
+                String[] childrenL = childrenList.children(parentFileStr);
                 list = new File[childrenL.length];
                 for (int i = 0; i < childrenL.length; i++) {
                     list[i] = new File(parentFile, childrenL[i]);
                 }
+                 */
             }
+            String separator = (childrenList == null) ? File.separator : "/";
+            if (!parentFileStr.endsWith(separator)) parentFileStr = parentFileStr + separator;
             if (list != null) {
                 Arrays.sort(list);
                 for (int index = 0; index < list.length; index++) {
-                    if (childrenList != null || list[index].isDirectory() && list[index].exists()) {
-                        childFile = list[index];
-                        if (childrenList != null || !childFile.getName().equals("CVS")) { //CVS dirs go out..
-                            //hasChild = true;
-                            MyTreeNode child = new MyTreeNode(new File(childFile.getAbsolutePath()));
-                            child.setAllowsChildren(true);
-                            children.add(child);
-                            //parent.add(child);
-                        }
-                    }
+                    String filePath = parentFileStr + list[index];
+                    MyTreeNode child = new MyTreeNode(filePath);
+                    child.setAllowsChildren(true);
+                    children.add(child);
                 }
             }
             SwingUtilities.invokeLater (new Runnable() {
@@ -463,21 +469,25 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
             selectedMounts = new String[paths.length];
             for (int i = 0; i < paths.length; i++) {
                 MyTreeNode node = (MyTreeNode) paths[i].getLastPathComponent();
-                File selFile = (File) node.getUserObject();
-                MyTreeNode rootNode = (MyTreeNode) node.getRoot();
-                File rootFile = (File) rootNode.getUserObject();
-                if (rootFile.getAbsolutePath().equals(selFile.getAbsolutePath())) {
-                    selectedMounts[i] = "";
-                    continue;
-                    //txRelMount.setText("");
-                    //return;
+                String selFile = (String) node.getUserObject();
+                if (resultRelativePaths) {
+                    MyTreeNode rootNode = (MyTreeNode) node.getRoot();
+                    String rootFile = (String) rootNode.getUserObject();
+                    if (rootFile.equals(selFile)) {
+                        selectedMounts[i] = "";
+                        continue;
+                        //txRelMount.setText("");
+                        //return;
+                    }
+                    String toWrite = selFile.substring(rootFile.length());
+                    if (toWrite.startsWith(File.separator)) {
+                        toWrite = toWrite.substring(File.separator.length());
+                    }
+                    selectedMounts[i] = toWrite;
+                    //txRelMount.setText(toWrite);
+                } else {
+                    selectedMounts[i] = selFile;
                 }
-                String toWrite = selFile.getAbsolutePath().substring(rootFile.getAbsolutePath().length());
-                if (toWrite.startsWith(File.separator)) {
-                    toWrite = toWrite.substring(File.separator.length());
-                }
-                selectedMounts[i] = toWrite;
-                //txRelMount.setText(toWrite);
             }
             setRelMountText();
         } else {
@@ -533,6 +543,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                          AbstractFileSystem.List childrenList) {
         this.initiallyExpanding = true;
         this.childrenList = childrenList;
+        resultRelativePaths = childrenList == null;
         createTree(rootDir);
         //trRelMount.setSelectionModel(new MySelectionModel()); // because of not allowing to select local dirs
         if (multipleSelections) {
@@ -563,7 +574,6 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
             MyTreeNode parent = (MyTreeNode) trRelMount.getModel().getRoot();
             TreePath path = new TreePath(parent);
             MyTreeNode child;
-            File childFile;
             String directoryName;
             outerWhile:
                 while (token.hasMoreTokens()) {
@@ -587,8 +597,12 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                         child = (MyTreeNode) parent.getFirstChild();
                         do {
                             if (child == null) break;
-                            childFile = (File) child.getUserObject();
-                            if (childFile.getName().equals(directoryName)) {
+                            String childFile = (String) child.getUserObject();
+                            childFile = childFile.replace(File.separatorChar, '/');
+                            int nameIndex = childFile.lastIndexOf('/');
+                            if (nameIndex < 0) nameIndex = 0;
+                            else nameIndex++;
+                            if (childFile.substring(nameIndex).equals(directoryName)) {
                                 parent = child;
                                 path = path.pathByAddingChild(child);
                                 continue outerWhile;
@@ -718,10 +732,13 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                 JLabel label = (JLabel) comp;
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
                 if (node != null) {
-                    Object userObj = node.getUserObject();
-                    if (userObj != null) {
-                        File file = (File) userObj;
-                        label.setText(file.getName());
+                    String file = (String) node.getUserObject();
+                    if (file != null) {
+                        file = file.replace(File.separatorChar, '/');
+                        int nameIndex = file.lastIndexOf('/');
+                        if (nameIndex < 0) nameIndex = 0;
+                        else nameIndex++;
+                        label.setText(file.substring(nameIndex));
                     }
                 }
                 if (!expanded) {
