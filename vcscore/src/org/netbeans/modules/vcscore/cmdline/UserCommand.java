@@ -509,10 +509,14 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     /**
      * Set the additional property to the command.
      * @param propertyName the name of the property
-     * @param value the value of the property
+     * @param value the value of the property. The <code>null</code> value should unset the property
      */
     public synchronized void setProperty(String propertyName, Object value) {
-        properties.put(propertyName, value);
+        if (value == null) {
+            properties.remove(propertyName);
+        } else {
+            properties.put(propertyName, value);
+        }
     }
 
     /**
