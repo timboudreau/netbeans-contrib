@@ -267,7 +267,9 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     /** Spawn the refresh task. */
     void spawnRefresh(VcsFileSystem fileSystem) {
         if (Turbo.implemented()) {
+            if (spawnRefreshFile == null) return;
             FileObject fo = FileUtil.toFileObject(spawnRefreshFile);
+            if (fo == null) return; // request for non existing 'test' probe file
             if (spawnRefreshRecursively) {
                 TurboUtil.refreshRecursively(fo);
             } else {

@@ -24,7 +24,9 @@ public interface TurboListener extends EventListener {
 
     /**
      * Called after {@link Turbo#setMeta} invocation to notify
-     * external observers.
+     * external observers. It guaranteed that status information
+     * is available for fast in-memory layer retrieval. It
+     * also comes with the event.
      */
     void turboChanged(TurboEvent e);
 

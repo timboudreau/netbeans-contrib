@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore.turbo;
 import org.netbeans.modules.vcscore.registry.FSRegistry;
 import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.api.vcs.FileStatusInfo;
 import org.openide.filesystems.FileUtil;
 
 import java.io.File;
@@ -42,7 +43,7 @@ final class Profiles {
             String root = FileUtil.toFile(fs.getRoot()).getAbsolutePath();
             String path = file.getAbsolutePath().substring(root.length());
             File ret = fs.getCacheFileName(file, path);
-           // TODO check that it does not return null for FS root subdirs
+            // TODO check that it does not return null for FS root subdirs
             // it caused a lot of  problems in original implementation (such entries must be held locked in-memory)
             assert path.length() > 0 || ret != null;
             return ret;
@@ -66,6 +67,14 @@ final class Profiles {
                 return (VcsFileSystem) info.getFileSystem();  // assuming here that VCSFSs cannot overlap
             }
         }
+        return null;
+    }
+
+    /**
+     * Translates VCS specific statuc to abstract one.
+     */
+    public static FileStatusInfo toStatusInfo(File file, FileProperties fprops) {
+        // TODO implement
         return null;
     }
 

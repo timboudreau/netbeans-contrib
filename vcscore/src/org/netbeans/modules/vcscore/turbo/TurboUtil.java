@@ -31,6 +31,9 @@ import java.util.*;
  */
 public final class TurboUtil {
 
+    // TODO what status to set here, we want to say that it's not local
+    private static final String STATUS_VERSIONED_FOLDER = "";
+
     public static FileObject[] listFolders(FileObject fileObject) {
         FileObject fo[] = fileObject.getChildren();
         List ret = new ArrayList(fo.length);
@@ -88,33 +91,56 @@ public final class TurboUtil {
 //            String elemName = RefreshCommandSupport.getFileName(elements);
 //        }
 
-        // path is folder relative to FS root then raw data contains children
-        FileObject folder = fileSystem.findResource(path);    // "" denotes root
-        assert folder.isFolder();
+        if (success == false) return;
 
-        // TODO set [local] and [ignored] statuses overhere
-        FileObject[] localCandidates = folder.getChildren();
-        Iterator it = rawData.iterator();
-        while (it.hasNext()) {
-            String[] next = (String[]) it.next();
+        // path is folder relative to FS root then raw data contains children
+        FileObject fileObject = fileSystem.findResource(path);    // "" denotes root
+        FileProperties fprops;
+
+        if (fileObject.isFolder()) {
+
+            // TODO can I mark here folder as versioned?
+            fprops = new FileProperties(fileObject.getNameExt());
+            fprops.setStatus(STATUS_VERSIONED_FOLDER);
+            Turbo.setMeta(fileObject, fprops);
+
+            // TODO set [local] and [ignored] statuses overhere
+            FileObject[] localCandidates = fileObject.getChildren();
+            Iterator it = rawData.iterator();
+            while (it.hasNext()) {
+                String[] next = (String[]) it.next();
+                String fileName = next[StatusFormat.ELEMENT_INDEX_FILE_NAME]; // contains trailing '/' (or pathSeparator?) for dirs
+                String status = next[StatusFormat.ELEMENT_INDEX_STATUS];
+                String revision = next[StatusFormat.ELEMENT_INDEX_REVISION];
+
+                FileObject fo = fileObject.getFileObject(fileName);
+
+                if (fo.isData()) {
+                    fprops = new FileProperties();
+                    fprops.setName(fileName);
+                    fprops.setStatus(status);
+                    fprops.setRevision(revision);
+                    Turbo.setMeta(fo, fprops);
+                } else {
+                    fprops = new FileProperties();
+                    fprops.setName(fileName);
+                    fprops.setStatus(status == null ? STATUS_VERSIONED_FOLDER : status);
+                    Turbo.setMeta(fo, fprops);
+                }
+            }
+
+        } else {  // data
+
+            String[] next = (String[]) rawData.iterator().next();
             String fileName = next[StatusFormat.ELEMENT_INDEX_FILE_NAME]; // contains trailing '/' (or pathSeparator?) for dirs
             String status = next[StatusFormat.ELEMENT_INDEX_STATUS];
             String revision = next[StatusFormat.ELEMENT_INDEX_REVISION];
 
-            FileObject fo = folder.getFileObject(fileName);
-
-            if (fo.isData()) {
-                FileProperties fprops = new FileProperties();
-                fprops.setName(fileName);
-                fprops.setStatus(status);
-                fprops.setRevision(revision);
-                Turbo.setMeta(fo, fprops);
-            } else {
-                FileProperties fprops = new FileProperties();
-                fprops.setName(fileName);
-                fprops.setStatus(status);  // TODO what status to set here, we want to say that it's not local
-                Turbo.setMeta(fo, fprops);
-            }
+            fprops = new FileProperties();
+            fprops.setName(fileName);
+            fprops.setStatus(status);
+            fprops.setRevision(revision);
+            Turbo.setMeta(fileObject, fprops);
         }
     }
 

@@ -31,13 +31,17 @@ public final class Turbo {
 
     private static final Turbo SINGLETON = new Turbo();
 
+    private static volatile boolean justFiring = false;
+
     private Turbo() {
     }
 
     /**
-     * Request last known status. It can contact repository if
-     * not cached. In such case it can block forever. Hence it must
-     * not be called from AWT.
+     * Request last known status. If called from AWT it
+     * tries to locate data in memory layer. If it does
+     * not find any it returns null and schedules background
+     * meta retrieval. If called from other threads
+     * it tries disk and possibly repository layer too.
      *
      * @return status or <code>null</code> for unknown
      */
@@ -45,11 +49,18 @@ public final class Turbo {
 
         if (fileObject == null) return null;
 
-        FileProperties fprops = getCachedMeta(fileObject);
-        if (fprops != null) {
-            return fprops;
+        if (SwingUtilities.isEventDispatchThread()) {
+            FileProperties fprops = Memory.get(fileObject);
+            if (fprops != null) return fprops;
+            prepareMeta(fileObject);
+            return null;
         } else {
-            return getRepositoryMeta(fileObject);
+            FileProperties fprops = getCachedMeta(fileObject);
+            if (fprops != null) {
+                return fprops;
+            } else {
+                return getRepositoryMeta(fileObject);
+            }
         }
     }
 
@@ -67,8 +78,20 @@ public final class Turbo {
         if (fileObject == null) return null;
 
         FileProperties fprops = Repository.get(fileObject);
-        setMeta(fileObject, fprops);
+        // do not invalidate cached data if repository returns null due to command failure
+        if (fprops != null) setMeta(fileObject, fprops);
         return fprops;
+    }
+
+    /**
+     * Instruct system to load data from slow layers. Data are actualy delivered
+     * sometimes in future. It's possible to attach a listener to get notified.
+     *
+     * @param fileObject
+     */
+    public static void prepareMeta(FileObject fileObject) {
+        if (fileObject == null) return;
+        Disk.prepareMeta(fileObject);
     }
 
     /**
@@ -96,19 +119,14 @@ public final class Turbo {
 
     /**
      * Populate cache by given attributes. Makes them immutable.
+     * @param status new status or <code<null</code> for invalidating
      */
     public static void setMeta(FileObject fileObject, FileProperties status) {
-        status.freeze();
+        assert justFiring == false;
+        if (fileObject == null) return;
+        if (status != null) status.freeze();
         Memory.put(fileObject, status);
         Disk.put(fileObject, status);
-
-        // notify listeners
-        if (listeners.length > 0) {
-            TurboEvent e = new TurboEvent(fileObject, status);
-            for (int i=0; i<listeners.length; i++) {
-                listeners[i].turboChanged(e);
-            }
-        }
     }
 
     /**
@@ -118,26 +136,41 @@ public final class Turbo {
      * @param file
      */
     public static void setMeta(File file, FileProperties status) {
+        assert justFiring == false;
         status.freeze();
         FileObject fo = Memory.getLiveFileObject(file);
         if (fo != null) {
             setMeta(fo, status);
         } else {
-            Memory.put(file, status);
+            Memory.putDeadFile(file, status);
             Disk.put(file, status);
         }
     }
 
     public void addTurboListener(TurboListener l) {
-        List clone = Arrays.asList(listeners);
+        List clone = new ArrayList(Arrays.asList(listeners));
         clone.add(l);
         listeners = (TurboListener[]) clone.toArray(new TurboListener[clone.size()]);
     }
 
     public void removeTurboListener(TurboListener l) {
-        List clone = Arrays.asList(listeners);
+        List clone = new ArrayList(Arrays.asList(listeners));
         clone.remove(l);
         listeners = (TurboListener[]) clone.toArray(new TurboListener[clone.size()]);
+    }
+
+    static void fireTurboEvent(FileObject fileObject, FileProperties status) {
+        try {
+            justFiring = true;
+            if (listeners.length > 0) {
+                TurboEvent e = new TurboEvent(fileObject, status);
+                for (int i=0; i<listeners.length; i++) {
+                    listeners[i].turboChanged(e);
+                }
+            }
+        } finally {
+            justFiring = false;
+        }
     }
 
     /**
@@ -166,7 +199,7 @@ public final class Turbo {
     }
 
     /**
-     * You do not need this until you need add listeners. There are static
+     * You do not need this until you need add event listeners. There are static
      * methods for all other oprations. Listeners must be added on default
      * instance in order to support WeakListeners. WeakListeners
      * are crucial here as Turbo's lifetime (it's static) exceeds
@@ -175,4 +208,5 @@ public final class Turbo {
     public static Turbo singleton() {
         return SINGLETON;
     }
+
 }

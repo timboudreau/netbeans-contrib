@@ -1485,9 +1485,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         displayName = computeDisplayName();
         localFilenameFilter = new LocalFilenameFilter();
         if (tempFiles == null) tempFiles = new Vector();
-        //cache = new VcsFSCache(this/*, createNewCacheDir ()*/);
-        cache = getVcsFactory().getFileCacheProvider();
-        statusProvider = getVcsFactory().getFileStatusProvider();
+        if (Turbo.implemented() == false) {
+            cache = getVcsFactory().getFileCacheProvider();
+            statusProvider = getVcsFactory().getFileStatusProvider();
+        }
         if (commandsProvider == null) {
             commandsProvider = new DefaultVcsCommandsProvider(new CommandsTree(null));
         }
@@ -1587,7 +1588,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void activate(VcsObjectIntegritySupport objectIntegritySupport) {
         if (Turbo.implemented()) {
             // TODO revisit possible side effects of old implementaion
-            //objectIntegritySupport.activate(this, fsCache, getFile("").getAbsolutePath(), this);
+            objectIntegritySupport.activate(this, null, getFile("").getAbsolutePath(), this);
             return;
         }
 
@@ -2270,7 +2271,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Object[] oo = files.toArray();
         int len = oo.length;
         if (len == 0) return new String[0];
-        if (statusProvider != null) {
+        if (statusProvider == null && Turbo.implemented() == false) {
+            return new String[0];
+        } else {            
             for (int i = 0; i < len; i++) {
                 oo[i] = convertForeignFileObjectToMyFileObject((FileObject) oo[i]);
             }
@@ -2286,7 +2289,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
                 return states;
             }
-        } else return new String[0];
+        }
     }
 
     /** Get the "real" status of a file. If necessary wait for the status to be
@@ -2502,18 +2505,33 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return result;
         }
 
-        if (statusProvider != null) {
+        if (Turbo.implemented()) {
             ArrayList importantFiles = getImportantFiles(files.toArray());
             len = importantFiles.size();
-            //if (print) System.out.println(" length of important = "+len);
             if (len == 1) {
                 String fullName = (String) importantFiles.get(0);
-                //System.out.println(" fullName = "+fullName);
-                result = RefreshCommandSupport.getHtmlStatusAnnotation(name, fullName, annotationPattern, statusProvider, null);
+                FileObject fo = findResource(fullName);
+                result = StatusFormat.getHtmlStatusAnnotation(fo, annotationPattern);
             } else {
-                //importantFiles = VcsUtilities.reorderFileObjects(importantFiles); -  not needed after DataObject.files() return files in the right order
-                //if (print) System.out.println(" importantFiles = "+VcsUtilities.arrayToString((String[]) importantFiles.toArray(new String[0])));
-                result = RefreshCommandSupport.getHtmlStatusAnnotation(name, importantFiles, annotationPattern, statusProvider, multiFilesAnnotationTypes);
+                assert false;  // TODO implement status annotation for multiple file requests
+            }
+
+        } else {
+
+            // original implementation
+            if (statusProvider != null) {
+                ArrayList importantFiles = getImportantFiles(files.toArray());
+                len = importantFiles.size();
+                //if (print) System.out.println(" length of important = "+len);
+                if (len == 1) {
+                    String fullName = (String) importantFiles.get(0);
+                    //System.out.println(" fullName = "+fullName);
+                    result = RefreshCommandSupport.getHtmlStatusAnnotation(name, fullName, annotationPattern, statusProvider, null);
+                } else {
+                    //importantFiles = VcsUtilities.reorderFileObjects(importantFiles); -  not needed after DataObject.files() return files in the right order
+                    //if (print) System.out.println(" importantFiles = "+VcsUtilities.arrayToString((String[]) importantFiles.toArray(new String[0])));
+                    result = RefreshCommandSupport.getHtmlStatusAnnotation(name, importantFiles, annotationPattern, statusProvider, multiFilesAnnotationTypes);
+                }
             }
         }
         //String result = annotateName (name, files);
@@ -2557,6 +2575,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return result;
         }
 
+        if (Turbo.implemented()) {
+            ArrayList importantFiles = getImportantFiles(files.toArray());
+            len = importantFiles.size();
+            if (len == 1) {
+                String fullName = (String) importantFiles.get(0);
+                FileObject fo = findResource(fullName);
+                return StatusFormat.getStatusAnnotation(fo, annotationPattern);
+            } else {
+                assert false; // TODO implement multiple files annotations
+            }
+
+            return result;
+        }
+
+        // original implementation
         if (statusProvider != null) {
             ArrayList importantFiles = getImportantFiles(files.toArray());
             len = importantFiles.size();
@@ -2654,6 +2687,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Hashtable vars = getVariablesAsHashtable();
         String displayNameAnnotation = (String) vars.get(VAR_FS_DISPLAY_NAME_ANNOTATION);
         if (displayNameAnnotation != null) {
+            if (Turbo.implemented()) {
+                displayNameAnnotation = StatusFormat.getStatusAnnotation(getRoot(), displayNameAnnotation, vars);
+                return displayNameAnnotation;
+            }
+
+            // original implementation
             if (statusProvider != null) {
                 displayNameAnnotation = RefreshCommandSupport.getStatusAnnotation("", "", displayNameAnnotation, statusProvider, vars);
             } else {
@@ -2786,9 +2825,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             //HACK
       //      this.cache.refreshDir(this.getRelativeMountPoint());
 
-            if (cache != null) {
-                cache.setFSRoot(r.getAbsolutePath());
-                cache.setRelativeMountPoint(module);
+            if (Turbo.implemented() == false) {
+                if (cache != null) {
+                    cache.setFSRoot(r.getAbsolutePath());
+                    cache.setRelativeMountPoint(module);
+                }
             }
             // When we change the root, we have to create new attributes,
             // that are with respect to the new root.
@@ -2858,6 +2899,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Hashtable vars = getVariablesAsHashtable();
         String systemNameAnnotation = (String) vars.get(VAR_FS_SYSTEM_NAME_ANNOTATION);
         if (systemNameAnnotation != null) {
+            if (Turbo.implemented()) {
+                systemNameAnnotation = StatusFormat.getStatusAnnotation(getRoot(), systemNameAnnotation, vars);
+                return systemNameAnnotation;
+            }
+
+            // original implementation
             if (statusProvider != null) {
                 systemNameAnnotation = RefreshCommandSupport.getStatusAnnotation("", "", systemNameAnnotation, statusProvider, vars);
             } else {
@@ -2990,6 +3037,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     String[] addLocalFiles(String name, String[] cachedFiles, Map removedFilesScheduledForRemove) {
+
+        assert Turbo.implemented() == false;
+
         String[] files = getLocalFiles(name);
         String[] mergedFiles;
         if (files == null || files.length == 0) {
@@ -3012,6 +3062,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     private void markAsMissingFiles(String name, String[] local, String[] cached) {
+
+        assert Turbo.implemented() == false;
+
         java.util.List locals = Arrays.asList(local);
         //if (name.length() > 0) name += "/";
         ArrayList files = new ArrayList();
@@ -3414,6 +3467,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (!b) {
             throw new IOException(MessageFormat.format (g("EXC_CannotCreateF"), errorParams)); // NOI18N
         }
+
+        if (Turbo.implemented()) {
+            // the call does not come from repository, it's local file creation
+            FileProperties fprops = new FileProperties(f.getName());
+            Turbo.setMeta(f, fprops);
+            return;
+        }
+
+        // original implementation
         if (cache != null) cache.addFolder(name);
     }
 
@@ -3452,8 +3514,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
          */
 
         if (Turbo.implemented()) {
-            // TODO here we need to set status of fileobjct that does not exist yet
-            // add Turbo.setMeta(absolutePath, fileprops)
+            FileProperties fprops = new FileProperties(f.getName());
+            Turbo.setMeta(f, fprops);
             return;
         }
 
@@ -3675,8 +3737,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         File file = getFile(name);
         if (!file.exists()) {
             if (Turbo.implemented()) {
-                // TODO file does not exist what is thi smodification time?
-                return new Date();
+                // XXX file does not exist what is its modification time? Who cares, return a contant.
+                return new Date(0);
             }
 
             // the old implementation
@@ -3709,6 +3771,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public boolean folder (String name) {
         boolean isFolder;
+
+        if (Turbo.implemented()) {
+            // TODO the orig implementation guessed it for virtual files, here we guess false in such case
+            return getFile (name).isDirectory ();
+        }
+
+        // original implementation
         if (cache != null) {
             isFolder = cache.isDir(name);
             if (!isFolder && !cache.isFile(name)) {
@@ -4044,11 +4113,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      *
      * @param name name of the file
      */
-    public void lock (String name_) throws IOException {
-        //System.out.println("lock("+name_+")");
-        if (!isImportant(name_)) return; // ignore locking of unimportant files
-        checkModificationLock(name_);
-        final String name = name_;
+    public void lock (final String name) throws IOException {
+        //System.out.println("lock("+name+")");
+        if (!isImportant(name)) return; // ignore locking of unimportant files
+        checkModificationLock(name);
         //final VcsFileSystem current = this;
         final File file = getFile (name);
         final String filePath = file.getAbsolutePath().intern();
@@ -4060,7 +4128,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
             if (Turbo.implemented()) {
                 if (!file.canWrite ()) {
-                    FileObject fo = findResource(name_);
+                    FileObject fo = findResource(name);
                     FileProperties fprops = Turbo.getCachedMeta(fo);
                     if (fprops != null && !fprops.isLocal () && !name.endsWith (".orig")) { // NOI18N
                         if (isPromptForEditOn()) {
@@ -4091,18 +4159,38 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         if (isLockFilesOn()) {
-            VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
-            // *.orig is a temporary file created by AbstractFileObject
-            // on saving every file to enable undo if saving fails
-            if (shouldLock(name) && vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
-                if (isPromptForLockOn ()) {
-                    VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
-                    String message;
-                    if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
-                    else message = g("MSG_LockFileCh");
-                    throw new FileLockUserQuestionException(message, "LOCK", name, filePath, lockCommandExecutors);
-                } else {
-                    runFileLockCommand("LOCK", name, filePath, lockCommandExecutors);
+            if (Turbo.implemented()) {
+                FileObject fo = findResource(name);
+                FileProperties fprops = Turbo.getCachedMeta(fo);
+                boolean local = fprops != null ? fprops.isLocal() : false;
+                // *.orig is a temporary file created by AbstractFileObject
+                // on saving every file to enable undo if saving fails
+                if (shouldLock(name) && (local==false) && !name.endsWith (".orig")) { // NOI18N
+                    if (isPromptForLockOn ()) {
+                        VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
+                        String message;
+                        if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
+                        else message = g("MSG_LockFileCh");
+                        throw new FileLockUserQuestionException(message, "LOCK", name, filePath, lockCommandExecutors);
+                    } else {
+                        runFileLockCommand("LOCK", name, filePath, lockCommandExecutors);
+                    }
+                }
+            } else {
+                // original implementation
+                VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
+                // *.orig is a temporary file created by AbstractFileObject
+                // on saving every file to enable undo if saving fails
+                if (shouldLock(name) && vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
+                    if (isPromptForLockOn ()) {
+                        VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
+                        String message;
+                        if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
+                        else message = g("MSG_LockFileCh");
+                        throw new FileLockUserQuestionException(message, "LOCK", name, filePath, lockCommandExecutors);
+                    } else {
+                        runFileLockCommand("LOCK", name, filePath, lockCommandExecutors);
+                    }
                 }
             }
         }

@@ -425,35 +425,38 @@ class FolderNode extends AbstractNode implements Node.Cookie {
     private class VCSFileStatusListener implements FileStatusListener {
         public void annotationChanged(FileStatusEvent ev) {
             if (ev.hasChanged(file)) {
-                FileStatusProvider statusProvider = getFileStatusProvider();
-                if (statusProvider == null) return;
                 String name = file.getPath();
                 String newState;
-                if (Turbo.implemented()) {
-                    FileProperties fprops = Turbo.getMeta(file);
-                    newState = FileProperties.getStatus(fprops);
-                } else {
-                    newState = statusProvider.getFileStatus(name);
-                }
                 String oldState;
+                FileStatusProvider statusProvider = null;
+                FileProperties fprops = null;
+
+                if (Turbo.implemented()) {
+                    fprops = Turbo.getMeta(file);
+                } else {
+                    statusProvider = getFileStatusProvider();
+                    if (statusProvider == null) return;
+                }
+
+                newState = Turbo.implemented() ? FileProperties.getStatus(fprops) : statusProvider.getFileStatus(name);
                 if (status == null && newState != null || status != null && !status.equals(newState)) {
                     oldState = status;
                     status = newState;
                     firePropertyChange(PROP_STATUS, oldState, newState);
                 }
-                newState = statusProvider.getFileLocker(name);
+                newState = Turbo.implemented() ? fprops.getLocker() : statusProvider.getFileLocker(name);
                 if (locker == null && newState != null || locker != null && !locker.equals(newState)) {
                     oldState = locker;
                     locker = newState;
                     firePropertyChange(PROP_LOCKER, oldState, newState);
                 }
-                newState = statusProvider.getFileRevision(name);
+                newState = Turbo.implemented() ? fprops.getRevision() : statusProvider.getFileRevision(name);
                 if (revision == null && newState != null || revision != null && !revision.equals(newState)) {
                     oldState = revision;
                     revision = newState;
                     firePropertyChange(PROP_REVISION, oldState, newState);
                 }
-                newState = statusProvider.getFileSticky(name);
+                newState = Turbo.implemented() ? fprops.getSticky() : statusProvider.getFileSticky(name);
                 if (sticky == null && newState != null || sticky != null && !sticky.equals(newState)) {
                     oldState = sticky;
                     sticky = newState;

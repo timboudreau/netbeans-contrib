@@ -68,6 +68,16 @@ public final class FileProperties {
         ignoreList = fprops.ignoreList;
     }
 
+    /**
+     * Creates file properties with LOCAL status for given file.
+     * @param name name of file (without path)
+     */
+    public FileProperties(String name) {
+        this.name = name;
+        status = Statuses.getLocalStatus();
+        retrieval = System.currentTimeMillis();
+    }
+
     /** Constructs from StatusFormatElements. */
     FileProperties(String[] elements) {
         status = elements[StatusFormat.ELEMENT_INDEX_STATUS];
@@ -85,6 +95,10 @@ public final class FileProperties {
         ignoreList = list;
     }
 
+    /**
+     * Status as provided by VCS repository or LOCAL or UNKNOWN assidned by cache.
+     * It's not abstract repository neutral status as defined by FileStatusInfo. 
+     */
     public String getStatus() {
         return status;
     }
@@ -165,6 +179,10 @@ public final class FileProperties {
         return size;
     }
 
+    public String getSizeAsString() {
+        return "" + size;
+    }
+
     public void setSize(int size) {
         assert canUpdate;
         this.size = size;
@@ -224,5 +242,6 @@ public final class FileProperties {
 
         return elements;
     }
+
 }
 

@@ -183,10 +183,16 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                                       String fsRootPath,
                                       FileObjectExistence foExistence) {
 
-        assert Turbo.implemented() == false;
+        if (Turbo.implemented()) {
+            // TODO are we able to do the same tricks using TurboListener?
+        } else {
+            // original implementation
+            this.cache = cache;
+            cacheHandlerListaner = (CacheHandlerListener) WeakListener.create(CacheHandlerListener.class, this, cache);
+            cache.addCacheHandlerListener(cacheHandlerListaner);
+        }
 
         this.fileSystem = fileSystem;
-        this.cache = cache;
         this.fsRootPath = fsRootPath;
         this.foExistence = foExistence;
         this.objectsToAnalyze = new HashSet();
@@ -196,8 +202,6 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         DataLoaderPool pool = (DataLoaderPool) Lookup.getDefault().lookup(DataLoaderPool.class);
         operationListener = (OperationListener) WeakListener.create(OperationListener.class, this, pool);
         pool.addOperationListener(operationListener);
-        cacheHandlerListaner = (CacheHandlerListener) WeakListener.create(CacheHandlerListener.class, this, cache);
-        cache.addCacheHandlerListener(cacheHandlerListaner);
         propertyChangeSupport = new PropertyChangeSupport(this);
         doFileChangeListener = new DOFileChangeListener();
         this.activated = true;
@@ -214,7 +218,9 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 pool.removeOperationListener(operationListener);
             }
             if (cacheHandlerListaner != null) {
-                cache.removeCacheHandlerListener(cacheHandlerListaner);
+                if (Turbo.implemented() == false) {
+                    cache.removeCacheHandlerListener(cacheHandlerListaner);
+                }
             }
         }
         // We must allow that the analyzar task can fire property changes,
@@ -423,6 +429,8 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     /**
      * Get the created DataObject from the queue, analyze their files and
      * add the file names into the integrity list if necessary.
+     * <p>
+     * Invoked from analyzer request processor
      */
     public void run() {
 

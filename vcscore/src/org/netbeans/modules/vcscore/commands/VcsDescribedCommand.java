@@ -98,6 +98,9 @@ public interface VcsDescribedCommand extends Command, TextOutputCommand,
      * Sometimes the FileObject can not be found for a desired file. In this
      * case this method should be used to specify directly the disk files to act on.
      * The command is expected to act on the union of all set FileObjects and java.io.Files.
+     * <p>
+     * Some commands require here directories only! TODO assert it rather then leaving
+     * them fail for misterious reasons. Typicaly OS 'cd file.txt;' failure.
      * @param files The array of files to act on.
      */
     public void setDiskFiles(File[] files);
