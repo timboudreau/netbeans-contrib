@@ -47,11 +47,13 @@ import org.netbeans.api.vcs.commands.MessagingCommand;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.VcsFSCommandsAction;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileSystem;
 import org.openide.util.NbBundle;
 import org.openide.util.SharedClassObject;
 
@@ -398,7 +400,11 @@ public class CommandMenu extends JMenuPlus {
             }
             settings = (GeneralVcsSettings)SharedClassObject.findObject(GeneralVcsSettings.class, true);            
             if(!expertMode && settings.isAdvancedNotification() && cmdSupports[0].hasExpertMode()){
-                if(showFirstTimerDialog(cmdDisplayName))
+                boolean isFromFS = false;
+                if (cmdSupports[0] instanceof UserCommandSupport) {
+                    isFromFS = ((UserCommandSupport) cmdSupports[0]).getExecutionContext() instanceof FileSystem;
+                }
+                if(showFirstTimerDialog(cmdDisplayName, isFromFS))
                     invokeCommand(cmdSupports, cmdName, changeExpertMode, expertMode);
             } else {
                 invokeCommand(cmdSupports, cmdName, changeExpertMode, expertMode);         
@@ -465,7 +471,7 @@ public class CommandMenu extends JMenuPlus {
          * dialog and gives the possibility to cancel the command.
          * @return Should we proceed executing a CVS command
          */
-        private static boolean showFirstTimerDialog(String commandName) {
+        private static boolean showFirstTimerDialog(String commandName, boolean isFromFS) {
             JPanel panel = new JPanel();
             JLabel label1 = new JLabel();
             JTextArea textArea = new JTextArea();
@@ -476,8 +482,10 @@ public class CommandMenu extends JMenuPlus {
             panel.setLayout(new java.awt.GridBagLayout());
             StringBuffer buff = new StringBuffer();
             buff.append(NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer1.text")); //NOI18N
-            buff.append("\n\n");
-            buff.append(NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer2.text")); //NOI18N
+            if (isFromFS) {
+                buff.append("\n\n");
+                buff.append(NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer2.text")); //NOI18N
+            }
             textArea.setText(buff.toString());
             textArea.setBackground(label1.getBackground());
             textArea.setColumns(50);
