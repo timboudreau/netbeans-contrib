@@ -69,7 +69,7 @@ public final class SuggestionsBroker {
     Env env = new Env();
 
     // FileObject, Set<Suggestion>
-    private Map openedFilesSuggestionsMap;
+    private Map openedFilesSuggestionsMap = new HashMap();
 
     private int allOpenedClientsCount = 0;
 
@@ -163,7 +163,6 @@ public final class SuggestionsBroker {
     public AllOpenedJob startAllOpenedBroker(ProviderAcceptor acceptor) {
         allOpenedClientsCount++;
         if (allOpenedClientsCount == 1) {
-            openedFilesSuggestionsMap = new HashMap();
             acceptors.add(acceptor);
             TopComponent[] documents = SuggestionsScanner.openedTopComponents();
             SuggestionsScanner scanner = SuggestionsScanner.getDefault();
@@ -211,7 +210,6 @@ public final class SuggestionsBroker {
             allOpenedClientsCount--;
             if (allOpenedClientsCount == 0) {
                 allOpenedJob.stopBroker();
-                openedFilesSuggestionsMap = null;
             }
         }
     }
