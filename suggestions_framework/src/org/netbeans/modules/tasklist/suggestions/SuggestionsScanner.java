@@ -83,10 +83,6 @@ public final class SuggestionsScanner implements Cancellable {
     // keep default instance (only if a client exists)
     private static Reference instance;
 
-    // heuristically detect overload
-    private static boolean lowMemoryWarning;
-    private static int lowMemoryWarningCount;
-    private static Reference memoryReference;
     private volatile boolean interrupted;
     private int suggestionsCounter;
     private int usabilityLimit = 503;
@@ -162,7 +158,7 @@ public final class SuggestionsScanner implements Cancellable {
         lowMemoryWarning = false;
         lowMemoryWarningCount = 0;
         interrupted = false;
-        allocateMemory();   // guard low memory condition
+        assureMemory(REQUIRED_PER_ITERATION, true);   // guard low memory condition
         suggestionsCounter = 0;
 
         try {
@@ -448,14 +444,60 @@ public final class SuggestionsScanner implements Cancellable {
         }
     }
 
+    // low memory condition detection logic ~~~~~~~~
 
-// COPY&PASTED to DataObjectSearchGroup
-// waiting for issue 42786
+    private static boolean lowMemoryWarning = false;
+    private static int lowMemoryWarningCount = 0;
+    private static int MB = 1024 * 1024;
+    private static int REQUIRED_PER_ITERATION = 2 * MB;
+    private static int REQUIRED_PER_FULL_GC = 7 * MB;
+
+    /**
+     * throws RuntimeException if low memory condition happens
+     * @param estimate etimated memory requirements before next check
+     * @param tryGC on true use potentionally very slow test that is more accurate (cooperates with GC)
+     */
+    private void assureMemory(int estimate, boolean tryGC) {
+        Runtime rt = Runtime.getRuntime();
+        long total = rt.totalMemory();
+        long max = rt.maxMemory();  // XXX on some 1.4.1 returns heap&native instead of -Xmx
+        long required = Math.max(total/13, estimate + REQUIRED_PER_FULL_GC);
+        if (total ==  max && rt.freeMemory() < required) {
+            // System.err.println("MEM " + max + " " +  total + " " + rt.freeMemory());
+            if (tryGC) {
+                try {
+                    byte[] gcProvocation = new byte[(int)required + REQUIRED_PER_FULL_GC];
+                    gcProvocation = null;
+                } catch (OutOfMemoryError e) {
+                    handleNoMemory();
+                }
+            } else {
+                lowMemoryWarning = true;
+            }
+        } else if (lowMemoryWarning) {
+            lowMemoryWarning = false;
+            lowMemoryWarningCount ++;
+        }
+        // gc is getting into corner
+        if (lowMemoryWarningCount > 7 || (total == max && rt.freeMemory() < REQUIRED_PER_FULL_GC)) {
+            handleNoMemory();
+        }
+
+    }
+
+    private void handleNoMemory() {
+        interrupted = true;
+        if (progressMonitor != null) {
+            progressMonitor.scanTerminated(-1);
+        }
+    }
 
     /** Test stop condition (thread interrupted or low memory) */
     private boolean shouldStop() {
         if (interrupted) return true;
         interrupted = Thread.interrupted();
+        if (interrupted) return true;
+        assureMemory(REQUIRED_PER_ITERATION, false);
         if (interrupted) return true;
         if (suggestionsCounter > getCountLimit()) {
             interrupted = true;
@@ -465,73 +507,57 @@ public final class SuggestionsScanner implements Cancellable {
         }
         return interrupted;
 
-// XXX on some 1.4.1 returns heap&native instead of -Xmx
-// meanwhile we use MemoryReference based approach bellow
-//        Runtime rt = Runtime.getRuntime();
-//        long total = rt.totalMemory();
-//        long max = rt.maxMemory();  // XXX on some 1.4.1 returns heap&native instead of -Xmx
-//        long required = Math.max(total/13, 4*1024*1024);
-//        if (total ==  max && rt.freeMemory() < required) {
-//            lowMemoryWarning = true;
-//        } else if (lowMemoryWarning) {
-//            lowMemoryWarning = false;
-//            lowMemoryWarningCount ++;
+    }
+
+//  *** Low memory condition listener
+//    // heuristically detect overload
+//    private static Reference memoryReference;
+//
+//    // Allocate some extra memory and keep soft reference to it
+//    // once it gets collected JVM tries to eliminate unnecesary
+//    // memory alocation from system resources
+//    private class MemoryReference extends SoftReference implements Runnable {
+//
+//        MemoryReference(Object ref) {
+//            super(ref, Utilities.activeReferenceQueue());
 //        }
-//        // gc is getting into corner
-//        if (lowMemoryWarningCount > 7 || (total == max && rt.freeMemory() < 2*1024*1024)) {
-//            if (progressMonitor != null) {
-//                progressMonitor.scanTerminated(-1);
+//
+//        // gets called by Utilities.activeReferenceQueue
+//        public void run() {
+//            memoryReleased();
+//        }
+//    }
+//
+//    private void memoryReleased() {
+//        long total = Runtime.getRuntime().totalMemory();
+//        long free = Runtime.getRuntime().freeMemory();
+//        allocateMemory();
+//        if (total == Runtime.getRuntime().totalMemory()) {
+//            // no new system memory allocated
+//            // there were many soft references or we are getting to maxMemory limit
+//            if (!interrupted) {
+//                // XXX on most implementations it's maxMemory limit
+//                if (Runtime.getRuntime().freeMemory() < 10000 ) {
+//                    interrupted = true;
+//                    if (progressMonitor != null) {
+//                        progressMonitor.scanTerminated(-1);
+//                    }
+//                }
 //            }
-//            return true;
-//        } else {
-//            return false;
 //        }
-    }
-
-    // Allocate some extra memory and keep soft reference to it
-    // once it gets collected JVM tries to eliminate unnecesary
-    // memory alocation from system resources
-    private class MemoryReference extends SoftReference implements Runnable {
-
-        MemoryReference(Object ref) {
-            super(ref, Utilities.activeReferenceQueue());
-        }
-
-        // gets called by Utilities.activeReferenceQueue
-        public void run() {
-            memoryReleased();
-        }
-    }
-
-    private void memoryReleased() {
-        long total = Runtime.getRuntime().totalMemory();
-        long free = Runtime.getRuntime().freeMemory();
-        allocateMemory();
-        if (total == Runtime.getRuntime().totalMemory()) {
-            // no new system memory allocated
-            // there were many soft references or we are getting to maxMemory limit
-            if (!interrupted) {
-                // XXX on most implementations it's maxMemory limit
-                if (Runtime.getRuntime().freeMemory() < 10000 ) {
-                    interrupted = true;
-                    if (progressMonitor != null) {
-                        progressMonitor.scanTerminated(-1);
-                    }
-                }
-            }
-        }
-    }
-
-    private void allocateMemory() {
-        if (interrupted) return;
-        if (memoryReference != null && memoryReference.get() != null) return;
-        try {
-            byte[] memory = new byte[3*1024*1024];
-            memoryReference = new MemoryReference(memory);
-        } catch (OutOfMemoryError err) {
-            interrupted = true;
-        }
-    }
+//    }
+//
+//    private void allocateMemory() {
+//        if (interrupted) return;
+//        if (memoryReference != null && memoryReference.get() != null) return;
+//        try {
+//            byte[] memory = new byte[3*1024*1024];
+//            memoryReference = new MemoryReference(memory);
+//        } catch (OutOfMemoryError err) {
+//            interrupted = true;
+//        }
+//    }
+//  *** Low memory condition listener
 
     /** Stop scannig after discovering limit suggestions */
     private int getCountLimit() {
