@@ -546,7 +546,6 @@ public class VariableInputDescriptor extends Object {
         String[] inputArgs = VcsUtilities.getQuotedStringsWithPairedCharacters(str, INPUT_STR_ARG_OPEN, INPUT_STR_ARG_CLOSE);
         // Remove the last paranthesis:
         inputArgs[inputArgs.length - 1] = inputArgs[inputArgs.length - 1].substring(0, inputArgs[inputArgs.length - 1].length() - 1);
-        System.out.println("  inputArgs = "+VcsUtilities.arrayToString(inputArgs));
         for (int i = 0; i < inputArgs.length; i++) {
             component.addEnable(inputArgs[i].trim());
         }
