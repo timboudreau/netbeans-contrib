@@ -1609,6 +1609,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             // Hold the IntegritySupportMaintainer so that it's not garbage-collected.
             integritySupportMaintainer = new IntegritySupportMaintainer(this, this);
         }
+        deleteFileCommandQueue = new ArrayList();
+        deleteFolderCommandQueue = new ArrayList();
     }
 
     public void activate(VcsObjectIntegritySupport objectIntegritySupport) {
@@ -3771,8 +3773,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    private transient ArrayList deleteFileCommandQueue = new ArrayList();
-    private transient ArrayList deleteFolderCommandQueue = new ArrayList();
+    private transient ArrayList deleteFileCommandQueue;// initialized in init()
+    private transient ArrayList deleteFolderCommandQueue;// initialized in init()
     private transient Thread deleteCommandThread = null;
 
     private void addDeleteCommand(String name, boolean isDir) {
