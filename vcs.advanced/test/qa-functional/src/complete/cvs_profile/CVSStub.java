@@ -113,7 +113,7 @@ public abstract class CVSStub extends GenericStub {
         root.waitHistory("Check Out");
 
         // workaround - probably jelly issue - if not used, popup menu does not work in versioning frame
-        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("CHECKOUT_COMMAND");
+        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("Check Out");
         closeAllVCSOutputs();
     }
     
