@@ -453,9 +453,13 @@ public abstract class TaskListView extends ExplorerPanel
      * @throws ClassNotFoundException  */    
     public void readExternal(ObjectInput objectInput) throws IOException, java.lang.ClassNotFoundException {
 	currentDeserializationTarget = this;
-        super.readExternal(objectInput);
+        
+        // Don't call super!
+        // See writeExternal for justification
+        //super.readExternal(objectInput);
+
 	int ver = objectInput.read();
-        //assert ver <= 2 : "serialization version incorrect; should be 1 or 2";
+        //assert ver <= 3 : "serialization version incorrect; should be 1, 2 or 3";
 
 
 	// Read in the UID of the currently selected task, or null if none
@@ -575,14 +579,25 @@ public abstract class TaskListView extends ExplorerPanel
               "Warning: This tasklist window (" + getName() + ") should not have been persisted!");
 	    return;
 	}
+        
+        // Don't call super.writeExternal.
+        // Our parents are ExplorerPanel and TopComponent.
+        // ExplorerPanel writes out the ExplorerManager, which tries
+        //  to write out the node selection, explored content, etc.
+        //  We don't want that. Specific tasklist children, such as
+        //  the usertasklist, may want to persist the selection but
+        //  most (such as the suggestions view, source scan etc,
+        //  don't want this.)
+        // TopComponent persists the name and tooltip text; we
+        //  don't care about that either.
+        //super.writeExternal(objectOutput);
 
-        super.writeExternal(objectOutput);
 
         // Here I should record a few things; in particular, sorting order, view
         // preferences, etc.
         // Since I'm not doing that yet, let's at a minimum put in a version
         // byte so we can do the right thing later without corrupting the userdir
-        objectOutput.write(2); // SERIAL VERSION
+        objectOutput.write(3); // SERIAL VERSION
 
 	// Write out the UID of the currently selected task, or null if none
 	objectOutput.writeObject(null); // Not yet implemented
