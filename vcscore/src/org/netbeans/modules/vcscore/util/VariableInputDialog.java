@@ -47,6 +47,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
     //public static final String PROMPT_DEFAULT_VALUE_SEPARATOR = "\"";
     
     /**
+     * When a map of variables contains this one (with value of <code>true</code>)
+     * after the selector command finish, the components are updated with values
+     * of returned variables.
+     */
+    public static final String VAR_UPDATE_CHANGED_FROM_SELECTOR = "UPDATE CHANGED VARIABLES FROM SELECTOR";
+    
+    /**
      * This property (which name has the variable name appended) is fired
      * when a variable value has changed.
      */
@@ -582,11 +589,19 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * Use this method to supply new variable values to the components.
      */
     public void updateVariableValues(Hashtable vars) {
-        //System.out.println("updateVariableValues()");
+        updateVariableValues(vars, true);
+    }
+    
+    /**
+     * Use this method to supply new variable values to the components.
+     */
+    private void updateVariableValues(Hashtable vars, boolean resetVars) {
+        //System.out.println("updateVariableValues("+resetVars+")");
         List propertyChangeEvents = new ArrayList(); // The list of properties that needs to be fired
         for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
             String varName = (String) it.next();
             String varValue = (String) vars.get(varName);
+            if (!resetVars) this.vars.put(varName, varValue);
             VariableInputComponent inComponent = (VariableInputComponent) componentsByVars.get(varName);
             if (inComponent == null) {
                 continue;
@@ -604,8 +619,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         varValue = Variables.expand(vars, varValue, false);
                         inComponent.setValue(varValue);
                         ((javax.swing.text.JTextComponent) component).setText(varValue);
+                        PropertyChangeEvent pcev = new PropertyChangeEvent(this, PROP_VAR_CHANGED+varName, oldValue, varValue);
+                        if (inComponent.isExpandableDefaultValue()) {
+                            //varValue = inComponent.getDefaultValue(); 
+                            // Not to persistently store the expanded value!
+                            pcev.setPropagationId(inComponent.getDefaultValue());
+                        }
                         // setText does not fire anything, we need to do that later.
-                        propertyChangeEvents.add(new PropertyChangeEvent(this, PROP_VAR_CHANGED+varName, oldValue, varValue));
+                        propertyChangeEvents.add(pcev);
                     } else if (component instanceof javax.swing.JCheckBox) {
                         javax.swing.JCheckBox chbox = (javax.swing.JCheckBox) component;
                         if (varValue == null) {
@@ -660,11 +681,18 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 }
             }
         }
-        this.vars = vars;
+        if (resetVars) this.vars = vars;
         for (Iterator it = propertyChangeEvents.iterator(); it.hasNext(); ) {
             PropertyChangeEvent ev = (PropertyChangeEvent) it.next();
             //System.out.println("  FIRING: ("+ev.getPropertyName()+", "+ev.getOldValue()+", "+ev.getNewValue()+")");
-            firePropertyChange(ev.getPropertyName(), ev.getOldValue(), ev.getNewValue());
+            if (ev.getPropagationId() != null) {
+                PropertyChangeListener[] listeners = getPropertyChangeListeners();
+                for (int i = 0; i < listeners.length; i++) {
+                    listeners[i].propertyChange(ev);
+                }
+            } else {
+                firePropertyChange(ev.getPropertyName(), ev.getOldValue(), ev.getNewValue());
+            }
         }
     }
     
@@ -848,7 +876,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints2.insets = new java.awt.Insets (0, 0, 8, 0);
         variablePanel.add(field, gridBagConstraints2);
         componentList.add(field);
-        VcsUtilities.removeEnterFromKeymap(field);
+        if (!password) VcsUtilities.removeEnterFromKeymap(field);
         String selector = component.getSelector();
         //System.out.println("Match selector '"+selector+"': ("+component.getSelectorVarConditions()[0]+", "+component.getSelectorVarConditions()[1]+")"+VariableInputComponent.isVarConditionMatch(component.getSelectorVarConditions(), vars));
         if (selector != null &&
@@ -876,7 +904,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 awtComponent = addDateCVS(variablePanel, field, gridy, l);
             } else if (selector.indexOf(VariableInputDescriptor.SELECTOR_CMD) == 0) {
                 awtComponent = addSelector(variablePanel, field, gridy,
-                                           selector.substring(VariableInputDescriptor.SELECTOR_CMD.length()), l);
+                                           selector.substring(VariableInputDescriptor.SELECTOR_CMD.length()), l,
+                                           component.getVariable());
             }
             if (awtComponent != null) componentList.add(awtComponent);
         }
@@ -1016,7 +1045,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private java.awt.Component addSelector(final javax.swing.JPanel panel,
                                            final javax.swing.JTextField field,
                                            int y, String commandNameStr,
-                                           final FocusListener l) {
+                                           final FocusListener l, final String variableName) {
         java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = y;
@@ -1044,7 +1073,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
                     public void run() {
-                        String selected = getSelectorText(commandName, field.getText());
+                        String selected = getSelectorText(commandName, field.getText(), variableName);
                         //System.out.println("selected = "+selected);
                         if (selected != null) {
                             field.setText(selected);
@@ -1057,8 +1086,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         return button;
     }
     
-    private String getSelectorText(String commandName, String oldText) {
+    private String getSelectorText(String commandName, String oldText, String variableName) {
         CommandSupport cmdSupp = executionContext.getCommandSupport(commandName);
+        if ("PASSWORD".equals(variableName)) executionContext.setPassword(oldText);
         //OutputContainer container = new OutputContainer(cmd);
         if (cmdSupp == null) {
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
@@ -1105,6 +1135,22 @@ public class VariableInputDialog extends javax.swing.JPanel {
             task.waitFinished(0);
         } catch (InterruptedException iexc) {
             return null;
+        }
+        if (task instanceof VcsDescribedTask) {
+            Map commandVars = ((VcsDescribedTask) task).getVariables();
+            //System.out.println("commandVars = "+commandVars);
+            //System.out.println("  UPDATE ONLY CHANGED VARIABLES = '"+commandVars.get(VAR_UPDATE_CHANGED_FROM_SELECTOR)+"'");
+            // We update variables changed by the selector when VAR_UPDATE_CHANGED_FROM_SELECTOR is set to "true".
+            if ("true".equals(commandVars.get(VAR_UPDATE_CHANGED_FROM_SELECTOR))) {
+                commandVars.remove(VAR_UPDATE_CHANGED_FROM_SELECTOR);
+                Hashtable varsHashtable;
+                if (commandVars instanceof Hashtable) {
+                    varsHashtable = (Hashtable) commandVars;
+                } else {
+                    varsHashtable = new Hashtable(commandVars);
+                }
+                updateVariableValues(varsHashtable, false);
+            }
         }
         if (task.getExitStatus() == task.STATUS_SUCCEEDED && selectorMatched[0]) {
             return selectorOutput.toString();

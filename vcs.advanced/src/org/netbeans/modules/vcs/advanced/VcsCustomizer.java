@@ -1803,6 +1803,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 configInputPanels[i] = dlg;
                 dlg.addPropertyChangeListener(new PropertyChangeListener() {
                     public void propertyChange(PropertyChangeEvent evt) {
+                        // If propagation ID is defined, the var value should not be reset.
+                        if (evt.getPropagationId() != null) return ;
                         String name = evt.getPropertyName();
                         if (name.startsWith(VariableInputDialog.PROP_VAR_CHANGED)) {
                             String varName = name.substring(VariableInputDialog.PROP_VAR_CHANGED.length());

@@ -195,6 +195,10 @@ public class VariableInputComponent extends Object {
         return false;
     }
     
+    public boolean isExpandableDefaultValue() {
+        return !canResetDefaultValue();
+    }
+    
     public void setValuesAsDefault() {
         if (canResetDefaultValue()) {
             setDefaultValue(getValue());
