@@ -1660,8 +1660,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (module == null) module = ""; // NOI18N
         File root = new File(r, module);
         String name = computeSystemName (root);
-        /* Ignoring other filesystems' names => it is possible to mount VCS filesystem with the same name. */
-        /* Do not ignore this any more, due to the issue #11617. */
+        /* Ignoring other filesystems' names => it is possible to mount VCS filesystem with the same name.
         Enumeration en = TopManager.getDefault ().getRepository ().fileSystems ();
         while (en.hasMoreElements ()) {
             FileSystem fs = (FileSystem) en.nextElement ();
@@ -1676,7 +1675,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 // TopManager.getDefault ().notify (nd);
             }
         }
-        
+         */
         D.deb("Setting system name '"+name+"'"); // NOI18N
         setSystemName(name);
 
