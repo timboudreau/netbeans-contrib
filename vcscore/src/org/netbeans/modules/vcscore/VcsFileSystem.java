@@ -1118,6 +1118,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (versioningSystem != null) {
             org.openide.util.RequestProcessor.postRequest(new Runnable() {
                 public void run() {
+                    if (versioningSystem == null) return ;
                     VersioningRepository.getRepository().removeVersioningFileSystem(versioningSystem);
                     try {
                         VcsFileSystem.this.runAtomicAction(new FileSystem.AtomicAction() {
