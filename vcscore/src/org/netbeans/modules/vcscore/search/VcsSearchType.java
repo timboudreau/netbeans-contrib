@@ -18,10 +18,7 @@ package org.netbeans.modules.vcscore.search;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
@@ -35,6 +32,7 @@ import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListener;
+import org.openide.ErrorManager;
 import org.openidex.search.*;
 
 
@@ -144,51 +142,10 @@ public class VcsSearchType extends SearchType {
         return (String[]) statuses.toArray(new String[0]);
     }
 
-    /** Overrides superclass method. */
-    public Node[] acceptSearchRootNodes(Node[] roots) {
-        if(roots == null || roots.length == 0) 
-            return roots;
-
-        List acceptedRoots = new ArrayList(roots.length);
-        //statuses = new Vector();
-        for(int i = 0; i < roots.length; i++) {
-            Node root = roots[i];
-            
-            DataFolder dataFolder = (DataFolder)root.getCookie(DataFolder.class);
-            if(dataFolder != null) {
-                FileObject fo = dataFolder.getPrimaryFile();
-                FileSystem fs = null;
-                try {
-                    fs = fo.getFileSystem();
-                } catch(FileStateInvalidException fsie) {
-                    if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
-                        fsie.printStackTrace();
-                    }
-                }
-                
-                VcsSearchTypeFileSystem searchFS;
-                if (fs instanceof VcsSearchTypeFileSystem) {
-                    searchFS = (VcsSearchTypeFileSystem) fs;
-                } else {
-                    searchFS = (VcsSearchTypeFileSystem) fo.getAttribute(VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE);
-                }
-                if (searchFS != null) {
-                    acceptedRoots.add(root);
-                    continue;
-                }
-            }
-
-            InstanceCookie.Of ic = (InstanceCookie.Of)root.getCookie(InstanceCookie.Of.class);
-            if(ic != null && ic.instanceOf(Repository.class)) {
-                acceptedRoots.add(root);
-            }
-
-        }
-
-        return (Node[])acceptedRoots.toArray(new Node[acceptedRoots.size()]);
-    }
-
-    /** Implements superclass abstract method. */
+    /**
+     * Implements superclass abstract method.
+     * As side effect set stauses field
+     */
     public boolean enabled(Node[] nodes) {
         if(nodes == null || nodes.length == 0)
             return false;
@@ -196,57 +153,75 @@ public class VcsSearchType extends SearchType {
         boolean statusesAdded = false;
         //statuses = new Vector();
         for(int i = 0; i < nodes.length; i++) {
-            DataFolder dataFolder = (DataFolder)nodes[i].getCookie(DataFolder.class);
-            if(dataFolder != null) {
-                FileObject fo = dataFolder.getPrimaryFile();
-                FileSystem fs = null;
-                try {
-                    fs = fo.getFileSystem();
-                } catch(FileStateInvalidException fsie) {
-                    if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
-                        fsie.printStackTrace();
-                    }
-                }
-                VcsSearchTypeFileSystem searchFS;
-                if (fs instanceof VcsSearchTypeFileSystem) {
-                    searchFS = (VcsSearchTypeFileSystem) fs;
-                } else {
-                    searchFS = (VcsSearchTypeFileSystem) fo.getAttribute(VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE);
-                }
-                if (searchFS != null) {
-                    String[] possibleStatuses = searchFS.getPossibleFileStatuses();
-                    if(!statusesAdded) {
-                        statuses = new Vector();
-                        statusesAdded = true;
-                    }
-                    addStatuses(possibleStatuses);
+            SearchInfo info = (SearchInfo) nodes[i].getLookup().lookup(SearchInfo.class);
+            if (info != null) {
+                // heuristics, try first 5 file objects
+                // ignored cornercase: it fails for project scattered over several versionig FS workdirs
+                Iterator it = info.objectsToSearch();
+                int sampleSize = 5;
+                while (it.hasNext()) {
+                    DataObject dataObject = (DataObject) it.next();
+                    FileObject fo = dataObject.getPrimaryFile();
+                    statusesAdded |= fillStatuses(fo, statusesAdded);
+                    if (sampleSize-- == 0) break;
                 }
             } else {
-                // DataSystem does not have a DataObject cookie => skip all nodes with DataObject cookies
-                if (nodes[i].getCookie(DataObject.class) != null) continue;
-                InstanceCookie.Of ic = (InstanceCookie.Of)nodes[i].getCookie(InstanceCookie.Of.class);
-                if(ic != null && ic.instanceOf(Repository.class)) {
-                    FileSystem[] fileSystems = org.openide.filesystems.Repository.getDefault().toArray();
-                    for(int j = 0; j < fileSystems.length; j++) {
-                        VcsSearchTypeFileSystem searchFS;
-                        if (fileSystems[j] instanceof VcsSearchTypeFileSystem) {
-                            searchFS = (VcsSearchTypeFileSystem) fileSystems[j];
-                        } else {
-                            searchFS = (VcsSearchTypeFileSystem) fileSystems[j].getRoot().getAttribute(VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE);
-                        }
-                        if (searchFS != null) {
-                            String[] possibleStatuses = searchFS.getPossibleFileStatuses();
-                            if(!statusesAdded) {
-                                statuses = new Vector();
-                                statusesAdded = true;
+                DataFolder dataFolder = (DataFolder)nodes[i].getCookie(DataFolder.class);
+                if(dataFolder != null) {
+                    FileObject fo = dataFolder.getPrimaryFile();
+                    statusesAdded |= fillStatuses(fo, statusesAdded);
+                } else {
+                    // DataSystem does not have a DataObject cookie => skip all nodes with DataObject cookies
+                    if (nodes[i].getCookie(DataObject.class) != null) continue;
+                    InstanceCookie.Of ic = (InstanceCookie.Of)nodes[i].getCookie(InstanceCookie.Of.class);
+                    if(ic != null && ic.instanceOf(Repository.class)) {
+                        FileSystem[] fileSystems = org.openide.filesystems.Repository.getDefault().toArray();
+                        for(int j = 0; j < fileSystems.length; j++) {
+                            VcsSearchTypeFileSystem searchFS;
+                            if (fileSystems[j] instanceof VcsSearchTypeFileSystem) {
+                                searchFS = (VcsSearchTypeFileSystem) fileSystems[j];
+                            } else {
+                                searchFS = (VcsSearchTypeFileSystem) fileSystems[j].getRoot().getAttribute(VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE);
                             }
-                            addStatuses(possibleStatuses);
+                            if (searchFS != null) {
+                                String[] possibleStatuses = searchFS.getPossibleFileStatuses();
+                                if(!statusesAdded) {
+                                    statuses = new Vector();
+                                    statusesAdded = true;
+                                }
+                                addStatuses(possibleStatuses);
+                            }
                         }
                     }
                 }
             }
         }
 
+        return statusesAdded;
+    }
+
+    /** Initialize statuses field from given fileobject. */
+    private boolean fillStatuses(FileObject fo, boolean statusesAdded) {
+        FileSystem fs = null;
+        try {
+            fs = fo.getFileSystem();
+        } catch(FileStateInvalidException fsie) {
+            ErrorManager.getDefault().notify(fsie);
+        }
+        VcsSearchTypeFileSystem searchFS;
+        if (fs instanceof VcsSearchTypeFileSystem) {
+            searchFS = (VcsSearchTypeFileSystem) fs;
+        } else {
+            searchFS = (VcsSearchTypeFileSystem) fo.getAttribute(VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE);
+        }
+        if (searchFS != null) {
+            String[] possibleStatuses = searchFS.getPossibleFileStatuses();
+            if(statusesAdded == false) {
+                statuses = new Vector();
+                statusesAdded = true;
+            }
+            addStatuses(possibleStatuses);
+        }
         return statusesAdded;
     }
 
