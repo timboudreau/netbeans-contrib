@@ -45,11 +45,36 @@ public class TextPositionsMapperTest extends NbTestCase {
      */
     public void testPositions() {
         TextPositionsMapper m = new TextPositionsMapper(
-            "\nThis is the first line\n" + 
+            "\n" + 
+            "This is the first line\n" + 
             "This is the second line\r\n" + 
             "This is the third line\n" +
             "\r" + 
             "The fifth line");
-        
+        int[] pos = new int[2];
+
+        m.findPosition(0, pos);
+        assertEquals(0, pos[0]);
+        assertEquals(0, pos[1]);
+
+        m.findPosition(1, pos);
+        assertEquals(1, pos[0]);
+        assertEquals(0, pos[1]);
+
+        m.findPosition(20, pos);
+        assertEquals(1, pos[0]);
+        assertEquals(19, pos[1]);
+
+        m.findPosition(24, pos);
+        assertEquals(2, pos[0]);
+        assertEquals(0, pos[1]);
+
+        m.findPosition(49, pos);
+        assertEquals(3, pos[0]);
+        assertEquals(0, pos[1]);
+
+        m.findPosition(73, pos);
+        assertEquals(5, pos[0]);
+        assertEquals(0, pos[1]);
     }
 }

@@ -265,7 +265,6 @@ abstract public class Suggestion {
     //    }
     //
 
-
     /**
      * Set the priority of the task. 
      * <p>
@@ -290,8 +289,6 @@ abstract public class Suggestion {
     public SuggestionPriority getPriority() {
         return priority;
     }
-
-    
 
     /**
      * Set the icon for the task. May be null; if so the default icon will
@@ -319,7 +316,6 @@ abstract public class Suggestion {
     public Image getIcon() {
         return icon;
     }
-
 
     /**
      * Set the line (file position) associated with the suggestion.
@@ -450,6 +446,4 @@ abstract public class Suggestion {
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
         supp.firePropertyChange(propertyName, oldValue, newValue);
     }
-
-
 }

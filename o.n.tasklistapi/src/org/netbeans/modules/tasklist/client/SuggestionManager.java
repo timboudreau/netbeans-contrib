@@ -75,8 +75,6 @@ import java.util.List;
  *
  * @author Tor Norbye
  */
-
-
 abstract public class SuggestionManager {
 
     /** Construct a new SuggestionManager instance. */

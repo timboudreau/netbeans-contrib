@@ -49,7 +49,7 @@ public class PercentsTableCellRenderer extends JPanel implements TableCellRender
         progressBar.setStringPainted(true);
         progressBar.setOpaque(true);
         progressBar.setBorderPainted(true);
-        progressBar.setBorder(new LineBorder(UIManager.getColor("Table.background")));
+        progressBar.setBorder(new LineBorder(UIManager.getColor("Table.background"))); // NOI18N
         
         setLayout(new BorderLayout());
         add(progressBar, BorderLayout.CENTER);
@@ -72,7 +72,7 @@ public class PercentsTableCellRenderer extends JPanel implements TableCellRender
         progressBar.setValue(n);
         progressBar.setString(n + "%"); // NOI18N
 	if (hasFocus) {
-	    setBorder( UIManager.getBorder("Table.focusCellHighlightBorder") );
+	    setBorder( UIManager.getBorder("Table.focusCellHighlightBorder") ); // NOI18N
 	} else {
 	    setBorder(noFocusBorder);
 	}

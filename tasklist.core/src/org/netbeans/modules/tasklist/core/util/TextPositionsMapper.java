@@ -11,7 +11,6 @@ import java.util.List;
  */
 public class TextPositionsMapper {
     private String text;
-    private String[] lines;
     private int[] offsets;
     
     /**
@@ -65,5 +64,32 @@ public class TextPositionsMapper {
             position[0] = index - 1;
             position[1] = offset - offsets[index - 1];
         }
+    }
+
+    /**
+     * Returns the text
+     *
+     * @return text
+     */
+    public String getText() {
+        return text;
+    }
+    
+    /**
+     * Returns the text for the specified line. Line feed characters at the end
+     * of a line will also be returned.
+     *
+     * @param line line number (0, 1, 2, ..)
+     * @return text of a line
+     */
+    public String getLine(int line) {
+        int offset = offsets[line];
+        int offset2;
+        if (offsets.length > line + 1) {
+            offset2 = offsets[line + 1];
+        } else {
+            offset2 = text.length();
+        }
+        return text.substring(offset, offset2);
     }
 }

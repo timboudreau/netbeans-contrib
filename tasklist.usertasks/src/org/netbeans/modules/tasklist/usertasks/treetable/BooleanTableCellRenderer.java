@@ -59,7 +59,7 @@ implements TableCellRenderer {
         }
 
 	if (hasFocus) {
-	    setBorder( UIManager.getBorder("Table.focusCellHighlightBorder") );
+	    setBorder( UIManager.getBorder("Table.focusCellHighlightBorder") ); // NOI18N
 	} else {
 	    setBorder(noFocusBorder);
 	}

@@ -352,12 +352,12 @@ public class ICalExportFormat implements ExportImportFormat {
         List dep = task.getDependencies();
         for (int i = 0; i < dep.size(); i++) {
             Dependency d = (Dependency) dep.get(i);
-            writer.write("X-NETBEANS-DEPENDENCY;");
-            writer.write("TYPE=");
+            writer.write("X-NETBEANS-DEPENDENCY;"); // NOI18N
+            writer.write("TYPE="); // NOI18N
             if (d.getType() == Dependency.BEGIN_BEGIN)
-                writer.write("BEGIN_BEGIN");
+                writer.write("BEGIN_BEGIN"); // NOI18N
             else
-                writer.write("END_BEGIN");
+                writer.write("END_BEGIN"); // NOI18N
             writer.write(":"); // NOI18N
             writer.write(d.getDependsOn().getUID());
             writer.write("\r\n"); // NOI18N

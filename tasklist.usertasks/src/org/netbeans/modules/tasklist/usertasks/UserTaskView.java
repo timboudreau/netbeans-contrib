@@ -255,8 +255,8 @@ ExplorerManager.Provider, ExportImportProvider {
     public void componentActivated() {
         super.componentActivated();
         assert initialized : 
-            "#37438 dangling componentActivated event, no componentOpened()" + 
-            " called at " + this;
+            "#37438 dangling componentActivated event, no componentOpened()" +  // NOI18N
+            " called at " + this; // NOI18N
         ExplorerUtils.activateActions(manager, true);
         RemoveFilterUserTaskAction removeFilter =
             (RemoveFilterUserTaskAction) SystemAction.get(RemoveFilterUserTaskAction.class);
@@ -381,7 +381,7 @@ ExplorerManager.Provider, ExportImportProvider {
         }
         if (ver >= 6) {
             Map m = (Map) objectInput.readObject();
-            Point p = (Point) m.get("scrollPosition");
+            Point p = (Point) m.get("scrollPosition"); // NOI18N
             if (p != null) {
                 scrollPane.getVerticalScrollBar().setValue(p.y);
                 scrollPane.getHorizontalScrollBar().setValue(p.x);
@@ -465,7 +465,7 @@ ExplorerManager.Provider, ExportImportProvider {
         Point p = new Point(            
             scrollPane.getHorizontalScrollBar().getValue(), 
             scrollPane.getVerticalScrollBar().getValue());
-        m.put("scrollPosition", p);
+        m.put("scrollPosition", p); // NOI18N
         objectOutput.writeObject(m);
     }
 
@@ -729,7 +729,7 @@ ExplorerManager.Provider, ExportImportProvider {
 
     protected void componentDeactivated() {
         super.componentDeactivated();
-        assert initialized : "#37438 dangling componentDeactivated event, no componentOpened() called at " + this;
+        assert initialized : "#37438 dangling componentDeactivated event, no componentOpened() called at " + this; // NOI18N
         ExplorerUtils.activateActions(manager, false);
     }
 

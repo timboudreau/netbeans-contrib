@@ -55,7 +55,7 @@ public class DateTableCellRenderer extends DefaultTableCellRenderer {
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, 
             row, column);
         if (value == null)
-            setText("");
+            setText(""); // NOI18N
         else
             setText(format.format(new Date(((Long) value).longValue())));
         return this;

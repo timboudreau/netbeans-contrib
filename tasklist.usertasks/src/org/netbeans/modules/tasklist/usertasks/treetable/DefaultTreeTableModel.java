@@ -92,12 +92,12 @@ TreeTableModel {
 
     public static class ToStringComparator implements Comparator {
         public int compare(Object obj1, Object obj2) {
-            String s1 = (obj1 == null) ? "" : obj1.toString();
-            String s2 = (obj2 == null) ? "" : obj2.toString();
+            String s1 = (obj1 == null) ? "" : obj1.toString(); // NOI18N
+            String s2 = (obj2 == null) ? "" : obj2.toString(); // NOI18N
             if (s1 == null)
-                s1 = "";
+                s1 = ""; // NOI18N
             if (s2 == null)
-                s2 = "";
+                s2 = ""; // NOI18N
             return s1.compareTo(s2);
         }
     }

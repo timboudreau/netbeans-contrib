@@ -164,8 +164,8 @@ public class SortingHeaderRenderer extends JPanel implements TableCellRenderer {
             }
         }
 
-        renderer.setText((value == null) ? "" : value.toString());
-        setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+        renderer.setText((value == null) ? "" : value.toString()); // NOI18N
+        setBorder(UIManager.getBorder("TableHeader.cellBorder")); // NOI18N
         
         return this;
     }

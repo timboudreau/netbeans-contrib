@@ -128,7 +128,7 @@ public class TreeTable extends JTable {
 
     public TreeTable(TreeTableModel treeTableModel) {
 	super();
-        putClientProperty("JTable.autoStartsEdit", Boolean.FALSE);
+        putClientProperty("JTable.autoStartsEdit", Boolean.FALSE); // NOI18N
 
         // Create the tree. It will be used as a renderer and editor. 
         // First we create a dummy model for the tree and set later the

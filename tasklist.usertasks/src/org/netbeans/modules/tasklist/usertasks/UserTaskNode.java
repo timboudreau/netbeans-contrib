@@ -106,12 +106,12 @@ public final class UserTaskNode extends AbstractNode {
         item.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent e) {
                 String n = e.getPropertyName();
-                if (n == "progress") {
+                if (n == "progress") { // NOI18N
                     int old = Math.round(((Float) e.getOldValue()).floatValue());
                     int new_ = Math.round(((Float) e.getNewValue()).floatValue());
                     UserTaskNode.this.firePropertyChange(
-                        "percentComplete", new Integer(old), new Integer(new_));
-                } else if (n == "line" || n == "started") {
+                        "percentComplete", new Integer(old), new Integer(new_)); // NOI18N
+                } else if (n == "line" || n == "started") { // NOI18N
                     // nothing
                 } else {
                     UserTaskNode.this.firePropertyChange(e.getPropertyName(),

@@ -22,9 +22,9 @@ import org.netbeans.modules.tasklist.usertasks.UserTask;
 
 
 public class UserTaskProperties extends TaskProperties {
-    public static final String PROPID_PRIORITY = "priority";
-    public static final String PROPID_SUMMARY = "summary";
-    public static final String PROPID_DETAILS = "details";
+    public static final String PROPID_PRIORITY = "priority"; // NOI18N
+    public static final String PROPID_SUMMARY = "summary"; // NOI18N
+    public static final String PROPID_DETAILS = "details"; // NOI18N
     public static final String PROPID_CATEGORY = "category"; // NOI18N
     public static final String PROPID_FILENAME = "filename"; // NOI18N
     public static final String PROPID_LINE_NUMBER = "line"; // NOI18N
@@ -67,7 +67,7 @@ public class UserTaskProperties extends TaskProperties {
             public Object getValue(Object obj) {
                 URL url = ((UserTask) obj).getUrl();
                 if (url == null)
-                    return "";
+                    return ""; // NOI18N
                 else
                     return url.toExternalForm();
             }
@@ -177,7 +177,7 @@ public class UserTaskProperties extends TaskProperties {
         } else if (propID.equals(PROPID_DETAILS)) { 
             return PROP_DETAILS;
         } else {
-            throw new IllegalArgumentException("Unresolved property id " + propID);
+            throw new IllegalArgumentException("Unresolved property id " + propID); // NOI18N
         }
     }
 }

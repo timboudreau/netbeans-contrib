@@ -144,7 +144,7 @@ public final class Background {
         if (false == loaded) {
             try {
                 // XXX be aware of #32080, that changes location of native libraries
-                System.loadLibrary("tasklist_bgthreads");
+                System.loadLibrary("tasklist_bgthreads"); // NOI18N
                 loaded = true;
             } catch (Throwable t) {
                 ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, t);
@@ -165,7 +165,7 @@ public final class Background {
     public static void main(String[] args) throws Exception {
         if (useHack() == true) {
             native_nice();
-            System.out.println("I'm niced for 1 minute. Check it by top utility.");
+            System.out.println("I'm niced for 1 minute. Check it by top utility."); // NOI18N
             Thread.sleep(60*1000);
         }
     }

@@ -22,8 +22,6 @@ import org.netbeans.modules.tasklist.client.Suggestion;
  *
  * @author Tor Norbye
  */
-
-
 public interface SuggestionPerformer {
     /** Perform the suggestion. This method should perform the
      * task as described in the Suggestion's description.
@@ -71,8 +69,10 @@ public interface SuggestionPerformer {
      */
     Object getConfirmation(Suggestion suggestion);
     
-    /** Indicate whether this action has a confirmation panel or text
+    /** 
+     * Indicate whether this action has a confirmation panel or text
      * (without actually having to create it.)
+     *
      * @return True iff this performer has a confirmation.
      */
     boolean hasConfirmation();

@@ -63,7 +63,7 @@ public class SortableTableHeader extends JTableHeader {
      * @param e an event
      */
     private void mouseClick(MouseEvent e) {
-        UTUtils.LOGGER.fine("clicked");
+        UTUtils.LOGGER.fine("clicked"); // NOI18N
         int col = SortableTableHeader.this.columnAtPoint(e.getPoint());
         if (col == -1) 
             return;
@@ -72,16 +72,16 @@ public class SortableTableHeader extends JTableHeader {
         if (!(t instanceof TreeTable)) 
             return;
         
-        UTUtils.LOGGER.fine("tt found");
+        UTUtils.LOGGER.fine("tt found"); // NOI18N
         SortingModel sm = ((TreeTable) t).getSortingModel();
         if (sm == null)
             return;
         
-        UTUtils.LOGGER.fine("model ok");
+        UTUtils.LOGGER.fine("model ok"); // NOI18N
         int index = getColumnModel().getColumn(col).getModelIndex();
         if (sm.getColumnComparator(index) == null)
             return;
-        UTUtils.LOGGER.fine("comparator ok");
+        UTUtils.LOGGER.fine("comparator ok"); // NOI18N
         int cur = sm.getSortedColumn();
         if (index == cur) {
             if (sm.isSortOrderDescending())

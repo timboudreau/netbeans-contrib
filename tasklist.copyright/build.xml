@@ -25,7 +25,7 @@ Microsystems, Inc. All Rights Reserved.
       <path id="cp">
         <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
         <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
-        <pathelement path="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>
+        <pathelement path="${tasklist/api.dir}/${nb.modules.dir}/org-netbeans-modules-tasklist-api.jar"/>
         <pathelement path="${tasklist/core.dir}/${nb.modules.dir}/org-netbeans-modules-tasklist-core.jar"/>
         <pathelement location="${editor.dir}/${nb.modules.dir}/editor-lib.jar"/>
         <pathelement location="${editor.dir}/${nb.modules.dir}/editor.jar"/>

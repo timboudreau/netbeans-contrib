@@ -89,9 +89,9 @@ public class UserTasksTreeTable extends NodesTreeTable {
             getSelectionModel().addListSelectionListener(
                 new ListSelectionListener() {
                     public void valueChanged(ListSelectionEvent e) {
-                        UTUtils.LOGGER.fine(e.getFirstIndex() + " " + 
-                            e.getLastIndex() + " " + 
-                            e.getValueIsAdjusting() + " " + 
+                        UTUtils.LOGGER.fine(e.getFirstIndex() + " " +  // NOI18N
+                            e.getLastIndex() + " " +  // NOI18N
+                            e.getValueIsAdjusting() + " " +  // NOI18N
                             UserTasksTreeTable.this.getSelectedRow());
                         if (UTUtils.LOGGER.isLoggable(Level.FINER))
                             Thread.dumpStack();

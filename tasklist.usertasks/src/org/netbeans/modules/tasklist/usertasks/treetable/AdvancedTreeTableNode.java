@@ -298,9 +298,9 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
         AdvancedTreeTableNode parent = (AdvancedTreeTableNode) getParent(); 
         TreeTableNode[] path = parent.getPathToRoot();
 
-        assert parent.getIndex(this) != -1 : "parent=" + parent + " this=" + this + 
-            " parent.getChildCount=" + parent.getChildCount() + 
-            " parent.getChild(0)=" + parent.getChildAt(0);
+        assert parent.getIndex(this) != -1 : "parent=" + parent + " this=" + this +  // NOI18N
+            " parent.getChildCount=" + parent.getChildCount() +  // NOI18N
+            " parent.getChild(0)=" + parent.getChildAt(0); // NOI18N
         model.fireTreeNodesChanged(model, path, 
             new int[] {parent.getIndex(this)}, new Object[] {this});
             

@@ -49,7 +49,7 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
     
     public String getText() {
         if (duration == null)
-            return "";
+            return ""; // NOI18N
         
         String s = EFFORT_FORMAT.format(new Object[] {
             new Integer(duration.weeks),
@@ -73,7 +73,7 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
 
     // workaround for a Swing bug (?)
     protected void paintComponent(java.awt.Graphics g) {
-        UTUtils.LOGGER.fine(getHeight() + "");
+        UTUtils.LOGGER.fine(getHeight() + ""); // NOI18N
         //g.setClip(oldClip.x, oldClip.y, 
         //    oldClip.width - 1, 
         //    oldClip.height - 1);

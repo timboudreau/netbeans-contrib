@@ -541,7 +541,7 @@ public class ICalImportFormat implements ExportImportFormat {
                 filename = value;
             } else if ("X-NETBEANS-LINE".equals(name)) { // NOI18N
                 lineNumber = value;
-            } else if ("URL".equals(name)) {
+            } else if ("URL".equals(name)) { // NOI18N
                 url = value;
             } else if ("RELATED-TO".equals(name)) { // NOI18N
                 related = value;
@@ -553,7 +553,7 @@ public class ICalImportFormat implements ExportImportFormat {
                 int pos = param.indexOf('=');
                 if (pos >= 0) {
                     String t = param.substring(pos + 1);
-                    if (t.equals("BEGIN_BEGIN"))
+                    if (t.equals("BEGIN_BEGIN")) // NOI18N
                         d.type = Dependency.BEGIN_BEGIN;
                 }
                 dependencies.add(d);
@@ -848,12 +848,12 @@ public class ICalImportFormat implements ExportImportFormat {
         } while (true);
         
         // Dependencies
-        UTUtils.LOGGER.fine("processing dependencies: " + dependencies.size());
+        UTUtils.LOGGER.fine("processing dependencies: " + dependencies.size()); // NOI18N
         for (int i = 0; i < dependencies.size(); i++) {
             Dep d = (Dep) dependencies.get(i);
             UserTask ut = list.findItem(
                 list.getSubtasks().iterator(), d.dependsOn);
-            UTUtils.LOGGER.fine("found task " + ut);
+            UTUtils.LOGGER.fine("found task " + ut); // NOI18N
             if (ut != null) {
                 d.ut.getDependencies().add(new Dependency(ut, d.type));
             }

@@ -21,7 +21,7 @@ public class LineTableCellRenderer extends DefaultTableCellRenderer {
             return this;
         int n = ((Integer) value).intValue();
         if (n == 0)
-            setText("");
+            setText(""); // NOI18N
         else
             setText(Integer.toString(n));
         return this;
