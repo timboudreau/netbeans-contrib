@@ -480,7 +480,7 @@ public class AdditionalCommands extends PVCSStub {
             String ss = st.nextToken();
             switch (state) {
                 case 0:
-                    if (ss.equals (rev))
+                    if (ss.startsWith (rev))
                         state = 1;
                     break;
                 case 1:
@@ -505,9 +505,9 @@ public class AdditionalCommands extends PVCSStub {
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("History");
         waitNoEmpty(coo.txtStandardOutput ());
         output = coo.txtStandardOutput().getText ();
-        coo.close ();
-        coo.waitClosed();
-        
+        info.println ("Output:");
+        info.println (output);
+
         String username = getLockText (B_File.pvcsNode ().getText ());
         Date date = findDate (output, "Rev 1.2");
         SimpleDateFormat sdf = new SimpleDateFormat ("dd/MM/yy HH:mm:ss");
@@ -516,6 +516,9 @@ public class AdditionalCommands extends PVCSStub {
         sf.addReplaceFilter("", B_File.filename(0), "<filepath>");
         sf.addReplaceFilter ("Checked in:", "", "<check_in_date>");
         sf.addReplaceFilter ("Last modified:", "", "<last_modified>");
+        
+        coo.close ();
+        coo.waitClosed();
         
         B_File.pvcsNode().pVCSHistory();
         hi = new HistoryCommandOperator ("");
