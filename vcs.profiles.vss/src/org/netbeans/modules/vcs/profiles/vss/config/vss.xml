@@ -194,11 +194,11 @@ Microsystems, Inc. All Rights Reserved.
       </value>
     </variable>
     <variable name="WIZARD_INPUT_DESCRIPTOR" basic="false">
-      <value>PROMPT_FOR(ROOTDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_WORK), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_WORK_mnc)), SELECTOR_DIR)
-             PROMPT_FOR(USER_NAME, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_UserName), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UserName_Mnemonic)))                 
+      <value>PROMPT_FOR(ROOTDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_WORK), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_WORK_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
+             PROMPT_FOR(USER_NAME, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_UserName), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UserName_Mnemonic)))
              PROMPT_FOR(VSSCMD_EXE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_Command), "C:\Program Files\Microsoft Visual Studio\VSS\win32\SS.EXE", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_EXE_mnc)), SELECTOR_FILE)
-             PROMPT_FOR(PROJECT, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_PROJECT), "$/", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_PROJECT_mnc)))
-             PROMPT_FOR(ENVIRONMENT_VAR_SSDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_SSDIR), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_SSDIR_mnc)), SELECTOR_DIR)    
+             PROMPT_FOR(PROJECT, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_PROJECT), "$/", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_PROJECT_mnc)), VALIDATOR_NON_EMPTY)
+             PROMPT_FOR(ENVIRONMENT_VAR_SSDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_SSDIR), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_SSDIR_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
              ASK_FOR(DO_VSS_CHECKOUT, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_GET);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(WIZARD_VSS_CHECKOUT_Mnemonic)))
       </value>
     </variable>
