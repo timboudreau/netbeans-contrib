@@ -82,6 +82,7 @@ Microsystems, Inc. All Rights Reserved.
       <property name="javadoc.packages" value="org.netbeans.api.vcs,org.netbeans.api.vcs.commands,org.netbeans.spi.vcs,org.netbeans.spi.vcs.commands"/>
       <property name="javadoc.classpath" value="${_cp}"/>
       <property name="javadoc.apichanges" location="api/doc/changes/apichanges.xml"/>
+      <property name="javadoc.arch" location="arch/arch-vcscore.xml"/>
     </ant>
   </target>
 

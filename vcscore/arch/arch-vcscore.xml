@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE api-answers [
-  <!ENTITY api-questions SYSTEM "api-questions.xml">
+<!DOCTYPE api-answers PUBLIC "-//NetBeans//DTD Arch Answers//EN" "../../nbbuild/antsrc/org/netbeans/nbbuild/Arch.dtd" [
+  <!ENTITY api-questions SYSTEM "../../nbbuild/antsrc/org/netbeans/nbbuild/Arch-api-questions.xml">
 ]>
 
 <api-answers
   version="$Revision$" date="$date$"
-  question-version="1.8"
+  question-version="1.15"
   module="vcscore"
   author="mentlicher@netbeans.org"
 >
@@ -151,7 +151,7 @@ for more information.<p>List of the main features:</p>
 -->
 <answer id="dep-nb">
     <api name="Open APIs" type="import" category="official" url="http://openide.netbeans.org"/> 
-    <api name="Open APIs Extensions" type="import" category="under development" url="http://openidex.netbeans.org"/>
+    <api name="Open APIs Extensions" type="import" category="devel" url="http://openidex.netbeans.org"/>
 </answer>
 
 
@@ -361,31 +361,31 @@ for more information.<p>List of the main features:</p>
         To be able to compare the user name with a file locker name to determine
         whether the file was locked by the current user or not.
     </property>
-    <property name="Env-HOME" category="under development">
+    <property name="Env-HOME" category="friend">
         This property is provided by core from the set of properties of the underlying
         operation system. It's used to determine the user's home directory for
         the purpose of location of .cvspass file and other CVS configuartion files.
     </property>
-    <property name="Env-HOMEPATH" category="under development">
+    <property name="Env-HOMEPATH" category="friend">
         This property is provided by core from the set of properties of the underlying
         operation system. It's used to determine the user's home directory for
         the purpose of location of .cvspass file and other CVS configuartion files
         on Windows operating system. It's used in conjunction with Env-HOMEDRIVE
         property.
     </property>
-    <property name="Env-HOMEDRIVE" category="under development">
+    <property name="Env-HOMEDRIVE" category="friend">
         This property is provided by core from the set of properties of the underlying
         operation system. It's used to determine the user's home directory for
         the purpose of location of .cvspass file and other CVS configuartion files
         on Windows operating system. It's used in conjunction with Env-HOMEPATH
         property.
     </property>
-    <property name="env-cvs_rsh" category="under development">
+    <property name="env-cvs_rsh" category="friend">
         This property is provided by core from the set of properties of the underlying
         operation system. It's used to determine the default value of CVS_RSH
         environment variable for :ext: cvs connection method.
     </property>
-    <property name="env-cvsroot" category="under development">
+    <property name="env-cvsroot" category="friend">
         This property is provided by core from the set of properties of the underlying
         operation system. It's used to determine the default value of CVSROOT
         environment variable to be able to preset the CVS configuration.
@@ -421,6 +421,44 @@ for more information.<p>List of the main features:</p>
     <li>In joined CVS wizard to be able to mount filesystems of other modules.</li>
     <li>In some communication between VCS filesystem and versioning filesystem.</li>
     </ul>
+</answer>
+
+
+
+<!--
+        <question id="exec-introspection">
+            Does your module use any kind of runtime type information (<code>instanceof</code>,
+            work with <code>java.lang.Class</code>, etc.)?
+            <hint>
+            Check for cases when you have an object of type A and you also
+            expect it to (possibly) be of type B and do some special action. That
+            should be documented. The same applies on operations in meta-level
+            (Class.isInstance(...), Class.isAssignableFrom(...), etc.).
+            </hint>
+        </question>
+-->
+<answer id="exec-introspection">
+    TBD.
+</answer>
+
+
+
+<!--
+        <question id="exec-process">
+            Do you execute an external process from your module? How do you ensure
+            that the result is the same on different platforms? Do you parse output?
+            Do you depend on result code?
+            <hint>
+            If you feed an input, parse the output please declare that as an API.
+            </hint>
+        </question>
+-->
+<answer id="exec-process">
+    Yes. VCS commands are executed as external processes unless they are written
+    in Java. We do not ensure that the result is the same on different platforms,
+    the behavior depends on the executed process. The output is parsed and there
+    is some code, which is dependent on the result output. This dependency is
+    highly configurable via various parameters.
 </answer>
 
 
@@ -727,5 +765,24 @@ for more information.<p>List of the main features:</p>
 <answer id="resources-read">
     VCS commands written in Java are loaded from DefaultFileSystem.
 </answer>
+
+<!--
+        <question id="deploy-dependencies">
+            What do other modules need to do to declare a dependency on this one?
+            <hint>
+                Provide a sample of the actual lines you would add to a module manifest
+                to declare a dependency, for example using OpenIDE-Module-Module-Dependencies
+                or OpenIDE-Module-Requires. You may use the magic token @SPECIFICATION-VERSION@
+                to represent the current specification version of the module.
+            </hint>
+        </question>
+-->
+<answer id="deploy-dependencies">
+    Add folloeing line into the module's manifest:
+    <code>OpenIDE-Module-Module-Dependencies: org.netbeans.modules.vcscore/1 > @SPECIFICATION-VERSION@</code>
+    where @SPECIFICATION-VERSION@ is the current specification version of the vcscore module.
+</answer>
+
+
 
 </api-answers>
