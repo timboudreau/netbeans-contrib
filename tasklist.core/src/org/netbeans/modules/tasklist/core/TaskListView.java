@@ -543,9 +543,6 @@ public abstract class TaskListView extends TopComponent
     }
 
     private void setRoot() {
-        // todo remove
-        Thread.dumpStack();
-        
         //tasklist.getRoot();
         rootNode = createRootNode();
 
@@ -587,9 +584,6 @@ public abstract class TaskListView extends TopComponent
     }
 
     public void setRootNode(TaskNode r) {
-        // todo remove
-        Thread.dumpStack();
-        
         rootNode = r;
         getExplorerManager().setRootContext(rootNode);
 
@@ -1559,9 +1553,6 @@ for (int i = 0; i < columns.length; i++) {
 
     /** Collapse or expand a given node */
     public void setExpanded(Node n, boolean expanded) {
-        // todo remove
-        Thread.dumpStack();
-        
         if (expanded) {
             treeTable.expandNode(n);
         } else {

@@ -94,7 +94,7 @@ final class FilteredTasksList implements ObservableList {
      */
     synchronized void byebye() {
         if (listeners.size() > 0) {
-            System.err.println("Leaked listeners: " + listeners);
+//            System.err.println("Leaked listeners: " + listeners);
         }
         listeners.clear();
         peer.removeListener(handler);  // nobody is interested in changes
