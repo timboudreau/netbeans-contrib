@@ -89,7 +89,7 @@ Microsystems, Inc. All Rights Reserved.
     
     <target name="compile">
           <ant dir="${new-nb}/nbbuild" >
-            <property name="modules=diff" />
+            <property name="modules" value="diff" />
           </ant>
           <ant dir="${new-nb}/diff" />
     	  <ant dir="." />
