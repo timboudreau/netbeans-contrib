@@ -35,6 +35,7 @@ import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
+import org.netbeans.modules.vcscore.cmdline.UserCommandTask;
 
 /**
  * This class works as a wrapper for recursive commands which needs to perform
@@ -814,6 +815,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         public CommandInfo(VcsCommand cmd, Hashtable vars) {
             this.cmd = cmd;
             this.vars = vars;
+            vars.put(UserCommandTask.VAR_USE_PARENT_VISUALIZER, "true");
             canRunOnFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_FILE);
             canRunOnFolders = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_DIR);
             canRunOnRoot = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_ROOT);
