@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -2161,11 +2161,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 return ;
             }
             //System.out.println("AUTOFILL FINISHED ("+cmd.getName()+").");
+            VariableValueAdjustment varAdjust = fileSystem.getVarValueAdjustment();
+            Set adjustedNames = varAdjust.getAdjustedVariableNames();
             int len = varTextFields.size();
             for (int i = 0; i < len; i++) {
                 VcsConfigVariable var = (VcsConfigVariable) varVariables.get(i);
-                String value = (String) vars.get(var.getName());
+                String name = var.getName();
+                String value = (String) vars.get(name);
                 if (value != null) {
+                    if (adjustedNames.contains(name)) {
+                        value = varAdjust.revertAdjustedVarValue(value);
+                    }
                     JTextField field = (JTextField) varTextFields.get(i);
                     field.setText(value);
                     var.setValue(value);
@@ -2173,6 +2179,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             }
             Vector variables = fileSystem.getVariables();
             if (configInputPanels != null) {
+                for (Iterator it = adjustedNames.iterator(); it.hasNext(); ) {
+                    String name = (String) it.next();
+                    String value = (String) vars.get(name);
+                    if (value != null) {
+                        value = varAdjust.revertAdjustedVarValue(value);
+                        vars.put(name, value);
+                    }
+                }
                 for (int i = 0; i < configInputPanels.length; i++) {
                     configInputPanels[i].updateVariableValues(vars);
                 }
