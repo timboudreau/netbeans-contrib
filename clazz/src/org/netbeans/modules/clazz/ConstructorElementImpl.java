@@ -83,7 +83,7 @@ class ConstructorElementImpl extends MemberElementImpl
             exceptions = new Identifier[reflEx.length];
             // build our exception types
             for (int i = 0; i < reflEx.length; i++) {
-                exceptions[i] = Identifier.create(reflEx[i].getName());
+                exceptions[i] = Identifier.create(reflEx[i].getClassName().getExternalName());
             }
         }
         return exceptions;

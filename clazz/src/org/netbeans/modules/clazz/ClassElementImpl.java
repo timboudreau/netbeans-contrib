@@ -73,7 +73,7 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
             if (cn  == null)
                 sc = "";
             else
-                sc = cn.getInternalName();
+                sc = cn.getExternalName();
             superClass = Identifier.create(sc); // NOI18N
         }
         return superClass;
