@@ -76,15 +76,16 @@ public class RepositoryCreation extends NbTestCase {
     /** Method called before each testcase. Sets default timeouts, redirects system
      * output and maps main components.
      */
-    protected void setUp() {
-        JellyProperties.setDefaults();
-        JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
-    }
-    
-    /** Method called after each testcase. Resets Jemmy WaitComponentTimeout.
-     */
-    protected void tearDown() {
-        JellyProperties.setDefaults();
+    protected void setUp() throws Exception {
+        String workingDir = getWorkDirPath();
+        new File(workingDir).mkdirs();
+        File outputFile = new File(workingDir + "/output.txt");
+        outputFile.createNewFile();
+        File errorFile = new File(workingDir + "/error.txt");
+        errorFile.createNewFile();
+        PrintWriter outputWriter = new PrintWriter(new FileWriter(outputFile));
+        PrintWriter errorWriter = new PrintWriter(new FileWriter(errorFile));
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
     }
     
     /** Method will create a file and capture the screen.
@@ -224,7 +225,9 @@ public class RepositoryCreation extends NbTestCase {
         new Action(VERSIONING_MENU + "|" + REFRESH, REFRESH).perform(testNode);
         Thread.currentThread().sleep(10000);
         Node C_FileNode = new Node( testNode, "C_File [Local]");
+        new java.awt.Robot().keyPress(java.awt.event.KeyEvent.VK_CONTROL);
         new ActionNoBlock(VERSIONING_MENU + "|" + ADD + "...", ADD + "...").perform(C_FileNode);
+        new java.awt.Robot().keyRelease(java.awt.event.KeyEvent.VK_CONTROL);
         AddCommandOperator addCommand = new AddCommandOperator("C_File.java");
         addCommand.setWorkfileDescription("Auto-generated form file.");
         addCommand.setChangeDescription("Initial revision.");

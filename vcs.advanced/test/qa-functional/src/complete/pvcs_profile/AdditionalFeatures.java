@@ -87,15 +87,16 @@ public class AdditionalFeatures extends NbTestCase {
     /** Method called before each testcase. Sets default timeouts, redirects system
      * output and maps main components.
      */
-    protected void setUp() {
-        JellyProperties.setDefaults();
-        JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
-    }
-    
-    /** Method called after each testcase. Resets Jemmy WaitComponentTimeout.
-     */
-    protected void tearDown() {
-        JellyProperties.setDefaults();
+    protected void setUp() throws Exception {
+        String workingDir = getWorkDirPath();
+        new File(workingDir).mkdirs();
+        File outputFile = new File(workingDir + "/output.txt");
+        outputFile.createNewFile();
+        File errorFile = new File(workingDir + "/error.txt");
+        errorFile.createNewFile();
+        PrintWriter outputWriter = new PrintWriter(new FileWriter(outputFile));
+        PrintWriter errorWriter = new PrintWriter(new FileWriter(errorFile));
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
     }
     
     /** Method will create a file and capture the screen.
@@ -148,7 +149,7 @@ public class AdditionalFeatures extends NbTestCase {
         filesystemNode = new Node(versioningExplorer.treeVersioningTreeView(), filesystem);
         new Action(null, DIFF).perform(new Node(filesystemNode, "A_File.java [Current]|1.0  Initial revision."));
         versioningExplorer.close();
-        EditorOperator editor = new EditorOperator("Diff: A_File.java");
+        TopComponentOperator editor = new TopComponentOperator(new EditorWindowOperator(), "Diff: A_File.java");
         JEditorPaneOperator headRevision = new JEditorPaneOperator(editor, 0);
         JEditorPaneOperator workingRevision = new JEditorPaneOperator(editor, 1);
         String headRevisionContents = "/** This is testing file.\n */\n\n public class Testing_File {\n\n }\n";
