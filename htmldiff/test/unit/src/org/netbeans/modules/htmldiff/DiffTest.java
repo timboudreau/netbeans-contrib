@@ -39,6 +39,26 @@ public final class DiffTest extends NbTestCase {
         
         return suite;
     }
+
+    public void testSpacesAreKeptInPreMode () throws Exception {
+        String vzor = "Is a <pre>spaces     between</PRE> there?";
+        
+        Reader r1 = new StringReader (vzor);
+        Reader r2 = new StringReader (vzor);
+        
+        HtmlDiff[] res = HtmlDiff.diff (r1, r2);
+        
+        assertDifferences ("No differnces", 0, res);
+        
+        StringBuffer b = new StringBuffer ();
+        for (int i = 0; i < res.length; i++) {
+            b.append (res[i].getNew());
+        }
+        
+        String s = b.toString();
+        
+        assertEquals ("spaces are there", vzor, s);
+    }
     
     public void testSpacesAreKept () throws Exception {
         String vzor = "Is a <b>space</b> there?";

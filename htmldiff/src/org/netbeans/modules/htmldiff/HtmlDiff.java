@@ -138,6 +138,7 @@ public final class HtmlDiff extends Object {
         ArrayList arr = new ArrayList ();
         int state = -1;
         StringBuffer word = null;
+        int sectionPre = 0;
         for (;;) {
             int ch = buf.read ();
             if (ch == -1) break;
@@ -156,7 +157,7 @@ public final class HtmlDiff extends Object {
             case -1: // undecided state
             case 0: // white line
                 if (!Character.isSpaceChar ((char)ch) && ch != '<' && ch != '\n') {
-                    if (state == 0) {
+                    if (state == 0 && sectionPre == 0) {
                         // there was a while line
                         arr.add (newSpace ());
                     }
@@ -181,13 +182,23 @@ public final class HtmlDiff extends Object {
                 }
                 // regular space
                 state = 0;
+                if (sectionPre > 0) {
+                    arr.add (newSpace ());
+                }
                 break;
             case 2: // search for end of tag
                 word.append ((char)ch);
                 if (ch == '>') {
-                    arr.add (newTag (word.toString()));
+                    String tag = word.toString();
+                    arr.add (newTag (tag));
                     word = null;
                     state = -1;
+                    if ("<PRE>".equals (tag.toUpperCase())) {
+                        sectionPre++;
+                    }
+                    if ("</PRE>".equals (tag.toUpperCase())) {
+                        sectionPre--;
+                    }
                     break;
                 }
                 break;
