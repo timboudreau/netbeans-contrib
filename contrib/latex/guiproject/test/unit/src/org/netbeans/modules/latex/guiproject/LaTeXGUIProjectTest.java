@@ -64,8 +64,6 @@ import org.netbeans.spi.project.ui.CustomizerProvider;
 
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 
-import org.netbeans.spi.project.ui.support.LogicalViews;
-
 import org.openide.DialogDescriptor;
 
 import org.openide.DialogDisplayer;

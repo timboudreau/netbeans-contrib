@@ -46,7 +46,7 @@ import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.ui.CustomizerProvider;
 
 import org.netbeans.spi.project.ui.LogicalViewProvider;
-import org.netbeans.spi.project.ui.support.LogicalViews;
+import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 
@@ -244,10 +244,10 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
                 null,
                 ActionsFactory.createBuildAction(),
                 null,
-                LogicalViews.setAsMainProjectAction(),
-                LogicalViews.closeProjectAction(),
+                CommonProjectActions.setAsMainProjectAction(),
+                CommonProjectActions.closeProjectAction(),
                 null,
-                LogicalViews.customizeProjectAction(),
+                CommonProjectActions.customizeProjectAction(),
             };
         }
     }
