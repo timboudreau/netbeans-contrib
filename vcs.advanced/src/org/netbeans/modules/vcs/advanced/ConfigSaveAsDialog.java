@@ -259,7 +259,7 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
                         resourceBundles = new String[labelAndOS.length - 3];
                         System.arraycopy(labelAndOS, 3, resourceBundles, 0, resourceBundles.length);
                     }
-                    label = VcsUtilities.getBundleString(resourceBundles, label);
+                    label = VcsUtilities.getBundleString(resourceBundles, labelAndOS[0]);
                 } else {
                     label = org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("CTL_No_label_configured");
                 }
