@@ -22,6 +22,7 @@ import javax.swing.*;
 import java.text.*;
 
 import org.openide.util.*;
+import org.openide.filesystems.FileUtil;
 
 /** Select file dialog.
  * This class provides a dialog for file selection.
@@ -72,6 +73,7 @@ public class ChooseFileDialog extends JDialog {
     //-------------------------------------------
     private void initComponents() {
         chooser = new JFileChooser ();
+        FileUtil.preventFileChooserSymlinkTraversal(chooser, null);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setFileHidingEnabled(false);
         if (propFileFilter) chooser.setFileFilter (new PropertiesFileFilter ());

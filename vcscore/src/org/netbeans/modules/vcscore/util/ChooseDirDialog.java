@@ -22,6 +22,7 @@ import javax.swing.*;
 import java.text.*;
 
 import org.openide.util.*;
+import org.openide.filesystems.FileUtil;
 
 /** Select directory dialog.
  * 
@@ -56,6 +57,7 @@ public class ChooseDirDialog extends JDialog {
     //-------------------------------------------
     private void initComponents(){
         chooser = new JFileChooser ();
+        FileUtil.preventFileChooserSymlinkTraversal(chooser, null);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setFileHidingEnabled(false);
 
