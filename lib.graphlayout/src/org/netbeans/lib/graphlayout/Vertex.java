@@ -46,14 +46,14 @@ public final class Vertex {
     /** Compares the x value with rectangle and uses the one that is more stable.
      */
     final int getX () {
-        if (data == null || Math.abs (x - data.x - data.width / 2) > 1 || Math.abs (data.y - data.y - data.height / 2) > 1) {
+        if (data == null || Math.abs (x - data.x - data.width / 2) > 1 || Math.abs (y - data.y - data.height / 2) > 1) {
             return (int)x;
         } else {
             return data.x + data.width / 2;
         }
     }
     final int getY () {
-        if (data == null || Math.abs (x - data.x - data.width / 2) > 1 || Math.abs (data.y - data.y - data.height / 2) > 1) {
+        if (data == null || Math.abs (x - data.x - data.width / 2) > 1 || Math.abs (y - data.y - data.height / 2) > 1) {
             return (int)y;
         } else {
             return data.y + data.height / 2;
