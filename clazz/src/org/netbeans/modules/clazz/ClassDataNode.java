@@ -79,7 +79,7 @@ class ClassDataNode extends DataNode implements Runnable {
   /** @param obj is a ClassDataObject that is to be represented
   */
   ClassDataNode(final ClassDataObject obj) {
-    super(obj, new SourceChildren(new NodeFactory()));
+    super(obj, new SourceChildren(DefaultFactory.DEFAULT_RO));
     this.obj = obj;
     initialize();
   }
@@ -293,46 +293,11 @@ class ClassDataNode extends DataNode implements Runnable {
     }
     iconResolved = true;
   }
-
-  /** Factory for creating nodes which are special for us.
-  */
-  private static final class NodeFactory extends DefaultFactory {
-
-    /** @return ClassNode instance. */
-    public Node createClassNode (final ClassElement element) {
-      return new ClassNode(this, element);
-    }
-
-    /** @return class constructor node instance
-    */
-    public Node createConstructorNode (ConstructorElement element) {
-      return new ClassItemNode.ConstructorItemNode(element);
-    }
-
-    /** @return class method node instance
-    */
-    public Node createMethodNode (MethodElement element) {
-      return new ClassItemNode.MethodItemNode(element);
-    }
-
-    /** @return class field node instance
-    */
-    public Node createFieldNode (FieldElement element) {
-      return new ClassItemNode.FieldItemNode(element);
-    }
-
-    /** Unsupported. Throws UnsupportedOperationException.
-    */
-    public Node createInitializerNode (InitializerElement element) {
-      throw new UnsupportedOperationException();
-    }
-
-  } // end of NodeFactory inner class
-
 }
 
 /*
  * Log
+ *  12   Gandalf   1.11        3/15/99  Petr Hamernik   
  *  11   Gandalf   1.10        2/25/99  Jaroslav Tulach Change of clipboard 
  *       management  
  *  10   Gandalf   1.9         2/15/99  David Simonek   

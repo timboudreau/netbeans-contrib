@@ -32,7 +32,7 @@ class ConstructorElementImpl extends MemberElementImpl
   /** The array of parameters of this constructor (or method)*/
   private MethodParameter[] parameters;
   /** The array of exceptions which can be thrown */
-  private Type[] exceptions;
+  private Identifier[] exceptions;
 
   /** Default constructor, asocitates this object
   * with java reflection Constructor instance.
@@ -76,7 +76,7 @@ class ConstructorElementImpl extends MemberElementImpl
 
   /** @return the array of the exceptions throwed by the method.
   */
-  public Type[] getExceptions () {
+  public Identifier[] getExceptions () {
     if (exceptions == null) {
       Class[] reflEx = null;
       // obtain via reflection
@@ -84,10 +84,10 @@ class ConstructorElementImpl extends MemberElementImpl
         reflEx = ((Method)data).getExceptionTypes();
       else
         reflEx = ((Constructor)data).getExceptionTypes();
-      exceptions = new Type[reflEx.length];
+      exceptions = new Identifier[reflEx.length];
       // build our exception types
       for (int i = 0; i < reflEx.length; i++) {
-        exceptions[i] = Type.createFromClass(reflEx[i]);
+        exceptions[i] = Identifier.create(reflEx[i].getName());
       }
     }
     return exceptions;
@@ -95,7 +95,7 @@ class ConstructorElementImpl extends MemberElementImpl
 
   /** Unsupported, throws SourceException
   */
-  public void setExceptions (Type[] exceptions) throws SourceException {
+  public void setExceptions (Identifier[] exceptions) throws SourceException {
     throw new SourceException();
   }
 
@@ -125,6 +125,7 @@ class ConstructorElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  5    src-jtulach1.4         3/15/99  Petr Hamernik   
 *  4    src-jtulach1.3         2/17/99  Petr Hamernik   serialization changed.
 *  3    src-jtulach1.2         2/10/99  David Simonek   
 *  2    src-jtulach1.1         2/3/99   David Simonek   
