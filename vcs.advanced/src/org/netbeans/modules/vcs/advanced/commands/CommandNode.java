@@ -62,6 +62,7 @@ public class CommandNode extends AbstractNode {
         propertyClassTypes.put(VcsCommand.PROPERTY_ON_ROOT, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES, Boolean.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_IGNORE_FAIL, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_HIDDEN, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_DISABLED_ON_STATUS, String.class);
