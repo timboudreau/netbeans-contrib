@@ -3437,33 +3437,33 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     if (!notModifiableStatuses.contains(oldStatus)) {
                         statusProvider.setFileModified(name);
                     }
-                }
-            });
-        }
-        VcsGroupSettings grSettings = (VcsGroupSettings) SharedClassObject.findObject(VcsGroupSettings.class, true);
-        if (!grSettings.isDisableGroups()) {
-            if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_TO_DEFAULT
-                || grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_ASK) {
-                
-                FileObject fo = findResource(name);
-                if (fo != null) {
-                    try {
-                        DataObject dobj = DataObject.find(fo);
-                        synchronized (GROUP_LOCK) {
-                            DataShadow shadow = GroupUtils.findDOInGroups(dobj);
-                            if (shadow == null) {
-                                // it doesn't exist in groups, add it..
-                                if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_ASK) {
-                                    AddToGroupDialog.openChooseDialog(dobj);
-                                } else {
-                                    GroupUtils.addToDefaultGroup(new Node[] {dobj.getNodeDelegate()});
+                    VcsGroupSettings grSettings = (VcsGroupSettings) SharedClassObject.findObject(VcsGroupSettings.class, true);
+                    if (!grSettings.isDisableGroups()) {
+                        if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_TO_DEFAULT
+                        || grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_ASK) {
+                            
+                            FileObject fo = findResource(name);
+                            if (fo != null) {
+                                try {
+                                    DataObject dobj = DataObject.find(fo);
+                                    synchronized (GROUP_LOCK) {
+                                        DataShadow shadow = GroupUtils.findDOInGroups(dobj);
+                                        if (shadow == null) {
+                                            // it doesn't exist in groups, add it..
+                                            if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_ASK) {
+                                                AddToGroupDialog.openChooseDialog(dobj);
+                                            } else {
+                                                GroupUtils.addToDefaultGroup(new Node[] {dobj.getNodeDelegate()});
+                                            }
+                                        }
+                                    }
+                                } catch (DataObjectNotFoundException exc) {
                                 }
                             }
                         }
-                    } catch (DataObjectNotFoundException exc) {
                     }
                 }
-            }
+            });
         }
     }
 
