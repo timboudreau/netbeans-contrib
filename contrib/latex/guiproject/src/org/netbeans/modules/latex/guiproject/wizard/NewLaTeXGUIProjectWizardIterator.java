@@ -47,14 +47,14 @@ public class NewLaTeXGUIProjectWizardIterator implements org.openide.WizardDescr
     
     /** Creates a new instance of NewLaTeXGUIProjectWizardIterator */
     public NewLaTeXGUIProjectWizardIterator() {
-        Thread.dumpStack();
+//        Thread.dumpStack();
     }
 
     public void addChangeListener(ChangeListener l) {
     }
 
     public org.openide.WizardDescriptor.Panel current() {
-                Thread.dumpStack();
+//        Thread.dumpStack();
 
         return panels[current];
     }
@@ -73,11 +73,18 @@ public class NewLaTeXGUIProjectWizardIterator implements org.openide.WizardDescr
         this.wizard = wizard;
     }
 
+    static String constructRealMainFileName(String proposedMainFileName) {
+        if (proposedMainFileName.endsWith(".tex") || proposedMainFileName.endsWith(".latex"))
+            return proposedMainFileName;
+        
+        return proposedMainFileName + ".tex";
+    }
+    
     public Set instantiate() throws IOException {
-        System.err.println("Instantiate!");
+//        System.err.println("Instantiate!");
         
         File metadataDir = new File((String) wizard.getProperty(DataNames.METADATA_DIR), (String) wizard.getProperty(DataNames.METADATA_NAME));
-        File mainFile = new File((String) wizard.getProperty(DataNames.MAIN_FILE));
+        File mainFile = new File(constructRealMainFileName((String) wizard.getProperty(DataNames.MAIN_FILE)));
         FileObject metadataDirFO = CreateNewLaTeXProject.getDefault().createProject(metadataDir, mainFile);
         FileObject mainFileFO = FileUtil.toFileObject(mainFile);
         FileObject documentTexSource = Repository.getDefault().getDefaultFileSystem().findResource("latex/guiproject/document.tex");

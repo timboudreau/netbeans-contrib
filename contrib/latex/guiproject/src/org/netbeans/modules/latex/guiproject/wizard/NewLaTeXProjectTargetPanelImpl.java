@@ -265,6 +265,11 @@ public class NewLaTeXProjectTargetPanelImpl extends javax.swing.JPanel implement
         String file = fileName.getText();
         File   fileFile = new File(file);
         
+        if (!fileFile.isDirectory()) {
+            file = NewLaTeXGUIProjectWizardIterator.constructRealMainFileName(file);
+            fileFile = new File(file);
+        }
+        
         if (originalCreatedFileForegroundColor == null)
             originalCreatedFileForegroundColor = createdFile.getForeground();
         
