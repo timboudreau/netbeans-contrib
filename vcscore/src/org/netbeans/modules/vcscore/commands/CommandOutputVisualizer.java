@@ -18,23 +18,24 @@ import java.util.Iterator;
 import java.util.Hashtable;
 import javax.swing.SwingUtilities;
 
-import org.openide.windows.Workspace;
+import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
+import org.openide.windows.Workspace;
 
 import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
-import org.openide.DialogDisplayer;
-import org.openide.windows.WindowManager;
 
 /**
  * The default visualizer of command output.
  * @author  Martin Entlicher
  */
-public class CommandOutputVisualizer extends VcsCommandVisualizer {
+public class CommandOutputVisualizer extends TopComponent implements VcsCommandVisualizer {
 
     //private static final int MAX_NUM_LINES_TO_KEEP = 1000;
     /** Maximum number of characters to keep in the buffer */
@@ -126,6 +127,10 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
             new Object[] { commandName });
 
         setDisplayName(title);
+    }
+    
+    public void setPossibleFileStatusInfoMap(java.util.Map infoMap) {
+        // Left unimplemented, we do not care about possible statii here.
     }
     
     /*

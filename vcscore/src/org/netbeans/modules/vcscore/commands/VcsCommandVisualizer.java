@@ -15,15 +15,15 @@ package org.netbeans.modules.vcscore.commands;
 
 import java.util.Map;
 
-import org.openide.windows.TopComponent;
-
 /**
  * This class should be used to display the graphical output of the running command.
  * the <code>open</code> method is called to open the visualizer.
+ * The implementing class must have a default constructor.
  *
  * @author  Martin Entlicher
  */
-public abstract class VcsCommandVisualizer extends TopComponent {
+//public abstract class VcsCommandVisualizer extends TopComponent {
+public interface VcsCommandVisualizer {
     
     /**
      * After instatiation this method is called with the task that should
@@ -31,9 +31,7 @@ public abstract class VcsCommandVisualizer extends TopComponent {
      * use the *Output* methods instead. The task can be already finished
      * when this method is called.
      */
-    public void setVcsTask(VcsDescribedTask task) {
-        // subclasses can implement this
-    }
+    public void setVcsTask(VcsDescribedTask task);
     
     /**
      * After instatiation this method is called with the map of all possible
@@ -42,9 +40,7 @@ public abstract class VcsCommandVisualizer extends TopComponent {
      * as values.
      * @return The file status map.
      */
-    public void setPossibleFileStatusInfoMap(Map infoMap) {
-        // subclasses can implement this
-    }
+    public void setPossibleFileStatusInfoMap(Map infoMap);
     
     /**
      * This method is called when the command finishes.
@@ -79,4 +75,21 @@ public abstract class VcsCommandVisualizer extends TopComponent {
      */
     public abstract void errOutputData(String[] data);
 
+    /**
+     * Open the visualizer.
+     */
+    public abstract void open();
+    
+    /**
+     * Tell, whether the visualizer is currently opened.
+     * This method is used to decide whether <code>open()</code>
+     * should be called or not.
+     */
+    public abstract boolean isOpened();
+    
+    /**
+     * Request the focus for this visualizer. See {@link org.openide.windows.TopComponent#requestFocus}.
+     */
+    public abstract void requestFocus();
+    
 }

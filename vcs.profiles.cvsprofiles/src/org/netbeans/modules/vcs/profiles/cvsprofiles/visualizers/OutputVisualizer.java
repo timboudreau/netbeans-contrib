@@ -23,10 +23,13 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.openide.windows.Workspace;
+import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.awt.Actions;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
+import org.openide.windows.TopComponent;
+import org.openide.windows.Workspace;
 
 import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.modules.vcscore.Variables;
@@ -38,14 +41,12 @@ import org.netbeans.modules.vcscore.commands.VcsDescribedTask;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
-import org.openide.DialogDisplayer;
-import org.openide.awt.Actions;
 
 /**
  * The default visualizer of command output.
  * @author  Richard Gregor
  */
-public abstract class OutputVisualizer extends VcsCommandVisualizer {
+public abstract class OutputVisualizer extends TopComponent implements VcsCommandVisualizer {
     
     //private static RequestProcessor outputDisplayRequestProcessor;        
     private JComponent outputPanel;
@@ -111,6 +112,10 @@ public abstract class OutputVisualizer extends VcsCommandVisualizer {
 
         setName(commandName);
         setDisplayName(title);
+    }
+    
+    public void setPossibleFileStatusInfoMap(java.util.Map infoMap) {
+        // Left unimplemented, we do not care about possible statii here, subclasses can override
     }
     
     /**
