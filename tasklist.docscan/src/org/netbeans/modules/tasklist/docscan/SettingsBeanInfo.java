@@ -36,7 +36,6 @@ public final class SettingsBeanInfo extends SimpleBeanInfo {
                 "OPTION_TASK_SETTINGS_NAME"));   //NOI18N
         bdesc.setShortDescription(NbBundle.getMessage(SettingsBeanInfo.class,
                 "HINT_TASK_SETTINGS_NAME"));   //NOI18N
-	bdesc.setValue("helpID", SettingsBeanInfo.class.getName());
         return bdesc;
     }
 
