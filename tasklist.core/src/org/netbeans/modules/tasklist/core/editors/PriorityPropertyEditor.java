@@ -29,7 +29,7 @@ import org.netbeans.modules.tasklist.core.Task;
  *
  * @author Tim Lebedkov
  */
-public class PriorityPropertyEditor extends PropertyEditorSupport {
+public final class PriorityPropertyEditor extends PropertyEditorSupport {
     private static final String[] TAGS = SuggestionPriority.getPriorityNames();
     private static final JLabel LABEL = new JLabel();
     
@@ -71,7 +71,7 @@ public class PriorityPropertyEditor extends PropertyEditorSupport {
         if (v instanceof SuggestionPriority) {
             gfx.translate(box.x, box.y);
             int value = ((SuggestionPriority) v).intValue();
-            LABEL.setForeground(PriorityListCellRenderer.COLORS[value - 1]);
+            LABEL.setForeground(PriorityListCellRenderer.COLORS[value - 1]);     // FIXME take into account background color
             LABEL.setText(getAsText());
             LABEL.setSize(box.width, box.height);
             LABEL.paint(gfx);

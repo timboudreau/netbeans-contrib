@@ -72,9 +72,12 @@ public class TaskNode extends AbstractNode {
         init();
     }
 
+    /**
+     * On Task.class query returns associated Task.
+     */
     public Node.Cookie getCookie(Class type) {
         if (type == Task.class) {
-            return getTask();
+            return item;
         } else {
             return super.getCookie(type);
         }
@@ -106,10 +109,6 @@ public class TaskNode extends AbstractNode {
         return (TaskChildren) getChildren();
     }
      
-    public Task getTask() {
-        return item;
-    }
-
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):
     public Node cloneNode () {
         if (item.hasSubtasks()) {
@@ -119,7 +118,7 @@ public class TaskNode extends AbstractNode {
         }
     }
 
-    protected void updateDisplayStuff() {
+    protected final void updateDisplayStuff() {
         setDisplayName(item.getSummary());
         updateIcon();
     }

@@ -23,7 +23,7 @@ import org.openide.util.Utilities;
  *
  * @author Tor Norbye
  */
-public class FilterTaskNode extends FilterNode {
+final class FilterTaskNode extends FilterNode {
     private boolean overrideIcon;
 
     public FilterTaskNode(Node n, org.openide.nodes.Children children,

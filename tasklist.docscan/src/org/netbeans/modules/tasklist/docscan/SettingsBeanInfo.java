@@ -28,7 +28,7 @@ import org.openide.util.Utilities;
  *
  * @author Tor Norbye
  */
-public class SettingsBeanInfo extends SimpleBeanInfo {
+public final class SettingsBeanInfo extends SimpleBeanInfo {
 
     public BeanDescriptor getBeanDescriptor() {
         BeanDescriptor bdesc = new BeanDescriptor(Settings.class);

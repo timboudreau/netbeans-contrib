@@ -25,7 +25,7 @@ import org.openide.util.NbBundle;
  *
  * @author Tim Lebedkov
  */
-public class LineNumberPropertyEditor extends PropertyEditorSupport {
+public final class LineNumberPropertyEditor extends PropertyEditorSupport {
     private static final JLabel LABEL = new JLabel();
     
     static {

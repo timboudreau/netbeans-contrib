@@ -55,7 +55,7 @@ import org.openide.awt.Mnemonics;
  * @author Tor Norbye
  * @author Tim Lebedkov
  */
-public class TypesCustomizer extends javax.swing.JPanel 
+public final class TypesCustomizer extends javax.swing.JPanel
     implements ListSelectionListener {
     /** 
      * Creates new form TypesCustomizer 

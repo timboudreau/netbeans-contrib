@@ -20,7 +20,7 @@ import org.openide.filesystems.FileObject;
  *
  * @author Tim Lebedkov
  */
-public class FolderPropertyEditor extends StringPropertyEditor {
+public final class FolderPropertyEditor extends StringPropertyEditor {
     public String getAsText() {
         FileObject fo = (FileObject) getValue();
         if (fo == null)

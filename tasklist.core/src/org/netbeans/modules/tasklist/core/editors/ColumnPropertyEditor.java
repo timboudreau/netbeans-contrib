@@ -22,7 +22,7 @@ import javax.swing.SwingConstants;
  *
  * @author Tim Lebedkov
  */
-public class ColumnPropertyEditor extends PropertyEditorSupport {
+public final class ColumnPropertyEditor extends PropertyEditorSupport {
     private static final JLabel LABEL = new JLabel();
     
     static {

@@ -229,7 +229,7 @@ public class TaskList implements ObservableList, TaskListener {
     }
 
     /** Fire TaskListener.changedTask */
-    public void notifyChanged(Task task) {
+    private void notifyChanged(Task task) {
         if (listeners != null) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
@@ -254,7 +254,7 @@ public class TaskList implements ObservableList, TaskListener {
      * Fire TaskListener.selectedTask
      * @deprecated splitting model from the view
      */
-    public void notifySelected(Task task) {
+    private void notifySelected(Task task) {
         if (listeners != null) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
@@ -268,7 +268,7 @@ public class TaskList implements ObservableList, TaskListener {
      * Fire TaskListener.warpedTask
      * @deprecated splitting model from the view
      */
-    public void notifyWarped(Task task) {
+    private void notifyWarped(Task task) {
         if (listeners != null) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {

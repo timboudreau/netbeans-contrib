@@ -30,7 +30,7 @@ import org.netbeans.modules.tasklist.core.Task;
  *
  * @author Tor Norbye
  */
-public class TaskTagEditor extends PropertyEditorSupport 
+public final class TaskTagEditor extends PropertyEditorSupport
 implements ExPropertyEditor {
     
     public TaskTagEditor() {

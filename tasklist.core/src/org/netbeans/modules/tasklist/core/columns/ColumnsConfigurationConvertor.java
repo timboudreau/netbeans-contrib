@@ -34,7 +34,7 @@ import org.w3c.dom.NodeList;
  *
  * @author Tim Lebedkov
  */
-public class ColumnsConfigurationConvertor extends DOMConvertor 
+public final class ColumnsConfigurationConvertor extends DOMConvertor
 implements ChangeListener {
     /**
      * Creates a converter for the specified FO

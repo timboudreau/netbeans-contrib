@@ -31,7 +31,7 @@ import org.openide.DialogDisplayer;
  * shown.
  *
  * @author Tor Norbye */
-public class EditTypesAction extends CallableSystemAction
+public final class EditTypesAction extends CallableSystemAction
     implements ActionPerformer {
     
     public void performAction() {

@@ -26,7 +26,7 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @author Petr Kuzel
  */
-public class ModuleLifecycle extends ModuleInstall {
+public final class ModuleLifecycle extends ModuleInstall {
 
     private static final long serialVersionUID = 1;
 

@@ -473,5 +473,5 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
         return sb.toString();
     }
 
-    protected IconManager iconMap = null;
+    private IconManager iconMap = null;
 }

@@ -92,7 +92,7 @@ public abstract class TaskListView extends TopComponent
      *
      * @param view a view to be registered
      */
-    public static void registerTaskListView(TaskListView view) {
+    protected static void registerTaskListView(TaskListView view) {
         synchronized (TaskListView.class) {
             if (views == null) {
                 views = new HashMap();
@@ -122,7 +122,7 @@ public abstract class TaskListView extends TopComponent
     transient protected TaskNode rootNode = null;
     transient protected TreeTableIntf treeTable;
 
-    transient public ColumnProperty[] columns = null;
+    protected transient ColumnProperty[] columns = null;
 
     transient private boolean initialized = false;
 
@@ -136,7 +136,7 @@ public abstract class TaskListView extends TopComponent
     /** Annotation showing the current position */
     transient protected TaskAnnotation taskMarker = null;
 
-    transient protected Component centerCmp;
+    private transient Component centerCmp;
 
     transient private JPanel centerPanel;
     transient private Component northCmp;
@@ -184,7 +184,7 @@ public abstract class TaskListView extends TopComponent
     /**
      * Common part for all constructors
      */
-    protected void init_() {
+    private void init_() {
     }
 
     public int getPersistenceType() {
@@ -235,7 +235,7 @@ public abstract class TaskListView extends TopComponent
      *
      * @param v true = visible
      */
-    public void setNorthComponentVisible(boolean v) {
+    protected void setNorthComponentVisible(boolean v) {
         if (v) {
             Component cmp = getNorthComponent();
             if (cmp != null) {
@@ -264,7 +264,7 @@ public abstract class TaskListView extends TopComponent
      *
      * @return component or null
      */
-    public Component getNorthComponent() {
+    protected Component getNorthComponent() {
         if (!northCmpCreated) {
             northCmp = createNorthComponent();
             northCmpCreated = true;
@@ -336,7 +336,7 @@ public abstract class TaskListView extends TopComponent
      * Could be overridden to change actions for the toolbar.
      * @return actions for the toolbar or null
      */
-    public SystemAction[] getToolBarActions() {
+    protected SystemAction[] getToolBarActions() {
         return null;
     }
 
@@ -344,7 +344,7 @@ public abstract class TaskListView extends TopComponent
      * Could be overriden to change actions on second toolbar row.
      * @return
      */
-    public SystemAction[] getGlobalToolBarActions() {
+    protected SystemAction[] getGlobalToolBarActions() {
         return null;
     }
 
@@ -833,7 +833,7 @@ for (int i = 0; i < columns.length; i++) {
      */
     abstract protected ColumnProperty[] createColumns();
 
-    public ColumnProperty getMainColumn(int width) {
+    protected ColumnProperty getMainColumn(int width) {
         // Tree column
         // NOTE: Task.getDisplayName() must also be kept in sync here
         return new ColumnProperty(
@@ -846,7 +846,7 @@ for (int i = 0; i < columns.length; i++) {
         );
     }
 
-    protected Task unshowItem = null;
+    private Task unshowItem = null;
 
     /** Show the given todolist item. "Showing" means getting the
      * editor to show the associated file position, and open up an
@@ -1016,7 +1016,7 @@ for (int i = 0; i < columns.length; i++) {
 
     /** Unregister the listeningViews registered in registerListener such
      that they are no longer notified of changes */
-    void unregisterListeners() {
+    private void unregisterListeners() {
         listeningViews = null;
     }
 
@@ -1107,7 +1107,7 @@ for (int i = 0; i < columns.length; i++) {
      Except don't cache rowComparator, and don't case
      to VisualizerNode, cast to Node
      */
-    synchronized Comparator getRowComparator(
+    private synchronized Comparator getRowComparator(
             final Node.Property sortedByProperty,
             final boolean sortAscending,
             final boolean sortedByName,
@@ -1534,12 +1534,12 @@ for (int i = 0; i < columns.length; i++) {
     }
 
     /** Return true iff the given node is expanded */
-    public boolean isExpanded(Node n) {
+    protected final boolean isExpanded(Node n) {
         return treeTable.isExpanded(n);
     }
 
     /** Collapse or expand a given node */
-    public void setExpanded(Node n, boolean expanded) {
+    protected final void setExpanded(Node n, boolean expanded) {
         if (expanded) {
             treeTable.expandNode(n);
         } else {
@@ -1552,7 +1552,7 @@ for (int i = 0; i < columns.length; i++) {
     /** Return the actual root of the node tree shown in this view.
      * May be a filternode when Filtering is in place.
      */
-    public Node getEffectiveRoot() {
+    public final Node getEffectiveRoot() {
         return getExplorerManager().getRootContext();
     }
 

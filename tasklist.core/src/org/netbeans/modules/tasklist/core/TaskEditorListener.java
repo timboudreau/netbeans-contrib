@@ -44,7 +44,7 @@ public final class TaskEditorListener implements TaskViewListener, PropertyChang
         deflt = this;
     }
 
-    static TaskEditorListener deflt = null;
+    private static TaskEditorListener deflt = null;
 
     static TaskEditorListener getDefault() {
         return (deflt == null) ? new TaskEditorListener() : deflt;

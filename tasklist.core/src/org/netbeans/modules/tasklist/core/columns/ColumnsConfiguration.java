@@ -157,7 +157,7 @@ public class ColumnsConfiguration {
     /**
      * Fires a change event
      */
-    public void fireChange() {
+    protected final void fireChange() {
         ChangeEvent e = null;
         for (int i = 0; i < listeners.size(); i++) {
             ChangeListener l = (ChangeListener) listeners.get(i);

@@ -22,7 +22,7 @@ import org.openide.util.actions.CallableSystemAction;
  *
  * @author Tor Norbye 
  */
-public class ExpandAllAction extends CallableSystemAction {
+public final class ExpandAllAction extends CallableSystemAction {
     /** 
      * Do the actual expansion
      */    

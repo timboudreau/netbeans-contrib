@@ -53,7 +53,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     private final PropertyChangeSupport supp = new PropertyChangeSupport(this);
 
     protected ObservableList list;
-    protected boolean visitable;
+    private boolean visitable;
 
     /**
      * When true, don't notify anybody of updates to this object - and don't
@@ -61,7 +61,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      */
     protected boolean silentUpdate = false;
 
-    protected Task parent;
+    private Task parent;
 
     /** key shared by all clones */
     private Object key;
@@ -72,7 +72,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     /** When true, this item has been removed from a list.
         The old list reference is still kept around so that
         we can use it to search for a reincarnation of the task. */
-    protected boolean zombie = false;
+    private boolean zombie = false;
 
     public Task() {
         super(null, null, null);

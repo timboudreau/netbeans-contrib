@@ -58,7 +58,7 @@ import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
  *
  * @author  Tor Norbye
  */
-public class EnableAction extends CallableSystemAction
+public final class EnableAction extends CallableSystemAction
     implements Presenter.Menu {
 
     public EnableAction() {

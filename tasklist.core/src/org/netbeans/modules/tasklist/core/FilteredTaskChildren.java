@@ -29,7 +29,7 @@ import org.openide.nodes.NodeMemberEvent;
  *
  * @author Tor Norbye
  */
-public class FilteredTaskChildren extends FilterNode.Children {
+final class FilteredTaskChildren extends FilterNode.Children {
     private static final Logger LOGGER = TLUtils.getLogger(
         FilteredTaskChildren.class);
     
