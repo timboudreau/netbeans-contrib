@@ -396,25 +396,25 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     
     private void printOutput(String line) {
         for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandOutputListener) it).outputLine(line);
+            ((CommandOutputListener) it.next()).outputLine(line);
         }
     }
 
     private void printErrorOutput(String line) {
         for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandOutputListener) it).outputLine(line);
+            ((CommandOutputListener) it.next()).outputLine(line);
         }
     }
 
     private void printDataOutput(String[] data) {
         for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandDataOutputListener) it).outputData(data);
+            ((CommandDataOutputListener) it.next()).outputData(data);
         }
     }
 
     private void printDataErrorOutput(String[] data) {
         for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandDataOutputListener) it).outputData(data);
+            ((CommandDataOutputListener) it.next()).outputData(data);
         }
     }
 
@@ -471,7 +471,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             args[i++] = tokens.nextToken();
         }
         if (success) {
-            setAdditionalParams(execCommand);
+            ExecuteCommand.setAdditionalParams(execCommand, fileSystem);
             String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
             String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
             String input = (String) cmd.getProperty(UserCommand.PROPERTY_INPUT);
@@ -585,7 +585,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     /**
      * Search for optional methods and set additional parameters.
      */
-    private void setAdditionalParams(VcsAdditionalCommand execCommand) {
+    static void setAdditionalParams(Object execCommand, VcsFileSystem fileSystem) {
         Class clazz = execCommand.getClass();
         Class[] paramClasses = new Class[] { VcsFileSystem.class };
         Method setFileSystemMethod = null;
