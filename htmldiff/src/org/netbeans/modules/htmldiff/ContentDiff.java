@@ -244,17 +244,17 @@ public final class ContentDiff extends Object {
             }
             
             int size = 0;
-            int ch = 0;
+            int diff = 0;
             
             Iterator it = pages.iterator();
             while (it.hasNext()) {
                 Page p = (Page)it.next ();
                 
-                ch += p.getChanged () * p.size / 100;
-                size += p.size;
+                diff += p.getDiff ();
+                size += p.getSize ();
             }
             
-            changed = ch * 100 / size;
+            changed = diff * 100 / size;
             return changed;
                 
         }
@@ -281,7 +281,7 @@ public final class ContentDiff extends Object {
         private String name;
         /** added, removed or changed */
         private Boolean added;
-        /** how much this page changed in % */
+        /** changed chars % */
         private int change = -1;
         /** size of the page */
         private int size = -1;
@@ -354,13 +354,41 @@ public final class ContentDiff extends Object {
             
             if (change == -1) {
                 size = len;
-                if (len == 0) {
-                    change = 0;
-                } else {
-                    change = diff * 100 / len;
-                }
+                change = diff;
             }
         }
+        
+        /** @return size of page
+         */
+        final int getSize () {
+            if (change == -1) {
+                // this method computes the change
+                try {
+                    writeDiff (new StringWriter ());
+                } catch (IOException ex) {
+                    org.openide.ErrorManager.getDefault ().notify (ex);
+                }
+            }
+            return size <= 1 ? 1 : size;
+        }
+        
+        /** @return amount of changed characters
+         */
+        final int getDiff () {
+            if (added != null) {
+                return getSize ();
+            }
+            if (change == -1) {
+                // this method computes the change
+                try {
+                    writeDiff (new StringWriter ());
+                } catch (IOException ex) {
+                    org.openide.ErrorManager.getDefault ().notify (ex);
+                }
+            }
+            return change == - 1 ? 0 : change;
+        }
+            
         
         /** Getter for the % of diffs in old and new version. It is wiser, 
          * but not necessary, to call {@link #writeDiff} first.
@@ -372,15 +400,7 @@ public final class ContentDiff extends Object {
                 return 100;
             }
             
-            if (change == -1) {
-                // this method computes the change
-                try {
-                    writeDiff (new StringWriter ());
-                } catch (IOException ex) {
-                    org.openide.ErrorManager.getDefault ().notify (ex);
-                }
-            }
-            return change == -1 ? 0 : change;
+            return getDiff () * 100 / getSize ();
         }
         
     } // end of Page

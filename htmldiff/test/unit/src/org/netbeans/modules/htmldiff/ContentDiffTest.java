@@ -212,6 +212,23 @@ public final class ContentDiffTest extends NbTestCase {
         assertEquals ("Second cluster has no deps", 0, diff.getClusters()[1].getReferences().length);
     }
 
+    public void testPercentageIsBetween () throws Exception {
+        String[] oldPages = {
+            "index.html", "<a href=\"new.html\">new</a>",
+            "new.html", "<a href=\"index.html\">index</a>"
+        };
+        String[] newPages = {
+            "index.html", "<a href=\"new.html\">index</a>",
+            "new.html", "<a href=\"index.html\">new</a>"
+        };
+        
+        ContentDiff diff = diff (oldPages, newPages);
+        
+        assertNotNull (diff);
+        assertEquals ("One cluster", 1, diff.getClusters().length);
+        assertChanged ("Change is bettween", diff.getClusters()[0]);
+    }
+    
 
     public void testRelativeReferences () throws Exception {
         String[] oldPages = {
@@ -239,16 +256,16 @@ public final class ContentDiffTest extends NbTestCase {
         
         while (it.hasNext()) {
             ContentDiff.Page p = (ContentDiff.Page)it.next ();
-            if (max > p.getChanged ()) {
-                max = p.getChanged ();
+            if (min > p.getChanged ()) {
+                min = p.getChanged ();
             } 
-            if (min < p.getChanged ()) {
-                min = p.getChanged (); 
+            if (max < p.getChanged ()) {
+                max = p.getChanged (); 
             }
         }
         
         if (min > c.getChanged () || max < c.getChanged ()) {
-            fail (txt + " expected <" + c.getChanged () + "> is not between " + min + " and " + max);
+            fail (txt + " cluster change <" + c.getChanged () + "> is not between " + min + " and " + max);
         }
     }
 }
