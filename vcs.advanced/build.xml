@@ -96,16 +96,12 @@ Microsystems, Inc. All Rights Reserved.
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
-	 compress="false">
+	 excludes="org/netbeans/modules/vcs/advanced/config/vcs/config/*_XX.*,org/netbeans/modules/vcs/advanced/config/mf-layer_XX.xml" 
+         compress="false">
       <locale name="ja"/>
       <fileset dir="src/">
         <include name="org/netbeans/modules/vcs/advanced/config/**/*.java"/>
         <include name="org/netbeans/modules/vcs/advanced/config/**/*.form"/>
-        <exclude name="org/netbeans/modules/vcs/advanced/config/vcs/config/*_XX.*"/>
-        <exclude name="org/netbeans/modules/vcs/advanced/config/mf-layer_XX.xml"/>
-       <!-- <include name="**/*.class"/>
-        <include name="**/*.xml"/>
-        <exclude name="org/netbeans/modules/vcs/advanced/*.java"/> -->
       </fileset>
     </locjar>
   </target>
