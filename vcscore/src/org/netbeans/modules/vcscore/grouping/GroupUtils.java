@@ -24,6 +24,7 @@ import org.openide.cookies.InstanceCookie;
 import org.openide.*;
 import org.openide.util.NbBundle;
 import org.openide.filesystems.*;
+import org.openide.filesystems.FileSystem; // override java.io.FileSystem
 import java.util.*;
 import java.io.*;
 

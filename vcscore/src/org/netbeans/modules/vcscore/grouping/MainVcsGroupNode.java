@@ -18,6 +18,7 @@ import org.openide.nodes.*;
 import org.openide.util.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.filesystems.*;
+import org.openide.filesystems.FileSystem; // override java.io.FileSystem
 import org.openide.*;
 import java.beans.*;
 import java.util.*;
