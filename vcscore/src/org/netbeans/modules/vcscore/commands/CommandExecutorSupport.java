@@ -48,12 +48,9 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 //import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.RetrievingDialog;
-import org.netbeans.modules.vcscore.turbo.Turbo;
-import org.netbeans.modules.vcscore.turbo.TurboUtil;
-import org.netbeans.modules.vcscore.turbo.Statuses;
-import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.caching.CacheStatuses;
 import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
 import org.netbeans.modules.vcscore.util.VariableInputComponent;
 import org.netbeans.modules.vcscore.util.VariableInputDialog;
@@ -127,35 +124,9 @@ public class CommandExecutorSupport extends Object {
     
     private static void deleteUnimportantFiles(VcsFileSystem fileSystem, Collection processedFiles) {
 
-        if (Turbo.implemented()) {
-            String localFileStatus = Statuses.getLocalStatus();
-            String ignoredFileStatus = Statuses.STATUS_IGNORED;
-            for (Iterator filesIt = getAllFilesAssociatedWith(fileSystem, processedFiles).iterator(); filesIt.hasNext(); ) {
-                org.openide.filesystems.FileObject fo = (org.openide.filesystems.FileObject) filesIt.next();
-                String name = fo.getPath();
-                if (!fileSystem.isImportant(name)) {
-                    FileProperties fprops = Turbo.getMeta(fo);
-                    String status = FileProperties.getStatus(fprops);  // XXX this status is VCS specific
-                    // Do not delete unimportant files, that are version controled.
-                    if (!(localFileStatus.equals(status) || ignoredFileStatus.equals(status))) continue;
-                    if (fo != null) {
-                        try {
-                            fo.delete(fo.lock());
-                        } catch (java.io.IOException ioexc) {}
-                    } else {
-                        try {
-                            fileSystem.delete(name);
-                        } catch (java.io.IOException ioexc) {}
-                    }
-                }
-            }
-            return;
-        }
-
-        // original code
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         String localFileStatus = (statusProvider != null) ? statusProvider.getLocalFileStatus() : null;
-        String ignoredFileStatus = Statuses.STATUS_IGNORED;
+        String ignoredFileStatus = CacheStatuses.STATUS_IGNORED;
         for (Iterator filesIt = getAllFilesAssociatedWith(fileSystem, processedFiles).iterator(); filesIt.hasNext(); ) {
             org.openide.filesystems.FileObject fo = (org.openide.filesystems.FileObject) filesIt.next();
             String name = fo.getPath();
@@ -313,18 +284,6 @@ public class CommandExecutorSupport extends Object {
      */
     public static void doRefresh(VcsFileSystem fileSystem, String refreshPath, boolean recursive) {
 
-        if (Turbo.implemented()) {
-            FileObject fo = fileSystem.findResource(refreshPath);
-            if (recursive) {
-                // TODO the old implementaion poped up an window, when? why?
-                TurboUtil.refreshRecursively(fo);
-            } else {
-                TurboUtil.refreshFolder(fo);
-            }
-            return;
-        }
-
-        // the old implementation
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         if (statusProvider == null) return ;
         FileCacheProvider cache = fileSystem.getCacheProvider();
@@ -393,8 +352,6 @@ public class CommandExecutorSupport extends Object {
                                              VcsCommand cmd, String dir, String file,
                                              boolean foldersOnly, boolean doRefreshCurrent,
                                              boolean doRefreshParent, Boolean[] recursively) {
-
-        assert Turbo.implemented() == false; // TODO decode it and add turbo mode support
 
         FileCacheProvider cache = fileSystem.getCacheProvider();
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();

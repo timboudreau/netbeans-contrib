@@ -43,8 +43,6 @@ import org.netbeans.spi.vcs.commands.CommandTaskSupport;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.DirReaderListener;
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.turbo.Turbo;
-import org.netbeans.modules.vcscore.turbo.TurboUtil;
 import org.netbeans.modules.vcscore.cache.CacheHandler;
 import org.netbeans.modules.vcscore.cache.FileSystemCache;
 import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
@@ -266,19 +264,6 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     
     /** Spawn the refresh task. */
     void spawnRefresh(VcsFileSystem fileSystem) {
-        if (Turbo.implemented()) {
-            if (spawnRefreshFile == null) return;
-            FileObject fo = FileUtil.toFileObject(spawnRefreshFile);
-            if (fo == null) return; // request for non existing 'test' probe file
-            if (spawnRefreshRecursively) {
-                TurboUtil.refreshRecursively(fo);
-            } else {
-                TurboUtil.refreshFolder(fo);
-            }
-            return;
-        }
-
-        // original implementation
         FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
         Object locker = new Object();
         cache.getCacheFile(spawnRefreshFile,

@@ -20,8 +20,6 @@ import org.openide.NotifyDescriptor;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.turbo.Turbo;
-import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
@@ -107,22 +105,6 @@ public class PvcsGetWithQuestions implements VcsAdditionalCommand {
             String file = (String) vars.get("FILE");
             String path = (String) vars.get("PATH");
 
-            if (Turbo.implemented()) {
-                FileProperties fprops = Turbo.getMeta(FileUtil.toFileObject(new File(path)));
-                String locker = fprops != null ? fprops.getLocker() : null;
-                if (locker != null && locker.length() > 0) {
-                    Object confirmation = DialogDisplayer.getDefault().notify(
-                        new NotifyDescriptor.Confirmation(org.openide.util.NbBundle.getMessage(
-                            PvcsGetWithQuestions.class, "Get_Lock_Confirmation", file, locker),
-                            NotifyDescriptor.Confirmation.YES_NO_OPTION));
-                    if (!NotifyDescriptor.YES_OPTION.equals(confirmation)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            // the original implementation
             FileStatusProvider statusProvider = fileSystem.getStatusProvider();
             if (statusProvider != null) {
                 String locker = statusProvider.getFileLocker(path);

@@ -27,9 +27,6 @@ import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.turbo.Turbo;
-import org.netbeans.modules.vcscore.turbo.FileProperties;
-import org.netbeans.modules.vcscore.turbo.IgnoreList;
 import org.netbeans.modules.vcscore.cache.CacheHandler;
 import org.netbeans.modules.vcscore.cache.FileSystemCache;
 import org.netbeans.modules.vcscore.caching.VcsCacheDir;
@@ -148,9 +145,7 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
             ArrayList fos = new ArrayList();
             //FileCacheProvider cacheProvider = fileSystem.getCacheProvider();
             FileSystemCache cache = null;
-            if (Turbo.implemented() == false) {
-                cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
-            }
+            cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
             Object locker = new Object();
             /*
             if (cache != null) {
@@ -164,13 +159,6 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
                 String name = VcsUtilities.getFileNamePart(path);
                 if (fileSystem != null) {
 
-                    if (Turbo.implemented()) {
-                        String folderPath = VcsUtilities.getDirNamePart(path);
-                        FileObject folder = fileSystem.findResource(folderPath);
-                        IgnoreList ilist = IgnoreList.forFolder(folder);
-                        if (ilist.isIgnored(name)) continue;
-                    } else {
-
                     String folder = VcsUtilities.getDirNamePart(path);
                     cache.getCacheFile(new File(fileSystem.getFile(folder), "testing"), CacheHandler.STRAT_DISK_OR_REFRESH, locker);
                     VcsCacheDir dir = (VcsCacheDir) cache.getCacheFile(fileSystem.getFile(folder), CacheHandler.STRAT_DISK, locker);
@@ -179,7 +167,6 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
                     }
                     //Filter out files, that are ignored!!
                     if (dir.isIgnored(name)) continue;
-                    } // Turbo.enabled()
                 }
                 if ((fileSystem != null && fileSystem.getFile(path).isFile()) ||
                     (fileSystem == null && new File(path).isFile())) {
@@ -208,18 +195,6 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
         File[] children = directory.listFiles();
         if (children == null) return true;
 
-        if (Turbo.implemented()) {
-            FileObject folder = FileUtil.toFileObject(directory);
-            IgnoreList ilist = IgnoreList.forFolder(folder);
-            for (int i = 0; i < children.length; i++) {
-                if (ilist.isIgnored(children[i].getName()) == false) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        // original implementation
         FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
         Object locker = new Object();
         cache.getCacheFile(new File(directory, "testing"), CacheHandler.STRAT_DISK_OR_REFRESH, locker);

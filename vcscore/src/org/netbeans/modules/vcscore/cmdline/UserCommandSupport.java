@@ -60,9 +60,6 @@ import org.netbeans.modules.vcscore.DirReaderListener;
 import org.netbeans.modules.vcscore.FileReaderListener;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.turbo.Turbo;
-import org.netbeans.modules.vcscore.turbo.TurboUtil;
-import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.cache.CacheFile;
 import org.netbeans.modules.vcscore.cache.CacheHandler;
@@ -418,12 +415,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         cmd.setExpertMode(executionContext.isExpertMode());
         if (executionContext instanceof VcsFileSystem) {
 
-            if (Turbo.implemented()) {
-                vcmd.addFileReaderListener(TurboUtil.fileReaderListener((VcsFileSystem)executionContext));
-                return;
-            }
-
-            // old implementation
             FileSystemCache cache = CacheHandler.getInstance().getCache(((VcsFileSystem) executionContext).getCacheIdStr());
             if (cache instanceof FileReaderListener) {
                 vcmd.addFileReaderListener((FileReaderListener) cache);
@@ -486,9 +477,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
 
         // set cache provider if not running in turbo mode
         FileCacheProvider cacheProvider = null;
-        if (Turbo.implemented() == false) {
-            cacheProvider = (fileSystem != null) ? fileSystem.getCacheProvider() : null;
-        }
+        cacheProvider = (fileSystem != null) ? fileSystem.getCacheProvider() : null;
 
         Object obj = doCustomization(doCreateCustomizer, null, cmd, files, cacheProvider,
                                      valueAdjustment, cmdCanRunOnMultipleFiles,
@@ -1269,14 +1258,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             if (mime != null) vars.put("MIMETYPE", mime); // NOI18N
         }
 
-        if (Turbo.implemented()) {
-            FileProperties fprops = Turbo.getMeta(fo);
-            if (fprops != null) {
-                vars.put("CACHED_ATTR", fprops.getAttr());
-                vars.put("CACHED_SIZE", Long.toString(fprops.getSize()));
-                vars.put("CACHED_ISLOCAL", fprops.isLocal() ? "true" : "");
-            }
-        } else // the old implementation
         if (cacheProvider != null) {
             if (isFileFolder) {
                 CacheDir cDir = cacheProvider.getDir(origFullName);

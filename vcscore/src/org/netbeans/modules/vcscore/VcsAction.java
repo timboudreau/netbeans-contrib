@@ -42,9 +42,6 @@ import org.netbeans.modules.vcscore.cmdline.UserCommandTask;
 import org.netbeans.modules.vcscore.cmdline.WrappingCommandTask;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
-import org.netbeans.modules.vcscore.turbo.Turbo;
-import org.netbeans.modules.vcscore.turbo.TurboUtil;
-import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
@@ -194,14 +191,6 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
      */
     private static void doList(VcsFileSystem fileSystem, String path) {
 
-        if (Turbo.implemented()) {
-            FileObject fo = fileSystem.findResource(path);
-            Turbo.getRepositoryMeta(fo);
-            TurboUtil.refreshFolder(fo);
-            return;
-        }
-
-        // the old implementation
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         FileCacheProvider cache = fileSystem.getCacheProvider();
         if (statusProvider == null) return;
@@ -1479,26 +1468,6 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
         return values.toArray();
     }
 
-     /** Remove the files for which the command is disabled */
-     private static Table removeDisabledWithTurbo(Table files, VcsCommand cmd) {
-         String disabledStatus = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS);
-         if (disabledStatus == null) return files;
-         Table remaining = new Table();
-         for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-             String name = (String) enum.nextElement();
-             FileObject fo = FileUtil.toFileObject(new File(name));
-             FileProperties fprops = Turbo.getMeta(fo);
-             String status = FileProperties.getStatus(fprops);
-             boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
-                 disabledStatus, Collections.singleton(status));
-             if (!disabled) {
-                 remaining.put(name, files.get(name));
-             }
-         }
-         return remaining;
-     }
-
-
     /** Remove the files for which the command is disabled */
     private static Table removeDisabled(FileStatusProvider statusProvider, Table files, VcsCommand cmd) {
         if (statusProvider == null) return files;
@@ -1546,11 +1515,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
         Table files = new Table();
         //boolean refreshDone = false;
         addImportantFiles(fileObjects, files, processAll, fileSystem, true);
-        if (Turbo.implemented()) {
-            files = removeDisabledWithTurbo(files, cmd);
-        } else {
-            files = removeDisabled(fileSystem.getStatusProvider(), files, cmd);
-        }
+        files = removeDisabled(fileSystem.getStatusProvider(), files, cmd);
         if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
             (VcsCommand.NAME_REFRESH + VcsCommand.NAME_SUFFIX_OFFLINE).equals(cmd.getName())) {
             ArrayList paths = new ArrayList();

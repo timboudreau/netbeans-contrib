@@ -27,7 +27,6 @@ import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.turbo.Turbo;
 
 /**
  * Adds support for versioned input streams to VcsFileSystems.
@@ -202,7 +201,6 @@ public abstract class VersioningFileSystem {
      *         is defined.
      */
     public FileStatusProvider getFileStatusProvider() {
-        assert Turbo.implemented() == false;
         return null;
     }
 

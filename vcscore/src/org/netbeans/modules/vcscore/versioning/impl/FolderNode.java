@@ -40,8 +40,6 @@ import java.util.Collections;
 
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
-import org.netbeans.modules.vcscore.turbo.FileProperties;
-import org.netbeans.modules.vcscore.turbo.Turbo;
 
 /**
  * Visualizes folder as much closely to FolderNode as possible
@@ -319,7 +317,6 @@ class FolderNode extends AbstractNode implements Node.Cookie {
     }
 
     private FileStatusProvider getFileStatusProvider() {
-        assert Turbo.implemented() == false;
         VersioningFileSystem vfs;
         try {
             vfs = VersioningFileSystem.findFor(file.getFileSystem());
@@ -335,15 +332,6 @@ class FolderNode extends AbstractNode implements Node.Cookie {
      * @return Value of property status.
      */
     public String getStatus() {
-        if (Turbo.implemented()) {
-            if (status == null) {
-                FileProperties fprops = Turbo.getMeta(file);
-                status = FileProperties.getStatus(fprops);
-            }
-            return status;
-        }
-
-        // original implementation
         if (status == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
@@ -358,15 +346,6 @@ class FolderNode extends AbstractNode implements Node.Cookie {
      * @return Value of property locker.
      */
     public String getLocker() {
-        if (Turbo.implemented()) {
-            if (locker == null) {
-                FileProperties fprops = Turbo.getMeta(file);
-                locker = fprops != null ? fprops.getLocker() : null;
-            }
-            return locker;
-        }
-
-        // original implementation
         if (locker == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
@@ -381,15 +360,6 @@ class FolderNode extends AbstractNode implements Node.Cookie {
      * @return Value of property revision.
      */
     public String getRevision() {
-        if (Turbo.implemented()) {
-            if (revision == null) {
-                FileProperties fprops = Turbo.getMeta(file);
-                revision = fprops != null ? fprops.getRevision() : null;
-            }
-            return revision;
-        }
-
-        // original implementation
         if (revision == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
@@ -404,15 +374,6 @@ class FolderNode extends AbstractNode implements Node.Cookie {
      * @return Value of property sticky.
      */
     public String getSticky() {
-        if (Turbo.implemented()) {
-            if (sticky == null) {
-                FileProperties fprops = Turbo.getMeta(file);
-                sticky = fprops != null ? fprops.getSticky() : null;
-            }
-            return sticky;
-        }
-
-        // original implementation
         if (sticky == null) {
             FileStatusProvider statusProvider = getFileStatusProvider();
             if (statusProvider == null) return null;
@@ -429,34 +390,29 @@ class FolderNode extends AbstractNode implements Node.Cookie {
                 String newState;
                 String oldState;
                 FileStatusProvider statusProvider = null;
-                FileProperties fprops = null;
 
-                if (Turbo.implemented()) {
-                    fprops = Turbo.getMeta(file);
-                } else {
                     statusProvider = getFileStatusProvider();
                     if (statusProvider == null) return;
-                }
 
-                newState = Turbo.implemented() ? FileProperties.getStatus(fprops) : statusProvider.getFileStatus(name);
+                newState = statusProvider.getFileStatus(name);
                 if (status == null && newState != null || status != null && !status.equals(newState)) {
                     oldState = status;
                     status = newState;
                     firePropertyChange(PROP_STATUS, oldState, newState);
                 }
-                newState = Turbo.implemented() ? fprops.getLocker() : statusProvider.getFileLocker(name);
+                newState = statusProvider.getFileLocker(name);
                 if (locker == null && newState != null || locker != null && !locker.equals(newState)) {
                     oldState = locker;
                     locker = newState;
                     firePropertyChange(PROP_LOCKER, oldState, newState);
                 }
-                newState = Turbo.implemented() ? fprops.getRevision() : statusProvider.getFileRevision(name);
+                newState = statusProvider.getFileRevision(name);
                 if (revision == null && newState != null || revision != null && !revision.equals(newState)) {
                     oldState = revision;
                     revision = newState;
                     firePropertyChange(PROP_REVISION, oldState, newState);
                 }
-                newState = Turbo.implemented() ? fprops.getSticky() : statusProvider.getFileSticky(name);
+                newState = statusProvider.getFileSticky(name);
                 if (sticky == null && newState != null || sticky != null && !sticky.equals(newState)) {
                     oldState = sticky;
                     sticky = newState;
