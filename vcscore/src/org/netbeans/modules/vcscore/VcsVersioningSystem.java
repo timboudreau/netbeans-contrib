@@ -637,6 +637,9 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             Command command = cmdSupport.createCommand();
             if (command == null || !(command instanceof VcsDescribedCommand)) return null;
             VcsDescribedCommand cmd = (VcsDescribedCommand) command;
+            Hashtable additionalVars = new Hashtable();
+            additionalVars.put("REVISION", revision);
+            cmd.setAdditionalVariables(additionalVars);
             FileObject[] files = new FileObject[] { fileSystem.findFileObject(name) };
             cmd.setFiles(files);
             final StringBuffer fileBuffer = new StringBuffer();
@@ -647,9 +650,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                     }
                 }
             };
-            Hashtable additionalVars = new Hashtable();
-            additionalVars.put("REVISION", revision);
-            cmd.setAdditionalVariables(additionalVars);
+            cmd.addTextOutputListener(fileListener);
             //VcsCommandExecutor[] vces = VcsAction.doCommand(files, cmd, additionalVars, fileSystem, fileListener, null, null, null);
             CommandTask task = cmd.execute();
             task.waitFinished();
