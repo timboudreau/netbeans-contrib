@@ -40,6 +40,8 @@ import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.openide.text.Line;
+import org.openide.loaders.DataObject;
+import org.openide.text.DataEditorSupport;
 
 
 /**
@@ -48,16 +50,16 @@ import org.openide.text.Line;
  * @author Tor Norbye
  */
 
-class SuggestionNode extends TaskNode {
+public class SuggestionNode extends TaskNode {
     
     // Leaf
-    SuggestionNode(SuggestionImpl item) {
+    protected SuggestionNode(SuggestionImpl item) {
         super(item);
         init(item);
     } 
 
     // Non-leaf/parent
-    SuggestionNode(SuggestionImpl item, List subtasks) {
+    protected SuggestionNode(SuggestionImpl item, List subtasks) {
         super(item, subtasks);
         init(item);
     }
@@ -249,8 +251,9 @@ class SuggestionNode extends TaskNode {
         }
         Line l = item.getLine();
         if (l != null) {
-            if (l.getDataObject() != null)
-                return l.getDataObject().getCookie(cl);
+            DataObject dao = DataEditorSupport.findDataObject(l);
+            if (dao != null)
+                return dao.getCookie(cl);
             else
                 return null;
         }

@@ -37,7 +37,7 @@ import org.openide.util.NbBundle;
  */
 
 
-final public class SuggestionList extends TaskList {
+public class SuggestionList extends TaskList {
 
     /** Construct a new SuggestionManager instance. */
     public SuggestionList() {

@@ -19,6 +19,7 @@ import org.netbeans.modules.tasklist.core.Task;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.text.Line;
+import org.openide.text.DataEditorSupport;
 
 import org.netbeans.api.tasklist.*;
 
@@ -28,7 +29,7 @@ import org.netbeans.api.tasklist.*;
 /** Class which represents a task in the
  * tasklist.
  * @author Tor Norbye */
-final public class SuggestionImpl extends Task implements Node.Cookie {
+public class SuggestionImpl extends Task implements Node.Cookie {
 
     //private String action;
     private String filename = null;
@@ -43,7 +44,7 @@ final public class SuggestionImpl extends Task implements Node.Cookie {
         to improve search speeds. Don't muck with it. */
     transient boolean scantag;
     
-    SuggestionImpl() {
+    protected SuggestionImpl() {
     }
 
     public SuggestionImpl(String summary, SuggestionType stype,
@@ -73,9 +74,11 @@ final public class SuggestionImpl extends Task implements Node.Cookie {
             Line l = getLine();
             if (l == null) {
                 basename = "";
-            } else if ((l.getDataObject() != null) &&
-                       (l.getDataObject().getPrimaryFile() != null)) {
-                basename = l.getDataObject().getPrimaryFile().getNameExt();
+            } else {
+                DataObject dobj = DataEditorSupport.findDataObject(l);
+                if ((dobj != null) && (dobj.getPrimaryFile() != null)) {
+                    basename = dobj.getPrimaryFile().getNameExt();
+                }
             }
         }
         return basename;

@@ -41,6 +41,7 @@ import org.openide.loaders.DataObject;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.text.DataEditorSupport;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
 
@@ -172,7 +173,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                                 return true;
                             }
                             public Object getConfirmation(Suggestion s) {
-                                DataObject dao = line.getDataObject();
+                                DataObject dao = DataEditorSupport.findDataObject(line);
                                 int linenumber = line.getLineNumber();
                                 String filename = dao.getPrimaryFile().getNameExt();
                                 String ruleDesc = violation.getRule().getDescription();

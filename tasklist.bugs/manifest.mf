@@ -1,3 +1,4 @@
+Manifest-Version: 1.0
 OpenIDE-Module-Specification-Version: 0.9
 OpenIDE-Module: org.netbeans.modules.tasklist.bugs/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/bugs/Bundle.properties

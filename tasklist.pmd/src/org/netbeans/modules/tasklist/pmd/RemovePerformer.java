@@ -28,6 +28,7 @@ import org.openide.nodes.*;
 import org.openide.ErrorManager;
 import org.openide.loaders.DataObject;
 import org.openide.text.Line;
+import org.openide.text.DataEditorSupport;
 import org.openide.util.NbBundle;
 import org.openide.src.*;
 
@@ -100,7 +101,7 @@ public class RemovePerformer implements SuggestionPerformer {
             }
         }
 
-        DataObject dobj = line.getDataObject();
+        DataObject dobj = DataEditorSupport.findDataObject(line);
         SourceCookie sc = (SourceCookie)dobj.getCookie(SourceCookie.class);
         if (sc == null) {
             return null; // shouldn't happen
@@ -165,7 +166,7 @@ public class RemovePerformer implements SuggestionPerformer {
             }
         }
 
-        DataObject dobj = line.getDataObject();
+        DataObject dobj = DataEditorSupport.findDataObject(line);
         SourceCookie sc = (SourceCookie)dobj.getCookie(SourceCookie.class);
         if (sc == null) {
             return null; // shouldn't happen
@@ -322,7 +323,7 @@ public class RemovePerformer implements SuggestionPerformer {
         return true;
     }
     public Object getConfirmation(Suggestion s) {
-        DataObject dao = line.getDataObject();
+        DataObject dao = DataEditorSupport.findDataObject(line);
         int linenumber = line.getLineNumber();
         String filename = dao.getPrimaryFile().getNameExt();
         String ruleDesc = violation.getRule().getDescription();

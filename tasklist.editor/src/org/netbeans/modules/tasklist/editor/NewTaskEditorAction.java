@@ -30,6 +30,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
+import org.openide.text.DataEditorSupport;
 
 
 
@@ -75,7 +76,7 @@ public class NewTaskEditorAction extends BaseAction implements Localizer {
 	}
 
 	Line lineObj = NbEditorUtilities.getLine(doc, caret.getDot(), false);
-	DataObject dob = lineObj.getDataObject();
+        DataObject dob = DataEditorSupport.findDataObject(lineObj);
 	FileObject fo = dob.getPrimaryFile();
         File file = FileUtil.toFile(fo);
         String filename;

@@ -212,7 +212,11 @@ public class FixAction extends NodeAction {
                     //manager.register(itemType, null, itemList);
                     
                     continue;
-                } // else: fixButton - go ahead and fix
+                } else if (pressedButton != fixButton) {
+                    // For example if you Escape or close the window.
+                    // See issue 32149.
+                    continue;
+                }
                 
                 /* Removed - see comment above declaration
                 if (noConfirmButton.isSelected()) {
