@@ -6,6 +6,14 @@ OpenIDE-Module-Layer: org/netbeans/modules/rmi/resources/mf-layer.xml
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1, org.netbeans.modules.httpserver/1, org.netbeans.modules.debugger.core/2, org.openidex.util/1, org.netbeans.modules.utilities/1 > 1.2
 OpenIDE-Module-Specification-Version: 1.4
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
+OpenIDE-Module-Short-Description: Helps you write RMI programs with templates, a wizard, a registry browser,
+  and an activation system browser.
+OpenIDE-Module-Long-Description: The RMI module helps you write programs that use RMI technology. It includes
+  an RMI wizard and RMI templates, either of which can generate most of the
+  code needed for RMI programs. It also includes a RMI Registry browser, which
+  generates the code for RMI registry binding and lookup, and an Activation
+  System browser, which allows you to browse and customize activation system
+  records and to generate the setup code for them.
 
 Name: org/netbeans/modules/rmi/RMIDataLoader.class
 OpenIDE-Module-Class: Loader
