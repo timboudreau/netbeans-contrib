@@ -106,17 +106,19 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
         CommandLineVcsFileSystemInfo info = new CommandLineVcsFileSystemInfo(data.getFileSystem());
         FSRegistry registry = FSRegistry.getDefault();               
         registry.register(info);
-        String autocmd = (String) data.getFileSystem().getVariablesAsHashtable().get(VAR_AUTO_EXEC); 
-        autocmd = Variables.expand(data.getFileSystem().getVariablesAsHashtable(), autocmd, false);
-        System.err.println("cmd: "+autocmd);
-        if((autocmd != null)&&(autocmd.length() > 0)){
-            final CommandSupport supp = data.getFileSystem().getCommandSupport(autocmd);
-            RequestProcessor.getDefault().post(new Runnable() {
-                public void run() {
-                     Command cmd = supp.createCommand();
-                     cmd.execute();
-                }
-            });
+        String autocmd = (String) data.getFileSystem().getVariablesAsHashtable().get(VAR_AUTO_EXEC);
+        if (autocmd != null) {
+            autocmd = Variables.expand(data.getFileSystem().getVariablesAsHashtable(), autocmd, false);
+            //System.err.println("cmd: "+autocmd);
+            if (autocmd.length() > 0) {
+                final CommandSupport supp = data.getFileSystem().getCommandSupport(autocmd);
+                RequestProcessor.getDefault().post(new Runnable() {
+                    public void run() {
+                         Command cmd = supp.createCommand();
+                         cmd.execute();
+                    }
+                });
+            }
         }
         return Collections.EMPTY_SET;
     }
