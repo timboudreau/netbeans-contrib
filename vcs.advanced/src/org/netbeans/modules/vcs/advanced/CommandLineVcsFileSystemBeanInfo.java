@@ -20,6 +20,7 @@ import org.openide.filesystems.*;
 
 import org.netbeans.modules.vcscore.settings.VcsSettings;
 import org.netbeans.modules.vcscore.settings.RefreshModePropertyEditor;
+import org.netbeans.modules.vcscore.VcsFileSystem;
 
 /** BeanInfo for CommandLineVcsFileSystem.
  * 
@@ -78,7 +79,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             lockPrompt=new PropertyDescriptor
                        ("lockPrompt",CommandLineVcsFileSystem.class,"isPromptForLockOn","setPromptForLockOn"); // NOI18N
             acceptUserParams = new PropertyDescriptor
-                               ("acceptUserParams", CommandLineVcsFileSystem.class, "isAcceptUserParams", "setAcceptUserParams"); // NOI18N
+                               ("expertMode", CommandLineVcsFileSystem.class, "isExpertMode", "setExpertMode"); // NOI18N
             runRefreshCommand = new PropertyDescriptor
                                ("offLine", CommandLineVcsFileSystem.class, "isOffLine", "setOffLine"); // NOI18N
             annotationPattern = new PropertyDescriptor
@@ -151,8 +152,11 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
     }
 
 
-    public BeanDescriptor getBeanDescriptor(){
-        return new BeanDescriptor(CommandLineVcsFileSystem.class, org.netbeans.modules.vcs.advanced.VcsCustomizer.class);
+    public BeanDescriptor getBeanDescriptor() {
+        BeanDescriptor bd = new BeanDescriptor(CommandLineVcsFileSystem.class,
+                                               org.netbeans.modules.vcs.advanced.VcsCustomizer.class);
+        bd.setValue(VcsFileSystem.VCS_PROVIDER_ATTRIBUTE, new Boolean(true));
+        return bd;
     }
 
 }
