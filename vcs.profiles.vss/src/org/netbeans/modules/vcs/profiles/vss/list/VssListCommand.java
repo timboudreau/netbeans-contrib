@@ -243,7 +243,7 @@ public class VssListCommand extends AbstractListCommand {
                     if (elements != null) {
                         if (elements[0].indexOf(PROJECT_BEGIN) == 0) return ; // skip the $/... folder
                         int index = Math.min(STATUS_POSITION + 1, elements[0].length());
-                        int index2 = elements[0].indexOf(' ', index);
+                        int index2 = elements[0].indexOf("  ", index);
                         if (index2 < 0) index2 = elements[0].length();
                         if (index < index2) {
                             String pattern = elements[0].substring(0, STATUS_POSITION).trim();
@@ -363,8 +363,25 @@ public class VssListCommand extends AbstractListCommand {
           statuses[i] = elements[i];
         */
         if (statuses[2] != null) return ; // The status is already set (it can be called more than once with some garbage then)
+        int fileIndex = statuses[0].lastIndexOf('/');
+        if (fileIndex < 0) fileIndex = 0;
+        else fileIndex++;
+        String file = statuses[0].substring(fileIndex);
+        if (file.length() <= STATUS_POSITION) {
+            if (!elements[0].startsWith(file)) {
+                statuses[2] = "";
+                // The element does not start with the file name
+                return ;
+            }
+        } else {
+            if (!file.startsWith(elements[0].substring(0, STATUS_POSITION))) {
+                statuses[2] = "";
+                // The element does not start with the file name
+                return ;
+            }
+        }
         int index = Math.min(STATUS_POSITION + 1, elements[0].length());
-        int index2 = elements[0].indexOf(' ', index);
+        int index2 = elements[0].indexOf("  ", index);
         if (index2 < 0) index2 = elements[0].length();
         if (index < index2) {
             statuses[2] = elements[0].substring(index, index2).trim();
