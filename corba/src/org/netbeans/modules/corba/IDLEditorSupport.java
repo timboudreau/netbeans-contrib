@@ -234,7 +234,8 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
                 (mf.format (new Object[] {entry.getFile().getName()}));
 
                 CloneableTopComponent editor = createCloneableTopComponent ();
-                allEditors = editor.getReference ();
+                //allEditors = editor.getReference ();
+		editor.setReference (allEditors);
                 editor.open();
 
                 TopManager.getDefault ().setStatusText
@@ -564,7 +565,7 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
             this.entry = propSupport.idl_file;
 
             // add to EditorSupport - patch for a bug in deserialization
-            propSupport.setRef(getReference());
+            //propSupport.setRef(getReference());
             /*
             entry.getNodeDelegate().addNodeListener (
             new WeakListener.Node(nodeL = 
