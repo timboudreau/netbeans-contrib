@@ -35,7 +35,7 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
 import org.netbeans.modules.jndi.utils.Refreshable;
-
+import org.openide.util.NbBundle;
 
 /** This class represents the branch with providers (factories)
  *
@@ -213,6 +213,8 @@ public class JndiProvidersNode extends AbstractNode implements PropertyChangeLis
         Repository repo = TopManager.getDefault().getRepository();
         FileSystem fs = repo.getDefaultFileSystem();
         FileObject fo = fs.getRoot().getFileObject("JNDI");
+        if (fo == null)
+            TopManager.getDefault().getErrorManager().log(NbBundle.getBundle(JndiProvidersNode.class).getString ("ERR_CanNotOpenJNDIFolder"));
         java.util.Enumeration files = fo.getData(false);
         while (files.hasMoreElements()){
             fo = (FileObject) files.nextElement();
@@ -256,6 +258,8 @@ public class JndiProvidersNode extends AbstractNode implements PropertyChangeLis
         Repository repo = TopManager.getDefault().getRepository();
         FileSystem fs = repo.getDefaultFileSystem();
         FileObject fo = fs.getRoot().getFileObject("JNDI");
+	if (fo == null)
+	    return;
         java.util.Enumeration files = fo.getData(false);
         while (files.hasMoreElements()){
             fo = (FileObject) files.nextElement();
