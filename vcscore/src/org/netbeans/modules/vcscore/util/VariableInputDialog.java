@@ -316,8 +316,22 @@ public class VariableInputDialog extends javax.swing.JPanel {
                             selector.substring(VariableInputDescriptor.SELECTOR_CMD.length()));
             }
         }
+        /*
         field.addActionListener(new ActionListener () {
             public void actionPerformed(ActionEvent aevt) {
+                System.out.println("action Performed: "+aevt);
+                component.setValue(field.getText());
+                if ((aevt.getID() & ActionEvent.KEY_EVENT_MASK) != 0) {
+                    System.out.println("KEY Action !");
+                    VariableInputDialog.this.dispatchEvent(new ActionEvent(aevt.getSource(), aevt.getID(), aevt.getActionCommand(), aevt.getModifiers()));
+                }
+            }
+        });
+        */
+        field.addInputMethodListener(new InputMethodListener() {
+            public void caretPositionChanged(InputMethodEvent event) {
+            }
+            public void inputMethodTextChanged(InputMethodEvent event) {
                 component.setValue(field.getText());
             }
         });
