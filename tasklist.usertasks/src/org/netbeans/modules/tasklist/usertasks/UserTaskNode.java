@@ -137,6 +137,8 @@ class UserTaskNode extends TaskNode {
                 SystemAction.get(NewTaskAction.class),
                 SystemAction.get(NewTaskListAction.class),
                 null,
+                SystemAction.get(PauseAction.class),
+                null,
                 SystemAction.get(PasteAction.class),
                 null,
                 SystemAction.get(FilterAction.class),
@@ -151,6 +153,9 @@ class UserTaskNode extends TaskNode {
                 SystemAction.get(NewTaskAction.class),
                 SystemAction.get(NewTaskListAction.class),
                 null,
+                SystemAction.get(PauseAction.class),
+                null,
+                SystemAction.get(StartTaskAction.class),
                 SystemAction.get(ShowTaskAction.class),
                 SystemAction.get(GoToTaskAction.class),
                 null,
@@ -238,10 +243,18 @@ class UserTaskNode extends TaskNode {
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
-            p = new Reflection(item, Integer.TYPE, "getRestEffort", null);
-            p.setName("restEffort");
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "RestEffort")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "RestEffortHint")); // NOI18N
+            p = new Reflection(item, Integer.TYPE, "getRemainingEffort", null);
+            p.setName("remainingEffort");
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "RemainingEffort")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "RemainingEffortHint")); // NOI18N
+            p.setValue("suppressCustomEditor", Boolean.TRUE);
+            p.setPropertyEditorClass(DurationPropertyEditor.class);
+            ss.put(p);
+
+            p = new Reflection(item, Integer.TYPE, "getSpentTime", null);
+            p.setName("spentTime");
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "SpentTime")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "SpentTimeHint")); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE);
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);

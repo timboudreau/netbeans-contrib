@@ -25,6 +25,7 @@ Microsystems, Inc. All Rights Reserved.
         (see http://www.w3.org/TR/NOTE-datetime)
     line - 1 = the first line in a file
     effort - effort in minutes
+    spent - spent time in minutes
 -->
 <!ELEMENT task (summary, details?, (task)*)>
 <!ATTLIST task 
@@ -39,6 +40,8 @@ Microsystems, Inc. All Rights Reserved.
     line CDATA #IMPLIED
     created CDATA #REQUIRED
     modified CDATA #REQUIRED
+    spent-time CDATA #REQUIRED
+    spent-time-computed (yes|no) "no"
 >
 
 <!ELEMENT details (#PCDATA)>

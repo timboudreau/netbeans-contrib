@@ -67,8 +67,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
         LOGGER.setLevel(Level.OFF);
     }
     
-    private static final Timer TIMER = new Timer(true);
-    
     /** Construct a new UserTaskView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
 	system when deserializing windows. Client code should not call
@@ -106,28 +104,16 @@ public class UserTaskView extends TaskListView implements TaskListener {
 	    }
 	    views.add(this);
 	}
-        
-        TIMER.scheduleAtFixedRate(new TimerTask() {
-            public void run() {
-                timer();
-            }
-        }, 0, 1000);
     }
 
-    /**
-     * Executed once per second
-     */
-    private void timer() {
-        // TODO
-    }
-    
     public SystemAction[] getToolBarActions() {
         return new SystemAction[] {
             SystemAction.get(NewTaskAction.class),
             SystemAction.get(DeleteAction.class),
             SystemAction.get(GoToTaskAction.class),
             SystemAction.get(FilterAction.class),
-            SystemAction.get(RemoveFilterAction.class)
+            SystemAction.get(RemoveFilterAction.class),
+            SystemAction.get(StartTaskAction.class)
         };
     }
     
@@ -241,7 +227,8 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public static final String PROP_TASK_EDITED = "edited"; // NOI18N
     public static final String PROP_TASK_PERCENT = "percentComplete"; // NOI18N
     public static final String PROP_EFFORT = "effort"; // NOI18N
-    public static final String PROP_REST_EFFORT = "restEffort"; // NOI18N
+    public static final String PROP_REMAINING_EFFORT = "remainingEffort"; // NOI18N
+    public static final String PROP_SPENT_TIME = "spentTime"; // NOI18N
     
     protected ColumnProperty[] createColumns() {
         return new ColumnProperty[] {
@@ -257,7 +244,8 @@ public class UserTaskView extends TaskListView implements TaskListener {
             getDoneColumn(true, 40),
             getPercentColumn(false, 100),
             getEffortColumn(false, 50),
-            getRestEffortColumn(false, 50)
+            getRemainingEffortColumn(false, 50),
+            getSpentTimeColumn(false, 50)
             
             // When adding more columns here, also remember to go to the 
             // constructor and add a column width setting 
@@ -415,13 +403,26 @@ public class UserTaskView extends TaskListView implements TaskListener {
             );
     }
     
-    public ColumnProperty getRestEffortColumn(boolean visible, int width) {
+    public ColumnProperty getRemainingEffortColumn(boolean visible, int width) {
         return new ColumnProperty(
-    	    11, // UID -- never change (part of serialization
-            PROP_REST_EFFORT,
+    	    12, // UID -- never change (part of serialization
+            PROP_REMAINING_EFFORT,
             Integer.TYPE,
-            NbBundle.getMessage(UserTaskView.class, "RestEffort"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "RestEffortHint"), // NOI18N
+            NbBundle.getMessage(UserTaskView.class, "RemainingEffort"), // NOI18N
+            NbBundle.getMessage(UserTaskView.class, "RemainingEffortHint"), // NOI18N
+            true,
+            visible,
+            width
+            );
+    }
+    
+    public ColumnProperty getSpentTimeColumn(boolean visible, int width) {
+        return new ColumnProperty(
+    	    13, // UID -- never change (part of serialization
+            PROP_SPENT_TIME,
+            Integer.TYPE,
+            NbBundle.getMessage(UserTaskView.class, "SpentTime"), // NOI18N
+            NbBundle.getMessage(UserTaskView.class, "SpentTimeHint"), // NOI18N
             true,
             visible,
             width

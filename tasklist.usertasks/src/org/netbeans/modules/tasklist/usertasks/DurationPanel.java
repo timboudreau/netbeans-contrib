@@ -103,44 +103,46 @@ public class DurationPanel extends javax.swing.JPanel {
     add(jLabel1, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
     gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(jSpinnerDays, gridBagConstraints);
 
     org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(DurationPanel.class, "Hours")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 1;
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 0;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
     add(jLabel2, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 1;
+    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(jSpinnerHours, gridBagConstraints);
 
     org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(DurationPanel.class, "Minutes")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 2;
+    gridBagConstraints.gridx = 2;
+    gridBagConstraints.gridy = 0;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
     add(jLabel3, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 2;
+    gridBagConstraints.gridx = 2;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(jSpinnerMinutes, gridBagConstraints);
 
     jPanelPlaceholder.setPreferredSize(new java.awt.Dimension(0, 0));
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 2;
-    gridBagConstraints.gridy = 3;
+    gridBagConstraints.gridx = 3;
+    gridBagConstraints.gridy = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
     gridBagConstraints.weightx = 1.0;
     gridBagConstraints.weighty = 1.0;
