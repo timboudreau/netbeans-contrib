@@ -2800,6 +2800,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         VcsConfigVariable preDisplayNameVar = (VcsConfigVariable) variablesByName.get(VAR_FS_DISPLAY_NAME);
         if (preDisplayNameVar != null) {
+            if (Boolean.getBoolean("netbeans.vcs.T9Y")) {
+                String builtIn = (String) vars.get("BUILT-IN");
+                if (builtIn != null) {
+                    if (builtIn.length() == 0) {
+                        return preDisplayNameVar.getValue() + "-EXT " + rootFile.toString();
+                    } else {
+                        return preDisplayNameVar.getValue() + "-INT " + rootFile.toString();
+                    }
+                }
+            }
             //System.out.println(preDisplayNameVar.getValue() + " " + rootFile.toString());
             return preDisplayNameVar.getValue() + " " + rootFile.toString();
         } else if (commandsRoot != null) {
