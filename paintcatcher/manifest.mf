@@ -1,0 +1,10 @@
+Manifest-version: 1.0
+OpenIDE-Module: org.netbeans.modules.paintcatcher/1
+OpenIDE-Module-Name: paintcatcher
+OpenIDE-Module-Layer: org/netbeans/modules/paintcatcher/layer.xml
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.18
+OpenIDE-Module-Implementation-Version: 0.1
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/paintcatcher/Bundle.properties
+OpenIDE-Module-Build-Version: @BUILD_NUMBER_SUBST@
+

@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="paintcatcher" default="netbeans" basedir=".">
+  <property name="nbm_alias" value="nb_ide"/>
+  <property name="homepage.base" value="netbeans.org"/>
+  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
+  <property name="license.file" value="../../nbbuild/standard-nbm-license.txt"/>
+
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../nbbuild/nbantext.jar"/>
+  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../../nbbuild/nbantext.jar"/>
+  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="../../nbbuild/nbantext.jar"/>
+
+  <target name="compile">
+    <javac source="1.4" srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="on" verbose="false">
+      <classpath>
+	<pathelement location="../../openide/netbeans/lib/openide.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile">
+    <mkdir dir="netbeans/modules"/>
+    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+    <locjar jarfile="netbeans/modules/paintcatcher.jar"
+            manifest="manifest-subst.mf"
+            basedir="src"
+	    excludesfile="../../nbbuild/standard-jar-excludes.txt"
+	    compress="false">
+      <locale name="ja"/>
+    </locjar>
+  </target>
+
+  <target name="netbeans" depends="jar">
+    <genlist targetname="nbm" outputfiledir="netbeans"/>
+  </target>
+
+  <target name="nbm" depends="netbeans">
+    <makenbm file="paintcatcher.nbm"
+             topdir="."
+             module="netbeans/modules/paintcatcher.jar"
+	     homepage="http://contrib.${homepage.base}/"
+	     distribution="http://${dist.base}/paintcatcher.nbm"
+             needsrestart="false">
+      <license file="${license.file}"/>
+      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+    </makenbm>
+  </target>
+  
+  <target name="quicktest">
+  
+      <!-- Build the stuff we depend on -->
+      <ant dir="../../openide" target="netbeans" inheritRefs="true"/>
+      
+      <!-- Build paintcatcher itself -->
+      <ant dir="." target="netbeans" inheritRefs="true"/>
+      
+      <!-- Install all the modules in the nbbuild test build modules dir -->
+      <copy file="netbeans/modules/paintcatcher.jar" tofile="../../nbbuild/netbeans/modules/paintcatcher.jar"/>
+      <delete dir="../../nbbuild/testuserdir"/>
+      <ant dir="../../nbbuild" target="tryme" inheritRefs="true"/>
+  </target>
+  
+  <target name="clean">
+    <delete>
+      <fileset dir="src">
+        <include name="**/*.class"/>
+      </fileset>
+    </delete>
+    <delete file="manifest-subst.mf"/>
+    <delete file="paintcatcher.nbm"/>
+    <delete dir="netbeans"/>
+    <delete dir="Info"/>
+  </target>
+
+</project>
+
