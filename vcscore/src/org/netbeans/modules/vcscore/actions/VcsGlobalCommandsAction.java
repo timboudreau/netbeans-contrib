@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 
 import org.openide.awt.JInlineMenu;
 import org.openide.filesystems.FileObject;
@@ -188,14 +189,27 @@ public class VcsGlobalCommandsAction extends SystemAction implements Presenter.M
         CommandsTree commands = getGlobalCommands();
         ArrayList menuItems = new ArrayList();
         CommandsTree[] subCommands = commands.children();
+        boolean addSeparator = false;
         for (int i = 0; i < subCommands.length; i++) {
             //System.out.println("GlobAction.getPresenter() subCommands["+i+"] = "+subCommands[i]);
             JMenuItem menuItem = getPopupPresenter(subCommands[i], files, inMenu);
             //System.out.println("  menu item = "+menuItem);
-            if (menuItem != null) menuItems.add(menuItem);
+            if (menuItem != null) {
+                if (menuItem == SEPARATOR) {
+                    if (menuItems.size() > 0) addSeparator = true;
+                } else {
+                    if (addSeparator) {
+                        menuItems.add(null);
+                        addSeparator = false;
+                    }
+                    menuItems.add(menuItem);
+                }
+            }
         }
         return (JMenuItem[]) menuItems.toArray(new JMenuItem[menuItems.size()]);
     }
+    
+    private static final JMenuItem SEPARATOR = new JMenuItem(); // Dummy item denoting a separator
     
     /**
      * Get a menu item that can present this action in a <code>JPopupMenu</code>.
@@ -226,7 +240,7 @@ public class VcsGlobalCommandsAction extends SystemAction implements Presenter.M
              */
         } else {
             CommandSupport cmd = commands.getCommandSupport();
-            if (cmd == null) return null;
+            if (cmd == null) return SEPARATOR;
             // TODO expert mode. (Can be a global property ?!?)
             if (cmd.getDisplayName() == null) return null;
             if (cmd.getApplicableFiles(files) == null) {
