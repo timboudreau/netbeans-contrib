@@ -25,7 +25,7 @@ import org.netbeans.modules.vcscore.cache.CacheFile;
 import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.cache.CacheHandler;
 import org.netbeans.modules.vcscore.cache.FileSystemCache;
-import org.netbeans.modules.vcscore.caching.VcsCacheDir;
+import org.netbeans.modules.vcscore.cache.impl.VcsCacheDir;
 import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.util.*;

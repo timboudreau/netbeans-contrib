@@ -22,12 +22,8 @@ import org.openide.filesystems.FileObject;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
-//import org.netbeans.modules.vcscore.caching.FileCacheProvider;
-//import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
-//import org.netbeans.modules.vcscore.versioning.RevisionEvent;
-//import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 
 /**
  * A provider of execution context, that is necessary for the UserCommand

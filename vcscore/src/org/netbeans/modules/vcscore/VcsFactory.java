@@ -21,7 +21,7 @@ import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
-import org.netbeans.modules.vcscore.caching.FileCacheProvider;
+import org.netbeans.modules.vcscore.cache.FileCacheProvider;
 
 /**
  *

@@ -29,7 +29,7 @@ import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cache.CacheHandler;
 import org.netbeans.modules.vcscore.cache.FileSystemCache;
-import org.netbeans.modules.vcscore.caching.VcsCacheDir;
+import org.netbeans.modules.vcscore.cache.impl.VcsCacheDir;
 
 import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;

@@ -18,7 +18,7 @@ import javax.swing.*;
 
 import org.openide.util.NbBundle;
 import org.netbeans.modules.vcscore.annotation.*;
-import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
+import org.netbeans.modules.vcscore.cache.impl.RefreshCommandSupport;
 
 /** Property editor for annotation pattern properties
 *

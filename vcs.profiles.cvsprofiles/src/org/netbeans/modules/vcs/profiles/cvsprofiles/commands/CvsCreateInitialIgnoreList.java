@@ -22,7 +22,6 @@ import java.util.StringTokenizer;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
-import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 
 /**
  *
@@ -75,14 +74,20 @@ public class CvsCreateInitialIgnoreList extends Object implements VcsAdditionalC
     }
     
     private void addHomeIgnoreList(ArrayList ignoreList) {
-        GeneralVcsSettings settings = (GeneralVcsSettings) GeneralVcsSettings.findObject(GeneralVcsSettings.class, true);
-        if (settings != null) {
-            File home = settings.getHome();
-            if (home != null) {
-                File userIgnoreFile = new File(home, CVS_IGNORE_FILE_NAME);
-                addFileIgnoreList(userIgnoreFile, ignoreList);
+        String homeStr = System.getProperty("Env-HOME");
+        if (homeStr == null && org.openide.util.Utilities.isWindows()) {
+            String homeDrive = System.getProperty("Env-HOMEDRIVE");
+            String homeDir = System.getProperty("Env-HOMEPATH");
+            if (homeDrive != null && homeDir != null) {
+                homeStr = homeDrive + homeDir;
             }
         }
+        if (homeStr == null) {
+            homeStr = System.getProperty("user.home");
+        }
+        File home = new File(homeStr);
+        File userIgnoreFile = new File(home, CVS_IGNORE_FILE_NAME);
+        addFileIgnoreList(userIgnoreFile, ignoreList);
     }
     
     private void addEnvironmentIgnoreList(ArrayList ignoreList) {

@@ -20,8 +20,8 @@ import org.openide.util.*;
 
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.util.*;
-import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
-import org.netbeans.modules.vcscore.caching.StatusFormat;
+import org.netbeans.modules.vcscore.cache.impl.RefreshCommandSupport;
+import org.netbeans.modules.vcscore.cache.impl.StatusFormat;
 import org.netbeans.modules.vcscore.commands.*;
 
 /**

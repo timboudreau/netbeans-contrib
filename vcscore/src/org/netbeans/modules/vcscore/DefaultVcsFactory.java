@@ -36,9 +36,9 @@ import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.actions.AddToGroupAction;
 import org.netbeans.modules.vcscore.actions.RefreshLocalFolderAction;
 //import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
+import org.netbeans.modules.vcscore.cache.FileCacheProvider;
+import org.netbeans.modules.vcscore.cache.impl.VcsFSCache;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
-import org.netbeans.modules.vcscore.caching.FileCacheProvider;
-import org.netbeans.modules.vcscore.caching.VcsFSCache;
 
 //import org.netbeans.modules.vcscore.cmdline.CommandLineVcsDirReader;
 //import org.netbeans.modules.vcscore.cmdline.CommandLineVcsDirReaderRecursive;
