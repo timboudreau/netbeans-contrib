@@ -109,13 +109,23 @@ public class RuntimeMainChildren extends Children.Keys  {
         public void fileSystemRemoved(RepositoryEvent ev) {
             FileSystem fs = ev.getFileSystem();
             RuntimeCommandsProvider provider = RuntimeCommandsProvider.findProvider(fs);
-            if (provider != null) {
+            if (provider != null && !containsProvider(ev.getRepository(), provider)) {
                 if (providerList.remove(provider)) {
                     provider.notifyRemoved();
                     RuntimeMainChildren.this.setKeys(providerList);
                 }
             }
-            
+        }
+        
+        /** Whether the Repository still contains the provider or not. */
+        private boolean containsProvider(Repository repository, RuntimeCommandsProvider provider) {
+            for (Enumeration enum = repository.fileSystems(); enum.hasMoreElements(); ) {
+                FileSystem fs = (FileSystem) enum.nextElement();
+                if (provider.equals(RuntimeCommandsProvider.findProvider(fs))) {
+                    return true;
+                }
+            }
+            return false;
         }
         
         public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
