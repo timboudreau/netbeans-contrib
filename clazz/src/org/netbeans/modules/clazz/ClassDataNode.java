@@ -7,36 +7,29 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.clazz;
 
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.*;
-import java.util.Vector;
 import java.util.ResourceBundle;
 import java.io.*;
 import java.text.MessageFormat;
 
-import javax.swing.SwingUtilities;
-
 import org.openide.nodes.*;
 import org.openide.loaders.DataNode;
-import org.openide.util.datatransfer.ExTransferable;
-import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.util.WeakListener;
 import org.openide.src.*;
 import org.openide.src.nodes.SourceChildren;
-import org.openide.src.nodes.DefaultFactory;
 import org.openide.cookies.SourceCookie;
 import org.openide.ErrorManager;
+import org.openide.util.RequestProcessor;
 
 /** Represents ClassDataObject. Common base for CompiledDataNode (.class)
 * and SerDataNode (.ser and other serialized extensions)
@@ -64,7 +57,8 @@ abstract class ClassDataNode extends DataNode
     transient String errorMsg;
     
     transient boolean initialized;
-    
+
+    private static final RequestProcessor iconResolver = new RequestProcessor("clazz icon resolver", 1); // NOI18N
     // -----------------------------------------------------------------------
     // constructor
 
@@ -126,7 +120,11 @@ abstract class ClassDataNode extends DataNode
     private void ensureIconResolved() {
         if (iconResolved)
             return;
-        requestResolveIcon();
+        iconResolver.post(new Runnable() {
+            public void run() {
+                requestResolveIcon();
+            }
+        });
     }
 
     /** Creates property set for this node */

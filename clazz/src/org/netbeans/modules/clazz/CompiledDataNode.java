@@ -33,7 +33,7 @@ import org.netbeans.api.java.classpath.ClassPath;
  * @author  sdedic
  * @version 
  */
-public class CompiledDataNode extends ClassDataNode implements TaskListener {
+public class CompiledDataNode extends ClassDataNode {
     private final static String PROP_IS_EXECUTABLE = "isExecutable"; // NOI18N
     private final static String PROP_FILE_PARAMS = "fileParams"; // NOI18N
     private final static String PROP_EXECUTION = "execution"; // NOI18N
@@ -96,15 +96,6 @@ public class CompiledDataNode extends ClassDataNode implements TaskListener {
      * Requests construction / retrieval of metadata
      */
     protected void requestResolveIcon() {
-        SourceCookie ck = (SourceCookie)getCookie(SourceCookie.class);
-        ck.getSource().prepare().addTaskListener(this);
-    }
-
-    /**
-     * The SourceElement finished its initialization -- 
-     * it should be safe to access the metadata.
-     */
-    public void taskFinished(Task task) {
         CompiledDataObject dataObj = getCompiledDataObject();
         FileObject fo=dataObj.getPrimaryFile();
         ClassPath libs = ClassPath.getClassPath (fo, ClassPath.COMPILE);
