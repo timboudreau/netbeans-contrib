@@ -207,7 +207,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
     /* Creates presenter that invokes the associated presenter.
     */
     public JMenuItem getMenuPresenter() {
-        JMenuItem menu = new MountMenu (getTemplateRoot (), new TemplateActionListener (), false);
+        JMenuItem menu = new MountMenu (null, new TemplateActionListener (), false, false);
         Actions.connect (menu, this, false);
         //    menu.setName (getName ());
         return menu;
@@ -234,7 +234,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
     * templates.
     */
     public JMenuItem getPopupPresenter() {
-        JMenuItem menu = new MenuView.Menu (getTemplateRoot (), new TemplateActionListener (), false);
+        JMenuItem menu = new MountMenu (null, new TemplateActionListener (), false, true);
         Actions.connect (menu, this, true);
         //    menu.setName (getName ());
         return menu;
@@ -276,9 +276,17 @@ public class VcsMountFromTemplateAction extends NodeAction {
          */
     }
     
-    private static class MountMenu extends MenuView.Menu {
-        public MountMenu (final Node node, final NodeAcceptor action, final boolean setName) {
+    private class MountMenu extends MenuView.Menu {
+        
+        private boolean popupMenu;
+        
+        /**
+         * @param popupMenu Whether it is a popup menu or not. A popup menu does not require mnemonics.
+         */
+        public MountMenu (final Node node, final NodeAcceptor action, final boolean setName,
+                          final boolean popupMenu) {
             super(node, action, setName);
+            this.popupMenu = popupMenu;
         }
         
         /** Create a menu element for a node. The default implementation creates
@@ -290,25 +298,34 @@ public class VcsMountFromTemplateAction extends NodeAction {
          */
         protected JMenuItem createMenuItem (Node n) {
             JMenuItem item = super.createMenuItem(n);
-            String mnemonic = null;
-            DataObject obj = (DataObject) n.getCookie (DataObject.class);
-            if (obj != null) {
-                FileObject fo = obj.getPrimaryFile();
-                String bundleName = (String) fo.getAttribute(ATTR_MNEMONIC);
-                if (bundleName != null) {
-                    try {
-                        bundleName = org.openide.util.Utilities.translate(bundleName);
-                        ResourceBundle b = NbBundle.getBundle (bundleName, Locale.getDefault (), TopManager.getDefault ().systemClassLoader ());
-                        mnemonic = b.getString (fo.getPackageNameExt ('/', '.') + "_m"); // NOI18N
-                    } catch (MissingResourceException ex) {
-                        // ignore--normal
+            if (!popupMenu) {
+                String mnemonic = null;
+                DataObject obj = (DataObject) n.getCookie (DataObject.class);
+                if (obj != null) {
+                    FileObject fo = obj.getPrimaryFile();
+                    String bundleName = (String) fo.getAttribute(ATTR_MNEMONIC);
+                    if (bundleName != null) {
+                        try {
+                            bundleName = org.openide.util.Utilities.translate(bundleName);
+                            ResourceBundle b = NbBundle.getBundle (bundleName, Locale.getDefault (), TopManager.getDefault ().systemClassLoader ());
+                            mnemonic = b.getString (fo.getPackageNameExt ('/', '.') + "_m"); // NOI18N
+                        } catch (MissingResourceException ex) {
+                            // ignore--normal
+                        }
                     }
                 }
-            }
-            if (mnemonic != null && mnemonic.length() > 0) {
-                item.setMnemonic(mnemonic.charAt(0));
+                if (mnemonic != null && mnemonic.length() > 0) {
+                    item.setMnemonic(mnemonic.charAt(0));
+                }
             }
             return item;
+        }
+
+        // this is the only place MenuView.Menu needs the node ready
+	// so lets prepare it on-time
+        public JPopupMenu getPopupMenu() {
+            if (node == null) node = getTemplateRoot();
+            return super.getPopupMenu();
         }
     }
 
