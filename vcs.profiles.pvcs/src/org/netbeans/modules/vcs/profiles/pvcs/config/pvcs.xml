@@ -320,11 +320,32 @@ Microsystems, Inc. All Rights Reserved.
         <property name="labelMnemonic">
           <value>ResourceMsg(LIST_SUB_Mnemonic)</value>
         </property>
+	<property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.pvcs.list.PvcsListRecursive.class LIST_PROJECT_REC DIFF_TEST_CMD</value>
+	</property>
 	<property name="onFile">
 	  <value>false</value>
 	</property>
 	<property name="onRoot">
 	  <value>true</value>
+	</property>
+	<property name="data.fileName.index">
+	  <value>0</value>
+	</property>
+	<property name="data.status.index">
+	  <value>1</value>
+	</property>
+	<property name="data.locker.index">
+	  <value>2</value>
+	</property>
+	<property name="data.revision.index">
+	  <value>3</value>
+	</property>
+	<property name="data.attr.index">
+	  <value>4</value>
+	</property>
+	<property name="data.size.index">
+	  <value>5</value> <!-- The number of revisions is stored here -->
 	</property>
         <property name="concurrentExec">
           <value>-1</value> <!-- EXEC_SERIAL_INERT -->

@@ -48,26 +48,26 @@ public class PvcsListCommand extends AbstractListCommand {
     private Map revisionsByNames;
     private String currentUserName;
     
-    private static final String ENTITY_TYPE = "EntityType="; // NOI18N
-    private static final String ENTITY_PROJECT = "Project"; // NOI18N
-    private static final String ENTITY_VERSIONED_FILE = "VersionedFile"; // NOI18N
-    private static final String ENTITY_WORK_PATH = "WorkPath="; // NOI18N
-    private static final String ENTITY_NAME = "Name="; // NOI18N
-    private static final String ARCHIVE_PATH = "ArchivePath="; // NOI18N
-    private static final String ARCHIVE_LOCK_INFO = "Archive:LockInfo=["; // NOI18N
-    private static final String LOCK_INFO_LOCKED_REVISION = "Locked Revision:"; // NOI18N
-    private static final String LOCK_INFO_NEW_REVISION = "New Revision:"; // NOI18N
-    private static final String LOCK_INFO_LOCKED_BY = "Locked By:"; // NOI18N
-    private static final String LOCK_INFO_END = "]"; // NOI18N
-    private static final String LOCKS_SEPARATOR = " : "; // NOI18N
-    private static final String ARCHIVE_REVISION_COUNT = "Archive:RevisionCount="; // NOI18N
+    static final String ENTITY_TYPE = "EntityType="; // NOI18N
+    static final String ENTITY_PROJECT = "Project"; // NOI18N
+    static final String ENTITY_VERSIONED_FILE = "VersionedFile"; // NOI18N
+    static final String ENTITY_WORK_PATH = "WorkPath="; // NOI18N
+    static final String ENTITY_NAME = "Name="; // NOI18N
+    static final String ARCHIVE_PATH = "ArchivePath="; // NOI18N
+    static final String ARCHIVE_LOCK_INFO = "Archive:LockInfo=["; // NOI18N
+    static final String LOCK_INFO_LOCKED_REVISION = "Locked Revision:"; // NOI18N
+    static final String LOCK_INFO_NEW_REVISION = "New Revision:"; // NOI18N
+    static final String LOCK_INFO_LOCKED_BY = "Locked By:"; // NOI18N
+    static final String LOCK_INFO_END = "]"; // NOI18N
+    static final String LOCKS_SEPARATOR = " : "; // NOI18N
+    static final String ARCHIVE_REVISION_COUNT = "Archive:RevisionCount="; // NOI18N
     
-    private static final String NO_ENTITIES_REGEX = "^The entity \\(or entities\\) for .* could not be loaded\\.$";
+    static final String NO_ENTITIES_REGEX = "^The entity \\(or entities\\) for .* could not be loaded\\.$";
     
-    private static final String MISSING_STATUS = "Missing"; // NOI18N
-    private static final String CURRENT_STATUS = "Current"; // NOI18N
-    private static final String MODIFIED_STATUS = "Locally Modified"; // NOI18N
-    private static final String NO_STATUS = ""; // NOI18N
+    static final String MISSING_STATUS = "Missing"; // NOI18N
+    static final String CURRENT_STATUS = "Current"; // NOI18N
+    static final String MODIFIED_STATUS = "Locally Modified"; // NOI18N
+    static final String NO_STATUS = ""; // NOI18N
     
     /** The first version of PVCS in which the quoting is fixed. */
     private static final String[] PCLI_OLDSTYLE_QUOTING_VERSION = { "6", "8" };
