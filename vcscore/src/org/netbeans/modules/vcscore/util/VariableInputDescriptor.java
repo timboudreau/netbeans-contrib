@@ -14,9 +14,12 @@
 package org.netbeans.modules.vcscore.util;
 
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
+import org.openide.filesystems.*;
+import org.openide.ErrorManager;
 
 import java.awt.Dimension;
 import java.util.*;
+import java.io.*;
 
 /**
  * The descriptor of variable input components.
@@ -143,8 +146,8 @@ public class VariableInputDescriptor extends Object {
     
     /**
      * Parse the string representation of components into the descriptor object.
-     * @params inputItems the string representation of input components
-     * @params resourceBundles an optional array of resource bundles with localized messages
+     * @param inputItems the string representation of input components
+     * @param resourceBundles an optional array of resource bundles with localized messages
      * @return the descriptor object
      * @throws VariableInputFormatException when the parsed string contains some errors
      */
@@ -652,7 +655,16 @@ public class VariableInputDescriptor extends Object {
      */
     public final void loadDefaults(String commandName, String commandProvider) {
         // TODO implement 52621
+
+//        Map map = loadDefaultsFromDisk(commandName, commandProvider);
+//
+//        VariableInputComponent[] comps = components();
+//        for (int i = 0; i < comps.length; i++) {
+//            VariableInputComponent comp = comps[i];
+//            fillValuesAndDefaultsFromMap(map, comp);
+//        }
     }
+
 
     /**
      * Stores component values to disk default values.
@@ -660,6 +672,162 @@ public class VariableInputDescriptor extends Object {
      * @param commandProvider identifies provider
      */
     public final void storeDefaults(String commandName, String commandProvider) {
-        // TODO implement 52621
+        Map defaults = new HashMap();
+        VariableInputComponent[] comps = components();
+        for (int i = 0; i < comps.length; i++) {
+            VariableInputComponent comp = comps[i];
+            fillMapWithCurrentValues(defaults, comp);
+        }
+
+        try {
+            writeDefaultsToDisk(defaults, commandName, commandProvider);
+        } catch (IOException ex) {
+            ErrorManager.getDefault().annotate(ex, "I/O failure while storing defaults.");
+            ErrorManager.getDefault().notify(ErrorManager.USER, ex);
+        }
     }
+
+    /**
+     * Traverses components hiearchy and puts
+     * associated values into given map.
+     */
+    private void fillMapWithCurrentValues(Map map, VariableInputComponent vic) {
+        VariableInputComponent[] subs = vic.subComponents();
+        for (int i = 0; i < subs.length; i++) {
+            VariableInputComponent component = subs[i];
+            fillMapWithCurrentValues(map, component);
+        }
+
+        String name = vic.getVariable();
+        if (name == null) return;
+        if (vic.needsPreCommandPerform()) return;
+        String value = vic.getValue();
+        if (value == null) return;
+        map.put(name, value);
+    }
+
+    /**
+     * Writes given map to user dir located settings. Reverse opration to
+     * {@link #loadDefaultsFromDisk}.
+     */
+    private void writeDefaultsToDisk(Map defaults, String command, String provider) throws IOException {
+        FileObject fo = locateSettingsFile(command, provider, true);
+        FileLock lock = fo.lock();
+        try {
+            OutputStream out = fo.getOutputStream(lock);
+            try {
+                storeMapToStream(defaults, out);
+            } finally {
+                out.close();
+            }
+        } finally {
+            lock.releaseLock();
+        }
+    }
+
+    /**
+     * Seek user dir for suitable file for given provider and command.
+     * @param createIfDoesNotExist on true creates empty file if it does not exist yet.
+     * @return settings file or null if createIfDoesNotExist==false and file does not exist yet.
+     * @throws IOException
+     */
+    private FileObject locateSettingsFile(String command, String provider, boolean createIfDoesNotExist) throws IOException {
+        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
+        FileObject fo = fs.getRoot();
+        FileObject config = fo.getFileObject("config");
+        if (config == null && createIfDoesNotExist) {
+            config = fo.createFolder("config");
+        } else {
+            return null;
+        }
+        FileObject vcs = config.getFileObject("vcs");
+        if (vcs == null && createIfDoesNotExist) {
+            vcs = config.createFolder("vcs");
+        } else {
+            return null;
+        }
+        FileObject defaults = vcs.getFileObject("defaults");
+        if (defaults == null && createIfDoesNotExist) {
+            defaults = config.createFolder("defaults");
+        } else {
+            return null;
+        }
+
+        FileObject index = defaults.getFileObject("index.map");
+        if (index == null && createIfDoesNotExist) {
+            index = defaults.createData("index.map");
+        } else {
+            return null;
+        }
+
+        InputStream in = index.getInputStream();
+        try {
+            Map indexMap = new HashMap();
+            loadMapFromStream(indexMap, in);
+            in.close();
+            String defaultsBundle = (String) indexMap.get("" + provider + "/" + command);
+            if (defaultsBundle == null && createIfDoesNotExist) {
+                String fileName = FileUtil.findFreeFileName(defaults, "entry", ".map");
+                indexMap.put("" + provider + "/" + command, fileName);
+                FileObject defaultsFO = defaults.createData(fileName);
+                FileLock lock = index.lock();
+                try {
+                    OutputStream out = index.getOutputStream(lock);
+                    try {
+                        storeMapToStream(indexMap, out);
+                        return defaultsFO;
+                    } finally {
+                        out.close();
+                    }
+                } finally {
+                    lock.releaseLock();
+                }
+            } else {
+                return null;
+            }
+        } finally {
+            try {
+                in.close();
+            } catch (IOException ex) {
+                // already closed
+            }
+        }
+    }
+
+    // XXX I have not found writeable API for resource bundles, hence binary format
+
+    private void loadMapFromStream(Map map, InputStream in) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(in);
+        DataInputStream is = new DataInputStream(bis);
+        try {
+            int version = is.readInt();
+            assert version == 1;
+        } catch (EOFException eof) {
+            // empty file
+            return;
+        }
+        int entries = is.readInt();
+        for (int i = 0; i<entries; i++) {
+            String key = is.readUTF();
+            String val = is.readUTF();
+            map.put(key, val);
+        }
+    }
+
+    private void storeMapToStream(Map map, OutputStream out) throws IOException {
+        BufferedOutputStream bos = new BufferedOutputStream(out);
+        DataOutputStream os = new DataOutputStream(bos);
+        int entries = map.size();
+        os.writeInt(1);  // version
+        os.writeInt(entries);
+        Iterator it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry next = (Map.Entry) it.next();
+            String key = (String) next.getKey();
+            String val = (String) next.getValue();
+            os.writeUTF(key);
+            os.writeUTF(val);
+        }
+    }
+
 }
