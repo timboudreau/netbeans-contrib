@@ -522,10 +522,10 @@ public class VariableInputDescriptor extends Object {
             }
         }
         if (len > argNum && inputArgs[argNum].indexOf(INPUT_STR_ENABLE) == 0) {
-            argNum = addEnable(inputArgs, argNum, component);
+            addEnable(inputArgs[argNum++], component);
         }
         if (len > argNum && inputArgs[argNum].indexOf(INPUT_STR_DISABLE) == 0) {
-            argNum = addDisable(inputArgs, argNum, component);
+            addDisable(inputArgs[argNum++], component);
         }
         // Radio buttons may have sub components.
         if (INPUT_RADIO_BTN == id) {
@@ -540,46 +540,27 @@ public class VariableInputDescriptor extends Object {
         return component;
     }
     
-    private static int addEnable(String[] inputArgs, int enableIndex, VariableInputComponent component) {
-        //System.out.println("addEnable("+VcsUtilities.arrayToString(inputArgs)+")");
-        String var = inputArgs[enableIndex].substring(INPUT_STR_ENABLE.length() + 1).trim();
-        String endBracket = new Character(INPUT_STR_ARG_CLOSE).toString();
-        do {
-            if (var.endsWith(endBracket)) {
-                var = var.substring(0, var.length() - 1);
-                component.addEnable(var.trim());
-                //System.out.println("  addEnable: "+var.trim()+", to component "+component.getLabel());
-                break;
-            } else {
-                component.addEnable(var.trim());
-                //System.out.println("  addEnable: "+var.trim()+", to component "+component.getLabel());
-                ++enableIndex;
-                if (enableIndex >= inputArgs.length) break;
-                var = inputArgs[enableIndex].trim();
-            }
-        } while (true);
-        return enableIndex + 1;
+    private static void addEnable(String enableStr, VariableInputComponent component) {
+        //System.out.println("addEnable("+enableStr+")");
+        String str = enableStr.substring(INPUT_STR_ENABLE.length() + 1).trim();
+        String[] inputArgs = VcsUtilities.getQuotedStringsWithPairedCharacters(str, INPUT_STR_ARG_OPEN, INPUT_STR_ARG_CLOSE);
+        // Remove the last paranthesis:
+        inputArgs[inputArgs.length - 1] = inputArgs[inputArgs.length - 1].substring(0, inputArgs[inputArgs.length - 1].length() - 1);
+        System.out.println("  inputArgs = "+VcsUtilities.arrayToString(inputArgs));
+        for (int i = 0; i < inputArgs.length; i++) {
+            component.addEnable(inputArgs[i].trim());
+        }
     }
     
-    private static int addDisable(String[] inputArgs, int enableIndex, VariableInputComponent component) {
-        //System.out.println("addDisable("+VcsUtilities.arrayToString(inputArgs)+")");
-        String var = inputArgs[enableIndex].substring(INPUT_STR_DISABLE.length() + 1).trim();
-        String endBracket = new Character(INPUT_STR_ARG_CLOSE).toString();
-        do {
-            if (var.endsWith(endBracket)) {
-                var = var.substring(0, var.length() - 1);
-                component.addDisable(var.trim());
-                //System.out.println("  addDisable: "+var.trim()+", to component "+component.getLabel());
-                break;
-            } else {
-                component.addDisable(var.trim());
-                //System.out.println("  addDisable: "+var.trim()+", to component "+component.getLabel());
-                ++enableIndex;
-                if (enableIndex >= inputArgs.length) break;
-                var = inputArgs[enableIndex].trim();
-            }
-        } while (true);
-        return enableIndex + 1;
+    private static void addDisable(String disableStr, VariableInputComponent component) {
+        //System.out.println("addDisable("+inputArgs[enableIndex]+")");
+        String str = disableStr.substring(INPUT_STR_DISABLE.length() + 1).trim();
+        String[] inputArgs = VcsUtilities.getQuotedStringsWithPairedCharacters(str, INPUT_STR_ARG_OPEN, INPUT_STR_ARG_CLOSE);
+        // Remove the last paranthesis:
+        inputArgs[inputArgs.length - 1] = inputArgs[inputArgs.length - 1].substring(0, inputArgs[inputArgs.length - 1].length() - 1);
+        for (int i = 0; i < inputArgs.length; i++) {
+            component.addDisable(inputArgs[i].trim());
+        }
     }
     
     /**
