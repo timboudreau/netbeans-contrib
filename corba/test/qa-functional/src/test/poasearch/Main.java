@@ -85,8 +85,7 @@ public class Main extends JellyTestCase {
         
     public static void setupWorkdir () {
         try {
-            //String name = System.getProperty("work.dir") + "/tests/qa-functional/src/data/poasearch";
-            String name = "e:/sources/nb_all/corba/test/qa-functional/src/data/poasearch";
+            String name = System.getProperty("work.dir") + "/tests/qa-functional/src/data/poasearch";
             System.out.println (name);
             FileSystem fs = TopManager.getDefault().getRepository().findFileSystem(name);
             if (fs == null) {
