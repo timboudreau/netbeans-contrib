@@ -80,7 +80,7 @@ public class BasicVariableNode extends AbstractNode {
         this.var = var;
         this.list = list;
         getCookieSet().add(new VariablesIndex());
-        setIconBase("/org/netbeans/modules/vcs/advanced/variables/BasicVariables"); // NOI18N
+        setIconBase("org/netbeans/modules/vcs/advanced/variables/BasicVariables"); // NOI18N
     }
     
     public VcsConfigVariable getVariable() {

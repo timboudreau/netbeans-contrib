@@ -91,7 +91,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         Children.Array varCh = new Children.Array();
         AbstractNode varRoot = new AbstractNode(varCh);
         varRoot.setDisplayName(g("CTL_VariablesNodeName"));
-        varRoot.setIconBase("/org/netbeans/modules/vcs/advanced/variables/AccessoryVariables"); // NOI18N
+        varRoot.setIconBase("org/netbeans/modules/vcs/advanced/variables/AccessoryVariables"); // NOI18N
         basicChildren = new Children.SortedArray();
         //basicCh.add(new Node[] { node });
         AbstractNode basicRoot = new BasicVariableNode(basicChildren);
