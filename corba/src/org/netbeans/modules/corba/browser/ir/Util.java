@@ -16,6 +16,7 @@ package org.netbeans.modules.corba.browser.ir;
 import java.util.ResourceBundle;
 import org.omg.CORBA.*;
 import org.openide.util.NbBundle;
+import org.netbeans.modules.corba.browser.ir.util.AssertException;
 
 
 /*
@@ -202,6 +203,11 @@ public class Util {
         if (bundle == null)
             bundle = NbBundle.getBundle(Util.class);
         return bundle.getString(txt);
+    }
+    
+    public static void assert (boolean condition, String message) throws AssertException {
+        if (! condition)
+            throw new AssertException ("Assertion Failed: "+message);  // No I18N
     }
 }
 
