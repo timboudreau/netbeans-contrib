@@ -1,0 +1,13 @@
+#ifndef ABC
+#define ABC
+module A {
+    interface B {
+        void op (in long il);
+    };
+};
+union C switch (long) {
+    case 1: long l;
+    default: string s;
+};
+#endif
+
