@@ -13,24 +13,21 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import java.io.*;
 import java.util.*;
 
+import org.openide.TopManager;
+
 import org.netbeans.modules.vcscore.VcsFileSystem;
-//import org.netbeans.modules.vcscore.cmdline.exec.*;
 import org.netbeans.modules.vcscore.util.*;
-/*
-import org.netbeans.modules.vcscore.commands.VcsCommand;
-import org.netbeans.modules.vcscore.commands.VcsCommandIO;
-import org.netbeans.modules.vcscore.commands.CommandsPool;
-import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
- */
 
 /**
  * This class checks if there are any commands to be run during preprocessing
  * the command. If it finds any commands to be run
- * (search for '{INSERT_OUTPUT_OF_<command_name>(<element_index>, ...)}' keys),
+ * (search for '{INSERT_OUTPUT_OF_<command_name>(<element_index>, ...)}' or 
+ * '{FILE_OUTPUT_OF_<command_name>(<element_index>, ...)}' keys),
  * execute them and replace with their output data elements which are listed
- * as element_index(es).
+ * as element_index.
  *
  * @author  Martin Entlicher
  */
@@ -40,7 +37,17 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     private Debug D=E;
 
     //private static final String PRE_COMMAND = "{PRE_COMMAND";
-    private static final String INSERT_OUTPUT = "{INSERT_OUTPUT_OF_";
+    /**
+     * Insert the output of the command instead of this keyword.
+     */
+    public static final String INSERT_OUTPUT = "{INSERT_OUTPUT_OF_";
+    /**
+     * Write the output of the command to a temporary file and insert the file path
+     * instead of this keyword.
+     */
+    public static final String FILE_OUTPUT = "{FILE_OUTPUT_OF_";
+    private static final String TEMP_FILE_PREFIX = "tempVcsCmd";
+    private static final String TEMP_FILE_SUFFIX = "output";
 
     private VcsFileSystem fileSystem;
     private VcsCommand cmd;
@@ -86,6 +93,19 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             int i = exec.indexOf(INSERT_OUTPUT, index);
             if (i >= 0) {
                 i += INSERT_OUTPUT.length();
+                int end = exec.indexOf('(', i);
+                if (end > 0) {
+                    String name = exec.substring(i, end);
+                    commands.add(name);
+                }
+            }
+            index = i;
+        } while (index >= 0);
+        index = 0;
+        do {
+            int i = exec.indexOf(FILE_OUTPUT, index);
+            if (i >= 0) {
+                i += FILE_OUTPUT.length();
                 int end = exec.indexOf('(', i);
                 if (end > 0) {
                     String name = exec.substring(i, end);
@@ -183,32 +203,26 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             }
             index = i;
         } while (index >= 0);
+        index = 0;
+        do {
+            int i = exec.indexOf(FILE_OUTPUT, index);
+            if (i >= 0) {
+                int begin = i;
+                i += FILE_OUTPUT.length();
+                int end = exec.indexOf('(', i);
+                if (end > 0) {
+                    String name = exec.substring(i, end);
+                    int where = Arrays.binarySearch(commands, name);
+                    int endOfInsert = exec.indexOf(")}", end);
+                    if (endOfInsert > 0) {
+                        exec = fileOutput(exec, begin, endOfInsert + ")}".length(), exec.substring(end + 1, endOfInsert), where);
+                    }
+                }
+            }
+            index = i;
+        } while (index >= 0);
         return exec;
     }
-
-    /*
-    private String insertPreCommandsOutput(String exec, int n) {
-        D.deb("insertPreCommandsOutput("+exec+", "+n+")");
-        for(int i = 0; i < n; i++) {
-            int index = -1;
-            do {
-                String matchStr = "";
-                if (i == 0) {
-                    matchStr = PRE_COMMAND+"(";
-                    index = exec.indexOf(matchStr);
-                }
-                if (index < 0) {
-                    matchStr = PRE_COMMAND+"_"+Integer.toString(i)+"(";
-                    index = exec.indexOf(matchStr);
-                }
-                if (index >= 0) {
-                    exec = insertOutput(exec, index, index + matchStr.length(), i);
-                }
-            } while(index >= 0);
-        }
-        return exec;
-    }
-     */
 
     private String insertOutput(String exec, int begin, int end, String whichElement, int whichOutput) {
         StringBuffer insertion = new StringBuffer(exec.substring(0, begin));
@@ -216,7 +230,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             int index = Integer.parseInt(whichElement);
             for (Enumeration enum = preCommandOutput[whichOutput].elements(); enum.hasMoreElements(); ) {
                 String[] elements = (String[]) enum.nextElement();
-                if (elements.length > index) insertion.append(elements[index]);
+                if (elements.length > index && elements[index] != null) insertion.append(elements[index]);
             }
         } catch (NumberFormatException exc) {
             // Ignored
@@ -224,6 +238,41 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
         insertion.append(exec.substring(end, exec.length()));
         return insertion.toString();
     }
+    
+    private String fileOutput(String exec, int begin, int end, String whichElement, int whichOutput) {
+        File outputFile;
+        Writer writer;
+        try {
+            outputFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
+            outputFile.deleteOnExit();
+            writer = new BufferedWriter(new FileWriter(outputFile));
+        } catch (IOException ioexc) {
+            TopManager.getDefault().notifyException(ioexc);
+            return exec;
+        }
+        int index;
+        try {
+            index = Integer.parseInt(whichElement);
+        } catch (NumberFormatException exc) {
+            TopManager.getDefault().notifyException(exc);
+            return exec;
+        }
+        try {
+            for (Enumeration enum = preCommandOutput[whichOutput].elements(); enum.hasMoreElements(); ) {
+                String[] elements = (String[]) enum.nextElement();
+                if (elements.length > index) {
+                    writer.write(((elements[index] != null) ? elements[index] : "") + "\n");
+                }
+            }
+            writer.close();
+        } catch (IOException ioexc) {
+            TopManager.getDefault().notifyException(ioexc);
+            return exec;
+        }
+        return exec.substring(0, begin) + outputFile.getAbsolutePath()
+               + exec.substring(end, exec.length());
+    }
+
     /*
     private String insertOutput(String exec, int begin, int index, int which) {
         D.deb("insertOutput("+exec+", "+begin+", "+index+", "+which+")");
