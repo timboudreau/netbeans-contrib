@@ -128,6 +128,12 @@ public final class SourceElementImpl extends MemberElementImpl
     public Task prepare () {
         return Task.EMPTY;
     }
+    
+    /** .class file are always read only for Java Hierarchy API
+    */
+    public boolean isReadOnly() {
+	return true;
+    }
 
     /************* utility methods *********/
 
