@@ -175,7 +175,7 @@ public final class ProfilesFactory extends Object {
             if (splitLocNamePtr[0] != null) {
                 profileNames.add(++i, splitLocNamePtr[0]);
             }
-            //System.out.println("name = "+profileNames.get(i)+", label = "+getProfileLabel((String) profileNames.get(i)));
+            //System.out.println("name = "+profileNames.get(i)+", label = "+getProfileDisplayName((String) profileNames.get(i)));
         }
         // TODO rewrite other methods to handle empty maps
         assert profileNames.size() > 0 : "Other methods do not check empty maps.";  // NOI18N
@@ -433,6 +433,7 @@ public final class ProfilesFactory extends Object {
         private ConditionedVariables variables;
         private ConditionedCommands commands;
         private ConditionedCommands globalCommands;
+        private volatile boolean isSaving = false;
         
         public ProfileImpl(FileObject profileFile, ConditionedVariables variables,
                            ConditionedCommands commands) {
@@ -516,7 +517,7 @@ public final class ProfilesFactory extends Object {
             if (origProfileName != null) {
                 return getProfile(origProfileName).getConditions();
             }
-            if (conditions == null) {
+            if (conditions == null && !isSaving) { // Nothing can be load while we're saving.
                 loadConfig(false, true, false, false, false);
             }
             return conditions;
@@ -530,7 +531,7 @@ public final class ProfilesFactory extends Object {
                 ConditionedVariables lcvars = new ConditionedVariables(lvars, cvars.getConditionsByVariables(), cvars.getVariablesByConditions());
                 return lcvars;
             }
-            if (variables == null) {
+            if (variables == null && !isSaving) {
                 loadConfig(false, false, true, false, false);
             }
             return variables;
@@ -540,7 +541,7 @@ public final class ProfilesFactory extends Object {
             if (origProfileName != null) {
                 return getProfile(origProfileName).getCommands();
             }
-            if (commands == null) {
+            if (commands == null && !isSaving) {
                 loadConfig(false, false, false, true, false);
             }
             return commands;
@@ -550,7 +551,7 @@ public final class ProfilesFactory extends Object {
             if (origProfileName != null) {
                 return getProfile(origProfileName).getGlobalCommands();
             }
-            if (globalCommands == null) {
+            if (globalCommands == null && !isSaving) {
                 loadConfig(false, false, false, false, true);
             }
             return globalCommands;
@@ -726,12 +727,17 @@ public final class ProfilesFactory extends Object {
                 org.openide.filesystems.FileLock lock = null;
                 java.io.OutputStream out = null;
                 try {
+                    isSaving = true;
                     lock = file.lock();
                     out = new BufferedOutputStream(file.getOutputStream(lock));
                     ProfileWriter.write(out, this);
                 } finally {
-                    if (out != null) out.close();
-                    if (lock != null) lock.releaseLock();
+                    try {
+                        if (out != null) out.close();
+                        if (lock != null) lock.releaseLock();
+                    } finally {
+                        isSaving = false;
+                    }
                 }
             }
         }

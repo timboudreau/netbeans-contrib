@@ -552,6 +552,7 @@ public final class ProfileWriter {
     }
         
     private static void writeGlobalCommands(OutputStream out, int inset, ConditionedCommands commands) throws IOException {
+        if (commands == null) return ;
         writeInset(out, inset);
         out.write(OPEN_ELM);
         out.write(ProfileContentHandler.GLOBAL_COMMANDS_TAG.getBytes());

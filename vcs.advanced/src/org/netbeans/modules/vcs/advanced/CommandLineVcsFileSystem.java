@@ -1436,7 +1436,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * @return Value of property compatibleOSs.
      */
     public java.util.Set getCompatibleOSs() {
-        return compatibleOSs;
+        if (compatibleOSs == null) {
+            return Collections.EMPTY_SET;
+        } else {
+            return compatibleOSs;
+        }
     }
     
     /** Setter for property compatibleOSs.
@@ -1451,7 +1455,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * @return Value of property uncompatibleOSs.
      */
     public java.util.Set getUncompatibleOSs() {
-        return uncompatibleOSs;
+        if (uncompatibleOSs == null) {
+            return Collections.EMPTY_SET;
+        } else {
+            return uncompatibleOSs;
+        }
     }
     
     /** Setter for property uncompatibleOSs.

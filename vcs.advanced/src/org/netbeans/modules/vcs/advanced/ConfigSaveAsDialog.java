@@ -288,8 +288,7 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
 
     private void fillFileList() {
         javax.swing.DefaultListModel model = new javax.swing.DefaultListModel();
-        ArrayList configList = VariableIO.readConfigurations(dir);
-        String[] configNames = (String[]) configList.toArray(new String[0]);
+        String[] configNames = ProfilesFactory.getDefault().getProfilesNames();
         Arrays.sort(configNames);
         for (int i = 0; i < configNames.length; i++) {
             String config = configNames[i];
@@ -304,24 +303,7 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
                 configExt = config.substring(extIndex + 1);
             }
             model.addElement(configName);
-            String label = null;
-            if (configExt.equalsIgnoreCase(VariableIO.CONFIG_FILE_EXT)) {
-                String[] labelAndOS = VariableIO.getConfigurationLabelAndOS(dir, config, null, null);
-                if (labelAndOS != null) {
-                    String[] resourceBundles = null;
-                    if (labelAndOS.length > 3) {
-                        resourceBundles = new String[labelAndOS.length - 3];
-                        System.arraycopy(labelAndOS, 3, resourceBundles, 0, resourceBundles.length);
-                    }
-                    label = VcsUtilities.getBundleString(resourceBundles, labelAndOS[0]);
-                } else {
-                    label = org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("CTL_No_label_configured");
-                }
-            } else if (configExt.equalsIgnoreCase(VariableIOCompat.CONFIG_FILE_EXT)) {
-                label = VariableIOCompat.readPredefinedProperties(dir, config).
-                         getProperty("label", org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("CTL_No_label_configured"));
-            }
-            configLabels.put(configName, label);
+            configLabels.put(configName, ProfilesFactory.getDefault().getProfileDisplayName(config));
         }
         fileList.setModel(model);
     }
