@@ -93,6 +93,20 @@ is the proper place.
       </description>
     </change>
 
+    <change>
+      <api name="vcs"/>
+      <summary>Priority added to CommandTask</summary>
+      <version major="1" minor="9"/>
+      <date day="22" month="8" year="2003"/>
+      <author login="mentlicher"/>
+      <compatibility addition="yes"/>
+      <description>
+        Added getPriority() method to CommandTask. This is necessary
+        for interactive tasks that need to provide quick feedback
+        to the user.
+      </description>
+    </change>
+
   </changes>
 
   <!-- Now the surrounding HTML text and document structure: -->
