@@ -43,8 +43,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="jars" depends="compile">
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-commands.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.class"/>       
        <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.form"/>
        <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.properties"/>
        <exclude name="org/netbeans/modules/vcs/profiles/vss/commands/*_ja.properties"/>
@@ -61,8 +60,7 @@ Microsystems, Inc. All Rights Reserved.
        <exclude name="org/netbeans/modules/vcs/profiles/vss/config/Bundle_*.properties"/>
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-list.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/vss/list/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/vss/list/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/vss/list/*.class"/>       
        <include name="org/netbeans/modules/vcs/profiles/vss/list/*.properties"/>
        <exclude name="org/netbeans/modules/vcs/profiles/vss/list/*_ja.properties"/>
     </makelayer>
@@ -79,8 +77,7 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*"/>
 	<exclude name="org/netbeans/modules/vcs/profiles/vss/config/*_XX.*"/>
       </fileset>
-      <fileset dir="src/">
-        <include name="**/*.java"/>
+      <fileset dir="src/">        
         <include name="**/*.form"/>
       </fileset>
     </jar>

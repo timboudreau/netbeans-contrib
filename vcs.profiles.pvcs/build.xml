@@ -45,8 +45,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="jars" depends="compile">
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/pvcs/layer-includes-commands.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/pvcs/commands/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/pvcs/commands/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/pvcs/commands/*.class"/>       
        <include name="org/netbeans/modules/vcs/profiles/pvcs/commands/*.form"/>
        <include name="org/netbeans/modules/vcs/profiles/pvcs/commands/*.properties"/>
        <exclude name="org/netbeans/modules/vcs/profiles/pvcs/commands/*_ja.properties"/>
@@ -62,8 +61,7 @@ Microsystems, Inc. All Rights Reserved.
        <include name="org/netbeans/modules/vcs/profiles/pvcs/config/Bundle.properties"/>
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/pvcs/layer-includes-list.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/pvcs/list/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/pvcs/list/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/pvcs/list/*.class"/>       
        <include name="org/netbeans/modules/vcs/profiles/pvcs/list/*.properties"/>
     </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
@@ -79,8 +77,7 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*"/>
 	<exclude name="org/netbeans/modules/vcs/profiles/pvcs/config/*_XX.*"/>
       </fileset>
-      <fileset dir="src/">
-        <include name="**/*.java"/>
+      <fileset dir="src/">        
         <include name="**/*.form"/>
       </fileset>
     </jar>
