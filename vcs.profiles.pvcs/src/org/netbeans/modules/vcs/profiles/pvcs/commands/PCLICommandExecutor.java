@@ -29,6 +29,7 @@ import org.openide.util.RequestProcessor;
 
 import org.netbeans.modules.vcscore.cmdline.exec.ExternalCommand;
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
+import org.netbeans.modules.vcscore.commands.OutputProgressListener;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 
@@ -73,6 +74,7 @@ public class PCLICommandExecutor implements Runnable {
     private ExternalCommand cmd;
     private Thread[] pcliThread = new Thread[] { null };
     private volatile PCLICommand commandToProcess;
+    private volatile Boolean commandFinished;
     /** This is set to true after we have ">" prompt. */
     private boolean[] canSendInput = new boolean[] { false };
     private volatile boolean destroyed = false; // When the executor is destroyed and will not execute any more commands.
@@ -172,6 +174,7 @@ public class PCLICommandExecutor implements Runnable {
             }
         }
         this.commandToProcess = commandToProcess;
+        this.commandFinished = null;
         String cmdStr = commandToProcess.getStrExec();
         cmd.sendInput(cmdStr+"\n");
         try {
@@ -241,8 +244,10 @@ public class PCLICommandExecutor implements Runnable {
     
     private void runScript() {
         cmd = new ExternalCommand(sexec);
-        cmd.addImmediateTextOutputListener(new PCLIStandardOutputListener());
+        PCLIStandardOutputListener stdOutListener = new PCLIStandardOutputListener();
+        cmd.addImmediateTextOutputListener(stdOutListener);
         cmd.addImmediateTextErrorListener(new PCLIErrorOutputListener());
+        cmd.addOutputProgressListener(stdOutListener);
         pcliTask = RequestProcessor.getDefault().post(this);
     }
     
@@ -276,7 +281,7 @@ public class PCLICommandExecutor implements Runnable {
         }
     }
     
-    private class PCLIStandardOutputListener implements TextOutputListener {
+    private class PCLIStandardOutputListener implements TextOutputListener, OutputProgressListener {
         
         private String lastLine;
         
@@ -284,7 +289,6 @@ public class PCLICommandExecutor implements Runnable {
         public void outputLine(String text) {
             //System.out.println("PCLIStandardOutputListener.outputLine("+text+"), commandToProcess = "+commandToProcess);
             String[] lines = buildLines(text);
-            Boolean finished = null;
             for (int i = 0; i < lines.length; i++) {
                 String line = lines[i];
                 if (PCLI_CMD_SUCCEEDED.equals(line)) {
@@ -292,13 +296,13 @@ public class PCLICommandExecutor implements Runnable {
                         canSendInput[0] = false;
                     }
                     text = removeLine(text, line);
-                    finished = Boolean.TRUE;
+                    commandFinished = Boolean.TRUE;
                 } else if (PCLI_CMD_FAILED.equals(line)) {
                     synchronized (canSendInput) {
                         canSendInput[0] = false;
                     }
                     text = removeLine(text, line);
-                    finished = Boolean.FALSE;
+                    commandFinished = Boolean.FALSE;
                 } else {
                     if (commandToProcess != null) {
                         commandToProcess.stdOutput(line);
@@ -315,12 +319,15 @@ public class PCLICommandExecutor implements Runnable {
             }
             if (commandToProcess != null) {
                 commandToProcess.immediateStdOutput(text);
-                if (finished != null) {
-                    if (finished.booleanValue()) {
-                        commandToProcess.setSucceeded();
-                    } else {
-                        commandToProcess.setFailed();
-                    }
+            }
+        }
+        
+        public void outputFlushed() {
+            if (commandFinished != null && commandToProcess != null) {
+                if (commandFinished.booleanValue()) {
+                    commandToProcess.setSucceeded();
+                } else {
+                    commandToProcess.setFailed();
                 }
             }
         }
