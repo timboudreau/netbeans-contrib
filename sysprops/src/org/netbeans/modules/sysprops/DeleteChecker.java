@@ -7,17 +7,12 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
- * Contributor(s): Michael Ruflin
+ * Contributor(s): Michael Ruflin, Jesse Glick
  */
 package org.netbeans.modules.sysprops;
-
-import java.util.Properties;
-import java.util.Enumeration;
-import java.util.Set;
-import java.util.TreeSet;
 
 /** 
  * Checks if a Property in the System Properties is deletable or not.
