@@ -40,10 +40,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.SimpleBeanInfo;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.lang.reflect.Field;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JTabbedPane;
@@ -52,10 +48,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
-import org.netbeans.jemmy.JemmyException;
+import org.netbeans.modules.jemmysupport.I18NSupport;
 import org.openide.ErrorManager;
-import org.openide.execution.NbClassLoader;
-import org.openide.filesystems.Repository;
 import org.openide.util.NbBundle;
 
 /** Jemmy Tools Component Generator class generates source code from given Container (Frame, Dialog ...) according to its visible structure.
@@ -75,7 +69,7 @@ public class ComponentGenerator {
     String _package;
     boolean _grabIcons = false;
     Robot robot = null;
-    boolean i18nActive=Boolean.getBoolean ("org.openide.util.NbBundle.DEBUG"); // NOI18N
+    I18NSupport i18n;
         
     /** Utility field holding list of ChangeListeners. */
     private transient ChangeListener changeListener;
@@ -272,7 +266,7 @@ public class ComponentGenerator {
          * @return identification string
          */        
         public String getIdentification() {
-            return filterI18N(_identification);
+            return i18n.filterI18N(_identification);
         }
         
         /** returns generated unique name
@@ -323,7 +317,7 @@ public class ComponentGenerator {
            if (_identification==null) {
                 return "null"; // NOI18N
             } else {
-                return translate(_identification);
+                return i18n.translate(_identification);
             }
         }
 
@@ -331,28 +325,8 @@ public class ComponentGenerator {
            if (_identification==null) {
                 return "null"; // NOI18N
             } else {
-                return escape(getIdentification());
+                return i18n.escape(getIdentification());
             }
-        }
-        
-        private String escape(String text) {
-            StringBuffer sb = new StringBuffer("\"");
-            char c;
-            for (int i=0;i<text.length();i++) {
-                switch (c=text.charAt(i)) {
-                    case ('\b'):sb.append("\\b");break;
-                    case ('\t'):sb.append("\\t");break;
-                    case ('\n'):sb.append("\\n");break;
-                    case ('\f'):sb.append("\\f");break;
-                    case ('\r'):sb.append("\\r");break;
-                    case ('\"'):sb.append("\\\"");break;
-                    case ('\''):sb.append("\\'");break;
-                    case ('\\'):sb.append("\\\\");break;
-                    default:sb.append(c);
-                }
-            }
-            sb.append('\"');
-            return sb.toString();
         }
         
         /** getter for "visualizer" code
@@ -476,9 +450,9 @@ public class ComponentGenerator {
             replace(sb, "__I18NID__", getI18NIdentification()); // NOI18N
             replace(sb, "__INDEX__", String.valueOf(getIndex())); // NOI18N
             replace(sb, "__COMPONENT__", getComponentClass()); // NOI18N
-            replace(sb, "__INTERNALLABEL__", translate(internalLabel)); // NOI18N
-            replace(sb, "__SHORTLABEL__", toJavaID(filterI18N(internalLabel))); // NOI18N
-            replace(sb, "__BIGLABEL__", toBigJavaID(filterI18N(internalLabel))); // NOI18N
+            replace(sb, "__INTERNALLABEL__", i18n.translate(internalLabel)); // NOI18N
+            replace(sb, "__SHORTLABEL__", toJavaID(i18n.filterI18N(internalLabel))); // NOI18N
+            replace(sb, "__BIGLABEL__", toBigJavaID(i18n.filterI18N(internalLabel))); // NOI18N
             replace(sb, "__PARENTGETTER__", getParentGetter()); // NOI18N
             replace(sb, "__CONSTRUCTORARGS__", getConstructorArgs()); // NOI18N
             replace(sb, "__VISUALIZER__", getVisualizer()); // NOI18N
@@ -561,84 +535,6 @@ public class ComponentGenerator {
         public boolean isDefaultName() {
             return _uniqueName.startsWith(_operator._instancePrefix+_componentClass+_operator._instanceSuffix);
         }
-    
-        private String translate(String text) {
-            int i=text.lastIndexOf('(');
-            int j=text.lastIndexOf(':');
-            int k=text.lastIndexOf(')');
-            if (i>=0 && j>i+1 && k>j+1) try {
-                int bundle=Integer.parseInt(text.substring(i+1, j));
-                int row=Integer.parseInt(text.substring(j+1, k));
-                if (--bundle<bundles.length) {
-                    LineNumberReader prop=new LineNumberReader(new InputStreamReader(loader.getResourceAsStream(bundles[bundle])));
-                    String key;
-                    while (--row>0) prop.readLine();
-                    key=prop.readLine();
-                    prop.close();
-                    i=key.indexOf('=');
-                    if (i>0) {
-                        String res=translate(text, bundles[bundle].endsWith(".properties")?bundles[bundle].substring(0, bundles[bundle].length()-11):bundles[bundle], key.substring(0, i));
-                        if (res!=null) return res;
-                    }
-                }
-            } catch (NumberFormatException nfe) { 
-            } catch (IOException ioe) {
-            } catch (NullPointerException npe) {} 
-            return hardcoded(text);
-        }
-
-        private String hardcoded(String text) {
-            return filterI18N(escape(text));
-        }
-
-        private String translate(String text, String bundle, String key) {
-            try {
-                String value=NbBundle.getBundle(bundle, Locale.getDefault(), loader).getString(key);
-                boolean amp=false;
-                ArrayList parts=new ArrayList();
-                StringBuffer part=new StringBuffer();
-                char c,n;
-                for (int i=0; i<value.length(); i++) {
-                    c=value.charAt(i);
-                    if (c=='&') amp=true;
-                    else if (c=='{' && value.length()>i+2 && value.charAt(i+2)=='}' && (n=value.charAt(i+1))>='0' && n<='9') {
-                        parts.add(part.toString());
-                        part=new StringBuffer();
-                        parts.add(new Integer(n-'0'));
-                        i+=2;
-                    } else part.append(c);
-                }
-                parts.add(part.toString());
-                String s;
-                if (text.startsWith(s=(String)parts.remove(0))) {
-                    StringBuffer res=new StringBuffer(amp?"Bundle.getStringTrimmed(\"":"Bundle.getString(\"");
-                    res.append(bundle).append("\", \"").append(key).append('\"');
-                    int i=s.length();
-                    if (parts.size()>0) {
-                        res.append(", new Object[]{");
-                        String args[]=new String[10];
-                        int maxarg=-1;
-                        while (parts.size()>0) {
-                            int j=((Integer)parts.remove(0)).intValue();
-                            int k=text.indexOf(s=(String)parts.remove(0), i);
-                            if (k<0) return null;
-                            args[j]=translate(text.substring(i, k));
-                            if (j>maxarg) maxarg=j;
-                            i=k+s.length();
-                        }
-                        for (int j=0; j<maxarg; j++) {
-                            res.append(args[j]==null?"":args[j]).append(", ");
-                        }
-                        res.append(args[maxarg]==null?"":args[maxarg]).append('}');
-                    }
-                    res.append(')');
-                    if (i<text.length()) res.append('+').append(hardcoded(text.substring(i)));
-                    return res.toString();
-                }
-            } catch (JemmyException je) {
-            } catch (MissingResourceException mre) {} 
-            return null;
-        }
     }        
     
     /** creates new ComponentGenerator with configuration from given properties
@@ -649,27 +545,7 @@ public class ComponentGenerator {
         JemmyProperties.setCurrentTimeout("ComponentOperator.WaitComponentTimeout", 0); // NOI18N
         JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
         addOperatorRecords(props);
-        if (i18nActive) getBundles();
-    }
-
-    private String filterI18N(String text) {
-        if (text==null || !i18nActive) return text;
-        StringBuffer sb=new StringBuffer();
-        for (int i=0; i<text.length(); i++) {
-            char c=text.charAt(i);
-            if (c=='(') {
-                int j=text.indexOf(':', i);
-                int k=text.indexOf(')', i);
-                if (j>i+1 && k>j+1) try {
-                    Integer.parseInt(text.substring(i+1, j));
-                    Integer.parseInt(text.substring(j+1, k));
-                    i=k;
-                } catch (NumberFormatException nfe) {
-                     sb.append(c);
-                } else sb.append(c);
-            } else sb.append(c);
-        }
-        return sb.toString();
+        i18n=new I18NSupport();
     }
         
     public void addOperatorRecords(Properties props) {        
@@ -752,7 +628,7 @@ public class ComponentGenerator {
     
     String toJavaIdentifier(String s) {
         StringBuffer sb = new StringBuffer();
-        s=filterI18N(s);
+        s=i18n.filterI18N(s);
         int i;
         if (null!=s) {
             char ch;
@@ -1054,27 +930,5 @@ public class ComponentGenerator {
     
     Collection getNodes() {
         return components;
-    }
-    
-    String bundles[]=new String[0];
-    ClassLoader loader;
-    
-    private void getBundles() {
-        try {
-            loader=new NbClassLoader(Repository.getDefault().toArray());
-            Field f=Class.forName("org.openide.util.NbBundle$DebugLoader").getDeclaredField("knownIDs");
-            f.setAccessible(true);
-            HashMap map=(HashMap)f.get(null);
-            synchronized (map) {
-                bundles=new String[map.size()];
-                Iterator it=map.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry entry=(Map.Entry)it.next();
-                    bundles[((Integer)entry.getValue()).intValue()-1]=(String)entry.getKey();
-                }
-            }
-        } catch (ClassNotFoundException cnfe) {
-        } catch (NoSuchFieldException nsfe) {
-        } catch (IllegalAccessException iae) {} 
     }
 }
