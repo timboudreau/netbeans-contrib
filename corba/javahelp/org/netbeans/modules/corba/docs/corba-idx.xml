@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -43,8 +43,8 @@ Microsystems, Inc. All Rights Reserved.
   <indexitem text="CORBA basics" target="concepts_basics" />
   <indexitem text="model illustration" target="concepts_basics" />  
   <indexitem text="node settings" target="settings_get" />
-  <indexitem text="project settings" target="settings_intro" />
   <indexitem text="setting up the CORBA module" target="setup_intro" />
+  <indexitem text="settings" target="settings_intro" />
   <indexitem text="using the CORBA module" target="concepts_procs" />
 </indexitem>
 
@@ -128,9 +128,8 @@ Microsystems, Inc. All Rights Reserved.
 
 <indexitem text=" "/>
 <indexitem text="-P-"/>
- <indexitem text="accessing project settings" target="settings_get"></indexitem>
 <indexitem text="PATH settings" target="setup_idlcompiler"></indexitem>
-<indexitem text="project settings" target="settings_intro"></indexitem>
+
 
 <indexitem text=" "/>
 <indexitem text="-R-"/>
@@ -143,6 +142,8 @@ Microsystems, Inc. All Rights Reserved.
 <indexitem text="server class" target="concepts_basics"></indexitem>
 <indexitem text="server-side binding" target="setup_nsbrowser"></indexitem>
 <indexitem text="server-side files" target="concepts_files"></indexitem>
+<indexitem text="settings" target="settings_intro"></indexitem>
+ <indexitem text="settings, accessing" target="settings_get"></indexitem>
 <indexitem text="setup" target="setup_intro" >
   <indexitem text="CORBA node" target="settings_get" />
   <indexitem text="Interface Repository Browser" target="setup_irbrowser" />

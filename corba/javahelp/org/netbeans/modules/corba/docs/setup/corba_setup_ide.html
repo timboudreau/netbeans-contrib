@@ -1,13 +1,12 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <!--
  * 
- *     Copyright © 2002 Sun Microsystems, Inc. All rights reserved.
+ *     Copyright © 2003 Sun Microsystems, Inc. All rights reserved.
  *     Use is subject to license terms.
  * 
 -->
 <html>
 <head>
-<meta name="lastupdated" content="18apr2001">
 <title>Specifying an ORB</title>
 <link rel="StyleSheet" href="../../../usersguide/ide.css" type="text/css">
 </head>
@@ -23,11 +22,10 @@ to set properties that identify that ORB product.
 <p>
 <b>To examine and modify CORBA property settings:</b>
 <ol>
-<li>Choose Project <img
-src="../images/arrow.gif"> Settings to open the Project Settings
-dialog box.</li> 
+<li>Choose Tools <img src="../images/arrow.gif" alt="and choose">&nbsp;Options.</li> 
 
-<li>Click the CORBA Settings node. The CORBA properties appear
+<li>Expand Distributed Application Support and select CORBA Support Settings. 
+The CORBA properties appear
 on the right of the dialog box.</li> 
 
 <li>Make sure that the ORB Version property is set to the ORB that you
@@ -52,17 +50,18 @@ are set to values that are appropriate for your project.</li>
 <p>
 <b>To specify the external IDL compiler executable as a property:</b>
 <ol>
-<li>Choose Project <img
-src="../images/arrow.gif"> Settings to open the Project Settings
-dialog box.</li> 
-<li>Expand the CORBA Settings node.</li> 
-<li>Click the Expert tab for the selected ORB.</li>
+<li>Choose Tools 
+<img src="../images/arrow.gif" alt="and choose">&nbsp;Options.</li> 
+<li>Expand Distributed Application Support <img src="../images/expand.gif" alt="and
+expand">&nbsp; CORBA Support Settings.</li> 
+<li>Select the node for your ORB. Then select the Expert tab on the property
+sheet.</li>
 <li>Click External IDL Compiler, then click the ellipsis ("...") button.</li>
 <li>Type in the full path to the IDL compiler.</li>
 </ol>
 
 <p>
-These settings apply to the current development project. Different
+Any changes that you make to these settings apply to the current development project. Different
 projects can be configured differently depending on the properties
 available for the selected ORB.
 
@@ -74,7 +73,7 @@ available for the selected ORB.
 <td width="23"></td>
 <td><a href="corba_setup_supportedorbs.html">Supported ORB
 Products</a><br>
-<a href="../settings/corba_settings.html">CORBA Project Settings</a><br>
+<a href="../settings/corba_settings.html">CORBA Settings</a><br>
 <a href="../settings/corba_/corba_settings_orbnodes.html">ORB Product Subnode Settings</a><br>
 <a href="corba_setup_idl.html">Setting Up the IDL Compiler</a><br>
 <a href="corba_setup_runtime.html">Accessing the ORB Runtime Classes</a><br>

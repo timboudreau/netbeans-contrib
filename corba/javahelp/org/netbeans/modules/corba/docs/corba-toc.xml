@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -49,7 +49,7 @@ Microsystems, Inc. All Rights Reserved.
    <tocitem text="Generating Server-Side Files With the CORBA Wizard" target="generating_server" />
 </tocitem>
 
-<tocitem text="Completing Generated Files" target="completing_intro">
+<tocitem text="Completing Generated CORBA Files" target="completing_intro">
    <tocitem text="Completing Client-Side Files" target="completing_client" />
    <tocitem text="Completing Server-Side Files" target="completing_server" />
 </tocitem>
@@ -79,8 +79,8 @@ Microsystems, Inc. All Rights Reserved.
 <tocitem text="Debugging CORBA Programs" target="debugger_intro">
 </tocitem>
 
-<tocitem text="CORBA Project Settings" target="settings_intro">
-   <tocitem text="Accessing CORBA Project Settings" target="settings_get" />
+<tocitem text="CORBA Settings" target="settings_intro">
+   <tocitem text="Accessing CORBA Settings" target="settings_get" />
    <tocitem text="ORB Product Subnode Settings" target="settings_orbnamenode" />	
 </tocitem>
 
