@@ -60,8 +60,8 @@
     <target depends="compile, ejbs" name="jars">
         <mkdir dir="netbeans/lib/ext"/>
 	<copy file="${j2ee.home}/lib/j2ee.jar" todir="netbeans/lib/ext"/>
-        <mkdir dir="netbeans/modules"/>
-        <jar compress="false" jarfile="netbeans/modules/zeroadmin.jar" manifest="manifest.mf">
+        <mkdir dir="netbeans/lib"/>
+        <jar compress="false" jarfile="netbeans/lib/zeroadmin.jar" manifest="manifest.mf">
             <fileset dir="src">
                 <exclude name="**/*.java"/>
                 <exclude name="**/*.form"/>
@@ -73,7 +73,7 @@
     <target depends="jars" description="Build the module." name="all"/>
 
     <target depends="all" description="Prepare the module for distribution via Auto Update." name="nbm">
-        <makenbm distribution="http://www.nokia.com/" file="zeroadmin.nbm" homepage="http://www.nokia.com/" module="netbeans/modules/zeroadmin.jar" topdir=".">
+        <makenbm distribution="http://www.nokia.com/" file="zeroadmin.nbm" homepage="http://www.nokia.com/" module="netbeans/lib/zeroadmin.jar" topdir=".">
 <!--            <license file="/SOMEWHERE/SOME/LICENSE/TEXT.txt"/> -->
             <!-- signature element permitted also if you have the secret key for lib/ide.ks -->
             <!-- otherwise users will be warned that your NBM is unsigned, and will have to accept it -->

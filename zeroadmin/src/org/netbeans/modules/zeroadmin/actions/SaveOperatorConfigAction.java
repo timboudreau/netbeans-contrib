@@ -15,10 +15,12 @@ package org.netbeans.modules.zeroadmin.actions;
 import org.openide.filesystems.*;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.SharedClassObject;
 import org.openide.ErrorManager;
 
 import org.netbeans.modules.zeroadmin.*;
+import org.netbeans.core.projects.TrivialProjectManager;
 
 /**
  * Saves the configuration to the remote storage. Depends
@@ -28,13 +30,15 @@ import org.netbeans.modules.zeroadmin.*;
 public class SaveOperatorConfigAction extends CallableSystemAction {
     
     /**
-     * Saves the writableLayer from ZeroAdminModule to the server.
+     * Saves the writableLayer from ZeroAdminProjectManager to the server.
      */
     public void performAction() {
         try {
-            ZeroAdminModule z = (ZeroAdminModule)SharedClassObject.findObject(ZeroAdminModule.class);
-            if ((z.writableLayer == null) || (z.storage == null)) {
-                throw new IllegalStateException("ZeroAdminModule not initialized");
+            ZeroAdminProjectManager z = (ZeroAdminProjectManager)Lookup.getDefault()
+                .lookup(TrivialProjectManager.class);
+
+            if ((z == null) || (z.writableLayer == null) || (z.storage == null)) {
+                throw new IllegalStateException("ZeroAdminProjectManager not initialized");
             }
             
             // force the core to save pending stuff:
@@ -42,7 +46,7 @@ public class SaveOperatorConfigAction extends CallableSystemAction {
             org.netbeans.core.projects.XMLSettingsHandler.saveOptions();
             
             XMLBufferFileSystem bufFs = new XMLBufferFileSystem();
-            ZeroAdminModule.copy(z.writableLayer.getRoot(), bufFs.getRoot(), true);
+            ZeroAdminProjectManager.copy(z.writableLayer.getRoot(), bufFs.getRoot(), true);
             bufFs.waitFinished();
             z.storage.saveOperatorData(bufFs.getBuffer());
         } catch (Exception re) {

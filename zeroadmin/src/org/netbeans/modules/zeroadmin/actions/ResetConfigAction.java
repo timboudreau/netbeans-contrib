@@ -18,10 +18,10 @@ import org.openide.filesystems.*;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
 import org.openide.ErrorManager;
+import org.openide.util.Lookup;
 import org.openide.windows.WindowManager;
 
 // semi deprecated things
-import org.openide.util.SharedClassObject;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 
@@ -30,6 +30,7 @@ import org.netbeans.modules.zeroadmin.*;
 // core dependency
 import org.netbeans.core.windows.PersistenceManager;
 import org.netbeans.core.windows.WorkspaceImpl;
+import org.netbeans.core.projects.TrivialProjectManager;
 
 /**
  * Reset to operator configuration.
@@ -38,9 +39,10 @@ import org.netbeans.core.windows.WorkspaceImpl;
 public class ResetConfigAction extends CallableSystemAction {
     
     public void performAction() {
-        final ZeroAdminModule z = (ZeroAdminModule)SharedClassObject.findObject(ZeroAdminModule.class);
-        if (z.writableLayer == null) {
-            throw new IllegalStateException("ZeroAdminModule not initialized");
+        final ZeroAdminProjectManager z = (ZeroAdminProjectManager)Lookup.getDefault()
+                .lookup(TrivialProjectManager.class);
+        if (z == null || z.writableLayer == null) {
+            throw new IllegalStateException("ZeroAdminProjectManager not initialized");
         }
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

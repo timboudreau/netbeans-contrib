@@ -18,13 +18,10 @@ import org.openide.filesystems.*;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
 import org.openide.ErrorManager;
-
-// semi deprecated things
-import org.openide.util.SharedClassObject;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
+import org.openide.util.Lookup;
 
 import org.netbeans.modules.zeroadmin.*;
+import org.netbeans.core.projects.TrivialProjectManager;
 
 /**
  * Refresh the operator configuration.
@@ -33,9 +30,10 @@ import org.netbeans.modules.zeroadmin.*;
 public class RefreshConfigAction extends CallableSystemAction {
     
     public void performAction() {
-        final ZeroAdminModule z = (ZeroAdminModule)SharedClassObject.findObject(ZeroAdminModule.class);
-        if (z.writableLayer == null) {
-            throw new IllegalStateException("ZeroAdminModule not initialized");
+        final ZeroAdminProjectManager z = (ZeroAdminProjectManager)Lookup.getDefault()
+                .lookup(TrivialProjectManager.class);
+        if (z == null || z.writableLayer == null) {
+            throw new IllegalStateException("ZeroAdminProjectManager not initialized");
         }
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -59,7 +57,7 @@ public class RefreshConfigAction extends CallableSystemAction {
     }
     
     public String getName() {
-        return org.openide.util.NbBundle.getBundle(ResetConfigAction.class).getString("Refresh");
+        return org.openide.util.NbBundle.getBundle(RefreshConfigAction.class).getString("Refresh");
     }
     
     public HelpCtx getHelpCtx() {

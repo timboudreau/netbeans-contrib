@@ -288,7 +288,7 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
             return;
         }
         if (regenTask == null) {
-            regenTask = ZeroAdminModule.RP.create(this);
+            regenTask = ZeroAdminProjectManager.RP.create(this);
         }
         regenTask.schedule(10);
     }

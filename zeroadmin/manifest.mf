@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Layer: org/netbeans/modules/zeroadmin/resources/layer.xml
-OpenIDE-Module-Install: org/netbeans/modules/zeroadmin/ZeroAdminModule.class
 OpenIDE-Module-Specification-Version: 0.1
 OpenIDE-Module-Public-Packages: org.netbeans.modules.zeroadmin.**
 Created-By: Nokia
