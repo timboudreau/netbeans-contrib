@@ -89,7 +89,10 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         org.openide.explorer.view.BeanTreeView beanTreeView = new org.openide.explorer.view.BeanTreeView();
         beanTreeView.getAccessibleContext().setAccessibleName(g("ACS_UserCommandsTreeViewA11yName"));  // NOI18N
         beanTreeView.getAccessibleContext().setAccessibleDescription(g("ACS_UserCommandsTreeViewA11yDesc"));  // NOI18N
-        split.add(beanTreeView, org.openide.awt.SplittedPanel.ADD_LEFT);
+        ExplorerPanel explPanel = new ExplorerPanel();
+        explPanel.add(beanTreeView);
+        manager = explPanel.getExplorerManager();
+        split.add(explPanel, org.openide.awt.SplittedPanel.ADD_LEFT);
         split.add(propertySheetView, org.openide.awt.SplittedPanel.ADD_RIGHT);
         //JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new CommandTreeView(), propertySheetView);
 
