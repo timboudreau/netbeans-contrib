@@ -4933,7 +4933,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             boolean isVirtual = checkVirtual (o.getPath());
             if (Turbo.implemented()) {
                 FileReference ref = (FileReference) findReference (o.getPath());
-                assert ref != null: "Reference to "+o+" is not known! Path = "+o.getPath();
+                if (ref == null) continue; // This happens e.g. when a file is renamed.
+                // The old name remains in AbstractFolder.map as a key,
+                // but the renamed FileObject has already the new name set.
+                // Therefore the reference to the renamed FileObject can not be found.
+                //assert ref != null: "Reference to "+o+" is not known! Path = "+o.getPath();
                 if ( isVirtual != ref.wasVirtual()) {
                     Object loader = isVirtual ? VirtualsDataLoader.class.getName() : null;
                     try {
