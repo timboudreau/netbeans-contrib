@@ -353,9 +353,14 @@ public final class SuggestionsScanner implements Cancellable {
                 try {
                     type = provider.getTypes()[0];
                     l = ((DocumentSuggestionProvider) provider).scan(env);
-                } catch (RuntimeException ex) {
-                    ErrorManager.getDefault().annotate(ex, "Ignoring error in " + provider + "..."); // NOI18N
-                    ErrorManager.getDefault().notify(ex);
+                } catch (RuntimeException e) {
+                    ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                } catch (ThreadDeath e) {
+                    throw e;
+                } catch (Error e) {
+                    ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
                 }
                 if (l != null) {
                     // XXX ensure that scan returns a homogeneous list of tasks

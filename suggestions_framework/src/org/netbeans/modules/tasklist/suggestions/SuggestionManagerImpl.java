@@ -156,7 +156,17 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
             ListIterator it = providers.listIterator();
             while (it.hasNext()) {
                 SuggestionProvider provider = (SuggestionProvider) it.next();
-                provider.notifyPrepare();
+                try {
+                    provider.notifyPrepare();
+                } catch (RuntimeException e) {
+                    ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                } catch (ThreadDeath e) {
+                    throw e;
+                } catch (Error e) {
+                    ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                }
             }
             prepared = true;
         }
@@ -178,7 +188,18 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
                 SuggestionProvider provider = (SuggestionProvider) it.next();
                 if ((unfiltered == null) ||
                         (unfiltered == provider)) {
-                    provider.notifyRun();
+                    try {
+                        provider.notifyRun();
+                    } catch (RuntimeException e) {
+                        ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    } catch (ThreadDeath e) {
+                        throw e;
+                    } catch (Error e) {
+                        ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    }
+
                 }
             }
             running = true;
@@ -194,7 +215,18 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
                 SuggestionProvider provider = (SuggestionProvider) it.next();
                 if ((unfiltered == null) ||
                         (unfiltered == provider)) {
-                    provider.notifyStop();
+                    try {
+                        provider.notifyStop();
+                    } catch (RuntimeException e) {
+                        ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    } catch (ThreadDeath e) {
+                        throw e;
+                    } catch (Error e) {
+                        ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    }
+
                 }
             }
             running = false;
@@ -706,7 +738,17 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
                 if (stats) {
                     start = System.currentTimeMillis();
                 }
-                provider.rescan(ctx, request);
+                try {
+                    provider.rescan(ctx, request);
+                } catch (RuntimeException e) {
+                    ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                } catch (ThreadDeath e) {
+                    throw e;
+                } catch (Error e) {
+                    ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                }
                 if (stats) {
                     end = System.currentTimeMillis();
                     System.out.println("Scan time for provider " + provider.getClass().getName() + " = " + (end - start) + " ms");
