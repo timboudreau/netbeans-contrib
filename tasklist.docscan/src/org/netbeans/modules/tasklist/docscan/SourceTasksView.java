@@ -50,6 +50,13 @@ import org.netbeans.modules.tasklist.client.SuggestionPriority;
  */
 final class SourceTasksView extends TaskListView implements SourceTasksAction.ScanProgressMonitor, SuggestionView {
 
+    // The category should be DIFFERENT from the category used
+    // for the default suggestion view (the active scanning view)
+    // such that the "Show Suggestions View" action does not
+    // locate and reuse these windows - and so they can have different
+    // column configurations (filename is not useful in the active
+    // suggestions view window, but is critical in the directory
+    // scan for example.)
     final static String CATEGORY = "sourcetasks"; // NOI18N
 
     private final int MAIN_COLUMN_UID = 2352;

@@ -106,7 +106,7 @@ public abstract class TaskListView extends TopComponent
 
     private transient ExplorerManager manager;
 
-    /** 
+    /**
      * Construct a new TaskListView. Most work is deferred to
      * componentOpened. NOTE: this is only for use by the window
      * system when deserializing windows. Client code should not call
@@ -127,9 +127,9 @@ public abstract class TaskListView extends TopComponent
     public TaskListView(String category, String title, Image icon,
                         boolean persistent, ObservableList tasklist) {
         initExplorerManager();
-        
+
         assert category != null : "category == null";
-        
+
         this.category = category;
         setName(title);
         this.persistent = persistent;
@@ -167,7 +167,7 @@ public abstract class TaskListView extends TopComponent
     }
 
     public ExplorerManager getExplorerManager() {
-        assert manager != null : 
+        assert manager != null :
             "getExplorerManager() called before initExplorerManager()"; // NOI18N
         return manager;
     }
@@ -1001,7 +1001,7 @@ for (int i = 0; i < columns.length; i++) {
 
     // TODO Pick a better name!
     // TODO make method package private! Can't yet - used in editor/
-    public void showInMode() { 
+    public void showInMode() {
         if (!isOpened()) {
             Mode mode = WindowManager.getDefault().findMode("output"); // NOI18N
             if (mode != null) {
@@ -1546,6 +1546,7 @@ for (int i = 0; i < columns.length; i++) {
     }
 
     public void requestActive() {
+        super.requestActive();
         if (treeTable != null) {
             treeTable.getTable().requestFocus();
         }

@@ -20,6 +20,7 @@ import org.openide.util.*;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
 import org.netbeans.modules.tasklist.suggestions.SuggestionManagerImpl;
 import org.netbeans.modules.tasklist.suggestions.SuggestionsScanner;
+import org.netbeans.modules.tasklist.core.TaskListView;
 
 /**
  * Opens window with scanned project source tasks.
@@ -41,19 +42,17 @@ public final class SourceTasksAction extends CallableSystemAction {
             manager.setEnabled(SourceTaskProvider.TYPE, true, true);
         }
 
-        final SourceTasksList list = new SourceTasksList();
-        // The category should be DIFFERENT from the category used
-        // for the default suggestion view (the active scanning view)
-        // such that the "Show Suggestions View" action does not
-        // locate and reuse these windows - and so they can have different
-        // column configurations (filename is not useful in the active
-        // suggestions view window, but is critical in the directory
-        // scan for example.)
-        final SourceTasksView view = new SourceTasksView(list);
+        TaskListView tlview = TaskListView.getTaskListView(SourceTasksView.CATEGORY);
+        if (tlview != null) {
+            tlview.showInMode();
+        } else {
+            final SourceTasksList list = new SourceTasksList();
+            final SourceTasksView view = new SourceTasksView(list);
 
-        view.showInMode();
-        RepaintManager.currentManager(view).paintDirtyRegions();
-        SourceTasksScanner.scanTasksAsync(view);  // delayed class loading
+            view.showInMode();
+            RepaintManager.currentManager(view).paintDirtyRegions();
+            SourceTasksScanner.scanTasksAsync(view);  // delayed class loading
+        }
     }
 
 
@@ -67,7 +66,7 @@ public final class SourceTasksAction extends CallableSystemAction {
     }
 
     protected String iconResource() {
-        return "org/netbeans/modules/tasklist/docscan/scanned-task.gif";  // NOI18N
+        return "org/netbeans/modules/tasklist/docscan/todosAction.gif";  // NOI18N
     }
 
     public static interface ScanProgressMonitor extends SuggestionsScanner.ScanProgress {
