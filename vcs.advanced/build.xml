@@ -102,6 +102,7 @@ Microsystems, Inc. All Rights Reserved.
         <include name="org/netbeans/modules/vcs/advanced/config/**/*.java"/>
         <include name="org/netbeans/modules/vcs/advanced/config/**/*.form"/>
         <exclude name="org/netbeans/modules/vcs/advanced/config/vcs/config/*_XX.*"/>
+        <exclude name="org/netbeans/modules/vcs/advanced/config/mf-layer_XX.xml"/>
        <!-- <include name="**/*.class"/>
         <include name="**/*.xml"/>
         <exclude name="org/netbeans/modules/vcs/advanced/*.java"/> -->
