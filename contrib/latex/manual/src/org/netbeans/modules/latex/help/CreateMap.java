@@ -46,14 +46,25 @@ public class CreateMap {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
-        String currentDir = "/home/lahvac/netbeans/nbsrc/contrib/latex/manual/src";//System.getProperty("user.dir");
-        File in  = new File(currentDir + "/org/netbeans/modules/latex/help/labels.pl");
-        File out = new File(currentDir + "/org/netbeans/modules/latex/help/LaTeXMap.xml");
+        if (args.length != 1) {
+	    System.err.println("Incorrect number of arguments, one argument containing the location of the base dir is required.");
+	    return ;
+	}
+	
+        File baseDir = new File(args[0]);
+	
+	if (!baseDir.exists() || !baseDir.isDirectory()) {
+	   System.err.println("The specified base dir does not exist or is not a directory.");
+	   return ;
+	}
+	
+        File in  = new File(baseDir, "labels.pl");
+        File out = new File(baseDir, "LaTeXMap.xml");
         
         Map map = createMapFile(in, out);
         
-        File outTOC = new File(currentDir + "/org/netbeans/modules/latex/help/LaTeXTOC.xml");
-        File inTOC  = new File(currentDir + "/org/netbeans/modules/latex/help/LaTeXManual.html");
+        File outTOC = new File(baseDir, "LaTeXTOC.xml");
+        File inTOC  = new File(baseDir, "LaTeXManual.html");
         
         createTOC(inTOC, outTOC, map);
     }
