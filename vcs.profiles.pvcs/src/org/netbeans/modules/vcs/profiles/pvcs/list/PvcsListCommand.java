@@ -27,6 +27,7 @@ import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 
 import org.netbeans.modules.vcs.profiles.list.AbstractListCommand;
+import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 
 /** PVCS list command wrapper
@@ -45,6 +46,7 @@ public class PvcsListCommand extends AbstractListCommand {
     private String[] fileStatuses = null;
     private Map archivesByNames;
     private Map workFilesByNames;
+    private String currentUserName;
     
     private static final String ENTITY_TYPE = "EntityType="; // NOI18N
     private static final String ENTITY_PROJECT = "Project"; // NOI18N
@@ -136,6 +138,13 @@ public class PvcsListCommand extends AbstractListCommand {
         this.dataRegex = dataRegex;
         this.errorRegex = errorRegex;
         this.filesByName = filesByName;
+        this.currentUserName = (String) vars.get(VcsFileSystem.VAR_LOCKER_USER_NAME);
+        if (this.currentUserName != null) {
+            this.currentUserName = Variables.expand(vars, this.currentUserName, false);
+        }
+        if (this.currentUserName == null || currentUserName.length() == 0) {
+            this.currentUserName = System.getProperty("user.name");
+        }
         initVars(vars);
         initDir(vars);
         if (args.length < 2) {
@@ -297,6 +306,7 @@ public class PvcsListCommand extends AbstractListCommand {
     private String lastFile = null;
     private boolean skipNextName = false;
     private boolean newLockInfo = false;
+    private String lastRevision = null;
     
     /** Called with the line of LIST command output */
     public void outputData(String[] elements) {
@@ -343,25 +353,55 @@ public class PvcsListCommand extends AbstractListCommand {
                     newLockInfo = true;
                 } else { // Old one-line lock info
                     int index = lockInfo.indexOf(LOCKS_SEPARATOR);
-                    int index2 = lockInfo.indexOf(LOCKS_SEPARATOR, index + 1);
-                    if (index2 < 0) return ;
-                    String revision = lockInfo.substring(index + LOCKS_SEPARATOR.length(), index2).intern();
-                    index = index2;
-                    index2 = lockInfo.indexOf(LOCKS_SEPARATOR, index + 1);
-                    String locker = lockInfo.substring(index + LOCKS_SEPARATOR.length(), index2).intern();
-                    fileStatuses[2] = locker;
-                    fileStatuses[3] = revision;
-                    fileStatuses[4] = (String) archivesByNames.get(fileStatuses[0]);
+                    do {
+                        int index2 = lockInfo.indexOf(LOCKS_SEPARATOR, index + 1);
+                        if (index2 < 0) return ;
+                        String revision = lockInfo.substring(index + LOCKS_SEPARATOR.length(), index2).intern();
+                        index = index2;
+                        index2 = lockInfo.indexOf(LOCKS_SEPARATOR, index + 1);
+                        String locker = lockInfo.substring(index + LOCKS_SEPARATOR.length(), index2).intern();
+                        boolean isCurrentUser = locker.equals(currentUserName);
+                        if (fileStatuses[2] == null || fileStatuses[2].length() == 0) {
+                            fileStatuses[2] = locker;
+                        } else {
+                            if (isCurrentUser) {
+                                fileStatuses[2] = locker + ',' + fileStatuses[2];
+                            } else {
+                                fileStatuses[2] = fileStatuses[2] + ',' + locker;
+                            }
+                        }
+                        if (isCurrentUser) fileStatuses[3] = revision;
+                        fileStatuses[4] = (String) archivesByNames.get(fileStatuses[0]);
+                        index = lockInfo.indexOf('[', index2);
+                        if (index > 0) {
+                            index = lockInfo.indexOf(LOCKS_SEPARATOR, index);
+                        }
+                    } while (index > 0);
                 }
             }
             if (newLockInfo && elements[0].startsWith(LOCK_INFO_NEW_REVISION) && fileStatuses != null) {
-                fileStatuses[3] = elements[0].substring(LOCK_INFO_NEW_REVISION.length()).trim();
+                //fileStatuses[3] = elements[0].substring(LOCK_INFO_NEW_REVISION.length()).trim();
+                lastRevision = elements[0].substring(LOCK_INFO_NEW_REVISION.length()).trim();
             }
             if (newLockInfo && elements[0].startsWith(LOCK_INFO_LOCKED_BY) && fileStatuses != null) {
-                fileStatuses[2] = elements[0].substring(LOCK_INFO_LOCKED_BY.length()).trim();
+                String locker = elements[0].substring(LOCK_INFO_LOCKED_BY.length()).trim();
+                boolean isCurrentUser = locker.equals(currentUserName);
+                if (isCurrentUser) {
+                    fileStatuses[3] = lastRevision;
+                }
+                if (fileStatuses[2] == null || fileStatuses[2].length() == 0) {
+                    fileStatuses[2] = locker;
+                } else {
+                    if (isCurrentUser) {
+                        fileStatuses[2] = locker + ',' + fileStatuses[2];
+                    } else {
+                        fileStatuses[2] = fileStatuses[2] + ',' + locker;
+                    }
+                }
             }
-            if (newLockInfo && elements[0].startsWith(LOCK_INFO_END) && fileStatuses != null) {
+            if (newLockInfo && elements[0].equals(LOCK_INFO_END) && fileStatuses != null) {
                 newLockInfo = false;
+                lastRevision = null;
             }
         }
     }
