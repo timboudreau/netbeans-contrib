@@ -239,11 +239,11 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
                 return;
             }
 
-            int bracket = line.indexOf('(');
+            int bracket = line.indexOf("\t(");
             if (bracket > 0) {
                 // it's another tag..
-                String tag = line.substring(0, bracket - 1).trim();
-                String rev = line.substring(bracket + 1, line.length() - 1);
+                String tag = line.substring(0, bracket).trim();
+                String rev = line.substring(bracket + 2, line.length() - 1);
 
                 if (statusInformation == null) {
                     statusInformation = new StatusInformation();
