@@ -267,6 +267,7 @@ public class RefFSTest extends JellyTestCase {
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + bindname);
         sleep (1000);
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + bindname).copyLookupCode();
+        sleep (5000);
         printClipboard();
         out.println ("Done");
         
@@ -275,6 +276,7 @@ public class RefFSTest extends JellyTestCase {
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + directory + "|" + filename);
         sleep (1000);
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + directory + "|" + filename).copyLookupCode();
+        sleep (5000);
         printClipboard();
         out.println ("Done");
         
@@ -283,8 +285,10 @@ public class RefFSTest extends JellyTestCase {
         new ContextNode (exp.runtimeTab ().tree (), repo + "|" + directory);
         sleep (1000);
         new ContextNode (exp.runtimeTab ().tree (), repo + "|" + directory).copyBindingCode();
+        sleep (5000);
         printClipboard();
         new ContextNode (exp.runtimeTab ().tree (), repo + "|" + directory).copyLookupCode();
+        sleep (5000);
         printClipboard();
         out.println ("Done");
         
