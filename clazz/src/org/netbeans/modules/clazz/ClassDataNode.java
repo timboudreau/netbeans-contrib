@@ -221,48 +221,11 @@ class ClassDataNode extends DataNode implements Runnable {
     exps.setName(EXECUTION_SET_NAME);
     exps.setDisplayName(bundle.getString ("PROP_executionSetName"));
     exps.setShortDescription(bundle.getString ("HINT_executionSetName"));
+    com.netbeans.ide.loaders.ExecSupport.addProperties(exps,
+                                                       ((com.netbeans.ide.loaders.MultiDataObject)getDataObject()).getPrimaryEntry()
+                                                      );
     s.put(exps);
-    // fill it!
-    exps.put(new PropertySupport.ReadWrite (
-               PROP_FILE_PARAMS,
-               String.class,
-               bundle.getString("PROP_fileParams"),
-               bundle.getString("HINT_fileParams")
-             ) {
-               public Object getValue() {
-                 return getParams ();
-               }
-               public void setValue (Object val) throws InvocationTargetException {
-                 if (val instanceof String) {
-                   try {
-                     setParams((String)val);
-                   }
-                   catch(IOException e) {
-                     throw new InvocationTargetException (e);
-                   }
-                 }
-                 else {
-                   throw new IllegalArgumentException();
-                 }
-               }
-             });
-    exps.put(new PropertySupport.ReadWrite (
-               PROP_EXECUTION,
-               Boolean.TYPE,
-               bundle.getString("PROP_execution"),
-               bundle.getString("HINT_execution")
-             ) {
-               public Object getValue() {
-                 return new Boolean (getExecution ());
-               }
-               public void setValue (Object val) throws InvocationTargetException {
-                 try {
-                   setExecution(((Boolean)val).booleanValue ());
-                 } catch (IOException ex) {
-                   throw new InvocationTargetException (ex);
-                 }
-               }
-             });
+
     return s;
   }
 
@@ -302,6 +265,7 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  19   Gandalf   1.18        4/22/99  Ales Novak      new model of execution
  *  18   Gandalf   1.17        4/4/99   Ian Formanek    
  *  17   Gandalf   1.16        3/26/99  David Simonek   
  *  16   Gandalf   1.15        3/26/99  Ian Formanek    Fixed use of obsoleted 
