@@ -707,8 +707,8 @@ public class CommandNode extends AbstractNode {
                     });
                 }
             } else {
-                //final PropertyEditor conditionedPropertyEditor = ConditionedObject.getConditionedPropertyEditor(valueClass);
-                set.put(new PropertySupport.ReadWrite(
+                //final PropertyEditor conditionedPropertyEditor = ConditionedObject.getConditionedPropertyEditor(valueClass);                
+                PropertySupport ps = new PropertySupport.ReadWrite(
                         propertyName, ConditionedObject.class,
                         label, tooltip
                     ) {
@@ -780,7 +780,10 @@ public class CommandNode extends AbstractNode {
                                 cmd.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED, null);
                             }
                         }
-                });
+                };                                
+                if(propertyName.equals(VcsCommand.PROPERTY_EXEC_STRUCTURED) || propertyName.equals(VcsCommand.PROPERTY_EXEC))
+                    ps.setValue("canEditAsText", Boolean.FALSE);    //NOI18N
+                set.put(ps);
             }
         }
     }
