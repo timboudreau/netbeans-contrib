@@ -65,6 +65,8 @@ import org.netbeans.modules.vcscore.runtime.RuntimeCommand;
 import org.netbeans.modules.vcscore.runtime.RuntimeCommandTask;
 import org.netbeans.modules.vcscore.runtime.VcsRuntimeCommand;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.util.Task;
+import org.openide.util.TaskListener;
 
 /**
  *
@@ -402,6 +404,17 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
 
     protected int execute() {
         int status = STATUS_SUCCEEDED;
+        addTaskListener(new TaskListener() {
+            public void taskFinished(Task task) {
+                if (visualizerGUI != null) {
+                    visualizerGUI.setExitStatus(getExitStatus());
+                }
+                if (visualizerText != null) {
+                    visualizerText.setExitStatus(getExitStatus());
+                }
+                UserCommandTask.this.removeTaskListener(this);
+            }
+        });
         try {
             //runningTasks.add(this);//, Thread.currentThread());
             // Task is added as running when canRun() returns true. It's too late to do it here!
