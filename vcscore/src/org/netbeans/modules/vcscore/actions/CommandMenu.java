@@ -514,7 +514,11 @@ public class CommandMenu extends JMenuPlus {
                 NotifyDescriptor.OK_OPTION, null);
             }
             final DialogDescriptor ddFin = dd;
+            
+            //#47150
+            System.setProperty("javahelp.ignore.modality", "true"); //NOI18N
             Object retValue = DialogDisplayer.getDefault().notify(ddFin);
+            
             // Assure, that one of the buttons was pressed. If not, do nothing.
             if (commandName == null && !NotifyDescriptor.OK_OPTION.equals(retValue) ||
             commandName != null && !commandName.equals(retValue)) return false;
