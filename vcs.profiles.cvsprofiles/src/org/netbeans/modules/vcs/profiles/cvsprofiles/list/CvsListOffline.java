@@ -44,6 +44,8 @@ public class CvsListOffline extends VcsListCommand {
 
     private static final String MERGE_TIMESTAMP = "Result of merge"; //NOI18N
 
+    private static final String CONFLICT_IN_DATE = "+"; //NOI18N
+
     private static final String INITIAL_TIMESTAMP = "Initial"; //NOI18N
 
     private String rootDir=null;
@@ -171,8 +173,11 @@ public class CvsListOffline extends VcsListCommand {
     }
     
     public static String getStatusFromTime(String cvsDateStr, File realFile) {
-        if (cvsDateStr.startsWith(MERGE_TIMESTAMP)) {
+        if (cvsDateStr.indexOf(CONFLICT_IN_DATE) >= 0) {
             return "File had conflicts on merge";
+        }
+        if (cvsDateStr.startsWith(MERGE_TIMESTAMP)) {
+            return "Locally Modified"; // Result of a merge, but no conflicts.
         }
         if (cvsDateStr.startsWith(DUMMY_TIMESTAMP)) {
             return "Locally Added";
