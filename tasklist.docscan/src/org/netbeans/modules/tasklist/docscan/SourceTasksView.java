@@ -127,7 +127,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 "To Do",
                 Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"), // NOI18N
                 true,
-                job.getSuggestionsList()  // FIXME not filtered
+                createFilteredList(job.getSuggestionsList())
         );
         this.job = job;
         init();
@@ -371,11 +371,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             } else {
                 // XXX defer to isShowing
                 job = SuggestionsBroker.getDefault().startBroker();
-                ObservableList filtered = new FilteredTasksList(job.getSuggestionsList());
                 this.category = CATEGORY;
                 registerTaskListView(this);
-                setModel(job.getSuggestionsList());
-                //setModel(filtered);
+                setModel(createFilteredList(job.getSuggestionsList()));
             }
         }
 
@@ -1013,9 +1011,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             putClientProperty("PersistenceType", "OnlyOpened");  // NOI18N
             treeTable.setProperties(createColumns());
             treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
-            ObservableList filtered = new FilteredTasksList(job.getSuggestionsList());
-            //setModel(filtered);
-            setModel(job.getSuggestionsList());
+            setModel(createFilteredList(job.getSuggestionsList()));
             setFiltered(false);
         } finally {
             // setModel() above triggers IAE in IconManager after gc()
@@ -1129,6 +1125,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public SuggestionList getSuggestionsModel() {
         return null;
+    }
+
+    private static ObservableList createFilteredList(TaskList list) {
+        return new FilteredTasksList(list);
     }
 
     public org.netbeans.modules.tasklist.core.filter.Filter getFilter() {

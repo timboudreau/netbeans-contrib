@@ -393,7 +393,7 @@ public class TaskNode extends AbstractNode {
         }
 
         public void addedTask(Task t) {
-            if (t.getParent() == item) {
+            if (t.getParent().getKey() == item.getKey()) {
                 // Special case -- we've made a leaf into one containing children!
                 Children c = getChildren();
                 if (c == Children.LEAF) {
@@ -413,7 +413,7 @@ public class TaskNode extends AbstractNode {
         }
 
         public void structureChanged(Task t) {
-            if (t == item) {
+            if (t.getKey() == item.getKey()) {
                 // Special case -- we've made a leaf into one containing children!
                 Children c = getChildren();
                 if ((c == Children.LEAF) && (item.hasSubtasks())) {

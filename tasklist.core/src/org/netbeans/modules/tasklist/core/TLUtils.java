@@ -77,6 +77,9 @@ public final class TLUtils {
                     return l;
                 }
             }
+        } catch (IndexOutOfBoundsException ex) {
+            // line was at the end of file and is deleted now
+
         } catch (Exception e) {
             ErrorManager.getDefault().log(ErrorManager.WARNING, "getLineByNumber - file " + dobj + " and lineno=" + lineno); // NOI18N
             ErrorManager.getDefault().

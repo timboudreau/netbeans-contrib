@@ -631,6 +631,14 @@ public class Task extends Suggestion implements Cloneable {
         return parent;
     }
 
+    /** Determines whether given task lies in this context. */
+    public final boolean isParentOf(Task task) {
+        if (task.getKey() == getKey()) return true;
+        Task nextLevel = task.getParent();
+        if (nextLevel == null) return false;
+        return isParentOf(nextLevel);  // recursion
+    }
+
     public void setParent(Task parent) {
         this.parent = parent;
         // Should we broadcast this change??? Probably not, it's always

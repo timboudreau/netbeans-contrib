@@ -144,9 +144,10 @@ public class TaskChildren extends Children.Keys {
         }
 
         public void structureChanged(Task t) {
-            if (t == parent) {
+            if (t.isParentOf(parent)) {
                 refreshKeys();
             }
         }
+
     }
 }
