@@ -65,6 +65,13 @@ public class Main extends JellyTestCase {
 
     static String ior = null;
     
+    static boolean itemLocalTest = false;
+    static boolean itemLocalTest2 = false;
+    static boolean itemLocalTest_NSName = false;
+    static boolean itemLocalTest_NSName2 = false;
+    static boolean itemLocalTest_NSName2_NSNameSub2 = false;
+    static boolean itemLocalTest_NSName_ServerName2 = false;
+    
     public void setUp () {
         exp = new ExplorerOperator ();
         closeAllModal = true;
@@ -98,6 +105,7 @@ public class Main extends JellyTestCase {
         di.waitClosed ();
         new EventTool().waitNoEvent(1000);
         new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest"); // CORBA bug workaround
+        itemLocalTest = true;
 //        dialog = JDialogOperator.waitJDialog("Information", true, true);
 //        if (dialog != null)
 //            new JButtonOperator (JButtonOperator.waitJButton (dialog, "OK", true, true)).push ();
@@ -112,6 +120,8 @@ public class Main extends JellyTestCase {
         dialog = JDialogOperator.waitJDialog("Information", true, true);
         new JButtonOperator (JButtonOperator.waitJButton (dialog, "OK", true, true)).push ();
         new EventTool().waitNoEvent(1000);
+        new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest_2");
+        itemLocalTest2 = true;
     }
     
     public void testNS_Create () {
@@ -128,6 +138,11 @@ public class Main extends JellyTestCase {
         di.setKind ("NSKind2");
         di.oK ();
         di.waitClosed ();
+
+        new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName");
+        itemLocalTest_NSName = true;
+        new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2");
+        itemLocalTest_NSName2 = true;
     }
     
     public void testNS_GetIOR () {
@@ -147,6 +162,8 @@ public class Main extends JellyTestCase {
         di.setKind ("NSKindSub2");
         di.loadIOR (ior);
         di.oK ();
+        new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2");
+        itemLocalTest_NSName2_NSNameSub2 = true;
     }
     
     public void testNS_CopyServer () {
@@ -198,6 +215,8 @@ public class Main extends JellyTestCase {
         di.loadIOR (ior);
         di.oK ();
         di.waitClosed();
+        new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName|ServerName2");
+        itemLocalTest_NSName_ServerName2 = true;
 
         new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName").refresh ();
         new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName|ServerName2").copyClientBindingCode ();
@@ -208,31 +227,30 @@ public class Main extends JellyTestCase {
     }
     
     public void testNS_Unbind () {
-        try {
+        if (itemLocalTest_NSName_ServerName2) {
             new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName|ServerName2").unbindObject();
-            getRef ().println ("|LocalTest|NSName|ServerName2");
-        } catch (JemmyException e) {}
-        try {
+            getLog ().println ("|LocalTest|NSName|ServerName2");
+        }
+        if (itemLocalTest_NSName2_NSNameSub2) {
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2").unbindContext();
-            getRef ().println ("|LocalTest|NSName2|NSNameSub2");
-        } catch (JemmyException e) {}
-        try {
+            getLog ().println ("|LocalTest|NSName2|NSNameSub2");
+        }
+        if (itemLocalTest_NSName2) {
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2").unbindContext();
-            getRef ().println ("|LocalTest|NSName2");
-        } catch (JemmyException e) {}
-        try {
+            getLog ().println ("|LocalTest|NSName2");
+        }
+        if (itemLocalTest_NSName) {
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName").unbindContext();
-            getRef ().println ("|LocalTest|NSName");
-        } catch (JemmyException e) {}
-        try {
+            getLog ().println ("|LocalTest|NSName");
+        }
+        if (itemLocalTest2) {
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest_2").unbindContext();
-            getRef ().println ("|LocalTest_2");
-        } catch (JemmyException e) {}
-        try {
+            getLog ().println ("|LocalTest_2");
+        }
+        if (itemLocalTest) {
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest").unbindContext();
-            getRef ().println ("|LocalTest");
-        } catch (JemmyException e) {}
-        compareReferenceFiles ();
+            getLog ().println ("|LocalTest");
+        }
     }
 
     public static void main(java.lang.String[] args) {
