@@ -43,7 +43,8 @@ public class VariableInputDescriptor extends Object {
     public static final int INPUT_TEXT = 11;
     public static final int INPUT_HELP_ID = 13;
     public static final int INPUT_AUTOFILL = 14;
-    
+    public static final int INPUT_PROFILE_DEFAULTS = 16;
+
     public static final String INPUT_STR_LABEL = "LABEL";
     /**
      * The name of the variable, that contains pairs of variables and commands.
@@ -52,7 +53,14 @@ public class VariableInputDescriptor extends Object {
      * fill in VCS configuartion, when it can be obtained from local configuration files.
      */
     public static final String INPUT_STR_AUTOFILL = "AUTO_FILL_VARS";
-    
+
+    /**
+     * The name of statement that contains list of variables which
+     * recent value can be stored as profile command default for next time. e.g.
+     * <code>PROFILE_DEFAULTS_VARS("PRUNE_EMPTY, CREATE_DIRS")</code>
+     */
+    public static final String INPUT_STR_PROFILE_DEFAULTS = "PROFILE_DEFAULTS_VARS";
+
     public static final String INPUT_STR_HELP_ID = "HELP_ID";
     public static final String INPUT_STR_PROMPT_FIELD = "PROMPT_FOR";
     public static final String INPUT_STR_PROMPT_AREA = "PROMPT_FOR_FILE";
@@ -104,6 +112,8 @@ public class VariableInputDescriptor extends Object {
     private String a11yDescription = null;
     private String helpID;
     private String autoFillVars;
+    /** Keeps names of vars that support profile defaults. Need to be tokenized. */
+    private String profileDefaults;
     private ArrayList components = new ArrayList();
 
 
@@ -127,6 +137,7 @@ public class VariableInputDescriptor extends Object {
                     inputMap.put(INPUT_STR_GLOBAL_PARAMS, new Integer(INPUT_GLOBAL));
                     inputMap.put(INPUT_STR_TEXT, new Integer(INPUT_TEXT));
                     inputMap.put(INPUT_STR_AUTOFILL, new Integer(INPUT_AUTOFILL));
+                    inputMap.put(INPUT_STR_PROFILE_DEFAULTS, new Integer(INPUT_PROFILE_DEFAULTS));
                 }
             }
         }
@@ -180,6 +191,8 @@ public class VariableInputDescriptor extends Object {
                 descriptor.helpID = inputArgs[0];
             } else if(inputId == INPUT_AUTOFILL && inputArgs.length >0){
                 descriptor.autoFillVars = inputArgs[0];
+            } else if(inputId == INPUT_PROFILE_DEFAULTS && inputArgs.length >0){
+                descriptor.profileDefaults = inputArgs[0];
             } else if (inputId == INPUT_ACCESSIBILITY && inputArgs.length > 0) {
                 VariableInputComponent testComponent = new VariableInputComponent(0, "", "");
                 setA11y(VcsUtilities.getBundleString(resourceBundles, inputArg), testComponent);
