@@ -2427,7 +2427,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         String locker;
         if (statusProvider != null) {
             String fullName = fo.getPath();
-            locker = statusProvider.getFileLocker(fullName).trim();
+            locker = statusProvider.getFileLocker(fullName);
+            if (locker != null) locker = locker.trim();
+            else locker = "";
         } else locker = "";
         return locker;
     }
