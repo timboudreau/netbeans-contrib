@@ -153,7 +153,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                 final RuleViolation violation = (RuleViolation)iterator.next();
                 try {
                     // Violation line numbers seem to be 0-based
-                    final Line line = TLUtils.getLineByNumber(dobj, violation.getLine());
+                    final Line line = TLUtils.getLineByNumber(dataObject, violation.getLine());
                     
                     //System.out.println("Next violation = " + violation.getRule().getName() + " with description " + violation.getDescription() + " on line " + violation.getLine());
                     
