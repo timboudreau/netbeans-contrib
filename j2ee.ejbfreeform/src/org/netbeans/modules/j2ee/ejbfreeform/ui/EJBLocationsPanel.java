@@ -259,6 +259,12 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         add(resourcesTextField, gridBagConstraints);
 
         jButton1.setText(org.openide.util.NbBundle.getMessage(EJBLocationsPanel.class, "BTN_ConfigFilesPanel_ResourcesBrowse"));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
@@ -267,6 +273,13 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         add(jButton1, gridBagConstraints);
 
     }//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        JFileChooser chooser = createChooser(getResourcesLocation().getAbsolutePath());
+        if (JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(this)) {
+            setResources(chooser.getSelectedFile());
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void j2eeSpecComboBoxFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_j2eeSpecComboBoxFocusGained
         setJ2eeSpecVerDesc();
@@ -391,6 +404,10 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
 
     private void setConfigFiles(final File file) {
         jTextFieldConfigFiles.setText(relativizeFile(file));
+    }
+
+    private void setResources(final File file) {
+        resourcesTextField.setText(relativizeFile(file));
     }
 
     protected File getConfigFilesLocation() {
