@@ -18,7 +18,7 @@ Microsystems, Inc. All Rights Reserved.
     description_key='SuggestionAnno'
     localizing_bundle='org.netbeans.modules.tasklist.suggestions.Bundle'
     visible='true' 
-    glyph='nbresloc:org/netbeans/modules/tasklist/suggestions/suggestion.gif'
+    glyph='nbresloc:/org/netbeans/modules/tasklist/suggestions/suggestion.gif'
     highlight='0xFFFFB8'
     type='line'
     />

@@ -15,8 +15,8 @@ Microsystems, Inc. All Rights Reserved.
 <!DOCTYPE type PUBLIC "-//NetBeans//DTD annotation type 1.0//EN" "http://www.netbeans.org/dtds/annotation-type-1_0.dtd">
 <type
     name='TaskNoHighlight'
-    description_key='HINT_TASK'
+    description_key='HINT_TASK_transparent'
     localizing_bundle='org.netbeans.modules.tasklist.core.Bundle'
     visible='true' 
-    glyph='nbresloc:org/netbeans/modules/tasklist/editor/taskGlyph.gif'
+    glyph='nbresloc:/org/netbeans/modules/tasklist/core/taskGlyph.gif'
     />
