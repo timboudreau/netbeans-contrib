@@ -328,7 +328,7 @@ public class ExternalCommand {
             if (watchDog != null) watchDog.cancel();
             output.doStop();
             try {
-                while (!output.isStopped()) Thread.currentThread().sleep(200);
+                output.waitToFinish();
             } catch (InterruptedException iexc) {}
                 
         }
@@ -366,6 +366,7 @@ public class ExternalCommand {
         private InputStreamReader stderr;
         private boolean shouldStop = false;
         private boolean stopped = false;
+        private boolean finished = false;
         private StringBuffer outBuffer = new StringBuffer(LINE_LENGTH);
         private StringBuffer errBuffer = new StringBuffer(LINE_LENGTH);
         private char[] buff = new char[BUFF_LENGTH];
@@ -388,6 +389,14 @@ public class ExternalCommand {
                 stopped = true;
             }
             return stopped;
+        }
+        
+        public void waitToFinish() throws InterruptedException {
+            synchronized (this) {
+                while (!finished) {
+                    wait();
+                }
+            }
         }
         
         /** Whether there is some output to grab */
@@ -446,6 +455,10 @@ public class ExternalCommand {
             try {
                 stderr.close();
             } catch (IOException ioexc1) {}
+            finished = true;
+            synchronized (this) {
+                notifyAll();
+            }
         }
         
     }
