@@ -144,6 +144,14 @@ public interface VcsCommand extends VcsCommandCookie {
      * be started only once for all selected files.
      */
     public static final String PROPERTY_RUN_ON_MULTIPLE_FILES = "runOnMultipleFiles";
+    
+    /**
+     * When true, the command is supposed to return fail status even when it finish normally.
+     * The user will not be warned, that this command has failed.
+     * I.e. DIFF command fails when it finds some differences, but the user should not be
+     * notified, that something has failed.
+     */
+    public static final String PROPERTY_IGNORE_FAIL = "ignoreFail";
 
     /**
      * An integer property that means the number of revisions the command can be applied.
