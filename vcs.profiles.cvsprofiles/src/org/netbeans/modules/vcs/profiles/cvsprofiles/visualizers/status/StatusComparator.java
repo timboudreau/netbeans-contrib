@@ -29,8 +29,8 @@ public class StatusComparator implements TableInfoComparator {
     }
 
     public String getDisplayValue(Object obj, Object rowObject) {
-        FileStatus status = (FileStatus)obj;       
-        return status.toString();
+        String status = (String)obj;       
+        return status;
     }
     
     public int compare(java.lang.Object obj, java.lang.Object obj1) {

@@ -27,10 +27,60 @@ import java.util.*;
  * @author  Robert Greig
  */
 public final class StatusInformation extends FileInfoContainer {
-    // Fields =================================================================
+     /**
+     * The Added status, i.e. the file has been added to the repository
+     * but not committed yet.
+     */
+    public static final String ADDED = "Locally Added"; //NOI18N
 
+    /**
+     * The Removed status, i.e. the file has been removed from the repository
+     * but not committed yet
+     */
+    public static final String REMOVED = "Locally Removed"; //NOI18N
+
+    /**
+     * The locally modified status, i.e. the file has been modified locally
+     * and is out of sync with the repository
+     */
+    public static final String MODIFIED = "Locally Modified"; //NOI18N
+
+    /**
+     * The up-to-date status, i.e. the file is in sync with the repository
+     */
+    public static final String UP_TO_DATE = "Up-to-date"; //NOI18N
+
+    /**
+     * The "needs checkout" status, i.e. the file is out of sync with the
+     * repository and needs to be updated
+     */
+    public static final String NEEDS_CHECKOUT = "Needs Checkout"; //NOI18N
+
+    /**
+     * The "needs patch" status, i.e. the file is out of sync with the
+     * repository and needs to be patched
+     */
+    public static final String NEEDS_PATCH = "Needs Patch"; //NOI18N
+
+    /**
+     * The "needs merge" status, i.e. the file is locally modified and
+     * the file in the repository has been modified too
+     */
+    public static final String NEEDS_MERGE = "Needs Merge"; //NOI18N
+
+    /**
+     * The "conflicts" status, i.e. the file has been merged and now
+     * has conflicts that need resolved before it can be checked-in
+     */
+    public static final String HAS_CONFLICTS = "File had conflicts on merge"; //NOI18N
+
+    /**
+     * The unknown status, i.e. the file is not known to the CVS repository.
+     */
+    public static final String UNKNOWN = "Unknown"; //NOI18N
+ 
     private File file;
-    private FileStatus status;
+    private String status;
     private String workingRevision;
     private String repositoryRevision;
     private String repositoryFileName;
@@ -69,7 +119,7 @@ public final class StatusInformation extends FileInfoContainer {
      * Getter for property status.
      * @return Value of property status.
      */
-    public FileStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
@@ -77,7 +127,7 @@ public final class StatusInformation extends FileInfoContainer {
      * Setter for property status.
      * @param status New value of property status.
      */
-    public void setStatus(FileStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -95,11 +145,11 @@ public final class StatusInformation extends FileInfoContainer {
 
     /**
      * Sets the status by the specified string.
-     */
+     
     public void setStatusString(String statusString) {
         setStatus(FileStatus.getStatusForString(statusString));
     }
-
+*/
     /**
      * Getter for property workingRevision.
      * @return Value of property workingRevision.

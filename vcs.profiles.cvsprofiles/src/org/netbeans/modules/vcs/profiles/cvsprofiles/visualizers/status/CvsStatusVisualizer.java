@@ -211,7 +211,7 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
                 status = ((FileStatusInfo)infoMap.get(STATUS_UNKNOWN)).getDisplayName();
             else
                 status = STATUS_UNKNOWN;                      
-            statusInformation.setStatusString(status);
+            statusInformation.setStatus(status);
         }
 
         if (line.startsWith(UNKNOWN)) {            
@@ -264,7 +264,7 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
             statusLC = ((FileStatusInfo)infoMap.get(status)).getDisplayName();
         else
             statusLC = status;        
-        statusInformation.setStatusString(statusLC);
+        statusInformation.setStatus(statusLC);
     }
 
     private boolean assertNotNull() {

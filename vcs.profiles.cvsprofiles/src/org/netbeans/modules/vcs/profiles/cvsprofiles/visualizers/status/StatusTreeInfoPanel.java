@@ -79,7 +79,7 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         clearStatusInfo.setRepositoryFileName(""); // NOI18N
         clearStatusInfo.setRepositoryRevision(""); // NOI18N
         clearStatusInfo.setWorkingRevision(""); // NOI18N
-        clearStatusInfo.setStatus(FileStatus.UNKNOWN);
+        clearStatusInfo.setStatus(StatusInformation.UNKNOWN);
         clearStatusInfo.setStickyDate(""); // NOI18N
         clearStatusInfo.setStickyOptions(""); // NOI18N
         clearStatusInfo.setStickyTag(""); // NOI18N
@@ -103,15 +103,15 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
     }
     
     protected boolean canBeAdded(StatusInformation sInfo) {
-        if (sInfo.getStatus() == FileStatus.UP_TO_DATE && cbUptodate.isSelected()) return true;
-        if (sInfo.getStatus() == FileStatus.MODIFIED && cbModified.isSelected()) return true;
-        if (sInfo.getStatus() == FileStatus.ADDED && cbLocAdded.isSelected()) return true;
-        if (sInfo.getStatus() == FileStatus.REMOVED && cbLocRemoved.isSelected()) return true;
-        if (sInfo.getStatus() == FileStatus.NEEDS_CHECKOUT && cbNeedsCheckout.isSelected()) return true;
-        if (sInfo.getStatus() == FileStatus.NEEDS_MERGE && cbNeedsMerge.isSelected()) return true;
-        if (sInfo.getStatus() == FileStatus.NEEDS_PATCH && cbNeedsPatch.isSelected()) return true;
-        if (sInfo.getStatus() == FileStatus.HAS_CONFLICTS && cbHasConflict.isSelected()) return true;
-        if (sInfo.getStatus() == FileStatus.UNKNOWN && cbUnknown.isSelected()) return true;
+        if (sInfo.getStatus() == StatusInformation.UP_TO_DATE && cbUptodate.isSelected()) return true;
+        if (sInfo.getStatus() == StatusInformation.MODIFIED && cbModified.isSelected()) return true;
+        if (sInfo.getStatus() == StatusInformation.ADDED && cbLocAdded.isSelected()) return true;
+        if (sInfo.getStatus() == StatusInformation.REMOVED && cbLocRemoved.isSelected()) return true;
+        if (sInfo.getStatus() == StatusInformation.NEEDS_CHECKOUT && cbNeedsCheckout.isSelected()) return true;
+        if (sInfo.getStatus() == StatusInformation.NEEDS_MERGE && cbNeedsMerge.isSelected()) return true;
+        if (sInfo.getStatus() == StatusInformation.NEEDS_PATCH && cbNeedsPatch.isSelected()) return true;
+        if (sInfo.getStatus() == StatusInformation.HAS_CONFLICTS && cbHasConflict.isSelected()) return true;
+        if (sInfo.getStatus() == StatusInformation.UNKNOWN && cbUnknown.isSelected()) return true;
         return false;
     }
     
