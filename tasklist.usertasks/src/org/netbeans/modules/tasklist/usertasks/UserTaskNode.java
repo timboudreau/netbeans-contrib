@@ -38,6 +38,7 @@ import org.netbeans.modules.tasklist.core.TaskTransfer;
 import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
+import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
@@ -253,7 +254,6 @@ final class UserTaskNode extends AbstractNode {
 
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getLineNumber", "setLineNumber"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_LINE);
-            p.setPropertyEditorClass(LineNumberPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_lineProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_lineProperty")); // NOI18N
             ss.put(p);
@@ -267,6 +267,7 @@ final class UserTaskNode extends AbstractNode {
             ss.put(p);
 
             p = new PropertySupport.Reflection(item, Date.class, "getCreatedDate", null); // NOI18N
+            p.setPropertyEditorClass(DateEditor.class);
             p.setName(UserTaskView.PROP_TASK_CREATED);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_createdProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_createdProperty")); // NOI18N
@@ -274,6 +275,7 @@ final class UserTaskNode extends AbstractNode {
             ss.put(p);
 
             p = new PropertySupport.Reflection(item, Date.class, "getLastEditedDate", null); // NOI18N
+            p.setPropertyEditorClass(DateEditor.class);
             p.setName(UserTaskView.PROP_TASK_EDITED);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_editedProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_editedProperty")); // NOI18N
@@ -281,6 +283,7 @@ final class UserTaskNode extends AbstractNode {
             ss.put(p);
 
             p = new PropertySupport.Reflection(item, Date.class, "getDueDate", "setDueDate"); // NOI18N            
+            p.setPropertyEditorClass(DateEditor.class);
             p.setName(UserTaskView.PROP_TASK_DUE);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_dueDateProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_dueDateProperty")); // NOI18N
