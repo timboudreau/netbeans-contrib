@@ -49,6 +49,7 @@ Microsystems, Inc. All Rights Reserved.
     <target name="nbm" depends="netbeans">
         <makenbm file="${project}.nbm"
                  topdir="."
+                 homepage="http://contrib.netbeans.org/htmldiff/"
                  module="netbeans/modules/eager/${project}.jar"
                  needsrestart="false"
                  distribution="http://${dist.base}/${project}.nbm">
