@@ -18,6 +18,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 import org.netbeans.api.vcs.commands.*;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.*;
+import org.netbeans.modules.vcscore.commands.CommandOutputVisualizer;
 import org.netbeans.modules.vcscore.ui.*;
 import org.netbeans.modules.vcscore.util.table.*;
 import org.openide.util.*;
@@ -45,7 +46,6 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
     public UpdateInfoPanel(OutputVisualizer visualizer) {
         super();
         this.visualizer = visualizer;
-        addKillActionListener(new UpdateInfoPanel.StopActionListener());
     }
     
     protected boolean isViewTextLogEnabled() {
@@ -109,6 +109,7 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
 
     public void setVcsTask(CommandTask task){
         this.task = task;
+        addKillActionListener(new CommandOutputVisualizer.CommandKillListener(task));
     }
     
     /** Does the actual display - docking into the javacvs Mode,
@@ -163,14 +164,6 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
         }
     }
     
-    protected void shutDownCommand() {
-        // we can do that because it's running from other thread then command and won't kill itself
-        if(this.task.isRunning()){
-            this.task.stop();
-          //  commandFinished(-1); //command stopped
-        }
-    }
-    
     private class ColoringUpdateRenderer extends DefaultTableCellRenderer {
         
         private TableInfoModel tableModel;
@@ -201,12 +194,6 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
             return retValue;
         }
         
-    }
-    
-    public class StopActionListener implements java.awt.event.ActionListener {
-        public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
-            shutDownCommand();
-        }
     }
     
 }

@@ -20,6 +20,7 @@ import javax.swing.table.*;
 import org.netbeans.api.vcs.commands.*;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.*;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.GrowingTableInfoModel;
+import org.netbeans.modules.vcscore.commands.CommandOutputVisualizer;
 import org.netbeans.modules.vcscore.ui.*;
 import org.netbeans.modules.vcscore.util.table.*;
 import org.openide.util.*;
@@ -47,7 +48,6 @@ public class CommitInfoPanel extends AbstractOutputPanel{
     public CommitInfoPanel(OutputVisualizer visualizer) {
         super();
         this.visualizer = visualizer;
-        addKillActionListener(new CommitInfoPanel.StopActionListener());
     }
     
     protected boolean isViewTextLogEnabled() {
@@ -116,6 +116,7 @@ public class CommitInfoPanel extends AbstractOutputPanel{
 
     public void setVcsTask(CommandTask task){
         this.task = task;
+        addKillActionListener(new CommandOutputVisualizer.CommandKillListener(task));
     }
     
     /** Does the actual display - docking into the javacvs Mode,
@@ -166,21 +167,6 @@ public class CommitInfoPanel extends AbstractOutputPanel{
                 firedTimeStamp = System.currentTimeMillis();
                 addedCount = 0;
             }
-        }
-    }
-    
-    protected void shutDownCommand() {
-        // we can do that because it's running from other thread then command and won't kill itself
-        if(this.task.isRunning()){
-            this.task.stop();
-          //  commandFinished(-1); //command stopped
-        }
-    }
-    
-    
-    public class StopActionListener implements java.awt.event.ActionListener {
-        public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
-            shutDownCommand();
         }
     }
     
