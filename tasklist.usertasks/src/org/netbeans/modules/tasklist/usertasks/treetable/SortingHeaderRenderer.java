@@ -27,9 +27,6 @@ import javax.swing.table.TableColumnModel;
 /**
  * Cell renderer for sorting column header.
  * Originally copied from org.openide.explorer.view.TreeTableView
- *
- * @author jrojcek
- * @author Tim Lebedkov
  */
 public class SortingHeaderRenderer extends DefaultTableCellRenderer {
 
@@ -37,10 +34,10 @@ public class SortingHeaderRenderer extends DefaultTableCellRenderer {
 
     private static ImageIcon SORT_DESC_ICON =
         new ImageIcon(org.openide.util.Utilities.loadImage(
-        "org/netbeans/modules/tasklist/compiler/treetable/columnsSortedDesc.gif")); // NOI18N
+        "org/netbeans/modules/tasklist/usertasks/treetable/columnsSortedDesc.gif")); // NOI18N
     private static ImageIcon SORT_ASC_ICON = 
         new ImageIcon(org.openide.util.Utilities.loadImage(
-        "org/netbeans/modules/tasklist/compiler/treetable/columnsSortedAsc.gif")); // NOI18N
+        "org/netbeans/modules/tasklist/usertasks/treetable/columnsSortedAsc.gif")); // NOI18N
     
     /**
      * Constructor
@@ -61,9 +58,8 @@ public class SortingHeaderRenderer extends DefaultTableCellRenderer {
             }
             TableColumnModel tcm = header.getColumnModel();
             int modelIndex = tcm.getColumn(column).getModelIndex();
-            TreeTableModel m = ((TreeTable) table).getTreeTableModel();
-            if (m instanceof SortingModel) {
-                SortingModel tableModel = (SortingModel) m;
+            SortingModel tableModel = ((TreeTable) table).getSortingModel();
+            if (tableModel != null) {
                 if (tableModel.getSortedColumn() == modelIndex) {
                     this.setIcon(
                         tableModel.isSortOrderDescending() ? 

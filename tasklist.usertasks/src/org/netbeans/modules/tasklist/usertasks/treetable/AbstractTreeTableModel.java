@@ -17,6 +17,7 @@
  */
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
+import java.util.Comparator;
 import javax.swing.tree.*;
 import javax.swing.event.*;
 

@@ -19,8 +19,6 @@ import java.util.Comparator;
 
 /**
  * This "advanced" class provides filtering and sorting of nodes
- *
- * @author Tim Lebedkov
  */
 public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     protected TreeTableNode[] unfilteredChildren;

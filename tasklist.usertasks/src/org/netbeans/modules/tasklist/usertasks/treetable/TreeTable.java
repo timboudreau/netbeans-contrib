@@ -49,6 +49,7 @@ public class TreeTable extends JTable {
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
     private TreeTableModel treeTableModel;
+    private SortingModel sortingModel;
 
     public TreeTable(TreeTableModel treeTableModel) {
 	super();
@@ -93,8 +94,30 @@ public class TreeTable extends JTable {
                 }
             }
         });
+        
+        this.sortingModel = new SortingModel();
     }
 
+    /**
+     * Sets new sorting model
+     *
+     * @param sm new sorting model or null
+     */
+    public void setSortingModel(SortingModel sm) {
+        SortingModel old = this.sortingModel;
+        this.sortingModel = sm;
+        firePropertyChange("sortingModel", old, sm);
+    }
+    
+    /**
+     * Returns sorting model
+     *
+     * @return sorting model or null if not supported
+     */
+    public SortingModel getSortingModel() {
+        return sortingModel;
+    }
+    
     /**
      * Sets new TreeTableModel
      *
@@ -169,6 +192,10 @@ public class TreeTable extends JTable {
 	return tree;
     }
 
+    protected javax.swing.table.JTableHeader createDefaultTableHeader() {
+        return new SortableTableHeader(columnModel);
+    }
+    
     /**
      * A TreeCellRenderer that displays a JTree.
      */

@@ -13,14 +13,22 @@
 
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
+import java.util.Comparator;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+
+
 import javax.swing.tree.DefaultTreeModel;
+
+import javax.swing.tree.TreePath;
 
 /**
  * Default model for TreeTable
  */
 public class DefaultTreeTableModel extends DefaultTreeModel implements
 TreeTableModel {
-
     private static final long serialVersionUID = 1;
 
     private String columnNames[];
@@ -78,5 +86,41 @@ TreeTableModel {
     }
     
     public void setValueAt(Object aValue, Object node, int column) {
+    }
+
+    public static class ToStringComparator implements Comparator {
+        public int compare(Object obj1, Object obj2) {
+            String s1 = (obj1 == null) ? "" : obj1.toString();
+            String s2 = (obj2 == null) ? "" : obj2.toString();
+            if (s1 == null)
+                s1 = "";
+            if (s2 == null)
+                s2 = "";
+            return s1.compareTo(s2);
+        }
+    }
+
+    /*
+     * Notify all listeners that have registered interest for
+     * notification on this event type.  The event instance
+     * is lazily created using the parameters passed into
+     * the fire method.
+     * @see EventListenerList
+     */
+    public void fireTreeStructureChanged(Object source, Object[] path) {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        TreeModelEvent e = null;
+        TreePath tp = path == null ? null : new TreePath(path);
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i]==TreeModelListener.class) {
+                // Lazily create the event:
+                if (e == null)
+                    e = new TreeModelEvent(source, tp);
+                ((TreeModelListener)listeners[i+1]).treeStructureChanged(e);
+            }
+        }
     }
 }

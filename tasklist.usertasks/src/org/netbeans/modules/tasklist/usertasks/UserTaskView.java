@@ -71,6 +71,8 @@ public class UserTaskView extends TaskListView implements TaskListener {
         LOGGER.setLevel(Level.OFF);
     }
     
+    private TreeTable tt;
+    
     /** Construct a new UserTaskView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
 	system when deserializing windows. Client code should not call
@@ -122,11 +124,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
     
     protected Component createCenterComponent() {
-        TreeTable tt = new UserTasksTreeTable(
-            getExplorerManager(), (UserTaskList) getModel());
+        tt = new UserTasksTreeTable(
+            getExplorerManager(), (UserTaskList) getModel(),
+            getFilter());
         
-        //treeTable = tt;
-
         final JScrollPane sp = new JScrollPane(tt,
             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -570,5 +571,14 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public org.netbeans.modules.tasklist.core.filter.Filter createFilter() {
         return new UserTaskFilter("Simple"); // NOI18N
     }
-    
+
+    protected java.lang.String preferredID() {
+        return "org.netbeans.modules.tasklist.usertasks.Window";
+    }    
+
+    protected void setFiltered() {
+        super.setFiltered();
+        tt.setTreeTableModel(new UserTasksTreeTableModel((UserTaskList) getModel(), 
+            tt.getSortingModel(), getFilter()));
+    }
 }

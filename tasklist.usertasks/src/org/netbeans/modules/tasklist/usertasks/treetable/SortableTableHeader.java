@@ -15,17 +15,23 @@ package org.netbeans.modules.tasklist.usertasks.treetable;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
+import org.netbeans.modules.tasklist.core.TLUtils;
 
 /**
  * A table header that can work together with SortingModel
- *
- * @author Tim Lebedkov
  */
 public class SortableTableHeader extends JTableHeader {
-
+    private static Logger LOGGER = TLUtils.getLogger(SortableTableHeader.class);
+    
+    static {
+        LOGGER.setLevel(Level.OFF);
+    }
+    
     private static final long serialVersionUID = 1;
 
     /**
@@ -54,6 +60,7 @@ public class SortableTableHeader extends JTableHeader {
                 mouseClick(e);
             }
         });
+        setDefaultRenderer(new SortingHeaderRenderer());
     }
     
     /**
@@ -62,6 +69,7 @@ public class SortableTableHeader extends JTableHeader {
      * @param e an event
      */
     private void mouseClick(MouseEvent e) {
+        LOGGER.fine("clicked");
         int col = SortableTableHeader.this.columnAtPoint(e.getPoint());
         if (col == -1) 
             return;
@@ -70,14 +78,16 @@ public class SortableTableHeader extends JTableHeader {
         if (!(t instanceof TreeTable)) 
             return;
         
-        TreeTableModel ttm = ((TreeTable) t).getTreeTableModel();
-        if (!(ttm instanceof SortingModel)) 
+        LOGGER.fine("tt found");
+        SortingModel sm = ((TreeTable) t).getSortingModel();
+        if (sm == null)
             return;
         
-        SortingModel sm = (SortingModel) ttm;
+        LOGGER.fine("model ok");
         int index = getColumnModel().getColumn(col).getModelIndex();
         if (sm.getColumnComparator(index) == null)
             return;
+        LOGGER.fine("comparator ok");
         int cur = sm.getSortedColumn();
         if (index == cur) {
             if (sm.isSortOrderDescending())

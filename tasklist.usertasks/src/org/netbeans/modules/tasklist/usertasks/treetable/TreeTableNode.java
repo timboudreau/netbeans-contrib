@@ -17,8 +17,6 @@ import javax.swing.tree.TreeNode;
 
 /**
  * A node for a TreeTable
- *
- * @author Tim Lebedkov
  */
 public interface TreeTableNode extends TreeNode {
     /**
