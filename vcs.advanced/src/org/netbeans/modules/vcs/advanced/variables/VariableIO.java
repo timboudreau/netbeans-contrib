@@ -266,6 +266,7 @@ public class VariableIO extends Object {
                 org.openide.ErrorManager.getDefault().notify(
                     org.openide.ErrorManager.getDefault().annotate(
                         exc, g("EXC_Problems_while_reading_predefined_properties", name)));
+                return null;
             }
         } catch (java.io.FileNotFoundException fnfExc) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, fnfExc);
