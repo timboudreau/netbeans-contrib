@@ -299,8 +299,8 @@ public class Variables {
         } else {
             value = expand(tab, value, warnUndefVars);
         }
-        if (replC1 != -1) {
-            value = value.replace(replC1, replC2);
+        if (replC1 != ((char) -1)) {
+            if (value != null) value = value.replace(replC1, replC2);
         }
         return value;
     }
