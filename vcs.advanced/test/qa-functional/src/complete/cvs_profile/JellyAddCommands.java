@@ -360,6 +360,7 @@ public class JellyAddCommands extends JellyStub {
         gr.waitClosed ();
         assertTrue("Diff Graphical file command failed", history.waitCommand("Diff Graphical", difffile.history ()));
         
+        ewo = new EditorWindowOperator ();
         tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.2 and 1.3 ==== !!!!");
@@ -399,6 +400,7 @@ public class JellyAddCommands extends JellyStub {
         gr.waitClosed ();
         assertTrue("Diff Graphical file command failed", history.waitCommand("Diff Graphical", difffile.history ()));
         
+        ewo = new EditorWindowOperator ();
         tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.2 and 1.3 ==== !!!!");
