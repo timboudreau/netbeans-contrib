@@ -213,16 +213,16 @@ public class UserTaskView extends TaskListView implements TaskListener {
         }
     }
 
-    static final String PROP_TASK_DONE = "done"; // NOI18N
-    static final String PROP_TASK_DUE = "dueDate"; // NOI18N
-    static final String PROP_TASK_PRIO = "priority"; // NOI18N
-    static final String PROP_TASK_CAT = "category"; // NOI18N
-    static final String PROP_TASK_FILE = "filename"; // NOI18N
-    static final String PROP_TASK_LINE = "line"; // NOI18N
-    static final String PROP_TASK_DETAILS = "details"; // NOI18N
-    static final String PROP_TASK_CREATED = "created"; // NOI18N
-    static final String PROP_TASK_EDITED = "edited"; // NOI18N
-    static final String PROP_TASK_PERCENT = "percentComplete"; // NOI18N
+    public static final String PROP_TASK_DONE = "done"; // NOI18N
+    public static final String PROP_TASK_DUE = "dueDate"; // NOI18N
+    public static final String PROP_TASK_PRIO = "priority"; // NOI18N
+    public static final String PROP_TASK_CAT = "category"; // NOI18N
+    public static final String PROP_TASK_FILE = "filename"; // NOI18N
+    public static final String PROP_TASK_LINE = "line"; // NOI18N
+    public static final String PROP_TASK_DETAILS = "details"; // NOI18N
+    public static final String PROP_TASK_CREATED = "created"; // NOI18N
+    public static final String PROP_TASK_EDITED = "edited"; // NOI18N
+    public static final String PROP_TASK_PERCENT = "percentComplete"; // NOI18N
     
     protected ColumnProperty[] createColumns() {
         return new ColumnProperty[] {

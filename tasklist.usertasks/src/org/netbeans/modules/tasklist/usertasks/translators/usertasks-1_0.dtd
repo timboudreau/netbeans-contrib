@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!--
+    Author     : Tim Lebedkov
+    Description: export format for user tasks
+-->
+
+<!ELEMENT tasks (task)*>
+
+<!--
+    due, created and modified - date format: YYYY-MM-DDThh:mm:ssTZD 
+        (see http://www.w3.org/TR/NOTE-datetime)
+    line - 1 = the first line in a file
+-->
+<!ELEMENT task (summary, details?, (task)*)>
+<!ATTLIST task 
+    priority (high|medium-high|medium|medium-low|low)  "medium"
+    category CDATA #IMPLIED
+    progress CDATA #REQUIRED
+    progress-computed (yes|no) "no"
+    due CDATA #IMPLIED
+    file CDATA #IMPLIED
+    line CDATA #IMPLIED
+    created CDATA #REQUIRED
+    modified CDATA #REQUIRED
+>
+
+<!ELEMENT details (#PCDATA)>

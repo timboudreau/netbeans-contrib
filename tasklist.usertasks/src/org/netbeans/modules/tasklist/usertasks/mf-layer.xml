@@ -91,7 +91,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="entities">
             <!--Entity registration-->
             <folder name="NetBeans_org_netbeans_modules_tasklist_usertasks">
-                <file name="DTD_User_Tasks_1_0" url="usertasks-1_0.dtd">
+                <file name="DTD_User_Tasks_1_0" url="translators/usertasks-1_0.dtd">
                     <attr name="hint.originalPublicID"
                         stringvalue="-//NetBeans org.netbeans.modules.tasklist.usertasks//DTD User Tasks 1.0//EN"/>
                 </file>
