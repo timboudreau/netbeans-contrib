@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+
+<filesystem>
+
+  <folder name="Services">
+    <file name="org-netbeans-lib-jmi-xmi-XMIWriterImpl.instance"/>
+    <file name="org-netbeans-lib-jmi-xmi-WriterFactory.instance"/>
+    <file name="org-netbeans-lib-jmi-xmi-WriterBase.instance"/>
+    <file name="org-netbeans-lib-jmi-xmi-Producer.instance"/>
+    <file name="org-netbeans-lib-jmi-xmi-ProducerFactory.instance"/>
+    <file name="org-netbeans-lib-jmi-xmi-ReaderFactory.instance"/>
+    <file name="org-netbeans-lib-jmi-xmi-SAXReader.instance"/>
+    <file name="org-netbeans-lib-jmi-xmi-Consumer.instance"/>
+    <file name="org-netbeans-lib-jmi-xmi-ConsumerFactory.instance"/>
+    <file name="org-netbeans-lib-jmi-xmi-XMISaxReaderImpl.instance"/>
+    <file name="org-netbeans-lib-jmi-xmi-XmiDtdProducer.instance"/>
+
+    <folder name="JMIMapper">
+        <attr name="OpenIDE-Folder-Order" stringvalue="org-netbeans-lib-jmi-mapping-JMIMapperImpl.settings" />
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jmiutils.resources.Bundle"/>
+        <file name="org-netbeans-lib-jmi-mapping-JMIMapperImpl.settings" url="JMIMapperImpl.settings">
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/jmiutils/resources/mapper.gif"/>
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jmiutils.resources.Bundle"/>
+        </file>
+        <file name="org-netbeans-lib-jmi-mapping-JMIMapperCFImpl.instance">
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/jmiutils/resources/mapper.gif"/>
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jmiutils.resources.Bundle"/>
+        </file>
+    </folder>
+  </folder>
+
+  <folder name="UI">
+      <folder name="Services">
+        <folder name="IDEConfiguration">
+            <folder name="ServerAndExternalToolSettings">
+              <file name="JMIMapper.shadow">
+                <attr name="originalFile" stringvalue="Services/JMIMapper"/>
+                <attr name="originalFileSystem" stringvalue="SystemFileSystem"/>               
+              </file>
+            </folder>
+        </folder>
+      </folder> <!-- Services -->
+    </folder> <!-- UI -->
+
+</filesystem>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<project basedir="." default="netbeans" name="mdr/nbjmiutils">
+
+    <property file="../spec-vers.properties"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+
+    <target name="files-init" depends="basic-init">
+        <patternset id="module.files">
+            <include name="${module.jar}"/>
+            <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
+            <include name="../jmiutils/dist/jmiutils.jar"/>
+        </patternset>
+    </target>
+
+    <target name="release" depends="init">
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext"/>
+        <copy todir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext">
+            <fileset dir="../jmiutils/dist">
+                <include name="jmiutils.jar"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="jar-with-module-deps" if="module.dependencies">
+        <property file="../spec-vers.properties"/>
+        <copy file="manifest.mf" tofile="manifest-subst.mf">
+            <filterchain>
+                <expandproperties/>
+            </filterchain>
+        </copy>
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" compress="false" manifest="manifest-subst.mf">        
+            <manifest>
+                <attribute name="OpenIDE-Module-Public-Packages" value="${public.packages}"/>
+                <attribute name="OpenIDE-Module-IDE-Dependencies" value="${ide.dependencies}"/>
+                <attribute name="OpenIDE-Module-Module-Dependencies" value="${module.dependencies}"/>
+            </manifest>
+            <fileset dir="${build.classes.dir}"/>
+        </jar>
+        <delete file="manifest-subst.mf"/>
+    </target>
+
+    <target name="netbeans-extra" depends="release"/>
+
+    <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
+        <mkdir dir="build"/>
+        <makenbm file="build/${nbm}"
+                 productdir="${netbeans.dest.dir}/${cluster.dir}"
+                 module="${module.jar}"
+                 homepage="http://${nbm.domain}.${homepage.base}/"
+                 distribution="http://${dist.base}/${nbm}"
+                 needsrestart="${nbm.needs.restart}">
+            <license file="${standard-nbm-licence.txt}"/>
+            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+        </makenbm>
+    </target>
+
+</project>

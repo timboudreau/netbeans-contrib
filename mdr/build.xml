@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<project basedir="." default="netbeans" name="mdr/module">
+    <import file="../../nbbuild/templates/projectized.xml"/>
+    <property file="../spec-vers.properties"/>
+
+    <target name="files-init" depends="basic-init">
+        <patternset id="module.files">
+            <include name="${module.jar}"/>
+            <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
+            <include name="../dist/mdr.jar"/>
+        </patternset>
+    </target>
+
+    <target name="release" depends="init">
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext"/>
+        <copy todir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext">
+            <fileset dir="../dist">
+                <include name="mdr.jar"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="jar-with-module-deps" if="module.dependencies">
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" compress="false" manifest="${manifest.mf}">
+            <manifest>
+                <attribute name="OpenIDE-Module-Public-Packages" value="${public.packages}"/>
+                <attribute name="OpenIDE-Module-IDE-Dependencies" value="${ide.dependencies}"/>
+                <attribute name="OpenIDE-Module-Module-Dependencies" value="javax.jmi.reflect/1,javax.jmi.model/1,org.netbeans.api.mdr/1,org.netbeans.modules.jmiutils/1 = ${mdr.jmiutils.impl.version}"/>
+                <!-- XXX make this conditional so can use OIDE-M-B-V instead -->
+                <attribute name="OpenIDE-Module-Implementation-Version" value="${buildnumber}"/>
+            </manifest>
+            <fileset dir="${build.classes.dir}"/>
+        </jar>
+    </target>
+    
+    <target name="netbeans-extra" depends="release"/>
+    
+</project>

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.mdr/1
+OpenIDE-Module-Name: MOF Metadata Repository
+OpenIDE-Module-Display-Category: MDR
+OpenIDE-Module-Short-Description: The module implements a MOF and JMI compliant metadata repository.
+OpenIDE-Module-Long-Description: The module implements a MOF and JMI compliant metadata repository and integrates it with NetBeans. It is able to load MOF metamodels stored in XMI compliant XML files, create instances of them, generate JMI interfaces, export repository content to XMI documents.
+OpenIDE-Module-Install: org/netbeans/modules/mdr/MdrModule.class
+OpenIDE-Module-Layer: org/netbeans/modules/mdr/resources/mdr-layer.xml
+OpenIDE-Module-Specification-Version: 0.91
+OpenIDE-Module-Provides: org.netbeans.api.mdr.MDRManager
+Class-Path: ext/mdr.jar
+
+Name: org/netbeans/modules/mdr/MDRLoader.class
+OpenIDE-Module-Class: Loader
+

@@ -1,0 +1,4 @@
+org.netbeans.modules.mdr.MDRManagerImpl
+
+# the next line removes org.netbeans.mdr.NBMDRManagerImpl from lookup
+#-org.netbeans.mdr.NBMDRManagerImpl
