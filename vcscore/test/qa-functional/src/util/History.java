@@ -46,6 +46,14 @@ public class History {
         return filesystem;
     }
     
+    public RuntimeCommand getBreakpoint () {
+        return breakpoint;
+    }
+    
+    public void setBreakpoint (RuntimeCommand breakpoint) {
+        this.breakpoint = breakpoint;
+    }
+    
     public void breakpoint () {
         RuntimeCommand[] rc = provider.children();
         breakpoint = (rc != null  &&  rc.length > 0) ? rc[rc.length - 1] : null;
