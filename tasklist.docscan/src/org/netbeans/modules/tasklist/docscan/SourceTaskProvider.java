@@ -188,6 +188,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
             int len = text.length();
             int lineno = 1;
             int index = 0;
+	    int idx = 0;
 
             // find the first comment region
             if (!sccp.nextRegion(reg)) {
@@ -251,7 +252,6 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
                 }
 
                 // calculate current line number
-                int idx = 0;
                 while (idx <= begin) {
                     if (text.charAt(idx) == '\n') {// NOI18N
                         ++lineno;
