@@ -121,10 +121,12 @@ public class SuggestionList extends TaskList {
         }
         if (task.getParent() == null) {
             root.addSubtask(task);
-        }
-        Task parent = task.getParent();
-        // User insert: prepend to the list
-        parent.addSubtask(task, after);
+        } else {
+	  Task parent = task.getParent();
+	  // User insert: prepend to the list
+	  parent.removeSubtask(task);
+	  parent.addSubtask(task, after);
+	}
     }
 
 
@@ -145,11 +147,12 @@ public class SuggestionList extends TaskList {
         }
         if (task.getParent() == null) {
             root.addSubtask(task);
-        }
-
-        // it's really funny contruct  (XXX probably want to add it to list end)
-        Task parent = task.getParent();
-        parent.addSubtask(task, append);
+        } else {
+	  // it's really funny contruct  (XXX probably want to add it to list end)
+	  Task parent = task.getParent();
+	  parent.removeSubtask(task);
+	  parent.addSubtask(task, append);
+	}
 
         fireAdded(task);
     }
