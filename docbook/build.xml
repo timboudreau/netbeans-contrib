@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<project name="contrib/docbook" basedir="." default="all">
+
+    <property name="nbroot" location="../.."/>
+    
+    <target name="external">
+        <ant dir="external"/>
+        <property file="external/versions.properties"/>
+    </target>
+
+    <target name="compile">
+        <javac srcdir="src" destdir="src" source="1.4" debug="true">
+            <classpath>
+                <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
+                <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
+                <pathelement location="${nbroot}/openide/io/netbeans/modules/autoload/openide-io.jar"/>
+                <pathelement location="${nbroot}/xml/catalog/netbeans/modules/xml-catalog.jar"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="jars" depends="compile,external">
+        <mkdir dir="netbeans/modules"/>
+        <jar jarfile="netbeans/modules/docbook.jar" manifest="manifest.mf" compress="false">
+            <fileset dir="src">
+                <exclude name="**/*.java"/>
+                <exclude name="**/*.form"/>
+                <exclude name="**/.nbattrs"/>
+            </fileset>
+            <zipfileset prefix="org/netbeans/modules/docbook/lib" dir="external/tmp">
+                <include name="slides-${slides.version}/schema/dtd/slides.dtd"/>
+                <include name="slides-${slides.version}/schema/dtd/slides-full.dtd"/>
+                <include name="slides-${slides.version}/xsl/xhtml/"/>
+                <include name="docbook-xsl-${docbook-xsl.version}/common/"/>
+                <include name="docbook-xsl-${docbook-xsl.version}/lib/"/>
+                <include name="docbook-xsl-${docbook-xsl.version}/xhtml/"/>
+                <include name="docbook-xsl-${docbook-xsl.version}/VERSION"/>
+                <exclude name="**/ChangeLog"/>
+            </zipfileset>
+        </jar>
+    </target>
+
+    <target name="all" depends="jars" description="Build the module."/>
+
+    <!-- This target will only work *inside* the IDE! -->
+    <target name="reload" depends="all" description="Test the module inside the running IDE.">
+        <nbinstaller module="netbeans/modules/docbook.jar" action="reinstall"/>
+    </target>
+
+    <target name="nbm" depends="all" description="Prepare the module for distribution via Auto Update.">
+        <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbroot}/nbbuild/nbantext.jar"/>
+        <makenbm file="docbook.nbm"
+                 topdir="."
+                 module="netbeans/modules/docbook.jar"
+                 needsrestart="false"
+                 homepage="http://contrib.netbeans.org/"
+                 distribution="${dist.base}/docbook.nbm">
+            <license name="docbook-license.txt">
+                <text>For the module itself:</text>
+                <file location="${nbroot}/nbbuild/standard-nbm-license.txt"/>
+                <text>For the included DocBook DTDs and stylesheets:</text>
+                <file location="external/docbook-license.txt"/>
+            </license>
+            <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
+        </makenbm>
+    </target>
+
+    <target name="clean" description="Clean all build products.">
+        <delete>
+            <fileset dir="src">
+                <include name="**/*.class"/>
+            </fileset>
+        </delete>
+        <delete dir="netbeans"/>
+        <delete dir="Info"/>
+        <delete file="docbook.nbm"/>
+    </target>
+
+</project>
