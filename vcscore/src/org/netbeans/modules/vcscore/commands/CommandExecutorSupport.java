@@ -51,6 +51,7 @@ public class CommandExecutorSupport extends Object {
      * @return the number of important files
      */
     private static int numImportant(VcsFileSystem fileSystem, String paths) {
+        if (paths == null) return 0; // Just for robustness
         int num = 0;
         String delim = java.io.File.separator + java.io.File.separator;
         int begin = 0;
@@ -77,7 +78,7 @@ public class CommandExecutorSupport extends Object {
             String numFiles = (String) vars.get("NUM_FILES");
             vars.put("NUM_FILES", ""+numImportant(fileSystem, paths));
             confirmation = Variables.expand(vars, confirmation, true);
-            vars.put("NUM_FILES", numFiles);
+            if (numFiles != null) vars.put("NUM_FILES", numFiles);
             confirmed = true;
         //} else {
         //    confirmation = null;
