@@ -82,6 +82,21 @@ public class Variables {
      */
     public static final String SHOW_DEAD_FILES = "SHOW_DEAD_FILES";
     
+    /**
+     * The content of this variable is taken as a message,
+     * that is used to ask whether the EDIT command should be executed.
+     * This message is used only when the execution is caused by typing
+     * to a read-oly file.
+     */
+    public static final String MSG_PROMPT_FOR_AUTO_EDIT = "MSG_PROMPT_FOR_AUTO_EDIT";
+    /**
+     * The content of this variable is taken as a message,
+     * that is used to ask whether the LOCK command should be executed.
+     * This message is used only when the execution is caused by typing
+     * to a file, that is not locked by the user.
+     */
+    public static final String MSG_PROMPT_FOR_AUTO_LOCK = "MSG_PROMPT_FOR_AUTO_LOCK";
+    
     //private boolean warnUndefVars = true;
 
     private static final String SUBSTRACT = "-"; // NOI18N

@@ -2864,8 +2864,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
                 if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
                     if (isPromptForEditOn()) {
+                        VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
+                        String message;
+                        if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
+                        else message = g("MSG_EditFileCh");
                         throw (UserQuestionException) TopManager.getDefault().getErrorManager().annotate(
-                            new UserQuestionException(g("MSG_EditFileCh")) {
+                            new UserQuestionException(message) {
                                 public void confirmed() {
                                     Table files = new Table();
                                     files.put(name, findResource(name));
@@ -2887,7 +2891,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (vcsFile==null || vcsFile.isLocal () || name.endsWith (".orig")) return; // NOI18N
             else if (shouldLock(name)) {
                 if (isPromptForLockOn ()) {
-                    throw new UserQuestionException(g("MSG_LockFileCh")) {
+                    VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
+                    String message;
+                    if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
+                    else message = g("MSG_LockFileCh");
+                    throw new UserQuestionException(message) {
                         public void confirmed() {
                             Table files = new Table();
                             files.put(name, findResource(name));
