@@ -1302,8 +1302,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 //System.out.println("createIgnoreListCreationThread STARTING...");
                 do {
                     //System.out.println("createIgnoreListCreationThread RESUMED...");
-                    while (createIgnoreListQueue.size() > 0) {
-                        FileObject fo = (FileObject) createIgnoreListQueue.remove(0);
+                    while (true) {
+                        FileObject fo;
+                        synchronized (createIgnoreListQueue) {
+                            int n = createIgnoreListQueue.size();
+                            if (n == 0) break;
+                            fo = (FileObject) createIgnoreListQueue.remove(0);
+                        }
                         FileSystem fs = null;
                         try {
                             fs = fo.getFileSystem();
