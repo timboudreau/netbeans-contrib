@@ -526,7 +526,7 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
      */
     public static String[] translateElements(String[] cmdElements, UserCommand list) {
         int removedIndex = VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_REMOVED_FILE_NAME);
-        if (removedIndex >= 0) {
+        if (removedIndex >= 0 && cmdElements.length > removedIndex && cmdElements[removedIndex] != null) {
             return new String[] { cmdElements[removedIndex] };
         }
         int n = RefreshCommandSupport.NUM_ELEMENTS;
