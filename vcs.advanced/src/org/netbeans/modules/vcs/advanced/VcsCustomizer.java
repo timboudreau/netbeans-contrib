@@ -1353,6 +1353,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             Profile profile = ProfilesFactory.getDefault().getProfile(profileName);
             fileSystem.setProfile(profile);
             if (profile != null) {
+                initLastConditionValues();
                 String autoFillVarsStr = (String) fileSystem.getVariablesAsHashtable().get(VAR_AUTO_FILL);
                 if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
                 else autoFillVars.clear();
