@@ -14,6 +14,7 @@
 package org.netbeans.modules.corba.browser.ir.actions;
 
 import org.openide.TopManager;
+import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -28,8 +29,12 @@ public class GenerateCodeAction extends NodeAction {
     protected void performAction (Node[] nodes) {
         if ( enable ( nodes) ){
             TopManager.getDefault().setStatusText(Util.getLocalizedString("MSG_GenerateWait"));
-            ((Generatable)nodes[0].getCookie(Generatable.class)).generateCode();
-            TopManager.getDefault().setStatusText(Util.getLocalizedString("MSG_GenerateDone"));
+            try {
+                ((Generatable)nodes[0].getCookie(Generatable.class)).generateCode();
+                TopManager.getDefault().setStatusText(Util.getLocalizedString("MSG_GenerateDone"));
+            }catch (Exception e){
+                TopManager.getDefault().notify ( new NotifyDescriptor.Message (e.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
+            }
         }
     }
 
