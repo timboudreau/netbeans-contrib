@@ -88,6 +88,10 @@ Microsystems, Inc. All Rights Reserved.
       <value>cmd /X /C "cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\" &amp;&amp; \"${VSSCMD}\" workfold ${OPTIONS} \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\" &amp;&amp;</value>
       <value if="IS_WIN9X">${SHELL} -c "cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} workfold ${OPTIONS} ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} &amp;&amp;</value>
     </variable>
+    <variable name="RUNCDF_NMK" basic="false">
+      <value>cmd /X /C "cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []\" &amp;&amp; \"${VSSCMD}\" workfold ${OPTIONS} \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []\" &amp;&amp;</value>
+      <value if="IS_WIN9X">${SHELL} -c "cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []$[? FILE] [${PS}${FILE}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []$[? FILE] [${PS}${FILE}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} workfold ${OPTIONS} ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []$[? FILE] [${PS}${FILE}] []${QUOTE} &amp;&amp;</value>
+    </variable>
     <variable name="RUNCDM" basic="false">
       <value>cmd /X /C "(mkdir \"${ROOTDIR}${PS}${MODULE}${PS}.\" 2>nul || echo.) &amp;&amp; cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []\" &amp;&amp; \"${VSSCMD}\" workfold ${OPTIONS} \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []\" &amp;&amp;</value>
       <value if="IS_WIN9X">${SHELL} -c "mkdir -p ${QUOTE}${ROOTDIR_\/}${PS}${MODULE_\/}${PS}.${QUOTE}; cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} workfold ${OPTIONS} ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []${QUOTE} &amp;&amp;</value>
@@ -843,7 +847,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} add $[? PROCESSING_BINARY_FILES] [-B] [] $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
+	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} add $[? PROCESSING_BINARY_FILES] [-B] [] $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} ${QFILES} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -866,6 +870,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="error.regex">
 	  <value>(.*$)</value>
 	</property>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
+        </property>
         <property name="refreshProcessedFiles">
           <value>true</value>
         </property>
@@ -889,6 +896,60 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="associatedCommandInterfaceName">
           <value>org.netbeans.api.vcs.commands.AddCommand</value>
+        </property>
+      </command>
+      <command name="ADD_ALL" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD_ALL)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD_ALL_Mnemonic)</value>
+        </property>
+	<property name="exec">
+	  <value>${RUNCDF_NMK} ${QUOTE}${VSSCMD}${QUOTE} add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} ${RECURSIVE} * ${NUR}</value>
+	</property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+         </property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_ADD)))
+                 PROMPT_FOR_FILE(DESCRIPTION_FILE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_ADD_Reason),"",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_ADD_Reason_mnc)))
+                 ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_ADD_ALL_Rec), "true", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_ADD_ALL_Rec_mnc)), "-R", "-R-")
+                 PROMPT_FOR_EXPERT(ADD_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_ADD_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_ADD_Options_mnc)))
+          </value>
+	</property>
+	<property name="onDir">
+	  <value>true</value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="onFile">
+	  <value>false</value>
+	</property>
+	<property name="data.regex">
+	  <value>(.*$)</value>
+	</property>
+	<property name="error.regex">
+	  <value>(.*$)</value>
+	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value> -R- </value>
+        </property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+        <property name="notificationSuccessMsg">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_ADD_ALL_Success)</value>
+        </property>
+        <property name="notificationFailMsg">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_ADD_ALL_Fail)</value>
+        </property>
+        <property name="generalCommandActionClassName">
+          <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
+        </property>
+        <property name="generalCommandActionDisplayName">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_ADD)</value>
         </property>
       </command>
       <command name="CREATE" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CREATE)">
