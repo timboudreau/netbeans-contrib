@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -34,13 +34,13 @@ public class TestIDEWindowA11YAction extends NodeAction {
         at.requestFocus();
     }
     
-    public boolean enable (Node[] node) {
+    public boolean enable(Node[] node) {
         if(Boolean.getBoolean("a11ytest.IDE"))
             return true;
         else
             return false;
     }
-
+    
     /**
      *  Human presentable name of the action. This should be
      *  presented as an item in a menu.
@@ -50,12 +50,12 @@ public class TestIDEWindowA11YAction extends NodeAction {
         return "UI Accessibility Tester - testing IDE";
     }
     
-
+    
     /** @return resource for the action icon */
     protected String iconResource() {
-       return "org/netbeans/modules/a11y/resources/disabled.gif"; 
+        return "org/netbeans/modules/a11y/resources/disabled.gif";
     }
-
+    
     
     /** Help context where to find more about the action.
      * @return the help context for this action */
@@ -63,5 +63,11 @@ public class TestIDEWindowA11YAction extends NodeAction {
         return new HelpCtx(TestIDEWindowA11YAction.class);
     }
     
+    /** Fix issue 45833
+     * Warning - org.netbeans.modules.a11y.TestIDEWindowA11YAction should override CallableSystemAction.asynchronous() to return false
+     */
+    protected boolean asynchronous() {
+        return false;
+    }
 }
-
+    
