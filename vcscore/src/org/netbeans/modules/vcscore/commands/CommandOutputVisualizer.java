@@ -56,6 +56,7 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         setName(java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
                 new Object[] { name }));
         setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
+        putClientProperty("PersistenceType", "Never");
         /*
         vce.addOutputListener(new CommandOutputListener() {
             public void outputLine(String line) {
