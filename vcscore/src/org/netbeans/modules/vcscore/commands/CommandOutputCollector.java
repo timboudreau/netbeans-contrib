@@ -69,6 +69,7 @@ class CommandOutputCollector extends Object implements CommandListener {
     private ArrayList[] cmdOutput;
     private ArrayList[] cmdOutputListeners;
     private File[] outputFiles;
+    private boolean finalized = false;
 
     public CommandOutputCollector(VcsCommandExecutor vce, CommandsPool commandsPool) {
         this.vce = vce;
@@ -168,8 +169,8 @@ class CommandOutputCollector extends Object implements CommandListener {
                 });
                 collectorsFreeTask.setPriority(Thread.MIN_PRIORITY);
             }
+            if (!finalized) outputCollectorsToFree.add(this);
         };
-        outputCollectorsToFree.add(this);
         collectorsFreeTask.schedule(5000);
         //new Thread(later).start();
         commandsPool.removeCommandListener(this);
@@ -353,6 +354,7 @@ class CommandOutputCollector extends Object implements CommandListener {
     }
     
     protected void finalize() {
+        finalized = true;
         synchronized (CommandOutputCollector.class) {
             // It's not worth to write the output if we're gonna to delete it.
             outputCollectorsToFree.remove(this);
