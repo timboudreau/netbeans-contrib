@@ -55,8 +55,8 @@ public class TidySuggester extends DocumentSuggestionProvider
     final private static String TYPE = "nb-html-errors"; // NOI18N
     private SuggestionContext env;
 
-    public String[] getTypes() {
-        return new String[] { TYPE };
+    public String getType() {
+        return TYPE;
     }
     
     public void rescan(SuggestionContext env, Object request) {

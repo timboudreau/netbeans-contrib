@@ -70,8 +70,8 @@ public class ViolationProvider extends DocumentSuggestionProvider
 
     final private static String TYPE = "checkstyle-violations"; // NOI18N
 
-    public String[] getTypes() {
-        return new String[] { TYPE };
+    public String getType() {
+        return TYPE;
     }
 
     // javadoc in super()

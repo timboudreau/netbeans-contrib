@@ -97,8 +97,8 @@ public final class SuggestionProviders {
                     SuggestionProvider a = (SuggestionProvider) o1;
                     SuggestionProvider b = (SuggestionProvider) o2;
                     try {
-                        SuggestionType at = types.getType(a.getTypes()[0]);
-                        SuggestionType bt = types.getType(b.getTypes()[0]);
+                        SuggestionType at = types.getType(a.getType());
+                        SuggestionType bt = types.getType(b.getType());
                         return at.getPosition() - bt.getPosition();
                     } catch (Exception e) {
                         return -1;
@@ -141,17 +141,15 @@ public final class SuggestionProviders {
             ListIterator it = providers.listIterator();
             while (it.hasNext()) {
                 SuggestionProvider provider = (SuggestionProvider) it.next();
-                String typeNames[] = provider.getTypes();
-                if (typeNames == null) {
+                String typeName = provider.getType();
+                if (typeName == null) {
                     // Should I just let a NullPointerException occur instead?
                     // After all, non null is required for correct operation.
                     ErrorManager.getDefault().log("SuggestionProvider " + provider + " provides null value to getTypes()");
                     continue;
                 }
-                for (int j = 0; j < typeNames.length; j++) {
-                    SuggestionType tp = suggestionTypes.getType(typeNames[j]);
-                    providersByType.put(tp, provider);
-                }
+                SuggestionType tp = suggestionTypes.getType(typeName);
+                providersByType.put(tp, provider);
             }
         }
         return (SuggestionProvider) providersByType.get(type);

@@ -368,14 +368,12 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
             provider.notifyRun();
         } else {
             if (!allTypes) {
-                String typeNames[] = provider.getTypes();
-                for (int j = 0; j < typeNames.length; j++) {
-                    if (!typeNames[j].equals(type.getName())) {
-                        if (isEnabled(typeNames[j])) {
-                            // Found other enabled provider - bail
-                            getList().removeCategory(type);
-                            return;
-                        }
+                String typeName = provider.getType();
+                if (!typeName.equals(type.getName())) {
+                    if (isEnabled(typeName)) {
+                        // Found other enabled provider - bail
+                        getList().removeCategory(type);
+                        return;
                     }
                 }
             }
@@ -387,13 +385,11 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
             provider.notifyStop();
             provider.notifyFinish();
 
-            String typeNames[] = provider.getTypes();
-            for (int j = 0; j < typeNames.length; j++) {
-                if (isEnabled(typeNames[j])) {
-                    // Found other enabled provider - bail
-                    getList().removeCategory(type);
-                    return;
-                }
+            String typeName = provider.getType();
+            if (isEnabled(typeName)) {
+                // Found other enabled provider - bail
+                getList().removeCategory(type);
+                return;
             }
         }
     }
@@ -527,23 +523,21 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
             SuggestionProvider provider = (SuggestionProvider) it.next();
 
             // XXX This will process diabled providers/types as well!
-            String typeNames[] = provider.getTypes();
+            String typeName = provider.getType();
             if (type != null) {
                 // We're adding a filter: gotta disable all providers
                 // that do not provide the given type
                 boolean enabled = false;
-                for (int j = 0; j < typeNames.length; j++) {
-                    SuggestionType tp = suggestionTypes.getType(typeNames[j]);
-                    if (tp == type) {
-                        enabled = true;
-                    }
+                SuggestionType tp = suggestionTypes.getType(typeName);
+                if (tp == type) {
+                    enabled = true;
                 }
                 if (enabled) {
                     // The provider should be enabled - it provides info
                     // for this type
                     unfiltered = provider;
                     if (prevFilterType != null) {
-                        SuggestionType sg = suggestionTypes.getType(typeNames[0]);
+                        SuggestionType sg = suggestionTypes.getType(typeName);
                         toggleProvider(provider, sg, true, true);
                     } // else:
                     // The provider is already enabled - we're coming
@@ -551,7 +545,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
                     // in an unfiltered view shouldn't be available as
                     // filter categories)
                 } else {
-                    SuggestionType sg = suggestionTypes.getType(typeNames[0]);
+                    SuggestionType sg = suggestionTypes.getType(typeName);
                     toggleProvider(provider, sg, false, true);
                 }
             } else {
@@ -560,21 +554,19 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
                 // don't enable a module that's already enabled (the
                 // previously filtered type - prevFilterType)
                 boolean isPrev = false;
-                for (int j = 0; j < typeNames.length; j++) {
-                    SuggestionType tp = suggestionTypes.getType(typeNames[j]);
-                    if (prevFilterType == tp) {
-                        // This provider is responsible for the previous
-                        // filter - nothing to do (already enabled)
-                        // bail
-                        isPrev = true;
-                        break;
-                    }
+                SuggestionType tp = suggestionTypes.getType(typeName);
+                if (prevFilterType == tp) {
+                    // This provider is responsible for the previous
+                    // filter - nothing to do (already enabled)
+                    // bail
+                    isPrev = true;
+                    break;
                 }
                 if (isPrev) {
                     continue;
                 }
 
-                SuggestionType sg = suggestionTypes.getType(typeNames[0]);
+                SuggestionType sg = suggestionTypes.getType(typeName);
                 toggleProvider(provider, sg, true, true);
             }
 

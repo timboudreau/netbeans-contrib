@@ -424,7 +424,7 @@ public final class SuggestionsScanner implements Cancellable {
                 List l = null;
                 String type = null;
                 try {
-                    type = provider.getTypes()[0];
+                    type = provider.getType();
                     l = ((DocumentSuggestionProvider) provider).scan(env);
                 } catch (RuntimeException e) {
                     ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N

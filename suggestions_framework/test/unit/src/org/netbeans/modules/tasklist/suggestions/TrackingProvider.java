@@ -39,8 +39,8 @@ public final class TrackingProvider extends SuggestionProvider {
         SuggestionProviders.lookup = testLookup;
     }
 
-    public String[] getTypes() {
-        return new String[] {"test"};
+    public String getType() {
+        return "test";
     }
 
     static final int PREPARED = 1;

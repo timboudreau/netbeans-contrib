@@ -71,8 +71,8 @@ public class ViolationProvider extends DocumentSuggestionProvider {
     final private static String TYPE = "pmd-violations"; // NOI18N
     private SuggestionContext env;
 
-    public String[] getTypes() {
-        return new String[] { TYPE };
+    public String getType() {
+        return TYPE;
     }
 
     private Thread last;

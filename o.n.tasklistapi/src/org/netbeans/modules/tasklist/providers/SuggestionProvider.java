@@ -38,13 +38,14 @@ package org.netbeans.modules.tasklist.providers;
 abstract public class SuggestionProvider {
 
     /**
-     * Return the typenames of the suggestions that this provider
-     * will create.
-     * @return An array of string names. Should never be null. Most
-     *  providers will create Suggestions of a single type, so it will
-     *  be an array with one element.
+     * Return the typename of the suggestions that this provider
+     * will create. TODO It's still in question if more providers
+     * can create same suggestion types without
+     * introducing duplications.
+     *
+     * @return typename, must not be be <code>null</code>.
      */
-    abstract public String[] getTypes();
+    abstract public String getType();
     
     /**
      * Prepare to start creating suggestions. Do "heavy" computations

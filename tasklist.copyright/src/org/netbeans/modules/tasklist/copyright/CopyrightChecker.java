@@ -81,8 +81,8 @@ public class CopyrightChecker extends DocumentSuggestionProvider {
         }
     }
     
-    public String[] getTypes() {
-        return new String[]{TYPE};
+    public String getType() {
+        return TYPE;
     }
 
     public void rescan(SuggestionContext env, Object request) {

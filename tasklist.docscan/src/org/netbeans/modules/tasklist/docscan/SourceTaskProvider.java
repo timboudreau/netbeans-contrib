@@ -74,8 +74,8 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
      *  providers will create Suggestions of a single type, so it will
      *  be an array with one element.
      */
-    public String[] getTypes() {
-        return new String[] { TYPE };
+    public String getType() {
+        return TYPE;
     }
 
     public void notifyFinish() {

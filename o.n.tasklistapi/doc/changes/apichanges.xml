@@ -79,6 +79,25 @@ is the proper place.
 
       <change>
           <api name="general"/>
+          <summary>Changed SuggestionProvider.getTypes() signature</summary>
+          <version major="1" minor="9"/>
+          <date day="6" month="4" year="2004"/>
+          <author login="pkuzel"/>
+          <compatibility deletion="yes"/>
+          <description>
+              <p>
+                  <code>String[] SuggestionProvider.getTypes()</code> changed to
+                  <code>String SuggestionProvider.getType()</code>. It's easy enough
+                  to register more providers to publish multiple suggestion types.
+                  Moreover it's uncommon case and complicates single return type
+                  providers handling.
+              </p>
+          </description>
+          <class package="org.netbeans.spi.tasklist" name="SuggestionProvider"/>
+      </change>
+
+      <change>
+          <api name="general"/>
           <summary>Removed DocumentSuggestionScanner methods</summary>
           <version major="1" minor="5"/>
           <date day="21" month="1" year="2004"/>
