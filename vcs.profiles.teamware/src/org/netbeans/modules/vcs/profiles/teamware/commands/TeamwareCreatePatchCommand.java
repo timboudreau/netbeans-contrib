@@ -20,33 +20,21 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.Reader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import java.util.Hashtable;
 import org.netbeans.api.diff.Difference;
 import org.netbeans.modules.vcscore.VcsFileSystem;
-
-
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
-import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.spi.diff.DiffProvider;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
 
 public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
     
@@ -249,7 +237,6 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         content.append(CONTEXT_MARK2B);
         content.append(oldFileName);
         content.append("\n");
-        int n1, n2, n3, n4;
         int contextNumLines = 3;
         int line1 = 1; // Current line read from 1st file
         int line2 = 1; // Current line read from 2nd file
@@ -260,11 +247,17 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
             int[] cr = getContextRange(diffs, i, contextNumLines);
 
             int begin = diffs[i].getFirstStart() - contextNumLines;
-            if (diffs[i].getType() == Difference.ADD) begin++;
-            if (begin < 1) begin = 1;
+            if (diffs[i].getType() == Difference.ADD) {
+                begin++;
+            }
+            if (begin < 1) {
+                begin = 1;
+            }
             StringBuffer context = new StringBuffer();
             line1 = dumpContext(0, diffs, i, cr[0], context, contextNumLines, br1, line1);
-            if (line1 <= cr[1]) cr[1] = line1 - 1;
+            if (line1 <= cr[1]) {
+                cr[1] = line1 - 1;
+            }
             content.append(CONTEXT_MARK1B);
             if (exists) {
                 content.append(begin);
@@ -277,11 +270,17 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
             content.append(context);
 
             begin = diffs[i].getSecondStart() - contextNumLines;
-            if (diffs[i].getType() == Difference.DELETE) begin++;
-            if (begin < 1) begin = 1;
+            if (diffs[i].getType() == Difference.DELETE) {
+                begin++;
+            }
+            if (begin < 1) {
+                begin = 1;
+            }
             context = new StringBuffer();
             line2 = dumpContext(1, diffs, i, cr[0], context, contextNumLines, br2, line2);
-            if (line2 <= cr[2]) cr[2] = line2 - 1;
+            if (line2 <= cr[2]) {
+                cr[2] = line2 - 1;
+            }
             content.append(CONTEXT_MARK2B);
             content.append(begin);
             content.append(CONTEXT_MARK_DELIMETER);
@@ -307,7 +306,9 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         for ( ; i < diffs.length; i++) {
             Difference diff = diffs[i];
             if (line1 + 2*contextNumLines < diff.getFirstStart() &&
-                line2 + 2*contextNumLines < diff.getSecondStart()) break;
+                line2 + 2*contextNumLines < diff.getSecondStart()) {
+                break;
+            }
             line1 = diff.getFirstStart();
             line2 = diff.getSecondStart();
             int l1 = Math.max(0, diff.getFirstEnd() - diff.getFirstStart());
@@ -325,17 +326,25 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         int startLine;
         if (which == 0) {
             startLine = diffs[i].getFirstStart() - contextNumLines;
-            if (diffs[i].getType() == Difference.ADD) startLine++;
+            if (diffs[i].getType() == Difference.ADD) {
+                startLine++;
+            }
         } else {
             startLine = diffs[i].getSecondStart() - contextNumLines;
-            if (diffs[i].getType() == Difference.DELETE) startLine++;
+            if (diffs[i].getType() == Difference.DELETE) {
+                startLine++;
+            }
         }
-        for ( ; line < startLine; line++) br.readLine();
+        for ( ; line < startLine; line++) {
+            br.readLine();
+        }
         int position = content.length();
         boolean isChange = false;
         for ( ; i <= j; i++) {
             Difference diff = diffs[i];
-            if (which == 0) startLine = diff.getFirstStart();
+            if (which == 0) {
+                startLine = diff.getFirstStart();
+            }
             else startLine = diff.getSecondStart();
             for ( ; line < startLine; line++) {
                 content.append(LINE_PREP);
@@ -380,7 +389,9 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         } else {
             for (int k = 0; k < contextNumLines; k++, line++) {
                 String lineStr = br.readLine();
-                if (lineStr == null) break;
+                if (lineStr == null) {
+                    break;
+                }
                 content.append(LINE_PREP);
                 content.append(lineStr);
                 content.append("\n");
