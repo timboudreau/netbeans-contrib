@@ -241,6 +241,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public static final String PROP_TASK_EDITED = "edited"; // NOI18N
     public static final String PROP_TASK_PERCENT = "percentComplete"; // NOI18N
     public static final String PROP_EFFORT = "effort"; // NOI18N
+    public static final String PROP_REST_EFFORT = "restEffort"; // NOI18N
     
     protected ColumnProperty[] createColumns() {
         return new ColumnProperty[] {
@@ -255,7 +256,8 @@ public class UserTaskView extends TaskListView implements TaskListener {
             getDueColumn(false, 150),
             getDoneColumn(true, 40),
             getPercentColumn(false, 100),
-            getEffortColumn(false, 50)
+            getEffortColumn(false, 50),
+            getRestEffortColumn(false, 50)
             
             // When adding more columns here, also remember to go to the 
             // constructor and add a column width setting 
@@ -407,6 +409,19 @@ public class UserTaskView extends TaskListView implements TaskListener {
             Integer.TYPE,
             NbBundle.getMessage(UserTaskView.class, "Effort2"), // NOI18N
             NbBundle.getMessage(UserTaskView.class, "EffortHint"), // NOI18N
+            true,
+            visible,
+            width
+            );
+    }
+    
+    public ColumnProperty getRestEffortColumn(boolean visible, int width) {
+        return new ColumnProperty(
+    	    11, // UID -- never change (part of serialization
+            PROP_REST_EFFORT,
+            Integer.TYPE,
+            NbBundle.getMessage(UserTaskView.class, "RestEffort"), // NOI18N
+            NbBundle.getMessage(UserTaskView.class, "RestEffortHint"), // NOI18N
             true,
             visible,
             width

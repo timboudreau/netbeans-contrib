@@ -38,6 +38,8 @@ import org.netbeans.modules.tasklist.core.TaskTransfer;
 import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
+import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
+import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
 import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
@@ -82,7 +84,7 @@ class UserTaskNode extends TaskNode {
     static { 
 	 PropertyEditorManager.registerEditor(
 			 getKlass("java.util.Date"), 
-			 getKlass("org.netbeans.modules.tasklist.usertasks.DateEditor"));
+			 getKlass("org.netbeans.modules.tasklist.usertasks.editors.DateEditor"));
     }
 
     // From NonGui.java - supports the above hack, please read its comment:
@@ -95,10 +97,6 @@ class UserTaskNode extends TaskNode {
         }
     }
      
-    private static final MessageFormat EFFORT_FORMAT = 
-        new MessageFormat(NbBundle.getMessage(UserTaskNode.class, 
-            "EffortFormat")); // NOI18N
-    
     // Leaf
     UserTaskNode(UserTask item) {
         super(item);
@@ -232,24 +230,20 @@ class UserTaskNode extends TaskNode {
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "PercentHint")); // NOI18N
             ss.put(p);
             
-            p = new Reflection(item, Integer.TYPE, "getEffort", null) { // NOI18N
-                public Object getValue() {
-                    UserTask task = (UserTask) instance;
-                    int[] d = UserTask.splitDuration(task.getEffort(),
-                        Settings.getDefault().getHoursPerDay());
-                    
-                    String s = EFFORT_FORMAT.format(new Object[] {
-                        new Integer(d[2]), new Integer(d[1]), new Integer(d[0])
-                    }).trim();
-                    LOGGER.fine("computed value " + s);
-                    return s;
-                }
-            };
+            p = new Reflection(item, Integer.TYPE, "getEffort", null);
             p.setName("effort");
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Effort2")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "EffortHint")); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE);
-            p.setPropertyEditorClass(StringPropertyEditor.class);
+            p.setPropertyEditorClass(DurationPropertyEditor.class);
+            ss.put(p);
+
+            p = new Reflection(item, Integer.TYPE, "getRestEffort", null);
+            p.setName("restEffort");
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "RestEffort")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "RestEffortHint")); // NOI18N
+            p.setValue("suppressCustomEditor", Boolean.TRUE);
+            p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
             p = new Reflection(item, String.class, "getDetails", "setDetails"); // NOI18N
