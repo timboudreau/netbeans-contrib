@@ -366,7 +366,8 @@ public class CommandExecutorSupport extends Object {
      */
     private static Table needPromptForUserParams(VcsFileSystem fileSystem, String exec,
                                                  Hashtable vars, Hashtable varNames,
-                                                 Hashtable userParamsIndexes, VcsCommand cmd) {
+                                                 Hashtable userParamsIndexes, VcsCommand cmd,
+                                                 boolean acceptUserParams) {
         Table results = new Table();
         String search = "${"+USER_GLOBAL_PARAM;
         int pos = 0;
@@ -396,7 +397,7 @@ public class CommandExecutorSupport extends Object {
                 int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
                 if (index2 > 0) defaultParam = exec.substring(index, index2);
             }
-            if (fileSystem.isAcceptUserParams() && userParamsLabels != null) {
+            if (acceptUserParams && userParamsLabels != null) {
                 if (num >= userParamsLabels.length) num = userParamsLabels.length - 1;
                 if (userParams[num] != null) defaultParam = userParams[num];
                 results.put(userParamsLabels[num], defaultParam);
@@ -431,7 +432,7 @@ public class CommandExecutorSupport extends Object {
                 int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
                 if (index2 > 0) defaultParam = exec.substring(index, index2);
             }
-            if (fileSystem.isAcceptUserParams() && userLocalParamsLabels != null) {
+            if (acceptUserParams && userLocalParamsLabels != null) {
                 String[] cmdUserParams = (String[]) cmd.getProperty(VcsCommand.PROPERTY_USER_PARAMS);
                 if (cmdUserParams == null) cmdUserParams = new String[userLocalParamsLabels.length];
                 cmd.setProperty(VcsCommand.PROPERTY_USER_PARAMS, cmdUserParams);
@@ -559,14 +560,17 @@ public class CommandExecutorSupport extends Object {
                 String[] userParams = fileSystem.getUserParams();
                 Hashtable userParamsVarNames = new Hashtable(); // Variable names of prompt for additional parameters
                 Hashtable userParamsIndexes = new Hashtable();
-                Table userParamsPromptLabels = needPromptForUserParams(fileSystem, exec, vars, userParamsVarNames, userParamsIndexes, cmd);
+
+                Boolean ctrlDown = (Boolean)vars.get(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION);
+                boolean expertCondition = fileSystem.isExpertMode() || (ctrlDown != null && ctrlDown.booleanValue() == true);
+                boolean acceptUserParams = fileSystem.isAcceptUserParams() || (ctrlDown != null && ctrlDown.booleanValue() == true);
+                Table userParamsPromptLabels = needPromptForUserParams(fileSystem, exec, vars, userParamsVarNames,
+                                                                       userParamsIndexes, cmd, acceptUserParams);
                 /*
                 createTempPromptFiles(promptFile);
                 if (prompt != null && prompt.size() > 0 || ask != null && ask.size() > 0 ||
                 promptFile.size() > 0 || userParamsPromptLabels.size() > 0) {
                     */
-                Boolean ctrlDown = (Boolean)vars.get(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION);
-                boolean expertCondition = fileSystem.isExpertMode() || (ctrlDown != null && ctrlDown.booleanValue() == true);
                 if (inputDescriptor != null && showInputDescriptor(inputDescriptor, expertCondition, vars)
                     || userParamsPromptLabels.size() > 0) {
                         
