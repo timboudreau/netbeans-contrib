@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.text.*;
+import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
@@ -1557,22 +1558,20 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
     
     private void refreshRemainingFiles() {
-        if (!UserCommand.NAME_REFRESH_FILE.equals(cmd.getName())) {  // XXX strange
+        if (!UserCommand.NAME_REFRESH_FILE.equals(cmd.getName())) {  // Do not refresh files of file refresh
             if (filesToRefresh != null && filesToRefresh.size() > 0) {
                 doRefreshFiles(fileSystem, filesToRefresh);
-            } else if (VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_REFRESH_PROCESSED_FILES)) {
+            } else if (filesToRefresh == null && VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_REFRESH_PROCESSED_FILES)) {
                 doRefreshFiles(fileSystem, getFiles());
             }
         }
     }
     
     private void doRefreshFiles(VcsFileSystem fileSystem, Collection filesPaths) {
+        List foldersToRefresh = new ArrayList(filesPaths.size());
         CommandSupport cmdSupp = fileSystem.getCommandSupport(UserCommand.NAME_REFRESH_FILE);
         if (cmdSupp != null) {
             Command cmd = cmdSupp.createCommand();
-            //if (cmd instanceof VcsDescribedCommand) {
-            //    VcsDescribedCommand vcsCmd = (VcsDescribedCommand) cmd;
-            //}
             List foFiles = new ArrayList();
             List diskFiles = new ArrayList();
             //Table files = new Table();
@@ -1587,11 +1586,20 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 //files.put(file, fileSystem.findFileObject(file));
             }
             if (foFiles.size() > 0) {
+                List nonApplicable = new ArrayList(foFiles);
                 FileObject[] filesArr = cmd.getApplicableFiles((FileObject[]) foFiles.toArray(new FileObject[foFiles.size()]));
                 if (filesArr != null) {
                     cmd.setFiles(filesArr);
+                    nonApplicable.removeAll(java.util.Arrays.asList(cmd.getFiles()));
                 } else {
-                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Warning: can not run "+cmdSupp.getName()+" command on files: "+foFiles+" => Can not perform refresh.");
+                    //ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Warning: can not run "+cmdSupp.getName()+" command on files: "+foFiles+" => Can not perform refresh.");
+                    // All remains non-applicable
+                }
+                for (Iterator it = nonApplicable.iterator(); it.hasNext(); ) {
+                    FileObject fo = (FileObject) it.next();
+                    if (fo.isFolder()) {
+                        foldersToRefresh.add(fo.getPath()); // Non-applicable to file-refresh - should be folders
+                    }
                 }
             }
             if (cmd instanceof VcsDescribedCommand) {
@@ -1602,8 +1610,42 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                     ((VcsDescribedCommand) cmd).addFileReaderListener((FileReaderListener) it.next());
                 }
             }
-            VcsManager.getDefault().showCustomizer(cmd);
-            cmd.execute();
+            if (cmd.getFiles().length > 0 || diskFiles.size() > 0) {
+                VcsManager.getDefault().showCustomizer(cmd);
+                cmd.execute();
+            }
+        } else {
+            for (Iterator it = filesPaths.iterator(); it.hasNext(); ) {
+                String file = (String) it.next();
+                FileObject fo = fileSystem.findFileObject(file);
+                if (fo != null) {
+                    if (fo.isData()) {
+                        String path = fo.getParent().getPath();
+                        if (!foldersToRefresh.contains(path)) {
+                            foldersToRefresh.add(path);
+                        }
+                    } else {
+                        String path = fo.getPath();
+                        if (!foldersToRefresh.contains(path)) {
+                            foldersToRefresh.add(path);
+                        }
+                    }
+                } else {
+                    foldersToRefresh.add(file);
+                }
+            }            
+        }
+        if (foldersToRefresh.size() > 0) {
+            String patternMatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED);
+            String patternUnmatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED);
+            String exec = getExec();
+            boolean rec = (exec != null
+                && (patternMatch != null && patternMatch.length() > 0 && exec.indexOf(patternMatch) >= 0
+                    || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0));
+            for (Iterator it = foldersToRefresh.iterator(); it.hasNext(); ) {
+                String file = (String) it.next();
+                CommandExecutorSupport.doRefresh(fileSystem, file, rec); // Asynch refresh
+            }
         }
     }
     
