@@ -40,8 +40,10 @@ public class HelpBuilderWizardIterator implements WizardDescriptor.Iterator {
             new ProjectSetup(),  
             new TocSetup(),
             new IndexSetup(),
-            new ProjectFinish(),
-             
+            //new ProjectFinish(),
+            new ProjectGenerator(),
+            new HelpPreview(),
+            new ProjectFinish()             
         };
     }
 
@@ -55,9 +57,7 @@ public class HelpBuilderWizardIterator implements WizardDescriptor.Iterator {
             NbBundle.getMessage (HelpBuilderWizardIterator.class, "LBL_step_3"),
             NbBundle.getMessage (HelpBuilderWizardIterator.class, "LBL_step_4"),
             NbBundle.getMessage (HelpBuilderWizardIterator.class, "LBL_step_5"),
-            NbBundle.getMessage (HelpBuilderWizardIterator.class, "LBL_step_6"),
-            NbBundle.getMessage (HelpBuilderWizardIterator.class, "LBL_step_7"),
-            NbBundle.getMessage (HelpBuilderWizardIterator.class, "LBL_step_8")
+            NbBundle.getMessage (HelpBuilderWizardIterator.class, "LBL_step_6")        
         };
     }
 

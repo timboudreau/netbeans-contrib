@@ -79,6 +79,10 @@ public class MapProcessor implements HelpProcessor{
         }
     }
     
+    public void clear(){
+        maps.clear();
+    }
+    
     public static class Map{
         
         private String url;

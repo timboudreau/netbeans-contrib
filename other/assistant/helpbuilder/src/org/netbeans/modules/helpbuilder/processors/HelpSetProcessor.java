@@ -16,6 +16,7 @@ package org.netbeans.modules.helpbuilder.processors;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -42,11 +43,11 @@ public class HelpSetProcessor implements HelpProcessor{
     private String title;
     private String homeID;
     private String mapRef;
-    private Vector views;
+    private HashSet views;
     
     private HelpSetProcessor(){
         debug("init");
-        views = new Vector();
+        views = new HashSet();
     }
     
     public static HelpSetProcessor getDefault(){
@@ -56,7 +57,7 @@ public class HelpSetProcessor implements HelpProcessor{
     }
     
     public void addView(HelpSetProcessor.View view){
-        views.addElement(view);
+        views.add(view);
     }
     
     public void export(OutputStream out) throws IOException{ 
@@ -114,6 +115,10 @@ public class HelpSetProcessor implements HelpProcessor{
     }
         
         
+    public void clear(){
+        views.clear();
+    }
+    
     public static class View {
         private String name;
         private String label;

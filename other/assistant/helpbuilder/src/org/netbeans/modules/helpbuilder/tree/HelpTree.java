@@ -229,6 +229,11 @@ public class HelpTree extends JTree implements TreeSelectionListener{
                 IndexTreeNode node = new IndexTreeNode(new IndexTreeItem(addPanel.getName(),addPanel.getMapTarget(),addPanel.getUrlSpec(),false,Locale.getDefault()));
                 DefaultTreeModel model = (DefaultTreeModel)getModel();                        
                 TreePath path = HelpTree.this.getSelectionPath();
+                String target = addPanel.getMapTarget();
+                String url = addPanel.getUrlSpec();
+                if((target != null)&&(target.length() > 0))
+                    if((url != null)&&(url.length() > 0))
+                        MapProcessor.getDefault().addMap(new MapProcessor.Map(target, url)); 
                 DefaultMutableTreeNode parentNode = rootNode;
                 if(path != null){
                     DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent();
