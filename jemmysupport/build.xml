@@ -14,6 +14,9 @@ Microsystems, Inc. All Rights Reserved.
 
 
 <project name="jemmysupport" default="netbeans" basedir=".">
+
+<!-- XXX  <import file="../nbbuild/templates/projectized.xml"/> -->
+
   <import file="../nbbuild/default.xml"/> 
   
   <property name="nbext" value="../nbbuild"/>
@@ -43,15 +46,13 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${diff.dir}/${nb.modules.dir}/diff.jar" />
         <!-- Hopefully set up by nbbuild/build.xml: -->
         <pathelement location="${jdkhome}/lib/tools.jar"/>
-        <!-- classpath for internal execution support -->
+        <!-- classpath for projects and internal execution support -->
         <pathelement location="${projects/queries.dir}/${nb.modules.dir}/org-netbeans-modules-queries.jar"/>
         <pathelement location="${java/srcmodel.dir}/${nb.modules.dir}/org-openide-src.jar"/>
-<!--        <pathelement location="${projects/projectui.dir}/${nb.modules.dir}/org-netbeans-modules-projectui.jar"/> -->
         <pathelement location="${java/api.dir}/${nb.modules.dir}/org-netbeans-api-java.jar"/>
         <pathelement location="${projects/projectapi.dir}/${nb.modules.dir}/org-netbeans-modules-projectapi.jar"/>
+        <pathelement location="${projects/projectapi.dir}/${nb.modules.dir}/org-netbeans-modules-projectuiapi.jar"/>
       </classpath>
-      <!-- XXX temp -->
-      <exclude name="**/Main.java" />
     </javac>
   </target>
 
