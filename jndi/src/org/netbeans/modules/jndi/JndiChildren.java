@@ -82,6 +82,10 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
     public CompositeName getOffset() {
         return offset;
     }
+    
+    public String getOffsetAsString () {
+	return JndiObjectCreator.stringifyCompositeName (this.offset, this.parentContext);
+    }
 
     /** Returns context
      *  @return the initial context
@@ -195,7 +199,7 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
     /** This is the main action called by Refreshd
      */
     public void performAction() throws Exception {
-        NamingEnumeration ne = parentContext.list(offset);
+        NamingEnumeration ne = parentContext.list(this.getOffsetAsString());
         this.keys.clear();
         if (ne == null)
             return;
@@ -227,6 +231,7 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
     public void updateKey(Object key){
         this.refreshKey(key);
     }
+    
 }
 
 

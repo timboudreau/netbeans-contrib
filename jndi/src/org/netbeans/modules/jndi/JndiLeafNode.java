@@ -32,7 +32,7 @@ import org.openide.util.actions.SystemAction;
  *
  *  @author Ales Novak, Tomas Zezula
  */
-class JndiLeafNode extends JndiObjectNode {
+public class JndiLeafNode extends JndiObjectNode {
 
     /** Inital Context*/
     protected Context ctx;
@@ -59,7 +59,7 @@ class JndiLeafNode extends JndiObjectNode {
      *  @return String the java source code
      */
     public String createTemplate() throws NamingException {
-        return JndiObjectCreator.getLookupCode(ctx, offset, className);
+        return JndiObjectCreator.getLookupCode(ctx, this.getOffsetAsString(), className);
     }
 
     /** Returns SystemAction
@@ -111,6 +111,10 @@ class JndiLeafNode extends JndiObjectNode {
      */
     public CompositeName getOffset(){
         return this.offset;
+    }
+    
+    public String getOffsetAsString () {
+	return JndiObjectCreator.stringifyCompositeName (this.offset, this.ctx);
     }
 
     /** Returns class name

@@ -15,7 +15,7 @@ package org.netbeans.modules.jndi;
 
 import java.util.Hashtable;
 import java.util.Enumeration;
-import javax.naming.CompositeName;
+import javax.naming.Name;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
@@ -54,7 +54,7 @@ final class JndiObjectCreator {
      *  @return String generated java source code
      *  @exception NamingException on Jndi Error
      */
-    static String getLookupCode(Context ctx, CompositeName offset, String className) throws NamingException {
+    static String getLookupCode(Context ctx, String offset, String className) throws NamingException {
         String code = generateProperties(ctx);
         String root = (String) ctx.getEnvironment().get(JndiRootNode.NB_ROOT);
         code = code + generateObjectReference(offset, root, className);
@@ -69,13 +69,28 @@ final class JndiObjectCreator {
      *  @return String generated code
      *  @exception NamingException
      */
-    public static String generateBindingCode (Context ctx, CompositeName offset, String className) throws NamingException {
+    public static String generateBindingCode (Context ctx, String offset, String className) throws NamingException {
         String code = generateProperties(ctx);
         String root = (String) ctx.getEnvironment().get(JndiRootNode.NB_ROOT);
         code = code + generateObjectReference(offset, root, className);
         code+= "    jndiObject.bind(\"<Name>\",<Object>);\n";  // No I18N
         code = code + generateTail();
         return code;
+    }
+    
+    
+    public static String stringifyCompositeName (Name name, Context ctx) {
+	java.util.Enumeration enum = name.getAll ();
+	String strName = null;
+	while (enum.hasMoreElements()) {
+            if (strName == null)
+                strName = enum.nextElement().toString();
+            else
+                strName = strName+"/"+enum.nextElement().toString(); // No I18N    
+        }
+        if (strName == null)
+            strName = "";	// No I18N
+	return strName;
     }
 
 
@@ -107,20 +122,20 @@ final class JndiObjectCreator {
     }
 
     /** Creates code for getting instance of object
-     *  @param CompositeName offset of object
+     *  @param String offset of object
      *  @param String className, name of class
      *  @param String root, the root
      *  @return String code
      */
-    private static String generateObjectReference(CompositeName offset, String root, String className){
+    private static String generateObjectReference(String offset, String root, String className) {
         String code = new String();
         code = code + "try {\n    javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);\n"; // No I18N
         if (root != null && root.length() > 0){
             code = code + "    javax.naming.Context jndiRootCtx = (javax.naming.Context) jndiCtx.lookup(\""+correctValue(root)+"\");\n";  // No I18N
-            code = code + "    "+className+" jndiObject = ("+className+")jndiRootCtx.lookup(\"" + correctValue(offset.toString()) + "\");\n"; // No I18N
+            code = code + "    "+className+" jndiObject = ("+className+")jndiRootCtx.lookup(\"" + correctValue(offset) + "\");\n"; // No I18N
         }
         else{
-            code = code + "    "+className+" jndiObject = ("+className+")jndiCtx.lookup(\"" + correctValue(offset.toString()) + "\");\n";  //No I18N
+            code = code + "    "+className+" jndiObject = ("+className+")jndiCtx.lookup(\"" + correctValue(offset) + "\");\n";  //No I18N
         }
         return code;
     }

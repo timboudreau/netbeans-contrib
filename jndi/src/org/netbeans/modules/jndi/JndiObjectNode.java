@@ -133,7 +133,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
         //Add jndiSet Properties here
         if (this.getContext() instanceof javax.naming.directory.DirContext){
             try{
-                Attributes attrs = ((DirContext)this.getContext()).getAttributes(this.getOffset());
+                Attributes attrs = ((DirContext)this.getContext()).getAttributes(this.getOffsetAsString());
                 java.util.Enumeration enum = attrs.getAll();
                 while (enum.hasMoreElements()){
                     Attribute attr = (Attribute) enum.nextElement();
@@ -162,6 +162,11 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
      * @return CompositeName the offset in subtree
      */
     public abstract CompositeName getOffset();
+    
+    /** Returns the offset of this Node in subtree as string
+     * @return String the stringified offset
+     */ 
+    public abstract String getOffsetAsString ();
 
     /** Returns class name of Jndi Object
      *  @return String class name
@@ -208,7 +213,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
             BasicAttributes attrs = new BasicAttributes();
             BasicAttribute attr = new BasicAttribute(name, value);
             attrs.put(attr);
-            ((DirContext)this.getContext()).modifyAttributes(this.getOffset(),DirContext.REPLACE_ATTRIBUTE,attrs);
+            ((DirContext)this.getContext()).modifyAttributes(this.getOffsetAsString(),DirContext.REPLACE_ATTRIBUTE,attrs);
         }catch (NamingException ne){
             JndiRootNode.notifyForeignException(ne);
             return false;

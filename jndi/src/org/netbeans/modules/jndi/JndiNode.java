@@ -91,7 +91,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
      *  @return String java source code
      */ 
     public String createTemplate() throws NamingException {
-        return JndiObjectCreator.getLookupCode(((JndiChildren)this.getChildren()).getContext(),((JndiChildren)this.getChildren()).getOffset(), this.getClassName());
+        return JndiObjectCreator.getLookupCode(((JndiChildren)this.getChildren()).getContext(),this.getOffsetAsString(), this.getClassName());
     }
 
     /** Returns NewTypes for this node
@@ -115,7 +115,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
             // destroy this context first
             JndiChildren children = (JndiChildren) getChildren();
             Context parentCtx = children.getContext();
-            parentCtx.destroySubcontext(children.getOffset());
+            parentCtx.destroySubcontext(this.getOffsetAsString());
             // Destroy the node
             super.destroy();
         } catch (NamingException e) {
@@ -151,7 +151,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
     public final void bindingCopy () {
         try{
             ExClipboard clipboard = TopManager.getDefault().getClipboard();
-            StringSelection code = new StringSelection(JndiObjectCreator.generateBindingCode(((JndiChildren)this.getChildren()).getContext(),((JndiChildren)this.getChildren()).getOffset(), this.getClassName()));
+            StringSelection code = new StringSelection(JndiObjectCreator.generateBindingCode(((JndiChildren)this.getChildren()).getContext(),this.getOffsetAsString(), this.getClassName()));
             clipboard.setContents(code,code);
             JndiRootNode.showLocalizedStatus("STS_CopyBindingCode");
         }catch (NamingException ne){
@@ -180,6 +180,10 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
      */
     public CompositeName getOffset(){
         return ((JndiChildren)this.getChildren()).getOffset();
+    }
+    
+    public String getOffsetAsString () {
+	return ((JndiChildren)this.getChildren()).getOffsetAsString();
     }
 
     /** Returns class name
@@ -230,7 +234,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
 
     /** The node supports customizer */
     public boolean hasCustomizer(){
-        return true;
+        return this.getContext() instanceof javax.naming.directory.DirContext;
     }
 
     /** Returns Customizer */
