@@ -1774,8 +1774,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 additionalConfigPanels = new JPanel[configInputDescriptors.length - 1];
             }
             for (int i = 0; i < configInputDescriptors.length; i++) {
-                VariableInputDialog dlg = new VariableInputDialog(new String[] { "" }, configInputDescriptors[i], false, fsVars);
-                dlg.setExecutionContext(fileSystem, fsVars);
+                Hashtable dialogVars = new Hashtable(fsVars);
+                VariableInputDialog dlg = new VariableInputDialog(new String[] { "" }, configInputDescriptors[i], false, dialogVars);
+                dlg.setExecutionContext(fileSystem, dialogVars);
                 dlg.setGlobalInput(null);
                 dlg.showPromptEach(false);
                 java.awt.GridBagConstraints gridBagConstraints;
