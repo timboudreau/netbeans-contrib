@@ -57,8 +57,12 @@ public class CommandOutputTopComponent extends TopComponent {
    }
     
     public static CommandOutputTopComponent getInstance(){
-        if(outputTopComponent == null)
+        if(outputTopComponent == null){
             outputTopComponent = new CommandOutputTopComponent();
+            Workspace ws = WindowManager.getDefault().getCurrentWorkspace();
+            Mode mode = ws.findMode("output");
+            mode.dockInto(outputTopComponent);
+        }
         return outputTopComponent;
     }
     
@@ -114,10 +118,7 @@ public class CommandOutputTopComponent extends TopComponent {
     /**
      * Open the component on the given workspace.
      */
-    public void open() {
-        Workspace ws = WindowManager.getDefault().getCurrentWorkspace();
-        Mode mode = ws.findMode("output");       
-        mode.dockInto(this);
+    public void open() {                
         super.open();
         requestVisible();
     }
