@@ -31,19 +31,9 @@ import org.openide.text.DataEditorSupport;
  * @author Tor Norbye */
 public class SuggestionImpl extends Task implements Node.Cookie {
 
-    //private String action;
-    private String filename = null;
-    private String basename = null;
-    private int linenumber = 0;
     private Object seed = null;
-    private String category = null;
     private SuggestionType stype = null;
-    //private boolean highlighted = false;
 
-    /** Field (package private) used by the SourceScanner as a tag
-        to improve search speeds. Don't muck with it. */
-    transient boolean scantag;
-    
     protected SuggestionImpl() {
     }
 
@@ -59,29 +49,18 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         }
     }
 
-    /** Return true iff the task has an associated file position */
-    public boolean hasAssociatedFilePos() {
-	return ((linenumber > 0) && (filename != null) && 
-                (filename.length() > 0));
-    }
-    
     /** Return the name of the file associated with this
      * task, or the empty string if none.
      * @return basename, or empty string */    
     public String getFileBaseName() {
-        if (basename == null) {
-
-            Line l = getLine();
-            if (l == null) {
-                basename = "";
-            } else {
-                DataObject dobj = DataEditorSupport.findDataObject(l);
-                if ((dobj != null) && (dobj.getPrimaryFile() != null)) {
-                    basename = dobj.getPrimaryFile().getNameExt();
-                }
+        Line l = getLine();
+        if (l != null) {
+            DataObject dobj = (DataObject) l.getLookup().lookup(DataObject.class);;
+            if (dobj != null) {
+                return dobj.getPrimaryFile().getNameExt();
             }
         }
-        return basename;
+        return "";
     }
     
     /** Return line number associated with the task.
@@ -138,10 +117,6 @@ public class SuggestionImpl extends Task implements Node.Cookie {
     protected void copyFrom(SuggestionImpl from) {
         super.copyFrom(from);
 
-        filename = from.filename;
-        linenumber = from.linenumber;
-        basename = from.basename;
-        category = from.category;
         seed = from.seed;
         stype = from.stype;
         //highlighted = from.highlighted;
@@ -151,14 +126,11 @@ public class SuggestionImpl extends Task implements Node.Cookie {
 
     /** Return the category. Derived from the SuggestionType. */
     public String getCategory() {
-        if (category == null) {
-            if (stype != null) {
-                category = stype.getLocalizedName();
-            } else {
-                category = "";
-            }
+        if (stype != null) {
+            return stype.getLocalizedName();
+        } else {
+            return "";
         }
-        return category;
     }
     
     /** Return the NUMERIC value of the priority. Derived from getPriority(). */

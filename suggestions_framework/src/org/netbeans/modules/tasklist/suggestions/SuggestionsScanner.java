@@ -69,6 +69,10 @@ public final class SuggestionsScanner {
     // keep default instance (only if a client exists)
     private static Reference instance;
 
+    // heuristically detect overload
+    private static boolean lowMemoryWarning;
+    private static int lowMemoryWarningCount;
+
     private SuggestionsScanner() {
         manager = (SuggestionManagerImpl) Lookup.getDefault().lookup(SuggestionManager.class);
         registry = SuggestionProviders.getDefault();
@@ -120,6 +124,9 @@ public final class SuggestionsScanner {
     public final synchronized void scan(DataObject.Container[] folders, SuggestionList list,
                            boolean recursive) {
 
+        lowMemoryWarning = false;
+        lowMemoryWarningCount = 0;
+
         try {
             this.list = list;
 
@@ -140,7 +147,7 @@ public final class SuggestionsScanner {
             }
 
             for (int i = 0; i < folders.length; i++) {
-                if (Thread.interrupted()) return;
+                if (shouldStop()) return;
                 DataObject.Container folder = folders[i];
                 scanFolder(folder, recursive);
             }
@@ -217,7 +224,7 @@ public final class SuggestionsScanner {
         DataObject[] children = folder.getChildren();
         for (int i = 0; i < children.length; i++) {
 
-            if (Thread.currentThread().isInterrupted()) return;
+            if (shouldStop()) return;
 
             DataObject f = children[i];
             if (f instanceof DataObject.Container) {
@@ -321,6 +328,23 @@ public final class SuggestionsScanner {
                 }
             }
         }
+    }
+
+    /** Test stop condition (thread interrupted or low memory) */
+    private boolean shouldStop() {
+        if (Thread.currentThread().isInterrupted()) return true;
+        Runtime rt = Runtime.getRuntime();
+        long total = rt.totalMemory();
+        long max = rt.maxMemory();  // FIXME on linux returns heap&native instead of -Xmx
+        long required = Math.max(total/13, 4*1024*1024);
+        if (total ==  max && rt.freeMemory() < required) {
+            lowMemoryWarning = true;
+        } else if (lowMemoryWarning) {
+            lowMemoryWarning = false;
+            lowMemoryWarningCount ++;
+        }
+        // gc is getting into corner
+        return lowMemoryWarningCount > 7 || (total == max && rt.freeMemory() < 2*1024*1024);
     }
 
     private static int countFolders(FileObject projectFolder) {
