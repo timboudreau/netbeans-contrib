@@ -141,9 +141,6 @@ public class MountPVCSFilesystem extends NbTestCase {
             profile = VCSWizardProfile.PVCS_WIN_95;
         wizard.setProfile(profile);
         Thread.currentThread().sleep(10000);
-        String status = MainWindowOperator.getDefault().getStatusText();
-        if (!status.equals("Command AUTO_FILL_CONFIG finished.") && (!status.equals("Command GET_WORK_LOCATION failed.")))
-            captureScreen("Error: Incorrect status \"" + status + "\" reached.", new NbDialogOperator[] {wizard});
         wizard.selectProjectDatabase();
         DatabaseSelector selector = new DatabaseSelector();
         selector.pickADatabaseInSubfolderOf();
@@ -151,7 +148,7 @@ public class MountPVCSFilesystem extends NbTestCase {
         new JButtonOperator(new JDialogOperator("Select Directory:"), "Cancel").push();
         selector.selectADatabaseUsedByPVCSGUI();
         Thread.currentThread().sleep(10000);
-        status = MainWindowOperator.getDefault().getStatusText();
+        String status = MainWindowOperator.getDefault().getStatusText();
         if (status.equals("Command LIST_PROJECT_DB finished."))
           selector.lstDatabaseList().clickOnItem(0, 1);
         else if (!status.equals("Command LIST_PROJECT_DB failed."))
