@@ -55,7 +55,7 @@ public class ClassDataLoader extends DataLoader {
   *   recognize this object
   */
   public DataObject handleFindDataObject (FileObject fo, DataLoaderRecognized recognized)
-  throws com.netbeans.ide.DataObjectExistsException {
+  throws com.netbeans.ide.loaders.DataObjectExistsException {
     if (fo == null) return null;
     String ext;
     ClassDataObject ret = null;
@@ -92,6 +92,8 @@ public class ClassDataLoader extends DataLoader {
 
 /*
  * Log
+ *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
+ *       datasystem package
  *  1    Gandalf   1.0         1/5/99   Ian Formanek    
  * $
  * Beta Change History:

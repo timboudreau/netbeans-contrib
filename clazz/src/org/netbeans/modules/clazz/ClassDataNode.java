@@ -29,7 +29,7 @@ import com.netbeans.ide.util.RequestProcessor;
 * @author Ales Novak, Ian Formanek, Jan Jancura
 * @version 0.28, Apr 15, 1998
 */
-class ClassDataNode extends com.netbeans.ide.DataContextNode {
+class ClassDataNode extends com.netbeans.ide.loaders.DataContextNode {
   /** generated Serialized Version UID */
   static final long serialVersionUID = -1543899241509520203L;
 
@@ -446,6 +446,8 @@ class ClassDataNode extends com.netbeans.ide.DataContextNode {
 
 /*
  * Log
+ *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
+ *       datasystem package
  *  1    Gandalf   1.0         1/5/99   Ian Formanek    
  * $
  * Beta Change History:

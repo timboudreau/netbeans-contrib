@@ -84,7 +84,7 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
 
   /** Constructs a new ClassDataObject */
   public ClassDataObject (FileObject fo)
-  throws com.netbeans.ide.DataObjectExistsException {
+  throws com.netbeans.ide.loaders.DataObjectExistsException {
     super (fo);
     beanClass = new NbClass (fo);
   }
@@ -589,6 +589,8 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
 
 /*
  * Log
+ *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
+ *       datasystem package
  *  1    Gandalf   1.0         1/5/99   Ian Formanek    
  * $
  * Beta Change History:
