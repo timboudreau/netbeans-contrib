@@ -3157,6 +3157,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             };
         }
         if (cache != null) cache.rename(oldName, newName);
+        if (statusProvider != null) {
+            String newStatus = statusProvider.getFileStatus(newName);
+            if (!notModifiableStatuses.contains(newStatus)) {
+                statusProvider.setFileModified(newName);
+            }
+        }
         addParentToRefresher(oldName);
     }
 
