@@ -245,7 +245,8 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         catFile.delete();
     }
     
-    private ArrayList getCommitedFiles(String fsRoot, String template, char ps) {
+    private ArrayList getCommitedFiles(String fsRoot, String relativePath,
+                                       String template, char ps) {
         //System.out.println("getCommitedFiles("+template+")");
         ArrayList list = new ArrayList();
         int beginPath = template.indexOf(COMMITTING);
@@ -267,6 +268,9 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             } else {
                 path = "";
                 eol = 0;
+            }
+            if (relativePath != null) {
+                path = relativePath + ((path.length() > 0) ? "/" + path : "");
             }
             do {
                 int beginFile = template.indexOf(PRE_FILE, eol);
@@ -419,6 +423,17 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         }
         char ps = (psStr == null || psStr.length() < 1) ? java.io.File.pathSeparatorChar : psStr.charAt(0);
         String fsRoot = ((String) vars.get("ROOTDIR")) + ps + vars.get("MODULE");
+        String relativePath = (String) vars.get("COMMON_PARENT");
+        if ("".equals(vars.get("MULTIPLE_FILES")) && !"".equals(vars.get("FILE_IS_FOLDER"))) {
+            if (relativePath != null) {
+                relativePath = relativePath + "/" + (String) vars.get("PATH");
+            } else {
+                relativePath = (String) vars.get("PATH");
+            }
+        }
+        if (relativePath != null) {
+            relativePath = relativePath.replace(File.separatorChar, '/');
+        }
         fsRoot = fsRoot.replace('/', ps);
         boolean haveLocalCat = false;
         String wincat = null;
@@ -458,7 +473,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 break;
             }
             String buffered = buff.toString();
-            ArrayList filesCommited = getCommitedFiles(fsRoot, buffered, ps);
+            ArrayList filesCommited = getCommitedFiles(fsRoot, relativePath, buffered, ps);
             buffered = addGroupsComment(vars, buffered);
             vars.put("FILE_TEMPLATE", fileOutput(buffered));
             // commit all remaining files if they can not be retrieved from the template
