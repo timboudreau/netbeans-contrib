@@ -692,6 +692,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
      * @param fos the collection of FileObjects
      */
     public static void assureFilesSaved(Collection fos) {
+        Collection folders = new LinkedList();
         for (Iterator it = fos.iterator(); it.hasNext(); ) {
             FileObject fo = (FileObject) it.next();
             if (fo == null) continue;
@@ -700,6 +701,9 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
                 dobj = DataObject.find(fo);
             } catch (DataObjectNotFoundException exc) {
                 // ignored
+            }
+            if (fo.isFolder()) {
+                folders.add(fo);
             }
             if (dobj != null && dobj.isModified()) {
                 Node.Cookie cake = dobj.getCookie(SaveCookie.class);
@@ -710,6 +714,49 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
                 }
             }
         }
+        if (!folders.isEmpty()) {
+            DataObject[] modified = DataObject.getRegistry().getModified();
+            for (int i = 0; i < modified.length; i++) {
+                DataObject dobj = modified[i];
+                SaveCookie sc = (SaveCookie) dobj.getCookie(SaveCookie.class);
+                if (sc != null) {
+                    Set files = dobj.files();
+                    if (isAFileInAFolder(folders, files)) {
+                        try {
+                            sc.save();
+                        } catch (java.io.IOException exc) {
+                            TopManager.getDefault().notifyException(exc);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private static boolean isAFileInAFolder(Collection foldersCollection, Collection filesCollection) {
+        boolean isIn = false;
+        FileObject[] folders = (FileObject[]) foldersCollection.toArray(new FileObject[foldersCollection.size()]);
+        FileObject[] files = (FileObject[]) filesCollection.toArray(new FileObject[filesCollection.size()]);
+        boolean canBeIn = true;
+        while (!isIn && canBeIn) {
+            canBeIn = false;
+            for (int i = 0; i < folders.length && !isIn; i++) {
+                for (int j = 0; j < files.length; j++) {
+                    if (files[j] == null) continue;
+                    files[j] = files[j].getParent();
+                    if (files[j] == null) continue;
+                    if (folders[i].equals(files[j])) {
+                        isIn = true;
+                        break;
+                    } else {
+                        if (files[j].getPath().startsWith(folders[i].getPath())) {
+                            canBeIn = true;
+                        }
+                    }
+                }
+            }
+        }
+        return isIn;
     }
     
     /** Reorder the table of files by the path hierarchical order.
