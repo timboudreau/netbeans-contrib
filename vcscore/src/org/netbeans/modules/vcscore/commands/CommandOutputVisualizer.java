@@ -172,7 +172,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
             open();
         } else {
             outputPanel.putClientProperty("wrapper-title", getDisplayName());
-            closeWrapperListener = wrapper.wrap(outputPanel, false, false);
+            closeWrapperListener = wrapper.wrap(outputPanel, false, true);
             Component window = outputPanel.getParent();
             while (window != null && !(window instanceof java.awt.Window)) {
                 window = window.getParent();

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -202,10 +202,10 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     }
     
     private void adjustInputMap(JComponent c){
-        c.getInputMap().put(
+        c.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(
         KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.CTRL_DOWN_MASK),
         "discard");
-        getStdComponent().getActionMap().put("discard", discardAction);//NOI18N
+        c.getActionMap().put("discard", discardAction);//NOI18N
     }
     
     private void saveToFile() {
@@ -522,8 +522,8 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 6);
         gridBagConstraints.weightx = 0.2;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 6);
         rightPanel.add(progress, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -544,7 +544,6 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         toolbar.add(rightPanel);
 
         btnStop.setText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("OutputPanel.btnStop"));
-        btnStop.setRolloverEnabled(true);
         toolbar.add(btnStop);
         btnStop.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.btnStop"));
 
@@ -556,6 +555,7 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         toolbar.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.toolbar"));
         toolbar.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.toolbar"));
 
+        scroll.setPreferredSize(new java.awt.Dimension(400, 100));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
