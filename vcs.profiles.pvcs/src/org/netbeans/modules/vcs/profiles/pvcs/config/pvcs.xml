@@ -195,8 +195,14 @@ Microsystems, Inc. All Rights Reserved.
              PROMPT_FOR(PROJECT, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_ProjectName)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_ProjectName);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_ProjectName_mnc)), SELECTOR_CMD_PROJECT_SELECTOR)
              PROMPT_FOR(ROOTDIR, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_WorkfileLocation)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_WorkfileLocation);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_WorkfileLocation_mnc)), SELECTOR_DIR)
              ASK_FOR(DO_PVCS_CHECKOUT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(WIZARD_PVCS_CHECKOUT), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT);;;;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(WIZARD_PVCS_CHECKOUT_Mnemonic)))
-      </value>
+      </value>      
     </variable>
+    <variable name="IS_FINISH_ENABLED" basic="false">
+       <value>$[? DO_PVCS_CHECKOUT][]["true"]</value>
+    </variable>
+    <variable name="DO_PVCS_CHECKOUT" basic="false">
+      <value></value>
+    </variable>  
     <variable name="WIZARD_INPUT_DESCRIPTOR1" basic="false">
       <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))                 
                  PROMPT_FOR(PROJECT, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Project)", "/",
