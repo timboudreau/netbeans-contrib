@@ -69,7 +69,7 @@ public class ElementRecognitionTest extends NbTestCase {
         assertNotNull(inner);
         assertEquals(inner.getName().getName(), "InnerInterface");
         assertEquals(inner.getName().getFullName(), "org.netbeans.test.ClazzTest.InnerInterface");
-        assertEquals(inner.getModifiers(), Modifier.PUBLIC | Modifier.ABSTRACT );
+        assertEquals(inner.getModifiers(), Modifier.PUBLIC | Modifier.ABSTRACT | Modifier.STATIC );
     }
 
     public void testMethods() {
