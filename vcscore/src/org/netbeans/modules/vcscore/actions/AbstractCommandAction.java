@@ -87,8 +87,12 @@ public class AbstractCommandAction extends NodeAction {
     }
     
     protected boolean createSupporterMap(Node[] nodes) {
-        putValue(GROUP_NAME_PROP, null);
-        putValue(GROUP_DESCRIPTION_PROP, null);
+        if (getValue(GROUP_NAME_PROP) != null) {
+            putValue(GROUP_NAME_PROP, null);
+        }
+        if (getValue(GROUP_DESCRIPTION_PROP) != null) {
+            putValue(GROUP_DESCRIPTION_PROP, null);
+        }
         if (nodes == null || nodes.length == 0) {
             suppMap = null;
             return false;
@@ -170,6 +174,11 @@ public class AbstractCommandAction extends NodeAction {
         }
  */
         // debug end
+        if (this.getClass().equals(AbstractCommandAction.class)) {
+            if (actionSet == null || actionSet.size() == 0) {
+                return false;
+            }
+        }
         createSupporterMap(nodes);
         if (actionSet != null) {
             Iterator it = actionSet.iterator();
