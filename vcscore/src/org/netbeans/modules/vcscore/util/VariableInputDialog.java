@@ -21,6 +21,12 @@ import java.io.*;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+
+import org.netbeans.spi.vcs.commands.CommandSupport;
+
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.commands.*;
@@ -73,7 +79,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private String globalLabel = null;
     
     private ArrayList actionList = new ArrayList();
-    private ActionListener closeListener = null;
+    private ArrayList closeListeners = new ArrayList();
     private ArrayList historyListeners = new ArrayList();
     private ArrayList focusListenersToCallBeforeValidate = new ArrayList();
     private int historySize = 0;
@@ -158,6 +164,22 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     public VariableInputDialog.FilePromptDocumentListener getFilePromptDocumentListener() {
         return this.docListener;
+    }
+    
+    /**
+     * Get the input decriptor from which this dialog was created.
+     * @return The variable input descriptor or <code>null</code>.
+     */
+    public VariableInputDescriptor getInputDescriptor() {
+        return this.inputDescriptor;
+    }
+    
+    /**
+     * Get the global input decriptor from which this dialog was created.
+     * @return The global variable input descriptor or <code>null</code>.
+     */
+    public VariableInputDescriptor getGlobalInputDescriptor() {
+        return this.globalDescriptor;
     }
 
     /** This method is called from within the constructor to
@@ -478,10 +500,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     if (NotifyDescriptor.OK_OPTION.equals(ev.getSource())) {
                         if (testValidInput()) {
                             validInput = true;
-                            if (closeListener != null) {
-                                closeListener.actionPerformed(ev);
-                                closeListener = null;
+                            for (Iterator it = closeListeners.iterator(); it.hasNext(); ) {
+                                ((ActionListener) it.next()).actionPerformed(ev);
                             }
+                            closeListeners.clear();
                             //setVisible(false);
                         }
                         //writeFileContents();
@@ -495,8 +517,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
         };
     }
     
-    public void setCloseListener(ActionListener closeListener) {
-        this.closeListener = closeListener;
+    public void addCloseListener(ActionListener closeListener) {
+        this.closeListeners.add(closeListener);
     }
     
     private void freeReferences() {
@@ -953,36 +975,36 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
     
     private String getSelectorText(String commandName, String oldText) {
-        VcsCommand cmd = fileSystem.getCommand(commandName);
+        CommandSupport cmdSupp = fileSystem.getCommandSupport(commandName);
         //OutputContainer container = new OutputContainer(cmd);
+        Command command = cmdSupp.createCommand();
+        if (!(command instanceof VcsDescribedCommand)) return null;
+        VcsDescribedCommand cmd = (VcsDescribedCommand) command;
         Hashtable varsCopy = new Hashtable(vars);
-        VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, varsCopy);
-        if (ec == null) return null;
+        cmd.setAdditionalVariables(varsCopy);
+        if (!VcsManager.getDefault().showCustomizer(cmd)) return null;
+        //VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, varsCopy);
+        //if (ec == null) return null;
         //ec.setErrorNoRegexListener(container);
         //ec.setOutputNoRegexListener(container);
         //ec.setErrorContainer(container);
         final StringBuffer selectorOutput = new StringBuffer();
         final boolean[] selectorMatched = new boolean[] { false };
-        ec.addDataOutputListener(new CommandDataOutputListener() {
-            public void outputData(String[] elements) {
+        cmd.addRegexOutputListener(new RegexOutputListener() {
+            public void outputMatchedGroups(String[] elements) {
                 if (elements != null) {
                     selectorMatched[0] = true;
                     selectorOutput.append(VcsUtilities.array2string(elements).trim());
                 }
             }
         });
-        CommandsPool pool = fileSystem.getCommandsPool();
-        int preprocessStatus = pool.preprocessCommand(ec, varsCopy, fileSystem);
-        if (preprocessStatus != CommandsPool.PREPROCESS_DONE) return null;
-        pool.startExecutor(ec);
+        CommandTask task = cmd.execute();
         try {
-            pool.waitToFinish(ec);
+            task.waitFinished(0);
         } catch (InterruptedException iexc) {
-            pool.kill(ec);
             return null;
         }
-        if (ec.getExitStatus() == VcsCommandExecutor.SUCCEEDED
-            && selectorMatched[0]) {
+        if (task.getExitStatus() == task.STATUS_SUCCEEDED && selectorMatched[0]) {
             return selectorOutput.toString();
         } else return null;
     }

@@ -43,16 +43,24 @@ import org.openide.util.NbBundle;
 import org.openide.util.WeakListener;
 import org.openide.util.actions.SystemAction;
 
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+
+import org.netbeans.spi.vcs.commands.CommandSupport;
+
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.caching.VcsCacheDir;
-import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
-import org.netbeans.modules.vcscore.commands.CommandOutputListener;
+import org.netbeans.modules.vcscore.commands.RegexOutputCommand;
+import org.netbeans.modules.vcscore.commands.RegexOutputListener;
+import org.netbeans.modules.vcscore.commands.TextOutputCommand;
+import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
+import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+//import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.versioning.RevisionChildren;
 import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
@@ -559,21 +567,25 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         
         private RevisionList createRevisionList(final String name) {
             //System.out.println("createRevisionList("+name+")");
-            VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_REVISION_LIST);
-            if (cmd == null) return null;
-            //VcsCommandExecutor vce = getVcsFactory().getCommandExecutor(cmd, getVariablesAsHashtable());
-            Table files = new Table();
-            files.put(name, fileSystem.findFileObject(name));
+            CommandSupport cmdSupport = fileSystem.getCommandSupport(VcsCommand.NAME_REVISION_LIST);
+            Command cmd = cmdSupport.createCommand();
+            if (cmd == null || !(cmd instanceof RegexOutputCommand)) return null;
+            FileObject[] files = new FileObject[] { fileSystem.findFileObject(name) };
+            cmd.setFiles(files);
             final StringBuffer dataBuffer = new StringBuffer();
-            CommandDataOutputListener dataListener = new CommandDataOutputListener() {
-                public void outputData(String[] data) {
+            RegexOutputListener dataListener = new RegexOutputListener() {
+                public void outputMatchedGroups(String[] data) {
                     if (data != null && data.length > 0) {
                         if (data[0] != null) dataBuffer.append(data[0]);
                     }
                 }
             };
-            VcsCommandExecutor[] vces = VcsAction.doCommand(files, cmd, null, fileSystem, null, null, dataListener, null);
-            RevisionList list = null;
+            ((RegexOutputCommand) cmd).addRegexOutputListener(dataListener);
+            //VcsCommandExecutor[] vces = VcsAction.doCommand(files, cmd, null, fileSystem, null, null, dataListener, null);
+            cmd.execute().waitFinished();
+            RevisionList list = getEncodedRevisionList(name, dataBuffer.toString());
+            if (list != null) displayRevisions(list);
+            /*
             if (vces.length > 0) {
                 final VcsCommandExecutor vce = vces[0];
                 try {
@@ -584,6 +596,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                 list = getEncodedRevisionList(name, dataBuffer.toString());
                 if (list != null) displayRevisions(list);
             }
+             */
             return list;//(RevisionList) revisionListsByName.get(name);
         }
         
@@ -619,13 +632,15 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         }
         
         public java.io.InputStream inputStream(String name, String revision) throws java.io.FileNotFoundException {
-            VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_REVISION_OPEN);
-            if (cmd == null) return null;
-            //VcsCommandExecutor vce = getVcsFactory().getCommandExecutor(cmd, getVariablesAsHashtable());
-            Table files = new Table();
-            files.put(name, fileSystem.findFileObject(name));
+            CommandSupport cmdSupport = fileSystem.getCommandSupport(VcsCommand.NAME_REVISION_OPEN);
+            if (cmdSupport == null) return null;
+            Command command = cmdSupport.createCommand();
+            if (command == null || !(command instanceof VcsDescribedCommand)) return null;
+            VcsDescribedCommand cmd = (VcsDescribedCommand) command;
+            FileObject[] files = new FileObject[] { fileSystem.findFileObject(name) };
+            cmd.setFiles(files);
             final StringBuffer fileBuffer = new StringBuffer();
-            CommandOutputListener fileListener = new CommandOutputListener() {
+            TextOutputListener fileListener = new TextOutputListener() {
                 public void outputLine(String line) {
                     if (line != null) {
                         fileBuffer.append(line + "\n");
@@ -634,8 +649,12 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             };
             Hashtable additionalVars = new Hashtable();
             additionalVars.put("REVISION", revision);
-            VcsCommandExecutor[] vces = VcsAction.doCommand(files, cmd, additionalVars, fileSystem, fileListener, null, null, null);
-            boolean success = true;
+            cmd.setAdditionalVariables(additionalVars);
+            //VcsCommandExecutor[] vces = VcsAction.doCommand(files, cmd, additionalVars, fileSystem, fileListener, null, null, null);
+            CommandTask task = cmd.execute();
+            task.waitFinished();
+            boolean success = task.getExitStatus() == task.STATUS_SUCCEEDED;
+            /*
             for (int i = 0; i < vces.length; i++) {
                 try {
                     fileSystem.getCommandsPool().waitToFinish(vces[i]);
@@ -645,7 +664,8 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                 }
                 success = success && (vces[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED);
             }
-            if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) success = true;
+             */
+            if (VcsCommandIO.getBooleanProperty(cmd.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL)) success = true;
             if (!success) {
                 throw (java.io.FileNotFoundException) TopManager.getDefault().getErrorManager().annotate(
                     new java.io.FileNotFoundException(),

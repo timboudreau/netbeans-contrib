@@ -21,13 +21,27 @@ import java.lang.reflect.*;
 
 import org.apache.regexp.*;
 
-import org.openide.util.*;
 import org.openide.TopManager;
+import org.openide.filesystems.FileObject;
+import org.openide.util.*;
+
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.cmdline.exec.*;
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
-import org.netbeans.modules.vcscore.commands.*;
+import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
+import org.netbeans.modules.vcscore.commands.CommandOutputListener;
+import org.netbeans.modules.vcscore.commands.RegexOutputListener;
+import org.netbeans.modules.vcscore.commands.TextOutputListener;
+import org.netbeans.modules.vcscore.commands.VcsCommand;
+import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.VcsCommandIO;
+import org.netbeans.modules.vcscore.commands.VcsCommandVisualizer;
+import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 import org.netbeans.modules.vcscore.util.*;
 //import org.netbeans.modules.vcscore.revision.RevisionListener;
 
@@ -47,6 +61,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private UserCommand cmd = null;
     private Hashtable vars = null;
     private String preferredExec = null;
+    /** The command associated with this executor.
+     * @deprecated For compatibility with the old VCS "API" only. */
+    private VcsDescribedCommand command = null;
+    /** The CommandTask associated with this executor. */
+    private CommandTask task = null;
 
     //private RegexListener stdoutListener = null;
     //private RegexListener stderrListener = null;
@@ -56,10 +75,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
 
     //private OutputContainer errorContainer = null;
     
-    private ArrayList commandOutputListener = new ArrayList(); 
-    private ArrayList commandErrorOutputListener = new ArrayList(); 
-    private ArrayList commandDataOutputListener = new ArrayList(); 
-    private ArrayList commandDataErrorOutputListener = new ArrayList(); 
+    private ArrayList textOutputListeners = new ArrayList(); 
+    private ArrayList textErrorListeners = new ArrayList(); 
+    private ArrayList regexOutputListeners = new ArrayList(); 
+    private ArrayList regexErrorListeners = new ArrayList(); 
+    private ArrayList dataOutputListeners = new ArrayList(); // For compatibility only
+    private ArrayList dataErrorListeners = new ArrayList(); // For compatibility only
     private ArrayList fileReaderListeners = new ArrayList();
     private boolean doFileRefresh; // Whether this command provides updated status of processed files
     private boolean doPostExecutionRefresh; // Whether this command refresh status of all processed files
@@ -75,7 +96,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
 
     private Collection processingFilesCollection = null;
     
-    private int exitStatus = 0;
+    protected int exitStatus = 0;
 
     //private ArrayList commandListeners = new ArrayList();
 
@@ -149,19 +170,49 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
     
     /**
+     * Get the command associated with this ExecuteCommand.
+     * @deprecated Needed for the compatibility with old "API" only.
+     */
+    public VcsDescribedCommand getDescribedCommand() {
+        return command;
+    }
+    
+    /**
+     * Set the command associated with this ExecuteCommand.
+     * @deprecated Needed for the compatibility with old "API" only.
+     */
+    public void setDescribedCommand(VcsDescribedCommand command) {
+        this.command = command;
+    }
+    
+    /**
+     * Set the CommandTask, that is associated with this executor.
+     */
+    public CommandTask getTask() {
+        return task;
+    }
+    
+    /**
+     * Get the CommandTask, that is associated with this executor.
+     */
+    public void setTask(CommandTask task) {
+        this.task = task;
+    }
+    
+    /**
      * Add the listener to the standard output of the command. The listeners are removed
      * when the command finishes.
      */
-    public synchronized void addOutputListener(CommandOutputListener l) {
-        if (commandOutputListener != null) commandOutputListener.add(l);
+    public final synchronized void addTextOutputListener(TextOutputListener l) {
+        if (textOutputListeners != null) textOutputListeners.add(l);
     }
     
     /**
      * Add the listener to the error output of the command. The listeners are removed
      * when the command finishes.
      */
-    public synchronized void addErrorOutputListener(CommandOutputListener l) {
-        if (commandErrorOutputListener != null) commandErrorOutputListener.add(l);
+    public final synchronized void addTextErrorListener(TextOutputListener l) {
+        if (textErrorListeners != null) textErrorListeners.add(l);
     }
     
     /**
@@ -169,8 +220,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * a parsed information from its standard output or some other data provided
      * by this command. The listeners are removed when the command finishes.
      */
-    public synchronized void addDataOutputListener(CommandDataOutputListener l) {
-        if (commandDataOutputListener != null) commandDataOutputListener.add(l);
+    public final synchronized void addRegexOutputListener(RegexOutputListener l) {
+        if (regexOutputListeners != null) regexOutputListeners.add(l);
     }
 
     /**
@@ -179,23 +230,68 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * by this command. If there are some data given to this listener, the command
      * is supposed to fail. The listeners are removed when the command finishes.
      */
-    public synchronized void addDataErrorOutputListener(CommandDataOutputListener l) {
-        if (commandDataErrorOutputListener != null) commandDataErrorOutputListener.add(l);
+    public final synchronized void addRegexErrorListener(RegexOutputListener l) {
+        if (regexErrorListeners != null) regexErrorListeners.add(l);
     }
 
-    public VcsCommand getCommand() {
+    /**
+     * Add the listener to the standard output of the command. The listeners should be
+     * released by the implementing class, when the command finishes.
+     * @deprecated Kept for compatibility reasons only.
+     *             Use {@link #addTextOutputListener} instead.
+     */
+    public void addOutputListener(CommandOutputListener l) {
+        if (textOutputListeners != null) textOutputListeners.add(l);
+    }
+    
+    /**
+     * Add the listener to the error output of the command. The listeners should be
+     * released by the implementing class, when the command finishes.
+     * @deprecated Kept for compatibility reasons only.
+     *             Use {@link #addTextErrorListener} instead.
+     */
+    public void addErrorOutputListener(CommandOutputListener l) {
+        if (textErrorListeners != null) textErrorListeners.add(l);
+    }
+    
+    /**
+     * Add the listener to the data output of the command. This output may contain
+     * a parsed information from its standard output or some other data provided
+     * by this command. The listeners should be released by the implementing class,
+     * when the command finishes.
+     * @deprecated Kept for compatibility reasons only.
+     *             Use {@link #addRegexOutputListener} instead.
+     */
+    public void addDataOutputListener(CommandDataOutputListener l) {
+        if (dataOutputListeners != null) dataOutputListeners.add(l);
+    }
+    
+    /**
+     * Add the listener to the data error output of the command. This output may contain
+     * a parsed information from its error output or some other data provided
+     * by this command. If there are some data given to this listener, the command
+     * is supposed to fail. The listeners should be released by the implementing class,
+     * when the command finishes.
+     * @deprecated Kept for compatibility reasons only.
+     *             Use {@link #addRegexErrorListener} instead.
+     */
+    public void addDataErrorOutputListener(CommandDataOutputListener l) {
+        if (dataErrorListeners != null) dataErrorListeners.add(l);
+    }
+
+    public final VcsCommand getCommand() {
         return cmd;
     }
     
     /**
      * Get the variables used by this command execution.
      */
-    public Hashtable getVariables() {
+    public final Hashtable getVariables() {
         return vars;
     }
 
     //-------------------------------------------
-    public int getExitStatus(){
+    public final int getExitStatus(){
         return exitStatus;
     }
     
@@ -208,19 +304,21 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
     
     private void commandFinished(String exec, boolean success) {
-        commandOutputListener.clear();
-        commandErrorOutputListener.clear();
-        commandDataOutputListener.clear();
-        commandDataErrorOutputListener.clear();
+        textOutputListeners.clear();
+        textErrorListeners.clear();
+        regexOutputListeners.clear();
+        regexErrorListeners.clear();
+        dataOutputListeners.clear();
+        dataErrorListeners.clear();
         if (doFileRefresh) {
             flushRefreshInfo();
         }
-        fileReaderListeners.clear();
-        commandOutputListener = null;
-        commandErrorOutputListener = null;
-        commandDataOutputListener = null;
-        commandDataErrorOutputListener = null;
-        fileReaderListeners = null;
+        textOutputListeners = null;
+        textErrorListeners = null;
+        regexOutputListeners = null;
+        regexErrorListeners = null;
+        dataOutputListeners = null;
+        dataErrorListeners = null;
         if (success || VcsCommandIO.getIntegerPropertyAssumeNegative(cmd, VcsCommand.PROPERTY_REFRESH_ON_FAIL) == 1) {
             refreshRemainingFiles();
             /* Moved to CommandExecutorSupport
@@ -242,6 +340,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             int whatChanged = 0;
             Object changedInfo = null;
         }
+        fileReaderListeners.clear();
+        fileReaderListeners = null;
     }
 
     /**
@@ -254,6 +354,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec) {
         this.preferredExec = exec;
         fileSystem.getVarValueAdjustment().adjustVarValues(vars);
+        this.vars = vars;
         /*
         if (!(vc instanceof UserCommand)) return "";
         UserCommand uc = (UserCommand) vc;
@@ -268,6 +369,10 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      */
     public String getExec() {
         return preferredExec;
+    }
+    
+    protected final VcsFileSystem getFileSystem() {
+        return fileSystem;
     }
     
     /**
@@ -327,14 +432,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         try {
             if (dataRegexGlobalRE == null) {
-                ec.addStdoutRegexListener(new CommandDataOutputListener() {
-                                              public void outputData(String[] data) {
+                ec.addRegexOutputListener(new RegexOutputListener() {
+                                              public void outputMatchedGroups(String[] data) {
                                                   printDataOutput(data);
                                               }
                                           }, dataRegex);
             } else {
-                ec.addStdoutRegexListener(new CommandDataOutputListener() {
-                                              public void outputData(String[] data) {
+                ec.addRegexOutputListener(new RegexOutputListener() {
+                                              public void outputMatchedGroups(String[] data) {
                                                   if (data != null) {
                                                       for (int i = 0; i < data.length; i++) {
                                                           dataOutput.append(data[i]);
@@ -351,14 +456,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         try {
             if (errorRegexGlobalRE == null) {
-                ec.addStderrRegexListener(new CommandDataOutputListener() {
-                                              public void outputData(String[] data) {
+                ec.addRegexErrorListener(new RegexOutputListener() {
+                                              public void outputMatchedGroups(String[] data) {
                                                   printDataErrorOutput(data);
                                               }
                                           }, errorRegex);
             } else {
-                ec.addStderrRegexListener(new CommandDataOutputListener() {
-                                              public void outputData(String[] data) {
+                ec.addRegexErrorListener(new RegexOutputListener() {
+                                              public void outputMatchedGroups(String[] data) {
                                                   if (data != null) {
                                                       for (int i = 0; i < data.length; i++) {
                                                           errorOutput.append(data[i]);
@@ -400,7 +505,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     /**
      * Execute a command-line command.
      */
-    private void runCommand(String[] execs) {
+    protected void runCommand(String[] execs) {
         //E.deb("runCommand: "+exec); // NOI18N
 
         //exec = Variables.expand(vars,exec, true);
@@ -417,11 +522,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
 
             StringBuffer[] globalDataOutput = addRegexListeners(ec, globalRegexs);
 
-            for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
-                ec.addStdoutListener((CommandOutputListener) it.next());
+            for (Iterator it = textOutputListeners.iterator(); it.hasNext(); ) {
+                ec.addTextOutputListener((TextOutputListener) it.next());
             }
-            for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
-                ec.addStderrListener((CommandOutputListener) it.next());
+            for (Iterator it = textErrorListeners.iterator(); it.hasNext(); ) {
+                ec.addTextErrorListener((TextOutputListener) it.next());
             }
 
             //E.deb("ec="+ec); // NOI18N
@@ -469,20 +574,23 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         D.deb("run("+cmd.getName()+") finished"); // NOI18N
     }
     
-    private void printOutput(String line) {
-        for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandOutputListener) it.next()).outputLine(line);
+    protected void printOutput(String line) {
+        for (Iterator it = textOutputListeners.iterator(); it.hasNext(); ) {
+            ((TextOutputListener) it.next()).outputLine(line);
         }
     }
 
-    private void printErrorOutput(String line) {
-        for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandOutputListener) it.next()).outputLine(line);
+    protected void printErrorOutput(String line) {
+        for (Iterator it = textErrorListeners.iterator(); it.hasNext(); ) {
+            ((TextOutputListener) it.next()).outputLine(line);
         }
     }
 
-    private void printDataOutput(String[] data) {
-        for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
+    protected void printDataOutput(String[] data) {
+        for (Iterator it = regexOutputListeners.iterator(); it.hasNext(); ) {
+            ((RegexOutputListener) it.next()).outputMatchedGroups(data);
+        }
+        for (Iterator it = dataOutputListeners.iterator(); it.hasNext(); ) {
             ((CommandDataOutputListener) it.next()).outputData(data);
         }
         if (doFileRefresh) {
@@ -490,8 +598,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
     }
 
-    private void printDataErrorOutput(String[] data) {
-        for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
+    protected void printDataErrorOutput(String[] data) {
+        for (Iterator it = regexErrorListeners.iterator(); it.hasNext(); ) {
+            ((RegexOutputListener) it.next()).outputMatchedGroups(data);
+        }
+        for (Iterator it = dataErrorListeners.iterator(); it.hasNext(); ) {
             ((CommandDataOutputListener) it.next()).outputData(data);
         }
         if (getFileRefreshFromErrOut) {
@@ -500,11 +611,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
 
     /**
-     * Loads class of given name with some arguments and execute its list() method.
+     * Loads class of given name with some arguments and execute its exec() method.
      * @param className the name of the class to be loaded
      * @param args the arguments
      */
-    private void runClass(String exec, String className, String[] args) {
+    protected void runClass(String exec, String className, String[] args) {
 
         E.deb("runClass: "+className); // NOI18N
         boolean success = true;
@@ -737,7 +848,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     /**
      * Search for optional methods and set additional parameters.
      */
-    static void setAdditionalParams(Object execCommand, VcsFileSystem fileSystem) {
+    protected static void setAdditionalParams(Object execCommand, VcsFileSystem fileSystem) {
         Class clazz = execCommand.getClass();
         Class[] paramClasses = new Class[] { VcsFileSystem.class };
         Method setFileSystemMethod = null;
@@ -809,10 +920,10 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             String file = (String) vars.get("FILE");
             file = valueAdjustment.revertAdjustedVarValue(file);
             path = valueAdjustment.revertAdjustedVarValue(path);
-            if (commonParent != null) {
-                path = commonParent + "/" + path;
-            }
             if (path != null) {
+                if (commonParent != null) {
+                    path = commonParent + "/" + path;
+                }
                 String fullPath = ((path.length() > 0) ? path.replace(separatorChar, '/') : "") + ((file == null) ? "" : "/" + file);
                 return Collections.singleton(fullPath);
             } else {
@@ -990,22 +1101,46 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private void refreshRemainingFiles() {
         if (!UserCommand.NAME_REFRESH_FILE.equals(cmd.getName())) {
             if (filesToRefresh != null && filesToRefresh.size() > 0) {
-                ExecuteCommand.doRefreshFiles(fileSystem, filesToRefresh);
+                doRefreshFiles(fileSystem, filesToRefresh);
             } else if (VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_REFRESH_PROCESSED_FILES)) {
-                ExecuteCommand.doRefreshFiles(fileSystem, getFiles());
+                doRefreshFiles(fileSystem, getFiles());
             }
         }
     }
     
-    private static void doRefreshFiles(VcsFileSystem fileSystem, Collection filesPaths) {
-        VcsCommand cmd = fileSystem.getCommand(UserCommand.NAME_REFRESH_FILE);
-        if (cmd != null) {
-            Table files = new Table();
+    private void doRefreshFiles(VcsFileSystem fileSystem, Collection filesPaths) {
+        CommandSupport cmdSupp = fileSystem.getCommandSupport(UserCommand.NAME_REFRESH_FILE);
+        if (cmdSupp != null) {
+            Command cmd = cmdSupp.createCommand();
+            //if (cmd instanceof VcsDescribedCommand) {
+            //    VcsDescribedCommand vcsCmd = (VcsDescribedCommand) cmd;
+            //}
+            List foFiles = new ArrayList();
+            List diskFiles = new ArrayList();
+            //Table files = new Table();
             for (Iterator it = filesPaths.iterator(); it.hasNext(); ) {
                 String file = (String) it.next();
-                files.put(file, fileSystem.findFileObject(file));
+                FileObject fo = fileSystem.findFileObject(file);
+                if (fo != null) {
+                    foFiles.add(fo);
+                } else {
+                    diskFiles.add(fileSystem.getFile(file));
+                }
+                //files.put(file, fileSystem.findFileObject(file));
             }
-            VcsAction.doCommand(files, cmd, null, fileSystem);
+            if (foFiles.size() > 0) {
+                cmd.setFiles((FileObject[]) foFiles.toArray(new FileObject[foFiles.size()]));
+            }
+            if (cmd instanceof VcsDescribedCommand) {
+                if (diskFiles.size() > 0) {
+                    ((VcsDescribedCommand) cmd).setDiskFiles((File[]) diskFiles.toArray(new java.io.File[diskFiles.size()]));
+                }
+                for (Iterator it = fileReaderListeners.iterator(); it.hasNext(); ) {
+                    ((VcsDescribedCommand) cmd).addFileReaderListener((FileReaderListener) it.next());
+                }
+            }
+            VcsManager.getDefault().showCustomizer(cmd);
+            cmd.execute();
         }
     }
 
@@ -1018,17 +1153,17 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
 
     //-------------------------------------------
-    String g(String s) {
+    private static final String g(String s) {
         return NbBundle.getMessage(ExecuteCommand.class, s);
     }
-    String  g(String s, Object obj) {
-        return MessageFormat.format (g(s), new Object[] { obj });
+    private static final String  g(String s, Object obj) {
+        return NbBundle.getMessage(ExecuteCommand.class, s, obj);
     }
-    String g(String s, Object obj1, Object obj2) {
-        return MessageFormat.format (g(s), new Object[] { obj1, obj2 });
+    private static final String g(String s, Object obj1, Object obj2) {
+        return NbBundle.getMessage(ExecuteCommand.class, s, obj1, obj2);
     }
-    String g(String s, Object obj1, Object obj2, Object obj3) {
-        return MessageFormat.format (g(s), new Object[] { obj1, obj2, obj3 });
+    private static final String g(String s, Object obj1, Object obj2, Object obj3) {
+        return NbBundle.getMessage(ExecuteCommand.class, s, obj1, obj2, obj3);
     }
     
 }

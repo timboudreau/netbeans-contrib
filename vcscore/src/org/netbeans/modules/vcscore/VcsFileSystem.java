@@ -53,12 +53,21 @@ import org.openide.windows.InputOutput;
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
 
+import org.netbeans.api.vcs.FileStatusInfo;
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+
+import org.netbeans.spi.vcs.VcsCommandsProvider;
+import org.netbeans.spi.vcs.commands.CommandSupport;
+
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
 import org.netbeans.modules.vcscore.cache.CacheFile;
 import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.cache.CacheReference;
 import org.netbeans.modules.vcscore.caching.*;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.util.virtuals.VcsRefreshRequest;
 import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
@@ -244,7 +253,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Needed only for deserialization from NetBeans 3.1 and older
      */
     private Object advanced = null;
-    private transient Node commandsRoot = null;
+    private transient CommandsTree commandsRoot = null;
 
     private String cacheID = null;
     protected transient FileCacheProvider cache = null;
@@ -256,23 +265,35 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //private long cacheId = 0;
     //private String cacheRoot = null; // NOI18N
 
-    private transient VcsAction action = null;
+    private transient VcsFSCommandsAction action = null;
     private transient VcsFactory factory = null;
+    private transient VcsCommandsProvider commandsProvider = new DefaultVcsCommandsProvider(new CommandsTree(null));
 
     private Boolean processUnimportantFiles = Boolean.FALSE;
 
     /**
      * Table used to transfer status name obtained by refresh to the name presented to the user.
      * Can be used to make localization of file statuses.
-     */
+     *
     protected HashMap possibleFileStatusesMap = null;
+     */
+    
+    /** Original file status infos provided by file status provider, that should
+     * be retained. */
+    private transient Set origPossibleFileStatusInfos = null;
+    /** Possible file status infos. */
+    private transient Set possibleFileStatusInfos = null;
+    /** Map of status names obtained by refresh to the FileStatusInfo object. */
+    private transient Map possibleFileStatusInfoMap = null;
+    /** The lock for synchronized access to structures holding possible file status information. */
+    private transient Object possibleFileStatusesLock = new Object();
     
     /**
      * The table used to get the icon badge on the objects' data node.
      * The table contains the original statuses (obtained from the VCS tool)
      * as keys and the icons of type <code>Image</code> as values.
      */
-    protected transient HashMap statusIconMap = null;
+    //protected transient HashMap statusIconMap = null;
     
     /**
      * The default icon badge, that is used when no icon can be obtained from {@link statusIconMap}.
@@ -320,6 +341,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     //private boolean doCommandRefresh = true;
     
+    // CommandsPool reference kept for compatibility only.
     private volatile transient CommandsPool commandsPool = null;
     private Integer numberOfFinishedCmdsToCollect = new Integer(RuntimeFolderNode.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
     private int versioningFileSystemMessageLength = 50;
@@ -446,11 +468,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public boolean isUseUnixShell () { return useUnixShell; }
     
     public boolean isEnabledLockFiles() {
-        return (getCommand(VcsCommand.NAME_LOCK) != null);
+        return (getCommandSupport(VcsCommand.NAME_LOCK) != null);
     }
 
     public boolean isEnabledEditFiles() {
-        return (getCommand(VcsCommand.NAME_EDIT) != null);
+        return (getCommandSupport(VcsCommand.NAME_EDIT) != null);
     }
 
     protected void setUseUnixShell (boolean unixShell) {
@@ -537,6 +559,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return promptForVarsForEachFile;
     }
 
+    /**
+     * Get the CommandsPool associated with this filesystem.
+     * @deprecated For compatibility only
+     */
     public CommandsPool getCommandsPool() {
         return commandsPool;
     }
@@ -1450,6 +1476,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return cacheID;
     }
     
+    public VcsCommandsProvider getCommandsProvider() {
+        return commandsProvider;
+    }
+    
     /**
      * Gets the default factory {@link DefaultVcsFactory}. Subclasses may override this to return different instance of {@link VcsFactory}.
      */
@@ -1489,6 +1519,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //cache = new VcsFSCache(this/*, createNewCacheDir ()*/);
         cache = getVcsFactory().getFileCacheProvider();
         statusProvider = getVcsFactory().getFileStatusProvider();
+        /*
         if (possibleFileStatusesMap == null) {
             if (statusProvider != null) {
                 possibleFileStatusesMap = statusProvider.getPossibleFileStatusesTable();
@@ -1496,6 +1527,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 possibleFileStatusesMap = new HashMap();
             }
         }
+         */
+        if (possibleFileStatusInfos == null) {
+            if (statusProvider != null) {
+                Set statusInfos = Collections.unmodifiableSet(statusProvider.getPossibleFileStatusInfos());
+                setPossibleFileStatusInfos(statusInfos);
+                origPossibleFileStatusInfos = statusInfos;
+                //possibleFileStatusInfos = origPossibleFileStatusInfos;
+            } else {
+                setPossibleFileStatusInfos(Collections.EMPTY_SET);
+                //possibleFileStatusInfos = Collections.EMPTY_SET;
+            }
+        }
+        /*
         if (statusIconMap == null) {
             if (statusProvider != null) {
                 statusIconMap = statusProvider.getStatusIconMap();
@@ -1503,6 +1547,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 statusIconMap = new HashMap();
             }
         }
+         */
         //errorDialog = new ErrorCommandDialog(null, new JFrame(), false);
         try {
             setInitRootDirectory(rootFile);
@@ -1523,14 +1568,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (createRuntimeCommands == null) createRuntimeCommands = Boolean.TRUE;
         if (createVersioningSystem == null) createVersioningSystem = Boolean.FALSE;
         //if (revisionListsByName == null) revisionListsByName = new Hashtable();
-        commandsPool = CommandsPool.getInstance();//new CommandsPool(this, false);
+        commandsPool = CommandsPool.getInstance();
         if (numberOfFinishedCmdsToCollect == null) {
             numberOfFinishedCmdsToCollect = new Integer(RuntimeFolderNode.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
         }
         if (varValueAdjustment == null) varValueAdjustment = new VariableValueAdjustment();
         initListeners();
-        if (attr instanceof VcsAttributes && isCreateRuntimeCommands()) {
-            ((VcsAttributes) attr).setRuntimeCommandsProvider(new VcsRuntimeCommandsProvider(this));
+        if (attr instanceof VcsAttributes) {
+            ((VcsAttributes) attr).setCommandsProvider(getCommandsProvider());
+            if (isCreateRuntimeCommands()) {
+                ((VcsAttributes) attr).setRuntimeCommandsProvider(new VcsRuntimeCommandsProvider(this));
+            }
         }
     }
 
@@ -1675,7 +1723,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         deserialized = false;
         info = this;
         change = this;
-        actionSupporter = new VcsActionSupporter(this);
+        actionSupporter = new VcsActionSupporter();
         VcsAttributes a = new VcsAttributes (info, change, this, this, actionSupporter);
         attr = a;
         list = a;
@@ -1697,24 +1745,27 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     public String[] getPossibleFileStatuses() {
-        String[] statuses;
-        if (possibleFileStatusesMap == null) return null;
-        synchronized (possibleFileStatusesMap) {
-            statuses = new String[possibleFileStatusesMap.size()];
-            int i = 0;
-            for(Iterator it = possibleFileStatusesMap.values().iterator(); it.hasNext(); i++) {
-                Object obj = it.next();
-                //System.out.println("getPossibleFileStatuses(): '"+obj+"', class = "+obj.getClass());
-                if (obj instanceof String) statuses[i] = (String) obj;
-            }
+        Set statusInfos = getPossibleFileStatusInfos();
+        String[] statuses = new String[statusInfos.size()];
+        int i = 0;
+        for(Iterator it = statusInfos.iterator(); it.hasNext(); i++) {
+            FileStatusInfo statusInfo = (FileStatusInfo) it.next();
+            statuses[i] = statusInfo.getDisplayName();
         }
-        D.deb("getPossibleFileStatuses() return = "+VcsUtilities.array2string(statuses));
+        //D.deb("getPossibleFileStatuses() return = "+VcsUtilities.array2string(statuses));
         return statuses;
+    }
+    
+    /**
+     * Get the map of possible pairs of status name and corresponding FileStatusInfo object.
+     */
+    public Map getPossibleFileStatusInfoMap() {
+        return possibleFileStatusInfoMap;
     }
 
     /**
      * Get a copy of stauses transfer table.
-     */
+     *
     public HashMap getPossibleFileStatusesTable() {
         HashMap statusesTable;
         if (possibleFileStatusesMap == null) return null;
@@ -1723,7 +1774,52 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return statusesTable;
     }
-
+     */
+    
+    /**
+     * Get the set of all possible FileStatusInfo objects.
+     */
+    public Set getPossibleFileStatusInfos() {
+        synchronized (possibleFileStatusesLock) {
+            if (possibleFileStatusInfos == null) {
+                return Collections.EMPTY_SET;
+            } else {
+                return possibleFileStatusInfos;
+            }
+        }
+    }
+    
+    /**
+     * Set a set of all possible FileStatusInfo objects.
+     */
+    protected void setPossibleFileStatusInfos(Set fileStatusInfos) {
+        synchronized (possibleFileStatusesLock) {
+            if (this.origPossibleFileStatusInfos == null || this.origPossibleFileStatusInfos.size() == 0) {
+                this.possibleFileStatusInfos = Collections.unmodifiableSet(fileStatusInfos);
+            } else {
+                this.possibleFileStatusInfos = new HashSet(origPossibleFileStatusInfos);
+                for (Iterator newIt = fileStatusInfos.iterator(); newIt.hasNext(); ) {
+                    FileStatusInfo newStatusInfo = (FileStatusInfo) newIt.next();
+                    for (Iterator origIt = this.origPossibleFileStatusInfos.iterator(); origIt.hasNext(); ) {
+                        FileStatusInfo origStatusInfo = (FileStatusInfo) origIt.next();
+                        if (origStatusInfo.equals(newStatusInfo)) {
+                            possibleFileStatusInfos.remove(origStatusInfo);
+                            break;
+                        }
+                    }
+                    possibleFileStatusInfos.add(newStatusInfo);
+                }
+                this.possibleFileStatusInfos = Collections.unmodifiableSet(this.possibleFileStatusInfos);
+            }
+            possibleFileStatusInfoMap = new HashMap();
+            for (Iterator it = this.possibleFileStatusInfos.iterator(); it.hasNext(); ) {
+                FileStatusInfo statusInfo = (FileStatusInfo) it.next();
+                possibleFileStatusInfoMap.put(statusInfo.getName(), statusInfo);
+            }
+            possibleFileStatusInfoMap = Collections.unmodifiableMap(possibleFileStatusInfoMap);
+        }
+    }
+    
     //-------------------------------------------
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         // cache is transient
@@ -1731,10 +1827,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //try {
             //ObjectInputStream din = (ObjectInputStream) in;
         deserialized = true;
+        possibleFileStatusesLock = new Object();
         boolean localFilesOn = in.readBoolean ();
         in.defaultReadObject();
         refresher = new VcsRefreshRequest (this, 0, this);
-        actionSupporter = new VcsActionSupporter(this);
+        actionSupporter = new VcsActionSupporter();
         if (!(attr instanceof VcsAttributes)) {
             VcsAttributes a = new VcsAttributes (info, change, this, this, actionSupporter);
             attr = a;
@@ -2269,12 +2366,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         // Now the correct status should be ready
         String status = statusProvider.getFileStatus(fullName);
         String trans = null;
+        if (status != null) {
+            synchronized (possibleFileStatusesLock) {
+                FileStatusInfo statusInfo = (FileStatusInfo) possibleFileStatusInfoMap.get(status);
+                if (statusInfo != null) {
+                    trans = statusInfo.getDisplayName();
+                }
+            }
+        }
+        /*
         HashMap possibleFileStatusesMap = statusProvider.getPossibleFileStatusesTable();
         if (possibleFileStatusesMap != null && status != null) {
             synchronized (possibleFileStatusesMap) {
                 trans = (String) possibleFileStatusesMap.get(status);
             }
         }
+         */
         if (trans != null) {
             status = trans;
         }
@@ -2353,9 +2460,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     Image annotateIcon(Image icon, int iconType, String fullName) {
         if (statusProvider != null) {
-            String status = statusProvider.getFileStatus(fullName);
+            FileStatusInfo status = statusProvider.getFileStatusInfo(fullName);
             if (status != null) {
-                Image img = (Image) statusIconMap.get(status);
+                Image img = status.getIcon();//(Image) statusIconMap.get(status);
                 //System.out.println("annotateIcon: status = "+status+" => img = "+img);
                 if (img == null) img = statusIconDefault;
                 if (img != null) {
@@ -2390,24 +2497,24 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (statusProvider != null) {
             ArrayList importantFiles = getImportantFiles(oo);
             len = importantFiles.size();
-            String status = null;
+            FileStatusInfo status = null;
             if (len == 1) {
                 String fullName = (String) importantFiles.get(0);
                 if ("".equals(fullName)) return icon; // DO NOT override the root icon !
-                status = statusProvider.getFileStatus(fullName);
+                status = statusProvider.getFileStatusInfo(fullName);
             } else {
                 for (Iterator it = importantFiles.iterator(); it.hasNext(); ) {
                     String fullName = (String) it.next();
-                    String fileStatus = statusProvider.getFileStatus(fullName);
+                    FileStatusInfo fileStatus = statusProvider.getFileStatusInfo(fullName);
                     if (status == null) status = fileStatus;
                     if (!status.equals(fileStatus)) {
-                        status = statusProvider.getNotInSynchStatus();
+                        status = null;//statusProvider.getNotInSynchStatus();
                         break;
                     }
                 }
             }
             if (status != null) {
-                Image img = (Image) statusIconMap.get(status);
+                Image img = status.getIcon();//(Image) statusIconMap.get(status);
                 //System.out.println("annotateIcon: status = "+status+" => img = "+img);
                 if (img == null) img = statusIconDefault;
                 if (img != null) {
@@ -2622,7 +2729,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             //System.out.println(preDisplayNameVar.getValue() + " " + rootFile.toString());
             return preDisplayNameVar.getValue() + " " + rootFile.toString();
         } else if (commandsRoot != null) {
-            String VCSName = commandsRoot.getDisplayName();
+            String VCSName = commandsRoot.getCommandSupport().getDisplayName();
             //System.out.println("VCSName = '"+VCSName+"'");
             if (VCSName != null && VCSName.length() > 0) {
                 //System.out.println("VcsFileSystem.getDisplayName() = "+VCSName + " " + rootFile.toString());
@@ -3426,20 +3533,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * or DELETE_DIR is called. Subclasses can do their own actions here.
      */
     protected void callDeleteCommand(String name, boolean isDir) {
-        VcsCommand cmd;
+        CommandSupport cmd;
         if (isDir) {
-            cmd = getCommand(VcsCommand.NAME_DELETE_DIR);
+            cmd = getCommandSupport(VcsCommand.NAME_DELETE_DIR);
         } else {
-            cmd = getCommand(VcsCommand.NAME_DELETE_FILE);
+            cmd = getCommandSupport(VcsCommand.NAME_DELETE_FILE);
         }
         if (cmd != null) {
-            if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES)) {
-                addDeleteCommand(name, isDir);
+            //if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES)) {
+            addDeleteCommand(name, isDir);
+                /*
             } else {
                 Table files = new Table();
                 files.put(name, findResource(name));
                 VcsAction.doCommand(files, cmd, null, this);
             }
+                 */
         }
     }
 
@@ -3487,10 +3596,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         deleteFolderCommandQueue.clear();
                     }
                     if (fileCommand.size() > 0) {
-                        runDeleteFilesCommand(fileCommand, getCommand(VcsCommand.NAME_DELETE_FILE));
+                        runDeleteFilesCommand(fileCommand, getCommandSupport(VcsCommand.NAME_DELETE_FILE));
                     }
                     if (folderCommand.size() > 0) {
-                        runDeleteFilesCommand(folderCommand, getCommand(VcsCommand.NAME_DELETE_DIR));
+                        runDeleteFilesCommand(folderCommand, getCommandSupport(VcsCommand.NAME_DELETE_DIR));
                     }
                     synchronized (deleteFileCommandQueue) {
                         try {
@@ -3502,13 +3611,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }, "VCS Delete file/dir command");
     }
     
-    private void runDeleteFilesCommand(java.util.List filesList, VcsCommand cmd) {
-        Table files = new Table();
+    private void runDeleteFilesCommand(java.util.List filesList, CommandSupport cmd) {
+        ArrayList files = new ArrayList();
+        //Table files = new Table();
         for (Iterator it = filesList.iterator(); it.hasNext(); ) {
             String name = (String) it.next();
-            files.put(name, findResource(name));
+            files.add(findResource(name));
         }
-        VcsAction.doCommand(files, cmd, null, this);
+        Command command = cmd.createCommand();
+        command.setFiles((FileObject[]) files.toArray(new FileObject[files.size()]));
+        command.setGUIMode(false);
+        command.execute();
+        //VcsAction.doCommand(files, cmd, null, this);
     }
     
     //-------------------------------------------
@@ -3785,13 +3899,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         if (isCallEditFilesOn()) {
             synchronized (editCommandExecutors) {
-                VcsCommandExecutor[] executors = (VcsCommandExecutor[]) editCommandExecutors.get(filePath);
-                if (executors != null) {
-                    int i;
-                    for (i = 0; i < executors.length; i++) {
-                        if (getCommandsPool().isRunning(executors[i])) break;
+                CommandTask executor = (CommandTask) editCommandExecutors.get(filePath);
+                if (executor != null) {
+                    if (!CommandProcessor.getInstance().isRunning(executor)) {
+                        editCommandExecutors.remove(filePath);
                     }
-                    if (i == executors.length) editCommandExecutors.remove(filePath);
                 }
                 if (!file.canWrite ()) {
                     VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
@@ -3805,20 +3917,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                 new UserQuestionException(message) {
                                     public void confirmed() {
                                         synchronized (editCommandExecutors) {
-                                            VcsCommandExecutor[] executors = (VcsCommandExecutor[]) editCommandExecutors.get(filePath);
-                                            if (executors != null) {
-                                                int i;
-                                                for (i = 0; i < executors.length; i++) {
-                                                    if (getCommandsPool().isRunning(executors[i])) break;
+                                            CommandTask executor = (CommandTask) editCommandExecutors.get(filePath);
+                                            if (executor != null) {
+                                                if (!CommandProcessor.getInstance().isRunning(executor)) {
+                                                    editCommandExecutors.remove(filePath);
                                                 }
-                                                if (i == executors.length) editCommandExecutors.remove(filePath);
                                             }
                                             if (!editCommandExecutors.containsKey(filePath)) {
-                                                Table files = new Table();
-                                                files.put(name, findResource(name));
-                                                VcsCommandExecutor[] execs = VcsAction.doEdit (files, VcsFileSystem.this);
-                                                if (execs != null) {
-                                                    editCommandExecutors.put(filePath, execs);
+                                                CommandSupport cmd = getCommandSupport("EDIT");
+                                                Command command = cmd.createCommand();
+                                                command.setFiles(new FileObject[] { findResource(name) });
+                                                boolean customized = VcsManager.getDefault().showCustomizer(command);
+                                                if (customized) {
+                                                    CommandTask exec = command.execute();
+                                                    if (exec != null) {
+                                                        editCommandExecutors.put(filePath, exec);
+                                                    }
                                                 }
                                             }
                                         }
@@ -3826,11 +3940,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                 }, g("EXC_CannotDeleteReadOnly", file.toString()));
                         } else {
                             if (!editCommandExecutors.containsKey(filePath)) {
-                                Table files = new Table();
-                                files.put(name, findResource(name));
-                                VcsCommandExecutor[] execs = VcsAction.doEdit(files, VcsFileSystem.this);
-                                if (execs != null) {
-                                    editCommandExecutors.put(filePath, execs);
+                                CommandSupport cmd = getCommandSupport("EDIT");
+                                Command command = cmd.createCommand();
+                                command.setFiles(new FileObject[] { findResource(name) });
+                                boolean customized = VcsManager.getDefault().showCustomizer(command);
+                                if (customized) {
+                                    CommandTask exec = command.execute();
+                                    if (exec != null) {
+                                        editCommandExecutors.put(filePath, exec);
+                                    }
                                 }
                             }
                         }
@@ -3844,13 +3962,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             // on saving every file to enable undo if saving fails
             if (vcsFile==null || vcsFile.isLocal () || name.endsWith (".orig")) return; // NOI18N
             synchronized (lockCommandExecutors) {
-                VcsCommandExecutor[] executors = (VcsCommandExecutor[]) lockCommandExecutors.get(filePath);
-                if (executors != null) {
-                    int i;
-                    for (i = 0; i < executors.length; i++) {
-                        if (getCommandsPool().isRunning(executors[i])) break;
+                CommandTask executor = (CommandTask) lockCommandExecutors.get(filePath);
+                if (executor != null) {
+                    if (!CommandProcessor.getInstance().isRunning(executor)) {
+                        lockCommandExecutors.remove(filePath);
                     }
-                    if (i == executors.length) lockCommandExecutors.remove(filePath);
                 }
                 if (shouldLock(name)) {
                     if (isPromptForLockOn ()) {
@@ -3861,20 +3977,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         throw new UserQuestionException(message) {
                             public void confirmed() {
                                 synchronized (lockCommandExecutors) {
-                                    VcsCommandExecutor[] executors = (VcsCommandExecutor[]) lockCommandExecutors.get(filePath);
-                                    if (executors != null) {
-                                        int i;
-                                        for (i = 0; i < executors.length; i++) {
-                                            if (getCommandsPool().isRunning(executors[i])) break;
+                                    CommandTask executor = (CommandTask) lockCommandExecutors.get(filePath);
+                                    if (executor != null) {
+                                        if (!CommandProcessor.getInstance().isRunning(executor)) {
+                                            lockCommandExecutors.remove(filePath);
                                         }
-                                        if (i == executors.length) lockCommandExecutors.remove(filePath);
                                     }
                                     if (!lockCommandExecutors.containsKey(filePath)) {
-                                        Table files = new Table();
-                                        files.put(name, findResource(name));
-                                        VcsCommandExecutor[] execs = VcsAction.doLock(files, VcsFileSystem.this);
-                                        if (execs != null) {
-                                            lockCommandExecutors.put(filePath, execs);
+                                        CommandSupport cmd = getCommandSupport("LOCK");
+                                        Command command = cmd.createCommand();
+                                        command.setFiles(new FileObject[] { findResource(name) });
+                                        boolean customized = VcsManager.getDefault().showCustomizer(command);
+                                        if (customized) {
+                                            CommandTask exec = command.execute();
+                                            if (exec != null) {
+                                                lockCommandExecutors.put(filePath, exec);
+                                            }
                                         }
                                     }
                                 }
@@ -3882,11 +4000,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         };
                     } else {
                         if (!lockCommandExecutors.containsKey(filePath)) {
-                            Table files = new Table();
-                            files.put(name, findResource(name));
-                            VcsCommandExecutor[] execs = VcsAction.doLock(files, VcsFileSystem.this);
-                            if (execs != null) {
-                                lockCommandExecutors.put(filePath, execs);
+                            CommandSupport cmd = getCommandSupport("LOCK");
+                            Command command = cmd.createCommand();
+                            command.setFiles(new FileObject[] { findResource(name) });
+                            boolean customized = VcsManager.getDefault().showCustomizer(command);
+                            if (customized) {
+                                CommandTask exec = command.execute();
+                                if (exec != null) {
+                                    lockCommandExecutors.put(filePath, exec);
+                                }
                             }
                         }
                     }
@@ -3914,9 +4036,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if(isLockFilesOn ()) {
             VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
             if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
-                Table files = new Table();
-                files.put(name, findResource(name));
-                VcsAction.doUnlock (files, this);
+                CommandSupport cmd = getCommandSupport("UNLOCK");
+                Command command = cmd.createCommand();
+                command.setFiles(new FileObject[] { findResource(name) });
+                boolean customized = VcsManager.getDefault().showCustomizer(command);
+                if (customized) {
+                    CommandTask exec = command.execute();
+                }
             }
         }
     }
@@ -4031,14 +4157,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    private void addCommandsToHashTable(Node root) {
-        Children children = root.getChildren();
-        for (Enumeration subnodes = children.nodes(); subnodes.hasMoreElements(); ) {
-            Node child = (Node) subnodes.nextElement();
-            VcsCommand cmd = (VcsCommand) child.getCookie(VcsCommand.class);
-            if (cmd == null) continue;
-            commandsByName.put(cmd.getName(), cmd);
-            if (!child.isLeaf()) addCommandsToHashTable(child);
+    private void addCommandsToHashTable(CommandsTree root) {
+        CommandsTree[] children = root.children();
+        for (int i = 0; i < children.length; i++) {
+            CommandSupport cmdSupp = children[i].getCommandSupport();
+            if (cmdSupp != null) {
+                commandsByName.put(cmdSupp.getName(), cmdSupp);
+            }
+            if (children[i].hasChildren()) addCommandsToHashTable(children[i]);
         }
     }
     
@@ -4059,23 +4185,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             new org.netbeans.modules.vcscore.cmdline.UserCommand();
         root.setName("ROOT");
         root.setDisplayName("VCS");
-        Children rootCh = new Children.Array();
-        commandsRoot = new VcsCommandNode(rootCh, root);
-        VcsCommand cmds = (VcsCommand) commands.elementAt(0);
-        Children mainCh = new Children.Array();
-        rootCh.add(new Node[] { new VcsCommandNode(mainCh, cmds) });
+        //Children rootCh = new Children.Array();
+        commandsRoot = new CommandsTree(new UserCommandSupport(root, this));
+        VcsCommand cmd = (VcsCommand) commands.elementAt(0);
+        CommandsTree commandList = new CommandsTree(new UserCommandSupport((org.netbeans.modules.vcscore.cmdline.UserCommand) cmd, this));
+        commandsRoot.add(commandList);
         for(int i = 1; i < len; i++) {
             VcsCommand uc = (VcsCommand) commands.elementAt(i);
-            commandsByName.put(uc.getName(), uc);
-            mainCh.add(new Node[] { new VcsCommandNode(Children.LEAF, uc) });
-            //mainCommands.add(uc);
+            commandList.add(new CommandsTree(new UserCommandSupport((org.netbeans.modules.vcscore.cmdline.UserCommand) uc, this)));
         }
     }
 
     /** Set the tree structure of commands.
      * @param root the tree of {@link VcsCommandNode} objects.
      */
-    public void setCommands(Node root) {
+    public void setCommands(CommandsTree root) {
         //System.out.println("setCommands()");
         Object old = commandsRoot;
         if (root == null) {
@@ -4092,13 +4216,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             addCmdActionsToSupporter();
         }
         VariableInputDescriptorCompat.createInputDescriptorFormExec(commandsByName);
+        ((DefaultVcsCommandsProvider) commandsProvider).setCommands(root);
         firePropertyChange(PROP_COMMANDS, old, commandsRoot);
     }
 
     /** Get the commands.
      * @return the root command
      */
-    public Node getCommands() {
+    public CommandsTree getCommands() {
         return commandsRoot;
     }
 
@@ -4106,14 +4231,32 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param name the name of the command to get
      * @return the command of the given name or <code>null</code>,
      *         when the command is not defined
+     * @deprecated Retained for compatibility reasons only to be able to use
+     *             the old VCS "API" for commands execution. Use
+     *             {@link #getCommandSupport()} instead.
      */
-    public VcsCommand getCommand(String name){
+    public VcsCommand getCommand(String name) {
+        CommandSupport support = getCommandSupport(name);
+        if (support instanceof UserCommandSupport) {
+            return ((UserCommandSupport) support).getVcsCommand();
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Get a command support by it's name.
+     * @param name the name of the command to get
+     * @return the command support of the given name or <code>null</code>,
+     *         when the command support is not defined
+     */
+    public CommandSupport getCommandSupport(String name){
         if (commandsByName == null) {
-            Node commands = getCommands();
+            CommandsTree commands = getCommands();
             if (commands == null) return null;
             setCommands (commands);
         }
-        return (VcsCommand) commandsByName.get(name);
+        return (CommandSupport) commandsByName.get(name);
     }
     
     /**
@@ -4122,7 +4265,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public String[] getCommandNames() {
         if (commandsByName == null) {
-            Node commands = getCommands();
+            CommandsTree commands = getCommands();
             if (commands == null) return new String[0];
             setCommands (commands);
         }
@@ -4130,34 +4273,25 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     private void addCmdActionsToSupporter() {
-        ClassLoader ccl = TopManager.getDefault().currentClassLoader();
         for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
-            VcsCommand cmd = (VcsCommand) it.next();
-            Class actionClass = (Class) cmd.getProperty(VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "generalCommandActionClass"); // NOI18N
-            if (actionClass == null) {
-                Object actionClassNameObj = cmd.getProperty(VcsCommand.PROPERTY_GENERAL_COMMAND_ACTION_CLASS_NAME);
-                if (actionClassNameObj instanceof String) {
-                    String actionClassName = (String) actionClassNameObj;
-                    try {
-                        actionClass = Class.forName(actionClassName, false, ccl);
-                    } catch (ClassNotFoundException e) {
-                        TopManager.getDefault().notifyException(
-                            TopManager.getDefault().getErrorManager().annotate(e, g("EXC_CouldNotFindAction", actionClassName)));
-                        continue;
-                    }
+            CommandSupport cmdSupport = (CommandSupport) it.next();
+            if (cmdSupport instanceof ActionCommandSupport) {
+                Class actionClass = ((ActionCommandSupport) cmdSupport).getActionClass();
+                if (actionClass != null) {
+                    actionSupporter.addSupportForAction(actionClass, cmdSupport);
                 }
-                cmd.setProperty(VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "generalCommandActionClass", actionClass); // NOI18N
             }
-            actionSupporter.addSupportForAction(actionClass, cmd.getName());
         }
     }
     
     private void removeCmdActionsFromSupporter() {
         for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
-            VcsCommand cmd = (VcsCommand) it.next();
-            Class actionClass = (Class) cmd.getProperty(VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "generalCommandActionClass"); // NOI18N
-            if (actionClass != null) {
-                actionSupporter.removeSupportForAction(actionClass);
+            CommandSupport cmdSupport = (CommandSupport) it.next();
+            if (cmdSupport instanceof ActionCommandSupport) {
+                Class actionClass = ((ActionCommandSupport) cmdSupport).getActionClass();
+                if (actionClass != null) {
+                    actionSupporter.removeSupportForAction(actionClass);
+                }
             }
         }
     }

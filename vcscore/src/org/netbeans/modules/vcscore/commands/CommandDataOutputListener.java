@@ -16,6 +16,7 @@ package org.netbeans.modules.vcscore.commands;
 /**
  * The listener to get the data output of a command. It can be used to obtain
  * only specific data from the command output.
+ * @deprecated Use {@link RegexOutputListener} instead.
  *
  * @author  Martin Entlicher
  */

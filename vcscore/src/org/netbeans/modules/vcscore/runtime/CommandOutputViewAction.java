@@ -17,9 +17,6 @@ import org.openide.util.actions.NodeAction;
 import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
 
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
-import org.netbeans.modules.vcscore.commands.CommandsPool;
-
 /**
  * The action that opens the command output in the Command Output Visualizer.
  *

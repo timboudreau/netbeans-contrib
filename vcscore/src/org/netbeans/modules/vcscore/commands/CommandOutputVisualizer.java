@@ -24,6 +24,8 @@ import org.openide.NotifyDescriptor;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
 
+import org.netbeans.api.vcs.commands.CommandTask;
+
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 
@@ -49,8 +51,8 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
 
     private CommandOutputPanel outputPanel;
     private ArrayList closeListeners = new ArrayList();
+    private CommandTask task;
     private VcsCommandExecutor vce;
-    private CommandsPool pool = null;
     private java.awt.event.ActionListener killListener = null;
     
     
@@ -76,9 +78,10 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     }
     
     /** Creates new CommandOutputVisualizer */
-    public CommandOutputVisualizer(VcsCommandExecutor vce) {
-        this();
-        this.vce = vce;
+    public CommandOutputVisualizer(VcsDescribedTask task) {
+        this.vce = task.getExecutor();
+        this.task = (CommandTask) task;
+        outputPanel = new CommandOutputPanel();
         killListener = new CommandKillListener();
         outputPanel.addKillActionListener(killListener);
         outputPanel.setExec(vce.getExec());
@@ -110,9 +113,11 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSD_CommandOutputVisualizer"));
     }
     
+    /*
     synchronized void setCommandsPool(CommandsPool pool) {
         this.pool = pool;
     }
+     */
     
     /** @return false to open immediatelly.
      */
@@ -208,7 +213,7 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     }
     
     public void setExitStatus(int exit) {
-        outputPanel.setStatus(CommandsPool.getExitStatusString(exit));
+        outputPanel.setStatus(CommandProcessor.getExitStatusString(exit));
         outputPanel.commandFinished(true);
     }
 
@@ -235,9 +240,9 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
      */
     private void closing() {
         outputPanel.removeKillActionListener(killListener);
-        synchronized (this) {
-            pool = null;
-        }
+        //synchronized (this) {
+        //    pool = null;
+        //}
         synchronized (closeListeners) {
             for (Iterator it = closeListeners.iterator(); it.hasNext(); ) {
                 TopComponentCloseListener l = (TopComponentCloseListener) it.next();
@@ -249,7 +254,7 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     
     class CommandKillListener implements java.awt.event.ActionListener {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            if (pool != null) {
+            //if (pool != null) {
                 String name = vce.getCommand().getDisplayName();
                 if (name == null || name.length() == 0) name = vce.getCommand().getName();
                 NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation (
@@ -257,11 +262,12 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
                                                    new Object[] { name }),
                     NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
                 if (NotifyDescriptor.Confirmation.OK_OPTION.equals (org.openide.TopManager.getDefault ().notify (nd))) {
-                    synchronized (this) {
-                        if (pool != null) pool.kill(vce);
-                    }
+                    task.stop();
+                    //synchronized (this) {
+                    //    if (pool != null) pool.kill(vce);
+                    //}
                 }
-            }
+            //}
         }
     }
     

@@ -34,7 +34,7 @@ import org.openide.util.RequestProcessor;
 import org.openide.util.UserCancelException;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.VcsAction;
+//import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.RetrievingDialog;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
@@ -148,7 +148,7 @@ public class CommandExecutorSupport extends Object {
     /**
      * Pre process the command. Ask for the confirmation, execute any precommands,
      * prompt the user for input variables.
-     */
+     *
     public static int preprocessCommand(VcsFileSystem fileSystem, VcsCommandExecutor vce,
                                         Hashtable vars, boolean[] askForEachFile) {
         VcsCommand cmd = vce.getCommand();
@@ -237,6 +237,7 @@ public class CommandExecutorSupport extends Object {
             return CommandsPool.PREPROCESS_DONE;
         }
     }
+     */
     
     private static String insertGlobalOptions(String exec, Hashtable vars) {
         if (vars.get(GLOBAL_INPUT_DESCRIPTOR) != null) {
@@ -682,7 +683,7 @@ public class CommandExecutorSupport extends Object {
      * @param cmd the command
      * @param forEachFile whether to ask for these variables for each file being processed
      * @return true if all variables were entered, false otherways
-     */
+     *
     public static boolean promptForVariables(VcsFileSystem fileSystem, String exec,
                                              Hashtable vars, VcsCommand cmd, boolean[] forEachFile) {
         VariableInputDescriptor inputDescriptor = (VariableInputDescriptor) cmd.getProperty(INPUT_DESCRIPTOR_PARSED);
@@ -731,7 +732,7 @@ public class CommandExecutorSupport extends Object {
                     }
                 }
                 vars.put("PASSWORD", password); // NOI18N
-            /* Do not change forEachFile, if the command is successful it will not ask any more */
+            /* Do not change forEachFile, if the command is successful it will not ask any more *//*
             }
             if (forEachFile == null || forEachFile[0] == true) {
                 String[] userParams = fileSystem.getUserParams();
@@ -747,7 +748,7 @@ public class CommandExecutorSupport extends Object {
                 createTempPromptFiles(promptFile);
                 if (prompt != null && prompt.size() > 0 || ask != null && ask.size() > 0 ||
                 promptFile.size() > 0 || userParamsPromptLabels.size() > 0) {
-                    */
+                    *//*
                 if (inputDescriptor != null && showInputDescriptor(inputDescriptor, expertCondition, vars)
                     || userParamsPromptLabels.size() > 0) {
                         
@@ -795,7 +796,7 @@ public class CommandExecutorSupport extends Object {
                             org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.titleWithName"),
                             new Object[] { cmd.getDisplayName() }
                         );
-                         */
+                         *//*
                         title = cmd.getDisplayName();
                     }
                     title += VAR_INPUT_FILE_SEPARATOR + file;
@@ -887,6 +888,7 @@ public class CommandExecutorSupport extends Object {
             return true;
         }
     }
+                            */
     
     private static boolean showInputDescriptor(VariableInputDescriptor inputDescriptor, boolean isExpertMode, Map vars) {
         VariableInputComponent[] inputComponents = inputDescriptor.components();

@@ -31,6 +31,12 @@ import org.openide.loaders.XMLDataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+
+import org.netbeans.spi.vcs.commands.CommandSupport;
+
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.cmdline.*;
 import org.netbeans.modules.vcscore.commands.*;
@@ -1019,7 +1025,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         TopManager.getDefault ().createDialog (dd).setVisible(true);
         commandsEditor.setValue(advancedPanel.getPropertyValue());
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
-            fileSystem.setCommands ((Node) commandsEditor.getValue ());
+            fileSystem.setCommands ((CommandsTree) commandsEditor.getValue ());
         }
     }//GEN-LAST:event_cmdButtonActionPerformed
 
@@ -1252,7 +1258,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             configExists = true;
         }
         Vector variables = fileSystem.getVariables ();
-        Node commands = fileSystem.getCommands();
+        CommandsTree commands = fileSystem.getCommands();
         if (configLabel == null || configLabel.length() == 0) configLabel = selected;
         cache.addProfile(selected, configLabel, variables, commands,
                          fileSystem.getCompatibleOSs(), fileSystem.getUncompatibleOSs(), true);
@@ -1546,7 +1552,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void loadConfig(String label){
         if(!label.equals (fileSystem.getConfig ())) {
             Vector variables = cache.getProfileVariables(label);//(Vector) configVariablesByLabel.get(label);
-            Node commands = (Node) cache.getProfileCommands(label);//configAdvancedByLabel.get(label);
+            CommandsTree commands = (CommandsTree) cache.getProfileCommands(label);//configAdvancedByLabel.get(label);
             if (variables != null && commands != null) {
                 fileSystem.setVariables(variables);
                 fileSystem.setCommands(commands);
@@ -1559,7 +1565,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 else autoFillVars.clear();
             } else {
                 fileSystem.setVariables(new Vector());
-                fileSystem.setCommands(new VcsCommandNode(true, null));
+                fileSystem.setCommands(CommandsTree.EMPTY);
                 autoFillVars.clear();
             }
         }
@@ -2178,7 +2184,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             } catch (PropertyVetoException vetoExc) {
             } catch (IOException ioExc) {}
         }
-        cache = new ProfilesCache(fileSystem.getConfigRootFO());
+        cache = new ProfilesCache(fileSystem.getConfigRootFO(), fileSystem);
         rootDirTextField.setText (defaultRoot);
         lastRootDir = defaultRoot;
         String module = fileSystem.getRelativeMountPoint();
@@ -2336,7 +2342,40 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             this.tf = tf;
             this.selector = selector;
         }
+        
+        public void actionPerformed (java.awt.event.ActionEvent evt) {
+            CommandSupport supp = fileSystem.getCommandSupport(selector.getCustomSelector());
+            Command command;
+            if (supp == null || !((command = supp.createCommand()) instanceof VcsDescribedCommand)) {
+                NotifyDescriptor.Message nd = new NotifyDescriptor.Message (g("DLG_SelectorNotExist", selector.getCustomSelector()), NotifyDescriptor.WARNING_MESSAGE);
+                TopManager.getDefault ().notify (nd);
+                return ;
+            }
+            if (!VcsManager.getDefault().showCustomizer(command)) return ;
+            VcsDescribedCommand cmd = (VcsDescribedCommand) command;
+            final StringBuffer selection = new StringBuffer();
+            cmd.addRegexOutputListener(new RegexOutputListener() {
+                public void outputMatchedGroups(String[] elements) {
+                    if (elements.length > 0) {
+                        selection.append(elements[0]);
+                    }
+                }
+            });
+            final CommandTask task = cmd.execute();
+            RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                    try {
+                        task.waitFinished(0);
+                        if (selection.length() > 0) {
+                            tf.setText(selection.toString());
+                            variableChanged(new java.awt.event.ActionEvent(tf, 0, "")); // NOI18N
+                        }
+                    } catch (InterruptedException iex) {}
+                }
+            });
+        }
 
+        /*
         public void actionPerformed (java.awt.event.ActionEvent evt) {
             VcsCommand cmd = fileSystem.getCommand(selector.getCustomSelector());
             if (cmd == null) {
@@ -2376,6 +2415,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             });
             pool.startExecutor(executor, fileSystem);
         }
+         */
     }
     
     private class EnvCellEditorListener implements javax.swing.event.CellEditorListener {

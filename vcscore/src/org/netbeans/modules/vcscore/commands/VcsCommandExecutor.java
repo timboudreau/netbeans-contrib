@@ -83,11 +83,51 @@ public interface VcsCommandExecutor extends Runnable {
      * Add the listener to the standard output of the command. The listeners should be
      * released by the implementing class, when the command finishes.
      */
+    public void addTextOutputListener(TextOutputListener l);
+    
+    /**
+     * Add the listener to the error output of the command. The listeners should be
+     * released by the implementing class, when the command finishes.
+     */
+    public void addTextErrorListener(TextOutputListener l);
+    
+    /**
+     * Add the listener to the data output of the command. This output may contain
+     * a parsed information from its standard output or some other data provided
+     * by this command. The listeners should be released by the implementing class,
+     * when the command finishes.
+     */
+    public void addRegexOutputListener(RegexOutputListener l);
+    
+    /**
+     * Add the listener to the data error output of the command. This output may contain
+     * a parsed information from its error output or some other data provided
+     * by this command. If there are some data given to this listener, the command
+     * is supposed to fail. The listeners should be released by the implementing class,
+     * when the command finishes.
+     */
+    public void addRegexErrorListener(RegexOutputListener l);
+
+    /**
+     * Add a file reader listener, that gets the updated attributes of the
+     * processed file(s). The listeners should be released by the implementing class,
+     * when the command finishes.
+     */
+    public void addFileReaderListener(FileReaderListener l);
+    
+    /**
+     * Add the listener to the standard output of the command. The listeners should be
+     * released by the implementing class, when the command finishes.
+     * @deprecated Kept for compatibility reasons only.
+     *             Use {@link #addTextOutputListener} instead.
+     */
     public void addOutputListener(CommandOutputListener l);
     
     /**
      * Add the listener to the error output of the command. The listeners should be
      * released by the implementing class, when the command finishes.
+     * @deprecated Kept for compatibility reasons only.
+     *             Use {@link #addTextErrorListener} instead.
      */
     public void addErrorOutputListener(CommandOutputListener l);
     
@@ -96,6 +136,8 @@ public interface VcsCommandExecutor extends Runnable {
      * a parsed information from its standard output or some other data provided
      * by this command. The listeners should be released by the implementing class,
      * when the command finishes.
+     * @deprecated Kept for compatibility reasons only.
+     *             Use {@link #addRegexOutputListener} instead.
      */
     public void addDataOutputListener(CommandDataOutputListener l);
     
@@ -105,14 +147,9 @@ public interface VcsCommandExecutor extends Runnable {
      * by this command. If there are some data given to this listener, the command
      * is supposed to fail. The listeners should be released by the implementing class,
      * when the command finishes.
+     * @deprecated Kept for compatibility reasons only.
+     *             Use {@link #addRegexErrorListener} instead.
      */
     public void addDataErrorOutputListener(CommandDataOutputListener l);
 
-    /**
-     * Add a file reader listener, that gets the updated attributes of the
-     * processed file(s). The listeners should be released by the implementing class,
-     * when the command finishes.
-     */
-    public void addFileReaderListener(FileReaderListener l);
 }
-

@@ -13,35 +13,33 @@
 
 package org.netbeans.modules.vcscore;
 
+import java.lang.ref.WeakReference;
+import java.util.*;
+
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.TopManager;
-import org.netbeans.modules.vcscore.caching.*;
-import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
-import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
-import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
-import org.netbeans.modules.vcscore.commands.*;
-import java.lang.ref.WeakReference;
-import java.util.*;
 import org.openide.cookies.SaveCookie;
 import org.openide.nodes.*;
 
-import org.netbeans.modules.vcscore.util.VcsUtilities;
-import org.netbeans.modules.vcscore.util.Table;
-import org.netbeans.modules.vcscore.util.Debug;
-import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
-import org.netbeans.modules.vcscore.util.WeakList;
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
 
+import org.netbeans.spi.vcs.commands.CommandSupport;
+
+import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
+import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
+import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
+import org.netbeans.modules.vcscore.commands.ActionCommandSupport;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
  *
  * @author  Milos Kleint
  */
 public class VcsActionSupporter extends CommandActionSupporter implements java.io.Serializable {
-
-    protected  transient WeakReference fileSystem = new WeakReference(null);
 
     /** The map of action classes and sets of it's commands.
      * Theoretically one action can have more than one associated command,
@@ -56,22 +54,19 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
     static final long serialVersionUID = -613064726657052221L;
     
     /** Creates new VcsActionSupporter */
-    public VcsActionSupporter(VcsFileSystem filesystem) {
-        fileSystem = new WeakReference(filesystem);
+    public VcsActionSupporter() {
+        //fileSystem = new WeakReference(filesystem);
         commandMap = new HashMap();
     }
     
-    public void setFileSystem(VcsFileSystem fs) {
-        fileSystem = new WeakReference(fs);
-    }
-
-    public void addSupportForAction(Class actionClass, String commandName) {
+    public void addSupportForAction(Class actionClass, CommandSupport commandSupp) {
+        if (!(commandSupp instanceof ActionCommandSupport)) throw new IllegalArgumentException();
         HashSet commandsNamesSet = (HashSet) commandMap.get(actionClass);
         if (commandsNamesSet == null) {
             commandsNamesSet = new HashSet();
             commandMap.put(actionClass, commandsNamesSet);
         }
-        commandsNamesSet.add(commandName);
+        commandsNamesSet.add(commandSupp);
         //commandMap.put(actionClass, commandName);
     }
     
@@ -91,21 +86,23 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
             return false;
         }
         for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
-            String cmdName = (String) it.next();
-            if (isEnabled(cmdName, fileObjects)) return true;
+            CommandSupport cmdSupp = (CommandSupport) it.next();
+            if (isEnabled(cmdSupp, fileObjects)) return true;
         }
         return false;
     }
     
-    private boolean isEnabled(String cmdName, FileObject[] fileObjects) {
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        final VcsCommand cmd = fileSystem.getCommand(cmdName);
-        if (cmd == null) return false;
+    private boolean isEnabled(CommandSupport cmdSupp, FileObject[] fileObjects) {
+        //VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
+        //final VcsCommand cmd = fileSystem.getCommand(cmdName);
+        if (!(cmdSupp instanceof ActionCommandSupport)) return false;
         fileObjects = VcsUtilities.convertFileObjects(fileObjects);
         Set foSet = new HashSet();
         for (int i = 0; i < fileObjects.length; i++) {
             foSet.add(fileObjects[i]);
         }
+        return (cmdSupp.getApplicableFiles(fileObjects) != null);
+        /*
         boolean onRoot = isOnRoot(foSet);
         boolean onDir = isOnDirectory(foSet);
         boolean onFile = isOnFile(foSet);
@@ -125,6 +122,7 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
             return false;
         }
         return true;
+         */
     }
 
     public void performAction(GeneralCommandAction action, FileObject[] fileObjects) {
@@ -137,20 +135,28 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         }
         fileObjects = VcsUtilities.convertFileObjects(fileObjects);
         for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
-            String cmdName = (String) it.next();
-            if (isEnabled(cmdName, fileObjects)) {
+            CommandSupport cmdSupport = (CommandSupport) it.next();
+            if (isEnabled(cmdSupport, fileObjects)) {
+                Command cmd = cmdSupport.createCommand();
+                cmd.setFiles(fileObjects);
+                cmd.setGUIMode(true);
+                if (VcsManager.getDefault().showCustomizer(cmd)) {
+                    cmd.execute();
+                }
+                /*
                 VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
                 VcsCommand cmd = fileSystem.getCommand(cmdName);
                 if (cmd != null) {
                     VcsAction.performVcsCommand(cmd, fileSystem, Arrays.asList(fileObjects), false);
                 }
+                 */
                 break;
             }
         }
     }
 
     
-    /** Remove the files for which the command is disabled */
+    /** Remove the files for which the command is disabled *
     private static Table removeDisabled(FileStatusProvider statusProvider, Table files, VcsCommand cmd) {
         if (statusProvider == null) return files;
         String disabledStatus = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS);
@@ -167,12 +173,12 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         }
         return remaining;
     }
-            
+            */
     /**
      * Test if some of the selected nodes are directories.
      * @return <code>true</code> if some of the selected nodes are directories,
      *         <code>false</code> otherwise.
-     */
+     *
     protected boolean isOnDirectory(Collection fos) {
         boolean is = false;
         if (fos != null) {
@@ -189,7 +195,7 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
      * Test if some of the selected nodes are files.
      * @return <code>true</code> if some of the selected nodes are files,
      *         <code>false</code> otherwise.
-     */
+     *
     protected boolean isOnFile(Collection fos) {
         if (fos != null) {
             for (Iterator it = fos.iterator(); it.hasNext(); ) {
@@ -205,7 +211,7 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
      * Test if one of the selected nodes is the root node.
      * @return <code>true</code> if at least one of the selected nodes is the root node,
      *         <code>false</code> otherwise.
-     */
+     *
     protected boolean isOnRoot(Collection fos) {
         if (fos != null) {
            for (Iterator it = fos.iterator(); it.hasNext(); ) {
@@ -233,6 +239,7 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         }
         return statuses;
     }
+     */
     
     private String getCommandActionDisplayName(GeneralCommandAction action) {
         HashSet cmdSet = (HashSet) commandMap.get(action.getClass());
@@ -240,9 +247,13 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
             return null;
         }
         for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
-            String cmdName = (String) it.next();
+            CommandSupport cmdSupp = (CommandSupport) it.next();
             //if (isEnabled(cmdName, fileObjects)) {
             // Can not recognize the selected fileObjects => taking just the first command
+            if (cmdSupp instanceof ActionCommandSupport) {
+                return ((ActionCommandSupport) cmdSupp).getActionDisplayName();
+            }
+            /*
                 VcsCommand cmd = ((VcsFileSystem) fileSystem.get()).getCommand(cmdName);
                 if (cmd != null) {
                     String name = (String) cmd.getProperty(VcsCommand.PROPERTY_GENERAL_COMMAND_ACTION_DISPLAY_NAME);
@@ -250,6 +261,7 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
                         return name;
                     }
                 }
+             */
             //}
         }
         return null;

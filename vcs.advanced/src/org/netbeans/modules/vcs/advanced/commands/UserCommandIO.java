@@ -27,15 +27,20 @@ import java.util.List;
 import org.w3c.dom.*;
 
 import org.openide.ErrorManager;
-import org.openide.nodes.Children;
+//import org.openide.nodes.Children;
 
-import org.netbeans.modules.vcscore.commands.VcsCommandNode;
+import org.netbeans.modules.vcscore.commands.CommandsTree;
+
+//import org.netbeans.modules.vcscore.commands.VcsCommandNode;
+import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
+import org.netbeans.spi.vcs.commands.CommandSupport;
 
 /**
  * This class provides input/output of commands from/to xml file.
@@ -132,7 +137,7 @@ public class UserCommandIO extends Object {
     /**
      * Read the commands definitions from the document and create the tree of commands.
      */
-    public static org.openide.nodes.Node readCommands(Document doc) throws DOMException {
+    public static CommandsTree readCommands(Document doc, VcsFileSystem fileSystem) throws DOMException {
         Element rootElem = doc.getDocumentElement();
         if (!VariableIO.CONFIG_ROOT_ELEM.equals(rootElem.getNodeName())) return null;
         NodeList labelList = rootElem.getElementsByTagName(VariableIO.LABEL_TAG);
@@ -146,11 +151,12 @@ public class UserCommandIO extends Object {
             commandsList = commands.getChildNodes();
             //getCommands(children, commandsList);
         } else commandsList = null;
-        return readCommands(labelNode, commandsList);
+        return readCommands(labelNode, commandsList, fileSystem);
     }
     
-    public static org.openide.nodes.Node readCommands(Node labelNode, NodeList commandsList) throws DOMException {
-        VcsCommandNode rootCommandNode = null;
+    public static CommandsTree readCommands(Node labelNode, NodeList commandsList,
+                                            VcsFileSystem fileSystem) throws DOMException {
+        CommandsTree rootCommandNode = null;
         String label = "";
         if (labelNode != null) {
             NodeList textList = labelNode.getChildNodes();
@@ -165,18 +171,19 @@ public class UserCommandIO extends Object {
         UserCommand rootCmd = new UserCommand();
         rootCmd.setName(ROOT_CMD_NAME);
         rootCmd.setDisplayName(label);
-        Children children = new Children.Array();
-        rootCommandNode = new VcsCommandNode(children, rootCmd);
-        if (commandsList != null) getCommands(children, commandsList);
+        rootCommandNode = new CommandsTree(new UserCommandSupport(rootCmd, fileSystem));//new VcsCommandNode(children, rootCmd);
+        if (commandsList != null) getCommands(rootCommandNode, commandsList, fileSystem);
         return rootCommandNode;
     }
     
-    private static void getCommands(Children children, NodeList commandsList) throws DOMException {
+    private static void getCommands(CommandsTree cmdTree, NodeList commandsList,
+                                    VcsFileSystem fileSystem) throws DOMException {
         int n = commandsList.getLength();
         for (int i = 0; i < n; i++) {
             Node commandNode = commandsList.item(i);
             if (SEPARATOR_TAG.equals(commandNode.getNodeName())) {
-                children.add(new org.openide.nodes.Node[] { new VcsCommandNode(Children.LEAF, null) });
+                cmdTree.add(CommandsTree.EMPTY);
+                //children.add(new org.openide.nodes.Node[] { new VcsCommandNode(Children.LEAF, null) });
                 continue;
             }
             if (!COMMAND_TAG.equals(commandNode.getNodeName())) continue; // Ignore nodes that does not contain commands
@@ -256,11 +263,14 @@ public class UserCommandIO extends Object {
                 }
             }
             if (subcommandsExist) {
-                Children subChildren = new Children.Array();
-                getCommands(subChildren, propertiesAndSubCommands);
-                children.add(new org.openide.nodes.Node[] { new VcsCommandNode(subChildren, cmd) });
+                //Children subChildren = new Children.Array();
+                CommandsTree subTree = new CommandsTree(new UserCommandSupport(cmd, fileSystem));
+                cmdTree.add(subTree);
+                getCommands(subTree, propertiesAndSubCommands, fileSystem);
+                //children.add(new org.openide.nodes.Node[] { new VcsCommandNode(subChildren, cmd) });
             } else {
-                children.add(new org.openide.nodes.Node[] { new VcsCommandNode(Children.LEAF, cmd) });
+                cmdTree.add(new CommandsTree(new UserCommandSupport(cmd, fileSystem)));
+                //children.add(new org.openide.nodes.Node[] { new VcsCommandNode(Children.LEAF, cmd) });
             }
         }
     }
@@ -268,7 +278,7 @@ public class UserCommandIO extends Object {
     /**
      * Write the commands definitions to the document from the tree of commands.
      */
-    public static boolean writeCommands(Document doc, org.openide.nodes.Node rootCommandNode) throws DOMException {
+    public static boolean writeCommands(Document doc, CommandsTree rootCommandNode) throws DOMException {
         Element rootElem = doc.getDocumentElement();
         if (!VariableIO.CONFIG_ROOT_ELEM.equals(rootElem.getNodeName())) return false;
         /*
@@ -285,17 +295,21 @@ public class UserCommandIO extends Object {
         return true;
     }
     
-    private static void putCommands(Document doc, org.w3c.dom.Node commands, org.openide.nodes.Node commandsNode) {
-        Children children = commandsNode.getChildren();
-        org.openide.nodes.Node[] commandNodes = children.getNodes();
-        for (int i = 0; i < commandNodes.length; i++) {
-            org.openide.nodes.Node commandNode = commandNodes[i];
-            VcsCommand cmd = (VcsCommand) commandNode.getCookie(VcsCommand.class);
-            if (cmd == null) {
+    private static void putCommands(Document doc, org.w3c.dom.Node commands, CommandsTree commandsNode) {
+        //Children children = commandsNode.getChildren();
+        //org.openide.nodes.Node[] commandNodes = children.getNodes();
+        CommandsTree[] commandChildren = commandsNode.children();
+        for (int i = 0; i < commandChildren.length; i++) {
+            CommandsTree commandNode = commandChildren[i];
+            CommandSupport supp = commandNode.getCommandSupport();
+            //VcsCommand cmd = (VcsCommand) commandNode.getCookie(VcsCommand.class);
+            if (supp == null || !(supp instanceof UserCommandSupport)) {
                 Element separatorElem = doc.createElement(SEPARATOR_TAG);
                 commands.appendChild(separatorElem);
                 continue;
             }
+            UserCommandSupport uSupport = (UserCommandSupport) supp;
+            VcsCommand cmd = uSupport.getVcsCommand();
             Element commandElm = doc.createElement(COMMAND_TAG);
             commandElm.setAttribute(COMMAND_NAME_ATTR, cmd.getName());
             String displayName = cmd.getDisplayName();
@@ -315,7 +329,7 @@ public class UserCommandIO extends Object {
                 propertiesElm.appendChild(propValueElem);
                 commandElm.appendChild(propertiesElm);
             }
-            if (!commandNode.isLeaf()) putCommands(doc, commandElm, commandNode);
+            if (commandNode.hasChildren()) putCommands(doc, commandElm, commandNode);
             commands.appendChild(commandElm);
         }
     }

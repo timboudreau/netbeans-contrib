@@ -25,8 +25,8 @@ import org.openide.util.Utilities;
 
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
-import org.netbeans.modules.vcscore.commands.CommandOutputListener;
-import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
+import org.netbeans.modules.vcscore.commands.TextOutputListener;
+import org.netbeans.modules.vcscore.commands.RegexOutputListener;
 
 /** Single external command to be executed. See {@link TestCommand} for typical usage.
  * 
@@ -570,7 +570,7 @@ public class ExternalCommand {
     /**
      * Add a listener to the standard output with a specific regular expression.
      */
-    public void addStdoutRegexListener(CommandDataOutputListener l, String regex) throws BadRegexException {
+    public void addRegexOutputListener(RegexOutputListener l, String regex) throws BadRegexException {
         synchronized(stdOutDataLock) {
             if (stdOutDataListeners.contains(l)) return;
             RE pattern = null;
@@ -591,7 +591,7 @@ public class ExternalCommand {
     /**
      * Add a listener to the standard error output with a specific regular expression.
      */
-    public void addStderrRegexListener(CommandDataOutputListener l, String regex) throws BadRegexException {
+    public void addRegexErrorListener(RegexOutputListener l, String regex) throws BadRegexException {
         synchronized(stdErrDataLock) {
             if (stdErrDataListeners.contains(l)) return;
             RE pattern = null;
@@ -610,7 +610,7 @@ public class ExternalCommand {
     /**
      * Add a listener to the standard output.
      */
-    public void addStdoutListener(CommandOutputListener l) {
+    public void addTextOutputListener(TextOutputListener l) {
         synchronized(stdOutLock) {
             this.stdOutListeners.add(l);
         }
@@ -620,7 +620,7 @@ public class ExternalCommand {
     /**
      * Add a listener to the standard error output.
      */
-    public void addStderrListener(CommandOutputListener l) {
+    public void addTextErrorListener(TextOutputListener l) {
         synchronized(stdErrLock) {
             this.stdErrListeners.add(l);
         }
@@ -629,7 +629,7 @@ public class ExternalCommand {
     /**
      * Remove a standard output data listener.
      */
-    public void removeStdoutRegexListener(CommandDataOutputListener l) {
+    public void removeRegexOutputListener(RegexOutputListener l) {
         synchronized(stdOutDataLock) {
             int index = stdOutDataListeners.indexOf(l);
             if (index < 0) return;
@@ -642,7 +642,7 @@ public class ExternalCommand {
     /**
      * Remove an error output data listener.
      */
-    public void removeStderrRegexListener(CommandDataOutputListener l) {
+    public void removeRegexErrorListener(RegexOutputListener l) {
         synchronized(stdErrDataLock) {
             int index = stdErrDataListeners.indexOf(l);
             if (index < 0) return;
@@ -678,13 +678,13 @@ public class ExternalCommand {
             for (int i = 0; i < n; i++) {
                 RE pattern = (RE) stdOutRegexps.get(i);
                 String[] sa = matchToStringArray(pattern, line);
-                if (sa != null && sa.length > 0) ((CommandDataOutputListener) stdOutDataListeners.get(i)).outputData(sa);
+                if (sa != null && sa.length > 0) ((RegexOutputListener) stdOutDataListeners.get(i)).outputMatchedGroups(sa);
             }
         }
         synchronized(stdOutLock) {
             Iterator it = stdOutListeners.iterator();
             while(it.hasNext()) {
-                ((CommandOutputListener) it.next()).outputLine(line);
+                ((TextOutputListener) it.next()).outputLine(line);
             }
         }
     }
@@ -696,13 +696,13 @@ public class ExternalCommand {
             for (int i = 0; i < n; i++) {
                 RE pattern = (RE) stdErrRegexps.get(i);
                 String[] sa = matchToStringArray(pattern, line);
-                if (sa != null && sa.length > 0) ((CommandDataOutputListener) stdErrDataListeners.get(i)).outputData(sa);
+                if (sa != null && sa.length > 0) ((RegexOutputListener) stdErrDataListeners.get(i)).outputMatchedGroups(sa);
             }
         }
         synchronized(stdErrLock) {
             Iterator it = stdErrListeners.iterator();
             while(it.hasNext()) {
-                ((CommandOutputListener) it.next()).outputLine(line);
+                ((TextOutputListener) it.next()).outputLine(line);
             }
         }
     }

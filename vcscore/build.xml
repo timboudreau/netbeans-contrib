@@ -85,7 +85,7 @@ Microsystems, Inc. All Rights Reserved.
     <echo message="Build VCS API documentation..."/>
     <mkdir dir="VCSAPIs"/>
     <javadoc destdir="VCSAPIs"
-             packagenames="org.netbeans.api.vcs,org.netbeans.api.vcs.actions,org.netbeans.api.vcs.commands,org.netbeans.api.vcs.groups,org.netbeans.spi.vcs,org.netbeans.spi.vcs.commands"
+             packagenames="org.netbeans.api.vcs,org.netbeans.api.vcs.commands,org.netbeans.spi.vcs,org.netbeans.spi.vcs.commands"
              doctitle="NetBeans VCS APIs"
              use="true"
              splitindex="true"

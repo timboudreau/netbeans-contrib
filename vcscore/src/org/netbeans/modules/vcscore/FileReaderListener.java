@@ -14,13 +14,14 @@
 package org.netbeans.modules.vcscore;
 
 import java.util.Collection;
+import java.util.EventListener;
 
 /**
  * Listener, that is called to update the file attributes.
  *
  * @author  Martin Entlicher
  */
-public interface FileReaderListener {
+public interface FileReaderListener extends EventListener {
 
     /**
      * The reading of file attributes was finished.

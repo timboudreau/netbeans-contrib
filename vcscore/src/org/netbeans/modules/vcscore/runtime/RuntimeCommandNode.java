@@ -24,8 +24,6 @@ import org.openide.util.Utilities;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListener;
 
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
-import org.netbeans.modules.vcscore.commands.CommandsPool;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**

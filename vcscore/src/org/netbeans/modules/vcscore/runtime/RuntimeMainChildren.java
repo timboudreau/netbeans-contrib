@@ -27,8 +27,6 @@ import org.openide.loaders.*;
 import org.openide.util.*;
 import java.beans.*;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
-
 /** 
  *
  * @author builder

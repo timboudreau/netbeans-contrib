@@ -21,21 +21,28 @@ import java.util.Collection;
 import org.openide.util.actions.SystemAction;
 import org.openide.nodes.Node;
 
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
+
+import org.netbeans.spi.vcs.commands.CommandSupport;
+
 import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.actions.AddToGroupAction;
-import org.netbeans.modules.vcscore.commands.VcsCommand;
-import org.netbeans.modules.vcscore.commands.VcsCommandIO;
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
-import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
+//import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.VcsFSCache;
 
-import org.netbeans.modules.vcscore.cmdline.CommandLineVcsDirReader;
-import org.netbeans.modules.vcscore.cmdline.CommandLineVcsDirReaderRecursive;
-import org.netbeans.modules.vcscore.cmdline.AdditionalCommandDialog;
+//import org.netbeans.modules.vcscore.cmdline.CommandLineVcsDirReader;
+//import org.netbeans.modules.vcscore.cmdline.CommandLineVcsDirReaderRecursive;
+//import org.netbeans.modules.vcscore.cmdline.AdditionalCommandDialog;
 import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
+import org.netbeans.modules.vcscore.commands.VcsCommand;
+import org.netbeans.modules.vcscore.commands.VcsCommandIO;
+import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 
 /**
  * This class provides a default implementation of VcsFactory.
@@ -44,8 +51,8 @@ import org.netbeans.modules.vcscore.cmdline.UserCommand;
  */
 public class DefaultVcsFactory extends Object implements VcsFactory {
 
-    private static Object fsActionAccessLock = new Object();
-    private static VcsAction fsAction = null;
+    //private static Object fsActionAccessLock = new Object();
+    //private static VcsAction fsAction = null;
 
     protected WeakReference fileSystem;
     
@@ -77,7 +84,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
     /**
      * Get the VCS directory reader.
      * @return an instance of <code>CommandLineVcsDirReader</code> or null when can not be created.
-     */
+     *
     public VcsCommandExecutor getVcsDirReader(DirReaderListener listener, String path) {
         VcsCommand list;
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
@@ -108,7 +115,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
     /**
      * Get the VCS directory reader that reads the whole directory structure.
      * @return an instance of <code>CommandLineVcsDirReader</code> or null when can not be created.
-     */
+     *
     public VcsCommandExecutor getVcsDirReaderRecursive(DirReaderListener listener, String path) {
         VcsCommand list;
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
@@ -170,6 +177,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
         //return new SystemAction[] { getVcsAction() };
         //ArrayList actions = new ArrayList();
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
+        /*
         Node commands = fileSystem.getCommands();
         Node[] commandRoots = commands.getChildren().getNodes();
         //System.out.println("DefaultVcsFactory.getActions(): commandRoots.length = "+commandRoots.length);
@@ -198,6 +206,8 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
             fsAction.setCommandsSubTrees(commandNodesSubTrees);
         }
         actions.add(fsAction);
+         */
+        actions.add(SystemAction.get(VcsFSCommandsAction.class));
         if (fileSystem.getVersioningFileSystem() != null) {
             actions.add(SystemAction.get(VersioningExplorerAction.class));
         }
@@ -212,6 +222,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      * @param command the command to get the executor for
      * @param variables the <code>Hashtable</code> of (variable name, variable value) pairs
      * @return the command executor or null when no executor is found. If command is instance of {@link UserCommand}, an instance of {@link ExecuteCommand} is returned.
+     * @deprecated This method is retained for compatibility only.
      */
     public VcsCommandExecutor getCommandExecutor(VcsCommand command, Hashtable variables) {
         if (command instanceof UserCommand) {
@@ -219,8 +230,22 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
             //    AdditionalCommandDialog addCommand = new org.netbeans.modules.vcscore.cmdline.AdditionalCommandDialog(fileSystem, (UserCommand) command, variables, new javax.swing.JFrame(), false);
             //    return addCommand.createCommand();
             //} else {
-                VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-                return new ExecuteCommand(fileSystem, (UserCommand) command, variables);
+            VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
+            if (fileSystem == null) return null;
+            UserCommand ucmd = (UserCommand) command;
+            CommandSupport cmdSupp = fileSystem.getCommandSupport(command.getName());
+            if (cmdSupp == null) {
+                cmdSupp = new UserCommandSupport(ucmd, fileSystem);
+            }
+            Command cmd = cmdSupp.createCommand();
+            if (cmd instanceof VcsDescribedCommand) ((VcsDescribedCommand) cmd).setAdditionalVariables(variables);
+            //if (!VcsManager.showCustomizer(cmd)) return null;
+            ExecuteCommand executor = new ExecuteCommand(fileSystem, (UserCommand) command, variables);
+            if (cmd instanceof VcsDescribedCommand) {
+                executor.setDescribedCommand((VcsDescribedCommand) cmd);
+                ((VcsDescribedCommand) cmd).setExecutor(executor);
+            }
+            return executor;
             //}
         } else {
             return null;

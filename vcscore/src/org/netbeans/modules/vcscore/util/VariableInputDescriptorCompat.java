@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore.util;
 
 import java.util.*;
 
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 
 /**
@@ -53,8 +54,9 @@ public final class VariableInputDescriptorCompat extends Object {
     public static void createInputDescriptorFormExec(Hashtable commandsByName) {
         Iterator cmdIt = commandsByName.values().iterator();
         while (cmdIt.hasNext()) {
-            VcsCommand cmd = (VcsCommand) cmdIt.next();
-            if (cmd.getProperty(VcsCommand.PROPERTY_INPUT_DESCRIPTOR) == null) {
+            UserCommandSupport cmdSupport = (UserCommandSupport) cmdIt.next();
+            VcsCommand cmd = cmdSupport.getVcsCommand();
+            if (cmd != null && cmd.getProperty(VcsCommand.PROPERTY_INPUT_DESCRIPTOR) == null) {
                 createInputDescriptorFormExec(cmd);
             }
         }

@@ -455,7 +455,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 Node commands = commandsList.item(0);
                 commandsList = commands.getChildNodes();
             } else commandsList = null;
-            fs.setCommands(UserCommandIO.readCommands(labelNode, commandsList));
+            fs.setCommands(UserCommandIO.readCommands(labelNode, commandsList, fs));
         }
         readAdditionalFSProperties(fs, doc);
     }

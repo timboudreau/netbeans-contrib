@@ -31,21 +31,28 @@ import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
+import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 
+import org.netbeans.api.vcs.FileStatusInfo;
+
+import org.netbeans.spi.vcs.commands.CommandSupport;
+
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.cache.CacheReference;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandsPool;
+import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
-import org.netbeans.modules.vcscore.commands.VcsCommandNode;
+//import org.netbeans.modules.vcscore.commands.VcsCommandNode;
 import org.netbeans.modules.vcscore.util.*;
 
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
@@ -75,6 +82,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public static final String VAR_POSSIBLE_FILE_STATUSES = "POSSIBLE_FILE_STATUSES"; // NOI18N
     public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED = "POSSIBLE_FILE_STATUSES_LOCALIZED"; // NOI18N
     public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT = "POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT"; // NOI18N
+    public static final String VAR_POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD = "POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD"; // NOI18N
     public static final String VAR_NOT_MODIFIABLE_FILE_STATUSES = "NOT_MODIFIABLE_FILE_STATUSES"; // NOI18N
     //public static final String VAR_FILE_STATUS_MODIFIED = "FILE_STATUS_MODIFIED"; // NOI18N
     public static final String VAR_VCS_FILE_STATUS_MISSING = "VCS_FILE_STATUS_MISSING"; // NOI18N
@@ -135,7 +143,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     /** Ugly, but I can not do this in the constuctor, because it can cause deadlock.
      * And I need to initialize the commands somehow, because null will fail somewhere else.
      * Commands should not be stored in Node structure in future releases, since it cause problems (deadlocks) */
-    private static final Node EMPTY_COMMANDS = new VcsCommandNode(new Children.Array(), new UserCommand("NONE"));
+    //private static final Node EMPTY_COMMANDS = new VcsCommandNode(new Children.Array(), new UserCommand("NONE"));
+    //private static final CommandSupport EMPTY_COMMANDS = new UserCommandSupport(new UserCommand("NONE"), this);
 
     private String config = null;//"Empty (Unix)"; // NOI18N
 
@@ -206,7 +215,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setConfigFO();
         //boolean status = readConfiguration (DEFAULT_CONFIG_NAME);
         //if (status == false) readConfigurationCompat(DEFAULT_CONFIG_NAME_COMPAT);
-        setCommands(EMPTY_COMMANDS);
+        setCommands(new CommandsTree(new UserCommandSupport(new UserCommand("NONE"), this)));//EMPTY_COMMANDS);
         addPropertyChangeListener(this);
         cacheRoot = System.getProperty("netbeans.user")+File.separator+
                     "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
@@ -265,7 +274,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
     
     public VcsFactory getVcsFactory () {
-        return new CommandLineVcsFactory (this);
+        return new DefaultVcsFactory(this);//new CommandLineVcsFactory (this);
     }
     
     /**
@@ -503,7 +512,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setVariables (VariableIOCompat.readVariables(props));
         D.deb("setVariables DONE."); // NOI18N
         
-        setCommands ((org.openide.nodes.Node) CommandLineVcsAdvancedCustomizer.readConfig (props));
+        setCommands ((CommandsTree) CommandLineVcsAdvancedCustomizer.readConfig (props, this));
         D.deb("readConfigurationCompat() done"); // NOI18N
         setConfig(label);
         return true;
@@ -523,7 +532,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setVariables (VariableIO.readVariables(doc));
         D.deb("setVariables DONE."); // NOI18N
         
-        setCommands ((org.openide.nodes.Node) CommandLineVcsAdvancedCustomizer.readConfig (doc));
+        setCommands ((CommandsTree) CommandLineVcsAdvancedCustomizer.readConfig (doc, this));
         D.deb("readConfiguration() done"); // NOI18N
         setConfig(label);
         return true;
@@ -628,7 +637,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public void setShortFileStatuses(boolean shortFileStatuses) {
         if (this.shortFileStatuses != shortFileStatuses) {
             this.shortFileStatuses = shortFileStatuses;
-            setPossibleFileStatusesFromVars();
+            Set statusInfos = getPossibleFileStatusInfos();
+            for (Iterator it = statusInfos.iterator(); it.hasNext(); ) {
+                FileStatusInfo status = (FileStatusInfo) it.next();
+                if (status instanceof CommandLineFileStatusInfo) {
+                    ((CommandLineFileStatusInfo) status).setShortDisplayed(shortFileStatuses);
+                }
+            }
+            //setPossibleFileStatusesFromVars();
             refreshStatusOfExistingFiles();
             firePropertyChange(PROP_SHORT_FILE_STATUSES, !shortFileStatuses ? Boolean.TRUE : Boolean.FALSE, shortFileStatuses ? Boolean.TRUE : Boolean.FALSE);
         }
@@ -643,6 +659,84 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         fireFileStatusChanged(new org.openide.filesystems.FileStatusEvent(this, existingFOs, false, true));
     }
     
+    private void setPossibleFileStatusInfosFromVars() {
+        VcsConfigVariable varStatuses = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES);
+        if (varStatuses == null) {
+            setPossibleFileStatusInfos(Collections.EMPTY_SET);
+            return ;
+        }
+        VcsConfigVariable varStatusesLclz = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES_LOCALIZED);
+        VcsConfigVariable varStatusesLclzShort = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT);
+        VcsConfigVariable varStatusesMap = (VcsConfigVariable) variablesByName.get(VAR_POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD);
+        VcsConfigVariable varIcons = (VcsConfigVariable) variablesByName.get (VAR_ICONS_FOR_FILE_STATUSES);
+        String[] statuses = VcsUtilities.getQuotedStrings(varStatuses.getValue());
+        String[] statusesLclz = null;
+        if (varStatusesLclz != null) statusesLclz = VcsUtilities.getQuotedStrings(varStatusesLclz.getValue());
+        String[] statusesLclzShort = null;
+        if (varStatusesLclzShort != null) statusesLclzShort = VcsUtilities.getQuotedStrings(varStatusesLclzShort.getValue());
+        String[] statusesMap = null;
+        if (varStatusesMap != null) statusesMap = VcsUtilities.getQuotedStrings(varStatusesMap.getValue());
+        String[] iconResources = null;
+        if (varIcons != null) iconResources = VcsUtilities.getQuotedStrings(varIcons.getValue());
+        CommandLineFileStatusInfo[] statusInfos = new CommandLineFileStatusInfo[statuses.length];
+        { // to have limited definition of 'i'
+        int i = 0;
+        if (statusesLclz != null) {
+            if (statusesLclzShort != null) {
+                for(; i < statuses.length && i < statusesLclz.length && i < statusesLclzShort.length; i++) {
+                    statusInfos[i] = new CommandLineFileStatusInfo(statuses[i], statusesLclz[i], statusesLclzShort[i]);
+                }
+            }
+            for(; i < statuses.length && i < statusesLclz.length; i++) {
+                statusInfos[i] = new CommandLineFileStatusInfo(statuses[i], statusesLclz[i], null);
+            }
+        }
+        for(; i < statuses.length; i++) {
+            statusInfos[i] = new CommandLineFileStatusInfo(statuses[i], statuses[i], null);
+        }
+        } // end of definition of 'i'
+        if (statusesMap != null) {
+            for (int i = 0; i < statuses.length && i < statusesMap.length; i++) {
+                try {
+                    java.lang.reflect.Field statusInfoField = CommandLineFileStatusInfo.class.getField(statusesMap[i]);
+                    if (!FileStatusInfo.class.isAssignableFrom(statusInfoField.getType())) continue;
+                    FileStatusInfo repStatusInfo = (FileStatusInfo) statusInfoField.get(null);
+                    statusInfos[i].setRepresentingStatus(repStatusInfo);
+                } catch (Exception ex) {
+                    ErrorManager.getDefault().notify(ErrorManager.WARNING,
+                        ErrorManager.getDefault().annotate(ex,
+                            "File status '"+statusesMap[i]+"' not found."));
+                }
+            }
+        }
+        if (iconResources != null) {
+            FileSystem defaultFS = Repository.getDefault().getDefaultFileSystem();
+            for (int i = 0; i < statuses.length && i < iconResources.length; i++) {
+                if (iconResources[i].length() == 0) continue;
+                FileObject resourceFile = defaultFS.findResource(iconResources[i]);
+                if (resourceFile == null) {
+                    TopManager.getDefault().notify(new NotifyDescriptor.Message(
+                        NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_CanNotFindIconResource", iconResources[i])));
+                    continue;
+                }
+                try {
+                    statusInfos[i].setIcon(new javax.swing.ImageIcon(resourceFile.getURL()).getImage());
+                } catch (FileStateInvalidException exc) {
+                    TopManager.getDefault().notify(new NotifyDescriptor.Message(
+                        NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_InvalidFileIconResource", iconResources[i])));
+                    continue;
+                }
+            }
+        }
+        setPossibleFileStatusInfos(new HashSet(Arrays.asList(statusInfos)));
+        setMissingStates((VcsConfigVariable) variablesByName.get (VAR_VCS_FILE_STATUS_MISSING),
+                         (VcsConfigVariable) variablesByName.get (VAR_VCS_FOLDER_STATUS_MISSING),
+                         (VcsConfigVariable) variablesByName.get (VAR_NOT_MISSINGABLE_FILE_STATUSES),
+                         (VcsConfigVariable) variablesByName.get (VAR_NOT_MISSINGABLE_FOLDER_STATUSES));
+        firePropertyChange(PROP_ADDITIONAL_POSSIBLE_FILE_STATUSES_MAP, null, additionalPossibleFileStatusesMap);
+    }
+    
+    /*
     private void setPossibleFileStatusesFromVars() {
         VcsConfigVariable varStatuses = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES);
         VcsConfigVariable varStatusesLclz;
@@ -677,6 +771,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                          (VcsConfigVariable) variablesByName.get (VAR_NOT_MISSINGABLE_FOLDER_STATUSES));
         firePropertyChange(PROP_ADDITIONAL_POSSIBLE_FILE_STATUSES_MAP, null, additionalPossibleFileStatusesMap);
     }
+     */
     
     /*
     private void setModifiedAndMissingStates(VcsConfigVariable modifiedVar, VcsConfigVariable missingVar) {
@@ -708,25 +803,28 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             if (varNotMissingableFileStatuses != null) {
                 java.util.List statuses = Arrays.asList(VcsUtilities.getQuotedStrings(
                     varNotMissingableFileStatuses.getValue()));
-                replaceItemsWithMappedValues(statuses, possibleFileStatusesMap);
+                //replaceItemsWithMappedValues(statuses, possibleFileStatusesMap);
                 setNotMissingableFileStatuses(statuses);
             }
             if (varNotMissingableFolderStatuses != null) {
                 java.util.List statuses = Arrays.asList(VcsUtilities.getQuotedStrings(
                     varNotMissingableFolderStatuses.getValue()));
-                replaceItemsWithMappedValues(statuses, possibleFileStatusesMap);
+                //replaceItemsWithMappedValues(statuses, possibleFileStatusesMap);
                 setNotMissingableFolderStatuses(statuses);
             }
         }
     }
     
+    /*
     private void replaceItemsWithMappedValues(java.util.List list, java.util.Map map) {
         for (int i = 0; i < list.size(); i++) {
             Object value = map.get(list.get(i));
             if (value != null) list.set(i, value);
         }
     }
+     */
     
+    /*
     private void setBadgeIconsFromVars() {
         VcsConfigVariable varStatuses = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES);
         VcsConfigVariable varIcons = (VcsConfigVariable) variablesByName.get (VAR_ICONS_FOR_FILE_STATUSES);
@@ -759,6 +857,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             }
         }
     }
+     */
     
     private void setNotModifiableStatusesFromVars() {
         VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(VAR_NOT_MODIFIABLE_FILE_STATUSES);
@@ -821,8 +920,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      */
     public void setVariables(Vector variables){
         super.setVariables(variables);
-        setPossibleFileStatusesFromVars();
-        setBadgeIconsFromVars();
+        //setPossibleFileStatusesFromVars();
+        //setBadgeIconsFromVars();
+        setPossibleFileStatusInfosFromVars();
         setNotModifiableStatusesFromVars();
         setLocalFileFilterFromVars();
         setDocumentCleanupFromVars();
@@ -935,20 +1035,20 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return false;
     }
     
-    private org.openide.nodes.Node tryToFindDefaultCommands() {
+    private CommandsTree tryToFindDefaultCommands() {
         if (config == null) return null;
-        ProfilesCache cache = new ProfilesCache(CONFIG_ROOT_FO);
-        return (org.openide.nodes.Node) cache.getProfileCommands(config);
+        ProfilesCache cache = new ProfilesCache(CONFIG_ROOT_FO, this);
+        return (CommandsTree) cache.getProfileCommands(config);
     }
     
     private void loadCurrentConfig() {
         //System.out.println("loadCurrentConfig() configFileName = "+configFileName);
-        org.openide.nodes.Node commands = null;
+        CommandsTree commands = null;
         if (configFileName != null) {
             org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName);
             if (doc == null) return ;
             try {
-                commands = (org.openide.nodes.Node) CommandLineVcsAdvancedCustomizer.readConfig (doc);
+                commands = (CommandsTree) CommandLineVcsAdvancedCustomizer.readConfig (doc, this);
             } catch (org.w3c.dom.DOMException exc) {
                 org.openide.TopManager.getDefault().notifyException(exc);
             }
@@ -1010,11 +1110,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * the commands if necessary.
      * @return the root command
      */
-    public Node getCommands() {
-        Node commandRoot = super.getCommands();
+    public CommandsTree getCommands() {
+        CommandsTree commandRoot = super.getCommands();
         if (commandRoot == null) {
             loadCurrentConfig();
-            setBadgeIconsFromVars();
+            //setBadgeIconsFromVars();
         }
         return super.getCommands();
     }

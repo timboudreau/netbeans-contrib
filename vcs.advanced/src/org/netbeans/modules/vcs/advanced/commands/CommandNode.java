@@ -137,8 +137,10 @@ public class CommandNode extends AbstractNode {
         stdlist_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_SIZE, Integer.TYPE);
         stdlist_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_ATTR, Integer.TYPE);
         stdlistCmdNames = Collections.unmodifiableList(Arrays.asList(new String[] {
-            VcsCommand.NAME_REFRESH, VcsCommand.NAME_REFRESH_OFFLINE,
-            VcsCommand.NAME_REFRESH_RECURSIVELY, VcsCommand.NAME_REFRESH_RECURSIVELY_OFFLINE
+            VcsCommand.NAME_REFRESH,
+            VcsCommand.NAME_REFRESH + VcsCommand.NAME_SUFFIX_OFFLINE,
+            VcsCommand.NAME_REFRESH_RECURSIVELY,
+            VcsCommand.NAME_REFRESH_RECURSIVELY + VcsCommand.NAME_SUFFIX_OFFLINE
         }));
         folder_std_propertyClassTypes.put(VcsCommand.PROPERTY_LABEL_MNEMONIC, String.class);
         FOLDER_COMMAND_PROPERTIES = new HashSet();

@@ -23,7 +23,7 @@ import org.netbeans.modules.vcscore.caching.VcsCacheDir;
  *
  * @author Pavel Buzek, Martin Entlicher
  */
-public interface DirReaderListener {
+public interface DirReaderListener extends EventListener {
 
     /**
      * The reading of a directory was finished. The files attributes data are provided.

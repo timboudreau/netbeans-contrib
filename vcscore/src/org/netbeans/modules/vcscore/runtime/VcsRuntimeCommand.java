@@ -14,8 +14,7 @@
 package org.netbeans.modules.vcscore.runtime;
 
 /**
- * The default implementation of RuntimeCommand. Gets the info that is needed by
- * RuntimeCommandNode from CommandsPool and VcsCommandExecutor
+ * The default implementation of RuntimeCommand.
  * @author  Milos Kleint
  */
 import org.openide.actions.PropertiesAction;
@@ -23,41 +22,88 @@ import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
 
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
-import org.netbeans.modules.vcscore.commands.CommandsPool;
-import org.netbeans.modules.vcscore.util.VcsUtilities;
-import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
 
+import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.modules.vcscore.cmdline.UserCommandTask;
+import org.netbeans.modules.vcscore.commands.CommandProcessor;
+import org.netbeans.modules.vcscore.commands.CommandTaskInfo;
+import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.VcsCommandVisualizer;
+import org.netbeans.modules.vcscore.commands.VcsDescribedTask;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
+
+/**
+ * The default implementation of RuntimeCommand. Gets the info that is needed by
+ * RuntimeCommandNode from CommandsPool and VcsCommandExecutor
+ * @author  Milos Kleint, Martin Entlicher
+ */
 public class VcsRuntimeCommand extends RuntimeCommand {
     
+    //private Command cmd;
+    private CommandTaskInfo taskInfo;
+    private CommandTask task;
     private VcsCommandExecutor executor;
-    private CommandsPool pool;
     private int state;
     
-    public VcsRuntimeCommand(VcsCommandExecutor executor) {
-        this.executor = executor;
-        this.pool = CommandsPool.getInstance();
+    /*
+    public VcsRuntimeCommand(Command cmd) {
+        this.cmd = cmd;
+        this.taskInfo = null;
+        state = RuntimeCommand.STATE_WAITING;
+    }
+     */
+    
+    public VcsRuntimeCommand(CommandTaskInfo taskInfo) {
+        //this.cmd = null;
+        this.taskInfo = taskInfo;
+        task = taskInfo.getTask();
+        if (task instanceof UserCommandTask) {
+            executor = ((UserCommandTask) task).getExecutor();
+        }
         state = RuntimeCommand.STATE_WAITING;
     }
 
     public String getName() {
-        return executor.getCommand().getName();
+        //if (cmd != null) return cmd.getName();
+        return task.getName();
+        //return executor.getCommand().getName();
     }    
 
     public String getDisplayName() {
+        //if (cmd != null) return cmd.getDisplayName();
+        String name = task.getDisplayName();
+        if (name != null) {
+            int i = name.indexOf('&');
+            if (i >= 0) name = name.substring(0, i) + name.substring(i + 1);
+        }
+        return name;
+        /*
         String displayName = executor.getCommand().getDisplayName();
         if (displayName != null) {
             displayName = Variables.expand(executor.getVariables(), displayName, false);
         }
         return displayName;
+         */
     }
     
     public int getExitStatus() {
-        return executor.getExitStatus();
+        if (taskInfo != null) return task.getExitStatus();
+        else return 0;
+        //return executor.getExitStatus();
     }
     
     public void openCommandOutputDisplay() {
-       pool.openCommandOutput(executor);
+        if (task instanceof VcsDescribedTask) {
+            VcsCommandVisualizer visualizer = ((VcsDescribedTask) task).getVisualizer();
+            if (visualizer.isOpened()) {
+                visualizer.requestFocus();
+            } else {
+                visualizer.open();
+            }
+        }
+        //pool.openCommandOutput(executor);
     }
     
     public Sheet createSheet() {
@@ -71,7 +117,7 @@ public class VcsRuntimeCommand extends RuntimeCommand {
         set.put(new PropertySupport.ReadOnly("name", String.class, g("CTL_Name"), g("HINT_Name")) {
                         public Object getValue() {
                             //System.out.println("getName: cmd = "+cmd);
-                            return executor.getCommand().getName();
+                            return VcsRuntimeCommand.this.getName();
                         }
                 });
         set.put(new PropertySupport.ReadOnly("exec", String.class, g("CTL_Exec"), g("HINT_Exec")) {
@@ -90,32 +136,32 @@ public class VcsRuntimeCommand extends RuntimeCommand {
                 });
         set.put(new PropertySupport.ReadOnly("status", String.class, g("CTL_Status"), g("HINT_Status")) {
                         public Object getValue() {
-                            if (pool.isWaiting(executor)) return g("CTL_Status_Waiting");
-                            if (pool.isRunning(executor)) {
+                            if (!task.isRunning() && !task.isFinished()) return g("CTL_Status_Waiting");
+                            if (task.isRunning()) {
                                 if (state == STATE_KILLED_BUT_RUNNING) return g("CTL_Status_Killed_But_Running");
                                 else return g("CTL_Status_Running");
                             }
-                            return CommandsPool.getExitStatusString(executor.getExitStatus());
+                            return CommandProcessor.getExitStatusString(executor.getExitStatus());
                         }
                 });
         if (Boolean.getBoolean("netbeans.vcsdebug")) {
         set.put(new PropertySupport.ReadOnly("startTime", String.class, "Start Time", null) {
                         public Object getValue() {
-                            long time = pool.getStartTime(executor);
+                            long time = taskInfo.getStartTime();
                             if (time == 0) return null;
                             else return new java.util.Date(time).toLocaleString();
                         }
                 });
         set.put(new PropertySupport.ReadOnly("finishTime", String.class, "Finish Time", null) {
                         public Object getValue() {
-                            long time = pool.getFinishTime(executor);
+                            long time = taskInfo.getFinishTime();
                             if (time == 0) return null;
                             else return new java.util.Date(time).toLocaleString();
                         }
                 });
         set.put(new PropertySupport.ReadOnly("executionTime", String.class, "Execution Time", null) {
                         public Object getValue() {
-                            long time = pool.getExecutionTime(executor);
+                            long time = taskInfo.getExecutionTime();
                             if (time == 0) return null;
                             else {
                                 long allms = time;
@@ -128,7 +174,15 @@ public class VcsRuntimeCommand extends RuntimeCommand {
                                 int h = (int) (time - (time/24)*24);
                                 time /= 24;
                                 int d = (int) time;
-                                return allms+" ms = "+d+"d "+h+"h "+min+"min "+s+"s "+ms+"ms";
+                                if (allms > 1000) {
+                                    return allms+" ms = "+((d > 0) ? d+"d " : "")
+                                                         +((h > 0) ? h+"h " : "")
+                                                         +((min>0 || h > 0) ? min+"min ":"")
+                                                         +((s > 0 || min>0) ? s+"s " : "")
+                                                         +ms+"ms";
+                                } else {
+                                    return allms+" ms";
+                                }
                             }
                         }
                 });
@@ -146,7 +200,7 @@ public class VcsRuntimeCommand extends RuntimeCommand {
             KillRunningCommandAction.getInstance(),
             SystemAction.get(PropertiesAction.class)
         };
-    }    
+    }
     
     public String getId() {
         Object obj = executor;
@@ -158,7 +212,7 @@ public class VcsRuntimeCommand extends RuntimeCommand {
      * this method will be called and should attempt  to stop the running command.
      */
     public void killCommand() {
-        pool.kill(executor);
+        task.stop();
         setState(STATE_KILLED_BUT_RUNNING);
     }
     
@@ -171,8 +225,10 @@ public class VcsRuntimeCommand extends RuntimeCommand {
         firePropertyChange(PROP_STATE, null, null);
     }
     
+    /*
     public void notifyRemoved() {
         pool.removeFinishedCommand(executor);
     }
+     */
 
 }

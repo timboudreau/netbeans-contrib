@@ -15,28 +15,29 @@ package org.netbeans.modules.vcscore;
 
 import java.awt.event.ActionListener;
 import java.lang.ref.WeakReference;
+import java.util.*;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import java.util.*;
 
-import org.openide.awt.JMenuPlus;
+import org.openide.awt.Actions;
 import org.openide.awt.JInlineMenu;
-import org.openide.util.actions.*;
+import org.openide.awt.JMenuPlus;
 import org.openide.filesystems.*;
 import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.actions.*;
+
+import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.WeakList;
-//import org.netbeans.modules.vcscore.util.FileEditorSupport;
-//import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
-//import org.netbeans.modules.vcscore.versioning.VcsFileObject;
 
 /**
  *
@@ -108,8 +109,7 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
 
     //-------------------------------------------
     public HelpCtx getHelpCtx(){
-        //D.deb("getHelpCtx()"); // NOI18N
-        return null;
+        return new HelpCtx(VcsRevisionAction.class);
     }
 
     protected JMenuItem createItem(VcsCommand cmd) {
@@ -123,13 +123,14 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
         }
         */
         //Hashtable vars = fileSystem.getVariablesAsHashtable();
-        String label = cmd.getDisplayName();
+        //String label = cmd.getDisplayName();
         /*
         if (label.indexOf('$') >= 0) {
             label = Variables.expandFast(vars, label, true);
         }
          */
-        item = new JMenuItem(label);
+        item = new JMenuItem();
+        Actions.setMenuText(item, cmd.getDisplayName(), false);
         String[] props = cmd.getPropertyNames();
         if (props != null && props.length > 0) {
             item.setActionCommand(cmd.getName());
@@ -141,11 +142,15 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
     /**
      * Add a popup submenu.
      */
-    private void addMenu(Node commands, JMenu parent, int numSelected) {
-        Children children = commands.getChildren();
-        for (Enumeration subnodes = children.nodes(); subnodes.hasMoreElements(); ) {
-            Node child = (Node) subnodes.nextElement();
-            VcsCommand cmd = (VcsCommand) child.getCookie(VcsCommand.class);
+    private void addMenu(CommandsTree commands, JMenu parent, int numSelected) {
+        //Children children = commands.getChildren();
+        CommandsTree[] subCommands = commands.children();
+        for (int i = 0; i < subCommands.length; i++) {
+            //Node child = (Node) subnodes.nextElement();
+            //VcsCommand cmd = (VcsCommand) child.getCookie(VcsCommand.class);
+            CommandSupport cmdSupp = subCommands[i].getCommandSupport();
+            if (!(cmdSupp instanceof UserCommandSupport)) continue;
+            VcsCommand cmd = ((UserCommandSupport) cmdSupp).getVcsCommand();
             if (cmd == null) {
                 parent.addSeparator();
                 continue;
@@ -154,15 +159,16 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
             if (numRev != numSelected
                 || VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)
                 || cmd.getDisplayName() == null) continue;
-            if (!child.isLeaf()) {
+            if (subCommands[i].hasChildren()) {
                 JMenu submenu;
                 String[] props = cmd.getPropertyNames();
-                if (props == null || props.length == 0) {
-                    submenu = new JMenuPlus(cmd.getDisplayName());
-                } else {
+                //if (props == null || props.length == 0) {
+                //    submenu = new JMenuPlus(cmd.getDisplayName());
+                //} else {
                     submenu = new JMenuPlus();
-                }
-                addMenu(child, submenu, numSelected);
+                //}
+                Actions.setMenuText(submenu, cmd.getDisplayName(), false);
+                addMenu(subCommands[i], submenu, numSelected);
                 parent.add(submenu);
             } else {
                 JMenuItem item = createItem(cmd);
@@ -195,12 +201,16 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
          */
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         if (fileSystem == null) return null;
-        Node commands = fileSystem.getCommands();
-        Children children = commands.getChildren();
-        Node[] commandRoots = children.getNodes();
+        CommandsTree commands = fileSystem.getCommands();
+        //Node commands = fileSystem.getCommands();
+        //Children children = commands.getChildren();
+        CommandsTree[] commandRoots = commands.children();
         int numRevisions = selectedRevisionItems.size();
         for (int i = 0; i < commandRoots.length; i++) {
-            VcsCommand cmd = (VcsCommand) commandRoots[i].getCookie(VcsCommand.class);
+            CommandSupport cmdSupp = commandRoots[i].getCommandSupport();
+            if (!(cmdSupp instanceof UserCommandSupport)) continue;
+            VcsCommand cmd = ((UserCommandSupport) cmdSupp).getVcsCommand();
+            //VcsCommand cmd = (VcsCommand) commandRoots[i].getCookie(VcsCommand.class);
             if (cmd != null
                 && VcsCommandIO.getIntegerPropertyAssumeZero(cmd, VcsCommand.PROPERTY_NUM_REVISIONS) == numRevisions
                 && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)
@@ -214,9 +224,10 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
         return inlineMenu;
     }
 
-    private JMenuItem getPopupPresenter(Node commandRoot, VcsCommand cmd, int numSelected) {
-        String name = commandRoot.getDisplayName();
-        JMenuItem menu = new JMenuPlus(name);
+    private JMenuItem getPopupPresenter(CommandsTree commandRoot, VcsCommand cmd, int numSelected) {
+        //String name = commandRoot.getCommandSupport().getDisplayName();
+        JMenuItem menu = new JMenuPlus();
+        Actions.setMenuText(menu, commandRoot.getCommandSupport().getDisplayName(), false);
         addMenu(commandRoot, (JMenu) menu, numSelected);
         if (menu.getSubElements().length == 0) {
             menu = createItem(cmd);

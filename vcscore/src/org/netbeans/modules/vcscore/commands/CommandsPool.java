@@ -28,8 +28,10 @@ import org.openide.filesystems.RepositoryReorderedEvent;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListener;
 import org.openide.util.WeakSet;
-//import org.openide.nodes.AbstractNode;
-//import org.openide.nodes.Children;
+
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
@@ -37,15 +39,21 @@ import org.netbeans.modules.vcscore.FileReaderListener;
 import org.netbeans.modules.vcscore.runtime.*;
 import org.netbeans.modules.vcscore.cache.FileSystemCache;
 import org.netbeans.modules.vcscore.cache.CacheHandler;
+import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
- * This class is used as a container of all external commands which are either running or finished.
+ * This class was used as a container of all external commands which are either
+ * running or finished. Currently it's reimplemented as a bridge between the
+ * old internal "API" and the new VCS APIs.
+ * @deprecated Use {@link CommandProcessor} instead. This class is kept just for
+ *             compatibility reasons. It delegates it's work to CommandProcessor.
+ *
  * @author  Martin Entlicher
  */
-public class CommandsPool extends Object /*implements CommandListener */{
+public class CommandsPool extends Object {
 
     /**
      * The preprocessing of the command was cancelled. The command will not be executed.
@@ -106,7 +114,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private int numRunningListCommands;
     
     //private ThreadGroup group;
-    private CommandsThreadsPool threadsPool;
+    //private CommandsThreadsPool threadsPool;
+    private CommandProcessor processor;
     
     /** Whether to collect the whole output of commands. */
     private boolean collectOutput = true;
@@ -131,7 +140,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
         outputVisualizers = new Hashtable();
         fsWithCmdsRemovedOnRequest = new ArrayList();
         numRunningListCommands = 0;
-        threadsPool = new CommandsThreadsPool();
+        processor = CommandProcessor.getInstance();
+        //threadsPool = new CommandsThreadsPool();
         //group = new ThreadGroup("VCS Commands Group");
         //executorStarterLoop();
     }
@@ -153,42 +163,42 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * You will not be able to execute any command by CommandsPool after this method finishes !
      */
     public void cleanup() {
+        /*
         synchronized (this) {
             //* The FS may still exist i.e. inside a MultiFileSystem => do not interrupt the loop now
             execStarterLoopRunning = false;
             notifyAll();
-            // */
+            // *//*
         }
+        */
     }
     
-    public void setCollectOutput(boolean collectOutput) {
-        this.collectOutput = collectOutput;
-    }
-    
-    public boolean isCollectOutput() {
-        return collectOutput;
-    }
-
     /**
      * Get the command's ID. It's a unique command identification number.
      * @param vce the command's executor
      * @return the ID or -1 if the command does not have one.
-     */
+     *
     public long getCommandID(VcsCommandExecutor vce) {
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw != null) return cw.getCommandID();
         else return -1;
     }
+     */
 
     /**
      * Perform preprocessing of a new command. It will perform any needed input
      * and update the execution string.
      * @param vce the command to preprocess
-     * @return the preprocessing status, one of <code>CommandExecutorSupport.PROPEROCESS_*</code> constants
+     * @return the preprocessing status, one of <code>CommandExecutorSupport.PREPROCESS_*</code> constants
      */
     public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars,
                                  VcsFileSystem fileSystem) {
-        return preprocessCommand(vce, vars, fileSystem, null);
+        //return preprocessCommand(vce, vars, fileSystem, null);
+        if (vce instanceof ExecuteCommand) {
+            Command cmd = ((ExecuteCommand) vce).getDescribedCommand();
+            return VcsManager.getDefault().showCustomizer(cmd) ? PREPROCESS_DONE : PREPROCESS_CANCELLED;
+        }
+        return PREPROCESS_DONE;
     }
     
     /**
@@ -203,7 +213,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
      *        on multiple files. Only the first item in the array is used, new value
      *        will be returned.
      * @return the preprocessing status, one of <code>CommandExecutorSupport.PREPROCESS_*</code> constants
-     */
+     *
     public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars,
                                  VcsFileSystem fileSystem, boolean[] askForEachFile) {
         //setCommandID(vce);
@@ -250,7 +260,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
         return preprocessStatus;
     }
-    
+     */
+    /*
     private void commandStarted(final VcsCommandWrapper cw) {
         final VcsCommandExecutor vce = cw.getExecutor();
         //setCommandID(vce);
@@ -391,6 +402,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
             outputVisualizer.setExitStatus(exit);
         }
     }
+     */
     
     /**
      * Do remove finished commands only when explicitly requested by {@link #removeFinishedCommand} method.
@@ -400,17 +412,18 @@ public class CommandsPool extends Object /*implements CommandListener */{
      *                          if false, remove immediately.
      * @param fs The filesystem, whose commands should (or should not) be removed only
      *           upon the request.
-     */
+     *
     public void removeFinishedCommandsUponRequest(boolean removeUponRequest, VcsFileSystem fs) {
         if (removeUponRequest) fsWithCmdsRemovedOnRequest.add(fs);
         else fsWithCmdsRemovedOnRequest.remove(fs);
     }
+     */
     
     /**
      * Remove the finished executor from the internal database. After the command
      * is removed it's no longer possible to open it's output.
      * This method is used with {@link #removeFinishedCommandsUponRequest}.
-     */
+     *
     public void removeFinishedCommand(VcsCommandExecutor removedExecutor) {
         VcsCommandWrapper removedWrapper = (VcsCommandWrapper) commandsWrappers.get(removedExecutor);
         CommandOutputCollector collector = null;
@@ -432,7 +445,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
         //VcsFileSystem fs = removedWrapper.getFileSystem();
         //if (runCom != null) rSupport.removeDone(fileSystem.getSystemName(), runCom);
     }
-    
+     */
+    /*
     private void printErrorOutput(VcsCommandExecutor vce, final VcsFileSystem fileSystem) {
         //final VcsFileSystem fileSystem = getVcsFileSystem();
         if (fileSystem == null) return ;
@@ -451,14 +465,15 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (!isErrorOutput) {
             fileSystem.debugErr(g("MSG_No_error_output"));
         }
-         */
+         *//*
     }
+            */
     
     /**
      * Start the executor. The method starts the executor in a separate thread.
      * @param vce the executor
      */
-    public synchronized void startExecutor(final VcsCommandExecutor vce) {
+    public void startExecutor(final VcsCommandExecutor vce) {
         startExecutor(vce, null);
     }
     
@@ -467,10 +482,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * @param vce the executor
      * @param fileSystem the file system associated with the command. Can be <code>null</code>.
      */
-    public synchronized void startExecutor(final VcsCommandExecutor vce,
-                                           final VcsFileSystem fileSystem) {
+    public void startExecutor(final VcsCommandExecutor vce,
+                              final VcsFileSystem fileSystem) {
         // Do not start for cancelled executors !!
         if (cancelledCommandExecutors.contains(vce)) return ;
+        if (!(vce instanceof ExecuteCommand)) return ;
+        Command cmd = ((ExecuteCommand) vce).getDescribedCommand();
+        cmd.execute();
+        /*
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw == null) {
             cw = new VcsCommandWrapper(vce, fileSystem, (fileSystem != null) ? fileSystem.getVariablesAsHashtable() : null);
@@ -484,8 +503,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (!execStarterLoopStarted) {
             runExecutorStarterLoop();
         }
+         */
     }
     
+    /*
     private synchronized void executorStarter(final VcsCommandWrapper cw) {
         commandsRunning.add(cw);
         threadsPool.processCommand(new Runnable() {
@@ -548,12 +569,13 @@ public class CommandsPool extends Object /*implements CommandListener */{
         starterLoopThread.start();
         execStarterLoopStarted = true;
     }
+     */
 
     /**
      * Open the default visualizer of the command.
      * @return true if the output was successfully opened, false otherwise
      * (i.e. output is not available)
-     */
+     *
     public boolean openCommandOutput(final VcsCommandExecutor vce) {
         CommandOutputVisualizer visualizer = (CommandOutputVisualizer) outputVisualizers.get(vce);
         if (visualizer != null) {
@@ -594,11 +616,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (!isRunning(vce) && !isWaiting(vce)) outputVisualizer.setExitStatus(vce.getExitStatus());
         return true;
     }
+     */
         
     /**
      * Whether some command is still running.
      * @return true when at least one command is running, false otherwise.
-     */
+     *
     public synchronized boolean isSomeRunning() {
         return (commandsRunning.size() > 0);
         /*
@@ -615,32 +638,34 @@ public class CommandsPool extends Object /*implements CommandListener */{
             }
         }
         return running;
-         */
+         *//*
     }
+            */
     
     /**
      * Tells whether the executor is waiting. It can either wait till preprocessing
      * finishes or till other commands which can not run in parallel with it finish.
      * @param vce the executor
      */
-    public synchronized boolean isWaiting(VcsCommandExecutor vce) {
-        VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
-        if (cw == null) return false;
-        return commandsToRun.contains(cw) || commandsWaitQueue.contains(cw);
+    public boolean isWaiting(VcsCommandExecutor vce) {
+        if (!(vce instanceof ExecuteCommand)) return false;
+        CommandTask task = ((ExecuteCommand) vce).getTask();
+        return !task.isFinished() && !task.isRunning();
     }
     
     /**
      * Tells whether the executor is still running.
      * @param vce the executor
      */
-    public synchronized boolean isRunning(VcsCommandExecutor vce) {
-        VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
-        return (cw != null && commandsRunning.contains(cw));
+    public boolean isRunning(VcsCommandExecutor vce) {
+        if (!(vce instanceof ExecuteCommand)) return false;
+        CommandTask task = ((ExecuteCommand) vce).getTask();
+        return !task.isFinished();
     }
     
     /**
      * Get display names of running commands.
-     */
+     *
     public synchronized String[] getRunningCommandsLabels() {
         LinkedList names = new LinkedList();
         for(Iterator it = commandsRunning.iterator(); it.hasNext(); ) {
@@ -652,9 +677,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
         return (String[]) names.toArray(new String[0]);
     }
+     */
     
     /** @return true if there are two files contained in the same package folder, false otherwise.
-     */
+     *
     private static boolean areFilesInSamePackage(Collection files1, Collection files2) {
         for(Iterator it1 = files1.iterator(); it1.hasNext(); ) {
             String file1 = (String) it1.next();
@@ -667,10 +693,11 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
         return false;
     }
+     */
     
     /** @return true if a file or folder from <code>files1</code> is contained in a folder
      * from <code>files2</code>
-     */
+     *
     private static boolean isParentFolder(Collection files1, Collection files2) {
         for(Iterator it1 = files1.iterator(); it1.hasNext(); ) {
             String file1 = (String) it1.next();
@@ -681,12 +708,13 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
         return false;
     }
+     */
     
     /**
      * @param concurrencyWith the pairs of command names and concurrent execution integer value
      *   <p> i.e.: "ADD 4", "STATUS 1"
      * @return the map of command names and associated integer values
-     */
+     *
     private HashMap createConcurrencyMap(String concurrencyWith) {
         HashMap map = new HashMap();
         if (concurrencyWith != null) {
@@ -721,11 +749,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
         return threads;
     }
+     */
     
     /**
      * Returns true iff all exceptionally running commands are
      * predecessors of the given command.
-     */
+     *
     private boolean areExcRunningPredecessorsOf(VcsCommandWrapper cw) {
         HashSet exceptionallyRunning = new HashSet(commandsExceptionallyRunning);
         boolean is;
@@ -744,13 +773,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
         } while (is);
         return exceptionallyRunning.size() == 0;
     }
+     */
     
     /**
      * Say whether the command executor can be run now or not. It should be called
      * with a monitor lock on this object.
      * Check its concurrent property and other running or waiting commands.
      * @return true if the command can be run in the current monitor lock, false otherwise.
-     */
+     *
     private synchronized boolean canRun(VcsCommandWrapper cw) {
         VcsCommandExecutor vce = cw.getExecutor();
         // at first check for the maximum number of running commands
@@ -911,13 +941,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
         //addExecutorsOfCommandFromIterator(executors, cmd, commands.iterator());
     }
+     */
     
     /**
      * Wait to finish the execution of command on a set of files.
      * This methods blocks the current thread untill no instance of the command is running on any of provided files.
      * @param cmd the command we wait for to finish
      * @param files the set of files 
-     */
+     *
     public void waitToFinish(VcsCommand cmd, Set files) throws InterruptedException {
         boolean haveToWait = false;
         //do {
@@ -941,6 +972,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
             }
         //} while (haveToWait);
     }
+     */
     
     /**
      * Wait to finish the executor.
@@ -949,6 +981,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * @param vce the executor
      */
     public void waitToFinish(VcsCommandExecutor vce) throws InterruptedException {
+        if (!(vce instanceof ExecuteCommand)) return ;
+        CommandTask task = ((ExecuteCommand) vce).getTask();
+        task.waitFinished(0);
+        /*
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw == null) return ;
         //Thread t;
@@ -977,7 +1013,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     /**
      * Kill all running executors. It tries to interrupt them, it is up to
      * executor implementations if they will terminate or not.
-     */
+     *
     public synchronized void killAll() {
         for(Iterator it = commandsRunning.iterator(); it.hasNext(); ) {
             VcsCommandWrapper cw = (VcsCommandWrapper) it.next();
@@ -989,12 +1025,17 @@ public class CommandsPool extends Object /*implements CommandListener */{
             //i--;
         }
     }
+     */
     
     /**
      * Kill the executor if it is running. It tries to interrupt it, it is up to
      * executor implementation if it will terminate or not.
      */
-    public synchronized void kill(VcsCommandExecutor vce) {
+    public void kill(VcsCommandExecutor vce) {
+        if (!(vce instanceof ExecuteCommand)) return ;
+        CommandTask task = ((ExecuteCommand) vce).getTask();
+        task.stop();
+        /*
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw != null) {
             Thread t = cw.getRunningThread();
@@ -1005,11 +1046,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 commandDone(cw);
             }
         }
+         */
     }
     
     /**
      * Add a command listener.
-     */
+     *
     public void addCommandListener(CommandListener listener) {
         synchronized (commandListeners) {
             commandListeners.add(listener);
@@ -1018,7 +1060,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     /**
      * Lazily remove a command listener.
-     */
+     *
     public void removeCommandListener(final CommandListener listener) {
         org.openide.util.RequestProcessor.postRequest(new Runnable() {
             public void run() {
@@ -1028,48 +1070,53 @@ public class CommandsPool extends Object /*implements CommandListener */{
             }
         });
     }
+     */
     
     /**
      * A helper method for those who have registered a command listener
      * to be able to recognize commands, that belongs to different filesystems.
-     */
+     *
     public VcsFileSystem getFileSystemForExecutor(VcsCommandExecutor vce) {
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw == null) return null;
         else return cw.getFileSystem();
     }
+     */
     
     /** The start time of the command or zero, when the command was not started yet
      * or can not be found.
-     */
+     *
     public long getStartTime(VcsCommandExecutor vce) {
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw == null) return 0;
         return cw.getStartTime();
     }
+     */
     
     /** The finish time of the command or zero, when the command did not finish yet
      * or can not be found.
-     */
+     *
     public long getFinishTime(VcsCommandExecutor vce) {
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw == null) return 0;
         return cw.getFinishTime();
     }
+     */
     
     /** The execution time of the command or zero, when the command did not finish yet
      * or can not be found.
-     */
+     *
     public long getExecutionTime(VcsCommandExecutor vce) {
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw == null) return 0;
         return cw.getExecutionTime();
     }
+     */
     
     /**
      * Get the localized string representation of the command exit status.
      * @param exit the exit status, that will be converted to the string.
-     */
+     *
     public static String getExitStatusString(int exit) {
         String status;
         if (VcsCommandExecutor.SUCCEEDED == exit) {
@@ -1083,7 +1130,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
         return status;
     }
+     */
     
+    /*
     private static class VcsCommandWrapper extends Object {
         
         private static long lastId = 0;
@@ -1194,6 +1243,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private String  g(String s, Object obj, Object obj2) {
         return java.text.MessageFormat.format (g(s), new Object[] { obj, obj2 });
     }
+     */
 
 }
 

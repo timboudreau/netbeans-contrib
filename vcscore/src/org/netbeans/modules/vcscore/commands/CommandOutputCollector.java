@@ -19,29 +19,34 @@ import java.util.Iterator;
 
 import org.openide.util.RequestProcessor;
 
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+import org.netbeans.spi.vcs.VcsCommandsProvider;
+
 /**
  * The collector of commands' output. Temporary disk files are used to store the
  * output to keep a small memory footprint.
  *
  * @author  Martin Entlicher
  */
-class CommandOutputCollector extends Object implements CommandListener {
+public class CommandOutputCollector extends Object implements CommandProcessListener {
     
     /**
      * The default number of lines of commands' output to store in the memory.
      * When the output of a command will be longer than this number of lines,
      * the lines will be flushed to the disk and cleared from memory.
-     * This is necessary for not running out of memory.
+     * This is necessary in order not to run out of memory.
      */
     private static final int DEFAULT_NUM_OF_LINES_OF_OUTPUT_TO_COLLECT = 5000;
     
     /** The number of lines of commands' output to store and show to the user. */
     private int numOfLinesOfOutputToCollect = DEFAULT_NUM_OF_LINES_OF_OUTPUT_TO_COLLECT;
     
-    private CommandsPool commandsPool;
+    private CommandProcessor commandProcessor;
     
     private VcsCommandExecutor vce;
     private long cmdId;
+    private VcsCommandsProvider provider;
     /*
     private ArrayList stdOutput = new ArrayList();
     private ArrayList errOutput = new ArrayList();
@@ -71,14 +76,17 @@ class CommandOutputCollector extends Object implements CommandListener {
     private File[] outputFiles;
     private boolean finalized = false;
 
-    public CommandOutputCollector(VcsCommandExecutor vce, CommandsPool commandsPool) {
-        this.vce = vce;
-        this.commandsPool = commandsPool;
-        this.cmdId = commandsPool.getCommandID(vce);
+    public CommandOutputCollector(CommandTask task, VcsCommandsProvider provider) {
+        if (task instanceof VcsDescribedTask) {
+            this.vce = ((VcsDescribedTask) task).getExecutor();
+        }
+        this.provider = provider;
+        this.commandProcessor = CommandProcessor.getInstance();
+        this.cmdId = commandProcessor.getTaskID(task);
         this.outputFiles = new File[NUM_OUTPUTS];
         if (runningFolder == null) initRunningFolder();
         createOutputListeners();
-        commandsPool.addCommandListener(this);
+        commandProcessor.addCommandProcessListener(this);
     }
     
     private static synchronized void initRunningFolder() {
@@ -98,26 +106,12 @@ class CommandOutputCollector extends Object implements CommandListener {
             cmdOutput[i] = new ArrayList();
             cmdOutputListeners[i] = new ArrayList();
         }
-        vce.addOutputListener(new CommandOutputListener() {
-            public void outputLine(String line) {
-                addOutput(0, line);
-            }
-        });
-        vce.addErrorOutputListener(new CommandOutputListener() {
-            public void outputLine(String line) {
-                addOutput(1, line);
-            }
-        });
-        vce.addDataOutputListener(new CommandDataOutputListener() {
-            public void outputData(String[] elements) {
-                addOutput(2, elements);
-            }
-        });
-        vce.addDataErrorOutputListener(new CommandDataOutputListener() {
-            public void outputData(String[] elements) {
-                addOutput(3, elements);
-            }
-        });
+        if (vce != null) {
+            vce.addTextOutputListener(new CollectingOutputListener(0));
+            vce.addTextErrorListener(new CollectingOutputListener(1));
+            vce.addRegexOutputListener(new CollectingOutputListener(0));
+            vce.addRegexErrorListener(new CollectingOutputListener(1));
+        }
     }
     
     private void addOutput(int outputId, Object output) {
@@ -130,45 +124,64 @@ class CommandOutputCollector extends Object implements CommandListener {
             if (output instanceof String) {
                 String line = (String) output;
                 for(Iterator it = cmdOutputListeners[outputId].iterator(); it.hasNext(); ) {
-                    ((CommandOutputListener) it.next()).outputLine(line);
+                    ((TextOutputListener) it.next()).outputLine(line);
                 }
             } else if (output instanceof String[]) {
                 String[] elements = (String[]) output;
                 for(Iterator it = cmdOutputListeners[outputId].iterator(); it.hasNext(); ) {
-                    ((CommandDataOutputListener) it.next()).outputData(elements);
+                    ((RegexOutputListener) it.next()).outputMatchedGroups(elements);
                 }
             }
         }
     }
-    
-    /**
-     * Called when the command is just to be preprocessed.
+
+    /** Get the commands provider. The listener gets events only from commands,
+     * that are instances of ProvidedCommand and their provider equals to this
+     * provider. If returns <code>null</code>, the listener gets events from all
+     * commands.
+     * @return The provider or <code>null</code>.
+     *
      */
-    public void commandPreprocessing(VcsCommandExecutor vce) {
+    public VcsCommandsProvider getProvider() {
+        return provider;
     }
     
-    /**
-     * Called when the preprocessing of the command finished.
+    /** Called when the preprocessing of the command finished.
      * @param cmd The command which was preprocessed.
      * @param status The status of preprocessing. If false, the command is not executed.
+     * Probably never called.
      */
-    public void commandPreprocessed(VcsCommandExecutor vce, boolean status) {
-    }
-
-    /**
-     * This method is called when the command is just to be started.
-     *
-     * WARNING: this method might be never called. The CommandOutputCollector
-     * is usually created AFTER the command starts.
-     */
-    public final void commandStarted(VcsCommandExecutor vce) {
+    public void commandPreprocessed(Command cmd, boolean status) {
     }
     
-    /**
-     * This method is called when the command is done.
+    /** Called when the command is just to be preprocessed.
+     * Probably never called.
      */
-    public void commandDone(VcsCommandExecutor vce) {
-        if (!this.vce.equals(vce)) return ;
+    public void commandPreprocessing(Command cmd) {
+    }
+    
+    /** This method is called when the command is just to be started.
+     *
+     */
+    public void commandStarting(CommandTaskInfo info) {
+        VcsCommandExecutor vce = null;
+        CommandTask task = info.getTask();
+        if (task instanceof VcsDescribedTask) {
+            vce = ((VcsDescribedTask) info.getTask()).getExecutor();
+        }
+        if (vce == null || !vce.equals(this.vce)) return ;
+        this.cmdId = commandProcessor.getTaskID(task);
+    }
+    
+    /** This method is called when the command is done.
+     *
+     */
+    public void commandDone(CommandTaskInfo info) {
+        VcsCommandExecutor vce = null;
+        if (info.getTask() instanceof VcsDescribedTask) {
+            vce = ((VcsDescribedTask) info.getTask()).getExecutor();
+        }
+        if (vce == null || !vce.equals(this.vce)) return ;
         synchronized (CommandOutputCollector.class) {
             if (collectorsFreeTask == null) {
                 collectorsFreeTask = new RequestProcessor().create(new Runnable() {
@@ -187,7 +200,7 @@ class CommandOutputCollector extends Object implements CommandListener {
         };
         collectorsFreeTask.schedule(5000);
         //new Thread(later).start();
-        commandsPool.removeCommandListener(this);
+        commandProcessor.removeCommandProcessListener(this);
     }
     
     private void freeCommandOutput() {
@@ -211,16 +224,16 @@ class CommandOutputCollector extends Object implements CommandListener {
         if (cmdOutput != null && cmdOutput[outputId] != null) {
             synchronized (cmdOutput[outputId]) {
                 if (cmdOutput == null || cmdOutput[outputId] == null) return ;
-                if (listener instanceof CommandOutputListener) {
-                    CommandOutputListener l = (CommandOutputListener) listener;
+                if (listener instanceof TextOutputListener) {
+                    TextOutputListener l = (TextOutputListener) listener;
                     for (Iterator it = cmdOutput[outputId].iterator(); it.hasNext(); ) {
                         l.outputLine((String) it.next());
                     }
                 }
-                if (listener instanceof CommandDataOutputListener) {
-                    CommandDataOutputListener l = (CommandDataOutputListener) listener;
+                if (listener instanceof RegexOutputListener) {
+                    RegexOutputListener l = (RegexOutputListener) listener;
                     for (Iterator it = cmdOutput[outputId].iterator(); it.hasNext(); ) {
-                        l.outputData((String[]) it.next());
+                        l.outputMatchedGroups((String[]) it.next());
                     }
                 }
                 if (cmdOutputListeners[outputId] != null) {
@@ -234,7 +247,7 @@ class CommandOutputCollector extends Object implements CommandListener {
      * Add the listener to the standard output of the command. The listeners are removed
      * when the command finishes.
      */
-    public void addOutputListener(CommandOutputListener l) {
+    public void addTextOutputListener(TextOutputListener l) {
         addOutputListener(0, l);
     }
     
@@ -242,7 +255,7 @@ class CommandOutputCollector extends Object implements CommandListener {
      * Add the listener to the error output of the command. The listeners are removed
      * when the command finishes.
      */
-    public void addErrorOutputListener(CommandOutputListener l) {
+    public void addTextErrorListener(TextOutputListener l) {
         addOutputListener(1, l);
     }
     
@@ -251,7 +264,7 @@ class CommandOutputCollector extends Object implements CommandListener {
      * a parsed information from its standard output or some other data provided
      * by this command. The listeners are removed when the command finishes.
      */
-    public void addDataOutputListener(CommandDataOutputListener l) {
+    public void addRegexOutputListener(RegexOutputListener l) {
         addOutputListener(2, l);
     }
     
@@ -261,7 +274,7 @@ class CommandOutputCollector extends Object implements CommandListener {
      * by this command. If there are some data given to this listener, the command
      * is supposed to fail. The listeners are removed when the command finishes.
      */
-    public synchronized void addDataErrorOutputListener(CommandDataOutputListener l) {
+    public synchronized void addRegexErrorListener(RegexOutputListener l) {
         addOutputListener(3, l);
     }
     
@@ -312,13 +325,13 @@ class CommandOutputCollector extends Object implements CommandListener {
             r = new BufferedReader(new FileReader(outputFiles[outputId]));
             String line;
             while ((line = r.readLine()) != null) {
-                if (listener instanceof CommandOutputListener) {
-                    CommandOutputListener l = (CommandOutputListener) listener;
+                if (listener instanceof TextOutputListener) {
+                    TextOutputListener l = (TextOutputListener) listener;
                     l.outputLine(line);
                 }
-                if (listener instanceof CommandDataOutputListener) {
-                    CommandDataOutputListener l = (CommandDataOutputListener) listener;
-                    l.outputData(decodeElements(line));
+                if (listener instanceof RegexOutputListener) {
+                    RegexOutputListener l = (RegexOutputListener) listener;
+                    l.outputMatchedGroups(decodeElements(line));
                 }
             }
         } catch (IOException exc) {
@@ -383,4 +396,30 @@ class CommandOutputCollector extends Object implements CommandListener {
         }
     }
 
+    private class CollectingOutputListener extends Object implements TextOutputListener, RegexOutputListener {
+        
+        private int outIndex;
+        
+        public CollectingOutputListener(int outIndex) {
+            this.outIndex = outIndex;
+        }
+        
+        /** This method is called, with a line of the output text.
+         * @param line one line of output text.
+         *
+         */
+        public void outputLine(String line) {
+            addOutput(0 + outIndex, line);
+        }
+        
+        /** This method is called, with elements of the parsed data.
+         * @param elements the elements of parsed data.
+         *
+         */
+        public void outputMatchedGroups(String[] elements) {
+            addOutput(2 + outIndex, elements);
+        }
+        
+    }
+    
 }

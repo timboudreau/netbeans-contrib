@@ -22,13 +22,20 @@ import org.openide.filesystems.DefaultAttributes;
 import org.openide.filesystems.FileObject;
 import org.openide.util.RequestProcessor;
 
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+
+import org.netbeans.spi.vcs.VcsCommandsProvider;
+import org.netbeans.spi.vcs.commands.CommandSupport;
+
 import org.netbeans.modules.vcscore.cache.CacheReference;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
 import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+//import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 import org.netbeans.modules.vcscore.runtime.RuntimeCommandsProvider;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.util.Table;
@@ -63,6 +70,12 @@ public class VcsAttributes extends DefaultAttributes {
      */
     public static final String VCS_NATIVE_PACKAGE_NAME_EXT = "VcsFileSystemNativeFOPath";
     
+    /**
+     * The name of FileObject attribute, that contains instance of VcsCommandsProvider
+     * on VCS filesystems.
+     */
+    private static final String VCS_COMMANDS_PROVIDER_ATTRIBUTE = "org.netbeans.spi.vcs.VcsCommandsProvider"; // NOI18N
+
     public static final String RUNTIME_PROVIDER = "org.netbeans.modules.vcscore.runtime.RuntimeCommandsProvider"; // NOI18N
     
     /**
@@ -150,11 +163,14 @@ public class VcsAttributes extends DefaultAttributes {
     public static String VCS_STATUS_UNKNOWN = "VCS_STATUS_UNKNOWN"; //NOI18N
     
     private transient VcsActionSupporter supporter;
+    
+    private transient VcsCommandsProvider commandsProvider;
+    
     private transient RuntimeCommandsProvider runtimeProvider;
         
     private VcsFileSystem fileSystem;
     
-    private static RequestProcessor vcsActionRequestProcessor;
+    //private static RequestProcessor vcsActionRequestProcessor;
 
     static final long serialVersionUID = 8084585278800267078L;
     
@@ -164,6 +180,7 @@ public class VcsAttributes extends DefaultAttributes {
         super(info, change, list);
         this.fileSystem = fileSystem;
         supporter = supp;
+        commandsProvider = fileSystem.getCommandsProvider();
     }
     
     public VcsActionSupporter getCurrentSupporter() {
@@ -172,6 +189,14 @@ public class VcsAttributes extends DefaultAttributes {
     
     public void setCurrentSupporter(VcsActionSupporter supporter) {
         this.supporter = supporter;
+    }
+    
+    public VcsCommandsProvider getCommandsProvider() {
+        return commandsProvider;
+    }
+    
+    public void setCommandsProvider(VcsCommandsProvider commandsProvider) {
+        this.commandsProvider = commandsProvider;
     }
     
     public void setRuntimeCommandsProvider(RuntimeCommandsProvider provider) {
@@ -212,6 +237,8 @@ public class VcsAttributes extends DefaultAttributes {
             return fileSystem;
         } else if (VCS_NATIVE_PACKAGE_NAME_EXT.equals(attrName)) {
             return name;
+        } else if (VCS_COMMANDS_PROVIDER_ATTRIBUTE.equals(attrName)) {
+            return commandsProvider;
         } else if (VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE.equals(attrName)) {
             return fileSystem;
         }  else {
@@ -314,12 +341,14 @@ public class VcsAttributes extends DefaultAttributes {
         }
     }
     
+    /*
     private static synchronized RequestProcessor getVcsActionRequestProcessor() {
         if (vcsActionRequestProcessor == null) {
             vcsActionRequestProcessor = new RequestProcessor("Vcs Attribute Action Request Processor");
         }
         return vcsActionRequestProcessor;
     }
+     */
     
     /**
      * Perform a VCS command on a specific file.
@@ -333,17 +362,27 @@ public class VcsAttributes extends DefaultAttributes {
     private void performVcsAction(final String name, final FeatureDescriptor descriptor) throws java.net.UnknownServiceException {
         //System.out.println("performVcsAction("+name+")");
         String cmdName = descriptor.getName();
-        final VcsCommand cmd = fileSystem.getCommand(cmdName);
-        if (cmd == null) throw new java.net.UnknownServiceException(cmdName);
-        final Table files = new Table();
-        files.put(name, fileSystem.findResource(name));
+        final CommandSupport cmdSupport = fileSystem.getCommandSupport(cmdName);
+        if (cmdSupport == null) throw new java.net.UnknownServiceException(cmdName);
+        final Command cmd = cmdSupport.createCommand();
+        FileObject[] files = new FileObject[] { fileSystem.findResource(name) };
+        cmd.setFiles(files);
+        //final Table files = new Table();
+        //files.put(name, fileSystem.findResource(name));
         final Hashtable additionalVars = new Hashtable();
         for (Enumeration varNames = descriptor.attributeNames(); varNames.hasMoreElements(); ) {
             String varName = (String) varNames.nextElement();
             additionalVars.put(varName, descriptor.getValue(varName));
         }
-        getVcsActionRequestProcessor().postRequest(new Runnable() {
+        if (cmd instanceof VcsDescribedCommand) {
+            ((VcsDescribedCommand) cmd).setAdditionalVariables(additionalVars);
+        }
+        RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
+                CommandTask task = cmd.execute();
+                task.waitFinished();
+                boolean status = task.getExitStatus() == task.STATUS_SUCCEEDED;
+                /*
                 VcsCommandExecutor[] executors = VcsAction.doCommand(files, cmd, additionalVars, fileSystem);
                 boolean status = true;
                 for (int i = 0; i < executors.length; i++) {
@@ -354,7 +393,8 @@ public class VcsAttributes extends DefaultAttributes {
                     }
                     status &= executors[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED;
                 }
-                descriptor.setValue(VCS_ACTION_DONE, status ? Boolean.TRUE : Boolean.FALSE);
+                 */
+                descriptor.setValue(VCS_ACTION_DONE, new Boolean(status));
             }
         });
     }
@@ -366,7 +406,7 @@ public class VcsAttributes extends DefaultAttributes {
      * of this folder is performed.
      */
     private void performRefresh(final String name, final Object recursive) {
-        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+        RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
             boolean rec = Boolean.TRUE.equals(recursive);
             FileCacheProvider cache = fileSystem.getCacheProvider();
@@ -443,7 +483,7 @@ public class VcsAttributes extends DefaultAttributes {
         scheduled[id].add(name);
         try {
             primary.setAttribute(VCS_SCHEDULED_FILES_ATTR, scheduled);
-            java.io.File file = org.openide.execution.NbClassPath.toFile(primary);
+            java.io.File file = org.openide.filesystems.FileUtil.toFile(primary);
             if (file != null) {
                 primary.setAttribute(VCS_SCHEDULING_MASTER_FILE_NAME_ATTR, file.getAbsolutePath());
             }
@@ -508,9 +548,11 @@ public class VcsAttributes extends DefaultAttributes {
     private void readObject (java.io.ObjectInputStream ois)
         throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
+        /*
         if (supporter != null && supporter instanceof VcsActionSupporter) {
             ((VcsActionSupporter)supporter).setFileSystem(fileSystem);
         }
+         */
     }
 
 

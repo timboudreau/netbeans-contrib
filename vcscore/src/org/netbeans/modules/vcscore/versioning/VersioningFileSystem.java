@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import javax.swing.event.EventListenerList;
 
@@ -36,6 +37,8 @@ import org.openide.filesystems.FileStatusListener;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+
+import org.netbeans.api.vcs.FileStatusInfo;
 
 import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
@@ -268,7 +271,16 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
     public String[] getPossibleFileStatuses() {
         FileStatusProvider statusProvider = getFileStatusProvider();
         if (statusProvider != null) {
-            return (String[]) statusProvider.getPossibleFileStatusesTable().values().toArray(new String[0]);
+            Set statusInfos = statusProvider.getPossibleFileStatusInfos();
+            String[] statuses = new String[statusInfos.size()];
+            int i = 0;
+            for(Iterator it = statusInfos.iterator(); it.hasNext(); i++) {
+                FileStatusInfo statusInfo = (FileStatusInfo) it.next();
+                statuses[i] = statusInfo.getDisplayName();
+            }
+            //D.deb("getPossibleFileStatuses() return = "+VcsUtilities.array2string(statuses));
+            return statuses;
+            //return (String[]) statusProvider.getPossibleFileStatusesTable().values().toArray(new String[0]);
         } else {
             return new String[0];
         }

@@ -15,6 +15,9 @@ package org.netbeans.modules.vcscore.caching;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
+
+import org.netbeans.api.vcs.FileStatusInfo;
 
 /**
  * The provider of VCS attributes of the file. These describes the status
@@ -31,15 +34,24 @@ public interface FileStatusProvider {
      * Get the table of the possible status strings. This table is used in search
      * service. The table contains the original statuses (obtained from the VCS tool)
      * as keys and localized statuses as values.
-     */
+     *
     public HashMap getPossibleFileStatusesTable();
+     */
 
+    /**
+     * Get the set of all possible FileStatusInfo objects. This set is used in search
+     * service. The FileStatusInfo objects contains the original statuses
+     * (obtained from the VCS tool) as names.
+     */
+    public Set getPossibleFileStatusInfos();
+    
     /**
      * Get the table of icon badges, that are displayed on the data objects' node.
      * The table contains the original statuses (obtained from the VCS tool)
      * as keys and the icons of type <code>Image</code> as values.
-     */
+     *
     public HashMap getStatusIconMap();
+     */
     
     /**
      * Get the status that is displayed instead of the attribute value, when this
@@ -50,8 +62,15 @@ public interface FileStatusProvider {
     /**
      * Get the status of a single file.
      * @param fullName the name of the file with respect to the filesystem root.
+     * @return The original status (non-localized).
      */
     public String getFileStatus(String fullName);
+    
+    /**
+     * Get the status info of a single file.
+     * @param fullName the name of the file with respect to the filesystem root.
+     */
+    public FileStatusInfo getFileStatusInfo(String fullName);
     
     /**
      * Get the locker of a single file.

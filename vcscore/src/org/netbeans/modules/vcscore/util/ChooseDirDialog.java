@@ -127,18 +127,8 @@ public class ChooseDirDialog extends JDialog {
 
 
     //-------------------------------------------
-    String g(String s) {
-        return NbBundle.getBundle
-               ("org.netbeans.modules.vcscore.cmdline.Bundle").getString (s);
-    }
-    String  g(String s, Object obj) {
-        return MessageFormat.format (g(s), new Object[] { obj });
-    }
-    String g(String s, Object obj1, Object obj2) {
-        return MessageFormat.format (g(s), new Object[] { obj1, obj2 });
-    }
-    String g(String s, Object obj1, Object obj2, Object obj3) {
-        return MessageFormat.format (g(s), new Object[] { obj1, obj2, obj3 });
+    private static String g(String s) {
+        return NbBundle.getMessage(ChooseDirDialog.class, s);
     }
     //-------------------------------------------
 

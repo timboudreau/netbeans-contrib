@@ -26,9 +26,14 @@ import org.openide.nodes.Node;
 import org.openide.nodes.Index;
 import org.openide.util.WeakListener;
 
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+import org.netbeans.spi.vcs.VcsCommandsProvider;
+
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.commands.CommandListener;
-import org.netbeans.modules.vcscore.commands.CommandsPool;
+import org.netbeans.modules.vcscore.commands.CommandProcessListener;
+import org.netbeans.modules.vcscore.commands.CommandProcessor;
+import org.netbeans.modules.vcscore.commands.CommandTaskInfo;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 
 /**
@@ -39,19 +44,20 @@ import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
     
     private VcsFileSystem fs;
-    private RuntimeCommandsListener rcl = new RuntimeCommandsListener();
+    private RuntimeCommandsListener rcl;
     private int numOfCommandsToKeep = RuntimeFolderNode.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
     //private List runningCommands = new ArrayList();//Collections.synchronizedList(new ArrayList());
     private List finishedCommands = new ArrayList();//Collections.synchronizedList(new ArrayList());
     private List commands = new ArrayList();
     private Map runtimeCommandsForExecutors = new HashMap();//new Hashtable();
     private Map finishedExecutorsForCommands = new HashMap();
-    private CommandsPool cpool = CommandsPool.getInstance();
+    private CommandProcessor processor = CommandProcessor.getInstance();
     
     public VcsRuntimeCommandsProvider(VcsFileSystem fs) {
         this.fs = fs;
-        cpool.addCommandListener(rcl);
-        cpool.removeFinishedCommandsUponRequest(true, fs);
+        rcl = new RuntimeCommandsListener();
+        processor.addCommandProcessListener(rcl);
+        //processor.removeFinishedCommandsUponRequest(true, fs);
         fs.addPropertyChangeListener(WeakListener.propertyChange(rcl, fs));
         numOfCommandsToKeep = fs.getNumberOfFinishedCmdsToCollect();
     }
@@ -92,49 +98,59 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
     
     public boolean cutCommandsToMaxToKeep() {
         boolean cutted = false;
-        ArrayList finishedToRemove = new ArrayList();
+        //ArrayList finishedToRemove = new ArrayList();
         synchronized (this) {
             int current = commands.size();
             while (current > numOfCommandsToKeep && finishedCommands.size() > 0) {
                 RuntimeCommand cmd = (RuntimeCommand) finishedCommands.remove(0);
                 commands.remove(cmd);
-                VcsCommandExecutor vce = (VcsCommandExecutor) finishedExecutorsForCommands.remove(cmd);
-                finishedToRemove.add(vce);
+                CommandTaskInfo vce = (CommandTaskInfo) finishedExecutorsForCommands.remove(cmd);
+                //finishedToRemove.add(vce);
                 current--;
                 cutted = true;
             }
         }
+        /*
         for (Iterator it = finishedToRemove.iterator(); it.hasNext(); ) {
             VcsCommandExecutor vce = (VcsCommandExecutor) it.next();
-            cpool.removeFinishedCommand(vce);
+            processor.removeFinishedCommand(vce);
         }
+         */
         return cutted;
     }
     
     protected void notifyRemoved() {
-        cpool.removeCommandListener(rcl);
-        cpool.removeFinishedCommandsUponRequest(false, fs);
+        processor.removeCommandProcessListener(rcl);
+        //processor.removeFinishedCommandsUponRequest(false, fs);
     }
     
-    private class RuntimeCommandsListener extends Object implements CommandListener, PropertyChangeListener {
+    private class RuntimeCommandsListener extends Object implements CommandProcessListener, PropertyChangeListener {
+        
+        private VcsCommandsProvider provider = fs.getCommandsProvider();
+        
+        /**
+         * Get the commands provider. The listener gets events only from commands,
+         * that are instances of ProvidedCommand and their provider equals to this
+         * provider.
+         */
+        public VcsCommandsProvider getProvider() {
+            return provider;
+        }
         
         /**
          * Called when the command is just to be preprocessed.
          */
-        public void commandPreprocessing(VcsCommandExecutor vce) {
-            VcsFileSystem fs = cpool.getFileSystemForExecutor(vce);
-            if (VcsRuntimeCommandsProvider.this.fs == fs ||
-                VcsRuntimeCommandsProvider.this.equals(RuntimeCommandsProvider.findProvider(fs))) {
-                
-                VcsRuntimeCommand cmd = new VcsRuntimeCommand(vce);
-                cmd.setState(RuntimeCommand.STATE_WAITING);
-                synchronized (VcsRuntimeCommandsProvider.this) {
-                    commands.add(cmd);
-                    runtimeCommandsForExecutors.put(vce, cmd);
-                    cutCommandsToMaxToKeep();
-                }
-                firePropertyChange(PROP_CHILDREN, null, null);
+        public void commandPreprocessing(Command command) {
+            /* Do not create runtime commands for command customization by default.
+            VcsRuntimeCommand cmd = new VcsRuntimeCommand(command);
+            cmd.setState(RuntimeCommand.STATE_WAITING);
+            synchronized (VcsRuntimeCommandsProvider.this) {
+                commands.add(cmd);
+                runtimeCommandsForExecutors.put(command, cmd);
+                cutCommandsToMaxToKeep();
             }
+            firePropertyChange(PROP_CHILDREN, null, null);
+             */
         }
         
         /**
@@ -142,65 +158,55 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
          * @param cmd The command which was preprocessed.
          * @param status The status of preprocessing. If false, the command is not executed.
          */
-        public void commandPreprocessed(VcsCommandExecutor vce, boolean status) {
+        public void commandPreprocessed(Command command, boolean status) {
+            /*
             if (status == false) {
-                VcsFileSystem fs = cpool.getFileSystemForExecutor(vce);
-                if (VcsRuntimeCommandsProvider.this.fs == fs ||
-                    VcsRuntimeCommandsProvider.this.equals(RuntimeCommandsProvider.findProvider(fs))) {
-                    
-                    VcsRuntimeCommand cmd = (VcsRuntimeCommand) runtimeCommandsForExecutors.get(vce);
-                    synchronized (VcsRuntimeCommandsProvider.this) {
-                        commands.remove(cmd);
-                        runtimeCommandsForExecutors.remove(vce);
-                    }
-                    firePropertyChange(PROP_CHILDREN, null, null);
+                VcsRuntimeCommand cmd = (VcsRuntimeCommand) runtimeCommandsForExecutors.get(command);
+                synchronized (VcsRuntimeCommandsProvider.this) {
+                    commands.remove(cmd);
+                    runtimeCommandsForExecutors.remove(command);
                 }
+                firePropertyChange(PROP_CHILDREN, null, null);
             }
+             */
         }
         
         /**
          * This method is called when the command is just to be started.
          */
-        public void commandStarted(VcsCommandExecutor vce) {
-            VcsFileSystem fs = cpool.getFileSystemForExecutor(vce);
-            if (VcsRuntimeCommandsProvider.this.fs == fs ||
-                VcsRuntimeCommandsProvider.this.equals(RuntimeCommandsProvider.findProvider(fs))) {
-                
-                VcsRuntimeCommand cmd = (VcsRuntimeCommand) runtimeCommandsForExecutors.get(vce);
-                if (cmd == null) {
-                    cmd = new VcsRuntimeCommand(vce);
-                    synchronized (VcsRuntimeCommandsProvider.this) {
-                        commands.add(cmd);
-                        runtimeCommandsForExecutors.put(vce, cmd);
-                        cutCommandsToMaxToKeep();
-                    }
-                    firePropertyChange(PROP_CHILDREN, null, null);
+        public void commandStarting(CommandTaskInfo info) {
+            RuntimeCommand cmd = (RuntimeCommand) runtimeCommandsForExecutors.get(info);
+            if (cmd == null) {
+                CommandTask task = info.getTask();
+                if (!(task instanceof RuntimeCommandTask)) return ;
+                cmd = ((RuntimeCommandTask) task).getRuntimeCommand(info);
+                if (cmd == null) return ;
+                //cmd = new VcsRuntimeCommand(info);
+                synchronized (VcsRuntimeCommandsProvider.this) {
+                    commands.add(cmd);
+                    runtimeCommandsForExecutors.put(info, cmd);
+                    cutCommandsToMaxToKeep();
                 }
-                cmd.setState(RuntimeCommand.STATE_RUNNING);
+                firePropertyChange(PROP_CHILDREN, null, null);
             }
+            cmd.setState(RuntimeCommand.STATE_RUNNING);
         }
         
         /**
          * This method is called when the command is done.
          */
-        public void commandDone(VcsCommandExecutor vce) {
-            VcsFileSystem fs = cpool.getFileSystemForExecutor(vce);
-            if (fs == null) return ; // The command probably does not exist any more
-            if (VcsRuntimeCommandsProvider.this.fs == fs ||
-                VcsRuntimeCommandsProvider.this.equals(RuntimeCommandsProvider.findProvider(fs))) {
-                
-                RuntimeCommand cmd = (RuntimeCommand) runtimeCommandsForExecutors.get(vce);
-                if (cmd != null) {
-                    synchronized (VcsRuntimeCommandsProvider.this) {
-                        //commands.remove(cmd);
-                        runtimeCommandsForExecutors.remove(vce);
-                        finishedExecutorsForCommands.put(cmd, vce);
-                        finishedCommands.add(cmd);
-                        cutCommandsToMaxToKeep();
-                    }
-                    cmd.setState(RuntimeCommand.STATE_DONE);
-                    firePropertyChange(PROP_CHILDREN, null, null);
+        public void commandDone(CommandTaskInfo info) {
+            RuntimeCommand cmd = (RuntimeCommand) runtimeCommandsForExecutors.get(info);
+            if (cmd != null) {
+                synchronized (VcsRuntimeCommandsProvider.this) {
+                    //commands.remove(cmd);
+                    runtimeCommandsForExecutors.remove(info);
+                    finishedExecutorsForCommands.put(cmd, info);
+                    finishedCommands.add(cmd);
+                    cutCommandsToMaxToKeep();
                 }
+                cmd.setState(RuntimeCommand.STATE_DONE);
+                firePropertyChange(PROP_CHILDREN, null, null);
             }
         }
         

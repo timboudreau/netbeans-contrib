@@ -15,16 +15,17 @@ package org.netbeans.modules.vcscore.commands;
 
 /**
  * The listener to get the output of a command line by line.
+ * @deprecated Use {@link TextOutputListener} or {@link TextErrorListener} instead.
  *
  * @author  Martin Entlicher
  */
-public interface CommandOutputListener {
+public interface CommandOutputListener extends TextErrorListener {
     
     /**
      * This method is called, with a line of the output data.
      * @param line one line of output data.
      */
-    public void outputLine(String line);
+    //public void outputLine(String line);
 
 }
 

@@ -38,12 +38,12 @@ public interface VcsFactory {
     
     /**
      * Get the VCS directory reader.
-     */
+     *
     public VcsCommandExecutor getVcsDirReader (DirReaderListener listener, String path);
 
     /**
      * Get the VCS directory reader that reads the whole directory structure.
-     */
+     *
     public VcsCommandExecutor getVcsDirReaderRecursive (DirReaderListener listener, String path);
     
     /*
@@ -74,6 +74,8 @@ public interface VcsFactory {
      * @param command the command to get the executor for
      * @param variables the <code>Hashtable</code> of (variable name, variable value) pairs
      * @return the command executor or null when no executor is found for that command.
+     * @deprecated This method is retained for compatibility reasons. It may disappear
+     *             after compatibility with old VCS "API" will not be needed.
      */
     public VcsCommandExecutor getCommandExecutor(VcsCommand command, Hashtable variables);
 

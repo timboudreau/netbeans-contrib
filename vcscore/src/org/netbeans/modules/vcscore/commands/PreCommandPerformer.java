@@ -19,6 +19,12 @@ import java.util.*;
 import org.openide.TopManager;
 import org.openide.util.UserCancelException;
 
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+
+import org.netbeans.spi.vcs.commands.CommandSupport;
+
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.util.*;
 
@@ -160,44 +166,53 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     private Collection processPreCommands(String[] preCommands) throws UserCancelException {
         preCommandOutput = new Vector[preCommands.length];
         preCommandError = new Vector[preCommands.length];
-        CommandsPool pool = fileSystem.getCommandsPool();
+        //CommandsPool pool = fileSystem.getCommandsPool();
         ArrayList runningExecutors = new ArrayList();
         for (int i = 0; i < preCommands.length; i++) {
             String cmdName = preCommands[i];
-            VcsCommand cmd = fileSystem.getCommand(cmdName);
-            if (cmd == null) continue; // Nothing to run
+            CommandSupport cmdSupport = fileSystem.getCommandSupport(cmdName);
+            if (cmdSupport == null) continue; // Nothing to run
+            Command cmd = cmdSupport.createCommand();
             preCommandOutput[i] = new Vector();
             preCommandError[i] = new Vector();
-            VcsCommandExecutor executor = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
-            int status = pool.preprocessCommand(executor, vars, fileSystem);
-            if (CommandsPool.PREPROCESS_CANCELLED == status) throw new UserCancelException();
-            if (CommandsPool.PREPROCESS_DONE != status) continue; // Something bad has happened
-            executor.addDataOutputListener(new DataOutputContainer(i));
-            executor.addDataErrorOutputListener(new DataErrorOutputContainer(i));
-            pool.startExecutor(executor);
-            runningExecutors.add(executor);
+            if (cmd instanceof VcsDescribedCommand) {
+                ((VcsDescribedCommand) cmd).setAdditionalVariables(vars);
+                ((VcsDescribedCommand) cmd).addRegexOutputListener(new DataOutputContainer(i));
+                ((VcsDescribedCommand) cmd).addRegexErrorListener(new DataErrorOutputContainer(i));
+            }
+            //VcsCommandExecutor executor = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+            if (!VcsManager.getDefault().showCustomizer(cmd)) throw new UserCancelException();
+            CommandTask task = cmd.execute();
+            //task.waitFinished();
+            //int status = task.getExitStatus();//pool.preprocessCommand(executor, vars, fileSystem);
+            //if (CommandTask.PREPROCESS_CANCELLED == status) throw new UserCancelException();
+            //if (CommandTask.PREPROCESS_DONE != status) continue; // Something bad has happened
+            //executor.addDataOutputListener(new DataOutputContainer(i));
+            //executor.addDataErrorOutputListener(new DataErrorOutputContainer(i));
+            //pool.startExecutor(executor);
+            runningExecutors.add(task);
         }
         ArrayList exitStates = new ArrayList();
         while (runningExecutors.size() > 0) {
-            VcsCommandExecutor vce = (VcsCommandExecutor) runningExecutors.get(0);
+            CommandTask task = (CommandTask) runningExecutors.get(0);
             try {
-                pool.waitToFinish(vce);
+                task.waitFinished(0);
             } catch (InterruptedException iexc) {
                 // Kill all spawned commands if sb. kill me
                 for (int r = 0; r < runningExecutors.size(); r++) {
-                    VcsCommandExecutor rvce = (VcsCommandExecutor) runningExecutors.get(r);
-                    if (pool.isRunning(rvce) || pool.isWaiting(rvce)) {
-                        pool.kill(rvce);
+                    CommandTask rtask = (CommandTask) runningExecutors.get(r);
+                    if (!task.isFinished()) {
+                        task.stop();
                         exitStates.add(Boolean.FALSE);
                     } else {
-                        exitStates.add(rvce.getExitStatus() == VcsCommandExecutor.SUCCEEDED ? Boolean.TRUE : Boolean.FALSE);
+                        exitStates.add(rtask.getExitStatus() == CommandTask.STATUS_SUCCEEDED ? Boolean.TRUE : Boolean.FALSE);
                     }
                 }
                 runningExecutors.clear();
                 break;
             }
             runningExecutors.remove(0);
-            if (vce.getExitStatus() == VcsCommandExecutor.SUCCEEDED) {
+            if (task.getExitStatus() == task.STATUS_SUCCEEDED) {
                 exitStates.add(Boolean.TRUE);
             } else {
                 exitStates.add(Boolean.FALSE);
@@ -457,7 +472,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
      */
 
 
-    private final class DataOutputContainer extends Object implements CommandDataOutputListener {
+    private final class DataOutputContainer extends Object implements RegexOutputListener {
 
         private int index;
         
@@ -465,12 +480,12 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             this.index = index;
         }
 
-        public void outputData(String[] elements) {
+        public void outputMatchedGroups(String[] elements) {
             preCommandOutput[index].add(elements);
         }
     }
     
-    private final class DataErrorOutputContainer extends Object implements CommandDataOutputListener {
+    private final class DataErrorOutputContainer extends Object implements RegexErrorListener {
 
         private int index;
         
@@ -478,7 +493,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             this.index = index;
         }
 
-        public void outputData(String[] elements) {
+        public void outputMatchedGroups(String[] elements) {
             preCommandError[index].add(elements);
         }
     }

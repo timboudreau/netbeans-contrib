@@ -25,6 +25,11 @@ import java.util.ArrayList;
 public interface VcsCommand extends VcsCommandCookie {
     
     /**
+     * The suffix, that is used to distinguish offline commands.
+     */
+    public static final String NAME_SUFFIX_OFFLINE = "_OFFLINE";
+    
+    /**
      * The name of the command which does non recursive refresh of a folder.
      */
     public static final String NAME_REFRESH = "LIST";
@@ -32,14 +37,6 @@ public interface VcsCommand extends VcsCommandCookie {
      * The name of the command which does recursive refresh of a folder.
      */
     public static final String NAME_REFRESH_RECURSIVELY = "LIST_SUB";
-    /**
-     * The name of the command which does non recursive refresh of a folder.
-     */
-    public static final String NAME_REFRESH_OFFLINE = "LIST_OFFLINE";
-    /**
-     * The name of the command which does recursive refresh of a folder.
-     */
-    public static final String NAME_REFRESH_RECURSIVELY_OFFLINE = "LIST_SUB_OFFLINE";
     
     /**
      * The name of the command which will be called to lock the file in VCS.
@@ -81,6 +78,18 @@ public interface VcsCommand extends VcsCommandCookie {
      * The name of the command which will schedule a file for later remove from the repository.
      */
     public static final String NAME_SCHEDULE_REMOVE = "SCHEDULE_REMOVE";
+    
+    public static final String NAME_GENERIC_ADD = "GENERIC_ADD";
+    
+    public static final String NAME_GENERIC_REMOVE = "GENERIC_REMOVE";
+    
+    public static final String NAME_GENERIC_CHECKIN = "GENERIC_CHECKIN";
+    
+    public static final String NAME_GENERIC_CHECKOUT = "GENERIC_CHECKOUT";
+    
+    public static final String NAME_GENERIC_HISTORY = "GENERIC_HISTORY";
+    
+    public static final String NAME_GENERIC_DIFF = "GENERIC_DIFF";
     
     /**
      * If the command label is not null, this property is used as a mnemonic

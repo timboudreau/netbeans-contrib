@@ -20,18 +20,23 @@ import java.util.*;
 import java.text.MessageFormat;
 
 import org.openide.util.NbBundle;
-import org.openide.nodes.*;
+import org.openide.nodes.Children;
+import org.openide.nodes.Index;
+import org.openide.nodes.Node;
 import org.openide.explorer.*;
 import org.openide.explorer.propertysheet.*;
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.util.HelpCtx;
 
 import org.netbeans.modules.vcscore.commands.VcsCommand;
-import org.netbeans.modules.vcscore.commands.VcsCommandNode;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.util.Debug;
 
 import org.netbeans.modules.vcs.advanced.commands.*;
+import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
+import org.netbeans.modules.vcscore.commands.CommandsTree;
+import org.netbeans.spi.vcs.commands.CommandSupport;
 
 /** User commands panel.
  * 
@@ -52,23 +57,33 @@ public class UserCommandsPanel extends JPanel
     private CommandNode commandsNode = null;
     
     private ExplorerManager manager = null;
+    
+    private transient VcsFileSystem fileSystem;
 
     static final long serialVersionUID =-5546375234297504708L;
 
-    //-------------------------------------------
+    /**
+     * The panel of user commands.
+     * @param editor The editor of UserCommand instances passed through CommandNodes
+     * @param fileSystem The VCS filesystem instance, that is used for
+     *        UserCommandSupport creation, that wrapps UserCommand.
+     */
     public UserCommandsPanel(UserCommandsEditor editor) {
         this.editor = editor;
-        Node commands = (Node) editor.getValue();
-        VcsCommand oldcmd = (VcsCommand) commands.getCookie(VcsCommand.class);
-        VcsCommand newcmd = null;
-        if (oldcmd != null && oldcmd instanceof UserCommand) {
+        CommandsTree commands = (CommandsTree) editor.getValue();
+        CommandSupport supp = commands.getCommandSupport();
+        UserCommand oldcmd = null;
+        if (supp != null && supp instanceof UserCommandSupport) {
+            oldcmd = ((UserCommandSupport) supp).getVcsCommand();
+            fileSystem = ((UserCommandSupport) supp).getVcsFileSystem();
+        }
+        //VcsCommand oldcmd = (VcsCommand) commands.getCookie(VcsCommand.class);
+        UserCommand newcmd = null;
+        if (oldcmd != null) {
             newcmd = new UserCommand();
-            ((UserCommand) newcmd).copyFrom(oldcmd);
+            newcmd.copyFrom(oldcmd);
         }
         commandsNode = createCommandNodes(commands, newcmd);
-        //Vector oldCommands = (Vector) editor.getValue();
-        //commands = deepCopy(oldCommands);
-        //D.deb("UserCommandsPanel() commands = "+commands); // NOI18N
         initComponents();
         getExplorerManager().setRootContext(commandsNode/*createNodes()*/);
         ExplorerActions actions = new ExplorerActions();
@@ -96,121 +111,20 @@ public class UserCommandsPanel extends JPanel
         editor.setValue(getPropertyValue());
     }
     
-    /*
-    private Node deepCopy(VcsCommandNode oldCommands) {
-        //int len=oldCommands.size();
-        Children oldChildren = oldCommands.getChildren();
-        Children newChildren = new Children.Array();
-        
-        Node newCommands = new VcsCommandNode(children, (VcsCommand) oldCommands.getCookie(VcsCommand.class));
-        Node[] oldNodes = oldChildren.getNodes();
-        //int[] lastOrder = {0};
-        //D.deb("deepCopy():");
-        for(int i = 0; i < oldNodes.length; i++) {
-            UserCommand oldcmd = (UserCommand) oldCommands.elementAt(i);
-            //System.out.println("deepCopy: have command = "+oldcmd);
-            Command cmd = new Command();
-            cmd.copyFrom(oldcmd);
-            cmd.setListener(this);
-            int order[] = cmd.getOrder();
-            //D.deb("i = "+i+", lastOrder = "+UserCommand.getOrderString(lastOrder));
-            //D.deb("Have cmd = "+cmd);
-            int length = order.length;
-            //boolean orderIncreased = false;
-            //int[] lastOrderOrig = lastOrder;
-            if (lastOrder.length < length) {
-                int[] lastOrder1 = new int[length];
-                for(int j = 0; j < lastOrder.length; j++) {
-                    lastOrder1[j] = lastOrder[j];
-                }
-                for(int j = lastOrder.length; j < length; j++) {
-                    lastOrder1[j] = 0;
-                }
-                lastOrder = lastOrder1;
-                //orderIncreased = true;
-                //D.deb("new lastOrder = "+UserCommand.getOrderString(lastOrder));
-            } else if (lastOrder.length > length) {
-                int[] lastOrder1 = new int[length];
-                for(int j = 0; j < length; j++) {
-                    lastOrder1[j] = lastOrder[j];
-                }
-                lastOrder = lastOrder1;
-            }
-            //if (orderIncreased) length--;
-            for(int k = 0; k <= length - 1; k++) {
-                for( ; ++lastOrder[k] < order[k]; ) {
-                    //D.deb("k = "+k+", j = "+j+", adding separator");
-                    Command sepCmd = new Command();
-                    sepCmd.setListener(this);
-                    sepCmd.setSeparator(true);
-                    sepCmd.setDisplayName(g("CTL_COMMAND_SEPARATOR"));
-                    if (k < length - 1) {
-                        int[] newOrder = new int[k + 1];
-                        for(int j = 0; j < k + 1; j++) newOrder[j] = lastOrder[j];
-                    //if (orderIncreased) {
-                        //lastOrderOrig[k]++;
-                        sepCmd.setOrder(newOrder);
-                    } else {
-                        sepCmd.setOrder(lastOrder);
-                    }
-                    newCommands.addElement(sepCmd);
-                    //System.out.println("deepCopy: -> add command = "+sepCmd);
-                }
-                lastOrder[k] = order[k];
-            }
-            //if (orderIncreased) lastOrder[length] = order[length];
-            //System.out.println("deepCopy: -> set command = "+cmd);
-            newCommands.addElement(cmd);
-            //D.deb("adding the command");
-            //refCommands.addElement(new Integer(i));
-        }
-        return newCommands;
-    }
-     */
-
-    /*
-    private CommandNode createNodes() {
-        CommandList list = new CommandList();
-        this.commandList = list;
-        CommandNode node = new CommandNode(list);
-        //node.setName((String) vars.get("FILE"));
-        if (commands.size() > 0) {
-            Command cmd = (Command) commands.get(0);
-            if (cmd.getPropertyNames().length == 0) {
-                node.setCommand(cmd);
-                node.setName(cmd.getName());
-                node.setDisplayName(cmd.getDisplayName());
-            }
-        }
-        //CommandExplorer explorer = new CommandExplorer(node);
-        for(Enumeration enum = commands.elements(); enum.hasMoreElements(); ) {
-            list.add(enum.nextElement());
-        }
-        return node;
-    }
-     */
-    
-    private CommandNode createCommandNodes(Node oldCommands, VcsCommand cmd) {
-        Children oldChildren = oldCommands.getChildren();
+    private CommandNode createCommandNodes(CommandsTree oldCommands, UserCommand cmd) {
         Children newChildren = new Index.ArrayChildren();
         
         CommandNode newCommands = new CommandNode(newChildren, cmd);
-        Node[] oldNodes = oldChildren.getNodes();
+        CommandsTree[] oldNodes = oldCommands.children();
         for(int i = 0; i < oldNodes.length; i++) {
-            VcsCommand oldcmd = (VcsCommand) oldNodes[i].getCookie(VcsCommand.class);
-            VcsCommand newcmd = oldcmd;
-            if (oldcmd instanceof UserCommand) {
-                //try {
+            CommandSupport supp = oldNodes[i].getCommandSupport();
+            UserCommand newcmd = null;//oldcmd;
+            if (supp != null && (supp instanceof UserCommandSupport)) {
                 newcmd = new UserCommand();
-                ((UserCommand) newcmd).copyFrom(oldcmd);
-                    //newcmd = (VcsCommand) ((UserCommand) oldcmd).clone();
-                //} catch (CloneNotSupportedException exc) {
-                //    newcmd = oldcmd;
-                //}
+                newcmd.copyFrom(((UserCommandSupport) supp).getVcsCommand());
             }
-            Children subChildren = oldNodes[i].getChildren();
             CommandNode newNode;
-            if (Children.LEAF.equals(subChildren)) {
+            if (!oldNodes[i].hasChildren()) {
                 newNode = new CommandNode(Children.LEAF, newcmd);
             } else {
                 newNode = createCommandNodes(oldNodes[i], newcmd);
@@ -220,32 +134,30 @@ public class UserCommandsPanel extends JPanel
         return newCommands;
     }
     
-    private Node createCommands(CommandNode oldCommands, VcsCommand cmd) {
+    private CommandsTree createCommands(CommandNode oldCommands, UserCommand cmd, VcsFileSystem fileSystem) {
         Children oldChildren = oldCommands.getChildren();
-        Children newChildren = new Children.Array();
+        CommandsTree newCommands = new CommandsTree(new UserCommandSupport(cmd, fileSystem));
         
-        Node newCommands = new VcsCommandNode(newChildren, cmd);
         Node[] oldNodes = oldChildren.getNodes();
         for(int i = 0; i < oldNodes.length; i++) {
-            VcsCommand oldcmd = ((CommandNode) oldNodes[i]).getCommand();
-            VcsCommand newcmd = oldcmd;
-            if (oldcmd instanceof UserCommand) {
+            UserCommand oldcmd = (UserCommand) ((CommandNode) oldNodes[i]).getCommand();
+            UserCommand newcmd = null;
+            if (oldcmd != null) {
                 newcmd = new UserCommand();
-                ((UserCommand) newcmd).copyFrom(oldcmd);
-                //try {
-                //    newcmd = (VcsCommand) ((Cloneable) oldcmd).clone();
-                //} catch (CloneNotSupportedException exc) {
-                //    newcmd = oldcmd;
-                //}
+                newcmd.copyFrom(oldcmd);
             }
             Children subChildren = oldNodes[i].getChildren();
-            VcsCommandNode newNode;
-            if (Children.LEAF.equals(subChildren)) {
-                newNode = new VcsCommandNode(Children.LEAF, newcmd);
+            CommandsTree newNode;
+            if (newcmd == null) {
+                newNode = CommandsTree.EMPTY;
             } else {
-                newNode = (VcsCommandNode) createCommands((CommandNode) oldNodes[i], newcmd);
+                if (Children.LEAF.equals(subChildren)) {
+                    newNode = new CommandsTree(new UserCommandSupport(newcmd, fileSystem));
+                } else {
+                    newNode = createCommands((CommandNode) oldNodes[i], newcmd, fileSystem);
+                }
             }
-            newChildren.add(new Node[] { newNode });
+            newCommands.add(newNode);
         }
         return newCommands;
     }
@@ -292,43 +204,14 @@ public class UserCommandsPanel extends JPanel
     
     //-------------------------------------------
     public Object getPropertyValue() {
-        //D.deb("getPropertyValue() -->"+commands);
-        /*
-        Vector cmds = new Vector();
-        if (commandList != null) {
-            for(Iterator it = commandList.iterator(); it.hasNext(); ) {
-                Command cmd = (Command) it.next();
-                if (!cmd.isSeparator()) cmds.addElement((UserCommand) cmd);
-            }
-        } else {
-            int len = commands.size();
-            for(int i = 0; i < len; i++) {
-                Command cmd = (Command) commands.get(i);
-                if (!cmd.isSeparator()) cmds.addElement((UserCommand) cmd);
-            }
-        }
-        //D.deb("getPropertyValue(): cmds = "+cmds);
-        return cmds;
-         */
-        return createCommands(commandsNode, commandsNode.getCommand());
+        return createCommands(commandsNode, (UserCommand) commandsNode.getCommand(), fileSystem);
     }
 
 
     //-------------------------------------------
-    String g(String s) {
-        return NbBundle.getBundle
-               ("org.netbeans.modules.vcs.advanced.Bundle").getString (s);
+    private String g(String s) {
+        return NbBundle.getMessage(UserCommandsPanel.class, s);
     }
-    String  g(String s, Object obj) {
-        return MessageFormat.format (g(s), new Object[] { obj });
-    }
-    String g(String s, Object obj1, Object obj2) {
-        return MessageFormat.format (g(s), new Object[] { obj1, obj2 });
-    }
-    String g(String s, Object obj1, Object obj2, Object obj3) {
-        return MessageFormat.format (g(s), new Object[] { obj1, obj2, obj3 });
-    }
-    //-------------------------------------------
 
 
 }

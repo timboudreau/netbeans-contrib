@@ -20,6 +20,7 @@ import org.openide.nodes.Node;
 
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
+import org.netbeans.modules.vcscore.commands.CommandsTree;
 
 /** Property editor for UserCommand.
  * 
@@ -31,7 +32,8 @@ public class UserCommandsEditor implements PropertyEditor {
     private Debug D=E;
 
     //private Vector commands=new Vector(10);
-    private Node commands = null;
+    //private Node commands = null;
+    private CommandsTree commands = null;
 
     private PropertyChangeSupport changeSupport=null;
 
@@ -80,11 +82,11 @@ public class UserCommandsEditor implements PropertyEditor {
 
     //-------------------------------------------
     public void setValue(Object value) {
-        if (!(value instanceof Node)) {
-            E.err("Node expected instead of "+value); // NOI18N
-            throw new IllegalArgumentException("Node expected instead of "+value);
+        if (!(value instanceof CommandsTree)) {
+            E.err("CommandsTree expected instead of "+value); // NOI18N
+            throw new IllegalArgumentException("CommandsTree expected instead of "+value);
         }
-        commands = (Node) value;
+        commands = (CommandsTree) value;
         /*
         // make local copy of value - deep copy using clone
         commands = new Vector();

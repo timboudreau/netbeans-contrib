@@ -16,11 +16,13 @@ package org.netbeans.modules.vcs.advanced.commands;
 import java.util.*;
 
 import org.openide.TopManager;
-import org.openide.nodes.*;
+//import org.openide.nodes.*;
 
-import org.netbeans.modules.vcscore.commands.*;
-import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
+import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.cmdline.UserCommand;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
+import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
@@ -37,7 +39,7 @@ public class UserCommandIOCompat extends Object {
     private static final String DISPLAY_NAME_NOT_SHOW = "NO_LABEL";
 
     
-    public static Node readCommands(Properties props) {
+    public static CommandsTree readCommands(Properties props, VcsFileSystem fileSystem) {
         ArrayList commands = new ArrayList();
         //try {
             commands = readUserCommands(props/*, org.netbeans.modules.vcscore.cmdline.UserCommand.class*/);
@@ -48,12 +50,13 @@ public class UserCommandIOCompat extends Object {
             TopManager.getDefault().notifyException(iaexc);
         }
              */
-        Children children = new Children.Array();
+        //Children children = new Children.Array();
         UserCommand rootCmd = new UserCommand();
         rootCmd.setName("THE_ROOT_CMD");
         rootCmd.setDisplayName((String) props.getProperty("label"));
-        VcsCommandNode commandsNode = new VcsCommandNode(children, rootCmd);
-        createMainCommandNodes(commandsNode, commands);
+        CommandsTree commandsNode = new CommandsTree(new UserCommandSupport(rootCmd, fileSystem));
+        //VcsCommandNode commandsNode = new VcsCommandNode(children, rootCmd);
+        createMainCommandNodes(commandsNode, commands, fileSystem);
         return commandsNode;
     }
     
@@ -301,21 +304,26 @@ public class UserCommandIOCompat extends Object {
         }
     }
 
-    private static void createMainCommandNodes(VcsCommandNode commandsNode, ArrayList commands) {
+    private static void createMainCommandNodes(CommandsTree commandsNode, ArrayList commands,
+                                               VcsFileSystem fileSystem) {
         if (commands.size() > 0) {
             VcsCommand cmd = (VcsCommand) commands.get(0);
             if (cmd.getPropertyNames().length == 0) {
                 commands.remove(0);
-                Children children = commandsNode.getChildren();
-                commandsNode = new VcsCommandNode(new Children.Array(), cmd);
-                children.add(new VcsCommandNode[] { commandsNode });
+                CommandsTree root = commandsNode;
+                commandsNode = new CommandsTree(new UserCommandSupport((UserCommand) cmd, fileSystem));
+                //Children children = commandsNode.getChildren();
+                //commandsNode = new VcsCommandNode(new Children.Array(), cmd);
+                //children.add(new VcsCommandNode[] { commandsNode });
+                root.add(commandsNode);
             }
         }
-        createCommandNodes(commandsNode, commands, 0, new int[0]);
+        createCommandNodes(commandsNode, commands, 0, new int[0], fileSystem);
     }
     
-    private static int createCommandNodes(VcsCommandNode commandsNode, ArrayList commands, int from, int[] lastOrder) {
-        Children children = commandsNode.getChildren();
+    private static int createCommandNodes(CommandsTree commandsNode, ArrayList commands,
+                                          int from, int[] lastOrder, VcsFileSystem fileSystem) {
+        //Children children = commandsNode.getChildren();
         int len = commands.size();
         int l = lastOrder.length;
         int i;
@@ -331,7 +339,8 @@ public class UserCommandIOCompat extends Object {
             if (j < l) break;
             for(int k = lastOrderEnd+1; k < order[l]; k++) {
                 // SEPARATOR
-                children.add (new VcsCommandNode[] { new VcsCommandNode(Children.LEAF, null) });
+                commandsNode.add(CommandsTree.EMPTY);
+                //children.add (new VcsCommandNode[] { new VcsCommandNode(Children.LEAF, null) });
             }
             lastOrderEnd = order[l];
             if (order.length >= l + 2) {
@@ -339,12 +348,15 @@ public class UserCommandIOCompat extends Object {
                 for(int k = 0; k < order.length - 1; k++) {
                     suborder[k] = order[k];
                 }
-                VcsCommandNode subCommands = new VcsCommandNode(new Children.Array(), uc);
-                i += createCommandNodes(subCommands, commands, i + 1, suborder);
-                children.add(new Node[] { subCommands });
+                //VcsCommandNode subCommands = new VcsCommandNode(new Children.Array(), uc);
+                CommandsTree subCommands = new CommandsTree(new UserCommandSupport(uc, fileSystem));
+                i += createCommandNodes(subCommands, commands, i + 1, suborder, fileSystem);
+                commandsNode.add(subCommands);
+                //children.add(new Node[] { subCommands });
             } else {
+                commandsNode.add(new CommandsTree(new UserCommandSupport(uc, fileSystem)));
                 //JMenuItem item = createItem(uc.getName());
-                children.add(new Node[] { new VcsCommandNode(Children.LEAF, uc) });
+                //children.add(new Node[] { new VcsCommandNode(Children.LEAF, uc) });
                 //parent.add(item);
             }
         }
