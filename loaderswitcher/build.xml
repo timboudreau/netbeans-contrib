@@ -55,7 +55,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="loaderswitcher.nbm"
              topdir="."
-             module="modules/loaderswitcher.jar"
+             module="netbeans/modules/loaderswitcher.jar"
 	     homepage="http://utilities.${homepage.base}/loaderswitcher/"
 	     distribution="http://${dist.base}/loaderswitcher.nbm">
       <license file="${license.file}"/>

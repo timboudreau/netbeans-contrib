@@ -103,7 +103,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="starteam-profile.nbm"
              topdir="."
-             module="modules/starteam-profile.jar"
+             module="netbeans/modules/starteam-profile.jar"
 	     homepage="http://vcsgeneric.${homepage.base}/"
 	     distribution="http://${dist.base}/starteam-profile.nbm">
       <license file="${license.file}"/>
