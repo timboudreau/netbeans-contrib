@@ -39,6 +39,7 @@ Microsystems, Inc. All Rights Reserved.
     <ant dir="J3dEditor_2.0" target="jars"/>
     <mkdir dir="release/lib/ext"/>
     <copy file="J3dEditor_2.0/lib/j3dedit.jar" tofile="release/lib/ext/j3dedit.jar"/>
+    <copy file="J3dEditor_2.0/lib/j3d_interposer.jar" tofile="release/lib/ext/j3d_interposer.jar"/>
     <copy file="J3dFly_2.0/lib/j3dfly-utils.jar" tofile="release/lib/ext/j3dfly-utils.jar"/>
     <copy file="J3dFly_2.0/lib/j3dfly.jar" tofile="release/lib/ext/j3dfly.jar"/>
     <mkdir dir="netbeans/modules"/>
@@ -82,7 +83,7 @@ Microsystems, Inc. All Rights Reserved.
 		     J3dFly_2.0/preferences/*, J3dFly_2.0/universe-configs/*, 
 		     J3dEditor_2.0/bin/*, J3dEditor_2.0/lib/*, 
 		     J3dEditor_2.0/preferences/*, loaders/*, 
-                     extra_loaders/*, java3d.nbm,
+                     extra_loaders/README, java3d.nbm, extra_libs/README,
                      README"
       />
       <zip zipfile="release_2.0_beta_${DSTAMP}.zip"
@@ -92,7 +93,7 @@ Microsystems, Inc. All Rights Reserved.
 		     J3dFly_2.0/preferences/*, J3dFly_2.0/universe-configs/*, 
 		     J3dEditor_2.0/bin/*, J3dEditor_2.0/lib/*, 
 		     J3dEditor_2.0/preferences/*, loaders/*, 
-                     extra_loaders/*, java3d.nbm,
+                     extra_loaders/README, java3d.nbm, extra_libs/README,
                      README"
       />
   </target>
