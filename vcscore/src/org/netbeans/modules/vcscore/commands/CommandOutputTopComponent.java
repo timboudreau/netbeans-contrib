@@ -142,7 +142,8 @@ public class CommandOutputTopComponent extends TopComponent {
         JMenuItem discardTab = new JMenuItem(); //NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N        
         discardAction = new AbstractAction(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab")) { //NOI18N
             public void actionPerformed(java.awt.event.ActionEvent event) {
-                tabPane.remove(tabPane.getSelectedIndex());
+                if(tabPane.getSelectedIndex() > -1)
+                    tabPane.remove(tabPane.getSelectedIndex());
                 if(tabPane.getComponentCount() == 0)
                     close();
             }
