@@ -134,6 +134,8 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param path the directory path
      */
     public void doListSub(String path) {
+        CommandExecutorSupport.doRefresh(fileSystem, path, true);
+        /*
         //D.deb("doListSub('"+path+"')"); // NOI18N
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         FileCacheProvider cache = fileSystem.getCacheProvider();
@@ -156,6 +158,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             Thread t = new Thread(rd, "VCS Recursive Retrieving Thread - "+dirName); // NOI18N
             t.start();
         }
+         */
     }
 
     /**
