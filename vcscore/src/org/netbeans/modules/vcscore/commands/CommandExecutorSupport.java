@@ -430,6 +430,11 @@ public class CommandExecutorSupport extends Object {
         return result ;
     }
 
+    /** The table of FS and its global descriptor string. */
+    private static Hashtable globalInputStrs = new Hashtable();
+    /** The table of FS and its parsed global descriptor */
+    private static Hashtable globalInputDescrs = new Hashtable();
+    
     /**
      * Ask the user for the value of some variables.
      * @param inputDescriptor the descriptor of variable input components
@@ -491,17 +496,24 @@ public class CommandExecutorSupport extends Object {
                     dlg.setVCSFileSystem(fileSystem, vars);
                     if (fileSystem.isExpertMode()) {
                         if (exec != null) dlg.setExec(exec);
-                        String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
-                        if (globalInputStr != null) {
-                            VariableInputDescriptor globalInputDescriptor;
+                    }
+                    String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
+                    String globalInputStrStored = (String) globalInputStrs.get(fileSystem);
+                    if (globalInputStr != null) {
+                        VariableInputDescriptor globalInputDescriptor;
+                        if (!globalInputStr.equals(globalInputStrStored)) {
                             try {
                                 globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr);
                             } catch (VariableInputFormatException exc) {
                                 TopManager.getDefault().notifyException(exc);
                                 return false;
                             }
-                            dlg.setGlobalInput(globalInputDescriptor);
+                            globalInputStrs.put(fileSystem, globalInputStr);
+                            globalInputDescrs.put(fileSystem, globalInputDescriptor);
+                        } else {
+                            globalInputDescriptor = (VariableInputDescriptor) globalInputDescrs.get(fileSystem);
                         }
+                        dlg.setGlobalInput(globalInputDescriptor);
                     }
                     dlg.setUserParamsPromptLabels(userParamsPromptLabels, (String) cmd.getProperty(VcsCommand.PROPERTY_ADVANCED_NAME));
                     dlg.setFilePromptDocumentListener(fileSystem, cmd);
@@ -553,6 +565,32 @@ public class CommandExecutorSupport extends Object {
                         }
                     } else return false;
                 } else {
+                    if (inputDescriptor != null && showInputDescriptor(inputDescriptor, true)) {
+                        String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
+                        String globalInputStrStored = (String) globalInputStrs.get(fileSystem);
+                        if (globalInputStr != null) {
+                            VariableInputDescriptor globalInputDescriptor;
+                            if (!globalInputStr.equals(globalInputStrStored)) {
+                                try {
+                                    globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr);
+                                } catch (VariableInputFormatException exc) {
+                                    TopManager.getDefault().notifyException(exc);
+                                    return false;
+                                }
+                                globalInputStrs.put(fileSystem, globalInputStr);
+                                globalInputDescrs.put(fileSystem, globalInputDescriptor);
+                            } else {
+                                globalInputDescriptor = (VariableInputDescriptor) globalInputDescrs.get(fileSystem);
+                            }
+                            //dlg.setGlobalInput(globalInputDescriptor);
+                            VariableInputComponent[] components = globalInputDescriptor.components();
+                            for (int i = 0; i < components.length; i++) {
+                                String var = components[i].getVariable();
+                                String value = components[i].getValue();
+                                if (value != null) vars.put(var, value);
+                            }
+                        }
+                    }
                     if (forEachFile != null) {
                         forEachFile[0] = false;
                     }
