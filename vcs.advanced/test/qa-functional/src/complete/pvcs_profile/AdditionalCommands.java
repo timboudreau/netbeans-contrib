@@ -47,7 +47,7 @@ public class AdditionalCommands extends PVCSStub {
     }
     
     public static Test suite() {
-//        complete.GenericStub.DEBUG = true;
+//        DEBUG = true;
         TestSuite suite = new NbTestSuite();
         try { System.out.println ("vlog return code: " + Runtime.getRuntime().exec("vlog").waitFor()); } catch (Exception e) { e.printStackTrace (); return suite; }
         suite.addTest(new AdditionalCommands("configure"));
@@ -571,6 +571,7 @@ public class AdditionalCommands extends PVCSStub {
         hi.setRevision("1.2");
         hi.ok ();
         hi.waitClosed();
+        B_File.waitHistoryFailed("History");
 
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("History");
         waitNoEmpty(coo.txtStandardError ());
@@ -609,6 +610,7 @@ public class AdditionalCommands extends PVCSStub {
         hi.setRevision("1.1");
         hi.ok ();
         hi.waitClosed();
+        B_File.waitHistoryFailed("History");
 
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("History");
         waitNoEmpty(coo.txtStandardError ());
