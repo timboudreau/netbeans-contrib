@@ -255,7 +255,14 @@ public class IDLModule implements ModuleInstall {
 	 System.out.println ("CORBA Support Module restoring...");
       //System.out.println ("setting template map :))");
 
-      
+      Compiler.Manager.register (IDLDataObject.class, new Compiler.Manager () {
+	 public void prepareJob (CompilerJob job, Class type, DataObject ido) {
+	    ((IDLDataObject)ido).createCompiler (job, type);
+	 }
+      });
+
+      /*
+
       Compiler.Manager.register (IDLDataObject.class,
 				 new Compiler.Manager() {
 	 public void prepareJob(CompilerJob job, Class type, DataObject ido) {
@@ -330,6 +337,10 @@ public class IDLModule implements ModuleInstall {
 	    String[] tmps2 = new String[] {NbProcessDescriptor.CP_REPOSITORY};
 	    NbProcessDescriptor desc = new NbProcessDescriptor 
 	       (command , NbProcessDescriptor.NO_SWITCH, tmps2);
+
+
+      */
+
 	    /*
 	    if (DEBUG)
 	       System.out.println ("sub: " + css.getIdl ().getProcessArgs ()[0]);
@@ -347,18 +358,23 @@ public class IDLModule implements ModuleInstall {
 	    }
 	    else
 	    */
+
+      /*
 	       new ExternalCompiler(job, ido.getPrimaryFile(), type, desc, eexpr);
 	 }
-      }
-				 );
+      */
       
       //JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
       
       if (DEBUG)
 	 System.err.println ("CORBA Support Module restored...");
+      
    }
    
    private String getClasspath(String[] classpathItems) {
+
+      /*
+
     StringBuffer buff = new StringBuffer(100);
     for (int i = 0; i < classpathItems.length; i++) {
        if (NbProcessDescriptor.CP_REPOSITORY.equals (classpathItems[i])) {
@@ -391,9 +407,16 @@ public class IDLModule implements ModuleInstall {
     }
 
     return buff.toString ();
+
+      */
+      return null;
+
    }
 
    private static final String getSystemEntries() {
+
+      /*
+
       // boot
     String boot = System.getProperty("sun.boot.class.path");
     StringBuffer sb = (boot != null ? new StringBuffer(boot) : new StringBuffer());
@@ -430,6 +453,9 @@ public class IDLModule implements ModuleInstall {
       }
     }
     return sb.toString();
+
+      */
+      return null;
    }
 
    /** Module was uninstalled. */
@@ -445,6 +471,7 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  9    Gandalf   1.8         6/4/99   Karel Gardas    
  *  8    Gandalf   1.7         5/28/99  Karel Gardas    
  *  7    Gandalf   1.6         5/28/99  Karel Gardas    
  *  6    Gandalf   1.5         5/28/99  Karel Gardas    

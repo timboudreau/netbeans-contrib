@@ -25,6 +25,7 @@ import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.Enumeration;
+import java.util.StringTokenizer;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
@@ -332,8 +333,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       NbProcessDescriptor old = idl;
       idl = s;
       //System.out.println ("switch: " + idl.getClasspathSwitch ());
-      int length = idl.getProcessArgs ().length;
-      String[] params = idl.getProcessArgs ();
+      //int length = idl.getProcessArgs ().length;
+      //String[] params = idl.getProcessArgs ();
       //for (int i=0; i<length; i++)
       //	 System.out.println ("param[" + i + "]: " + params[i]);
       
@@ -636,9 +637,30 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       new_dir = ((Properties)props.elementAt (index)).getProperty ("DIR_PARAM");
       new_package = ((Properties)props.elementAt (index)).getProperty ("PACKAGE_PARAM");
 
-      String[] tmp1 = new String[] {NbProcessDescriptor.CP_REPOSITORY};
+      //String[] tmp1 = new String[] {NbProcessDescriptor.CP_REPOSITORY};
+      String[] tmp1 = new String[] {""};
 
-      new_idl = new NbProcessDescriptor ( (String)((Properties)props.elementAt (index)).getProperty ("COMPILER"), NbProcessDescriptor.NO_SWITCH, tmp1);
+      //new_idl = new NbProcessDescriptor ( (String)((Properties)props.elementAt (index)).getProperty ("COMPILER"), NbProcessDescriptor.NO_SWITCH, tmp1);
+      String compiler = (String)((Properties)props.elementAt (index)).getProperty ("COMPILER");
+      if (DEBUG)
+	 System.out.println ("compiler: " + compiler);
+
+      StringTokenizer st = new StringTokenizer (compiler);
+      //      String process = compiler.substring (0, compiler.indexOf (' '));
+      String process = st.nextToken ();
+      //      String args = compiler.substring (compiler.indexOf (' '), compiler.length () - 1);
+      String args = "";
+      while (st.hasMoreTokens ()) {
+	 if (args.length () > 0)
+	    args = args + " " + st.nextToken ();
+	 else 
+	    args = st.nextToken ();
+      }
+      if (DEBUG) {
+	 System.out.println ("process: " + process);
+	 System.out.println ("args: " + args);
+      }
+      new_idl = new NbProcessDescriptor (process, args, "");
       new_expression = ((Properties)props.elementAt (index)).getProperty ("ERROR_EXPRESSION");
       new_file = ((Properties)props.elementAt (index)).getProperty ("FILE_POSITION");
       new_line = ((Properties)props.elementAt (index)).getProperty ("LINE_POSITION");
