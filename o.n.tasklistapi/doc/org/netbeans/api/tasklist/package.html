@@ -73,6 +73,7 @@ directory as your layer file) contains something like this:
 &lt;type
     name='CopyrightCheck'
     description_key='HINT_COPYRIGHT'
+    long_description_key='LONGHINT_COPYRIGHT'
     localizing_bundle='com.foo.bar.Bundle'
     icon='nbresloc:/com/foo/bar/copyrightCheck.gif'
 /&gt;
@@ -84,6 +85,7 @@ The DTD referenced above can be
 Then in your Bundle file identified above, add an entry like:
 <pre>
     HINT_COPYRIGHT=Copyright Problems
+    LONGHINT_copyrighttype=Identify copyright notices in files where the copyright year does not include the current year.
 </pre>
 
 </ol>

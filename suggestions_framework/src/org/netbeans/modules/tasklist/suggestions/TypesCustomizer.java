@@ -119,6 +119,9 @@ public class TypesCustomizer extends javax.swing.JPanel
         disabledPanel = new javax.swing.JPanel();
         disabledLabel = new javax.swing.JLabel();
         disabledList = new javax.swing.JList();
+        descPanel = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        descTextArea = new javax.swing.JTextArea();
         confPanel = new javax.swing.JPanel();
         confLabel = new javax.swing.JLabel();
         confirmationList = new javax.swing.JList();
@@ -146,9 +149,9 @@ public class TypesCustomizer extends javax.swing.JPanel
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         add(activePanel, gridBagConstraints);
 
         moveButtonPanel.setLayout(new java.awt.GridLayout(4, 1, 0, 6));
@@ -177,10 +180,25 @@ public class TypesCustomizer extends javax.swing.JPanel
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         add(disabledPanel, gridBagConstraints);
+
+        descPanel.setLayout(new java.awt.BorderLayout(0, 6));
+
+        jLabel1.setText(NbBundle.getMessage(TypesCustomizer.class, "TypeDesc")); // NOI18N();
+        descPanel.add(jLabel1, java.awt.BorderLayout.NORTH);
+
+        descTextArea.setLineWrap(true);
+        descTextArea.setWrapStyleWord(true);
+        descPanel.add(descTextArea, java.awt.BorderLayout.CENTER);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
+        add(descPanel, gridBagConstraints);
 
         confPanel.setLayout(new java.awt.BorderLayout(0, 6));
 
@@ -191,9 +209,9 @@ public class TypesCustomizer extends javax.swing.JPanel
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         add(confPanel, gridBagConstraints);
 
         confButtonPanel.setLayout(new java.awt.GridLayout(2, 1, 0, 6));
@@ -261,32 +279,35 @@ public class TypesCustomizer extends javax.swing.JPanel
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addConfButton;
-    private javax.swing.JLabel activeLabel;
-    private javax.swing.JCheckBox docEditedCB;
-    private javax.swing.JCheckBox docShownCB;
-    private javax.swing.JPanel confButtonPanel;
-    private javax.swing.JPanel disabledPanel;
-    private javax.swing.JButton removeActiveButton;
-    private javax.swing.JCheckBox docSavedCB;
-    private javax.swing.JLabel updateWhenLabel;
-    private javax.swing.JTextField showDelayTF;
+    private javax.swing.JPanel descPanel;
+    private javax.swing.JLabel confLabel;
     private javax.swing.JTextField editDelayTF;
-    private javax.swing.JPanel confPanel;
-    private javax.swing.JLabel disabledLabel;
+    private javax.swing.JPanel updatePanel;
+    private javax.swing.JList disabledList;
+    private javax.swing.JPanel moveButtonPanel;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JTextField saveDelayTF;
+    private javax.swing.JLabel delayLabel;
+    private javax.swing.JButton addAllButton;
     private javax.swing.JButton addActiveButton;
     private javax.swing.JButton removeConfButton;
-    private javax.swing.JPanel moveButtonPanel;
-    private javax.swing.JButton addAllButton;
-    private javax.swing.JList enabledList;
-    private javax.swing.JPanel activePanel;
-    private javax.swing.JList confirmationList;
-    private javax.swing.JLabel confLabel;
-    private javax.swing.JLabel delayLabel;
-    private javax.swing.JPanel updatePanel;
     private javax.swing.JButton removeAllButton;
-    private javax.swing.JTextField saveDelayTF;
-    private javax.swing.JList disabledList;
+    private javax.swing.JPanel disabledPanel;
+    private javax.swing.JTextArea descTextArea;
+    private javax.swing.JLabel disabledLabel;
+    private javax.swing.JList enabledList;
+    private javax.swing.JTextField showDelayTF;
+    private javax.swing.JCheckBox docEditedCB;
+    private javax.swing.JLabel activeLabel;
+    private javax.swing.JPanel confPanel;
+    private javax.swing.JLabel updateWhenLabel;
+    private javax.swing.JCheckBox docSavedCB;
+    private javax.swing.JCheckBox docShownCB;
+    private javax.swing.JButton addConfButton;
+    private javax.swing.JPanel confButtonPanel;
+    private javax.swing.JPanel activePanel;
+    private javax.swing.JButton removeActiveButton;
+    private javax.swing.JList confirmationList;
     // End of variables declaration//GEN-END:variables
     
     /** Apply changes in the dialog */
@@ -435,6 +456,20 @@ public class TypesCustomizer extends javax.swing.JPanel
         }
         updateSensitivity();
         JList list = (JList)event.getSource();
+
+        // Update the type description
+        if (list == enabledList) {
+            int[] selected = enabledList.getSelectedIndices();
+            if ((selected == null) || (selected.length != 1)) {
+                descTextArea.setText("");
+            } else {
+                String desc = enabledModel.getElementAt(selected[0]).toString();
+                SuggestionTypes types = SuggestionTypes.getTypes();
+                SuggestionType type = types.findTypeByDesc(desc);
+                descTextArea.setText(type.getDescription());
+            }
+        }
+        
         if (list.getSelectedIndex() != -1) {
             if (list == enabledList) {
                 // XXX TODO : set selection here

@@ -34,12 +34,15 @@ final public class SuggestionType {
      * @param name The name which identifies this Suggestion Type
      * @param bundle The file where the localized name for the type is found
      * @param key The key which holds the localized name in the bundle file
+     * @param longkey The key which holds the localized full, possibly
+     *     multiline description of the type in the bundle file
      * @param icon A url to the icon to be used by default for these suggestions */
-    SuggestionType(String name, String bundle, String key, URL icon, 
-                   List actions) {
+    SuggestionType(String name, String bundle, String key, 
+                   String longkey, URL icon, List actions) {
         this.name = name;
         this.bundle = bundle;
         this.key = key;
+        this.longkey = longkey;
         this.icon = icon;
         this.actions = actions;
     }
@@ -88,6 +91,20 @@ final public class SuggestionType {
         return localizedName;
     }
 
+    /** Return the description of the Suggestion type - localized. */
+    String getDescription() {
+        if (localizedDesc == null) {
+            if (longkey != null) {
+                ResourceBundle rb = NbBundle.getBundle(bundle);
+                localizedDesc = rb.getString(longkey);
+            }
+            if (localizedDesc == null) {
+                localizedDesc = "";
+            }
+        }
+        return localizedDesc;
+    }
+
 
 // Commented out for now: we do global settings of these scanning
 // preferences - not per-type
@@ -132,8 +149,10 @@ final public class SuggestionType {
     private String name;
     private String bundle;
     private String key;
+    private String longkey;
     private URL icon;
     private Image img = null;
     private String localizedName = null;
+    private String localizedDesc = null;
     private List actions;
 }

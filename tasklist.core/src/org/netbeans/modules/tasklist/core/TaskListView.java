@@ -28,6 +28,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import java.awt.Dimension;
 import java.awt.Image;
@@ -49,6 +51,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 
 import org.openide.explorer.view.TreeTableView;
+import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
@@ -81,7 +84,8 @@ import org.netbeans.core.output.PreviousOutJumpAction;
  *       from this class
  */
 public abstract class TaskListView extends ExplorerPanel
-    implements TaskListener, ActionListener, ComponentListener {
+    implements TaskListener, ActionListener, ComponentListener,
+               PropertyChangeListener {
     
     transient protected TaskNode rootNode = null;
     transient protected MyTreeTable treeTable;
@@ -390,7 +394,7 @@ public abstract class TaskListView extends ExplorerPanel
             boolean defaultVisibility,
             int width
         ) {
-            super(name, type, displayName, displayName);
+            super(name, type, displayName, hint);
 	    this.uid = uid;
             this.width = width;
             setValue ("ColumnDescriptionTTV", hint); // NOI18N
@@ -1296,9 +1300,6 @@ public abstract class TaskListView extends ExplorerPanel
             wrapWarned = true;
         } else {
             wrapWarned = false;
-            if (msg.equals(StatusDisplayer.getDefault().getStatusText())) {
-                StatusDisplayer.getDefault().setStatusText("");
-            }
         }
         if (next != null) {
             if (next.getLine() != null) {
@@ -1308,6 +1309,7 @@ public abstract class TaskListView extends ExplorerPanel
                 }
             }
             select(next);
+            //StatusDisplayer.getDefault().setStatusText(next.getSummary());
         }
 
     }
@@ -1333,9 +1335,6 @@ public abstract class TaskListView extends ExplorerPanel
             StatusDisplayer.getDefault().setStatusText(msg);
             wrapWarned = true;
         } else {
-            if (msg.equals(StatusDisplayer.getDefault().getStatusText())) {
-                StatusDisplayer.getDefault().setStatusText("");
-            }
             wrapWarned = false;
         }
         if (prev != null) {
@@ -1346,6 +1345,7 @@ public abstract class TaskListView extends ExplorerPanel
                 }
             }
             select(prev);
+            //StatusDisplayer.getDefault().setStatusText(prev.getSummary());
         }
     }
 
@@ -1384,6 +1384,9 @@ public abstract class TaskListView extends ExplorerPanel
         }
         showing = false;
 
+        // Stop listening for node activation
+        getExplorerManager().removePropertyChangeListener(this);	    
+        
         // Remove jump actions
         // Cannot do this, because componentHidden can be called
         // after another TaskListView is shown (for example when you
@@ -1399,6 +1402,9 @@ public abstract class TaskListView extends ExplorerPanel
         }
         showing = true;
 
+        // Listen for node activation
+        getExplorerManager().addPropertyChangeListener(this);	    
+        
         installJumpActions(true);
     }
 
@@ -1410,5 +1416,73 @@ public abstract class TaskListView extends ExplorerPanel
     /** Don't care - but must implement full ComponentListener interface */
     public void componentMoved(ComponentEvent e) {
 	// Don't care
+    }
+
+    public void propertyChange(PropertyChangeEvent ev) {
+        // Display selected node's summary in the status line
+        if (ev.getPropertyName() == ExplorerManager.PROP_SELECTED_NODES) {
+            Node[] sel = getExplorerManager().getSelectedNodes();
+            if ((sel != null) && (sel.length == 1)) {
+                Task task = TaskNode.getTask(sel[0]);
+                if (task != null) {
+                    StatusDisplayer.getDefault().setStatusText(task.getSummary());
+                }
+            }
+	} else if (ExplorerManager.PROP_SELECTED_NODES.equals(
+					      ev.getPropertyName())) {
+	    // internal error
+	    ErrorManager.getDefault().log(
+				  "Option property name " + // NOI18N
+				  ev.getPropertyName() +
+				  " was not interned."); // NOI18N
+	}
+    }
+
+    /** Return true iff the given node is expanded */
+    public boolean isExpanded(Node n) {
+        return treeTable.isExpanded(n);
+    }
+    
+    /** Collapse or expand a given node */
+    public void setExpanded(Node n, boolean expanded) {
+        if (expanded) {
+            treeTable.expandNode(n);
+        } else {
+            treeTable.collapseNode(n);
+        }
+    }
+    
+    // TODO - get rid of this when you clean up TaskListView.getRootNode() to
+    // do the Right Thing(tm) - always return effective explorer context
+    /** Return the actual root of the node tree shown in this view.
+     * May be a filternode when Filtering is in place.
+     */
+    public Node getEffectiveRoot() {
+        return getExplorerManager().getRootContext();       
+    }
+
+    /** Schedule a particular target suggestion to be expanded (if it's
+        a parent node.  This delay is necessary since the node may not
+        yet have been created (and it's being created by a different
+        thread, so we're essentially busy waiting, checking each time
+        around the event dispatch loop up to a maximum number of checks.
+        @param target The task we want expanded
+        @param hops Current hop count. Clients should pass in 0 here.
+           Used to bounce out of recursion.
+    */
+    public void scheduleNodeExpansion(final Task target, 
+                                      final int hops) {
+        SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    // find
+                    //Node n = TaskNode.find(getRootNode(), target);
+                    Node n = TaskNode.find(getEffectiveRoot(), target);
+                    if (n != null) {
+                        setExpanded(n, true);
+                    } else if (hops < 50) {
+                        scheduleNodeExpansion(target, hops+1);
+                    }
+                }
+            });
     }
 }

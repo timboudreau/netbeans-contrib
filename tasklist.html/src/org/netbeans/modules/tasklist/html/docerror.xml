@@ -16,6 +16,7 @@ Microsystems, Inc. All Rights Reserved.
 <type
     name="nb-html-errors"
     description_key="HINT_doc_error"
+    long_description_key="LONGHINT_doc_error"
     localizing_bundle="org.netbeans.modules.tasklist.html.Bundle"
     icon="nbresloc:org/netbeans/modules/tasklist/html/error.gif"
 >

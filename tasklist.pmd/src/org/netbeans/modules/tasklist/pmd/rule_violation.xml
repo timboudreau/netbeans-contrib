@@ -16,6 +16,7 @@ Microsystems, Inc. All Rights Reserved.
 <type
     name="pmd-violations"
     description_key="HINT_violationtype"
+    long_description_key="LONGHINT_violationtype"
     localizing_bundle="org.netbeans.modules.tasklist.pmd.Bundle"
     icon="nbresloc:org/netbeans/modules/tasklist/pmd/pmd.gif"
 >

@@ -177,14 +177,16 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
         };
     }
 
+    /*
     public void destroy() {
         TaskList tl = item.getList();
         try {
-            tl.remove(item);
+            tl.remove(item, true);
         } catch (java.lang.NullPointerException e) {
             ErrorManager.getDefault().notify(e);
         }
     }
+    */
     
     public boolean canDestroy() {
         return true;

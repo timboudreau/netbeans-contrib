@@ -8,6 +8,7 @@ Document type declaration for SuggestionType.
 <!ATTLIST type name CDATA #REQUIRED>
 <!ATTLIST type localizing_bundle CDATA #REQUIRED>
 <!ATTLIST type description_key CDATA #REQUIRED>
+<!ATTLIST type long_description_key CDATA #REQUIRED>
 <!ATTLIST type icon CDATA #IMPLIED>
 
 <!ELEMENT actions (action+)>

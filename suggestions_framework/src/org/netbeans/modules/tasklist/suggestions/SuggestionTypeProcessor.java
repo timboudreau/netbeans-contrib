@@ -57,6 +57,7 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
     static final String ATTR_TYPE_NAME = "name"; // NOI18N
     static final String ATTR_TYPE_LOCALIZING_BUNDLE = "localizing_bundle"; // NOI18N
     static final String ATTR_TYPE_DESCRIPTION_KEY = "description_key"; // NOI18N
+    static final String ATTR_TYPE_LONGDESCRIPTION_KEY = "long_description_key"; // NOI18N
     static final String ATTR_TYPE_ICON = "icon"; // NOI18N
     static final String TAG_TYPE_ACTIONS = "actions"; // NOI18N
     static final String TAG_TYPE_ACTION = "action"; // NOI18N
@@ -139,6 +140,7 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
         List actions = null;
         String localizer = null;
         String key = null;
+        String longkey = null;
         URL icon = null;
         
         SuggestionType getSuggestionType() {
@@ -156,6 +158,7 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
             // localization stuff
             localizer = attrs.getValue(ATTR_TYPE_LOCALIZING_BUNDLE);
             key = attrs.getValue(ATTR_TYPE_DESCRIPTION_KEY);
+            longkey = attrs.getValue(ATTR_TYPE_LONGDESCRIPTION_KEY);
             
             // icon
             icon = null;
@@ -208,7 +211,7 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
             } else if (TAG_TYPE.equals(name)) {
                 if (id != null) {
                     type = new SuggestionType(id, localizer, 
-                                              key, icon, 
+                                              key, longkey, icon, 
                                               actions);
                 }
             }
