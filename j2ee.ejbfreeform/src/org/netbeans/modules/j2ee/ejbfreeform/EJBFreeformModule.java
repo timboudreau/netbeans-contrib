@@ -134,7 +134,7 @@ public class EJBFreeformModule implements J2eeModule {
     }
     
     private FileObject getFileObject(String propname) {
-        String prop = helper.getStandardPropertyEvaluator().getProperty(propname);
+        String prop = evaluator.getProperty(propname);
         if (prop != null) {
             return helper.resolveFileObject(prop);
         }
