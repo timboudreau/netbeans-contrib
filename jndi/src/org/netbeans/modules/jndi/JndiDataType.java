@@ -130,7 +130,9 @@ final class JndiDataType extends NewType {
             panel = new NewJndiRootPanel();
             panel.select(provider);
             final JButton okButton = new JButton (JndiRootNode.getLocalizedString("CTL_Ok"));
+            okButton.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString("CTL_Ok"));
             final JButton cancelButton = new JButton (JndiRootNode.getLocalizedString("CTL_Cancel"));
+            cancelButton.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("CTL_Cancel"));
             descriptor = new DialogDescriptor(panel,
                           JndiRootNode.getLocalizedString("TITLE_NewContext"),
                           true,
