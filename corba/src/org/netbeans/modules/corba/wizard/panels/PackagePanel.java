@@ -201,8 +201,8 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
         add(jPanel1, gridBagConstraints1);
         
         
-        jLabel3.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_Name"));
         jLabel3.setLabelFor(idlName);
+        jLabel3.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_Name"));
         
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
@@ -227,7 +227,7 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
     }//GEN-END:initComponents
 
 
-// Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify//GEN-BEGIN:variables
     private org.openide.explorer.ExplorerPanel tree;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -235,7 +235,7 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JTextField idlName;
-// End of variables declaration//GEN-END:variables
+    // End of variables declaration//GEN-END:variables
 
   
     /** Should the data object be displayed or not?

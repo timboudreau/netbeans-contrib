@@ -33,10 +33,7 @@ public class OperationPanel extends ExPanel implements DocumentListener {
     }
   
     public String getReturnType () {
-        if (this.ret.getText() == null || this.ret.getText().length()==0)
-            return "void";
-        else
-            return this.ret.getText ();
+        return this.ret.getText ();
     }
   
     public String getParameters () {
@@ -296,7 +293,7 @@ public class OperationPanel extends ExPanel implements DocumentListener {
     }
 
     private void checkState () {
-        if (this.name.getText().length() >0 && acceptableArguments (this.params.getText())) {
+        if (this.name.getText().length() >0 && this.ret.getText().length() >0 && acceptableArguments (this.params.getText())) {
             enableOk();
         }
         else {
