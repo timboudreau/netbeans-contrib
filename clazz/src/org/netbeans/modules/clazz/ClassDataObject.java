@@ -343,10 +343,7 @@ implements DebuggerCookie {
   */
   void setExecution(boolean internal) throws IOException {
     FileObject fo = getPrimaryFile();
-    FileLock lock = fo.lock();
-    if (lock == null) throw new IOException ();
-    getPrimaryFile().setAttribute(lock, PROP_EXECUTION, new Boolean (internal));
-    lock.releaseLock();
+    getPrimaryFile().setAttribute(PROP_EXECUTION, new Boolean (internal));
   }
 
   /**
@@ -465,6 +462,7 @@ implements DebuggerCookie {
 
 /*
  * Log
+ *  10   Gandalf   1.9         2/5/99   David Simonek   
  *  9    Gandalf   1.8         2/3/99   David Simonek   
  *  8    Gandalf   1.7         2/1/99   David Simonek   
  *  7    Gandalf   1.6         1/26/99  David Simonek   util.Task used for 
