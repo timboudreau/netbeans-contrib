@@ -19,7 +19,7 @@ import com.netbeans.ide.util.NbBundle;
 import com.netbeans.ide.filesystems.*;
 import com.netbeans.enterprise.modules.scc.util.*;
 
-/** TODO
+/** BeanInfo to CommandLineVcsFileSystem.
  * 
  * @author Michal Fadljevic
  */
@@ -34,15 +34,27 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
   static {
     PropertyDescriptor rootDirectory=null;
     PropertyDescriptor debug=null;
-    
+    PropertyDescriptor variables=null;
+    PropertyDescriptor commands=null;
+
     try {
       rootDirectory=new PropertyDescriptor
 	("rootDirectory", CommandLineVcsFileSystem.class, "getRootDirectory", "setRootDirectory");
       debug=new PropertyDescriptor
 	("debug",CommandLineVcsFileSystem.class,"getDebug","setDebug");
       
+      variables=new PropertyDescriptor
+	("variables",CommandLineVcsFileSystem.class,"getVariables","setVariables");
+      variables.setPropertyEditorClass
+	(com.netbeans.enterprise.modules.scc.cmdline.UserVariablesEditor.class);
+
+      commands=new PropertyDescriptor
+	("commands",CommandLineVcsFileSystem.class,"getCommands","setCommands");
+      commands.setPropertyEditorClass
+	(com.netbeans.enterprise.modules.scc.cmdline.UserCommandsEditor.class);
+
       desc = new PropertyDescriptor[] {
-	rootDirectory, debug
+	rootDirectory, debug, variables, commands
       };
 
       ResourceBundle bundle = NbBundle.getBundle
@@ -51,12 +63,15 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
       rootDirectory.setShortDescription (bundle.getString("HINT_rootDirectory"));
       debug.setDisplayName              (bundle.getString("PROP_debug"));
       debug.setShortDescription         (bundle.getString("HINT_debug"));
+      variables.setDisplayName          (bundle.getString("PROP_variables"));
+      variables.setShortDescription     (bundle.getString("HINT_variables"));
+      commands.setDisplayName           (bundle.getString("PROP_commands"));
+      commands.setShortDescription      (bundle.getString("HINT_commands"));
 
     } catch (IntrospectionException ex) {
       ex.printStackTrace ();
     }
   }
-
 
   /* Descriptor of valid properties
   * @return array of properties
@@ -68,6 +83,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  2    Gandalf   1.1         4/21/99  Michal Fadljevic 
 *  1    Gandalf   1.0         4/15/99  Michal Fadljevic 
 * $
 */

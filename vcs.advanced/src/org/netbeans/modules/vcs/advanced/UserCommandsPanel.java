@@ -1,0 +1,253 @@
+/*
+ *                 Sun Public License Notice
+ * 
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ * 
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+package com.netbeans.enterprise.modules.scc.cmdline;
+import java.util.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.border.*;
+
+import com.netbeans.enterprise.modules.scc.util.*;
+import com.netbeans.ide.explorer.propertysheet.*;
+
+/** User commands panel.
+ * 
+ * @author Michal Fadljevic
+ */
+//-------------------------------------------
+public class UserCommandsPanel extends JPanel implements NbCustomPropertyEditor{
+  private Debug E=new Debug("UserCommandsPanel",true);
+  private Debug D=E;
+
+  private JList list=null;
+  private DefaultListModel listModel=null;
+  private JButton editButton=null;
+  private JButton addButton=null;
+  private JButton removeButton=null;
+
+  private UserCommandsEditor editor;
+
+  private Vector commands=null;
+  
+  //-------------------------------------------
+  public UserCommandsPanel(UserCommandsEditor editor){
+    this.editor = editor;
+    commands=(Vector)((Vector)editor.getValue()).clone();
+    initComponents();
+    initListeners();
+    deselectAll();
+  }
+
+  //-------------------------------------------
+  private JButton createButton(String name){
+    JButton button = new JButton(name);
+    return button;
+  }
+  
+  //-------------------------------------------
+  private JScrollPane createList(){
+    list=new JList();
+    list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    listModel=new DefaultListModel();
+    list.setModel(listModel);
+    int len=commands.size();
+    for(int i=0;i<len;i++){
+      UserCommand uc=(UserCommand)commands.elementAt(i);
+      listModel.addElement(uc.toString());
+    }
+    JScrollPane listScrollPane = new JScrollPane(list);
+    return listScrollPane;
+  }
+
+  //-------------------------------------------
+  private JPanel createCommands(){
+    editButton=createButton("Edit");
+    addButton=createButton("Add");
+    removeButton=createButton("Remove");
+
+    GridLayout panel2Layout=new GridLayout(5,1);
+    panel2Layout.setVgap(5);
+
+    JPanel panel2=new JPanel();
+    panel2.setLayout(panel2Layout);
+    panel2.setBorder(new EmptyBorder(5, 7, 5, 7));
+
+    panel2.add(editButton);
+    panel2.add(addButton);
+    panel2.add(removeButton);
+
+    JPanel panel=new JPanel(new BorderLayout());
+    panel.add(panel2,BorderLayout.NORTH);
+    return panel;
+  }
+
+  //-------------------------------------------
+  public void initComponents(){
+    GridBagLayout gb=new GridBagLayout();
+    GridBagConstraints c = new GridBagConstraints();
+    setLayout(gb);
+    setBorder(new EtchedBorder(EtchedBorder.RAISED));
+
+    c.fill = GridBagConstraints.BOTH;
+    c.weightx = 0.9;
+    c.weighty = 1.0;
+    JScrollPane listScrollPane=createList();
+    gb.setConstraints(listScrollPane,c);
+    add(listScrollPane);    
+
+    JPanel commandPanel=createCommands();
+    c.fill = GridBagConstraints.BOTH;
+    c.weightx = 0.1;
+    c.weighty = 1.0;
+
+    gb.setConstraints(commandPanel,c);
+    add(commandPanel);
+  }
+
+  //-------------------------------------------
+  private void initListeners(){
+
+    list.addListSelectionListener(new ListSelectionListener(){
+      public void valueChanged(ListSelectionEvent e){
+	//D.deb("valueChanged "+e);
+	updateButtons();
+      }
+    });
+
+    list.addMouseListener(new MouseAdapter() {
+      public void mouseClicked(MouseEvent e){
+	if( e.getClickCount()==2 ){
+	  editCommand();
+	}
+	updateButtons();
+      }
+    });
+    
+    list.addKeyListener(new KeyAdapter() {
+      public void keyPressed(KeyEvent e){
+	//D.deb("keyPressed() e="+e);
+	int keyCode=e.getKeyCode();
+	switch( keyCode ){
+	case KeyEvent.VK_INSERT:
+	  addCommand();
+	  //TODO better insertVariable(int index)
+	  break;
+	case KeyEvent.VK_DELETE:
+	  removeCommand();
+	  break;
+	case KeyEvent.VK_ENTER:
+	  editCommand();
+	  break;
+	default:
+	  //D.deb("ignored keyCode="+keyCode);
+	}
+	updateButtons();
+      }
+    });
+
+    editButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e){
+	editCommand();
+      }
+    });
+
+    addButton.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+	addCommand();
+      }
+    });
+
+    removeButton.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+	removeCommand();
+      }
+    });
+  }
+
+  //-------------------------------------------
+  private void deselectAll(){
+    list.clearSelection(); 
+    removeButton.setEnabled(false);
+    editButton.setEnabled(false);
+  }
+
+  //-------------------------------------------
+  private void updateButtons(){
+    if( list.getSelectedIndex()<0 ){
+      deselectAll();
+    }
+    else{
+      removeButton.setEnabled(true);
+      editButton.setEnabled(true);
+      list.requestFocus();
+    }
+  }
+
+  //-------------------------------------------
+  private void editCommand(){
+    //D.deb("editCommand()");
+    int index=list.getSelectedIndex();
+    if( index<0 ){
+      return ;
+    }
+    UserCommand uc=(UserCommand)commands.elementAt(index);
+    EditUserCommand ec=new EditUserCommand(new Frame(),uc);
+    ec.setLocationRelativeTo(list);
+    ec.show();
+    if( ec.wasCancelled()==false ){
+      listModel.setElementAt(uc.toString(),index);
+    }
+    list.requestFocus();
+    updateButtons();
+  }
+  
+  //-------------------------------------------
+  private void addCommand(){
+    UserCommand uc=new UserCommand();
+    EditUserCommand ec=new EditUserCommand(new Frame(),uc);
+    ec.setLocationRelativeTo(list);
+    ec.show();
+    if( ec.wasCancelled()==false ){
+      commands.addElement(uc);
+      listModel.addElement(uc.toString());
+    }
+    list.requestFocus();
+    updateButtons();
+  }
+
+  //-------------------------------------------
+  private void removeCommand(){
+    int index=list.getSelectedIndex();
+    if( index<0 ){
+      return ;
+    }
+    commands.removeElementAt(index);
+    listModel.removeElementAt(index);
+    updateButtons();
+  }
+
+  //-------------------------------------------
+  public Object getPropertyValue() {
+    //D.deb("getPropertyValue() -->"+commands);
+    return commands;
+  }
+  
+}
+
+/*
+ * <<Log>>
+ *  1    Gandalf   1.0         4/21/99  Michal Fadljevic 
+ * $
+ */
