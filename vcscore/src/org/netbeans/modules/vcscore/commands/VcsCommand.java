@@ -138,6 +138,12 @@ public interface VcsCommand extends VcsCommandCookie {
      * If true, all files including unimportant will be processed, if false only files which are important will be processed.
      */
     public static final String PROPERTY_PROCESS_ALL_FILES = "processAllFiles";
+    
+    /**
+     * A boolean property, if true the command can run on multiple files. The executor will
+     * be started only once for all selected files.
+     */
+    public static final String PROPERTY_RUN_ON_MULTIPLE_FILES = "runOnMultipleFiles";
 
     /**
      * An integer property that means the number of revisions the command can be applied.
@@ -164,6 +170,11 @@ public interface VcsCommand extends VcsCommandCookie {
      * This property is used only when property {@link PROPERTY_CHANGING_REVISION} is true.
      */
     public static final String PROPERTY_CHANGED_REVISION_VAR_NAME = "changedRevisionVarName";
+    
+    /**
+     * Whether the command will appear on the actions popup menu.
+     */
+    public static final String PROPERTY_HIDDEN = "hidden";
 
     /** All execution of this command can be done concurrently with others.
      */
