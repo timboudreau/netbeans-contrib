@@ -13,19 +13,8 @@
 
 package org.netbeans.modules.corba.idl.editor.coloring;
 
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import org.netbeans.editor.BaseAction;
 import org.netbeans.editor.Syntax;
-import org.netbeans.editor.Utilities;
-import javax.swing.Action;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.TextAction;
-import javax.swing.text.Caret;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.JEditorPane;
-
 import org.netbeans.modules.editor.NbEditorKit;
 
 /**

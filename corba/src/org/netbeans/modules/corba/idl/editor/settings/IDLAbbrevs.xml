@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE catalog PUBLIC "-//NetBeans//DTD Editor Abbreviations settings 1.0//EN"
+ "http://www.netbeans.org/dtds/EditorAbbreviations-1_0.dtd">
+
+<abbrevs>
+<abbrev key="#d">#define</abbrev>
+<abbrev key="#i">#include</abbrev>
+<abbrev key="#if">#ifdef</abbrev>
+<abbrev key="#ifn">#ifndef</abbrev>
+<abbrev key="#e">#endif</abbrev>
+<abbrev key="#p">#pragma</abbrev>
+<abbrev key="at">attribute</abbrev>
+<abbrev key="bo">boolean</abbrev>
+<abbrev key="ca">case</abbrev>
+<abbrev key="co">const</abbrev>
+<abbrev key="de">default</abbrev>
+<abbrev key="do">double</abbrev>
+<abbrev key="en">enum</abbrev>
+<abbrev key="ex">exception</abbrev>
+<abbrev key="FA">FALSE</abbrev>
+<abbrev key="fa">FALSE</abbrev>
+<abbrev key="fi">fixed</abbrev>
+<abbrev key="fl">float</abbrev>
+<abbrev key="int">interface</abbrev>
+<abbrev key="lo">long</abbrev>
+<abbrev key="mo">module</abbrev>
+<abbrev key="Ob">Object</abbrev>
+<abbrev key="ob">Object</abbrev>
+<abbrev key="oc">octet</abbrev>
+<abbrev key="on">oneway</abbrev>
+<abbrev key="ra">raises(</abbrev>
+<abbrev key="re">readonly</abbrev>
+<abbrev key="se">sequence</abbrev>
+<abbrev key="sh">short</abbrev>
+<abbrev key="stu">struct</abbrev>
+<abbrev key="str">string</abbrev>
+<abbrev key="sw">switch</abbrev>
+<abbrev key="TR">TRUE</abbrev>
+<abbrev key="tr">TRUE</abbrev>
+<abbrev key="ty">typedef</abbrev>
+<abbrev key="uns">unsigned</abbrev>
+<abbrev key="uni">union</abbrev>
+<abbrev key="wc">wchar</abbrev>
+<abbrev key="ws">wstring</abbrev>
+</abbrevs>

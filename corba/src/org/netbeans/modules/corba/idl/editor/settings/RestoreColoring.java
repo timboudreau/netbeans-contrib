@@ -13,15 +13,7 @@
 
 package org.netbeans.modules.corba.idl.editor.settings;
 
-import javax.swing.JEditorPane;
-
-import org.openide.TopManager;
-import org.openide.options.SystemOption;
-import org.openide.text.PrintSettings;
-import org.openide.filesystems.FileUtil;
 import org.openide.modules.ModuleInstall;
-
-import org.netbeans.modules.editor.options.AllOptions;
 import org.netbeans.editor.Settings;
 
 /**
@@ -30,33 +22,13 @@ import org.netbeans.editor.Settings;
 public class RestoreColoring extends ModuleInstall {
     private static final long serialVersionUID = 6847217344357938537L;
 
-    private static final String IDL_MIME_TYPE = "text/x-idl";
-
     public void restored () {
-        //System.out.println ("restore ()");
         Settings.addInitializer (new IDLEditorSettingsInitializer());
-
-        // Registration of the editor kits to JEditorPane
-        JEditorPane.registerEditorKitForContentType
-        (IDL_MIME_TYPE,
-         "org.netbeans.modules.corba.idl.editor.coloring.IDLKit",
-         /* "org.netbeans.modules.corba.idl.editor.coloring.IDLKit", */
-         this.getClass().getClassLoader());
-    }
-    
-    public void installed () {
-	super.installed();
-	AllOptions all_options = (AllOptions)AllOptions.findObject (AllOptions.class, true);
-        all_options.addOption (new IDLOptions());
-        //PrintSettings print_settings = (PrintSettings)PrintSettings.findObject
-        //  (PrintSettings.class, true);
-        //print_settings.addOption (new IDLPrintOptions());
     }
     
     public void uninstalled () {
 	super.uninstalled ();
-	AllOptions all_options = (AllOptions) AllOptions.findObject (AllOptions.class,true);
-	all_options.removeOption (new IDLOptions());
+        Settings.removeInitializer(IDLEditorSettingsInitializer.NAME);
     }
 }
 /*
