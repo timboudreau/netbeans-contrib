@@ -143,11 +143,12 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     }
 
     static void mergeConflicts(File f, String s) throws IOException {
-        StreamSource s1=new ComponentSource(f);
-        StreamSource s2=new ComponentSource(f.getName(), s);
+        StreamSource s1=new ComponentSource(f, NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_OldComponent")); // NOI18N
+        StreamSource s2=new ComponentSource(f.getName(), s, NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_NewComponent")); // NOI18N
+        StreamSource s3=new ComponentSource(f, NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_ResultOfMerge")); // NOI18N;
         DiffProvider diff=(DiffProvider)Lookup.getDefault().lookup(DiffProvider.class);
         MergeVisualizer merge=(MergeVisualizer)Lookup.getDefault().lookup(MergeVisualizer.class);
-        Component c=merge.createView(diff.computeDiff(s1.createReader(), s2.createReader()), s1, s2, s1);
+        Component c=merge.createView(diff.computeDiff(s1.createReader(), s2.createReader()), s1, s2, s3);
         if (c instanceof MergeDialogComponent)
             ((MergeDialogComponent)c).getSelectedMergePanel().firePropertyChange(MergePanel.PROP_CAN_BE_SAVED,false,true);
     }
@@ -219,17 +220,20 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
         private String content;
         private File file;
         private String name;
+        private String title;
         
-        ComponentSource(String name, String content) {
+        ComponentSource(String name, String content, String title) {
             this.file = null;
             this.content = content;
             this.name = name;
+            this.title = title;
         }
         
-        ComponentSource(File file) {
+        ComponentSource(File file, String title) {
             this.file = file;
             this.content = null;
             this.name = file.getName();
+            this.title = title;
         }
         
         public String getName() {
@@ -237,7 +241,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
         }
         
         public String getTitle() {
-            return NbBundle.getMessage(ComponentGeneratorRunnable.class, file==null?"LBL_NewComponent":"LBL_OldComponent"); // NOI18N
+            return title;
         }
         
         public String getMIMEType() {
