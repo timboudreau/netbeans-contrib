@@ -578,6 +578,8 @@ public class CommandExecutorSupport extends Object {
     /** The table of FS and its parsed global descriptor */
     private static Hashtable globalInputDescrs = new Hashtable();
     
+    private static final Object promptLock = new Object();
+    
     /**
      * Ask the user for the value of some variables.
      * @param inputDescriptor the descriptor of variable input components
@@ -618,16 +620,20 @@ public class CommandExecutorSupport extends Object {
         }
         synchronized (vars) {
             if (needPromptForPR("PASSWORD", exec, vars)) { // NOI18N
-                String password = fileSystem.getPassword();
-                if (password == null) {
-                    NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
-                    if (NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault ().notify (nd))) {
-                        password = nd.getInputText ();
-                    } else {
-                        fileSystem.setPassword(null);
-                        return false;
+                String password;
+                synchronized (promptLock) { // disable the possibility, that the user
+                    // will be prompted multiple times at once by concurrenly running commands
+                    password = fileSystem.getPassword();
+                    if (password == null) {
+                        NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
+                        if (NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault ().notify (nd))) {
+                            password = nd.getInputText ();
+                        } else {
+                            fileSystem.setPassword(null);
+                            return false;
+                        }
+                        fileSystem.setPassword(password);
                     }
-                    fileSystem.setPassword(password);
                 }
                 vars.put("PASSWORD", password); // NOI18N
             /* Do not change forEachFile, if the command is successful it will not ask any more */
@@ -705,7 +711,9 @@ public class CommandExecutorSupport extends Object {
                             dialog.dispose();
                         }
                     });
-                    dialog.setVisible(true);
+                    synchronized (promptLock) {
+                        dialog.setVisible(true);
+                    }
                     if (dlg.isValidInput()) {
                         dlg.processActions();
                         if (inputDescriptor != null) {
