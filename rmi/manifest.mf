@@ -27,3 +27,6 @@ OpenIDE-Module-Class: Action
 
 Name: com/netbeans/enterprise/modules/rmi/wizard/RMIEncapsulationAction.class
 OpenIDE-Module-Class: Action
+
+Name: com/netbeans/enterprise/modules/rmi/RMIStubCompilerType.class
+OpenIDE-Module-Class: Service
