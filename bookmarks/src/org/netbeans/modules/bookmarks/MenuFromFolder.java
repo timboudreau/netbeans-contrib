@@ -88,40 +88,34 @@ public class MenuFromFolder implements Runnable {
      * @return array of actions
      */
     public JMenu getMenu() {
-        if (menu != null) {
+        String s = path;
+        StringTokenizer tok = new StringTokenizer(path, "/"); // NOI18N
+        while (tok.hasMoreTokens()) {
+            s = tok.nextToken();
+        }
+        // now there is last token from the path in variable s --> name of the folder
+        if (menu == null) {
+            menu = new MyMenu(s);
+        } else {
             menu.removeAll();
+        }
+        if (fixedItems != null) {
+            for (int i = 0; i < fixedItems.length; i++) {
+                menu.add(fixedItems[i]);
+            }
+            menu.addSeparator();
         }
         ArrayList arr = new ArrayList ();
         try {
             scanContext(path, arr);
             listenersAttached = true; // after successfull scan
-            String s = path;
-            StringTokenizer tok = new StringTokenizer(path, "/"); // NOI18N
-            while (tok.hasMoreTokens()) {
-                s = tok.nextToken();
-            }
-            // now there is last token from the path in variable s --> name of the folder
-            JMenu m = null;
-            if (menu == null) {
-                m = new MyMenu(s);
-            } else {
-                m = menu;
-            }
-            if (fixedItems != null) {
-                for (int i = 0; i < fixedItems.length; i++) {
-                    m.add(fixedItems[i]);
-                }
-                m.addSeparator();
-            }
             for (Iterator i = arr.iterator(); i.hasNext();) {
-                m.add((JMenuItem)i.next());
+                menu.add((JMenuItem)i.next());
             }
-            menu = m;
-            return menu;
         } catch (NamingException ex) {
-            ErrorManager.getDefault().notify(ex);
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
         }
-        return null;
+        return menu;
     }
 
     /**

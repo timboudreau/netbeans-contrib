@@ -83,7 +83,7 @@ public class BookmarkServiceImpl extends BookmarkService {
                 // and top component to the tc folder
                 if (b instanceof BookmarkImpl) {
                     BookmarkImpl bi = (BookmarkImpl)b;
-                    targetTcFolder.bind(safeName, bi.getTopComponent());
+                    targetTcFolder.rebind(safeName, bi.getTopComponent());
                     bi.setTopComponentFileName(safeName);
                 }
                 // following line will save the bookmark to the system file system
