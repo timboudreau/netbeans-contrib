@@ -41,7 +41,11 @@ import org.w3c.tidy.*;
  * Rewrite the document
  * <p>
  * @todo Use a single button OK panel, not an OK/Cancel
- * dialog for the preview dialog
+ *    dialog for the preview dialog
+ * @todo Allow the action to operate on unopened files.
+ *    Probably as simple as enablin the action even when
+ *    getDocument() returns null, and in performAction
+ *    call openDocument() instead of getDocument().
  *
  * @author Tor Norbye
  */
@@ -161,6 +165,7 @@ public class RewriteAction extends NodeAction
         String rewritten = rewrite(doc);
 
         try {
+            // JDK14
             /* Grrr ... turns out replace() is only available as of JDK 1.4...
             if (doc instanceof AbstractDocument) {
                 ((AbstractDocument)doc).replace(0, doc.getLength(), rewritten,
