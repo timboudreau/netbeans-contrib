@@ -24,6 +24,7 @@ import org.netbeans.jellytools.modules.vcsgeneric.actions.CVSAddAction;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.CVSCommitAction;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
+import org.netbeans.jemmy.JemmyException;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
 
@@ -217,6 +218,18 @@ public class JellyOverall extends CVSStub {
         co.txtEnterReason().typeText("Initial commit - text1, text2, and binary");
         co.oK();
         co.waitClosed();
+        boolean foundSecond = false;
+        try {
+            co = new CVSCommitFileAdvDialog();
+            foundSecond = true;
+        } catch (JemmyException e) {
+	}
+        if (foundSecond) {
+            co.txtEnterReason().setCaretPosition(0);
+            co.txtEnterReason().typeText("Initial commit - second commit");
+            co.oK();
+            co.waitClosed();
+        }
         waitCommand ("Commit", new GenericNode [] { Text1, Text2, Binary });
         Text1.waitStatus("Up-to-date; 1.1");
         Text2.waitStatus("Up-to-date; 1.1");
