@@ -780,6 +780,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         String separator = (String) vars.get("PS");
         char separatorChar = (separator != null && separator.length() == 1) ? separator.charAt(0) : java.io.File.separatorChar;
         String paths = (String) vars.get("PATHS");
+        String commonParent = (String) vars.get("COMMON_PARENT");
+        if (commonParent != null) commonParent = valueAdjustment.revertAdjustedVarValue(commonParent);
         paths = valueAdjustment.revertAdjustedVarValue(paths);
         if (paths != null && paths.length() > 0) {
             ArrayList files = new ArrayList();
@@ -789,6 +791,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 int index = paths.indexOf(""+separatorChar + separatorChar, begin);
                 if (index < 0) index = len;
                 String file = paths.substring(begin, index);
+                if (commonParent != null) {
+                    file = commonParent + "/" + file;
+                }
                 files.add(file.replace(separatorChar, '/'));
                 begin = index + 2;
             } while (begin < len);
@@ -798,6 +803,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             String file = (String) vars.get("FILE");
             file = valueAdjustment.revertAdjustedVarValue(file);
             path = valueAdjustment.revertAdjustedVarValue(path);
+            if (commonParent != null) {
+                path = commonParent + "/" + path;
+            }
             if (path != null) {
                 String fullPath = ((path.length() > 0) ? path.replace(separatorChar, '/') + "/" : "") + ((file == null) ? "" : file);
                 return Collections.singleton(fullPath);

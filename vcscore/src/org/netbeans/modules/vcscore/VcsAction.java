@@ -533,7 +533,8 @@ public class VcsAction extends NodeAction implements ActionListener {
         boolean[] askForEachFile = (boolean[]) askForEachFileRef[0];
         Hashtable vars = (Hashtable) varsRef[0];
         FileCacheProvider cacheProvider = fileSystem.getCacheProvider();
-        setVariables(files, vars, quoting, valueAdjustment, cacheProvider);
+        setVariables(files, vars, quoting, valueAdjustment, cacheProvider,
+                     fileSystem.getRelativeMountPoint(), true);//VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_NEEDS_GREATEST_COMMON_PARENT));
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         CommandsPool pool = fileSystem.getCommandsPool();
         int preprocessStatus = pool.preprocessCommand(vce, vars, fileSystem, askForEachFile);
@@ -551,7 +552,8 @@ public class VcsAction extends NodeAction implements ActionListener {
             Table singleFileTable = new Table();
             Object singleFile = files.keys().nextElement();
             singleFileTable.put(singleFile, files.get(singleFile));
-            setVariables(singleFileTable, vars, quoting, valueAdjustment, cacheProvider);
+            setVariables(singleFileTable, vars, quoting, valueAdjustment, cacheProvider,
+                         fileSystem.getRelativeMountPoint(), true);//VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_NEEDS_GREATEST_COMMON_PARENT));
         } else if (cmdCanRunOnMultipleFilesInFolder) {
             singleFolderTable = new Table();
             Enumeration keys = files.keys();
@@ -570,7 +572,8 @@ public class VcsAction extends NodeAction implements ActionListener {
                     singleFolderTable.put(file, files.get(file));
                 }
             }
-            setVariables(singleFolderTable, vars, quoting, valueAdjustment, cacheProvider);
+            setVariables(singleFolderTable, vars, quoting, valueAdjustment, cacheProvider,
+                         fileSystem.getRelativeMountPoint(), true);//VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_NEEDS_GREATEST_COMMON_PARENT));
         }
         executors.add(vce);
         if (stdoutListener != null) vce.addOutputListener(stdoutListener);
@@ -1042,19 +1045,42 @@ public class VcsAction extends NodeAction implements ActionListener {
      * <br>QPATHS - full paths to all files quoted by filesystem quotation string and delimeted by spaces
      * <br>NUM_FILES - the number of files
      * <br>MULTIPLE_FILES - "true" when more than one file is to be processed, "" otherwise
+     * <br>COMMON_PARENT - the greatest common parent of provided files. If defined,
+     *                     all file paths change to be relative to this common parent
      *
      * @param files the table of files
      * @param vars the table of variables to extend
      * @param quoting the quotation string used when more than one file is to be processed
      * @param valueAdjustment the variable value adjustment utility object
+     * @param cacheProvider the provider of cached file attributes
+     * @param useGreatestParentPaths whether to define COMMON_PARENT variable and
+     *        change the file paths to be relative to this greatest common parent
+     *        of all provided files.
      */
     protected static void setVariables(Table files, Hashtable vars, String quoting,
                                        VariableValueAdjustment valueAdjustment,
-                                       FileCacheProvider cacheProvider) {
-        // At first, find the first file and set the variables
+                                       FileCacheProvider cacheProvider,
+                                       String relativeMountPoint,
+                                       boolean useGreatestParentPaths) {
+        // At first, find the greatest parent
+        String greatestParent;
+        if (useGreatestParentPaths) {
+            greatestParent = findGreatestParent(files);
+            if (greatestParent != null && greatestParent.length() == 0) {
+                greatestParent = null;
+            }
+        } else {
+            greatestParent = null;
+        }
+        // Then, find the first file and set the variables
         String fullName = (String) files.keys().nextElement();
         FileObject fo = (FileObject) files.get(fullName);
         boolean isFileFolder = (fo != null && fo.isFolder());
+        String origFullName = fullName;
+        if (greatestParent != null) {
+            fullName = fullName.substring(greatestParent.length());
+            while (fullName.startsWith("/")) fullName = fullName.substring(1);
+        }
         String path = VcsUtilities.getDirNamePart(fullName);
         String file = VcsUtilities.getFileNamePart(fullName);
         String separator = (String) vars.get("PS"); // NOI18N
@@ -1065,9 +1091,19 @@ public class VcsAction extends NodeAction implements ActionListener {
         path = valueAdjustment.adjustVarValue(path);
         fullName = valueAdjustment.adjustVarValue(fullName);
         if (fullName.length() == 0) fullName = "."; // NOI18N
-        String module = (String) vars.get("MODULE"); // NOI18N
+        String module = relativeMountPoint;//(String) vars.get("MODULE"); // NOI18N
         if (module == null) module = ""; // NOI18N
-        if (module.length() > 0) module += separatorChar;
+        if (greatestParent != null) {
+            if (module.length() > 0) module += separatorChar;
+            module += greatestParent;
+            //vars.put("MODULE", module);
+        }
+        if (module.length() > 0) {
+            module = module.replace('/', separatorChar);
+            module += separatorChar;
+            module = valueAdjustment.adjustVarValue(module);
+        }
+        vars.put("MODULE", module);
         vars.put("PATH", fullName); // NOI18N
         vars.put("QPATH", (fullName.length() > 0) ? quoting+fullName+quoting : fullName); // NOI18N
         vars.put("DIR", path); // NOI18N
@@ -1083,14 +1119,14 @@ public class VcsAction extends NodeAction implements ActionListener {
             if (mime != null) vars.put("MIMETYPE", mime); // NOI18N
         }
         if (isFileFolder) {
-            CacheDir cDir = cacheProvider.getDir(fullName);
+            CacheDir cDir = cacheProvider.getDir(origFullName);
             if (cDir != null) {
                 vars.put("CACHED_ATTR", cDir.getAttr());
             } else {
                 vars.remove("CACHED_ATTR");
             }
         } else {
-            CacheFile cFile = cacheProvider.getFile(fullName);
+            CacheFile cFile = cacheProvider.getFile(origFullName);
             if (cFile != null) {
                 vars.put("CACHED_ATTR", cFile.getAttr());
             } else {
@@ -1113,6 +1149,11 @@ public class VcsAction extends NodeAction implements ActionListener {
         for (Enumeration enum = files.keys(); enum.hasMoreElements(); iFile++) {
             fullName = (String) enum.nextElement();
             fo = (FileObject) files.get(fullName);
+            origFullName = fullName;
+            if (greatestParent != null) {
+                fullName = fullName.substring(greatestParent.length());
+                while (fullName.startsWith("/")) fullName = fullName.substring(1);
+            }
             if (fullName.length() == 0) fullName = "."; // NOI18N
             isFileFolder |= (fo != null && fo.isFolder());
             file = VcsUtilities.getFileNamePart(fullName);
@@ -1161,6 +1202,65 @@ public class VcsAction extends NodeAction implements ActionListener {
         vars.put("NUM_FILES", ""+files.size()); // NOI18N
         vars.put("MULTIPLE_FILES", (files.size() > 1) ? Boolean.TRUE.toString() : ""); // NOI18N
         vars.put("FILES_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// among FILES there is a folder // NOI18N
+        if (greatestParent != null) {
+            greatestParent = greatestParent.replace('/', separatorChar);
+            greatestParent = valueAdjustment.adjustVarValue(greatestParent);
+            vars.put("COMMON_PARENT", greatestParent);
+        } else {
+            vars.remove("COMMON_PARENT");
+        }
+        /*
+        System.out.println("VARIABLES set after setVariables() (greatestParent = "+greatestParent+")");
+        for (Iterator it = new java.util.TreeSet(vars.keySet()).iterator(); it.hasNext(); ) {
+            String varName = (String) it.next();
+            System.out.println("  "+varName+" = '"+vars.get(varName)+"'");
+        }
+        System.out.println("");
+         */
+    }
+    
+    /**
+     * Find the greatest parent folder of files.
+     */
+    private static String findGreatestParent(Table files) {
+        String greatestParent = null;
+        for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
+            String fullName = (String) enum.nextElement();
+            String parent = VcsUtilities.getDirNamePart(fullName);
+            //System.out.println("findGreatestParent: fullName = '"+fullName+"', parent = '"+parent+"', prev greatestParent = '"+greatestParent+"'");
+            if (greatestParent == null) {
+                greatestParent = parent;
+            } else {
+                if (!parent.startsWith(greatestParent)) {
+                    StringBuffer commonParent = new StringBuffer();
+                    for (int i = 0; i < parent.length() && i < greatestParent.length(); i++) {
+                        char c = parent.charAt(i);
+                        if (greatestParent.charAt(i) != c) break;
+                        commonParent.append(c);
+                    }
+                    // It can happen, that I end up in a middle of a folder name
+                    // (e.g. "mySources" and "myLibraries" will end up with "my" which is not a folder name)
+                    int end = commonParent.length();
+                    if (!(parent.length() == end || parent.charAt(end) == '/' ||
+                          greatestParent.length() == end || greatestParent.charAt(end) == '/')) {
+                        // I'm somewhere in the middle of a folder name!
+                        for (int i = end - 1; i >= 0; i--) {
+                            char c = commonParent.charAt(i);
+                            commonParent.deleteCharAt(i);
+                            if (c == '/') break;
+                        }
+                    }
+                    greatestParent = commonParent.toString();
+                }
+            }
+            //System.out.println("findGreatestParent: new greatestParent = '"+greatestParent+"'");
+        }
+        if (greatestParent != null) {
+            while (greatestParent.endsWith("/")) {
+                greatestParent = greatestParent.substring(0, greatestParent.length() - 1);
+            }
+        }
+        return greatestParent;
     }
     
     /**
