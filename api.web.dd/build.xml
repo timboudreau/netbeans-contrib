@@ -54,7 +54,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="compile" depends="dd2beansgen, projectized.compile"/>
   
-  <target name="clean" depends="projectized.build-init, clean-ddgen-src, clean-javadoc, projectized.clean"/>
+  <target name="clean" depends="projectized.build-init, clean-ddgen-src, projectized.clean"/>
 
   <target name="clean-ddgen-src">
         <mkdir dir="${s2b_root_2_3}"/>
@@ -73,28 +73,15 @@ Microsystems, Inc. All Rights Reserved.
         <delete dir="${s2b_root_2_4}"/>
   </target>
   
-  <target name="javadoc" depends="build-init" description="Build Javadoc."> 
-      <property name="_cp" refid="cp"/> 
-      <ant dir="${nb_all}/nbbuild/javadoctools" antfile="template.xml" target="javadoc"> 
-       <property name="javadoc.base" location="."/> 
-       <property name="javadoc.name" value="DD-API"/> 
-       <property name="javadoc.title" value="Deployment Descriptor API"/> 
-       <property name="javadoc.packages" value="org.netbeans.api.web.*"/> 
-       <property name="javadoc.classpath" value="${_cp}"/> 
-       <property name="javadoc.arch" location="../arch/arch-DD-API.xml"/>
-       <property name="javadoc.overview" location="doc/overview.html"/>
-       <property name="javadoc.docfiles" location="doc"/>
-      </ant>
+  <target name="javadoc" depends="projectized.javadoc, init-javadoc"/>
+  
+  <target name="init-javadoc">
       <mkdir dir="javadoc/DD-API/arch"/>
       <copy file="doc/ddapi_architecture.html" todir="javadoc/DD-API/arch"/>
       <copy file="doc/dd_api_schema.jpg" todir="javadoc/DD-API/arch"/>
       <copy file="doc/usage.html" todir="javadoc/DD-API/arch"/>
-  </target>
-  
-  <target name="clean-javadoc">
-  	<delete dir="javadoc"/>
-  </target>
-  
+  </target>  
+   
   <target name="jar-with-module-deps" if="module.dependencies">
       <property file="spec-ver.properties"/>
       <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" compress="false" manifest="${manifest.mf}">
