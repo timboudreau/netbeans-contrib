@@ -175,6 +175,7 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
         }
         boolean success;
         boolean interruptOutputTasks = true;
+        boolean isInterrupted = false;
         try {
             transferEnvironment();
             PrintStream pout = new PrintStream(stdout);
@@ -189,6 +190,8 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
             success = CVSCommand.processCommand(args, null, localDir, port, pout, perr);
             interruptOutputTasks = false;
         } finally {
+            // Remember whether the current thread is interrupted
+            isInterrupted = Thread.interrupted();
             try {
                 stdout.close();
                 stderr.close();
@@ -201,6 +204,8 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
                 task2.waitFinished();
             }
         }
+        // If the thread was interrupted, interrupt it again. The interrupt status might be cleared by wait.
+        if (isInterrupted) Thread.currentThread().interrupt();
         return success;
     }
     
