@@ -118,7 +118,7 @@ public class PvcsProjectSelector extends Object implements VcsAdditionalCommand,
             }
         } catch (InterruptedException intrEx) {
         }
-        if (failed || execs[0].getExitStatus() != VcsCommandExecutor.SUCCEEDED) subprojects.clear();
+        if (failed || execs.length == 0 || execs[0].getExitStatus() != VcsCommandExecutor.SUCCEEDED) subprojects.clear();
         String[] children = (String[]) subprojects.toArray(new String[subprojects.size()]);
         subprojects.clear();
         return children;
