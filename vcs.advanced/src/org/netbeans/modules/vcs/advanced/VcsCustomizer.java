@@ -307,7 +307,7 @@ private void removeConfigButtonActionPerformed (java.awt.event.ActionEvent evt) 
 
 private void saveAsButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsButtonActionPerformed
 // Add your handling code here:
-    ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(fileSystem.getConfigRoot()));
+    ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(fileSystem.getConfigRoot()), true);
     MiscStuff.centerWindow (chooseFile);
     chooseFile.show();
     String selected=chooseFile.getSelectedFile ();
@@ -707,10 +707,13 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
   private void refreshChanged () {
     try {
       int time = Integer.parseInt(refreshTextField.getText());
+      if (time < 0) throw new NumberFormatException(""+time);
       fileSystem.setCustomRefreshTime (time);
       E.deb("refresh time set to:" + time);
     } catch (NumberFormatException e) {
       E.deb(e.getMessage());    
+      refreshTextField.setText (""+fileSystem.getCustomRefreshTime ());
+      TopManager.getDefault ().notify (new NotifyDescriptor.Message("'"+e.getMessage()+"': Non-negative integer value is expected."));
     }
   }
   
@@ -724,7 +727,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     }
 
     public void actionPerformed (java.awt.event.ActionEvent evt) {
-      ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(tf.getText ()));
+      ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(tf.getText ()), false);
       MiscStuff.centerWindow (chooseFile);
       chooseFile.show();
       String selected=chooseFile.getSelectedFile();
@@ -780,6 +783,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  5    Gandalf   1.4         12/15/99 Martin Entlicher Refresh time: check for 
+*       correct input
 *  4    Gandalf   1.3         12/8/99  Martin Entlicher 
 *  3    Gandalf   1.2         12/8/99  Martin Entlicher Added browse buttons.
 *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
