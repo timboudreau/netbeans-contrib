@@ -92,6 +92,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * root path of the file system to create the display name.
      */
     public static final String VAR_FS_DISPLAY_NAME = "FS_DISPLAY_NAME"; // NOI18N
+    /**
+     * This variable can contain the whole annotation of file system display name.
+     */
+    public static final String VAR_FS_DISPLAY_NAME_ANNOTATION = "FS_DISPLAY_NAME_ANNOTATION"; // NOI18N
+    /**
+     * This variable can contain the whole annotation of file system system name.
+     */
+    public static final String VAR_FS_SYSTEM_NAME_ANNOTATION = "FS_SYSTEM_NAME_ANNOTATION"; // NOI18N
 
     /**
      * This is a prefix, for environment variable. If a variable name starts with
@@ -245,6 +253,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     private volatile boolean offLine; // is set in the constructor
     private volatile int autoRefresh; // is set in the constructor
+    
+    private VariableValueAdjustment varValueAdjustment;
     
     private volatile boolean commandNotification = true;
 
@@ -776,6 +786,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             numberOfFinishedCmdsToCollect = new Integer(CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
         }
         commandsPool.setCollectFinishedCmdsNum(numberOfFinishedCmdsToCollect.intValue());
+        if (varValueAdjustment == null) varValueAdjustment = new VariableValueAdjustment();
         initListeners();
     }
 
@@ -958,6 +969,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return variables;
     }
 
+    /**
+     * Get the variable value adjustment utility object.
+     */
+    public VariableValueAdjustment getVarValueAdjustment() {
+        return varValueAdjustment;
+    }
 
     /**
      * Set the file system's variables.
@@ -1055,8 +1072,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             variablesByName = new Hashtable(newVarsByName);
         }
         updateEnvironmentVars();
+        varValueAdjustment.setAdjust(getVariablesAsHashtable());
 
         firePropertyChange(PROP_VARIABLES, old, variables);
+        firePropertyChange(PROP_ROOT, null, refreshRoot ());
     }
 
     public static String substractRootDir(String rDir, String module) {
@@ -1480,6 +1499,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public String getDisplayName() {
         //System.out.println("VcsFileSystem.getDisplayName(): commandsRoot = "+commandsRoot);
+        Hashtable vars = getVariablesAsHashtable();
+        String displayNameAnnotation = (String) vars.get(VAR_FS_DISPLAY_NAME_ANNOTATION);
+        if (displayNameAnnotation != null) {
+            if (statusProvider != null) {
+                displayNameAnnotation = RefreshCommandSupport.getStatusAnnotation("", "", displayNameAnnotation, statusProvider, vars);
+            } else {
+                displayNameAnnotation = Variables.expand(vars, displayNameAnnotation, false);
+            }
+            return displayNameAnnotation;
+        }
         VcsConfigVariable preDisplayNameVar = (VcsConfigVariable) variablesByName.get(VAR_FS_DISPLAY_NAME);
         if (preDisplayNameVar != null) {
             return preDisplayNameVar.getValue() + " " + rootFile.toString();
@@ -1609,6 +1638,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     protected String computeSystemName (File rootFile) {
         D.deb("computeSystemName() ->"+rootFile.toString ().replace(File.separatorChar, '/') ); // NOI18N
+        Hashtable vars = getVariablesAsHashtable();
+        String systemNameAnnotation = (String) vars.get(VAR_FS_SYSTEM_NAME_ANNOTATION);
+        if (systemNameAnnotation != null) {
+            if (statusProvider != null) {
+                systemNameAnnotation = RefreshCommandSupport.getStatusAnnotation("", "", systemNameAnnotation, statusProvider, vars);
+            } else {
+                systemNameAnnotation = Variables.expand(vars, systemNameAnnotation, false);
+            }
+            return systemNameAnnotation;
+        }
         return rootFile.toString ().replace(File.separatorChar, '/');
     }
 
