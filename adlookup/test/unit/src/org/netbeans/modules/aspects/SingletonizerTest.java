@@ -13,6 +13,10 @@
 
 package org.netbeans.modules.aspects;
 
+import java.util.Collections;
+import java.util.TooManyListenersException;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.netbeans.api.aspects.*;
@@ -44,30 +48,13 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
     public void testProvidesImplementationOfRunnable () {
         Class[] supported = { Runnable.class };
         
-        class RunImpl implements Singletonizer.Impl {
-            public boolean isEnabled = true;
-            public int cnt;
-            public Object representedObject;
-            public java.lang.reflect.Method method;
-            
-            public boolean isEnabled (Class c) {
-                return isEnabled;
-            }
-            
-            public Object invoke (Object obj, java.lang.reflect.Method method, Object[] args) {
-                this.cnt++;
-                this.representedObject = obj;
-                this.method = method;
-                return null;
-            }
-        }
-        
-        RunImpl runImpl = new RunImpl ();
+        Implementation runImpl = new Implementation ();
         AspectProvider provider = Singletonizer.create (supported, runImpl);
         Object representedObject = "sampleRO";
         Lookup lookup = Aspects.getLookup(representedObject, provider);
         
         assertNotNull ("Lookup created", lookup);
+        assertSize ("It is small", Collections.singleton (lookup), 40, new Object[] { runImpl, representedObject });
         
         Runnable r = (Runnable)lookup.lookup(Runnable.class);
         assertNotNull ("Runnable provided", r);
@@ -97,10 +84,101 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
                 public Object invoke (Object obj, java.lang.reflect.Method method, Object[] args) {
                     return null;
                 }
+                public void addChangeListener (ChangeListener listener) throws TooManyListenersException {
+                }
+                
+                public void removeChangeListener (ChangeListener listener) {
+                }
             });
             fail ("Should fail, as non interface classes cannot be supported");
         } catch (IllegalArgumentException ex) {
             // ok, that is what we expect
         }
     }
+
+    public void testFiringOfChangesGeneratesEvents () throws Exception {
+        Class[] supported = { Runnable.class };
+        
+        Implementation runImpl = new Implementation ();
+        AspectProvider provider = Singletonizer.create (supported, runImpl);
+        Object representedObject = "sampleRO";
+        Lookup lookup = Aspects.getLookup(representedObject, provider);
+        
+        Lookup.Result resultListener = lookup.lookup (new Lookup.Template (java.awt.event.ActionListener.class));
+        assertNotNull (resultListener);
+        Lookup.Result resultRunnable = lookup.lookup (new Lookup.Template (Runnable.class));
+        assertNotNull (resultRunnable);
+        
+        Listener listenerListener = new Listener (resultListener);
+        Listener listenerRunnable = new Listener (resultRunnable);
+        
+        assertEquals ("Runnable is there once", 1, resultRunnable.allInstances ().size ()); 
+        assertEquals ("ActionListener is not there", 0, resultListener.allInstances ().size ()); 
+        
+        runImpl.isEnabled = false;
+        runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+        
+        assertEquals ("Runnable is not there anymore", 0, resultRunnable.allInstances ().size ()); 
+        assertEquals ("ActionListener is not there still", 0, resultListener.allInstances ().size ()); 
+        listenerRunnable.assertCount ("This one changed", 1);
+        listenerListener.assertCount ("This one have not", 0);
+
+        runImpl.isEnabled = true;
+        runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+        
+        assertEquals ("Runnable reappeared", 1, resultRunnable.allInstances ().size ()); 
+        assertEquals ("ActionListener is not there still", 0, resultListener.allInstances ().size ()); 
+        listenerRunnable.assertCount ("This one changed", 1);
+        listenerListener.assertCount ("This one have not", 0);
+        
+    }
+    
+    /** Counting listener */
+    private static class Listener implements org.openide.util.LookupListener {
+        public int cnt;
+        
+        public Listener (Lookup.Result res) {
+            res.addLookupListener (this);
+        }
+        
+        public void resultChanged (org.openide.util.LookupEvent ev) {
+            cnt++;
+        }
+        
+        public void assertCount (String msg, int cnt) {
+            assertEquals (msg, cnt, this.cnt);
+            this.cnt = 0;
+        }
+    } // end of Listener
+    
+    /** Implementation of singletonizer */
+    private static class Implementation implements Singletonizer.Impl {
+        public boolean isEnabled = true;
+        public int cnt;
+        public Object representedObject;
+        public java.lang.reflect.Method method;
+        public ChangeListener listener;
+
+        public boolean isEnabled (Class c) {
+            return isEnabled;
+        }
+
+        public Object invoke (Object obj, java.lang.reflect.Method method, Object[] args) {
+            this.cnt++;
+            this.representedObject = obj;
+            this.method = method;
+            return null;
+        }
+
+        public void addChangeListener (ChangeListener listener) throws TooManyListenersException {
+            if (this.listener != null) throw new TooManyListenersException ();
+            this.listener = listener;
+        }
+
+        public void removeChangeListener (ChangeListener listener) {
+            if (this.listener == listener) {
+                this.listener = null;
+            }
+        }
+    } // end of Implementation
 }
