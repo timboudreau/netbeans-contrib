@@ -20,6 +20,7 @@ import org.openide.nodes.Children;
 import org.netbeans.modules.vcscore.commands.VcsCommandNode;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 
@@ -120,8 +121,10 @@ public class UserCommandIO extends Object {
             cmd.setName(nameNode.getNodeValue());
             //cmd.setName(nameNode.getNodeValue());
             nameNode = attrs.getNamedItem(COMMAND_DISPLAY_NAME_ATTR);
-            if (nameNode != null) cmd.setDisplayName(nameNode.getNodeValue());
-            else cmd.setDisplayName(null);
+            if (nameNode != null) {
+                String displayName = VcsUtilities.getBundleString(nameNode.getNodeValue());
+                cmd.setDisplayName(displayName);
+            } else cmd.setDisplayName(null);
             NodeList propertiesAndSubCommands = commandNode.getChildNodes();
             int m = propertiesAndSubCommands.getLength();
             boolean subcommandsExist = false;
