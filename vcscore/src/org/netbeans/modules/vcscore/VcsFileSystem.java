@@ -2765,29 +2765,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return scheduled;
     }
 
-    // create local folder for existing VCS folder that is missing
-    private void checkLocalFolder (String name) throws java.io.IOException {
-        StringTokenizer st = new java.util.StringTokenizer (name, "/"); // NOI18N
-        String dir = null;
-        while(st.hasMoreElements()) {
-            dir = dir==null ? (String) st.nextElement () : dir + "/" + (String) st.nextElement (); // NOI18N
-            File f = getFile (dir);
-            if(f.exists ()) continue;
-
-            Object[] errorParams = new Object[] {
-                                       f.getName (),
-                                       getDisplayName (),
-                                       f.toString ()
-                                   };
-
-            boolean b = f.mkdir();
-            if (!b) {
-                throw new IOException(MessageFormat.format (g("EXC_CannotCreateF"), errorParams)); // NOI18N
-            }
-            D.deb ("local dir created='"+dir+"'"); // NOI18N
-        }
-    }
-
     //-------------------------------------------
     //
     // Change
@@ -2836,9 +2813,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
 
         int lastSeparator = name.lastIndexOf ("/"); // NOI18N
-
-        if (lastSeparator > 0) checkLocalFolder (name.substring (0, lastSeparator));
-
+        if (lastSeparator > 0) {
+            File folder = getFile(name.substring (0, lastSeparator));
+            if (!folder.exists()) {
+                if (!folder.mkdirs()) {
+                    throw new IOException(MessageFormat.format (g("EXC_CannotCreateF"),
+                        new Object[] { folder.getName(), getDisplayName(), folder.toString() } )); // NOI18N
+                }
+            }
+        }
 
         boolean b = f.mkdir();
         if (!b) {
@@ -2861,25 +2844,27 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
 
         File f = getFile (name);
-        Object[] errorParams = new Object[] {
-                                   f.getName (),
-                                   getDisplayName (),
-                                   f.toString (),
-                               };
 
         int lastSeparator = name.lastIndexOf ("/"); // NOI18N
-
-        //if (lastSeparator < 0) lastSeparator = 0;
-
-        if (lastSeparator > 0) checkLocalFolder (name.substring (0, lastSeparator));
-
+        if (lastSeparator > 0) {
+            File folder = getFile(name.substring (0, lastSeparator));
+            if (!folder.exists()) {
+                if (!folder.mkdirs()) {
+                    throw new IOException(MessageFormat.format (g("EXC_CannotCreateF"),
+                        new Object[] { folder.getName(), getDisplayName(), folder.toString() } )); // NOI18N
+                }
+            }
+        }
 
         if (!f.createNewFile ()) {
-            throw new IOException(MessageFormat.format (g("EXC_DataAlreadyExist"), errorParams)); // NOI18N
+            throw new IOException(MessageFormat.format (g("EXC_DataAlreadyExist"),
+                new Object[] { f.getName (), getDisplayName (), f.toString () } )); // NOI18N
         }
+        /* we do not store local files to cache.
         if (cache != null) {
             cache.addFile(name);
         }
+         */
         if (statusProvider != null) {
             statusProvider.setFileStatus(name, statusProvider.getLocalFileStatus());
         }
