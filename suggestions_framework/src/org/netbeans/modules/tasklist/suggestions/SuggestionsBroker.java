@@ -37,11 +37,10 @@ import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -874,6 +873,7 @@ err.log("Couldn't find current nodes...");
         if (pendingScan) {
             return;
         }
+
         pendingScan = true;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -970,6 +970,7 @@ err.log("Couldn't find current nodes...");
 
     private void handleTopComponentOpened(TopComponent tc) {
         // XXX assume that tc is currently selected one
+        // A: it's called fron shown
         componentsChanged();
     }
 
@@ -985,9 +986,8 @@ err.log("Couldn't find current nodes...");
 
     private class WindowSystemMonitor implements PropertyChangeListener, ComponentListener {
 
+        /** Previous Set&lt;TopComponent> */
         private Set openedSoFar = null;
-
-        private TopComponent shouldBeShown;
 
         /**
          * Must be called before adding this listener to environment if in hope that
@@ -996,7 +996,6 @@ err.log("Couldn't find current nodes...");
         private void enableOpenCloseEvents() {
             List list = Arrays.asList(SuggestionsScanner.openedTopComponents());
             openedSoFar = new HashSet(list);
-            shouldBeShown = null;
         }
 
         /** Reacts to changes */
@@ -1023,10 +1022,15 @@ err.log("Couldn't find current nodes...");
                         while(ita.hasNext()) {
                             TopComponent tc = (TopComponent) ita.next();
                             if (openedSoFar.contains(tc)) continue;
-                            assert shouldBeShown == null : "Multiple opened TCs in burst without showing them one-by-one is not handled"; // NOI18N
                             // defer actual action to componentShown, We need to assure opened TC is
                             // selected one. At this moment previous one is still selected.
-                            shouldBeShown = tc;
+                            tc.addComponentListener(new ComponentAdapter() {
+                                public void componentShown(ComponentEvent e) {
+                                    TopComponent tcomp = (TopComponent) e.getComponent();
+                                    tcomp.removeComponentListener(this);
+                                    handleTopComponentOpened(tcomp);
+                                }
+                            });
                         }
                     }
 
@@ -1039,10 +1043,7 @@ err.log("Couldn't find current nodes...");
         }
 
         public void componentShown(ComponentEvent e) {
-            if (shouldBeShown != null) {
-                handleTopComponentOpened(shouldBeShown);
-                shouldBeShown = null;
-            }
+            // Don't care
         }
 
         public void componentHidden(ComponentEvent e) {
