@@ -31,10 +31,12 @@ public class StringPropertyEditor extends PropertyEditorSupport {
     }
 
     public void paintValue(java.awt.Graphics gfx, java.awt.Rectangle box) {
-        gfx.translate(box.x, box.y);
-        LABEL.setText(getAsText());
-        LABEL.setSize(box.width, box.height);
-        LABEL.paint(gfx);
-        gfx.translate(-box.x, -box.y);
+        int y = gfx.getFontMetrics().getHeight() - gfx.getFontMetrics().getDescent();
+        gfx.drawString(getAsText(), box.x , box.y + y);
+//        gfx.translate(box.x, box.y);
+//        LABEL.setText(getAsText());
+//        LABEL.setSize(box.width, box.height);
+//        LABEL.paint(gfx);
+//        gfx.translate(-box.x, -box.y);
     }
 }
