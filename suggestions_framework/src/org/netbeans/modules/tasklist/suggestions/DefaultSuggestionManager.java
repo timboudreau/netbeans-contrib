@@ -285,7 +285,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
                 if (category == null) {
                     // Didn't have category nodes before and don't need to
                     // now either...
-                    boolean append = (after != null);
+                    boolean append = (after == null);
                     tasklist.addRemove(addList, removeList, append, null, after);
                 } else {
                     // Had category nodes before but don't need them anymore...
