@@ -100,6 +100,9 @@ public class PropertyChildren extends Children.Keys {
         Enumeration e = System.getProperties ().propertyNames ();
         while (e.hasMoreElements ()) {
             String subprop = (String) e.nextElement ();
+            if (subprop.startsWith ("Env-") || subprop.startsWith ("env-")) {
+                continue;
+            }
             if (subprop.startsWith (prop + ".")) {
                 subprops.add (subprop);
             }
@@ -120,6 +123,9 @@ public class PropertyChildren extends Children.Keys {
         Enumeration e = System.getProperties ().propertyNames ();
         while (e.hasMoreElements ()) {
             String prop = (String) e.nextElement ();
+            if (prop.startsWith ("Env-") || prop.startsWith ("env-")) {
+                continue;
+            }
             if (property != null && ! prop.startsWith (property + '.'))
                 continue;
             int idx;

@@ -51,11 +51,20 @@ Microsystems, Inc. All Rights Reserved.
 	     homepage="http://sysprops.${homepage.base}/"
 	     distribution="http://${dist.base}/sysprops.nbm">
       <license file="${license.file}"/>
-      <description>
-        View and edit Java system properties from the IDE's VM.
-      </description>
       <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
     </makenbm>
+  </target>
+
+  <target name="test" depends="compile">
+    <mkdir dir="test"/>
+    <filter token="BUILD_NUMBER_SUBST" value="testing"/>
+    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+    <jar jarfile="test/sysprops.jar"
+         manifest="manifest-subst.mf"
+         basedir="src"
+         excludesfile="../nbbuild/standard-jar-excludes.txt"
+         compress="false"/>
+    <nbinstaller module="test/sysprops.jar" action="reinstall"/>
   </target>
 
   <target name="clean">

@@ -1,8 +1,15 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.sysprops
 OpenIDE-Module-Name: System Properties
-OpenIDE-Module-Specification-Version: 1.4
+OpenIDE-Module-Specification-Version: 1.5
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
+OpenIDE-Module-Display-Category: Developing NetBeans
+OpenIDE-Module-Short-Description: Show system properties.
+OpenIDE-Module-Long-Description: Displays Java VM system properties
+  and also system environment variables in a special node in the
+  Runtime tab. The system properties can be edited using normal
+  Explorer operations. Useful for testing effects of system properties
+  on the IDE's runtime operation.
 
 Name: org/netbeans/modules/sysprops/SystemPropertiesNode.class
 OpenIDE-Module-Class: Node

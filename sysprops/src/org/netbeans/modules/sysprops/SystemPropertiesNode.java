@@ -36,12 +36,6 @@ public class SystemPropertiesNode extends PropertyNode {
     /** ResourceBundle used in this class. */
     private static ResourceBundle bundle = NbBundle.getBundle (SystemPropertiesNode.class);
     
-    /** Listener for changes of the SystemProperties.*/
-    private ChangeListener listener;
-    
-    /** Sheet of this Node. */
-    private Sheet sheet;
-
     /**
      * Creates a new SystemPropertiesNode.
      */
@@ -60,8 +54,13 @@ public class SystemPropertiesNode extends PropertyNode {
     public static List listAllProperties () {
         List l = new ArrayList ();
         Enumeration en = System.getProperties ().propertyNames ();
-        while (en.hasMoreElements ())
-            l.add (en.nextElement ());
+        while (en.hasMoreElements ()) {
+            String prop = (String) en.nextElement ();
+            // Exclude environment variables here.
+            if (! prop.startsWith ("Env-") && ! prop.startsWith ("env-")) {
+                l.add (prop);
+            }
+        }
         return l;
     }
     
@@ -89,6 +88,38 @@ public class SystemPropertiesNode extends PropertyNode {
      */
     public Node cloneNode () {
         return new SystemPropertiesNode ();
+    }
+
+    /** Get the property sheet.
+     * @return the usual, plus environment variables
+     */
+    protected Sheet createSheet () {
+        Sheet s = super.createSheet ();
+        Sheet.Set ss = new Sheet.Set ();
+        ss.setName ("envvars");
+        ss.setDisplayName (bundle.getString ("LBL_envvars_tab"));
+        ss.setShortDescription (bundle.getString ("HINT_envvars_tab"));
+        Enumeration en = System.getProperties ().propertyNames ();
+        while (en.hasMoreElements ()) {
+            String prop = (String) en.nextElement ();
+            // List environment variables (only the ones with proper case).
+            if (prop.startsWith ("Env-")) {
+                String env = prop.substring (4); // cut off Env-
+                ss.put (new EnvVarProp (env));
+            }
+        }
+        s.put (ss);
+        return s;
+    }
+    
+    /** Property representing one environment variable. */
+    private static final class EnvVarProp extends PropertySupport.ReadOnly {
+        public EnvVarProp (String env) {
+            super (env, String.class, env, bundle.getString ("HINT_env_value"));
+        }
+        public Object getValue () {
+            return System.getProperty ("Env-" + getName ());
+        }
     }
    
 }
