@@ -107,7 +107,7 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     protected Identifier createName(Object data) {
         String fqn=getClazz().getName();
         String simpleName;
-        int lastDot=fqn.indexOf('.');
+        int lastDot=fqn.lastIndexOf('.');
         
         if (lastDot!=-1)
             simpleName=fqn.substring(lastDot+1);
