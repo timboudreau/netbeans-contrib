@@ -19,6 +19,7 @@ import javax.naming.*;
 import javax.naming.event.*;
 
 import javax.swing.Action;
+import javax.swing.SwingUtilities;
 
 import org.openide.ErrorManager;
 import org.openide.windows.TopComponent;
@@ -100,7 +101,11 @@ public class BookmarkServiceImpl extends BookmarkService {
         // it later to make sure this constructor is finished
         initTask = RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
-                checkTopComponentsFolder();
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        checkTopComponentsFolder();
+                    }
+                });
             }
         }, 100);
     }
