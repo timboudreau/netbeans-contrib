@@ -348,7 +348,7 @@ public class FilesystemSettings extends NbTestCase {
         }
         Node fileNode = new Node(filesystemNode, "A_File");
         new OpenAction().perform(fileNode);
-        EditorOperator editor = new EditorOperator("A_File");
+        EditorOperator editor = new EditorOperator(new EditorWindowOperator(), "A_File");
         editor.insert("// The first added line.\n");
         new SaveAction().perform();
         APIController.sleep(10000);
