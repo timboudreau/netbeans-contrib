@@ -167,7 +167,13 @@ public class VcsSearchType extends SearchType {
                     }
                 }
                 
-                if(fs instanceof VcsSearchTypeFileSystem) {
+                VcsSearchTypeFileSystem searchFS;
+                if (fs instanceof VcsSearchTypeFileSystem) {
+                    searchFS = (VcsSearchTypeFileSystem) fs;
+                } else {
+                    searchFS = (VcsSearchTypeFileSystem) fo.getAttribute(VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE);
+                }
+                if (searchFS != null) {
                     acceptedRoots.add(root);
                     continue;
                 }
@@ -202,8 +208,14 @@ public class VcsSearchType extends SearchType {
                         fsie.printStackTrace();
                     }
                 }
-                if(fs instanceof VcsSearchTypeFileSystem) {
-                    String[] possibleStatuses = ((VcsSearchTypeFileSystem)fs).getPossibleFileStatuses();
+                VcsSearchTypeFileSystem searchFS;
+                if (fs instanceof VcsSearchTypeFileSystem) {
+                    searchFS = (VcsSearchTypeFileSystem) fs;
+                } else {
+                    searchFS = (VcsSearchTypeFileSystem) fo.getAttribute(VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE);
+                }
+                if (searchFS != null) {
+                    String[] possibleStatuses = searchFS.getPossibleFileStatuses();
                     if(!statusesAdded) {
                         statuses = new Vector();
                         statusesAdded = true;
@@ -217,8 +229,14 @@ public class VcsSearchType extends SearchType {
                 if(ic != null && ic.instanceOf(Repository.class)) {
                     FileSystem[] fileSystems = TopManager.getDefault().getRepository().toArray();
                     for(int j = 0; j < fileSystems.length; j++) {
-                        if(fileSystems[j] instanceof VcsSearchTypeFileSystem) {
-                            String[] possibleStatuses = ((VcsSearchTypeFileSystem)fileSystems[j]).getPossibleFileStatuses();
+                        VcsSearchTypeFileSystem searchFS;
+                        if (fileSystems[j] instanceof VcsSearchTypeFileSystem) {
+                            searchFS = (VcsSearchTypeFileSystem) fileSystems[j];
+                        } else {
+                            searchFS = (VcsSearchTypeFileSystem) fileSystems[j].getRoot().getAttribute(VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE);
+                        }
+                        if (searchFS != null) {
+                            String[] possibleStatuses = searchFS.getPossibleFileStatuses();
                             if(!statusesAdded) {
                                 statuses = new Vector();
                                 statusesAdded = true;
@@ -289,9 +307,15 @@ public class VcsSearchType extends SearchType {
         } catch(FileStateInvalidException exc) {
             fs = null;
         }
-        if (fs == null || !(fs instanceof VcsSearchTypeFileSystem)) return false;
-        VcsSearchTypeFileSystem vfs = (VcsSearchTypeFileSystem) fs;
-        String status = vfs.getStatus(dobj);
+        VcsSearchTypeFileSystem searchFS;
+        if (fs instanceof VcsSearchTypeFileSystem) {
+            searchFS = (VcsSearchTypeFileSystem) fs;
+        } else {
+            searchFS = (VcsSearchTypeFileSystem) fo.getAttribute(VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE);
+        }
+        if (searchFS == null) return false;
+        String status = searchFS.getStatus(dobj);
+        System.out.println("status of ("+dobj+") = '"+status+"'");
         if (matchExcept) {
             return !matchStatuses.contains(status);
         } else {

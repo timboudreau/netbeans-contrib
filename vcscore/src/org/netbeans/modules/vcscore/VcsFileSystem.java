@@ -2143,6 +2143,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public String getStatus(FileObject fo) {
         String status;
         if (statusProvider != null) {
+            fo = convertForeignFileObjectToMyFileObject(fo);
             String fullName = fo.getPackageNameExt('/','.');
             status = statusProvider.getFileStatus(fullName).trim();
         } else status = "";
@@ -2155,12 +2156,41 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         int len = oo.length;
         if (len == 0) return null;
         if (statusProvider != null) {
+            for (int i = 0; i < len; i++) {
+                oo[i] = convertForeignFileObjectToMyFileObject((FileObject) oo[i]);
+            }
             if (len == 1) return RefreshCommandSupport.getStatusAnnotation("", ((FileObject) oo[0]).getPackageNameExt('/', '.'),
                                                                            "${"+RefreshCommandSupport.ANNOTATION_PATTERN_STATUS+"}", statusProvider);
             else          return RefreshCommandSupport.getStatusAnnotation("", getImportantFiles(oo),
                                                                            "${"+RefreshCommandSupport.ANNOTATION_PATTERN_STATUS+"}", statusProvider,
                                                                            multiFilesAnnotationTypes);
         } else return "";
+    }
+    
+    /** Converts a FileObject from a different file system (usually
+     * a multifilesystem which I'm a part of) to a FileObject from my (this)
+     * filesystem. */
+    private FileObject convertForeignFileObjectToMyFileObject(FileObject fo) {
+        FileSystem fs = null;
+        try {
+            fs = fo.getFileSystem();
+        } catch (FileStateInvalidException fsiex) {}
+        if (fs != null) {
+            if (!this.equals(fs)) {
+                java.io.File file = org.openide.filesystems.FileUtil.toFile(fo);
+                if (file != null) {
+                    String filePath = file.getAbsolutePath().replace(java.io.File.separatorChar, '/');
+                    java.io.File root = org.openide.filesystems.FileUtil.toFile(this.getRoot());
+                    String rootPath = root.getAbsolutePath().replace(java.io.File.separatorChar, '/');
+                    if (filePath.startsWith(rootPath)) {
+                        String foPath = filePath.substring(rootPath.length());
+                        while (foPath.startsWith("/")) foPath = foPath.substring(1);
+                        fo = findFileObject(foPath);
+                    }
+                }
+            }
+        }
+        return fo;
     }
 
     public String getLocker(FileObject fo) {

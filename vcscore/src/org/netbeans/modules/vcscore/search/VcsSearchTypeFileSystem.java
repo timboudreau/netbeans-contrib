@@ -14,11 +14,16 @@
 package org.netbeans.modules.vcscore.search;
 
 /**
- * Once a filesystem implements this interface, it enables the Find by status  
- *  in the explorer
+ * Once a filesystem defines this interface as an attribute on it's FileObjects,
+ * it enables the Find by status in the explorer
  * @author  mkleint
  */
 public interface VcsSearchTypeFileSystem {
+
+    /**
+     * The name of the FileObject attribute whose value is the implementation of this interface.
+     */
+    public static final String VCS_SEARCH_TYPE_ATTRIBUTE = "org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem"; // NOI18N
 
     /** It should return all possible VCS states in which the files in the filesystem
      * can reside.

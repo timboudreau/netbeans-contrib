@@ -30,6 +30,7 @@ import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.runtime.RuntimeCommandsProvider;
+import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
 
@@ -211,6 +212,8 @@ public class VcsAttributes extends DefaultAttributes {
             return fileSystem;
         } else if (VCS_NATIVE_PACKAGE_NAME_EXT.equals(attrName)) {
             return name;
+        } else if (VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE.equals(attrName)) {
+            return fileSystem;
         }  else {
             if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
                 CacheReference ref = fileSystem.getCacheReference(name);
