@@ -69,7 +69,6 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
     
     public CommandOutputVisualizer() {
         outputPanel = createOutputPanel();
-        setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
         putClientProperty("PersistenceType", "Never");
 
         initComponents();
@@ -116,11 +115,11 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
         killListener = new CommandKillListener(this.task);
         outputPanel.addKillActionListener(killListener);
     //    outputPanel.setExec(vce.getExec());
-        String title;
+        final String title;
         String commandName = vce.getCommand().getDisplayName();
-        if (commandName == null || commandName.length() == 0)
+        if (commandName == null || commandName.length() == 0) {
             commandName = vce.getCommand().getName();
-        setName(commandName);
+        }
         java.util.Collection files = vce.getFiles();
         if (files.size() == 1) {
             String filePath = (String) files.iterator().next();
@@ -138,7 +137,13 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
             NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"), // NOI18N
             new Object[] { commandName });
 
-        setDisplayName(title);
+        final String finalName = commandName;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                setName(finalName);
+                setDisplayName(title);
+            }
+        });
     }
     
     public void setPossibleFileStatusInfoMap(java.util.Map infoMap) {
@@ -180,6 +185,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
      * Open the component on the given workspace.
      */
     public void open() {
+        setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
         CommandOutputTopComponent out = CommandOutputTopComponent.getInstance();
         out.addVisualizer(getDisplayName(),this, true);
         out.open();
