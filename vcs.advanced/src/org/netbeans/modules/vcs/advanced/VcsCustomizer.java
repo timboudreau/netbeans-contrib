@@ -130,6 +130,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         compatibleOSTextField = new javax.swing.JTextField();
         uncompatibleOSCheckBox = new javax.swing.JCheckBox();
         uncompatibleOSTextField = new javax.swing.JTextField();
+        currentOSLabel = new javax.swing.JLabel();
         environmentPanel = new javax.swing.JPanel();
         userEnvLabel = new javax.swing.JLabel();
         envScrollPane = new javax.swing.JScrollPane();
@@ -593,7 +594,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
-        gridBagConstraints6.gridy = 11;
+        gridBagConstraints6.gridy = 12;
         gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.insets = new java.awt.Insets(12, 12, 11, 11);
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTHEAST;
@@ -684,6 +685,15 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6.insets = new java.awt.Insets(0, 0, 0, 11);
         gridBagConstraints6.weightx = 1.0;
         advancedPanel.add(uncompatibleOSTextField, gridBagConstraints6);
+        
+        currentOSLabel.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.currentOSLabel.txt"));
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridx = 1;
+        gridBagConstraints6.gridy = 11;
+        gridBagConstraints6.gridwidth = 2;
+        gridBagConstraints6.insets = new java.awt.Insets(5, 0, 5, 0);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(currentOSLabel, gridBagConstraints6);
         
         jTabbedPane1.addTab("Advanced", advancedPanel);
         
@@ -1342,6 +1352,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private javax.swing.JTextField compatibleOSTextField;
     private javax.swing.JCheckBox uncompatibleOSCheckBox;
     private javax.swing.JTextField uncompatibleOSTextField;
+    private javax.swing.JLabel currentOSLabel;
     private javax.swing.JPanel environmentPanel;
     private javax.swing.JLabel userEnvLabel;
     private javax.swing.JScrollPane envScrollPane;
@@ -1965,6 +1976,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         updateConfigurations();
         updateAdvancedConfig();
         initAdditionalComponents ();
+        currentOSLabel.setText(org.openide.util.NbBundle.getMessage(VcsCustomizer.class, "VcsCustomizer.currentOSLabel.txt", System.getProperty("os.name")));
         /*
             // find if this fs is in the repository
             boolean alreadyMounted = false;
