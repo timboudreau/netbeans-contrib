@@ -333,6 +333,7 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  10   Gandalf   1.9         2/15/99  David Simonek   
  *  9    Gandalf   1.8         2/9/99   David Simonek   
  *  8    Gandalf   1.7         2/9/99   David Simonek   little fixes - init in 
  *       separate thread
