@@ -3,7 +3,6 @@ OpenIDE-Module-Name: Sourceless Java Classes
 OpenIDE-Module-Install: com/netbeans/developer/modules/loaders/clazz/ClassModule.class
 OpenIDE-Module-Specification-Version: 0.9
 OpenIDE-Module-Implementation-Version: 0.9
-OpenIDE-Module-Update-Location: http://update.netbeans.com/developer30/updateInfo?rn={$netbeans.regnum}
 
 Name: com/netbeans/developer/modules/loaders/clazz/ClassDataLoader.class
 OpenIDE-Module-Class: Loader
