@@ -208,11 +208,10 @@ public class VcsAction extends NodeAction implements ActionListener {
     public static VcsCommandExecutor doCommand(Table files, VcsCommand cmd, Hashtable additionalVars, VcsFileSystem fileSystem) {
         //System.out.println("doCommand("+files+", "+cmd+")");
         boolean[] askForEachFile = null;
-        String quoting = null;
+        String quoting = fileSystem.getQuoting();
         if (files.size() > 1) {
             askForEachFile = new boolean[1];
             askForEachFile[0] = true;
-            quoting = fileSystem.getQuoting();
         }
         int preprocessStatus;
         boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
@@ -257,129 +256,65 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param files the table of pairs of files and file objects, to perform the command on
      * @param cmd the command to perform
      * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
-     * @param fileSystem the VCS file system
-     * @return the command executor of the last executed command.
-     *
-    public static VcsCommandExecutor doCommand_OLD(Table files, VcsCommand cmd, Hashtable additionalVars, VcsFileSystem fileSystem) {
-        //System.out.println("doCommand("+files+", "+cmd+")");
-        boolean[] askForEachFile = null;
-        if (files.size() > 1) {
-            askForEachFile = new boolean[1];
-            askForEachFile[0] = true;
-        }
-        Hashtable vars = fileSystem.getVariablesAsHashtable();
-        VcsCommandExecutor ec = null;
-        //Integer synchAccess = new Integer(0);
-        //int n = files.size();
-        Enumeration filesEnum = files.keys();
-        while(filesEnum.hasMoreElements()) {
-            String fullName = (String) filesEnum.nextElement();
-            if (!filesEnum.hasMoreElements() && askForEachFile != null && askForEachFile[0] == true) {
-                askForEachFile = null; // Do not show the check box for the last file.
-            }
-            /*
-            boolean concurrentExecution = false;
-            if (!concurrentExecution && ec != null) {
-                try {
-                    ec.join();
-                } catch (InterruptedException e) {
-                    // ignoring the interruption -- continuing for next command
-                }
-            }
-             *
-            fileSystem.getCommandsPool().waitToRun(cmd, Collections.singletonList(fullName));
-            if (additionalVars != null) vars.putAll(additionalVars);
-            ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
-            if (ec == null) return null; // No executor for this command.
-            fileSystem.getCommandsPool().add(ec);
-            String exec = VcsAction.prepareCommandToExecute(fileSystem, ec, cmd, vars, /*additionalVars, *fullName, (FileObject) files.get(fullName), askForEachFile);
-            if (exec == null) return null; // The whole command is canceled
-            if (exec.length() == 0) continue; // The command is canceled for this file
-            //OutputContainer container = new OutputContainer(cmd);
-            //ec = new ExecuteCommand(fileSystem, cmd, vars, exec);
-            //ec.setErrorNoRegexListener(container);
-            //ec.setOutputNoRegexListener(container);
-            //ec.setErrorContainer(container);
-            ec.updateExec(exec);
-            fileSystem.getCommandsPool().startExecutor(ec);
-            //ec.start();
-            //cache.setFileStatus(fullName,"Unknown"); // NOI18N
-            synchronized (vars) {
-                if (askForEachFile != null && askForEachFile[0] == true) {
-                    vars = new Hashtable(fileSystem.getVariablesAsHashtable());
-                } else {
-                    vars = new Hashtable(vars);
-                }
-            }
-        }
-        return ec;
-    }
-     */
-    
-    /**
-     * Do a command on a set of files.
-     * @param files the table of pairs of files and file objects, to perform the command on
-     * @param cmd the command to perform
-     * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
      */
     private void doCommand(Table files, VcsCommand cmd) {
         VcsAction.doCommand(files, cmd, null, fileSystem);
     }
 
     /**
-     * Test if one of the selected nodes is a directory.
-     * @return <code>true</code> if at least one selected node is a directory,
+     * Test if all of the selected nodes are directories.
+     * @return <code>true</code> if all selected nodes are directories,
      *         <code>false</code> otherwise.
      */
     protected boolean isOnDirectory() {
         if (selectedFileObjects != null) {
             for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                if (fo.isFolder()) return true;
+                if (!fo.isFolder()) return false;
             }
-            return false;
+            return selectedFileObjects.size() > 0;
         }
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
             DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-            if (dd != null && dd.getPrimaryFile().isFolder()) return true;
+            if (dd != null && !dd.getPrimaryFile().isFolder()) return false;
         }
-        return false;
+        return nodes.length > 0;
     }
 
     /**
-     * Test if one of the selected nodes is a file.
-     * @return <code>true</code> if at least one selected node is a file,
+     * Test if all selected nodes are files.
+     * @return <code>true</code> if all selected nodes are files,
      *         <code>false</code> otherwise.
      */
     protected boolean isOnFile() {
         if (selectedFileObjects != null) {
             for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                if (!fo.isFolder()) return true;
+                if (fo.isFolder()) return false;
             }
-            return false;
+            return selectedFileObjects.size() > 0;
         }
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
             DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-            if (dd != null && !dd.getPrimaryFile().isFolder()) return true;
+            if (dd != null && dd.getPrimaryFile().isFolder()) return false;
         }
-        return false;
+        return nodes.length > 0;
     }
 
     /**
-     * Test if one of the selected nodes is the root node.
-     * @return <code>true</code> if at least one selected node is the root node,
+     * Test if the selected node is the root node.
+     * @return <code>true</code> if the selected node is the root node,
      *         <code>false</code> otherwise.
      */
     protected boolean isOnRoot() {
         if (selectedFileObjects != null) {
             for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                if (fo.getPackageNameExt('/', '.').length() == 0) return true;
+                if (fo.getPackageNameExt('/', '.').length() != 0) return false;
             }
-            return false;
+            return selectedFileObjects.size() > 0;
         }
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
@@ -387,9 +322,9 @@ public class VcsAction extends NodeAction implements ActionListener {
             if (dd == null) return false;
             String path = dd.getPrimaryFile().getPackageNameExt('/','.');
             //String path = getNodePath(nodes[i]);
-            if (path.length() == 0) return true;
+            if (path.length() != 0) return false;
         }
-        return false;
+        return nodes.length > 0;
     }
 
     /**
@@ -472,9 +407,9 @@ public class VcsAction extends NodeAction implements ActionListener {
                 continue;
             }
             if (cmd.getDisplayName() == null
-                || onDir && !VcsCommandIO.getBooleanPropertyAssumeTrue(cmd, VcsCommand.PROPERTY_ON_DIR)
-                || onFile && !VcsCommandIO.getBooleanPropertyAssumeTrue(cmd, VcsCommand.PROPERTY_ON_FILE)
-                || onRoot && !VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_ON_ROOT)
+                || onDir && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_DIR)
+                || onFile && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_FILE)
+                || onRoot && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_ROOT)
                 || VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_HIDDEN)) {
 
                 continue;
@@ -550,6 +485,7 @@ public class VcsAction extends NodeAction implements ActionListener {
      * <br>PATH - the full path to the first file from the filesystem root
      * <br>DIR - the directory of the first file from the filesystem root
      * <br>FILE - the first file
+     * <br>QFILE - the first file quoted
      * <br>MIMETYPE - the MIME type of the first file
      * <br>
      * <br>When more then one file is to be processed, following additional variables are defined:
@@ -573,6 +509,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         vars.put("DIR", path); // NOI18N
         if (path.length() == 0 && file.length() > 0 && file.charAt(0) == '/') file = file.substring (1, file.length ());
         vars.put("FILE", file); // NOI18N
+        vars.put("QFILE", quoting+file+quoting); // NOI18N
         vars.put("MIMETYPE", fo.getMIMEType());
         // Second, set the multifiles variables
         if (files.size() > 1) {
@@ -597,85 +534,15 @@ public class VcsAction extends NodeAction implements ActionListener {
             vars.put("QPATHS", qpaths.toString().trim());
         }
     }
-
-    /*
-     * Perform some initial steps before the command can be executed.
-     * @return the exec String to run the command on success,
-     *         null when execution of this and all associated commands should be cancelled,
-     *         an empty String when this command should be skipped, but successive commands
-     *         should be run.
-     *
-    public static String prepareCommandToExecute(VcsFileSystem fileSystem, VcsCommandExecutor ec, VcsCommand cmd,
-                                                 Hashtable vars, /*Hashtable additionalVars, *
-                                                 String fullName, FileObject fo, boolean[] askForEachFile) {
-        String path=""; // NOI18N
-        String file=""; // NOI18N
-        //if( fileSystem.folder(fullName) ){
-        //path=fullName;
-        //file=""; // NOI18N
-        //}
-        //else{
-        path = VcsUtilities.getDirNamePart(fullName);
-        file = VcsUtilities.getFileNamePart(fullName);
-        //}
-        
-        if (java.io.File.separatorChar != '/') {
-            path = path.replace('/', java.io.File.separatorChar);
-            fullName = fullName.replace('/', java.io.File.separatorChar);
-        }
-        vars.put("PATH",fullName); // NOI18N
-        vars.put("DIR",path); // NOI18N
-        String osName=System.getProperty("os.name");
-        //D.deb("osName="+osName); // NOI18N
-        if (path.length() == 0 && file.length() > 0 && file.charAt(0) == '/') file = file.substring (1, file.length ());
-        vars.put("FILE",file); // NOI18N
-        vars.put("MIMETYPE", fo.getMIMEType());
-        /*
-        if (additionalVars != null) {
-            Enumeration keys = additionalVars.keys();
-            while(keys.hasMoreElements()) {
-                Object key = keys.nextElement();
-                vars.put(key, additionalVars.get(key));
-            }
-        }
-         *
-        //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
-        
-        Object confObj = cmd.getProperty(VcsCommand.PROPERTY_CONFIRMATION_MSG);
-        String confirmation = (confObj == null) ? "" : (String) confObj; //cmd.getConfirmationMsg();
-        if (fileSystem.isImportant(fullName)) {
-            confirmation = Variables.expand(vars, confirmation, true);
-        } else {
-            confirmation = null;
-        }
-        if (confirmation != null && confirmation.length() > 0) {
-            if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
-                    TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (
-                        confirmation, NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
-                return ""; // The command is cancelled for that file
-            }
-        }
-        
-        String exec = ec.preprocessCommand(cmd, vars);
-        //PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, cmd, vars);
-        //String exec = cmdPerf.process();
-        //D.deb("exec from performer = "+exec);
-        if (!fileSystem.promptForVariables(exec, vars, cmd, askForEachFile)) {
-            fileSystem.debug(fileSystem.getBundleProperty("MSG_CommandCanceled")+"\n"); // NOI18N
-            return null;
-        }
-        
-        fileSystem.setNumDoAutoRefresh(fileSystem.getNumDoAutoRefresh(path) + 1, path);
-        return exec;
-    }
-     */
     
     protected void performCommand(final String cmdName, final Node[] nodes) {
         //System.out.println("performCommand("+cmdName+") on "+nodes.length+" nodes.");
+        /* should not be used any more:
         if (cmdName.equals("KILL_ALL_CMDS")) {
             killAllCommands();
             return;
         }
+         */
         final VcsCommand cmd = fileSystem.getCommand(cmdName);
         if (cmd == null) return;
         boolean processAll = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_PROCESS_ALL_FILES) || fileSystem.isProcessUnimportantFiles();
@@ -685,19 +552,6 @@ public class VcsAction extends NodeAction implements ActionListener {
         boolean refreshDone = false;
         if (selectedFileObjects != null) {
             addImportantFiles(selectedFileObjects, files, processAll);
-            //files.put(selectedFileObject.getPackageNameExt('/','.'), selectedFileObject);
-            //mimeType = selectedFileObject.getMIMEType();
-            /*
-            if (cmdName.equals(VcsCommand.NAME_REFRESH)) {
-                path = selectedFileObject.getPackageName('/');//getNodePath(nodes[i]);
-                doList(path);
-                refreshDone = true;
-            } else if (cmdName.equals(VcsCommand.NAME_REFRESH_RECURSIVELY)) {
-                path = selectedFileObject.getPackageName('/');//getNodePath(nodes[i]);
-                doListSub(path);
-                refreshDone = true;
-            }
-             */
         } else {
             for(int i = 0; i < nodes.length; i++) {
                 //D.deb("nodes["+i+"]="+nodes[i]); // NOI18N
@@ -726,38 +580,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                     paths.add(path);
                 }
             }
-        }
-        /*
-                //FileObject ff = dd.getPrimaryFile();
-                //mimeType = ff.getMIMEType();
-                //ec = (EditorCookie) nodes[i].getCookie(EditorCookie.class);
-                if (cmdName.equals(VcsCommand.NAME_REFRESH)) {
-                    path = dd.getPrimaryFile().getPackageName('/'); //getNodePath(nodes[i]);
-                    doList(path);
-                    refreshDone = true;
-                } else if (cmdName.equals(VcsCommand.NAME_REFRESH_RECURSIVELY)) {
-                    path = dd.getPrimaryFile().getPackageName('/'); //getNodePath(nodes[i]);
-                    doListSub(path);
-                    refreshDone = true;
-                }
-            }
-         */
-            //D.deb("files="+files); // NOI18N
-            /*
-            if (nodes.length < 1) {
-                E.err("No selected nodes error."); // NOI18N
-                return ;
-            }
-             */
-        //}
-
-        //D.deb("path='"+path+"'"); // NOI18N
-
-        //if (mimeType != null) additionalVars.put("MIMETYPE", mimeType); // NOI18N
-        //D.deb("I have MIME = "+mimeType); // NOI18N
-
-        //System.out.println("refreshDone = "+refreshDone+", files.size() = "+files.size());
-        else if (/*!refreshDone &&*/ files.size() > 0) {
+        } else if (files.size() > 0) {
             doCommand (files, cmd);
         }
     }
