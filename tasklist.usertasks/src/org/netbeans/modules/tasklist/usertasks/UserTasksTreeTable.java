@@ -16,6 +16,7 @@ import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.NodesTreeTable;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
+import org.netbeans.modules.tasklist.usertasks.treetable.BooleanTableCellRenderer;
 
 /**
  * TT for user tasks
@@ -38,6 +39,8 @@ public class UserTasksTreeTable extends NodesTreeTable {
         setAutoResizeMode(AUTO_RESIZE_OFF);
         getTree().setCellRenderer(new SummaryTreeCellRenderer());
         getTree().setShowsRootHandles(true);
+        getTree().setToggleClickCount(3);
+        //getTree().setEditable(true);
         setAutoCreateColumnsFromModel(false);
     }
 
