@@ -129,7 +129,6 @@ public class FilesystemSettings extends NbTestCase {
         createFile(workingDirectory + File.separator + "A_File.class", true);
         api.getFilesystemsTab();
         APIController.sleep(20000);
-        selectNode(new String[] {filesystem, "A_File"}, false);
     }
     /** Creates new file or directory at given place.
      * @param name Name of directory or file to create.
@@ -162,7 +161,7 @@ public class FilesystemSettings extends NbTestCase {
      * @param node The node whose children should be returned in one String.
      * @return Collection of all children of given node.
      */
-    private String printChildren(Node node) {
+    private String getChildren(Node node) {
         String[] children = node.getChildren();
         String output = " [";
         int count = children.length;
@@ -180,12 +179,15 @@ public class FilesystemSettings extends NbTestCase {
         mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
         APIController.sleep(2000);
         createContents();
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        filesystemNode.expand();
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
         explorer.pushPopupMenu("Properties", filesystem);
         PropertiesWindow properties = new PropertiesWindow(filesystem);
         String property = JelloBundle.getString("org.netbeans.modules.vcs.advanced.Bundle", "PROP_annotationPattern");
         properties.edit(property);
         properties.setText(">> ${fileName} $[? attribute][[Yes]][[No]] <<");
+        new Action("Versioning|Empty|Refresh", "Empty|Refresh").perform(filesystemNode);
         String node = filesystem + "|>> A_File [No] <<";
         assertNotNull("Can't select " + node, api.getFilesystemsTab().selectNode(node));
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
@@ -301,8 +303,9 @@ public class FilesystemSettings extends NbTestCase {
         filesystemNode.select();
         if (filesystemNode.getChildren().length != 0) {
             captureScreen();
+            String children = getChildren(filesystemNode);
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: A_File node has not disappeared." + printChildren(filesystemNode));
+            throw new Exception("Error: A_File node has not disappeared." + children);
         }
         new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
@@ -323,8 +326,9 @@ public class FilesystemSettings extends NbTestCase {
             captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
+            String children = getChildren(filesystemNode);
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: There are more nodes except A_File." + printChildren(filesystemNode));
+            throw new Exception("Error: There are more nodes except A_File." + children);
         }
         PropertiesAction propertiesAction = new PropertiesAction();
         propertiesAction.perform(filesystemNode);
@@ -351,8 +355,9 @@ public class FilesystemSettings extends NbTestCase {
             captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
+            String children = getChildren(filesystemNode);
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Some backup files appeared unintentionally." + printChildren(filesystemNode));
+            throw new Exception("Error: Some backup files appeared unintentionally." + children);
         }
         Node fileNode = new Node(explorer.getRootNode(), filesystem + "|A_File");
         OpenAction openAction = new OpenAction();
@@ -365,8 +370,9 @@ public class FilesystemSettings extends NbTestCase {
             captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
+            String children = getChildren(filesystemNode);
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Create backup files does not work." + printChildren(filesystemNode));
+            throw new Exception("Error: Create backup files does not work." + children);
         }
         propertiesAction.perform(filesystemNode);
         sheet = new PropertySheetOperator();
@@ -389,8 +395,9 @@ public class FilesystemSettings extends NbTestCase {
             captureScreen();
             api.getFilesystemsTab();
             filesystemNode.select();
+            String children = getChildren(filesystemNode);
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Backup files properties do not work." + printChildren(filesystemNode));
+            throw new Exception("Error: Backup files properties do not work." + children);
         }
         propertiesAction.perform(filesystemNode);
         sheet = new PropertySheetOperator();
@@ -411,8 +418,9 @@ public class FilesystemSettings extends NbTestCase {
         filesystemNode.select();
         if (filesystemNode.getChildren().length != 1) {
             captureScreen();
+            String children = getChildren(filesystemNode);
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Filter backup files does not work." + printChildren(filesystemNode));
+            throw new Exception("Error: Filter backup files does not work." + children);
         }
         new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
@@ -443,21 +451,21 @@ public class FilesystemSettings extends NbTestCase {
             throw new Exception("Error: Can't find Expert property tab.");
         }
         TextFieldProperty refreshTime = new TextFieldProperty(expertTab, "Refresh Time For Local Files [ms]");
-        refreshTime.setValue("1000");
+        refreshTime.setValue("0");
         sheet.close();
         createFile(workingDirectory + File.separator + "B_File.java", true);
-        APIController.sleep(20000);
+        Thread.sleep(15000);
         String[] children = filesystemNode.getChildren();
         int count = children.length;
         boolean found = false;
         for(int i=0; i<count; i++) if (children[i].startsWith("B_File")) found = true;
         api.getFilesystemsTab();
         filesystemNode.select();
-        if (!found) {
+        if (found) {
             captureScreen();
-            String childrenNodes = printChildren(filesystemNode);
+            String childs = getChildren(filesystemNode);
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Refresh time does not work." + childrenNodes);
+            throw new Exception("Error: Refresh time does not work." + childs);
         }
         new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
@@ -525,8 +533,9 @@ public class FilesystemSettings extends NbTestCase {
         filesystemNode.select();
         if (found) {
             captureScreen();
+            String childs = getChildren(filesystemNode);
             new UnmountFSAction().perform(filesystemNode);
-            throw new Exception("Error: Hide shadow files does not work." + printChildren(filesystemNode));
+            throw new Exception("Error: Hide shadow files does not work." + childs);
         }
         new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
