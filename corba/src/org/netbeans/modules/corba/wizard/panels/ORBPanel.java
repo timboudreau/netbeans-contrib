@@ -15,15 +15,17 @@ package org.netbeans.modules.corba.wizard.panels;
 
 
 import java.util.*;
+import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JList;
 import org.netbeans.modules.corba.wizard.CorbaWizardData;
 import org.netbeans.modules.corba.wizard.CorbaWizard;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
 import org.netbeans.modules.corba.settings.ORBBindingDescriptor;
 import org.netbeans.modules.corba.settings.WizardSettings;
 import org.netbeans.modules.corba.settings.WizardRequirement;
-import org.netbeans.modules.corba.settings.ORBSettingsWrapper;
+import org.netbeans.modules.corba.settings.ORBSettings;
 //import org.netbeans.modules.corba.settings.ORBSettingsBundle;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
@@ -65,8 +67,9 @@ public class ORBPanel extends AbstractCORBAWizardPanel {
             for (int i=0; i< names.size(); i++){
                 this.orbs.addItem (names.elementAt(i));
             }
-            
+
             List list = this.css.getActiveSetting ().getServerBindings ();
+            this.bindings.setRenderer(new LocalizedRenderer(this.css.getActiveSetting()));
             if (list != null) {
                 ListIterator li = list.listIterator();
                 while (li.hasNext()) {
@@ -249,6 +252,7 @@ public class ORBPanel extends AbstractCORBAWizardPanel {
         }
         List list = this.css.getActiveSetting ().getServerBindings ();
         this.bindings.removeAllItems();
+        this.bindings.setRenderer(new LocalizedRenderer(this.css.getActiveSetting()));
         if (list != null) {
             ListIterator li = list.listIterator();
             while (li.hasNext()) {
@@ -276,5 +280,22 @@ public class ORBPanel extends AbstractCORBAWizardPanel {
     
     
     
+}
+
+class LocalizedRenderer extends javax.swing.plaf.basic.BasicComboBoxRenderer {
+    
+    protected ORBSettings _os = null;
+    
+    LocalizedRenderer(ORBSettings os) {
+        _os = os;
+    };
+    
+    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        if (_os != null)
+            setText(_os.getLocalizedString(getText()));
+        return this;
+    }
+
 }
 
