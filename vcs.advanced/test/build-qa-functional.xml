@@ -108,7 +108,7 @@ Microsystems, Inc. All Rights Reserved.
         <ant dir="." antfile="${xtest.module_harness.antfile}"
              target="test">
            <property name="xtest.exectype" value="ide"/>
-           <property name="xtest.ide.winsys" value="sdi"/>
+           <property name="xtest.ide.winsys" value="mdi"/>
         </ant>
     </target>
 
