@@ -315,7 +315,6 @@ public class VcsSearchType extends SearchType {
         }
         if (searchFS == null) return false;
         String status = searchFS.getStatus(dobj);
-        System.out.println("status of ("+dobj+") = '"+status+"'");
         if (matchExcept) {
             return !matchStatuses.contains(status);
         } else {
