@@ -11,6 +11,6 @@ OpenIDE-Module-Module-Dependencies:
   org.netbeans.modules.diff/1 > 1.8,
   org.netbeans.lib.cvsclient/1 > 1.9,
   org.openide.loaders > 4.11,
-  org.netbeans.modules.queries/0 > 1.0
+  org.netbeans.modules.queries/1 > 1.0
 OpenIDE-Module-Layer: org/netbeans/modules/vcs/profiles/cvsprofiles/mf-layer.xml
 
