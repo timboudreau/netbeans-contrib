@@ -172,10 +172,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
         
     }
     
-    private void doAutofill(){  //todo -try to run only command for certain value - not always for all
-        for (Iterator it = autoFillVars.values().iterator(); it.hasNext(); ) {
-                String cmd = (String) it.next();
-                autoFillVariables(cmd);
+    private void doAutofill(String variable){
+        for (Iterator it = autoFillVars.keySet().iterator(); it.hasNext(); ) {
+                String var = (String) it.next();
+                if(var.equals(variable))
+                    autoFillVariables((String)autoFillVars.get(var));
             }
     }
     
@@ -1052,9 +1053,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         FocusListener l;
         field.addFocusListener(l = new FocusListener() {
             public void focusGained(FocusEvent fevt) {}
-            public void focusLost(FocusEvent fevt) {
-                doAutofill();
+            public void focusLost(FocusEvent fevt) {                
                 Object oldValue = component.getValue();
+                doAutofill(component.getVariable());
                 component.setValue(field.getText());
                 firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), oldValue, component.getValue());
             }
