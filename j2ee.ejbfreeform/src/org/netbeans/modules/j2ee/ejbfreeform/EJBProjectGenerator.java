@@ -128,9 +128,10 @@ public class EJBProjectGenerator {
     private static void putProperty(Document doc, Element parent, String key, String value) {
         // TODO: ma154696: check NodeList length
         Element props = Util.findElement(parent, "properties", EJBProjectGenerator.NS_GENERAL); // NOI18N
-        if (props == null)
-            // the <properties> element should have been created by the Java nature
-            return;
+        if (props == null) {
+            props = doc.createElementNS(FreeformProjectType.NS_GENERAL, "properties");
+            Util.appendChildElement(parent, props, rootElementsOrder);
+        }
         Element property = findPropertyElement(props, key);
         if (property == null) {
             property = doc.createElementNS(FreeformProjectType.NS_GENERAL, "property"); // NOI18N
