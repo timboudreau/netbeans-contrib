@@ -96,6 +96,9 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 					"getNamingServiceChildren", "setNamingServiceChildren"),
 		new PropertyDescriptor ("_hide_generated_files", CORBASupportSettings.class,
 					"hideGeneratedFiles", "setHideGeneratedFiles"),
+ 		new PropertyDescriptor ("IRChildren", CORBASupportSettings.class,
+					"getInterfaceRepositoryChildren", 
+					"setInterfaceRepositoryChildren"),
  
 		
 	    };
@@ -163,6 +166,8 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 
 	    desc[25].setDisplayName ("Hide Generated Files");
 	    desc[25].setShortDescription ("Hide Generated Files from IDL file");
+
+	    desc[26].setHidden (true); // children of persistent Interface Repository Browser
 	} catch (IntrospectionException ex) {
 	    //throw new InternalError ();
 	    ex.printStackTrace ();
@@ -198,6 +203,7 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 
 /*
  * <<Log>>
+ *  12   Gandalf   1.11        10/1/99  Karel Gardas    updates from CVS
  *  11   Gandalf   1.10        8/7/99   Karel Gardas    added option for hidding
  *       generated files
  *  10   Gandalf   1.9         8/3/99   Karel Gardas    
