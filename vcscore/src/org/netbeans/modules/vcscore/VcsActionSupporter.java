@@ -42,6 +42,14 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
 
     protected  transient WeakReference fileSystem = new WeakReference(null);
 
+    /** The map of action classes and sets of it's commands.
+     * Theoretically one action can have more than one associated command,
+     * each enabled on different set of file objects
+     * (e.g. one on files and second on folders). If more than one command
+     * is enabled on the given set of file objects, one is randomly picked.
+     * It's the command's owner responsibility to set actions so that it will
+     * have sense.
+     */
     private HashMap commandMap;
     
     static final long serialVersionUID = -613064726657052221L;
@@ -57,7 +65,13 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
     }
 
     public void addSupportForAction(Class actionClass, String commandName) {
-        commandMap.put(actionClass, commandName);
+        HashSet commandsNamesSet = (HashSet) commandMap.get(actionClass);
+        if (commandsNamesSet == null) {
+            commandsNamesSet = new HashSet();
+            commandMap.put(actionClass, commandsNamesSet);
+        }
+        commandsNamesSet.add(commandName);
+        //commandMap.put(actionClass, commandName);
     }
     
     public void removeSupportForAction(Class actionClass) {
@@ -68,13 +82,20 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         if (fileObjects == null || fileObjects.length == 0) {
             return false;
         }
-        String cmdName = (String)commandMap.get(action.getClass());
-        if (cmdName == null) {
+        HashSet cmdSet = (HashSet) commandMap.get(action.getClass());
+        if (cmdSet == null) {
             return false;
         }
+        for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
+            String cmdName = (String) it.next();
+            if (isEnabled(cmdName, fileObjects)) return true;
+        }
+        return false;
+    }
+    
+    private boolean isEnabled(String cmdName, FileObject[] fileObjects) {
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         final VcsCommand cmd = fileSystem.getCommand(cmdName);
-        
         if (cmd == null) return false;
         Set foSet = new HashSet();
         for (int i = 0; i < fileObjects.length; i++) {
@@ -105,14 +126,20 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         if (fileObjects == null || fileObjects.length == 0) {
             return;
         }
-        String cmdName = (String)commandMap.get(action.getClass());
-        if (cmdName == null) {
+        HashSet cmdSet = (HashSet) commandMap.get(action.getClass());
+        if (cmdSet == null) {
             return;
         }
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        VcsCommand cmd = fileSystem.getCommand(cmdName);
-        if (cmd != null) {
-            VcsAction.performVcsCommand(cmd, fileSystem, Arrays.asList(fileObjects), false);
+        for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
+            String cmdName = (String) it.next();
+            if (isEnabled(cmdName, fileObjects)) {
+                VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
+                VcsCommand cmd = fileSystem.getCommand(cmdName);
+                if (cmd != null) {
+                    VcsAction.performVcsCommand(cmd, fileSystem, Arrays.asList(fileObjects), false);
+                }
+                break;
+            }
         }
     }
 
@@ -202,15 +229,22 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
     }
     
     private String getCommandActionDisplayName(GeneralCommandAction action) {
-        String cmdName = (String) commandMap.get(action.getClass());
-        if (cmdName != null) {
-            VcsCommand cmd = ((VcsFileSystem) fileSystem.get()).getCommand(cmdName);
-            if (cmd != null) {
-                String name = (String) cmd.getProperty(VcsCommand.PROPERTY_GENERAL_COMMAND_ACTION_DISPLAY_NAME);
-                if (name != null) {
-                    return name;
+        HashSet cmdSet = (HashSet) commandMap.get(action.getClass());
+        if (cmdSet == null) {
+            return null;
+        }
+        for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
+            String cmdName = (String) it.next();
+            //if (isEnabled(cmdName, fileObjects)) {
+            // Can not recognize the selected fileObjects => taking just the first command
+                VcsCommand cmd = ((VcsFileSystem) fileSystem.get()).getCommand(cmdName);
+                if (cmd != null) {
+                    String name = (String) cmd.getProperty(VcsCommand.PROPERTY_GENERAL_COMMAND_ACTION_DISPLAY_NAME);
+                    if (name != null) {
+                        return name;
+                    }
                 }
-            }
+            //}
         }
         return null;
     }
