@@ -1,0 +1,35 @@
+/*
+ * __NAME__.java  --  server side implementation
+ *
+ * Created on __DATE__, __TIME__ for __ORB_NAME__
+ * with __SERVER_BINDING__ binding.
+ */
+
+package Templates.CORBA;
+
+__SERVER_IMPORT__
+/**
+ *
+ * @author  __USER__
+ * @version 
+ */
+public class ServerMain {
+
+    /** Creates new __NAME__ */
+    public ServerMain () {
+    }
+
+    /**
+    * @param args the command line arguments
+    */
+    public static void main (String args[]) {
+
+        __SETTINGS_ORB_PROPERTIES__
+        __ORB_SERVER_INIT__
+
+        __ORB_OBJECT_ACTIVATION__
+        __ORB_SERVER_BINDING__
+        __ORB_SERVER_RUN__
+    }
+
+}
