@@ -70,10 +70,14 @@ public class UserCommandIO extends Object {
         ArrayList list = new ArrayList();
         for (int index = 0; index < str.length(); ) {
             int delim;
+            int pos = index;
             while (true) {
-                delim = str.indexOf("/", index);
+                delim = str.indexOf("/", pos);
                 if (delim < 0) delim = str.length();
-                else if (delim < str.length() && str.charAt(delim + 1) == '/') continue;
+                else if (delim < str.length() && str.charAt(delim + 1) == '/') {
+                    pos = delim + 2;
+                    continue;
+                }
                 break;
             }
             list.add(org.openide.util.Utilities.replaceString(str.substring(index, delim), "//", "/"));
