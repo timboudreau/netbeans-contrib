@@ -347,6 +347,10 @@ class VcsVersioningSystem extends VersioningFileSystem {
             if (fo == null) fo = VcsVersioningSystem.this.findResource(name);
             if (fo != null) {
                 FileObject[] files = new FileObject[] { fo };
+                files = cmd.getApplicableFiles(files);
+                if (files == null) {
+                    return null; // No revisions, the command can not be executed!
+                }
                 cmd.setFiles(files);
             } else if (cmd instanceof VcsDescribedCommand) {
                 ((VcsDescribedCommand) cmd).setDiskFiles(new java.io.File[] {
