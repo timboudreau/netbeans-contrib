@@ -114,7 +114,11 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
       public Object getElementAt(int row) {
           if (row < 0 || row >= getRowCount()) return null;
           return list.get(row);
-      }      
+      } 
+      
+      public int getElementRow(Object element) {
+          return list.indexOf(element);
+      }
       
       public void setColumnDefinition(int columnNumber, String label,  
                                       Method reflectionGetter, boolean sorted, TableInfoComparator comp) 
@@ -154,6 +158,10 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
       public void addElement(Object object) {
           list.add(object);
       } 
+      
+      public void fireTableDataChanged() {
+          super.fireTableDataChanged();
+      }
       
       public boolean removeElement(Object object) {
           int row = list.indexOf(object);
