@@ -2296,8 +2296,22 @@ Microsystems, Inc. All Rights Reserved.
         <property name="runOnMultipleFiles">
           <value>true</value>
         </property>
-      </command>      
-      <command name="LOGOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOGOUT, ${CVS_SERVER})" >
+      </command>
+      <command name="LOGOUT_INT" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOGOUT, ${CVS_SERVER})" if="BUILT-IN">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOGOUT_Mnemonic)</value>
+        </property>
+	<property name="exec">
+	  <value>vcs.commands.CvsLogout.class</value>
+	</property>
+        <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>
+        <property name="hiddenTestExpression">
+          <value>$[? SERVERTYPE-PSERVER_VALUE] [Hide Me] [$[? CVS_SERVER] [] [Hide Me]]</value>
+        </property>
+      </command>           
+      <command name="LOGOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOGOUT, ${CVS_SERVER})" unless="BUILT-IN">
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOGOUT_Mnemonic)</value>
         </property>
