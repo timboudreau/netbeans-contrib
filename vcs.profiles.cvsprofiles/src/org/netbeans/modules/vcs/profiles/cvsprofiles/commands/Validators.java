@@ -192,7 +192,7 @@ public final class Validators {
     
     private static String translate(String desc, String program) {
         // Translate a strange Windows error message:
-        if (desc.startsWith("CreateProcess:") && desc.endsWith("error=2")) {
+        if (desc.startsWith("CreateProcess:") && desc.indexOf(" error=") > 0) {
             return getString("CMDNotFound", program);
         }
         return desc;
