@@ -105,7 +105,13 @@ public final class SuggestionsBroker {
 
     /** Handle for suggestions foe active document. */
     public class Job {
+
+        private boolean stopped = false;
+
         public void stopBroker() {
+            if (stopped) return;
+            stopped = true;
+
             clientCount--;
             if (clientCount == 0) {
                 stopActiveSuggestionFetching();
@@ -158,11 +164,18 @@ public final class SuggestionsBroker {
 
     /** Handle to suggestions for all opened files request. */
     public class AllOpenedJob {
+
+        private boolean stopped = false;
+
         public SuggestionList getSuggestionList() {
             return getAllOpenedSuggestionList();
         }
 
         public void stopBroker() {
+
+            if (stopped) return;
+            stopped = true;
+
             allOpenedClientsCount--;
             if (allOpenedClientsCount == 0) {
                 allOpenedJob.stopBroker();
