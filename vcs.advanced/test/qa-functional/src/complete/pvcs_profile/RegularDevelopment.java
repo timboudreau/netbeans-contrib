@@ -23,7 +23,7 @@ import org.netbeans.jemmy.util.PNGEncoder;
 import org.netbeans.jemmy.operators.*;
 import org.netbeans.jellytools.modules.vcsgeneric.wizard.*;
 import org.netbeans.jellytools.modules.vcsgeneric.pvcs.*;
-import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
+import org.netbeans.jellytools.modules.vcscore.*;
 import org.openide.util.Utilities;
 import org.netbeans.jellytools.*;
 import org.netbeans.jellytools.nodes.*;
@@ -31,6 +31,7 @@ import org.netbeans.jellytools.actions.*;
 import org.netbeans.jellytools.properties.*;
 import javax.swing.text.*;
 import java.awt.Color;
+import java.util.Date;
 
 /** XTest / JUnit test class performing regular development testing on PVCS filesystem.
  * @author Jiri Kovalsky
@@ -41,10 +42,17 @@ public class RegularDevelopment extends NbTestCase {
     public static String VERSIONING_MENU = "Versioning";
     public static String MOUNT_MENU = VERSIONING_MENU + "|Mount Version Control|Generic VCS";
     public static String REFRESH = "PVCS|Refresh";
+    public static String RECURSIVE_REFRESH = "PVCS|Refresh Recursively";
     public static String GET = "PVCS|Get";
     public static String DIFF = "PVCS|Diff";
     public static String PUT = "PVCS|Put";
     public static String HISTORY = "PVCS|History";
+    public static String UNLOCK = "PVCS|Unlock";
+    public static String REMOVE_REVISION = "PVCS|Remove Revision";
+    public static String LOCK = "PVCS|Lock";
+    public static String VERSIONING_EXPLORER = "Versioning Explorer";
+    public static String ADD_TO_GROUP = "Include In VCS Group|<Default Group>";
+    public static String VCS_GROUPS = "VCS Groups";
     public static String workingDirectory;
     public static String userName;
     private static final Color MODIFIED_COLOR = new Color(160, 200, 255);
@@ -63,11 +71,22 @@ public class RegularDevelopment extends NbTestCase {
      */
     public static junit.framework.Test suite() {
         TestSuite suite = new NbTestSuite();
+        String exec = Utilities.isUnix() ? "sh -c \"vlog\"" : "cmd /x /c \"vlog\"";
+        try { if (Runtime.getRuntime().exec(exec).waitFor() != 0 ) return suite; }
+        catch (Exception e) {}
         suite.addTest(new RegularDevelopment("testCheckoutFile"));
         suite.addTest(new RegularDevelopment("testModifyFile"));
         suite.addTest(new RegularDevelopment("testViewDifferences"));
         suite.addTest(new RegularDevelopment("testCheckinFile"));
         suite.addTest(new RegularDevelopment("testViewHistory"));
+        suite.addTest(new RegularDevelopment("testUnlockFile"));
+        suite.addTest(new RegularDevelopment("testGetMissingFile"));
+        suite.addTest(new RegularDevelopment("testRemoveRevision"));
+        suite.addTest(new RegularDevelopment("testCreateOwnRevision"));
+        suite.addTest(new RegularDevelopment("testCheckoutRevision"));
+        suite.addTest(new RegularDevelopment("testLockFile"));
+        suite.addTest(new RegularDevelopment("testCreateBranch"));
+        suite.addTest(new RegularDevelopment("testVersioningExplorer"));
         return suite;
     }
     
@@ -115,7 +134,9 @@ public class RegularDevelopment extends NbTestCase {
         String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         Node A_FileNode = new Node( filesystemNode, "A_File [Current]");
-        new ActionNoBlock(VERSIONING_MENU + "|" + GET, GET).perform(A_FileNode);
+        filesystemNode.select();
+        new ComboBoxProperty(new PropertySheetOperator(), "Advanced Options").setValue("False");
+        new Action(VERSIONING_MENU + "|" + GET, GET).perform(A_FileNode);
         GetCommandOperator getCommand = new GetCommandOperator("A_File.java");
         getCommand.checkLockForTheCurrentUser(true);
         getCommand.checkCheckOutWritableWorkfile(true);
@@ -232,6 +253,168 @@ public class RegularDevelopment extends NbTestCase {
         goldenContents = "Author id: " + userName + "     lines deleted/added/moved: 0/0/0\nInitial revision.\n===================================";
         if (currentContents.indexOf(goldenContents) < 0) captureScreen("Error: Incorrect history contents.");
         outputWindow.close();
+        System.out.println(". done !");
+    }
+
+    /** Tries to give up a lock on a file.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testUnlockFile() throws Exception {
+        System.out.print(".. Testing giving up a lock on a file ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node C_FileNode = new Node( filesystemNode, "test [Current]|C_File [Current; 1.1] (" + userName + ")");
+        new Action(VERSIONING_MENU + "|" + UNLOCK, UNLOCK).perform(C_FileNode);
+        C_FileNode = new Node( filesystemNode, "test [Current]|C_File [Current]");
+        System.out.println(". done !");
+    }
+
+    /** Tries to delete a file, map it as [Missing] and check it out again.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testGetMissingFile() throws Exception {
+        System.out.print(".. Testing getting of a missing file ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node testNode = new Node( filesystemNode, "test [Current]");
+        Node C_FileNode = new Node( testNode, "C_File [Current]");
+        new DeleteAction().perform(C_FileNode);
+        new NbDialogOperator("Confirm Object Deletion").yes();
+        new Action(VERSIONING_MENU + "|" + REFRESH, REFRESH).perform(testNode);
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        Node C_FileJavaNode = new Node( testNode, "C_File.java [Missing]");
+        Node C_FileFormNode = new Node( testNode, "C_File.form [Missing]");
+        new ActionNoBlock(VERSIONING_MENU + "|" + GET, GET).perform(new Node[] {C_FileJavaNode, C_FileFormNode});
+        GetCommandOperator getCommand = new GetCommandOperator("C_File.java ...");
+        getCommand.ok();
+        Thread.sleep(10000);
+        if (!C_FileNode.isPresent()) captureScreen("Error: Unable to find C_File node again.");
+        File C_File = new File(workingDirectory + File.separator + "Work" + File.separator + "test" + File.separator + "C_File.java");
+        if (C_File.canWrite()) captureScreen("Error: C_File.java remained read-write after check out.");
+        System.out.println(". done !");
+    }
+
+    /** Tries to remove the last revision of a file.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testRemoveRevision() throws Exception {
+        System.out.print(".. Testing last revision removal of a file ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Current]");
+        new Action(VERSIONING_MENU + "|" + REMOVE_REVISION, REMOVE_REVISION).perform(D_FileNode);
+        new QuestionDialogOperator("Are you sure you want to remove the last revision of the file \"D_File.java\"?").yes();
+        RemoveCommandOperator removeCommand = new RemoveCommandOperator("D_File.java");
+        removeCommand.ok();
+        NbDialogOperator information = new NbDialogOperator("Information");
+        new JLabelOperator(information, "The last revision of the file \"D_File.java\" was removed successfully.");
+        information.ok();
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Locally Modified]");
+        System.out.println(". done !");
+    }
+
+    /** Tries to create new revision of a file and assign it own number.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testCreateOwnRevision() throws Exception {
+        System.out.print(".. Testing own revision creation on a file ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Locally Modified]");
+        filesystemNode.select();
+        new ComboBoxProperty(new PropertySheetOperator(), "Advanced Options").setValue("True");
+        new Action(VERSIONING_MENU + "|" + PUT + "...", PUT + "...").perform(D_FileNode);
+        PutCommandOperator putCommand = new PutCommandOperator("D_File.java");
+        putCommand.setChangeDescription("Assigning own number.");
+        putCommand.checkCheckTheWorkfileInAndImmediatelyOut(true);
+        putCommand.setAssignARevisionNumber("2.0");
+        putCommand.setAssignAVersionLabel("My_Version");
+        putCommand.ok();
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Current]");
+        System.out.println(". done !");
+    }
+
+    /** Tries to get specific revision of a file.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testCheckoutRevision() throws Exception {
+        System.out.print(".. Testing checkout of specific revision ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Current]");
+        new Action(VERSIONING_MENU + "|" + GET + "...", GET + "...").perform(D_FileNode);
+        GetCommandOperator getCommand = new GetCommandOperator("D_File.java");
+        getCommand.setSpecificRevision("2.0");
+        getCommand.checkSetTheDateAndTimeOfTheFileToTheCurrentTime(true);
+        getCommand.ok();
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        if (!D_FileNode.isPresent()) captureScreen("Error: Unable to find D_File [Current]");
+        File D_File = new File(workingDirectory + File.separator + "Work" + File.separator + "test" + File.separator + "another" + File.separator + "D_File.java");
+        Date fileTime = new Date(D_File.lastModified());
+        Date currentTime = new Date();
+        long timeGap = currentTime.getTime() - fileTime.getTime();
+        if (timeGap > 10000) captureScreen("Error: Unable to set current time during checkout.");
+        System.out.println(". done !");
+    }
+
+    /** Tries to lock a file.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testLockFile() throws Exception {
+        System.out.print(".. Testing lockout of a file ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Current]");
+        filesystemNode.select();
+        new ComboBoxProperty(new PropertySheetOperator(), "Advanced Options").setValue("False");
+        new Action(VERSIONING_MENU + "|" + LOCK, LOCK).perform(D_FileNode);
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Current; 2.1] (" + userName + ")");
+        System.out.println(". done !");
+    }
+
+    /** Tries to create a branch on a file.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testCreateBranch() throws Exception {
+        System.out.print(".. Testing branch creation on a file ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Current; 2.1] (" + userName + ")");
+        filesystemNode.select();
+        new ComboBoxProperty(new PropertySheetOperator(), "Advanced Options").setValue("True");
+        new Action(VERSIONING_MENU + "|" + PUT + "...", PUT + "...").perform(D_FileNode);
+        PutCommandOperator putCommand = new PutCommandOperator("D_File.java");
+        putCommand.setChangeDescription("Starting new branch.");
+        putCommand.checkCheckInTheWorkfileEvenIfUnchanged(true);
+        putCommand.checkApplyALockOnCheckout(true);
+        putCommand.setAssignAVersionLabel("MyBranch");
+        putCommand.checkFloatLabelWithTheTipRevision(true);
+        putCommand.checkStartABranch(true);
+        putCommand.ok();
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Current; 2.0.1.1] (" + userName + ")");
+        System.out.println(". done !");
+    }
+
+    /** Tries to invoke versioning explorer and check all revisions.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testVersioningExplorer() throws Exception {
+        System.out.print(".. Testing versioning explorer ..");
+        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Current; 2.0.1.1] (" + userName + ")");
+        new Action(VERSIONING_MENU + "|" + VERSIONING_EXPLORER, VERSIONING_EXPLORER).perform(D_FileNode);
+        MainWindowOperator.getDefault().waitStatusText("Command REVISION_LIST finished.");
+        VersioningFrameOperator versioningExplorer = new VersioningFrameOperator();
+        filesystemNode = new Node(versioningExplorer.treeVersioningTreeView(), filesystem);
+        D_FileNode = new Node(filesystemNode, "test [Current]|another [Current]|D_File.java [Current; 2.0.1.1] (" + userName + ")");
+        Node revisionNode = new Node(D_FileNode, "2.0  Assigning own number.|2.0.1|2.0.1.0  Starting new branch.");
+        revisionNode.select();
+        versioningExplorer.close();
         System.out.println(". done !");
     }
 }
