@@ -18,6 +18,6 @@ package org.netbeans.modules.jndi.utils;
  * @author  tzezula
  * @version 
  */
-public interface Refreshable {
+public interface Refreshable extends org.openide.nodes.Node.Cookie {
     public void refresh();
 }
