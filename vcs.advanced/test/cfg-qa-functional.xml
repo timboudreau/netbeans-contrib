@@ -26,7 +26,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile" name="cvs_profile">
+    <testbag testattribs="full,validation,cvs_profile" name="cvs_profile">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyBranch.class"/>
@@ -34,7 +34,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile_2" name="cvs_profile_2">
+    <testbag testattribs="full,validation,cvs_profile_2" name="cvs_profile_2">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyOverall.class"/>
@@ -42,7 +42,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile_3" name="cvs_profile_3">
+    <testbag testattribs="full,validation,cvs_profile_3" name="cvs_profile_3">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyAddFeatures.class"/>
@@ -50,7 +50,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile_4" name="cvs_profile_4">
+    <testbag testattribs="full,validation,cvs_profile_4" name="cvs_profile_4">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyGroup.class"/>
@@ -58,7 +58,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile_5" name="cvs_profile_5">
+    <testbag testattribs="full,validation,cvs_profile_5" name="cvs_profile_5">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyCommands.class"/>
@@ -66,7 +66,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile_6" name="cvs_profile_6">
+    <testbag testattribs="full,validation,cvs_profile_6" name="cvs_profile_6">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyAddCommands.class"/>
