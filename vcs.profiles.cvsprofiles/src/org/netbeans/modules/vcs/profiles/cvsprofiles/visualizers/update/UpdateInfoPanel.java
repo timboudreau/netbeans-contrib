@@ -38,6 +38,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.OutputVisualizer;
 
@@ -67,12 +69,29 @@ public class UpdateInfoPanel extends JPanel{
     private CommandTask task;
     private StringBuffer buff;
     private OutputVisualizer visualizer;
+    private JTextArea errTextArea;
+    private boolean errEnabled = false;
     
     /** Creates new form UpdateInfoPanel */
     public UpdateInfoPanel(OutputVisualizer visualizer) {
         super();
         this.visualizer = visualizer;
         initComponents();
+        errTextArea = new JTextArea();
+        errTextArea.setEditable(false);
+        errTextArea.getDocument().addDocumentListener(new DocumentListener(){
+            public void changedUpdate(DocumentEvent e){
+                
+            }
+            public void insertUpdate(DocumentEvent e){
+                btnErr.setEnabled(true);
+                errEnabled = true;
+            }
+            public void removeUpdate(DocumentEvent e){
+                
+            }
+            
+        });
         initAccessibility();
  
         setPreferredSize(new java.awt.Dimension(450, 200));
@@ -117,21 +136,13 @@ public class UpdateInfoPanel extends JPanel{
     private void initComponents() {//GEN-BEGIN:initComponents
         java.awt.GridBagConstraints gridBagConstraints;
 
-        lblSending = new javax.swing.JLabel();
         spCentral = new javax.swing.JScrollPane();
         tblUpdates = new javax.swing.JTable();
-        pnlButtons = new javax.swing.JPanel();
+        toolbar = new javax.swing.JToolBar();
+        btnStd = new javax.swing.JToggleButton();
+        btnErr = new javax.swing.JToggleButton();
 
         setLayout(new java.awt.GridBagLayout());
-
-        lblSending.setText(" ");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 2, 11);
-        add(lblSending, gridBagConstraints);
 
         spCentral.setPreferredSize(new java.awt.Dimension(250, 60));
         tblUpdates.setModel(new javax.swing.table.DefaultTableModel(
@@ -153,30 +164,77 @@ public class UpdateInfoPanel extends JPanel{
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 11);
+        gridBagConstraints.insets = new java.awt.Insets(3, 12, 12, 11);
         add(spCentral, gridBagConstraints);
 
-        pnlButtons.setLayout(new java.awt.GridBagLayout());
+        toolbar.setBorder(null);
+        toolbar.setRollover(true);
+        btnStd.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.btnStd_mnc").charAt(0));
+        btnStd.setSelected(true);
+        btnStd.setText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("OutputPanel.btnStd"));
+        btnStd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnStdActionPerformed(evt);
+            }
+        });
+
+        toolbar.add(btnStd);
+        btnStd.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.btnStd"));
+
+        btnErr.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.btnErr_mnc").charAt(0));
+        btnErr.setText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("OutputPanel.btnErr"));
+        btnErr.setEnabled(false);
+        btnErr.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnErrActionPerformed(evt);
+            }
+        });
+
+        toolbar.add(btnErr);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(17, 12, 11, 11);
-        add(pnlButtons, gridBagConstraints);
+        gridBagConstraints.ipadx = 1;
+        add(toolbar, gridBagConstraints);
 
     }//GEN-END:initComponents
+
+    private void btnStdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStdActionPerformed
+        if(errEnabled){
+            btnErr.setSelected(false);
+        }
+        btnStd.setSelected(true);
+        setStandardContent();
+    }//GEN-LAST:event_btnStdActionPerformed
+
+    private void btnErrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnErrActionPerformed
+        btnStd.setSelected(false);
+        btnErr.setSelected(true);
+        setErrorContent();
+    }//GEN-LAST:event_btnErrActionPerformed
     
     private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
         
     }//GEN-LAST:event_btnEditActionPerformed
     
+    private void setErrorContent(){
+        spCentral.setViewportView(errTextArea);
+    }
     
+    public JTextArea getErrOutputArea(){
+        return errTextArea;
+    }
+    
+    private void setStandardContent(){
+        spCentral.setViewportView(tblUpdates);
+            
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel lblSending;
-    private javax.swing.JPanel pnlButtons;
+    private javax.swing.JToggleButton btnErr;
+    private javax.swing.JToggleButton btnStd;
     private javax.swing.JScrollPane spCentral;
     private javax.swing.JTable tblUpdates;
+    private javax.swing.JToolBar toolbar;
     // End of variables declaration//GEN-END:variables
     
     
@@ -188,8 +246,10 @@ public class UpdateInfoPanel extends JPanel{
         context = tblUpdates.getAccessibleContext();
         context.setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSN_UpdateInfoPanel.tblUpdates"));
         context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.tblUpdates"));
-        
-        
+       
+        context = errTextArea.getAccessibleContext();
+        context.setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSN_UpdateInfoPanel.errTextArea"));
+        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.errTextArea"));
     }
     
     
@@ -234,10 +294,10 @@ public class UpdateInfoPanel extends JPanel{
     }
     
     public void showFinishedCommand() {
-        if (wasSending) {
+     /*   if (wasSending) {
             lblSending.setText(" "); // NOI18N
             wasSending = false;
-        }
+        }*/
         displayOutputData();
     }
     
@@ -246,10 +306,10 @@ public class UpdateInfoPanel extends JPanel{
     }
     
     public void showFileInfoGenerated(UpdateInformation info) {
-        if (wasSending) {
+      /*  if (wasSending) {
             lblSending.setText(" "); // NOI18N
             wasSending = false;
-        }
+        }*/
         if (info instanceof UpdateInformation) {
             model.addElement(info);
             currentTimeStamp = System.currentTimeMillis();
