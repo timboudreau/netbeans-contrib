@@ -16,6 +16,14 @@ package org.netbeans.modules.tasklist.suggestions;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskList;
 import org.netbeans.modules.tasklist.core.Task;
+import java.io.File;
+import java.io.InputStream;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +33,12 @@ import java.util.Set;
 import java.util.Map;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.openide.util.Lookup;
 import org.openide.TopManager;
+import org.openide.ErrorManager;
+
 import org.netbeans.api.tasklist.*;
 
 /**
@@ -105,24 +116,6 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         return s;
     }
     
-    /**
-     * Return true iff the type of suggestion indicated by the
-     * id argument is enabled. By default, all suggestion types
-     * are enabled, but users can disable suggestion types they're
-     * not interested in.
-     * <p>
-     *
-     * @param id The String id of the Suggestion Type. See the
-     *    {@link Suggestion} documentation for how Suggestion Types
-     *    are registered and named.
-     *
-     * @return True iff the given suggestion type is enabled
-     */
-    public boolean isEnabled(String id) {
-        //TODO
-        return true;
-    }
-
     /**
      * Return true iff the user appears to be "reading" the
      * suggestions. This means it will return false if the
@@ -344,6 +337,52 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         return list;
     }
 
+    /**
+     * Return true iff the type of suggestion indicated by the
+     * id argument is enabled. By default, all suggestion types
+     * are enabled, but users can disable suggestion types they're
+     * not interested in.
+     * <p>
+     *
+     * @param id The String id of the Suggestion Type. See the
+     *    {@link Suggestion} documentation for how Suggestion Types
+     *    are registered and named.
+     *
+     * @return True iff the given suggestion type is enabled
+     */
+    public boolean isEnabled(String id) {
+        if (disabled == null) {
+            /* TODO -- write custom XML code here
+
+            // Read disabled-state map from disk
+            File file = new File(LOCATION);
+            if (file.exists()) {
+                try {
+                    InputStream input = new BufferedInputStream(
+                                           new FileInputStream(file));
+                    java.beans.XMLDecoder d = new java.beans.XMLDecoder(input);
+                    Object result = d.readObject();
+                    d.close();
+                    if (result instanceof Set) {
+                        disabled = (Set)result;
+                    }
+                } catch (Exception e) {
+                    TopManager.getDefault().getErrorManager().notify(
+                                          ErrorManager.INFORMATIONAL, e);
+                }
+            }
+            */
+            
+            if (disabled == null) {
+                disabled = new HashSet(40);
+            }
+        }
+        return !disabled.contains(id);
+    }
+
+    /** Map containing names of Suggestion Types that have been disabled
+     * by the user. */
+    private Set disabled = null;
 
     /**
      * Store whether or not a particular Suggestion type should be
@@ -356,9 +395,64 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      * @param enabled True iff the suggestion type should be enabled
      */
     public void setEnabled(String id, boolean enabled) {
-        //TODO
+        if (disabled == null) {
+            disabled = new HashSet(40);
+        }
+
+        if (enabled) {
+            disabled.remove(id);
+        } else {
+            disabled.add(id);
+        }
+
+        SuggestionType type = SuggestionTypes.getTypes().getType(id);
+        
+        // Update the suggestions list: when disabling, rip out suggestions
+        // of the same type, and when enabling, trigger a recompute in case
+        // we have pending suggestions
+        if (enabled) {
+            SuggestionProvider provider = getProvider(type);
+            // XXX This isn't exactly right. Make sure we do the
+            // right life cycle for each provider.
+            notifyPrepare(provider);
+            notifyRun(provider);
+        } else {
+            // Remove suggestions of this type
+            List tasks = getList().getRoot().getSubtasks();
+            Iterator ti = tasks.iterator();
+            ArrayList removeTasks = new ArrayList(50);
+            while (ti.hasNext()) {
+                SuggestionImpl suggestion = (SuggestionImpl)ti.next();
+                if (suggestion.getSType() == type) {
+                    removeTasks.add(suggestion);
+                }
+            }
+            remove(removeTasks);
+        }
+
         System.out.println("SuggestionManagerImpl: TODO - store enabled state.");
+        /* TODO -- write custom XML code here
+        // Persist the map
+	try {
+            OutputStream output =  new java.io.BufferedOutputStream(
+                                         new java.io.FileOutputStream(LOCATION));
+ 	    java.beans.XMLEncoder e = new java.beans.XMLEncoder(output);
+	    e.writeObject(disabled);
+	    e.close();
+        } catch (Exception e) {
+            TopManager.getDefault().getErrorManager().notify(
+                                           ErrorManager.INFORMATIONAL, e);
+        }
+        */
     }
+
+    Set getDisabledTypes() {
+        return disabled;
+    }
+
+    
+    // XXX need better location!
+    final private static String LOCATION = "/tmp/suggestions-disabled.xml";
 
 
     /** Notify the SuggestionManager that a particular category filter
