@@ -38,9 +38,8 @@ public class AllTogether extends NbTestCase {
      */
     public static junit.framework.Test suite() {
         TestSuite suite = new NbTestSuite();
-        String exec = Utilities.isUnix() ? "sh -c \"vlog\"" : "cmd /x /c \"vlog\"";
-        try { if (Runtime.getRuntime().exec(exec).waitFor() != 0 ) return suite; }
-        catch (Exception e) {}
+        try { System.out.println ("vlog return code: " + Runtime.getRuntime().exec("vlog").waitFor()); }
+        catch (Exception e) { e.printStackTrace (); return suite; }
         suite.addTestSuite(RepositoryCreation.class);
         suite.addTestSuite(RegularDevelopment.class);
         suite.addTestSuite(AdditionalFeatures.class);
