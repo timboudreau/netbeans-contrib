@@ -61,6 +61,10 @@ import org.openide.ErrorManager;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.Collection;
+import java.util.HashSet;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 
 
 
@@ -490,17 +494,22 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
          * and is based on a reference file.
          */
         protected ClassLoader createClassLoader(FileObject ref) {
-            throw new AssertionError("XXX needs to be rewritten!");
-            /*
-            java.security.Permissions perms = new java.security.Permissions();
-            perms.add(new java.io.FilePermission("<<ALL FILES>>", "read")); // NOI18N
-            perms.add(new java.util.PropertyPermission("*", "read")); // NOI18N
-            perms.setReadOnly();
-
-            org.openide.execution.NbClassLoader loader = new org.openide.execution.NbClassLoader();
-            loader.setDefaultPermissions(perms);
-            return loader;
-             */
+            Collection c = new HashSet ();
+            ClassPath cp = ClassPath.getClassPath(ref, ClassPath.COMPILE);
+            if (cp != null) {
+                c.add (cp);
+            }
+            cp = ClassPath.getClassPath(ref, ClassPath.EXECUTE);
+            if (cp != null) {
+                c.add (cp);
+            }
+            if (c.size()>0) {
+                cp = ClassPathSupport.createProxyClassPath((ClassPath[])c.toArray(new ClassPath[c.size()]));
+                return cp.getClassLoader(true);
+            }
+            else {
+                return null;
+            }
         }
         
         /** Is this a JavaBean?
@@ -642,7 +651,11 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
                 if (isSerialized()) {
                     // create from ser file
                     BufferedInputStream bis = new BufferedInputStream(instanceOrigin().getInputStream(), 1024);
-                    CMObjectInputStream cis = new CMObjectInputStream(bis,createClassLoader(instanceOrigin()));
+                    ClassLoader classLoader = createClassLoader(instanceOrigin());
+                    if (classLoader == null) {
+                        throw new ClassNotFoundException ();
+                    }
+                    CMObjectInputStream cis = new CMObjectInputStream(bis,classLoader);
                     Object o = null;
                     try {
                         o = cis.readObject();
