@@ -40,7 +40,7 @@ public final class ContentDiffTest extends NbTestCase {
         return suite;
     }
     
-    private ContentDiff diff (final String[] oldPages, final String[] newPages) throws IOException {
+    static ContentDiff diff (final String[] oldPages, final String[] newPages) throws IOException {
         final java.net.URL o = new java.net.URL ("file:/old/");
         final java.net.URL n = new java.net.URL ("file:/new/");
         
@@ -75,7 +75,7 @@ public final class ContentDiffTest extends NbTestCase {
         );
     }
     
-    private java.util.Set even (String[] arr) {
+    private static java.util.Set even (String[] arr) {
         java.util.HashSet r = new java.util.HashSet ();
         for (int i = 0; i < arr.length; i += 2) {
             r.add (arr[i]);

@@ -36,6 +36,8 @@ public final class ContentDiff extends Object {
     private Map deps = new HashMap ();
     /** clusters of pages */
     private Cluster[] clusters;
+    /** Page -> Cluster */
+    private Map refs;
     
     /** no instances outside */
     private ContentDiff (Source source, URL base1, URL base2) {
@@ -50,6 +52,14 @@ public final class ContentDiff extends Object {
      */
     public Page findPage (String name) {
         return (Page)allPages.get (name);
+    }
+    
+    /** For a given page finds its containing cluster */
+    public Cluster findCluster (Page page) {
+        if (clusters == null) {
+            getClusters ();
+        }
+        return (Cluster)refs.get (page);
     }
     
     /** All pages in the compared documents.
@@ -96,7 +106,7 @@ public final class ContentDiff extends Object {
         }
         
         // references <Page -> Cluster>
-        HashMap refs = new HashMap ();
+        refs = new HashMap ();
         for (int i = 0; i < clusters.length; i++) {
             java.util.Iterator it = clusters[i].getPages ().iterator ();
             while (it.hasNext()) {
@@ -243,15 +253,21 @@ public final class ContentDiff extends Object {
         public int getChanged () {
             int d = getDiff () * 2;
             int s = getSize () * 2;
-            
+
             for (int i = 0; i < references.length; i++) {
-                d += references[i].getDiff ();
-                s += references[i].getSize ();
+                if (references[i] != null) {
+                    d += references[i].getDiff ();
+                    s += references[i].getSize ();
+                }
             }
             
             // own cluster change is twice as much important than 
             // those referenced
-            return d * 100 / s;
+            int ret = d * 100 / s;
+            if (ret == 0 && d > 0) {
+                ret = 1;
+            }
+            return ret;
         }
         
         final int getSize () {
@@ -366,7 +382,7 @@ public final class ContentDiff extends Object {
                         w.write (res[i].getOld());
                         len += oldLen;
                         diff += oldLen;
-                        w.write ("/strike>");
+                        w.write ("</strike>");
                     }
                     int newLen = res[i].getNew ().length ();
                     if (newLen > 0) {
