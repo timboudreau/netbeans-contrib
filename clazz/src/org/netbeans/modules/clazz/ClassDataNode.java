@@ -27,8 +27,7 @@ import com.netbeans.ide.loaders.DataNode;
 import com.netbeans.ide.util.datatransfer.TransferableOwner;
 import com.netbeans.ide.util.RequestProcessor;
 import com.netbeans.ide.util.NbBundle;
-import com.netbeans.ide.src.ElementProperties;
-import com.netbeans.ide.src.ClassElement;
+import com.netbeans.ide.src.*;
 import com.netbeans.ide.src.nodes.SourceChildren;
 import com.netbeans.ide.src.nodes.DefaultFactory;
 import com.netbeans.ide.cookies.SourceCookie;
@@ -304,12 +303,37 @@ class ClassDataNode extends DataNode implements Runnable {
       return new ClassNode(this, element);
     }
 
+    /** @return class constructor node instance
+    */
+    public Node createConstructorNode (ConstructorElement element) {
+      return new ClassItemNode.ConstructorItemNode(element);
+    }
+
+    /** @return class method node instance
+    */
+    public Node createMethodNode (MethodElement element) {
+      return new ClassItemNode.MethodItemNode(element);
+    }
+
+    /** @return class field node instance
+    */
+    public Node createFieldNode (FieldElement element) {
+      return new ClassItemNode.FieldItemNode(element);
+    }
+
+    /** Unsupported. Throws UnsupportedOperationException.
+    */
+    public Node createInitializerNode (InitializerElement element) {
+      throw new UnsupportedOperationException();
+    }
+
   } // end of NodeFactory inner class
 
 }
 
 /*
  * Log
+ *  9    Gandalf   1.8         2/9/99   David Simonek   
  *  8    Gandalf   1.7         2/9/99   David Simonek   little fixes - init in 
  *       separate thread
  *  7    Gandalf   1.6         2/3/99   David Simonek   
