@@ -74,6 +74,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     // current job or null if snapshot
     private SuggestionsBroker.Job job;
 
+    // all files results or null
+    private TaskList resultsSnapshot;
+
     /**
      * Externalization entry point (readExternal).
      */
@@ -642,13 +645,21 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
         treeTable.setProperties(createColumns());
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
-        SuggestionList list = new SourceTasksList();
+        TaskList list;
+        if (resultsSnapshot == null) {
+            list = new SourceTasksList();
+        } else {
+            list = resultsSnapshot;
+        }
         releaseWorkaround();
         showList(list);
         setFiltered(false);
-        interrupt = false;
-        SourceTasksScanner.scanTasksAsync(this);
         getRefresh().setEnabled(true);
+        if (list != resultsSnapshot) {
+            interrupt = false;
+            SourceTasksScanner.scanTasksAsync(this);
+        }
+
     }
 
     // XXX detects listener leaks
@@ -665,6 +676,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         putClientProperty("PersistenceType", "OnlyOpened");
         treeTable.setProperties(createColumns());
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
+        resultsSnapshot = getList();
         ObservableList filtered = new FilteredTasksList(job.getSuggestionsList());
         showList(filtered);
         getRefresh().setEnabled(false);
