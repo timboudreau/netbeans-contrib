@@ -27,6 +27,7 @@ import org.openide.filesystems.*;
 import org.openide.nodes.*;
 import org.openide.loaders.*;
 import org.openide.cookies.SaveCookie;
+import org.openide.util.RequestProcessor;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.Table;
@@ -1358,6 +1359,9 @@ public class VcsAction extends NodeAction implements ActionListener {
         //D.deb("performAction()"); // NOI18N
         //System.out.println("performAction("+nodes+")");
     }
+    
+    private static RequestProcessor actionRequestProcesor;
+    private static final Object ACTION_LOCK = new Object();
 
     public void actionPerformed(final java.awt.event.ActionEvent e){
         //D.deb("actionPerformed("+e+")"); // NOI18N
@@ -1379,7 +1383,13 @@ public class VcsAction extends NodeAction implements ActionListener {
                 }
             };
         }
-        new Thread(cpr, "Vcs Commands Performing Thread").start(); // NOI18N
+        synchronized (ACTION_LOCK) {
+            if (actionRequestProcesor == null) {
+                actionRequestProcesor = new RequestProcessor("Vcs Action Request Processor"); // NOI18N
+            }
+        }
+        actionRequestProcesor.post(cpr);
+        //new Thread(cpr, "Vcs Commands Performing Thread").start(); // NOI18N
     }
 
     private class CtrlMenuKeyListener implements javax.swing.event.MenuKeyListener {
