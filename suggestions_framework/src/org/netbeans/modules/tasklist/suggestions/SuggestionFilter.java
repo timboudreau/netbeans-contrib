@@ -26,6 +26,7 @@ import org.netbeans.modules.tasklist.core.filter.StringFilterCondition;
 import org.openide.util.NbBundle;
 import org.netbeans.modules.tasklist.client.SuggestionProperty;
 import org.netbeans.modules.tasklist.client.SuggestionProperties;
+import org.netbeans.modules.tasklist.core.filter.FilterConvertor;
 
 /**
  * Filter for user tasks
@@ -64,6 +65,9 @@ public class SuggestionFilter extends Filter {
     
     public SuggestionFilter(SuggestionFilter rhs) { super(rhs); }
 
+    private SuggestionFilter() { // for deconvertization reasons;
+    }
+
     public Object clone() { return new SuggestionFilter(this);}
 
     public SuggestionProperty[] getProperties() {  return PROPS;}
@@ -92,5 +96,26 @@ public class SuggestionFilter extends Filter {
 	throw new IllegalArgumentException("wrong property");
 
     }
+
+  private static class Convertor extends FilterConvertor {
+
+    public Convertor() {
+      super("SuggestionFilter");
+    }
+
+    public static SuggestionFilter.Convertor create() { return new SuggestionFilter.Convertor();}
+
+    protected Filter createFilter() { return new SuggestionFilter();}
+
+    protected SuggestionProperty getProperty(String propid) {
+      SuggestionProperty sp = SuggestionImplProperties.getProperty(propid);
+      if (sp == null) 
+	return super.getProperty(propid);
+      else 
+	return sp;
+    }
+    
+  }
+
 
 }

@@ -134,6 +134,7 @@ public abstract class TaskListView extends TopComponent
     private transient ObservableList tasklist = null;
 
     transient protected FilterRepository filters = null;
+    transient protected Filter activeFilter = null;
     
     /** Annotation showing the current position */
     transient protected TaskAnnotation taskMarker = null;
@@ -1235,7 +1236,7 @@ for (int i = 0; i < columns.length; i++) {
      * @return The toggle filter or <code>null</code> if not defined.
      */
     public final Filter getFilter() {
-        return getFilters().getActive();
+      return activeFilter;
     }
 
     /** 
@@ -1278,7 +1279,11 @@ for (int i = 0; i < columns.length; i++) {
      * @param filter The filter to be set, or null, to remove filtering.
      */
     public void setFilter(Filter filter) {         
-        this.getFilters().setActive(filter);  // this is often the same instance filter action doe snot clone
+      if (filter == null || getFilters().contains(filter)) {
+        getFilters().setActive(filter);  
+      } 
+
+      this.activeFilter = filter;
     }
 
     /**
