@@ -43,7 +43,7 @@ import org.openide.nodes.Sheet;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
-import org.netbeans.modules.jndi.utils.Refreshd;
+import org.openide.util.RequestProcessor;
 import org.netbeans.modules.jndi.settings.JndiSystemOption;
 
 /** Top Level JNDI Node
@@ -65,7 +65,7 @@ public final class JndiRootNode extends AbstractNode{
     private static JndiRootNode instance = null;
 
     /** The asynchronous refresher*/
-    Refreshd refresher;
+    RequestProcessor refresher;
 
 
     /** Constructor
@@ -73,8 +73,7 @@ public final class JndiRootNode extends AbstractNode{
     public JndiRootNode() {
         super(new Children.Array());
         instance = this;
-        this.refresher = new Refreshd();
-        this.refresher.start();
+        this.refresher = new RequestProcessor ("Jndi-Browser-Rehresh"); // No I18N
         setName("JNDI");
         setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiRootNode.NB_ROOT));
         JndiProvidersNode drivers = new JndiProvidersNode();

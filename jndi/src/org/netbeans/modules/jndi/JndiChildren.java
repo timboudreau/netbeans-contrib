@@ -24,6 +24,7 @@ import javax.naming.Context;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.netbeans.modules.jndi.utils.APCTarget;
+import org.netbeans.modules.jndi.utils.Request;
 
 /** Children class for Directories in JNDI tree.
  *  It's responsible for lazy initialization as well
@@ -98,7 +99,7 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
      *  exception NamingException if Context.list() failed
      */
     public void prepareKeys(){
-        JndiRootNode.getDefault().refresher.addNewItem(this);
+        JndiRootNode.getDefault().refresher.postRequest (new Request (this));
     }
 
     /** Creates Node for key
