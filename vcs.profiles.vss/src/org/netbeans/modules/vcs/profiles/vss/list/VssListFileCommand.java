@@ -122,10 +122,27 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
     }
     
     private void sendFilesByName(CommandDataOutputListener stdoutDataListener) {
+        String commonParent = (String) vars.get("COMMON_PARENT");
+        if (commonParent != null) {
+            commonParent = commonParent.replace(java.io.File.separatorChar, '/');
+        }
         for (Iterator elIt = filesByName.values().iterator(); elIt.hasNext(); ) {
             String[] elements = (String[]) elIt.next();
+            if (commonParent != null && commonParent.length() > 0) {
+                elements = adjustFilePath(commonParent, elements);
+            }
             stdoutDataListener.outputData(elements);
         }
+    }
+    
+    private static String[] adjustFilePath(String commonParent, String[] elements) {
+        if (elements[0].startsWith(commonParent)) {
+            elements[0] = elements[0].substring(commonParent.length());
+            while (elements[0].startsWith("/")) {
+                elements[0] = elements[0].substring(1);
+            }
+        }
+        return elements;
     }
     
     private boolean getFileStatus(String file, String diffCmd) {
