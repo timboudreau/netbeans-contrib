@@ -350,11 +350,11 @@ public abstract class GenericStub extends JellyTestCase {
     }
     
     public void closeAllVCSOutputs() {
-        closeAllWindows ("Output of VCS Commands [");
+        closeAllWindows ("[");
     }
     
     public void closeAllCVSOutputs() {
-        closeAllWindows ("CVS Output [");
+        closeAllWindows ("[");
     }
     
     public void closeAllVCSGroups() {
