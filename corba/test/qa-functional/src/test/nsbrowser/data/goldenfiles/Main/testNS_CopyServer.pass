@@ -1,0 +1,3 @@
+      String[] hierarchy_of_contexts = new String [] {"NSName", "NSKind"};
+      String[] name_of_server = new String [] {"<name of server>", "<kind of server>"};
+

@@ -1,0 +1,2 @@
+      String[] client_name_hierarchy = new String [] {"NSNameSub2", "NSKindSub2", "NSName", "NSKind", "ServerName2", "ServerKind2"};
+

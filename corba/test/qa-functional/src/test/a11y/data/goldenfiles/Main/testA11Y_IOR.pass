@@ -1,0 +1,30 @@
+---> Testing Window: New IOR File
+Results of Accessibility test
+
+
+ Doesn't implement Accessible :
+   - none.
+
+ No Accessible name :
+   Class: org.openide.explorer.view.TreeView$ExplorerTree {  |  } 
+
+
+ No Accessible description :
+   Class: org.openide.explorer.view.TreeView$ExplorerTree {  |  } 
+
+
+ Label with LABEL_FOR not set :
+   - none.
+
+ Components with no LABEL_FOR pointing to it :
+   Class: org.openide.explorer.view.TreeView$ExplorerTree {  |  } 
+
+
+ Components with no mnemonic :
+   - none.
+
+ Components with wrong mnemonic (mnemonic isn't ASCII , label doesn't contain mnemonic):
+   - none.
+
+ Components not reachable with tab traversal :
+   - none.

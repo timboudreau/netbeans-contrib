@@ -1,0 +1,54 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+
+typedef octet Bytes[64];
+
+struct S { long len; };
+
+interface foo;
+
+// Union with explicit default label
+union U switch (long) {
+  case 1: long x;
+  case 2: Bytes y;
+  case 3: string z;
+  case 4:
+  case 5: S w;
+  case 6: long array[ 10 ][ 20 ];
+  case 7: sequence<long> seq;
+ default: foo obj;
+};
+
+typedef enum E {
+  A,
+  B
+} E_Alias;
+
+
+// Union with no default label
+union U2 switch(E_Alias) {
+  case A: long x;
+  case B: short y;
+};
+
+
+// Union with implicit default label
+union U3 switch(E_Alias) {
+  case B: long x;
+};
+
+interface foo {
+  void bar( in U x, out U y, out U2 z );
+};
+

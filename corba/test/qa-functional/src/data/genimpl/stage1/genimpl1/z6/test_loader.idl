@@ -1,0 +1,231 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+
+typedef struct A {
+  long value1;
+
+
+struct B {
+    long value;
+  } bx;
+
+} ax;
+
+//typedef enum {RED} colors;
+
+interface i1 {};
+interface i2 {};
+interface i3 {};
+interface i4 {};
+interface i5 {};
+interface i6 {};
+interface i7 {};
+
+interface i8 {};
+interface i9 {};
+interface i10 {};
+interface i11 {};
+interface i12 {};
+interface i13 {};
+interface i14 {};
+interface i15 {};
+interface i16 {};
+interface i17 {};
+interface i18 {};
+interface i19 {};
+interface i20 {};
+
+/*
+interface i21 {};
+interface i22 {};
+interface i23 {};
+interface i24 {};
+interface i25 {};
+interface i26 {};
+interface i27 {};
+interface i28 {};
+interface i29 {};
+
+interface i30 {};
+interface i31 {};
+interface i32 {};
+interface i33 {};
+interface i34 {};
+interface i35 {};
+interface i36 {};
+interface i37 {};
+interface i38 {};
+interface i39 {};
+interface i40 {};
+interface i41 {};
+interface i42 {};
+interface i43 {};
+interface i44 {};
+interface i45 {};
+interface i46 {};
+interface i47 {};
+interface i48 {};
+interface i49 {};
+interface i50 {};
+interface i51 {};
+interface i52 {};
+interface i53 {};
+interface i54 {};
+interface i55 {};
+interface i56 {};
+interface i57 {};
+interface i58 {};
+interface i59 {};
+interface i60 {};
+interface i61 {};
+interface i62 {};
+interface i63 {};
+interface i64 {};
+interface i65 {};
+interface i66 {};
+interface i67 {};
+interface i68 {};
+interface i69 {};
+interface i70 {};
+interface i71 {};
+interface i72 {};
+interface i73 {};
+interface i74 {};
+interface i75 {};
+interface i76 {};
+interface i77 {};
+interface i78 {};
+interface i79 {};
+interface i80 {};
+interface i81 {};
+interface i82 {};
+interface i83 {};
+interface i84 {};
+interface i85 {};
+interface i86 {};
+interface i87 {};
+interface i88 {};
+interface i89 {};
+interface i90 {};
+interface i91 {};
+interface i92 {};
+interface i93 {};
+interface i94 {};
+interface i95 {};
+interface i96 {};
+interface i97 {};
+interface i98 {};
+interface i99 {};
+interface i100 {};
+interface i101 {};
+interface i102 {};
+interface i103 {};
+interface i104 {};
+interface i105 {};
+interface i106 {};
+interface i107 {};
+interface i108 {};
+interface i109 {};
+interface i110 {};
+interface i111 {};
+interface i112 {};
+interface i113 {};
+interface i114 {};
+interface i115 {};
+interface i116 {};
+interface i117 {};
+interface i118 {};
+interface i119 {};
+interface i120 {};
+interface i121 {};
+interface i122 {};
+interface i123 {};
+interface i124 {};
+interface i125 {};
+interface i126 {};
+interface i127 {};
+interface i128 {};
+interface i129 {};
+interface i130 {};
+interface i131 {};
+interface i132 {};
+interface i133 {};
+interface i134 {};
+interface i135 {};
+interface i136 {};
+interface i137 {};
+interface i138 {};
+interface i139 {};
+interface i140 {};
+interface i141 {};
+interface i142 {};
+interface i143 {};
+interface i144 {};
+interface i145 {};
+interface i146 {};
+interface i147 {};
+interface i148 {};
+interface i149 {};
+interface i150 {};
+interface i151 {};
+interface i152 {};
+interface i153 {};
+interface i154 {};
+interface i155 {};
+interface i156 {};
+interface i157 {};
+interface i158 {};
+interface i159 {};
+interface i160 {};
+interface i161 {};
+interface i162 {};
+interface i163 {};
+interface i164 {};
+interface i165 {};
+interface i166 {};
+interface i167 {};
+interface i168 {};
+interface i169 {};
+interface i170 {};
+interface i171 {};
+interface i172 {};
+interface i173 {};
+interface i174 {};
+interface i175 {};
+interface i176 {};
+interface i177 {};
+interface i178 {};
+interface i179 {};
+interface i180 {};
+interface i181 {};
+interface i182 {};
+interface i183 {};
+interface i184 {};
+interface i185 {};
+interface i186 {};
+interface i187 {};
+interface i188 {};
+interface i189 {};
+interface i190 {};
+interface i191 {};
+interface i192 {};
+interface i193 {};
+interface i194 {};
+interface i195 {};
+interface i196 {};
+interface i197 {};
+interface i198 {};
+interface i199 {};
+interface i200 {};
+*/

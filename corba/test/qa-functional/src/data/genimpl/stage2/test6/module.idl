@@ -1,0 +1,54 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+
+module M {
+  interface foo {
+
+    enum E {
+      A,
+      B,
+      C
+    };
+
+    void bar(in E e);
+  };
+};
+
+
+module M2
+{
+  //interface foo 
+  module ne2 {
+    //typedef struct m1 {string reason;} mx;
+    typedef string m1;
+    typedef m1 m2;
+    typedef m2 m3;
+    typedef m3 m4;
+    typedef m4 m5;
+    typedef m5 message;
+    exception Ha {string he;};
+  };  
+  module nested1 {
+    typedef string msg1;
+    module nested2 {
+      interface foo2
+      {
+         ne2::message bar (in ::M::foo::E e) raises (ne2::Ha);
+         //void bar ();
+      };
+    };
+  };
+};
+
+

@@ -1,0 +1,49 @@
+data/genimpl/stage1 : /genimpl1/t1/array ... OK
+data/genimpl/stage1 : /genimpl1/t2/attribute ... OK
+data/genimpl/stage1 : /genimpl1/t3/base ... OK
+data/genimpl/stage1 : /genimpl1/t4/calc ... OK
+data/genimpl/stage1 : /genimpl1/t5/calc2 ... OK
+data/genimpl/stage1 : /genimpl1/t6/calc3 ... OK
+data/genimpl/stage1 : /genimpl1/t7/calc4 ... OK
+data/genimpl/stage1 : /genimpl1/t8/const ... OK
+data/genimpl/stage1 : /genimpl1/t9/context ... OK
+data/genimpl/stage1 : /genimpl1/u1/enum ... OK
+data/genimpl/stage1 : /genimpl1/u2/ex ... OK
+data/genimpl/stage1 : /genimpl1/u3/forward ... OK
+data/genimpl/stage1 : /genimpl1/u4/inheritance ... OK
+data/genimpl/stage1 : /genimpl1/u5/my_container ... OK
+data/genimpl/stage1 : /genimpl1/u6/objref ... OK
+data/genimpl/stage1 : /genimpl1/u7/oneway ... OK
+data/genimpl/stage1 : /genimpl1/u8/recursion ... FAILED: Compiler error
+data/genimpl/stage1 : /genimpl1/u9/sequence ... OK
+data/genimpl/stage1 : /genimpl1/v0/strtest ... FAILED: Compiler error
+data/genimpl/stage1 : /genimpl1/v1/struct ... OK
+data/genimpl/stage1 : /genimpl1/v2/struct2 ... OK
+data/genimpl/stage1 : /genimpl1/v3/typedef ... OK
+data/genimpl/stage1 : /genimpl1/v4/union ... OK
+data/genimpl/stage1 : /genimpl1/z1/mod ... OK
+data/genimpl/stage1 : /genimpl1/z2/struct ... OK
+data/genimpl/stage1 : /genimpl1/z3/test1 ... OK
+data/genimpl/stage1 : /genimpl1/z4/test1 ... OK
+data/genimpl/stage1 : /genimpl1/z5/test2 ... OK
+data/genimpl/stage1 : /genimpl1/z6/test_loader ... OK
+data/genimpl/stage1 : /genimpl2/a1/Simple ... OK
+data/genimpl/stage1 : /genimpl2/a2/Simple ... OK
+data/genimpl/stage1 : /genimpl2/a3/Simple ... OK
+data/genimpl/stage1 : /genimpl2/a4/Simple ... OK
+data/genimpl/stage1 : /genimpl2/a5/Simple ... OK
+data/genimpl/stage1 : /genimpl2/a6/Simple ... OK
+data/genimpl/stage1 : /genimpl2/a7/Simple ... OK
+data/genimpl/stage1 : /genimpl2/a8/Simple ... OK
+data/genimpl/stage1 : /genimpl2/a9/Simple ... OK
+data/genimpl/stage1 : /genimpl2/b1/Simple_NoImpl ... FAILED: No generated impls
+data/genimpl/stage1 : /genimpl2/b2/Simple ... OK
+data/genimpl/stage1 : /genimpl2/b3/array ... OK
+data/genimpl/stage1 : /genimpl2/b4/Simple ... OK
+data/genimpl/stage1 : /genimpl3/a1/Simple ... OK
+data/genimpl/stage1 : /genimpl3/a2/Empty ... OK
+data/genimpl/stage1 : /genimpl3/a3/Empty ... OK
+data/genimpl/stage1 : /genimpl3/a4/EmptyNoImpl ... FAILED: No generated impls
+data/genimpl/stage1 : /genimpl4/a1/EmptyCompError ... FAILED: Compiler error
+data/genimpl/stage3 : /idl01/array ... OK
+data/genimpl/stage3 : /idl02/typedef ... FAILED: Compiler error

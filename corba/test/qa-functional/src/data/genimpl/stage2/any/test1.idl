@@ -1,0 +1,23 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+//
+// test1.idl
+//
+// Created on October 28, 1999, 1:03 PM
+// by kgardas
+//
+
+interface test1 {
+  any msg (in any p1, inout any p2);
+};

@@ -1,0 +1,3072 @@
+===================
+===================
+J2EE ORB
+J2EE ORB
+J2EE ORB
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+java
+-classpath {classpath}{:}{library} org.netbeans.modules.corba.idl.compiler.j2ee.Compiler {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+java
+false
+--tie
+--package
+--package
+--directory
+--directory
+.
+.
+^([^ \n]+) \(line ([0-9]+)\): (.*)
+^([^ \n]+) \(line ([0-9]+)\): (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+_
+ImplBase
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+J2EE ORB
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind (aName, /*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+true
+===================
+JDK 1.3 ORB
+JDK 1.3 ORB
+JDK 1.3 ORB
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+java
+-classpath {classpath}{:}{library} org.netbeans.modules.corba.idl.compiler.jdk13.Compiler {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+java
+false
+--tie
+--package
+--package
+--directory
+--directory
+.
+.
+^([^ \n]+) \(line ([0-9]+)\): (.*)
+^([^ \n]+) \(line ([0-9]+)\): (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+_
+ImplBase
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+JDK 1.3 ORB
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind (aName, /*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+true
+===================
+JDK 1.4 ORB
+JDK 1.4 ORB
+JDK 1.4 ORB
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+java
+-classpath {classpath}{:}{library} org.netbeans.modules.corba.idl.compiler.jdk14.Compiler {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+java
+false
+--tie
+--package
+--package
+--directory
+--directory
+.
+.
+^([^ \n]+) \(line ([0-9]+)\): (.*)
+^([^ \n]+) \(line ([0-9]+)\): (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+
+POA
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+JDK 1.4 ORB
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind(aName, /*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/)));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+true
+===================
+ORBacus for Java 4.x
+ORBacus for Java 4.x
+ORBacus for Java 4.x
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+jidl
+{cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+jidl
+false
+--tie
+--package
+--package
+--output-dir
+--output-dir
+.
+.
+^([^ ]+):([0-9]+): (.*)
+^([^ ]+):([0-9]+): (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+
+POA
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+ORBacus for Java 4.x
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind(aName, /*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/)));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+true
+===================
+ORBacus for Java 4.x for Windows
+ORBacus for Java 4.x for Windows
+ORBacus for Java 4.x for Windows
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+jidl
+{cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+jidl
+false
+--tie
+--package
+--package
+--output-dir
+--output-dir
+.
+.
+^([^ ]+)\(([0-9]+)\): (.*)
+^([^ ]+)\(([0-9]+)\): (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+
+POA
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+ORBacus for Java 4.x for Windows
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind(aName, /*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/)));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+true
+===================
+Orbix 2000 1.x for Java
+Orbix 2000 1.x for Java
+Orbix 2000 1.x for Java
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+idl
+{cpp_params} {params} -jbase:{dir_param}{package_root}:{package_param}{package} -jpoa:{dir_param}{package_root}:{package_param}{package} {files}
+
+idl
+false
+
+-P
+-P
+-O
+-O
+.
+.
+^idl: "([^ ]+)", line ([0-9]+): (.*)
+^idl: "([^ ]+)", line ([0-9]+): (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+
+POA
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+Orbix 2000 1.x for Java
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind(aName, /*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/)));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+true
+===================
+OrbixWeb 3.2
+OrbixWeb 3.2
+OrbixWeb 3.2
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+java
+-classpath {classpath}{:}{library} org.netbeans.modules.corba.idl.compiler.orbix32.Compiler {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+java
+false
+
+-jP
+-jP
+-jO
+-jO
+.
+.
+^([^ ]+):([0-9]+):(.*)
+^([^ ]+):([0-9]+):(.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+_
+ImplBase
+
+Impl
+_
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+OrbixWeb 3.2
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind (aName, /*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Proprietary Binder, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: 
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_SERVER_NAME*/; title: Server name:; type: string]
+template codes: {ORB_SERVER_RUN=IE.Iona.OrbixWeb._CORBA.Orbix.impl_is_ready ("/*FFJ_CORBA_TODO_SERVER_NAME*/");, SERVANTS_ACTIVATION=}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Proprietary Binder, template-tag: CLIENT_BINDING, local-tag: null
+import: null
+code: // OrbixWeb proprietary binder:
+      /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.bind (":/*FFJ_CORBA_TODO_SERVER_NAME*/", args[0]);
+      // args[0] is name of host where server run.
+      if (srv == null)
+      throw new RuntimeException ();
+
+      // add your client code here
+    
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_SERVER_NAME*/; title: Server name:; type: string]
+template codes: {}
+true
+===================
+VisiBroker 3.4 for Java
+VisiBroker 3.4 for Java
+VisiBroker 3.4 for Java
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+idl2java
+{cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+idl2java
+false
+
+-package
+-package
+-root_dir
+-root_dir
+.
+.
+^"([^ ]+)":([0-9]+): (.*)
+^"([^ ]+)":([0-9]+): (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+_
+ImplBase
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+VisiBroker 3.4 for Java
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind (aName, /*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Proprietary Binder, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // binding to osagent is done automatically for objects
+      // with explicitly specified names
+    
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_SERVER_NAME*/; title: Server name:; type: string]
+template codes: {SERVANTS_INIT=// add your creating of object implementation here
+      /*FFJ_CORBA_TODO_SERVANT_CLASS_NAME*/ /*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/ = new /*FFJ_CORBA_TODO_SERVANT_CLASS_NAME*/(/*FFJ_CORBA_TODO_TIE_SERVANT_CTOR_PARAMS*/"/*FFJ_CORBA_TODO_SERVER_NAME*/");}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Proprietary Binder, template-tag: CLIENT_BINDING, local-tag: null
+import: null
+code: // VisiBroker for Java proprietary binder:
+      /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.bind (orb, "/*FFJ_CORBA_TODO_SERVER_NAME*/");
+      if (srv == null)
+      throw new RuntimeException ();
+
+      // add your client code here
+    
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_SERVER_NAME*/; title: Server name:; type: string]
+template codes: {}
+true
+===================
+VisiBroker 4.x for Java
+VisiBroker 4.x for Java
+VisiBroker 4.x for Java
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+idl2java
+{cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+idl2java
+false
+
+-package
+-package
+-root_dir
+-root_dir
+.
+.
+^([^ ]+): ([0-9]+):(.*)
+^([^ ]+): ([0-9]+):(.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+
+POA
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+VisiBroker 4.x for Java
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind(aName, /*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/)));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Proprietary Binder, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // binding to osagent is done automatically by POA
+    
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Proprietary Binder, template-tag: CLIENT_BINDING, local-tag: null
+import: null
+code: // VisiBroker for Java proprietary binder:
+      /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.bind (orb);
+      if (srv == null)
+      throw new RuntimeException ();
+
+      // add your client code here
+    
+wizard settings: supported: true
+requirements: []
+template codes: {}
+true
+===================
+eORB 1.x
+eORB 1.x (unsupported)
+eORB 1.x (unsupported)
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+java
+-classpath {filesystems} com.vertel.idl.parser {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+java
+false
+
+-p
+-p
+-d
+-d
+.
+.
+^([^ ]+), line: ([0-9]+)\(([0-9]+)\)(.*)
+^([^ ]+), line: ([0-9]+)\(([0-9]+)\)(.*)
+1
+1
+2
+2
+-1
+-1
+4
+4
+
+Impl
+
+POA
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+eORB 1.x
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind(aName, /*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/)));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+false
+===================
+JacORB 1.3.x
+JacORB 1.3.x (unsupported)
+JacORB 1.3.x (unsupported)
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+java
+-classpath {filesystems} org.jacorb.idl.parser {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+java
+false
+
+-p
+-p
+-d
+-d
+.
+.
+^([^ ]+), line: ([0-9]+)\(([0-9]+)\): (.*)\n(.*)
+^([^ ]+), line: ([0-9]+)\(([0-9]+)\): (.*)\n(.*)
+1
+1
+2
+2
+3
+3
+4
+4
+
+Impl
+
+POA
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+JacORB 1.3.x
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind(aName, /*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/)));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+false
+===================
+JavaORB 2.2.x
+JavaORB 2.2.x (unsupported)
+JavaORB 2.2.x (unsupported)
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+java
+-classpath {filesystems} JavaORB.compiler.IdlCompiler {cpp_params} -poa {params} {dir_param}{package_root} {package_param}{package} {files}
+
+java
+false
+-tie
+-package:
+-package:
+-outdir:
+-outdir:
+.
+.
+^([^ ]+), Line ([0-9]+) : (.*)
+^([^ ]+), Line ([0-9]+) : (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+
+POA
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+JavaORB 2.2.x
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind(aName, /*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/)));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+false
+===================
+JDK 1.2 ORB
+JDK 1.2 ORB (unsupported)
+JDK 1.2 ORB (unsupported)
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+idltojava
+{cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+idltojava
+false
+-ftie
+-p
+-p
+-j
+-j
+.
+.
+^([^ ]+):([0-9]+): (.*)
+^([^ ]+):([0-9]+): (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+_
+ImplBase
+
+Impl
+_
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+JDK 1.2 ORB
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind (aName, /*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+false
+===================
+OpenORB 1.x
+OpenORB 1.x (unsupported)
+OpenORB 1.x (unsupported)
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+java
+-classpath {classpath} org.netbeans.modules.corba.idl.compiler.openorb1x.Compiler {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+java
+false
+
+-package
+-package
+-d
+-d
+.
+.
+^file:([^ ]+):([0-9]+): (.*)
+^file:([^ ]+):([0-9]+): (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+
+POA
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+OpenORB 1.x
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind(aName, /*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_OA_VAR_NAME*/.servant_to_reference (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/)));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+false
+===================
+ORBacus for Java 3.x
+ORBacus for Java 3.x (unsupported)
+ORBacus for Java 3.x (unsupported)
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+jidl
+{cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+jidl
+false
+--tie
+--package
+--package
+--output-dir
+--output-dir
+.
+.
+^([^ ]+):([0-9]+): (.*)
+^([^ ]+):([0-9]+): (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+_
+ImplBase
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+ORBacus for Java 3.x
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind (aName, /*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Proprietary Binder, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // ORBacus for Java 3.x proprietary binder:
+    ((com.ooc.CORBA.ORB)orb).connect(/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/, "/*FFJ_CORBA_TODO_SERVER_NAME*/");
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_SERVER_NAME*/; title: Server name:; type: string]
+template codes: {SERVANTS_ACTIVATION=
+  }
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Proprietary Binder, template-tag: CLIENT_BINDING, local-tag: null
+import: null
+code: // ORBacus for Java 3.x proprietary binder:
+    // get server object from URL
+    String url = "iiop://<host where the server runs>:<port where the server listens>//*FFJ_CORBA_TODO_SERVER_NAME*/";
+    org.omg.CORBA.Object obj = orb.string_to_object (url);
+    if (obj == null)
+    throw new RuntimeException();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_SERVER_NAME*/; title: Server name:; type: string]
+template codes: {}
+false
+===================
+ORBacus for Java 3.x for Windows
+ORBacus for Java 3.x for Windows (unsupported)
+ORBacus for Java 3.x for Windows (unsupported)
+NS
+NS
+Inheritance-Based
+null
+null
+Naming Service
+Naming Service
+jidl
+{cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}
+
+jidl
+false
+--tie
+--package
+--package
+--output-dir
+--output-dir
+.
+.
+^([^ ]+)\(([0-9]+)\): (.*)
+^([^ ]+)\(([0-9]+)\): (.*)
+1
+1
+2
+2
+-1
+-1
+3
+3
+
+Impl
+_
+ImplBase
+
+Impl
+
+Operations
+USER=
+{USER=
+true
+Generate exception
+On update action
+ORBacus for Java 3.x for Windows
+>name: Naming Service, template-tag: SERVER_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the server will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow(ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // create and bind Naming Contexts
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] nc1Name = new NameComponent[1];
+    NamingContext nc1 = null;
+    for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+    nc1Name[0] = new NameComponent();
+    nc1Name[0].id = hierarchy_of_contexts[i*2];
+    nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+    try {
+    nc1 = nc.bind_new_context (nc1Name);
+    nc = nc1;
+    } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+    org.omg.CORBA.Object o = nc.resolve (nc1Name);
+    if (o == null)
+    throw new RuntimeException ();
+    nc1 = NamingContextHelper.narrow (o);
+    if (nc1 == null)
+    throw new RuntimeException ();
+    nc = nc1;
+    }
+    }
+
+    // bind names with the Naming Service
+    NameComponent[] aName = new NameComponent[1];
+    aName[0] = new NameComponent ();
+    aName[0].id = name_of_server[0];
+    aName[0].kind = name_of_server[1];
+    nc.bind (aName, /*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR to file, template-tag: SERVER_BINDING, local-tag: null
+import: import java.io.PrintWriter;
+    import java.io.FileWriter;
+code: // IOR will be written to file
+    String ior = orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/);
+    FileWriter file = new java.io.FileWriter("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    PrintWriter pfile = new java.io.PrintWriter(file);
+    pfile.println (ior);
+    pfile.flush();
+    pfile.close();
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR to standard output, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // IOR will be written to standard output
+    System.out.println (orb.object_to_string (/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/));
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Proprietary Binder, template-tag: SERVER_BINDING, local-tag: null
+import: null
+code: // ORBacus for Java 3.x proprietary binder:
+    ((com.ooc.CORBA.ORB)orb).connect(/*FFJ_CORBA_TODO_SERVANT_VAR_NAME*/, "/*FFJ_CORBA_TODO_SERVER_NAME*/");
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_SERVER_NAME*/; title: Server name:; type: string]
+template codes: {SERVANTS_ACTIVATION=
+  }
+>name: Naming Service, template-tag: CLIENT_BINDING, local-tag: null
+import: import org.omg.CosNaming.NamingContext;
+    import org.omg.CosNaming.NamingContextHelper;
+    import org.omg.CosNaming.NameComponent;
+code: // the client will use Naming Service
+    org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+    if (ns == null)
+    throw new RuntimeException ();
+    NamingContext nc = NamingContextHelper.narrow (ns);
+    if (nc == null)
+    throw new RuntimeException ();
+
+    // resolve names with the Naming Service
+    /*FFJ_CORBA_TODO_CODE_FROM_NS*/
+    NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+    for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+    aName[i] = new NameComponent();
+    aName[i].id = client_name_hierarchy[i*2];
+    aName[i].kind = client_name_hierarchy[i*2+1];
+    }
+    org.omg.CORBA.Object obj = nc.resolve (aName);
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_CODE_FROM_NS*/; title: ; type: ns_code]
+template codes: {}
+>name: IOR from file, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.FileReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from file
+    FileReader file = new java.io.FileReader("/*FFJ_CORBA_TODO_FILE_NAME*/");
+    BufferedReader input = new java.io.BufferedReader(file);
+    String ior = input.readLine();
+    input.close();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_FILE_NAME*/; title: IOR File Name:; type: file_name]
+template codes: {}
+>name: IOR from standard input, template-tag: CLIENT_BINDING, local-tag: null
+import: import java.io.InputStreamReader;
+    import java.io.BufferedReader;
+code: // IOR will be read from standard input
+    InputStreamReader dataIn = new InputStreamReader(System.in);
+    BufferedReader input = new BufferedReader(dataIn);
+    String ior = input.readLine();
+
+    org.omg.CORBA.Object obj = orb.string_to_object (ior);
+    if (obj == null)
+    throw new RuntimeException ();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: []
+template codes: {}
+>name: Proprietary Binder, template-tag: CLIENT_BINDING, local-tag: null
+import: null
+code: // ORBacus for Java 3.x proprietary binder:
+    // get server object from URL
+    String url = "iiop://<host where the server runs>:<port where the server listens>//*FFJ_CORBA_TODO_SERVER_NAME*/";
+    org.omg.CORBA.Object obj = orb.string_to_object (url);
+    if (obj == null)
+    throw new RuntimeException();
+    /*FFJ_CORBA_TODO_INTERFACE_NAME*/ srv = /*FFJ_CORBA_TODO_INTERFACE_NAME*/Helper.narrow (obj);
+    if (srv == null)
+    throw new RuntimeException ();
+
+    // add your client code here
+  
+wizard settings: supported: true
+requirements: [value: /*FFJ_CORBA_TODO_SERVER_NAME*/; title: Server name:; type: string]
+template codes: {}
+false

@@ -1,0 +1,9485 @@
+data/genimpl/ : /stage1/genimpl1/t1/array ... OK
+Properties of node: array
+ PropertySet: properties
+name: array
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: VectorChar
+type: char
+dimension: [5]
+
+Properties of node: declarator
+ PropertySet: properties
+name: VectorOctet
+type: octet
+dimension: [5]
+
+Properties of node: type
+ PropertySet: properties
+name: S0
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: char
+dimension: [5]
+
+Properties of node: declarator
+ PropertySet: properties
+name: o
+type: octet
+dimension: [5]
+
+Properties of node: declarator
+ PropertySet: properties
+name: Vector
+type: short
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: Matrix2
+type: Vector
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: VB
+type: Vector
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: MB
+type: VB
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: arr
+type: short
+dimension: [1][2]
+
+Properties of node: declarator
+ PropertySet: properties
+name: arrseq
+type: sequence <arr, 2>
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: S1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: char
+dimension: [3]
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: long
+dimension: [5][4]
+
+Properties of node: declarator
+ PropertySet: properties
+name: s
+type: string
+dimension: [6]
+
+Properties of node: declarator
+ PropertySet: properties
+name: S1_arr
+type: S1
+dimension: [3][4]
+
+Properties of node: declarator
+ PropertySet: properties
+name: long_arr
+type: long
+dimension: [10]
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+
+Properties of node: declarator
+ PropertySet: properties
+name: foo_arr
+type: foo
+dimension: [6]
+
+Properties of node: declarator
+ PropertySet: properties
+name: SS
+type: string
+dimension: [5][4]
+
+Properties of node: type
+ PropertySet: properties
+name: S2
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ssxx
+type: SS
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: S3
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: long
+dimension: [1]
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: long
+dimension: [1][2]
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: long
+dimension: [1][2][3]
+
+Properties of node: declarator
+ PropertySet: properties
+name: S1_seq
+type: sequence <S1_arr>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: SS
+attribute: 
+params: in SS x, inout SS y, out SS z, out long_arr w
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: baz
+result: long_arr
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/t2/attribute ... OK
+Properties of node: attribute
+ PropertySet: properties
+name: attribute
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: attr1
+type: long
+readonly: yes
+
+Properties of node: attribute
+ PropertySet: properties
+name: attr2
+type: char
+readonly: no
+
+data/genimpl/ : /stage1/genimpl1/t3/base ... OK
+Properties of node: base
+ PropertySet: properties
+name: base
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: base
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: m
+type: base
+readonly: no
+
+data/genimpl/ : /stage1/genimpl1/t4/calc ... OK
+Properties of node: calc
+ PropertySet: properties
+name: calc
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: Calc
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: add
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/t5/calc2 ... OK
+Properties of node: calc2
+ PropertySet: properties
+name: calc2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: Calc
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: add
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: sub
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: ComplexCalc
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: div
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/t6/calc3 ... OK
+Properties of node: calc3
+ PropertySet: properties
+name: calc3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: Calc
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: add
+result: void
+attribute: 
+params: in short x, in short y, out long z
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/t7/calc4 ... OK
+Properties of node: calc4
+ PropertySet: properties
+name: calc4
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: Calc
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: add
+result: void
+attribute: 
+params: in long x
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: total
+result: long
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/t8/const ... OK
+Properties of node: const
+ PropertySet: properties
+name: const
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: boo
+type: boolean
+dimension: 
+
+Properties of node: const
+ PropertySet: properties
+name: c1
+type: long
+exp: 5+2
+
+Properties of node: const
+ PropertySet: properties
+name: c2
+type: long
+exp: 7+c1
+
+Properties of node: const
+ PropertySet: properties
+name: c3
+type: string
+exp: "Hallo"
+
+Properties of node: const
+ PropertySet: properties
+name: c4
+type: char
+exp: 'S'
+
+Properties of node: const
+ PropertySet: properties
+name: c5
+type: float
+exp: 3.14159
+
+Properties of node: const
+ PropertySet: properties
+name: c6
+type: long
+exp: 033
+
+Properties of node: const
+ PropertySet: properties
+name: c7
+type: long
+exp: 0xaA
+
+Properties of node: const
+ PropertySet: properties
+name: c8
+type: boo
+exp: TRUE
+
+Properties of node: const
+ PropertySet: properties
+name: c9
+type: unsigned long
+exp: c1+5
+
+Properties of node: const
+ PropertySet: properties
+name: c10
+type: short
+exp: 10
+
+Properties of node: const
+ PropertySet: properties
+name: ARRAY_SIZE
+type: unsigned long
+exp: 10
+
+Properties of node: declarator
+ PropertySet: properties
+name: ArrayShort
+type: short
+dimension: [ARRAY_SIZE]
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: const
+ PropertySet: properties
+name: c11
+type: char
+exp: '\n'
+
+Properties of node: declarator
+ PropertySet: properties
+name: ss
+type: string
+dimension: [c2]
+
+data/genimpl/ : /stage1/genimpl1/t9/context ... OK
+Properties of node: context
+ PropertySet: properties
+name: context
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: void
+attribute: 
+params: in string pattern
+exceptions: 
+contexts: "a*"
+
+data/genimpl/ : /stage1/genimpl1/u1/enum ... OK
+Properties of node: enum
+ PropertySet: properties
+name: enum
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: E
+type: enum
+
+Properties of node: const
+ PropertySet: properties
+name: A
+type: 
+exp: 
+
+Properties of node: const
+ PropertySet: properties
+name: B
+type: 
+exp: 
+
+Properties of node: const
+ PropertySet: properties
+name: C
+type: 
+exp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: void
+attribute: 
+params: in E ee
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/u2/ex ... OK
+Properties of node: ex
+ PropertySet: properties
+name: ex
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: Calc
+abstract: no
+inherited: 
+
+Properties of node: exception
+ PropertySet: properties
+name: ex1
+
+Properties of node: declarator
+ PropertySet: properties
+name: msg
+type: string
+dimension: 
+
+Properties of node: exception
+ PropertySet: properties
+name: ex2
+
+Properties of node: exception
+ PropertySet: properties
+name: ex3
+
+Properties of node: declarator
+ PropertySet: properties
+name: msg
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: err
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: iface
+type: Calc
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: m
+result: void
+attribute: 
+params: 
+exceptions: ex1
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/u3/forward ... OK
+Properties of node: forward
+ PropertySet: properties
+name: forward
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A1
+abstract: no
+
+Properties of node: interface
+ PropertySet: properties
+name: B1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: in A1 a
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: in B1 b
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/u4/inheritance ... OK
+Properties of node: inheritance
+ PropertySet: properties
+name: inheritance
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: Base
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: Derived
+abstract: no
+inherited: Base
+
+Properties of node: operation
+ PropertySet: properties
+name: op2
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/u5/my_container ... OK
+Properties of node: my_container
+ PropertySet: properties
+name: my_container
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: A
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: B
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: C
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: cx
+type: C
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: bx
+type: B
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ax
+type: A
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: XX
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: xa
+type: ax
+readonly: no
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: in ax aa
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/u6/objref ... OK
+Properties of node: objref
+ PropertySet: properties
+name: objref
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: hello
+result: void
+attribute: 
+params: in string name
+exceptions: 
+contexts: 
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: obj
+type: foo
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: fooSeq
+type: sequence <foo>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ObjectAlias
+type: Object
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Objects
+type: sequence <Object>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: bar
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: run
+result: foo
+attribute: 
+params: in foo obj
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: run1
+result: void
+attribute: 
+params: in ObjectAlias obj
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: run2
+result: void
+attribute: 
+params: in S s1
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: run3
+result: void
+attribute: 
+params: in fooSeq s
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/u7/oneway ... OK
+Properties of node: oneway
+ PropertySet: properties
+name: oneway
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: void
+attribute: oneway
+params: in short x
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/u8/recursion ... OK
+Properties of node: recursion
+ PropertySet: properties
+name: recursion
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: name
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: left
+type: sequence <S, 1>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: right
+type: sequence <S, 1>
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: S2
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: S3
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: sequence <S2>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s
+type: S3
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: UA
+type: union
+switch type: boolean
+
+Properties of node: type
+ PropertySet: properties
+name: t_st
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: sequence <UA>
+dimension: 
+
+Properties of node: unionmember
+ PropertySet: properties
+name: st
+type: t_st
+dimension: []
+case: TRUE
+
+Properties of node: unionmember
+ PropertySet: properties
+name: b
+type: short
+dimension: []
+case: FALSE
+
+Properties of node: type
+ PropertySet: properties
+name: S4
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: S5
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: S6
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: s14
+type: sequence <S4>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s15
+type: sequence <S5>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s16
+type: sequence <S6>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s26
+type: S6
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s25
+type: S5
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: void
+attribute: 
+params: in S sZX
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/u9/sequence ... OK
+Properties of node: sequence
+ PropertySet: properties
+name: sequence
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: seq
+type: sequence <long>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: SSeq
+type: sequence <S>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: StringSeq
+type: sequence <string>
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: S2
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: seq
+type: sequence <char, 10>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: S
+attribute: 
+params: in S s1, inout S s2, out S s3
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar2
+result: SSeq
+attribute: 
+params: in SSeq s1, inout SSeq s2, out SSeq s3
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar3
+result: void
+attribute: 
+params: in StringSeq s
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/v0/strtest ... OK
+Properties of node: strtest
+ PropertySet: properties
+name: strtest
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: StringTest
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: m1
+result: void
+attribute: 
+params: in string s
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: m2
+result: void
+attribute: 
+params: out string s
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: m3
+result: void
+attribute: 
+params: in string<5+2> s
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: m4
+result: string
+attribute: 
+params: inout string s
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: m5
+result: string<3+4-2>
+attribute: 
+params: out string<3+4-2> s
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/v1/struct ... OK
+Properties of node: struct
+ PropertySet: properties
+name: struct
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: char
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: S2
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: S
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: void
+attribute: 
+params: in S s1, out S s2
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar2
+result: void
+attribute: 
+params: in S2 s
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar3
+result: S2
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/v2/struct2 ... OK
+Properties of node: struct2
+ PropertySet: properties
+name: struct2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: char
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: S2
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: S
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: S
+attribute: 
+params: in S s1, out S ss2, inout S s3
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar1
+result: S2
+attribute: 
+params: in S2 s1, out S2 ss2, inout S2 s3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/v3/typedef ... OK
+Properties of node: typedef
+ PropertySet: properties
+name: typedef
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: S1
+type: string
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: SS_
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: octet
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: octet
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: SS
+type: SS_
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: L
+type: long
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: char
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar1
+result: void
+attribute: 
+params: in string ss
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar2
+result: void
+attribute: 
+params: in L ll
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar3
+result: void
+attribute: 
+params: in S ss
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/v4/union ... OK
+Properties of node: union
+ PropertySet: properties
+name: union
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Bytes
+type: octet
+dimension: [64]
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: len
+type: long
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+
+Properties of node: type
+ PropertySet: properties
+name: U
+type: union
+switch type: long
+
+Properties of node: unionmember
+ PropertySet: properties
+name: x
+type: long
+dimension: []
+case: 1
+
+Properties of node: unionmember
+ PropertySet: properties
+name: y
+type: Bytes
+dimension: []
+case: 2
+
+Properties of node: unionmember
+ PropertySet: properties
+name: z
+type: string
+dimension: []
+case: 3
+
+Properties of node: unionmember
+ PropertySet: properties
+name: w
+type: S
+dimension: []
+case: 4, 5
+
+Properties of node: unionmember
+ PropertySet: properties
+name: array
+type: long
+dimension: [10, 20]
+case: 6
+
+Properties of node: unionmember
+ PropertySet: properties
+name: seq
+type: sequence <long>
+dimension: []
+case: 7
+
+Properties of node: unionmember
+ PropertySet: properties
+name: obj
+type: foo
+dimension: []
+case: default
+
+Properties of node: type
+ PropertySet: properties
+name: E
+type: enum
+
+Properties of node: const
+ PropertySet: properties
+name: A
+type: 
+exp: 
+
+Properties of node: const
+ PropertySet: properties
+name: B
+type: 
+exp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: E_Alias
+type: E
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: U2
+type: union
+switch type: E_Alias
+
+Properties of node: unionmember
+ PropertySet: properties
+name: x
+type: long
+dimension: []
+case: A
+
+Properties of node: unionmember
+ PropertySet: properties
+name: y
+type: short
+dimension: []
+case: B
+
+Properties of node: type
+ PropertySet: properties
+name: U3
+type: union
+switch type: E_Alias
+
+Properties of node: unionmember
+ PropertySet: properties
+name: x
+type: long
+dimension: []
+case: B
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: void
+attribute: 
+params: in U x, out U y, out U2 z
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl1/z1/mod ... OK
+Properties of node: mod
+ PropertySet: properties
+name: mod
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: Sdf
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: h
+result: string
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: module
+ PropertySet: properties
+name: Mod1
+
+Properties of node: module
+ PropertySet: properties
+name: ModIn1
+
+Properties of node: interface
+ PropertySet: properties
+name: Ir1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: XX
+type: unsigned long
+readonly: yes
+
+data/genimpl/ : /stage1/genimpl1/z2/struct ... OK
+Properties of node: struct
+ PropertySet: properties
+name: struct
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: empty
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: v
+type: long
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: full
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: v
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: name1
+type: full
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: s1
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: ch1
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: chch1
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: chchch1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: l1
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_of_chchch1
+type: chchch1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_of_chchch2
+type: chchch1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_of_chch1
+type: chch1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_of_chch2
+type: chch1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_of_ch1
+type: ch1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_of_ch2
+type: ch1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_of_ch3
+type: ch1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_of_s1_1
+type: s1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_of_s1_2
+type: s1
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: t
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: x
+result: void
+attribute: 
+params: in member_of_s1_1 p
+exceptions: 
+contexts: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: list
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: head
+type: value
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: tail
+type: value
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: AB__
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: test1
+result: void
+attribute: 
+params: in member_of_s1_1 x, inout value str, out value str2
+exceptions: 
+contexts: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: l1
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: l2
+type: long
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: list_of_long
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: head
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: tail
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: instance_of_list_of_long
+type: list_of_long
+dimension: 
+
+data/genimpl/ : /stage1/genimpl1/z3/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: colors
+type: enum
+
+Properties of node: const
+ PropertySet: properties
+name: RED
+type: 
+exp: 
+
+Properties of node: const
+ PropertySet: properties
+name: GREEN
+type: 
+exp: 
+
+Properties of node: const
+ PropertySet: properties
+name: BLUE
+type: 
+exp: 
+
+Properties of node: type
+ PropertySet: properties
+name: struct1
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: structin
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: he
+type: structin
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: long1
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: string1
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_struct1
+type: struct1
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: strx1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_of_struct1
+type: member_struct1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ha
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: struct1_sequence
+type: sequence <member_struct1>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: asdbf12
+type: sequence <member_struct1>
+dimension: 
+
+Properties of node: const
+ PropertySet: properties
+name: MSG
+type: string
+exp: "Hello World!!!"
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: operace1
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: at1
+type: string
+readonly: yes
+
+Properties of node: attribute
+ PropertySet: properties
+name: at2
+type: string
+readonly: yes
+
+Properties of node: attribute
+ PropertySet: properties
+name: at3
+type: string
+readonly: yes
+
+Properties of node: attribute
+ PropertySet: properties
+name: name2
+type: string
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: namex
+type: string
+readonly: no
+
+Properties of node: type
+ PropertySet: properties
+name: struct2
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: long2
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: string2
+type: string
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: operace2
+result: string
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: operace3
+result: string<10>
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: operace4
+result: member_struct1
+attribute: 
+params: in member_struct1 value
+exceptions: 
+contexts: 
+
+Properties of node: const
+ PropertySet: properties
+name: MAX
+type: long
+exp: 100*10
+
+Properties of node: declarator
+ PropertySet: properties
+name: Bytes
+type: octet
+dimension: [64]
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: len
+type: long
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+
+Properties of node: type
+ PropertySet: properties
+name: U
+type: union
+switch type: long
+
+Properties of node: unionmember
+ PropertySet: properties
+name: x
+type: long
+dimension: []
+case: 1
+
+Properties of node: unionmember
+ PropertySet: properties
+name: y
+type: Bytes
+dimension: []
+case: 2
+
+Properties of node: unionmember
+ PropertySet: properties
+name: z
+type: string
+dimension: []
+case: 3
+
+Properties of node: unionmember
+ PropertySet: properties
+name: w
+type: S
+dimension: []
+case: 4, 5
+
+Properties of node: unionmember
+ PropertySet: properties
+name: array
+type: long
+dimension: [10, 20]
+case: 6
+
+Properties of node: unionmember
+ PropertySet: properties
+name: seq
+type: sequence <long>
+dimension: []
+case: 7
+
+Properties of node: unionmember
+ PropertySet: properties
+name: obj
+type: foo
+dimension: []
+case: default
+
+Properties of node: type
+ PropertySet: properties
+name: UT
+type: union
+switch type: long
+
+Properties of node: unionmember
+ PropertySet: properties
+name: x
+type: long
+dimension: []
+case: 1
+
+Properties of node: unionmember
+ PropertySet: properties
+name: y
+type: Bytes
+dimension: []
+case: 2
+
+Properties of node: unionmember
+ PropertySet: properties
+name: z
+type: string
+dimension: []
+case: 3
+
+Properties of node: unionmember
+ PropertySet: properties
+name: w
+type: S
+dimension: []
+case: 4, 5
+
+Properties of node: unionmember
+ PropertySet: properties
+name: array
+type: long
+dimension: [10, 20]
+case: 6
+
+Properties of node: unionmember
+ PropertySet: properties
+name: seq
+type: sequence <long>
+dimension: []
+case: 7
+
+Properties of node: unionmember
+ PropertySet: properties
+name: obj
+type: foo
+dimension: []
+case: default
+
+Properties of node: declarator
+ PropertySet: properties
+name: test_union1
+type: UT
+dimension: 
+
+Properties of node: exception
+ PropertySet: properties
+name: UnknownState
+
+Properties of node: declarator
+ PropertySet: properties
+name: reason
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test2
+abstract: no
+inherited: test1
+
+Properties of node: exception
+ PropertySet: properties
+name: BadList
+
+Properties of node: declarator
+ PropertySet: properties
+name: reason
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: list_of_string
+type: sequence <string>
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: tone1
+result: string<10>
+attribute: 
+params: in list_of_string plist, inout member_struct1 arg2, out string name
+exceptions: BadList
+contexts: "xc1", "kc2"
+
+Properties of node: operation
+ PropertySet: properties
+name: op3
+result: void
+attribute: 
+params: in member_struct1 val1, inout list_of_string args
+exceptions: BadList
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test3
+abstract: no
+inherited: test2, test1
+
+Properties of node: type
+ PropertySet: properties
+name: nested
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: child
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: l1
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: str1
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ch1
+type: child
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ch2
+type: child
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: test3
+
+data/genimpl/ : /stage1/genimpl1/z4/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: colors
+type: enum
+
+Properties of node: const
+ PropertySet: properties
+name: RED
+type: 
+exp: 
+
+Properties of node: const
+ PropertySet: properties
+name: GREEN
+type: 
+exp: 
+
+Properties of node: const
+ PropertySet: properties
+name: BLUE
+type: 
+exp: 
+
+Properties of node: type
+ PropertySet: properties
+name: struct1
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: structin
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: he
+type: structin
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: long1
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: string1
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_struct1
+type: struct1
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: strx1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: member_of_struct1
+type: member_struct1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ha
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: struct1_sequence
+type: sequence <member_struct1>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: asdbf12
+type: sequence <member_struct1>
+dimension: 
+
+Properties of node: const
+ PropertySet: properties
+name: MSG
+type: string
+exp: "Hello World!!!"
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: operace1
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: at1
+type: string
+readonly: yes
+
+Properties of node: attribute
+ PropertySet: properties
+name: at2
+type: string
+readonly: yes
+
+Properties of node: attribute
+ PropertySet: properties
+name: at3
+type: string
+readonly: yes
+
+Properties of node: attribute
+ PropertySet: properties
+name: name2
+type: string
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: namex
+type: string
+readonly: no
+
+Properties of node: type
+ PropertySet: properties
+name: struct2
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: long2
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: string2
+type: string
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: operace2
+result: string
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: operace3
+result: string<10>
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: operace4
+result: member_struct1
+attribute: 
+params: in member_struct1 value
+exceptions: 
+contexts: 
+
+Properties of node: const
+ PropertySet: properties
+name: MAX
+type: long
+exp: 100*10
+
+Properties of node: declarator
+ PropertySet: properties
+name: Bytes
+type: octet
+dimension: [64]
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: len
+type: long
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+
+Properties of node: type
+ PropertySet: properties
+name: U
+type: union
+switch type: long
+
+Properties of node: unionmember
+ PropertySet: properties
+name: x
+type: long
+dimension: []
+case: 1
+
+Properties of node: unionmember
+ PropertySet: properties
+name: y
+type: Bytes
+dimension: []
+case: 2
+
+Properties of node: unionmember
+ PropertySet: properties
+name: z
+type: string
+dimension: []
+case: 3
+
+Properties of node: unionmember
+ PropertySet: properties
+name: w
+type: S
+dimension: []
+case: 4, 5
+
+Properties of node: unionmember
+ PropertySet: properties
+name: array
+type: long
+dimension: [10, 20]
+case: 6
+
+Properties of node: unionmember
+ PropertySet: properties
+name: seq
+type: sequence <long>
+dimension: []
+case: 7
+
+Properties of node: unionmember
+ PropertySet: properties
+name: obj
+type: foo
+dimension: []
+case: default
+
+Properties of node: type
+ PropertySet: properties
+name: UT
+type: union
+switch type: long
+
+Properties of node: unionmember
+ PropertySet: properties
+name: x
+type: long
+dimension: []
+case: 1
+
+Properties of node: unionmember
+ PropertySet: properties
+name: y
+type: Bytes
+dimension: []
+case: 2
+
+Properties of node: unionmember
+ PropertySet: properties
+name: z
+type: string
+dimension: []
+case: 3
+
+Properties of node: unionmember
+ PropertySet: properties
+name: w
+type: S
+dimension: []
+case: 4, 5
+
+Properties of node: unionmember
+ PropertySet: properties
+name: array
+type: long
+dimension: [10, 20]
+case: 6
+
+Properties of node: unionmember
+ PropertySet: properties
+name: seq
+type: sequence <long>
+dimension: []
+case: 7
+
+Properties of node: unionmember
+ PropertySet: properties
+name: obj
+type: foo
+dimension: []
+case: default
+
+Properties of node: declarator
+ PropertySet: properties
+name: test_union1
+type: UT
+dimension: 
+
+Properties of node: exception
+ PropertySet: properties
+name: UnknownState
+
+Properties of node: declarator
+ PropertySet: properties
+name: reason
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test2
+abstract: no
+inherited: test1
+
+Properties of node: exception
+ PropertySet: properties
+name: BadList
+
+Properties of node: declarator
+ PropertySet: properties
+name: reason
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: list_of_string
+type: sequence <string>
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: tone1
+result: string<10>
+attribute: 
+params: in list_of_string plist, inout member_struct1 arg2, out string name
+exceptions: BadList
+contexts: "xc1", "kc2"
+
+Properties of node: operation
+ PropertySet: properties
+name: op3
+result: void
+attribute: 
+params: in member_struct1 val1, inout list_of_string args
+exceptions: BadList
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test3
+abstract: no
+inherited: test2, test1
+
+Properties of node: type
+ PropertySet: properties
+name: nested
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: child
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: l1
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: str1
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ch1
+type: child
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ch2
+type: child
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: test3
+
+data/genimpl/ : /stage1/genimpl1/z5/test2 ... OK
+Properties of node: test2
+ PropertySet: properties
+name: test2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: TestWOBTN
+
+Properties of node: declarator
+ PropertySet: properties
+name: MyString
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ShortString
+type: string<8>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: StringArray
+type: MyString
+dimension: [16]
+
+Properties of node: declarator
+ PropertySet: properties
+name: UnboundedArray
+type: sequence <MyString>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: DoubleUnboundedArray
+type: sequence <sequence <MyString>>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: UpperBoundedArray
+type: sequence <MyString, 8>
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: Simple
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: short
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: octet
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: Harder
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: arr
+type: long
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: xx
+type: sequence <double>
+dimension: 
+
+Properties of node: exception
+ PropertySet: properties
+name: Failure
+
+Properties of node: exception
+ PropertySet: properties
+name: HardFailure
+
+Properties of node: declarator
+ PropertySet: properties
+name: reason
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: major
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: minor
+type: long
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: State
+type: enum
+
+Properties of node: const
+ PropertySet: properties
+name: Good
+type: 
+exp: 
+
+Properties of node: const
+ PropertySet: properties
+name: Bad
+type: 
+exp: 
+
+Properties of node: const
+ PropertySet: properties
+name: Medium
+type: 
+exp: 
+
+Properties of node: type
+ PropertySet: properties
+name: RetValue
+type: union
+switch type: State
+
+Properties of node: unionmember
+ PropertySet: properties
+name: a
+type: long
+dimension: []
+case: Good
+
+Properties of node: unionmember
+ PropertySet: properties
+name: b
+type: short
+dimension: []
+case: Bad
+
+Properties of node: unionmember
+ PropertySet: properties
+name: c
+type: double
+dimension: []
+case: Medium
+
+Properties of node: type
+ PropertySet: properties
+name: XVal
+type: union
+switch type: short
+
+Properties of node: unionmember
+ PropertySet: properties
+name: a
+type: long
+dimension: []
+case: 1
+
+Properties of node: unionmember
+ PropertySet: properties
+name: b
+type: short
+dimension: []
+case: 2
+
+Properties of node: unionmember
+ PropertySet: properties
+name: c
+type: double
+dimension: []
+case: 3
+
+Properties of node: unionmember
+ PropertySet: properties
+name: d
+type: float
+dimension: []
+case: default
+
+Properties of node: interface
+ PropertySet: properties
+name: DObject
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: addRef
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: release
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: query_interface
+result: Object
+attribute: 
+params: in string irid
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: Left
+abstract: no
+inherited: DObject
+
+Properties of node: operation
+ PropertySet: properties
+name: perform
+result: void
+attribute: 
+params: in string value
+exceptions: Failure, HardFailure
+contexts: "os.version"
+
+Properties of node: operation
+ PropertySet: properties
+name: addListener
+result: void
+attribute: oneway
+params: in Object obj
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: removeListener
+result: void
+attribute: oneway
+params: in Object obj
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: Right
+abstract: no
+inherited: DObject
+
+Properties of node: declarator
+ PropertySet: properties
+name: CoreDump
+type: sequence <octet>
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: core
+result: CoreDump
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: DObjectPP
+abstract: no
+inherited: Left, Right
+
+Properties of node: exception
+ PropertySet: properties
+name: Killed
+
+Properties of node: attribute
+ PropertySet: properties
+name: inner_state
+type: State
+readonly: yes
+
+Properties of node: attribute
+ PropertySet: properties
+name: name
+type: string
+readonly: no
+
+Properties of node: operation
+ PropertySet: properties
+name: push
+result: void
+attribute: 
+params: inout any value
+exceptions: 
+contexts: 
+
+Properties of node: const
+ PropertySet: properties
+name: Const10
+type: long
+exp: 10
+
+Properties of node: const
+ PropertySet: properties
+name: Str
+type: string
+exp: "asd"
+
+Properties of node: const
+ PropertySet: properties
+name: Chr
+type: char
+exp: 'a'
+
+data/genimpl/ : /stage1/genimpl1/z6/test_loader ... OK
+Properties of node: test_loader
+ PropertySet: properties
+name: test_loader
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: A
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value1
+type: long
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: B
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: bx
+type: B
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ax
+type: A
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i2
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i3
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i4
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i5
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i6
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i7
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i8
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i9
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i10
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i11
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i12
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i13
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i14
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i15
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i16
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i17
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i18
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i19
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i20
+abstract: no
+inherited: 
+
+data/genimpl/ : /stage1/genimpl2/a1/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opA
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: A
+
+Properties of node: operation
+ PropertySet: properties
+name: opB
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: D
+custom: no
+inherited: 
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opD
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: E
+custom: no
+inherited: D
+supported: B
+
+Properties of node: attribute
+ PropertySet: properties
+name: aa
+type: A
+readonly: yes
+
+Properties of node: attribute
+ PropertySet: properties
+name: bo
+type: boolean
+dimension: 
+modifier: private
+
+Properties of node: factory
+ PropertySet: properties
+name: init
+params: in B bb
+
+data/genimpl/ : /stage1/genimpl2/a2/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opA
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: A
+
+Properties of node: operation
+ PropertySet: properties
+name: opB
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: C
+type: B
+dimension: 
+
+Properties of node: value
+ PropertySet: properties
+name: D
+custom: no
+inherited: 
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opD
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: E
+custom: no
+inherited: D
+supported: B
+
+Properties of node: attribute
+ PropertySet: properties
+name: aa
+type: A
+readonly: yes
+
+Properties of node: attribute
+ PropertySet: properties
+name: bo
+type: boolean
+dimension: 
+modifier: private
+
+Properties of node: factory
+ PropertySet: properties
+name: init
+params: in C bb
+
+data/genimpl/ : /stage1/genimpl2/a3/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: yes
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opA
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: yes
+inherited: A
+
+Properties of node: operation
+ PropertySet: properties
+name: opB
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: C
+type: B
+dimension: 
+
+Properties of node: value
+ PropertySet: properties
+name: D
+custom: no
+inherited: 
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opD
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: E
+custom: no
+inherited: D
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opE
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: F
+custom: no
+inherited: E
+supported: B
+
+Properties of node: attribute
+ PropertySet: properties
+name: aa
+type: A
+readonly: yes
+
+Properties of node: attribute
+ PropertySet: properties
+name: bo
+type: boolean
+dimension: 
+modifier: private
+
+Properties of node: factory
+ PropertySet: properties
+name: init
+params: in E bb
+
+data/genimpl/ : /stage1/genimpl2/a4/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: value
+ PropertySet: properties
+name: A
+custom: no
+inherited: 
+supported: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: b
+type: boolean
+dimension: 
+modifier: private
+
+Properties of node: attribute
+ PropertySet: properties
+name: l
+type: long
+dimension: 
+modifier: public
+
+data/genimpl/ : /stage1/genimpl2/a5/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opB
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: C
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opC
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: A
+custom: no
+inherited: 
+supported: C
+
+Properties of node: factory
+ PropertySet: properties
+name: init
+params: in C aa
+
+data/genimpl/ : /stage1/genimpl2/a6/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: yes
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opA
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: yes
+inherited: A
+
+Properties of node: operation
+ PropertySet: properties
+name: opB
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: C
+abstract: no
+inherited: B
+
+Properties of node: operation
+ PropertySet: properties
+name: opC
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl2/a7/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opA
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: A
+
+Properties of node: operation
+ PropertySet: properties
+name: opB
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: C
+custom: no
+inherited: 
+supported: B
+
+data/genimpl/ : /stage1/genimpl2/a8/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: value
+ PropertySet: properties
+name: D
+custom: no
+inherited: 
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opD
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: E
+custom: no
+inherited: D
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opE
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: F
+custom: no
+inherited: D
+supported: 
+
+Properties of node: interface
+ PropertySet: properties
+name: X
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opX
+result: void
+attribute: 
+params: in F ff
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl2/a9/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: value
+ PropertySet: properties
+name: A
+custom: no
+inherited: 
+supported: 
+
+Properties of node: value
+ PropertySet: properties
+name: B
+custom: no
+inherited: A
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: C
+custom: no
+inherited: 
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: ValueBase
+attribute: 
+params: in ValueBase v1, inout ValueBase v2, out ValueBase v3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl2/b1/Simple_NoImpl ... OK
+Properties of node: Simple_NoImpl
+ PropertySet: properties
+name: Simple_NoImpl
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: yes
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opA
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl2/b2/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: value
+ PropertySet: properties
+name: A
+custom: yes
+inherited: 
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: in A a1, inout A a2, out A a3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl2/b3/array ... OK
+Properties of node: array
+ PropertySet: properties
+name: array
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: arr
+type: short
+dimension: [1][2]
+
+Properties of node: declarator
+ PropertySet: properties
+name: arrseq
+type: sequence <arr, 2>
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: S1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: char
+dimension: [3]
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: long
+dimension: [5][4]
+
+Properties of node: declarator
+ PropertySet: properties
+name: s
+type: string
+dimension: [6]
+
+Properties of node: declarator
+ PropertySet: properties
+name: S1_arr
+type: S1
+dimension: [3][4]
+
+Properties of node: declarator
+ PropertySet: properties
+name: long_arr
+type: long
+dimension: [10]
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+
+Properties of node: declarator
+ PropertySet: properties
+name: foo_arr
+type: foo
+dimension: [6]
+
+Properties of node: declarator
+ PropertySet: properties
+name: SS
+type: string
+dimension: [5][4]
+
+Properties of node: type
+ PropertySet: properties
+name: S2
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ss1
+type: SS
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: S3
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: long
+dimension: [1]
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: long
+dimension: [1][2]
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: long
+dimension: [1][2][3]
+
+Properties of node: declarator
+ PropertySet: properties
+name: S1_seq
+type: sequence <S1_arr>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: SS
+attribute: 
+params: in SS x, inout SS y, out SS z, out long_arr w
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: baz
+result: long_arr
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl2/b4/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: opA
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: A
+
+Properties of node: operation
+ PropertySet: properties
+name: opB
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: C
+abstract: no
+inherited: A
+
+Properties of node: operation
+ PropertySet: properties
+name: opC
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: D
+abstract: no
+inherited: B, C
+
+Properties of node: operation
+ PropertySet: properties
+name: opD
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: E
+custom: no
+inherited: 
+supported: D
+
+Properties of node: operation
+ PropertySet: properties
+name: opE
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl3/a1/Simple ... OK
+Properties of node: Simple
+ PropertySet: properties
+name: Simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: exception
+ PropertySet: properties
+name: E1
+
+Properties of node: exception
+ PropertySet: properties
+name: E2
+
+Properties of node: interface
+ PropertySet: properties
+name: Simple
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: 
+exceptions: E1, E2
+contexts: "a*", "b*"
+
+data/genimpl/ : /stage1/genimpl3/a2/Empty ... OK
+Properties of node: Empty
+ PropertySet: properties
+name: Empty
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: A
+
+Properties of node: operation
+ PropertySet: properties
+name: op2
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: C
+custom: no
+inherited: 
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op3
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: D
+custom: no
+inherited: C
+supported: B
+
+data/genimpl/ : /stage1/genimpl3/a3/Empty ... OK
+Properties of node: Empty
+ PropertySet: properties
+name: Empty
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: value
+ PropertySet: properties
+name: B
+custom: no
+inherited: 
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op2
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: value
+ PropertySet: properties
+name: C
+custom: yes
+inherited: B
+supported: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op3
+result: C
+attribute: 
+params: in C aa, inout C bb, out C cc
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage1/genimpl3/a4/EmptyNoImpl ... OK
+Properties of node: EmptyNoImpl
+ PropertySet: properties
+name: EmptyNoImpl
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: MyString
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Array
+type: sequence <sequence <MyString>>
+dimension: 
+
+data/genimpl/ : /stage1/genimpl4/a1/EmptyCompError ... OK
+Properties of node: EmptyCompError
+ PropertySet: properties
+name: EmptyCompError
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: interface
+ PropertySet: properties
+name: C
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: A
+
+data/genimpl/ : /stage2/Aopening/hello ... OK
+Properties of node: hello
+ PropertySet: properties
+name: hello
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: hello
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: msg
+result: string
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: long
+readonly: no
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+data/genimpl/ : /stage2/Hello/HelloWorld ... OK
+Properties of node: HelloWorld
+ PropertySet: properties
+name: HelloWorld
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: HelloWorld
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: xxsay
+result: long
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: serversay
+result: void
+attribute: 
+params: in string msg
+exceptions: 
+contexts: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value1
+type: long
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: msg
+type: string
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: long
+readonly: no
+
+Properties of node: interface
+ PropertySet: properties
+name: Test
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op2
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op3
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op4
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/any/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: msg
+result: any
+attribute: 
+params: in any p1, inout any p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs
+type: long
+dimension: [10]
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: longs
+attribute: 
+params: in longs param1
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array10/test10 ... OK
+Properties of node: test10
+ PropertySet: properties
+name: test10
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: A
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: A
+dimension: [10][20]
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Ass
+attribute: 
+params: in Ass p1, inout Ass p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array11/test11 ... OK
+Properties of node: test11
+ PropertySet: properties
+name: test11
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A2
+type: S
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A3
+type: A2
+dimension: [100]
+
+Properties of node: declarator
+ PropertySet: properties
+name: A4
+type: A3
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A5
+type: A4
+dimension: [10][20]
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: A5
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Ass
+attribute: 
+params: in Ass p1, inout Ass p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array1_many/test1_many ... OK
+Properties of node: test1_many
+ PropertySet: properties
+name: test1_many
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs
+type: long
+dimension: [10][10][10]
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: longs
+attribute: 
+params: in longs param1
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array2/test2 ... OK
+Properties of node: test2
+ PropertySet: properties
+name: test2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs
+type: long
+dimension: [10]
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: longs
+attribute: 
+params: in longs param1, inout longs param2, out longs param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array20/test20 ... OK
+Properties of node: test20
+ PropertySet: properties
+name: test20
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: A
+dimension: [10][20]
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Ass
+attribute: 
+params: in Ass p1, inout Ass p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array21/test21 ... OK
+Properties of node: test21
+ PropertySet: properties
+name: test21
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A2
+type: A
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A3
+type: A2
+dimension: [100]
+
+Properties of node: declarator
+ PropertySet: properties
+name: A4
+type: A3
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A5
+type: A4
+dimension: [10][20]
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: A5
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Ass
+attribute: 
+params: in Ass p1, inout Ass p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array3/test3 ... OK
+Properties of node: test3
+ PropertySet: properties
+name: test3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: strs
+type: string
+dimension: [10]
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: strs
+attribute: 
+params: in strs param1, inout strs param2, out strs param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array30/test30 ... OK
+Properties of node: test30
+ PropertySet: properties
+name: test30
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: const
+ PropertySet: properties
+name: MAX
+type: long
+exp: 20
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs
+type: long
+dimension: [MAX]
+
+Properties of node: interface
+ PropertySet: properties
+name: test30
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: longs
+attribute: 
+params: in longs op1, out longs op2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array4/test4 ... OK
+Properties of node: test4
+ PropertySet: properties
+name: test4
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs2
+type: longs
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs3
+type: longs2
+dimension: [2]
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: longs3
+attribute: 
+params: in longs3 param1, out longs3 param2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array4_1/test4_1 ... OK
+Properties of node: test4_1
+ PropertySet: properties
+name: test4_1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: sx
+type: long
+dimension: [20]
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: sx
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: s1
+attribute: 
+params: in s1 param1, inout s1 param2, out s1 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array4_2/test4_2 ... OK
+Properties of node: test4_2
+ PropertySet: properties
+name: test4_2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs
+type: long
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs2
+type: longs
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs3
+type: longs2
+dimension: [2]
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: longs3
+attribute: 
+params: in longs3 param1, out longs3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array4_3/test4_3 ... OK
+Properties of node: test4_3
+ PropertySet: properties
+name: test4_3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs
+type: long
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs2
+type: longs
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs3
+type: longs2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: longs3
+attribute: 
+params: in longs3 param1, out longs3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array4_4/test4_4 ... OK
+Properties of node: test4_4
+ PropertySet: properties
+name: test4_4
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs2
+type: longs
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: longs3
+type: longs2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: longs3
+attribute: 
+params: in longs3 param1, out longs3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/array_and_template1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A2
+type: A
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As
+type: sequence <A2>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As2
+type: As
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: sequence <As2>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass2
+type: Ass
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass3
+type: Ass2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss
+type: Ass3
+dimension: [10][20]
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss2
+type: Assss
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss3
+type: Assss2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: Assss3
+result: void
+attribute: 
+params: in Assss3 p1, inout Assss3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/constructed1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: type
+ PropertySet: properties
+name: s1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: ::m1::s1
+readonly: no
+
+data/genimpl/ : /stage2/constructed10/test10 ... OK
+Properties of node: test10
+ PropertySet: properties
+name: test10
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: s1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: s1
+attribute: 
+params: in s1 param1, inout s1 param2, out s1 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/constructed11/test11 ... OK
+Properties of node: test11
+ PropertySet: properties
+name: test11
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: tmpS
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: S1
+type: tmpS
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: SS1
+type: S1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: SSS1
+type: SS1
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: SSS1
+attribute: 
+params: in SSS1 p1, inout SSS1 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/constructed2/test2 ... OK
+Properties of node: test2
+ PropertySet: properties
+name: test2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: type
+ PropertySet: properties
+name: s1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: ::m1::test1::s1
+readonly: no
+
+data/genimpl/ : /stage2/constructed3/test3 ... OK
+Properties of node: test3
+ PropertySet: properties
+name: test3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: s1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: ::s1
+readonly: no
+
+data/genimpl/ : /stage2/constructed4/test4 ... OK
+Properties of node: test4
+ PropertySet: properties
+name: test4
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: interface
+ PropertySet: properties
+name: tx
+abstract: no
+inherited: 
+
+Properties of node: type
+ PropertySet: properties
+name: s1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: ::m1::tx::s1
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: str
+type: string
+readonly: no
+
+data/genimpl/ : /stage2/constructed5/test5 ... OK
+Properties of node: test5
+ PropertySet: properties
+name: test5
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: type
+ PropertySet: properties
+name: s1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: s1
+readonly: no
+
+data/genimpl/ : /stage2/constructed6/test6 ... OK
+Properties of node: test6
+ PropertySet: properties
+name: test6
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: type
+ PropertySet: properties
+name: s1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: s1
+readonly: no
+
+data/genimpl/ : /stage2/constructed7/test7 ... OK
+Properties of node: test7
+ PropertySet: properties
+name: test7
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: s1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: s1
+readonly: no
+
+data/genimpl/ : /stage2/constructed8/test8 ... OK
+Properties of node: test8
+ PropertySet: properties
+name: test8
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: interface
+ PropertySet: properties
+name: tx
+abstract: no
+inherited: 
+
+Properties of node: type
+ PropertySet: properties
+name: s1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: tx::s1
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: str
+type: string
+readonly: no
+
+data/genimpl/ : /stage2/constructed9/test9 ... OK
+Properties of node: test9
+ PropertySet: properties
+name: test9
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: type
+ PropertySet: properties
+name: s1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: s1
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: value2
+type: m1::s1
+readonly: no
+
+data/genimpl/ : /stage2/inheritance_diamond/diamond ... OK
+Properties of node: diamond
+ PropertySet: properties
+name: diamond
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: test
+
+Properties of node: interface
+ PropertySet: properties
+name: super_parent
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: super_parent_operation
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: parent1
+abstract: no
+inherited: super_parent
+
+Properties of node: operation
+ PropertySet: properties
+name: parent_operation1
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: parent2
+abstract: no
+inherited: super_parent
+
+Properties of node: operation
+ PropertySet: properties
+name: parent_operation2
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: child
+abstract: no
+inherited: parent1, parent2
+
+Properties of node: operation
+ PropertySet: properties
+name: child_operation
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/inheritance_multiple1/multiple ... OK
+Properties of node: multiple
+ PropertySet: properties
+name: multiple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: test
+
+Properties of node: interface
+ PropertySet: properties
+name: parent1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: parent_operation1
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: parent2
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: parent_operation2
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: child
+abstract: no
+inherited: parent1, parent2
+
+Properties of node: operation
+ PropertySet: properties
+name: child_operation
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/inheritance_multiple2/multiple2 ... OK
+Properties of node: multiple2
+ PropertySet: properties
+name: multiple2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: test
+
+Properties of node: interface
+ PropertySet: properties
+name: parent1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: parent_operation1
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: parent2
+abstract: no
+inherited: parent1
+
+Properties of node: operation
+ PropertySet: properties
+name: parent_operation2
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: child
+abstract: no
+inherited: parent1, parent2
+
+Properties of node: operation
+ PropertySet: properties
+name: child_operation
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/inheritance_multiple3/multiple3 ... OK
+Properties of node: multiple3
+ PropertySet: properties
+name: multiple3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: test
+
+Properties of node: interface
+ PropertySet: properties
+name: parent1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: name1
+type: string
+readonly: no
+
+Properties of node: interface
+ PropertySet: properties
+name: parent2
+abstract: no
+inherited: parent1
+
+Properties of node: attribute
+ PropertySet: properties
+name: name2
+type: string
+readonly: no
+
+Properties of node: interface
+ PropertySet: properties
+name: child
+abstract: no
+inherited: parent1, parent2
+
+Properties of node: attribute
+ PropertySet: properties
+name: name3
+type: string
+readonly: no
+
+data/genimpl/ : /stage2/inheritance_simple/simple ... OK
+Properties of node: simple
+ PropertySet: properties
+name: simple
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: test
+
+Properties of node: interface
+ PropertySet: properties
+name: parent
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: parent_operation
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: child
+abstract: no
+inherited: parent
+
+Properties of node: operation
+ PropertySet: properties
+name: child_operation
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/inheritance_simple_with_modules1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: module
+ PropertySet: properties
+name: B
+
+Properties of node: interface
+ PropertySet: properties
+name: parent
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: msg
+type: string
+readonly: no
+
+Properties of node: module
+ PropertySet: properties
+name: C
+
+Properties of node: interface
+ PropertySet: properties
+name: child
+abstract: no
+inherited: ::A::B::parent
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: string
+readonly: no
+
+data/genimpl/ : /stage2/inheritance_simple_with_modules2/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: module
+ PropertySet: properties
+name: B
+
+Properties of node: interface
+ PropertySet: properties
+name: parent1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: msg1
+type: string
+readonly: no
+
+Properties of node: module
+ PropertySet: properties
+name: X
+
+Properties of node: module
+ PropertySet: properties
+name: Y
+
+Properties of node: interface
+ PropertySet: properties
+name: parent2
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: msg2
+type: string
+readonly: no
+
+Properties of node: module
+ PropertySet: properties
+name: C
+
+Properties of node: interface
+ PropertySet: properties
+name: child
+abstract: no
+inherited: ::A::B::parent1, X::Y::parent2
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: string
+readonly: no
+
+data/genimpl/ : /stage2/interface_type/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: A
+attribute: 
+params: in A p1, inout A p2, out A p3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/modules_and_sequences_of_interfaces1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: interface
+ PropertySet: properties
+name: STR
+abstract: no
+inherited: 
+
+Properties of node: module
+ PropertySet: properties
+name: B
+
+Properties of node: declarator
+ PropertySet: properties
+name: SeqSTR
+type: sequence <::A::STR>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: SeqSTR
+attribute: 
+params: in SeqSTR p1, inout SeqSTR p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/modules_and_sequences_of_interfaces2/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: interface
+ PropertySet: properties
+name: STR
+abstract: no
+inherited: 
+
+Properties of node: module
+ PropertySet: properties
+name: B
+
+Properties of node: declarator
+ PropertySet: properties
+name: SeqSTR
+type: sequence <A::STR>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: SeqSTR
+attribute: 
+params: in SeqSTR p1, inout SeqSTR p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/modules_and_sequences_of_interfaces3/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: interface
+ PropertySet: properties
+name: STR
+abstract: no
+inherited: 
+
+Properties of node: module
+ PropertySet: properties
+name: B
+
+Properties of node: declarator
+ PropertySet: properties
+name: SeqSTR
+type: sequence <STR>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: SeqSTR
+attribute: 
+params: in SeqSTR p1, inout SeqSTR p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/modules_and_sequences_with_constructetype1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: type
+ PropertySet: properties
+name: STR
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: B
+
+Properties of node: declarator
+ PropertySet: properties
+name: SeqSTR
+type: sequence <::A::STR>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: SeqSTR
+attribute: 
+params: in SeqSTR p1, inout SeqSTR p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/modules_and_sequences_with_constructetype2/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: type
+ PropertySet: properties
+name: STR
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: B
+
+Properties of node: declarator
+ PropertySet: properties
+name: SeqSTR
+type: sequence <A::STR>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: SeqSTR
+attribute: 
+params: in SeqSTR p1, inout SeqSTR p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/modules_and_sequences_with_constructetype3/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: type
+ PropertySet: properties
+name: STR
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: B
+
+Properties of node: declarator
+ PropertySet: properties
+name: SeqSTR
+type: sequence <STR>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: SeqSTR
+attribute: 
+params: in SeqSTR p1, inout SeqSTR p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/modules_and_sequences_with_simpletype1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: declarator
+ PropertySet: properties
+name: STR
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: B
+
+Properties of node: declarator
+ PropertySet: properties
+name: SeqSTR
+type: sequence <::A::STR>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: SeqSTR
+attribute: 
+params: in SeqSTR p1, inout SeqSTR p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/modules_and_sequences_with_simpletype2/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: declarator
+ PropertySet: properties
+name: STR
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: B
+
+Properties of node: declarator
+ PropertySet: properties
+name: SeqSTR
+type: sequence <A::STR>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: SeqSTR
+attribute: 
+params: in SeqSTR p1, inout SeqSTR p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/modules_and_sequences_with_simpletype3/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: declarator
+ PropertySet: properties
+name: STR
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: B
+
+Properties of node: declarator
+ PropertySet: properties
+name: SeqSTR
+type: sequence <STR>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: SeqSTR
+attribute: 
+params: in SeqSTR p1, inout SeqSTR p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/new_synchro1/A ... OK
+Properties of node: A
+ PropertySet: properties
+name: A
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: msg
+type: string
+readonly: no
+
+Properties of node: operation
+ PropertySet: properties
+name: op1
+result: void
+attribute: 
+params: in long p1
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: oper1
+result: string
+attribute: 
+params: in long p1, out string p2
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: C
+abstract: no
+inherited: A, B
+
+Properties of node: operation
+ PropertySet: properties
+name: op2
+result: A
+attribute: 
+params: in string p1, out long p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/simple1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: string
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: value2
+type: string
+readonly: no
+
+data/genimpl/ : /stage2/simple2/test2 ... OK
+Properties of node: test2
+ PropertySet: properties
+name: test2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: string
+readonly: no
+
+data/genimpl/ : /stage2/simple3/test3 ... OK
+Properties of node: test3
+ PropertySet: properties
+name: test3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: f1
+type: float
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: f2
+type: f1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: f3
+type: f2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test3
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: in boolean p1, inout f3 p2, out string p3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/simple_parent1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: my_type
+type: string
+dimension: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: my_type
+readonly: no
+
+data/genimpl/ : /stage2/simple_parent2/test2 ... OK
+Properties of node: test2
+ PropertySet: properties
+name: test2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: my_type
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: my_type
+readonly: no
+
+data/genimpl/ : /stage2/simple_parent3/test3 ... OK
+Properties of node: test3
+ PropertySet: properties
+name: test3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: my_type
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: my_type
+readonly: no
+
+data/genimpl/ : /stage2/simple_parent4/test4 ... OK
+Properties of node: test4
+ PropertySet: properties
+name: test4
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: my_type
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m2
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: m1::my_type
+readonly: no
+
+data/genimpl/ : /stage2/simple_parent5/test5 ... OK
+Properties of node: test5
+ PropertySet: properties
+name: test5
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: my_type
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m2
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: ::m1::my_type
+readonly: no
+
+data/genimpl/ : /stage2/simple_parent6/test6 ... OK
+Properties of node: test6
+ PropertySet: properties
+name: test6
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: obj
+type: Object
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: in obj p1, out obj p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/simple_parent7/test7 ... OK
+Properties of node: test7
+ PropertySet: properties
+name: test7
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: str
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: in str p1, out str p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/synchro_simple1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: msg
+type: long
+readonly: no
+
+Properties of node: operation
+ PropertySet: properties
+name: hello
+result: void
+attribute: 
+params: in string msg
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: hello2
+result: string
+attribute: 
+params: in string msg
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: ha
+result: Object
+attribute: 
+params: out B p1
+exceptions: 
+contexts: 
+
+Properties of node: exception
+ PropertySet: properties
+name: BadList
+
+Properties of node: operation
+ PropertySet: properties
+name: msg2
+result: Object
+attribute: 
+params: 
+exceptions: BadList
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: he
+result: any
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/synchro_simple2/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: X
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: msgx
+type: string
+readonly: yes
+
+Properties of node: module
+ PropertySet: properties
+name: A
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: ::X::B
+
+Properties of node: attribute
+ PropertySet: properties
+name: msg
+type: string
+readonly: no
+
+data/genimpl/ : /stage2/template1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: sequence <long, 20>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: s1
+attribute: 
+params: in s1 param1, inout s1 param2, out s1 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/template10/test10 ... OK
+Properties of node: test10
+ PropertySet: properties
+name: test10
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As
+type: sequence <A>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: sequence <As>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Ass
+attribute: 
+params: in Ass p1, inout Ass p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/template1_2/test1_2 ... OK
+Properties of node: test1_2
+ PropertySet: properties
+name: test1_2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: string<100>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: s1
+attribute: 
+params: in s1 param1, inout s1 param2, out s1 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/template1_3/test1_3 ... OK
+Properties of node: test1_3
+ PropertySet: properties
+name: test1_3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s3
+type: sequence <long, 20>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: s3
+attribute: 
+params: in s3 param1, inout s3 param2, out s3 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/template2/test2 ... OK
+Properties of node: test2
+ PropertySet: properties
+name: test2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: sequence <long, 20>
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: s1
+attribute: 
+params: in s1 param1, inout s1 param2, out s1 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/template3/test3 ... OK
+Properties of node: test3
+ PropertySet: properties
+name: test3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: sequence <long, 20>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: ha
+type: s1
+readonly: no
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: s1
+attribute: 
+params: in s1 param1, inout s1 param2, out s1 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/template5/test5 ... OK
+Properties of node: test5
+ PropertySet: properties
+name: test5
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: sx
+type: sequence <long, 20>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: sequence <sx>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: s1
+attribute: 
+params: in s1 param1, inout s1 param2, out s1 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/template6/test6 ... OK
+Properties of node: test6
+ PropertySet: properties
+name: test6
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: sx
+type: sequence <long, 20>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: sequence <sx>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: m1::s1
+attribute: 
+params: in ::m1::s1 param1, inout m1::s1 param2, out ::m1::s1 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/template7/test7 ... OK
+Properties of node: test7
+ PropertySet: properties
+name: test7
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: sx
+type: sequence <long, 20>
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m2
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: sequence <m1::sx>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: m2::s1
+attribute: 
+params: in ::m2::s1 param1, inout m2::s1 param2, out ::m2::s1 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/template7_1/test7_1 ... OK
+Properties of node: test7_1
+ PropertySet: properties
+name: test7_1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: sx
+type: sequence <long, 20>
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m2
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: sequence <::m1::sx>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: m2::s1
+attribute: 
+params: in ::m2::s1 param1, inout m2::s1 param2, out ::m2::s1 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/template8/test8 ... OK
+Properties of node: test8
+ PropertySet: properties
+name: test8
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: sx
+type: sequence <long, 20>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: sequence <sx>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: value
+result: m1::s1
+attribute: 
+params: in ::m1::s1 param1, inout m1::s1 param2, out ::m1::s1 param3
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/template9/test9 ... OK
+Properties of node: test9
+ PropertySet: properties
+name: test9
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: A
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As
+type: sequence <A>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: As
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Ass
+attribute: 
+params: in Ass p1, inout Ass p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/test1/i1 ... OK
+Properties of node: i1
+ PropertySet: properties
+name: i1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: str1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: no
+type: long
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: type
+ PropertySet: properties
+name: value
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: no
+type: long
+dimension: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: name1
+type: string
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: name2
+type: string
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: name3
+type: string
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: name4
+type: string
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: name5
+type: string
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: x
+type: value
+readonly: no
+
+Properties of node: interface
+ PropertySet: properties
+name: i2
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: y
+type: i1::value
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: an
+type: ::str1
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: z
+type: str1
+readonly: yes
+
+data/genimpl/ : /stage2/test2/i1 ... OK
+Properties of node: i1
+ PropertySet: properties
+name: i1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: ha
+abstract: no
+inherited: 
+
+Properties of node: type
+ PropertySet: properties
+name: str1
+type: struct
+
+Properties of node: type
+ PropertySet: properties
+name: nstr
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: yes
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: nstr
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s2
+type: nstr
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: no
+type: long
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: type
+ PropertySet: properties
+name: value
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: no
+type: long
+dimension: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: atr1
+type: ::ha::str1
+readonly: no
+
+Properties of node: operation
+ PropertySet: properties
+name: nothing
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: exception
+ PropertySet: properties
+name: Ex1
+
+Properties of node: declarator
+ PropertySet: properties
+name: reason
+type: string
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: testValue
+result: value
+attribute: 
+params: in value param1, inout value param2, out value param3
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i2
+abstract: no
+inherited: 
+
+Properties of node: exception
+ PropertySet: properties
+name: BadArg
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: getValue
+result: i1::value
+attribute: 
+params: inout i1::value result
+exceptions: i2::BadArg, i1::Ex1
+contexts: "c1", "c2"
+
+data/genimpl/ : /stage2/test3/i1 ... OK
+Properties of node: i1
+ PropertySet: properties
+name: i1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: str1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: no
+type: long
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: type
+ PropertySet: properties
+name: value
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: no
+type: long
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: nothing
+result: void
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+Properties of node: exception
+ PropertySet: properties
+name: Ex1
+
+Properties of node: declarator
+ PropertySet: properties
+name: reason
+type: string
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: testValue
+result: value
+attribute: 
+params: in value param1, inout value param2, out value param3
+exceptions: 
+contexts: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i2
+abstract: no
+inherited: 
+
+Properties of node: exception
+ PropertySet: properties
+name: BadArg
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: operation
+ PropertySet: properties
+name: getValue
+result: i1::value
+attribute: 
+params: inout i1::value result
+exceptions: i2::BadArg, i1::Ex1
+contexts: "c1", "c2"
+
+data/genimpl/ : /stage2/test4/HelloWorld ... OK
+Properties of node: HelloWorld
+ PropertySet: properties
+name: HelloWorld
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: AbstractHello
+abstract: no
+inherited: 
+
+Properties of node: exception
+ PropertySet: properties
+name: BadConsoleIO
+
+Properties of node: declarator
+ PropertySet: properties
+name: name
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: HelloWorld
+abstract: no
+inherited: AbstractHello
+
+Properties of node: attribute
+ PropertySet: properties
+name: state
+type: string
+readonly: no
+
+Properties of node: operation
+ PropertySet: properties
+name: say
+result: void
+attribute: 
+params: 
+exceptions: BadConsoleIO
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: saytoclient
+result: string
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/test6/module ... OK
+Properties of node: module
+ PropertySet: properties
+name: module
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: M
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: type
+ PropertySet: properties
+name: E
+type: enum
+
+Properties of node: const
+ PropertySet: properties
+name: A
+type: 
+exp: 
+
+Properties of node: const
+ PropertySet: properties
+name: B
+type: 
+exp: 
+
+Properties of node: const
+ PropertySet: properties
+name: C
+type: 
+exp: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: void
+attribute: 
+params: in E e
+exceptions: 
+contexts: 
+
+Properties of node: module
+ PropertySet: properties
+name: M2
+
+Properties of node: module
+ PropertySet: properties
+name: ne2
+
+Properties of node: declarator
+ PropertySet: properties
+name: m1
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: m2
+type: m1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: m3
+type: m2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: m4
+type: m3
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: m5
+type: m4
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: message
+type: m5
+dimension: 
+
+Properties of node: exception
+ PropertySet: properties
+name: Ha
+
+Properties of node: declarator
+ PropertySet: properties
+name: he
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: nested1
+
+Properties of node: declarator
+ PropertySet: properties
+name: msg1
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: nested2
+
+Properties of node: interface
+ PropertySet: properties
+name: foo2
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: ne2::message
+attribute: 
+params: in ::M::foo::E e
+exceptions: ne2::Ha
+contexts: 
+
+data/genimpl/ : /stage2/test7_1/m1 ... OK
+Properties of node: m1
+ PropertySet: properties
+name: m1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: a
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: b
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: c
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: x
+readonly: no
+
+data/genimpl/ : /stage2/test7_2/m2 ... OK
+Properties of node: m2
+ PropertySet: properties
+name: m2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m2
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: a
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m3
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: b
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m4
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: c
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: x
+readonly: no
+
+data/genimpl/ : /stage2/test7_3/m3 ... OK
+Properties of node: m3
+ PropertySet: properties
+name: m3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m2
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: a
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m3
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: m2::b
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m4
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: m3::c
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: x
+readonly: no
+
+data/genimpl/ : /stage2/test7_4/m4 ... OK
+Properties of node: m4
+ PropertySet: properties
+name: m4
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m2
+
+Properties of node: module
+ PropertySet: properties
+name: m5
+
+Properties of node: declarator
+ PropertySet: properties
+name: a2
+type: a
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: m5::a2
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m3
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: m2::b
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m4
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: c
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: x
+readonly: no
+
+data/genimpl/ : /stage2/test7_5/m5 ... OK
+Properties of node: m5
+ PropertySet: properties
+name: m5
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m2
+
+Properties of node: module
+ PropertySet: properties
+name: m5
+
+Properties of node: declarator
+ PropertySet: properties
+name: a2
+type: a
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m3
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: ::m1::m2::m5::a2
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m4
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: c
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: x
+readonly: no
+
+data/genimpl/ : /stage2/test7_6/m6 ... OK
+Properties of node: m6
+ PropertySet: properties
+name: m6
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: t1
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: t1
+type: long
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m2
+
+Properties of node: interface
+ PropertySet: properties
+name: test
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: ::m1::t1
+readonly: no
+
+data/genimpl/ : /stage2/test7_7/m7 ... OK
+Properties of node: m7
+ PropertySet: properties
+name: m7
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: t1
+type: string
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: declarator
+ PropertySet: properties
+name: t1
+type: Object
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m2
+
+Properties of node: interface
+ PropertySet: properties
+name: test
+abstract: no
+inherited: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: ::m1::t1
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: m1::t1
+dimension: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value1
+type: a
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: value2
+type: b
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: value3
+type: ::m1::t1
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: value4
+type: m1::t1
+readonly: no
+
+data/genimpl/ : /stage2/test8/i1 ... OK
+Properties of node: i1
+ PropertySet: properties
+name: i1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: test1
+abstract: no
+inherited: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: s1
+type: string
+dimension: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: s1
+readonly: no
+
+Properties of node: interface
+ PropertySet: properties
+name: test2
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: test1::s1
+readonly: no
+
+data/genimpl/ : /stage2/test9_1/module1 ... OK
+Properties of node: module1
+ PropertySet: properties
+name: module1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: type
+ PropertySet: properties
+name: exc
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: reason
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: exc
+readonly: no
+
+data/genimpl/ : /stage2/test9_2/module2 ... OK
+Properties of node: module2
+ PropertySet: properties
+name: module2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: type
+ PropertySet: properties
+name: exc
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: reason
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: m1::exc
+readonly: no
+
+data/genimpl/ : /stage2/test9_3/module3 ... OK
+Properties of node: module3
+ PropertySet: properties
+name: module3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: interface
+ PropertySet: properties
+name: tmp_i
+abstract: no
+inherited: 
+
+Properties of node: type
+ PropertySet: properties
+name: exc
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: reason
+type: string
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: i1
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: value
+type: m1::tmp_i::exc
+readonly: no
+
+data/genimpl/ : /stage2/testForMmetelka/test ... OK
+Properties of node: test
+ PropertySet: properties
+name: test
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: module
+ PropertySet: properties
+name: m1
+
+Properties of node: type
+ PropertySet: properties
+name: sx
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: module
+ PropertySet: properties
+name: m2
+
+Properties of node: interface
+ PropertySet: properties
+name: i2
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: void
+attribute: 
+params: in m1::sx op1
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/typeTreeTest1/test1 ... OK
+Properties of node: test1
+ PropertySet: properties
+name: test1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A2
+type: A
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: A2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass2
+type: Ass
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass3
+type: Ass2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss
+type: Ass3
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss2
+type: Assss
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss3
+type: Assss2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Assss3
+attribute: 
+params: in Assss3 p1, inout Assss3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/typeTreeTest1_1/test1_1 ... OK
+Properties of node: test1_1
+ PropertySet: properties
+name: test1_1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A
+type: string
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A2
+type: A
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As
+type: sequence <A2>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As2
+type: As
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: sequence <As2>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass2
+type: Ass
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass3
+type: Ass2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss
+type: Ass3
+dimension: [10][20]
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss2
+type: Assss
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss3
+type: Assss2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Assss3
+attribute: 
+params: in Assss3 p1, inout Assss3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/typeTreeTest2/test2 ... OK
+Properties of node: test2
+ PropertySet: properties
+name: test2
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: A
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A2
+type: A
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: A2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass2
+type: Ass
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass3
+type: Ass2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss
+type: Ass3
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss2
+type: Assss
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss3
+type: Assss2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Assss3
+attribute: 
+params: in Assss3 p1, inout Assss3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/typeTreeTest2_1/test2_1 ... OK
+Properties of node: test2_1
+ PropertySet: properties
+name: test2_1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: A
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A2
+type: A
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As
+type: sequence <A2>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As2
+type: As
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: sequence <As2>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass2
+type: Ass
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass3
+type: Ass2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss
+type: Ass3
+dimension: [10][20]
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss2
+type: Assss
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss3
+type: Assss2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Assss3
+attribute: 
+params: in Assss3 p1, inout Assss3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/typeTreeTest3/test3 ... OK
+Properties of node: test3
+ PropertySet: properties
+name: test3
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A
+type: S
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A2
+type: A
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: A2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass2
+type: Ass
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass3
+type: Ass2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss
+type: Ass3
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss2
+type: Assss
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss3
+type: Assss2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Assss3
+attribute: 
+params: in Assss3 p1, inout Assss3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/typeTreeTest3_1/test3_1 ... OK
+Properties of node: test3_1
+ PropertySet: properties
+name: test3_1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: type
+ PropertySet: properties
+name: S
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: value
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A
+type: S
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A2
+type: A
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As
+type: sequence <A2>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As2
+type: As
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: sequence <As2>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass2
+type: Ass
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass3
+type: Ass2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss
+type: Ass3
+dimension: [10][20]
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss2
+type: Assss
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss3
+type: Assss2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Assss3
+attribute: 
+params: in Assss3 p1, inout Assss3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/typeTreeTest4/test4 ... OK
+Properties of node: test4
+ PropertySet: properties
+name: test4
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A2
+type: A
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: A2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass2
+type: Ass
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass3
+type: Ass2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss
+type: Ass3
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss2
+type: Assss
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss3
+type: Assss2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Assss3
+attribute: 
+params: in Assss3 p1, inout Assss3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage2/typeTreeTest4_1/test4_1 ... OK
+Properties of node: test4_1
+ PropertySet: properties
+name: test4_1
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: interface
+ PropertySet: properties
+name: A
+abstract: no
+inherited: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A2
+type: A
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As
+type: sequence <A2>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: As2
+type: As
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass
+type: sequence <As2>
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass2
+type: Ass
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Ass3
+type: Ass2
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss
+type: Ass3
+dimension: [10][20]
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss2
+type: Assss
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: Assss3
+type: Assss2
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: B
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: op
+result: Assss3
+attribute: 
+params: in Assss3 p1, inout Assss3 p2
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage3/idl01/array ... OK
+Properties of node: array
+ PropertySet: properties
+name: array
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: VectorChar
+type: char
+dimension: [5]
+
+Properties of node: declarator
+ PropertySet: properties
+name: VectorOctet
+type: octet
+dimension: [5]
+
+Properties of node: type
+ PropertySet: properties
+name: S0
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: char
+dimension: [5]
+
+Properties of node: declarator
+ PropertySet: properties
+name: o
+type: octet
+dimension: [5]
+
+Properties of node: declarator
+ PropertySet: properties
+name: Vector
+type: short
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: Matrix2
+type: Vector
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: VB
+type: Vector
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: MB
+type: VB
+dimension: [10]
+
+Properties of node: declarator
+ PropertySet: properties
+name: arr
+type: short
+dimension: [1][2]
+
+Properties of node: declarator
+ PropertySet: properties
+name: arrseq
+type: sequence <arr, 2>
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: S1
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: char
+dimension: [3]
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: long
+dimension: [5][4]
+
+Properties of node: declarator
+ PropertySet: properties
+name: s
+type: string
+dimension: [6]
+
+Properties of node: declarator
+ PropertySet: properties
+name: S1_arr
+type: S1
+dimension: [3][4]
+
+Properties of node: declarator
+ PropertySet: properties
+name: long_arr
+type: long
+dimension: [10]
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+
+Properties of node: declarator
+ PropertySet: properties
+name: foo_arr
+type: foo
+dimension: [6]
+
+Properties of node: declarator
+ PropertySet: properties
+name: SS
+type: string
+dimension: [5][4]
+
+Properties of node: type
+ PropertySet: properties
+name: S2
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: x
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: ssxx
+type: SS
+dimension: 
+
+Properties of node: type
+ PropertySet: properties
+name: S3
+type: struct
+
+Properties of node: declarator
+ PropertySet: properties
+name: a
+type: long
+dimension: [1]
+
+Properties of node: declarator
+ PropertySet: properties
+name: b
+type: long
+dimension: [1][2]
+
+Properties of node: declarator
+ PropertySet: properties
+name: c
+type: long
+dimension: [1][2][3]
+
+Properties of node: declarator
+ PropertySet: properties
+name: S1_seq
+type: sequence <S1_arr>
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: foo
+abstract: no
+inherited: 
+
+Properties of node: operation
+ PropertySet: properties
+name: bar
+result: SS
+attribute: 
+params: in SS x, inout SS y, out SS z, out long_arr w
+exceptions: 
+contexts: 
+
+Properties of node: operation
+ PropertySet: properties
+name: baz
+result: long_arr
+attribute: 
+params: 
+exceptions: 
+contexts: 
+
+data/genimpl/ : /stage3/idl02/typedef ... OK
+Properties of node: typedef
+ PropertySet: properties
+name: typedef
+template: false
+ PropertySet: Compilation
+compilation: 
+compiler_params: 
+cpp: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: A
+type: long
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: B
+type: long
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: I
+abstract: no
+inherited: 
+
+Properties of node: attribute
+ PropertySet: properties
+name: aa
+type: A
+readonly: no
+
+Properties of node: attribute
+ PropertySet: properties
+name: bb
+type: B
+readonly: no
+
+Properties of node: declarator
+ PropertySet: properties
+name: S1
+type: I
+dimension: 
+
+Properties of node: declarator
+ PropertySet: properties
+name: S2
+type: I
+dimension: 
+
+Properties of node: interface
+ PropertySet: properties
+name: D
+abstract: no
+inherited: I, S1, S2
+

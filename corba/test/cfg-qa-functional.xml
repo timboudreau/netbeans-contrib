@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<mconfig name="CORBA config">
+
+	<testbag testattribs="stable,validation,basic" executor="ide" name="testbag_Basic" resultsprocessor="qa-functional">
+		<testset dir="qa-functional/src">
+			<patternset>
+				<include name="test/basic/BasicSuite.class"/>
+			</patternset>
+		</testset>
+	</testbag>
+
+	<testbag testattribs="stable,a11y" executor="ide" name="testbag_A11Y" resultsprocessor="qa-functional">
+		<testset dir="qa-functional/src">
+			<patternset>
+				<include name="test/a11y/Main.class"/>
+			</patternset>
+		</testset>
+	</testbag>
+
+	<testbag testattribs="stable,genimpl,genimpl1" executor="ide" name="testbag_GenImpl_Suite1" resultsprocessor="qa-functional">
+		<testset dir="qa-functional/src">
+			<patternset>
+				<include name="test/genimpl/Suite1.class"/>
+			</patternset>
+		</testset>
+	</testbag>
+
+	<testbag testattribs="stable,genimpl,genimpl2" executor="ide" name="testbag_GenImpl_Suite2" resultsprocessor="qa-functional">
+		<testset dir="qa-functional/src">
+			<patternset>
+				<include name="test/genimpl/Suite2.class"/>
+			</patternset>
+		</testset>
+	</testbag>
+
+    <resultsprocessor name="qa-functional" antfile="build.xml" target="test_report"/>
+    <compiler name="compile" default="true" antfile="build_qa-functional.xml" target="default-compiler"/>
+    <executor name="ide" antfile="build_qa-functional.xml" target="runidetest"/>
+</mconfig>

@@ -1,0 +1,52 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+//
+// i1.idl
+//
+// Created on July 6, 1999, 9:51 PM
+// by kgardas
+//
+
+//#pragma prefix "test1"
+interface ha {
+struct str1 {
+  struct nstr {
+    long yes;
+  } s1, s2;
+  long no;
+};
+};
+
+interface i1 {
+  struct value {
+    long no;
+  }; 
+  //attribute string name1, name2, name3, name4, name5;
+  //attribute value x;
+  attribute ::ha::str1 atr1;
+  
+  void nothing ();
+
+  exception Ex1 { string reason;};
+  value testValue (in value param1, inout value param2, out value param3);
+};
+
+interface i2 {
+  //attribute i1::value y;
+  //attribute ::test1::str1 an;
+  //readonly attribute str1 z;
+  exception BadArg { long value; };
+
+  i1::value getValue (inout i1::value result) raises (i2::BadArg, i1::Ex1) context ("c1", "c2");
+};

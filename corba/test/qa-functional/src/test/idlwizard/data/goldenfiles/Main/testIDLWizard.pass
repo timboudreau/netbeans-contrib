@@ -1,0 +1,214 @@
+COMMAND: Alias    NODE: 
+COMMAND: Alias    NODE: 
+COMMAND: _DOWN    NODE: MyString
+COMMAND: Module    NODE: 
+COMMAND: Constant    NODE: Module1
+COMMAND: Forward    NODE: Module1
+COMMAND: Interface    NODE: Module1
+COMMAND: Attribute    NODE: Module1|Interface1
+COMMAND: Operation    NODE: Module1|Interface1
+COMMAND: Interface    NODE: Module1
+COMMAND: Union    NODE: 
+COMMAND: UnionMember    NODE: Union1
+COMMAND: UnionDefaultMember    NODE: Union1
+COMMAND: UnionMember    NODE: Union1
+COMMAND: Enum    NODE: 
+COMMAND: EnumEntry    NODE: Enum1
+COMMAND: EnumEntry    NODE: Enum1
+COMMAND: EnumEntry    NODE: Enum1
+COMMAND: _DOWN    NODE: Enum1|inserted2
+COMMAND: _REMOVE    NODE: Enum1|forRemove
+COMMAND: Exception    NODE: 
+COMMAND: Member    NODE: Exception1
+COMMAND: Member    NODE: Exception1
+COMMAND: Interface    NODE: 
+COMMAND: Operation    NODE: Interface2
+COMMAND: Structure    NODE: 
+COMMAND: Member    NODE: Structure1
+COMMAND: Member    NODE: Structure1
+COMMAND: ValueBox    NODE: 
+COMMAND: Valuetype    NODE: 
+COMMAND: Valuetype    NODE: 
+COMMAND: Valuetype    NODE: 
+COMMAND: Valuetype    NODE: 
+COMMAND: Value    NODE: Valuetype2
+COMMAND: ValuetypeFactory    NODE: Valuetype2
+COMMAND: Alias_DUMP    NODE: MyString
+MyStringArray10
+MyString
+10
+COMMAND: Alias_DUMP    NODE: MyStringArray10
+MyStringArray10
+MyString
+10
+COMMAND: Module_DUMP    NODE: Module1
+Module1
+COMMAND: Constant_DUMP    NODE: Module1|Constant1
+Constant1
+long
+(1 << 8) + 1
+COMMAND: Interface_DUMP    NODE: Module1|Interface1
+Interface1
+Forward1
+false
+COMMAND: Attribute_DUMP    NODE: Module1|Interface1|attr1
+attr1
+long
+true
+COMMAND: Operation_DUMP    NODE: Module1|Interface1|op1
+op1
+Forward1
+in Forward1 inf, inout Forward1 inoutf, out Forward1 outf
+
+
+true
+COMMAND: Union_DUMP    NODE: Union1
+Union1
+MyString
+COMMAND: UnionMember_DUMP    NODE: Union1|LongMember1
+LongMember1
+long
+1
+"CustomString1"
+COMMAND: UnionMember_DUMP    NODE: Union1|CharMember2
+CharMember2
+char
+2
+"CustomString2"
+COMMAND: UnionDefaultMember_DUMP    NODE: Union1|Any1
+Any1
+any
+
+COMMAND: Enum_DUMP    NODE: Enum1
+Enum1
+before1, before2, after, inserted1, inserted3, inserted2
+COMMAND: EnumEntry_DUMP    NODE: Enum1|before1
+before1
+COMMAND: EnumEntry_DUMP    NODE: Enum1|before2
+before2
+COMMAND: EnumEntry_DUMP    NODE: Enum1|after
+after
+COMMAND: EnumEntry_DUMP    NODE: Enum1|inserted1
+inserted1
+COMMAND: EnumEntry_DUMP    NODE: Enum1|inserted2
+inserted2
+COMMAND: EnumEntry_DUMP    NODE: Enum1|inserted3
+inserted3
+COMMAND: Exception_DUMP    NODE: Exception1
+Exception1
+COMMAND: Member_DUMP    NODE: Exception1|Long1
+Long1
+long
+2
+COMMAND: Member_DUMP    NODE: Exception1|Str1
+Str1
+MyString
+
+COMMAND: Interface_DUMP    NODE: Interface2
+Interface2
+::Module1::Interface1
+false
+COMMAND: Operation_DUMP    NODE: Interface2|op2
+op2
+void
+inout char char1, inout string string1, inout short short1, inout long long1
+Exception1
+Context1, Context2
+false
+COMMAND: Structure_DUMP    NODE: Structure1
+Structure1
+COMMAND: Member_DUMP    NODE: Structure1|CharMember1
+CharMember1
+char
+2
+COMMAND: Member_DUMP    NODE: Structure1|ShortMember2
+ShortMember2
+short
+
+COMMAND: ValueBox_DUMP    NODE: ValueBox1
+ValueBox1
+long
+COMMAND: Valuetype_DUMP    NODE: Valuetype1
+Valuetype1
+
+Module1::Forward1
+false
+true
+false
+COMMAND: Valuetype_DUMP    NODE: Valuetype2
+Valuetype2
+
+
+false
+false
+false
+COMMAND: Valuetype_DUMP    NODE: Valuetype3
+Valuetype3
+
+
+false
+false
+false
+COMMAND: Valuetype_DUMP    NODE: Valuetype4
+Valuetype4
+Valuetype3
+
+false
+false
+true
+COMMAND: Value_DUMP    NODE: Valuetype2|val1
+val1
+char
+
+true
+false
+COMMAND: ValuetypeFactory_DUMP    NODE: Valuetype2|init1
+init1
+in char input
+COMMAND: _FINISH    NODE: 
+
+---------
+//
+// IDLWizard.idl
+//
+//
+typedef MyString MyStringArray10 [10];
+typedef string MyString;
+module Module1 {
+    const long Constant1 = (1 << 8) + 1;
+    interface Forward1;
+    interface Interface1 : Forward1 {
+        readonly attribute long attr1;
+        oneway Forward1 op1 (in Forward1 inf, inout Forward1 inoutf, out Forward1 outf);
+    };
+    abstract interface Forward1 {
+    };
+};
+union Union1 switch (MyString) {
+    case "CustomString1": long LongMember1 [1];
+    case "CustomString2": char CharMember2 [2];
+    default: any Any1;
+};
+enum Enum1 {before1, before2, after, inserted1, inserted3, inserted2};
+exception Exception1 {
+    long Long1 [2];
+    MyString Str1;
+};
+interface Interface2 : ::Module1::Interface1 {
+    void op2 (inout char char1, inout string string1, inout short short1, inout long long1) raises (Exception1) context ("Context1", "Context2");
+};
+struct Structure1 {
+    char CharMember1 [2];
+    short ShortMember2;
+};
+valuetype ValueBox1 long;
+abstract valuetype Valuetype1 supports Module1::Forward1 {
+};
+valuetype Valuetype2 {
+    private char val1;
+    factory init1 (in char input);
+};
+valuetype Valuetype3 {
+};
+valuetype Valuetype4 : truncatable Valuetype3 {
+};

@@ -1,0 +1,74 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+
+struct empty {long v;};
+typedef struct full {long v;} name1;
+
+typedef struct s1 {
+  struct ch1 {
+    struct chch1 {
+      struct chchch1 {
+        long l1;
+        string s1;
+      } member_of_chchch1, member_of_chchch2;
+    } member_of_chch1, member_of_chch2;
+  } member_of_ch1, member_of_ch2;
+  ch1 member_of_ch3;
+} member_of_s1_1, member_of_s1_2;
+
+interface t {
+  void x (in member_of_s1_1 p);
+};
+
+
+//typedef ::s1::
+
+
+/*
+typedef struct s2 {
+  struct ch2 {
+        long l1;
+        string s1;
+  } member_of_ch1, member_of_ch2;
+  ch2 member_of_ch3;
+} member_of_s2_1, member_of_s1_2;
+
+*/
+
+//typedef string value, val2;
+
+//typedef nedef_type val1, val2;
+
+typedef string value;
+
+struct list {
+  value head;
+  value tail;
+};
+
+interface AB__ {
+  void test1 (in member_of_s1_1 x, inout value str, out value str2);
+};
+
+// corba module error
+// typedef long l1, l2;
+
+typedef long l1;
+typedef long l2;
+
+typedef struct list_of_long {
+  long head;
+  long tail;
+} instance_of_list_of_long;
+

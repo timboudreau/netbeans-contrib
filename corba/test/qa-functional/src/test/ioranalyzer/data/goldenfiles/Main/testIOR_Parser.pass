@@ -1,0 +1,86 @@
+----  data/ior/embl.ior ----
+Node: embl
+PropertySet: Properties
+  Name -> embl
+  Endian -> big
+  RepositoryId -> IDL:nsdb/Embl:1.0
+Node: Profile 0
+PropertySet: Properties
+  Hostname -> bach.ebi.ac.uk
+  Port -> 1575
+  IIOP version -> 1.0
+  Profile -> INTERNET_IOP
+  Object key -> :\\bach.ebi.ac.uk:Embl:0::IR:nsdb_Embl\0x00
+Node: Profile 1
+PropertySet: Properties
+  Profile -> 1
+  Profile Data -> \0x00\0x01\0x00\0x00\0x00\0x00\0x00\0x01\0x00\0x00\0x00\0x00\0x00\0x00\0x00\0x08\0x00\0x00\0x00\0x00IT_0
+----  data/ior/geneticcode.ior ----
+Node: geneticcode
+PropertySet: Properties
+  Name -> geneticcode
+  Endian -> big
+  RepositoryId -> IDL:geneticcode/GeneticCode:1.0
+Node: Profile 0
+PropertySet: Properties
+  Hostname -> bach.ebi.ac.uk
+  Port -> 48889
+  IIOP version -> 1.0
+  Profile -> INTERNET_IOP
+  Object key -> \0x00\0x00\0x00\0x00<\0xa3\0x15\0xed\0x00\0x0dR(\0x00\0x00\0x00\0x00
+----  data/ior/meta.ior ----
+Node: meta
+PropertySet: Properties
+  Name -> meta
+  Endian -> big
+  RepositoryId -> IDL:meta/Controled:1.0
+Node: Profile 0
+PropertySet: Properties
+  Hostname -> bach.ebi.ac.uk
+  Port -> 48891
+  IIOP version -> 1.0
+  Profile -> INTERNET_IOP
+  Object key -> \0x00\0x00\0x00\0x00=!\0x9a\0x19\0x00\0x0c{P\0x00\0x00\0x00\0x00
+----  data/ior/random.ior ----
+Node: random
+PropertySet: Properties
+  Name -> random
+  Endian -> big
+  RepositoryId -> IDL:Random:1.0
+Node: Profile 0
+PropertySet: Properties
+  Hostname -> planxty.dsg.cs.tcd.ie
+  Port -> 1570
+  IIOP version -> 1.0
+  Profile -> INTERNET_IOP
+  Object key -> :\\planxty.dsg.cs.tcd.ie:Random:0::IR:Random\0x00
+----  data/ior/reference.ior ----
+Node: reference
+PropertySet: Properties
+  Name -> reference
+  Endian -> big
+  RepositoryId -> IDL:bibliography/ReferenceLibrary:1.0
+Node: Profile 0
+PropertySet: Properties
+  Hostname -> bach.ebi.ac.uk
+  Port -> 48888
+  IIOP version -> 1.2
+  Profile -> INTERNET_IOP
+  Object key -> \0xab\0xac\0xab11026721724\0x00_RootPOA\0x00\0x00\0xca\0xfe\0xba\0xbe=2\0x87\0xbc\0x00\0x00\0x00\0x00
+----  data/ior/taxonomy.ior ----
+Node: taxonomy
+PropertySet: Properties
+  Name -> taxonomy
+  Endian -> big
+  RepositoryId -> IDL:taxonomy/TaxonServer:1.0
+Node: Profile 0
+PropertySet: Properties
+  Hostname -> bach.ebi.ac.uk
+  Port -> 1575
+  IIOP version -> 1.0
+  Profile -> INTERNET_IOP
+  Object key -> :\\bach.ebi.ac.uk:Taxonomy_new:0::IR:taxonomy_TaxonServer\0x00
+Node: Profile 1
+PropertySet: Properties
+  Profile -> 1
+  Profile Data -> \0x00\0x01\0x00\0x00\0x00\0x00\0x00\0x01\0x00\0x00\0x00\0x00\0x00\0x00\0x00\0x08\0x00\0x00\0x00\0x00IT_0

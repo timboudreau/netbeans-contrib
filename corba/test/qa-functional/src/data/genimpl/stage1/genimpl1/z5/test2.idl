@@ -1,0 +1,109 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+module TestWOBTN {
+
+	typedef string MyString;
+	typedef string<8> ShortString;
+	typedef MyString StringArray [16];
+	typedef sequence <MyString> UnboundedArray;
+	typedef sequence <sequence <MyString> > DoubleUnboundedArray;
+	typedef sequence <MyString, 8> UpperBoundedArray;
+
+	struct Simple {
+		short a;
+		long b;
+		octet c;
+	};
+
+//	struct BTreeNode {
+//		sequence <BTreeNode,1> left;
+//		sequence <BTreeNode,1> right;
+//		Simple value;
+//	};
+
+	struct Harder {
+		string a;
+		long arr [10];
+		sequence <double> xx;
+	};
+
+	exception Failure {
+	};
+
+	exception HardFailure {
+		string reason;
+		long major;
+		long minor;
+	};
+
+	enum State {Good, Bad, Medium};
+
+	union RetValue switch (State) {
+		case Good:
+			long a;
+		case Bad:
+			short b;
+		case Medium:
+			double c;
+	};
+
+
+	union XVal switch (short) {
+		case 1:
+			long a;
+		case 2:
+			short b;
+		case 3:
+			double c;
+		default:
+			float d;
+	};
+
+
+	interface DObject {
+		void addRef();
+		void release();
+		Object query_interface (in string irid);
+	};
+
+
+	interface Left : DObject {
+		void perform (in string value) raises (Failure, HardFailure) context ("os.version");
+		oneway void addListener (in Object obj);
+		oneway void removeListener (in Object obj);
+	};
+
+	interface Right : DObject {
+		typedef sequence <octet> CoreDump;
+		CoreDump core ();
+	};
+
+	
+	interface DObjectPP : Left, Right {
+
+		exception Killed {
+		};
+		
+		readonly attribute State inner_state;
+		attribute string name;
+
+		void push (inout any value);
+	};
+	
+	const long Const10 = 10;
+	const string Str = "asd";
+	const char Chr = 'a';
+//	const wstring StrU = L"aa";
+};
+

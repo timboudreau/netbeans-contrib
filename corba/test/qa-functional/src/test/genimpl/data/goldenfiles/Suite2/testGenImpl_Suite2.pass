@@ -1,0 +1,96 @@
+data/genimpl/stage2 : /Aopening/hello ... OK
+data/genimpl/stage2 : /Hello/HelloWorld ... OK
+data/genimpl/stage2 : /any/test1 ... OK
+data/genimpl/stage2 : /array1/test1 ... OK
+data/genimpl/stage2 : /array10/test10 ... OK
+data/genimpl/stage2 : /array11/test11 ... FAILED: Compiler error
+data/genimpl/stage2 : /array1_many/test1_many ... OK
+data/genimpl/stage2 : /array2/test2 ... OK
+data/genimpl/stage2 : /array20/test20 ... OK
+data/genimpl/stage2 : /array21/test21 ... FAILED: Compiler error
+data/genimpl/stage2 : /array3/test3 ... OK
+data/genimpl/stage2 : /array30/test30 ... OK
+data/genimpl/stage2 : /array4/test4 ... OK
+data/genimpl/stage2 : /array4_1/test4_1 ... FAILED: Compiler error
+data/genimpl/stage2 : /array4_2/test4_2 ... OK
+data/genimpl/stage2 : /array4_3/test4_3 ... FAILED: Compiler error
+data/genimpl/stage2 : /array4_4/test4_4 ... FAILED: Compiler error
+data/genimpl/stage2 : /array_and_template1/test1 ... FAILED: No generated impls
+data/genimpl/stage2 : /constructed1/test1 ... OK
+data/genimpl/stage2 : /constructed10/test10 ... OK
+data/genimpl/stage2 : /constructed11/test11 ... OK
+data/genimpl/stage2 : /constructed2/test2 ... OK
+data/genimpl/stage2 : /constructed3/test3 ... OK
+data/genimpl/stage2 : /constructed4/test4 ... OK
+data/genimpl/stage2 : /constructed5/test5 ... OK
+data/genimpl/stage2 : /constructed6/test6 ... OK
+data/genimpl/stage2 : /constructed7/test7 ... OK
+data/genimpl/stage2 : /constructed8/test8 ... OK
+data/genimpl/stage2 : /constructed9/test9 ... OK
+data/genimpl/stage2 : /inheritance_diamond/diamond ... OK
+data/genimpl/stage2 : /inheritance_multiple1/multiple ... OK
+data/genimpl/stage2 : /inheritance_multiple2/multiple2 ... OK
+data/genimpl/stage2 : /inheritance_multiple3/multiple3 ... OK
+data/genimpl/stage2 : /inheritance_simple/simple ... OK
+data/genimpl/stage2 : /inheritance_simple_with_modules1/test1 ... OK
+data/genimpl/stage2 : /inheritance_simple_with_modules2/test1 ... OK
+data/genimpl/stage2 : /interface_type/test1 ... OK
+data/genimpl/stage2 : /modules_and_sequences_of_interfaces1/test1 ... OK
+data/genimpl/stage2 : /modules_and_sequences_of_interfaces2/test1 ... OK
+data/genimpl/stage2 : /modules_and_sequences_of_interfaces3/test1 ... OK
+data/genimpl/stage2 : /modules_and_sequences_with_constructetype1/test1 ... OK
+data/genimpl/stage2 : /modules_and_sequences_with_constructetype2/test1 ... OK
+data/genimpl/stage2 : /modules_and_sequences_with_constructetype3/test1 ... OK
+data/genimpl/stage2 : /modules_and_sequences_with_simpletype1/test1 ... OK
+data/genimpl/stage2 : /modules_and_sequences_with_simpletype2/test1 ... OK
+data/genimpl/stage2 : /modules_and_sequences_with_simpletype3/test1 ... OK
+data/genimpl/stage2 : /new_synchro1/A ... OK
+data/genimpl/stage2 : /simple1/test1 ... OK
+data/genimpl/stage2 : /simple2/test2 ... OK
+data/genimpl/stage2 : /simple3/test3 ... OK
+data/genimpl/stage2 : /simple_parent1/test1 ... OK
+data/genimpl/stage2 : /simple_parent2/test2 ... OK
+data/genimpl/stage2 : /simple_parent3/test3 ... OK
+data/genimpl/stage2 : /simple_parent4/test4 ... OK
+data/genimpl/stage2 : /simple_parent5/test5 ... OK
+data/genimpl/stage2 : /simple_parent6/test6 ... OK
+data/genimpl/stage2 : /simple_parent7/test7 ... OK
+data/genimpl/stage2 : /synchro_simple1/test1 ... OK
+data/genimpl/stage2 : /synchro_simple2/test1 ... OK
+data/genimpl/stage2 : /template1/test1 ... OK
+data/genimpl/stage2 : /template10/test10 ... OK
+data/genimpl/stage2 : /template1_2/test1_2 ... OK
+data/genimpl/stage2 : /template1_3/test1_3 ... OK
+data/genimpl/stage2 : /template2/test2 ... OK
+data/genimpl/stage2 : /template3/test3 ... OK
+data/genimpl/stage2 : /template5/test5 ... OK
+data/genimpl/stage2 : /template6/test6 ... OK
+data/genimpl/stage2 : /template7/test7 ... OK
+data/genimpl/stage2 : /template7_1/test7_1 ... OK
+data/genimpl/stage2 : /template8/test8 ... OK
+data/genimpl/stage2 : /template9/test9 ... FAILED: Compiler error
+data/genimpl/stage2 : /test1/i1 ... OK
+data/genimpl/stage2 : /test2/i1 ... OK
+data/genimpl/stage2 : /test3/i1 ... OK
+data/genimpl/stage2 : /test4/HelloWorld ... OK
+data/genimpl/stage2 : /test6/module ... OK
+data/genimpl/stage2 : /test7_1/m1 ... OK
+data/genimpl/stage2 : /test7_2/m2 ... OK
+data/genimpl/stage2 : /test7_3/m3 ... OK
+data/genimpl/stage2 : /test7_4/m4 ... OK
+data/genimpl/stage2 : /test7_5/m5 ... OK
+data/genimpl/stage2 : /test7_6/m6 ... OK
+data/genimpl/stage2 : /test7_7/m7 ... OK
+data/genimpl/stage2 : /test8/i1 ... OK
+data/genimpl/stage2 : /test9_1/module1 ... OK
+data/genimpl/stage2 : /test9_2/module2 ... OK
+data/genimpl/stage2 : /test9_3/module3 ... OK
+data/genimpl/stage2 : /testForMm/test ... OK
+data/genimpl/stage2 : /typeTreeTest1/test1 ... OK
+data/genimpl/stage2 : /typeTreeTest1_1/test1_1 ... FAILED: Compiler error
+data/genimpl/stage2 : /typeTreeTest2/test2 ... OK
+data/genimpl/stage2 : /typeTreeTest2_1/test2_1 ... FAILED: Compiler error
+data/genimpl/stage2 : /typeTreeTest3/test3 ... OK
+data/genimpl/stage2 : /typeTreeTest3_1/test3_1 ... FAILED: Compiler error
+data/genimpl/stage2 : /typeTreeTest4/test4 ... OK
+data/genimpl/stage2 : /typeTreeTest4_1/test4_1 ... FAILED: Compiler error

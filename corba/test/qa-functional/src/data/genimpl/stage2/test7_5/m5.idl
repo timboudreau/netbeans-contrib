@@ -1,0 +1,36 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+//
+// This is empty idl file
+//
+
+module m1 {
+  typedef string a;
+  module m2 {
+    module m5 {
+      typedef a a2;
+    };
+  };
+  module m3 {
+    typedef ::m1::m2::m5::a2 c;
+    module m4 {
+      typedef c x;
+
+      interface test {
+        attribute x value;
+      };
+    };
+  };
+};
+

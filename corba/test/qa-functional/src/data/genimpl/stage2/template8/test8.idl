@@ -1,0 +1,32 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+//
+// test8.idl
+//
+// Created on September 22, 1999, 4:58 PM
+// by kgardas
+//
+//
+// This is empty idl file
+//
+module m1 {
+  //typedef sequence <long, 20> s1;
+  typedef sequence <long, 20> sx;
+  typedef sequence <sx> s1;
+};
+//typedef sequence <sequence <long, 20>> s1;
+interface test1 {
+  //m1::s1 op ();
+  m1::s1 value (in ::m1::s1 param1, inout m1::s1 param2, out ::m1::s1 param3);
+};

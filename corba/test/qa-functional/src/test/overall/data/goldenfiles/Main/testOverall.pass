@@ -1,0 +1,261 @@
+SystemOptionTest version 1.0.1
+IT MUST BE LOADED BY MODULE CLASSLOADER
+OTHERWISE REFERENCED MODULE CLASSES COULD NOT BE LOADED!
+========================================
+  systemOption = org.netbeans.modules.corba.settings.CORBASupportSettings
+  className = org.netbeans.modules.corba.settings.CORBASupportSettings
+  serializable = true
+bean info:
+  class = java.beans.GenericBeanInfo
+bean descriptor:
+  name = CORBASupportSettings
+  displayName = CORBASupportSettings
+  shortDescription = CORBASupportSettings
+  hidden = false
+  customizer = java.beans.BeanDescriptor
+property:
+  name = IRChildren
+  type = java.util.Vector
+  getter = getInterfaceRepositoryChildren
+  setter = setInterfaceRepositoryChildren
+  displayName = IRChildren
+  shortDescription = IRChildren
+  hidden = true
+  editor = null
+property:
+  name = _M_implementations
+  type = [Ljava.lang.Object;
+  getter = getBeans
+  setter = setBeans
+  displayName = _M_implementations
+  shortDescription = _M_implementations
+  hidden = true
+  editor = null
+property:
+  name = _M_orb_name
+  type = java.lang.String
+  getter = getOrb
+  setter = setOrb
+  displayName = ORB Version
+  shortDescription = Select which ORB you would like to use.
+  hidden = false
+  editor = org.netbeans.modules.corba.settings.OrbPropertyEditor
+property:
+  name = _M_orb_tag
+  type = java.lang.String
+  getter = getORBTag
+  setter = setORBTag
+  displayName = _M_orb_tag
+  shortDescription = _M_orb_tag
+  hidden = true
+  editor = null
+property:
+  name = namingChildren
+  type = java.util.Vector
+  getter = getNamingServiceChildren
+  setter = setNamingServiceChildren
+  displayName = namingChildren
+  shortDescription = namingChildren
+  hidden = true
+  editor = null
+additional bean infos:
+========================================
+
+Actions of node: CORBA Naming Service
+Bind New Context...
+Start Local...
+From Initial References...
+&Properties
+
+Properties of node: CORBA Naming Service
+ PropertySet: properties
+Name: CORBA Naming Service
+Kind: 
+IOR: 
+
+Actions of node: CORBA Interface Repository
+Add Interface Repository...
+From Initial References...
+&Properties
+
+Properties of node: CORBA Interface Repository
+
+Actions of node: NSName
+Create New Context...
+Bind New Context...
+Unbind Context
+Copy Server Binding Code
+Bind New Object...
+Refresh 
+&Properties
+
+Properties of node: NSName
+ PropertySet: properties
+Name: NSName
+Kind: NSKind
+IOR: 
+
+Actions of node: NSSubName
+Create New Context...
+Bind New Context...
+Unbind Context
+Copy Server Binding Code
+Bind New Object...
+Refresh 
+&Properties
+
+Properties of node: NSSubName
+ PropertySet: properties
+Name: NSSubName
+Kind: NSSubKind
+IOR: 
+
+Server code on node: NSName(NSKind)/NSSubName(NSSubKind)
+      String[] hierarchy_of_contexts = new String [] {};
+      String[] name_of_server = new String [] {"<name of server>", "<kind of server>"};
+
+Actions of node: Idl Node
+Create Alias
+Create Constant
+Create Enum
+Create Exception
+Create Forward Dcl
+Create Interface
+Create Module
+Create Structure
+Create Union
+Create ValueBox
+Create Valuetype
+
+Properties of node: Idl Node
+
+Actions of node: TestModule
+Create Alias
+Create Constant
+Create Enum
+Create Exception
+Create Forward Dcl
+Create Interface
+Create Module
+Create Structure
+Create Union
+Create ValueBox
+Create Valuetype
+Delete
+Edit...
+
+Properties of node: TestModule
+
+Actions of node: TestConst
+Delete
+Edit...
+
+Properties of node: TestConst
+
+Actions of node: TestAlias
+Delete
+Edit...
+
+Properties of node: TestAlias
+
+Actions of node: TestStruct
+Create Member
+Delete
+Edit...
+
+Properties of node: TestStruct
+
+Actions of node: TestStructEntry
+Delete
+Edit...
+
+Properties of node: TestStructEntry
+
+Actions of node: TestException
+Create Member
+Delete
+Edit...
+
+Properties of node: TestException
+
+Actions of node: TestExceptionEntry
+Delete
+Edit...
+
+Properties of node: TestExceptionEntry
+
+Actions of node: TestUnion
+Create Member
+Create Default Member
+Delete
+Edit...
+
+Properties of node: TestUnion
+
+Actions of node: TestUnionEntry
+Delete
+Edit...
+
+Properties of node: TestUnionEntry
+
+Actions of node: TestEnum
+Create Member
+Delete
+Edit...
+
+Properties of node: TestEnum
+
+Actions of node: TestInterface
+Create Alias
+Create Attribute
+Create Constant
+Create Enum
+Create Exception
+Create Operation
+Create Structure
+Create Union
+Delete
+Edit...
+
+Properties of node: TestInterface
+
+Actions of node: TestOperation
+Delete
+Edit...
+
+Properties of node: TestOperation
+
+Actions of node: TestAttribute
+Delete
+Edit...
+
+Properties of node: TestAttribute
+
+Testing Code Generation:
+module TestModule {
+    const unsigned long TestConst = 12;
+
+    typedef String TestAlias [12] [10];
+
+    struct TestStruct {
+        octet TestStructEntry;
+    };
+
+    exception TestException {
+        boolean TestExceptionEntry;
+    };
+
+    union TestUnion switch (long) {
+        case 1: short TestUnionEntry;
+    };
+
+    enum TestEnum {B0};
+
+    interface TestInterface {
+        oneway void TestOperation (in char c);
+        readonly attribute any TestAttribute;
+    };
+
+};
+
+
