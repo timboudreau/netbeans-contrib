@@ -18,6 +18,7 @@ import org.openide.loaders.DataObject;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.NbBundle;
 import org.openide.util.Lookup;
+import org.openide.util.Cancellable;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -44,7 +45,7 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @author Petr Kuzel
  */
-public final class SuggestionsScanner {
+public final class SuggestionsScanner implements Cancellable {
 
     /** Optional progress monitor */
     private ScanProgress progressMonitor;
@@ -72,7 +73,7 @@ public final class SuggestionsScanner {
     // heuristically detect overload
     private static boolean lowMemoryWarning;
     private static int lowMemoryWarningCount;
-    private boolean interrupted;
+    private volatile boolean interrupted;
 
     private SuggestionsScanner() {
         manager = (SuggestionManagerImpl) Lookup.getDefault().lookup(SuggestionManager.class);
@@ -374,6 +375,11 @@ public final class SuggestionsScanner {
             count += countFolders(next);  // recursion
         }
         return count;
+    }
+
+    public boolean cancel() {
+        interrupted = true;
+        return true;
     }
 
     /**

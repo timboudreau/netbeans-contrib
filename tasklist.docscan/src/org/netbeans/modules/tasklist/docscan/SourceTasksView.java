@@ -698,9 +698,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private void handleCurrentFile() {
         if (job != null) return;
-        background = null;
         try {
-            handleStop();  //XXX if all files pressed promply it may be wrongly over ridden
+            if (background != null) handleStop();  //XXX if all files pressed promply it may be wrongly over ridden
+            background = null;
             job = SuggestionsBroker.getDefault().startBroker();
             putClientProperty("PersistenceType", "OnlyOpened");  // NOI18N
             treeTable.setProperties(createColumns());

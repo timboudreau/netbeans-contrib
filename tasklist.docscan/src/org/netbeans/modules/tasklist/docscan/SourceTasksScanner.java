@@ -16,8 +16,10 @@ package org.netbeans.modules.tasklist.docscan;
 import org.netbeans.modules.tasklist.suggestions.SuggestionList;
 import org.netbeans.modules.tasklist.suggestions.SuggestionsScanner;
 import org.netbeans.modules.tasklist.core.Background;
+import org.netbeans.modules.tasklist.core.CancellableRunnable;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
+import org.openide.util.Cancellable;
 import org.openide.ErrorManager;
 import org.openide.nodes.Node;
 import org.openide.cookies.InstanceCookie;
@@ -52,41 +54,63 @@ final class SourceTasksScanner {
 
         final SuggestionList list = (SuggestionList) view.getList();
 
-        return Background.execute( new Runnable() {
-            public void run() {
-                try {
-                    try {
-                        // block until previous AWT events get processed
-                        // it does not survive nested invokeAndWaits
-                        SwingUtilities.invokeAndWait(
-                            new Runnable() {
-                                public void run() {
-                                    view.setCursor(Utilities.createProgressCursor(view));
-                                }
-                            }
-                        );
-                    } catch (InterruptedException ignore) {
-                        // XXX
-                    } catch (InvocationTargetException e) {
-                        ErrorManager.getDefault().notify(e);
-                    }
-                    scanProjectSuggestions(list, view);
+        Bg bg = new Bg(view, list);
+        return Background.execute(bg);
+    }
 
-                } finally {
-                    SwingUtilities.invokeLater(
+    static class Bg implements CancellableRunnable {
+
+        private Cancellable cancellable;
+
+        private final SourceTasksView view;
+        private final SuggestionList list;
+
+        Bg(SourceTasksView view, SuggestionList list) {
+            this.view = view;
+            this.list = list;
+        }
+
+        public void run() {
+            try {
+                try {
+                    // block until previous AWT events get processed
+                    // it does not survive nested invokeAndWaits
+                    SwingUtilities.invokeAndWait(
                         new Runnable() {
                             public void run() {
-                                view.statistics(list.size());
-                                view.setCursor(null);
+                                view.setCursor(Utilities.createProgressCursor(view));
                             }
                         }
                     );
+                } catch (InterruptedException ignore) {
+                    // XXX
+                } catch (InvocationTargetException e) {
+                    ErrorManager.getDefault().notify(e);
                 }
-            }
-        });
-    }
+                scanProjectSuggestions(list, view, this);
 
-    static void scanProjectSuggestions(final SuggestionList list, final SourceTasksAction.ScanProgressMonitor view) {
+            } finally {
+                SwingUtilities.invokeLater(
+                    new Runnable() {
+                        public void run() {
+                            view.statistics(list.size());
+                            view.setCursor(null);
+                        }
+                    }
+                );
+            }
+        }
+
+        public boolean cancel() {
+            if (cancellable != null) {
+                return cancellable.cancel();
+            }
+            return false;
+        }
+    };
+
+
+    static void scanProjectSuggestions(final SuggestionList list, final SourceTasksAction.ScanProgressMonitor view, Bg bg) {
         List project = new ArrayList(23);
         boolean enabled = false;
 
@@ -102,8 +126,9 @@ final class SourceTasksScanner {
         DataObject.Container projectFolders[] = new DataObject.Container[project.size()];
         project.toArray(projectFolders);
 
-        SuggestionsScanner.getDefault().scan(projectFolders, list, view);
-
+        SuggestionsScanner c = SuggestionsScanner.getDefault();
+        bg.cancellable = c;
+        c.scan(projectFolders, list, view);
     }
 
     static void repository(List folders) {
