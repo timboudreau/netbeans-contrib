@@ -3595,7 +3595,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     public String getLocalizedMessage() {
                         return g("MSG_FileNotExist", fname);
                     }
-                }, g("MSG_FileNotExist", fname));
+                }, ErrorManager.USER, null, g("MSG_FileNotExist", fname), null, null);
         }
         return in;
     }
