@@ -133,8 +133,6 @@ Microsystems, Inc. All Rights Reserved.
         <fileset dir="javahelp" excludesfile="${nbext}/standard-jar-excludes.txt" excludes="org/netbeans/modules/usersguide/"/>
 	<locale name="ja"/>
     </locjar>
-    <delete dir="javahelp/org/netbeans/modules/rmi/docs/JavaHelpSearch2"/>
-    <delete dir="javahelp/org/netbeans/modules/rmi/docs/ja/JavaHelpSearch2"/>
   </target>
 
 
@@ -164,8 +162,8 @@ Microsystems, Inc. All Rights Reserved.
     <delete dir="netbeans"/>
     <delete dir="Info"/>
     <delete dir="javahelp/org/netbeans/modules/rmi/docs/JavaHelpSearch2"/>
-<!--    <delete dir="javahelp/org/netbeans/modules/rmi/docs/ja/JavaHelpSearch2"/>
-    the latter deletion assumes that there is not actually a localized help set ready-->
+    <delete dir="javahelp/org/netbeans/modules/rmi/docs/ja/JavaHelpSearch2"/>
+    <delete dir="javahelp/org/netbeans/modules/usersguide"/>
   </target>
 
 </project>

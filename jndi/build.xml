@@ -79,6 +79,7 @@ Microsystems, Inc. All Rights Reserved.
       <exclude name="ja/"/>
       <exclude name="credits.html"/>
     </jhindexer>
+<!-- No japanese helpset yet - uncomment this section after any JA localization   
     <mkdir dir="javahelp/org/netbeans/modules/jndi/docs/ja/JavaHelpSearch2"/>
     <jhindexer basedir="javahelp/org/netbeans/modules/jndi/docs/"
                db="javahelp/org/netbeans/modules/jndi/docs/ja/JavaHelpSearch2"
@@ -89,6 +90,7 @@ Microsystems, Inc. All Rights Reserved.
       <exclude name="ja/JavaHelpSearch2/"/>
       <exclude name="credits.html"/>
     </jhindexer>
+-->
     <mkdir dir="javahelp/org/netbeans/modules/usersguide"/>
     <copy file="${nbroot}/usersguide/javahelp/org/netbeans/modules/usersguide/ide.css" tofile="javahelp/org/netbeans/modules/usersguide/ide.css"/>
     <mkdir dir="netbeans/modules/docs"/>
@@ -96,10 +98,6 @@ Microsystems, Inc. All Rights Reserved.
         <fileset dir="javahelp" excludesfile="${nbext}/standard-jar-excludes.txt" excludes="org/netbeans/modules/usersguide/"/>
 	<locale name="ja"/>
     </locjar>
-    <delete dir="javahelp/org/netbeans/modules/jndi/docs/JavaHelpSearch2"/>
-    <delete dir="javahelp/org/netbeans/modules/jndi/docs/ja/JavaHelpSearch2"/>
-    <delete dir="javahelp/org/netbeans/modules/jndi/docs/ja"/>
-    <!--the latter deletion assumes that there is not actually a localized help set ready-->
     </target>
 
 
@@ -127,8 +125,6 @@ Microsystems, Inc. All Rights Reserved.
     <delete dir="Info"/>
     <delete dir="javahelp/org/netbeans/modules/jndi/docs/ja/JavaHelpSearch2"/>
     <delete dir="javahelp/org/netbeans/modules/jndi/docs/JavaHelpSearch2"/>
-    <delete dir="javahelp/org/netbeans/modules/jndi/docs/ja"/>
-    <!--the latter deletion assumes that there is not actually a localized help set ready-->
     <delete dir="javahelp/org/netbeans/modules/usersguide"/>
   </target>
 
