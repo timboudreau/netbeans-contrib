@@ -53,6 +53,7 @@ public class CvsRevisionListGetter extends java.lang.Object implements VcsAdditi
     //private StringBuffer logBuffer = new StringBuffer(4096);
     private boolean matchingSymbolicNames = false;
     private boolean matchingDescription = false;
+    private boolean matchingRevision = false;
     private String description = "";
     private Hashtable symbolicNames = new Hashtable();
     private ArrayList revisionItems = new ArrayList();
@@ -100,6 +101,7 @@ public class CvsRevisionListGetter extends java.lang.Object implements VcsAdditi
         //System.out.println("runLog(): currentRevision = "+currentRevision);
         matchingSymbolicNames = false;
         matchingDescription = false;
+        matchingRevision = false;
         symbolicNames = new Hashtable();
         revisionItems = new ArrayList();
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(logCmd, vars);
@@ -304,7 +306,7 @@ public class CvsRevisionListGetter extends java.lang.Object implements VcsAdditi
     public void outputData(String[] elements) {
         //logBuffer.append(elements[0]);
         if (elements == null || elements.length == 0 || elements[0] == null) return;
-        if (elements[0].indexOf(revisionStr) == 0) {
+        if (!matchingRevision && elements[0].indexOf(revisionStr) == 0) {
             int endRev = elements[0].indexOf('\t', revisionStr.length() + 1);
             if (endRev < 0) endRev = elements[0].length();
             String revision = elements[0].substring(revisionStr.length(), endRev).trim();
@@ -317,6 +319,7 @@ public class CvsRevisionListGetter extends java.lang.Object implements VcsAdditi
                 String locker = elements[0].substring(lockedIndex + lockedStr.length(), elements[0].length() - 1).trim();
                 item.setLocker(locker);
             }
+            matchingRevision = true;
         } else if (elements[0].indexOf(dateStr) == 0) {
             if (revisionItems.size() > 0) {
                 RevisionItem item = getLastRevisionItem();
@@ -392,6 +395,9 @@ public class CvsRevisionListGetter extends java.lang.Object implements VcsAdditi
         if (matchingDescription) {
             if (elements[0].indexOf(nextRevisionStr) == 0) matchingDescription = false;
             else description += elements[0];
+        }
+        if (matchingRevision && elements[0].indexOf(nextRevisionStr) == 0) {
+            matchingRevision = false;
         }
         if (elements[0].indexOf(descriptionStr) == 0) matchingDescription = true;
     }    
