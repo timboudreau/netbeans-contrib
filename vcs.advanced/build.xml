@@ -165,8 +165,48 @@ Microsystems, Inc. All Rights Reserved.
     <delete file="manifest-subst.mf"/>
     <delete file="vcsgen.nbm"/>
     <delete dir="netbeans"/>
+    <delete dir="javadoc"/>
     <delete dir="Info"/>
     <for-each locations="${stdprofiles}" startdir="profiles"/>
+  </target>
+
+  <target name="javadoc" description="Build vcsgeneric module API documentation.">
+    <tstamp/>
+    <property name="apis-footer" value="&lt;font size=-2 color=gray&gt;Built on ${TODAY}.&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Portions Copyright 1997-2002 Sun Microsystems, Inc. All rights reserved.&lt;/font&gt;"/>
+    <echo message="Build vcsgeneric module API documentation..."/>
+    <mkdir dir="javadoc"/>
+    <javadoc destdir="javadoc"
+             packagenames="org.netbeans.modules.*,vcs.*"
+             doctitle="NetBeans vcsgeneric module APIs"
+             windowtitle="NetBeans vcsgeneric module APIs"
+             bottom="${apis-footer}"
+             use="true"
+             splitindex="true"
+             author="false"
+             version="false"
+             maxmemory="384m"
+    >
+      <sourcepath>
+        <pathelement location="src"/>
+        <pathelement location="profiles/clearcase/src"/>
+        <pathelement location="profiles/cvsprofiles/common"/>
+        <pathelement location="profiles/cvsprofiles/src"/>
+        <pathelement location="profiles/pvcs/src"/>
+        <pathelement location="profiles/starteam/common"/>
+        <pathelement location="profiles/vss/src"/>
+      </sourcepath>
+      <classpath>
+	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
+        <!--<pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>-->
+        <fileset dir="${nbroot}/openide/netbeans/lib">
+          <include name="openide*.jar" />
+        </fileset>
+	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
+	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
+        <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
+        <pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar"/>
+      </classpath>
+    </javadoc>    
   </target>
 
 </project>

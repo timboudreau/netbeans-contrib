@@ -122,10 +122,41 @@ Microsystems, Inc. All Rights Reserved.
     <delete file="manifest-subst.mf"/>
     <delete file="jndi.nbm"/>
     <delete dir="netbeans"/>
+    <delete dir="javadoc"/>
     <delete dir="Info"/>
     <delete dir="javahelp/org/netbeans/modules/jndi/docs/ja/JavaHelpSearch2"/>
     <delete dir="javahelp/org/netbeans/modules/jndi/docs/JavaHelpSearch2"/>
     <delete dir="javahelp/org/netbeans/modules/usersguide"/>
+  </target>
+
+  <target name="javadoc" description="Build jndi module API documentation.">
+    <tstamp/>
+    <property name="apis-footer" value="&lt;font size=-2 color=gray&gt;Built on ${TODAY}.&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Portions Copyright 1997-2002 Sun Microsystems, Inc. All rights reserved.&lt;/font&gt;"/>
+    <echo message="Build jndi module API documentation..."/>
+    <mkdir dir="javadoc"/>
+    <javadoc destdir="javadoc"
+             packagenames="org.netbeans.modules.*"
+             doctitle="NetBeans jndi module APIs"
+             windowtitle="NetBeans jndi module APIs"
+             bottom="${apis-footer}"
+             use="true"
+             splitindex="true"
+             author="false"
+             version="false"
+             maxmemory="384m"
+    >
+      <sourcepath>
+        <pathelement location="src"/>
+      </sourcepath>
+      <classpath>
+	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
+        <!--<pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>-->
+        <fileset dir="${nbroot}/openide/netbeans/lib">
+          <include name="openide*.jar" />
+        </fileset>
+	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
+      </classpath>
+    </javadoc>    
   </target>
 
 </project>
