@@ -31,6 +31,10 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
   /** Array of property descriptors. */
   private static PropertyDescriptor[] desc;
 
+  /** Icon for VCS filesystem. */
+  private static java.awt.Image icon;
+  private static java.awt.Image icon32;
+
   static {
     PropertyDescriptor rootDirectory=null;
     PropertyDescriptor debug=null;
@@ -87,6 +91,18 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
     }
   }
 
+  /* Provides the VCSFileSystem's icon */
+  public java.awt.Image getIcon(int type) {
+    if (icon == null) {
+      icon = loadImage("/com/netbeans/enterprise/modules/vcs/cmdline/vcs2.gif");
+      icon32 = icon;
+    }
+    if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16))
+      return icon;
+    else
+      return icon32;
+  }
+
   /* Descriptor of valid properties
   * @return array of properties
   */
@@ -104,6 +120,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  11   Gandalf   1.10        8/7/99   Ian Formanek    Icon for VCS Filesystem
 *  10   Gandalf   1.9         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
 *  9    Gandalf   1.8         5/19/99  Michal Fadljevic 
