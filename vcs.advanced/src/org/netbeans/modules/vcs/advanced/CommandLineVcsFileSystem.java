@@ -1337,12 +1337,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private final static class SharedPasswords extends Object {
         
         private HashMap passwords;
-        private HashSet listeners;
+        private PropertyChangeSupport changeSupport;
         private static SharedPasswords instance;
         
         private SharedPasswords() {
             passwords = new HashMap();
-            listeners = new HashSet();
         }
         
         public static SharedPasswords getInstance() {
@@ -1374,26 +1373,24 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
         
         private void firePropertyChange(Object key, Object oldPass, Object newPass) {
-            PropertyChangeEvent event = new PropertyChangeEvent(key, "password", oldPass, newPass);
-            HashSet l;
-            synchronized (listeners) {
-                l = new HashSet(listeners);
-            }
-            for (Iterator it = l.iterator(); it.hasNext(); ) {
-                ((PropertyChangeListener) it.next()).propertyChange(event);
+            if (changeSupport != null) {
+                PropertyChangeEvent event = new PropertyChangeEvent(key, "password", oldPass, newPass);
+                changeSupport.firePropertyChange(event);
             }
         }
+
         
         public void addPropertyChangeListener(PropertyChangeListener l) {
-            synchronized (listeners) {
-                listeners.add(l);
+            synchronized (this) {
+                if (changeSupport == null)
+                    changeSupport = new PropertyChangeSupport(this);
             }
+            changeSupport.addPropertyChangeListener(l);
         }
         
         public void removePropertyChangeListener(PropertyChangeListener l) {
-            synchronized (listeners) {
-                listeners.remove(l);
-            }
+            if (changeSupport != null)
+                changeSupport.removePropertyChangeListener(l);
         }
     }
 
