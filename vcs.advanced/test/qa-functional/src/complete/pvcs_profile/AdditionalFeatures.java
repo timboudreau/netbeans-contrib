@@ -33,7 +33,7 @@ import javax.swing.text.*;
 import java.awt.Color;
 import java.util.Date;
 
-/** XTest / JUnit test class performing regular development testing on PVCS filesystem.
+/** XTest / JUnit test class performing additional features testing on PVCS filesystem.
  * @author Jiri Kovalsky
  * @version 1.0
  */
@@ -140,7 +140,6 @@ public class AdditionalFeatures extends NbTestCase {
      */
     public void testCompareRevisions() throws Exception {
         System.out.print(".. Testing two revisions comparison ..");
-        String workingPath = getWorkDirPath();
         String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         Node A_FileNode = new Node( filesystemNode, "A_File [Current]");
@@ -182,8 +181,6 @@ public class AdditionalFeatures extends NbTestCase {
      */
     public void testAddToGroup() throws Exception {
         System.out.print(".. Testing file addition to VCS group ..");
-        String workingPath = getWorkDirPath();
-        workingDirectory = workingPath.substring(0, workingPath.indexOf("AdditionalFeatures")) + "RepositoryCreation" + File.separator + "testCreateDatabase";
         String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         Node B_FileNode = new Node( filesystemNode, "test [Current]|B_File [Current]");
