@@ -67,7 +67,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         D.deb ("DIR="+(String)vars.get("DIR")); // NOI18N
         //dir = new VcsDir();
         path = path.replace (java.io.File.separatorChar, '/');
-        path = fileSystem.getFile(path).getAbsolutePath().replace(java.io.File.separatorChar, '/');
+        //path = fileSystem.getFile(path).getAbsolutePath().replace(java.io.File.separatorChar, '/');
         //dir = new VcsCacheDir(fileSystem.getCacheIdStr(), fileSystem.getFile(path));
         //dir.setPath (path);
         //dir.setName(VcsUtilities.getFileNamePart(path));
@@ -304,6 +304,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
     
     private void translateElementsRecursively(VcsDirContainer rawData) {
         Hashtable filesByName = (Hashtable) rawData.getElement();
+        if (filesByName == null) return ;
         Hashtable filesByNameTranslated = new Hashtable();
         for (Enumeration enum = filesByName.keys(); enum.hasMoreElements(); ) {
             String name = (String) enum.nextElement();
