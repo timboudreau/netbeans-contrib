@@ -104,6 +104,7 @@ Microsystems, Inc. All Rights Reserved.
     <delete file="jndi.nbm"/>
     <delete dir="netbeans"/>
     <delete dir="Info"/>
+    <delete dir="javahelp/org/netbeans/modules/jndi/docs/JavaHelpSearch"/>
   </target>
 
 </project>
