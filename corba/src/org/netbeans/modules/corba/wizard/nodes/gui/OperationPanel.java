@@ -124,8 +124,10 @@ public class OperationPanel extends ExPanel implements DocumentListener, ChangeL
         jLabel1.setText(this.bundle.getString ("TXT_ModuleName"));
         jLabel1.setLabelFor(name);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(8, 8, 4, 4);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel1, gridBagConstraints);
 
         jLabel2.setText(this.bundle.getString ("TXT_Return"));
@@ -167,11 +169,13 @@ public class OperationPanel extends ExPanel implements DocumentListener, ChangeL
         name.setToolTipText(this.bundle.getString("TIP_OperationName"));
         name.setPreferredSize(new java.awt.Dimension(100, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(8, 4, 4, 8);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(8, 4, 4, 8);
         add(name, gridBagConstraints);
 
         ret.setToolTipText(this.bundle.getString("TIP_OperationRetType"));
@@ -222,8 +226,8 @@ public class OperationPanel extends ExPanel implements DocumentListener, ChangeL
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 8);
         add(ctx, gridBagConstraints);
 
-        oneway.setToolTipText(this.bundle.getString ("TIP_OpMode"));
         oneway.setText(this.bundle.getString ("TXT_OpMode"));
+        oneway.setToolTipText(this.bundle.getString ("TIP_OpMode"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
@@ -238,17 +242,17 @@ public class OperationPanel extends ExPanel implements DocumentListener, ChangeL
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField params;
+    private javax.swing.JTextField ctx;
+    private javax.swing.JTextField ret;
     private javax.swing.JTextField except;
+    private javax.swing.JTextField name;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JCheckBox oneway;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JTextField name;
-    private javax.swing.JTextField ctx;
-    private javax.swing.JCheckBox oneway;
-    private javax.swing.JTextField ret;
+    private javax.swing.JTextField params;
     // End of variables declaration//GEN-END:variables
 
 
