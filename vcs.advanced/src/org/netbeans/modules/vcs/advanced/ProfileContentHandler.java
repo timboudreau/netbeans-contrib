@@ -345,6 +345,7 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
             if (skipping) {
                 skipping = false;
             } else {
+                cleanupCondition(lastCondition);
                 conditions.add(lastCondition);
                 lastCondition = lastReadingCondition = null;
                 readingCondition = false;
@@ -583,6 +584,26 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
         String unless_attr = atts.getValue(UNLESS_ATTR);
         if (unless_attr == null) unless_attr = ""; // NOI18N
         return VariableIO.createCondition(name, if_attr, unless_attr);
+    }
+    
+    /** Cleans up the Condition object. In case that it contains just one
+        sub-condition with AND operator, it will put it's stuff directly
+        into the root */
+    private static void cleanupCondition(Condition c) {
+        Condition[] subConditions = c.getConditions();
+        if (subConditions.length == 1 && c.getVars().length == 0) {
+            Condition anonCondition = subConditions[0];
+            c.removeCondition(anonCondition);
+            c.setLogicalOperation(anonCondition.getLogicalOperation());
+            subConditions = anonCondition.getConditions();
+            Condition.Var[] vars = anonCondition.getVars();
+            for (int i = 0; i < subConditions.length; i++) {
+                c.addCondition(subConditions[i], anonCondition.isPositiveTest(subConditions[i]));
+            }
+            for (int i = 0; i < vars.length; i++) {
+                c.addVar(vars[i], anonCondition.isPositiveTest(vars[i]));
+            }
+        }
     }
     
     private VcsConfigVariable readVariable(Attributes atts) {
