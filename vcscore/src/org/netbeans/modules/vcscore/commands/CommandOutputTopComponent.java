@@ -133,6 +133,8 @@ public class CommandOutputTopComponent extends TopComponent {
     public synchronized ErrorOutputPanel getErrorOutput() {
         if (errorOutput == null) {
             errorOutput = new ErrorOutputPanel();
+            if(tabPane == null)
+                initTabPane();
             tabPane.insertTab(errorOutput.getTitle(), null, errorOutput, errorOutput.getToolTipText(), 0);
         }
         tabPane.setSelectedComponent(errorOutput);
@@ -222,7 +224,7 @@ public class CommandOutputTopComponent extends TopComponent {
         try{
             remove(emptyLabel);
         }catch(NullPointerException e){
-            //ignore
+            //ignore - it's here only for case the emptyLabel isn't in container
         }
         tabPane = new JTabbedPane();  
         tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -262,9 +264,11 @@ public class CommandOutputTopComponent extends TopComponent {
     private void showEmptyStatus(){ 
         tabPaneRemoved = true;
         try{
-            remove(tabPane);            
+            remove(tabPane); 
+            tabPane = null;
         }catch(NullPointerException e){
-           //ignore
+           //ignore -  it's here only for case the tabPane isn't in container,
+           // it's more convenient than search through container's components 
         }              
         add(emptyLabel);
     }
