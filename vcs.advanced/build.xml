@@ -15,9 +15,9 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="vcsgeneric" default="netbeans" basedir=".">
 
-  <property name="nbroot" value=".."/>
+  <property name="nbroot" location=".."/>
   <property name="binroot" location="../../nbextra"/>
-  <property name="nbext" value="${nbroot}/nbbuild"/>
+  <property name="nbext" location="${nbroot}/nbbuild"/>
   <property name="nbext_root" location="${nbroot}/nbbuild"/>
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
@@ -99,7 +99,7 @@ Microsystems, Inc. All Rights Reserved.
       </fileset>
     </locjar>
     <!-- <for-each locations="${stdprofiles}" startdir="profiles"/> -->
-    <nbmerge dest="netbeans" topdir="profiles" modules="${stdprofiles}" targetprefix="profile-"/>
+<!--    <nbmerge dest="netbeans" topdir="profiles" modules="${stdprofiles}" targetprefix="profile-"/>-->
    <!--
     <patternset id="stdprofilesFolders" includes="${stdprofiles}"/>
     <copy todir="netbeans/modules" flatten="true" includeEmptyDirs="false">
@@ -167,7 +167,6 @@ Microsystems, Inc. All Rights Reserved.
     <delete dir="netbeans"/>
     <delete dir="javadoc"/>
     <delete dir="Info"/>
-    <for-each locations="${stdprofiles}" startdir="profiles"/>
   </target>
 
   <target name="javadoc" description="Build vcsgeneric module API documentation.">

@@ -15,37 +15,34 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="vcsgeneric/profiles/vss" default="netbeans" basedir=".">
 
-  <property name="nbroot1" value="../../.."/>
-  <property name="nbext1" value="${nbroot1}/nbbuild"/>
+  <property name="nbroot" value="../../.."/>
+  <property name="nbext" value="${nbroot}/nbbuild"/>
+  <property name="binroot" location="${nbroot}/../nbextra"/>
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file1" value="${nbroot1}/nbbuild/standard-nbm-license.txt"/>
+  <property name="license.file" value="${nbroot}/nbbuild/standard-nbm-license.txt"/>
 
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext1}/nbantext.jar"/>
-  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext1}/nbantext.jar"/>
-  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext1}/nbantext.jar"/>
-  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbext1}/nbantext.jar"/>
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
+  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext}/nbantext.jar"/>
+  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
+  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbext}/nbantext.jar"/>
 
-  <target name="setBinRoot" unless="${binroot}">
-    <property name="binroot" location="${nbroot1}/../nbextra"/>
-  </target>
-
-  <target name="compile" depends="setBinRoot">
+  <target name="compile">
     <!-- <echo message="basedir = ${basedir}, nbroot1 = ${nbroot1}"/> -->
     <javac srcdir="src" 
         deprecation="${build.compiler.deprecation}" 
         debug="${build.compiler.debug}"
         destdir="src">
       <classpath>        
-	<pathelement location="${nbroot1}/openide/openide-13javac-workaround.jar"/>
+	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <!--<pathelement location="${nbroot1}/openide/netbeans/lib/openide.jar"/>-->
-        <fileset dir="${nbroot1}/openide/netbeans/lib">
+        <fileset dir="${nbroot}/openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-	<pathelement location="${nbroot1}/openidex/netbeans/modules/autoload/openidex.jar"/>
-	<pathelement location="${nbroot1}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
-	<pathelement location="${nbroot1}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
+	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
+	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
+	<pathelement location="${nbroot}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
         <pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar"/>
         <pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
       </classpath>
@@ -85,11 +82,11 @@ Microsystems, Inc. All Rights Reserved.
     <locjar jarfile="netbeans/modules/vss-profile.jar"
          manifest="manifest-subst.mf"
          basedir="src"
-         excludesfile="${nbroot1}/nbbuild/standard-jar-excludes.txt"
+         excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
 	 excludes="org/netbeans/modules/vcs/profiles/vss/mf-layer_XX.xml"
          compress="false">
       <locale name="ja"/>
-      <fileset dir="src/" excludesfile="${nbroot1}/nbbuild/standard-jar-excludes.txt">
+      <fileset dir="src/" excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt">
         <include name="**/*"/>
 	<exclude name="org/netbeans/modules/vcs/profiles/vss/config/*_XX.*"/>
       </fileset>
@@ -101,7 +98,7 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist targetname="nbm" outputfiledir="${nbext1}/netbeans"/>
+    <genlist targetname="nbm" outputfiledir="${nbext}/netbeans"/>
   </target>
 
   <target name="nbm" depends="netbeans">
@@ -110,7 +107,7 @@ Microsystems, Inc. All Rights Reserved.
              module="netbeans/modules/vss-profile.jar"
 	     homepage="http://vcsgeneric.${homepage.base}/"
 	     distribution="http://${dist.base}/vss-profile.nbm">
-      <license file="${license.file1}"/>
+      <license file="${license.file}"/>
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>
