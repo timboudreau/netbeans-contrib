@@ -93,6 +93,8 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     /** Holds value of property messageLength. */
     private int messageLength = 50;    
     
+    private transient FSPropertyChangeListener propListener;
+    
     public static final String PROP_SHOW_DEAD_FILES = "showDeadFiles"; //NOI18N
     public static final String PROP_SHOW_MESSAGES = "showMessages"; //NOI18N
     public static final String PROP_MESSAGE_LENGTH = "messageLength"; //NOI18N
@@ -134,7 +136,9 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         };
         fileSystem.addFileStatusListener(WeakListener.fileStatus(fileStatus, fileSystem));
          */
-        addPropertyChangeListener(new FSPropertyChangeListener());
+        propListener = new FSPropertyChangeListener();
+        fileSystem.addPropertyChangeListener(WeakListener.propertyChange(propListener, fileSystem));
+        addPropertyChangeListener(propListener);
     }
 
     /** Creates Reference. In FileSystem, which subclasses AbstractFileSystem, you can overload method
@@ -670,6 +674,19 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             if (PROP_SHOW_DEAD_FILES.equals(propName)) {
                 FileObject root = findResource("");
                 heyDoRefreshFolderRecursive(root);
+            }
+            if (VcsFileSystem.PROP_ROOT.equals(propName) && (!event.getSource().equals(VcsVersioningSystem.this))) {
+//                rootFile = fileSystem.getRootDirectory();
+                try {
+                    String oldSystName = getSystemName();
+                    setSystemName(fileSystem.getSystemName());
+                    VcsVersioningSystem.this.firePropertyChange(VcsVersioningSystem.this.PROP_SYSTEM_NAME, oldSystName, getSystemName());
+                } catch (java.beans.PropertyVetoException vExc) {
+                    org.openide.TopManager.getDefault().getErrorManager().notify(org.openide.ErrorManager.WARNING, vExc);
+                }
+                FileObject fo = refreshRoot();
+                VcsVersioningSystem.this.firePropertyChange(VcsVersioningSystem.this.PROP_ROOT, null, fo);
+                return;
             }
         }
 
