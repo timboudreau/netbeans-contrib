@@ -1,0 +1,35 @@
+<filepath>
+Workfile:         A_File.java
+<created>
+Owner:            <username>
+Last trunk rev:   1.1
+Locks:            
+Groups:           
+Rev count:        2
+Attributes:
+   WRITEPROTECT
+   CHECKLOCK
+   NOEXCLUSIVELOCK
+   EXPANDKEYWORDS
+   TRANSLATE
+   NOCOMPRESSDELTA
+   NOCOMPRESSWORKIMAGE
+   GENERATEDELTA
+   COMMENTPREFIX = " * "
+   NEWLINE = "\r\n"
+Version labels:
+Description:
+Auto-generated class file.
+-----------------------------------
+Rev 1.1
+<check_in_date>
+<last_modified>
+Author id: <username>     lines deleted/added/moved: 3/2/0
+Three lines have changed.
+-----------------------------------
+Rev 1.0
+<check_in_date>
+<last_modified>
+Author id: <username>     lines deleted/added/moved: 0/0/0
+Initial revision.
+===================================

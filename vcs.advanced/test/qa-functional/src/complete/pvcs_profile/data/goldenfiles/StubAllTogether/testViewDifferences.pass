@@ -1,0 +1,59 @@
+!!!! ==== Comparing revisions: HEAD and Local ==== !!!!
+==== Text - Panel 1 ====
+/** This is testing file.
+ */
+
+ public class Testing_File {
+
+ }
+
+==== Text - Panel 2 ====
+/** This is testing A_File.java file.
+ */
+
+ public class Testing_File {
+     int i;
+ }
+
+==== Colors - Panel 1 ====
+Pos: 0 ---- Blue
+Pos: 2 ---- Blue
+Pos: 4 ---- Blue
+Pos: 6 ---- Blue
+Pos: 8 ---- Blue
+Pos: 10 ---- Blue
+Pos: 12 ---- Blue
+Pos: 14 ---- Blue
+Pos: 16 ---- Blue
+Pos: 18 ---- Blue
+Pos: 20 ---- Blue
+Pos: 22 ---- Blue
+Pos: 24 ---- Blue
+Pos: 30 ---- Red
+Pos: 60 ---- Blue
+==== Colors - Panel 2 ====
+Pos: 0 ---- Blue
+Pos: 2 ---- Blue
+Pos: 4 ---- Blue
+Pos: 6 ---- Blue
+Pos: 8 ---- Blue
+Pos: 10 ---- Blue
+Pos: 12 ---- Blue
+Pos: 14 ---- Blue
+Pos: 16 ---- Blue
+Pos: 18 ---- Blue
+Pos: 20 ---- Blue
+Pos: 22 ---- Blue
+Pos: 24 ---- Blue
+Pos: 26 ---- Blue
+Pos: 28 ---- Blue
+Pos: 30 ---- Blue
+Pos: 32 ---- Blue
+Pos: 34 ---- Blue
+Pos: 36 ---- Blue
+Pos: 72 ---- Blue
+Pos: 74 ---- Blue
+Pos: 76 ---- Blue
+Pos: 78 ---- Blue
+Pos: 80 ---- Blue
+Pos: 82 ---- Blue
