@@ -248,8 +248,9 @@ public class UserCommandsPanel extends JPanel
         GridBagLayout gb=new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         setLayout(gb);
-        setBorder(new TitledBorder(g("CTL_Commands")));
-
+        //setBorder(new TitledBorder(g("CTL_Commands")));
+        setBorder(new EmptyBorder (12, 12, 0, 11));
+        
         PropertySheetView propertySheetView = new PropertySheetView();
         try {
             propertySheetView.setSortingMode(org.openide.explorer.propertysheet.PropertySheet.UNSORTED);
