@@ -71,6 +71,7 @@ public class VcsGroupNode extends AbstractNode {
     protected SystemAction[] createActions() {
         Node[] childs = getChildren().getNodes();
         Set actions = new HashSet();
+        List actionsList = new LinkedList();
         if (childs != null) {
             for (int i = 0; i < childs.length; i++) {
                 try {
@@ -80,7 +81,10 @@ public class VcsGroupNode extends AbstractNode {
                         SystemAction[] acts = fo.getFileSystem().getActions();
                         for (int m =0; m < acts.length; m++) {
 //                            System.out.println("group action class=" + acts[m]);
-                            actions.add(acts[m]);
+                            if (!acts[m].getClass().equals(org.netbeans.modules.vcscore.actions.AddToGroupAction.class)) {
+                                actions.add(acts[m]);
+                                actionsList.add(acts[m]);
+                            }
                         }
                         
                     }
@@ -107,7 +111,19 @@ public class VcsGroupNode extends AbstractNode {
  */
             toReturn = new SystemAction[actions.size() + 7];
 //        }
-        toReturn = (SystemAction[])actions.toArray(toReturn);
+        Iterator it = actionsList.iterator();
+        int index = 0;
+        while (it.hasNext()) {
+            SystemAction act = (SystemAction)it.next();
+            if (actions.contains(act)) {
+                toReturn[index] = act;
+                index = index + 1;
+                actions.remove(act);
+            }
+            if (actions.size() == 0) {
+                break;
+            }
+        }
         toReturn[toReturn.length - 6] = (SystemAction)SharedClassObject.findObject(VerifyGroupAction.class, true);
         toReturn[toReturn.length - 5] = null;
         toReturn[toReturn.length - 4] = SystemAction.get (DeleteAction.class);
