@@ -1,5 +1,9 @@
 <updates>
 
+    <update version="1.22">
+    <change>Assert in "Scan Directory for Suggestions" action fixed.</change>
+    </update>
+
     <update version="1.19">
     <change>Category nodes don't show priorities now</change>
     <change>34385: Can't change suggestion priority</change>

@@ -139,7 +139,7 @@ public final class SuggestionsScanner implements Cancellable {
         } finally {
             typeFilter = null;
             progressMonitor = null;
-            monitor.scanFinished();
+            if (monitor != null) monitor.scanFinished();
         }
     }
 
@@ -152,7 +152,7 @@ public final class SuggestionsScanner implements Cancellable {
      * @param list target suggestions list
      * @param recursive use descent policy
      */
-    public final synchronized void scan(DataObject.Container[] folders, SuggestionList list,
+    private final synchronized void scan(DataObject.Container[] folders, SuggestionList list,
                            boolean recursive) {
 
         lowMemoryWarning = false;
@@ -160,6 +160,7 @@ public final class SuggestionsScanner implements Cancellable {
         interrupted = false;
         assureMemory(REQUIRED_PER_ITERATION, true);   // guard low memory condition
         suggestionsCounter = 0;
+
 
         try {
             this.list = list;
