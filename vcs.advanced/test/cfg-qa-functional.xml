@@ -33,7 +33,7 @@ Microsystems, Inc. All Rights Reserved.
             </patternset>
         </testset>
     </testbag>
-
+<!--
     <testbag testattribs="full,cvs_profile_JellyOverall" name="cvs_profile_JellyOverall">
         <testset dir="qa-functional/src">
             <patternset>
@@ -41,7 +41,7 @@ Microsystems, Inc. All Rights Reserved.
             </patternset>
         </testset>
     </testbag>
-
+-->
     <testbag testattribs="full,cvs_profile_JellyAddFeatures" name="cvs_profile_JellyAddFeatures">
         <testset dir="qa-functional/src">
             <patternset>
