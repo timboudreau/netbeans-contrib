@@ -139,10 +139,10 @@ public class VersioningExplorer {
             super.open(workspace);
         }
         
-        /**
+        /*
          * Override for clean up reasons.
          * Will be moved to the appropriate method when will be made.
-         */
+         *
         public boolean canClose(Workspace workspace, boolean last) {
             boolean can = super.canClose(workspace, last);
             if (last && can) {
@@ -150,12 +150,13 @@ public class VersioningExplorer {
             }
             return can;
         }
+         */
         
         public void addCloseListener(TopComponentCloseListener listener) {
             closeListeners.add(listener);
         }
         
-        private void closing() {
+        protected void closeNotify() {
             if (closeListeners != null) {
                 for(Iterator it = closeListeners.iterator(); it.hasNext(); ) {
                     ((TopComponentCloseListener) it.next()).closing();
@@ -174,10 +175,11 @@ public class VersioningExplorer {
         /**
          * Disable serialization.
          * @return null
-         */
+         *
         protected Object writeReplace () throws java.io.ObjectStreamException {
-            closing();
+            closeNotify();
             return null;
         }
+         */
     }
 }

@@ -23,8 +23,8 @@ import javax.swing.event.*;
  */
 public abstract class RevisionList extends TreeSet {
 
-    private VcsFileObject fo = null; // The current File Object
-    private Vector listeners;
+    private transient VcsFileObject fo = null; // The current File Object
+    private transient Vector listeners;
 
     static final long serialVersionUID = -8578787400541124223L;
     
@@ -98,6 +98,11 @@ public abstract class RevisionList extends TreeSet {
     
     public boolean removeChangeListener(ChangeListener listener) {
         return listeners.remove(listener);
+    }
+    
+    private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, java.io.IOException, java.io.NotActiveException {
+        in.defaultReadObject();
+        listeners = new Vector();
     }
     
     /*

@@ -45,6 +45,6 @@ public interface RevisionListener extends ChangeListener {
      * @args fo the file object whose revisions changed.
      * @args info contains some further informations describing what has changed.
      */
-    public void revisionsChanged(RevisionEvent ev);
+    public void stateChanged(javax.swing.event.ChangeEvent ev);
 }
 

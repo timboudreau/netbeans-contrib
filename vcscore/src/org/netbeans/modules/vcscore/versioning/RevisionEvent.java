@@ -21,6 +21,10 @@ import javax.swing.event.ChangeEvent;
  */
 public class RevisionEvent extends ChangeEvent {
 
+    public RevisionEvent() {
+        super(null);
+    }
+    
     /** Creates new RevisionEvent */
     public RevisionEvent(VcsFileObject fo) {
         super(fo);

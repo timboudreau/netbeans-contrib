@@ -25,20 +25,50 @@ import org.openide.util.*;
  */
 public abstract class RevisionChildren extends Children.Keys implements ChangeListener, java.io.Serializable {
 
+    protected static final Object WAIT_KEY = new Object();
+    
     private String acceptField = "";
     private int numAcceptDots = 1;
     private RevisionList list = null;
     private RevisionNode parentNode = null;
+    private ChangeListener changeListenerToList;
+    private Runnable initProcess = null;
     
-    /** Creates new RevisionChildren */
+    /** Creates new RevisionChildren 
+     * @param list the RevisionList, can be null
+     */
     public RevisionChildren(RevisionList list) {
-        list.addChangeListener(WeakListener.change (this, this));
+        changeListenerToList = WeakListener.change (this, this);
+        if (list != null) list.addChangeListener(changeListenerToList);
         this.list = list;
         stateChanged (null);
     }
     
     public RevisionList getList() {
         return list;
+    }
+    
+    /**
+     * Set a new revision list.
+     */
+    public void setList(RevisionList newList) {
+        if (list != null) list.removeChangeListener(changeListenerToList);
+        changeListenerToList = WeakListener.change (this, this);
+        newList.addChangeListener(changeListenerToList);
+        this.list = newList;
+        stateChanged (null);
+    }
+    
+    public void setInitProcess(Runnable initProcess) {
+        this.initProcess = initProcess;
+    }
+    
+    protected void addNotify() {
+        if (list == null && initProcess != null) {
+            org.openide.util.RequestProcessor.postRequest(initProcess);
+            initProcess = null;
+        }
+        super.addNotify();
     }
     
     /*
@@ -63,7 +93,17 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
     
     protected abstract RevisionChildren getChildrenFor(RevisionItem item);
     
+    protected Node createWaitingNode() {
+        AbstractNode n = new AbstractNode(Children.LEAF);
+        n.setName(NbBundle.getMessage(RevisionChildren.class, "WaitNodeTooltip"));
+        n.setIconBase("/org/netbeans/modules/vcscore/versioning/wait");
+        return n;
+    }
+    
     protected Node[] createNodes(Object key) {
+        if (WAIT_KEY.equals(key)) {
+            return new Node[] { createWaitingNode() };
+        }
         Node[] nodes = new Node[0]; //new Node[] { Node.EMPTY };
         RevisionItem item = (RevisionItem) key;
         //System.out.println("createNodes("+item.getRevision()+")");
@@ -89,7 +129,11 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
     
     public void stateChanged(ChangeEvent evt) {
         //System.out.println("RevisionChildren.stateChanged("+evt+")");
-        setKeys(list /*(Collection) evt.getSource()*/);
+        if (list == null) {
+            setKeys(Collections.singleton(WAIT_KEY));
+        } else {
+            setKeys(list /*(Collection) evt.getSource()*/);
+        }
     }
 
 }

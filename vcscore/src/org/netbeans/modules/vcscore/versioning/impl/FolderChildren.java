@@ -46,6 +46,10 @@ final class FolderChildren extends Children.Keys {
         setKeys(java.util.Collections.EMPTY_SET);
     }
     
+    void reInitialize() {
+        initialize(true);
+    }
+    
     private void initialize(boolean force) {
         VcsFileObject[] ch = folder.getChildren();
         setKeys(ch);
