@@ -713,6 +713,23 @@ public abstract class TaskListView extends ExplorerPanel
 	    }
 	}
     }
+
+    /** Unshow the given task, if it's the one currently showing */
+    public void unshow(Task item) {
+        if (item != unshowItem) {
+            return;
+        }
+	if (listeners != null) {
+	    // Stash item so I can notify of deletion -- see TaskViewListener
+	    // doc
+	    unshowItem = null;
+	    int n = listeners.size();
+	    for (int i = 0; i < n; i++) {
+		TaskViewListener tl = (TaskViewListener)listeners.get(i);
+		tl.hideTask();
+	    }
+	}
+    }
     
     /** Expand nodes and select the particular todo item, IF the todolist
      *  view is showing

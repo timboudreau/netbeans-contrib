@@ -128,6 +128,11 @@ public class FixAction extends NodeAction {
                 dialog.pack();
                 dialog.show();
                 Object pressedButton = dlg.getValue();
+
+                if (tlv != null) {
+                    tlv.unshow(item);
+                }
+                
                 if (pressedButton == cancelButton) {
                     return; // CANCELLED
                 } else if (pressedButton == fixAllButton) {

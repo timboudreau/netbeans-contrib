@@ -50,6 +50,78 @@ public final class TLUtils {
         }
         return null;
     }
+
+    /** Replace the given symbol on the line with the new symbol - starting
+        roughly at the given column (symbol should be at col or col+1)
+    */
+    public static void replaceSymbol(StringBuffer sb, String text, int pos, String symbol, 
+                                String newSymbol, boolean bold) {
+        //System.out.println("replace('" + text + "', " + pos + ", '" + symbol + "', '" + newSymbol + "')");
+        if (pos > 0) {
+            // For some compilers, the position is off by 1 so make sure 
+            // we catch the earliest possible match
+            pos--;
+        }
+        int from = 0;
+        int symLen = symbol.length();
+        int texLen = text.length();
+        while (true) {
+            int n = text.indexOf(symbol, pos);
+            if (n == -1) {
+                break;
+            }
+            if ((n+symLen < texLen-1) &&
+                Character.isJavaIdentifierPart(text.charAt(n+symLen))) {
+                pos = n+symLen;
+                continue;
+            }
+            
+            for (int i = from; i < n; i++) {
+                sb.append(text.charAt(i));
+            }
+            if (bold) {
+                sb.append("<b>");
+            }
+            sb.append(newSymbol);
+            if (bold) {
+                sb.append("</b>");
+            }
+            pos = n+symLen;
+            from = pos;
+        }
+        for (int i = from; i < texLen; i++) {
+            sb.append(text.charAt(i));
+        }
+    }
+
+    /** Get a "window of text with the given line as the middle line.
+     * @param line The line we want to obtain a window for.
+     * @param currText If non null, use this line instead of the
+     *     text on the current line.
+     */
+    public static void appendSurroundingLine(StringBuffer sb, Line line, 
+                                             int offset) {
+        DataObject dobj = line.getDataObject();
+        try {
+            LineCookie lc = (LineCookie)dobj.getCookie(LineCookie.class);
+            if (lc == null) {
+                return;
+            }
+            Line.Set ls = lc.getLineSet();
+            if (ls == null) {
+                return;
+            }
+
+            int lineno = line.getLineNumber();
+            Line before = ls.getCurrent(lineno+offset);
+            sb.append(before.getText());
+        } catch (Exception e) {
+            TopManager.getDefault().getErrorManager().
+                notify(ErrorManager.INFORMATIONAL, e);
+        }
+    }
+    
+
 }
 
 

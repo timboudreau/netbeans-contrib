@@ -644,8 +644,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
     private static class TypeXMLHandler extends DefaultHandler {
         private boolean parsingDisabled = false;
         private boolean parsingNoConfirm = false;
+        private boolean parsingExpanded = false;
         private Set disabled = null;
         private Set noconfirm = null;
+        private Set expanded = null;
 
         
         TypeXMLHandler() {
@@ -657,6 +659,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
 		
         public Set getNoConfirm() {
             return noconfirm;
+        }
+		
+        public Set getExpanded() {
+            return expanded;
         }
 		
         public void startDocument() {
@@ -682,11 +688,22 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     }
                     SuggestionType type = SuggestionTypes.getTypes().getType(id);
                     noconfirm.add(type);
+                } else if (parsingExpanded) {
+                    String id = (String)attrs.getValue("id"); // NOI18N
+                    if (expanded == null) {
+                        expanded = new HashSet(50);
+                    }
+                    SuggestionType type = SuggestionTypes.getTypes().getType(id);
+                    expanded.add(type);
+                //} else {
+                //System.out.println("PARSING ERROR: " + uri + ", " + localName + ", " + name + ", " + attrs);
                 }
             } else if (name.equals("disabled")) { // NOI18N
                 parsingDisabled = true;
             } else if (name.equals("noconfirm")) { // NOI18N
                 parsingNoConfirm = true;
+            } else if (name.equals("expanded")) { // NOI18N
+                parsingExpanded = true;
             }
         }
             
@@ -695,6 +712,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 parsingDisabled = false;
             } else if (name.equals("noconfirm")) { // NOI18N
                 parsingNoConfirm = false;
+            } else if (name.equals("expanded")) { // NOI18N
+                parsingExpanded = false;
             }
 
         }
@@ -731,6 +750,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     reader.parse(new InputSource(fileReader));
                     disabled = handler.getDisabled();
                     noconfirm = handler.getNoConfirm();
+                    expandedTypes = handler.getExpanded();
                     return true;
                 } catch (SAXException e) {
                     TopManager.getDefault().getErrorManager().notify(
@@ -745,10 +765,41 @@ final public class SuggestionManagerImpl extends SuggestionManager
         return false;
     }
 
+    /** List of SuggestionTypes that should be expanded */
+    private Set expandedTypes = null;
+
+    boolean isExpandedType(SuggestionType type) {
+        readTypeRegistry();
+        if (expandedTypes == null) {
+            // Special case: default parse errors to expanded
+            if (type.getName() == "nb-java-errors") { // NOI18N
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return expandedTypes.contains(type);
+    }
+
+
+    void scheduleNodeExpansion(SuggestionsView view,
+                               SuggestionImpl target) {
+        view.scheduleNodeExpansion(target, 0);
+    }
+
+
+    private boolean writeTypeRegistry()  {
+        SuggestionsView view = (SuggestionsView)TaskListView.getCurrent();
+        return writeTypeRegistry(view);
+    }
+
+    
     /** Write out the SuggestionType registry preferences.
+     * @param view The current view that we're focused on (used to
+     *     persist type expansion state)
      * @return True iff the registry was completely written out without error
      */
-    private boolean writeTypeRegistry()  {
+    boolean writeTypeRegistry(SuggestionsView view)  {
         File file = getRegistryFile(true);
 	try {
             Writer writer = new BufferedWriter(new FileWriter(file));
@@ -783,6 +834,31 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     writer.write("  </noconfirm>\n"); // NOI18N
                 }
             }
+
+            // Write node-expansion settings
+            if (view != null) {
+                SuggestionList list = (SuggestionList)view.getList();
+                List tasks = list.getTasks();
+                it = tasks.iterator();
+                boolean headerWritten = false;
+                while (it.hasNext()) {
+                    SuggestionImpl s = (SuggestionImpl)it.next();
+                    if (s.isExpanded()) {
+                        // Expanded - write it out
+                        if (!headerWritten) {
+                            writer.write("  <expanded>\n"); // NOI18N
+                            headerWritten = true;
+                        }
+                        writer.write("    <type id=\""); // NOI18N
+                        writer.write(s.getSType().getName());
+                        writer.write("\"/>\n"); // NOI18N
+                    }
+                }
+                if (headerWritten) {
+                    writer.write("  </expanded>\n"); // NOI18N
+                }
+            }
+            
             writer.write("</typeregistry>\n"); // NOI18N
             writer.close();
             return true;

@@ -288,7 +288,6 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
         
         public TodoItemHandle(Task item) {
             id = 5; // XXX Do something here. Figure out what a good way is.
-	    // Store category too so I can at least locate the list?
         }
 
         /** Reconstitute the node for this handle.

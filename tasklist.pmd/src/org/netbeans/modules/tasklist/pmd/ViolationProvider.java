@@ -46,11 +46,18 @@ import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
+import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.modules.tasklist.core.ConfPanel;
 
 /**
  * This class uses the PMD rule checker to provide rule violation
  * suggestions.
- *
+ * <p>
+ * @todo Add more automatic fixers for rules. For example, add one
+ *   to remove an unused method.
+ * @todo Include javadoc sections in method and variable removals
+ *   (be sure to show it in the preview dialog as well)
+ * <p>
  * @author Tor Norbye
  */
 
@@ -178,14 +185,25 @@ public class ViolationProvider extends SuggestionProvider
         while(it.hasNext()) {
             set.addRule((Rule)it.next());
         }
-        pmd.processFile(reader, set, ctx);
+        try {
+            pmd.processFile(reader, set, ctx);
+        } catch (RuntimeException e) {
+            // For some reason, some of the PMD classes
+            // throw RuntimeExceptions,
+            // for example AbstractScope.addDeclaration
+            // I suspect PMD wasn't written with the intent of it being run
+            // on incomplete or invalid classes. So we just swallow the
+            // exceptions here
+
+            //ErrorManager.getDefault().notify(e);
+        }
         Iterator iterator = ctx.getReport().iterator();
 
         Image taskIcon = Utilities.loadImage("org/netbeans/modules/tasklist/pmd/fixable.gif"); // NOI18N
 
         if(!ctx.getReport().isEmpty()) {
             while(iterator.hasNext()) {
-                RuleViolation violation = (RuleViolation)iterator.next();
+                final RuleViolation violation = (RuleViolation)iterator.next();
                 try {
                     // Violation line numbers seem to be 0-based
                     final Line line = getLine(dobj, violation.getLine());
@@ -211,11 +229,33 @@ public class ViolationProvider extends SuggestionProvider
                             public Object getConfirmation(Suggestion s) {
                                 DataObject dao = line.getDataObject();
                                 int linenumber = line.getLineNumber();
-                                Integer lineobj = new Integer(linenumber);
-                                String text = line.getText();
                                 String filename = dao.getPrimaryFile().getNameExt();
-                                return NbBundle.getMessage(ViolationProvider.class,
-                                "ImportConfirmation", text, filename, lineobj);
+                                String ruleDesc = violation.getRule().getDescription();
+                                String ruleExample = 
+                                    violation.getRule().getExample();
+                                String beforeDesc = 
+                                   NbBundle.getMessage(ViolationProvider.class,
+                                        "ImportConfirmation"); // NOI18N
+                                StringBuffer sb = new StringBuffer(200);
+                                Line l = line;
+                                String text = l.getText();
+                                sb.append("<html>"); // NOI18N
+                                TLUtils.appendSurroundingLine(sb, l, -1);
+                                sb.append("<br>");
+                                sb.append("<b><strike>");
+                                sb.append(line.getText());
+                                sb.append("</strike></b>");
+                                sb.append("<br>");
+                                TLUtils.appendSurroundingLine(sb, l, +1);
+                                sb.append("</html>"); // NOI18N
+                                String beforeContents = sb.toString();
+                                
+                                return new ConfPanel(beforeDesc, 
+                                                     beforeContents, null, 
+                                                     null,
+                                                     filename, linenumber, 
+                                       getBottomPanel(ruleDesc, ruleExample));
+                                
                             }
                         };
                     } else if ((rulename.equals("UnusedPrivateField") || // NOI18N
@@ -233,11 +273,29 @@ public class ViolationProvider extends SuggestionProvider
                             public Object getConfirmation(Suggestion s) {
                                 DataObject dao = line.getDataObject();
                                 int linenumber = line.getLineNumber();
-                                Integer lineobj = new Integer(linenumber);
-                                String text = line.getText();
                                 String filename = dao.getPrimaryFile().getNameExt();
-                                return NbBundle.getMessage(ViolationProvider.class,
-                                "UnusedConfirmation", text, filename, lineobj); // NOI18N
+                                String ruleDesc = violation.getRule().getDescription();
+                                String ruleExample = violation.getRule().getExample();
+                                String beforeDesc = NbBundle.getMessage(ViolationProvider.class,
+                                        "UnusedConfirmation"); // NOI18N
+
+                                StringBuffer sb = new StringBuffer(200);
+                                Line l = line;
+                                String text = l.getText();
+                                sb.append("<html>"); // NOI18N
+                                TLUtils.appendSurroundingLine(sb, l, -1);
+                                sb.append("<br>");
+                                sb.append("<b><strike>");
+                                sb.append(line.getText());
+                                sb.append("</strike></b>");
+                                sb.append("<br>");
+                                TLUtils.appendSurroundingLine(sb, l, +1);
+                                sb.append("</html>"); // NOI18N
+                                String beforeContents = sb.toString();
+
+                                return new org.netbeans.modules.tasklist.core.ConfPanel(beforeDesc, 
+                                      beforeContents, null, null,
+                                      filename, linenumber, getBottomPanel(ruleDesc, ruleExample));
                             }
                         };
                     } else {
@@ -451,6 +509,84 @@ public class ViolationProvider extends SuggestionProvider
         return true;
     }
     
+    
+    private JPanel getBottomPanel(String ruleDesc, String ruleExample) {
+        java.awt.GridBagConstraints gridBagConstraints;
+        // Variables declaration - do not modify
+        javax.swing.JLabel jLabel9;
+        javax.swing.JLabel jLabel8;
+        javax.swing.JScrollPane jScrollPane2;
+        javax.swing.JTextArea descText;
+        javax.swing.JScrollPane jScrollPane1;
+        javax.swing.JPanel jPanel1;
+        javax.swing.JTextArea exampleText;
+        // End of variables declaration
+        
+        
+        jPanel1 = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        descText = new javax.swing.JTextArea();
+        jLabel9 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        exampleText = new javax.swing.JTextArea();
+
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
+        jLabel8.setText(NbBundle.getMessage(ViolationProvider.class, "Description")); // NOI18N();
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(jLabel8, gridBagConstraints);
+
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(200, 200));
+        descText.setWrapStyleWord(true);
+        descText.setLineWrap(true);
+        descText.setEditable(false);
+        jScrollPane1.setViewportView(descText);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel1.add(jScrollPane1, gridBagConstraints);
+
+        jLabel9.setText(NbBundle.getMessage(ViolationProvider.class, "Example")); // NOI18N();
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(jLabel9, gridBagConstraints);
+
+        jScrollPane2.setPreferredSize(new java.awt.Dimension(200, 200));
+        exampleText.setEditable(false);
+        exampleText.setPreferredSize(null);
+        jScrollPane2.setViewportView(exampleText);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel1.add(jScrollPane2, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.gridheight = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(18, 12, 11, 11);
+
+        // Dont' use monospaced fonts
+        descText.setFont(jLabel8.getFont());
+        exampleText.setFont(jLabel8.getFont());
+        
+        descText.setText(ruleDesc.trim());
+        exampleText.setText(ruleExample.trim());
+        
+        return jPanel1;
+    }
 
     /** 
      * The given document has been "hidden"; it's still open, but

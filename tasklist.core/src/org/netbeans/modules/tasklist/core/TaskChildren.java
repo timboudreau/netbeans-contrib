@@ -59,6 +59,7 @@ public class TaskChildren extends Keys implements PropertyChangeListener {
     protected void addNotify() {
         super.addNotify();
         parent.addPropertyChangeListener(this);
+        parent.setExpanded(true);
         refreshKeys();
     }
     
@@ -67,6 +68,7 @@ public class TaskChildren extends Keys implements PropertyChangeListener {
         myKeys = null;
         parent.removePropertyChangeListener(this);
         setKeys(Collections.EMPTY_SET);
+        parent.setExpanded(false);
         super.removeNotify();
     }
     

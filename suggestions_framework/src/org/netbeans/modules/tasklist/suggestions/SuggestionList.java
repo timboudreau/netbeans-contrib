@@ -57,6 +57,16 @@ final public class SuggestionList extends TaskList {
             category.setType(type.getName());
             category.setSType(type);
             category.setIcon(type.getIconImage());
+            SuggestionManagerImpl manager =
+                (SuggestionManagerImpl)SuggestionManager.getDefault();
+            if (manager.isExpandedType(type)) {
+                TaskListView view = TaskListView.getCurrent();
+                if (view instanceof SuggestionsView) {
+                    manager.scheduleNodeExpansion((SuggestionsView)view,
+                                                  category);
+                }
+            }
+            
             if (categoryTasks == null) {
                 categoryTasks = new HashMap(20);
             }

@@ -181,21 +181,21 @@ public class TypesCustomizer extends javax.swing.JPanel
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JList disabledList;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JButton addActiveButton;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JButton removeConfButton;
-    private javax.swing.JPanel jPanel5;
-    private javax.swing.JList enabledList;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JButton addConfButton;
     private javax.swing.JButton removeActiveButton;
+    private javax.swing.JButton addActiveButton;
+    private javax.swing.JButton removeConfButton;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JList enabledList;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JList confirmationList;
+    private javax.swing.JList disabledList;
     // End of variables declaration//GEN-END:variables
     
     /** Apply changes in the dialog */
