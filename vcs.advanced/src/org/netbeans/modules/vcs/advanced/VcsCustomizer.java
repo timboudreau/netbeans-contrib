@@ -1957,21 +1957,37 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         int j = 0;
         boolean configsForCurrenntOs = allProfilesCheckBox.isSelected();
         doConfigComboChange = false;
-        for(int i = 0; i < configLabels.length; i++) {
-            if (configsForCurrenntOs && !cache.isOSCompatibleProfile(configLabels[i])) {
-                continue;
+        boolean doRepeat = false;
+        do {
+            boolean isSelectedAmongAll = false;
+            for(int i = 0; i < configLabels.length; i++) {
+                if (configsForCurrenntOs && !cache.isOSCompatibleProfile(configLabels[i])) {
+                    if (!isSelectedAmongAll && configLabels[i].equals(selectedConfig)) {
+                        isSelectedAmongAll = true;
+                    }
+                    continue;
+                }
+                if (configLabels[i].equals(selectedConfig)) {
+                    newIndex = j;
+                }
+                j++;
+                configCombo.addItem(configLabels[i]);
             }
-            if (configLabels[i].equals(selectedConfig)) {
-                newIndex = j;
+            if (configsForCurrenntOs && newIndex < 0 && isSelectedAmongAll) {
+                configsForCurrenntOs = false;
+                doRepeat = true;
+            } else {
+                doRepeat = false;
             }
-            j++;
-            configCombo.addItem(configLabels[i]);
-        }
+        } while (doRepeat);
         doConfigComboChange = true;
 
         if (configCombo.getItemCount() > 0 && newIndex >= 0) {
             promptForConfigComboChange = false;
             configCombo.setSelectedIndex( newIndex );
+        }
+        if (configsForCurrenntOs != allProfilesCheckBox.isSelected()) {
+            allProfilesCheckBox.setSelected(configsForCurrenntOs);
         }
         promptForConfigComboChange = true;
         return (selectedConfig == null || configCombo.getItemCount() > 0 && newIndex >= 0);
