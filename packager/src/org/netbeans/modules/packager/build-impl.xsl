@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <xsl:stylesheet version="1.0"
@@ -90,6 +90,7 @@ Microsystems, Inc. All Rights Reserved.
             
             <target name="build-windows" if="platform.windows">
                 <echo message="Windows build not implemented yet"/>
+                <!-- XXX maybe try http://launch4j.sourceforge.net/ -->
             </target>
             
             <target name="build-jnlp" if="platform.webstart">
