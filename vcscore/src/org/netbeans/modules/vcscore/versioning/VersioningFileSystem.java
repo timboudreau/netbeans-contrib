@@ -33,6 +33,7 @@ import org.openide.filesystems.FileStatusListener;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.NbBundle;
 
+import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningDataLoader;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningFolderDataLoader;
@@ -128,7 +129,32 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
 
     
     public SystemAction[] getActions(Set vfoSet) {
-        return fileSystem.getActions(vfoSet);
+        SystemAction[] actions = fileSystem.getActions(vfoSet);
+        SystemAction myAction = SystemAction.get(VersioningExplorerAction.class);
+        int index = 0;
+        for (; index < actions.length; index++) {
+            if (myAction.equals(actions[index])) break;
+        }
+        if (index < actions.length) {
+            SystemAction[] actions1 = new SystemAction[actions.length - 1];
+            if (index > 0) {
+                System.arraycopy(actions, 0, actions1, 0, index);
+            }
+            if (index < actions1.length) {
+                System.arraycopy(actions, index + 1, actions1, index, actions1.length - index);
+            }
+            actions = actions1;
+        }
+        return actions;
+        /*  shorter, but probably slower:
+        List actionsList = Arrays.asList(actions);
+        if (actionsList.contains(myAction)) {
+            actionsList.remove(myAction);
+            return (SystemAction[]) new ArrayList(actionsList).toArray(new SystemAction[0]);
+        } else {
+            return actions;
+        }
+         */
     }
     
     
