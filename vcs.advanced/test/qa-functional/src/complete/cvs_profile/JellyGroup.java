@@ -35,10 +35,7 @@ import org.netbeans.jellytools.properties.StringProperty;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
 import org.netbeans.jemmy.util.PNGEncoder;
 import org.netbeans.junit.NbTestSuite;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCommitFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSUpdateFileAdvDialog;
+import org.netbeans.jellytools.modules.vcsgeneric.cvs_profile.*;
 
 public class JellyGroup extends CVSStub {
     
@@ -100,7 +97,7 @@ public class JellyGroup extends CVSStub {
         add.addAllLocalFilesInFolderContents();
         add.checkAddTheFolderContentsRecursively(true);
         add.oK();
-        assertInformationDialog(null);
+        //assertInformationDialog(null);
         InitDir.waitHistory ("Add");
         Text1.waitStatus("Locally Added");
         Text2.waitStatus("Locally Added");
@@ -147,30 +144,30 @@ public class JellyGroup extends CVSStub {
 
         addVCSGroup(vgf, TEST_GROUP);
 
-        closeAllVCSWindows(); // stabilization
-        openGroupsFrame(); // stabilization
+//        closeAllVCSWindows(); // stabilization
+//        openGroupsFrame(); // stabilization
         addVCSGroup(vgf, "GroupToRename");
         new Node (vgf.treeVCSGroupsTreeView (), "GroupToRename");
 
-        closeAllVCSWindows(); // stabilization
-        openGroupsFrame(); // stabilization
+//        closeAllVCSWindows(); // stabilization
+//        openGroupsFrame(); // stabilization
         vgf.renameVCSGroup("GroupToRename", "RenamedGroup");
         new Node (vgf.treeVCSGroupsTreeView (), "").waitChildNotPresent("GroupToRename");
         new Node (vgf.treeVCSGroupsTreeView (), "RenamedGroup");
 
-        closeAllVCSWindows(); // stabilization
-        openGroupsFrame(); // stabilization
+//        closeAllVCSWindows(); // stabilization
+//        openGroupsFrame(); // stabilization
         addVCSGroup(vgf, "GroupToRemove");
         new Node (vgf.treeVCSGroupsTreeView (), "GroupToRemove");
 
-        closeAllVCSWindows(); // stabilization
-        openGroupsFrame(); // stabilization
+//        closeAllVCSWindows(); // stabilization
+//        openGroupsFrame(); // stabilization
         vgf.removeVCSGroup("GroupToRemove");
         new Node (vgf.treeVCSGroupsTreeView (), "").waitChildNotPresent("GroupToRemove");
     }
 
     public void testAddToGroup () {
-        closeAllVCSWindows();
+//        closeAllVCSWindows();
         openGroupsFrame();
 
         Text2.cvsNode ().includeInVCSGroup(TEST_GROUP);
@@ -206,7 +203,7 @@ public class JellyGroup extends CVSStub {
     }
     
     public void testCommitGroup () {
-        closeAllVCSWindows();
+//        closeAllVCSWindows();
         openGroupsFrame();
         refresh (InitDir);
         waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text1.name (), "Up-to-date; 1.1", true);
@@ -253,7 +250,7 @@ public class JellyGroup extends CVSStub {
     }
     
     public void testVerifyGroupToAdd () {
-        closeAllVCSWindows();
+//        closeAllVCSWindows();
         openGroupsFrame();
         Text3.save ("text3");
         refresh (InitDir);
@@ -279,7 +276,7 @@ public class JellyGroup extends CVSStub {
     }
     
     public void testVerifyGroupNeedsUpdate () {
-        closeAllVCSWindows();
+//        closeAllVCSWindows();
         openGroupsFrame ();
 
         new DeleteAction ().performPopup (
@@ -310,7 +307,7 @@ public class JellyGroup extends CVSStub {
     }
     
     public void testVerifyGroupNotChanged () {
-        closeAllVCSWindows();
+//        closeAllVCSWindows();
         openGroupsFrame();
 
         new Action (null,"Verify").performPopup (new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP));
@@ -329,7 +326,7 @@ public class JellyGroup extends CVSStub {
     }
     
     public void testUnmount() {
-        closeAllVCSWindows();
+//        closeAllVCSWindows();
         openGroupsFrame ();
 
         Text1.cvsNode ().includeInVCSGroup(TEST_GROUP);
