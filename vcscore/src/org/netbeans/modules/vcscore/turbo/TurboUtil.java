@@ -461,9 +461,14 @@ public final class TurboUtil {
 
             // path is folder relative to FS root then raw data contains children
             String path = rawData.getPath();
+            /*
             FileObject folder = fileSystem.findResource(path);    // "" denotes root
             assert folder != null: "Non-existing path : '"+path+"'";
             assert folder.isFolder();
+             *
+             * The above should succeed in most cases. However, someone might
+             * remove the files in between. (like issue #56046).
+             */
 
             Map fileToRawData = (Map) rawData.getElement(); // it's a hashmap<name, rawData.element>
             if (fileToRawData == null) return;
