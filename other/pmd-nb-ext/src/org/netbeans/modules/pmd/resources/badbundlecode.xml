@@ -26,14 +26,13 @@ public class Foo {
         message="Do not use another class in NbBundle.getMessage or NbBundle.getBundle (''{0}'')"
         class="org.netbeans.modules.pmd.rules.ForeignBundleCodeRule">
     <description>
-Use corect class in NbBundle.getMessage or NbBundle.getBundle.
+Use correct class in NbBundle.getMessage or NbBundle.getBundle.
     </description>
     <example>
 <![CDATA[
 public class Something {
-
   public String addOne() {
-    return org.openide.util.NbBundle.getMesssage(Another.class, "Key"); // bad use
+    return org.openide.util.NbBundle.getMessage(Another.class, "Key"); // bad use
   }
 }
 ]]>
