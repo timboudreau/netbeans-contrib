@@ -224,7 +224,7 @@ package org.netbeans.modules.corba;
 	     }
 	     //}
 	 } catch (java.lang.NullPointerException __ex) {
-	     System.out.println (__ex + " at IDLDataLoader::findPrimaryFile (" + fo + ")");
+	     //System.out.println (__ex + " at IDLDataLoader::findPrimaryFile (" + fo + ")");
 	 }
 	 
 	 //return null;
