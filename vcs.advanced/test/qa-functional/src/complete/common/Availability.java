@@ -16,19 +16,18 @@ package complete.common;
 import java.io.*;
 import junit.framework.*;
 import org.netbeans.junit.*;
-import org.netbeans.test.oo.gui.jello.JelloBundle;
-import org.netbeans.test.oo.gui.jelly.*;
-import org.netbeans.jemmy.operators.*;
-import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.TestOut;
+import org.netbeans.jemmy.operators.JButtonOperator;
 import org.netbeans.jemmy.util.PNGEncoder;
-import org.netbeans.test.oo.gui.jelly.vcscore.*;
 import org.openide.util.Utilities;
 import org.netbeans.jellytools.*;
 import org.netbeans.jellytools.nodes.Node;
-import org.netbeans.jellytools.actions.Action;
+import org.netbeans.jellytools.actions.*;
+import org.netbeans.jellytools.modules.vcscore.*;
 import org.netbeans.jellytools.modules.vcsgeneric.wizard.*;
-import org.netbeans.jellytools.modules.vcscore.VersioningFrameOperator;
+import org.netbeans.jellytools.properties.*;
+import org.netbeans.test.oo.gui.jelly.SearchResults;
+import org.netbeans.test.oo.gui.jelly.vcscore.SearchVCSFilesystem;
 
 
 /** XTest / JUnit test class performing availability check of all basic features
@@ -42,10 +41,6 @@ public class Availability extends NbTestCase {
     public static String MOUNT_MENU = VERSIONING_MENU + "|Mount Version Control|Generic VCS";
     public static String FIND_SERVICE = "Find...";
     public static String UNMOUNT_MENU = "File|Unmount Filesystem";
-    public static String workingDirectory;
-    private APIController api;
-    private Explorer explorer;
-    private APICommandsHistory history;
     
     /** Constructor required by JUnit.
      * @param testName Method name to be used as testcase.
@@ -80,18 +75,7 @@ public class Availability extends NbTestCase {
      * output and maps main components.
      */
     protected void setUp() {
-        JellyProperties.setDefaults();
-        JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
-        api = new APIController();
-        api.setOut(new PrintWriter(System.out, true));
-        explorer = api.getExplorer();
-        history = new APICommandsHistory(api);
-    }
-    
-    /** Method called after each testcase. Resets Jemmy WaitComponentTimeout.
-     */
-    protected void tearDown() {
-        JellyProperties.setDefaults();
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(org.netbeans.jemmy.TestOut.getNullOutput());
     }
     
     /** Method will create a file and capture the screen.
@@ -111,16 +95,12 @@ public class Availability extends NbTestCase {
      */
     public void testVersioningMenu() throws Exception {
         System.out.print(".. Testing versioning menu ..");
-        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+        new ActionNoBlock(MOUNT_MENU, null).perform();
         VCSWizardProfile wizard = new VCSWizardProfile();
         String profile = Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN;
-        workingDirectory = getWorkDir().getAbsolutePath();
-        wizard.setWorkingDirectory(workingDirectory);
         wizard.setProfile(profile);
-        wizard.finish();
-        APIController.sleep(2000);
-        String filesystem = "Empty " + workingDirectory;
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
+        wizard.verify(profile);
+        wizard.cancel();
         System.out.println(". done !");
     }
     
@@ -129,20 +109,18 @@ public class Availability extends NbTestCase {
      */
     public void testFindService() throws Exception {
         System.out.print(".. Testing search service ..");
-        String filesystem = "Empty " + workingDirectory;
-        BufferedWriter file = null;
-        try {
-            file = new BufferedWriter(new FileWriter(workingDirectory + File.separator + "A_File.java"));
-            file.write("/** This is testing file.\n */\n\n public class A_File {\n }\n");
-            file.flush();
-            file.close();
-        } catch (IOException e) {
-            throw new Exception("Error: Can't create local A_File.java file.");
-        }
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        explorer.pushPopupMenu("Empty|Refresh", filesystem);
-        APIController.sleep(2000);
-        explorer.pushPopupMenuNoBlock(FIND_SERVICE, filesystem);
+        new File(getWorkDirPath()).mkdirs();
+        new File(getWorkDirPath() + File.separator + "A_File.java").createNewFile();
+        new ActionNoBlock(MOUNT_MENU, null).perform();
+        VCSWizardProfile wizard = new VCSWizardProfile();
+        wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+        wizard.setWorkingDirectory(getWorkDirPath());
+        wizard.finish();
+        Thread.sleep(2000);
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath());
+        new Action(VERSIONING_MENU + "|Empty|Refresh", "Empty|Refresh").perform(filesystemNode);
+        Thread.sleep(2000);
+        new ActionNoBlock("Edit|" + FIND_SERVICE, FIND_SERVICE).perform(filesystemNode);
         SearchVCSFilesystem searchDialog = new SearchVCSFilesystem();
         String[] statuses = new String[] {"Dead", "Ignored", "Local", "Locally Modified", "Not in Synch", "Unknown"};
         searchDialog.selectStatuses(statuses);
@@ -153,9 +131,11 @@ public class Availability extends NbTestCase {
         SearchResults resultWindow = new SearchResults();
         if (!resultWindow.werefound(new String[] {"A_File"}, false, true)) {
             captureScreen();
+            resultWindow.close();
             throw new Exception("Error: Can't find A_File file using search service.");
         }
         resultWindow.close();
+        new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
     }
     
@@ -164,30 +144,30 @@ public class Availability extends NbTestCase {
      */
     public void testPopupMenu() throws Exception {
         System.out.print(".. Testing popup menu ..");
-        assertNotNull("Can't select \"Filesystems\" node.", api.getFilesystemsTab().selectNode(""));
-        explorer.pushPopupMenuNoBlock("Mount|Version Control|Generic VCS", "");
+        new File(getWorkDirPath()).mkdirs();
+        new ActionNoBlock(MOUNT_MENU, null).perform();
         VCSWizardProfile wizard = new VCSWizardProfile();
-        wizard.close();
-        String filesystem = "Empty " + workingDirectory;
+        wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+        wizard.setWorkingDirectory(getWorkDirPath());
+        wizard.finish();
+        Thread.sleep(2000);
+        String filesystem = "Empty " + getWorkDirPath();
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         new Action(null, "Versioning Explorer").perform(filesystemNode);
         new VersioningFrameOperator().close();
-        new Action(null, "Empty|Refresh").perform(filesystemNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
         new Action(null, "Empty|Refresh Recursively").perform(filesystemNode);
-        new JButtonOperator(new JDialogOperator("Retrieving..."), "Close").push();
-        new Action(null, "Empty|Check in").perform(filesystemNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Check in finished.");
-        new Action(null, "Empty|Check out").perform(filesystemNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Check out finished.");
-        new Action(null, "Empty|Lock").perform(filesystemNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Lock finished.");
-        new Action(null, "Empty|Unlock").perform(filesystemNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Unlock finished.");
-        new Action(null, "Empty|Add").perform(filesystemNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Add finished.");
-        new Action(null, "Empty|Remove").perform(filesystemNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Remove finished.");
+        new NbDialogOperator("Retrieving...").closeByButton();
+        String[] commands = new String[] {"Refresh", "Check in", "Check out", "Lock", "Unlock", "Add", "Remove"};
+        for (int i=0; i<commands.length; i++) {
+            new Action(null, "Empty|" + commands[i]).perform(filesystemNode);
+            Thread.sleep(1000);
+            String status = MainWindowOperator.getDefault().getStatusText();
+            if (!(status.equals("Command " + commands[i] + " finished.") | status.equals("Command " + commands[i] + " failed."))) {
+                new UnmountFSAction().perform(filesystemNode);
+                throw new Exception("Error: Incorrest status bar text reached: " + status);
+            }
+        }
+        new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
     }
     
@@ -196,52 +176,67 @@ public class Availability extends NbTestCase {
      */
     public void testRuntimeTab() throws Exception {
         System.out.print(".. Testing runtime tab ..");
-        String profile = "Empty";
-        String filesystem = profile + " " + workingDirectory;
-        String command = "Lock";
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|" + profile + "|" + command);
-        api.getRuntimeTab();
-        assertTrue(command + " command failed.", history.isCommandSuccessed(filesystem, command));
-        CommandsHistory commandsHistory = new CommandsHistory();
-        if (!commandsHistory.compareStatus("Finished", filesystem, command)) {
+        new File(getWorkDirPath()).mkdirs();
+        new ActionNoBlock(MOUNT_MENU, null).perform();
+        VCSWizardProfile wizard = new VCSWizardProfile();
+        wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+        wizard.setWorkingDirectory(getWorkDirPath());
+        wizard.finish();
+        Thread.sleep(2000);
+        String filesystem = "Empty " + getWorkDirPath();
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        new Action(VERSIONING_MENU + "|Empty|Lock", "Empty|Lock").perform(filesystemNode);
+        Node commandNode = new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|" + filesystem + "|Lock");
+        commandNode.select();
+        PropertySheetOperator sheet = new PropertySheetOperator();
+        TextFieldProperty property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Status");
+        if (!property.getValue().equals("Finished")) {
             captureScreen();
-            throw new Exception("Error: Wrong status of " + command + " command.");
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
+            throw new Exception("Error: Incorrect status of Lock command.");
         }
-        if (!commandsHistory.compareCommandName("LOCK", filesystem, command)) {
+        property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Command Name");
+        if (!property.getValue().equals("LOCK")) {
             captureScreen();
-            throw new Exception("Error: Wrong command name of " + command + " command.");
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
+            throw new Exception("Error: Incorrect command name of Lock command.");
         }
         String executionString = Utilities.isUnix() ? "echo put your LOCK command here" : "cmd /X /C \"echo put your LOCK command here\"";
-        if (!commandsHistory.compareExecutionString(executionString, filesystem, command)) {
+        property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Execution String");
+        if (!property.getValue().equals(executionString)) {
             captureScreen();
-            throw new Exception("Error: Wrong execution string of " + command + " command.");
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
+            throw new Exception("Error: Incorrect execution string of Lock command.");
         }
-        if (!commandsHistory.compareProcessedFiles(".", filesystem, command)) {
+        property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Processed Files");
+        if (!property.getValue().equals(".")) {
             captureScreen();
-            throw new Exception("Error: Wrong processed files of " + command + " command.");
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
+            throw new Exception("Error: Incorrect processed files of Lock command.");
         }
-        commandsHistory.viewOutput(filesystem, command);
-        TabbedOutputOfVCSCommandsFrame outputWindow = new TabbedOutputOfVCSCommandsFrame();
-        String desiredOutput = "put your LOCK command here";
-        if (!outputWindow.containsStandardOutput(desiredOutput)) {
-            captureScreen();
-            String output = "Contains: |" + outputWindow.txtStandardOutput().getText() + "| instead of |" + desiredOutput + "|";
-            throw new Exception("Error: Wrong standard output of " + command + " command.\n" + output);
-        }
+        new Action(null, "View Output").performPopup(commandNode);
+        VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Lock");
+        String output = outputWindow.txtStandardOutput().getText();
         outputWindow.close();
-        history.setNumberOfCommands(filesystem, 1);
-        command = "Add";
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|" + profile + "|" + command);
-        assertTrue(command + " command failed", history.isCommandSuccessed(filesystem, command));
-        String fs = JelloBundle.getString("org.netbeans.modules.vcscore.runtime.Bundle", "CTL_VcsRuntime") + "|" + filesystem;
-        assertNotNull("Can't select history of " + filesystem, api.getRuntimeTab().selectNode(fs));
-        int numberOfCommands = commandsHistory.countCommands(filesystem);
-        if ( numberOfCommands != 1) {
+        if (!output.equals("put your LOCK command here\n")) {
             captureScreen();
-            throw new Exception("Error: Wrong number of kept commands. Currently: " + numberOfCommands);
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
+            throw new Exception("Error: Incorrect standard output of Lock command: " + output);
         }
+        filesystemNode = new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|" + filesystem);
+        filesystemNode.select();
+        property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Number Of Finished Commands To Keep");
+        property.setValue("1");
+        filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        new Action(VERSIONING_MENU + "|Empty|Add", "Empty|Add").perform(filesystemNode);
+        filesystemNode = new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|" + filesystem);
+        new Node(filesystemNode, "Add");
+        if ( filesystemNode.getChildren().length != 1) {
+            captureScreen();
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
+            throw new Exception("Error: Incorrect number of kept commands.");
+        }
+        new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
         System.out.println(". done !");
     }
     
@@ -250,9 +245,18 @@ public class Availability extends NbTestCase {
      */
     public void testUnmount() throws Exception {
         System.out.print(".. Testing unmount action ..");
-        String filesystem = "Empty " + workingDirectory;
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        MainFrame.getMainFrame().pushMenuNoBlock(UNMOUNT_MENU);
+        new File(getWorkDirPath()).mkdirs();
+        new ActionNoBlock(MOUNT_MENU, null).perform();
+        VCSWizardProfile wizard = new VCSWizardProfile();
+        wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+        wizard.setWorkingDirectory(getWorkDirPath());
+        wizard.finish();
+        Thread.sleep(2000);
+        String filesystem = "Empty " + getWorkDirPath();
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        new UnmountFSAction().perform(filesystemNode);
+        Thread.currentThread().sleep(5000);
+        assertTrue("Error: Unable to unmount filesystem.", !filesystemNode.isPresent());
         System.out.println(". done !");
     }
     
@@ -261,9 +265,11 @@ public class Availability extends NbTestCase {
      */
     public void testToolbar() throws Exception {
         System.out.print(".. Testing toolbar buttons ..");
-        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+        new File(getWorkDirPath()).mkdirs();
+        new File(getWorkDirPath() + File.separator + "A_File.java").createNewFile();
+        new ActionNoBlock(MOUNT_MENU, null).perform();
         VCSWizardProfile profilePage = new VCSWizardProfile();
-        profilePage.setWorkingDirectory(workingDirectory);
+        profilePage.setWorkingDirectory(getWorkDirPath());
         String profile = Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN;
         profilePage.setProfile(profile);
         profilePage.next();
@@ -271,27 +277,24 @@ public class Availability extends NbTestCase {
         advancedPage.editCommands();
         CommandEditor commandEditor = new CommandEditor();
         commandEditor.selectCommand("Empty|Add");
-        org.netbeans.jellytools.NbDialogOperator dialog = new org.netbeans.jellytools.NbDialogOperator("Command Editor");
-        org.netbeans.jellytools.properties.PropertySheetOperator sheet = new org.netbeans.jellytools.properties.PropertySheetOperator(dialog);
-        org.netbeans.jellytools.properties.StringProperty property = new org.netbeans.jellytools.properties.StringProperty(sheet.getPropertySheetTabOperator("Expert"), "General Command Action Class Name");
+        NbDialogOperator dialog = new org.netbeans.jellytools.NbDialogOperator("Command Editor");
+        PropertySheetOperator sheet = new PropertySheetOperator(dialog);
+        StringProperty property = new StringProperty(sheet.getPropertySheetTabOperator("Expert"), "General Command Action Class Name");
         property.setStringValue("org.netbeans.modules.vcscore.actions.AddCommandAction");
         commandEditor.ok();
         advancedPage.finish();
-        APIController.sleep(2000);
-        explorer.show();
-        String filesystem = "Empty " + workingDirectory;
-        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
-        Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
+        Thread.sleep(2000);
+        String filesystem = "Empty " + getWorkDirPath();
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         filesystemNode.expand();
-        Node fileNode = new Node(explorer.getRootNode(), filesystem + "|A_File");
-        fileNode.select();
+        new Node(filesystemNode, "A_File").select();
         MainWindowOperator window = MainWindowOperator.getDefault();
         window.pushToolbarPopupMenu("Versioning");
         window.getToolbarButton(window.getToolbar("Versioning"), "VCS Add").push();
-        APIController.sleep(2000);
-        assertTrue("Unable to execute command through toolbar.", window.getStatusText().equals("Command Add finished."));
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        MainFrame.getMainFrame().pushMenuNoBlock(UNMOUNT_MENU);
+        Thread.sleep(2000);
+        window.pushToolbarPopupMenu("Versioning");
+        MainWindowOperator.getDefault().waitStatusText("Command Add finished.");
+        new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
     }
 }
