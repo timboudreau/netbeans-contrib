@@ -66,6 +66,32 @@ public final class ContentDiff extends Object {
             }
         }
         
+        // references <String -> Cluster>
+        HashMap refs = new HashMap ();
+        for (int i = 0; i < clusters.length; i++) {
+            java.util.Iterator it = clusters[i].getPages ().iterator ();
+            while (it.hasNext()) {
+                refs.put (it.next (), clusters[i]);
+            }
+        }
+        
+        for (int i = 0; i < clusters.length; i++) {
+            Set references = new HashSet ();
+            java.util.Iterator it = clusters[i].getPages ().iterator ();
+            while (it.hasNext()) {
+                Collection c = (Collection)deps.get (it.next ());
+                if (c != null) {
+                    Iterator d = c.iterator();
+                    while (d.hasNext()) {
+                        references.add (refs.get (d.next ()));
+                    }
+                }
+            }
+            // prevent self references
+            references.remove (clusters[i]);
+            clusters[i].references = (Cluster[])references.toArray (new Cluster[0]);
+        }
+        
         return clusters;
     }
     
@@ -162,6 +188,8 @@ public final class ContentDiff extends Object {
     public static final class Cluster extends Object {
         /** set of <String> */
         private Set pages;
+        /** reference clusters */
+        Cluster[] references;
         
         /** create instances just in this class */
         Cluster (Set pages) {
@@ -173,6 +201,12 @@ public final class ContentDiff extends Object {
          */
         public Set getPages () {
             return pages;
+        }
+        
+        /** Gets an array of clusters this one depends on
+         */
+        public Cluster[] getReferences () {
+            return references;
         }
     } // end of Cluster
 }

@@ -136,6 +136,9 @@ public final class ContentDiffTest extends NbTestCase {
         assertEquals ("Two independent clusters", 2, diff.getClusters().length);
         assertEquals ("One page in first", 1, diff.getClusters()[0].getPages ().size ());
         assertEquals ("One page in second", 1, diff.getClusters()[1].getPages ().size ());
+        
+        assertEquals ("No refs outside", 0, diff.getClusters()[0].getReferences ().length);
+        assertEquals ("No refs outside", 0, diff.getClusters()[1].getReferences ().length);
     }
     
     public void testTwoPagesInNewVersionReferingToEachOther () throws Exception {
@@ -156,4 +159,26 @@ public final class ContentDiffTest extends NbTestCase {
         assertTrue ("Cluster new.html", diff.getClusters()[0].getPages ().contains ("new.html"));
     }
     
+    public void testOnePageRefersToAnother () throws Exception {
+        String[] oldPages = {
+        };
+        String[] newPages = {
+            "index.html", "<h1>Hi</h1> This is new simple <a href=\"new.html\">page</a>.",
+            "new.html", "<h1>Hi</h1> This is a refence to new <a href=\"new.html\">page</a>."
+        };
+        
+        ContentDiff diff = diff (oldPages, newPages);
+        
+        assertNotNull (diff);
+        assertEquals ("Two clusters", 2, diff.getClusters().length);
+        assertTrue ("First contains index.html as it is the `root`", diff.getClusters()[0].getPages ().contains ("index.html"));
+        assertTrue ("Second contains new.html", diff.getClusters()[1].getPages ().contains ("new.html"));
+        
+        assertEquals ("There is a dep from first cluster to the other",
+            diff.getClusters()[1], 
+            diff.getClusters()[0].getReferences()[0]
+        );
+        
+        assertEquals ("Second cluster has no deps", 0, diff.getClusters()[1].getReferences().length);
+    }
 }
