@@ -11,7 +11,7 @@ import java.rmi.server.*;
 import java.rmi.registry.*;
 import java.net.MalformedURLException;
 
-/** Unicast remote object implementing __NAME$Impl$$java.rmi.Remote__ interface.
+/** Unicast remote object implementing remote interface.
  *
  * @author __USER__
  * @version 1.0

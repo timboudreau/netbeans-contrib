@@ -11,7 +11,7 @@ import java.rmi.*;
 import java.rmi.server.*;
 import java.rmi.registry.*;
 
-/** Remote object implementing the __NAME$Impl$$java.rmi.Remote__ interface.
+/** Remote object implementing remote interface.
  * It can be exported for example by java.rmi.server.UnicastRemoteObject.exportObject()
  * @author __USER__
  * @version 1.0
