@@ -70,11 +70,14 @@ static final long serialVersionUID =-6841890195552268874L;
   */
   public Identifier getName () {
     if (name == null) {
-      String s = (data instanceof Class) ?
+      String fullName = (data instanceof Class) ?
         Utilities.getClassName((Class)data) :
         ((Member)data).getName();
       
-      name = Identifier.create(s);
+      int lastDot = fullName.lastIndexOf(".");
+      name = (lastDot == -1) ?
+        Identifier.create(fullName) :
+        Identifier.create(fullName, fullName.substring(lastDot + 1));
     }
     return name;
   }
@@ -96,6 +99,8 @@ static final long serialVersionUID =-6841890195552268874L;
 
 /*
 * Log
+*  10   src-jtulach1.9         1/10/00  Petr Hamernik   Identifier creating 
+*       improved.
 *  9    src-jtulach1.8         1/5/00   David Simonek   #2564
 *  8    src-jtulach1.7         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment
