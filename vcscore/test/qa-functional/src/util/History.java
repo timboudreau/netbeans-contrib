@@ -13,6 +13,7 @@
 
 package util;
 
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import junit.framework.AssertionFailedError;
 import org.netbeans.modules.vcscore.runtime.RuntimeCommand;
@@ -27,10 +28,21 @@ public class History {
     FileSystem filesystem;
     RuntimeCommandsProvider provider;
     RuntimeCommand breakpoint;
+    PrintStream log;
     
     public History(FileSystem filesystem) {
+        this (filesystem, null);
+    }
+    
+    public History(FileSystem filesystem, PrintStream log) {
         this.filesystem = filesystem;
+        this.log = log;
         provider = RuntimeCommandsProvider.findProvider(filesystem);
+        breakpoint ();
+    }
+    
+    public FileSystem getFileSystem () {
+        return filesystem;
     }
     
     public void breakpoint () {
@@ -84,7 +96,8 @@ public class History {
             }
             try { Thread.sleep (1000); } catch (Exception e) { e.printStackTrace (); }
         }
-        throw new AssertionFailedError ("Timeout: Command does not finished: Command: " + name);
+        print ();
+        throw new AssertionFailedError ("Timeout: Command does not finished: Command: " + name + " File: " + file);
     }
     
     public boolean waitCommand (String name, String file) {
@@ -96,11 +109,30 @@ public class History {
             }
             try { Thread.sleep (1000); } catch (Exception e) { e.printStackTrace (); }
         }
-        throw new AssertionFailedError ("Timeout: Command does not finished: Command: " + name);
+        print ();
+        throw new AssertionFailedError ("Timeout: Command does not finished: Command: " + name + " File: " + file);
     }
     
     public static boolean resultCommand (RuntimeCommand rc) {
         return rc.getExitStatus() == RuntimeCommand.SUCCEEDED;
+    }
+    
+    public void print () {
+        if (log == null)
+            return;
+        log.println ("==== History ====");
+        RuntimeCommand[] rc = provider.children();
+        log.println ("History Count: " + ((rc == null) ? 0 : rc.length));
+        if (rc == null)
+            return;
+        for (int a = rc.length - 1; a >= 0; a --) {
+            if (rc[a] == breakpoint)
+                log.print ("==== Breakpoint - ");
+            Node no = rc[a].getNodeDelegate();
+            String s1 = getPropertyValue (no, "Properties", "Processed Files");
+            String s2 = getPropertyValue (no, "Properties", "Execution String");
+            log.println("History: " + a + " - Name: " + no.getDisplayName () + " - File: " + s1 + " Exec: " + s2);
+        }
     }
     
 }
