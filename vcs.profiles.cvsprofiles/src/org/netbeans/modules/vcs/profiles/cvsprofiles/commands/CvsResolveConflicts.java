@@ -238,6 +238,33 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                     }
                     isChangeRight = !isChangeRight;
                     continue;
+                } else if (isChangeRight && line.indexOf(CHANGE_RIGHT) != -1) {
+                    String lineText = line.substring(0, line.lastIndexOf(CHANGE_RIGHT)) + "\n";
+                    if (generateDiffs) {
+                        if (rightFileRevision == null) {
+                            rightFileRevision = line.substring(line.lastIndexOf(CHANGE_RIGHT) + CHANGE_RIGHT.length());
+                        }
+                        text2.append(lineText);
+                        f2l2 = j;
+                        diffList.add((f1l1 > f1l2) ? new Difference(Difference.ADD,
+                                                                    f1l1 - 1, 0, f2l1, f2l2,
+                                                                    text1.toString(),
+                                                                    text2.toString()) :
+                                     (f2l1 > f2l2) ? new Difference(Difference.DELETE,
+                                                                    f1l1, f1l2, f2l1 - 1, 0,
+                                                                    text1.toString(),
+                                                                    text2.toString())
+                                                   : new Difference(Difference.CHANGE,
+                                                                    f1l1, f1l2, f2l1, f2l2,
+                                                                    text1.toString(),
+                                                                    text2.toString()));
+                        f1l1 = f1l2 = f2l1 = f2l2 = 0;
+                        text1.delete(0, text1.length());
+                        text2.delete(0, text2.length());
+                    }
+                    if (!leftPart) w.write(lineText);
+                    isChangeRight = !isChangeRight;
+                    continue;
                 } else if (line.equals(CHANGE_DELIMETER)) {
                     if (isChangeLeft) {
                         isChangeLeft = false;
@@ -252,6 +279,24 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                         f1l1 = i;
                         continue;
                     }
+                } else if (line.endsWith(CHANGE_DELIMETER)) {
+                    String lineText = line.substring(0, line.length() - CHANGE_DELIMETER.length()) + "\n";
+                    if (isChangeLeft) {
+                        text1.append(lineText);
+                        if (leftPart) w.write(lineText);
+                        isChangeLeft = false;
+                        isChangeRight = true;
+                        f1l2 = i;
+                        f2l1 = j;
+                    } else if (isChangeRight) {
+                        text2.append(lineText);
+                        if (!leftPart) w.write(lineText);
+                        isChangeRight = false;
+                        isChangeLeft = true;
+                        f2l2 = j;
+                        f1l1 = i;
+                    }
+                    continue;
                 }
                 if (!isChangeLeft && !isChangeRight || leftPart == isChangeLeft) {
                     w.write(line);
