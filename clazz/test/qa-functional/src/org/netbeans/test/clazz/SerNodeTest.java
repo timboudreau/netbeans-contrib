@@ -85,9 +85,15 @@ public class SerNodeTest extends JellyTestCase {
     
     public void testTree() {
         createSer();
+        workaround();
         dumpNode(new JavaNode(testFSName + '|' + DST_PACKAGE.replace('.', '|') + '|' + NAME_TEST_FILE), 3);
         compareReferenceFiles();
        
+    }
+    
+    private void workaround() {
+        String patterns = Bundle.getString("org.netbeans.modules.beans.Bundle", "Patterns"); 
+        new JavaNode(testFSName + '|' + DST_PACKAGE.replace('.', '|') + '|' + NAME_TEST_FILE + "|class " + NAME_TEST_FILE + "|" + patterns + "|ok").select();
     }
     
     private int tab = -1;
