@@ -126,7 +126,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
             }
         }
         if(info != null){            
-            info.addPropertyChangeListener(new ModuleDisabledListener());           
+            info.addPropertyChangeListener(WeakListeners.propertyChange(new ModuleDisabledListener(),info));           
         }
     }
     
