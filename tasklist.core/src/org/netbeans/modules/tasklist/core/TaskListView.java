@@ -85,6 +85,8 @@ public abstract class TaskListView extends TopComponent
      */
     private transient static Map views = null;
 
+    protected static int TOOLBAR_HEIGHT_ADJUSTMENT = -2;
+
     /**
      * Registers a view
      *
@@ -290,7 +292,12 @@ public abstract class TaskListView extends TopComponent
     }
 
     private JLabel createMiniStatus() {
-        return new JLabel();
+        JLabel ret =  new JLabel();
+        ret.setBorder(BorderFactory.createEmptyBorder());
+        Dimension dim = ret.getPreferredSize();
+        dim.height += TOOLBAR_HEIGHT_ADJUSTMENT;
+        ret.setPreferredSize(dim);
+        return ret;
     }
 
     protected final void setMiniStatus(String text) {

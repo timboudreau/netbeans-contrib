@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import javax.accessibility.AccessibleContext;
 
 import org.openide.util.NbBundle;
@@ -92,6 +93,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private static final int RECENT_ITEMS_COUNT = 4;
     private ArrayList recentFolders = new ArrayList(RECENT_ITEMS_COUNT); // XXX it'd be nice to persist it
+
+    private static Border buttonBorder;
 
     /**
      * Externalization entry point (readExternal).
@@ -575,7 +578,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         public Dimension getPreferredSize() {
             Dimension dim = getAllFiles().getPreferredSize();
-            return new Dimension(11, 28);
+            return new Dimension(11, dim.height);
         }
     }
 
@@ -744,11 +747,33 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     /** Toolbar controls must be smaller*/
-    private static void adjustHeight(AbstractButton c) {
-        Insets in = c.getMargin();
-        in.top = 0;
-        in.bottom = 0;
-        c.setMargin(in);
+    private static void adjustHeight(AbstractButton button) {
+
+        button.setMargin(new Insets(0, 3, 0, 3));
+
+//        if (button instanceof JToggleButton) {
+//            if (buttonBorder == null) { // for some l&f's, core will supply one
+//                buttonBorder = UIManager.getBorder("nb.tabbutton.border"); //NOI18N
+//            }
+//
+//            if (buttonBorder == null) {
+//                JToolBar toolbar = new JToolBar();
+//                toolbar.setRollover(true);
+//                toolbar.add(button);
+//                buttonBorder = button.getBorder();
+//                toolbar.remove(button);
+//            }
+//
+//            button.setBorder(buttonBorder);
+//        }
+
+        // as we cannot get the button small enough using the margin and border...
+        if (button.getBorder() instanceof CompoundBorder) { // from BasicLookAndFeel
+            Dimension pref = button.getPreferredSize();
+            pref.height += TOOLBAR_HEIGHT_ADJUSTMENT;
+            button.setPreferredSize(pref);
+        }
+
     }
 
     public void updateFilterCount() {
