@@ -3278,6 +3278,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             }
         }
+        FileObject fo = findResource(name);
         boolean success = file.delete();
         if (name.endsWith(getBackupExtension())) {
             // There is not necessary to do anything more for backups.
@@ -3294,7 +3295,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 //                // the deleted file is (only) locally scheduled for removal
 //                // it still exists on server therefore it must be marked explicitly
 //                // as virtual because refresh does not catch it
-            FileObject fo = findResource(name);
             assert fo != null: "Did not find resource '"+name+"'.";
             FileObject parent = fo.getParent();
             FileProperties props = Turbo.getCachedMeta(fo);
