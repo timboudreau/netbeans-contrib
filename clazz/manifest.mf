@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Install: org/netbeans/modules/clazz/ClassModule.class
 OpenIDE-Module-Layer: org/netbeans/modules/clazz/resources/mf-layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/clazz/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.14

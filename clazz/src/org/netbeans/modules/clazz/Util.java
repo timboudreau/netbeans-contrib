@@ -54,7 +54,7 @@ final class Util {
             return bundle;
         synchronized (Util.class) {
             if (bundle == null)
-                bundle = NbBundle.getBundle(ClassModule.class);
+                bundle = NbBundle.getBundle(Util.class);
         }
         return bundle;
     }
