@@ -80,6 +80,9 @@ public class TaskList implements ObservableList, TaskListener {
      * the new subtask after the addition (e.g. add
      * this subtask directly AFTER the specified
      * task). Overrides the append parameter.
+     *
+     * @todo Consider to add removeList.removeAll(addList) tricks, it could speedup
+     * all clients (eliminating remove foloved by add events).
      */
     public void addRemove(List addList, List removeList, boolean append,
                           Task parent, Task after) {
