@@ -238,6 +238,14 @@ public final class TurboUtil {
             while (it.hasNext()) {
                 String[] next = (String[]) it.next();
                 String fileName = next[StatusFormat.ELEMENT_INDEX_FILE_NAME];
+                if (fileName == null) {
+                    String msg = "Bad data produced by refresh: "+VcsUtilities.array2string(next)+", file name = "+fileName;
+                    ErrorManager.getDefault().notify(ErrorManager.USER,
+                            ErrorManager.getDefault().annotate(
+                            new IllegalArgumentException(msg), msg));
+                    ErrorManager.getDefault().log(ErrorManager.getDefault().ERROR, msg);
+                    continue;
+                }
 
                 String  name = fileName;
                 boolean isFolder = false;
@@ -268,6 +276,14 @@ public final class TurboUtil {
         while (it.hasNext()) {
             String[] next = (String[]) it.next();
             String fileName = next[StatusFormat.ELEMENT_INDEX_FILE_NAME];
+            if (fileName == null) {
+                String msg = "Bad data produced by refresh: "+VcsUtilities.array2string(next)+", file name = "+fileName;
+                ErrorManager.getDefault().notify(ErrorManager.USER,
+                        ErrorManager.getDefault().annotate(
+                        new IllegalArgumentException(msg), msg));
+                ErrorManager.getDefault().log(ErrorManager.getDefault().ERROR, msg);
+                continue;
+            }
 
             String  name = fileName;
             boolean isFolder = false;
