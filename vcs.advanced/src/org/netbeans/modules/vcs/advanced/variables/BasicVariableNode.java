@@ -365,10 +365,11 @@ public class BasicVariableNode extends AbstractNode {
         } else {
             actions.add(SystemAction.get(PasteAction.class));
         }
-        actions.add(null);
-        actions.add(SystemAction.get(NewAction.class));
         if (Children.LEAF.equals(this.getChildren())) {
             actions.add(SystemAction.get(DeleteAction.class));
+        } else {
+            actions.add(null);
+            actions.add(SystemAction.get(NewAction.class));
         }
         //actions.add(null);
         //actions.add(SystemAction.get(PropertiesAction.class));
