@@ -24,6 +24,7 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
  * This class contains a support for VCS commands execution.
@@ -97,11 +98,13 @@ public class CommandExecutorSupport extends Object {
      */
     public static void doRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
         VcsCommand cmd = vce.getCommand();
-        String dir = vce.getPath();
+        //String dir = vce.getPath();
         //String file = "";
         Collection files = vce.getFiles();
         for(Iterator it = files.iterator(); it.hasNext(); ) {
-            String file = (String) it.next();
+            String fullPath = (String) it.next();
+            String dir = VcsUtilities.getDirNamePart(fullPath);
+            String file = VcsUtilities.getFileNamePart(fullPath);
             doRefresh(fileSystem, vce.getExec(), cmd, dir, file);
         }
     }
