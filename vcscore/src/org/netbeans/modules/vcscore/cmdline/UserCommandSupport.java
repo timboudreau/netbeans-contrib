@@ -487,14 +487,22 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         String newExec = CommandCustomizationSupport.preCustomize(fileSystem, vcsCmd, vars);
         if (commandExec != null && newExec == null) return new UserCancelException();
         Object finalCustomizer = null;
-        if ((commandExec == null || newExec != null) && doCreateCustomizer) {
-            finalCustomizer = createCustomizer(customizer, newExec, vars, forEachFile,
-                                               cmd, files, cacheProvider, valueAdjustment,
-                                               cmdCanRunOnMultipleFiles,
-                                               cmdCanRunOnMultipleFilesInFolder);
-            if (finalCustomizer instanceof UserCommandCustomizer) {
-                customizer = (UserCommandCustomizer) finalCustomizer;
-            } else customizer = null;
+        if (commandExec == null || newExec != null) {
+            if (doCreateCustomizer) {
+                finalCustomizer = createCustomizer(customizer, newExec, vars, forEachFile,
+                                                   cmd, files, cacheProvider, valueAdjustment,
+                                                   cmdCanRunOnMultipleFiles,
+                                                   cmdCanRunOnMultipleFilesInFolder);
+                if (finalCustomizer instanceof UserCommandCustomizer) {
+                    customizer = (UserCommandCustomizer) finalCustomizer;
+                } else customizer = null;
+            } else {
+                try {
+                    CommandCustomizationSupport.setupUncustomizedCommand(fileSystem, newExec, vars, vcsCmd);
+                } catch (UserCancelException ucex) {
+                    return ucex;
+                }
+            }
         }
         if (newExec != null) cmd.setPreferredExec(newExec);
         cmd.setAdditionalVariables(vars);

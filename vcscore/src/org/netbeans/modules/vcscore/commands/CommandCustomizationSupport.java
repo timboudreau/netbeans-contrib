@@ -837,6 +837,42 @@ public class CommandCustomizationSupport extends Object {
         }
     }
     
+    private static void doPromptForPasswordIfNecessary(final VcsFileSystem fileSystem,
+                                                       final String exec,
+                                                       final Hashtable vars) throws UserCancelException {
+        synchronized (vars) {
+            if (exec != null && needPromptForPR("PASSWORD", exec, vars)) { // NOI18N
+                String password;
+                synchronized (promptLock) { // disable the possibility, that the user
+                    // will be prompted multiple times at once by concurrenly running commands
+                    password = fileSystem.getPassword();
+                    if (password == null) {
+                        NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
+                        if (NotifyDescriptor.OK_OPTION.equals (DialogDisplayer.getDefault ().notify (nd))) {
+                            password = nd.getInputText ();
+                        } else {
+                            fileSystem.setPassword(null);
+                            throw new UserCancelException();
+                        }
+                        fileSystem.setPassword(password);
+                    }
+                }
+                vars.put("PASSWORD", password); // NOI18N
+            }
+        }
+    }
+    
+    /**
+     * Setup some necessary variables, but do not present any GUI - the command
+     * does not wish to be customized. The only exception is a prompt for password.
+     * This method just sets the password (and prompt for it if it's not set).
+     */
+    public static void setupUncustomizedCommand(final VcsFileSystem fileSystem,
+                                                final String exec, final Hashtable vars,
+                                                final VcsCommand cmd) throws UserCancelException {
+        doPromptForPasswordIfNecessary(fileSystem, exec, vars);
+    }
+    
     /** The table of FS and its global descriptor string. */
     private static Map globalInputStrs = Collections.synchronizedMap(new WeakHashMap());
     /** The table of FS and its parsed global descriptor */
@@ -880,25 +916,7 @@ public class CommandCustomizationSupport extends Object {
                  */
         }
         synchronized (vars) {
-            if (exec != null && needPromptForPR("PASSWORD", exec, vars)) { // NOI18N
-                String password;
-                synchronized (promptLock) { // disable the possibility, that the user
-                    // will be prompted multiple times at once by concurrenly running commands
-                    password = fileSystem.getPassword();
-                    if (password == null) {
-                        NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
-                        if (NotifyDescriptor.OK_OPTION.equals (DialogDisplayer.getDefault ().notify (nd))) {
-                            password = nd.getInputText ();
-                        } else {
-                            fileSystem.setPassword(null);
-                            throw new UserCancelException();
-                        }
-                        fileSystem.setPassword(password);
-                    }
-                }
-                vars.put("PASSWORD", password); // NOI18N
-            /* Do not change forEachFile, if the command is successful it will not ask any more */
-            }
+            doPromptForPasswordIfNecessary(fileSystem, exec, vars);
             if (forEachFile == null || forEachFile[0] == true) {
                 final String[] userParams = fileSystem.getUserParams();
                 final Hashtable userParamsVarNames = new Hashtable(); // Variable names of prompt for additional parameters
