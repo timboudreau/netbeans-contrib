@@ -74,6 +74,8 @@ public class UserCommandsPanel extends JPanel
         ExplorerActions actions = new ExplorerActions();
         actions.attach(getExplorerManager());
         HelpCtx.setHelpIDString (this, "VCS_CommandEditor"); // NOI18N
+        getAccessibleContext().setAccessibleName(g("ACS_UserCommandsPanelA11yName"));  // NOI18N
+        getAccessibleContext().setAccessibleDescription(g("ACS_UserCommandsPanelA11yDesc"));  // NOI18N
     }
 
     /** Called when the command is changed.
@@ -264,7 +266,10 @@ public class UserCommandsPanel extends JPanel
         org.openide.awt.SplittedPanel split = new org.openide.awt.SplittedPanel();
         split.setSplitType(org.openide.awt.SplittedPanel.HORIZONTAL);
         //split.add(new CommandTreeView(), org.openide.awt.SplittedPanel.ADD_LEFT);
-        split.add(new org.openide.explorer.view.BeanTreeView(), org.openide.awt.SplittedPanel.ADD_LEFT);
+        org.openide.explorer.view.BeanTreeView beanTreeView = new org.openide.explorer.view.BeanTreeView();
+        beanTreeView.getAccessibleContext().setAccessibleName(g("ACS_UserCommandsTreeViewA11yName"));  // NOI18N
+        beanTreeView.getAccessibleContext().setAccessibleDescription(g("ACS_UserCommandsTreeViewA11yDesc"));  // NOI18N
+        split.add(beanTreeView, org.openide.awt.SplittedPanel.ADD_LEFT);
         split.add(propertySheetView, org.openide.awt.SplittedPanel.ADD_RIGHT);
         //JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new CommandTreeView(), propertySheetView);
 
