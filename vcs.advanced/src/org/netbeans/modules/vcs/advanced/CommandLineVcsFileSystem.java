@@ -68,7 +68,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   private long cacheId=0;
 
-  private static transient String CACHE_ROOT="vcscache";
+  private static transient String CACHE_ROOT="vcs/cache";
   private static transient long CACHE_LAST_ID=0;
   
   private transient VcsAction action=null;
@@ -100,9 +100,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   private void init(){
-    CACHE_ROOT=System.getProperty("netbeans.home")+
-      //"/home/mfadljevic/Development/src_modules/com/netbeans/enterprise/modules/vcs/cmdline"+
-      File.separator+"vcscache";
+    CACHE_ROOT=System.getProperty("netbeans.home")+File.separator+
+      "system"+File.separator+"vcs"+File.separator+"cache";
     String cacheDir=CACHE_ROOT+File.separator+cacheId;
     createDir(cacheDir);
     cache=new VcsCache(this,cacheDir);
@@ -285,6 +284,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   private Vector/*VcsFile*/ getImportantFiles(Object[] oo){
+    //D.deb("getImportantFiles()");
     Vector result=new Vector(3);
     int len=oo.length;
     
@@ -295,9 +295,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
       VcsFile file=cache.getFile(fullName);
       if( file==null ){
-	//D.deb("no such file '"+fullName+"'");
+	D.deb("no such file '"+fullName+"'");
 	continue ;
       }
+      //D.deb("fileName="+fileName);
       //if( file.isImportant() ){ // TODO Change this line !!!
       if( fileName.indexOf(".class")<0 ){ 
 	result.addElement(file);
@@ -424,6 +425,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     String[] vcsFiles=null;
     String[] localFiles=null;
     String[] files=null;
+
+    //Thread.dumpStack();
+    
 
     if( cache.isDir(name) ){
       vcsFiles=cache.getFilesAndSubdirs(name);
@@ -651,13 +655,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @param name the file to mark
   */
   public void markUnimportant (String name) {
-    D.deb("markUnimportant("+name+")");
-    VcsFile file=cache.getFile(name);
-    if( file==null ){
-      E.err("no such file '"+name+"'");
-      return ;
-    }
-    file.setImportant(false);
+    //TODO...
+//  D.deb("markUnimportant("+name+")");
+//      VcsFile file=cache.getFile(name);
+//      if( file==null ){
+//        E.err("no such file '"+name+"'");
+//        return ;
+//      }
+//      file.setImportant(false);
   }
 
   //-------------------------------------------
@@ -707,6 +712,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  15   Gandalf   1.14        5/13/99  Michal Fadljevic 
  *  14   Gandalf   1.13        5/11/99  Michal Fadljevic 
  *  13   Gandalf   1.12        5/7/99   Michal Fadljevic 
  *  12   Gandalf   1.11        5/6/99   Michal Fadljevic 
