@@ -849,6 +849,7 @@ public class IDLDataObject extends MultiDataObject {
 	    System.out.println ("IDLDataObject::parse () of " + this.getPrimaryFile ()); // NOI18N
 	//System.out.println (this + ": ->parse ();"); // NOI18N
 	InputStream __stream = null;
+	int __status;
         try {
 	    __stream = this.getPrimaryFile ().getInputStream ();
             IDLParser __parser = new IDLParser (getPrimaryFile ().getInputStream ());
@@ -859,7 +860,8 @@ public class IDLDataObject extends MultiDataObject {
             //_M_src.xDump (" "); // NOI18N
             _M_src.setDataObject (this);
             //_M_status = STATUS_OK;
-	    this.setStatus (IDLDataObject.STATUS_OK);
+	    //this.setStatus (IDLDataObject.STATUS_OK);
+            __status = STATUS_OK;
 	    if (DEBUG)
                 _M_src.dump (""); // NOI18N
             if (DEBUG)
@@ -868,17 +870,24 @@ public class IDLDataObject extends MultiDataObject {
             if (DEBUG)
 		System.out.println ("parse exception"); // NOI18N
             //_M_status = STATUS_ERROR;
-	    this.setStatus (IDLDataObject.STATUS_ERROR);
+	    //this.setStatus (IDLDataObject.STATUS_ERROR);
+            __status = STATUS_ERROR;
         } catch (TokenMgrError e) {
             if (DEBUG)
 		System.out.println ("parser error!!!"); // NOI18N
             //_M_status = STATUS_ERROR;
-	    this.setStatus (IDLDataObject.STATUS_ERROR);
+	    //this.setStatus (IDLDataObject.STATUS_ERROR);
+            __status = STATUS_ERROR;
         } catch (java.io.FileNotFoundException e) {
+	    //this.setStatus (IDLDataObject.STATUS_ERROR);
+            __status = STATUS_ERROR;
             if (Boolean.getBoolean ("netbeans.debug.exceptions")) { // NOI18N
 		e.printStackTrace ();
+		//Thread.dumpStack ();
 	    }
         } catch (Exception ex) {
+	    //this.setStatus (IDLDataObject.STATUS_ERROR);
+            __status = STATUS_ERROR;
             //TopManager.getDefault ().notifyException (ex);
 	    if (DEBUG)
 		System.out.println ("IDLParser exception in " + this.getPrimaryFile ()); // NOI18N
@@ -891,8 +900,11 @@ public class IDLDataObject extends MultiDataObject {
 	    } catch (IOException __ex) {
 	    }
 	}
+	//System.out.println ("after parsing...");
+	//System.out.println ("status: " + this.getStatus ());
 	//synchronized (_M_possible_names_lock) {
 	synchronized (this) {
+	    this.setStatus (__status);
 	    //if (_M_status == STATUS_OK || _M_possible_names == null) {
 	    if (this.getStatus () == STATUS_OK || _M_possible_names == null) {
 		//System.out.println ("// we can crate new map");
@@ -943,7 +955,7 @@ public class IDLDataObject extends MultiDataObject {
     class FileListener extends FileChangeAdapter {
         public void fileChanged (FileEvent e) {
             if (DEBUG)
-		System.out.println ("idl file was changed."); // NOI18N
+		System.out.println ("++++++++++++ idl file was changed. ++++++++"); // NOI18N
 	    IDLDataObject.this.setStatus (IDLDataObject.STATUS_NOT_PARSED);
             //IDLDataObject.this.handleFindDataObject (
             //IDLDataObject.this.startParsing ();
@@ -956,8 +968,11 @@ public class IDLDataObject extends MultiDataObject {
 		(IDLDataLoader.class, true);
 	    __loader.setHide (__loader.getHide ());
 
-	    if (css.getActiveSetting ().getSynchro () == ORBSettingsBundle.SYNCHRO_ON_SAVE)
+	    if (css.getActiveSetting ().getSynchro ().equals 
+		(ORBSettingsBundle.SYNCHRO_ON_SAVE)) {
+		//System.out.println ("generating after save....");
 		IDLDataObject.this.generateImplementation ();
+	    }
         }
 
         public void fileRenamed (FileRenameEvent e) {
@@ -1110,6 +1125,16 @@ public class IDLDataObject extends MultiDataObject {
     protected void handleDelete () throws IOException {
 	if (DEBUG)
 	    System.out.println ("IDLDataObject::handleDelete ();"); // NOI18N
+	synchronized (this) {
+	    while (this.getStatus () != STATUS_OK && this.getStatus () != STATUS_ERROR) {
+		try {
+		    //System.out.println (this + " IDLDataObject::handleDelete () -> wait ()");
+		    this.wait ();
+		} catch (InterruptedException __ex) {
+		}
+	    }
+	}
+	//System.out.println ("continue...");
 	CloseCookie __cookie = (CloseCookie)this.getCookie (CloseCookie.class);
 	if (__cookie.close ()) {
 	    // user really want to close this data object
