@@ -13,7 +13,10 @@
 
 package org.netbeans.modules.vcscore;
 
+import java.io.IOException;
 import java.util.*;
+
+import org.openide.ErrorManager;
 
 import org.netbeans.modules.vcscore.util.*;
 //import org.netbeans.modules.vcscore.*;
@@ -154,8 +157,8 @@ public class Variables {
      * @param tab Hashtable holding (String)VARIABLE, (String)VALUE pairs
      * @param cmd Command with <code>${VAR}</code> sequences
      * @return String with all variables expanded
-     */
-    public static String expand(Hashtable tab, String cmd, boolean warnUndefVars) {
+     *
+    public static String expand_OLD(Hashtable tab, String cmd, boolean warnUndefVars) {
         D.deb ("expand ("+tab+","+cmd+")"); // NOI18N
         String cmd_cond = ""; // NOI18N
         //this.warnUndefVars = warnUndefVars;
@@ -180,7 +183,195 @@ public class Variables {
         return cmd;
         //return VcsUtilities.replaceBackslashDollars( cmd );
     }
+     */
 
+    /** Expand all occurences of <code>${<variable name>}</code> repeatetively.
+     * Expand also conditionals like <code>$[? <variable name>] [<when var is non-empty>]
+     * [<when var is empty>]<code>.
+     * @param tab Hashtable holding (String)VARIABLE, (String)VALUE pairs
+     * @param cmd Command with <code>${VAR}</code> sequences
+     * @return String with all variables expanded
+     */
+    public static String expand(Hashtable tab, String cmd, boolean warnUndefVars) {
+        StringBuffer result = new StringBuffer();
+        int begin = 0;
+        int end;
+        do {
+            end = cmd.indexOf("$", begin);
+            if (end < 0) {
+                result.append(cmd.substring(begin, cmd.length()));
+                break;
+            }
+            boolean var = false;
+            boolean cond = false;
+            boolean escape = false;
+            if (end > 0 && (escape = (cmd.charAt(end - 1) == '\\')) ||
+                end == (cmd.length() - 1) ||
+                (!(var = (cmd.charAt(end + 1) == '{')) &&
+                (!(cond = (cmd.charAt(end + 1) == '['))))) {
+
+                if (escape) {
+                    result.append(cmd.substring(begin, end - 1));
+                    result.append('$');
+                } else {
+                    result.append(cmd.substring(begin, end + 1));
+                }
+                begin = end + 1;
+            } else {
+                result.append(cmd.substring(begin, end));
+                begin = end + 2;
+                if (var) {
+                    end = VcsUtilities.getPairIndex(cmd, begin, '{', '}'); // cmd.indexOf("}",begin); // NOI18N
+                    if (end < 0) {
+                        ErrorManager.getDefault().notify(ErrorManager.WARNING,
+                            new IOException("Missing closing bracket '}'. Corresponding opening bracket '{' is at pos = "+(begin - 1)));
+                        result.append("${");
+                    } else {
+                        String expansion = expandVariable(tab, cmd.substring(begin, end), warnUndefVars);
+                        if (expansion == null) {
+                            if (warnUndefVars) {
+                                ErrorManager.getDefault().notify(ErrorManager.WARNING,
+                                    new IOException("Variable undefined '"+cmd.substring(begin, end)+
+                                                    "'. Expanding it to an empty string.")); // NOI18N
+                            }
+                        } else {
+                            result.append(expansion);
+                        }
+                        begin = end + 1;
+                    }
+                } else if (cond) {
+                    int[] expandEnd = new int[1];
+                    String expansion = expandConditional(tab, cmd.substring(begin - 2), warnUndefVars, expandEnd);
+                    if (expandEnd[0] < 0) {
+                        result.append("$[");
+                    } else {
+                        result.append(expansion);
+                        begin += expandEnd[0] - 1;
+                    }
+                }
+            }
+        } while (begin < cmd.length());
+        return result.toString();
+    }
+    
+    public static String expandVariable(Hashtable tab, String name, boolean warnUndefVars) {
+        String value = (String) tab.get(name);
+        char replC1 = (char) -1;
+        char replC2 = (char) -1;
+        if (value == null) {
+            int r = name.lastIndexOf(REPLACE);
+            //D.deb("getReplaceVarValue('"+name+"'): r = "+r); // NOI18N
+            if (r > 0 && name.length() == (r + 3)) {
+                value = (String) tab.get(name.substring(0, r));
+                //D.deb("getReplaceVarValue(): value of '"+name.substring(0, r)+"' = '"+value+"'"); // NOI18N
+                //D.deb("length = "+name.length()); // NOI18N
+                if (value != null) {
+                    replC1 = name.charAt(r+1);
+                    replC2 = name.charAt(r+2);
+                    //D.deb("c1 = "+c1+", c2 = "+c2); // NOI18N
+                    //value = value.replace(c1, c2);
+                }
+            }
+        }
+        if (value == null) {
+            int substr;
+            int begin = 0;
+            while((substr = name.indexOf(SUBSTRACT, begin)) > 0) {
+                String var = name.substring(begin, substr);
+                if (var != null) var = var.trim();
+                String svalue = expandVariable(tab, var, warnUndefVars);
+                if (svalue == null) {
+                    //if (warnUndefVars) E.deb("Variable undefined '"+var+"'."); // NOI18N
+                    return null;
+                }
+                if (begin == 0) value = svalue;
+                else value = VcsFileSystem.substractRootDir(value, svalue);
+                begin += substr + SUBSTRACT.length();
+            }
+            if (begin == 0) value = (String) tab.get(name);
+            else {
+                String svalue = expandVariable(tab, name.substring(begin).trim(), warnUndefVars);
+                if (svalue == null) {
+                    return null;
+                }
+                value = VcsFileSystem.substractRootDir(value, svalue);
+            }
+        } else {
+            value = expand(tab, value, warnUndefVars);
+        }
+        if (replC1 != -1) {
+            value = value.replace(replC1, replC2);
+        }
+        return value;
+    }
+    
+    private static String expandConditional(Hashtable tab, String cmd, boolean warnUndefVars,
+                                           int[] expandEnd) {
+        expandEnd[0] = -1;
+        if (!cmd.startsWith("$[?")) return null;
+        int begin = 3;
+        int end = VcsUtilities.getPairIndex(cmd, begin, '[', ']');
+        if (end < 0) {
+            ErrorManager.getDefault().notify(ErrorManager.WARNING,
+                new IOException("Missing closing bracket ']'."+
+                                " Corresponding opening bracket '[' is at pos = "+(begin - 1)));
+            return null;
+        }
+        String var = cmd.substring(begin, end).trim();
+        String value = expandVariable(tab, var, warnUndefVars);
+        if (value == null) {
+            if (warnUndefVars) {
+                ErrorManager.getDefault().notify(ErrorManager.WARNING,
+                    new IOException("Variable undefined '"+var+
+                        "'. Expanding it to an empty string.")); // NOI18N
+            }
+        }
+
+        // find first and second option and choose
+        
+        // first
+        int firstBegin = cmd.indexOf("[", end + 1); // NOI18N
+        //D.deb("firstBegin="+firstBegin); // NOI18N
+        if (firstBegin < 0) {
+            return null;
+        }
+        
+        int firstEnd = VcsUtilities.getPairIndex(cmd, firstBegin + 1, '[', ']');
+        if (firstEnd < 0) {
+            return null;
+        }
+        //D.deb("firstEnd="+firstEnd); // NOI18N
+        String first = cmd.substring(firstBegin + 1, firstEnd);
+        //D.deb ("first="+first); // NOI18N
+        
+        //index = firstEnd;
+        
+        // second
+        int secondBegin=cmd.indexOf("[", firstEnd); // NOI18N
+        //D.deb("secondBegin="+secondBegin); // NOI18N
+        if (secondBegin < 0) {
+            return null;
+        }
+        //result.append(cmd.substring(index,secondBegin));
+        
+        int secondEnd = VcsUtilities.getPairIndex(cmd, secondBegin + 1, '[', ']');
+        if (secondEnd < 0) {
+            return null;
+        }
+        //D.deb("secondEnd="+secondEnd); // NOI18N
+        String second = cmd.substring(secondBegin+1, secondEnd);
+        //D.deb ("second="+second); // NOI18N
+        expandEnd[0] = secondEnd;
+        
+        String result;
+        if (value == null || value.length() == 0) {
+            result = second;
+        } else {
+            result = first;
+        }
+        return expand(tab, result, warnUndefVars);
+    }
+    
     /** Expand all occurences of <code>${VARIABLE_NAME}</code>.
      * It makes only one expansion cycle, no variables inside other variables are expanded.
      * @param tab Hashtable holding (String)VARIABLE, (String)VALUE pairs
@@ -217,11 +408,7 @@ public class Variables {
             //D.deb ("pre="+result); // NOI18N
 
             int fake = cmd.indexOf("\\$[?", index); // NOI18N
-            if (fake < 0) {
-                // why 5 ? no one knows - magical number (<-1)
-                fake = -5;
-            }
-            if(fake + 1 == begin) {
+            if (fake >= 0 && fake + 1 == begin) {
                 index = begin + 1;
                 result.append('$');
                 continue;
@@ -259,11 +446,7 @@ public class Variables {
             //result.append(cmd.substring(index,firstBegin));
 
             fake = cmd.indexOf("\\[", index); // NOI18N
-            if (fake < 0) {
-                // why 5 ? no one knows - magical number (<-1)
-                fake = -5;
-            }
-            if (fake + 1 == firstBegin) {
+            if (fake >= 0 && fake + 1 == firstBegin) {
                 index = firstBegin + 1;
                 result.append('[');
                 continue;
@@ -290,11 +473,7 @@ public class Variables {
             //result.append(cmd.substring(index,secondBegin));
 
             fake = cmd.indexOf("\\[", index); // NOI18N
-            if (fake < 0) {
-                // why 5 ? no one knows - magical number (<-1)
-                fake = -5;
-            }
-            if (fake + 1 == secondBegin) {
+            if (fake >= 0 && fake + 1 == secondBegin) {
                 index = secondBegin + 1;
                 result.append('[');
                 continue;
@@ -327,12 +506,7 @@ public class Variables {
         if (begin < 0) {
             return false ;
         }
-        if (fake < 0) {
-            fake = -5;
-        }
-
-        //D.deb("begin="+begin+", fake="+fake); // NOI18N
-        if(fake + 1 == begin) {
+        if (fake >= 0 && fake + 1 == begin) {
             return needFurtherExpansion(cmd.substring(begin + 1));
         }
         return true ;
@@ -366,12 +540,9 @@ public class Variables {
             }
             result.append(cmd.substring(index,begin));
 
-            int fake=cmd.indexOf("\\${",index); // NOI18N
-            if( fake<0 ){
-                fake=-5;
-            }
-            if(fake+1==begin){
-                index=begin+1;
+            int fake = cmd.indexOf("\\${",index); // NOI18N
+            if(fake >= 0 && (fake + 1 == begin)) {
+                index=begin + 1;
                 result.append('$');
                 continue;
             }
@@ -537,29 +708,3 @@ public class Variables {
      */
 }
 
-/*
- * Log
- *  15   Jaga      1.13.1.0    3/8/00   Martin Entlicher A simple fast variable 
- *       expansion added.
- *  14   Gandalf   1.13        1/18/00  Martin Entlicher Warning of undefined 
- *       variables on demand.
- *  13   Gandalf   1.12        1/15/00  Ian Formanek    NOI18N
- *  12   Gandalf   1.11        1/6/00   Martin Entlicher 
- *  11   Gandalf   1.10        12/21/99 Martin Entlicher 
- *  10   Gandalf   1.9         12/8/99  Martin Entlicher Added deeper expansion 
- *       of commands.
- *  9    Gandalf   1.8         12/8/99  Martin Entlicher Added substract and 
- *       replace to variables.
- *  8    Gandalf   1.7         10/25/99 Pavel Buzek     
- *  7    Gandalf   1.6         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  6    Gandalf   1.5         10/13/99 Pavel Buzek     
- *  5    Gandalf   1.4         10/13/99 Martin Entlicher Recursive command 
- *       expansion added
- *  4    Gandalf   1.3         10/12/99 Martin Entlicher 
- *  3    Gandalf   1.2         10/12/99 Pavel Buzek     
- *  2    Gandalf   1.1         10/5/99  Pavel Buzek     VCS at least can be 
- *       mounted
- *  1    Gandalf   1.0         9/30/99  Pavel Buzek     
- * $ 
- */
