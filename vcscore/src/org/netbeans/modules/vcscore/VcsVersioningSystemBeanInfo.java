@@ -63,12 +63,24 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
 
     static {
         PropertyDescriptor showDeadFiles = null;
+        PropertyDescriptor showMessages = null;
+        PropertyDescriptor messageLength = null;
+        
         try {
             showDeadFiles = new PropertyDescriptor
                           (VcsVersioningSystem.PROP_SHOW_DEAD_FILES, VcsVersioningSystem.class, "isShowDeadFiles", "setShowDeadFiles"); // NOI18N
             showDeadFiles.setDisplayName      (NbBundle.getMessage(VcsVersioningSystem.class, "PROP_showDeadFiles"));
             showDeadFiles.setShortDescription (NbBundle.getMessage(VcsVersioningSystem.class, "HINT_showDeadFiles"));
-            properties = new PropertyDescriptor[] { showDeadFiles };
+            showMessages = new PropertyDescriptor
+                          (VcsVersioningSystem.PROP_SHOW_MESSAGES, VcsVersioningSystem.class, "isShowMessages", "setShowMessages"); // NOI18N
+            showMessages.setDisplayName      (NbBundle.getMessage(VcsVersioningSystem.class, "PROP_showMessages")); //NOI18N
+            showMessages.setShortDescription (NbBundle.getMessage(VcsVersioningSystem.class, "HINT_showMessages")); //NOI18N
+            messageLength = new PropertyDescriptor
+                          (VcsVersioningSystem.PROP_MESSAGE_LENGTH, VcsVersioningSystem.class, "getMessageLength", "setMessageLength"); // NOI18N
+            messageLength.setDisplayName      (NbBundle.getMessage(VcsVersioningSystem.class, "PROP_messageLength")); //NOI18N
+            messageLength.setShortDescription (NbBundle.getMessage(VcsVersioningSystem.class, "HINT_messageLength")); //NOI18N
+            
+            properties = new PropertyDescriptor[] { showDeadFiles, showMessages, messageLength };
         } catch (IntrospectionException ex) {
             TopManager.getDefault().notifyException(ex);
         }

@@ -69,9 +69,15 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     private VersioningFileSystem.Versions versions;
     //private FileStatusListener fileStatus;
     private Hashtable revisionListsByName;
+    /** Holds value of property showMessages. */
+    private boolean showMessages = true;
 
-    public static final String PROP_SHOW_DEAD_FILES = "showDeadFiles";
+    /** Holds value of property messageLength. */
+    private int messageLength = 20;    
     
+    public static final String PROP_SHOW_DEAD_FILES = "showDeadFiles";
+    public static final String PROP_SHOW_MESSAGES = "showMessages";
+    public static final String PROP_MESSAGE_LENGTH = "messageLength";
     
     private static final long serialVersionUID = 6349205836150345436L;
 
@@ -136,7 +142,74 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         fileSystem.setShowDeadFiles(showDeadFiles);
         firePropertyChange(PROP_SHOW_DEAD_FILES, new Boolean(!showDeadFiles), new Boolean(showDeadFiles));
     }
+
+    /** Getter for property showMessages.
+     * @return Value of property showMessages.
+     */
+    public boolean isShowMessages() {
+        return this.showMessages;
+    }
     
+    /** Setter for property showMessages.
+     * @param showMessages New value of property showMessages.
+     */
+    public void setShowMessages(boolean showMessages) {
+        if (this.showMessages != showMessages) {
+            this.showMessages = showMessages;
+            redisplayRevisions();
+        }
+    }
+    
+    private void redisplayRevisions() {
+        Iterator it = this.revisionListsByName.values().iterator();
+        while (it.hasNext()) {
+            RevisionList list = (RevisionList)it.next();
+            displayRevisions(list);
+        }
+    }
+    
+    private void displayRevisions(RevisionList list) {
+        Iterator it2 = list.iterator();
+        while (it2.hasNext()) {
+            RevisionItem item = (RevisionItem)it2.next();
+            if (isShowMessages()) {
+                item.setDisplayName(item.getRevision() + "  " + cutMessageString(item.getMessage())); //NOI18N
+            } else {
+                item.setDisplayName(item.getRevision());
+            }
+        }
+        
+    }
+    
+    
+    private String cutMessageString(String message) {
+        String toReturn = message;
+        if (message != null && message.length() > (getMessageLength() + 3)) {
+            toReturn = message.substring(0, getMessageLength()) + "..."; //NOI18N
+        }
+        if (toReturn != null) {
+            toReturn = toReturn.replace('\n', ' ');
+        }
+        return toReturn;
+    }
+        
+    /** Getter for property messageLength.
+     * @return Value of property messageLength.
+     */
+    public int getMessageLength() {
+        return this.messageLength;
+    }
+    
+    /** Setter for property messageLength.
+     * @param messageLength New value of property messageLength.
+     */
+    public void setMessageLength(int messageLength) {
+        this.messageLength = messageLength;
+        if (messageLength < 0) {
+            this.messageLength = 0;
+        }
+        redisplayRevisions();
+    }    
     
     /*
     public RevisionChildren createRevisionChildren(RevisionList list) {
@@ -345,6 +418,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                 final VcsCommandExecutor vce = vces[0];
                 fileSystem.getCommandsPool().waitToFinish(vce);
                 list = getEncodedRevisionList(name, dataBuffer.toString());
+                displayRevisions(list);
             }
             return list;//(RevisionList) revisionListsByName.get(name);
         }
