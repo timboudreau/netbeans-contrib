@@ -895,6 +895,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private void createIgnoreList(final FileObject fo, final String path, final IgnoreListSupport ignSupport) {
         CacheDir dir = cache.getDir(path);
+        if (dir == null) return ;
         FileObject parent = fo.getParent();
         ArrayList ignorelist = null;
         if (parent == null)
