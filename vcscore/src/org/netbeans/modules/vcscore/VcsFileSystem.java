@@ -59,7 +59,9 @@ import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.cache.CacheReference;
 import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.util.*;
+import org.netbeans.modules.vcscore.util.virtuals.VcsRefreshRequest;
 import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
+import org.netbeans.modules.vcscore.util.virtuals.VirtualsRefreshing;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.grouping.AddToGroupDialog;
 import org.netbeans.modules.vcscore.grouping.GroupUtils;
@@ -81,7 +83,7 @@ import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
  */
 //-------------------------------------------
 public abstract class VcsFileSystem extends AbstractFileSystem implements VariableInputDialog.FilePromptDocumentListener,
-                                                                          VcsSearchTypeFileSystem,
+                                                                          VcsSearchTypeFileSystem, VirtualsRefreshing,
                                                                           AbstractFileSystem.List, AbstractFileSystem.Info,
                                                                           AbstractFileSystem.Change, FileSystem.Status,
                                                                           CacheHandlerListener, Serializable {
@@ -367,6 +369,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient VersioningFileSystem versioningSystem = null;
     
     private transient AbstractFileSystem.List vcsList = null;
+    
+    /** The refresh request instead of the standard refreshing. */
+    private transient VcsRefreshRequest refresher;
     
 //    private transient Hashtable revisionListsByName = null;
 
@@ -861,7 +866,63 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             numDoAutoRefreshes.remove(path);
         }
     }
+    
+    /** Set the number of milliseconds between automatic refreshes of the
+     * directory structure. Replaces the functionality of setRefreshTime.
+     * You should not use setRefreshTime() in subclasses of VcsFileSystem at all!
+     * Use this method instead.
+     *
+     * @param ms number of milliseconds between two refreshes; if <code><= 0</code> then refreshing is disabled
+     */
+    protected synchronized final void setVcsRefreshTime(int ms) {
+        if (refresher != null) {
+            refresher.stop ();
+        }
+        if (ms <= 0 || System.getProperty ("netbeans.debug.heap") != null) { // NOI18N
+            refresher = null;
+        } else {
+            refresher = new VcsRefreshRequest (this, ms, this);
+        }
+    }
+    
+    /** Get the number of milliseconds between automatic refreshes of the
+     * directory structure. Replaces the functionality of getRefreshTime.
+     * You should not use getRefreshTime() in subclasses of VcsFileSystem at all!
+     * Use this method instead.
+     * By default, automatic refreshing is disabled.
+     *
+     * @return the number of milliseconds, or <code>0</code> if refreshing is disabled
+     */
+    protected final int getVcsRefreshTime() {
+        VcsRefreshRequest r = refresher;
+        return r == null ? 0 : r.getRefreshTime ();
+     }
 
+    public Enumeration getExistingFolders() {
+        return this.existingFileObjects(getRoot());
+    }
+    
+    /**
+     * Do the refresh of a folder.
+     */
+    public void doVirtualsRefresh(FileObject fo) {
+        fo.refresh();
+        if (fo.isFolder()) {
+            Enumeration en = existingFileObjects(fo);
+            while (en.hasMoreElements()) {
+                FileObject fo2 = (FileObject) en.nextElement();
+                if (fo2 != null && (fo2.getParent() == null || !fo2.getParent().equals(fo))) {
+                    // uses the feature of the existingFileObject method that the closest siblings are the first to come..
+                    //HACK..
+                    break;
+                }
+                if (!fo2.isFolder()) {
+                    setVirtualDataLoader(fo2);
+                }
+            }
+        }
+    }
+    
     /** Return the working directory of the file system. 
      *  To that, relative mountpoints are added later to enable compilation etc.
      */
@@ -1135,25 +1196,25 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     public void disableRefresh() {
         synchronized (this) {
-            refreshTimeToSet = getRefreshTime();
-            setRefreshTime(0);
+            refreshTimeToSet = getVcsRefreshTime();
+            setVcsRefreshTime(0);
         }
     }
     
     public void enableRefresh() {
         synchronized (this) {
-            setRefreshTime(refreshTimeToSet);
+            setVcsRefreshTime(refreshTimeToSet);
         }
     }
     
     public void setRefreshTimeToSet() {
-        setRefreshTime(refreshTimeToSet);
+        setVcsRefreshTime(refreshTimeToSet);
     }
 
     public void setCustomRefreshTime (int time) {
         if (isValid ()) {
             D.deb("Filesystem valid, setting the refresh time to "+time); // NOI18N
-            setRefreshTime (time);
+            setVcsRefreshTime (time);
         } else {
             D.deb("Filesystem not valid yet for refresh time "+time); // NOI18N
             refreshTimeToSet = time;
@@ -1163,15 +1224,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     public int getCustomRefreshTime () {
         if (isValid ()) {
-            D.deb("Filesystem valid, getting the refresh time "+getRefreshTime ()); // NOI18N
-            return getRefreshTime ();
+            //D.deb("Filesystem valid, getting the refresh time "+getVcsRefreshTime ()); // NOI18N
+            return getVcsRefreshTime ();
         } else {
             return refreshTimeToSet;
         }
     }
     
     public void setZeroRefreshTime() {
-        setRefreshTime(0);
+        setVcsRefreshTime(0);
     }
 
     /**
@@ -1284,6 +1345,20 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 	    return ref;
 	}
 	else return super.createReference(fo);
+    }
+    
+    /**
+     * Utility method that find the fileobject reference and if it exists, retypes it to CacheReference.
+     * @param name pathname of the resource.
+     * @returns  the cacheReference instance if one exists or null
+     */
+    protected CacheReference getCacheReference(String name) {
+       Reference ref = findReference(name);
+       if (ref != null && ref instanceof CacheReference) {
+          CacheReference cref = (CacheReference) ref;
+          return cref;
+       }
+       return null;
     }
     
     private void createIgnoreList(final FileObject fo, final String path, final IgnoreListSupport ignSupport) {
@@ -1567,7 +1642,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         attr = a;
         list = a;
         vcsList = new VcsList();
-        setRefreshTime (0); // due to customization
+        setRefreshTime (0); // disable the standard refresh, VcsRefreshRequest is used instead
+        setVcsRefreshTime (0); // due to customization
         refreshTimeToSet = last_refreshTime;
         /*
         cacheRoot = System.getProperty("netbeans.user")+File.separator+
@@ -2670,7 +2746,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public String[] children (String name) {
         //D.deb("children('"+name+"')"); // NOI18N
-        //System.out.println("children('"+name+"'), refresh time = "+getRefreshTime());
+        //System.out.println("children('"+name+"'), refresh time = "+getVcsRefreshTime());
         String[] vcsFiles = null;
         String[] files = null;
 
@@ -3034,6 +3110,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
+    private void addParentToRefresher(String name) {
+        //System.out.println("addParentToRefresher("+name+")");
+        int lastIndex = name.lastIndexOf('/');
+        String parent;
+        if (lastIndex > 0) {
+            parent = name.substring(0, lastIndex);
+        } else {
+            parent = "";
+        }
+        if (refresher != null) {
+            //System.out.println("addPrefferedFolder("+parent+")");
+            refresher.addPrefferedFolder(parent);
+        }
+    }
+    
     /** Rename a file.
      * @param oldName old name of the file
      * @param newName new name of the file
@@ -3053,6 +3144,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             };
         }
         if (cache != null) cache.rename(oldName, newName);
+        addParentToRefresher(oldName);
     }
 
     /** Delete a file.
@@ -3112,6 +3204,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             statusProvider.setFileMissing(name);
         }
          */
+        addParentToRefresher(name);
         callDeleteCommand(name, wasDir);
         return success;
     }

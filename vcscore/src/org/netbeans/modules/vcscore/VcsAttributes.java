@@ -22,6 +22,7 @@ import org.openide.filesystems.DefaultAttributes;
 import org.openide.filesystems.FileObject;
 import org.openide.util.RequestProcessor;
 
+import org.netbeans.modules.vcscore.cache.CacheReference;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
@@ -29,6 +30,7 @@ import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.util.Table;
+import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
 
 /**
  * Implementation of file attributes for version control systems. All attributes
@@ -178,8 +180,25 @@ public class VcsAttributes extends DefaultAttributes {
             }
             return VCS_STATUS_UNKNOWN;
         } else if (GeneralCommandAction.VCS_ACTION_ATTRIBUTE.equals(attrName)) {
-                return supporter;            
+            return supporter;            
         } else {
+            if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
+                CacheReference ref = fileSystem.getCacheReference(name);
+                if (ref != null) {
+                    if (ref.isVirtual()) {
+                        //                        System.out.println("is virtual.." + name);
+                        return VirtualsDataLoader.class.getName();
+                    }
+                }
+            } else if ("NetBeansAttrAssignedLoaderModule".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER_MODULE */  //NOI18N
+                CacheReference ref = fileSystem.getCacheReference(name);
+                if (ref != null) {
+                    if (ref.isVirtual()) {
+                        //                        System.out.println("is vitrual module..");
+                        return "org.netbeans.modules.vcscore"; //NOI18N
+                    }
+                }
+            }
             return super.readAttribute(name, attrName);
         }
     }
@@ -231,6 +250,33 @@ public class VcsAttributes extends DefaultAttributes {
             });
             super.writeAttribute(name, VCS_SCHEDULED_FILE_ATTR, value);
         } else {
+            if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
+                if (value != null && "org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader".equals(value.toString())) {
+                    //System.out.println("dont write loader attribute,.," + name);
+                    //don't write to .nbattrs file..
+                    CacheReference ref = fileSystem.getCacheReference(name);
+                    if (ref != null) {
+                        //System.out.println("writed is virtual");
+                        ref.setVirtual(true);
+                    }
+                    return;
+                }
+                if (value == null) {
+                    CacheReference ref = fileSystem.getCacheReference(name);
+                    if (ref != null) {
+                        ref.setVirtual(false);
+                    }
+                }
+                //System.out.println("write assigned loader for=" + name);
+            }    
+            if ("NetBeansAttrAssignedLoaderModule".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER_MODULE */  //NOI18N
+                if (value != null && "org.netbeans.modules.vcscore".equals(value.toString())  //NOI18N
+                    && fileSystem.checkVirtual(name)) {
+                   //don't write to .nbattrs file..
+                   return;  
+                }
+                //System.out.println("write assigned module=" + value);
+            }                
             super.writeAttribute(name, attrName, value);
         }
     }
