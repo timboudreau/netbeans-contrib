@@ -92,7 +92,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private Background background;
 
     /** Selcted folder to be scanned or null */
-    private FileObject selectedFolder;
+    /*package*/ FileObject selectedFolder;
 
     private static final int RECENT_ITEMS_COUNT = 4;
     private ArrayList recentFolders = new ArrayList(RECENT_ITEMS_COUNT);
@@ -483,7 +483,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return stop;
     }
 
-    private AbstractButton getRefresh() {
+    /*package*/ AbstractButton getRefresh() {
         if (refresh == null) {
             Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/refresh.gif");  // NOI18N
             JButton button = new JButton(new ImageIcon(image));
@@ -491,13 +491,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             button.setEnabled(job == null);
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-//                    Component glass = getRootPane().getGlassPane();
-//                    JPanel shadow = new JPanel();
-//                    shadow.setOpaque(false);
-//                    shadow.setBackground(new Color(50,50,50,150));
-//                    getRootPane().setGlassPane(shadow);
                     handleRefresh();
-//                    getRootPane().setGlassPane(glass);
                 }
             });
             adjustHeight(button);
@@ -538,7 +532,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private AbstractButton allFilesButton;
     private ButtonGroup group = new ButtonGroup();;
 
-    private AbstractButton getAllFiles() {
+    /*package*/ AbstractButton getAllFiles() {
         if (allFilesButton == null) {
             JToggleButton button = new JToggleButton(Util.getString("see-folder"));
             if (selectedFolder == null) {
@@ -998,6 +992,19 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     protected void componentHidden() {
         releaseWorkaround();
         super.componentHidden();
+    }
+
+    // used by unit test
+    /*package*/ ObservableList discloseModel() {
+        return getModel();
+    }
+
+    /*package*/ Object discloseTable() {
+        return treeTable;
+    }
+
+    /*package*/ Node discloseNode() {
+        return rootNode;
     }
 
     /** User clicked selected folder, restore from cache or ask for context */
