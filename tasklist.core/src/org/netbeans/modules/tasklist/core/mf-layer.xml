@@ -23,7 +23,13 @@ Microsystems, Inc. All Rights Reserved.
   
     <folder name="Services">
         <folder name="JavaHelp">
+            <!-- Merge after Core IDE Help: -->
+            <attr name="org-netbeans-modules-usersguide-above-regular.txt/org-netbeans-modules-tasklist-helpset.xml" boolvalue="true"/>
+            
             <file name="org-netbeans-modules-tasklist-helpset.xml" url="helpsetref.xml"/>
+            
+            <!-- Merge before 3rd party help: -->
+            <attr name="org-netbeans-modules-tasklist-helpset.xml/org-netbeans-modules-usersguide-below-regular.txt" boolvalue="true"/>
         </folder>
 
         <folder name="Hidden">
