@@ -61,6 +61,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     
     private HashMap cache = new HashMap ();
     
+    private String browseRoot = null;
+    
     //private static transient FileLock configSaveLock = FileLock.NONE;
 
     static final long serialVersionUID = -8801742771957370172L;
@@ -676,7 +678,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private void browseButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
         // Add your handling code here:
-        ChooseDirDialog chooseDir=new ChooseDirDialog(new JFrame(), new File(rootDirTextField.getText ()));
+        String rootDir = browseRoot;
+        if (rootDir == null) rootDir = rootDirTextField.getText ();
+        browseRoot = null;
+        ChooseDirDialog chooseDir=new ChooseDirDialog(new JFrame(), new File(rootDir));
         VcsUtilities.centerWindow (chooseDir);
         chooseDir.show();
         String selected=chooseDir.getSelectedDir();
@@ -950,6 +955,15 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         try {
             fileSystem.setRelativeMountPoint(module);
         } catch (PropertyVetoException exc) {
+            javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    if (isRootNotSetDlg) {
+                        isRootNotSetDlg = false;
+                        TopManager.getDefault().notify(new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD")));
+                        isRootNotSetDlg = true;
+                    }
+                }
+            });
             module = null;
         } catch (IOException ioexc) {
             module = null;
@@ -1315,7 +1329,24 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         D.deb("setObject("+bean+")"); // NOI18N
         fileSystem=(CommandLineVcsFileSystem) bean;
 
-        rootDirTextField.setText (VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), getModuleValue ()));
+        String defaultRoot = VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), getModuleValue ());
+        browseRoot = null;
+        try {
+            fileSystem.setRootDirectory(new File(defaultRoot));
+        } catch (PropertyVetoException vetoExc) {
+            browseRoot = defaultRoot;
+            defaultRoot = "";
+        } catch (IOException ioExc) {
+            browseRoot = defaultRoot;
+            defaultRoot = "";
+        }
+        if (browseRoot != null) {
+            try {
+                fileSystem.setRootDirectory(new File(""));
+            } catch (PropertyVetoException vetoExc) {
+            } catch (IOException ioExc) {}
+        }
+        rootDirTextField.setText (defaultRoot);
         refreshTextField.setText (""+fileSystem.getCustomRefreshTime ()); // NOI18N
         String module = getModuleValue();
         if (module == null) module = "";
@@ -1405,11 +1436,21 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             if (cmd != null) autoFillVariables(cmd);
         }
         catch (PropertyVetoException veto){
-            fileSystem.debug(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD"));
+            javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    if (isRootNotSetDlg) {
+                        isRootNotSetDlg = false;
+                        TopManager.getDefault().notify(new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD")));
+                        isRootNotSetDlg = true;
+                    }
+                }
+            });
+            //fileSystem.debug(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD"));
             //E.err(veto,"setRootDirectory() failed"); // NOI18N
+            rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), getModuleValue ()));
         }
         catch (IOException e){
-            E.err(e,"setRootDirectory() failed");
+            //E.err(e,"setRootDirectory() failed");
             final String badDir = root.toString();
             javax.swing.SwingUtilities.invokeLater(new Runnable () {
                                                        public void run () {
@@ -1420,6 +1461,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                                                            }
                                                        }
                                                    });
+            rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), getModuleValue ()));
         }
     }
 
