@@ -18,7 +18,7 @@ import javax.swing.text.Document;
 import org.openide.loaders.DataObject;
 
 /**
- * This class is used for SuggestionProviders which operate on documents.
+ * This class is used for passive SuggestionProviders.
  * Typically, you just need to implement <code>scan()</code> and
  * <code>rescan()</code>.
  * <p>
@@ -34,6 +34,9 @@ import org.openide.loaders.DataObject;
  * @author Tor Norbye
  * @author Petr Kuzel, SuggestionContext refactoring
  * @since 1.3  (well all signatures changed in this version)
+ *
+ * @todo Align synchronous scan() vs asynchronous rescan(..., request)
+ *       and clear(..., request)
  */
 
 abstract public class DocumentSuggestionProvider extends SuggestionProvider {
@@ -62,7 +65,7 @@ abstract public class DocumentSuggestionProvider extends SuggestionProvider {
      * <p>
      * NOTE: This method should also remove items previously scanned
      * by this method (in other words, "update" the list). That typically
-     * means calling {@link clear}. This is not automatically done
+     * means calling {@link #clear}. This is not automatically done
      * by the framework because this rescan method can be clever and
      * simply update a few suggestions and leave most of them alone,
      * instead of removing and readding a large number of suggestions
@@ -89,57 +92,4 @@ abstract public class DocumentSuggestionProvider extends SuggestionProvider {
     abstract public void clear(SuggestionContext env,
                                Object request);
 
-
-    /** The given document has been opened
-     * <p>
-     * @param document The document being opened
-     * @param dataobject The Data Object for the file being opened
-     * <p>
-     * This method is called internally by the toolkit and should not be
-     * called directly by programs.
-     */
-/* I'm not yet generating this event - perhaps I shouldn't show it
-   here either.
-    public void docOpened(Document document, DataObject dataobject) {
-    }
-*/
-
-    /**
-     * The given document has been "shown"; it is now visible.
-     * <p>
-     * @param env The environment being shown
-     * <p>
-     * This method is called internally by the toolkit and should not be
-     * called directly by programs.
-     */
-    public void docShown(SuggestionContext env) {
-    }
-
-    /**
-     * The given document has been "hidden"; it's still open, but
-     * the editor containing the document is not visible.
-     * <p>
-     * @param env The environment being hidden
-     * <p>
-     * This method is called internally by the toolkit and should not be
-     * called directly by programs.
-     */
-    public void docHidden(SuggestionContext env) {
-    }
-
-    /**
-     * The given document has been closed; stop reporting suggestions
-     * for this document and free up associated resources.
-     * <p>
-     * @param document The document being closed
-     * @param dataobject The Data Object for the file being closed
-     * <p>
-     * This method is called internally by the toolkit and should not be
-     * called directly by programs.
-     */
-/* I'm not yet generating this event - perhaps I shouldn't show it
-   here either.
-    public void docClosed(Document document, DataObject dataobject) {
-    }
-*/
 }

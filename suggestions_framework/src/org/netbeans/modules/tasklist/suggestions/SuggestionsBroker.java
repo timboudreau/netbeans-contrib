@@ -427,7 +427,6 @@ err.log("Couldn't find current nodes...");
         assert currRequest.longValue() != Long.MAX_VALUE : "Wrap around logic needed!";
         currRequest = new Long(currRequest.longValue() + 1);
 
-        manager.dispatchDocShown(doc, dataobject);
         haveShown = currRequest;
         addCaretListeners();
 
@@ -801,8 +800,6 @@ err.log("Couldn't find current nodes...");
         }
 
         docSuggestions = null;
-
-        manager.dispatchDocHidden(document, dataobject, currRequest);
     }
 
     private WindowSystemMonitor windowSystemMonitor;

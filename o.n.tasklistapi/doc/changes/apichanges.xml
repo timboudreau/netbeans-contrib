@@ -79,6 +79,23 @@ is the proper place.
 
       <change>
           <api name="general"/>
+          <summary>Removed DocumentSuggestionScanner methods</summary>
+          <version major="1" minor="5"/>
+          <date day="21" month="1" year="2004"/>
+          <author login="pkuzel"/>
+          <compatibility deletion="yes"/>
+          <description>
+              <p>
+                  <code>docShown</code> and <code>docHidden</code>
+                  callbacks eliminated. This interface is solely for request
+                  driven providers (scan, rescan and clean).
+              </p>
+          </description>
+          <class package="org.netbeans.spi.tasklist" name="DocumentSuggestionProvider"/>
+      </change>
+
+      <change>
+          <api name="general"/>
           <summary>Repackaged to modules package</summary>
           <version major="1" minor="5"/>
           <date day="11" month="12" year="2003"/>

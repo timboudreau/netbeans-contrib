@@ -87,25 +87,13 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
         settings = (Settings)Settings.findObject(Settings.class, true);
     }
 
-
-    /**
-     * The given document has been "shown"; it is now visible.
-     * <p>
-     * @param env The document being shown
-     */
-    public void docShown(SuggestionContext env) {
+    public void notifyRun() {
         settings().addPropertyChangeListener(this);
     }
 
-    /**
-     * The given document has been "hidden"; it's still open, but
-     * the editor containing the document is not visible.
-     * <p>
-     * @param env The document being hidden
-     */
-    public void docHidden(SuggestionContext env) {
+    public void notifyStop() {
         settings().removePropertyChangeListener(this);
-     }
+    }
 
     public void propertyChange(PropertyChangeEvent ev) {
         // is comes asynchronously from settings

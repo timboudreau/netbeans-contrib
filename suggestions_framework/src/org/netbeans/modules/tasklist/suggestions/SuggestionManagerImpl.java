@@ -711,52 +711,6 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
         }
     }
 
-    /**
-     * The given document has been "shown"; it is now visible.
-     * <p>
-     * @param document The document being shown
-     * @param dataobject The Data Object for the file being opened
-     */
-    void dispatchDocShown(Document document, DataObject dataobject) {
-        List providers = getDocProviders();
-        ListIterator it = providers.listIterator();
-        while (it.hasNext()) {
-            DocumentSuggestionProvider provider = (DocumentSuggestionProvider) it.next();
-            if (((unfiltered == null) || (provider == unfiltered))
-                    && scanOnShow(provider)) {
-                provider.docShown(SPIHole.createSuggestionContext(dataobject));
-            }
-        }
-    }
-
-    /**
-     * The given document has been "hidden"; it's still open, but
-     * the editor containing the document is not visible.
-     * <p>
-     * @param document The document being hidden
-     * @param dataobject The Data Object for the file being opened
-     */
-    void dispatchDocHidden(Document document, DataObject dataobject, Object request) {
-        try {
-            switchingFiles = true;
-            List providers = getDocProviders();
-            ListIterator it = providers.listIterator();
-            while (it.hasNext()) {
-                DocumentSuggestionProvider provider = (DocumentSuggestionProvider) it.next();
-                if ((unfiltered == null) || (provider == unfiltered)) {
-                    SuggestionContext env = SPIHole.createSuggestionContext(dataobject);
-                    provider.clear(env, request);
-                    provider.docHidden(env);
-                }
-            }
-        } finally {
-            switchingFiles = false;
-        }
-    }
-
-
-
-
     /** Tell the DocumentListener to wait updating itself indefinitely
      * (until it's told not to wait again). When it's told to stop waiting,
      * itself, it will call rescan if that was called and cancelled
