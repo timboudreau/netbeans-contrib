@@ -252,6 +252,10 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
     }
     
     private String[] getSelectedFiles(String rootDir, Hashtable vars) {
+        if (fileSystem == null) {
+            String root = (String) vars.get("ROOTDIR");
+            return new String[] { root };
+        }
         Collection filePaths = ExecuteCommand.createProcessingFiles(fileSystem, vars);
         String[] files = new String[filePaths.size()];
         int i = 0;
