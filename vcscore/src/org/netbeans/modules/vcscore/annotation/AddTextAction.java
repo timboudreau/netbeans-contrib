@@ -8,7 +8,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -57,12 +57,11 @@ public class AddTextAction extends NodeAction {
         return false;
     }
     
-    protected void performAction(org.openide.nodes.Node[] node) {
-        Node[] actNodes = getActivatedNodes();
-        for (int i = 0; i < actNodes.length; i++) {
+    protected void performAction(org.openide.nodes.Node[] nodes) {
+        for (int i = 0; i < nodes.length; i++) {
 //            System.out.println("nodeclass=" + actNodes[i].getClass().getName());
-            if (actNodes[i] instanceof AnnotPatternNode) {
-                AnnotPatternNode annotNode = (AnnotPatternNode)actNodes[i];
+            if (nodes[i] instanceof AnnotPatternNode) {
+                AnnotPatternNode annotNode = (AnnotPatternNode) nodes[i];
                 AnnotPatternNode newNode = AnnotPatternNode.createInstance(AnnotPatternNode.TYPE_TEXT);
                 annotNode.getChildren().add(new Node[] {newNode});
             }

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -17,7 +17,6 @@ package org.netbeans.modules.vcscore.annotation;
  *
  * @author  mk104111
  */
-
 import org.openide.explorer.*;
 import org.openide.explorer.view.*;
 import org.openide.explorer.propertysheet.PropertySheetView;
@@ -26,13 +25,14 @@ import org.openide.util.NbBundle;
 import java.util.*;
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.util.*;
-
-
+import org.openide.windows.TopComponent;
 
 public class AnnotPatternCustomEditor extends javax.swing.JPanel implements ExplorerManager.Provider {
 
     private ExplorerManager manager;
     private AnnotationPatternPropertyEditor editor;
+    private static TopComponent lastActiveTopComponent;
+    
     public AnnotPatternCustomEditor() {
         initComponents();
         initAccessibility();
@@ -69,6 +69,7 @@ public class AnnotPatternCustomEditor extends javax.swing.JPanel implements Expl
         actions.attach(manager);
         this.add(panel, java.awt.BorderLayout.CENTER);
         setSize(300,300);
+        lastActiveTopComponent = panel;
     }
     
 
@@ -133,7 +134,15 @@ public class AnnotPatternCustomEditor extends javax.swing.JPanel implements Expl
 
     public org.openide.explorer.ExplorerManager getExplorerManager() {
         return manager;
-    }    
+    }
+    
+    /**
+     * Get the top component that is presented in this customizer. This is necessary
+     * for the actions to get the list of selected nodes in this component.
+     */
+    static TopComponent getActiveTopComponent() {
+        return lastActiveTopComponent;
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

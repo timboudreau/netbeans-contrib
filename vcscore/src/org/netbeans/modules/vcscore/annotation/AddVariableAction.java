@@ -8,7 +8,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -64,7 +64,13 @@ public class AddVariableAction extends NodeAction {
     
     
     public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
-        Node[] actNodes = getActivatedNodes();
+        Object source = actionEvent.getSource();
+        Node[] actNodes;
+        if (source instanceof Node) {
+            actNodes = new Node[] { (Node) source };
+        } else {
+            actNodes = AnnotPatternCustomEditor.getActiveTopComponent().getActivatedNodes();
+        }
         for (int i = 0; i < actNodes.length; i++) {
             if (actNodes[i] instanceof AnnotPatternNode) {
                 AnnotPatternNode annotNode = (AnnotPatternNode)actNodes[i];

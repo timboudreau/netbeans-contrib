@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -72,7 +72,6 @@ public class AnnotPatternNode extends AbstractNode implements  java.io.Serializa
     
     public AnnotPatternNode(Children children) {
         super(children);
-        setName("");
         setRoot(false);
         setIconBase(ICON_NODE);
         setShortDescription(NbBundle.getMessage(AnnotPatternNode.class, "AnnotPatternNode.Description"));
