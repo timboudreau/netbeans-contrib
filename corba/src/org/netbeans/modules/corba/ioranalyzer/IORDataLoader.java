@@ -16,6 +16,7 @@ package org.netbeans.modules.corba.ioranalyzer;
 import org.openide.loaders.*;
 import org.openide.filesystems.*;
 import org.openide.actions.*;
+import org.openide.util.NbBundle;
 import org.openide.util.actions.*;
 
 public class IORDataLoader extends UniFileLoader {
@@ -24,6 +25,7 @@ public class IORDataLoader extends UniFileLoader {
 
     public IORDataLoader () {
         super (IORDataObject.class);
+        this.setDisplayName (NbBundle.getBundle(IORDataLoader.class).getString ("TXT_LoaderName"));
     } 
     
     public FileObject findPrimaryFile (FileObject fo) {
