@@ -85,6 +85,8 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
     private int exit = Integer.MIN_VALUE; // unset exit status
     private List outputInfosToShow; // cached information when the command is providing
                                     // output sooner then the GUI is created.
+    private List errorOutputToShow; // cached error output when the command is providing
+                                    // output sooner then the GUI is created.
     
     /** Creates new CvsUpdateVisualizer */
     public CvsUpdateVisualizer() {
@@ -270,12 +272,22 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
    
     public void outputDone() {
         //System.out.println("outputDone("+this.hashCode()+") ENTERED, fic = "+fileInfoContainer+", cp = "+(contentPane != null)+", oi = "+outputInfosToShow);
-        if (contentPane != null && outputInfosToShow != null) {
-            for (Iterator it = outputInfosToShow.iterator(); it.hasNext(); ) {
-                UpdateInformation info = (UpdateInformation) it.next();
-                contentPane.showFileInfoGenerated(info);
+        if (contentPane != null) {
+            if (outputInfosToShow != null) {
+                for (Iterator it = outputInfosToShow.iterator(); it.hasNext(); ) {
+                    UpdateInformation info = (UpdateInformation) it.next();
+                    contentPane.showFileInfoGenerated(info);
+                }
+                outputInfosToShow = null;
             }
-            outputInfosToShow = null;
+            if (errorOutputToShow != null) {
+                javax.swing.JTextArea area = contentPane.getErrOutputArea();
+                for (Iterator it = errorOutputToShow.iterator(); it.hasNext(); ) {
+                    String line = (String) it.next();
+                    appendLineToArea(area, line);
+                }
+                errorOutputToShow = null;
+            }
         }
         
         if (fileInfoContainer != null) {
@@ -303,7 +315,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         //System.out.println("setExitStatus("+this.hashCode()+") ("+exit+"), cp = "+(contentPane != null));
         this.exit = exit;
         if (contentPane != null) { // Check whether we have the GUI created
-            if (outputInfosToShow != null) {
+            if (outputInfosToShow != null || errorOutputToShow != null) {
                 outputDone(); // show cached infos
             }
             if(exit == 0)
@@ -342,7 +354,22 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
      */
     public void errOutputLine(final String line) {
         // to prevent deadlocks, append output in the AWT thread
-        appendLineToArea(contentPane.getErrOutputArea(), line);
+        if (contentPane != null) {
+            if (errorOutputToShow != null) {
+                javax.swing.JTextArea area = contentPane.getErrOutputArea();
+                for (Iterator it = errorOutputToShow.iterator(); it.hasNext(); ) {
+                    String l = (String) it.next();
+                    appendLineToArea(area, l);
+                }
+                errorOutputToShow = null;
+            }
+            appendLineToArea(contentPane.getErrOutputArea(), line);
+        } else {
+            if (errorOutputToShow == null) {
+                errorOutputToShow = new LinkedList();
+            }
+            errorOutputToShow.add(line);
+        }
     }
     
     private static class OutputDisplayer extends Object implements Runnable {
