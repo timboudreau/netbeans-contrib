@@ -151,7 +151,7 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
                 }
             } else {
                 StatusInfoPanel statPanel = new StatusInfoPanel(getCommandsProvider());
-                if(files.size() == 1){
+                if(files.size() == 1 && statusInformation != null && file != null){
                     statusInformation.setFile(file);
                     statPanel.setData(statusInformation);
                     output.put(file.getName(),statPanel);
