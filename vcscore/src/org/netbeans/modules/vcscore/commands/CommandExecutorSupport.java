@@ -261,6 +261,7 @@ public class CommandExecutorSupport extends Object {
                                            String notification,
                                            final VcsFileSystem fileSystem) {
         final String notification1 = Variables.expand(vce.getVariables(), notification, false);
+        if (notification1.trim().length() == 0) return ;
         org.openide.util.RequestProcessor.postRequest(new Runnable() {
             public void run() {
                 NotifyDescriptor msg = new NotifyDescriptor.Message(notification1);
