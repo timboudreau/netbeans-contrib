@@ -360,6 +360,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     
     /**
      * Create the customizer for the command. This uses a hack through the PrivilegedAction.
+     * If the returned object is UserCancelException, the command is canceled.
      */
     public Object run() {
         Command cmd = getCommand();
@@ -447,6 +448,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         //Hashtable vars = fileSystem.getVariablesAsHashtable();
         //System.out.println("\nVARS for cmd = "+cmd+" ARE:"+vars+"\n");
         String newExec = CommandCustomizationSupport.preCustomize(fileSystem, vcsCmd, vars);
+        if (newExec == null) return new UserCancelException();
         Object finalCustomizer = null;
         if (newExec != null && doCreateCustomizer) {
             finalCustomizer = createCustomizer(customizer, newExec, vars, forEachFile,
@@ -472,7 +474,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 files.remove(it.next());
             }
             // If there is no customizer, so let's continue with the rest of the files
-            if (files.size() > 0) {
+            if (files.size() > 0 && lastCmd != null) {
                 VcsDescribedCommand nextCmd = createNextCommand(files, lastCmd);
                 // Do not attempt to create a customizer again if it was already null
                 doCustomization(false, null, nextCmd, files, cacheProvider,
@@ -518,6 +520,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                                                cmdCanRunOnMultipleFilesInFolder);
             String newExec = CommandCustomizationSupport.preCustomize(fileSystem, nextCmd.getVcsCommand(), newVars);
             if (newExec != null) nextCmd.setPreferredExec(newExec);
+            else return null;
             nextCmd.setAdditionalVariables(newVars);
             return nextCustomizedCommand;
         }
@@ -628,7 +631,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                         files.remove(it.next());
                     }
                     // I'm customized, but I have to setup commands for the rest of the files.
-                    if (files.size() > 0) {
+                    if (files.size() > 0 && lastCmd != null) {
                         VcsDescribedCommand nextCmd = createNextCommand(files, lastCmd);
                         // Do not attempt to create a customizer again
                         doCustomization(false, null, nextCmd, files, cacheProvider,
