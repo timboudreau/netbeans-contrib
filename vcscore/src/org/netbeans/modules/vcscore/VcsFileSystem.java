@@ -44,6 +44,7 @@ import org.openide.util.WeakListener;
 
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
+import org.netbeans.modules.vcscore.cache.CacheFile;
 import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
@@ -1662,8 +1663,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Enumeration en = TopManager.getDefault ().getRepository ().fileSystems ();
         while (en.hasMoreElements ()) {
             FileSystem fs = (FileSystem) en.nextElement ();
-            if ((org.openide.util.Utilities.isWindows() && fs.getSystemName().equalsIgnoreCase(name))
-                || (!org.openide.util.Utilities.isWindows() && fs.getSystemName().equals(name))) {
+            if (((org.openide.util.Utilities.isWindows() && fs.getSystemName().equalsIgnoreCase(name))
+                 || (!org.openide.util.Utilities.isWindows() && fs.getSystemName().equals(name)))
+                && !fs.equals(this)) { // Ignore my name if I'm already mounted
                 // NotifyDescriptor.Exception nd = new NotifyDescriptor.Exception (
                 throw (PropertyVetoException) TopManager.getDefault().getErrorManager().annotate(
                     new PropertyVetoException (g("EXC_DirectoryMounted"), // NOI18N
@@ -1800,7 +1802,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return new String[0];
         }
 
-        if (cache != null && cache.isDir(name)) {
+        if (cache != null) {// && cache.isDir(name)) {
+            cache.readDirFromDiskCache(name);
             vcsFiles = cache.getFilesAndSubdirs(name);
             //System.out.println("  getFilesAndSubdirs = "+VcsUtilities.arrayToString(vcsFiles));
             //D.deb("vcsFiles=" + VcsUtilities.arrayToString(vcsFiles)); // NOI18N
@@ -2026,7 +2029,29 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public java.util.Date lastModified(String name) {
         D.deb("lastModified("+name+")"); // NOI18N
-        return new java.util.Date (getFile (name).lastModified ());
+        File file = getFile(name);
+        if (!file.exists()) {
+            if (cache != null) {
+                CacheFile cFile = cache.getDir(name);
+                if (cFile == null) cFile = cache.getFile(name);
+                if (cFile != null) {
+                    String date = cFile.getDate();
+                    String time = cFile.getTime();
+                    if (date != null && date.length() > 0
+                        && time != null && time.length() > 0) {
+                            Date pdate = null;
+                            try {
+                                pdate = java.text.DateFormat.getInstance().parse(date + " " + time);
+                            } catch (java.text.ParseException pexc) {}
+                            if (pdate != null) return pdate;
+                    }
+                }
+            }
+            return new Date(System.currentTimeMillis());
+        } else {
+            return new Date (file.lastModified ());
+        }
+        //return new java.util.Date (getFile (name).lastModified ());
     }
 
     /** Test if the file is folder or contains data.
