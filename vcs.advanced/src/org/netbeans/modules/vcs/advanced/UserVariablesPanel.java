@@ -217,11 +217,9 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
     }
     
     public org.openide.explorer.ExplorerManager getExplorerManager() {
-        if (manager == null) {
-            synchronized(this) {
-                if (manager == null) {
-                    manager = new ExplorerManager();
-                }
+        synchronized(this) {
+            if (manager == null) {
+                manager = new ExplorerManager();
             }
         }
         return manager;

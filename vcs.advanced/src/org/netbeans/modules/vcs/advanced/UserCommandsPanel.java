@@ -195,11 +195,9 @@ public class UserCommandsPanel extends JPanel
     }
     
     public ExplorerManager getExplorerManager() {
-        if (manager == null) {
-            synchronized(this) {
-                if (manager == null) {
-                    manager = new ExplorerManager();
-                }
+        synchronized(this) {
+            if (manager == null) {
+                manager = new ExplorerManager();
             }
         }
         return manager;
