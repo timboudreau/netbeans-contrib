@@ -137,7 +137,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setConfigFO();
         //boolean status = readConfiguration (DEFAULT_CONFIG_NAME);
         //if (status == false) readConfigurationCompat(DEFAULT_CONFIG_NAME_COMPAT);
-        setCommands(new VcsCommandNode(new Children.Array(), new UserCommand("NONE")));
+        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                setCommands(new VcsCommandNode(new Children.Array(), new UserCommand("NONE")));
+            }
+        });
         addPropertyChangeListener(this);
         cacheRoot = System.getProperty("netbeans.user")+File.separator+
                     "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N

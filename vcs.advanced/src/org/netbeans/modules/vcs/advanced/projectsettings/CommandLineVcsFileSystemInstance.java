@@ -136,13 +136,21 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         fo.addFileChangeListener(WeakListener.fileChange(this, fo));
     }
 
-    public synchronized Object instanceCreate() throws java.io.IOException, ClassNotFoundException {
+    public Object instanceCreate() throws java.io.IOException, ClassNotFoundException {
         if (!isModuleEnabled()) return new BrokenSettings(instanceName());
         //System.out.println("instanceCreate(), fo = "+fo);
-        CommandLineVcsFileSystem fs = (CommandLineVcsFileSystem) weakFsInstance.get();
-        //System.out.println("  fs = "+((fs == null) ? "null" : fs.getSystemName()));
-        if (fs == null) {
-            fs = new CommandLineVcsFileSystem();
+        CommandLineVcsFileSystem fs;
+        boolean needToReadFSProperties = false;
+        synchronized (this) {
+            fs = (CommandLineVcsFileSystem) weakFsInstance.get();
+            //System.out.println("  fs = "+((fs == null) ? "null" : fs.getSystemName()));
+            if (fs == null) {
+                fs = new CommandLineVcsFileSystem();
+                needToReadFSProperties = true;
+                weakFsInstance = new WeakReference(fs);
+            }
+        }
+        if (needToReadFSProperties) {
             try {
                 if (doc == null) {
                     try {
@@ -161,13 +169,9 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             } catch (DOMException dexc) {
                 TopManager.getDefault().notifyException(dexc);
             }
+            fsPropertyChangeListener = new FSPropertyChangeListener(fo);
+            fs.addPropertyChangeListener(fsPropertyChangeListener); //WeakListener.propertyChange(fsPropertyChangeListener, fs));
             //System.out.println("  PROPERTIES READ: fs = "+fs.getSystemName());
-            setInstance(fs);
-            //fsPropertyChangeListener = new FSPropertyChangeListener(fs, fo);
-            //fs.addPropertyChangeListener(WeakListener.propertyChange(fsPropertyChangeListener, fs));
-            //fsInstances.put(fo.getPackageNameExt('/', '.'), new WeakReference(fs));
-            //weakFsInstance = new WeakReference(fs);
-            //fo.addFileChangeListener(new FOChangeListener());
         }
         return fs;
     }
