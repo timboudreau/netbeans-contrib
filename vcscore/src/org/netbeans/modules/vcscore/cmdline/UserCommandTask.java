@@ -723,6 +723,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         //System.out.println("canRun("+cmd.getName()+")");
         // Do not check the maximum number of running commands -- this is checked in CommandProcessor
         Collection files = vce.getFiles();
+        //System.out.println("  Files = "+files);
         int concurrency = VcsCommandIO.getIntegerPropertyAssumeZero(cmd,
                             VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
         String concurrencyWith = (String) cmd.getProperty(VcsCommand.PROPERTY_CONCURRENT_EXECUTION_WITH);
@@ -767,6 +768,14 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             synchronized (runningTasks) {
                 tasksToTest = new HashSet(runningTasks);
             }
+            /*
+            System.out.print("  Running tasks: ");
+            for (Iterator iter = tasksToTest.iterator(); iter.hasNext(); ) {
+                UserCommandTask cwTest = (UserCommandTask) iter.next();
+                System.out.print(cwTest.getName()+", ");
+            }
+            System.out.println((tasksToTest.size() > 0) ? "\b\b" : "");
+            */
             Set pendingTasksToTest;
             if (serialWithPending || concurrencyWith != null) {
                 //tasksToTest = new HashSet(runningTasks);
@@ -781,6 +790,14 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                         }
                     }
                 }
+                /*
+                System.out.print("  Pending tasks: ");
+                for (Iterator iter = pendingTasksToTest.iterator(); iter.hasNext(); ) {
+                    UserCommandTask cwTest = (UserCommandTask) iter.next();
+                    System.out.print(cwTest.getName()+", ");
+                }
+                System.out.println((pendingTasksToTest.size() > 0) ? "\b\b" : "");
+                */
                 tasksToTest.addAll(pendingTasksToTest);
             } else {
                 pendingTasksToTest = Collections.EMPTY_SET;
@@ -799,15 +816,21 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                         haveToWait = true;
                         break;
                     }
+                    boolean isPending = pendingTasksToTest.contains(cwTest);
+                    // Do not test some properties with pending commands,
+                    // otherwise the command would never be run if there are
+                    // two pending commands with that behavior.
                     haveToWait = matchSerial(name, cmdName, files, cmdFiles,
-                                             serialOnFile, serialOnPackage,
-                                             serialWithParent, serialOfCommand);
+                                             isPending ? false : serialOnFile,
+                                             isPending ? false : serialOnPackage,
+                                             serialWithParent,
+                                             isPending ? false : serialOfCommand);
                     if (!haveToWait) {
                         if ((cmdConcurrency & VcsCommand.EXEC_SERIAL_ALL) != 0) {
                             haveToWait = true;
                             break;
                         }
-                        if (!pendingTasksToTest.contains(cwTest)) {
+                        if (!isPending) {
                             haveToWait = matchSerial(cmdName, name, cmdFiles, files,
                                                      (cmdConcurrency & VcsCommand.EXEC_SERIAL_ON_FILE) != 0,
                                                      (cmdConcurrency & VcsCommand.EXEC_SERIAL_ON_PACKAGE) != 0,
@@ -870,6 +893,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                                        Collection files, Collection files2,
                                        boolean serialOnFile, boolean serialOnPackage,
                                        boolean serialWithParent, boolean serialOfCommand) {
+        //System.out.println("matchSerial("+name+", "+name2+", "+files+", "+files2+", "+serialOnFile+", "+serialOnPackage+", "+serialWithParent+", "+serialOfCommand+")");
         boolean matchOnFile = false;
         boolean matchOnPackage = false;
         boolean matchWithParent = false;
@@ -898,6 +922,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         }
         // if (serialOfCommand && !matchOfCommand) do not wait
         //System.out.println("  matchOnFile = "+matchOnFile+", matchOnPackage = "+matchOnPackage+", matchWithParent = "+matchWithParent+", matchOfCommand = "+matchOfCommand);
+        //System.out.println("return "+((!serialOfCommand || matchOfCommand) && (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand)));
         return (!serialOfCommand || matchOfCommand) && (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand);
     }
     
