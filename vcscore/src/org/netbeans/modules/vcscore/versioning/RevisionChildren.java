@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -33,6 +33,7 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
     private ChangeListener changeListenerToList;
     private ArrayList notificationListeners = new ArrayList(2);
     private Runnable initProcess = null;
+    private boolean added; // true after addNotify() is called.
     
     /** Creates new RevisionChildren 
      * @param list the RevisionList, can be null
@@ -92,6 +93,7 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
             }
         });
         super.addNotify();
+        added = true;
     }
     
     protected void removeNotify() {
@@ -165,7 +167,23 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
         if (list == null) {
             setKeys(Collections.singleton(WAIT_KEY));
         } else {
-            setKeys(list /*(Collection) evt.getSource()*/);
+            // #55399: Iterate all existing nodes and re-create the node delegates
+            // (list.getNodeDelegate() is smart enough to re-create the node
+            //  only when it's children changed (from EMPTY to something))
+            if (added) {
+                Node[] nodes = getNodes();
+                for (int i = 0; i < nodes.length; i++) {
+                    if (!(nodes[i] instanceof RevisionNode)) {
+                        continue; // Unsupported
+                    }
+                    RevisionItem item = ((RevisionNode) nodes[i]).getItem();
+                    if (!list.contains(item)) {
+                        continue;
+                    }
+                    refreshKey(item); // To re-create the node if necessary
+                }
+            }
+            setKeys(list); // To add/remove nodes
         }
         
     }

@@ -28,14 +28,16 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
 
     private transient FileObject fo = null; // The current File Object
     private transient Vector listeners;
-    private transient WeakHashMap nodeDelegates;
+    private transient WeakHashMap nodeDelegatesWithoutChildren;
+    private transient WeakHashMap nodeDelegatesWithChildren;
 
     static final long serialVersionUID = -8578787400541124223L;
     
     /** Creates new RevisionList */
     public RevisionList() {
         listeners = new Vector();
-        nodeDelegates = new WeakHashMap();
+        nodeDelegatesWithoutChildren = new WeakHashMap();
+        nodeDelegatesWithChildren = new WeakHashMap();
     }
     
     public void setFileObject(FileObject fo) {
@@ -67,7 +69,8 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
     
     public boolean remove(Object obj) {
         boolean status = super.remove(obj);
-        nodeDelegates.remove(obj);
+        nodeDelegatesWithoutChildren.remove(obj);
+        nodeDelegatesWithChildren.remove(obj);
         //System.out.println("RevisionList.remove("+((RevisionItem) obj).getRevision()+")");
         fireChanged();
         return status;
@@ -75,7 +78,8 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
     
     public boolean removeAll(Collection c) {
         boolean status = super.removeAll(c);
-        for (Iterator it = c.iterator(); it.hasNext(); nodeDelegates.remove(it.next()));
+        for (Iterator it = c.iterator(); it.hasNext(); nodeDelegatesWithoutChildren.remove(it.next()));
+        for (Iterator it = c.iterator(); it.hasNext(); nodeDelegatesWithChildren.remove(it.next()));
         //System.out.println("RevisionList.removeAll("+c+"): c.size() = "+c.size());
         fireChanged();
         return status;
@@ -113,10 +117,19 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
     }
     
     public Node getNodeDelegate(RevisionItem item, RevisionChildren children) {
-        Node node = (Node) nodeDelegates.get(item);
+        Node node;
+        if (children == null) {
+            node = (Node) nodeDelegatesWithoutChildren.get(item);
+        } else {
+            node = (Node) nodeDelegatesWithChildren.get(item);
+        }
         if (node == null) {
             node = createNodeDelegate(item, children);
-            nodeDelegates.put(item, node);
+            if (children == null) {
+                nodeDelegatesWithoutChildren.put(item, node);
+            } else {
+                nodeDelegatesWithChildren.put(item, node);
+            }
         }
         return node;
     }
@@ -136,7 +149,8 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
     private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, java.io.IOException, java.io.NotActiveException {
         in.defaultReadObject();
         listeners = new Vector();
-        nodeDelegates = new WeakHashMap();
+        nodeDelegatesWithoutChildren = new WeakHashMap();
+        nodeDelegatesWithChildren = new WeakHashMap();
     }
     
 }
