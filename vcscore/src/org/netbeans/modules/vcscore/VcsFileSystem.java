@@ -1045,6 +1045,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         deserialized = true;
         boolean localFilesOn = in.readBoolean ();
         in.defaultReadObject();
+        if (!(attr instanceof VcsAttributes)) {
+            VcsAttributes a = new VcsAttributes (info, change, this, this, new VcsActionSupporter(this));
+            attr = a;
+            list = a;
+        }
         //last_rootFile = rootFile;
         last_refreshTime = getCustomRefreshTime ();
         last_useUnixShell = useUnixShell;
