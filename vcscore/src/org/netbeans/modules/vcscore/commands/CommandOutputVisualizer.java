@@ -298,16 +298,16 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
         }
     }
     
-    static class CommandKillListener implements java.awt.event.ActionListener {
+    public static class CommandKillListener implements java.awt.event.ActionListener {
         
         private CommandTask task;
         private Component owner;
         
-        CommandKillListener(CommandTask task) {
+        public CommandKillListener(CommandTask task) {
             this(task, null);
         }
         
-        CommandKillListener(CommandTask task, Component owner) {
+        public CommandKillListener(CommandTask task, Component owner) {
             this.task = task;
             this.owner = owner;
         }
