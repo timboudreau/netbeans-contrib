@@ -197,7 +197,8 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
     private static String cleanupContent(String template) {
         BufferedReader r = new BufferedReader(new StringReader(template));
         try {
-            PrintWriter w = new PrintWriter(new StringWriter(template.length()));
+            StringWriter sw = new StringWriter(template.length());
+            PrintWriter w = new PrintWriter(sw);
             while (true) {
                 try {
                     String line = r.readLine();
@@ -210,7 +211,7 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
                 }
             }
             w.flush();
-            return w.toString().trim();
+            return sw.toString().trim();
         } finally {
             try {
                 r.close();
