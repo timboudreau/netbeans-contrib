@@ -596,32 +596,33 @@ final public class SuggestionManagerImpl extends SuggestionManager
             // category nodes!
             List oldList = tasklist.getTasks();
 
-            List allTasks = new ArrayList(oldList.size());
-            allTasks.addAll(oldList);
-            tasklist.clear();
-            Collection types = SuggestionTypes.getTypes().getAllTypes();
-            Iterator it = types.iterator();
-            while (it.hasNext()) {
-                SuggestionType t = (SuggestionType)it.next();
-                ArrayList list = new ArrayList(100);
-                Iterator all = allTasks.iterator();
-                SuggestionImpl category = 
-                    tasklist.getCategoryTask(t, false);
-                tasklist.removeCategory(category, true);
-                while (all.hasNext()) {
-                    SuggestionImpl sg = (SuggestionImpl)all.next();
-                    if (sg.getSType() == t) {
-                        if ((sg == category) &&
-                            sg.hasSubtasks()) { // category node
-                            list.addAll(sg.getSubtasks());
-                        } else {
-                            list.add(sg);
+            if (oldList != null) {
+                List allTasks = new ArrayList(oldList.size());
+                allTasks.addAll(oldList);
+                tasklist.clear();
+                Collection types = SuggestionTypes.getTypes().getAllTypes();
+                Iterator it = types.iterator();
+                while (it.hasNext()) {
+                    SuggestionType t = (SuggestionType)it.next();
+                    ArrayList list = new ArrayList(100);
+                    Iterator all = allTasks.iterator();
+                    SuggestionImpl category = 
+                        tasklist.getCategoryTask(t, false);
+                    tasklist.removeCategory(category, true);
+                    while (all.hasNext()) {
+                        SuggestionImpl sg = (SuggestionImpl)all.next();
+                        if (sg.getSType() == t) {
+                            if ((sg == category) &&
+                                sg.hasSubtasks()) { // category node
+                                list.addAll(sg.getSubtasks());
+                            } else {
+                                list.add(sg);
+                            }
                         }
                     }
+                    register(t.getName(), list, null, tasklist, null, true);
                 }
-                register(t.getName(), list, null, tasklist, null, true);
             }
-
         } else {
             tasklist.clearCategoryTasks();
             List oldList = tasklist.getTasks();
@@ -681,12 +682,14 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     // The provider should be enabled - it provides info
                     // for this type
                     unfiltered = provider;
-                    // The provider is already enabled - we're coming
-                    // from an unfiltered view (and disabled providers
-                    // in an unfiltered view shouldn't be available as
-                    // filter categories)
-                    //SuggestionType sg = suggestionTypes.getType(typeNames[0]);
-                    //toggleProvider(provider, sg, true, true);
+                    if (prevFilterType != null) {
+                        SuggestionType sg = suggestionTypes.getType(typeNames[0]);
+                        toggleProvider(provider, sg, true, true);
+                    } // else:
+                      // The provider is already enabled - we're coming
+                      // from an unfiltered view (and disabled providers
+                      // in an unfiltered view shouldn't be available as
+                      // filter categories)
                 } else {
                     SuggestionType sg = suggestionTypes.getType(typeNames[0]);
                     toggleProvider(provider, sg, false, true);
