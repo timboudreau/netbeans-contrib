@@ -715,37 +715,43 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public int getVFSMessageLength() {
         return versioningFileSystemMessageLength;
     }
-    
     public void setVFSMessageLength(int newVal) {
         versioningFileSystemMessageLength = newVal;
     }
+
     public boolean getVFSShowLocalFiles() {
         return versioningFileSystemShowLocalFiles;
     }
-    
     public void setVFSShowLocalFiles(boolean newVal) {
         versioningFileSystemShowLocalFiles = newVal;
     }
+
     public boolean getVFSShowMessage() {
         return versioningFileSystemShowMessage;
     }
-    
     public void setVFSShowMessage(boolean newVal) {
         versioningFileSystemShowMessage = newVal;
     }
+
     public boolean getVFSShowUnimportantFiles() {
         return versioningFileSystemShowUnimportantFiles;
     }
-    
     public void setVFSShowUnimportantFiles(boolean newVal) {
         versioningFileSystemShowUnimportantFiles = newVal;
     }
+
     public String getVFSShowGarbageFiles() {
         return versioningFileSystemShowGarbageFiles;
     }
-    
     public void setVFSShowGarbageFiles(String newVal) {
         versioningFileSystemShowGarbageFiles = newVal;
+    }
+    
+    public boolean getVFSShowDeadFiles() {
+        return versioningFileSystemShowDeadFiles;
+    }
+    public void setVFSShowDeadFiles(boolean newVal) {
+        versioningFileSystemShowDeadFiles = newVal;
     }
     
     private void copyFromVersioningFs() {
@@ -756,6 +762,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             setVFSShowLocalFiles(versFs.isShowLocalFiles());
             setVFSShowMessage(versFs.isShowMessages());
             setVFSShowUnimportantFiles(versFs.isShowUnimportantFiles());
+            setVFSShowDeadFiles(versFs.isShowDeadFiles());
         }
     }
     
