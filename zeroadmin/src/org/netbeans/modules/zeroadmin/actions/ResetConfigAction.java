@@ -29,8 +29,7 @@ import org.openide.loaders.DataObject;
 import org.netbeans.modules.zeroadmin.*;
 
 // core dependency
-import org.netbeans.core.windows.PersistenceManager;
-import org.netbeans.core.windows.WorkspaceImpl;
+import org.netbeans.core.NbTopManager;
 import org.netbeans.core.projects.TrivialProjectManager;
 
 /**
@@ -49,7 +48,8 @@ public class ResetConfigAction extends CallableSystemAction {
             public void run() {
                 try {
                     // force the core to save pending stuff:
-                    org.netbeans.core.windows.PersistenceManager.getDefault ().writeXMLWaiting ();
+                    NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
+                    windowSystem.save();
                     org.netbeans.core.projects.XMLSettingsHandler.saveOptions();
 
                     final FileObject[] ch = z.writableLayer.getRoot().getChildren();
@@ -114,30 +114,7 @@ public class ResetConfigAction extends CallableSystemAction {
      * Copied from core from WindowManagerImpl.
      */
     static void updateWindowManager2() {
-        PersistenceManager pm = PersistenceManager.getDefault();
-        
-        FileObject f = pm.getWindowManagerFolder();
-        DataFolder d = DataFolder.findFolder(f);
-        
-        // tricky, this piece of code forces WindowManagerData to fire
-        // PROP_CHILDREN property change, which in turn refreshes
-        // whole hierarchy of loaded winsys objects
-        DataObject ch [] = d.getChildren();
-        try {
-            for (int i = 0; i < ch.length; i++) {
-                try {
-                    ch[i].setValid(false);
-                } catch (Exception x) {}
-            }
-            ch = d.getChildren();
-            d.setOrder(ch);
-        } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
-        }
-        
-        WorkspaceImpl wi = (WorkspaceImpl)WindowManager.getDefault().getCurrentWorkspace();
-        if (wi != null) {
-            wi.setVisible(true);
-        }
+        NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
+        windowSystem.load();
     }
 }

@@ -23,6 +23,7 @@ import org.openide.ErrorManager;
 
 import org.netbeans.modules.zeroadmin.*;
 import org.netbeans.core.projects.TrivialProjectManager;
+import org.netbeans.core.NbTopManager;
 
 /**
  * Saves the configuration to the remote storage. Depends
@@ -47,7 +48,8 @@ public class SaveOperatorConfigAction extends CallableSystemAction {
                     try {
             
                         // force the core to save pending stuff:
-                        org.netbeans.core.windows.PersistenceManager.getDefault ().writeXMLWaiting ();
+                        NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
+                        windowSystem.save();
                         org.netbeans.core.projects.XMLSettingsHandler.saveOptions();
 
                         XMLBufferFileSystem bufFs = new XMLBufferFileSystem();

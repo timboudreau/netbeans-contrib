@@ -14,8 +14,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <!-- 
-  These classes are excluded by default (defined in build.xml):
-    "**/*Suite.class"
+  These classes are excluded by default (defined by XTest):
     "**/*$$*.class"
     "**/data/**"
     "**/hidden/**"
@@ -23,49 +22,97 @@ Microsystems, Inc. All Rights Reserved.
     "**/*Hid.*"
 -->
 
-<mconfig name="core unit test config">
-    <testbag testattribs="stable" executor="code" name="testbag_3" resultsprocessor="unit">
+<mconfig name="zeroadmin unit test config">
+    
+    <!-- testbag with all MyModule tests running in code mode (i.e. in standard JVM)
+         use ant runtests -Dxtest.attribs=stable,code to run this testbag  -->
+    <testbag testattribs="all and code" executor="code" name="all tests (no ide)">
+        <testset dir="unit/src">
+            <patternset>
+	        <!-- <include name="myorg/MyorgSuite.class"/> -->
+                <include name="**/*Test.class"/>
+                <exclude name="org/netbeans/modules/zeroadmin/RemoteStorageTest.class"/>
+           </patternset>
+        </testset>
+    </testbag>
+
+    <!-- testbag with tests which does not fail, use ant runtests -Dxtest.attribs=stable,code -->
+    <testbag testattribs="stable and code" executor="code" name="stable tests (no ide)">
         <testset dir="unit/src">
             <patternset>
                 <include name="**/*Test.class"/>
                 <exclude name="org/netbeans/modules/zeroadmin/RemoteStorageTest.class"/>
-            </patternset>
-        </testset>
-    </testbag>
-
-    <testbag testattribs="stable" executor="ide" name="testbag_3" resultsprocessor="unit">
-        <testset dir="unit/src">
-            <patternset>
-                <include name="org/netbeans/modules/zeroadmin/RemoteStorageTest.class"/>
-            </patternset>
-        </testset>
-    </testbag>
-
-    <testbag testattribs="failing" executor="code" name="testbag_4" resultsprocessor="unit">
-        <testset dir="unit/src">
-            <patternset>
-            </patternset>
-        </testset>
-    </testbag>
-
-    <!-- If you want to use this testbag you *must* provide xtest.includes property, -->
-    <!-- (either on cmd line or in the script) to explicitly define which test       -->
-    <!-- you want to run. This will run *only* tests from unit/src folder !!!        -->
-    <testbag testattribs="empty" executor="code" name="testbag_empty" resultsprocessor="unit">
-        <testset dir="unit/src"/>
-    </testbag>
-
-    <testbag testattribs="dev" executor="code" name="testbag_dev" resultsprocessor="unit">
-        <testset dir="unit/src">
-            <patternset>
-                <!-- Add your own code tests -->
-            </patternset>
+<!--		<include name="myorg/HelloWorldTest.class"/>
+		<exclude name="myorg/HelloWorldTest.class/testGreeting2"/>
+		<include name="myorg/Hello2.class"/>
+-->            </patternset>
         </testset>
     </testbag>
     
-    <executor name="ide" antfile="build.xml" target="runidetest"/>
-    <executor name="code" antfile="build.xml" target="runcodetest"/>
-    
-    <resultsprocessor name="unit" antfile="build.xml" target="test_report"/>
+    <!-- testbag with failing test (just one method)  -->
+    <testbag testattribs="failing" executor="code" name="failing tests (no ide)">
+        <testset dir="unit/src">
+            <patternset>
+<!--                <include name="myorg/HelloWorldTest.class/testGreeting2"/>
+-->            </patternset>
+        </testset>
+    </testbag>
 
+
+    <!-- testbag with all MyModule tests running in ide mode (i.e. inside NetBeans IDE)
+         use ant runtests -Dxtest.attribs=stable,ide to run this testbag  -->
+    <testbag testattribs="all and ide" executor="ide" name="all tests (in ide)">
+        <!--
+        <testsetup dir="unit/src">
+            <setup class="myorg/MySetup" method="setup"/>
+            <teardown class="myorg/MySetup" method="teardown"/>
+        </testsetup>
+	-->
+        <testset dir="unit/src">
+            <patternset>
+<!--                <include name="myorg/Hello2Test.class/testExpectedFailure" expectedFail="I'm expected to fail in IDE"/>
+-->		<include name="**/BookmarkServiceTest.class"/>		
+<!--		<exclude name="myorg/*Suite.class"/>
+-->            </patternset>
+        </testset>
+    </testbag>
+
+
+    <!-- testbag with tests which does not fail and run in IDE, use ant runtests -Dxtest.attribs=stable,ide -->
+    <testbag testattribs="stable and ide" executor="ide" name="stable tests (in ide)">
+        <testset dir="unit/src">
+            <patternset>
+<!--		<include name="myorg/HelloWorldTest.class"/>
+		<exclude name="myorg/HelloWorldTest.class/testGreeting2"/>
+-->		<include name="**/BookmarkServiceTest.class"/>
+<!--                <include name="myorg/Hello2Test.class/testExpectedFailure" expectedFail="I'm expected to fail in IDE"/>
+-->            </patternset>
+        </testset>
+    </testbag>
+
+    <!-- empty testbag - for use with xtest.includes and xtest.excludes properties -->
+    <testbag testattribs="empty" executor="code" name="empty">
+        <testset dir="unit/src">
+            <patternset/>
+        </testset>
+    </testbag>
+
+    <!-- xxxxx -->
+
+    <!-- code excecutor - use this one if you plan to run your tests in standard 
+                          JVM. You can also write your own executor, which will 
+                          then call this one. It is handy when some servers (e.g. rmi registry)
+                          have to be started before tests are run and stopped after
+                          the run. -->
+    <executor name="code" antfile="build-unit.xml" target="runcodetest"/>
+    
+    <!-- ide executor - use this one if you plan to run your tests inside IDE (internally).
+                        Similarly as with code executor, you can create your own to 
+                        prepare some neccessary stuff before running tests. -->
+    <executor name="ide" antfile="build-unit.xml" target="runidetest"/>
+    
+    <!-- compiler   - this target will compile tests -->
+    <compiler name="unit-compiler" antfile="build-unit.xml" target="unit-compiler" default="true"/>
+
+    
 </mconfig>

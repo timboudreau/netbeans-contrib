@@ -22,6 +22,8 @@
                 <!-- Whatever you need, based on your dependencies. -->
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
                 <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
+                <pathelement location="${nb_all}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
+                <pathelement location="${nb_all}/libs/external/xerces-2.6.0.jar"/>
                 <pathelement location="${nb_all}/core/netbeans/lib/core.jar"/>
                 <pathelement location="${j2ee.home}/lib/j2ee.jar"/>
                 <pathelement location="${nb_all}/installer/external/jnlp.jar"/>
@@ -40,6 +42,8 @@
                 <!-- Whatever you need, based on your dependencies. -->
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
                 <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
+                <pathelement location="${nb_all}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
+                <pathelement location="${nb_all}/libs/external/xerces-2.6.0.jar"/>
                 <pathelement location="${nb_all}/core/netbeans/lib/core.jar"/>
                 <pathelement location="${j2ee.home}/lib/j2ee.jar"/>
                 <pathelement location="${nb_all}/installer/external/jnlp.jar"/>

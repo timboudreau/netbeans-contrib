@@ -23,6 +23,7 @@ import org.openide.util.Lookup;
 
 import org.netbeans.modules.zeroadmin.*;
 import org.netbeans.core.projects.TrivialProjectManager;
+import org.netbeans.core.NbTopManager;
 
 /**
  * Refresh the operator configuration.
@@ -40,7 +41,8 @@ public class RefreshConfigAction extends CallableSystemAction {
             public void run() {
                 try {
                     // force the core to save pending stuff:
-                    org.netbeans.core.windows.PersistenceManager.getDefault ().writeXMLWaiting ();
+                    NbTopManager.WindowSystem windowSystem = (NbTopManager.WindowSystem)Lookup.getDefault().lookup(NbTopManager.WindowSystem.class);
+                    windowSystem.save();
                     org.netbeans.core.projects.XMLSettingsHandler.saveOptions();
                     z.writableLayer.runAtomicAction(new FileSystem.AtomicAction() {
                         // atomic action --> should be faster???
