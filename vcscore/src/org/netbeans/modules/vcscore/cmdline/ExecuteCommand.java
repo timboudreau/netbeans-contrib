@@ -37,7 +37,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private Debug E=new Debug("ExecuteCommand", true); // NOI18N
     private Debug D=E;
         
-    private static final String DEFAULT_REGEX = "^(.*$)"; // Match the whole line by default.
+    public static final String DEFAULT_REGEX = "^(.*$)"; // Match the whole line by default.
 
     private VcsFileSystem fileSystem = null;
     private UserCommand cmd = null;
