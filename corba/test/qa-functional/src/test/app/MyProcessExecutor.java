@@ -34,7 +34,7 @@ public class MyProcessExecutor extends Thread {
         skip = _skip;
         read = _read;
         try {
-            System.out.println ("COMMAND: " + cmd);
+//            System.out.println ("COMMAND: " + cmd);
             proc = Runtime.getRuntime().exec (cmd);
             br = new BufferedReader (new InputStreamReader (proc.getInputStream()));
             pw = new PrintWriter (proc.getOutputStream(), true);
@@ -55,7 +55,7 @@ public class MyProcessExecutor extends Thread {
                     break;
                 if (info != null)
                     info.println (str);
-                System.out.println ("OUTPUT:" + str);
+//                System.out.println ("OUTPUT:" + str);
                 if (firstLine == null)
                     firstLine = str;
                 if (skip > 0)
@@ -82,7 +82,7 @@ public class MyProcessExecutor extends Thread {
         pw.println (line);
         if (info != null)
             info.println (line);
-        System.out.println ("INPUT:" + line);
+//        System.out.println ("INPUT:" + line);
     }
     
     public void destroy () {
