@@ -18,7 +18,6 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<!-- Added something foolish -->
 
 <configuration type="netbeans.cvsprofile">
   <resourceBundle>org/netbeans/modules/vcs/profiles/cvsprofiles/config/BundleGlobal</resourceBundle>
@@ -702,39 +701,6 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="exec">
 	  <value>${CDW_EXECUTE} -f log -h ${NUR}</value>
 	</property>
-      </command>
-      <separator />
-      <command name="INIT" displayName="ResourceMsg1(CVS_INIT)" unless="BUILT-IN">
-        <property name="labelMnemonic">
-          <value>ResourceMsg1(CVS_INIT_Mnemonic)</value>
-        </property>
-	<property name="advancedName">
-	  <value>init</value>
-	</property>
-	<property name="exec">
-	  <value>${RUN} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} init ${NUR}</value>
-	</property>
-	<property name="data.regex">
-	  <value>$ ^</value>
-	</property>
-	<property name="error.regex">
-	  <value>$ ^</value>
-	</property>
-	<property name="onDir">
-	  <value>false</value>
-	</property>
-	<property name="onFile">
-	  <value>false</value>
-	</property>
-	<property name="onRoot">
-	  <value>true</value>
-	</property>
-        <property name="notificationSuccessMsg">
-          <value>ResourceMsg1(NOTIFICATION_INIT_Success)</value>
-        </property>
-        <property name="notificationFailMsg">
-          <value>ResourceMsg1(NOTIFICATION_INIT_Fail)</value>
-        </property>
       </command>
       <separator />
       <command name="COMMIT" displayName="ResourceMsg1(CVS_COMMIT)">
@@ -1624,212 +1590,9 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       </command> <!-- End section History -->
       <separator />
-      <command name="IMPORT_CMD">
-        <property name="exec">
-          <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${WORKDIR}$[? FILE] [${PS}${FILE}][]${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${QUOTE}${IGNORE}${QUOTE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}$[? DIR] [$[? MODULE] [${MODULE_\/}/${DIR_\/}/${FILE}] [${DIR_\/}/${FILE}]] [$[? MODULE] [${MODULE_\/}/${FILE}] [${FILE}]]${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG}</value>
-	  <value>${RUNCDW} $[? FILE] [${CD} ${QFILE}&amp;&amp;] [] ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${QUOTE}${IGNORE}${QUOTE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}$[? DIR] [$[? MODULE] [${MODULE_\/}/${DIR_\/}/${FILE}] [${DIR_\/}/${FILE}]] [$[? MODULE] [${MODULE_\/}/${FILE}] [${FILE}]]${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}</value>
-	</property>
-      </command>
-      <command name="IMPORT" displayName="ResourceMsg1(CVS_IMPORT)">
-        <property name="labelMnemonic">
-          <value>ResourceMsg1(CVS_IMPORT_Mnemonic)</value>
-        </property>
-	<property name="advancedName">
-	  <value>import</value>
-	</property>
-	<property name="supportsAdvancedMode">
-	  <value>true</value>
-	</property>
-	<property name="exec">
-          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.SharableImport.class IMPORT_CMD</value>
-	</property>
-	<property name="inputDescriptor">
-	  <value>LABEL(ResourceMsg1(COMMAND_IMPORT_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_IMPORT_Label)))
-                 PROMPT_FOR(DESCRIPTION, ResourceMsg1(COMMAND_IMPORT_Logging_Message), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_IMPORT_Logging_Message);;MNEMONIC_ResourceMsg1(ACS_COMMAND_IMPORT_Logging_Message_mnc)), VALIDATOR_NON_EMPTY)
-                 PROMPT_FOR(VENDOR_TAG, ResourceMsg1(COMMAND_IMPORT_Vendor_Tag), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_IMPORT_Vendor_Tag);;MNEMONIC_ResourceMsg1(ACS_COMMAND_IMPORT_Vendor_Tag_mnc)) ,VALIDATOR_NON_EMPTY)
-                 PROMPT_FOR(RELEASE_TAG, ResourceMsg1(COMMAND_IMPORT_Release_Tag), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_IMPORT_Release_Tag);;MNEMONIC_ResourceMsg1(ACS_COMMAND_IMPORT_Release_Tag_mnc)), VALIDATOR_NON_EMPTY)
-                 ASK_FOR_EXPERT(MODIF_TIME, ResourceMsg1(COMMAND_IMPORT_Modif_Time), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_IMPORT_Modif_Time);;MNEMONIC_ResourceMsg1(ACS_COMMAND_IMPORT_Modif_Time_mnc)), "-d", "")
-                 SELECT_COMBO_EXPERT(RCS_KFLAG, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)), ["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
-                 PROMPT_FOR_EXPERT(IGNORE, ResourceMsg1(COMMAND_IMPORT_Ignore), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_IMPORT_Ignore);;MNEMONIC_ResourceMsg1(ACS_COMMAND_IMPORT_Ignore_mnc)))
-                 PROMPT_FOR_EXPERT(BRANCH_ID, ResourceMsg1(COMMAND_IMPORT_Branch_Id), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_IMPORT_Branch_Id);;MNEMONIC_ResourceMsg1(ACS_COMMAND_IMPORT_Branch_Id_mnc)))
-                 ASK_FOR(DO_CHECKOUT, ResourceMsg1(COMMAND_IMPORT_Do_Checkout), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_IMPORT_Do_Checkout);;MNEMONIC_ResourceMsg1(ACS_COMMAND_IMPORT_Do_Checkout_mnc)), ENABLE(CHECKOUT_OPTIONS))
-                 PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, ResourceMsg1(COMMAND_IMPORT_Checkout_Options), "-N -R",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_IMPORT_Checkout_Options);;MNEMONIC_ResourceMsg1(ACS_COMMAND_IMPORT_Checkout_Options_mnc)))
-          </value>
-	</property>
-	<property name="onFile">
-	  <value>false</value>
-	</property>
-	<property name="display">
-	  <value>true</value>
-	</property>
-	<property name="data.regex">
-	  <value>$ ^</value>
-	</property>
-	<property name="error.regex">
-	  <value>$ ^</value>
-	</property>
-	<property name="onRoot">
-	  <value>true</value>
-	</property>
-        <property name="notificationSuccessMsg">
-          <value>$[? DO_CHECKOUT] [] [ResourceMsg1(NOTIFICATION_IMPORT_Success, ${FILE})]</value>
-        </property>
-        <property name="notificationFailMsg">
-          <value>ResourceMsg1(NOTIFICATION_IMPORT_Fail, ${FILE})</value>
-        </property>
-        <property name="commandsAfterSuccess">
-          <value>$[? DO_CHECKOUT] [MOVE_AND_CHECKOUT_IMPORTED][]</value>
-        </property>
-      </command>
-      <command name="MOVE_AND_CHECKOUT_IMPORTED">
-	<property name="exec">
-          <value>${RUNCDW} $[? FILE] [] [${CD} ..&amp;&amp;] mv ${QUOTE}${FILE}${QUOTE} ${QUOTE}${FILE}_orig${QUOTE} ${NUR}</value>
-          <value if="IS_WINNT">${RUNCDW} $[? FILE] [] [${CD} ..&amp;&amp;] rename ${QUOTE}${FILE}${QUOTE} ${QUOTE}${FILE}_orig${QUOTE} ${NUR}</value>
-        </property>
-        <property name="notificationFailMsg">
-          <value>ResourceMsg1(NOTIFICATION_MOVE_IMPORTED_Fail, ${FILE})</value>
-        </property>
-        <property name="commandsAfterSuccess">
-          <value>CHECKOUT_IMPORTED</value>
-        </property>
-      </command>
       <command name="PRE_CHECKOUT_CREATE_CVS_FOLDER">
 	<property name="exec">
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsPreCheckoutFolder.class</value>
-        </property>
-      </command>
-      <command name="CHECKOUT_IMPORTED">
-	<property name="exec">
-          <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${MODPATH}${QUOTE} ${NUR}</value>
-        </property>
-        <property name="preCommands">
-          <value>PRE_CHECKOUT_CREATE_CVS_FOLDER</value>
-        </property>
-        <property name="commandsAfterSuccess">
-          <value>$[? NON_SHARABLE_FILES] [COPY_NON_SHARABLE] []</value>
-        </property>
-        <property name="refreshParentFolder">
-          <value>true</value>
-        </property>
-        <property name="refreshRecursivelyPatternMatched">
-          <value>checkout</value>
-        </property>
-        <property name="notificationSuccessMsg">
-          <value>ResourceMsg1(NOTIFICATION_IMPORT_AND_CHECKOUT_Success, ${FILE})</value>
-        </property>
-        <property name="notificationFailMsg">
-          <value>ResourceMsg1(NOTIFICATION_IMPORT_Success_AND_CHECKOUT_Fail, ${FILE})</value>
-        </property>
-      </command>
-      <command name="COPY_NON_SHARABLE">
-	<property name="exec">
-          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CopyNonSharableFiles.class COPY_NON_SHARABLE_CMD</value>
-        </property>
-      </command>
-      <command name="COPY_NON_SHARABLE_CMD">
-	<property name="exec">
-          <value>${RUN} ${CD} ${QUOTE}${FOLDER_COPY_SRC}${QUOTE} &amp;&amp; cp -r -p ${QUOTE}${FILE_TO_COPY}${QUOTE} ${QUOTE}${FOLDER_COPY_DEST}${QUOTE} ${NUR}</value>
-          <value if="IS_WINNT">${RUN} ${CD} ${QUOTE}${FOLDER_COPY_SRC}${QUOTE} &amp;&amp; $[? FILE_TO_COPY_IS_FOLDER] [xcopy ${QUOTE}${FILE_TO_COPY}${QUOTE} ${QUOTE}${FOLDER_COPY_DEST}${PS}${FILE_TO_COPY}${QUOTE} /E /F /K /I] [xcopy ${QUOTE}${FILE_TO_COPY}${QUOTE} ${QUOTE}${FOLDER_COPY_DEST}${QUOTE} /E /F /K /I] ${NUR}</value>
-        </property>
-      </command>
-      <command name="CHECKOUT_COMMAND">
-	<property name="exec">
-	  <value if="IS_CMD-LINE_AND_WINDOWS">${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}</value>
-	  <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} 2&gt;&amp;1 ${NUR}</value>
-	</property>
-	<property name="display">
-	  <value>true</value>
-	</property>
-	<property name="data.regex">
-	  <value>^([UPARMC]) (.*$)|^(.*) (already contains the differences)(.*)$</value>
-	</property>
-	<property name="error.regex">
-	  <value>^.* warning: (.*) (is not \(any longer\).*)$|^.*: (.*) (is no longer.*)$|^.*: Updating (.*)$</value>
-	</property>
-        <property name="preCommands">
-          <value>PRE_CHECKOUT_CREATE_CVS_FOLDER</value>
-        </property>
-	<property name="onRoot">
-	  <value>true</value>
-	</property>
-        <property name="runOnMultipleFiles">
-          <value>true</value>
-        </property>
-        <property name="visualizer">
-          <value if="IS_CMD-LINE_AND_WINDOWS">org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.CvsUpdateVisualizerStdOut</value>
-          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.CvsUpdateVisualizer</value>
-        </property>
-      </command>
-      <command name="CHECKOUT" displayName="ResourceMsg1(CVS_CHECKOUT)">
-        <property name="labelMnemonic">
-          <value>ResourceMsg1(CVS_CHECKOUT_Mnemonic)</value>
-        </property>
-	<property name="advancedName">
-	  <value>checkout</value>
-	</property>
-	<property name="supportsAdvancedMode">
-	  <value>true</value>
-	</property>
-	<property name="exec">
-	  <value>vcs.commands.CvsUpdate.class $[? DISK_CHANGE] [-n ] []ROOTDIR CHECKOUT_COMMAND</value>
-	</property>
-	<property name="inputDescriptor">
-	  <value>LABEL(ResourceMsg1(COMMAND_CHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_CHECKOUT_Label)))
-                 PROMPT_FOR(CO_MODULE, ResourceMsg1(COMMAND_CHECKOUT_Module), ${MPATHS_\/},ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_CHECKOUT_Module);;MNEMONIC_ResourceMsg1(ACS_COMMAND_CHECKOUT_Module_mnc)) ,SELECTOR_CMD_SELECTOR_MODULES)
-                 PROMPT_FOR(TAG, ResourceMsg1(COMMAND_CHECKOUT_Tag), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_CHECKOUT_Tag);;MNEMONIC_ResourceMsg1(ACS_COMMAND_CHECKOUT_Tag_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
-                 PROMPT_FOR(DATE, ResourceMsg1(COMMAND_CHECKOUT_Date), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_CHECKOUT_Date);;MNEMONIC_ResourceMsg1(ACS_COMMAND_CHECKOUT_Date_mnc)) ,SELECTOR_DATE_CVS)
-                 ASK_FOR(FORCE_HEAD_MATCH, ResourceMsg1(COMMAND_Force_Head_Match), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Force_Head_Match);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Force_Head_Match_mnc)) ,"-f", "")
-                 ASK_FOR_EXPERT(RESET_STICKY, ResourceMsg1(COMMAND_CHECKOUT_RemoveSticky), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_CHECKOUT_RemoveSticky);;MNEMONIC_ResourceMsg1(ACS_COMMAND_CHECKOUT_RemoveSticky_mnc)), "-A", "", DISABLE(TAG, DATE))
-                 ASK_FOR_EXPERT(PRUNE_EMPTY, ResourceMsg1(COMMAND_CHECKOUT_Prune_Empty), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_CHECKOUT_Prune_Empty);;MNEMONIC_ResourceMsg1(ACS_COMMAND_CHECKOUT_Prune_Empty_mnc)), "-P", "")
-                 ASK_FOR_EXPERT(SEND_TO_STDOUT, ResourceMsg1(COMMAND_CHECKOUT_Send_To_Stdout), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_CHECKOUT_Send_To_Stdout);;MNEMONIC_ResourceMsg1(ACS_COMMAND_CHECKOUT_Send_To_Stdout_mnc)) ,"-p", "")
-                 ASK_FOR_EXPERT(RUN_MODULE_PROGRAM, ResourceMsg1(COMMAND_COMMIT_Run_Module_Program), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_Run_Module_Program);;MNEMONIC_ResourceMsg1(ACS_COMMAND_COMMIT_Run_Module_Program_mnc)), "", "-n")
-                 SELECT_COMBO_EXPERT(RCS_KFLAG, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)), ["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
-                 PROMPT_FOR_EXPERT(DIRECTORY, ResourceMsg1(COMMAND_CHECKOUT_Directory), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_CHECKOUT_Directory);;MNEMONIC_ResourceMsg1(ACS_COMMAND_CHECKOUT_Directory_Adv_mnc)))
-                 ASK_FOR_EXPERT(DO_NOT_SHORTEN, ResourceMsg1(COMMAND_CHECKOUT_Do_Not_Shorten_Paths), "true", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_CHECKOUT_Do_Not_Shorten_Paths);;MNEMONIC_ResourceMsg1(ACS_COMMAND_CHECKOUT_Do_Not_Shorten_Paths_mnc)),"-N", "")
-                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg1(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Recursive_mnc)) ,"-R", "-l")
-          </value>
-	</property>
-	<property name="data.fileName.index">
-	  <value>0</value>
-	</property>
-	<property name="data.status.index">
-	  <value>1</value>
-	</property>
-        <property name="data.revision.index">
-	  <value>2</value>
-	</property>
-	<property name="data.time.index">
-	  <value>3</value>
-	</property>
-	<property name="data.date.index">
-	  <value>4</value>
-	</property>
-        <property name="data.sticky.index">
-	  <value>5</value>
-	</property>
-	<property name="data.size.index">
-	  <value>-1</value>
-	</property>
-	<property name="data.locker.index">
-	  <value>6</value>
-	</property>
-        <property name="data.removedFileName.index">
-          <value>7</value>
-        </property>
-        <property name="refreshFileRelativePath">
-          <value></value>
-        </property>
-	<property name="onRoot">
-	  <value>true</value>
-	</property>
-	<property name="checkForModifications">
-	  <value>true</value>
-	</property>
-        <property name="runOnMultipleFiles">
-          <value>true</value>
-        </property>
-        <property name="concurrentExec">
-          <value>-1</value>
         </property>
       </command>
       <command name="INITIAL_CHECKOUT_COMMAND" displayName="ResourceMsg1(CVS_CHECKOUT)">
@@ -1932,7 +1695,7 @@ Microsystems, Inc. All Rights Reserved.
                  ASK_FOR_EXPERT(RUN_MODULE_PROGRAM, ResourceMsg1(COMMAND_COMMIT_Run_Module_Program), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_Run_Module_Program);;MNEMONIC_ResourceMsg1(ACS_COMMAND_COMMIT_Run_Module_Program_mnc)), "", "-n")
                  SELECT_COMBO_EXPERT(RCS_KFLAG, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)), ["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
                  PROMPT_FOR_EXPERT(MODULEDIR, ResourceMsg1(COMMAND_EXPORT_ModuleDirectory), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_ModuleDirectory);;MNEMONIC_ResourceMsg1(ACS_COMMAND_EXPORT_ModuleDirectory_mnc)))
-                 ASK_FOR_EXPERT(DO_NOT_SHORTEN, ResourceMsg1(COMMAND_CHECKOUT_Do_Not_Shorten_Paths), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_CHECKOUT_Do_Not_Shorten_Paths);;MNEMONIC_ResourceMsg1(ACS_COMMAND_CHECKOUT_Do_Not_Shorten_Paths_mnc)), "-N", "")
+                 ASK_FOR_EXPERT(DO_NOT_SHORTEN, ResourceMsg1(COMMAND_EXPORT_Do_Not_Shorten_Paths), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Do_Not_Shorten_Paths);;MNEMONIC_ResourceMsg1(ACS_COMMAND_EXPORT_Do_Not_Shorten_Paths_mnc)), "-N", "")
                  IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg1(COMMAND_Recursive), "$[? recursionBanned] [-l] [-R]",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Recursive_mnc)), "-R", "-l")
           </value>
 	  <value if="IS_WINNT">LABEL(ResourceMsg1(COMMAND_EXPORT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Label)))
@@ -1944,7 +1707,7 @@ Microsystems, Inc. All Rights Reserved.
                  ASK_FOR_EXPERT(RUN_MODULE_PROGRAM, ResourceMsg1(COMMAND_COMMIT_Run_Module_Program), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_Run_Module_Program);;MNEMONIC_ResourceMsg1(ACS_COMMAND_COMMIT_Run_Module_Program_mnc)), "", "-n")
                  SELECT_COMBO_EXPERT(RCS_KFLAG, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)), ["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
                  PROMPT_FOR_EXPERT(MODULEDIR, ResourceMsg1(COMMAND_EXPORT_ModuleDirectory), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_ModuleDirectory);;MNEMONIC_ResourceMsg1(ACS_COMMAND_EXPORT_ModuleDirectory_mnc)))
-                 ASK_FOR_EXPERT(DO_NOT_SHORTEN, ResourceMsg1(COMMAND_CHECKOUT_Do_Not_Shorten_Paths), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Do_Not_Shorten_Paths);;MNEMONIC_ResourceMsg1(ACS_COMMAND_CHECKOUT_Do_Not_Shorten_Paths_mnc)), "-N", "")
+                 ASK_FOR_EXPERT(DO_NOT_SHORTEN, ResourceMsg1(COMMAND_EXPORT_Do_Not_Shorten_Paths), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Do_Not_Shorten_Paths);;MNEMONIC_ResourceMsg1(ACS_COMMAND_EXPORT_Do_Not_Shorten_Paths_mnc)), "-N", "")
                  IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg1(COMMAND_Recursive), "$[? recursionBanned] [-l] [-R]",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Recursive_mnc)), "-R", "-l")
           </value>
 	</property>
