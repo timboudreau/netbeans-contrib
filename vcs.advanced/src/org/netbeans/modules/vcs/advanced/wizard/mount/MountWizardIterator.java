@@ -96,11 +96,11 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     }
     
     public void removeChangeListener(javax.swing.event.ChangeListener changeListener) {
-        listenerList.remove(javax.swing.event.ChangeListener.class, changeListener);
+        if (listenerList != null) listenerList.remove(javax.swing.event.ChangeListener.class, changeListener);
     }
     
     public void addChangeListener(javax.swing.event.ChangeListener changeListener) {
-        listenerList.add(javax.swing.event.ChangeListener.class, changeListener);
+        if (listenerList != null) listenerList.add(javax.swing.event.ChangeListener.class, changeListener);
     }
     
     public String name() {
