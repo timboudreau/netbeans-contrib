@@ -35,19 +35,18 @@ class BugNode extends TaskNode {
     // Leaf
     BugNode(Bug item) {
         super(item);
-        init(item);
+        init();
     } 
 
     // Non-leaf/parent
     BugNode(Bug item, List subtasks) {
         super(item, subtasks);
-        init(item);
+        init();
     }
 
-    private void init(Bug item) {
-        this.item = item;
-	setDefaultAction(SystemAction.get(ViewBugAction.class));
-	setIconBase("org/netbeans/modules/tasklist/bugs/bug"); // NOI18N
+    private void init() {
+        setDefaultAction(SystemAction.get(ViewBugAction.class));
+        setIconBase("org/netbeans/modules/tasklist/bugs/bug"); // NOI18N
     }
 
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):

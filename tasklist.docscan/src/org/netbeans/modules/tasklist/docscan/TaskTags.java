@@ -62,14 +62,17 @@ public final class TaskTags implements Externalizable {
 
     private Pattern regexp = null;
 
-    /** Gets the scan regular expression - used during scanning for
+    /**
+     * Gets the scan regular expression - used during scanning for
      * todo items. We use a regular expression since (I believe, but 
      * haven't checked) that this might be faster than a simple string
      * matching algorithm I could easily write. The regular expression
      * package should be able to build a check routine which is really
      * fast since it precomputes the bytecode(?) which as quickly as
      * possible checks all the matches.
-    */
+     *
+     * [ccc] I tied and that's true.
+     */
     public Pattern getScanRegexp() {
         // Create regexp from tags
         if (regexp == null) {
@@ -132,11 +135,11 @@ public final class TaskTags implements Externalizable {
      * @throws IOException
      * @throws ClassNotFoundException  */    
     public void readExternal(ObjectInput objectInput) throws IOException, java.lang.ClassNotFoundException {
-	int ver = objectInput.read();
-        //assert ver == 1 : "serialization version incorrect; should be 1";
+	    int ver = objectInput.read();
+        assert ver == 1 : "serialization version incorrect; should be 1";
 
         // Read in the priority
-	int num = ((Integer)objectInput.readObject()).intValue();
+	    int num = ((Integer)objectInput.readObject()).intValue();
         tags = new TaskTag[num];
         for (int i = 0; i < num; i++) {
             tags[i] = (TaskTag)objectInput.readObject();
@@ -148,7 +151,7 @@ public final class TaskTags implements Externalizable {
      * @throws IOException  */    
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
         objectOutput.write(1); // SERIAL VERSION
-	objectOutput.writeObject(new Integer(tags.length));
+	    objectOutput.writeObject(new Integer(tags.length));
         for (int i = 0; i < tags.length; i++) {
             objectOutput.writeObject(tags[i]);
         }

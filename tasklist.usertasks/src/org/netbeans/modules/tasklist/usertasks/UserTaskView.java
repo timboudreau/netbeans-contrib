@@ -124,8 +124,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     
     public void componentActivated() {
         super.componentActivated();
-        UserTaskList utl = (UserTaskList) this.tasklist;
-        ((UserTask) utl.getRoot()).updateLineNumberRecursively();        
+        ((UserTask) getModel().getRoot()).updateLineNumberRecursively();
     }
     
     /** Read in a serialized version of the tasklist
@@ -147,7 +146,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
                 URL url = new URL(urlString);
                 FileObject[] fos = URLMapper.findFileObjects(url);
                 if ((fos != null) && (fos.length > 0)) {
-                    tasklist = new UserTaskList(fos[0]);
+                    showList(new UserTaskList(fos[0]));
                     title = fos[0].getName();
                 }
                 // XXX I do extra work here. I read in the global task
@@ -424,7 +423,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     protected TaskNode createRootNode() {
-        UserTask root = (UserTask)tasklist.getRoot();
+        UserTask root = (UserTask)getModel().getRoot();
         return new UserTaskNode(root, root.getSubtasks());
     }
 
@@ -455,17 +454,17 @@ public class UserTaskView extends TaskListView implements TaskListener {
 
     protected void showList() {
         super.showList();
-        UserTaskList utl = (UserTaskList) this.tasklist;
+        UserTaskList utl = (UserTaskList) this.getList();
         utl.showAnnotations((UserTask)utl.getRoot());
     }
     
     protected void hideList() {
         super.hideList();
-        UserTaskList utl = (UserTaskList) this.tasklist;
+        UserTaskList utl = (UserTaskList) this.getModel();
         utl.hideAnnotations((UserTask)utl.getRoot());
     }
 
     public String toString() { 
-        return "UserTaskView(" + title + ", " + category + ", " + tasklist + ")"; // NOI18N
+        return "UserTaskView(" + title + ", " + category + ", " + getModel() + ")"; // NOI18N
     }
 }

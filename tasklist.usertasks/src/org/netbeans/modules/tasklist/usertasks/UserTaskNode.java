@@ -76,17 +76,16 @@ class UserTaskNode extends TaskNode {
     // Leaf
     UserTaskNode(UserTask item) {
         super(item);
-        init(item);
+        init();
     } 
 
     // Non-leaf/parent
     UserTaskNode(UserTask item, List subtasks) {
         super(item, subtasks);
-        init(item);
+        init();
     }
 
-    private void init(UserTask item) {
-        this.item = item;
+    private void init() {
         setDefaultAction(SystemAction.get(ShowTaskAction.class));
     }
 
@@ -105,8 +104,8 @@ class UserTaskNode extends TaskNode {
          have separate icons?
     */
     protected void updateIcon() {
-	UserTask uitem = (UserTask)item;
-	if (uitem.getIcon() != null) {
+        UserTask uitem = (UserTask)item;
+        if (uitem.getIcon() != null) {
             return;
         }
         if (uitem.isDone()) {

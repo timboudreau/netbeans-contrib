@@ -46,7 +46,7 @@ public interface TaskListener  {
     /**
      * A task has been changed (some properties has been changed).
      */
-    void changedTask(Task t);
+    void changedTask(Task t);  //XXX task property
 
     /**
      * Invoked after the tree has drastically changed structure from a 

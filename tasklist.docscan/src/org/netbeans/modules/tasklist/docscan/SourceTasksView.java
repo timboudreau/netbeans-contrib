@@ -113,7 +113,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     protected TaskNode createRootNode() {
-        SuggestionImpl root = (SuggestionImpl) tasklist.getRoot();
+        Task root = getModel().getRoot();
         return new SuggestionNode(root, this);
     }
 
@@ -286,8 +286,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     //            }
     //            getExplorerManager().setRootContext(new AbstractNode(tasks));
             } else {
+                // XXX defer to isShowing
                 job = SuggestionsBroker.getDefault().startBroker();
-                super.tasklist = job.getSuggestionsList();
+                ObservableList filtered = new FilteredTasksList(job.getSuggestionsList());
+                initList(filtered);
             }
         }
 
@@ -598,6 +600,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
+    protected void componentHidden() {
+        releaseWorkaround();
+        super.componentHidden();
+    }
+
     private void handleAllFiles() {
         // scan for todos
         if (job != null) {
@@ -608,11 +615,20 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         treeTable.setProperties(createColumns());
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
         SuggestionList list = new SourceTasksList();
+        releaseWorkaround();
         showList(list);
         setFiltered(false);
         interrupt = false;
         SourceTasksAction.scanTasksAsync(this);
         getRefresh().setEnabled(true);
+    }
+
+    // XXX detects listener leaks
+    private void releaseWorkaround() {
+        ObservableList filter = getModel();
+        if (filter instanceof FilteredTasksList) {
+            ((FilteredTasksList)filter).byebye();
+        }
     }
 
     private void handleCurrentFile() {
@@ -621,7 +637,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         putClientProperty("PersistenceType", "OnlyOpened");
         treeTable.setProperties(createColumns());
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
-        showList(job.getSuggestionsList());  // FIXME Wrap it to a filtered one
+        ObservableList filtered = new FilteredTasksList(job.getSuggestionsList());
+        showList(filtered);
         getRefresh().setEnabled(false);
         setFiltered(false);
         getMiniStatus().setText("");

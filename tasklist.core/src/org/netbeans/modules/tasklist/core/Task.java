@@ -112,14 +112,12 @@ public class Task extends Suggestion implements Cloneable {
                 return SuggestionPriority.MEDIUM;
         }
     }
-    
-    /** The subtask list has changed */
-    public static final String PROP_CHILDREN_CHANGED = "children"; // NOI18N
+
     /** Some of this items attributes (such as its description - anything
      * except the subtask list) has changed */
     public static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
-    protected TaskList list;
+    protected ObservableList list;
     protected boolean visitable;
 
     /** When true, don't notify anybody of updates to this object - and don't
@@ -215,18 +213,20 @@ public class Task extends Suggestion implements Cloneable {
     protected void updatedValues() {
         if (!silentUpdate) {
             supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
-	    if (list != null) {
-		list.markChanged(this);
-	    }
+            //XXX distributed via above channel
+//            if (list != null) {
+//                list.markChanged(this);
+//            }
         }
     }
 
     protected void updatedStructure() {
         if (!silentUpdate) {
-            supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-	    if (list != null) {
-		list.markChanged(this);
-	    }
+            getList().notifyStructureChanged(this);
+            //XXX why?
+//            if (list != null) {
+//                list.markChanged(this);
+//            }
         }
     }
 
@@ -264,7 +264,10 @@ public class Task extends Suggestion implements Cloneable {
     public void removePropertyChangeListener(PropertyChangeListener l) {
         supp.removePropertyChangeListener(l);
     }
-    
+
+    // XXX why? We have TaskList class to model list
+    // one could then easily remove add/removeSubtask
+    // methods
     public LinkedList getSubtasks() {
         return subtasks;
     }
@@ -302,7 +305,7 @@ public class Task extends Suggestion implements Cloneable {
         }
         int pos = subtasks.indexOf(after);
         subtasks.add(pos+1, subtask);
-	subtask.list = list;
+    	subtask.list = list;
         if (!silentUpdate && !subtask.silentUpdate) {
             updatedStructure();
         }
@@ -318,14 +321,14 @@ public class Task extends Suggestion implements Cloneable {
      * task). Overrides the append parameter.
     */
     public void addSubtasks(List tasks, boolean append, Task after) {
-	ListIterator it = tasks.listIterator();
-	while (it.hasNext()) {
-	    Task task = (Task)it.next();
-	    task.list = list;
+        ListIterator it = tasks.listIterator();
+        while (it.hasNext()) {
+            Task task = (Task)it.next();
+            task.list = list;
             task.parent = this;
-	}
+        }
 
-	if (subtasks == null) {
+        if (subtasks == null) {
             subtasks = new LinkedList();
         }
         if (after != null) {
@@ -344,10 +347,14 @@ public class Task extends Suggestion implements Cloneable {
     *  of the beginning.
     */
     public void addSubtask(Task subtask, boolean append) {
-	subtask.list = list;
+    	subtask.list = list;
         subtask.parent = this;
         if (subtasks == null) {
             subtasks = new LinkedList();
+        }
+        if (subtasks.contains(subtask)) {
+            // XXX shoudl be catched earlier
+            return;
         }
         if (append) {
             subtasks.addLast(subtask);
@@ -604,15 +611,15 @@ public class Task extends Suggestion implements Cloneable {
         //List notes = new LinkedList(); // List<Note>
         String line;
         while ((line = reader.readLine()) != null) {
-	    // XXX TodoTransfer's convert
-	    // method never seems to get called (see explanations in
-            // TaskNode.clipboardCopy), so I haven't been
-	    // able to test this, that's why I haven't expanded the
-	    // code as much as it should be.
-	    Task item = new Task();
-	    item.setSummary(line);
-	    return item;
-	}
+            // XXX TodoTransfer's convert
+            // method never seems to get called (see explanations in
+                // TaskNode.clipboardCopy), so I haven't been
+            // able to test this, that's why I haven't expanded the
+            // code as much as it should be.
+            Task item = new Task();
+            item.setSummary(line);
+            return item;
+        }
         return null;
     }
     
@@ -642,26 +649,30 @@ public class Task extends Suggestion implements Cloneable {
     public void setSilentUpdate(boolean silentUpdate, boolean fireAttrs,
 			 boolean fireChildren, boolean save) {
         this.silentUpdate = silentUpdate;
-	if (!silentUpdate) {
-	    if (fireAttrs) {
-		supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
-	    } else if (fireChildren) {
-		supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-	    }
-	    if (save && (list != null)) {
-		list.markChanged();
-	    }
-	}
+        if (!silentUpdate) {
+            if (fireAttrs) {
+                supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
+            }
+
+            if (fireChildren) {
+                getList().notifyStructureChanged(this);
+            }
+
+            // XXX it should be deteced by list internally
+//            if (save && (list != null)) {
+//                list.markChanged();
+//            }
+        }
     }
 
     /** Set the list this task is contained in. */
-    public void setList(TaskList list) { // XXX remove publicness
-	this.list = list;
+    public void setList(ObservableList list) { // XXX remove publicness
+	    this.list = list;
     }
 
     /** Get the list this task is contained in. */
-    public TaskList getList() {
-	return list;
+    public ObservableList getList() {
+	    return list;
     }
 
     /**

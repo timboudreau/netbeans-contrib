@@ -20,11 +20,7 @@ import java.util.Collections;
 
 import org.netbeans.api.tasklist.Suggestion;
 
-import org.netbeans.modules.tasklist.core.ExportAction;
-import org.netbeans.modules.tasklist.core.TaskListView;
-import org.netbeans.modules.tasklist.core.ExpandAllAction;
-import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.modules.tasklist.core.GoToTaskAction;
+import org.netbeans.modules.tasklist.core.*;
 import org.openide.ErrorManager;
 import org.openide.actions.PropertiesAction;
 import org.openide.nodes.Node;
@@ -44,6 +40,8 @@ import org.openide.text.Line;
 import org.openide.loaders.DataObject;
 import org.openide.text.DataEditorSupport;
 
+import javax.swing.*;
+
 
 /**
  * A node in the Suggestions View, representing a Suggestion
@@ -59,35 +57,28 @@ public class SuggestionNode extends TaskNode {
     // Leaf
     protected SuggestionNode(SuggestionImpl item) {
         super(item);
-        init(item);
-    } 
+    }
 
     // Non-leaf/parent
     protected SuggestionNode(SuggestionImpl item, List subtasks) {
         super(item, subtasks);
-        init(item);
     }
 
     /**
-     * Cretaes root node attached to given view.
+     * Creates root node attached to given view.
      * @param rootItem
      * @param view
      */
-    public SuggestionNode(SuggestionImpl rootItem, TaskListView view) {
-        super(rootItem, Collections.EMPTY_LIST);  //XXX parametr is used as flag
+    public SuggestionNode(Task rootItem, TaskListView view) {
+        super(rootItem, Collections.EMPTY_LIST);  //XXX parametr existence is used as flag
         this.view = view;
-        init(rootItem);
     }
 
-    private void init(SuggestionImpl item) {
-        this.item = item;
+    public Action getPreferredAction() {
         if (item.getAction() == null) {
-            //setDefaultAction(SystemAction.get(GoToTaskAction.class));
-            setDefaultAction(SystemAction.get(ShowSuggestionAction.class));
-        } else if (item.getAction() != null) {
-            setDefaultAction(SystemAction.get(FixAction.class));
+            return SystemAction.get(ShowSuggestionAction.class);
         } else {
-            setDefaultAction(null);
+            return SystemAction.get(FixAction.class);
         }
     }
 

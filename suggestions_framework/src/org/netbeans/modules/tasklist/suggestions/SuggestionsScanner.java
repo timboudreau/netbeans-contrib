@@ -172,16 +172,9 @@ public final class SuggestionsScanner {
         while (it.hasNext()) {
             if (Thread.currentThread().isInterrupted()) return;
             SuggestionProvider provider = (SuggestionProvider) it.next();
-// XXX it's not driven by ShowCategoryAction
-//            if (((unfiltered == null) ||
-//                    (unfiltered == provider)) &&
-//                    (provider instanceof DocumentSuggestionProvider)) {
-
                 // FIXME no initialization events possibly fired
                 // I guess that reponsibility for recovering from missing
                 // lifecycle events should be moved to providers
-                // TODO FIXME HACK this instanceof added on 03.12.2003
-                // to fix a ClassCastException
                 if (provider instanceof DocumentSuggestionProvider) {
                     List l = ((DocumentSuggestionProvider) provider).scan(env);
                     if (l != null) {
@@ -189,7 +182,6 @@ public final class SuggestionsScanner {
                         manager.register(provider.getTypes()[0], l, null, list, true);
                     }
                 }
-//            }
         }
     }
 

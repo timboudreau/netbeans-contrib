@@ -90,7 +90,7 @@ public abstract class TaskListView extends TopComponent
 
     transient protected String category = null;
 
-    transient protected TaskList tasklist = null;
+    private transient ObservableList tasklist = null;
 
     private transient boolean filterEnabled =  false;
     transient protected Filter filter = null;
@@ -131,7 +131,7 @@ public abstract class TaskListView extends TopComponent
      * for a subdirectory of "SystemFileSystem/TaskList/" for columns settings
      */
     public TaskListView(String category, String title, Image icon,
-                        boolean persistent, TaskList tasklist) {
+                        boolean persistent, ObservableList tasklist) {
         initExplorerManager();
         
         assert category != null : "category == null";
@@ -139,7 +139,6 @@ public abstract class TaskListView extends TopComponent
         this.category = category;
         setName(title);
         this.persistent = persistent;
-        this.tasklist = tasklist;
         setIcon(icon);
 
         if (persistent) {
@@ -148,13 +147,7 @@ public abstract class TaskListView extends TopComponent
         } else {
             putClientProperty("PersistenceType", "Never"); // NOI18N
         }
-
-        synchronized (TaskListView.class) {
-            if (views == null) {
-                views = new HashMap();
-            }
-            views.put(category, this);
-        }
+        initList(tasklist);
     }
 
     // replacement for subclassing ExplorerPanel
@@ -165,6 +158,18 @@ public abstract class TaskListView extends TopComponent
         map.put(javax.swing.text.DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
         map.put(javax.swing.text.DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
         map.put("delete", ExplorerUtils.actionDelete(manager, true));  // NOI18N
+    }
+
+    protected final void initList(ObservableList list) {
+        assert tasklist == null; // call from readExterdnal only
+        this.tasklist = list;
+
+        synchronized (TaskListView.class) {
+            if (views == null) {
+                views = new HashMap();
+            }
+            views.put(category, this);
+        }
     }
 
     public ExplorerManager getExplorerManager() {
@@ -529,15 +534,15 @@ public abstract class TaskListView extends TopComponent
     abstract protected TaskNode createRootNode();
 
     protected void showList() {
-        tasklist.addListener(TaskListView.this);
+        getModel().addListener(this);
         setRoot();
     }
 
     /**
      * Start showing new tasklist.
      */
-    protected final void showList(TaskList list) {
-        if (list == tasklist) return;
+    protected final void showList(ObservableList list) {
+        if (list == getModel()) return;
         hideList();
         tasklist = list;
         showList();
@@ -573,7 +578,10 @@ public abstract class TaskListView extends TopComponent
     }
 
     protected void hideList() {
-        tasklist.removeListener(this);
+        ObservableList prev = getModel();
+        if (prev != null) {
+            prev.removeListener(this);
+        }
     }
 
     public Node getRootNode() {
@@ -1168,9 +1176,13 @@ for (int i = 0; i < columns.length; i++) {
 
     /**  Return the tasklist shown in this view */
     public TaskList getList() {
-        return tasklist;
+        // XXX  FilteredTasksList may appear here for TODOs Current File
+        return (TaskList) getModel();
     }
 
+    protected ObservableList getModel() {
+        return tasklist;
+    }
 
     /** Pulled straight out of TreeTableView in openide
      Except don't cache rowComparator, and don't case
@@ -1417,18 +1429,18 @@ for (int i = 0; i < columns.length; i++) {
 
     /** Show the next task in the view */
     protected final void nextTask() {
-        TaskList list = getList();
+        ObservableList list = getModel();
         Task curr = getCurrentTask();
         Task next = null;
         if (curr == null) {
-            List sgs = list.getTasks();
+            List sgs = list.getRoot().getSubtasks();
             if (sgs != null) {
                 next = (Task) sgs.get(0);
             } else {
                 return;
             }
         } else {
-            next = list.findNext(curr, wrapWarned);
+            next = TLUtils.findNext(curr, wrapWarned);
         }
         String msg = NbBundle.getBundle(TaskListView.class).
                 getString("MSG_AtLastError"); // NOI18N
@@ -1453,18 +1465,18 @@ for (int i = 0; i < columns.length; i++) {
 
     /** Show the previous task in the view */
     protected final void prevTask() {
-        TaskList list = getList();
+        ObservableList list = getModel();
         Task curr = getCurrentTask();
         Task prev = null;
         if (curr == null) {
-            List sgs = list.getTasks();
+            List sgs = list.getRoot().getSubtasks();
             if (sgs != null) {
                 prev = (Task) sgs.get(0);
             } else {
                 return;
             }
         } else {
-            prev = list.findPrev(curr, wrapWarned);
+            prev = TLUtils.findPrev(curr, wrapWarned);
         }
         String msg = NbBundle.getBundle(TaskListView.class).
                 getString("MSG_AtLastError"); // NOI18N
@@ -1656,6 +1668,7 @@ for (int i = 0; i < columns.length; i++) {
             }
         }
     }
+
     // */
 
 }

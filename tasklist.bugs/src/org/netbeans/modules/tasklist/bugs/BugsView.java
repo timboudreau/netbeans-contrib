@@ -295,7 +295,7 @@ public class BugsView extends TaskListView implements TaskListener {
 
     /** Create the root node to be used in this view */
     protected TaskNode createRootNode() {
-        Bug root = (Bug)tasklist.getRoot();
+        Bug root = (Bug)getModel().getRoot();
         return new BugNode(root, root.getSubtasks());
     }
 }

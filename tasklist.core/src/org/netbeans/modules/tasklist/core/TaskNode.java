@@ -50,27 +50,37 @@ import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.PasteType;
 
-public class TaskNode extends AbstractNode implements PropertyChangeListener {
-    protected Task item;  
+public class TaskNode extends AbstractNode {
+
+    protected final Task item;
+    private Monitor monitor;
 
     // Leaf
     public TaskNode(Task item) {
         super(Children.LEAF);
-        init(item);
+        this.item = item;
+        assert item.getList() != null;
+        init();
     } 
 
     // Non-leaf/parent
     public TaskNode(Task item, List subtasks) {
         super(new TaskChildren(item));
-        init(item);
+        this.item = item;
+        assert item.getList() != null;
+        init();
     }
 
-    private void init(Task item) {
-        this.item = item;
+    private void init() {
         setName(item.getSummary());
         //setIconBase("org/netbeans/modules/tasklist/core/task"); // NOI18N
         //setDefaultAction(SystemAction.get(ShowTaskAction.class));
-        item.addPropertyChangeListener(WeakListener.propertyChange(this, item));
+
+
+        monitor = new Monitor();
+        item.getList().addListener(monitor);
+        item.addPropertyChangeListener(monitor);
+
         updateDisplayStuff();
         getCookieSet().add(new InstanceSupport.Instance(item));
         
@@ -127,21 +137,7 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
 	    return super.getOpenedIcon(type);
 	}
     }
-    
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName() == Task.PROP_CHILDREN_CHANGED) {
-            // Special case -- we've made a leaf into one containing children!
-            Children c = getChildren();
-            if ((c == Children.LEAF) && (item.hasSubtasks())) {
-                // XXX This seems to get called more frequently than is necessary!
-                setChildren(new TaskChildren(item));
-            }
-        }
-        // Some aspects of the module may have changed. Redisplay everything.
-        updateDisplayStuff();
-        firePropertyChange(null, null, null);
-    }
-    
+
     public HelpCtx getHelpCtx() {
         return new HelpCtx(TaskNode.class);
     }
@@ -174,13 +170,12 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
         };
     }
 
-    public void destroy() {
-        TaskList tl = item.getList();
-        try {
-            tl.remove(item);
-        } catch (java.lang.NullPointerException e) {
-            ErrorManager.getDefault().notify(e);
-        }
+    public void destroy() throws IOException {
+        item.removePropertyChangeListener(monitor);
+        ObservableList tl = item.getList();
+        tl.removeListener(monitor);
+        item.getParent().removeSubtask(item);
+        super.destroy();
     }
     
     public boolean canDestroy() {
@@ -409,6 +404,56 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
             }
         }
         return null;
+    }
+
+    // TaskListener implementation ~~~~~~~~~~~~~~~~~~~~~~
+
+    private class Monitor implements TaskListener, PropertyChangeListener {
+        public void selectedTask(Task t) {
+            // it's view job
+        }
+
+        public void warpedTask(Task t) {
+            // it's view job
+        }
+
+        public void addedTask(Task t) {
+            if (t.getParent() == item) {
+                // Special case -- we've made a leaf into one containing children!
+                Children c = getChildren();
+                if (c == Children.LEAF) {
+                    assert item.hasSubtasks();
+                    // XXX This seems to get called more frequently than is necessary!
+                    setChildren(new TaskChildren(item));
+                }
+            }
+        }
+
+        public void removedTask(Task t) {
+            // children's job
+        }
+
+        public void changedTask(Task t) {
+            // we listen on task itself
+        }
+
+        public void structureChanged(Task t) {
+            if (t == item) {
+                // Special case -- we've made a leaf into one containing children!
+                Children c = getChildren();
+                if ((c == Children.LEAF) && (item.hasSubtasks())) {
+                    // XXX This seems to get called more frequently than is necessary!
+                    setChildren(new TaskChildren(item));
+                }
+            }
+        }
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            // Some aspects of the module may have changed. Redisplay everything.
+            updateDisplayStuff();
+            firePropertyChange(null, null, null);
+        }
+
     }
 
     public static class FilterTaskNode extends FilterNode {

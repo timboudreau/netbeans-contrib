@@ -27,17 +27,20 @@ import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 
 /**
- * This class represents the tasklist itself
+ * This class models hierarchical tasklist.
  *
  * @author Tor Norbye
  * @author Tim Lebedkov
  */
-public class TaskList { // XXX remove the publicness.
+public class TaskList implements ObservableList { // XXX remove the publicness.
 
     // List category
     public final static String USER_CATEGORY = "usertasks"; // NOI18N
 
-    /** Creates a new instance of TaskList */
+    /**
+     * Creates a new instance of TaskList.
+     * {@link #getRoot} must be overriden properly.
+     */
     public TaskList() {
     }
 
@@ -62,14 +65,6 @@ public class TaskList { // XXX remove the publicness.
     protected List list = null;
     protected Task root = null;
 
-    /** Set the root task of the tasklist. It's public such that the
-     XML Encoder can access it as a bean property.
-     */
-    public void setRoot(Task root) {
-        this.root = root;
-        // XXX fire property change event?
-    }
-
     public Task getRoot() {
         if (root == null) {
             // Just use the name "Description" since for some reason,
@@ -83,8 +78,8 @@ public class TaskList { // XXX remove the publicness.
         return root;
     }
 
-    /** Add a list of todo items to the tasklist, and remove a list of
-     *	todo items from the tasklist. This is done instead of a separate
+    /** Add a list of tasks to the tasklist, and remove a list of
+     *	tasks from the tasklist. This is done instead of a separate
      *  add and remove method such that you can change the tasklist
      *  atomically without having an intermediate screen refresh.
      * 	Note that if a task appears in both lists, it will be ADDED.
@@ -143,14 +138,14 @@ public class TaskList { // XXX remove the publicness.
         setSilentUpdate(false, true, modified);
     }
 
-    /** Add a todo item to the todo list.
-     * @param item The todo item to be added. */
+    /** Add a task to the task list.
+     * @param task The task to be added. */
     public void add(Task task) {
         add(task, false, true);
     }
 
-    /** Add a todo item to the todo list.
-     * @param item The todo item to be added.
+    /** Add a task to the task list.
+     * @param task The task to be added.
      * @param append If true, append the item to the list, otherwise prepend
      * @param show If true, show the task in the list
      */
@@ -179,8 +174,8 @@ public class TaskList { // XXX remove the publicness.
         save();
     }
 
-    /** Add a todo item to the todo list.
-     * @param item The todo item to be added.
+    /** Add a task to the task list.
+     * @param task The task to be added.
      * @param after The task which will be immediately before
      * the new subtask after the addition (e.g. add
      * this subtask directly AFTER the specified
@@ -211,8 +206,8 @@ public class TaskList { // XXX remove the publicness.
     }
 
 
-    /** Remove a todo item from the list.
-     * @param item The todo item to be removed. */
+    /** Remove a task from the list.
+     * @param task The task to be removed. */
     public void remove(Task task) {
         if (task.getParent() != null) {
             task.getParent().removeSubtask(task);
@@ -228,7 +223,7 @@ public class TaskList { // XXX remove the publicness.
         save();
     }
 
-    /** Notify the todo list that some aspect of it has been changed, so
+    /** Notify the task list that some aspect of it has been changed, so
      * it should save itself soon. Eventually calls save */
     public void markChanged() {
         // For now, save right away....
@@ -253,7 +248,7 @@ public class TaskList { // XXX remove the publicness.
         notifyChanged(task);
     }
 
-    /** Write todo items out to disk */
+    /** Write tasks out to disk */
     public void save() {
         needSave = false;
     }
@@ -307,6 +302,8 @@ public class TaskList { // XXX remove the publicness.
         listeners.remove(listener);
     }
 
+    // XXX it should be on task itself,
+    // it has nothing to do with the list membership
     public void notifyChanged(Task task) {
         if (listeners != null) {
             int n = listeners.size();
@@ -317,7 +314,7 @@ public class TaskList { // XXX remove the publicness.
         }
     }
 
-    public void notifyAdded(Task task) {
+    protected void notifyAdded(Task task) {
         if (listeners != null) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
@@ -376,6 +373,7 @@ public class TaskList { // XXX remove the publicness.
      * @return Array of translators that can read/write the tasklist
      */
     public FormatTranslator[] getTranslators() {
+        // XXX is it really tasklist property?
         FormatTranslator[] translators = new FormatTranslator[]{
             new HTMLSupport(),
             new XMLTranslator()
@@ -428,115 +426,6 @@ public class TaskList { // XXX remove the publicness.
      */
     public List getTasks() {
         return getRoot().getSubtasks();
-    }
-
-
-    /** Locate the next task from the given task.
-     * Used for example to jump to the previous or next error when
-     * the user presses F12/S-F12.  This will skip over category
-     * nodes etc.
-     *
-     * @param curr The current task from which you want to find
-     *   a neighbor
-     * @param wrap If true, wrap around the end/front of the list
-     *    and return the next/previous element. If false, return null
-     *    when you reach the end or the front of the list, depending
-     *    on your search direction.
-     * @return the next element following curr that is
-     *    not a category node */
-    public Task findNext(Task curr, boolean wrap) {
-        currFound = false;
-        List tasks = getTasks();
-        Task s = findNext(tasks, curr, wrap);
-        if ((s == null) && wrap && currFound) {
-            // Start search one more time, this time not for
-            // curr but just the first eligible element
-            s = findNext(tasks, curr, wrap);
-        }
-        return s;
-    }
-
-    private boolean currFound;
-
-    private Task findNext(List tasks, Task curr, boolean wrap) {
-        Iterator it = tasks.iterator();
-        while (it.hasNext()) {
-            Task s = (Task) it.next();
-            if (currFound && s.isVisitable()) {
-                return s;
-            } else if (s == curr) {
-                currFound = true;
-                if (s.hasSubtasks()) {
-                    Task f = findNext(s.getSubtasks(), curr, wrap);
-                    if (f != null) {
-                        return f;
-                    }
-                }
-            } else if (s.hasSubtasks()) {
-                Task f = findNext(s.getSubtasks(), curr, wrap);
-                if (f != null) {
-                    return f;
-                }
-            }
-        }
-        return null;
-    }
-
-
-    /** Locate the previous task from the given task.
-     * Used for example to jump to the previous or next error when
-     * the user presses F12/S-F12.  This will skip over category
-     * nodes etc.
-     *
-     * @param curr The current task from which you want to find
-     *   a neighbor.
-     * @param wrap If true, wrap around the end/front of the list
-     *    and return the next/previous element. If false, return null
-     *    when you reach the end or the front of the list, depending
-     *    on your search direction.
-     * @return the element preceding curr that is
-     *    not a category node */
-    public Task findPrev(Task curr, boolean wrap) {
-        currFound = false;
-        List tasks = getTasks();
-        Task s = findPrev(tasks, curr, wrap);
-        if ((s == null) && wrap && currFound) {
-            // Start search one more time, this time not for
-            // curr but just the first eligible element
-            s = findPrev(tasks, curr, wrap);
-        }
-        return s;
-    }
-
-    /**
-     * @todo This method is broken for lists deeper than two levels!
-     * Luckily they're pretty rare - suggestions window doesn't have them,
-     * the buglist window doesn't have them, the source scan window doesn't
-     * have them - the user tasks window is the only candidate, and even there
-     * I suspect people aren't doing multi-level categorization.
-     */
-    private Task findPrev(List tasks, Task curr, boolean wrap) {
-        ListIterator it = tasks.listIterator(tasks.size());
-        while (it.hasPrevious()) {
-            Task s = (Task) it.previous();
-            if (currFound && s.isVisitable()) {
-                return s;
-            } else if (s == curr) {
-                currFound = true;
-                if (s.hasSubtasks()) {
-                    Task f = findPrev(s.getSubtasks(), curr, wrap);
-                    if (f != null) {
-                        return f;
-                    }
-                }
-            } else if (s.hasSubtasks()) {
-                Task f = findPrev(s.getSubtasks(), curr, wrap);
-                if (f != null) {
-                    return f;
-                }
-            }
-        }
-        return null;
     }
 
 }

@@ -606,6 +606,10 @@ err.log("Couldn't find current nodes...");
      */
     private void stuffCache(Document document, DataObject dataobject,
                             boolean unregisterOnly) {
+
+        boolean filteredTaskListFixed = false;  //XXX register bellow
+        if (filteredTaskListFixed == false) return;
+
         // XXX Performance: if docSuggestions != null, we should be able
         // to just reuse it, since the document must not have been edited!
 

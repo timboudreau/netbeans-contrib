@@ -14,83 +14,114 @@ package org.netbeans.modules.tasklist.core;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
+
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 
 
-/** Children object for the Task list; used to track
+/**
+ * Children object for the Task; used to track
  * TaskList modifications and update nodes appropriately.
- * @author Tor Norbye */
-public class TaskChildren extends Children.Keys implements PropertyChangeListener {
+ *
+ * @author Tor Norbye
+ * @author Petr Kuzel
+ */
+public class TaskChildren extends Children.Keys {
     
     /** Optional holder for the keys, to be used when changing them dynamically. */
-    protected List myKeys;
-    private Task parent;
-    
+    private List myKeys;
+    private final Task parent;
+    private Monitor monitor;
+
     public TaskChildren(Task parent) {
-        myKeys = null;
         this.parent = parent;
     }
     
     private void refreshKeys() {
-        List subtasks = parent.getSubtasks();
-        if (subtasks == null) {
+        if (parent.hasSubtasks() == false) {
             setKeys(Collections.EMPTY_SET);
-            return;
+        } else {
+            myKeys = new LinkedList();
+            Iterator it = parent.getSubtasks().iterator();
+            while (it.hasNext()) {
+                Task item = (Task)it.next();
+                myKeys.add(item);
+            }
+            // XXX couldn't I just do
+            //   setKeys(parent.getSubtasks()) ?? Check if this method
+            // clones the list... if it doesn't I can do it
+            setKeys(myKeys);
         }
-        myKeys = new LinkedList();
-        ListIterator it = subtasks.listIterator();
-        while (it.hasNext()) {
-            Task item = (Task)it.next();
-            myKeys.add(item);
-        }
-        // XXX couldn't I just do
-        //   setKeys(parent.getSubtasks()) ?? Check if this method
-        // clones the list... if it doesn't I can do it
-        setKeys(myKeys);
     }
 
-    /** Called when the parent node is expanded; now we need
-     * to create nodes for the children. */    
+    /**
+     * Called when the parent node is expanded; now we need
+     * to create nodes for the children.
+     */
     protected void addNotify() {
         super.addNotify();
-        parent.addPropertyChangeListener(this);
+        assert monitor == null : "Dangling addNotify()"; // NOI18N
+        monitor = new Monitor();
+        parent.getList().addListener(monitor);
         refreshKeys();
     }
     
     /** Called when the parent node is collapsed: cleanup */    
     protected void removeNotify() {
         myKeys = null;
-        parent.removePropertyChangeListener(this);
+        assert monitor != null : "Dangling removeNotify()"; // NOI18N
+        parent.getList().removeListener(monitor);
+        monitor = null;
         setKeys(Collections.EMPTY_SET);
         super.removeNotify();
     }
     
-    /** Create nodes for the specified key object (a task)
+    /**
+     * Create nodes for the specified key object (a task)
      * @param key The task used as a parent key
-     * @return Node for the key task's children */    
+     * @return Node for the key task's children
+     */
     protected Node[] createNodes(Object key) {
         // interpret your key here...usually one node generated, but could be zero or more
         //  return new Node[] { new TodoNode((MyParameter) key) };
         //return new Node[] { new TodoNode(key) };
 
         Task item = (Task)key;
-        return item.createNode();
+        return item.createNode(); // XXX I do not like this model-view 1:1
     }
-    
-    /** Reacts to changes */
-    public void propertyChange(PropertyChangeEvent ev) {
-        if (Task.PROP_CHILDREN_CHANGED == ev.getPropertyName()) { // interned
-            refreshKeys();
+
+    // Monitor tasklist and react to changes ~~~~~~~~~~~~~~~~~~~~~
+
+    private class Monitor implements TaskListener {
+        public void selectedTask(Task t) {
+            // it's node job
         }
-    }
-    
-    /** Provide the node so we can expand it */
-    Node findNode() {
-        return getNode();
+
+        public void warpedTask(Task t) {
+            // it's node job
+        }
+
+        public void addedTask(Task t) {
+            if (t.getParent() == parent) {
+                refreshKeys();
+            }
+        }
+
+        public void removedTask(Task t) {
+            if (t.getParent() == parent) {
+                refreshKeys();
+            }
+        }
+
+        public void changedTask(Task t) {
+            // it's node job
+        }
+
+        public void structureChanged(Task t) {
+            if (t == parent) {
+                refreshKeys();
+            }
+        }
     }
 }
