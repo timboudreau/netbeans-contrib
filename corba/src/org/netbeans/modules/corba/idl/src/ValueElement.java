@@ -17,38 +17,84 @@ import java.util.Vector;
 
 public class ValueElement extends ValueAbsElement {
 
-    private boolean is_custom;
-    private ValueInheritanceSpecElement inheritance;
+    private boolean _M_is_custom;
+    private Vector _M_supported;
 
     public ValueElement(int id) {
         super(id);
-        is_custom = false;
+        _M_is_custom = false;
     }
 
     public ValueElement(IDLParser p, int id) {
         super(p, id);
-        is_custom = false;
+        _M_is_custom = false;
     }
 
     public boolean isAbstract () {
-        return is_abstract; // because ValueElement is never abstract
+        //return is_abstract; // because ValueElement is never abstract
+	return false;
     }
 
     public void setCustom (boolean value) {
-        is_custom = value;
+        _M_is_custom = value;
     }
 
     public boolean isCustom () {
-        return is_custom;
+        return _M_is_custom;
+    }
+    /*
+      public void setInherited (Vector __value) {
+      _M_inherited = __value;
+      }
+      
+      public Vector getInherited () {
+      return _M_inherited;
+      }
+    */
+    public void setSupported (Vector __value) {
+	_M_supported = __value;
     }
 
+    public Vector getSupported () {
+	return _M_supported;
+    }
 
     public void jjtClose () {
         super.jjtClose ();
-        Vector _members = super.getMembers ();
-        ValueHeaderElement header = (ValueHeaderElement)_members.elementAt (0);
-        setName (header.getName ());
-        setCustom (header.isCustom ());
+        Vector __members = super.getMembers ();
+	Vector __new_members = new Vector ();
+	Object __element;
+	// translates states -> sates with one DeclaratorElement
+	for (int __i=0; __i<__members.size (); __i++) {
+	    __element = __members.elementAt (__i);
+	    if (__element instanceof StateMemberElement) {
+		
+	    }
+	    else {
+		__new_members.add (__element);
+	    }
+	} 
+	//System.out.println ("members: " + __members);
+        ValueHeaderElement __header = (ValueHeaderElement)__members.elementAt (0);
+	//System.out.println ("members of header: " + __header.getMembers ());
+	try {
+	    ValueInheritanceSpecElement __inheritance
+		= (ValueInheritanceSpecElement)__header.getMembers ().elementAt (1);
+	    //System.out.println ("inherited: " + __inheritance.getValues ());
+	    this.setParents (__inheritance.getValues ());
+	    //System.out.println ("supports: " + __inheritance.getInterfaces ());
+	    this.setSupported (__inheritance.getInterfaces ());
+	} catch (ClassCastException __ex) {
+	    // this valuetype don't inherits or supports any value or interface(s)
+	} catch (Exception __ex) {
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) {
+		__ex.printStackTrace ();
+	    }
+	}
+        this.setName (__header.getName ());
+	this.setLine (__header.getLine ());
+	this.setColumn (__header.getColumn ());
+        this.setCustom (__header.isCustom ());
     }
 
 }

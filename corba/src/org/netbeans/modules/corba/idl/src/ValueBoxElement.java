@@ -13,28 +13,16 @@
 
 package org.netbeans.modules.corba.idl.src;
 
-public class StateMemberElement extends IDLElement {
+public class ValueBoxElement extends IDLElement {
 
-    public static int PUBLIC = 0;
-    public static int PRIVATE = 1;
-
-    private int _M_modifier;
     private IDLType _M_type;
 
-    public StateMemberElement(int id) {
-        super(id);
+    public ValueBoxElement(int id) {
+	super(id);
     }
-
-    public StateMemberElement(IDLParser p, int id) {
-        super(p, id);
-    }
-
-    public void setModifier (int __value) {
-	_M_modifier = __value;
-    }
-
-    public int getModifier () {
-	return _M_modifier;
+    
+    public ValueBoxElement(IDLParser p, int id) {
+	super(p, id);
     }
 
     public void setType (IDLType __type) {
@@ -44,4 +32,5 @@ public class StateMemberElement extends IDLElement {
     public IDLType getType () {
 	return _M_type;
     }
+
 }

@@ -43,10 +43,14 @@ public class IDLParser {
     } else if (args.length == 1) {
       System.out.println("IDL Parser Version 0.1:  Reading from file " + args[0] + " . . .");
       try {
+	long __start = System.currentTimeMillis ();
         parser = new IDLParser(new java.io.FileInputStream(args[0]));	
 	SimpleNode sn = parser.Start ();
-	sn.dump ("|");	
+	sn.dump ("|");
+	long __end = System.currentTimeMillis ();
 	System.out.println ("OK :-))");
+	System.out.println ("milliseconds: " + (__end - __start));
+	System.out.println ("second: " + (__end - __start)/1000);
       } catch (java.io.FileNotFoundException e) {
         System.out.println("IDL Parser Version 0.1:  File " + args[0] + " not found.");
         return;
@@ -79,16 +83,26 @@ SKIP :
 | < "\t" >
 | < "\n" >
 | < "\r" >
+
 | < "//" (~["\n"])* "\n" >
 | <"/*" (~["*"])* "*" (~["/"] (~["*"])* "*")* "/">
+
 | <"#" ([" ","\t"])* (["0"-"9"])+ (["a"-"z","A"-"Z","0"-"9","_"])*
-   (([" ","\t"])* "\"" (~["\""])+ "\""
-          ([" ","\t"])* (["0"-"9"])* ([" ","\t"])* (["0"-"9"])*)? "\n" >
+  (([" ","\t"])* "\"" (~["\""])+ "\""
+  ([" ","\t"])* (["0"-"9"])* ([" ","\t"])* (["0"-"9"])*)? "\n" >
+
 /* 
  * matching for preprocessor directives
  */
-| <"#" ([" ","\t"])* (["a"-"z","A"-"Z","0"-"9","_"])+ ([" ","\t"])*  
-       (["a"-"z","A"-"Z","0"-"9","_","/", "\\", " ", "<", ">", "\"", "."])* (["\n"])* >
+	/*
+	  | <"#" ([" ","\t"])* (["a"-"z","A"-"Z","0"-"9","_"])+ ([" ","\t"])*  
+	  (["a"-"z","A"-"Z","0"-"9","_","/", "\\", " ", "<", ">", "\"", "."])* (["\n"])* >
+	*/
+| <"#" ([" ","\t", "a"-"z","A"-"Z","0"-"9","_","/", "\\", "<", ">", "\"", ".", ":"])* (["\n"])* >
+	/*
+	  | <"#" ([" ","\t"])* (["a"-"z","A"-"Z","0"-"9","_"])+ ([" ","\t"])*  
+	  (["a"-"z","A"-"Z","0"-"9"])+ (["\""])+ (["a"-"z","A"-"Z","0"-"9","_"])+ (["\""])+ (["\n"])* >
+	*/
 }
 
 /* comment for matching directives    */
@@ -109,7 +123,7 @@ SimpleNode Start () #IDLElement : {}
 void specification() :
 {}
 {
-  ( definition() )*
+  ( LOOKAHEAD(2) definition() )* <EOF>
 }
 
 /* Production 2 */
@@ -130,7 +144,6 @@ void definition() :
   module() ";"
 |
   value() ";"
-
 }
 
 /* Production 3 */
@@ -309,18 +322,37 @@ void value() :
 
 /* Production 14 */
 
-void value_forward_dcl() :
-{}
+void value_forward_dcl() #ValueForwardElement :
+{ Identifier __id; }
 {
-  [ "abstract" ] "valuetype" identifier()
+  [ "abstract" { jjtThis.setAbstract (true); }] 
+    "valuetype" 
+    __id = identifier() 
+    { 
+      jjtThis.setName (__id.getName ());
+      jjtThis.setLine (__id.getLine ());
+      jjtThis.setColumn (__id.getColumn ()); 
+    }
 }
 
 /* Production 15 */
 
-void value_box_dcl() :
-{}
+void value_box_dcl() #ValueBoxElement :
+{ 
+    Identifier __id;
+    IDLType __type;
+}
 {
-  "valuetype" identifier() type_spec()
+  "valuetype" __id = identifier() 
+  { 
+      jjtThis.setName (__id.getName ());
+      jjtThis.setLine (__id.getLine ());
+      jjtThis.setColumn (__id.getColumn ());
+  }
+  __type = type_spec()
+  {
+      jjtThis.setType (__type);
+  }
 }
 
 /* Production 16 */
@@ -369,23 +401,29 @@ void value_header() #ValueHeaderElement :
 
 void value_inheritance_spec() #ValueInheritanceSpecElement :
 {
-  String i_name = "";
-  String v_name = "";
-  Vector values = new Vector ();
-  Vector interfaces = new Vector ();
+  String __i_name = "";
+  String __v_name = "";
+  Vector __values = new Vector ();
+  Vector __interfaces = new Vector ();
 }
 {
-  [ ":" [ "truncatable" { jjtThis.setTruncatable (true);} ] 
+  [ ":" [ "truncatable" { jjtThis.setTruncatable (true);} ]
 
-  v_name = value_name() { values.addElement (v_name);}
-  ( "," v_name = value_name() { values.addElement (v_name);} )* ]
+  __v_name = value_name() 
+  { 
+      if (jjtThis.getTruncatable ())
+          __values.addElement ("truncatable " + __v_name);
+      else 
+          __values.addElement (__v_name);
+  }
+  ( "," __v_name = value_name() { __values.addElement (__v_name);} )* ]
 
-  [ "supports" i_name = interface_name() { interfaces.addElement (i_name);}
-               ( "," interface_name() )* ]
+  [ "supports" __i_name = interface_name() { __interfaces.addElement (__i_name);}
+               ( "," __i_name = interface_name() { __interfaces.addElement (__i_name);} )* ]
 
   {
-    jjtThis.setInterfaces (interfaces);
-    jjtThis.setValues (values);
+    jjtThis.setInterfaces (__interfaces);
+    jjtThis.setValues (__values);
   }
 }
 
@@ -415,17 +453,26 @@ void value_element() :
 /* Production 22 */
 
 void state_member() #StateMemberElement :
-{}
+{ IDLType __type; }
 {
-  ( "public" | "private" ) type_spec() declarators() ";"
+  ( "public" { jjtThis.setModifier (StateMemberElement.PUBLIC); } 
+  | "private" { jjtThis.setModifier (StateMemberElement.PRIVATE); } ) 
+  __type = type_spec() { jjtThis.setType (__type); }
+  declarators() ";"
 }
 
 /* Production 23 */
 
 void init_dcl() #InitDclElement :
-{}
+{ Identifier __id; }
 {
-  "factory" identifier() "(" [ init_param_decls() ] ")" ";"
+  "factory" __id = identifier() 
+  { 
+      jjtThis.setName (__id.getName ());
+      jjtThis.setLine (__id.getLine ());
+      jjtThis.setColumn (__id.getColumn ());
+  }
+  "(" [ init_param_decls() ] ")" ";"
 }
 
 /* Production 24 */
@@ -438,10 +485,12 @@ void init_param_decls() :
 
 /* Production 25 */
 
-void init_param_decl() :
-{}
+void init_param_decl() #InitParamDeclElement :
+{ IDLType __type; }
 {
-  init_param_attribute() param_type_spec() simple_declarator()
+  init_param_attribute() 
+  __type = param_type_spec() { jjtThis.setType (__type); }
+  simple_declarator()
 }
 
 /* Production 26 */

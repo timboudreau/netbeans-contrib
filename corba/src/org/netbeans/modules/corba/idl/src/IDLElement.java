@@ -33,31 +33,31 @@ public class IDLElement extends SimpleNode
     //public static final boolean DEBUG = true;
     public static final boolean DEBUG = false;
 
-    private String name;
-    private int line;
-    private int column;
-    private Vector members;
+    private String _M_name;
+    private int _M_line;
+    private int _M_column;
+    private Vector _M_members;
 
-    private IDLElement parent;
+    private IDLElement _M_parent;
 
-    private IDLDataObject ido;
+    private IDLDataObject _M_ido;
 
     public IDLElement (int i) {
         super (i);
-        members = new Vector ();
-        name = "";
+        _M_members = new Vector ();
+        _M_name = "";
     }
 
     public IDLElement (IDLParser p, int i) {
         super (p, i);
-        members = new Vector ();
-        name = "";
+        _M_members = new Vector ();
+        _M_name = "";
     }
 
     public void setDataObject (IDLDataObject val) {
         if (DEBUG)
             System.out.println ("IDLElement ``" + getName () + " '' ::setDataObject (val)");
-        ido = val;
+        _M_ido = val;
         setDataObjectForMembers (val);
     }
 
@@ -68,54 +68,59 @@ public class IDLElement extends SimpleNode
     }
 
     public IDLDataObject getDataObject () {
-        return ido;
+        return _M_ido;
     }
 
     public void setLine (int i) {
         if (DEBUG)
             System.out.println ("set line for " + getName () + " : " + i);
-        line = i;
+        _M_line = i;
         //getLine (); // debug check
     }
 
     public int getLine () {
         if (DEBUG)
-            System.out.println ("get line for " + getName () + " : " + line);
-        return line;
+            System.out.println ("get line for " + getName () + " : " + _M_line);
+        return _M_line;
     }
 
     public void setColumn (int i) {
         if (DEBUG)
             System.out.println ("set column for " + getName () + " : " + i);
-        column = i;
+        _M_column = i;
         //getColumn (); // debug check
     }
 
     public int getColumn () {
         if (DEBUG)
-            System.out.println ("get column for " + getName () + " : " + column);
-        return column;
+            System.out.println ("get column for " + getName () + " : " + _M_column);
+        return _M_column;
     }
 
     public void setName (String v) {
         if (DEBUG)
             System.out.println ("setName: " + v);
-        name = v;
+        _M_name = v;
     }
 
     public String getName () {
         if (DEBUG)
-            System.out.println ("getName: " + name);
-        return name;
+            System.out.println ("getName: " + _M_name);
+        return _M_name;
     }
 
     public void addMember (Node x) {
-        members.addElement (x);
+        _M_members.addElement (x);
     }
 
     public Vector getMembers () {
-        return members;
+        return _M_members;
     }
+
+    public void setMembers (Vector __value) {
+	_M_members = __value;
+    }
+
     /*
          public Object getMember (int i) {
          return members.elementAt (i);
@@ -123,15 +128,15 @@ public class IDLElement extends SimpleNode
     */
 
     public IDLElement getMember (int i) {
-        return (IDLElement)members.elementAt (i);
+        return (IDLElement)_M_members.elementAt (i);
     }
 
     public void setParent (IDLElement e) {
-        parent = e;
+        _M_parent = e;
     }
 
     public IDLElement getParent () {
-        return parent;
+        return _M_parent;
     }
 
     public void open () {
@@ -224,9 +229,9 @@ public class IDLElement extends SimpleNode
 
     public void xDump (String s) {
         //System.out.println ("dump: " + members);
-        for (int i=0; i<members.size (); i++) {
-            System.out.println (s + members.elementAt (i));
-            ((IDLElement)members.elementAt (i)).xDump (s + " ");
+        for (int i=0; i<_M_members.size (); i++) {
+            System.out.println (s + _M_members.elementAt (i));
+            ((IDLElement)_M_members.elementAt (i)).xDump (s + " ");
         }
     }
 
