@@ -153,13 +153,12 @@ public class GeneralCommandAction extends AbstractCommandAction {
         String toolBarName = getName();
         if (toolBarPresent != null && toolBarPresent instanceof javax.swing.JComponent) {
              toolBarName = ((javax.swing.JComponent)toolBarPresent).getToolTipText();
+             // TODO: in org.openide.awt.Actions.connect(): if b.updateState() is removed,
+             //       then toolBarName == null !!
              int index = toolBarName.lastIndexOf('[');
              if (index > 0) {
                  toolBarName = toolBarName.substring(0, index - 1);
              }
-        }
-        if (toolBarNamesSet == null) {
-            toolBarNamesSet = new HashSet();
         }
         Iterator it = toolBarNamesSet.iterator();
         boolean atLeastOne = false;
