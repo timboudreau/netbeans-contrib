@@ -80,6 +80,9 @@ public final class ClassDataLoader extends MultiFileLoader {
     *   recognized by this loader
     */
     protected FileObject findPrimaryFile (FileObject fo) {
+        // never recognize folders.
+        if (fo.isFolder())
+            return null;
         if (SER_EXT.equals(fo.getExt())) {
             // serialized file, return itself
             try {
