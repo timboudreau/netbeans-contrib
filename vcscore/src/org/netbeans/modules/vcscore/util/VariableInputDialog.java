@@ -980,7 +980,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             fileName = component.getDefaultValue();
         }
         //System.out.println("default file name = "+fileName);
-        if (fileName == null) {
+        if (fileName == null || fileName.length() == 0) {
             try {
                 fileName = java.io.File.createTempFile("tempVcsCmd", "input").getAbsolutePath();
             } catch (IOException exc) {
@@ -1411,12 +1411,20 @@ public class VariableInputDialog extends javax.swing.JPanel {
             if (fileName.length() == 0) return ;
             File file = new File(fileName);
             if (file.exists() && file.canRead()) {
+                FileReader reader = null;
                 try {
-                    filePromptArea.read(new FileReader(file), null);
+                    reader = new FileReader(file);
+                    filePromptArea.read(reader, null);
                 } catch (FileNotFoundException exc) {
                     TopManager.getDefault().notifyException(exc);
                 } catch (IOException exc) {
                     TopManager.getDefault().notifyException(exc);
+                } finally {
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException ioexc) {}
+                    }
                 }
             }
         //}
@@ -1428,10 +1436,18 @@ public class VariableInputDialog extends javax.swing.JPanel {
             //String name = fileNames[i];
             if (fileName == null || fileName.length() == 0) return ;
             File file = new File(fileName);
+            FileWriter writer = null;
             try {
-                filePromptArea.write(new FileWriter(file));
+                writer = new FileWriter(file);
+                filePromptArea.write(writer);
             } catch (IOException exc) {
                 TopManager.getDefault().notifyException(exc);
+            } finally {
+                if (writer != null) {
+                    try {
+                        writer.close();
+                    } catch (IOException ioexc) {}
+                }
             }
         //}
     }
