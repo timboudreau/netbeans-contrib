@@ -28,8 +28,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -37,8 +41,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLEditorKit;
@@ -90,6 +96,10 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     /** Creates new form TitlePanel */
     public BluePrintsPanel() {
         initComponents();
+        TABS.put(TAB_CATEGORY, categoryScroll);
+        TABS.put(TAB_SOLUTION, solutionBrowser);
+        TABS.put(TAB_DESIGN, designBrowser);
+        TABS.put(TAB_EXAMPLE, examplePnl);
         tabbedPnl.removeAll();
         initComboBox();
     }
@@ -178,6 +188,12 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         backBtn.setFont(new java.awt.Font("Dialog", 0, 12));
         backBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/j2ee/blueprints/ui/resources/back.gif")));
         backBtn.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("backBtn"));
+        backBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backBtnActionPerformed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
@@ -186,6 +202,12 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         forwardBtn.setFont(new java.awt.Font("Dialog", 0, 12));
         forwardBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/j2ee/blueprints/ui/resources/forward.gif")));
         forwardBtn.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("forwardBtn"));
+        forwardBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                forwardBtnActionPerformed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
@@ -264,8 +286,23 @@ public class BluePrintsPanel extends javax.swing.JPanel {
 
     }//GEN-END:initComponents
 
+    private void forwardBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forwardBtnActionPerformed
+        goForward();
+    }//GEN-LAST:event_forwardBtnActionPerformed
+
+    private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed
+        goBack();
+    }//GEN-LAST:event_backBtnActionPerformed
+
     private void entryCbxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_entryCbxItemStateChanged
-        selectNewEntry();
+        if(!navigating) {
+            if(lastSelectedIndex != entryCbx.getSelectedIndex()) {
+                // sometimes Swing calls this twice - only select the new
+                // entry if a new entry was selected.
+                lastSelectedIndex = entryCbx.getSelectedIndex();
+                selectNewEntry();
+            }
+        }
     }//GEN-LAST:event_entryCbxItemStateChanged
 
     private void installBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_installBtnActionPerformed
@@ -293,6 +330,20 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     private javax.swing.JPanel titleSubPnl;
     private javax.swing.JPanel toolbarPanel;
     // End of variables declaration//GEN-END:variables
+
+    private BrowseHistory history = new BrowseHistory();
+    private BrowseHistoryToken historyToken = new BrowseHistoryToken();
+    
+    public static final String TAB_CATEGORY = "categoryPnl"; // NOI18N
+    public static final String TAB_SOLUTION = "solutionPnl"; // NOI18N
+    public static final String TAB_DESIGN   = "designPnl";   // NOI18N
+    public static final String TAB_EXAMPLE  = "examplePnl";  // NOI18N
+    public final HashMap TABS = new HashMap();
+    
+    // True if a change in the combo box should not trigger events.
+    private boolean navigating = false;
+    private int lastSelectedIndex = -1;
+    private Timer scrollTimer = null;
     
     public Category getSelectedCategory() {
         Object entry = entryCbx.getSelectedItem();
@@ -317,11 +368,209 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         entryCbx.setRenderer(new EntryListCellRenderer());
         entryCbx.setModel(new EntryComboBoxModel());
         entryCbx.setSelectedIndex(0);
+        history.clear();
         updateTabs();
+        updateButtons();
+        historyToken = createBrowseHistoryToken();
     }
     
     private void selectNewEntry() {
+        // Article and category will be set in the current history token
+        // but scroll position and tab may be out of date.  Update them.
+        historyToken.setScrollPosition(getScrollPosition());
+        historyToken.setTab(getSelectedTabName());
+        history.pushBackStack(historyToken);
+                
         updateTabs();
+        updateButtons();
+        
+        // Create a new token that contains the new article and category.
+        historyToken = createBrowseHistoryToken();
+    }
+
+    private void goForward() {
+        if(!history.isForwardStackEmpty()) {
+            navigateTo(history.forward(createBrowseHistoryToken()));
+            updateButtons();
+        }
+    }
+    
+    private void goBack() {
+        if(!history.isBackStackEmpty()) {
+            navigateTo(history.back(createBrowseHistoryToken()));
+            updateButtons();
+        }
+    }
+    
+    private BrowseHistoryToken createBrowseHistoryToken() {
+        String category = getSelectedCategory().getId(0);
+        Example example = getSelectedArticle();
+        String article = (example == null) ? null : example.getId(0);
+        String tab = getSelectedTabName();
+        int scrollPosition = getScrollPosition();
+        return new BrowseHistoryToken(category, article, tab, scrollPosition);
+    }
+    
+    private String getSelectedTabName() {
+        Component selectedTab = tabbedPnl.getSelectedComponent();
+        String result = null;
+        Set entries = TABS.entrySet();
+        Iterator iter = entries.iterator();
+        while(iter.hasNext()) {
+            Map.Entry entry = (Map.Entry)iter.next();
+            if(entry.getValue() == selectedTab) {
+                result = (String)entry.getKey();
+            }
+        }
+        return result;
+    }
+    
+    private int getScrollPosition() {
+        int result = 0;
+        Component selectedTab = tabbedPnl.getSelectedComponent();
+        if(selectedTab == categoryScroll) {
+            result = categoryScroll.getVerticalScrollBar().getValue();
+        }
+        else if(selectedTab == solutionBrowser) {
+            result = getBrowserScrollPosition((HtmlBrowser)solutionBrowser);
+        }
+        else if(selectedTab == designBrowser) {
+            result = getBrowserScrollPosition((HtmlBrowser)designBrowser);
+        }
+        else if(selectedTab == examplePnl) {
+            result = 0;
+        }
+        return result;
+    }
+    
+    private void scrollTo(final int position) {
+        // It takes a bit for the page to load.  This timer will periodically
+        // check if enough of the page has loaded that we can scroll to the
+        // desired position.
+        if(this.scrollTimer != null) {
+            this.scrollTimer.stop();
+        }
+        this.scrollTimer = new Timer(100,
+            new ActionListener() {
+                int timeout = 50;
+                public void actionPerformed(ActionEvent e) {
+                    boolean done = false;
+                    Component selectedTab = tabbedPnl.getSelectedComponent();
+                    if(selectedTab == categoryScroll) {
+                        categoryScroll.getVerticalScrollBar().setValue(
+                            position);
+                        done = true;
+                    }
+                    else if(selectedTab == solutionBrowser) {
+                        done = setBrowserScrollPosition(
+                            (HtmlBrowser)solutionBrowser, position);
+                    }
+                    else if(selectedTab == designBrowser) {
+                        done = setBrowserScrollPosition(
+                            (HtmlBrowser)designBrowser, position);
+                    }
+                    else if(selectedTab == examplePnl) {
+                        // cannot scroll this tab
+                        done = true;
+                    }
+                    timeout--;
+                    if(timeout <= 0) done = true;
+                    if(done) {
+                        scrollTimer.stop();
+                        scrollTimer = null;
+                    }
+                }
+            }
+        );
+        this.scrollTimer.start();
+    }
+    
+    private int getBrowserScrollPosition(HtmlBrowser browser) {
+        int result = 0;
+        // If this browser has a scroll pane, use it to determine
+        // the current position.
+        Component c = browser.getComponent(0);
+        if(c instanceof JScrollPane) {
+            JScrollPane pane = (JScrollPane)c;
+            result = pane.getVerticalScrollBar().getValue();
+        }
+        return result;
+    }
+    
+    private boolean setBrowserScrollPosition(HtmlBrowser browser, 
+        int position) 
+    {
+        boolean result = false;
+        // If this browser has a scroll pane, use it to set
+        // the current position.
+        Component c = browser.getComponent(0);
+        if(c instanceof JScrollPane) {
+            JScrollPane pane = (JScrollPane)c;
+            JScrollBar bar = pane.getVerticalScrollBar();
+            if(position <= bar.getMaximum()) {
+                bar.setValue(position);
+                result = true;
+            }
+        }
+        return result;
+    }
+    
+    private void navigateTo(BrowseHistoryToken token) {
+        if(token != null) {
+            String category = token.getCategory();
+            String article = token.getArticle();
+            navigateTo(category, article);
+            updateTabs();
+            String tab = token.getTab();
+            selectTab(tab);
+            int scrollPosition = token.getScrollPosition();
+            scrollTo(scrollPosition);
+            historyToken = createBrowseHistoryToken();
+        }
+    }
+    
+    private void navigateTo(String category, String article) {
+        navigating = true;  // prevent duplicate events
+        if(category != null) {
+            boolean foundCategory = false;
+            int count = entryCbx.getItemCount();
+            for(int i = 0; i < count; i++) {
+                Object entry = entryCbx.getItemAt(i);
+                if(entry instanceof Category) {
+                    Category c = (Category)entry;
+                    if(c.getId(0).equals(category)) {
+                        foundCategory = true;
+                        if(article == null) {
+                            // Select just this category
+                            entryCbx.setSelectedIndex(i);
+                            break;
+                        }
+                    }
+                    else {
+                        if(foundCategory) {
+                            // We found the category but not the article.
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if(foundCategory) {
+                        Example e = (Example)entryCbx.getItemAt(i);
+                        if(e.getId(0).equals(article)) {
+                            // Select this article
+                            entryCbx.setSelectedIndex(i);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        navigating = false;
+    }
+    
+    private void updateButtons() {
+        backBtn.setEnabled(!history.isBackStackEmpty());
+        forwardBtn.setEnabled(!history.isForwardStackEmpty());
     }
     
     private void updateTabs() {
@@ -332,23 +581,23 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         // and the other panels are visible when an example is selected.
         if(example == null) {
             tabbedPnl.removeAll();
-            tabbedPnl.addTab(bundle.getString("categoryPnl"), // NOI18N
-                categoryScroll); 
+            tabbedPnl.addTab(bundle.getString(TAB_CATEGORY), categoryScroll); 
         }
         else {
             tabbedPnl.removeAll();
-            tabbedPnl.addTab(bundle.getString("solutionPnl"), // NOI18N
-                solutionBrowser); 
-            tabbedPnl.addTab(bundle.getString("designPnl"),   // NOI18N
-                designBrowser);
-            tabbedPnl.addTab(bundle.getString("examplePnl"),  // NOI18N
-                examplePnl);   
+            tabbedPnl.addTab(bundle.getString(TAB_SOLUTION), solutionBrowser); 
+            tabbedPnl.addTab(bundle.getString(TAB_DESIGN), designBrowser);
+            tabbedPnl.addTab(bundle.getString(TAB_EXAMPLE), examplePnl);   
         }
         
         updateCategoryTab();
         updateSolutionTab();
         updateDesignTab();
         updateExamplesTab();
+    }
+    
+    private void selectTab(String tab) {
+        tabbedPnl.setSelectedComponent((Component)TABS.get(tab));
     }
     
     private void updateCategoryTab() {
