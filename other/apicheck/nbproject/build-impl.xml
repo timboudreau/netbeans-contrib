@@ -19,7 +19,7 @@ is divided into following sections:
   - cleanup
 
 -->
-<project name="apicheck-impl" default="build" basedir=".." xmlns:j2seproject2="http://www.netbeans.org/ns/j2se-project/2" xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1">
+<project name="apicheck-impl" default="default" basedir=".." xmlns:j2seproject2="http://www.netbeans.org/ns/j2se-project/2" xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1">
     <target name="default" depends="test,jar,javadoc" description="Build and test whole project."/>
     <!-- 
     ======================
@@ -218,7 +218,9 @@ is divided into following sections:
     COMPILATION SECTION
     ===================
     -->
-    <target name="deps-jar" depends="init" unless="no.deps"/>
+    <target name="deps-jar" depends="init" unless="no.deps">
+        <ant target="netbeans" inheritall="false" antfile="${project.org_netbeans_modules_classfile}/build.xml"/>
+    </target>
     <target name="-pre-pre-compile" depends="init,deps-jar">
         <mkdir dir="${build.classes.dir}"/>
     </target>
@@ -337,7 +339,7 @@ is divided into following sections:
     -->
     <target name="-javadoc-build" depends="init">
         <mkdir dir="${dist.javadoc.dir}"/>
-        <javadoc destdir="${dist.javadoc.dir}" source="${javac.source}" notree="${javadoc.notree}" use="${javadoc.use}" nonavbar="${javadoc.nonavbar}" noindex="${javadoc.noindex}" splitindex="${javadoc.splitindex}" author="${javadoc.author}" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}" private="${javadoc.private}" failonerror="true">
+        <javadoc destdir="${dist.javadoc.dir}" source="${javac.source}" notree="${javadoc.notree}" use="${javadoc.use}" nonavbar="${javadoc.nonavbar}" noindex="${javadoc.noindex}" splitindex="${javadoc.splitindex}" author="${javadoc.author}" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}" private="${javadoc.private}" additionalparam="${javadoc.additionalparam}" failonerror="true">
             <classpath>
                 <path path="${javac.classpath}"/>
             </classpath>
@@ -464,7 +466,9 @@ is divided into following sections:
     CLEANUP SECTION
     ===============
     -->
-    <target name="deps-clean" depends="init" unless="no.deps"/>
+    <target name="deps-clean" depends="init" unless="no.deps">
+        <ant target="clean" inheritall="false" antfile="${project.org_netbeans_modules_classfile}/build.xml"/>
+    </target>
     <target name="-do-clean" depends="init">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>

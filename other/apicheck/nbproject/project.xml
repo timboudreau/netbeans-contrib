@@ -12,5 +12,15 @@
                 <root id="test.src.dir"/>
             </test-roots>
         </data>
+        <references xmlns="http://www.netbeans.org/ns/ant-project-references/1">
+            <reference>
+                <foreign-project>org_netbeans_modules_classfile</foreign-project>
+                <artifact-type>jar</artifact-type>
+                <script>build.xml</script>
+                <target>netbeans</target>
+                <clean-target>clean</clean-target>
+                <id>netbeans</id>
+            </reference>
+        </references>
     </configuration>
 </project>
