@@ -66,6 +66,12 @@ public interface VcsCommand extends VcsCommandCookie {
      * The name of the command which is used to get a specific revision to open.
      */
     public static final String NAME_REVISION_OPEN = "REVISION_OPEN";
+    /**
+     * The name of the command which is used to get a list of revisions.
+     * The encoded serialized RevisionList object should be put to the data
+     * output of this command.
+     */
+    public static final String NAME_REVISION_LIST = "REVISION_LIST";
     
     /**
      * The name of the command which will schedule a file for later add to the repository.
