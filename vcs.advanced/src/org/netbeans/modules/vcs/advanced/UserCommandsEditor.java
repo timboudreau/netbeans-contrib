@@ -16,8 +16,10 @@ import java.awt.*;
 import java.util.*;
 import java.beans.*;
 
-import org.netbeans.modules.vcs.util.*;
-import org.netbeans.modules.vcs.cmdline.*;
+import org.openide.nodes.Node;
+
+import org.netbeans.modules.vcscore.util.*;
+import org.netbeans.modules.vcscore.cmdline.UserCommand;
 
 /** Property editor for UserCommand.
  * 
@@ -28,7 +30,8 @@ public class UserCommandsEditor implements PropertyEditor {
     private Debug E=new Debug("UserCommandsEditor", false); // NOI18N
     private Debug D=E;
 
-    private Vector commands=new Vector(10);
+    //private Vector commands=new Vector(10);
+    private Node commands = null;
 
     private PropertyChangeSupport changeSupport=null;
 
@@ -55,7 +58,7 @@ public class UserCommandsEditor implements PropertyEditor {
     }
 
     //-------------------------------------------
-    public Component getCustomEditor(){
+    public Component getCustomEditor() {
         return new UserCommandsPanel(this);
     }
 
@@ -71,23 +74,26 @@ public class UserCommandsEditor implements PropertyEditor {
     }
 
     //-------------------------------------------
-    public Object getValue(){
+    public Object getValue() {
         return commands ;
     }
 
     //-------------------------------------------
     public void setValue(Object value) {
-        if( !(value instanceof Vector) ){
-            E.err("Vector expected instead of "+value); // NOI18N
-            throw new IllegalArgumentException("Vector expected instead of "+value);
+        if (!(value instanceof Node)) {
+            E.err("Node expected instead of "+value); // NOI18N
+            throw new IllegalArgumentException("Node expected instead of "+value);
         }
+        commands = (Node) value;
+        /*
         // make local copy of value - deep copy using clone
-        commands=new Vector();
+        commands = new Vector();
         Vector vect = (Vector) value;
-        for(int i=0;i<vect.size (); i++) {
-            org.netbeans.modules.vcs.cmdline.UserCommand cmd = (org.netbeans.modules.vcs.cmdline.UserCommand) vect.get (i);
+        for(int i = 0; i < vect.size (); i++) {
+            UserCommand cmd = (UserCommand) vect.get (i);
             commands.add (cmd.clone ());
         }
+         */
 
         changeSupport.firePropertyChange("",null,null); // NOI18N
     }

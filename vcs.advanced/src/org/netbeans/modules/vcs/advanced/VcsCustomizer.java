@@ -12,6 +12,7 @@
  */
 
 package org.netbeans.modules.vcs.advanced;
+
 import java.io.*;
 import java.util.*;
 import java.beans.*;
@@ -25,11 +26,20 @@ import java.text.*;
 import org.openide.*;
 import org.openide.util.*;
 import org.openide.filesystems.*;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.XMLDataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.Node;
 
-import org.netbeans.modules.vcs.util.*;
-import org.netbeans.modules.vcs.cmdline.*;
-import org.netbeans.modules.vcs.cmdline.exec.*;
-import org.netbeans.modules.vcs.*;
+import org.netbeans.modules.vcscore.util.*;
+import org.netbeans.modules.vcscore.cmdline.*;
+//import org.netbeans.modules.vcscore.cmdline.exec.*;
+import org.netbeans.modules.vcscore.*;
+import org.netbeans.modules.vcscore.commands.*;
+
+import org.netbeans.modules.vcs.advanced.commands.UserCommandIO;
+import org.netbeans.modules.vcs.advanced.variables.VariableIO;
+import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
 
 /** Customizer
  *
@@ -39,6 +49,8 @@ import org.netbeans.modules.vcs.*;
 public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private Debug E=new Debug("VcsCustomizer", true); // NOI18N
     private Debug D = E;
+    
+    //private static transient FileLock configSaveLock = FileLock.NONE;
 
     static final long serialVersionUID =-8801742771957370172L;
     /** Creates new form VcsCustomizer */
@@ -299,8 +311,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 //        String dir = work;
         
         ChooseDirDialog chooseDir = new ChooseDirDialog(new JFrame(), new File(dir));
-        MiscStuff.centerWindow (chooseDir);
-        HelpCtx.setHelpIDString (chooseDir.getRootPane (), CvsCustomizer.class.getName ());
+        VcsUtilities.centerWindow (chooseDir);
+        //HelpCtx.setHelpIDString (chooseDir.getRootPane (), CvsCustomizer.class.getName ());
         chooseDir.show();
         String selected = chooseDir.getSelectedDir();
         if( selected==null ){
@@ -342,7 +354,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void browseButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
         // Add your handling code here:
         ChooseDirDialog chooseDir=new ChooseDirDialog(new JFrame(), new File(rootDirTextField.getText ()));
-        MiscStuff.centerWindow (chooseDir);
+        VcsUtilities.centerWindow (chooseDir);
         chooseDir.show();
         String selected=chooseDir.getSelectedDir();
         if( selected==null ){
@@ -381,7 +393,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void removeConfigButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeConfigButtonActionPerformed
         // Add your handling code here:
         String label = (String) configCombo.getSelectedItem ();
-        NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation ("Are you sure you want to delete configuration: " + label, NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
+        NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation (g("DLG_DeleteConfig", label), NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
         if(NotifyDescriptor.Confirmation.CANCEL_OPTION.equals (TopManager.getDefault ().notify (nd))) return;
         FileObject file = fileSystem.getConfigRootFO();
         if (file != null) file = file.getFileObject((String) configNamesByLabel.get (label));
@@ -415,14 +427,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         // Add your handling code here:
         FileObject dir = fileSystem.getConfigRootFO();
         ChooseFileObjectDialog chooseFile = new ChooseFileObjectDialog(new JFrame(), true, dir);
-        MiscStuff.centerWindow (chooseFile);
+        VcsUtilities.centerWindow (chooseFile);
         chooseFile.show();
         String selected=chooseFile.getSelectedFile ();
         if (selected == null) return;
-        FileObject file = dir.getFileObject(selected, "properties");
+        FileObject file = dir.getFileObject(selected, VariableIO.CONFIG_FILE_EXT);
         if (file == null) {
             try {
-                file = dir.createData(selected, "properties");
+                file = dir.createData(selected, VariableIO.CONFIG_FILE_EXT);
             } catch(IOException e) {
                 E.err("Can not create file '"+selected+"'");
                 return;
@@ -433,16 +445,43 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                     return;
             }
         }
-        Vector variables=fileSystem.getVariables ();
-        Object advanced=fileSystem.getAdvancedConfig ();
+        org.w3c.dom.Document doc = null;
+        DataObject dobj = null;
+        try {
+            dobj = DataObject.find(file);
+        } catch (DataObjectNotFoundException exc) {
+            dobj = null;
+        }
+        if (dobj != null && dobj instanceof XMLDataObject) {
+            doc = ((XMLDataObject) dobj).createDocument();
+        }
+        Vector variables = fileSystem.getVariables ();
+        Node commands = fileSystem.getCommands();
         String label = selected;
-        VcsConfigVariable.writeConfiguration (file, label, variables, advanced, fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ());
+        if (doc != null) {
+            FileLock lock = null;
+            try {
+                lock = file.lock();
+                VariableIO.writeVariables(doc, label, variables);
+                UserCommandIO.writeCommands(doc, commands);
+                XMLDataObject.write(doc, new BufferedWriter(new OutputStreamWriter(file.getOutputStream(lock))));
+            } catch (org.w3c.dom.DOMException exc) {
+                org.openide.TopManager.getDefault().notifyException(exc);
+            } catch (java.io.IOException ioexc) {
+                org.openide.TopManager.getDefault().notifyException(ioexc);
+            } finally {
+                if (lock != null) lock.releaseLock();
+            }
+        } else {
+            //VariableIOCompat.write (file, label, variables, advanced, fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ());
+        }
         promptForConfigComboChange = false;
         fileSystem.setConfig (label);
+        fileSystem.setConfigFileName(file.getNameExt());
         updateConfigurations ();
         /*
           ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(fileSystem.getConfigRoot()), true);
-          MiscStuff.centerWindow (chooseFile);
+          VcsUtilities.centerWindow (chooseFile);
           chooseFile.show();
           String selected=chooseFile.getSelectedFile ();
           if(selected==null) return;
@@ -534,8 +573,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private Vector varTextFields = new Vector ();
     private Vector varButtons = new Vector();
     private Vector varVariables = new Vector ();
-    private VcsFileSystem fileSystem=null;
-    private PropertyChangeSupport changeSupport=null;
+    private CommandLineVcsFileSystem fileSystem = null;
+    private PropertyChangeSupport changeSupport = null;
     private Vector configLabels;
     private int oldIndex=0;
     private boolean promptForConfigComboChange = false;
@@ -549,25 +588,35 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private void relMountPointChanged() {
         String module = relMountTextField.getText();
-        fileSystem.setRelativeMountPoint(module);
+        try {
+            fileSystem.setRelativeMountPoint(module);
+        } catch (PropertyVetoException exc) {
+            module = null;
+        } catch (IOException ioexc) {
+            module = null;
+        }
+        if (module == null) {
+            relMountTextField.setText(fileSystem.getRelativeMountPoint());
+        }
     }
     
     //-------------------------------------------
     private void loadConfig(String label){
         if(!label.equals (fileSystem.getConfig ())) {
-            Vector variables=(Vector)configVariablesByLabel.get(label);
-            Vector advanced=(Vector)configAdvancedByLabel.get(label);
+            Vector variables = (Vector) configVariablesByLabel.get(label);
+            Node commands = (Node) configAdvancedByLabel.get(label);
             fileSystem.setVariables(variables);
-            fileSystem.setAdvancedConfig(advanced);
+            fileSystem.setCommands(commands);
             fileSystem.setConfig(label);
+            fileSystem.setConfigFileName((String) configNamesByLabel.get(label));
         }
         initAdditionalComponents ();
     }
 
     //-------------------------------------------
     public static void main(java.lang.String[] args) {
-        JDialog dialog=new JDialog(new Frame (), true );
-        VcsCustomizer customizer= new VcsCustomizer();
+        JDialog dialog = new JDialog(new Frame (), true );
+        VcsCustomizer customizer = new VcsCustomizer();
         dialog.getContentPane().add(customizer);
         dialog.pack ();
         dialog.show();
@@ -588,8 +637,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     }
 
     private void removeEnterFromKeymap() {
-        MiscStuff.removeEnterFromKeymap(rootDirTextField);
-        MiscStuff.removeEnterFromKeymap(refreshTextField);
+        VcsUtilities.removeEnterFromKeymap(rootDirTextField);
+        VcsUtilities.removeEnterFromKeymap(refreshTextField);
     }
 
     //-------------------------------------------
@@ -612,8 +661,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         UserVariablesPanel variablePanel = new UserVariablesPanel (variableEditor);
         panel.add (variablePanel, gridBagConstraints1);
 
-        PropertyEditor advancedEditor = fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ().getEditor (fileSystem);
-        JPanel advancedPanel = fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ().getPanel (advancedEditor);
+        PropertyEditor advancedEditor = CommandLineVcsAdvancedCustomizer.getEditor (fileSystem);
+        JPanel advancedPanel = CommandLineVcsAdvancedCustomizer.getPanel (advancedEditor);
 
         gridBagConstraints1.gridy = 1;
         panel.add (advancedPanel, gridBagConstraints1);
@@ -626,8 +675,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         DialogDescriptor dd = new DialogDescriptor (panel, "Advanced Properties Editor");
         TopManager.getDefault ().createDialog (dd).show ();
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
-            fileSystem.setVariables ( (Vector)variableEditor.getValue ());
-            fileSystem.setAdvancedConfig (advancedEditor.getValue ());
+            fileSystem.setVariables ((Vector) variableEditor.getValue ());
+            fileSystem.setCommands ((Node) advancedEditor.getValue ());
         }
         initAdditionalComponents ();
     }
@@ -635,10 +684,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void initAdditionalComponents () {
         refreshTextField.setVisible (true);
         jLabel4.setVisible (true);
+        /*
         if(!fileSystem.getCache ().isLocalFilesAdd ()) {
             refreshTextField.setVisible (false);
             jLabel4.setVisible (false);
         }
+         */
         varVariables = new Vector ();
         while(varLabels.size ()>0) {
             propsPanel.remove ((JComponent) varLabels.get (0));
@@ -694,17 +745,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 if (var.isLocalFile ()) {
                     button = new JButton ();
                     button.addActionListener (new BrowseLocalFile (tf));
-                    button.setText ("Browse...");
+                    button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.browseButton.text"));
                 } else if (var.isLocalDir ()) {
                     button = new JButton ();
                     button.addActionListener (new BrowseLocalDir (tf));
-                    button.setText ("Browse...");
+                    button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.browseButton.text"));
                 }
                 String selector = var.getCustomSelector();
                 if (selector != null && selector.length() > 0) {
                     button = new JButton ();
                     button.addActionListener (new RunCustomSelector (tf, var));
-                    button.setText ("Select...");
+                    button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.selectButton.text"));
                 }
                 if (button != null) {
                     gridBagConstraints1.gridx = 2;
@@ -713,7 +764,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                     propsPanel.add (button, gridBagConstraints1);
                 }
                 varButtons.add (button);
-                MiscStuff.removeEnterFromKeymap(tf);
+                VcsUtilities.removeEnterFromKeymap(tf);
             }
         }
         java.awt.Component comp = this;
@@ -754,44 +805,60 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     */
     //-------------------------------------------
     private void updateConfigurations(){
-        D.deb("configRoot = "+fileSystem.getConfigRoot()); // NOI18N
-        Vector configNames=VcsConfigVariable.readConfigurations(fileSystem.getConfigRootFO());
+        //D.deb("configRoot = "+fileSystem.getConfigRoot()); // NOI18N
+        ArrayList configNames = VariableIO.readConfigurations(fileSystem.getConfigRootFO());
+        //Vector configNames = VcsConfigVariable.readConfigurations(fileSystem.getConfigRootFO());
         D.deb("configNames="+configNames); // NOI18N
 
-        if( configCombo.getItemCount()>0 ){ // necessary on Linux
+        if (configCombo.getItemCount() > 0) {
             configCombo.removeAllItems();
         }
 
-        configLabels = new Vector(5);
-        configVariablesByLabel = new Hashtable(8);
-        configAdvancedByLabel = new Hashtable(8);
-        configNamesByLabel = new Hashtable(8);
+        configLabels = new Vector();
+        configVariablesByLabel = new Hashtable();
+        configAdvancedByLabel = new Hashtable();
+        configNamesByLabel = new Hashtable();
 
-        String selectedConfig=fileSystem.getConfig();
-        int newIndex=0;
+        String selectedConfig = fileSystem.getConfig();
+        int newIndex = 0;
 
         for(int i = 0; i < configNames.size(); i++){
-            String name=(String)configNames.elementAt(i);
+            String name = (String) configNames.get(i);
+            if (CommandLineVcsFileSystem.TEMPORARY_CONFIG_FILE_NAME.equals(name)) continue;
+            String label;
+            Vector variables;
+            Object advanced;
+            if (name.endsWith(VariableIOCompat.CONFIG_FILE_EXT)) {
+                Properties props = VariableIOCompat.readPredefinedProperties
+                                  (fileSystem.getConfigRootFO(), name);
+                //( fileSystem.getConfigRoot()+File.separator+name+".properties"); // NOI18N
 
-            Properties props= VcsConfigVariable.readPredefinedProperties
-                              ( fileSystem.getConfigRootFO(), name); // NOI18N
-            //( fileSystem.getConfigRoot()+File.separator+name+".properties"); // NOI18N
-
-            String label=props.getProperty("label", g("CTL_No_label_configured"));
-            configLabels.addElement(label);
-
-            if( label.equals(selectedConfig) ){
-                newIndex=i;
+                label = props.getProperty("label", g("CTL_No_label_configured"));
+                variables = VariableIOCompat.readVariables(props);
+                advanced = CommandLineVcsAdvancedCustomizer.readConfig (props);
+            } else {
+                org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations
+                                          (fileSystem.getConfigRootFO(), name);
+                if (doc == null) continue;
+                try {
+                    variables = VariableIO.readVariables(doc);
+                    advanced = CommandLineVcsAdvancedCustomizer.readConfig (doc);
+                    label = VariableIO.getConfigurationLabel(doc);
+                } catch (org.w3c.dom.DOMException exc) {
+                    org.openide.TopManager.getDefault().notifyException(exc);
+                    variables = new Vector();
+                    advanced = null;
+                    label = g("CTL_No_label_configured");
+                }
             }
-
+            if (label == null) label = "";
+            configLabels.addElement(label);
+            if (label.equals(selectedConfig)) {
+                newIndex = i;
+            }
             configNamesByLabel.put(label,name);
-
-            Vector variables=VcsConfigVariable.readVariables(props);
             configVariablesByLabel.put(label,variables);
-
-            Object advanced=fileSystem.getVcsFactory (). getVcsAdvancedCustomizer ().readConfig (props);
             configAdvancedByLabel.put(label, advanced);
-
             //configCombo.addItem(label);
         }
         String[] sortedLabels = (String[]) configLabels.toArray(new String[0]);
@@ -814,14 +881,20 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     //-------------------------------------------
     public void setObject(Object bean){
         D.deb("setObject("+bean+")"); // NOI18N
-        fileSystem=(VcsFileSystem)bean;
+        fileSystem=(CommandLineVcsFileSystem) bean;
 
         rootDirTextField.setText (VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), getModuleValue ()));
         refreshTextField.setText (""+fileSystem.getCustomRefreshTime ()); // NOI18N
         String module = getModuleValue();
         if (module == null) module = "";
+        try {
+            fileSystem.setRelativeMountPoint(module);
+        } catch (PropertyVetoException exc) {
+            module = "";
+        } catch (IOException ioexc) {
+            module = "";
+        }
         relMountTextField.setText(module);
-        fileSystem.setRelativeMountPoint(module);
         updateConfigurations();
         initAdditionalComponents ();
         /*
@@ -944,7 +1017,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
         public void actionPerformed (java.awt.event.ActionEvent evt) {
             ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(tf.getText ()), false);
-            MiscStuff.centerWindow (chooseFile);
+            VcsUtilities.centerWindow (chooseFile);
             chooseFile.show();
             String selected=chooseFile.getSelectedFile();
             if( selected==null ){
@@ -967,7 +1040,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
         public void actionPerformed (java.awt.event.ActionEvent evt) {
             ChooseDirDialog chooseDir = new ChooseDirDialog(new JFrame(), new File(tf.getText ()));
-            MiscStuff.centerWindow (chooseDir);
+            VcsUtilities.centerWindow (chooseDir);
             chooseDir.show();
             String selected=chooseDir.getSelectedDir();
             if( selected==null ){
@@ -990,28 +1063,36 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
 
         public void actionPerformed (java.awt.event.ActionEvent evt) {
-            OutputContainer container = new OutputContainer(g("MSG_VariableSelector"));
-            final ExecuteSelector es = new ExecuteSelector(fileSystem, selector.getCustomSelector(), selector.getName(),
-                                       fileSystem.getVariablesAsHashtable());
-            es.setErrorNoRegexListener(container);
-            es.setOutputNoRegexListener(container);
-            es.setErrorContainer(container);
-            new Thread ("VCS-CustomSelector") {
-                public void run() {
-                    es.start();
-                    try {
-                        es.join();
-                    } catch (InterruptedException e) {
-                        return;
-                    }
-                    String selection = es.getSelection();
-                    if (selection != null && selection.length() > 0) {
-                        tf.setText(selection);
+            VcsCommand cmd = fileSystem.getCommand(selector.getCustomSelector());
+            if (cmd == null) {
+                NotifyDescriptor.Message nd = new NotifyDescriptor.Message (g("DLG_SelectorNotExist", selector.getCustomSelector()), NotifyDescriptor.WARNING_MESSAGE);
+                TopManager.getDefault ().notify (nd);
+                return ;
+            }
+            final Hashtable vars = fileSystem.getVariablesAsHashtable();
+            VcsCommandExecutor executor = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+            final CommandsPool pool = fileSystem.getCommandsPool();
+            final StringBuffer selection = new StringBuffer();
+            pool.addCommandListener(new CommandListener() {
+                public void commandStarted(VcsCommandExecutor vce) {
+                }
+                
+                public void commandDone(VcsCommandExecutor vce) {
+                    if (selection.length() > 0) {
+                        tf.setText(selection.toString());
                         variableChanged(new java.awt.event.ActionEvent(tf, 0, "")); // NOI18N
-                        //rootDirChanged(false);
+                    }
+                    pool.removeCommandListener(this);
+                }
+            });
+            executor.addDataOutputListener(new CommandDataOutputListener() {
+                public void outputData(String[] elements) {
+                    if (elements.length > 0) {
+                        selection.append(elements[0]);
                     }
                 }
-            }.start();
+            });
+            pool.startExecutor(executor);
         }
     }
 

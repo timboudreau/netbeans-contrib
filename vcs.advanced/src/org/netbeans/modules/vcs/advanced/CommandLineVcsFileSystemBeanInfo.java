@@ -18,7 +18,7 @@ import java.util.ResourceBundle;
 import org.openide.util.NbBundle;
 import org.openide.filesystems.*;
 
-import org.netbeans.modules.vcs.util.*;
+import org.netbeans.modules.vcscore.util.*;
 
 /** BeanInfo for CommandLineVcsFileSystem.
  * 
@@ -47,6 +47,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor lockPrompt=null;
         PropertyDescriptor acceptUserParams = null;
         PropertyDescriptor runRefreshCommand = null;
+        PropertyDescriptor annotationPattern = null;
 
 
         try {
@@ -80,10 +81,13 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                                ("acceptUserParams", CommandLineVcsFileSystem.class, "isAcceptUserParams", "setAcceptUserParams"); // NOI18N
             runRefreshCommand = new PropertyDescriptor
                                ("doCommandRefresh", CommandLineVcsFileSystem.class, "isDoCommandRefresh", "setDoCommandRefresh"); // NOI18N
+            annotationPattern = new PropertyDescriptor
+                               ("annotationPattern", CommandLineVcsFileSystem.class, "getAnnotationPattern", "setAnnotationPattern"); // NOI18N
 
 
             desc = new PropertyDescriptor[] {
-                       rootDirectory, debug, variables, commands, cacheId, config, lock, lockPrompt, acceptUserParams, runRefreshCommand
+                       rootDirectory, debug, variables, commands, cacheId, config,
+                       lock, lockPrompt, acceptUserParams, runRefreshCommand, annotationPattern
                    };
 
             ResourceBundle bundle = NbBundle.getBundle
@@ -108,6 +112,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             acceptUserParams.setShortDescription(bundle.getString("HINT_acceptUserParams"));
             runRefreshCommand.setDisplayName  (bundle.getString("PROP_runRefreshCommand"));
             runRefreshCommand.setShortDescription(bundle.getString("HINT_runRefreshCommand"));
+            annotationPattern.setDisplayName  (bundle.getString("PROP_annotationPattern"));
+            annotationPattern.setShortDescription(bundle.getString("HINT_annotationPattern"));
 
         } catch (IntrospectionException ex) {
             ex.printStackTrace ();

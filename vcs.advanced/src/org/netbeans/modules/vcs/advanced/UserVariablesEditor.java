@@ -16,8 +16,8 @@ import java.awt.*;
 import java.util.*;
 import java.beans.*;
 
-import org.netbeans.modules.vcs.*;
-import org.netbeans.modules.vcs.util.*;
+import org.netbeans.modules.vcscore.*;
+import org.netbeans.modules.vcscore.util.*;
 
 /** Property editor for user variables.
  * 
@@ -77,8 +77,8 @@ public class UserVariablesEditor implements PropertyEditor {
 
     //-------------------------------------------
     public void setValue(Object value) {
-        if( value==null ){
-            variables=new Vector(10);
+        if (value == null) {
+            variables = new Vector(10);
         }
         if( !(value instanceof Vector) ){
             throw new IllegalArgumentException ();
