@@ -1261,8 +1261,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     */
 
     public java.beans.beancontext.BeanContextChild getBeanContextProxy () {
-	//if (DEBUG)
-	System.out.println ("CORBASupportSettings::getBeanContextProxy ()"); // NOI18N
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::getBeanContextProxy ()"); // NOI18N
 	//Thread.dumpStack ();
 	if (!_M_loaded) {
 	    //loadImpl ();
