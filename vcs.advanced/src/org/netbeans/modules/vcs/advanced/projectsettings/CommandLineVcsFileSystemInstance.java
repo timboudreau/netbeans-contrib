@@ -88,6 +88,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             fsProperties = new PropertyDescriptor[] {
                 // Stuff from AbstractFileSystem & VcsFileSystem
                 new PropertyDescriptor("rootFile", CommandLineVcsFileSystem.class, "getWorkingDirectory", "setRootDirectory"),
+                new PropertyDescriptor("systemName", CommandLineVcsFileSystem.class, "getSystemName", "setAdjustedSystemName"),
                 new PropertyDescriptor("refreshTime", CommandLineVcsFileSystem.class, "getRefreshTimeStored", "setRefreshTimeStored"),
                 new PropertyDescriptor("hidden", CommandLineVcsFileSystem.class, "isHidden", "setHidden"),
                 new PropertyDescriptor("readOnly", CommandLineVcsFileSystem.class, "isReadOnly", "setReadOnly"),

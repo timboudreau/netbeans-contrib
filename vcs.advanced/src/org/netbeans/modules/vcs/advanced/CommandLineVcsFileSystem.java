@@ -153,6 +153,31 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setCreateBackupFiles(true);
         setFilterBackupFiles(true);
     }
+    
+    protected String computeSystemName(File rootFile) {//setOriginalSystemName() {
+        String name = super.computeSystemName(rootFile);
+        //System.out.println("computeSystemName("+name+")");
+        //String name = getSystemName();
+        String testName = name;
+        int seed = 0;
+        do {
+            Enumeration en = TopManager.getDefault ().getRepository ().fileSystems ();
+            while (en.hasMoreElements ()) {
+                FileSystem fs = (FileSystem) en.nextElement ();
+                if (fs.getSystemName().equals(testName)) {
+                    testName = name + " - " + (++seed);
+                    break;
+                }
+            }
+            if (!en.hasMoreElements()) {
+                //setAdjustedSystemName(testName);
+                name = testName;
+                testName = null;
+            }
+        } while (testName != null);
+        //System.out.println("  => "+name);
+        return name;
+    }
 
     protected java.lang.ref.Reference createReference(final FileObject fo) {
         java.lang.ref.Reference ref = super.createReference(fo);
