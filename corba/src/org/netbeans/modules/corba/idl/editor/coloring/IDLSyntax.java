@@ -26,6 +26,9 @@ import org.netbeans.editor.TokenID;
 
 public class IDLSyntax extends Syntax {
 
+    // Spacial characters
+    private static final char CHAR_SPACE = ' '; // No I18N
+    private static final char CHAR_TAB = '\t';  // No I18N
 
     // Internal states
     private static final int ISI_ERROR = 1; // after carriage return
@@ -61,9 +64,12 @@ public class IDLSyntax extends Syntax {
     private static final int ISI_HEX = 32; // hex number
     private static final int ISA_DOT = 33; // after '.'
     private static final int ISA_HASH = 34; // right after '#'
+    private static final int ISA_HASH_CONT = 35; // continuation of preprocessor dirrective
     private static final int ISA_DIRECTIVE = 36; // after directive
     private static final int ISI_HERROR = 37; // after hash got error
 
+    private int pstartOff;
+    
     public IDLSyntax() {
         tokenContextPath = IDLTokenContext.contextPath;
     }
@@ -612,6 +618,19 @@ public class IDLSyntax extends Syntax {
                 return IDLTokenContext.OPERATOR;
 
             case ISA_HASH:
+                if (actChar == CHAR_SPACE || actChar == CHAR_TAB) {
+                    break;
+                }
+                else if (Character.isJavaIdentifierPart(actChar)) {
+                    pstartOff = offset;
+                    state = ISA_HASH_CONT;
+                    break;
+                }
+                else {
+                    state = ISI_HERROR; // directive error
+                    return IDLTokenContext.ERROR;
+                }
+            case ISA_HASH_CONT:
                 if (Character.isJavaIdentifierPart(actChar)) {
                     break; // continue possible directive string
                 }
@@ -659,6 +678,8 @@ public class IDLSyntax extends Syntax {
                     TokenID kwd = matchKeyword(buffer, tokenOffset, offset - tokenOffset);
                     return (kwd != null) ? kwd : IDLTokenContext.IDENTIFIER;
                 case ISA_HASH:
+                    return IDLTokenContext.TEXT;
+                case ISA_HASH_CONT:
                     return matchDirective() ? IDLTokenContext.DIRECTIVE : IDLTokenContext.TEXT;
                 case ISA_DOT:
                 case ISA_SLASH:
@@ -1206,91 +1227,80 @@ public class IDLSyntax extends Syntax {
     }
 
     private boolean matchDirective () {
-        if (offset - tokenOffset > 8)
+        if (offset - pstartOff > 7)
             return false;
-        if (offset - tokenOffset <= 0)
+        if (offset - pstartOff < 2)
             return false;
-        switch (buffer[tokenOffset + 0]) {
-        case '#':
-            if (offset - tokenOffset <= 1)
-                return false;
-            switch (buffer[tokenOffset + 1]) {
+        switch (buffer[pstartOff]) {
             case 'd':
-                return offset - tokenOffset == 7
-                       && buffer[tokenOffset + 2] == 'e'
-                       && buffer[tokenOffset + 3] == 'f'
-                       && buffer[tokenOffset + 4] == 'i'
-                       && buffer[tokenOffset + 5] == 'n'
-                       && buffer[tokenOffset + 6] == 'e';
+                return offset - pstartOff == 6
+                && buffer[pstartOff + 1] == 'e'
+                && buffer[pstartOff + 2] == 'f'
+                && buffer[pstartOff + 3] == 'i'
+                && buffer[pstartOff + 4] == 'n'
+                && buffer[pstartOff + 5] == 'e';
             case 'e':
-                if (offset - tokenOffset <= 2)
-                    return false;
-                switch (buffer[tokenOffset + 2]) {
-                case 'l':
-                    if (offset - tokenOffset <= 3)
-                        return false;
-                    switch (buffer[tokenOffset + 3]) {
-                    case 'i':
-                        return offset - tokenOffset == 5
-                               && buffer[tokenOffset + 4] == 'f';
-                    case 's':
-                        return offset - tokenOffset == 5
-                               && buffer[tokenOffset + 4] == 'e';
-                    }
-                case 'n':
-                    return offset - tokenOffset == 6
-                           && buffer[tokenOffset + 3] == 'd'
-                           && buffer[tokenOffset + 4] == 'i'
-                           && buffer[tokenOffset + 5] == 'f';
+                switch (buffer[pstartOff + 1]) {
+                    case 'l':
+                        if (offset - pstartOff <= 2)
+                            return false;
+                        switch (buffer[pstartOff + 2]) {
+                            case 'i':
+                                return offset - pstartOff == 4
+                                && buffer[pstartOff + 3] == 'f';
+                            case 's':
+                                return offset - pstartOff == 4
+                                && buffer[pstartOff + 3] == 'e';
+                        }
+                    case 'n':
+                        return offset - pstartOff == 5
+                        && buffer[pstartOff + 2] == 'd'
+                        && buffer[pstartOff + 3] == 'i'
+                        && buffer[pstartOff + 4] == 'f';
                 }
             case 'i':
-                if (offset - tokenOffset <= 2)
-                    return false;
-                switch (buffer[tokenOffset + 2]) {
-                case 'f':
-                    if (offset - tokenOffset <= 3)
-                        return true;
-                    switch (buffer[tokenOffset + 3]) {
-                    case 'd':
-                        return offset - tokenOffset == 6
-                               && buffer[tokenOffset + 4] == 'e'
-                               && buffer[tokenOffset + 5] == 'f';
+                switch (buffer[pstartOff + 1]) {
+                    case 'f':
+                        if (offset - pstartOff <= 2)
+                            return true;
+                        switch (buffer[pstartOff + 2]) {
+                            case 'd':
+                                return offset - pstartOff == 5
+                                && buffer[pstartOff + 3] == 'e'
+                                && buffer[pstartOff + 4] == 'f';
+                            case 'n':
+                                return offset - pstartOff == 6
+                                && buffer[pstartOff + 3] == 'd'
+                                && buffer[pstartOff + 4] == 'e'
+                                && buffer[pstartOff + 5] == 'f';
+                            default:
+                                return false;
+                        }
                     case 'n':
-                        return offset - tokenOffset == 7
-                               && buffer[tokenOffset + 4] == 'd'
-                               && buffer[tokenOffset + 5] == 'e'
-                               && buffer[tokenOffset + 6] == 'f';
+                        return offset - pstartOff == 7
+                        && buffer[pstartOff + 2] == 'c'
+                        && buffer[pstartOff + 3] == 'l'
+                        && buffer[pstartOff + 4] == 'u'
+                        && buffer[pstartOff + 5] == 'd'
+                        && buffer[pstartOff + 6] == 'e';
                     default:
                         return false;
-                    }
-                case 'n':
-                    return offset - tokenOffset == 8
-                           && buffer[tokenOffset + 3] == 'c'
-                           && buffer[tokenOffset + 4] == 'l'
-                           && buffer[tokenOffset + 5] == 'u'
-                           && buffer[tokenOffset + 6] == 'd'
-                           && buffer[tokenOffset + 7] == 'e';
-                default:
-                    return false;
                 }
             case 'p':
-                return offset - tokenOffset == 7
-                       && buffer[tokenOffset + 2] == 'r'
-                       && buffer[tokenOffset + 3] == 'a'
-                       && buffer[tokenOffset + 4] == 'g'
-                       && buffer[tokenOffset + 5] == 'm'
-                       && buffer[tokenOffset + 6] == 'a';
+                return offset - pstartOff == 6
+                && buffer[pstartOff + 1] == 'r'
+                && buffer[pstartOff + 2] == 'a'
+                && buffer[pstartOff + 3] == 'g'
+                && buffer[pstartOff + 4] == 'm'
+                && buffer[pstartOff + 5] == 'a';
             case 'u':
-                return offset - tokenOffset == 6
-                       && buffer[tokenOffset + 2] == 'n'
-                       && buffer[tokenOffset + 3] == 'd'
-                       && buffer[tokenOffset + 4] == 'e'
-                       && buffer[tokenOffset + 5] == 'f';
+                return offset - pstartOff == 5
+                && buffer[pstartOff + 1] == 'n'
+                && buffer[pstartOff + 2] == 'd'
+                && buffer[pstartOff + 3] == 'e'
+                && buffer[pstartOff + 4] == 'f';
             default:
                 return false;
-            }
-        default:
-            return false;
         }
     }
 
