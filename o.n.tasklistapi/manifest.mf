@@ -1,0 +1,5 @@
+OpenIDE-Module: org.netbeans.api.tasklist/1
+OpenIDE-Module-Specification-Version: 0.8.6
+OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 2.23
+OpenIDE-Module-Localizing-Bundle: org/netbeans/api/tasklist/Bundle.properties

@@ -1,0 +1,85 @@
+<!--
+   -                 Sun Public License Notice
+   - 
+   - The contents of this file are subject to the Sun Public License
+   - Version 1.0 (the "License"). You may not use this file except in
+   - compliance with the License. A copy of the License is available at
+   - http://www.sun.com/
+   - 
+   - The Original Code is NetBeans. The Initial Developer of the Original
+   - Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+   - Microsystems, Inc. All Rights Reserved.
+  -->
+
+<html>
+<!-- unused, just for tidy: --><title>TaskList API Overview</title>
+<body>
+
+This document set describes the public APIs offered by the
+<a href="http://tasklist.netbeans.org/">TaskList module</a>.
+<p>
+The first thing you need to decide is: should you use the API
+or the SPI?
+<p>
+The API is intended for client modules which are already doing
+some useful computation, like for example the Audit module. 
+It will analyze the user's source code and inform the user
+of problems. It may also as a side effect add Suggestions into
+the Suggestions Window for some of the problems it encounters.
+This is a typical API usage of the TaskList APIs.
+<p>
+The SPI is intended for client modules who want to provide suggestions
+to the Suggestions window, and these suggestions are unrelated to
+other tasks performed by the module. The SPI classes provide
+convenience classes for this, where common scenarios (like providing
+suggestions for the current document in the editor or the currently
+selected node in the IDE) are tracked automatically, and even the
+provider class itself is only created when the Suggestions Window
+itself is made visible.
+<p>
+There are three critical classes you should be aware of:
+<ul>
+ <li> {@link org.netbeans.api.tasklist.Suggestion} - you create one of these and register
+      it with the SuggestionManager. This will cause the suggestion
+      to show up in the Suggestions Window.  Suggestion is a bean
+      and has attributes like a description, an icon, a priority,
+      etc.
+ <li> {@link org.netbeans.api.tasklist.SuggestionManager} - 
+      this manager keeps track of the
+      Suggestions in the system; you register (and unregister)
+      suggestions with the manager to manipulate the suggestion
+      list. In addition, the SuggestionManager also keeps track
+      of which -types- of suggestions the user is interested in
+      and blocks anything the user has chosen not to see.
+ <li> {@link org.netbeans.api.tasklist.SuggestionPerformer} - 
+      each Suggestion has an associated
+      action, and it is the SuggestionPerformer that is responsible
+      for actually performing this action. In addition, the
+      SuggestionPerformer is responsible for describing the action
+      for the confirmation dialog, and it can also provide a
+      customizer so that the user can customize how the action
+      is carried out.
+</ul>
+<p>
+In addition to the above classes, there is also the concept of
+a <b>SuggestionType</b>. It does not have a corresponding class;
+SuggestionTypes are simply registered via the layer file.
+Each Suggestion is considered to have an associated SuggestionType.
+For example, the three suggestions
+<ul>
+  <li> Import java.io.IOException into Foo.java
+  <li> Import java.util.List into Bar.java
+  <li> Import java.awt.List into Bar.java
+</ul>
+all have the same suggestion type, "Import Suggestions". 
+SuggestionTypes are important because the user gets to
+enable/disable suggestions based on their type, and the
+user can also filter the Suggestions View to show only suggestions
+of a particular type. See the Suggestion API for more information
+on how to register Suggestion Types.
+<p>
+Proceed to either the API or SPI packages to get more information
+on how to add Suggestions to the Suggestions Window.
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!--
+   -                 Sun Public License Notice
+   - 
+   - The contents of this file are subject to the Sun Public License
+   - Version 1.0 (the "License"). You may not use this file except in
+   - compliance with the License. A copy of the License is available at
+   - http://www.sun.com/
+   - 
+   - The Original Code is NetBeans. The Initial Developer of the Original
+   - Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+   - Microsystems, Inc. All Rights Reserved.
+  -->
+
+<html>
+<body>
+The tasklist API allows modules to register and unregister
+Suggestions in the Suggestions window.
+<p>
+The simple scenario for how to create a suggestion is
+as follows:
+<ol>
+ <li> Obtain a reference to the SuggestionManager:
+   <pre>
+     SuggestionManager manager = SuggestionManager.getDefault();
+   </pre>
+   Note: this may return null (in the case where the Suggestions
+   module is not available/enabled) so check the return value!
+   <p>
+ <li> Check to make sure that the type of suggestion you're about
+      to add is welcome by the user:
+   <pre>
+      if (manager.isEnabled(suggestionTypeId) &&
+          manager.isObserved()) {
+   </pre>
+   <p>
+ <li> Create a new {@link org.netbeans.api.tasklist.Suggestion}:
+   <pre>
+      Suggestion s = new Suggestion(suggestionTypeId,
+                                    "my suggestion description",
+          new SuggestionPerformer() {
+            public void perform(Suggestion s) {
+               beep();
+            }
+          }
+        <i>(two more methods here, both returning null)</i>
+      );
+      suggestion.setPriority(1);
+   </pre>
+  <li> Register the suggestion with the SuggestionManager:
+   <pre>
+      manager.add(suggestion);
+   </pre>
+  <li> You also need to register the Suggestion type for this
+     suggestion with the system. We used <code>suggestionTypeId</code>
+     above; this is just a string with some unique Id, let's say
+     "myid".  We need to register this in the module's layer XML
+     file:
+<pre>
+ &lt;folder name="Suggestions"&gt;
+   &lt;folder name="Types"&gt;
+      &lt;file name="myid"&gt;
+        &lt;attr name="SystemFileSystem.localizingBundle"
+         stringvalue="com.foo.bar.my.package.Bundle"/&gt;
+      &lt;/file&gt;
+   &lt;/folder&gt;
+ &lt;/folder&gt;
+</pre>
+ <p>
+Then in your Bundle file identified above, add an entry like:
+<pre>
+    Suggestions/Types/myid=My Suggestion Type
+</pre>
+
+</ol>
+Done! Obviously, you also have to add a dependency on
+the tasklist-api in your module's manifest file:
+<pre>
+OpenIDE-Module-Module-Dependencies: org.netbeans.api.tasklist/1 > 0.8.6
+</pre>
+If you are writing code which needs to add suggestions based on 
+the current document in the editor, or based on the current node,
+etc., look at the SPI documents for tasklist since there are
+convenience classes which will instantiate your code lazily etc.
+<p>
+So here's what a complete code segment might look like:
+<pre>
+  String suggestionType = "beepid";
+  SuggestionManager mgr = SuggestionManager.getDefault();
+  if ((mgr != null) && mgr.isEnabled(suggestionType) &&
+      mgr.isObserved()) {
+     String summary = "Ring the system bell to annoy others";
+     SuggestionPerformer performer = new SuggestionPerformer() {
+        public void perform(Suggestion s, JPanel customizer) {
+            beep(); beep(); beep();
+        }
+        public JPanel getConfirmationPanel(Suggestion s) {
+            return null;
+        }
+        public String getConfirmationDescription(Suggestion s) {
+            return "Ring the system bell 3 times, then quit. Will echo \007.";
+        }
+     });
+     Suggestion s = new Suggestion(suggestionType, summary, perfomer);
+     mgr.add(s);
+  }
+</pre>
+</body>
+</html>
