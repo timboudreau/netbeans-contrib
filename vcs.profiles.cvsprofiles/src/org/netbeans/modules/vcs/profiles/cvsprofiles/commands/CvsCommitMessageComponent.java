@@ -66,7 +66,7 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
 
         label.setText(getString("COMMAND_COMMIT_Reason"));
         label.setLabelFor(textArea);
-        loadButton.setMnemonic(getString("COMMAND_COMMIT_Reason_mne").charAt(0));
+        label.setDisplayedMnemonic(getString("COMMAND_COMMIT_Reason_mne").charAt(0));
         add(label, BorderLayout.NORTH);
 
         textArea.setWrapStyleWord(true);
@@ -74,6 +74,7 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
         textArea.setColumns(80);
         textArea.setRows(8);
         textArea.setToolTipText(getString("COMMAND_COMMIT_Reason_desc"));
+        textArea.getAccessibleContext().setAccessibleDescription(getString("COMMAND_COMMIT_Reason_desc"));
         Font font = textArea.getFont();
         textArea.setFont(new java.awt.Font("Monospaced", font.getStyle(), font.getSize()));  // NOI18N
         textArea.getDocument().addDocumentListener(new DocumentListener() {
