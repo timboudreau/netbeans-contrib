@@ -57,24 +57,69 @@ public class ModifyTest extends SCCSTest {
         }
         file = getFileCopy(file);
         SFile sFile = new SFile(file);
+        String[] modificationInstructions =
+                sFile.getRevisions().getActiveRevision().getMessage().split(";");
+        if (modificationInstructions.length == 0) {
+            return;
+        }
+        Modification[] mods = new Modification[modificationInstructions.length];
+        for (int i = 0; i < mods.length; i++) {
+            String[] s = modificationInstructions[i].split("[+-]");
+            mods[i] = new Modification();
+            mods[i].index = Integer.parseInt(s[0]);
+            mods[i].add = Integer.parseInt(s[1]);
+            mods[i].remove = Integer.parseInt(s[2]);
+        }
         boolean encoded = sFile.isEncoded();
         log("Modifying revision " + file + (encoded ? " (binary)" : ""));
         sFile.edit();
-        byte[] buffer = new byte[100];
+        BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        InputStream in = new BufferedInputStream(new FileInputStream(file));
-        for (int bytesRead, i = 0; (bytesRead = in.read(buffer)) != -1; i++) {
-            baos.write(buffer, 0, bytesRead);
-            baos.write('A');
-            if (i % 3 == 0) {
-                baos.write('\n');
+        for (int i = 0, index = 1; i < mods.length; index++) {
+            if ((mods[i].remove == 0 && index == mods[i].index + 1)
+                || (mods[i].remove != 0 && index == mods[i].index)) {
+                if (encoded) {
+                    for (int j = 0; j < mods[i].add; j++) {
+                        baos.write('A');
+                    }
+                    for (int j = 0; j < mods[i].remove; j++) {
+                        in.read();
+                        index ++;
+                    }
+                } else {
+                    for (int j = 0; j < mods[i].add; j++) {
+                        baos.write('A');
+                        baos.write('\n');
+                    }
+                    for (int j = 0; j < mods[i].remove;) {
+                        if (in.read() == '\n') {
+                            j ++;
+                            index ++;
+                        }
+                    }
+                }
+                i++;
             }
+            if (encoded) {
+                int ch = in.read();
+                baos.write(ch);
+            } else {
+                for (int ch; (ch = in.read()) != '\n';) {
+                    baos.write(ch);
+                }
+                baos.write('\n');
+            }                
+        }
+        // copy the remainder
+        byte[] buffer = new byte[100];
+        for (int bytesRead; (bytesRead = in.read(buffer)) != -1;) {
+            baos.write(buffer, 0, bytesRead);
         }
         in.close();
         OutputStream out = new FileOutputStream(file);
         out.write(baos.toByteArray());
         out.close();
-        sFile.delget("Test comment (\"test\"");
+        sFile.delget("Applied modifications");
         SRevisionList revisionList = sFile.getRevisions();
         for (Iterator i = revisionList.iterator(); i.hasNext();) {
             verifyRevision(file, sFile, (SRevisionItem) i.next());
@@ -136,4 +181,11 @@ public class ModifyTest extends SCCSTest {
             throw e;
         }
     }
+    
+    static class Modification {
+        int index;
+        int add;
+        int remove;
+    }
+    
 }
