@@ -2059,17 +2059,36 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void delete (String name) throws IOException {
         D.deb("delete('"+name+"')"); // NOI18N
         File file = getFile (name);
-        /*
-        if (!file.delete()) {
-          throw new IOException (g("EXC_CannotDelete", name, getDisplayName (), file.toString ()));
-    }
-        */
-        if (!file.exists()) return; // silently ignore non existing files
-        boolean wasDir = file.isDirectory();
-        if (!VcsUtilities.deleteRecursive(file)) {
+        if (!deleteFile(file, name)) {
             throw new IOException (g("EXC_CannotDelete", name, getDisplayName (), file.toString ())); // NOI18N
         }
+    }
+    
+    protected boolean deleteFile(final File file, String name) throws IOException {
+        if (!file.exists()) return false; // can not delete non existing files
+        if (!file.canWrite() || !file.canRead()) {
+            throw new IOException() {
+                /** Localized message. */
+                public String getLocalizedMessage () {
+                    return g("EXC_CannotDeleteReadOnly", file.toString());
+                }
+            };
+        }
+        boolean wasDir = file.isDirectory();
+        if (wasDir) {
+            // first of all delete whole content
+            File[] arr = file.listFiles();
+            if (arr != null) {
+                for (int i = 0; i < arr.length; i++) {
+                    if (!deleteFile (arr[i], name + "/" + arr[i].getName())) {
+                        return false;
+                    }
+                }
+            }
+        }
+        boolean success = file.delete();
         if (cache != null) cache.remove(name, wasDir);
+        return success;
     }
 
     //-------------------------------------------
@@ -2219,7 +2238,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (!isImportant(name_)) return; // ignore locking of unimportant files
         final String name = name_;
         //final VcsFileSystem current = this;
-        File file = getFile (name);
+        final File file = getFile (name);
         if (!file.exists()) return; // Ignore the lock when the file does not exist.
         if (isReadOnly()) { // I'm on a read-only filesystem => can not lock
             throw new IOException ("Cannot Lock "+name); // NOI18N
@@ -2274,7 +2293,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                        }
                    }, "VCS-Locking Files").start(); // NOI18N
         if (!file.canWrite () && file.exists()) {
-            throw new IOException ("Cannot Lock "+name); // NOI18N
+            throw new IOException() {
+                /** Localized message. */
+                public String getLocalizedMessage () {
+                    return g("EXC_CannotLockReadOnly", file.toString());
+                }
+            };
         }
     }
 
