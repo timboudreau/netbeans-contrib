@@ -602,7 +602,7 @@ public abstract class TaskListView extends TopComponent
         rootNode = createRootNode();
 	// TODO: usertasks module sets the display name of the root node to
         // "Task List"
-        // rootNode.setDisplayName(getMainColumn(-1).getDisplayName());
+        rootNode.setDisplayName(getMainColumn(-1).getDisplayName());
 
         LOGGER.fine("root created " + rootNode);
 
