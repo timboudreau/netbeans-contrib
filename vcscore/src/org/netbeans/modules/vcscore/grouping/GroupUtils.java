@@ -156,6 +156,13 @@ public class GroupUtils {
                 DataObject dobj = DataObject.find(fo);
                 if (dobj.getClass().equals(DataShadow.class)) {
                     DataShadow shadow = (DataShadow)dobj;
+                    if (!shadow.getOriginal().isValid()) {
+//                        System.out.println("original not valid.. deleting..");
+                        try {
+                            shadow.delete();
+                        } catch (java.io.IOException exc) {}
+                        continue;
+                    }
                     if (shadow.getOriginal().equals(dataObj)) {
                         return shadow;
                     }
