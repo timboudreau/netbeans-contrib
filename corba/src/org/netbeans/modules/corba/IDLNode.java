@@ -26,8 +26,10 @@ import org.openide.actions.OpenAction;
 // my
 import org.openide.filesystems.FileUtil;
 
+
+import com.netbeans.enterprise.modules.corba.idl.node.*;
 /**
-*
+ *
 *
 * @author Karel Gardas
 */
@@ -38,43 +40,74 @@ import org.openide.filesystems.FileUtil;
  */
 
 public class IDLNode extends DataNode {
-  /** Icon base for the IDLNode node */
-  private static final String IDL_ICON_BASE =
-  "com/netbeans/enterprise/modules/corba/settings/idl";
+
+   //public static final boolean DEBUG = true;
+   public static final boolean DEBUG = false;
+
+   /** Icon base for the IDLNode node */
+   public static final String IDL_ICON_BASE =
+      "com/netbeans/enterprise/modules/corba/settings/idl";
+   public static final String IDL_ERROR_ICON =
+      "com/netbeans/enterprise/modules/corba/settings/idl-error";
+
+   IDLDocumentChildren children;
+   IDLDataObject ido;
+
+   /** Default constructor, constructs node */
+   public IDLNode (DataObject dataObject) throws Exception {
+      //super(dataObject, Children.LEAF);
+      //try {
+      super (dataObject, new IDLDocumentChildren ((IDLDataObject) dataObject));
+      ido = (IDLDataObject)dataObject;
+      setIconBase (IDL_ICON_BASE);
+      children = (IDLDocumentChildren) getChildren ();
+      children.setNode (this);
+      //children.startParsing ();
+      //} catch (ParseException e) {
+      //setIconBase(IDL_ERROR_ICON);
+      //}
+      if (DEBUG)
+	 System.out.println ("IDLNode constructor!!!");
+}
   
-  /** Default constructor, constructs node */
-  public IDLNode (DataObject dataObject) {
-    super(dataObject, Children.LEAF);
-    setIconBase(IDL_ICON_BASE);
-  }
-  
-  /** Overrides default action from DataNode.
-   * Instantiate a template, if isTemplate() returns true.
-   * Opens otherwise.
-   */
-  public SystemAction getDefaultAction () {
-    SystemAction result = super.getDefaultAction();
-    return result == null ? SystemAction.get(OpenAction.class) : result;
-  }
+   /** Overrides default action from DataNode.
+    * Instantiate a template, if isTemplate() returns true.
+    * Opens otherwise.
+    */
+   public SystemAction getDefaultAction () {
+      SystemAction result = super.getDefaultAction();
+      return result == null ? SystemAction.get(OpenAction.class) : result;
+   }
 
-  protected IDLDataObject getIDLDataObject () {
-    return (IDLDataObject) getDataObject ();
-  }
+   public boolean canRename () {
+      return true;
+   }
 
-
+   protected IDLDataObject getIDLDataObject () {
+      return (IDLDataObject) getDataObject ();
+   }
+   
+   public void update () {
+      children.setSrc (ido.getSources ());
+      children.createKeys ();
+   }
 }
 
 
 /*
-* <<Log>>
-*  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
-*       org.openide ----
-*  7    Gandalf   1.6         5/28/99  Karel Gardas    
-*  6    Gandalf   1.5         5/28/99  Karel Gardas    
-*  5    Gandalf   1.4         5/22/99  Karel Gardas    
-*  4    Gandalf   1.3         5/15/99  Karel Gardas    
-*  3    Gandalf   1.2         5/8/99   Karel Gardas    
-*  2    Gandalf   1.1         4/24/99  Karel Gardas    
-*  1    Gandalf   1.0         4/23/99  Karel Gardas    
-* $
-*/
+ * <<Log>>
+ *  9    Gandalf   1.8         7/10/99  Karel Gardas    
+ *  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
+ *  7    Gandalf   1.6         5/28/99  Karel Gardas    
+ *  6    Gandalf   1.5         5/28/99  Karel Gardas    
+ *  5    Gandalf   1.4         5/22/99  Karel Gardas    
+ *  4    Gandalf   1.3         5/15/99  Karel Gardas    
+ *  3    Gandalf   1.2         5/8/99   Karel Gardas    
+ *  2    Gandalf   1.1         4/24/99  Karel Gardas    
+ *  1    Gandalf   1.0         4/23/99  Karel Gardas    
+ * $
+ */
+
+
+

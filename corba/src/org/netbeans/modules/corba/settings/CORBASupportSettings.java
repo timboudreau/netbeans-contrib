@@ -43,7 +43,10 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 				     "ORB_OBJECT_ACTIVATION", "DIR_PARAM", 
 				     "PACKAGE_PARAM", "COMPILER", "PACKAGE_DELIMITER",
 				     "ERROR_EXPRESSION", "FILE_POSITION", "LINE_POSITION",
-				     "COLUMN_POSITION", "MESSAGE_POSITION", "TIE_PARAM"};
+				     "COLUMN_POSITION", "MESSAGE_POSITION", "TIE_PARAM",
+				     // added for implementation generator
+				     "IMPL_PREFIX", "IMPL_POSTFIX", "EXT_CLASS_PREFIX", 
+				     "EXT_CLASS_POSTFIX"};
 
    private String[] cbindings = {"NS", "IOR_FROM_FILE", "IOR_FROM_INPUT", "BINDER"};
 
@@ -102,6 +105,11 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
     
    public static String _message_position;
 
+   public static String _impl_prefix;
+   public static String _impl_postfix;
+   public static String _ext_class_prefix;
+   public static String _ext_class_postfix;
+   
    private boolean _is_tie;
 
    public static String _table = "USER="+System.getProperty("user.name")+"\n"; 
@@ -110,7 +118,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
    String addition = "";
 
-   private boolean deserealization;
+   //private boolean deserealization;
 
    /** @return human presentable name */
    public String displayName() {
@@ -133,6 +141,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       //this.getCookieSet.add (UpdateCookie.class);
    }
 
+   /*
    public void readExternal (ObjectInput in) 
       throws java.io.IOException, 
 	     java.lang.ClassNotFoundException {
@@ -140,18 +149,21 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       super.readExternal (in);
       deserealization = false;
    }
+   */
 
    public void propertyChange (PropertyChangeEvent event) {
       
       if (DEBUG)
       	 System.out.println ("propertyChange: " + event.getPropertyName ());
-      if (event.getPropertyName ().equals ("orb"))
-	 setAdvancedOrbOptions ((String) event.getNewValue ());
-      if (event.getPropertyName ().equals ("_client_binding"))
-	 setAdvancedClientBinding ((String) event.getNewValue ());
-      if (event.getPropertyName ().equals ("_server_binding"))
-	 setAdvancedServerBinding ((String) event.getNewValue ());
-      
+
+      if (event.getPropertyName () != null) {
+	 if (event.getPropertyName ().equals ("orb"))
+	    setAdvancedOrbOptions ((String) event.getNewValue ());
+	 if (event.getPropertyName ().equals ("_client_binding"))
+	    setAdvancedClientBinding ((String) event.getNewValue ());
+	 if (event.getPropertyName ().equals ("_server_binding"))
+	    setAdvancedServerBinding ((String) event.getNewValue ());
+      }
    }
 
    public void setAdvancedClientBinding (String binding) {
@@ -193,8 +205,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       String old = "";
       orb = s;
       try {
-	 if (!deserealization)
-	    firePropertyChange ("orb", old, orb);
+	 //if (!deserealization)
+	 firePropertyChange ("orb", old, orb);
       } catch (Exception e) {
 	 e.printStackTrace ();
       }
@@ -484,6 +496,41 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       return new Integer(_message_position).intValue ();
    }
 
+
+   public void setImplPrefix (String s) {
+      _impl_prefix = s;
+   }
+
+   public String getImplPrefix () {
+      return _impl_prefix;
+   }
+
+   public void setImplPostfix (String s) {
+      _impl_postfix = s;
+   }
+
+   public String getImplPostfix () {
+      return _impl_postfix;
+   }
+
+
+   public void setExtClassPrefix (String s) {
+      _ext_class_prefix = s;
+   }
+
+   public String getExtClassPrefix () {
+      return _ext_class_prefix;
+   }
+
+   public void setExtClassPostfix (String s) {
+      _ext_class_postfix = s;
+   }
+
+   public String getExtClassPostfix () {
+      return _ext_class_postfix;
+   }
+
+
    public void setReplaceableStringsTable (String s) {
       String old = _table;
       _table = s;
@@ -606,6 +653,13 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       String old_line = getLinePosition ();
       String old_column = getColumnPosition ();
       String old_message = getMessagePosition ();
+      
+      // added for generator
+      String old_impl_prefix = getImplPrefix ();
+      String old_impl_postfix = getImplPostfix ();
+      String old_ext_class_prefix = getExtClassPrefix ();
+      String old_ext_class_postfix = getExtClassPostfix ();
+
       String new_expression = "";
       String new_file = "";
       String new_line = "";
@@ -614,6 +668,13 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       String new_dir = "";
       String new_package = "";
       String new_tie = "";
+
+      // added for generator
+      String new_impl_prefix;
+      String new_impl_postfix;
+      String new_ext_class_prefix;
+      String new_ext_class_postfix;
+
       NbProcessDescriptor old_idl = getIdl ();
       NbProcessDescriptor new_idl = null;
       String old_delimiter = getPackageDelimiter();
@@ -668,6 +729,13 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       new_message = ((Properties)props.elementAt (index)).getProperty ("MESSAGE_POSITION");
       new_delimiter = ((Properties)props.elementAt (index)).getProperty ("PACKAGE_DELIMITER");
 
+      // added for generator
+      new_impl_prefix = ((Properties)props.elementAt (index)).getProperty ("IMPL_PREFIX");
+      new_impl_postfix = ((Properties)props.elementAt (index)).getProperty ("IMPL_POSTFIX");
+      new_ext_class_prefix = ((Properties)props.elementAt (index)).getProperty ("EXT_CLASS_PREFIX");
+      new_ext_class_postfix = ((Properties)props.elementAt (index)).getProperty 
+	 ("EXT_CLASS_POSTFIX");
+
       setTieParam (new_tie);
       setDirParam (new_dir);
       setPackageParam (new_package);
@@ -678,6 +746,12 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       setColumnPosition (new_column);
       setMessagePosition (new_message);
       setPackageDelimiter (new_delimiter);
+
+      // added for generator
+      setImplPrefix (new_impl_prefix);
+      setImplPostfix (new_impl_postfix);
+      setExtClassPrefix (new_ext_class_prefix);
+      setExtClassPostfix (new_ext_class_postfix);
 
       if (DEBUG)
 	 System.out.println ("setAdvancedOptions () - end!");
@@ -771,6 +845,21 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
 	 p.setProperty ("ORB_SERVER_RUN", ((Properties)props.elementAt (index)).getProperty 
 			("ORB_SERVER_RUN"));
+
+	 // added for implementation generator
+	 /*
+	 p.setProperty ("IMPL_PREFIX", ((Properties)props.elementAt (index)).getProperty 
+			("IMPL_PREFIX"));
+	 
+	 p.setProperty ("IMPL_POSTFIX", ((Properties)props.elementAt (index)).getProperty 
+			("IMPL_POSTFIX"));
+	 
+	 p.setProperty ("EXT_CLASS_PREFIX", ((Properties)props.elementAt (index)).getProperty 
+			("EXT_CLASS_PREFIX"));
+	 
+	 p.setProperty ("EXT_CLASS_POSTFIX", ((Properties)props.elementAt (index)).getProperty 
+			("EXT_CLASS_POSTFIX"));
+	 */
 			
       } catch (Exception e) {
 	 e.printStackTrace ();

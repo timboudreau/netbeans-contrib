@@ -48,6 +48,7 @@ public class SkelPropertyEditor extends PropertyEditorSupport {
 
 /*
  * <<Log>>
+ *  9    Gandalf   1.8         7/10/99  Karel Gardas    
  *  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
  *  7    Gandalf   1.6         5/28/99  Karel Gardas    

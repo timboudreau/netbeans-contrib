@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 import java.util.Map;
 import java.util.Date;
+import java.util.Vector;
 import java.text.DateFormat;
 
 import org.openide.loaders.MultiFileLoader;
@@ -53,6 +54,8 @@ public class IDLDataLoader extends MultiFileLoader {
 
    public ExtensionList extensions = null;
 
+   protected int fi_counter = 0;
+
    public IDLDataLoader() {
        super(IDLDataObject.class);
        if (DEBUG)
@@ -74,8 +77,8 @@ public class IDLDataLoader extends MultiFileLoader {
         SystemAction.get(OpenAction.class),
   	    null,
   	    SystemAction.get (CompileAction.class),
-  	    //null,
-  	    //SystemAction.get (GenerateImplAction.class),
+  	    null,
+  	    SystemAction.get (GenerateImplAction.class),
   	    null,
   	    SystemAction.get(CutAction.class),
   	    SystemAction.get(CopyAction.class),
@@ -111,11 +114,61 @@ public class IDLDataLoader extends MultiFileLoader {
       String ext = fo.getExt();
       if (ext.equals(IDL_EXTENSION))
 	 return fo;
-      else
-	 //if (ext.equals(CLASS_EXTENSION))
-	 //  return Util.findFile(fo, JAVA_EXTENSION);
+      else {
+	 // it can be java file generated from idl
+	 Vector idls = findIdls (fo);
+	 Vector idos = new Vector ();
+	 // first we look if this file is marked as generated from idl
+	 if (DEBUG) {
+	    System.out.println ("exists attribute? ");
+	    System.out.flush ();
+	 }
+	 String attr = (String)fo.getAttribute ("IDL_generated_file");
+	 if (attr != null) {
+	    // so we can now find particular idl file object
+	    if (DEBUG) {
+	       System.out.print ("exists " + attr + "? ");
+	       System.out.flush ();
+	    }
+	    FileObject idl = fo.getParent ().getFileObject (attr, "idl");
+	    if (idl != null) {
+	       if (DEBUG) {
+		  System.out.println ("yes");
+		  System.out.println ("catch " + fo.getName () + " generated from " 
+				      + idl.getName ());
+	       }
+	       return idl;
+	    }
+	    else
+	       return null;  // is marked but idl file don't exists
+	 }
+	 for (int i=0; i<idls.size (); i++) {
+	    try {
+	       idos.addElement (DataObject.find ((FileObject)idls.elementAt (i)));
+	    } catch (Exception e) {
+	       e.printStackTrace ();
+	    }
+	 }
+	 for (int i=0; i<idos.size (); i++) {
+	    if (((IDLDataObject)idos.elementAt (i)).canGenerate (fo)) {
+	       if (DEBUG)
+		  System.out.println (fo.getName () + " generated from " 
+				      + ((IDLDataObject)idos.elementAt (i)).getPrimaryFile ()
+				      .getName ());
+	       try {
+		  fo.setAttribute ("IDL_generated_file", ((IDLDataObject)idos.elementAt (i))
+				   .getPrimaryFile ().getName ());
+		  this.markFile (fo);
+	       } catch (IOException e) {
+		  e.printStackTrace ();
+	       }
+	       return ((IDLDataObject)idos.elementAt (i)).getPrimaryFile ();
+	    }
+	 }
 	 return null;
+      }
    }
+
 
     /** Creates the right primary entry for given primary file.
      *
@@ -136,6 +189,24 @@ public class IDLDataLoader extends MultiFileLoader {
    protected MultiDataObject.Entry createSecondaryEntry (MultiDataObject obj, 
 							 FileObject secondaryFile) {
       return new FileEntry.Numb(obj, secondaryFile);
+   }
+
+   protected Vector findIdls (FileObject fo) {
+      fi_counter++;
+      if (DEBUG)
+	 System.out.println ("IDLDataLoader.findIdls ()..." + fi_counter);
+      FileObject folder = fo.getParent ();
+      FileObject[] files = folder.getChildren ();
+      Vector idls = new Vector ();
+      for (int i=0; i<files.length; i++)
+	 if (files[i].isData ()) // file object represent data file
+	    if ("idl".equals (files[i].getExt ())) {
+	       // idl file
+	       idls.addElement (files[i]);
+	       if (DEBUG)
+		  System.out.println ("idl file: " + files[i].getName ());
+	    }
+      return idls;
    }
 
    public void setExtensions (ExtensionList e) {

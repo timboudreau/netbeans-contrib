@@ -144,8 +144,8 @@ public class IDLExternalCompiler extends ExternalCompiler {
 
   protected Object compilerType () {
      //   try {
-       System.err.println("IDLExternalCompiler: compiler type = " 
-			  + getFileObject());
+     //System.err.println("IDLExternalCompiler: compiler type = " 
+     //		  + getFileObject());
        return getFileObject ();
        // } catch (FileStateInvalidException ex) {
        //return new Object ();

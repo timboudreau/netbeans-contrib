@@ -55,7 +55,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
       throws IOException {
       FileObject fo = null;
 
-      System.err.println("IDLExternalCompilerGroup: type = " + type);
+      //System.err.println("IDLExternalCompilerGroup: type = " + type);
 
       if (type instanceof FileObject) {
 	 fo = (FileObject) type;

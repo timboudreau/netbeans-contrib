@@ -72,13 +72,14 @@ public class GenerateImplAction extends CookieAction {
   protected void performAction (final Node[] activatedNodes) {
     IDLNodeCookie unc = (IDLNodeCookie)activatedNodes[0].getCookie(IDLNodeCookie.class);
     if (unc != null) {
-      unc.GenerateImpl();
+      unc.GenerateImpl((IDLDataObject)activatedNodes[0].getCookie (IDLDataObject.class));
     }
   }
 }
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         7/10/99  Karel Gardas    
  *  5    Gandalf   1.4         6/9/99   Ian Formanek    Fixed resources for 
  *       package change
  *  4    Gandalf   1.3         6/9/99   Ian Formanek    ---- Package Change To 

@@ -22,11 +22,12 @@ import org.openide.nodes.Node;
 */
 public interface IDLNodeCookie extends Node.Cookie {
 
-   public void GenerateImpl ();
+   public void GenerateImpl (IDLDataObject ido);
 }
 
 /*
  * <<Log>>
+ *  5    Gandalf   1.4         7/10/99  Karel Gardas    
  *  4    Gandalf   1.3         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
  *  3    Gandalf   1.2         5/28/99  Karel Gardas    

@@ -75,8 +75,17 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 		new PropertyDescriptor ("_table", CORBASupportSettings.class,
 					"getRaplaceableStringsTable", "setReplaceableStringsTable"),
 		new PropertyDescriptor ("_tie_param", CORBASupportSettings.class, 
-					"getTieParam", "setTieParam") 
-			    
+					"getTieParam", "setTieParam"),
+		new PropertyDescriptor ("_impl_prefix", CORBASupportSettings.class,
+					"getImplPrefix", "setImplPrefix"), 
+		new PropertyDescriptor ("_impl_postfix", CORBASupportSettings.class,
+					"getImplPostfix", "setImplPostfix"),
+		new PropertyDescriptor ("_ext_class_prefix", CORBASupportSettings.class,
+					"getExtClassPrefix", "setExtClassPrefix"), 
+		new PropertyDescriptor ("_ext_class_postfix", CORBASupportSettings.class,
+					"getExtClassPostfix", "setExtClassPostfix") 
+ 
+		
 	    };
 
 	    desc[0].setDisplayName (CORBASupport.bundle.getString ("PROP_SKELS"));
@@ -122,6 +131,15 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 	    desc[14].setExpert (true);
 	    desc[15].setDisplayName ("Tie parameter");
 	    desc[15].setExpert (true);
+	    desc[16].setDisplayName ("Implementation Prefix");
+	    desc[16].setExpert (true);
+	    desc[17].setDisplayName ("Implementation Postfix");
+	    desc[17].setExpert (true);
+	    desc[18].setDisplayName ("Extended Class Prefix");
+	    desc[18].setExpert (true);
+	    desc[19].setDisplayName ("Extended Class Postfix");
+	    desc[19].setExpert (true);
+
 	} catch (IntrospectionException ex) {
 	    //throw new InternalError ();
 	    ex.printStackTrace ();
@@ -157,6 +175,7 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 
 /*
  * <<Log>>
+ *  9    Gandalf   1.8         7/10/99  Karel Gardas    
  *  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
  *  7    Gandalf   1.6         5/28/99  Karel Gardas    
