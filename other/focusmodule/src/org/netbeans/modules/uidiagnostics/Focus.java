@@ -198,7 +198,7 @@ class Focus extends Object implements PropertyChangeListener {
             sb.append (" Opposite: " + c2s(opp));
             boolean lost = fe.getID() == fe.FOCUS_LOST;
             Point p = lost ? opp.getLocation() : src.getLocation();
-            SwingUtilities.convertPointToScreen(p, c);
+            SwingUtilities.convertPointToScreen(p, lost ? opp : src);
             sb.append (" location of focused:" + p.x + "," + p.y);
             markComponent(src, lost ? Color.GREEN : Color.ORANGE);
             markComponent(opp, lost ? Color.ORANGE : Color.GREEN);
