@@ -126,7 +126,8 @@ public class AdditionalFeatures extends NbTestCase {
         new Node(filesystemNode, "A_File.java [Current]|2  Three lines have changed.").select();
         new OpenAction().perform(new Node(filesystemNode, "A_File.java [Current]|1  Generated A_File class."));
         versioningExplorer.close();
-        String editorContents = new EditorOperator("A_File.java 1.0").getText();
+        EditorOperator editor = new EditorOperator(new EditorWindowOperator(), "A_File.java 1");
+        String editorContents = editor.getText();
         if (!editorContents.equals("/** This is testing file.\n */\n\n public class Testing_File {\n }\n"))
             captureScreen("Error: Incorrect version of A_File was opened.");
         System.out.println(". done !");
