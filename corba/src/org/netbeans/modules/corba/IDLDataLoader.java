@@ -50,6 +50,7 @@ public class IDLDataLoader extends MultiFileLoader {
    //private static final boolean DEBUG = true;
    private static final boolean DEBUG = false;
 
+   CORBASupportSettings css;
    public static final String IDL_EXTENSION = "idl";
 
    public ExtensionList extensions = null;
@@ -114,60 +115,65 @@ public class IDLDataLoader extends MultiFileLoader {
       String ext = fo.getExt();
       if (ext.equals(IDL_EXTENSION))
 	 return fo;
-      else {
-	 // it can be java file generated from idl
-	 Vector idls = findIdls (fo);
-	 Vector idos = new Vector ();
-	 // first we look if this file is marked as generated from idl
+      if (css == null)
+	 css = (CORBASupportSettings)
+	    CORBASupportSettings.findObject (CORBASupportSettings.class, true);
+      if (!css.hideGeneratedFiles ())
+	 return null;
+
+      // it can be java file generated from idl
+      Vector idls = findIdls (fo);
+      Vector idos = new Vector ();
+      // first we look if this file is marked as generated from idl
+      if (DEBUG) {
+	 System.out.println ("exists attribute? ");
+	 System.out.flush ();
+      }
+      String attr = (String)fo.getAttribute ("IDL_generated_file");
+      if (attr != null) {
+	 // so we can now find particular idl file object
 	 if (DEBUG) {
-	    System.out.println ("exists attribute? ");
+	    System.out.print ("exists " + attr + "? ");
 	    System.out.flush ();
 	 }
-	 String attr = (String)fo.getAttribute ("IDL_generated_file");
-	 if (attr != null) {
-	    // so we can now find particular idl file object
+	 FileObject idl = fo.getParent ().getFileObject (attr, "idl");
+	 if (idl != null) {
 	    if (DEBUG) {
-	       System.out.print ("exists " + attr + "? ");
-	       System.out.flush ();
+	       System.out.println ("yes");
+	       System.out.println ("catch " + fo.getName () + " generated from " 
+				   + idl.getName ());
 	    }
-	    FileObject idl = fo.getParent ().getFileObject (attr, "idl");
-	    if (idl != null) {
-	       if (DEBUG) {
-		  System.out.println ("yes");
-		  System.out.println ("catch " + fo.getName () + " generated from " 
-				      + idl.getName ());
-	       }
-	       return idl;
-	    }
-	    else
-	       return null;  // is marked but idl file don't exists
+	    return idl;
 	 }
-	 for (int i=0; i<idls.size (); i++) {
+	 else
+	    return null;  // is marked but idl file don't exists
+      }
+      for (int i=0; i<idls.size (); i++) {
+	 try {
+	    idos.addElement (DataObject.find ((FileObject)idls.elementAt (i)));
+	 } catch (Exception e) {
+	    e.printStackTrace ();
+	 }
+      }
+      for (int i=0; i<idos.size (); i++) {
+	 if (((IDLDataObject)idos.elementAt (i)).canGenerate (fo)) {
+	    if (DEBUG)
+	       System.out.println (fo.getName () + " generated from " 
+				   + ((IDLDataObject)idos.elementAt (i)).getPrimaryFile ()
+				   .getName ());
 	    try {
-	       idos.addElement (DataObject.find ((FileObject)idls.elementAt (i)));
-	    } catch (Exception e) {
+	       fo.setAttribute ("IDL_generated_file", ((IDLDataObject)idos.elementAt (i))
+				.getPrimaryFile ().getName ());
+	       //this.markFile (fo);
+	    } catch (IOException e) {
 	       e.printStackTrace ();
 	    }
+	    return ((IDLDataObject)idos.elementAt (i)).getPrimaryFile ();
 	 }
-	 for (int i=0; i<idos.size (); i++) {
-	    if (((IDLDataObject)idos.elementAt (i)).canGenerate (fo)) {
-	       if (DEBUG)
-		  System.out.println (fo.getName () + " generated from " 
-				      + ((IDLDataObject)idos.elementAt (i)).getPrimaryFile ()
-				      .getName ());
-	       try {
-		  fo.setAttribute ("IDL_generated_file", ((IDLDataObject)idos.elementAt (i))
-				   .getPrimaryFile ().getName ());
-		  this.markFile (fo);
-	       } catch (IOException e) {
-		  e.printStackTrace ();
-	       }
-	       return ((IDLDataObject)idos.elementAt (i)).getPrimaryFile ();
-	    }
-	 }
-	 return null;
       }
+      return null;
    }
+
 
 
     /** Creates the right primary entry for given primary file.
@@ -219,13 +225,18 @@ public class IDLDataLoader extends MultiFileLoader {
       return extensions;
    }
 
-    protected Map createStringsMap() {
-	CORBASupportSettings cs = (CORBASupportSettings) 
-	    CORBASupportSettings.findObject (CORBASupportSettings.class, true);	
-	
-	return cs.getReplaceableStringsProps();
-    }
+   protected Map createStringsMap() {
+      /*
+      CORBASupportSettings css = (CORBASupportSettings) 
+	 CORBASupportSettings.findObject (CORBASupportSettings.class, true);	
+      */
+      if (css == null)
+	 css = (CORBASupportSettings)
+	    CORBASupportSettings.findObject (CORBASupportSettings.class, true);
 
+      return css.getReplaceableStringsProps();
+   }
+   
 
    /** This entry defines the format for replacing the text during
     * instantiation the data object.
@@ -266,3 +277,8 @@ public class IDLDataLoader extends MultiFileLoader {
 /*
  * <<Log>>
  */
+
+
+
+
+

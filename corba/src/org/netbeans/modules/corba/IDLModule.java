@@ -63,11 +63,11 @@ public class IDLModule implements ModuleInstall {
       //System.out.println ("setting template map :))");
 
       Compiler.Manager.register (IDLDataObject.class, new Compiler.Manager () {
-        public void prepareJob (CompilerJob job, Class type, DataObject ido) {
-          ((IDLDataObject)ido).createCompiler (job, type);
-        }
+	 public void prepareJob (CompilerJob job, Class type, DataObject ido) {
+	    ((IDLDataObject)ido).createCompiler (job, type);
+	 }
       });
-
+      
       /*
 
       Compiler.Manager.register (IDLDataObject.class,
@@ -303,6 +303,8 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  15   Gandalf   1.14        8/7/99   Karel Gardas    changes in code which 
+ *       hide generated files
  *  14   Gandalf   1.13        8/3/99   Karel Gardas    
  *  13   Gandalf   1.12        6/10/99  Ian Formanek    Modified copying 
  *       templates and impls on install

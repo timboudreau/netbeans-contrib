@@ -94,10 +94,19 @@ public class IDLDataObject extends MultiDataObject {
       // added for implementation generator
       cookies.add (new IDLNodeCookie () {
 	 public void GenerateImpl (IDLDataObject ido) {
+	    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+	       (CORBASupportSettings.class, true);
+	    if (css.getOrb () == null) {
+	       new NotSetuped ();
+	       return;
+	    }
+
 	    if (DEBUG)
 	       System.out.println ("generating of idl implemenations...");
 	    generator = new ImplGenerator (ido);
 	    generator.setSources (getSources ());
+	    // genearte method can return JavaDataObject in near future to Open generated file
+	    // in editor
 	    generator.generate ();
 	    /*
 	    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
@@ -153,6 +162,10 @@ public class IDLDataObject extends MultiDataObject {
 	 System.out.println ("IDLDataObject.java:112:createCompiler");
       CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
 	 (CORBASupportSettings.class, true);	   
+      if (css.getOrb () == null) {
+	 new NotSetuped ();
+	 return null;
+      }
       ExternalCompiler.ErrorExpression eexpr = new ExternalCompiler.ErrorExpression 
 	 ("blabla", css.getErrorExpression (), css.file (), 
 	  css.line (), css.column (), css.message ());
@@ -313,25 +326,31 @@ public class IDLDataObject extends MultiDataObject {
       for (int i=0; i<ii.size (); i++) {
 	 name = (String)ii.elementAt (i);
 	 if (name != null && (!name.equals (""))) {
+	    //
+	    // now I coment *tie* names which classes are necesary to instantiate in server
+	    // and it's better when user can see it in explorer
+	    //
 	    possible_names.put ("_" + name + "Stub", "");
 	    //possible_names.put ("POA_" + name + "_tie", "");
 	    //possible_names.put ("POA_" + name, "");
 	    possible_names.put (name + "POA", "");
-	    possible_names.put (name + "POATie", "");
+	    //possible_names.put (name + "POATie", "");
 	    possible_names.put (name + "Operations", "");
-	    possible_names.put ("_" + name + "ImplBase_tie", "");
+	    //possible_names.put ("_" + name + "ImplBase_tie", "");
 	    
 	    // for JavaORB
 	    possible_names.put ("StubFor" + name, "");
 	    possible_names.put ("_" + name + "ImplBase", "");
 	    // for VisiBroker
 	    possible_names.put ("_example_" + name, "");
-	    possible_names.put ("_tie_" + name, "");
+	    //possible_names.put ("_tie_" + name, "");
 	    possible_names.put ("_st_" + name, "");
 	    // for OrbixWeb
 	    possible_names.put ("_" + name + "Skeleton", "");
 	    possible_names.put ("_" + name + "Stub", "");
 	    possible_names.put ("_" + name + "Operations", "");
+	    // for idltojava - with tie
+	    //possible_names.put ("_" + name + "Tie", "");
 	    // for hidding folders
 	    // possible_names.put (name + "Package", "");
 	 }
@@ -504,6 +523,8 @@ public class IDLDataObject extends MultiDataObject {
 
 /*
  * <<Log>>
+ *  14   Gandalf   1.13        8/7/99   Karel Gardas    changes in code which 
+ *       hide generated files
  *  13   Gandalf   1.12        8/3/99   Karel Gardas    
  *  12   Gandalf   1.11        7/10/99  Karel Gardas    
  *  11   Gandalf   1.10        6/9/99   Ian Formanek    ---- Package Change To 

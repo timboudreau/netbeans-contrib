@@ -34,6 +34,9 @@ public class CORBASupport {
    /** bundle to obtain text information from */
    public static ResourceBundle bundle = NbBundle.getBundle(CORBASupport.class);
    
+   public static final String NOT_SETUPED = CORBASupport.bundle.getString
+      ("CTL_NotSetuped");
+   
    /*
      public static final String ORBIX = CORBASupport.bundle.getString ("CTL_Orbix");
      
@@ -69,8 +72,9 @@ public class CORBASupport {
     public static final String CLIENT_IOR_FROM_INPUT = CORBASupport.bundle.getString 
        ("CTL_CLIENT_IOR_FROM_INPUT");
 
-    public static final String CLIENT_BINDER = CORBASupport.bundle.getString 
-       ("CTL_CLIENT_BINDER");
+   public static final String CLIENT_BINDER = CORBASupport.bundle.getString 
+      ("CTL_CLIENT_BINDER");
+   
 
     /*
     public static final String ORBIX_IMPORT = CORBASupport.bundle.getString 
@@ -161,6 +165,8 @@ public class CORBASupport {
 
 /*
  * <<Log>>
+ *  13   Gandalf   1.12        8/7/99   Karel Gardas    changes in code which 
+ *       hide generated files
  *  12   Gandalf   1.11        8/3/99   Karel Gardas    
  *  11   Gandalf   1.10        7/10/99  Karel Gardas    
  *  10   Gandalf   1.9         6/11/99  Jaroslav Tulach System.out commented
