@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcs.advanced;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.openide.TopManager;
@@ -191,25 +193,35 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
 
     private void fillFileList() {
         javax.swing.DefaultListModel model = new javax.swing.DefaultListModel();
-        FileObject[] ch = dir.getChildren();
-        for(int i = 0; i < ch.length; i++) {
-            if (ch[i].getExt().equalsIgnoreCase(VariableIO.CONFIG_FILE_EXT)) {
-                model.addElement(ch[i].getName());
-                String label = null;
-                org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(dir, ch[i].getNameExt());
+        ArrayList configList = VariableIO.readConfigurations(dir);
+        String[] configNames = (String[]) configList.toArray(new String[0]);
+        Arrays.sort(configNames);
+        for (int i = 0; i < configNames.length; i++) {
+            String config = configNames[i];
+            String configName;
+            String configExt;
+            int extIndex = config.lastIndexOf('.');
+            if (extIndex < 0) {
+                configName = config;
+                configExt = "";
+            } else {
+                configName = config.substring(0, extIndex);
+                configExt = config.substring(extIndex + 1);
+            }
+            model.addElement(configName);
+            String label = null;
+            if (configExt.equalsIgnoreCase(VariableIO.CONFIG_FILE_EXT)) {
+                org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(dir, config);
                 if (doc != null) {
                     label = VariableIO.getConfigurationLabel(doc);
                 } else {
                     label = org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("CTL_No_label_configured");
                 }
-                configLabels.put(ch[i].getName(), label);
+            } else if (configExt.equalsIgnoreCase(VariableIOCompat.CONFIG_FILE_EXT)) {
+                label = VariableIOCompat.readPredefinedProperties(dir, config).
+                         getProperty("label", org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("CTL_No_label_configured"));
             }
-            if (ch[i].getExt().equalsIgnoreCase(VariableIOCompat.CONFIG_FILE_EXT)) {
-                model.addElement(ch[i].getName());
-                String label = VariableIOCompat.readPredefinedProperties(dir, ch[i].getNameExt()).
-                                getProperty("label", org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("CTL_No_label_configured"));
-                configLabels.put(ch[i].getName(), label);
-            }
+            configLabels.put(configName, label);
         }
         fileList.setModel(model);
     }
