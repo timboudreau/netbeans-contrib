@@ -12,24 +12,25 @@
  */
 package org.netbeans.modules.vcscore.actions;
 
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataShadow;
 import java.io.File;
-import org.openide.nodes.Node;
-import org.openide.filesystems.FileObject;
-import org.openide.util.actions.NodeAction;
-import org.openide.util.actions.SystemAction;
-import org.openide.util.SharedClassObject;
-import org.openide.util.NbBundle;
-import org.openide.util.HelpCtx;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Enumeration;
 import java.lang.ref.WeakReference;
-import org.netbeans.modules.vcscore.grouping.VcsGroupNode;
 
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataShadow;
+import org.openide.nodes.Node;
+import org.openide.util.actions.NodeAction;
+import org.openide.util.actions.SystemAction;
+import org.openide.util.SharedClassObject;
+import org.openide.util.NbBundle;
+import org.openide.util.HelpCtx;
+
+import org.netbeans.modules.vcscore.grouping.GroupCookie;
 
 /** 
  * Action sensitive to nodes, that delegates the enable/perform processing
@@ -262,13 +263,16 @@ public class GeneralCommandAction extends NodeAction {
             createSupporterMap(activatedNodes);
             nodesRef = new WeakReference(activatedNodes);
         } else {
-            Node[] nods = (Node[])array;
+            Node[] nodes = (Node[])array;
             boolean hasAnyGroups = false;
-            for (int i = 0; i < nods.length; i++) {
-                if (nods[i] != null && nods[i] instanceof VcsGroupNode) {
+            for (int i = 0; i < nodes.length; i++) {
+                if (nodes[i] != null) {
+                    GroupCookie gc = (GroupCookie) nodes[i].getCookie(GroupCookie.class);
+                    if (gc != null) {
 //                    System.out.println("has groupos..");
-                    hasAnyGroups = true;
-                    break;
+                        hasAnyGroups = true;
+                        break;
+                    }
                 }
             }
             boolean equal = org.openide.util.Utilities.compareObjects(array, activatedNodes);
@@ -305,11 +309,11 @@ public class GeneralCommandAction extends NodeAction {
  */
         suppMap = new HashMap();
         for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] instanceof VcsGroupNode) {
+            GroupCookie gc = (GroupCookie) nodes[i].getCookie(GroupCookie.class);
+            if (gc != null) {
                 // setValue for recognition by the supporters
-                VcsGroupNode grNode = (VcsGroupNode)nodes[i];
-                putValue(GROUP_DESCRIPTION_PROP, grNode.getShortDescription());
-                putValue(GROUP_NAME_PROP, grNode.getDisplayName());
+                putValue(GROUP_DESCRIPTION_PROP, gc.getDescription());
+                putValue(GROUP_NAME_PROP, gc.getDisplayName());
                 Enumeration childs = nodes[i].getChildren().nodes();
 //                System.out.println("create supp. map for group.. count=" + grNode.getChildren().getNodesCount());
                 while (childs.hasMoreElements()) {

@@ -26,6 +26,7 @@ import org.openide.util.RequestProcessor;
 
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.MessagingCommand;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
@@ -125,7 +126,7 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
          */
     }
 
-    public void performAction(GeneralCommandAction action, final FileObject[] fileObjects) {
+    public void performAction(final GeneralCommandAction action, final FileObject[] fileObjects) {
         if (fileObjects == null || fileObjects.length == 0) {
             return;
         }
@@ -142,6 +143,12 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
                     if (isEnabled(cmdSupport, fos)) {
                         Command cmd = cmdSupport.createCommand();
                         cmd.setFiles(fos);
+                        if (cmd instanceof MessagingCommand) {
+                            String description = (String) action.getValue(GeneralCommandAction.GROUP_DESCRIPTION_PROP);
+                            if (description != null) {
+                                ((MessagingCommand) cmd).setMessage(description);
+                            }
+                        }
                         cmd.setGUIMode(true);
                         if (VcsManager.getDefault().showCustomizer(cmd)) {
                             cmd.execute();
