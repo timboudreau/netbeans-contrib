@@ -87,6 +87,7 @@ Microsystems, Inc. All Rights Reserved.
       <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" compress="false" manifest="${manifest.mf}">
           <manifest>
               <attribute name="OpenIDE-Module-Implementation-Version" value="${ddapi.impl.version}"/>
+              <attribute name="OpenIDE-Module-Build-Version" value="${buildnumber}"/>
               <attribute name="OpenIDE-Module-Public-Packages" value="${public.packages}"/>
               <attribute name="OpenIDE-Module-IDE-Dependencies" value="${ide.dependencies}"/>
               <attribute name="OpenIDE-Module-Module-Dependencies" value="${module.dependencies}"/>
