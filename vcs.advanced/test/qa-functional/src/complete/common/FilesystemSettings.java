@@ -26,6 +26,8 @@ import org.netbeans.jemmy.TestOut;
 import org.netbeans.test.oo.gui.jelly.vcscore.*;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.wizard.*;
 import org.openide.util.Utilities;
+import org.netbeans.jellytools.*;
+import org.netbeans.jellytools.nodes.Node;
 
 /** XTest / JUnit test class performing check of all settings of filesystems mounted
  * using Generic VCS module.
@@ -207,13 +209,31 @@ public class FilesystemSettings extends NbTestCase {
         String property = JelloBundle.getString("org.netbeans.modules.vcs.advanced.Bundle", "PROP_processAllFiles");
         properties.edit(property);
         properties.setTrue();
+        properties.close();
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
         selectNode(new String[] {filesystem, "A_File"}, false);
         MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|Empty|Lock");
-        assertTrue("Lock command failed", history.isCommandSuccessed(filesystem, "Lock"));
-        CommandsHistory commandsHistory = new CommandsHistory();
-        if (!commandsHistory.compareProcessedFiles("A_File.class", filesystem, "Lock"))
-            throw new Exception("Error: Wrong processed files of Lock command.");
+        RuntimeTabOperator explorer = new ExplorerOperator().runtimeTab();
+        Node commandsHistory = new Node(explorer.getRootNode(), "VCS Commands|" + filesystem);
+        commandsHistory.tree().expandPath(commandsHistory.getTreePath());
+        int count = commandsHistory.getChildren().length;
+        boolean found = false;
+        for(int i=0; i<count; i++) {
+            Node command = new Node(commandsHistory, i);
+            if (!command.getText().equals("Lock")) continue;
+            command.select();
+            org.netbeans.jellytools.actions.PropertiesAction propertiesAction = new org.netbeans.jellytools.actions.PropertiesAction();
+            propertiesAction.perform(command);
+            org.netbeans.jellytools.properties.PropertySheetOperator sheet = new org.netbeans.jellytools.properties.PropertySheetOperator();
+            org.netbeans.jellytools.properties.StringProperty files = new org.netbeans.jellytools.properties.StringProperty(sheet.getPropertySheetTabOperator("Properties"), "Processed Files");
+            if (files.getStringValue().equals("A_File.class")) {
+                found = true;
+                sheet.close();
+                break;
+            }
+            sheet.close();
+        }
+        if (!found) throw new Exception("Error: Wrong processed files of Lock command.");
         api.getFilesystemsTab();
         selectNode(new String[] {filesystem}, true);
         MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
