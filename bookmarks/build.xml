@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                 Sun Public License Notice
+
+ The contents of this file are subject to the Sun Public License
+ Version 1.0 (the "License"). You may not use this file except in
+ compliance with the License. A copy of the License is available at
+ http://www.sun.com/
+
+ The Original Code is NetBeans. The Initial Developer of the Original
+ Code is Nokia. Portions Copyright 2003 Nokia.
+ All Rights Reserved.
+-->
+<project basedir="." default="all" name="bookmarks">
+
+    <target depends="all" name="netbeans"/>
+
+    <property name="nb_all" value="../.."/>
+
+    <property name="nbm_alias" value="nb_ide"/>
+    <property name="homepage.base" value="netbeans.org"/>
+    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
+    <property location="${nb_all}/nbbuild/standard-nbm-license.txt" name="license.file"/>
+
+    <taskdef classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="makenbm"/>
+    <taskdef classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="genlist"/>
+    <taskdef classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar" name="locjar"/>
+
+    <target name="compile">
+        <javac destdir="src" srcdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+            <classpath>
+                <!-- Whatever you need, based on your dependencies. -->
+                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+                <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
+                <pathelement location="${nb_all}/core/netbeans/lib/core.jar"/>
+                <fileset dir="${nb_all}/core/external">
+                    <include name="xml-apis*.jar"/>
+                    <include name="xerces*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <target depends="compile" name="jars">
+        <mkdir dir="netbeans/modules"/>
+        <jar compress="false" jarfile="netbeans/modules/bookmarks.jar" manifest="manifest.mf">
+            <fileset dir="src">
+                <exclude name="**/*.java"/>
+                <exclude name="**/*.form"/>
+                <exclude name="**/.nbattrs"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target depends="jars" description="Build the module." name="all"/>
+
+    <target depends="all" description="Prepare the module for distribution via Auto Update." name="nbm">
+        <makenbm distribution="http://www.nokia.com/" file="bookmarks.nbm" homepage="http://www.nokia.com/" module="netbeans/modules/bookmarks.jar" topdir=".">
+<!--            <license file="/SOMEWHERE/SOME/LICENSE/TEXT.txt"/> -->
+            <!-- signature element permitted also if you have the secret key for lib/ide.ks -->
+            <!-- otherwise users will be warned that your NBM is unsigned, and will have to accept it -->
+            <signature alias="${nbm_alias}" keystore="${keystore}" storepass="${storepass}"/>
+        </makenbm>
+    </target>
+
+    <target description="Clean all build products." name="clean">
+        <delete>
+            <fileset dir="src">
+                <include name="**/*.class"/>
+            </fileset>
+        </delete>
+        <delete dir="netbeans"/>
+        <delete dir="Info"/>
+        <delete file="bookmarks.nbm"/>
+        <delete dir="reload"/>
+    </target>
+
+</project>
