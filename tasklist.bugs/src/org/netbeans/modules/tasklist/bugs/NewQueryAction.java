@@ -88,7 +88,6 @@ public class NewQueryAction extends NodeAction {
         BugQuery query = new BugQuery();
         EditQueryPanel panel = new EditQueryPanel(query, false);
 
-        panel.setPreferredSize(new Dimension(600,200));
         DialogDescriptor d = new DialogDescriptor(panel,
              NbBundle.getMessage(NewQueryAction.class,
                                  "TITLE_NEW_QUERY")); // NOI18N

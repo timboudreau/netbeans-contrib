@@ -25,12 +25,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JPanel;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import org.netbeans.modules.tasklist.bugs.BugQuery;
 import org.netbeans.modules.tasklist.bugs.bugzilla.BugzillaQueryPanel;
@@ -110,7 +105,7 @@ public class EditQueryPanel extends JPanel {
         mBugEngines.addItem("Bugzilla");
         mBugEngines.setSelectedItem("Issuezilla");
 
-        mTopPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        mTopPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 6, 6));
         mTopPanel.add(mEngineLabel);
         mTopPanel.add(mBugEngines);
         
@@ -126,10 +121,11 @@ public class EditQueryPanel extends JPanel {
         });
         mDefaultButton.setEnabled(false);
         mDefaultButton.setToolTipText("Not yet implemented");
-        mButtonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        mButtonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 6, 6));
         mButtonPanel.add(mDefaultButton);
         
         add(mTopPanel, BorderLayout.NORTH);
+        mQueryPanel.setBorder(BorderFactory.createEmptyBorder(0,6,0,6));
         add(mQueryPanel, BorderLayout.CENTER);
         add(mButtonPanel, BorderLayout.SOUTH);
     }
