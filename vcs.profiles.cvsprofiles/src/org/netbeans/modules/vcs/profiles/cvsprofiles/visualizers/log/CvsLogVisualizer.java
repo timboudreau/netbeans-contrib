@@ -404,11 +404,16 @@ public class CvsLogVisualizer extends OutputVisualizer {
                 String rawEnd = path.substring(rawIndex+1);
                 debug("rawend:"+rawEnd);
                 int compIndex = compPath.indexOf('/');
-                String compStart = compPath.substring(0,compIndex);
+                String compStart;
+                if (compIndex < 0) {
+                    compStart = ".";
+                } else {
+                    compStart = compPath.substring(0,compIndex);
+                }
                 if(rawEnd.equals(compStart)){
                     debug("equals");
                     filePath.append(path);
-                    filePath.append(compPath.substring(compIndex));
+                    if (compIndex >= 0) filePath.append(compPath.substring(compIndex));
                     break;
                 }
             }else{
