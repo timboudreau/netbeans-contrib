@@ -65,6 +65,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
+import javax.jmi.reflect.InvalidObjectException;
 
 
 /** This DataObject loads sourceless classes and provides a common framework
@@ -556,6 +557,9 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
                     return false;
                 }
             }
+        } catch (InvalidObjectException ioe) {
+            bean = Boolean.FALSE;
+            return false;
         } catch (RuntimeException ex) {
             throw ex;
         } catch (ThreadDeath t) {
@@ -631,13 +635,17 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
          * (e.g., <code>public static void main (String[] arguments)</code>).
          */
         public boolean isExecutable() {
-            if (executable == null) {
-                ClassElement ce=getMainClass();
-
-                executable = ((ce==null) ? false : ce.hasMainMethod()) ? Boolean.TRUE : Boolean.FALSE;
+            try {
+                if (executable == null) {
+                    ClassElement ce=getMainClass();
+                    
+                    executable = ((ce==null) ? false : ce.hasMainMethod()) ? Boolean.TRUE : Boolean.FALSE;
+                }
+            } catch (InvalidObjectException ioe) {
+                executable = Boolean.FALSE;
             }
-            return executable.booleanValue ();
-        }    
+            return executable.booleanValue();
+        }
         
         /** Test whether the instance represents serialized version of a class
          * or not.
