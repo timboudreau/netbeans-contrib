@@ -23,9 +23,9 @@ import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.netbeans.modules.tasklist.core.ImportAction;
-import org.netbeans.modules.tasklist.core.LineNumberPropertyEditor;
-import org.netbeans.modules.tasklist.core.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.TaskNode;
+import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
+import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
@@ -87,7 +87,7 @@ class UserTaskNode extends TaskNode {
 
     private void init(UserTask item) {
         this.item = item;
-        setDefaultAction(SystemAction.get(ShowTaskAction.class));
+        setPreferredAction(SystemAction.get(ShowTaskAction.class));
     }
 
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):

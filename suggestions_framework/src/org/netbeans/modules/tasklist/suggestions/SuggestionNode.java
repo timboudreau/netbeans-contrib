@@ -25,8 +25,6 @@ import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
-import org.netbeans.modules.tasklist.core.PriorityPropertyEditor;
-
 import org.openide.ErrorManager;
 import org.openide.actions.PropertiesAction;
 import org.openide.nodes.Node;
@@ -39,7 +37,8 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import java.awt.datatransfer.Transferable;
 import org.netbeans.api.tasklist.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.LineNumberPropertyEditor;
+import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
+import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.openide.text.Line;
 
 

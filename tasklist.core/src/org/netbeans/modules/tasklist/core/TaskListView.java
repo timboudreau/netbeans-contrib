@@ -378,8 +378,8 @@ public abstract class TaskListView extends ExplorerPanel
      */
     public HelpCtx getHelpCtx() {
         return getHelpCtx(
-        getExplorerManager().getSelectedNodes(),
-        getExplorerManager().getRootContext().getHelpCtx()
+            getExplorerManager().getSelectedNodes(),
+            getExplorerManager().getRootContext().getHelpCtx()
         );
     }
 
@@ -514,8 +514,6 @@ public abstract class TaskListView extends ExplorerPanel
                 setValue ("ComparableColumnTTV", Boolean.TRUE);// NOI18N
         }       
         
-        /**
-         * @return  */        
         public Object getValue() {
             return null;
         }
