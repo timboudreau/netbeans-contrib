@@ -15,6 +15,7 @@ package org.netbeans.modules.j2ee.ejbfreeform;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -121,7 +122,7 @@ public class EJBProjectNature implements ProjectNature {
     }
     
     public static TargetDescriptor getExtraTarget() {
-        return new TargetDescriptor("deploy", "deploy",  // NOI18N
+        return new TargetDescriptor("deploy", Arrays.asList(new String[]{"deploy", ".*deploy.*"}),  // NOI18N
             NbBundle.getMessage(EJBProjectNature.class, "LBL_TargetMappingPanel_Deploy"), // NOI18N
             NbBundle.getMessage(EJBProjectNature.class, "ACSD_TargetMappingPanel_Deploy")); // NOI18N
     }
