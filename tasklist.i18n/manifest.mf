@@ -6,5 +6,8 @@ OpenIDE-Module-Implementation-Version: dev
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.4
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/i18n/mf-layer.xml
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/2 = @tl.core.impl@,
-  org.netbeans.tasklistapi/1 = @tl.api.impl@
+  org.netbeans.tasklistapi/1 = @tl.api.impl@,
+  org.netbeans.api.mdr/1, org.netbeans.modules.javacore/1,
+  org.netbeans.jmi.javamodel/1 > 1.0, javax.jmi.reflect/1 > 1.2,
+  org.netbeans.api.java/1 > 1.6
 OpenIDE-Module-Public-Packages: -

@@ -18,6 +18,14 @@ Microsystems, Inc. All Rights Reserved.
             <code-name-base>org.netbeans.modules.tasklist.usertasks</code-name-base>
             <path>tasklist/usertasks</path>
             <module-dependencies>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.tasklist.core</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>2</release-version>
+                    </run-dependency>
+                </dependency>
             </module-dependencies>
             <public-packages/>
         </data>

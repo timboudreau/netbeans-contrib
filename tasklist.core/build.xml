@@ -13,114 +13,47 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="tasklist/core" default="netbeans" basedir=".">
-    <import file="../../nbbuild/default.xml"/>
-
     <property file="../version.properties"/>
-    <property name="build.compiler.debug" value="on"/>
-
-    <target name="init" depends="default.init">
-      <patternset id="tasklist/core.files">
-        <include name="${nb.modules/autoload.dir}/tasklist-core.jar"/>
-        <include name="${nb.modules/autoload/docs.dir}/tasklist-manual.zip"/>
-      </patternset>
-      <path id="cp">
-        <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
-        <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
-        <pathelement location="${core/settings.dir}/${nb.modules.dir}/org-netbeans-modules-settings.jar"/>
-        <!-- tasklist api -->
-        <pathelement location="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>
-      </path>
-    </target>
-  
-    <target name="compile" depends="init">
-        <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4"> 
-            <classpath refID="cp"/>
-        </javac>
-    </target>
-
-
-    <target name="jars" depends="compile">
-        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload.dir}"/>
+    <property name="manifest.mf" location="manifest-subst.mf"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+    
+    <target name="jar-prep" depends="projectized.jar-prep">
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <filter filtersfile="../version.properties"/>
         <filter token="tl.core.spec" value="${tl.core.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload.dir}/tasklist-core.jar"
-             manifest="manifest-subst.mf"
-             basedir="src"
-	     excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
-	     compress="false"/>
     </target>
-
-    <target name="netbeans" depends="jars">
-        <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules/autoload.dir}/tasklist-core.jar">
-            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
-                <patternset refID="tasklist/core.files"/>
-           </fileset>
-        </genlist>
-    </target>
-
+    
     <target name="native">
         <mkdir dir="netbeans/modules/autoload/bin"/>
         <copy file="native/libtasklist_bgthreads.so" todir="netbeans/modules/autoload/bin"/>
     </target>
 
-    <target name="nbm" depends="netbeans">
-        <makenbm file="tasklist-core.nbm"
-                 productdir="${netbeans.dest.dir}/${cluster.dir}"
-                 module="${nb.modules/autoload.dir}/tasklist-core.jar"
-                 homepage="http://tasklist.${homepage.base}/updates/tasklist-core.html"
-                 distribution="http://${dist.base}/tasklist-core.nbm"
-                 needsrestart="false">
-            <license file="${license.file}"/>
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-        </makenbm>
-    </target>
-  
     <target name="changelog">
-        <style in="module-updates.xml" out="../www/updates/tasklist-core.html" style="../www/updates/updates.xsl"/>
+        <style in="module-updates.xml" out="../www/updates/tasklist-core.html" 
+            style="../www/updates/updates.xsl"/>
     </target>
     
-    <target name="clean" depends="init">
-        <delete>
-            <fileset dir="src">
-                <include name="**/*.class"/>
-            </fileset>
-            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
-               <patternset refID="tasklist/core.files"/>
-            </fileset>
-        </delete>
+    <target name="clean" depends="projectized.clean">
         <delete file="manifest-subst.mf"/>
-        <delete file="tasklist-core.nbm"/>
-        <delete dir="javadoc"/>
     </target>
-
-
-    <target name="javahelp" depends="init">
-      <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload/docs.dir}"/>
-      <mkdir dir="../javahelp/org/netbeans/modules/tasklist/help/JavaHelpSearch"/>
-      <jhindexer basedir="../javahelp/org/netbeans/modules/tasklist/help"
-                 db="../javahelp/org/netbeans/modules/tasklist/help/JavaHelpSearch">
-        <classpath>
-          <fileset dir="../../nbbuild/external">
-            <include name="jhall*.jar"/>
-          </fileset>
-        </classpath>
-        <include name="**/*.html"/>
-        <exclude name="JavaHelpSearch/"/>
-      </jhindexer>
-      <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload/docs.dir}"/>
-      <zip zipfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload/docs.dir}/tasklist-manual.zip" compress="true">
-        <fileset dir="../javahelp" excludesfile="../../nbbuild/standard-jar-excludes.txt">
-        </fileset>
-      </zip>
-    </target>
-  
-   <target name="release">
-    </target> 
-
-    <!-- This target will only work *inside* the IDE! -->
-    <target name= "test" depends="jars" description="Test the module inside the running IDE." >
-       <nbinstaller action="reinstall" module="netbeans/modules/autoload/tasklist-core.jar"/>
+    
+    <target name="pmd-check">
+        <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
+            <classpath>
+                <fileset dir="C:\Programme\pmd-2.0\lib\">
+                    <include name="*.jar"></include>
+                </fileset>
+            </classpath>
+        </taskdef>
+        <pmd printtoconsole="true" shortfilenames="true"  
+            rulesetfiles="rulesets/imports.xml,
+                rulesets/unusedcode.xml,
+                rulesets/basic.xml">
+            <formatter type="text" tofile="pmd_report.txt"/>
+            <fileset dir="src">
+                <include name="**/*.java"/>
+            </fileset>
+        </pmd>
     </target>
 </project>

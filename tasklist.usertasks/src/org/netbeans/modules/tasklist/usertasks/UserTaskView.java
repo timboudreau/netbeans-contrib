@@ -856,14 +856,21 @@ ExplorerManager.Provider, ExportImportProvider {
         setFiltered();
     }
 
-    public boolean requestFocusInWindow() {
+    /*public boolean requestFocusInWindow() {
         super.requestFocusInWindow();
         if (tt != null) {
             tt.requestFocusInWindow();
         }
         return true;
-    }
+    }*/
 
+    public void requestActive() {
+        super.requestActive();
+        if (tt != null) {
+            tt.requestFocusInWindow();
+        }
+    }
+    
     /* check isSliding
     public void showTask(UserTask item, Annotation annotation) {
         // #35917 do not move focus if in sliding mode

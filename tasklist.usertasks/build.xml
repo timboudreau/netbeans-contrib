@@ -23,4 +23,32 @@ Microsystems, Inc. All Rights Reserved.
         <filter token="tl.usertasks.spec" value="${tl.usertasks.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     </target>
+    
+    <target name="changelog">
+        <style in="module-updates.xml" out="../www/updates/tasklist-usertasks.html" 
+            style="../www/updates/updates.xsl"/>
+    </target>
+    
+    <target name="clean" depends="projectized.clean">
+        <delete file="manifest-subst.mf"/>
+    </target>
+    
+    <target name="pmd-check">
+        <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
+            <classpath>
+                <fileset dir="C:\Programme\pmd-2.0\lib\">
+                    <include name="*.jar"></include>
+                </fileset>
+            </classpath>
+        </taskdef>
+        <pmd printtoconsole="true" shortfilenames="true"  
+            rulesetfiles="rulesets/imports.xml,
+                rulesets/unusedcode.xml,
+                rulesets/basic.xml">
+            <formatter type="text" tofile="pmd_report.txt"/>
+            <fileset dir="src">
+                <include name="**/*.java"/>
+            </fileset>
+        </pmd>
+    </target>
 </project>
