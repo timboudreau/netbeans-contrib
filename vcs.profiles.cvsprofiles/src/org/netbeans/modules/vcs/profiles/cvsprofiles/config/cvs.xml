@@ -814,7 +814,7 @@ Microsystems, Inc. All Rights Reserved.
                                                         ASK_FOR(DO_COMMIT, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_DoCommit_mnc)))])
                  SELECT_COMBO_EXPERT(RCS_KFLAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Keyword_Substitution_mnc)),["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_None)", ""], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
           </value>
-	</property>
+	</property>        
 	<property name="onDir">
 	  <value>true</value>
 	</property>
@@ -925,8 +925,11 @@ Microsystems, Inc. All Rights Reserved.
                 ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_ADD_Description);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_Description_mnc))) 
             ASK_FOR(DO_COMMIT, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_DoCommit_mnc)))
             SELECT_COMBO_EXPERT(RCS_KFLAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Keyword_Substitution_mnc)), ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_None)", ""], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
-          </value>
+          </value>          
 	</property>
+        <property name="visualizer">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
+        </property>
 	<property name="distinguishBinaryFiles">
 	  <value>true</value>
 	</property>
@@ -987,11 +990,17 @@ Microsystems, Inc. All Rights Reserved.
         <property name="commandsAfterSuccess">
           <value>$[? DO_COMMIT] [COMMIT][]</value>
         </property>
+        <property name="visualizer">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
+        </property>
       </command>
       <command name="ADD_CMD">
 	<property name="exec">
 	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add $[? PROCESSING_BINARY_FILES] [-kb] [${RCS_KFLAG}] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [] ${QFILES} ${NUR}</value>
 	</property>
+        <property name="visualizer">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
+        </property>
 	<property name="distinguishBinaryFiles">
 	  <value>true</value>
 	</property>
@@ -2273,7 +2282,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOGOUT_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} ${CVS_DEF_EXE} logout ${NUR}</value>
+	  <value>${RUN} ${CVS_DEF_EXE} logout ${NUR}</value>      
 	</property>
         <property name="runOnMultipleFiles">
           <value>true</value>
