@@ -228,16 +228,20 @@ public class CommandExecutorSupport extends Object {
     public static void commandNotification(final VcsCommandExecutor vce,
                                            String notification,
                                            final VcsFileSystem fileSystem) {
-        notification = Variables.expand(vce.getVariables(), notification, false);
-        NotifyDescriptor msg = new NotifyDescriptor.Message(notification);
-        JCheckBox checkBox = new JCheckBox(g("DLG_DoNotNotify"));
-        msg.setMessage(createNotificationDesign(notification, checkBox));
-        TopManager.getDefault().notify(msg);
-        if (checkBox.isSelected()) {
-            fileSystem.setCommandNotification(false);
-            TopManager.getDefault().notify(new NotifyDescriptor.Message(
-                g("DLG_CanBeEnabled")));
-        }
+        final String notification1 = Variables.expand(vce.getVariables(), notification, false);
+        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                NotifyDescriptor msg = new NotifyDescriptor.Message(notification1);
+                JCheckBox checkBox = new JCheckBox(g("DLG_DoNotNotify"));
+                msg.setMessage(createNotificationDesign(notification1, checkBox));
+                TopManager.getDefault().notify(msg);
+                if (checkBox.isSelected()) {
+                    fileSystem.setCommandNotification(false);
+                    TopManager.getDefault().notify(new NotifyDescriptor.Message(
+                        g("DLG_CanBeEnabled")));
+                }
+            }
+        });
     }
     
     /**
