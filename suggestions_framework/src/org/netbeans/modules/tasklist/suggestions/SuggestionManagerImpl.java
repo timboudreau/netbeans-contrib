@@ -159,6 +159,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
         }
     }
 
+    // FIXME should be called on last view/client stop
     /** Called when the Suggestions View is hidden */
     void dispatchStop() {
         if (running) {
