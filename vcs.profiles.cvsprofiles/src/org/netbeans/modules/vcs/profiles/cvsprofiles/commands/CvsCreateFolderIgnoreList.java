@@ -24,8 +24,6 @@ import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
-import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
-
 /**
  *
  * @author  Martin Entlicher
@@ -95,7 +93,7 @@ public class CvsCreateFolderIgnoreList extends Object implements VcsAdditionalCo
                         CommandOutputListener stdoutListener, CommandOutputListener stderrListener,
                         CommandDataOutputListener stdoutDataListener, String dataRegex,
                         CommandDataOutputListener stderrDataListener, String errorRegex) {
-        String parentIgnoreList = (String) vars.get(CommandLineVcsFileSystem.VAR_PARENT_IGNORE_LIST);
+        String parentIgnoreList = (String) vars.get("PARENT_IGNORE_LIST");
         String[] parentIgnoreListItems = VcsUtilities.getQuotedStrings(parentIgnoreList);
         ArrayList ignoreList = new ArrayList(Arrays.asList(parentIgnoreListItems));
         File file = getIgnoreFile(vars);
