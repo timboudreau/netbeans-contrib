@@ -62,6 +62,13 @@ Microsystems, Inc. All Rights Reserved.
     <var name="BUILT-IN" value="true"/>
   </condition>
 
+  <condition var="IS_CMD-LINE_AND_WINDOWS">
+    <var name="IS_WINDOWS" value="true"/>
+    <not>
+      <var name="BUILT-IN" value="true"/>
+    </not>
+  </condition>
+
   <variables>
     <variable name="FS_DISPLAY_NAME" basic="false">
       <value>ResourceMsg(CVS_FS_DISPLAY_NAME)</value>
