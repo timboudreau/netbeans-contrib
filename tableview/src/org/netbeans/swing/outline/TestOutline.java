@@ -32,6 +32,7 @@ import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
+import org.openide.util.Utilities;
 import org.openide.util.enum.AlterEnumeration;
 import org.openide.util.enum.ArrayEnumeration;
 
@@ -47,13 +48,17 @@ public class TestOutline extends JFrame {
         setDefaultCloseOperation (EXIT_ON_CLOSE);
         getContentPane().setLayout (new BorderLayout());
         
+        //Use root 1 on windows to avoid making a tree of the floppy drive.
         TreeModel treeMdl = new DefaultTreeModel(
-            new FileTreeNode(File.listRoots()[0]));
+            new FileTreeNode(File.listRoots()[Utilities.isWindows() ? 1 : 0]));
         
         OutlineModel mdl = DefaultOutlineModel.createOutlineModel(treeMdl, 
             new FileAttrConverter(), false);
         
         outline = new Outline();
+        
+        outline.setRenderDataProvider(new RenderData()); 
+        
         outline.setRootVisible (true);
         
         outline.setModel (mdl);
@@ -110,6 +115,39 @@ public class TestOutline extends JFrame {
         
     }
     
+    
+    private class RenderData implements RenderDataProvider {
+        
+        public java.awt.Color getBackground(Object o) {
+            return null;
+        }
+        
+        public String getDisplayName(Object o) {
+            return null;
+        }
+        
+        public java.awt.Color getForeground(Object o) {
+            File f = ((FileTreeNode) o).getFile();
+            if (!f.isDirectory() && !f.canWrite()) {
+                return UIManager.getColor ("controlShadow");
+            }
+            return null;
+        }
+        
+        public javax.swing.Icon getIcon(Object o) {
+            return null;
+        
+        }
+        
+        public String getTooltipText(Object o) {
+            return null;
+        }
+        
+        public boolean isHtmlDisplayName(Object o) {
+            return false;
+        }
+        
+    }
     
     private Map nodes = new HashMap();
     

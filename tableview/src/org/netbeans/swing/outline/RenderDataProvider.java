@@ -11,6 +11,18 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 /*
+ *                 Sun Public License Notice
+ * 
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ * 
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+/*
  * RenderDataProvider.java
  *
  * Created on January 29, 2004, 12:01 AM
@@ -37,11 +49,11 @@ public interface RenderDataProvider {
     /** Get the background color to be used for rendering this node.  Return
      * null if the standard table background or selected color should be used.
      */
-    public Color getBackgroundColor (Object o);
+    public Color getBackground (Object o);
     /** Get the foreground color to be used for rendering this node.  Return
      * null if the standard table foreground or selected foreground should be
      * used. */
-    public Color getForegroundColor (Object o);
+    public Color getForeground (Object o);
     /** Get a description for this object suitable for use in a tooltip.  Return
      * null if no tooltip is desired.  */
     public String getTooltipText (Object o);

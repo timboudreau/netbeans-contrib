@@ -132,19 +132,44 @@ public class DefaultOutlineCellRenderer extends DefaultTableCellRenderer {
             boolean leaf = tbl.getOutlineModel().isLeaf(value);
             setLeaf(leaf);
             TreePath path = layout.getPathForRow(row);
-            boolean expanded = layout.isExpanded(path);
+            boolean expanded = !layout.isExpanded(path);
             setExpanded (expanded);
             setNestingDepth (path.getPathCount() - 1);
-            
-            if (!leaf) {
-                if (expanded) {
-                    setIcon (getDefaultOpenIcon());
-                } else {
-                    setIcon (getDefaultClosedIcon());
+            RenderDataProvider rendata = tbl.getRenderDataProvider();
+            Icon icon = null;
+            if (rendata != null) {
+                String displayName = rendata.getDisplayName(value);
+                if (displayName != null) {
+                    setText (displayName);
                 }
-            } else {
-                setIcon (getDefaultLeafIcon());
+                Color bg = rendata.getBackground(value);
+                Color fg = rendata.getForeground(value);
+                if (bg != null && !isSelected) {
+                    setBackground (bg);
+                } else {
+                    setBackground (isSelected ? 
+                        tbl.getSelectionBackground() : tbl.getBackground());
+                }
+                if (fg != null && !isSelected) {
+                    setForeground (fg);
+                } else {
+                    setForeground (isSelected ? 
+                        tbl.getSelectionForeground() : tbl.getForeground());
+                }
+                icon = rendata.getIcon(value);
+            } 
+            if (icon == null) {
+                if (!leaf) {
+                    if (expanded) {
+                        setIcon (getDefaultOpenIcon());
+                    } else {
+                        setIcon (getDefaultClosedIcon());
+                    }
+                } else {
+                    setIcon (getDefaultLeafIcon());
+                }
             }
+        
         } else {
             setIcon(null);
             setShowHandle(false);
