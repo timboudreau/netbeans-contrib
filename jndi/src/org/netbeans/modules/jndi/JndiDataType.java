@@ -36,6 +36,47 @@ import org.openide.util.HelpCtx;
  *  @author Ales Novak, Tomas Zezula
  */
 final class JndiDataType extends NewType {
+    
+    /** Statuts of connect operation to context
+     */
+    private static final int SUCCESSFULL = 0;
+    private static final int CLASS_NOT_FOUND_EXCEPTION = 1;
+    private static final int NAMING_EXCEPTION = 2;
+    private static final int INTERRUPTED_EXCEPTION = 3;
+    private static final int NAMING_INTERRUPTED_EXCEPTION = 4;
+    private static final int JNDI_EXCEPTION =5;
+    private static final int OTHER_EXCEPTION = 6;
+    
+    /** This class represents an status set by connector thread
+     *  to inform the controller thread about result of connect
+     *  operation
+     */
+    static class ConnectOperationStatus {
+        
+        private int status;
+        private Throwable exception;
+        
+        public ConnectOperationStatus () {
+            this.status = SUCCESSFULL;
+        }
+        
+        public ConnectOperationStatus (int status) {
+            this.status = status;
+        }
+        
+        public ConnectOperationStatus (int status, Throwable e) {
+            this.status = status;
+            this.exception = e;
+        }
+        
+        public int getOperationStatus () {
+            return this.status;
+        }
+        
+        public Throwable getException () {
+            return this.exception;
+        }
+    }
 
     /** Node for which is the NewType created */
     protected AbstractNode node;
@@ -105,82 +146,83 @@ final class JndiDataType extends NewType {
                                   okButton.setEnabled (false);  // Disable buttons for this transient time
                                   cancelButton.setEnabled (false);
                                 org.openide.TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TITLE_WaitOnConnect"));
+                                
                                 Runnable controller = new Runnable () {
                                      public void run () {
                                          // redispatch to a different thread
-                                         Runnable run = new Runnable() {
-                                         public void run() {
-                                         try {
-                                         // Here we have to check the context, if it works
-                                         // because all ehe operation starting with addContext
-                                         // are asynchronous to AWT Thread
-                                         Class.forName(panel.getFactory());
-                                         String root = panel.getRoot();
-                                         Hashtable env = ((JndiRootNode)node).createContextProperties(
-                                             panel.getLabel(),
-                                             panel.getFactory(),
-                                             panel.getContext(),
-                                             root,
-                                             panel.getAuthentification(),
-                                             panel.getPrincipal(),
-                                             panel.getCredentials(),
-                                             panel.getAditionalProperties());
-                                             Context ctx = new JndiDirContext(env);
-                                             if (root != null && root.length() > 0){
-                                                ctx  = (Context) ctx.lookup(root);
-                                             }
-                                             else{
-                                                // If we don't perform lookup
-                                                // we should check the context
-                                                ((JndiDirContext)ctx).checkContext();
-                                             }
-                                             ((JndiRootNode)node).addContext(ctx);
-                                             org.openide.TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_Connected"));
-                                             dlg.setVisible (false);
-                                             dlg.dispose();
-                                          }catch (ClassNotFoundException cnfe){
-                                            TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
-                                            NotFoundPanel errdescriptor = new NotFoundPanel (panel.getFactory());
-                                            TopManager.getDefault().notify(new NotifyDescriptor.Message(errdescriptor,NotifyDescriptor.ERROR_MESSAGE));
-                                          }
-                                          catch (NamingException ne) {
-                                            Throwable e;
-                                            if (ne.getRootCause() != null) {
-                                              e = ne.getRootCause();
-                                            } else {
-                                              e = ne;
-                                            }
-                                            if (e instanceof JndiException) {
-                                               TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
-                                               TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Items"), NotifyDescriptor.Message.ERROR_MESSAGE));
-                                            }
-                                            else if (e instanceof javax.naming.InterruptedNamingException || e instanceof java.io.InterruptedIOException || e instanceof java.lang.InterruptedException ){
-                                                String msg;
-                                                if ((e.getMessage() == null) || e.getMessage().equals("")) {
-                                                msg = e.getClass().getName();
-                                                } else {
-                                                  msg = e.getClass().getName() + ": " + e.getMessage();
+                                         // the Connector class
+                                         class Connector implements Runnable{
+                                             
+                                            private ConnectOperationStatus status;
+                                             
+                                            public void run() {
+                                                try {
+                                                    // Here we have to check the context, if it works
+                                                    // because all ehe operation starting with addContext
+                                                    // are asynchronous to AWT Thread
+                                                    Class.forName(panel.getFactory());
+                                                    String root = panel.getRoot();
+                                                    Hashtable env = ((JndiRootNode)node).createContextProperties(
+                                                    panel.getLabel(),
+                                                    panel.getFactory(),
+                                                    panel.getContext(),
+                                                    root,
+                                                    panel.getAuthentification(),
+                                                    panel.getPrincipal(),
+                                                    panel.getCredentials(),
+                                                    panel.getAditionalProperties());
+                                                    Context ctx = new JndiDirContext(env);
+                                                    if (root != null && root.length() > 0){
+                                                        ctx  = (Context) ctx.lookup(root);
+                                                    }
+                                                    else{
+                                                        // If we don't perform lookup
+                                                        // we should check the context
+                                                        ((JndiDirContext)ctx).checkContext();
+                                                    }
+                                                    ((JndiRootNode)node).addContext(ctx);
+                                                    synchronized (this) { 
+                                                        this.status = new ConnectOperationStatus (SUCCESSFULL);
+                                                    }
+                                                }catch (ClassNotFoundException cnfe){
+                                                    synchronized (this) {
+                                                        this.status = new ConnectOperationStatus(CLASS_NOT_FOUND_EXCEPTION,cnfe);
+                                                    }
                                                 }
-                                                TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
-                                                TopManager.getDefault().notify (new NotifyDescriptor.Exception(e,new TimeOutPanel(msg,JndiRootNode.getLocalizedString("NOTE_TimeOut"))));
-                                            }
-                                            else {
-                                                TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
-                                                JndiRootNode.notifyForeignException(e);
-                                            }
-                                           }
-                                           catch (NullPointerException npe){
-                                            // Thrown by some providers when bad url is given
-                                            TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
-                                            JndiRootNode.notifyForeignException(npe);
-                                           }
-                                           finally {
-                                               okButton.setEnabled (true);  // Enable buttons
-                                               cancelButton.setEnabled (true);
-                                           }
+                                                catch (NamingException ne) {
+                                                    synchronized (this) {
+                                                        Throwable e;
+                                                        if (ne.getRootCause() != null)
+                                                            e = ne.getRootCause();
+                                                        else
+                                                            e = ne;
+                                                        if (e instanceof JndiException)
+                                                            this.status = new ConnectOperationStatus (JNDI_EXCEPTION,e);
+                                                        if (e instanceof javax.naming.InterruptedNamingException || e instanceof InterruptedException)
+                                                            this.status = new ConnectOperationStatus (NAMING_INTERRUPTED_EXCEPTION,e);
+                                                        else
+                                                            this.status = new ConnectOperationStatus (NAMING_INTERRUPTED_EXCEPTION,e);
+                                                    }
+                                                }
+                                                catch (NullPointerException npe){
+                                                    // Thrown by some providers when bad url is given
+                                                    synchronized (this) {
+                                                        this.status = new ConnectOperationStatus (OTHER_EXCEPTION, npe);
+                                                    }
+                                                }
+                                                finally {
+                                                    okButton.setEnabled (true);  // Enable buttons
+                                                    cancelButton.setEnabled (true);
+                                                }
                                           }
+                                          
+                                          public synchronized ConnectOperationStatus getOperationStatus () {
+                                              return this.status;
+                                          }
+                                          
                                          };
-                                         Thread t = new Thread(run);
+                                         Connector connector = new Connector();
+                                         Thread t = new Thread(connector);
                                          t.start();
                                          try {
                                             int waitTime;
@@ -189,10 +231,46 @@ final class JndiDataType extends NewType {
                                                 waitTime = option.getTimeOut();
                                              else
                                                 waitTime = JndiSystemOption.DEFAULT_TIMEOUT;
-                                            t.join(4000);
+                                            t.join(waitTime);
                                          }catch (InterruptedException ie){}
                                          if (t.isAlive()){
                                             t.interrupt();
+                                         }
+                                         ConnectOperationStatus status = connector.getOperationStatus ();
+                                         switch (status.getOperationStatus()) {
+                                             case SUCCESSFULL:
+                                                 org.openide.TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_Connected"));
+                                                 dlg.setVisible (false);
+                                                 dlg.dispose();
+                                                 break;
+                                             case CLASS_NOT_FOUND_EXCEPTION:
+                                                 TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
+                                                 NotFoundPanel errdescriptor = new NotFoundPanel (panel.getFactory());
+                                                 TopManager.getDefault().notify(new NotifyDescriptor.Message(errdescriptor,NotifyDescriptor.ERROR_MESSAGE));
+                                                 break;
+                                             case JNDI_EXCEPTION:
+                                                 TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
+                                                 TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Items"), NotifyDescriptor.Message.ERROR_MESSAGE));
+                                                 break;
+                                             case INTERRUPTED_EXCEPTION:
+                                             case NAMING_INTERRUPTED_EXCEPTION:
+                                                 Throwable e = status.getException();
+                                                 String msg;
+                                                 if ((e.getMessage() == null) || e.getMessage().equals(""))
+                                                    msg = e.getClass().getName();
+                                                 else 
+                                                    msg = e.getClass().getName() + ": " + e.getMessage();
+                                                 TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
+                                                 TopManager.getDefault().notify (new NotifyDescriptor.Exception(e,new TimeOutPanel(msg,JndiRootNode.getLocalizedString("NOTE_TimeOut"))));
+                                                 break;
+                                             case NAMING_EXCEPTION:
+                                                 TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
+                                                 JndiRootNode.notifyForeignException(status.getException());
+                                                 break;
+                                             case OTHER_EXCEPTION:
+                                                 TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
+                                                 JndiRootNode.notifyForeignException(status.getException());
+                                                 break;
                                          }
                                        }  // run outher
                                      }; // Runnable Outher
