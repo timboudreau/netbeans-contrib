@@ -2102,9 +2102,10 @@ public class ImplGenerator implements PropertyChangeListener {
             synchronized (this) {
                 _M_guarding_status = GUARDING_RUNNING;
             }
-			__src_editor.getSource().prepare().waitFinished();
+            __src_editor.getSource().prepare().waitFinished();
             org.openide.text.NbDocument.runAtomic (__root_document, new Runnable () {
-                public void run () {
+                public void run () 
+            {
                     int __status=ImplGenerator.GUARDING_RUNNING;
                     try {
                     String __root_text = __root_document.getText (0, __root_document.getLength ());
@@ -2247,8 +2248,8 @@ public class ImplGenerator implements PropertyChangeListener {
                                     (__bounds, __name);
                             }
                         }
-                        __status = GUARDING_OK;
                     }
+                    __status = GUARDING_OK;
                     }catch (Exception __ex) {
                         __status = GUARDING_FAILED;
                     }
@@ -2265,14 +2266,15 @@ public class ImplGenerator implements PropertyChangeListener {
                     try {
                         this.wait ();
                     }catch (InterruptedException ie) {}
-                __editor.saveDocument ();
+                if (__editor.isModified())
+                    __editor.saveDocument();
                 if (this._M_guarding_status == GUARDING_FAILED)
                     Assertion.assert (false);
             }
 	} catch (AssertionException __ex) {
 	    throw __ex;
 	} catch (Exception __ex) {
-	    //__ex.printStackTrace ();
+	    __ex.printStackTrace ();
 	    //throw new AssertionException ();
 	    Assertion.assert (false);
 	}
@@ -3157,35 +3159,36 @@ public class ImplGenerator implements PropertyChangeListener {
 		    public void run () throws java.io.IOException {
 			final FileObject __final_impl = __final_folder.createData
 			    (__final_impl_name, "java"); // NOI18N
-			
-			FileLock lock = __final_impl.lock ();
-			PrintStream printer = new PrintStream
-			    (__final_impl.getOutputStream (lock));
+			FileLock lock = null;
+                        try {
+                            lock =__final_impl.lock ();
+                            PrintStream printer = new PrintStream
+                                (__final_impl.getOutputStream (lock));
 
-			// add comment
-			printer.println ("//\n// This file was generated from "
+                            // add comment
+                            printer.println ("//\n// This file was generated from "
 					 + _M_ido.getPrimaryFile ().getName () + ".idl\n"
 					 + "//"); // NOI18N
 	  
-			//printer.println ("\n");
-			if (__final_package.length() > 0) {
-			    // If it isn't in file system root
-			    printer.println ("\npackage " + // NOI18N
+                            //printer.println ("\n");
+                            if (__final_package.length() > 0) {
+                                // If it isn't in file system root
+                                printer.println ("\npackage " + // NOI18N
 					     __final_package // NOI18N
 					     + ";\n"); // NOI18N
-			}
-			printer.println ("//");
-			printer.println ("// " + __repo_id);
-			printer.println ("//\n");
-			
-			printer.println (__final_clazz.toString ());
-			
-			printer.close ();
-			//_M_generated_impls.add (clazz);
-			
-			_M_generated_impls.add (__final_impl);
-			//__result = __final_impl;
-			lock.releaseLock ();
+                            }
+                            printer.println("//");
+                            printer.println("// " + __repo_id);
+                            printer.println("//\n");
+                            
+                            printer.println(__final_clazz.toString());
+                            
+                            printer.close();
+                            _M_generated_impls.add (__final_impl);
+			} finally {
+                            if (lock != null)
+                                lock.releaseLock ();
+                        }
 		    }
 		});
 	//return __result;
