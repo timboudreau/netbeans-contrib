@@ -16,7 +16,9 @@ package org.netbeans.modules.vcscore.actions;
 import org.openide.filesystems.FileObject;
 
 /**
- *  
+ *  OBject that needs to be return as an attribute of all fileobjects that 
+ * support the Abstract/GeneralCommandAction framework and all the actions that subclass these two classes.
+ * The name of the attribute is in AbstractCommandAction.VCS_ACTION_ATTRIBUTE.
  * @author  Milos Kleint
  */
 public abstract class CommandActionSupporter {

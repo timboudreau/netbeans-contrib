@@ -23,8 +23,9 @@ import org.openide.util.actions.NodeAction;
 import java.util.*;
 import org.netbeans.modules.vcscore.grouping.VcsGroupNode;
 
-/** Action sensitive to the node selection that does something useful.
- *  Keeps a list of vcs supported activated nodes. (splits the nodes to fileobjects)
+/** Action that keeps a list of vcs supported activated nodes, subclasses can delegate the recognition of such 
+ * nodes to this class to achieve performance improvement.
+ * (splits the nodes to fileobjects)
  *  Vcs Enabled fileobjects are recognized by the fileobject attribute named
  *  "VcsActionAttributeCookie", which value should be an instance of the CommandActionSupporter class.
  *
