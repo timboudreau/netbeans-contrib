@@ -1025,6 +1025,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
+    /** Programatically invokes action retaining UI effect as it was done by user. */
     private static class DelegateAction extends AbstractAction {
 
         private static final long serialVersionUID = 1;
