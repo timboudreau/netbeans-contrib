@@ -45,7 +45,7 @@ public class ProfilePanel extends AbstractWizardPanel {
     }//GEN-END:initComponents
 
     public org.openide.util.HelpCtx getHelp() {
-        return null;
+        return new org.openide.util.HelpCtx(ProfilePanel.class);
     }
 
     protected void readWizardSettings(MountWizardData data) {
