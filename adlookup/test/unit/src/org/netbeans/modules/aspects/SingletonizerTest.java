@@ -70,7 +70,16 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         runImpl.isEnabled = false;
         
         assertNull ("Runnable not available any longer", lookup.lookup (Runnable.class));
-        
+
+        // this shall still succeed as the change in isEnabled state has not been fired
+        r.run ();
+        runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+        try {
+            r.run ();
+            fail ("Should throw IllegalStateException");
+        } catch (IllegalStateException ex) {
+            // ok, we are not enabled anymore
+        }
     }
 
     public void testSingletonizerCanDelegateJustToInterfaces () {
