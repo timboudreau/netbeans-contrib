@@ -1604,9 +1604,17 @@ Microsystems, Inc. All Rights Reserved.
           <value>CHECKOUT_IMPORTED</value>
         </property>
       </command>
+      <command name="PRE_CHECKOUT_CREATE_CVS_FOLDER">
+	<property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsPreCheckoutFolder.class</value>
+        </property>
+      </command>
       <command name="CHECKOUT_IMPORTED">
 	<property name="exec">
           <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${MODPATH}${QUOTE} ${NUR}</value>
+        </property>
+        <property name="preCommands">
+          <value>PRE_CHECKOUT_CREATE_CVS_FOLDER</value>
         </property>
         <property name="refreshParentFolder">
           <value>true</value>
@@ -1634,6 +1642,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="error.regex">
 	  <value>^.* warning: (.*) (is not \(any longer\).*)$|^.*: (.*) (is no longer.*)$|^.*: Updating (.*)$</value>
 	</property>
+        <property name="preCommands">
+          <value>PRE_CHECKOUT_CREATE_CVS_FOLDER</value>
+        </property>
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
@@ -1732,6 +1743,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="error.regex">
 	  <value>^.* warning: (.*) (is not \(any longer\).*)$|^.*: (.*) (is no longer.*)$|^.*: Updating (.*)$</value>
 	</property>
+        <property name="preCommands">
+          <value>PRE_CHECKOUT_CREATE_CVS_FOLDER</value>
+        </property>
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
@@ -2986,6 +3000,11 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(NOTIFICATION_INIT_Fail)</value>
         </property>
       </command>
+      <command name="PRE_CHECKOUT_CREATE_CVS_FOLDER">
+	<property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsPreCheckoutFolder.class</value>
+        </property>
+      </command>
       <command name="CHECKOUT" displayName="ResourceMsg(CVS_GLOBAL_CHECKOUT)">
         <property name="labelMnemonic">
           <value>ResourceMsg(CVS_CHECKOUT_Mnemonic)</value>
@@ -3055,6 +3074,9 @@ Microsystems, Inc. All Rights Reserved.
                  ASK_FOR_EXPERT(RECURSIVE, ResourceMsg(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg(ACS_COMMAND_Recursive_mnc)) ,"-R", "-l")
           </value>
 	</property>
+        <property name="preCommands">
+          <value>PRE_CHECKOUT_CREATE_CVS_FOLDER</value>
+        </property>
 	<property name="checkForModifications">
 	  <value>true</value>
 	</property>
