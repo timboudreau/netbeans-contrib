@@ -31,7 +31,7 @@ public final class CollapseAllAction extends CallableSystemAction {
     public void performAction() {
         UserTaskView view = UserTaskView.getCurrent();
         if (view != null) {
-	    view.collapseAll();
+	    view.getTreeTable().collapseAll();
 	}
     }
     

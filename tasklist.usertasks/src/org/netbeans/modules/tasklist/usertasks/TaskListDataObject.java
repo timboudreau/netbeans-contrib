@@ -46,11 +46,11 @@ public class TaskListDataObject extends MultiDataObject implements OpenCookie {
     
     /** Invokes the open action. */
     public void open() {
-	UserTaskView view = UserTaskView.findListView(getPrimaryEntry().getFile());
+	UserTaskView view = UserTaskView.findView(getPrimaryEntry().getFile());
         if (view == null) {
             UserTaskList tl = new UserTaskList();
             if (tl.readFile(getPrimaryEntry().getFile())) {
-                view = new UserTaskView(tl, false);
+                view = new UserTaskView(tl);
                 view.showInMode();
             }
         } else {

@@ -10,6 +10,7 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
+
 package org.netbeans.modules.tasklist.usertasks.filter;
 
 import java.net.URL;

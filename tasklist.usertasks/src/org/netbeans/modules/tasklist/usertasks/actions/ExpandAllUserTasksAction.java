@@ -32,7 +32,7 @@ public final class ExpandAllUserTasksAction extends CallableSystemAction {
     public void performAction() {
         UserTaskView view = UserTaskView.getCurrent();
         if (view != null) {
-	    view.expandAll();
+	    view.getTreeTable().expandAll();
 	}
     }
     

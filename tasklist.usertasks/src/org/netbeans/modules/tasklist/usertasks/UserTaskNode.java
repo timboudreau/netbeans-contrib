@@ -201,13 +201,13 @@ public final class UserTaskNode extends AbstractNode {
         try {
             PropertySupport.Reflection p;
             p = new PropertySupport.Reflection(item, String.class, "getSummary", "setSummary"); // NOI18N
-            p.setName(UserTaskView.PROP_TASK_SUMMARY);
+            p.setName(UserTask.PROP_SUMMARY);
             p.setDisplayName(NbBundle.getMessage(TaskNode.class, "Description")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(TaskNode.class, "DescriptionHint")); // NOI18N
             ss.put(p);            
             
             p = new PropertySupport.Reflection(item, SuggestionPriority.class, "getPriority", "setPriority"); // NOI18N
-            p.setName(UserTaskView.PROP_TASK_PRIO);
+            p.setName(UserTask.PROP_PRIORITY);
             p.setPropertyEditorClass(PriorityPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_priorityProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_priorityProperty")); // NOI18N
@@ -215,14 +215,14 @@ public final class UserTaskNode extends AbstractNode {
             
             
             p = new PropertySupport.Reflection(item, Boolean.TYPE, "isDone", "setDone"); // NOI18N
-            p.setName(UserTaskView.PROP_TASK_DONE);
+            p.setName("done"); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_doneProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_doneProperty")); // NOI18N
             ss.put(p);
             
             p = new PropertySupport.Reflection(item, Integer.TYPE, 
                 "getPercentComplete", "setPercentComplete"); // NOI18N
-            p.setName(UserTaskView.PROP_TASK_PERCENT);
+            p.setName("percentComplete"); // NOI18N
             p.setPropertyEditorClass(PercentsPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_percentCompleteProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_percentCompleteProperty")); // NOI18N
@@ -274,7 +274,7 @@ public final class UserTaskNode extends AbstractNode {
             ss.put(p);
             
             p = new PropertySupport.Reflection(item, String.class, "getDetails", "setDetails"); // NOI18N
-            p.setName(UserTaskView.PROP_TASK_DETAILS);
+            p.setName(UserTask.PROP_DETAILS);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_detailsProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_detailsProperty")); // NOI18N
             ss.put(p);
@@ -304,7 +304,7 @@ public final class UserTaskNode extends AbstractNode {
                     }
                 }
             };
-            p.setName(UserTaskView.PROP_TASK_URL);
+            p.setName(UserTask.PROP_URL);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_urlProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_urlProperty")); // NOI18N
             //p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
@@ -329,13 +329,13 @@ public final class UserTaskNode extends AbstractNode {
                     ((UserTask) instance).setLineNumber(n - 1);
                 }
             };
-            p.setName(UserTaskView.PROP_TASK_LINE);
+            p.setName(UserTask.PROP_LINE_NUMBER);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_lineProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_lineProperty")); // NOI18N
             ss.put(p);
             
             p = new PropertySupport.Reflection(item, String.class, "getCategory", "setCategory"); // NOI18N
-            p.setName(UserTaskView.PROP_TASK_CAT);
+            p.setName(UserTask.PROP_CATEGORY);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_categoryProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_categoryProperty")); // NOI18N
             p.setValue("canEditAsText", Boolean.TRUE); // NOI18N
@@ -344,7 +344,7 @@ public final class UserTaskNode extends AbstractNode {
 
             p = new PropertySupport.Reflection(item, Date.class, "getCreatedDate", null); // NOI18N
             p.setPropertyEditorClass(DateEditor.class);
-            p.setName(UserTaskView.PROP_TASK_CREATED);
+            p.setName("created"); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_createdProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_createdProperty")); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
@@ -352,7 +352,7 @@ public final class UserTaskNode extends AbstractNode {
 
             p = new PropertySupport.Reflection(item, Date.class, "getLastEditedDate", null); // NOI18N
             p.setPropertyEditorClass(DateEditor.class);
-            p.setName(UserTaskView.PROP_TASK_EDITED);
+            p.setName("edited"); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_editedProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_editedProperty")); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
@@ -360,7 +360,7 @@ public final class UserTaskNode extends AbstractNode {
 
             p = new PropertySupport.Reflection(item, Date.class, "getDueDate", "setDueDate"); // NOI18N            
             p.setPropertyEditorClass(DateEditor.class);
-            p.setName(UserTaskView.PROP_TASK_DUE);
+            p.setName(UserTask.PROP_DUE_DATE);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_dueDateProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_dueDateProperty")); // NOI18N
             ss.put(p);

@@ -1,6 +1,23 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
 package org.netbeans.modules.tasklist.usertasks;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -68,7 +85,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
         getTree().setCellRenderer(new SummaryTreeCellRenderer());
         getTree().setShowsRootHandles(true);
         getTree().setToggleClickCount(3);
-        //getTree().setEditable(true);
+        
         setAutoCreateColumnsFromModel(false);
         setDefaultEditor(SuggestionPriority.class, new PriorityTableCellEditor());
         
@@ -255,4 +272,23 @@ public class UserTasksTreeTable extends NodesTreeTable {
             SystemAction.get(ExportAction.class),
         };
     }    
+
+    protected Object writeReplaceNode(Object node) {
+        return ((UserTaskTreeTableNode) node).getUserTask().getUID();
+    }
+
+    protected Object readResolveNode(Object parent, Object node) {
+        AdvancedTreeTableNode p = (AdvancedTreeTableNode) parent;
+        String uid = (String) node;
+        
+        for (int i = 0; i < p.getChildCount(); i++) {
+            UserTaskTreeTableNode ch = 
+                (UserTaskTreeTableNode) p.getChildAt(i);
+            UserTask ut = ch.getUserTask();
+            if (uid.equals(ut.getUID()))
+                return ch;
+        }
+        
+        return null;
+    }
 }

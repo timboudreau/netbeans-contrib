@@ -63,7 +63,6 @@ import org.openide.util.NbBundle;
  * @todo Trond: I have left traces after a class named AssociatedTime in this
  *       file. I might need some of it again when we decide we want to
  *       event support.
- * TODO: review this class after the "export/import framework" rewrite
  *
  * The iCalendar supports other "tags" for a VTODO item than Tasklist. In
  * order to avoid loosing such information, these unknown tags are stored
@@ -418,7 +417,6 @@ public class ICalImportFormat implements ExportImportFormat {
      */
     private UserTask readVTODO(UserTaskList list, UserTask prev, SimpleDateFormat formatter) throws IOException {
         UserTask task = new UserTask("", list); // NOI18N
-        // TODO task.setSilentUpdate(true, false);
         task.setLastEditedDate(System.currentTimeMillis());
         StringWriter writer = null;
         String related = null;
@@ -744,7 +742,6 @@ public class ICalImportFormat implements ExportImportFormat {
                         if (task.getParent() == null) {
                             ulist.getSubtasks().add(task);
                         }
-                        // TODO task.setSilentUpdate(false, false);
                         prev = (UserTask)task;
                     }
                 } else if (value.equals("VCALENDAR")) { // NOI18N

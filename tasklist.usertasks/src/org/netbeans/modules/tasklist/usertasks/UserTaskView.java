@@ -96,21 +96,16 @@ import org.openide.windows.WindowManager;
  * @author Tor Norbye
  */
 public class UserTaskView extends TopComponent implements
-ExplorerManager.Provider, ExportImportProvider {
-    // TODO: replace these constants with the equivalents from UserTaskProperties
-    public static final String PROP_TASK_DONE = UserTaskProperties.PROPID_DONE;
-    public static final String PROP_TASK_DUE = UserTaskProperties.PROPID_DUE_DATE;
-    public static final String PROP_TASK_PRIO = "priority"; // NOI18N
-    public static final String PROP_TASK_CAT = "category"; // NOI18N
-    public static final String PROP_TASK_URL = "url"; // NOI18N
-    public static final String PROP_TASK_LINE = "lineNumber"; // NOI18N
-    public static final String PROP_TASK_DETAILS = "details"; // NOI18N
-    public static final String PROP_TASK_CREATED = "created"; // NOI18N
-    public static final String PROP_TASK_EDITED = "edited"; // NOI18N
-    public static final String PROP_TASK_PERCENT = "progress"; // NOI18N
-    public static final String PROP_EFFORT = "effort"; // NOI18N
-    public static final String PROP_REMAINING_EFFORT = "remainingEffort"; // NOI18N
-    public static final String PROP_SPENT_TIME = "spentTime"; // NOI18N
+ExplorerManager.Provider, ExportImportProvider {    
+    // List category
+    private final static String USER_CATEGORY = "usertasks"; // NOI18N    
+    
+    private static final String DEFAULT_FILTER_NAME = 
+        NbBundle.getMessage(UserTaskView.class, 
+        "default-filter-name"); // NOI18N
+
+    /** default columns */
+    private static ColumnsConfiguration cc;
     
     private static final long serialVersionUID = 1;
 
@@ -133,24 +128,10 @@ ExplorerManager.Provider, ExportImportProvider {
     public static UserTaskView getDefault() {
 	if (defview == null) {
 	    defview = new UserTaskView();
-	
-	    WindowManager wm = WindowManager.getDefault();
-	    Mode mode  = wm.findMode("output"); // NOI18N
-	    if (mode != null) {
-		mode.dockInto(defview);
-	    }
-
-	    defview.open();
-	    defview.requestVisible(); // requestFocus???
+            defview.setList(UserTaskList.getDefault());
+            defview.showInMode();
 	}
 	return defview;
-    }
-
-    /** 
-     * Return true iff the default view has been created already 
-     */
-    static boolean defaultViewCreated() {
-        return defview != null;
     }
 
     /** 
@@ -166,8 +147,11 @@ ExplorerManager.Provider, ExportImportProvider {
             return null;
     }    
 
-    /** Locate a particular view showing the given list */
-    static UserTaskView findListView(FileObject file) {
+    /** 
+     * Locate a particular view showing the given list 
+     * @return found view or null
+     */
+    public static UserTaskView findView(FileObject file) {
  	Iterator it = views.iterator();
         while (it.hasNext()) {
             WeakReference wr = (WeakReference) it.next();
@@ -177,47 +161,49 @@ ExplorerManager.Provider, ExportImportProvider {
         }
         return null;
     }
-    
-    private boolean lookupAttempted = false;
-
-    /** When true, we've already warned about the need to wrap */
-    private boolean wrapWarned = false;
 
     private UserTasksTreeTable tt;
     
     private int viewId;
     
+    private boolean initialized = false;
+    
+    private UserTaskList tasklist = null;
+    
+    private FilterRepository filters = null;
+    
+    private Filter activeFilter = null;
+    
+    private ExplorerManager manager;
+    
     /** 
-     * Construct a new UserTaskView. Most work is deferred to
-     * componentOpened. NOTE: this is only for use by the window
-     * system when deserializing windows. Client code should not call
-     * it. I can't make it protected because then the window system
-     * wouldn't be able to get to this. But the code relies on
-     * readExternal getting called after this constructor to finalize
-     * construction of the window.
+     * Construct a new UserTaskView.  
+     * NOTE: this is used by the window
+     * system when deserializing windows. 
      */
     public UserTaskView() {
-        this(UserTaskList.getDefault(), true);
+        this(NbBundle.getMessage(UserTaskView.class, "TaskViewName"), // NOI18N
+            new UserTaskList());
     }
 
     /**
+     * Constructor.
+     *
+     * @param title view title
      * @param category view's category. This value will be used as the name
      * for a subdirectory of "SystemFileSystem/TaskList/" for columns settings
      */
-    private UserTaskView(String category, String title, Image icon,
-                        boolean persistent, UserTaskList tasklist) {
+    private UserTaskView(String title, UserTaskList tasklist) {
+        setIcon(ICON);
+        setList(tasklist);
+        
         init_();
 
-        assert category != null : "category == null";
-
         this.viewId = nextViewId++;
-        this.category = category;
-        setName(title);
-        this.persistent = persistent;
-        setIcon(icon);
 
-        registerTaskListView(this);
-        setList(tasklist);
+        synchronized (UserTaskView.class) {
+            views.add(new WeakReference(this));
+        }
     }
 
     /** 
@@ -229,20 +215,8 @@ ExplorerManager.Provider, ExportImportProvider {
      * code relies on readExternal getting called after this
      * constructor to finalize construction of the window.
      */
-    public UserTaskView(UserTaskList list, boolean isDefault) {
-	this(UserTaskList.USER_CATEGORY,
-              isDefault ?
-              NbBundle.getMessage(UserTaskView.class,
-                    "TaskViewName") : // NOI18N
-              list.getFile().getNameExt(),
-              Utilities.loadImage(
-                    "org/netbeans/modules/tasklist/usertasks/taskView.gif"), // NOI18N
-              true,
-              list);              
-              
-	if (isDefault && (defview == null)) {
-	    defview = this;
-	}
+    public UserTaskView(UserTaskList list) {
+	this(list.getFile().getNameExt(), list);              
     }
 
     /**
@@ -272,19 +246,6 @@ ExplorerManager.Provider, ExportImportProvider {
         };
     }
     
-    protected Component createCenterComponent() {
-        tt = new UserTasksTreeTable(
-            getExplorerManager(), (UserTaskList) getList(),
-            getFilter());
-        
-        final JScrollPane sp = new JScrollPane(tt,
-            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
-            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        
-        ChooseColumnsPanel.installChooseColumnsButton(sp);
-        return sp;
-    }
-    
     public void componentActivated() {
         super.componentActivated();
         assert initialized : 
@@ -294,41 +255,6 @@ ExplorerManager.Provider, ExportImportProvider {
         RemoveFilterUserTaskAction removeFilter =
                 (RemoveFilterUserTaskAction) SystemAction.get(RemoveFilterUserTaskAction.class);
         removeFilter.enable();
-
-        /* debug Ctrl+C,V,X
-         if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
-            ActionMap am = this.getActionMap();
-            Object[] actionKeys = am.allKeys();
-            for (int i = 0; i < actionKeys.length; i++) {
-                Action action = am.get(actionKeys[i]);
-                UTUtils.LOGGER.fine(actionKeys[i] + " => " + action.getClass());
-            }
-            
-            UTUtils.LOGGER.fine("printing InputMaps:");
-            Component cmp = tt;
-            while (cmp != null) {
-                UTUtils.LOGGER.fine("checking " + cmp.getClass());
-                if (cmp instanceof JComponent) {
-                    InputMap keys = ((JComponent) cmp).
-                        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-                    if (keys != null) {
-                        UTUtils.LOGGER.fine("InputMap.class: " + keys.getClass());
-                        KeyStroke[] ks = keys.keys();
-                        if (ks != null) {
-                            for (int i = 0; i < ks.length; i++) {
-                                UTUtils.LOGGER.fine(ks[i] + " " + keys.get(ks[i]));
-                            }
-                        } else {
-                            UTUtils.LOGGER.fine("InputMap.keys() == null");
-                        }
-                    } else {
-                        UTUtils.LOGGER.fine("InputMap == null");
-                    }
-                }
-                cmp = cmp.getParent();
-            }
-        }
-         */
     }
     
     /** 
@@ -343,10 +269,9 @@ ExplorerManager.Provider, ExportImportProvider {
     public void readExternalCore(ObjectInput objectInput) throws IOException, java.lang.ClassNotFoundException {
         // Don't call super!
         // See writeExternal for justification
-        //super.readExternal(objectInput);
+        // super.readExternal(objectInput);
 
         int ver = objectInput.read();
-        //assert ver <= 4 : "serialization version incorrect; should be 1 to 4";
 
         // Read in the UID of the currently selected task, or null if none
         // TODO: Not yet implemented
@@ -439,12 +364,10 @@ for (int i = 0; i < columns.length; i++) {
         }
 
         if (ver >= 2) {
-            category = (String) objectInput.readObject();
+            objectInput.readObject(); // ignoring category
             objectInput.readObject(); // ignoring title
             int persistentInt = objectInput.read();
-            persistent = (persistentInt != 0);
-        } else {
-            category = UserTaskList.USER_CATEGORY; // for compatibility only
+            // persistent = (persistentInt != 0);
         }
 
         synchronized (UserTaskView.class) {
@@ -469,27 +392,24 @@ for (int i = 0; i < columns.length; i++) {
             if (ver >= 2) {
                 // Read tasklist file name
                 String urlString = (String)objectInput.readObject();
+                
+                UTUtils.LOGGER.fine("reading url " + urlString); // NOI18N
+                
                 if (urlString != null) {
                     URL url = new URL(urlString);
-                    final FileObject fo = URLMapper.findFileObject(url);
+                    FileObject fo = URLMapper.findFileObject(url);
                     if (fo != null) {
-                            UserTaskList utl = new UserTaskList();
-                            utl.readFile(fo);
+                        UserTaskList utl = new UserTaskList();
+                        utl.readFile(fo);
                         setList(utl);
-                        SwingUtilities.invokeLater(new Runnable() {
-                            public void run() {
-                                setName(fo.getNameExt());
-                            }
-                        }); 
                     }
-                    // XXX I do extra work here. I read in the global task
-                    // list each time (default UserTaskView constructor)
-                    // and then replace it with my own. If the default is large
-                    // this is significant. Think of a better way to do it.
-                    if (defview == this) { // work around one such problem
-                        defview = null;
-                    }
+                } else {
+                    setList(UserTaskList.getDefault());
                 }
+            }
+            if (ver >= 3) {
+                tt.readExpandedState(objectInput);
+                tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
             }
         } catch (Throwable t) {
             t.printStackTrace();
@@ -505,13 +425,6 @@ for (int i = 0; i < columns.length; i++) {
      * @throws IOException  
      */
     public void writeExternalCore(ObjectOutput objectOutput) throws IOException {
-        if (!persistent) {
-            ErrorManager.getDefault().log(
-                ErrorManager.INFORMATIONAL,
-                "Warning: This tasklist window (" + getName() + ") should not have been persisted!");
-            return;
-        }
-
         // Don't call super.writeExternal.
         // Our parents are ExplorerPanel and TopComponent.
         // ExplorerPanel writes out the ExplorerManager, which tries
@@ -537,9 +450,6 @@ for (int i = 0; i < columns.length; i++) {
         // String: title
         // byte: persistent
 
-        // TODO Additional:
-        // String Object: selected task? (should this be a multi-selection?)
-
         // Write out the UID of the currently selected task, or null if none
         objectOutput.write(4); // SERIAL VERSION
 
@@ -557,12 +467,6 @@ for (int i = 0; i < columns.length; i++) {
      * @throws IOException  
      */    
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
-	if (!persistent) {
-	    System.out.println(
-                "INTERNAL ERROR: THIS WINDOW SHOULD NOT HAVE BEEN PERSISTED!");
-	    return;
-	}
-
         writeExternalCore(objectOutput);
 
         UserTaskList tl = (UserTaskList)getList();
@@ -572,7 +476,7 @@ for (int i = 0; i < columns.length; i++) {
         // preferences, etc.
         // Since I'm not doing that yet, let's at a minimum put in a version
         // byte so we can do the right thing later without corrupting the userdir
-        objectOutput.write(2); // SERIAL VERSION
+        objectOutput.write(3); // SERIAL VERSION
 
         FileObject fo = tl.getFile();
         if (fo != null) {
@@ -583,6 +487,8 @@ for (int i = 0; i < columns.length; i++) {
         } else {
             objectOutput.writeObject(null);
         }
+        
+        tt.writeExpandedState(objectOutput);
     }
 
     /** 
@@ -601,13 +507,25 @@ for (int i = 0; i < columns.length; i++) {
      */
     public void setList(UserTaskList list) {
         tasklist = list;
-        UserTaskList utl = this.getList();
-        if (list.getFile() != null)
-            setToolTipText(FileUtil.getFileDisplayName(list.getFile()));
+        if (tt != null) {
+            tt.setTreeTableModel(
+                new UserTasksTreeTableModel(tasklist, tt.getSortingModel(), 
+                getFilter()));
+        }
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                if (tasklist.getFile() != null) {
+                    setName(tasklist.getFile().getNameExt());
+                    setToolTipText(FileUtil.getFileDisplayName(tasklist.getFile()));
+                } else {
+                    setName(UTUtils.getString("TaskViewName")); // NOI18N
+                }
+            }
+        }); 
     }
     
     public String toString() { 
-        return "UserTaskView(" + getName() + ", " + category + ", " + getList() + ")"; // NOI18N
+        return "UserTaskView(" + getName() + ", " + getList() + ")"; // NOI18N
     }
     
     /** 
@@ -628,7 +546,8 @@ for (int i = 0; i < columns.length; i++) {
 
     protected void setFiltered() {
         if (getFilter() != null) {
-            ((RemoveFilterUserTaskAction) SystemAction.get(RemoveFilterUserTaskAction.class)).enable();
+            ((RemoveFilterUserTaskAction) SystemAction.get(
+                RemoveFilterUserTaskAction.class)).enable();
         }
 
         TreeTableModel ttm = tt.getTreeTableModel();
@@ -661,20 +580,6 @@ for (int i = 0; i < columns.length; i++) {
         
         ColumnsConfiguration cc = getDefaultColumns();
         tt.loadColumns(cc);
-    }
-    
-    /**
-     * Expands all nodes
-     */
-    public void expandAll() {
-        tt.expandAll();
-    }
-    
-    /**
-     * Collapses all nodes
-     */
-    public void collapseAll() {
-        tt.collapseAll();
     }
     
     /** 
@@ -729,75 +634,6 @@ for (int i = 0; i < columns.length; i++) {
         };
     }    
     
-    // copied from org.netbeans.modules.tasklist.core.TaskListView
-
-    /** Expected border height */
-    private static int TOOLBAR_HEIGHT_ADJUSTMENT = 4;
-
-    /** Cached toolbar height */
-    private static int toolbarHeight = -1;
-
-    public static final String DEFAULT_FILTER_NAME = 
-        NbBundle.getMessage(UserTaskView.class, "default-filter-name");
-
-
-    /**
-     * Registers a view
-     *
-     * @param view a view to be registered
-     */
-    protected static void registerTaskListView(UserTaskView view) {
-        synchronized (UserTaskView.class) {
-            views.add(new WeakReference(view));
-        }
-    }
-    
-    /** Property "task summary" */
-    public static final String PROP_TASK_SUMMARY = "taskDesc"; // NOI18N
-
-    /** String (category of a view) -> ColumnsConfiguration */
-    private static Map defColumns = new HashMap();
-
-    transient protected Node rootNode = null;
-    
-    transient private boolean initialized = false;
-
-    transient protected String category = null;
-
-    protected transient UserTaskList tasklist = null;
-
-    transient protected FilterRepository filters = null;
-    transient protected Filter activeFilter = null;
-    
-    /** Annotation showing the current position */
-    transient protected UserTaskAnnotation taskMarker = null;
-
-    private transient Component centerCmp;
-
-    transient private JPanel centerPanel;
-    transient private Component northCmp;
-    transient private boolean northCmpCreated;
-    transient private JLabel miniStatus;
-
-    private transient ExplorerManager manager;
-
-    protected boolean persistent = false;
-    
-    /**
-     * Construct a new TaskListView. Most work is deferred to
-     * componentOpened. NOTE: this is only for use by the window
-     * system when deserializing windows. Client code should not call
-     * it; use the constructor which takes category, title and icon
-     * parameters. But the code relies on
-     * readExternal getting called after this constructor to finalize
-     * construction of the window.
-     *
-     * todo make private
-     */
-    public void createTaskListView() {
-        init_();
-    }
-
     /**
      * Common part for all constructors
      */
@@ -814,125 +650,61 @@ for (int i = 0; i < columns.length; i++) {
 
         // following line tells the top component which lookup should be associated with it
         associateLookup(ExplorerUtils.createLookup(manager, map));
+        
+        FindAction find = (FindAction) FindAction.get(FindAction.class);
+        FilterUserTaskAction filter = (FilterUserTaskAction) 
+            FilterUserTaskAction.get(FilterUserTaskAction.class);
+        getActionMap().put(find.getActionMapKey(), filter);
+
+        setLayout(new BorderLayout());
+
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BorderLayout());
+        
+        tt = new UserTasksTreeTable(
+            getExplorerManager(), getList(), getFilter());
+        
+        JScrollPane sp = new JScrollPane(tt,
+            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        
+        ChooseColumnsPanel.installChooseColumnsButton(sp);
+        
+        centerPanel.add(sp, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER);
+
+        loadColumnsConfiguration();
+        
+        JPanel toolbars = new JPanel();
+        toolbars.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
+
+        SystemAction[] actions = getGlobalToolBarActions();
+        if (actions != null) {
+            JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
+            toolbar.setFloatable(false);
+            toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
+            toolbar.setOrientation(JToolBar.VERTICAL);
+            toolbars.add(toolbar);
+        }
+
+        actions = getToolBarActions();
+        if (actions != null) {
+            JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
+            toolbar.setFloatable(false);
+            toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
+            toolbar.setOrientation(JToolBar.VERTICAL);
+            toolbars.add(toolbar);
+        }
+
+
+        add(toolbars, BorderLayout.WEST);
+
+        tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
     }
 
     public ExplorerManager getExplorerManager() {
         return manager;
     }
-
-    /**
-     * Updates the label showing the number of filtered tasks
-     */
-    public void updateFilterCount() {
-        JLabel filterLabel = (JLabel) getMiniStatus();
-        if (getFilter() == null) {
-            filterLabel.setText("");
-        } else {
-            int all = TLUtils.getChildrenCountRecursively(rootNode);
-            int shown = TLUtils.getChildrenCountRecursively(
-                    getExplorerManager().getExploredContext());
-            filterLabel.setText(NbBundle.getMessage(UserTaskView.class,
-                    "FilterCount", new Integer(shown), new Integer(all))); // NOI18N
-        }
-    }
-
-    /**
-     * Hides/shows component that will be shown over the TTV
-     *
-     * @param v true = visible
-     */
-    protected void setNorthComponentVisible(boolean v) {
-        if (v) {
-            Component cmp = getNorthComponent();
-            if (cmp != null) {
-                centerPanel.add(cmp, BorderLayout.NORTH);
-                centerPanel.validate();
-            }
-        } else {
-            if (northCmp != null && northCmp.getParent() != null) {
-                northCmp.getParent().remove(northCmp);
-            }
-        }
-    }
-
-    /**
-     * Is the component above the tree table visible?
-     * Visible means it is in the TopComponent
-     *
-     * @return true = yes
-     */
-    public boolean isNorthComponentVisible() {
-        return northCmp != null && northCmp.getParent() != null;
-    }
-
-    /**
-     * Returns component that will be shown over the TTV
-     *
-     * @return component or null
-     */
-    protected Component getNorthComponent() {
-        if (!northCmpCreated) {
-            northCmp = createNorthComponent();
-            northCmpCreated = true;
-        }
-        return northCmp;
-    }
-
-    /**
-     * Creates component that will be shown over the TTV
-     *
-     * @return created component or null
-     */
-    protected Component createNorthComponent() {
-        return new JLabel(""); // NOI18N
-    }
-
-    /**
-     * Returns component visualizing view status messages.
-     */
-    protected JLabel getMiniStatus() {
-        if (miniStatus == null) {
-            miniStatus = createMiniStatus();
-        }
-        return miniStatus;
-    }
-
-    private JLabel createMiniStatus() {
-        JLabel ret =  new JLabel();
-        Dimension dim = ret.getPreferredSize();
-        dim.height = getToolbarHeight();
-        ret.setPreferredSize(dim);
-        return ret;
-    }
-
-    protected final void setMiniStatus(String text) {
-        getMiniStatus().setText(text);
-    }
-
-    /**
-     * Computes vertical toolbar components height that can used for layout manager hinting.
-     * @return size based on font size and expected border.
-     */
-    public static int getToolbarHeight() {
-
-        if (toolbarHeight == -1) {
-            BufferedImage image = new BufferedImage(1,1,BufferedImage.TYPE_BYTE_GRAY);
-            Graphics2D g = image.createGraphics();
-            UIDefaults def = UIManager.getLookAndFeelDefaults();
-
-            int height = 0;
-            String[] fonts = {"Label.font", "Button.font", "ToggleButton.font"};      // NOI18N
-            for (int i=0; i<fonts.length; i++) {
-                Font f = def.getFont(fonts[i]);
-                FontMetrics fm = g.getFontMetrics(f);
-                height = Math.max(height, fm.getHeight());
-            }
-            toolbarHeight = height + TOOLBAR_HEIGHT_ADJUSTMENT;
-        }
-
-        return toolbarHeight;
-    }
-
 
     /**
      * Could be overriden to change actions on second toolbar row.
@@ -948,13 +720,12 @@ for (int i = 0; i < columns.length; i++) {
      * @return default columns configuration
      */
     protected ColumnsConfiguration getDefaultColumns() {
-        ColumnsConfiguration cc = (ColumnsConfiguration) defColumns.get(category);
         if (cc != null)
             return cc;
 
         FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = fs.findResource("TaskList/" + category + "/columns.settings"); // NOI18N
-        assert fo != null : "Missing config TaskList/" + category + "/columns.settings";  // NOI18N
+        FileObject fo = fs.findResource("TaskList/" + USER_CATEGORY + "/columns.settings"); // NOI18N
+        assert fo != null : "Missing config TaskList/" + USER_CATEGORY + "/columns.settings";  // NOI18N
 
         try {
             DataObject dobj = DataObject.find(fo);
@@ -970,12 +741,13 @@ for (int i = 0; i < columns.length; i++) {
         return cc;
     }
 
-
-
+    /**
+     * Loads filters
+     */
     protected void loadFilters() {
         FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = fs.findResource("TaskList/" + category + "/filters.settings"); // NOI18N
-        assert fo != null : "Missing config TaskList/" + category + "/filters.settings";  // NOI18N
+        FileObject fo = fs.findResource("TaskList/" + USER_CATEGORY + "/filters.settings"); // NOI18N
+        assert fo != null : "Missing config TaskList/" + USER_CATEGORY + "/filters.settings";  // NOI18N
         
         try {
             DataObject dobj = DataObject.find(fo);
@@ -1023,60 +795,12 @@ for (int i = 0; i < columns.length; i++) {
             return;
         }
         initialized = true;
-
-        FindAction find = (FindAction) FindAction.get(FindAction.class);
-        FilterUserTaskAction filter = (FilterUserTaskAction) 
-            FilterUserTaskAction.get(FilterUserTaskAction.class);
-        getActionMap().put(find.getActionMapKey(), filter);
-
-        setLayout(new BorderLayout());
-
-        centerPanel = new JPanel();
-        centerPanel.setLayout(new BorderLayout());
-        centerCmp = createCenterComponent();
-        
-        centerPanel.add(centerCmp, BorderLayout.CENTER);
-        add(centerPanel, BorderLayout.CENTER);
-
-        loadColumnsConfiguration();
-        
-        JPanel toolbars = new JPanel();
-        toolbars.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
-
-        SystemAction[] actions = getGlobalToolBarActions();
-        if (actions != null) {
-            JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
-            toolbar.setFloatable(false);
-            toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
-            toolbar.setOrientation(JToolBar.VERTICAL);
-            toolbars.add(toolbar);
-        }
-
-        actions = getToolBarActions();
-        if (actions != null) {
-            JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
-            toolbar.setFloatable(false);
-            toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
-            toolbar.setOrientation(JToolBar.VERTICAL);
-            toolbars.add(toolbar);
-        }
-
-
-        add(toolbars, BorderLayout.WEST);
-
-        // Populate the view
-        setList(tasklist);
-        
-        tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
     }
 
 
     /** Called when the window is closed. Cleans up. */
     protected void componentClosed() {
         getList().destroy();
-        
-        // Unregister listeningViews
-        unregisterListeners();
         
         storeColumnsConfiguration();
 
@@ -1098,80 +822,6 @@ for (int i = 0; i < columns.length; i++) {
         storeColumnsConfiguration();
     }
 
-    /**
-     * Returns the root node. It is never a filtered node.
-     *
-     * @return root node
-     */
-    public Node getRootNode() {
-        return rootNode;
-    }
-
-    // XXX #37543 copied from ExplorerPanel ast was deprecated without replacement
-    private static HelpCtx getHelpCtx(Node[] sel, HelpCtx def) {
-        HelpCtx result = null;
-        for (int i = 0; i < sel.length; i++) {
-            HelpCtx attempt = sel[i].getHelpCtx();
-            if (attempt != null && !attempt.equals(HelpCtx.DEFAULT_HELP)) {
-                if (result == null || result.equals(attempt)) {
-                    result = attempt;
-                } else {
-                    // More than one found, and they conflict. Get general help on the Explorer instead.
-                    result = null;
-                    break;
-                }
-            }
-        }
-        if (result != null)
-            return result;
-        else
-            return def;
-    }
-
-    /** List of TaskViewListener object listening on the tasklist view
-     for visibility, selection, etc. */
-    private List listeningViews = null;
-
-    protected final List getListeningViews() {
-        return (listeningViews == null) ? Collections.EMPTY_LIST : listeningViews;
-    }
-
-    /** 
-     * Locate all tasklist listeningViews and add them to our property
-     * change listener setup.
-     * @todo Decide whether to unregister and reregister repeatedly;
-     * this has the advantage of working with dynamic module
-     * installs/uninstalls.
-     * @todo Consider using a lookup listener such that I'm notified of
-     * later additions/removals
-     * @todo Consider doing a factory lookup instead of creating a new
-     * instance each time. Would allow better coordination between
-     * the listener instance and ScanView in the editor package.
-     */
-    void registerListeners() {
-        // TODO Ensure that this doesn't get called from other windows...
-        // find TaskViewListeners
-        Lookup l = Lookup.getDefault();
-        Lookup.Template template = new Lookup.Template(
-            UserTaskViewListener.class);
-        Iterator it = l.lookup(template).allInstances().iterator();
-        if (it.hasNext()) {
-            listeningViews = new ArrayList(4);
-        }
-        while (it.hasNext()) {
-            UserTaskViewListener tl = (UserTaskViewListener) it.next();
-            listeningViews.add(tl);
-        }
-    }
-
-    /** Unregister the listeningViews registered in registerListener such
-     that they are no longer notified of changes */
-    private void unregisterListeners() {
-        listeningViews = null;
-    }
-
-    // TODO Pick a better name!
-    // TODO make method package private! Can't yet - used in editor/
     public void showInMode() {
         if (!isOpened()) {
             Mode mode = WindowManager.getDefault().findMode("output"); // NOI18N
@@ -1186,6 +836,8 @@ for (int i = 0; i < columns.length; i++) {
 
     /**  
      * Return the tasklist shown in this view 
+     *
+     * @return task list
      */
     public UserTaskList getList() {
         return this.tasklist;
@@ -1230,18 +882,15 @@ for (int i = 0; i < columns.length; i++) {
         setFiltered();
     }
 
-    public void requestActive() {
-        super.requestActive();
+    public boolean requestFocusInWindow() {
+        super.requestFocusInWindow();
         if (tt != null) {
-            tt.requestFocus();
+            tt.requestFocusInWindow();
         }
+        return true;
     }
 
-    public Image getIcon() {
-        return ICON;
-    }
-
-    /* XXX check isSliding
+    /* check isSliding
     public void showTask(UserTask item, Annotation annotation) {
         // #35917 do not move focus if in sliding mode
         if (view.getClientProperty("isSliding") == Boolean.TRUE) {  // NOi18N
@@ -1251,4 +900,43 @@ for (int i = 0; i < columns.length; i++) {
         }
     }
      **/
+    
+    /** 
+     * debug Ctrl+C,V,X
+     *
+    private void debugCopyPaste() {
+         if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
+            ActionMap am = this.getActionMap();
+            Object[] actionKeys = am.allKeys();
+            for (int i = 0; i < actionKeys.length; i++) {
+                Action action = am.get(actionKeys[i]);
+                UTUtils.LOGGER.fine(actionKeys[i] + " => " + action.getClass());
+            }
+            
+            UTUtils.LOGGER.fine("printing InputMaps:");
+            Component cmp = tt;
+            while (cmp != null) {
+                UTUtils.LOGGER.fine("checking " + cmp.getClass());
+                if (cmp instanceof JComponent) {
+                    InputMap keys = ((JComponent) cmp).
+                        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+                    if (keys != null) {
+                        UTUtils.LOGGER.fine("InputMap.class: " + keys.getClass());
+                        KeyStroke[] ks = keys.keys();
+                        if (ks != null) {
+                            for (int i = 0; i < ks.length; i++) {
+                                UTUtils.LOGGER.fine(ks[i] + " " + keys.get(ks[i]));
+                            }
+                        } else {
+                            UTUtils.LOGGER.fine("InputMap.keys() == null");
+                        }
+                    } else {
+                        UTUtils.LOGGER.fine("InputMap == null");
+                    }
+                }
+                cmp = cmp.getParent();
+            }
+        }
+    }
+    */
 }

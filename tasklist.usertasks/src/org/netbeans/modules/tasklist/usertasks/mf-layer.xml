@@ -86,7 +86,7 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration"/>
             </file>
 
-            <file name="filters.settings" url="usertasks_filters.xml">
+            <file name="filters.settings" url="filter/usertasks_filters.xml">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.FilterRepository"/>
             </file>
 
@@ -129,10 +129,12 @@ Microsystems, Inc. All Rights Reserved.
 	  <folder name="modules">
 	    <folder name="tasklist">
 	      <folder name="usertasks">
-		<file name="UserTaskFilter">
-		  <attr name="settings.providerPath"
-		    stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_UserTaskFilter_1_0.instance"/>
-		</file>
+                <folder name="filter">
+                    <file name="UserTaskFilter">
+                      <attr name="settings.providerPath"
+                        stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_UserTaskFilter_1_0.instance"/>
+                    </file>
+                </folder>
 	      </folder>
 	    </folder>
 	  </folder>

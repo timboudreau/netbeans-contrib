@@ -29,6 +29,9 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.EventObject;
@@ -58,6 +61,10 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.UTUtils;
+import org.netbeans.modules.tasklist.usertasks.UserTask;
+import org.netbeans.modules.tasklist.usertasks.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
+import org.netbeans.modules.tasklist.usertasks.UserTasksTreeTableModel;
 
 /**
  * This example shows how to create a simple JTreeTable component, 
@@ -83,6 +90,9 @@ public class TreeTable extends JTable {
     }
     
     private static final long serialVersionUID = 1;
+    
+    /** the TT that is being currently deserialized */
+    private static TreeTable currentDeserializing;
     
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
@@ -417,68 +427,6 @@ public class TreeTable extends JTable {
     }
 
     /**
-     * Modified Copy from JTable
-     *
-     * Programmatically starts editing the cell at <code>row</code> and
-     * <code>column</code>, if the cell is editable.
-     * To prevent the <code>JTable</code> from editing a particular table,
-     * column or cell value, return false from the <code>isCellEditable</code>
-     * method in the <code>TableModel</code> interface.
-     *
-     * @param   row     the row to be edited
-     * @param   column  the column to be edited
-     * @param   e       event to pass into <code>shouldSelectCell</code>;
-     *                  note that as of Java 2 platform v1.2, the call to
-     *                  <code>shouldSelectCell</code> is no longer made
-     * @exception IllegalArgumentException      if <code>row</code> or
-     *                                          <code>column</code>
-     *                                          is not in the valid range
-     * @return  false if for any reason the cell cannot be edited
-     */
-    public boolean jTableEditCellAt(int row, int column, EventObject e){
-        if (cellEditor != null && !cellEditor.stopCellEditing()) {
-            return false;
-        }
-
-	if (row < 0 || row >= getRowCount() ||
-	    column < 0 || column >= getColumnCount()) {
-	    return false;
-	}
-
-        // DIFF TO JTABLE:
-        //if (!isCellEditable(row, column))
-        //    return false;
-
-        // DIFF TO JTABLE:
-        /*if (editorRemover == null) {
-            KeyboardFocusManager fm =
-                KeyboardFocusManager.getCurrentKeyboardFocusManager();
-            editorRemover = new CellEditorRemover(fm);
-            fm.addPropertyChangeListener("permanentFocusOwner", editorRemover);
-        }*/
-
-        TableCellEditor editor = getCellEditor(row, column);
-        if (editor != null && editor.isCellEditable(e)) {
-	    editorComp = prepareEditor(editor, row, column);
-	    if (editorComp == null) {
-		removeEditor();
-		return false;
-	    }
-	    editorComp.setBounds(getCellRect(row, column, false));
-	    add(editorComp);
-	    editorComp.validate();
-
-	    setCellEditor(editor);
-	    setEditingRow(row);
-	    setEditingColumn(column);
-	    editor.addCellEditorListener(this);
-
-	    return true;
-        }
-        return false;
-    }
-    
-    /**
      * Overridden to invoke repaint for the particular location if
      * the column contains the tree. This is done as the tree editor does
      * not fill the bounds of the cell, we need the renderer to paint
@@ -539,6 +487,98 @@ public class TreeTable extends JTable {
 
     protected javax.swing.table.JTableHeader createDefaultTableHeader() {
         return new SortableTableHeader(columnModel);
+    }
+
+    /**
+     * Serialization of a node. Instead of serializing nodes some sort of
+     * handles to this nodes will be serialized. Override this method
+     * to return some handle object. Default implementation just return 
+     * <code>node</code>
+     *
+     * @param node a node from this tree
+     * @return handle for the node. != null
+     */
+    protected Object writeReplaceNode(Object node) {
+        return node;
+    }
+    
+    /**
+     * Deserialization of a node. Override this method to resolve
+     * node object during deserialization.
+     *
+     * @param parent parent node from this TT
+     * @param node object read from the stream
+     * @return a node from this tree or null
+     */
+    protected Object readResolveNode(Object parent, Object node) {
+        return node;
+    }
+    
+    /**
+     * Writes the state of expanded nodes to a stream. Only one object
+     * will be written.
+     *
+     * @param objectOutput output stream
+     */
+    public void writeExpandedState(ObjectOutput objectOutput) throws IOException {
+        Enumeration en = tree.getExpandedDescendants( 
+            new TreePath(getTreeTableModel().getRoot()));
+        
+        List paths = new ArrayList();
+        if (en != null) {
+            while (en.hasMoreElements()) {
+                paths.add(writeReplaceTreePath((TreePath) en.nextElement()));
+            }
+        }
+
+        objectOutput.writeObject(paths);
+    }
+    
+    /**
+     * Read the expanded nodes from the specified stream.
+     *
+     * @param oi object input
+     */
+    public void readExpandedState(ObjectInput oi) throws IOException, 
+    ClassNotFoundException {
+        List l = (List) oi.readObject();
+        for (int i = 0; i < l.size(); i++) {
+            TreePath tp = readResolveTreePath(l.get(i));
+            if (tp != null)
+                expandPath(tp);
+        }
+    }
+
+    /**
+     * Replaces a tree from this TT for writing into a stream.
+     *
+     * @param tp a path from this TT
+     * @return replacement
+     */
+    public Object writeReplaceTreePath(TreePath tp) {
+        Object[] p = tp.getPath();
+        p[0] = null;
+        for (int i = 1; i < p.length; i++) {
+            p[i] = writeReplaceNode(p[i]);
+        }
+        return p;
+    }
+    
+    /**
+     * Resolves a path in this TT from an object read from a stream.
+     *
+     * @return tp a path from this TT or null
+     * @param o read object
+     */
+    public TreePath readResolveTreePath(Object o) {
+        Object[] p = (Object[]) o;
+        p[0] = getTreeTableModel().getRoot();
+        for (int i = 1; i < p.length; i++) {
+            p[i] = readResolveNode(p[i - 1], p[i]);
+            if (p[i] == null)
+                return null;
+        }
+        return new TreePath(p);
     }
     
     /**
