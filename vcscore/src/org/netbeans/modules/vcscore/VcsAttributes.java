@@ -46,6 +46,21 @@ public class VcsAttributes extends DefaultAttributes {
      * the given FileObject
      */
     public static final String FILE_ATTRIBUTE = "java.io.File"; //NOI18N
+
+    /**
+     * Name of the attribute that contains the instance of the vcs filesystem that the
+     * fileobject belongs to.
+     */
+    public static final String VCS_NATIVE_FS = "VcsFileSystemAttributeIdentifier";
+
+    /**
+     * Name of the attribute that contains path of the fileobject within the versioning filesystem.
+     * That can differ when the filesystem is placed within a multifilesystem.
+     * In cooperation with the VCS_NATIVE_FS one can retrieve the original fileobject from
+     * the vcs filesystem.
+     */
+    public static final String VCS_NATIVE_PACKAGE_NAME_EXT = "VcsFileSystemNativeFOPath";
+    
     /**
      * Attribute name for a VCS action.
      */
@@ -181,7 +196,11 @@ public class VcsAttributes extends DefaultAttributes {
             return VCS_STATUS_UNKNOWN;
         } else if (GeneralCommandAction.VCS_ACTION_ATTRIBUTE.equals(attrName)) {
             return supporter;            
-        } else {
+        } else if (VCS_NATIVE_FS.equals(attrName)) {
+            return fileSystem;
+        } else if (VCS_NATIVE_PACKAGE_NAME_EXT.equals(attrName)) {
+            return name;
+        }  else {
             if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
                 CacheReference ref = fileSystem.getCacheReference(name);
                 if (ref != null) {

@@ -29,6 +29,7 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.actions.NodeAction;
 
+import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
@@ -39,7 +40,7 @@ import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
  *
  * @author  Martin Entlicher
  */
-public class VersioningExplorerAction extends NodeAction {
+public class VersioningExplorerAction extends GeneralCommandAction {
 
     private static final long serialVersionUID = -4949229720968764504L;
     
@@ -47,29 +48,6 @@ public class VersioningExplorerAction extends NodeAction {
     public VersioningExplorerAction() {
     }
 
-    protected boolean enable(Node[] nodes) {
-        return true;
-        /*
-        if (nodes.length < 1) return false;
-        for (int i = 0; i < nodes.length; i++) {
-            DataObject dataObj = (DataObject) nodes[i].getCookie(DataObject.class);
-            if (dataObj == null) continue;
-            Set files = dataObj.files();
-            for (Iterator it = files.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                FileSystem fs;
-                try {
-                    fs = fo.getFileSystem();
-                } catch (FileStateInvalidException exc) {
-                    continue;
-                }
-                if (VcsCommandsAction.isVcsFileSystem(fs)) return true;
-            }
-        }
-        return false;
-         */
-    }
-    
     public String getName() {
         return org.openide.util.NbBundle.getMessage(VersioningExplorerAction.class, "LBL_VersioningExplorer");
     }
@@ -91,23 +69,62 @@ public class VersioningExplorerAction extends NodeAction {
         selectVersioningFiles(explorer, filesByFS);
         explorer.requestFocus();
     }
-    
-    private HashMap getFilesByFS(Node[] nodes) {
-        HashMap filesByFS = new HashMap();
-        for (int i = 0; i < nodes.length; i++) {
-            DataObject dataObj = (DataObject) nodes[i].getCookie(DataObject.class);
-            if (dataObj == null) continue;
-            Set files = dataObj.files();
-            for (Iterator it = files.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                FileSystem fs;
+ 
+    /***
+     * Performs the conversion from the Fileobjects retrieved from nodes to the real
+     * underlying versioning filesystem's fileobjects. Should be used in the action's code whenever 
+     * the action needs to work with the fileobjects of the versioning fs.
+     * That is nessesary when the nodes come from  the MultiFilesystem layer,
+     * otherwise we'll get the wrong set of fileobjects and commands will behave strangely.
+     */
+    private FileObject[] convertFileObjects(FileObject[] originals) {
+        if (originals == null || originals.length == 0) {
+            return originals;
+        }
+        FileObject[] toReturn = new FileObject[originals.length];
+        for (int i = 0; i < originals.length; i++) {
+            toReturn[i] = originals[i];
+            FileObject fo = originals[i];
+            FileSystem fs = (FileSystem)fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
+            if (fs != null) {
                 try {
-                    fs = fo.getFileSystem();
+                    FileSystem fileSys = fo.getFileSystem();
+                    if (!fileSys.equals(fs)) {
+                        String nativePath = (String)fo.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
+                        toReturn[i] = fs.findResource(nativePath);
+                    }
                 } catch (FileStateInvalidException exc) {
                     continue;
                 }
-                if (VcsCommandsAction.isVcsFileSystem(fs)) {
-                    filesByFS.put(fo.getPackageNameExt('/', '.'), fs.getSystemName());
+                
+            } else {
+                continue;
+            }
+        }
+        return toReturn;
+    }
+    
+    private HashMap getFilesByFS(Node[] nodes) {
+        HashMap filesByFS = new HashMap();
+        HashMap map = getSupporterMap(nodes);
+        Iterator it = map.values().iterator();
+        while (it.hasNext()) {
+            Set foSet = (Set)it.next();
+            FileObject[] origFos = new FileObject[foSet.size()];
+            if (origFos == null || origFos.length == 0) {
+                continue;
+            }
+            origFos = (FileObject[])foSet.toArray(origFos);
+            FileObject[] correctFos = convertFileObjects(origFos);
+            for (int i = 0; i < correctFos.length; i++) {
+                FileObject fo = correctFos[i];
+                try {
+                    FileSystem fs = fo.getFileSystem();
+                    if (fs != null) {
+                        filesByFS.put(fo.getPackageNameExt('/', '.'), fs.getSystemName());
+                    }
+                } catch (FileStateInvalidException exc) {
+                    continue;
                 }
             }
         }

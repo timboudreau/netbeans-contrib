@@ -20,6 +20,7 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.TopManager;
 import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
+import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
 import org.netbeans.modules.vcscore.commands.*;
 import java.lang.ref.WeakReference;
@@ -81,6 +82,9 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
     public boolean isEnabled(GeneralCommandAction action, FileObject[] fileObjects) {
         if (fileObjects == null || fileObjects.length == 0) {
             return false;
+        }
+        if (action.getClass().equals(VersioningExplorerAction.class)) {
+            return true;
         }
         HashSet cmdSet = (HashSet) commandMap.get(action.getClass());
         if (cmdSet == null) {
