@@ -104,6 +104,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
      * @param env The document being hidden
      */
     public void docHidden(SuggestionContext env) {
+        if (settings == null) return; // FIXNE after deserialization
         settings.removePropertyChangeListener(this);
      }
 

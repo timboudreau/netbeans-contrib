@@ -1387,13 +1387,22 @@ for (int i = 0; i < columns.length; i++) {
         }
     }
 
-    /** @return last selected or null */
-    private Node findLastSelected() {
+    /**
+     * @param tail if true take the last one from multiple selection
+     *        othervise the first one
+     * @return last selected or null
+     */
+    private Node findLastSelected(boolean tail) {
         Node[] selected = getExplorerManager().getSelectedNodes();
         Node last;
         if (selected != null && selected.length != 0) {
-            last = selected[selected.length -1];
+            if (tail) {
+                last = selected[selected.length -1];
+            } else {
+                last = selected[0];
+            }
         } else {
+            // none selected take fisrt on in all cases
             Node[] all = getExplorerManager().getRootContext().getChildren().getNodes();
             if (all == null || all.length == 0) {
                 return null;
@@ -1407,7 +1416,7 @@ for (int i = 0; i < columns.length; i++) {
     /** Show the next task in the view */
     protected final void nextTask() {
 
-        Node last = findLastSelected();
+        Node last = findLastSelected(true);
         if (last == null) return;
 
         Node next = findNextVisitable(Visualizer.findVisualizer(last));
@@ -1431,75 +1440,78 @@ for (int i = 0; i < columns.length; i++) {
             }
             select(nextTask); // XXX call EM directly
         }
+    }
 
-//        ObservableList list = getModel();
-//        Task curr = getCurrentTask();
-//        Task next = null;
-//        if (curr == null) {
-//            List sgs = list.getRoot().getSubtasks();
-//            if (sgs != null) {
-//                next = (Task) sgs.get(0);
-//            } else {
-//                return;
-//            }
-//        } else {
-//            next = TLUtils.findNext(curr, wrapWarned);
-//        }
-//        String msg = NbBundle.getBundle(TaskListView.class).
-//                getString("MSG_AtLastError"); // NOI18N
-//        if ((next == null) && !wrapWarned) {
-//            StatusDisplayer.getDefault().setStatusText(msg);
-//            wrapWarned = true;
-//        } else {
-//            wrapWarned = false;
-//        }
-//        if (next != null) {
-//            if (next.getLine() != null) {
-//                TaskAnnotation anno = getAnnotation(next);
-//                if (anno != null) {
-//                    showTask(next, anno);
-//                }
-//            }
-//            select(next);
-//            //StatusDisplayer.getDefault().setStatusText(next.getSummary());
-//        }
 
+    private Node findPrevVisitable(TreeNode last) {
+
+        // find prev candidate
+
+        TreeNode prev = null;
+        int index = last.getParent().getIndex(last);
+        assert index != -1;
+        index--;
+        if (index >= 0) {
+            prev = last.getParent().getChildAt(index);
+        } else {
+            prev = last.getParent();
+            if (prev.getParent() == null) {
+                prev = null;  // never select root node
+            }
+        }
+
+        // try wrap around to last if warned
+
+        if (prev == null && wrapWarned) {
+            TreeNode parent = last;
+            while (parent.getParent() != null) {
+               parent = parent.getParent();
+            }
+            prev = parent;
+            while (prev.getChildCount() > 0) {
+                prev = prev.getChildAt(prev.getChildCount() -1);
+            }
+        }
+
+        if (prev == null) return null;
+
+        // assure it's visitable
+
+        Node prevNode = Visualizer.findNode(prev);
+        Task task = (Task) prevNode.getCookie(Task.class);
+        if (task != null && task.isVisitable()) {
+            return prevNode;
+        } else {
+            return findPrevVisitable(prev);
+        }
     }
 
     /** Show the previous task in the view */
     protected final void prevTask() {
-        // FIXME it must work with view instead data model
-        // to detect actual sorting, see above method
-        ObservableList list = getModel();
-        Task curr = getCurrentTask();
-        Task prev = null;
-        if (curr == null) {
-            List sgs = list.getRoot().getSubtasks();
-            if (sgs != null) {
-                prev = (Task) sgs.get(0);
-            } else {
-                return;
-            }
-        } else {
-            prev = TLUtils.findPrev(curr, wrapWarned);
-        }
+
+        Node last = findLastSelected(false);
+        if (last == null) return;
+
+        Node prev = findPrevVisitable(Visualizer.findVisualizer(last));
+
         String msg = NbBundle.getBundle(TaskListView.class).
-                getString("MSG_AtLastError"); // NOI18N
+                getString("MSG_AtFirstError"); // NOI18N
         if ((prev == null) && !wrapWarned) {
             StatusDisplayer.getDefault().setStatusText(msg);
             wrapWarned = true;
         } else {
             wrapWarned = false;
         }
+
         if (prev != null) {
-            if (prev.getLine() != null) {
-                TaskAnnotation anno = getAnnotation(prev);
+            Task prevTask = (Task) prev.getCookie(Task.class);
+            if (prevTask.getLine() != null) {
+                TaskAnnotation anno = getAnnotation(prevTask);
                 if (anno != null) {
-                    showTask(prev, anno);
+                    showTask(prevTask, anno);
                 }
             }
-            select(prev);
-            //StatusDisplayer.getDefault().setStatusText(prev.getSummary());
+            select(prevTask); // XXX call EM directly
         }
     }
 
@@ -1510,22 +1522,6 @@ for (int i = 0; i < columns.length; i++) {
      */
     protected TaskAnnotation getAnnotation(Task task) {
         return new TaskAnnotation(task, this);
-    }
-
-    /**
-     * @return The currently selected task in the view,
-     * or if none, the first task (or null, if there are
-     * no tasks
-     */
-    private Task getCurrentTask() {
-        Node[] node = getExplorerManager().getSelectedNodes();
-        if ((node != null) && (node.length > 0)) {
-            Task s = (Task) TaskNode.getTask(node[0]);
-            if (s.getParent() != null) { // Make sure it's not the root node
-                return s;
-            }
-        }
-        return null;
     }
 
     protected void componentHidden() {
