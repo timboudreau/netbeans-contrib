@@ -31,8 +31,8 @@ import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
 
 import com.netbeans.developer.modules.vcs.*;
-import com.netbeans.developer.modules.vcs.cmdline.*;
-import com.netbeans.developer.modules.vcs.util.*;
+//import com.netbeans.developer.modules.vcs.cmdline.*;
+import com.netbeans.developer.modules.vcs.util.Debug;
 
 /** Generic command line VCS filesystem.
  * 
@@ -40,12 +40,12 @@ import com.netbeans.developer.modules.vcs.util.*;
  */
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends VcsFileSystem {
-  private Debug D = new Debug ("CommandLineVcsFileSystem", false);
+  private Debug D = new Debug ("CommandLineVcsFileSystem", true);
   private static transient String CONFIG_ROOT="vcs/config";
   private transient Hashtable commandsByName=null;
  
-  //-------------------------------------------
   static final long serialVersionUID =-1017235664394970926L;
+  //-------------------------------------------
   public CommandLineVcsFileSystem () {
     //D.deb("CommandLineVcsFileSystem()");
     super ();
@@ -53,6 +53,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
   }
   
   public VcsFactory getVcsFactory () {
+    D.deb("getVcsFactory ()");
     return new CommandLineVcsFactory ();
   }
   
@@ -67,6 +68,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
       "system"+File.separator+"vcs"+File.separator+"config";
     Properties props=VcsConfigVariable.readPredefinedProperties(CONFIG_ROOT+File.separator+"empty.properties");
     setVariables (VcsConfigVariable.readVariables(props));
+    D.deb("setVariables DONE.");
     setAdvancedConfig (getVcsFactory ().getVcsAdvancedCustomizer().readConfig (props));
   }  
 
@@ -80,6 +82,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
 
 /*
  * <<Log>>
+ *  50   Gandalf   1.49        11/30/99 Martin Entlicher 
  *  49   Gandalf   1.48        11/27/99 Patrik Knakal   
  *  48   Gandalf   1.47        11/23/99 Martin Entlicher 
  *  47   Gandalf   1.46        10/25/99 Pavel Buzek     copyright
