@@ -135,6 +135,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
             }
             myMode.dockInto(panel);
         }
+        panel.setIcon(org.openide.util.Utilities.loadImage("/org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"));
         panel.open(TopManager.getDefault().getWindowManager().getCurrentWorkspace());
         panel.requestFocus();
         

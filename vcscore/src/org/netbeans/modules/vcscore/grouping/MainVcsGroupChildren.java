@@ -84,6 +84,7 @@ public class MainVcsGroupChildren extends Children.Keys  {
             FileObject group = rootFo.createFolder(DEFAULT_FOLDER_NAME);
         } catch (IOException exc) {
             System.out.println("error TODO - show messgae");
+            exc.printStackTrace();
             return null;
         }
         refreshAll();
