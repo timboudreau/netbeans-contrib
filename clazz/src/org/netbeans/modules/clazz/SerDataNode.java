@@ -19,7 +19,7 @@ import java.awt.datatransfer.Transferable;
 import java.beans.BeanInfo;
 import java.io.IOException;
 
-import com.netbeans.ide.util.datatransfer.ExTransferable;
+import org.openide.util.datatransfer.ExTransferable;
 
 /** Exetends ClassDataNode, overrides one method
 * This class is final only for performance reasons,
@@ -76,6 +76,8 @@ final class SerDataNode extends ClassDataNode {
 
 /*
  * Log
+ *  7    src-jtulach1.6         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  6    src-jtulach1.5         3/22/99  Ian Formanek    Icons location fixed
  *  5    src-jtulach1.4         3/22/99  Ian Formanek    Icons moved from 
  *       modules/resources to this package

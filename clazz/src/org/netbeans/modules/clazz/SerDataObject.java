@@ -13,10 +13,10 @@
 
 package com.netbeans.developer.modules.loaders.clazz;
 
-import com.netbeans.ide.filesystems.*;
-import com.netbeans.ide.loaders.DataObjectExistsException;
-import com.netbeans.ide.loaders.MultiFileLoader;
-import com.netbeans.ide.nodes.Node;
+import org.openide.filesystems.*;
+import org.openide.loaders.DataObjectExistsException;
+import org.openide.loaders.MultiFileLoader;
+import org.openide.nodes.Node;
 
 /** DataObject which represents JavaBeans (".ser" files).
 * This class is final only for performance reasons,
@@ -57,6 +57,8 @@ public final class SerDataObject extends ClassDataObject {
 
 /*
  * Log
+ *  4    src-jtulach1.3         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  3    src-jtulach1.2         2/25/99  Jaroslav Tulach Change of clipboard 
  *       management  
  *  2    src-jtulach1.1         2/1/99   David Simonek   

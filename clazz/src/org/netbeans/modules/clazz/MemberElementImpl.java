@@ -19,10 +19,10 @@ import java.io.IOException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 
-import com.netbeans.ide.src.MemberElement;
-import com.netbeans.ide.src.SourceException;
-import com.netbeans.ide.src.Identifier;
-import com.netbeans.ide.util.Utilities;
+import org.openide.src.MemberElement;
+import org.openide.src.SourceException;
+import org.openide.src.Identifier;
+import org.openide.util.Utilities;
 
 /** Implementation of the MemberElement.Impl for the class objects.
 *
@@ -91,6 +91,8 @@ public abstract class MemberElementImpl extends ElementImpl
 
 /*
 * Log
+*  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
+*       org.openide ----
 *  5    src-jtulach1.4         5/12/99  Petr Hamernik   ide.src.Identifier 
 *       updated
 *  4    src-jtulach1.3         3/26/99  David Simonek   properties, actions 

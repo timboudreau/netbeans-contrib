@@ -28,18 +28,18 @@ import java.text.MessageFormat;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 
-import com.netbeans.ide.*;
-import com.netbeans.ide.util.*;
-import com.netbeans.ide.cookies.*;
-import com.netbeans.ide.filesystems.*;
-import com.netbeans.ide.loaders.*;
-import com.netbeans.ide.explorer.propertysheet.PropertySheet;
-import com.netbeans.ide.nodes.Node;
-import com.netbeans.ide.nodes.AbstractNode;
-import com.netbeans.ide.nodes.CookieSet;
-import com.netbeans.ide.src.SourceElement;
-import com.netbeans.ide.src.nodes.SourceChildren;
-import com.netbeans.ide.src.nodes.SourceElementFilter;
+import org.openide.*;
+import org.openide.util.*;
+import org.openide.cookies.*;
+import org.openide.filesystems.*;
+import org.openide.loaders.*;
+import org.openide.explorer.propertysheet.PropertySheet;
+import org.openide.nodes.Node;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.CookieSet;
+import org.openide.src.SourceElement;
+import org.openide.src.nodes.SourceChildren;
+import org.openide.src.nodes.SourceElementFilter;
 
 
 /* TODO:
@@ -84,7 +84,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
   /** Constructs a new ClassDataObject */
   public ClassDataObject (final FileObject fo, final ClassDataLoader loader)
-  throws com.netbeans.ide.loaders.DataObjectExistsException {
+  throws org.openide.loaders.DataObjectExistsException {
     super (fo, loader);
     MultiDataObject.Entry pe = getPrimaryEntry();
     instanceSupport = new InstanceSupport.Origin(pe);
@@ -204,7 +204,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   /**
    * Get the alternate node representation.
    * @return the node
-   * @see com.netbeans.ide.loaders.DataObject#getNodeDelegate
+   * @see org.openide.loaders.DataObject#getNodeDelegate
   */
   public Node getElementsParent () {
     ClassElementNodeFactory cef = new ClassElementNodeFactory ();
@@ -463,6 +463,8 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  18   Gandalf   1.17        6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  17   Gandalf   1.16        4/8/99   David Simonek   obscure dialog bugfix 
  *       (#1411)
  *  16   Gandalf   1.15        4/2/99   Jan Jancura     ObjectBrowser support 

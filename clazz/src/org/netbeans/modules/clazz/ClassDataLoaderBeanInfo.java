@@ -17,7 +17,7 @@ import java.beans.*;
 import java.awt.Image;
 import java.util.ResourceBundle;
 
-import com.netbeans.ide.util.NbBundle;
+import org.openide.util.NbBundle;
 
 
 /** BeanInfo for class loader.
@@ -87,6 +87,8 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
 
 /*
 * Log
+*  4    src-jtulach1.3         6/9/99   Ian Formanek    ---- Package Change To 
+*       org.openide ----
 *  3    src-jtulach1.2         3/22/99  Ian Formanek    Icons location fixed
 *  2    src-jtulach1.1         3/22/99  Ian Formanek    Icons moved from 
 *       modules/resources to this package

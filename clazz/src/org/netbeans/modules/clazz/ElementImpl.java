@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.io.Externalizable;
 import java.beans.PropertyChangeListener;
 
-import com.netbeans.ide.nodes.Node;
-import com.netbeans.ide.src.Element;
+import org.openide.nodes.Node;
+import org.openide.src.Element;
 
 /** Implementation of Element for classes.
 *
@@ -64,6 +64,8 @@ public abstract class ElementImpl extends Object implements Element.Impl, Extern
 
 /*
 * Log
+*  5    src-jtulach1.4         6/9/99   Ian Formanek    ---- Package Change To 
+*       org.openide ----
 *  4    src-jtulach1.3         3/18/99  Petr Hamernik   
 *  3    src-jtulach1.2         2/17/99  Petr Hamernik   serialization changed.
 *  2    src-jtulach1.1         2/3/99   David Simonek   

@@ -21,16 +21,16 @@ import java.util.ResourceBundle;
 import java.io.*;
 import javax.swing.SwingUtilities;
 
-import com.netbeans.ide.nodes.*;
-import com.netbeans.ide.TopManager;
-import com.netbeans.ide.loaders.DataNode;
-import com.netbeans.ide.util.datatransfer.ExTransferable;
-import com.netbeans.ide.util.RequestProcessor;
-import com.netbeans.ide.util.NbBundle;
-import com.netbeans.ide.src.*;
-import com.netbeans.ide.src.nodes.SourceChildren;
-import com.netbeans.ide.src.nodes.DefaultFactory;
-import com.netbeans.ide.cookies.SourceCookie;
+import org.openide.nodes.*;
+import org.openide.TopManager;
+import org.openide.loaders.DataNode;
+import org.openide.util.datatransfer.ExTransferable;
+import org.openide.util.RequestProcessor;
+import org.openide.util.NbBundle;
+import org.openide.src.*;
+import org.openide.src.nodes.SourceChildren;
+import org.openide.src.nodes.DefaultFactory;
+import org.openide.cookies.SourceCookie;
 
 /** Represents ClassDataObject
 *
@@ -216,8 +216,8 @@ class ClassDataNode extends DataNode implements Runnable {
     exps.setName(EXECUTION_SET_NAME);
     exps.setDisplayName(bundle.getString ("PROP_executionSetName"));
     exps.setShortDescription(bundle.getString ("HINT_executionSetName"));
-    com.netbeans.ide.loaders.ExecSupport.addProperties(exps,
-                                                       ((com.netbeans.ide.loaders.MultiDataObject)getDataObject()).getPrimaryEntry()
+    org.openide.loaders.ExecSupport.addProperties(exps,
+                                                       ((org.openide.loaders.MultiDataObject)getDataObject()).getPrimaryEntry()
                                                       );
     s.put(exps);
 
@@ -260,6 +260,8 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  21   Gandalf   1.20        6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  20   Gandalf   1.19        5/10/99  Jaroslav Tulach DataNode.canRename
  *  19   Gandalf   1.18        4/22/99  Ales Novak      new model of execution
  *  18   Gandalf   1.17        4/4/99   Ian Formanek    

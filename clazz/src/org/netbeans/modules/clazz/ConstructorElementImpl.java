@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
-import com.netbeans.ide.src.*;
+import org.openide.src.*;
 
 /** Implementation of the constructor element for class objects.
 * It's simple bridge to the java reflection Constructor, delegates
@@ -125,6 +125,8 @@ class ConstructorElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
+*       org.openide ----
 *  5    src-jtulach1.4         3/15/99  Petr Hamernik   
 *  4    src-jtulach1.3         2/17/99  Petr Hamernik   serialization changed.
 *  3    src-jtulach1.2         2/10/99  David Simonek   

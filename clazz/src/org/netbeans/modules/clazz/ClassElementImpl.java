@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.*;
 
-import com.netbeans.ide.src.*;
+import org.openide.src.*;
 
 /** The implementation of the class element for
 * class objects. Presents data about the class -
@@ -356,6 +356,8 @@ final class ClassElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  9    src-jtulach1.8         6/9/99   Ian Formanek    ---- Package Change To 
+*       org.openide ----
 *  8    src-jtulach1.7         5/12/99  Petr Hamernik   ide.src.Identifier 
 *       updated
 *  7    src-jtulach1.6         3/31/99  David Simonek   setClassOrInterface now 

@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.Collections;
 import java.lang.ref.SoftReference;
 
-import com.netbeans.ide.util.Task;
-import com.netbeans.ide.src.*;
+import org.openide.util.Task;
+import org.openide.src.*;
 
 /** The implementation of source element for class objects.
 * This class is final only for performance reasons,
@@ -181,6 +181,8 @@ public final class SourceElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
+*       org.openide ----
 *  5    src-jtulach1.4         4/1/99   Jan Jancura     Object browser support
 *  4    src-jtulach1.3         3/26/99  David Simonek   properties, actions 
 *       completed, more robust now

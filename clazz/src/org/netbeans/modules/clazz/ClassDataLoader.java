@@ -15,11 +15,11 @@ package com.netbeans.developer.modules.loaders.clazz;
 
 import java.io.IOException;
 
-import com.netbeans.ide.filesystems.FileObject;
-import com.netbeans.ide.loaders.*;
-import com.netbeans.ide.util.actions.SystemAction;
-import com.netbeans.ide.util.NbBundle;
-import com.netbeans.ide.actions.*;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.*;
+import org.openide.util.actions.SystemAction;
+import org.openide.util.NbBundle;
+import org.openide.actions.*;
 
 
 /** The DataLoader for ClassDataObjects.
@@ -162,6 +162,8 @@ public final class ClassDataLoader extends MultiFileLoader {
 
 /*
  * Log
+ *  7    Gandalf   1.6         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
  *  6    Gandalf   1.5         3/26/99  Ian Formanek    Fixed use of obsoleted 
  *       NbBundle.getBundle (this)
  *  5    Gandalf   1.4         3/14/99  Jaroslav Tulach Change of 

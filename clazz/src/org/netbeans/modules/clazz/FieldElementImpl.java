@@ -15,7 +15,7 @@ package com.netbeans.developer.modules.loaders.clazz;
 
 import java.lang.reflect.Field;
 
-import com.netbeans.ide.src.*;
+import org.openide.src.*;
 
 /** The implementation of the field element for class objects.
 *
@@ -74,6 +74,8 @@ final class FieldElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  3    src-jtulach1.2         6/9/99   Ian Formanek    ---- Package Change To 
+*       org.openide ----
 *  2    src-jtulach1.1         2/17/99  Petr Hamernik   serialization changed.
 *  1    src-jtulach1.0         1/22/99  David Simonek   
 * $
