@@ -14,6 +14,8 @@
 package util;
 
 import org.netbeans.jellytools.NbFrameOperator;
+import org.netbeans.jemmy.operators.JTextFieldOperator;
+import org.netbeans.jemmy.EventTool;
 
 public class JHelper {
     
@@ -25,6 +27,19 @@ public class JHelper {
             fr.close ();
             Helper.sleep (1000);
         }
+    }
+    
+    public static void typeNewText (JTextFieldOperator oper, String text) {
+        EventTool ev = new EventTool ();
+        int pos = text.length() - 1;
+        ev.waitNoEvent (1000);
+		oper.selectAll ();
+        oper.setText (text.substring(0, pos));
+        ev.waitNoEvent (1000);
+		oper.selectAll ();
+        oper.setCaretPosition(pos);
+        oper.typeText (Character.toString (text.charAt (pos)));
+        ev.waitNoEvent (1000);
     }
     
 }

@@ -98,9 +98,9 @@ public class Environment {
         
     }
     
-    public static boolean winOS = System.getProperty("os.name").startsWith("Win");
-    public static CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject(CORBASupportSettings.class, true);
-    public static ORB[] orbs;
+    public static final boolean winOS = System.getProperty("os.name").startsWith("Win");
+    public static final CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject(CORBASupportSettings.class, true);
+    public static final ORB[] orbs;
     
     static {
         orbs = new ORB[14];
