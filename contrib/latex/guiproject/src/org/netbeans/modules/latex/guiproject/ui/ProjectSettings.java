@@ -14,6 +14,7 @@
  */
 package org.netbeans.modules.latex.guiproject.ui;
 
+import java.awt.Dialog;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,16 +22,23 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import org.netbeans.modules.latex.guiproject.EditableProperties;
 import org.netbeans.modules.latex.guiproject.LaTeXGUIProject;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
+import org.openide.filesystems.FileAttributeEvent;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileRenameEvent;
+import org.openide.filesystems.FileUtil;
 
 
 /**
  *
  * @author Jan Lahoda
  */
-public class ProjectSettings {
+public class ProjectSettings implements FileChangeListener {
     
     private String   latexCommand;
     private String   sourceSpecialsCommand;
@@ -48,8 +56,16 @@ public class ProjectSettings {
     private LaTeXGUIProject project;
     
     /** Creates a new instance of ProjectSettings */
-    /*package private, for tests!*/ ProjectSettings(LaTeXGUIProject project) {
+    /*package private, for tests!*/ ProjectSettings(LaTeXGUIProject project, /*only for tests, for other purposes default to true:*/boolean listenOnFileChanges) {
         this.project = project;
+        
+        if (listenOnFileChanges) {
+            //install listener to the settings file, so we are notified on changes:
+            FileObject settingsFile = getSettingsFile();
+            
+            settingsFile.addFileChangeListener(FileUtil.weakFileChangeListener(this, settingsFile));
+        }
+        
         load();
     }
     
@@ -86,13 +102,18 @@ public class ProjectSettings {
         defaultShowCommand  = getProperty(p, "default-show-target", "show");
     }
     
-    private void load() {
-        FileObject settings = project.getProjectDirectory().getFileObject("build-settings.properties");
+    private FileObject getSettingsFile() {
+        return project.getProjectDirectory().getFileObject("build-settings.properties");
+    }
+    
+    private synchronized void load() {
+        FileObject settings = getSettingsFile();
         
         InputStream ins = null;
         try {
             ins = settings.getInputStream();
             loadFrom(ins);
+            modified = false;
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
         } finally {
@@ -117,13 +138,17 @@ public class ProjectSettings {
         return argumentsString.toString();
     }
     
-    private void save() {
-        FileObject settings = project.getProjectDirectory().getFileObject("build-settings.properties");
+    private boolean writing = false;
+    
+    private synchronized void save() {
+        FileObject settings = getSettingsFile();
         FileLock lock = null;
         
         InputStream ins = null;
         OutputStream outs = null;
         try {
+            writing = true;
+            
             EditableProperties p = new EditableProperties();
             
             ins = settings.getInputStream();
@@ -154,6 +179,8 @@ public class ProjectSettings {
             outs.close();
             
             outs = null;
+            
+            modified = false;
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
         } finally {
@@ -174,6 +201,8 @@ public class ProjectSettings {
             
             if (lock != null)
                 lock.releaseLock();
+            
+            writing = false;
         }
     }
     
@@ -183,7 +212,7 @@ public class ProjectSettings {
         ProjectSettings s = (ProjectSettings) project2Settings.get(p);
         
         if (s == null) {
-            s = new ProjectSettings(p);
+            s = new ProjectSettings(p, true);
             project2Settings.put(p, s);
         }
         
@@ -194,7 +223,7 @@ public class ProjectSettings {
         return latexCommand;
     }
     
-    public void setLatexCommand(String latexCommand) {
+    public synchronized void setLatexCommand(String latexCommand) {
         this.latexCommand = latexCommand;
         this.modified = true;
     }
@@ -203,7 +232,7 @@ public class ProjectSettings {
         return bibtexCommand;
     }
     
-    public void setBiBTeXCommand(String bibtexCommand) {
+    public synchronized void setBiBTeXCommand(String bibtexCommand) {
         this.bibtexCommand = bibtexCommand;
         this.modified = true;
     }
@@ -212,7 +241,7 @@ public class ProjectSettings {
         return sourceSpecialsCommand;
     }
     
-    public void setSourceSpecialsCommand(String sourceSpecialsCommand) {
+    public synchronized void setSourceSpecialsCommand(String sourceSpecialsCommand) {
         this.sourceSpecialsCommand = sourceSpecialsCommand;
         this.modified = true;
     }
@@ -221,7 +250,7 @@ public class ProjectSettings {
         return useSourceSpecials;
     }
     
-    public void setUseSourceSpecials(boolean useSourceSpecials) {
+    public synchronized void setUseSourceSpecials(boolean useSourceSpecials) {
         this.useSourceSpecials = useSourceSpecials;
         this.modified = true;
     }
@@ -230,7 +259,7 @@ public class ProjectSettings {
         return latexArguments;
     }
     
-    public void setLaTeXArguments(String[] arguments) {
+    public synchronized void setLaTeXArguments(String[] arguments) {
         this.latexArguments = arguments;
         this.modified = true;
     }
@@ -239,12 +268,12 @@ public class ProjectSettings {
         return bibtexArguments;
     }
     
-    public void setBiBTeXArguments(String[] arguments) {
+    public synchronized void setBiBTeXArguments(String[] arguments) {
         this.bibtexArguments = arguments;
         this.modified = true;
     }
     
-    public boolean isModified() {
+    public synchronized boolean isModified() {
         return modified;
     }
     
@@ -263,7 +292,7 @@ public class ProjectSettings {
         return defaultBuildCommand;
     }
 
-    public void setDefaultBuildCommand(String defaultBuildCommand) {
+    public synchronized void setDefaultBuildCommand(String defaultBuildCommand) {
         this.defaultBuildCommand = defaultBuildCommand;
         modified = true;
     }
@@ -272,8 +301,49 @@ public class ProjectSettings {
         return defaultShowCommand;
     }
 
-    public void setDefaultShowCommand(String defaultShowCommand) {
+    public synchronized void setDefaultShowCommand(String defaultShowCommand) {
         this.defaultShowCommand = defaultShowCommand;
         modified = true;
+    }
+
+    public void fileRenamed(FileRenameEvent fe) {
+        //don't know how to react on this
+    }
+
+    public void fileAttributeChanged(FileAttributeEvent fe) {
+        //ignored
+    }
+
+    public void fileFolderCreated(FileEvent fe) {
+        //ignored
+    }
+
+    public void fileDeleted(FileEvent fe) {
+        //don't know how to react on this
+    }
+
+    public void fileDataCreated(FileEvent fe) {
+        //should not happen?
+    }
+
+    public synchronized void fileChanged(FileEvent fe) {
+        System.err.println("fileChanged(" + fe + ")");
+        
+        if (writing)
+            return ;
+        
+        if (!isModified()) {
+            load();
+            return ;
+        }
+        
+        DialogDescriptor dd = new DialogDescriptor("The settings for LaTeX project: " + project.getDisplayName() + " has been changed on disk and are also changed in memory. Drop the in-memory changes?", "External modification");
+        Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);
+        
+        dialog.show();
+        
+        if (dd.getValue() == DialogDescriptor.OK_OPTION) {
+            load();
+        }
     }
 }

@@ -84,6 +84,10 @@ public class ErrorDetectionAndCorrectionTest extends  NbTestCase {
     public void testTest5() throws Exception {
         performTest("Test5.tex");
     }
+    
+    public void testNoError() throws Exception {
+        performTest("NoErrorTest.tex");
+    }
 
     public void performTest(String testFileName) throws Exception {
 //        doTest("org/netbeans/test/latex/parser/data/testfiles/ErrorDetectionAndCorrection/" + name + ".tex");

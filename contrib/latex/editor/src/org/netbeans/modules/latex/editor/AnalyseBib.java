@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
 import org.netbeans.modules.latex.model.bibtex.Entry;
 import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
@@ -105,15 +106,20 @@ public class AnalyseBib {
             node.traverse(new DefaultTraverseHandler() {
                 public boolean commandStart(CommandNode node) {
                     if ("\\bibliography".equals(node.getCommand().getCommand())) {
-                        String bibFileName = node.getArgument(0).getText().toString();
-                        Object file        = source.getMainFile();
+                        String          bibFileNames = node.getArgument(0).getText().toString();
+                        StringTokenizer divider      = new StringTokenizer(bibFileNames, ",");
                         
-                        try {
-                            result.addAll(getDefault().getReferences(file, bibFileName));
-                        } catch (IOException e) {
-                            ErrorManager.getDefault().notifyInformational(e);
-                        } catch (IllegalArgumentException e) {
-                            ErrorManager.getDefault().notifyInformational(e);
+                        while (divider.hasMoreTokens()) {
+                            String bibFileName  = divider.nextToken();
+                            Object file         = source.getMainFile();
+                            
+                            try {
+                                result.addAll(getDefault().getReferences(file, bibFileName));
+                            } catch (IOException e) {
+                                ErrorManager.getDefault().notifyInformational(e);
+                            } catch (IllegalArgumentException e) {
+                                ErrorManager.getDefault().notifyInformational(e);
+                            }
                         }
                     }
                     

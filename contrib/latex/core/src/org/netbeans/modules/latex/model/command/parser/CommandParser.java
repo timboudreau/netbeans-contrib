@@ -269,11 +269,23 @@ public class CommandParser {
         
         if (param.hasAttribute("use-file-argument")) {
             String   extensionsString = param.getAttribute("use-file-argument-extensions");
-            String   fileName = ani.getText().toString();
-            FileObject file = findFile(fileName, extensionsString);
+            String   separator        = param.getAttribute("files-separator");
+            String   fileNames        = ani.getText().toString();
             
-            if (file != null) {
-                ((NBDocumentNodeImpl) ani.getDocumentNode()).addUsedFile(file);
+            String[] fileNamesArray = null;
+            
+            if (separator != null) {
+                fileNamesArray = fileNames.split(separator);
+            } else {
+                fileNamesArray = new String[] {fileNames};
+            }
+                
+            for (int cntr = 0; cntr < fileNamesArray.length; cntr++) {
+                FileObject file = findFile(fileNamesArray[cntr], extensionsString);
+                
+                if (file != null) {
+                    ((NBDocumentNodeImpl) ani.getDocumentNode()).addUsedFile(file);
+                }
             }
         }
     }
@@ -377,7 +389,7 @@ public class CommandParser {
             if (param.hasAttribute(Command.Param.ATTR_NO_PARSE))
                 handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseBalancedText(input, ani, true /*!!!!!!*/));
             else
-                handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseGroup(input, ani, true, freeText, true /*!!!!!!*/));
+                handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseGroup(input, ani, true, freeText, true/*!!!!!!*/));
             
             currentArgument++;
             
@@ -399,11 +411,16 @@ public class CommandParser {
 
         if ("\\usepackage".equals(cni.getCommand().getCommand())) {//TODO: this is quite obsolette way :-)
             if (cni.getArgumentCount() == cni.getCommand().getArgumentCount()) {
+                String collectionsSpecification = cni.getArgument(1).getText().toString();
+                String[] collections = collectionsSpecification.split(",");
                 CommandCollection coll = new CommandCollection();
                 
-                coll.addPackageContent(cni.getArgument(1).getText().toString());
+                for (int cntr = 0; cntr < collections.length; cntr++) {
+                    coll.addPackageContent(collections[cntr]);
+                }
+                
                 cni.setCommandCollection(coll);
-                currentCommandDefiningNode = cni;
+                currentCommandDefiningNode = cni;                
             }
         }
         
@@ -562,13 +579,13 @@ public class CommandParser {
             Command cmd = findCommand(parent, input, read.getText());
             return cmd != null ? cmd.isPARLike() : false;
         } else
-            return read.getId() == TexLanguage.PARAGRAPH_END;
+            return false;//read.getId() == TexLanguage.PARAGRAPH_END;
     }
     
     private boolean isFreeTextEnd(Token read, ParserInput input, Node parent) {
         return    read.getId() == TexLanguage.COMP_BRACKET_RIGHT
-               /*|| read.getId() == TexLanguage.COMP_BRACKET_LEFT
-               || read.getId() == TexLanguage.PARAGRAPH_END*/
+               /*|| read.getId() == TexLanguage.COMP_BRACKET_LEFT*/
+               /*|| read.getId() == TexLanguage.PARAGRAPH_END*/
                || isPAREnd(read, input, parent);
     }
     

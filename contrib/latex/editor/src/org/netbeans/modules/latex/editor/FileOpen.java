@@ -64,6 +64,8 @@ public abstract class FileOpen {
     private static class NBFileOpen extends FileOpen {
         
         public JTextComponent assureOpen(File fileName) {
+            fileName = FileUtil.normalizeFile(fileName);
+            
             FileObject toOpenFO = FileUtil.toFileObject(fileName);
             
             if (toOpenFO == null)

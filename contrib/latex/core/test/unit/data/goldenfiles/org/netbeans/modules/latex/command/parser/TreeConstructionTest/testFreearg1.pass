@@ -49,12 +49,12 @@
 <CommandNodeImpl name="\huge">
 <positions>
 <position><![CDATA[Position:[file=freearg1.tex, line=3, column=4, offset=46]]]></position>
-<position><![CDATA[Position:[file=freearg1.tex, line=3, column=24, offset=66]]]></position>
+<position><![CDATA[Position:[file=freearg1.tex, line=7, column=0, offset=74]]]></position>
 </positions>
 <ArgumentNodeImpl>
 <positions>
 <position><![CDATA[Position:[file=freearg1.tex, line=3, column=10, offset=52]]]></position>
-<position><![CDATA[Position:[file=freearg1.tex, line=3, column=24, offset=66]]]></position>
+<position><![CDATA[Position:[file=freearg1.tex, line=7, column=0, offset=74]]]></position>
 </positions>
 </ArgumentNodeImpl>
 </CommandNodeImpl>

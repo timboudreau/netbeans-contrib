@@ -323,6 +323,7 @@ Microsystems, Inc. All Rights Reserved.
     <attribute name="#code" value="true" />
     <attribute name="use-file-argument" value="true" />
     <attribute name="use-file-argument-extensions" value="bib" />
+    <attribute name="files-separator" value="," />
   </argument>
 </command>
 

@@ -17,6 +17,7 @@ package org.netbeans.modules.latex.ant.tasks;
 import java.io.File;
 import java.io.IOException;
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Execute;
 import org.apache.tools.ant.types.Commandline;
@@ -94,6 +95,8 @@ public class XDVIAntTask extends Task {
     }
 
     public void execute() throws BuildException {
+        log("XDVIAntTask.execute: mainFile= " + mainFile + ", dviFile=" + dviFile, Project.MSG_DEBUG);
+        
         if (mainFile == null && dviFile == null)
             throw new BuildException("Exactly one of mainfile or dvifile has to be set!");
 
@@ -110,7 +113,16 @@ public class XDVIAntTask extends Task {
                 baseName = mainFile;
             
             dviFile = baseName + ".dvi";
+            
+            File absoluteDVIFile = Utilities.resolveFile(getProject(), dviFile);
+            
+            if (!absoluteDVIFile.exists())
+                throw new BuildException("Mainfile does not exist!");
+
+            dviFile = absoluteDVIFile.getAbsolutePath();
         }
+        
+        log("XDVIAntTask.execute: computed dviFile=" + dviFile, Project.MSG_DEBUG);
         
         cmdLine.addArguments(Commandline.translateCommandline(arguments));
         
@@ -138,7 +150,7 @@ public class XDVIAntTask extends Task {
         exec.setAntRun(getProject());
         
         try {
-            exec.spawn();//execute();
+            exec./*spawn();//*/execute();
         } catch (IOException e) {
             throw new BuildException(e);
         }

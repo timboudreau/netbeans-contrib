@@ -14,21 +14,31 @@
  */
 package org.netbeans.modules.latex.guiproject.ui;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import javax.swing.DefaultComboBoxModel;
+import org.netbeans.modules.latex.guiproject.LaTeXGUIProject;
+import org.openide.ErrorManager;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class BuildPanel extends javax.swing.JPanel {
+public class BuildPanel extends javax.swing.JPanel implements StorableSettingsPresenter {
     
-    private String defaultItemDisplayName;
+    private String label;
+    private String propertyName;
     private Collection targets;
     
     /** Creates new form BuildPanel */
-    public BuildPanel(String defaultItemDisplayName, Collection targets) {
-        this.defaultItemDisplayName = defaultItemDisplayName;
+    public BuildPanel(String label, Collection targets, String propertyName) {
+        this.label = label;
+        this.propertyName = propertyName;
         this.targets = targets;
         
         initComponents();
@@ -47,7 +57,8 @@ public class BuildPanel extends javax.swing.JPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
-        jLabel1.setText(getDefaultItemDisplayName());
+        jLabel1.setText(label
+        );
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
@@ -68,11 +79,91 @@ public class BuildPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
     
+    private PropertyDescriptor findPropertyDescriptor(BeanInfo info, String propertyName) {
+        PropertyDescriptor[] pds = info.getPropertyDescriptors();
+        
+        for (int cntr = 0; cntr < pds.length; cntr++) {
+            PropertyDescriptor pd = pds[cntr];
+            if (propertyName.equals(pd.getName()))
+                return pd;
+        }
+        
+        return null;
+    }
+    
+    public void load(ProjectSettings settings) {
+        try {
+            BeanInfo propertySettingsInfo = Introspector.getBeanInfo(ProjectSettings.class);
+            PropertyDescriptor property = findPropertyDescriptor(propertySettingsInfo, propertyName);
+            
+            assert property != null;
+            assert property.getReadMethod() != null;
+            assert property.getWriteMethod() != null;
+            
+            Method read = property.getReadMethod();
+            String defaultTarget = (String) read.invoke(settings, new Object[0]);
+            
+            jComboBox1.setSelectedItem(defaultTarget);
+        } catch (IntrospectionException e) {
+            IllegalStateException ex = new IllegalStateException(e.getMessage());
+            
+            ErrorManager.getDefault().annotate(ex, e);
+            throw ex;
+        } catch (IllegalAccessException e) {
+            IllegalStateException ex = new IllegalStateException(e.getMessage());
+            
+            ErrorManager.getDefault().annotate(ex, e);
+            throw ex;
+        } catch (IllegalArgumentException e) {
+            IllegalStateException ex = new IllegalStateException(e.getMessage());
+            
+            ErrorManager.getDefault().annotate(ex, e);
+            throw ex;
+        } catch (InvocationTargetException e) {
+            IllegalStateException ex = new IllegalStateException(e.getMessage());
+            
+            ErrorManager.getDefault().annotate(ex, e);
+            throw ex;
+        }
+    }
+    
+    public void store(ProjectSettings settings) {
+        try {
+            BeanInfo propertySettingsInfo = Introspector.getBeanInfo(ProjectSettings.class);
+            PropertyDescriptor property = findPropertyDescriptor(propertySettingsInfo, propertyName);
+            
+            assert property != null;
+            assert property.getReadMethod() != null;
+            assert property.getWriteMethod() != null;
+            
+            Method write = property.getWriteMethod();
+            
+            write.invoke(settings, new Object[] {jComboBox1.getSelectedItem()});
+        } catch (IntrospectionException e) {
+            IllegalStateException ex = new IllegalStateException(e.getMessage());
+            
+            ErrorManager.getDefault().annotate(ex, e);
+            throw ex;
+        } catch (IllegalAccessException e) {
+            IllegalStateException ex = new IllegalStateException(e.getMessage());
+            
+            ErrorManager.getDefault().annotate(ex, e);
+            throw ex;
+        } catch (IllegalArgumentException e) {
+            IllegalStateException ex = new IllegalStateException(e.getMessage());
+            
+            ErrorManager.getDefault().annotate(ex, e);
+            throw ex;
+        } catch (InvocationTargetException e) {
+            IllegalStateException ex = new IllegalStateException(e.getMessage());
+            
+            ErrorManager.getDefault().annotate(ex, e);
+            throw ex;
+        }
+    }
+    
     private Collection getBuildCommandsList() {
         return targets;
     }
-    
-    private String getDefaultItemDisplayName() {
-        return defaultItemDisplayName;
-    }
+
 }
