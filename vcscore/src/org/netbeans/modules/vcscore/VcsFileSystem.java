@@ -1529,6 +1529,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 String fullName = ff.getPackageNameExt('/','.');
                 result = RefreshCommandSupport.getStatusAnnotation(name, fullName, annotationPattern, statusProvider);
             } else {
+                oo = VcsUtilities.reorderFileObjects(files).toArray();
                 ArrayList importantFiles = getImportantFiles(oo);
                 result = RefreshCommandSupport.getStatusAnnotation(name, importantFiles, annotationPattern, statusProvider, multiFilesAnnotationTypes);
             }
