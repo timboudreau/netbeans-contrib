@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -313,6 +313,9 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
                         case MODE_XML:
                             toInsert = "&#x" + hex((int)_c) + ";";
                             break;
+                        case MODE_HTML:
+                            toInsert = "&#" + ((int)_c) + ";";
+                            break;
                         default:
                             throw new IllegalStateException();
                         }
@@ -336,11 +339,12 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
         
     }
 
-    private static final int MODE_RAW = 0, MODE_JAVA = 1, MODE_XML = 2;
+    private static final int MODE_RAW = 0, MODE_JAVA = 1, MODE_XML = 2, MODE_HTML = 3;
     static int modeChoice = MODE_RAW;
     // XXX make the mode sensitive to content type of current pane
     // default to MODE_JAVA for text/x-java, text/x-properties
     // default to MODE_XML for text/xml, application/xml, text/*+xml
+    // default to MODE_HTML for text/html
     // default to MODE_RAW for all other content types
     
     private static final class ModePopup extends JMenuPlus {
@@ -350,6 +354,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
             add(new ModeChoice(MODE_RAW));
             add(new ModeChoice(MODE_JAVA));
             add(new ModeChoice(MODE_XML));
+            add(new ModeChoice(MODE_HTML));
         }
         
     }
@@ -369,6 +374,9 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
                 break;
             case MODE_XML:
                 Actions.setMenuText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_xml"), true);
+                break;
+            case MODE_HTML:
+                Actions.setMenuText(this, NbBundle.getMessage(InsertUnicodeAction.class, "MODE_html"), true);
                 break;
             default:
                 throw new IllegalArgumentException();
