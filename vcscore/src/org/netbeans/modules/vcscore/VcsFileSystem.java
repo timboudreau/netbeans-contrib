@@ -50,7 +50,7 @@ import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
-import org.netbeans.modules.vcscore.settings.VcsSettings;
+import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.revision.RevisionListener;
 
 /** Generic VCS filesystem.
@@ -427,7 +427,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setOffLine(boolean offLine) {
         if (offLine != this.offLine) {
             this.offLine = offLine;
-            firePropertyChange (VcsSettings.PROP_OFFLINE, new Boolean(!offLine), new Boolean(offLine));
+            firePropertyChange (GeneralVcsSettings.PROP_OFFLINE, new Boolean(!offLine), new Boolean(offLine));
         }
     }
     
@@ -445,7 +445,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (newAuto != autoRefresh) {
             int oldAuto = autoRefresh;
             autoRefresh = newAuto;
-            firePropertyChange (VcsSettings.PROP_AUTO_REFRESH, new Integer(oldAuto), new Integer(autoRefresh));
+            firePropertyChange (GeneralVcsSettings.PROP_AUTO_REFRESH, new Integer(oldAuto), new Integer(autoRefresh));
         }
     }
     
@@ -458,7 +458,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setHideShadowFiles(boolean hideShadowFiles) {
         if (hideShadowFiles != this.hideShadowFiles) {
             this.hideShadowFiles = hideShadowFiles;
-            firePropertyChange (VcsSettings.PROP_HIDE_SHADOW_FILES, new Boolean(!hideShadowFiles), new Boolean(hideShadowFiles));
+            firePropertyChange (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, new Boolean(!hideShadowFiles), new Boolean(hideShadowFiles));
         }
     }
     
@@ -881,7 +881,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private void initListeners() {
         settingsChangeListener = new SettingsPropertyChangeListener();
-        VcsSettings settings = (VcsSettings) SharedClassObject.findObject(VcsSettings.class, true);
+        GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
         settings.addPropertyChangeListener(WeakListener.propertyChange(settingsChangeListener, settings));
     }
     
@@ -892,9 +892,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
         if (Boolean.TRUE.equals(createRuntimeCommands)) commandsPool.setupRuntime();
         if (!isOffLine()
-            && (getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_MOUNT_AND_RESTART
-            || (deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_RESTART)
-            || (!deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_MOUNT))) {
+            && (getAutoRefresh() == GeneralVcsSettings.AUTO_REFRESH_ON_MOUNT_AND_RESTART
+            || (deserialized && getAutoRefresh() == GeneralVcsSettings.AUTO_REFRESH_ON_RESTART)
+            || (!deserialized && getAutoRefresh() == GeneralVcsSettings.AUTO_REFRESH_ON_MOUNT))) {
                 CommandExecutorSupport.doRefresh(VcsFileSystem.this, "", true);
         }
         super.addNotify();
@@ -935,7 +935,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         cacheRoot = System.getProperty("netbeans.user")+File.separator+
                     "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
          */
-        VcsSettings settings = (VcsSettings) SharedClassObject.findObject(VcsSettings.class, true);
+        GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
         setOffLine(settings.isOffLine());
         setAutoRefresh(settings.getAutoRefresh());
         setHideShadowFiles(settings.isHideShadowFiles());
@@ -2452,8 +2452,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     private void settingsChanged(String propName, Object oldVal, Object newVal) {
-        VcsSettings settings = (VcsSettings) SharedClassObject.findObject(VcsSettings.class, true);
-        if (VcsSettings.PROP_USE_GLOBAL.equals(propName)) {
+        GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
+        if (GeneralVcsSettings.PROP_USE_GLOBAL.equals(propName)) {
             if (((Boolean) newVal).booleanValue() == true) {
                 setOffLine(settings.isOffLine());
                 setAutoRefresh(settings.getAutoRefresh());
@@ -2461,13 +2461,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         } else {
             if (settings.isUseGlobal()) {
-                if (VcsSettings.PROP_OFFLINE.equals(propName)) {
+                if (GeneralVcsSettings.PROP_OFFLINE.equals(propName)) {
                     setOffLine(settings.isOffLine());
-                } else if (VcsSettings.PROP_AUTO_REFRESH.equals(propName)) {
+                } else if (GeneralVcsSettings.PROP_AUTO_REFRESH.equals(propName)) {
                     setAutoRefresh(settings.getAutoRefresh());
-                } else if (VcsSettings.PROP_HOME.equals(propName)) {
+                } else if (GeneralVcsSettings.PROP_HOME.equals(propName)) {
                     updateEnvironmentVars();
-                } else if (VcsSettings.PROP_HIDE_SHADOW_FILES.equals(propName)) {
+                } else if (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES.equals(propName)) {
                     setHideShadowFiles(settings.isHideShadowFiles());
                 }
             }

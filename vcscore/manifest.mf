@@ -12,6 +12,6 @@ OpenIDE-Module-Package-Dependencies: org.apache.regexp[RE]
 Name: org/netbeans/modules/vcscore/search/VcsSearchType.class
 OpenIDE-Module-Class: Service
 
-Name: org/netbeans/modules/vcscore/settings/VcsSettings.class
+Name: org/netbeans/modules/vcscore/settings/GeneralVcsSettings.class
 OpenIDE-Module-Class: Option
 
