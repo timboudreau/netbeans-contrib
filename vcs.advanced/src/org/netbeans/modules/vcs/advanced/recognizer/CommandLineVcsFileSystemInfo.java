@@ -259,11 +259,15 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
     
     public void destroy() {
         if (settingName != null) {
-            try {
-                settingsFolder.getPrimaryFile().getFileObject(settingName).delete();
-            } catch (IOException ioex) {
-                org.openide.ErrorManager.getDefault().notify(ioex);
+            FileObject fos = settingsFolder.getPrimaryFile().getFileObject(settingName);
+            if (fos != null) { // The setting could be already deleted.
+                try {
+                    fos.delete();
+                } catch (IOException ioex) {
+                    org.openide.ErrorManager.getDefault().notify(ioex);
+                }
             }
+            settingName = null;
         }
         fileSystemRef = new WeakReference(null);
     }
