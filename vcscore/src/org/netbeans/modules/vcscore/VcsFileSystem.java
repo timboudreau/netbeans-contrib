@@ -980,31 +980,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private void createIgnoreList(final FileObject fo, final String path, final IgnoreListSupport ignSupport) {
         CacheDir dir = cache.getDir(path);
         if (dir == null) return ;
-        FileObject parent = fo.getParent();
-        ArrayList ignorelist = null;
-        if (parent == null)
-            ignorelist = ignSupport.createIgnoreList(path, ignSupport.createInitialIgnoreList());
-        else {
-            CacheDir pd = cache.getDir(parent.getPackageNameExt('/','.'));
-            if (parent.getParent() == null && pd != null && pd.getIgnoreList() == null) {
-                createIgnoreList(parent, parent.getPackageNameExt('/', '.'), ignSupport);
-            }
-            if (pd != null) {
-                ArrayList parentIgnoreList = pd.getIgnoreList();
-                if (parentIgnoreList == null) {
-                    // Parent is a root of FS
-                    ignorelist = ignSupport.createIgnoreList(path, ignSupport.createInitialIgnoreList());
-                } else {
-                    // Parent is a package in FS
-                    ignorelist = ignSupport.createIgnoreList(path, parentIgnoreList);
-                }
-            }
-            else {
-                // If called for root of file system
-                ignorelist = ignSupport.createIgnoreList(path, ignSupport.createInitialIgnoreList());
-            }
-        }
-        dir.setIgnoreList(ignorelist);
+        dir.setIgnoreList(VcsUtilities.createIgnoreList(dir, path, ignSupport));//ignorelist);
         Enumeration existingFOEnum = existingFileObjects(fo);
         existingFOEnum.nextElement(); // take out the root FileObject
         if (existingFOEnum.hasMoreElements()) { // there are some children
