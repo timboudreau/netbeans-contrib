@@ -278,7 +278,7 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIExecutor.gif"/>
                 <attr name="SystemFileSystem.layer" stringvalue="project"/>
             </file>
-            <attr name="RMIUnicastExport.settings/RMIUnicastExportDbg.settings" boolvalue="true" />
+            <attr name="RMIUnicastExport.settings/RMIExportDbg.settings" boolvalue="true" />
 
         </folder>
     </folder>
