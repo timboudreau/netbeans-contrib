@@ -19,19 +19,16 @@ import org.openide.modules.ModuleInstall;
  *
  * @author Tomas Zezula
  */
-public final class JndiModule implements ModuleInstall {
+public final class JndiModule extends ModuleInstall {
+  
   public void installed() {
   }
 
   public void uninstalled() {
   }
 
-
   public void restored() {
   }
 
-
-  public boolean closing()  {
-    return true;
-  }
+  
 }
