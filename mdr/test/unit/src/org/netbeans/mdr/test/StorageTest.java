@@ -7,19 +7,24 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
+
 package org.netbeans.mdr.test;
 
 import java.util.*;
+
 import junit.extensions.*;
 import junit.framework.*;
+
 import org.netbeans.mdr.persistence.*;
+import org.netbeans.mdr.persistence.MOFID;
 import org.netbeans.mdr.persistence.btreeimpl.btreeindex.Btree;
 import org.netbeans.mdr.persistence.btreeimpl.btreeindex.TreeMetrics;
 import org.netbeans.mdr.persistence.btreeimpl.btreestorage.*;
 import org.netbeans.mdr.persistence.memoryimpl.*;
+
 
 public class StorageTest extends MDRTestCase {    
     
@@ -57,39 +62,71 @@ public class StorageTest extends MDRTestCase {
         StorageFactory factory;
         Storage storage;
         try {
-            // btree storage test
+            // btree storage, singlevalued index
+            System.out.println();
+            System.out.println("*************************************************");
+            System.out.println("btree storage, singlevalued index");
+            System.out.println("-------------------------------------------------");
             factory = new BtreeFactory();
             storage = factory.createStorage(new HashMap());
             storage.create (true, new Resolver());
             random = new Random(RAND_VAL);
-            doTest(storage, "btree");
+            doSingleTest(storage, "btree");
             
-            // memory storage test
+            // memory storage, singlevalued index
+            System.out.println();
+            System.out.println("*************************************************");
+            System.out.println("memory storage, singlevalued index");
+            System.out.println("-------------------------------------------------");
             factory = new StorageFactoryImpl ();
             storage = factory.createStorage(new HashMap());
             storage.create (true, new Resolver());
             random = new Random(RAND_VAL);
-            doTest(storage, "memory");
+            doSingleTest(storage, "memory");
+            
+            // btree storage, multivalued index
+            System.out.println();
+            System.out.println("*************************************************");
+            System.out.println("btree storage, multivalued test");
+            System.out.println("-------------------------------------------------");
+            factory = new BtreeFactory();
+            storage = factory.createStorage(new HashMap());
+            storage.create (true, new Resolver());
+            random = new Random(RAND_VAL);
+            doMultiTest(storage, "btree");
+            
+            /*
+            // memory storage, multivalued index
+            System.out.println();
+            System.out.println("*************************************************");
+            System.out.println("memory storage, multivalued test");
+            System.out.println("-------------------------------------------------");
+            factory = new StorageFactoryImpl ();
+            storage = factory.createStorage(new HashMap());
+            storage.create (true, new Resolver());
+            random = new Random(RAND_VAL);
+            doMultiTest(storage, "memory");
+             */
         } catch (Exception e) {
             e.printStackTrace ();
             fail (e.getMessage ());
         }
     }
     
-    public void doTest(Storage storage, String info) throws StorageException {
+    public void doSingleTest(Storage storage, String info) throws StorageException {
         final int KEYS_NUM = 10000;
         final int VALUES_NUM = 2000;
         final long OPS_NUM = 1000000;
         
-        Storage.EntryType entryType = Storage.EntryType.STRING;
+        Storage.EntryType entryType = Storage.EntryType.MOFID;
         SinglevaluedIndex index = storage.createSinglevaluedIndex("singleIndex", entryType, entryType);
-        String[] keys = new String[KEYS_NUM];
-        String[] values = new String[VALUES_NUM];
+        MOFID[] keys = new MOFID[KEYS_NUM];
+        MOFID[] values = new MOFID[VALUES_NUM];
         for (int x = 0; x < KEYS_NUM; x++) {
-            keys[x] = generateString(60);
+            keys[x] = generateMOFID();
         }
         for (int x = 0; x < VALUES_NUM; x++) {
-            values[x] = generateString(200);
+            values[x] = generateMOFID();
         }
         
         long time = System.currentTimeMillis();
@@ -98,12 +135,21 @@ public class StorageTest extends MDRTestCase {
         long deletions = 0;
         
         for (int x = 0; x < KEYS_NUM; x++) {
-            String value = values[random.nextInt(VALUES_NUM)];
+            MOFID value = values[random.nextInt(VALUES_NUM)];
             index.put(keys[x], value);
         }
+        
+        totalTime += System.currentTimeMillis() - time;
+        System.out.println("initial insertions time: " + totalTime);        
+        if (index instanceof Btree) {
+            TreeMetrics m = ((Btree) index).computeMetrics();
+            m.print();
+        }
+        time = System.currentTimeMillis();
+        
         for (long x = 0; x < OPS_NUM; x++) {
-            String key = keys[random.nextInt(KEYS_NUM)];
-            String value = values[random.nextInt(VALUES_NUM)];
+            MOFID key = keys[random.nextInt(KEYS_NUM)];
+            MOFID value = values[random.nextInt(VALUES_NUM)];
             Object val = index.getIfExists(key);
             if (val == null) {
                 insertions++;
@@ -113,22 +159,73 @@ public class StorageTest extends MDRTestCase {
                 index.remove(key);
             }
         }
-        totalTime += System.currentTimeMillis() - time;
+        totalTime += System.currentTimeMillis() - time;        
+        if (index instanceof Btree) {
+            TreeMetrics m = ((Btree) index).computeMetrics();
+            m.print();
+        }
         time = System.currentTimeMillis();
+        storage.close();
+        
+        totalTime += System.currentTimeMillis() - time;
+        System.out.println();
+        System.out.println(info + ", test time: " + totalTime);
+        System.out.println("#insertions: " + insertions);
+        System.out.println("#deletions: " + deletions);
+    }
+    
+    public void doMultiTest(Storage storage, String info) throws StorageException {
+        final int KEYS_NUM = 10000;
+        final int VALUES_NUM = 2000;
+        final long OPS_NUM = 1000000;
+        
+        Storage.EntryType entryType = Storage.EntryType.MOFID;
+        MultivaluedIndex index = storage.createMultivaluedIndex("multiIndex", entryType, entryType, false);
+        MOFID[] keys = new MOFID[KEYS_NUM];
+        MOFID[] values = new MOFID[VALUES_NUM];
+        for (int x = 0; x < KEYS_NUM; x++) {
+            keys[x] = generateMOFID();
+        }
+        for (int x = 0; x < VALUES_NUM; x++) {
+            values[x] = generateMOFID();
+        }
+        
+        long time = System.currentTimeMillis();
+        long totalTime = 0;
+        long insertions = 0;
+        long deletions = 0;
+        
+        for (long x = 0; x < OPS_NUM; x++) {
+            MOFID key = keys[random.nextInt(KEYS_NUM)];
+            MOFID value = values[random.nextInt(VALUES_NUM)];
+            List list = (List)index.getItems(key);
+            boolean flag = random.nextBoolean();
+            int size = list.size();
+            if (size == 0 || flag) {
+                list.add(value);
+                insertions++;
+            } else {
+                list.remove(random.nextInt(size));
+                deletions++;
+            }
+        }
+        totalTime += System.currentTimeMillis() - time;        
         
         if (index instanceof Btree) {
             TreeMetrics m = ((Btree) index).computeMetrics();
             m.print();
         }
+        time = System.currentTimeMillis();
         storage.close();
         
         totalTime += System.currentTimeMillis() - time;
-        getLog().println();
-        getLog().println(info + ", test time: " + totalTime);
-        getLog().println("#insertions: " + insertions);
-        getLog().println("#deletions: " + deletions);
+        System.out.println();
+        System.out.println(info + ", test time: " + totalTime);
+        System.out.println("#insertions: " + insertions);
+        System.out.println("#deletions: " + deletions);
     }
-    
+
+    /*
     public void doTest3(Storage storage, String info) throws StorageException {
         final int KEYS_NUM = 100;
         final int VALUES_NUM = 2000;
@@ -171,8 +268,8 @@ public class StorageTest extends MDRTestCase {
         storage.close();
         
         totalTime += System.currentTimeMillis() - time;
-        getLog().println();
-        getLog().println(info + ", test time: " + totalTime);
+        System.out.println();
+        System.out.println(info + ", test time: " + totalTime);
     }
     
     public void doTest2(Storage storage, String info) throws StorageException {
@@ -207,11 +304,18 @@ public class StorageTest extends MDRTestCase {
             }
         }
         storage.close();
-        getLog().println(info + ", test time: " + (System.currentTimeMillis() - time));
+        System.out.println(info + ", test time: " + (System.currentTimeMillis() - time));
     }
+     */
     
     public String generateString(int maxLength) {
         return randomString("", 10, Math.max(10, maxLength));
+    }
+    
+    public MOFID generateMOFID() {
+        long serialNumber = Math.abs(random.nextLong());
+        String storageId = randomString("", 16, 16);
+        return new MOFID(serialNumber, storageId);
     }
     
     public String randomString (String prefix) {
@@ -234,9 +338,11 @@ public class StorageTest extends MDRTestCase {
     private class Resolver implements ObjectResolver {
         
         public Object resolve(String storageID, Object key) {
-            getLog().println("resolve object called");
-            return null;
+            System.out.println("resolve object called");
+            return new Object();
         }
         
     }
+    
 }
+
