@@ -101,7 +101,7 @@ Microsystems, Inc. All Rights Reserved.
       <value>"getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Short_Current)", "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Short_Missing)", "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_FileStatus_Short_LM)"</value>
     </variable>
     <variable name="NOT_MODIFIABLE_FILE_STATUSES" basic="false">
-      <value>"Local"</value>
+      <value>"Local", ""</value>
     </variable>
     <variable name="NUR" basic="false">
       <value>"</value>
@@ -984,8 +984,8 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="DIFF_TEST_CMD">
         <property name="exec">
-          <value>${RUN} vdiff -t ${QUOTE}${WORKFILE}${QUOTE} ${QUOTE}${ARCHIVE}${QUOTE}; test `echo $?` != 2 ${NUR}</value>
-          <value if="IS_WINNT">${RUN} vdiff -t ${QUOTE}${WORKFILE}${QUOTE} ${QUOTE}${ARCHIVE}${QUOTE} ${NUR}</value>
+          <value>${RUN} vdiff $[? REVISION] [-r${REVISION}] [] -t ${QUOTE}${ARCHIVE}${QUOTE}${ESCAPED_(}${QUOTE}${WORKFILE}${QUOTE}${ESCAPED_)}; test `echo $?` != 2 ${NUR}</value>
+          <value if="IS_WINNT">${RUN} vdiff $[? REVISION] [-r${REVISION}] [] -t ${QUOTE}${ARCHIVE}${QUOTE}${ESCAPED_(}${QUOTE}${WORKFILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
         </property>
         <property name="ignoreFail">
           <value>true</value>

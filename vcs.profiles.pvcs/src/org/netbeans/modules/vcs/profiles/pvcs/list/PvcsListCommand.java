@@ -46,6 +46,7 @@ public class PvcsListCommand extends AbstractListCommand {
     private String[] fileStatuses = null;
     private Map archivesByNames;
     private Map workFilesByNames;
+    private Map revisionsByNames;
     private String currentUserName;
     
     private static final String ENTITY_TYPE = "EntityType="; // NOI18N
@@ -64,6 +65,7 @@ public class PvcsListCommand extends AbstractListCommand {
     private static final String MISSING_STATUS = "Missing"; // NOI18N
     private static final String CURRENT_STATUS = "Current"; // NOI18N
     private static final String MODIFIED_STATUS = "Locally Modified"; // NOI18N
+    private static final String NO_STATUS = ""; // NOI18N
     
     /** The first version of PVCS in which the quoting is fixed. */
     private static final String[] PCLI_OLDSTYLE_QUOTING_VERSION = { "6", "8" };
@@ -158,6 +160,7 @@ public class PvcsListCommand extends AbstractListCommand {
         }
         archivesByNames = new HashMap();
         workFilesByNames = new HashMap();
+        revisionsByNames = new HashMap();
         final String[] version = new String[2];
         try {
             runCommand(vars, args[0], this, new CommandDataOutputListener() {
@@ -272,7 +275,7 @@ public class PvcsListCommand extends AbstractListCommand {
                 String fileName = file.getName();
                 if (file.isDirectory()) fileName += "/"; // NOI18N
                 if ((fileStatuses = (String[]) filesByName.get(fileName)) != null) {
-                    fileStatuses[1] = CURRENT_STATUS;
+                    fileStatuses[1] = NO_STATUS;
                     //filesByName.put(fileName, fileStatuses);
                 }
             }
@@ -282,10 +285,13 @@ public class PvcsListCommand extends AbstractListCommand {
     private void findFilesStatus(Map filesByName, VcsCommand diffCmd, Hashtable vars) {
         for (Iterator it = workFilesByNames.keySet().iterator(); it.hasNext(); ) {
             String name = (String) it.next();
+            String revision = (String) revisionsByNames.get(name);
+            if (revision == null || revision.length() == 0) continue;
             String[] fileStatuses = (String[]) filesByName.get(name);
             Hashtable cmdVars = new Hashtable(vars);
             cmdVars.put("WORKFILE", workFilesByNames.get(name));
             cmdVars.put("ARCHIVE", archivesByNames.get(name));
+            cmdVars.put("REVISION", revision);
             VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(diffCmd, cmdVars);
             fileSystem.getCommandsPool().preprocessCommand(ec, cmdVars, fileSystem);
             fileSystem.getCommandsPool().startExecutor(ec, fileSystem);
@@ -297,6 +303,8 @@ public class PvcsListCommand extends AbstractListCommand {
             }
             if (ec.getExitStatus() != VcsCommandExecutor.SUCCEEDED) {
                 fileStatuses[1] = MODIFIED_STATUS;
+            } else {
+                fileStatuses[1] = CURRENT_STATUS;
             }
         }
     }
@@ -306,7 +314,8 @@ public class PvcsListCommand extends AbstractListCommand {
     private String lastFile = null;
     private boolean skipNextName = false;
     private boolean newLockInfo = false;
-    private String lastRevision = null;
+    private String lastLockedRevision = null;
+    private String lastNewRevision = null;
     
     /** Called with the line of LIST command output */
     public void outputData(String[] elements) {
@@ -331,7 +340,7 @@ public class PvcsListCommand extends AbstractListCommand {
                 fileStatuses = new String[5];
                 fileStatuses[0] = name.intern();
                 if (file.exists()) {
-                    fileStatuses[1] = CURRENT_STATUS;
+                    fileStatuses[1] = NO_STATUS;
                     lastFile = file.getAbsolutePath();
                 } else {
                     fileStatuses[1] = MISSING_STATUS;
@@ -351,12 +360,18 @@ public class PvcsListCommand extends AbstractListCommand {
                 if (!lockInfo.endsWith(LOCK_INFO_END)) { // New structured lock info
                     fileStatuses[4] = (String) archivesByNames.get(fileStatuses[0]);
                     newLockInfo = true;
+                    int index;
+                    if ((index = elements[0].indexOf(LOCK_INFO_LOCKED_REVISION)) > 0) {
+                        //fileStatuses[3] = elements[0].substring(LOCK_INFO_NEW_REVISION.length()).trim();
+                        lastLockedRevision = elements[0].substring(index + LOCK_INFO_LOCKED_REVISION.length()).trim();
+                    }
                 } else { // Old one-line lock info
                     int index = lockInfo.indexOf(LOCKS_SEPARATOR);
                     do {
                         int index2 = lockInfo.indexOf(LOCKS_SEPARATOR, index + 1);
                         if (index2 < 0) return ;
-                        String revision = lockInfo.substring(index + LOCKS_SEPARATOR.length(), index2).intern();
+                        String lockedRevision = lockInfo.substring(0, index).trim().intern();
+                        String newRevision = lockInfo.substring(index + LOCKS_SEPARATOR.length(), index2).intern();
                         index = index2;
                         index2 = lockInfo.indexOf(LOCKS_SEPARATOR, index + 1);
                         String locker = lockInfo.substring(index + LOCKS_SEPARATOR.length(), index2).intern();
@@ -370,7 +385,17 @@ public class PvcsListCommand extends AbstractListCommand {
                                 fileStatuses[2] = fileStatuses[2] + ',' + locker;
                             }
                         }
-                        if (isCurrentUser) fileStatuses[3] = revision;
+                        if (isCurrentUser) {
+                            String fileRevision = (String) revisionsByNames.get(fileStatuses[0]);
+                            //System.out.println("File: '"+fileStatuses[0]+"' - revision: '"+lockedRevision+"' -> '"+newRevision+"', fileRevision: '"+fileRevision+"'");
+                            if (fileRevision == null) {
+                                revisionsByNames.put(fileStatuses[0], lockedRevision);
+                                fileStatuses[3] = newRevision;
+                            } else {
+                                revisionsByNames.put(fileStatuses[0], ""); // There's more then one revision locked by the current user
+                                fileStatuses[3] = "";
+                            }
+                        }
                         fileStatuses[4] = (String) archivesByNames.get(fileStatuses[0]);
                         index = lockInfo.indexOf('[', index2);
                         if (index > 0) {
@@ -379,15 +404,27 @@ public class PvcsListCommand extends AbstractListCommand {
                     } while (index > 0);
                 }
             }
+            if (newLockInfo && elements[0].startsWith(LOCK_INFO_LOCKED_REVISION) && fileStatuses != null) {
+                //fileStatuses[3] = elements[0].substring(LOCK_INFO_NEW_REVISION.length()).trim();
+                lastLockedRevision = elements[0].substring(LOCK_INFO_LOCKED_REVISION.length()).trim();
+            }
             if (newLockInfo && elements[0].startsWith(LOCK_INFO_NEW_REVISION) && fileStatuses != null) {
                 //fileStatuses[3] = elements[0].substring(LOCK_INFO_NEW_REVISION.length()).trim();
-                lastRevision = elements[0].substring(LOCK_INFO_NEW_REVISION.length()).trim();
+                lastNewRevision = elements[0].substring(LOCK_INFO_NEW_REVISION.length()).trim();
             }
             if (newLockInfo && elements[0].startsWith(LOCK_INFO_LOCKED_BY) && fileStatuses != null) {
                 String locker = elements[0].substring(LOCK_INFO_LOCKED_BY.length()).trim();
                 boolean isCurrentUser = locker.equals(currentUserName);
                 if (isCurrentUser) {
-                    fileStatuses[3] = lastRevision;
+                    String fileRevision = (String) revisionsByNames.get(fileStatuses[0]);
+                    //System.out.println("File: '"+fileStatuses[0]+"' - revision: '"+lastLockedRevision+"' -> '"+lastNewRevision+"', fileRevision: '"+fileRevision+"'");
+                    if (fileRevision == null) {
+                        revisionsByNames.put(fileStatuses[0], lastLockedRevision);
+                        fileStatuses[3] = lastNewRevision;
+                    } else {
+                        revisionsByNames.put(fileStatuses[0], ""); // There's more then one revision locked by the current user
+                        fileStatuses[3] = "";
+                    }
                 }
                 if (fileStatuses[2] == null || fileStatuses[2].length() == 0) {
                     fileStatuses[2] = locker;
@@ -401,7 +438,8 @@ public class PvcsListCommand extends AbstractListCommand {
             }
             if (newLockInfo && elements[0].equals(LOCK_INFO_END) && fileStatuses != null) {
                 newLockInfo = false;
-                lastRevision = null;
+                lastLockedRevision = null;
+                lastNewRevision = null;
             }
         }
     }
