@@ -172,10 +172,13 @@ Microsystems, Inc. All Rights Reserved.
         </jar>
 	<ant dir="dummy"/>
 	<copy file="dummy/netbeans/modules/dummy.jar" todir="${netbeans.home}/modules"/>
+	<ant dir="unit"/>
+<!--	<copy file="unit/netbeans/modules/bookmarkstest.jar" todir="${netbeans.home}/modules"/> -->
     </target>
     
     <target name="clean">
         <ant dir="dummy" target="clean"/>
+	<ant dir="unit" target="clean"/>
         <delete>
             <fileset dir=".">
                 <include name="**/src/**/*.class"/>

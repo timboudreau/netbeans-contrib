@@ -260,7 +260,7 @@ public class BookmarksToolbarNode extends AbstractNode {
                     throw new IOException("Child not found for " + key);
                 }
                 Node n = children[childNo].getNodeDelegate().cloneNode();
-                Node filter = new BookmarksNode(n);
+                Node filter = new BookmarksNode(n, true);
                 return new Node[] { filter };
             } catch (IOException ioe) {
                 ErrorManager.getDefault().notify(ioe);

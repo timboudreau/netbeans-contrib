@@ -87,7 +87,7 @@ public class BookmarksRootNode extends AbstractNode {
             FileObject fo = Repository.getDefault().getDefaultFileSystem().
             findResource(BookmarkServiceImpl.BOOKMARKS_FOLDER);
             Node n = DataObject.find(fo).getNodeDelegate().cloneNode();
-            Node filter = new BookmarksNode(n);
+            Node filter = new BookmarksNode(n, false);
             return filter;
         } catch (java.io.IOException ioe) {
             ErrorManager.getDefault().notify(ioe);

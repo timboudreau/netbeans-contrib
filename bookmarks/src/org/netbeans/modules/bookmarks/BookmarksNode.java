@@ -16,7 +16,9 @@ package org.netbeans.modules.bookmarks;
 import java.io.IOException;
 
 import org.openide.nodes.*;
+import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.datatransfer.NewType;
 import org.openide.actions.*;
 import org.openide.loaders.DataFolder;
 
@@ -29,19 +31,23 @@ import org.openide.loaders.DataFolder;
  */
 public class BookmarksNode extends FilterNode {
     
+    /** Whether this node can be copied */
+    private boolean canCopy;
+    
     /**
      * The only supported constructor takes the original node
      * as its parameter.
      */
-    public BookmarksNode(Node original) {
+    public BookmarksNode(Node original, boolean canCopy) {
         super(original, new BookmarksChildren(original));
+        this.canCopy = canCopy;
     }
  
     /** 
      * Overriden to just wrap the original in a new instance of this filter.
      */
     public Node cloneNode() {
-        return new BookmarksNode(getOriginal());
+        return new BookmarksNode(getOriginal(), canCopy);
     }
     
     /**
@@ -53,7 +59,7 @@ public class BookmarksNode extends FilterNode {
         // Simplest behavior: just store the original node and try to recreate
         // a filter based on that.
         if (origHandle != null) {
-            return new BookmarksHandle(origHandle);
+            return new BookmarksHandle(origHandle, canCopy);
         } else {
             return null; // cannot persist original, do not persist filter
         }
@@ -64,17 +70,48 @@ public class BookmarksNode extends FilterNode {
      * only those that should be provided when customizing bookmarks.
      */
     public SystemAction[] getActions () {
-        return new SystemAction[] {
-            SystemAction.get(CutAction.class),
-            SystemAction.get(CopyAction.class),
-            SystemAction.get(PasteAction.class),
-            SystemAction.get(DeleteAction.class),
-            null,
-            SystemAction.get(MoveUpAction.class),
-            SystemAction.get(MoveDownAction.class)
-        };
+        if (canCopy) {
+            return new SystemAction[] {
+                SystemAction.get(CutAction.class),
+                SystemAction.get(CopyAction.class),
+                SystemAction.get(PasteAction.class),
+                SystemAction.get(DeleteAction.class),
+                null,
+                SystemAction.get(MoveUpAction.class),
+                SystemAction.get(MoveDownAction.class)
+            };
+        } else {
+            return new SystemAction[] {
+                SystemAction.get(NewAction.class),
+                SystemAction.get(ReorderAction.class),
+                null,
+                SystemAction.get(PasteAction.class)
+            };
+        }
     }
     
+    /* List new types that can be created in this node.
+     * @return new types
+     */
+    public NewType[] getNewTypes () {
+        final DataFolder folder = (DataFolder)getCookie(DataFolder.class);
+        if (folder == null) {
+            return super.getNewTypes();
+        }
+        // only if we are folder we allow for creating of subfolders
+        return new NewType[] {
+            new NewType() {
+                public String getName() {
+                    return NbBundle.getMessage(BookmarksNode.class, "LBL_NewFolder");
+                }
+                public void create () throws IOException {
+                    DataFolder.create(folder, 
+                        NbBundle.getMessage(BookmarksNode.class, "LBL_NewFolder"));
+                }
+            }
+        };
+    }
+
     /** 
      * Index cookie does not work automatically with filter nodes, because
      * the index refers to the original nodes. So if you wish to propagate
@@ -95,12 +132,14 @@ public class BookmarksNode extends FilterNode {
     /** Wrap the original handle. */
     private static class BookmarksHandle implements Node.Handle {
         private static final long serialVersionUID = 1L;
-        private Node.Handle origHandle; // the only serializable state
-        public BookmarksHandle(Node.Handle origHandle) {
+        private Node.Handle origHandle;
+        private boolean canCopy;
+        public BookmarksHandle(Node.Handle origHandle, boolean canCopy) {
             this.origHandle = origHandle;
+            this.canCopy = canCopy;
         }
         public Node getNode() throws IOException {
-            return new BookmarksNode(origHandle.getNode());
+            return new BookmarksNode(origHandle.getNode(), canCopy);
         }
     }
     
@@ -123,7 +162,7 @@ public class BookmarksNode extends FilterNode {
          * Recursively filter.
          */
         protected Node copyNode(Node child) {
-            return new BookmarksNode(child);
+            return new BookmarksNode(child, true);
         }
     }
 }

@@ -31,8 +31,10 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.*;
 import org.openide.util.Utilities;
 import org.openide.windows.*;
+import org.openide.loaders.DataObject;
 
 import org.netbeans.api.bookmarks.*;
+import org.netbeans.modules.bookmarks.test.TestBookmark;
 
 /** 
  * Tests for the BookmarkService class. Those tests run
@@ -95,39 +97,25 @@ public class BookmarkServiceTest extends NbTestCase {
      * The name has to only start with the param name.
      */
     private boolean deleteFromBookmarksFolder(String name) throws java.io.IOException {
-        boolean found = false;
         java.util.Enumeration en = root.getChildren(false);
         while (en.hasMoreElements()) {
             FileObject fo = (FileObject)en.nextElement();
             if (fo.getName().startsWith(name)) {
-                found = true;
-                fo.delete();
+                    // using loaders API because the saving process can be running
+                try {
+                    DataObject dObj = DataObject.find(fo);
+                    dObj.delete();
+                    return true;
+                } catch (java.io.IOException ioe) {
+                    ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ioe);
+                    try {
+                        Thread.sleep(100000);
+                    } catch (InterruptedException ie) {
+                    }
+                }
             }
         }
-        return found;
-    }
-    
-    /**
-     * Custom implementation of the Bookmark interface.
-     */
-    private static class TestBookmark implements Bookmark, java.io.Serializable {
-        private static final long serialVersionUID = 1L;
-        private String name;
-        public TestBookmark() {}
-        public TestBookmark(String name) {
-            this.name = name;
-        }
-        public java.awt.Component getToolbarPresenter() {
-            return getMenuPresenter();
-        }
-        public javax.swing.JMenuItem getMenuPresenter() {
-            return new javax.swing.JMenuItem("test Item");
-        }
-        public String getName() {
-            return name;
-        }
-        public void invoke() {
-        }
+        return false;
     }
     
     /**
