@@ -265,23 +265,19 @@ public final class DDProvider {
     
     public SAXParseException parse (FileObject fo) 
             throws org.xml.sax.SAXException, java.io.IOException {
-        javax.xml.parsers.SAXParserFactory fact = org.apache.xerces.jaxp.SAXParserFactoryImpl.newInstance();
-        fact.setValidating(true);
-        fact.setNamespaceAware(true);
         DDProvider.ErrorHandler errorHandler = new DDProvider.ErrorHandler();
         try {
-            javax.xml.parsers.SAXParser parser = fact.newSAXParser();
-            XMLReader reader = parser.getXMLReader();
+            XMLReader reader = new org.apache.xerces.parsers.SAXParser();
             reader.setErrorHandler(errorHandler);
             reader.setEntityResolver(DDProvider.DDResolver.getInstance());
             reader.setFeature("http://apache.org/xml/features/validation/schema", true); // NOI18N
+            reader.setFeature("http://xml.org/sax/features/validation",  true); // NOI18N
+            reader.setFeature("http://xml.org/sax/features/namespaces",  true); // NOI18N
             reader.parse(new InputSource(fo.getInputStream()));
             SAXParseException error = errorHandler.getError();
             if (error!=null) return error;
         } catch (SAXException ex) {
             throw ex;
-        } catch(javax.xml.parsers.ParserConfigurationException ex) {
-            throw new SAXException(NbBundle.getMessage(DDProvider.class, "MSG_parserProblem"),ex);
         }
         return null;
     }
