@@ -27,6 +27,3 @@ OpenIDE-Module-Class: Action
 
 Name: com/netbeans/enterprise/modules/rmi/wizard/RMIEncapsulationAction.class
 OpenIDE-Module-Class: Action
-
-Name: com/netbeans/enterprise/modules/rmi/Convert2RMIAction.class
-OpenIDE-Module-Class: Action
