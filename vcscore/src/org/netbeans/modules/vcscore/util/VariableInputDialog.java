@@ -335,7 +335,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             variablePanel.add(sep, gridBagConstraints1);
         }
         initComponentsFromDescriptor(globalDescriptor, globalInputPanel);
-        globalInputPanel.setVisible(true);
+        if (expert) globalInputPanel.setVisible(true);
     }
     
     private void enableComponents(String[] vars, boolean enable) {
@@ -574,7 +574,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
         chbox.setBorder(new javax.swing.border.EmptyBorder(1, 0, 1, 0));
         String askDefault = component.getValue();
         if (askDefault != null) {
-            chbox.setSelected(Boolean.TRUE.toString().equalsIgnoreCase(askDefault));
+            String valueSelected = component.getValueSelected();
+            if (valueSelected != null) {
+                chbox.setSelected(askDefault.equals(valueSelected));
+            } else {
+                chbox.setSelected(Boolean.TRUE.toString().equalsIgnoreCase(askDefault));
+            }
         }
         java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
         gridBagConstraints1.gridx = 0;
@@ -813,6 +818,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
         variablePanel.add(comboBox, gridBagConstraints2);
         componentList.add(comboBox);
         awtComponentsByVars.put(component.getVariable(), componentList.toArray(new java.awt.Component[0]));
+        String selected = component.getValue();
+        if (selected != null) {
+            int i;
+            for (i = 0; i < items; i++) {
+                if (selected.equals(values[i])) break;
+            }
+            if (i < items) comboBox.setSelectedIndex(i);
+        }
         addActionToProcess(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 int selected = comboBox.getSelectedIndex();
