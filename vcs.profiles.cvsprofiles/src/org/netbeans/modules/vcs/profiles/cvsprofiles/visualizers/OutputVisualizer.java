@@ -64,7 +64,8 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     private CommandTask task;
     private VcsCommandsProvider cmdProvider;    
     protected Collection files;
-    protected File rootDir;   
+    protected File rootDir;
+    protected String commonParentStr;
     private java.awt.event.ActionListener killListener = null;
     private int exit;
     private Vector vcsTopComponents;
@@ -138,10 +139,13 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
         String module = (String) vars.get("MODULE");
         if (module != null && module.length() > 0) {
             rootDirPath = rootDirPath + File.separator + module;
+            this.commonParentStr = module;
             String commonParent = (String) vars.get("COMMON_PARENT");
             if (commonParent != null && commonParent.length() > 0) {
                 rootDirPath = org.netbeans.modules.vcscore.VcsFileSystem.substractRootDir(rootDirPath, commonParent);
             }
+        } else {
+            this.commonParentStr = "";
         }
         this.rootDir = new File(rootDirPath);        
         commandName = findDisplayName(this.task);
