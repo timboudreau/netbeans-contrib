@@ -246,7 +246,7 @@ public class ExternalCommand {
             //D.deb("Thread.currentThread()="+Thread.currentThread()); // NOI18N
 
             String[] commandArr=parseParameters(command);
-            D.deb("commandArr="+MiscStuff.arrayToString(commandArr)); // NOI18N
+            D.deb("commandArr="+VcsUtilities.arrayToString(commandArr)); // NOI18N
             /*
             if (commandArr.toLowerCase().endsWith(".class")) {
               execClass(commandArr);
@@ -309,7 +309,7 @@ public class ExternalCommand {
         catch(InterruptedException e){
             D.deb("Ring from the WatchDog."); // NOI18N
             String[] commandArr=parseParameters(command);
-            D.deb("commandArr="+MiscStuff.arrayToString(commandArr)); // NOI18N
+            D.deb("commandArr="+VcsUtilities.arrayToString(commandArr)); // NOI18N
             //e.printStackTrace();
             //D.deb("Stopping StdoutGrabber."); // NOI18N
             stopThread(stdoutThread,stdoutGrabber);

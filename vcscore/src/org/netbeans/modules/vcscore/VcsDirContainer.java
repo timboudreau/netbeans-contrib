@@ -15,7 +15,7 @@ package org.netbeans.modules.vcscore;
 
 import java.util.*;
 
-import org.netbeans.modules.vcscore.util.MiscStuff;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.Debug;
 
 /**
@@ -44,7 +44,7 @@ public class VcsDirContainer extends Object {
      */
     public VcsDirContainer(String path) {
         this.path = path;
-        this.name = MiscStuff.getFileNamePart(path);
+        this.name = VcsUtilities.getFileNamePart(path);
     }
 
     /**
@@ -61,7 +61,7 @@ public class VcsDirContainer extends Object {
      */
     public void setPath(String path) {
         this.path = path;
-        this.name = MiscStuff.getFileNamePart(path);
+        this.name = VcsUtilities.getFileNamePart(path);
     }
 
     /**
@@ -255,7 +255,7 @@ public class VcsDirContainer extends Object {
         //org.netbeans.modules.vcs.util.Debug D =
         //  new org.netbeans.modules.vcs.util.Debug("VcsDirContainer", true); // NOI18N
         //D.deb("getParent("+path+")");
-        String parentPath = MiscStuff.getDirNamePart(path);
+        String parentPath = VcsUtilities.getDirNamePart(path);
         VcsDirContainer container = getContainerWithPath(parentPath);
         D.deb("getParent("+path+") returning "+((container == null) ? null : container.getPath()));
         return container;

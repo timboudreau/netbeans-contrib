@@ -14,15 +14,16 @@
 package org.netbeans.modules.vcscore.util;
 
 /**
+ * This listener is used to listen to the closing of a TopComponent.
+ * This is supposed to be a temporary solution till a mechanism for
+ * listening on TopComponents closing will be added to the OpenAPI
  *
  * @author  Martin Entlicher
- * @version 1.0
- * This listener is used to listen to the closing of a TopComponent.
  */
 public interface TopComponentCloseListener {
     
     /**
-     * Called when the TopComponent is being close.
+     * Called when the TopComponent is being to close.
      */
     public void closing();
 

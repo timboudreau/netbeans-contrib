@@ -25,7 +25,7 @@ import org.openide.filesystems.*;
 import org.openide.nodes.*;
 import org.openide.loaders.*;
 
-import org.netbeans.modules.vcscore.util.MiscStuff;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.Debug;
 import org.netbeans.modules.vcscore.caching.VcsFSCache;
@@ -33,7 +33,7 @@ import org.netbeans.modules.vcscore.caching.VcsCacheFile;
 import org.netbeans.modules.vcscore.commands.*;
 
 /**
- *
+ * The system action of the VcsFileSystem.
  * @author  Pavel Buzek, Martin Entlicher
  * @version 1.0
  */
@@ -105,7 +105,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         if (labels.length > 0) {
             if (NotifyDescriptor.Confirmation.YES_OPTION.equals (
                             TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (
-                                                             fileSystem.getBundleProperty("MSG_KILL_ALL_CMDS", MiscStuff.arrayToString(labels)), NotifyDescriptor.Confirmation.YES_NO_OPTION)))) {
+                                                             fileSystem.getBundleProperty("MSG_KILL_ALL_CMDS", VcsUtilities.arrayToString(labels)), NotifyDescriptor.Confirmation.YES_NO_OPTION)))) {
                 cmdPool.killAll();
             }
         }
@@ -123,7 +123,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             cache.refreshDir(path);
             return ;
         }
-        String dirName = MiscStuff.getDirNamePart(path);
+        String dirName = VcsUtilities.getDirNamePart(path);
         cache.refreshDir(dirName);
     }
 
@@ -140,7 +140,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             dirName = path;
         }
         else{
-            dirName = MiscStuff.getDirNamePart(path);
+            dirName = VcsUtilities.getDirNamePart(path);
         }
         //Object exec = VcsCommandIO.getCommandProperty(cmd, "exec", String.class);
         Object exec = cmd.getProperty(VcsCommand.PROPERTY_EXEC);
@@ -148,7 +148,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             cache.refreshDirRecursive(dirName);
         } else {
             RetrievingDialog rd = new RetrievingDialog(fileSystem, dirName, new JFrame(), false);
-            MiscStuff.centerWindow(rd);
+            VcsUtilities.centerWindow(rd);
             Thread t = new Thread(rd, "VCS Recursive Retrieving Thread - "+dirName); // NOI18N
             t.start();
         }
@@ -469,8 +469,8 @@ public class VcsAction extends NodeAction implements ActionListener {
         //file=""; // NOI18N
         //}
         //else{
-        path = MiscStuff.getDirNamePart(fullName);
-        file = MiscStuff.getFileNamePart(fullName);
+        path = VcsUtilities.getDirNamePart(fullName);
+        file = VcsUtilities.getFileNamePart(fullName);
         //}
         
         if (java.io.File.separatorChar != '/') {

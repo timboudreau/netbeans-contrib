@@ -282,7 +282,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
      *         <code>false</code> if dialog was canceled
      */
     public boolean showDialog() {
-        MiscStuff.centerWindow(this);
+        VcsUtilities.centerWindow(this);
         show();
         return validInput;
     }
@@ -315,7 +315,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
             variablePanel.add(field, gridBagConstraints2);
             labels.addElement(label);
             fields.addElement(field);
-            MiscStuff.removeEnterFromKeymap(field);
+            VcsUtilities.removeEnterFromKeymap(field);
             if (PROMPT_DIR.equals(varType)) {
                 addBrowseDir(variablePanel, field, i + labelOffset);
             } else if (PROMPT_DATE_CVS.equals(varType)) {
@@ -341,7 +341,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ChooseDirDialog chooseDir = new ChooseDirDialog(new javax.swing.JFrame(), new File(field.getText ()));
-                MiscStuff.centerWindow (chooseDir);
+                VcsUtilities.centerWindow (chooseDir);
                 chooseDir.show();
                 String selected = chooseDir.getSelectedDir();
                 if (selected == null) {
@@ -394,9 +394,9 @@ public class VariableInputDialog extends javax.swing.JDialog {
             public void outputData(String[] elements) {
                 System.out.println("getSelectorText(): match = "+elements);
                 if (elements != null) {
-                    System.out.println("match:'"+MiscStuff.array2string(elements).trim()+"'");
+                    System.out.println("match:'"+VcsUtilities.array2string(elements).trim()+"'");
                     selectorMatched[0] = true;
-                    selectorOutput.append(MiscStuff.array2string(elements).trim());
+                    selectorOutput.append(VcsUtilities.array2string(elements).trim());
                 }
             }
         });
@@ -463,7 +463,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
             variablePanel.add(scrollArea, gridBagConstraints2);
             fileLabels.addElement(label);
             areas.addElement(area);
-            //MiscStuff.removeEnterFromKeymap(field);
+            //VcsUtilities.removeEnterFromKeymap(field);
             fileNames.add(filePrompts.get(message));
         }
         labelOffset += 2*i;
@@ -527,7 +527,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
             variablePanel.add(field, gridBagConstraints2);
             labels.addElement(label);
             fields.addElement(field);
-            MiscStuff.removeEnterFromKeymap(field);
+            VcsUtilities.removeEnterFromKeymap(field);
         }
         labelOffset += varLabels.size();
         pack();

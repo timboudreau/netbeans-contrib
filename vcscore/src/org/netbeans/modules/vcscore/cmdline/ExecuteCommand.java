@@ -292,8 +292,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             /*
             ec.addStdoutRegexListener(new CommandDataOutputListener () {
                                           public void outputData(String[] elements) {
-                                              //D.deb("stdout match:"+MiscStuff.arrayToString(elements)); // NOI18N
-                                              //fileSystem.debug(cmd.getName()+":stdout: "+MiscStuff.arrayToString(elements)); // NOI18N
+                                              //D.deb("stdout match:"+VcsUtilities.arrayToString(elements)); // NOI18N
+                                              //fileSystem.debug(cmd.getName()+":stdout: "+VcsUtilities.arrayToString(elements)); // NOI18N
                                               if (stdoutListener != null) {
                                                   stdoutListener.match(elements);
                                               }
@@ -314,9 +314,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             /*
             ec.addStderrRegexListener(new RegexListener () {
                                           public void match(String[] elements) {
-                                              //D.deb("stderr match:"+MiscStuff.arrayToString(elements)); // NOI18N
+                                              //D.deb("stderr match:"+VcsUtilities.arrayToString(elements)); // NOI18N
                                               if (!VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_DISPLAY)) {
-                                                  fileSystem.debug(cmd.getName()+":stderr: "+MiscStuff.arrayToString(elements)); // NOI18N
+                                                  fileSystem.debug(cmd.getName()+":stderr: "+VcsUtilities.arrayToString(elements)); // NOI18N
                                               }
                                               if (stderrListener != null) {
                                                   stderrListener.match(elements);

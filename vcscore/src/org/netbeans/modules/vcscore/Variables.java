@@ -66,7 +66,7 @@ public class Variables {
             }
         } while(!expanded);
         D.deb ("after expansion ("+tab+","+cmd+")"); // NOI18N
-        return MiscStuff.replaceBackslashDollars( cmd );
+        return VcsUtilities.replaceBackslashDollars( cmd );
     }
 
     /** Expand all occurences of <code>${VARIABLE_NAME}</code>.
@@ -83,7 +83,7 @@ public class Variables {
         cmd_cond = expandConditional (tab, cmd, warnUndefVars);
         cmd = expandOnce(tab, cmd_cond, warnUndefVars);
         D.deb ("after expansion ("+cmd+")"); // NOI18N
-        return MiscStuff.replaceBackslashDollars( cmd );
+        return VcsUtilities.replaceBackslashDollars( cmd );
     }
 
     public static String expandConditional (Hashtable tab, String cmd, boolean warnUndefVars) {
@@ -115,7 +115,7 @@ public class Variables {
                 continue;
             }
             //end=cmd.indexOf("]",begin); // NOI18N
-            end = MiscStuff.getPairIndex(cmd, begin + 3, '[', ']');
+            end = VcsUtilities.getPairIndex(cmd, begin + 3, '[', ']');
             if (end < 0) {
                 index = begin + 1;
                 continue;
@@ -157,7 +157,7 @@ public class Variables {
                 continue;
             }
             //int firstEnd=cmd.indexOf("]",firstBegin); // NOI18N
-            int firstEnd = MiscStuff.getPairIndex(cmd, firstBegin + 1, '[', ']');
+            int firstEnd = VcsUtilities.getPairIndex(cmd, firstBegin + 1, '[', ']');
             if (firstEnd < 0) {
                 index = firstBegin+1;
                 continue;
@@ -188,7 +188,7 @@ public class Variables {
                 continue;
             }
             //int secondEnd=cmd.indexOf("]",secondBegin); // NOI18N
-            int secondEnd = MiscStuff.getPairIndex(cmd, secondBegin + 1, '[', ']');
+            int secondEnd = VcsUtilities.getPairIndex(cmd, secondBegin + 1, '[', ']');
             if (secondEnd < 0) {
                 index = secondBegin + 1;
                 continue;
@@ -263,7 +263,7 @@ public class Variables {
                 result.append('$');
                 continue;
             }
-            end = MiscStuff.getPairIndex(cmd, begin + 2, '{', '}'); // cmd.indexOf("}",begin); // NOI18N
+            end = VcsUtilities.getPairIndex(cmd, begin + 2, '{', '}'); // cmd.indexOf("}",begin); // NOI18N
             if( end<0 ){
                 index=begin+1;
                 continue;
@@ -325,7 +325,7 @@ public class Variables {
                 result.append('$');
                 continue;
             }
-            end = MiscStuff.getPairIndex(cmd, begin + 2, '{', '}'); // cmd.indexOf("}",begin); // NOI18N
+            end = VcsUtilities.getPairIndex(cmd, begin + 2, '{', '}'); // cmd.indexOf("}",begin); // NOI18N
             if( end<0 ){
                 index=begin+1;
                 continue;

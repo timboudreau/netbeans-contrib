@@ -87,7 +87,7 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         }
          */
         //dir.setPath (path);
-        //dir.setName (MiscStuff.getFileNamePart (path));
+        //dir.setName (VcsUtilities.getFileNamePart (path));
         //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
         D.deb ("DIR="+(String)vars.get("DIR")); // NOI18N
     }
@@ -222,8 +222,8 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         try{
             ec.addStdoutRegexListener(new CommandDataOutputListener () {
                                           public void outputData(String[] elements) {
-                                              //D.deb("stdout match:"+MiscStuff.arrayToString(elements)); // NOI18N
-                                              //fileSystem.debug("stdout: "+MiscStuff.arrayToString(elements)); // NOI18N
+                                              //D.deb("stdout match:"+VcsUtilities.arrayToString(elements)); // NOI18N
+                                              //fileSystem.debug("stdout: "+VcsUtilities.arrayToString(elements)); // NOI18N
                                               elements = translateElements(elements, list);
                                               rawData.addElement(elements);
                                               printDataOutput(elements);
@@ -247,8 +247,8 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         try{
             ec.addStderrRegexListener(new CommandDataOutputListener () {
                                           public void outputData(String[] elements) {
-                                              //D.deb("stderr match:"+MiscStuff.arrayToString(elements)); // NOI18N
-                                              //fileSystem.debug("stderr: "+MiscStuff.arrayToString(elements)); // NOI18N
+                                              //D.deb("stderr match:"+VcsUtilities.arrayToString(elements)); // NOI18N
+                                              //fileSystem.debug("stderr: "+VcsUtilities.arrayToString(elements)); // NOI18N
                                               printDataErrorOutput(elements);
                                               shouldFail = true;
                                           }
@@ -377,7 +377,7 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
             //elements[0] = fileName;
             //elements[1] = fileStatus;
             E.deb("Processing: "+fileName+"|"+elements); // NOI18N
-            //fileSystem.debug("stdout: "+MiscStuff.arrayToString(elements)); // NOI18N
+            //fileSystem.debug("stdout: "+VcsUtilities.arrayToString(elements)); // NOI18N
             elements = translateElements(elements, list);
             rawData.addElement(elements);
             /*

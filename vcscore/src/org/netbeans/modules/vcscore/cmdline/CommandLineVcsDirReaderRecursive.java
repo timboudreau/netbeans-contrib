@@ -70,7 +70,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         path = fileSystem.getFile(path).getAbsolutePath().replace(java.io.File.separatorChar, '/');
         //dir = new VcsCacheDir(fileSystem.getCacheIdStr(), fileSystem.getFile(path));
         //dir.setPath (path);
-        //dir.setName(MiscStuff.getFileNamePart(path));
+        //dir.setName(VcsUtilities.getFileNamePart(path));
         //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
         D.deb("DIR="+(String)vars.get("DIR")); // NOI18N
     }
@@ -312,7 +312,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         putFilesToDir(dir, (Hashtable) filesByName.getElement(), (Vector) rawData.getElement());
         D.deb("putFilesToDirRecursively: dir = "+dir);
         String[] subdirs = filesByName.getSubdirs();
-        D.deb("subdirs = "+MiscStuff.array2string(subdirs));
+        D.deb("subdirs = "+VcsUtilities.array2string(subdirs));
         for(int i = 0; i < subdirs.length; i++) {
             VcsDirContainer subFilesByName = filesByName.getDirContainer(subdirs[i]);
             String path = subFilesByName.getPath();
@@ -339,7 +339,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
             //elements[0] = fileName;
             //elements[1] = fileStatus;
             //E.deb("Processing: "+fileName+"|"+elements); // NOI18N
-            //fileSystem.debug("stdout: "+MiscStuff.arrayToString(elements)); // NOI18N
+            //fileSystem.debug("stdout: "+VcsUtilities.arrayToString(elements)); // NOI18N
             rawData.addElement(elements);
             CacheFile file = RefreshCommandSupport.matchToFile(elements, listSub, fileSystem.getPossibleFileStatusesTable(), fileSystem.getCacheIdStr(), parent);
             if(file instanceof VcsCacheDir) {

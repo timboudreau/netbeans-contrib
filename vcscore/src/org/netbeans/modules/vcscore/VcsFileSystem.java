@@ -657,7 +657,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 if (obj instanceof String) statuses[i] = (String) obj;
             }
         }
-        D.deb("getPossibleFileStatuses() return = "+MiscStuff.array2string(statuses));
+        D.deb("getPossibleFileStatuses() return = "+VcsUtilities.array2string(statuses));
         return statuses;
     }
 
@@ -737,7 +737,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     //-------------------------------------------
     public void setVariables(Vector variables) {
-        //System.out.println("setVariables("+MiscStuff.toSpaceSeparatedString(variables)+")");
+        //System.out.println("setVariables("+VcsUtilities.toSpaceSeparatedString(variables)+")");
         //D.deb ("setVariables()"); // NOI18N
         boolean containsCd = false;
         String cdValue = System.getProperty ("os.name").equals ("Windows NT") ? "cd /D" : "cd";
@@ -1028,7 +1028,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 index++;
             }
             num--;
-            int varEnd = MiscStuff.getPairIndex(exec, index, '{', '}');
+            int varEnd = VcsUtilities.getPairIndex(exec, index, '{', '}');
             if (varEnd < 0) {
                 pos = index; //TODO: wrong command syntax: '}' is missing
                 continue;
@@ -1037,7 +1037,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             String defaultParam = "";
             if (exec.charAt(index) == '(') {
                 index++;
-                int index2 = MiscStuff.getPairIndex(exec, index, '(', ')');
+                int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
                 if (index2 > 0) defaultParam = exec.substring(index, index2);
             }
             if (acceptUserParams && userParamsLabels != null) {
@@ -1063,7 +1063,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 index++;
             }
             num--;
-            int varEnd = MiscStuff.getPairIndex(exec, index, '{', '}');
+            int varEnd = VcsUtilities.getPairIndex(exec, index, '{', '}');
             if (varEnd < 0) {
                 pos = index; //TODO: wrong command syntax: '}' is missing
                 continue;
@@ -1072,7 +1072,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             String defaultParam = "";
             if (exec.charAt(index) == '(') {
                 index++;
-                int index2 = MiscStuff.getPairIndex(exec, index, '(', ')');
+                int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
                 if (index2 > 0) defaultParam = exec.substring(index, index2);
             }
             if (acceptUserParams && userLocalParamsLabels != null) {
@@ -1189,7 +1189,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     }
                     for(int i = first; promptLabels.hasMoreElements(); i++) {
                         String label = (String) promptLabels.nextElement();
-                        vars.put(PROMPT_FOR+prompt.get(label)+"("+label+")", MiscStuff.msg2CmdlineStr(values[i], isUseUnixShell()));
+                        vars.put(PROMPT_FOR+prompt.get(label)+"("+label+")", VcsUtilities.msg2CmdlineStr(values[i], isUseUnixShell()));
                     }
                     values = dlg.getVarAskValues();
                     for(int i = 0; i < ask.length; i++) {
@@ -1220,7 +1220,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         promptForVarsForEachFile = forEachFile[0];
                     }
                 } else return false;
-                if (reasonPrompt) vars.put("REASON", MiscStuff.msg2CmdlineStr(reason, isUseUnixShell())); // NOI18N
+                if (reasonPrompt) vars.put("REASON", VcsUtilities.msg2CmdlineStr(reason, isUseUnixShell())); // NOI18N
             }
         }
         return true;
@@ -1395,7 +1395,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (processAll || isImportant(fullName)) {
                 result.addElement(fullName);
                 /*
-                String fileName=MiscStuff.getFileNamePart(fullName);
+                String fileName=VcsUtilities.getFileNamePart(fullName);
                 VcsFile file=cache.getFile(fullName);
                 if( file==null ){
                     D.deb("no such file '"+fullName+"'"); // NOI18N
@@ -1633,7 +1633,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         if (cache.isDir(name)) {
             vcsFiles = cache.getFilesAndSubdirs(name);
-            //D.deb("vcsFiles=" + MiscStuff.arrayToString(vcsFiles)); // NOI18N
+            //D.deb("vcsFiles=" + VcsUtilities.arrayToString(vcsFiles)); // NOI18N
             /*
             String p=""; // NOI18N
             try{
@@ -1643,13 +1643,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 E.err(e,"getCanonicalPath() failed"); // NOI18N
             }
             files=cache.dirsFirst(p+File.separator+name,vcsFiles);
-            D.deb("files="+MiscStuff.arrayToString(files)); // NOI18N
+            D.deb("files="+VcsUtilities.arrayToString(files)); // NOI18N
             return files;
             */
         }
         if (vcsFiles == null) files = getLocalFiles(name);
         else files = addLocalFiles(name, vcsFiles);
-        //D.deb("children('"+name+"') = "+MiscStuff.arrayToString(files));
+        //D.deb("children('"+name+"') = "+VcsUtilities.arrayToString(files));
         VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
         if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal()))) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
         //System.out.println("children = "+files);
@@ -1808,7 +1808,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         */
         if (!file.exists()) return; // silently ignore non existing files
         boolean wasDir = file.isDirectory();
-        if (!MiscStuff.deleteRecursive(file)) {
+        if (!VcsUtilities.deleteRecursive(file)) {
             throw new IOException (g("EXC_CannotDelete", name, getDisplayName (), file.toString ())); // NOI18N
         }
         cache.remove(name, wasDir);
