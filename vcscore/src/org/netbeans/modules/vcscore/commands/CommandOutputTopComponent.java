@@ -27,6 +27,7 @@ import java.util.Iterator;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
@@ -62,6 +63,9 @@ public class CommandOutputTopComponent extends TopComponent {
     private JPopupMenu menu;
     private Action discardAction;
     private ErrorOutputPanel errorOutput;
+    private java.awt.GridBagConstraints gridBagConstraints;
+    private JLabel emptyLabel;
+    private boolean tabPaneRemoved;
     
 //    private static final long serialVersionUID = -8901733341334731237L;
     
@@ -136,19 +140,9 @@ public class CommandOutputTopComponent extends TopComponent {
     }
     
     private void initComponents() {
-        tabPane = new JTabbedPane();  
-        tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints;
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        add(tabPane, gridBagConstraints);
-        getAccessibleContext().setAccessibleName(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSN_CommandOutputVisualizer"));//NOI18N
-        getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSD_CommandOutputVisualizer"));//NOI18N
-        tabPane.getAccessibleContext().setAccessibleName(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSN_CommandOutputVisualizer.tabPane"));//NOI18N
-        tabPane.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSD_CommandOutputVisualizer.tabPane"));//NOI18N
+        setLayout(new java.awt.GridBagLayout());        
+        emptyLabel = new JLabel(NbBundle.getBundle(CommandOutputTopComponent.class).getString("EMPTY_OUTPUT"));
+        showEmptyStatus();    
     }
     
     private void initPopupMenu() {
@@ -211,15 +205,39 @@ public class CommandOutputTopComponent extends TopComponent {
     /**
      * Open the component on the given workspace.
      */
-    public void open() {       
+    public void open() {        
         super.open();       
         requestActive();
     }
 
-    public void addVisualizer(String name, JComponent component, boolean selected){
+    public void addVisualizer(String name, JComponent component, boolean selected){        
+        if(tabPaneRemoved)
+            initTabPane();
         tabPane.addTab(name,component);
         if(selected)
             tabPane.setSelectedComponent(component);
+    }
+    
+    private void initTabPane(){               
+        try{
+            remove(emptyLabel);
+        }catch(NullPointerException e){
+            //ignore
+        }
+        tabPane = new JTabbedPane();  
+        tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        setLayout(new java.awt.GridBagLayout());        
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(tabPane, gridBagConstraints);
+        tabPaneRemoved = false;
+        getAccessibleContext().setAccessibleName(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSN_CommandOutputVisualizer"));//NOI18N
+        getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSD_CommandOutputVisualizer"));//NOI18N
+        tabPane.getAccessibleContext().setAccessibleName(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSN_CommandOutputVisualizer.tabPane"));//NOI18N
+        tabPane.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSD_CommandOutputVisualizer.tabPane"));//NOI18N
+        
     }
     
     public synchronized void discard(Component comp) {
@@ -228,14 +246,27 @@ public class CommandOutputTopComponent extends TopComponent {
         if (errorOutput == discarded) {
             errorOutput = null;
         }
-        if (tabPane.getTabCount() == 0)
+        if (tabPane.getTabCount() == 0){
             close();
+            showEmptyStatus();
+        }
     }
     
     public synchronized void discardAll(){
-        tabPane.removeAll();
+        tabPane.removeAll();        
         errorOutput = null;
+        showEmptyStatus();
         close();
+    }
+    
+    private void showEmptyStatus(){ 
+        tabPaneRemoved = true;
+        try{
+            remove(tabPane);            
+        }catch(NullPointerException e){
+           //ignore
+        }              
+        add(emptyLabel);
     }
     
     protected void componentActivated() {
