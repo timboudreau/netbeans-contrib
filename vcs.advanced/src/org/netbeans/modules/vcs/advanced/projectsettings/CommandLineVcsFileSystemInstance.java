@@ -82,6 +82,8 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     private Document doc;
     private InstanceContent ic;
     private FSPropertyChangeListener fsPropertyChangeListener;
+    private long timeIgnoreFileChange = 0L;
+    private static final int FILE_MODIFICATION_TIME_RANGE = 5000;
 
     static {
         try {
@@ -137,7 +139,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     }
 
     public Object instanceCreate() throws java.io.IOException, ClassNotFoundException {
-        if (!isModuleEnabled()) return new BrokenSettings(instanceName());
+        //if (!isModuleEnabled()) return new BrokenSettings(instanceName());
         //System.out.println("instanceCreate(), fo = "+fo);
         CommandLineVcsFileSystem fs;
         boolean needToReadFSProperties = false;
@@ -177,12 +179,12 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     }
     
     public Class instanceClass() throws java.io.IOException, ClassNotFoundException {
-        if (!isModuleEnabled()) return BrokenSettings.class;
+        //if (!isModuleEnabled()) return BrokenSettings.class;
         return CommandLineVcsFileSystem.class;
     }
     
     public boolean instanceOf(Class clazz) {
-        if (!isModuleEnabled()) return BrokenSettings.class.isAssignableFrom(clazz);
+        //if (!isModuleEnabled()) return BrokenSettings.class.isAssignableFrom(clazz);
         return (clazz.isAssignableFrom(CommandLineVcsFileSystem.class));
     }
     
@@ -193,6 +195,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     public void setInstance(CommandLineVcsFileSystem fs) {
         CommandLineVcsFileSystem oldFs = (CommandLineVcsFileSystem) weakFsInstance.get();
         if (oldFs == fs) return ;
+        numIgnoredFileChanges = 0;
         weakFsInstance = new WeakReference(fs);
         if (fs != null) {
             fsPropertyChangeListener = new FSPropertyChangeListener(fo);
@@ -205,6 +208,12 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         }
     }
     
+    /** Ignore FileObject changes done right after this time.
+     */
+    public void setIgnoreSubsequentFileChange(long time) {
+        this.timeIgnoreFileChange = time + FILE_MODIFICATION_TIME_RANGE;
+    }
+    
     private final Object MODULE_LST_LOCK = new Object();
     /** due to asynchronous firing of PROP_ENABLED from ModuleInfo implementation in core. */
     private boolean wasEnabled;
@@ -214,7 +223,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     private boolean isModuleEnabled() {
         final ModuleInfo m = getModuleInfo(CommandLineVcsFileSystem.class);
         if (m == null) return false;
-        
+        /*
         synchronized (MODULE_LST_LOCK) {
             if (moduleListener == null) {
                 wasEnabled = m.isEnabled();
@@ -241,7 +250,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                     WeakListener.propertyChange(moduleListener, m));
             }
         }
-        
+        */
         if (!m.isEnabled()) return false;
         // is release number ok?
         //if (recog.getCodeNameRelease() > m.getCodeNameRelease()) return false;
@@ -310,7 +319,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         return null;
     }
     
-    public static void readFSProperties(CommandLineVcsFileSystem fs, Document doc) throws DOMException {
+    private static void readFSProperties(CommandLineVcsFileSystem fs, Document doc) throws DOMException {
         //System.out.println("readFSProperties("+fs.getSystemName()+")");
         //Document vcDoc = XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, VariableIO.PUBLIC_ID, VariableIO.SYSTEM_ID);
         Element rootElem = doc.getDocumentElement();
@@ -539,11 +548,20 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     }
     
     public void fileChanged(org.openide.filesystems.FileEvent fileEvent) {
-        //System.out.println("fileChanged("+fileEvent.getFile()+")");
+        //System.out.println("fileChanged("+fileEvent.getFile()+"), numIgnoredFileChanges = "+numIgnoredFileChanges);
         if (numIgnoredFileChanges > 0) {
             numIgnoredFileChanges--;
             //System.out.println("  IGNORED.");
             return ;
+        }
+        if (timeIgnoreFileChange > 0) {
+            if (fileEvent.getFile().lastModified().getTime() <= timeIgnoreFileChange) {
+                //System.out.println("  IGNORED - time");
+                return ;
+            } else {
+                //System.out.println("  Time Expired.");
+                timeIgnoreFileChange = 0L;
+            }
         }
         //System.out.println("  NOT IGNORED.");
         setInstance(null);
@@ -589,6 +607,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
             // Ignore valid property changes
             if (CommandLineVcsFileSystem.PROP_VALID.equals(propertyChangeEvent.getPropertyName())) return ;
+            //System.out.println("Property '"+propertyChangeEvent.getPropertyName()+"' changed.");
             synchronized (this) {
                 if (writeTask == null) {
                     writeTask = createWriteTask();
@@ -619,13 +638,14 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                                         XMLUtil.write(doc, out, null);
                                         //System.out.println("  written to "+fo+", File = "+org.openide.filesystems.FileUtil.toFile(fo));
                                     } finally {
-                                        if (lock != null) lock.releaseLock();
                                         try {
                                             if (out != null) {
                                                 numIgnoredFileChanges++;
+                                                //System.out.println("  numIgnoredFileChanges = "+numIgnoredFileChanges);
                                                 out.close();
                                             }
                                         } catch (java.io.IOException ioexc) {}
+                                        if (lock != null) lock.releaseLock();
                                     }
                                 }
                             }

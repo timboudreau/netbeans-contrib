@@ -22,6 +22,7 @@ import javax.swing.*;
 import org.openide.util.actions.*;
 import org.openide.util.NbBundle;
 import org.openide.*;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileSystem.Status;
@@ -119,6 +120,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private static ResourceBundle resourceBundle = null;
 
     public static final String TEMPORARY_CONFIG_FILE_NAME = "tmp"; // NOI18N
+    
+    /** Ugly, but I can not do this in the constuctor, because it can cause deadlock.
+     * And I need to initialize the commands somehow, because null will fail somewhere else.
+     * Commands should not be stored in Node structure in future releases, since it cause problems (deadlocks) */
+    private static final Node EMPTY_COMMANDS = new VcsCommandNode(new Children.Array(), new UserCommand("NONE"));
 
     private String config = null;//"Empty (Unix)"; // NOI18N
 
@@ -152,11 +158,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setConfigFO();
         //boolean status = readConfiguration (DEFAULT_CONFIG_NAME);
         //if (status == false) readConfigurationCompat(DEFAULT_CONFIG_NAME_COMPAT);
-        org.openide.util.RequestProcessor.postRequest(new Runnable() {
-            public void run() {
-                setCommands(new VcsCommandNode(new Children.Array(), new UserCommand("NONE")));
-            }
-        });
+        setCommands(EMPTY_COMMANDS);
         addPropertyChangeListener(this);
         cacheRoot = System.getProperty("netbeans.user")+File.separator+
                     "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
@@ -984,12 +986,23 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             } catch (org.w3c.dom.DOMException dExc) {
                 TopManager.getDefault().notifyException(dExc);
             }
-            org.openide.xml.XMLUtil.write(doc, fo.getOutputStream(fo.lock()), null);
+            FileLock lock = fo.lock();
+            OutputStream out = fo.getOutputStream(lock);
+            try {
+                org.openide.xml.XMLUtil.write(doc, out, null);
+            } finally {
+                out.close();
+                lock.releaseLock();
+            }
             try {
                 DataObject myXMLDataObject = DataObject.find(fo);
                 //((CommandLineVcsFileSystemInstance) myXMLDataObject.getCookie(org.openide.cookies.InstanceCookie.Of.class)).setInstance(this);
                 org.openide.util.Lookup instanceLookup = org.openide.loaders.Environment.find(myXMLDataObject);
-                ((CommandLineVcsFileSystemInstance) instanceLookup.lookup(org.openide.cookies.InstanceCookie.class)).setInstance(this);
+                CommandLineVcsFileSystemInstance myInstance =
+                    (CommandLineVcsFileSystemInstance) instanceLookup.lookup(org.openide.cookies.InstanceCookie.class);
+                myInstance.setIgnoreSubsequentFileChange(System.currentTimeMillis());
+                myInstance.setInstance(this);
+                //firePropertyChange("writeAllProperties", null, null);
                 //System.out.println("createInstanceDataObject() = "+myXMLDataObject);
                 return myXMLDataObject;
             } catch (DataObjectNotFoundException donfExc) {}
