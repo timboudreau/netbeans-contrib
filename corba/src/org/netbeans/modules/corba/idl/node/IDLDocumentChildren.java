@@ -35,11 +35,14 @@ public class IDLDocumentChildren extends Children.Keys {
     public static final boolean DEBUG = false;
     private IDLDataObject ido;
 
+    public static final Object NOT_KEY = new Object ();
+
+    public static final String WAIT_ICON = "org/openide/resources/src/wait";
 
     //private org.netbeans.modules.corba.idl.src.SimpleNode src;
-    private IDLElement src;
+    private IDLElement _M_src;
 
-    private IDLNode idlNode;
+    private IDLNode _M_idl_node;
 
     public IDLDocumentChildren (IDLDataObject v)
     throws java.io.FileNotFoundException {
@@ -50,19 +53,19 @@ public class IDLDocumentChildren extends Children.Keys {
     }
 
     public IDLDocumentChildren (IDLElement tree) {
-        src = tree;
-        if (src != null)
-            createKeys ();
+        _M_src = tree;
+        if (_M_src != null)
+            this.createKeys ();
     }
 
     public void setNode (IDLNode node) {
-        idlNode = node;
+        _M_idl_node = node;
     }
 
     public void setSrc (IDLElement s) {
         if (DEBUG)
             System.out.println ("setSrc (" + s.getName () + ");");
-        src = s;
+        _M_src = s;
     }
 
     protected org.openide.nodes.Node[] vector2nodes (Vector nodes) {
@@ -76,19 +79,35 @@ public class IDLDocumentChildren extends Children.Keys {
     public void createKeys () {
         Vector keys = new Vector ();
         if (DEBUG)
-            System.out.println ("createKeys ()");
-        if (src == null)
-            return;
+	    System.out.println ("createKeys ()");
+	//Thread.dumpStack ();
+	if (_M_idl_node != null) {
+	    if (_M_idl_node.getIDLDataObject ().getStatus () == IDLDataObject.STATUS_NOT_PARSED
+		|| _M_idl_node.getIDLDataObject ().getStatus () == IDLDataObject.STATUS_PARSING) {
+		if (DEBUG)
+		    System.out.println ("adding wait key");
+		keys.add (IDLDocumentChildren.NOT_KEY);
+		this.setKeys (keys);
+	    }
 
+	}
+        if (_M_src == null) {
+	    // we must set empty keys for colapsing IDL tree when parse exception was thrown
+	    if (DEBUG)
+		System.out.println ("setting empty keys");
+	    this.setKeys (keys);
+            return;
+	}
+	
         if (DEBUG) {
-            System.out.println ("setKeys (" + src.getName () + ");");
-            Vector tmp = src.getMembers ();
+            System.out.println ("setKeys (" + _M_src.getName () + ");");
+            Vector tmp = _M_src.getMembers ();
             for (int i=0; i<tmp.size (); i++) {
                 System.out.println ("key: " + ((IDLElement)tmp.elementAt (i)).getName ());
             }
-            src.xDump (" ");
+            _M_src.xDump (" ");
         }
-        setKeys (src.getMembers ());
+        setKeys (_M_src.getMembers ());
 
         /*
           for (int i=0; i<src.getMembers ().size (); i++) {
@@ -117,20 +136,30 @@ public class IDLDocumentChildren extends Children.Keys {
           }
         */
         if (DEBUG)
-            System.out.println ("---end of createKeys ()----------");
+	    System.out.println ("---end of createKeys ()----------");
     }
 
     protected org.openide.nodes.Node[] createNodes (Object key) {
 
-        if (DEBUG) {
-            try {
-                System.out.println ("createNodes (" + key + ");");
-            } catch (Exception e) {
-                e.printStackTrace ();
-            }
-        }
+        //if (DEBUG) {
+	//try {
+	if (DEBUG)
+	    System.out.println ("createNodes (" + key + ");");
+	//} catch (Exception e) {
+	//e.printStackTrace ();
+	//}
+	//}
         org.openide.nodes.Node[] ret_nodes;
         Vector nodes = new Vector ();
+
+	if (key.equals (IDLDocumentChildren.NOT_KEY)) {
+	    AbstractNode __wait = new AbstractNode(Children.LEAF);
+	    __wait.setName(CORBASupport.WAIT);
+	    __wait.setIconBase(WAIT_ICON);
+	    nodes.add (__wait);
+	    return vector2nodes (nodes);
+	}
+
         IDLElement child = (IDLElement)key;
 
         if (child instanceof ModuleElement) {
@@ -154,23 +183,57 @@ public class IDLDocumentChildren extends Children.Keys {
             nodes.addElement (new IDLInterfaceForwardNode ((InterfaceForwardElement) child));
             return vector2nodes (nodes);
         }
-        /*
-          if (child instanceof ValueAbsElement) {
-          if (DEBUG)
-          System.out.println ("found abstract valuetype");
-          nodes.addElement (new IDLValueAbsNode ((ValueAbsElement) child));
 
-          return vector2nodes (nodes);
-          }
+        if (child instanceof ValueForwardElement) {
+            if (DEBUG)
+		System.out.println ("found forward value");
+            nodes.addElement (new IDLValueForwardNode ((ValueForwardElement) child));
+            return vector2nodes (nodes);
+        }
 
-          if (child instanceof ValueElement) {
-          if (DEBUG)
-          System.out.println ("found valuetype");
-          nodes.addElement (new IDLValueNode ((ValueElement) child));
-          
-          return vector2nodes (nodes);
-          }
-        */
+        if (child instanceof ValueBoxElement) {
+            if (DEBUG)
+		System.out.println ("found value box");
+            nodes.addElement (new IDLValueBoxNode ((ValueBoxElement) child));
+            return vector2nodes (nodes);
+        }
+
+	if (child instanceof ValueElement) {
+	    if (DEBUG)
+		System.out.println ("found valuetype");
+	    nodes.addElement (new IDLValueNode ((ValueElement) child));          
+	    return vector2nodes (nodes);
+	}
+
+	if (child instanceof ValueAbsElement) {
+	    if (DEBUG)
+		System.out.println ("found abstract valuetype");
+	    nodes.addElement (new IDLValueAbsNode ((ValueAbsElement) child));
+	    return vector2nodes (nodes);
+	}
+
+	if (child instanceof StateMemberElement) {
+	    if (DEBUG)
+		System.out.println ("found state member");
+	    Vector __members = child.getMembers ();
+	    for (int __i=0; __i<__members.size (); __i++) {
+		if (__members.elementAt (__i) instanceof DeclaratorElement) {
+		    nodes.addElement (new IDLStateMemberNode 
+			((DeclaratorElement)__members.elementAt (__i), 
+			 (StateMemberElement) child));
+		} 
+	    }
+	    //nodes.addElement (new IDLStateMemberNode ((StateMemberElement) child));          
+	    return vector2nodes (nodes);
+	}
+
+	if (child instanceof InitDclElement) {
+	    if (DEBUG)
+		System.out.println ("found factory");
+	    nodes.addElement (new IDLInitDclNode ((InitDclElement) child));
+	    return vector2nodes (nodes);
+	}
+
         if (child instanceof OperationElement) {
             if (DEBUG)
                 System.out.println ("found operation");
