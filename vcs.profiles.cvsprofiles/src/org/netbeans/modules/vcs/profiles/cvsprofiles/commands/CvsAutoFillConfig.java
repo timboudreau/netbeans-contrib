@@ -33,7 +33,7 @@ public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
     public CvsAutoFillConfig() {
     }
     
-    private File lookForCVSRoot(String dirName) {
+    private static File lookForCVSRoot(String dirName) {
         File cvsRoot = new File(dirName, CVS_DIR + File.separator + CVS_ROOT);
         if (!cvsRoot.exists()) {
             String cvsRootName = CVS_DIR + File.separator + CVS_ROOT;
@@ -69,6 +69,7 @@ public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
         String repository = null;
         String userName = null;
         String serverName = null;
+        String serverPort = null;
         if (dirFile.exists()) {
             BufferedReader buff = null;
             try {
@@ -100,6 +101,15 @@ public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
                                 }
                             }
                             if (end > 0) repository = line.substring(end + 1);
+                            StringBuffer port = new StringBuffer();
+                            char c;
+                            for (int i = 0; repository.length() > i && Character.isDigit(c = repository.charAt(i)); i++) {
+                                port.append(c);
+                            }
+                            if (port.length() > 0) {
+                                serverPort = port.toString();
+                                repository = repository.substring(port.length());
+                            }
                         }
                     }
                 }
@@ -117,6 +127,8 @@ public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
         if (repository != null) vars.put("CVS_REPOSITORY", repository);
         if (userName != null) vars.put("CVS_USERNAME", userName);
         if (serverName != null) vars.put("CVS_SERVER", serverName);
+        if (serverPort != null) vars.put("ENVIRONMENT_VAR_CVS_CLIENT_PORT", serverPort);
+        else vars.remove("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
         return true;
     }
 }
