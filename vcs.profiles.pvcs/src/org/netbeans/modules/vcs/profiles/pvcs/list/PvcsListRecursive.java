@@ -161,12 +161,12 @@ public class PvcsListRecursive extends VcsListRecursiveCommand implements RegexO
         } catch (InterruptedException iexc) {
             return false;
         }
-        printOutputData(stdoutListener, filesByNameCont);
+        //printOutputData(stdoutListener, filesByNameCont, "");
         return status;
     }
     
-    private void printOutputData(CommandDataOutputListener stdoutListener, VcsDirContainer filesByNameCont) {
-        stdoutListener.outputData(new String[] { "Path:", filesByNameCont.getPath() });
+    private void printOutputData(CommandDataOutputListener stdoutListener, VcsDirContainer filesByNameCont, String inset) {
+        stdoutListener.outputData(new String[] { "Path: ", inset + filesByNameCont.getPath() });
         Hashtable filesByName = (Hashtable) filesByNameCont.getElement();
         if (filesByName != null) {
             for (Iterator it = filesByName.values().iterator(); it.hasNext(); ) {
@@ -176,7 +176,7 @@ public class PvcsListRecursive extends VcsListRecursiveCommand implements RegexO
         }
         VcsDirContainer[] subCont = filesByNameCont.getSubdirContainers();
         for (int i = 0; i < subCont.length; i++) {
-            printOutputData(stdoutListener, subCont[i]);
+            printOutputData(stdoutListener, subCont[i], inset + "  ");
         }
     }
     
@@ -259,6 +259,7 @@ public class PvcsListRecursive extends VcsListRecursiveCommand implements RegexO
             String project = elements[0].substring(projectPath.length());
             int fileIndex = project.lastIndexOf('/');
             if (fileIndex >= 0) project = project.substring(0, fileIndex);
+            else project = ""; // I'm on the root
             while (project.startsWith("/")) project = project.substring(1);
             //System.out.println("   Have project = '"+project+"'");
             if (currentProject == null || !currentProject.equals(project)) {

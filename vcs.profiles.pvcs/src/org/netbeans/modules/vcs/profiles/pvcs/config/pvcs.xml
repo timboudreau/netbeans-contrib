@@ -706,9 +706,6 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
-        <property name="refreshRecursivelyPatternMatched">
-          <value> -z </value>
-        </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
         </property>
@@ -739,6 +736,12 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
         <property name="refreshParentFolder">
           <value>true</value>
+        </property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+        <property name="refreshRecursivelyPatternMatched">
+          <value>MoveFilesNotToAdd</value>
         </property>
       </command>
       <command name="ADD_LOCAL_PARENTS">
