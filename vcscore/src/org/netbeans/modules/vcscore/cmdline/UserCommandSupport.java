@@ -1279,10 +1279,13 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 }
                 vars.put("CACHED_SIZE", Long.toString(fprops.getSize()));
                 vars.put("CACHED_ISLOCAL", fprops.isLocal() ? "true" : "");
+                String revision = fprops.getRevision();
+                if (revision != null) vars.put("CACHED_REVISION", revision);
             } else {
                 vars.remove("CACHED_ATTR");
                 vars.remove("CACHED_SIZE");
                 vars.remove("CACHED_ISLOCAL");
+                vars.remove("CACHED_REVISION");
             }
         }
 
