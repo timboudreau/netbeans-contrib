@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
       <include name="${nb.modules/autoload.dir}/ddapi.jar"/>
     </patternset>
     <path id="cp">
-      <pathelement location="${schema2beans/rt.dir}/${nb.modules/autoload.dir}/schema2beans.jar" />
+      <pathelement location="${schema2beans/rt.dir}/${nb.modules.dir}/org-netbeans-modules-schema2beans.jar" />
       <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
       <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
       <pathelement location="${libs/xerces.dir}/${nb.modules/autoload.dir}/ext/xerces-2.6.0.jar"/>
@@ -34,7 +34,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="s2binit" depends="init">
 	<taskdef name="schema2beans" classname="org.netbeans.modules.s2banttask.Schema2BeansAntTask">
 	  <classpath>
-		<pathelement path="${schema2beans/rt.dir}/${nb.modules/autoload.dir}/schema2beans.jar" />
+		<pathelement path="${schema2beans/rt.dir}/${nb.modules.dir}/org-netbeans-modules-schema2beans.jar" />
 		<pathelement path="${schema2beans/dev.dir}/${nb.modules/autoload.dir}/schema2beansdev.jar" />
 		<pathelement path="${nb_all}/schema2beans/anttask/s2banttask.jar"/>
 	  </classpath>
