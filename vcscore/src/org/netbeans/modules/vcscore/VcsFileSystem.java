@@ -3845,6 +3845,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return (VcsCommand) commandsByName.get(name);
     }
     
+    /**
+     * Get the list of all command names.
+     * @return The list of all command names.
+     */
+    public String[] getCommandNames() {
+        if (commandsByName == null) {
+            Node commands = getCommands();
+            if (commands == null) return new String[0];
+            setCommands (commands);
+        }
+        return (String[]) commandsByName.keySet().toArray(new String[commandsByName.size()]);
+    }
+    
     private void addCmdActionsToSupporter() {
         for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
             VcsCommand cmd = (VcsCommand) it.next();
