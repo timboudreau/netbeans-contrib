@@ -224,8 +224,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         //if (status == false) readConfigurationCompat(DEFAULT_CONFIG_NAME_COMPAT);
         setCommands(new CommandsTree(new UserCommandSupport(new UserCommand("NONE"), this)));//EMPTY_COMMANDS);
         addPropertyChangeListener(this);
-        cacheRoot = System.getProperty("netbeans.user")+File.separator+
-                    "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
+        cacheRoot = FileUtil.toFile(Repository.getDefault().getDefaultFileSystem().getRoot()).getAbsolutePath()+
+                    File.separator+"vcs"+File.separator+"cache"; // NOI18N
         cachePath = createNewCacheDir();
         //System.out.println("  cachePath = "+cachePath);
         // Be conservative, create the VersioningFS only when REVISION_LIST command is defined.
