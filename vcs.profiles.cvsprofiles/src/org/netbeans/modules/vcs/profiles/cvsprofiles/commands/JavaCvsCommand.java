@@ -57,7 +57,7 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
     private Pattern errorRegex;
     private PipedInputStream stdin;
     private PipedInputStream errin;
-    //private boolean[] stopOutputReading;
+    private volatile boolean outputTasksInterrupted = false;
     
     /** Creates a new instance of JavaCvsCommandExecutor */
     public JavaCvsCommand() {
@@ -173,24 +173,33 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
             task1 = RequestProcessor.getDefault().post(this);
             task2 = RequestProcessor.getDefault().post(this);
         }
-        transferEnvironment();
-        PrintStream pout = new PrintStream(stdout);
-        PrintStream perr = (stderr == stdout) ? pout : new PrintStream(stderr);
-        String portStr = (String) vars.get("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
-        int port = 0;
-        if (portStr != null) {
-            try {
-                port = Integer.parseInt(portStr);
-            } catch (NumberFormatException nfe) {}
-        }
-        boolean success = CVSCommand.processCommand(args, null, localDir, port, pout, perr);
+        boolean success;
+        boolean interruptOutputTasks = true;
         try {
-            stdout.close();
-            stderr.close();
-        } catch (IOException ioex) {}
-        if (task1 != null && task2 != null) {
-            task1.waitFinished();
-            task2.waitFinished();
+            transferEnvironment();
+            PrintStream pout = new PrintStream(stdout);
+            PrintStream perr = (stderr == stdout) ? pout : new PrintStream(stderr);
+            String portStr = (String) vars.get("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
+            int port = 0;
+            if (portStr != null) {
+                try {
+                    port = Integer.parseInt(portStr);
+                } catch (NumberFormatException nfe) {}
+            }
+            success = CVSCommand.processCommand(args, null, localDir, port, pout, perr);
+            interruptOutputTasks = false;
+        } finally {
+            try {
+                stdout.close();
+                stderr.close();
+            } catch (IOException ioex) {}
+            if (interruptOutputTasks) {
+                outputTasksInterrupted = true;
+            }
+            if (task1 != null && task2 != null) {
+                task1.waitFinished();
+                task2.waitFinished();
+            }
         }
         return success;
     }
@@ -362,7 +371,7 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
                     stdoutDataListener.outputData(new String[] { stdLine });
                 }
             }
-        } while(/*!stopOutputReading[0] && */(stdLine != null));
+        } while((stdLine != null) && !outputTasksInterrupted);
     }
     
     private void readErrOut() {
@@ -386,7 +395,7 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
                     stderrDataListener.outputData(new String[] { errLine });
                 }
             }
-        } while(/*!stopOutputReading[0] && */(errLine != null));
+        } while((errLine != null) && !outputTasksInterrupted);
     }
     
 }
