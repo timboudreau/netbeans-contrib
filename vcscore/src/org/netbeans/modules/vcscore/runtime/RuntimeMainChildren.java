@@ -51,7 +51,7 @@ public class RuntimeMainChildren extends Children.Keys  {
         while (enum.hasMoreElements()) {
             FileSystem fs = (FileSystem) enum.nextElement();
             RuntimeCommandsProvider provider = RuntimeCommandsProvider.findProvider(fs);
-            if (provider != null) {
+            if (provider != null && !providerList.contains(provider)) {
                 providerList.add(provider);
 //                initFsInRuntime(fs);
             }
@@ -89,7 +89,7 @@ public class RuntimeMainChildren extends Children.Keys  {
             Node fsRuntime = provider.getNodeDelegate();
             if (fsRuntime != null) return new Node[] { fsRuntime };
         } 
-        return new Node[0];
+        return null;
     }
     
     
@@ -98,7 +98,7 @@ public class RuntimeMainChildren extends Children.Keys  {
         public void fileSystemAdded(RepositoryEvent ev) {
             FileSystem fs = ev.getFileSystem();
             RuntimeCommandsProvider provider = RuntimeCommandsProvider.findProvider(fs);
-            if (provider != null) {
+            if (provider != null && !providerList.contains(provider)) {
                 providerList.add(provider);
                 RuntimeMainChildren.this.setKeys(providerList);
             }
@@ -112,9 +112,10 @@ public class RuntimeMainChildren extends Children.Keys  {
             FileSystem fs = ev.getFileSystem();
             RuntimeCommandsProvider provider = RuntimeCommandsProvider.findProvider(fs);
             if (provider != null) {
-                providerList.remove(provider);
-                provider.notifyRemoved();
-                RuntimeMainChildren.this.setKeys(providerList);
+                if (providerList.remove(provider)) {
+                    provider.notifyRemoved();
+                    RuntimeMainChildren.this.setKeys(providerList);
+                }
             }
             
         }
