@@ -2229,12 +2229,36 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public synchronized void setPromptForLockResult(boolean promptForLockResult) {
         this.promptForLockResult = promptForLockResult;
     }
+    
+    /**
+     * Whether the LOCK command should be performed for this file. This method should
+     * check whether the file is already locked. The default implementation
+     * search for the locker status and compare with user.name property.
+     * @return true if the file is not locked yet and lock command should run.
+     */
+    protected boolean shouldLock(String name) {
+        /*
+        if (getCommand(VcsCommand.NAME_SHOULD_DO_LOCK) != null) {
+            Table files = new Table();
+            files.put(name, findResource(name));
+            return VcsAction.shouldDoLock (files, VcsFileSystem.this);
+        } else */
+        if (getCommand(VcsCommand.NAME_LOCK) == null) return false; // The LOCK command is not defined
+        if (statusProvider != null) {
+            String locker = statusProvider.getFileLocker(name);
+            if (locker != null && locker.equals(System.getProperty("user.name"))) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /** Run the LOCK command to lock the file.
      *
      * @param name name of the file
      */
     public void lock (String name_) throws IOException {
+        //System.out.println("lock("+name_+")");
         if (!isImportant(name_)) return; // ignore locking of unimportant files
         final String name = name_;
         //final VcsFileSystem current = this;
@@ -2264,7 +2288,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                // *.orig is a temporary file created by AbstractFileObject
                                // on saving every file to enable undo if saving fails
                                if (vcsFile==null || vcsFile.isLocal () || name.endsWith (".orig")) return; // NOI18N
-                               else {
+                               else if (shouldLock(name)) {
                                    D.deb ("lock on file:"+vcsFile.toString()); // NOI18N
                                    setPromptForLockResult(false);
                                    if (isPromptForLockOn ()) {
@@ -2307,6 +2331,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param name name of the file
      */
     public void unlock (String name) {
+        //System.out.println("unlock("+name+")");
         if (!isImportant(name)) return; // ignore unlocking of unimportant files
         D.deb("unlock('"+name+"')"); // NOI18N
         if(isLockFilesOn ()) {
