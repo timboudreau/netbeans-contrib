@@ -14,13 +14,7 @@
 package complete.cvs_profile;
 
 import complete.cvs_profile.JellyStub.Configuration;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.NoSuchFieldException;
-import java.lang.SecurityException;
+import java.io.*;
 import java.lang.reflect.Field;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -42,16 +36,10 @@ import org.netbeans.modules.vcscore.runtime.RuntimeCommand;
 import org.netbeans.modules.vcscore.runtime.VcsRuntimeCommand;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.CVSRemoveFileAdvDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.CVSRemoveFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCommitFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCommitFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSRemoveDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSStatusFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSUpdateFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSUpdateFolderAdvDialog;
+import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
 import util.Helper;
 import util.History;
+
 
 public class JellyAddFeatures extends JellyStub {
     

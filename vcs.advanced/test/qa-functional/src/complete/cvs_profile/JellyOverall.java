@@ -18,7 +18,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Enumeration;
+import junit.framework.Test;
 import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 import org.netbeans.jellytools.ExplorerOperator;
 import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.NbDialogOperator;
@@ -39,14 +41,7 @@ import org.netbeans.jellytools.properties.PropertySheetTabOperator;
 import org.netbeans.jellytools.properties.StringProperty;
 import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.junit.NbTestSuite;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddTagFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSBranchSelectorDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCheckoutFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCommitFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSRevisionSelectorDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSUpdateFileAdvDialog;
+import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.util.Utilities;
@@ -54,13 +49,14 @@ import util.Helper;
 import util.History;
 import util.StatusBarTracer;
 
+
 public class JellyOverall extends JellyTestCase {
     
     public JellyOverall(String testName) {
         super(testName);
     }
     
-    public static junit.framework.Test suite() {
+    public static Test suite() {
         TestSuite suite = new NbTestSuite();
         suite.addTest(new JellyOverall("testWorkDir"));
         suite.addTest(new JellyOverall("testMount"));
@@ -82,7 +78,7 @@ public class JellyOverall extends JellyTestCase {
     }
     
     public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
+        TestRunner.run(suite());
     }
     
     ExplorerOperator exp;
