@@ -1,0 +1,5 @@
+Netbeans-Module: Version 1.00
+Netbeans-Module-Name: RMI Module
+
+Name: com/netbeans/developer/modules/rmi/RMIDataLoader.class
+Netbeans-Module-Class: Loader
