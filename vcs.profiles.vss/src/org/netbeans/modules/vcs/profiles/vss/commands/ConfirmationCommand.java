@@ -28,6 +28,7 @@ import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
 import org.netbeans.modules.vcscore.commands.RegexErrorListener;
 import org.netbeans.modules.vcscore.commands.RegexOutputListener;
+import org.netbeans.modules.vcscore.commands.TextErrorListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
@@ -79,6 +80,7 @@ import org.openide.util.NbBundle;
 public class ConfirmationCommand extends Object implements VcsAdditionalCommand {
     
     public static final String GRAB_ERROR_OUTPUT = "-e"; // NOI18N
+    public static final String REPORT_ERROR_OF_TEST = "-te"; // NOI18N
     public static final String TEST_ONLY_WHEN_NO_OUTPUT = "-t"; // NOI18N
     public static final String MULTI_FILES = "-m"; // NOI18N
     public static final String VAR_TEST_CONFIRMATION = "TEST_CONFIRMATION"; // NOI18N
@@ -88,6 +90,7 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
     private boolean errorOutput;
     private boolean testOnly;
     private boolean multiFiles;
+    private boolean reportErrorTest;
     private boolean defineTestVar;
     private String rootDir;
     
@@ -127,15 +130,17 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
                         CommandDataOutputListener stderrListener, String errorRegex) {
         if (args.length == 0 || (GRAB_ERROR_OUTPUT.equals(args[0]) || TEST_ONLY_WHEN_NO_OUTPUT.equals(args[0])) && args.length <= 1) {
             stderrNRListener.outputLine("Expecting a command as an argument.\n"+      // NOI18N
-                "ConfirmationCommand [-e] [-t] <command name> [<command name>]\n"+    // NOI18N
+                "ConfirmationCommand [-e] [-m[EOM]] [-t] [-te] <command name> [<command name>]\n"+    // NOI18N
                 "-e to grab error data output instead of standard data output,\n"+    // NOI18N
                 "-m[EOM] to handle command that acts on multiple files, EOM - optional End Of Message,\n"+    // NOI18N
-                "-t not to run the real command if test does not produce output.\n"); // NOI18N
+                "-t not to run the real command if test does not produce output.\n"+ // NOI18N
+                "-te to report error output of test command if it fails and provides no messages.\n");    // NOI18N
             return true;
         }
         errorOutput = false;
         testOnly = false;
         multiFiles = false;
+        reportErrorTest = false;
         String endOfMessage = null;
         if (fileSystem != null) {
             rootDir = fileSystem.getRootDirectory().getAbsolutePath();
@@ -157,6 +162,9 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
                 if (args[0].length() > MULTI_FILES.length()) {
                     endOfMessage = args[0].substring(MULTI_FILES.length());
                 }
+            } else if (REPORT_ERROR_OF_TEST.equals(args[0])) {
+                moreOptions = true;
+                reportErrorTest = true;
             }
             if (moreOptions) {
                 String[] newArgs = new String[args.length - 1];
@@ -170,6 +178,14 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         CommandSupport testCommand = executionContext.getCommandSupport(testCommandName);
         CommandSupport realCommand = executionContext.getCommandSupport(realCommandName);
         //System.out.println("ConfirmationCommand: errorOutput = "+errorOutput+", testOnly = "+testOnly+", multiFiles = "+multiFiles+", EOM = "+endOfMessage+", testCommandName = "+testCommandName+", realCommandName = "+realCommandName);
+        if (testCommand == null) {
+            stderrNRListener.outputLine("Command '"+testCommandName+"' is not defined.");
+            return false;
+        }
+        if (realCommand == null) {
+            stderrNRListener.outputLine("Command '"+realCommandName+"' is not defined.");
+            return false;
+        }
         
         Hashtable testVars = new Hashtable(vars);
         if (defineTestVar) {
@@ -177,14 +193,24 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         }
         boolean confirmed;
         boolean success = true;
+        boolean[] testSuccess = new boolean[] { true };
+        List errorOutputList = null;
+        if (reportErrorTest) errorOutputList = new ArrayList();
         if (multiFiles) {
             String[] messages;
             try {
-                messages = runTestMultiCommand(testCommand, testVars, endOfMessage);
+                messages = runTestMultiCommand(testCommand, testVars, endOfMessage,
+                                               testSuccess, errorOutputList);
             } catch (InterruptedException iexc) {
                 return false;
             }
             if (messages == null) {
+                return false;
+            }
+            if (messages.length == 0 && !testSuccess[0] && reportErrorTest) {
+                for (int i = 0; i < errorOutputList.size(); i++) {
+                    stderrNRListener.outputLine((String) errorOutputList.get(i));
+                }
                 return false;
             }
             messages = confirm(messages, rootDir);
@@ -195,11 +221,17 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         } else {
             String message;
             try {
-                message = runTestCommand(testCommand, testVars);
+                message = runTestCommand(testCommand, testVars, testSuccess, errorOutputList);
             } catch (InterruptedException iexc) {
                 return false;
             }
             if (message == null) {
+                return false;
+            }
+            if (message.length() == 0 && !testSuccess[0] && reportErrorTest) {
+                for (int i = 0; i < errorOutputList.size(); i++) {
+                    stderrNRListener.outputLine((String) errorOutputList.get(i));
+                }
                 return false;
             }
             confirmed = confirm(message);
@@ -217,7 +249,8 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
     /**
      * @return null when command failed, the output message otherwise.
      */
-    private String runTestCommand(CommandSupport cmdSupp, Hashtable vars) throws InterruptedException {
+    private String runTestCommand(CommandSupport cmdSupp, Hashtable vars,
+                                  boolean[] testSuccess, final List errorOutputList) throws InterruptedException {
         final StringBuffer messageBuff = new StringBuffer();
         Command cmd = cmdSupp.createCommand();
         VcsDescribedCommand vcmd = (VcsDescribedCommand) cmd;
@@ -234,6 +267,13 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         } else {
             vcmd.addRegexOutputListener(regexOutputListener);
         }
+        if (errorOutputList != null) {
+            vcmd.addTextErrorListener(new TextErrorListener() {
+                public void outputLine(String line) {
+                    errorOutputList.add(line);
+                }
+            });
+        }
         CommandTask task = cmd.execute();
         try {
             task.waitFinished(0);
@@ -241,6 +281,7 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             task.stop();
             throw iexc;
         }
+        testSuccess[0] = (task.getExitStatus() == CommandTask.STATUS_SUCCEEDED);
         if (task.getExitStatus() != CommandTask.STATUS_SUCCEEDED &&
             !VcsCommandIO.getBooleanProperty(vcmd.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL)) {
             //E.err("exec failed "+ec.getExitStatus()); // NOI18N
@@ -252,7 +293,9 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
     /**
      * @return null when command failed, the output messages otherwise.
      */
-    private String[] runTestMultiCommand(CommandSupport cmdSupp, Hashtable vars, final String eom) throws InterruptedException {
+    private String[] runTestMultiCommand(CommandSupport cmdSupp, Hashtable vars,
+                                         final String eom, boolean[] testSuccess,
+                                         final List errorOutputList) throws InterruptedException {
         final List messages = new ArrayList();
         final StringBuffer messageBuff = new StringBuffer();
         Command cmd = cmdSupp.createCommand();
@@ -278,6 +321,13 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         } else {
             vcmd.addRegexOutputListener(regexOutputListener);
         }
+        if (errorOutputList != null) {
+            vcmd.addTextErrorListener(new TextErrorListener() {
+                public void outputLine(String line) {
+                    errorOutputList.add(line);
+                }
+            });
+        }
         CommandTask task = cmd.execute();
         try {
             task.waitFinished(0);
@@ -285,6 +335,7 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             task.stop();
             throw iexc;
         }
+        testSuccess[0] = (task.getExitStatus() == CommandTask.STATUS_SUCCEEDED);
         if (task.getExitStatus() != CommandTask.STATUS_SUCCEEDED &&
             !VcsCommandIO.getBooleanProperty(vcmd.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL)) {
             //E.err("exec failed "+ec.getExitStatus()); // NOI18N

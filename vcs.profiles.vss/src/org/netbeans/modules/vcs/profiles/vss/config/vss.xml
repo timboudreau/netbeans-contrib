@@ -505,7 +505,7 @@ Microsystems, Inc. All Rights Reserved.
           </value>
 	</property>
         <property name="exec">
-          <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t CHECKOUT_CONFIRM CHECKOUT_CONFIRMED</value>
+          <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -te CHECKOUT_CONFIRM CHECKOUT_CONFIRMED</value>
         </property>
 	<property name="onDir">
 	  <value>false</value>
@@ -562,7 +562,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N CHECKOUTR_CONFIRM CHECKOUT_FILES_CONFIRMED ${RECURSIVE}</value>
+	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -te -m(Y/N)N CHECKOUTR_CONFIRM CHECKOUT_FILES_CONFIRMED ${RECURSIVE}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
