@@ -1,0 +1,28 @@
+/*
+ * __NAME__.java
+ *
+ *  Created on __DATE__, __TIME__
+ */
+
+package Templates.RMI;
+
+import java.rmi.*;
+
+/**
+ *
+ * @author __USER__
+ * @version 1.0
+ */
+public class RMI__Client extends Object {
+
+    /** Creates new __NAME__ */
+    public RMIClient() {
+    }
+
+    /**
+    * @param args the command line arguments
+    */
+    public static void main (String args[]) {
+        System.setSecurityManager(new RMISecurityManager());
+    }
+}

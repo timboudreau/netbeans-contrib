@@ -1,0 +1,101 @@
+/*
+ * __NAME__.java
+ *
+ * Created on __DATE__, __TIME__
+ */
+
+package Templates.RMI;
+
+import java.rmi.*;
+import java.rmi.activation.*;
+import java.rmi.registry.Registry;
+import java.rmi.registry.LocateRegistry;
+import java.net.MalformedURLException;
+import java.util.Properties;
+
+/** Activatable server implementing remote interface.
+ *
+ * @author __USER__
+ * @version 1.0
+ */
+
+public class Activatable extends java.rmi.activation.Activatable {
+
+    /** Constructs __NAME__ object and exports it on default port.
+     * Register the object with the activation system      
+     */
+    public Activatable(ActivationID id, MarshalledObject data) throws RemoteException {
+        super(id, 0);
+    }
+
+    /** Register __NAME__ object to the activation system.
+     * @param class - name of class of remote object
+     */
+    public static Remote registerToActivation(String classname) throws ActivationException, 
+        UnknownGroupException, RemoteException, java.io.IOException {
+        Properties currProps = System.getProperties();
+        Properties props = new Properties();
+
+        // prepare properties
+        props.put("java.security.policy", currProps.getProperty("java.security.policy"));
+        props.put("java.rmi.server.codebase", currProps.getProperty("java.rmi.server.codebase"));
+        props.put("java.rmi.server.hostname", currProps.getProperty("java.rmi.server.hostname"));
+        
+        //assume that implementation class is in the same location
+        ActivationGroupDesc agDesc = new ActivationGroupDesc(props, null);
+        ActivationGroupID agID = ActivationGroup.getSystem().registerGroup(agDesc);
+        
+        String location = __NAME__.class.getProtectionDomain().getCodeSource().getLocation().toExternalForm();
+        MarshalledObject data = new MarshalledObject(classname);
+        ActivationDesc desc = new ActivationDesc(agID, classname, location, data);
+        return (Remote) Activatable.register(desc);
+    }
+
+    /** Register __NAME__ object with the RMI registry.
+     * @param name - name identifying the service in the RMI registry
+     * @param obj - remote object
+     * @param create - create local registry if necessary
+     * @throw RemoteException if cannot be exported or bound to RMI registry
+     * @throw MalformedURLException if name cannot be used to construct a valid URL
+     * @throw IllegalArgumentException if null passed as name
+     */
+    public static void registerToRegistry(String name, Remote obj, boolean create) throws RemoteException, MalformedURLException{
+
+        if (name == null) throw new IllegalArgumentException("registration name can not be null");
+
+        try {
+            Naming.rebind(name, obj);
+        } catch (RemoteException ex){
+            if (create) {
+                Registry r = LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+                r.rebind(name, obj);
+                new Thread() {
+                    public void run() {
+                        // prevent registry from exiting
+                        while (true) {
+                            try {
+                                Thread.sleep(Long.MAX_VALUE);
+                            } catch (InterruptedException e) {
+                            }
+                        }
+                    }
+                }.start();
+            } else throw ex;
+        }
+    }
+
+    /** Main method.
+     */
+    public static void main(String[] args) {
+        try {
+            Remote obj = registerToActivation(__QUOTES____PACKAGE_AND_NAME____QUOTES__);
+            registerToRegistry(__QUOTES____NAME____QUOTES__, obj, true);
+        } catch (RemoteException ex) {
+            ex.printStackTrace();
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}

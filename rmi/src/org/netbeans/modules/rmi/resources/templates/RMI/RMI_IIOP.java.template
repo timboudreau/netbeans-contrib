@@ -1,0 +1,54 @@
+/*
+ * __NAME__.java
+ *
+ * Created on __DATE__, __TIME__
+ */
+
+package Templates.RMI;
+
+import java.rmi.*;
+import javax.rmi.*;
+import javax.naming.*;
+
+/** Portable remote server implementing remote interface.
+ *
+ * @author __USER__
+ * @version 
+ */
+public class RMI_IIOP extends PortableRemoteObject {
+
+    /** Constructs __NAME__ object and exports it on default port.
+     */
+    public RMI_IIOP() throws RemoteException {
+        super();
+    }
+
+    /** Register to naming service. 
+     */
+    public static void registerToNaming(String name, Object obj) throws RemoteException, NamingException {
+        java.util.Properties props = System.getProperties();
+        props.setProperty("java.naming.factory.initial", "com.sun.jndi.cosnaming.CNCtxFactory");
+        props.setProperty("java.naming.provider.url", "iiop://localhost:900");
+        System.setProperties(props);
+
+        Context initialNamingContext = new InitialContext();
+        initialNamingContext.rebind(name, obj);
+    }
+    
+    /** Main method.
+     */
+    public static void main(String[] args) {
+        try {
+            __NAME__ obj = new __NAME__();
+            registerToNaming(__QUOTES____NAME____QUOTES__, obj);
+        } catch (RemoteException ex) {
+            ex.printStackTrace();
+        } catch (NamingException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+
+
+
+
