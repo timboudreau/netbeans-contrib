@@ -97,7 +97,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * Therefore when you have more than one filesystem mounted for the same project, you
      * do not need to re-enter the password for each filesystem.
      */
-    public static final String VAR_PASSWORD_SHARE = "PASSWORD_SHARE_WHEN_CONFIG_IS_SAME"; // NOI18N
+    public static final String VAR_PASSWORD_SHARE = "SHARE_PASSWORD_WHEN_CONFIG_IS_SAME"; // NOI18N
     
     /**
      * This command is executed to get the initial ignore list.
@@ -752,6 +752,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setLocalFileFilterFromVars();
         setDocumentCleanupFromVars();
         setAdditionalParamsLabels();
+        setSharedPassword();
+    }
+    
+    private void setSharedPassword() {
         Object newSharedPasswordKey = computeSharedPasswordKey();
         if (sharedPasswordKey != null) {
             if (newSharedPasswordKey != null) {
@@ -780,13 +784,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             String configVars = var.getValue();
             if (configVars != null) {
                 String[] vars = VcsUtilities.getQuotedStrings(configVars);
-                String[] values = new String[vars.length];
+                ArrayList values = new ArrayList(vars.length);
                 for (int i = 0; i < vars.length; i++) {
                     var = (VcsConfigVariable) variablesByName.get(vars[i]);
                     if (var != null) {
-                        values[i] = var.getValue();
+                        values.add(var.getValue());
                     } else {
-                        values[i] = null;
+                        values.add(null);
                     }
                 }
                 return values;
