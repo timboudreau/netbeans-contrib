@@ -66,4 +66,16 @@
     nbproject/build-impl.xml file. 
 
     -->
+    
+    <target name="clean" depends="init,deps-clean" description="Clean build products.">
+      <delete dir="build" />
+      <delete dir="dist/javadoc" />
+      <delete >
+        <fileset dir="dist" >
+          <include name="**/*.jar" />
+          <exclude name="CVS/*" /> 
+        </fileset>
+      </delete>
+    </target>
+    
 </project>
