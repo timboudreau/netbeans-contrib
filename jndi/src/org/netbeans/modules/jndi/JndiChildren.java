@@ -87,6 +87,9 @@ final class JndiChildren extends Children.Keys {
    *  @return the array of created Nodes
    */
   public Node[] createNodes(Object key) {
+    NameClassPair np = null;
+    String objName = null;
+    CompositeName newName = null;
     try {
       if (key == null) {
         return null;
@@ -95,9 +98,9 @@ final class JndiChildren extends Children.Keys {
         return null;
       }
 
-      NameClassPair np = (NameClassPair) key;
-      String objName = np.getName();
-      CompositeName newName = (CompositeName) ((CompositeName) offset.clone()).add(objName);
+      np = (NameClassPair) key;
+      objName = np.getName();
+      newName = (CompositeName) ((CompositeName) offset.clone()).add(objName);
       
       if (isContext(np.getClassName())) {
         return new Node[] {new JndiNode(parentContext, newName, objName)};
@@ -105,7 +108,9 @@ final class JndiChildren extends Children.Keys {
         return new Node[] {new JndiLeafNode(parentContext, newName, objName, np.getClassName())};
       }
     } catch (NamingException ne) {
-      return new Node[0];
+      try{
+        return new Node[] {new JndiFailedNode(parentContext, newName, objName, np.getClassName())};
+      }catch(NamingException ne2) {return new Node[0];}
     }
   }
 
@@ -163,6 +168,7 @@ final class JndiChildren extends Children.Keys {
 
 /*
  * <<Log>>
+ *  8    Gandalf   1.7         11/5/99  Tomas Zezula    
  *  7    Gandalf   1.6         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  6    Gandalf   1.5         7/9/99   Ales Novak      localization + code 

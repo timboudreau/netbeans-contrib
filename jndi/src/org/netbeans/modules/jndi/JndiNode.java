@@ -17,6 +17,7 @@ import java.util.Vector;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.io.IOException;
+import java.awt.datatransfer.*;
 import javax.naming.NamingException;
 import javax.naming.CompositeName;
 import javax.naming.directory.DirContext;
@@ -30,6 +31,7 @@ import org.openide.actions.ToolsAction;
 import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
+import org.openide.util.datatransfer.ExClipboard;
 
 
 /** This class represents JNDI subdirectory 
@@ -62,6 +64,7 @@ final class JndiNode extends JndiObjectNode {
     super (new JndiChildren(ctx, parentName), myName);
     isRoot = false;
     setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName("javax.naming.Context"));
+    getCookieSet().add(this);
   }
 
   public boolean isRoot() {
@@ -72,7 +75,7 @@ final class JndiNode extends JndiObjectNode {
    *  @return String java source code
    */ 
   public String createTemplate() throws NamingException {
-    return JndiObjectCreator.getCode(((JndiChildren)this.getChildren()).getContext(),((JndiChildren)this.getChildren()).getOffset(), this.getClassName());
+    return JndiObjectCreator.getLookupCode(((JndiChildren)this.getChildren()).getContext(),((JndiChildren)this.getChildren()).getOffset(), this.getClassName());
   }  
   
   /** Returns NewTypes for this node
@@ -92,7 +95,6 @@ final class JndiNode extends JndiObjectNode {
   * @exception IOException
   */
   public void destroy() throws IOException {
-
     if (isRoot()) {
       super.destroy();
       return;
@@ -102,8 +104,7 @@ final class JndiNode extends JndiObjectNode {
         JndiChildren children = (JndiChildren) getChildren();
         DirContext parentCtx = children.getContext();
         parentCtx.destroySubcontext(children.getOffset());
-        // destroy node
-        setRemoved();
+        // Destroy the node
         super.destroy();
       } catch (NamingException e) {
         JndiRootNode.notifyForeignException(e);
@@ -116,7 +117,8 @@ final class JndiNode extends JndiObjectNode {
    */
   public SystemAction[] createActions() {
     return new SystemAction[] {
-      SystemAction.get(CopyAction.class),
+      SystemAction.get(LookupCopyAction.class),
+      SystemAction.get(BindingCopyAction.class),
       null,
       SystemAction.get(NewAction.class),
       null,
@@ -130,11 +132,24 @@ final class JndiNode extends JndiObjectNode {
   
   /** Refreshes this node. 
    */
-  public void refresh() {
+  public final void refresh() {
     try {
       ((JndiChildren) getChildren()).prepareKeys();
     } catch (NamingException e) {
       JndiRootNode.notifyForeignException(e);
+    }
+  }
+  
+  /** Copy the binding code*/
+  public final void bindingCopy () {
+    try{
+      ExClipboard clipboard = TopManager.getDefault().getClipboard();
+      StringSelection code = new StringSelection(JndiObjectCreator.generateBindingCode(((JndiChildren)this.getChildren()).getContext(),((JndiChildren)this.getChildren()).getOffset(), this.getClassName()));
+      clipboard.setContents(code,code);
+      JndiRootNode.showLocalizedStatus("STS_CopyBindingCode");
+    }catch (NamingException ne){
+      JndiRootNode.notifyForeignException(ne);
+      return;
     }
   }
  
@@ -167,23 +182,3 @@ final class JndiNode extends JndiObjectNode {
     return "javax.naming.Context";
   }
 }
-
-/*
- * <<Log>>
- *  9    Gandalf   1.8         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  8    Gandalf   1.7         10/7/99  Tomas Zezula    
- *  7    Gandalf   1.6         7/9/99   Ales Novak      localization + code 
- *       requirements followed
- *  6    Gandalf   1.5         6/18/99  Ales Novak      redesigned + delete 
- *       action
- *  5    Gandalf   1.4         6/9/99   Ales Novak      refresh action + 
- *       destroying subcontexts
- *  4    Gandalf   1.3         6/9/99   Ian Formanek    ToolsAction
- *  3    Gandalf   1.2         6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  2    Gandalf   1.1         6/8/99   Ales Novak      sources beautified + 
- *       subcontext creation
- *  1    Gandalf   1.0         6/4/99   Ales Novak      
- * $
- */

@@ -64,15 +64,3 @@ public final class RefreshAction extends org.openide.util.actions.NodeAction {
     return HelpCtx.DEFAULT_HELP;
   }
 }
-
-/*
- * <<Log>>
- *  4    Gandalf   1.3         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  3    Gandalf   1.2         8/7/99   Ian Formanek    getString->getLocalizedString
- *        to avoid compiler warnings
- *  2    Gandalf   1.1         7/9/99   Ales Novak      localization + code 
- *       requirements followed
- *  1    Gandalf   1.0         6/9/99   Ales Novak      
- * $
- */

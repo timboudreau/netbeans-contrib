@@ -23,6 +23,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.StringTokenizer;
 import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 import org.openide.TopManager;
 import org.openide.DialogDescriptor;
@@ -33,25 +35,27 @@ import org.openide.NotifyDescriptor;
  * @author  tzezula
  * @version 
  */
-abstract public class AbstractNewPanel extends GridBagPanel implements ActionListener{
+abstract public class AbstractNewPanel extends JPanel implements ActionListener, ListSelectionListener{
   
 
   JList list;
   JTextField context;
   JTextField authentification;
+  JTextField root;
   JTextField principal;
   JTextField credentials;
-  JPopupMenu menu;
   SimpleListModel properties;
   NewPropertyPanel panel;
   Dialog dlg=null;
+  JButton removeButton;
+  JButton changeButton;
+  JButton addButton;
   
   
 
   /** Creates new AbstractNewPanel */
   public AbstractNewPanel() {
     createGUI();
-    createMenu();
   }
   
     
@@ -61,7 +65,13 @@ abstract public class AbstractNewPanel extends GridBagPanel implements ActionLis
   public String getContext() {
     return context.getText();
   }
-
+  
+  /** Accesor for Root
+   *  @return String root
+   */
+  public String getRoot() {
+    return this.root.getText();
+  }
 
   /** Accessor for Autentification
    *  @return String autentification
@@ -131,6 +141,8 @@ abstract public class AbstractNewPanel extends GridBagPanel implements ActionLis
         return;
       }
       AbstractNewPanel.this.properties.removeElementAt(index);
+      this.removeButton.setEnabled(false);
+      this.changeButton.setEnabled(false);
     } else if (event.getActionCommand().equals("CHANGE")) {
       panel = new NewPropertyPanel();
       int index = list.getSelectedIndex();
@@ -157,6 +169,8 @@ abstract public class AbstractNewPanel extends GridBagPanel implements ActionLis
               properties.removeElementAt(list.getSelectedIndex());
               String pr = panel.getName() + "=" + panel.getValue();
               properties.addElement(pr);
+              AbstractNewPanel.this.removeButton.setEnabled(false);
+              AbstractNewPanel.this.changeButton.setEnabled(false);
               dlg.setVisible(false);
               dlg.dispose();
             } else if (event.getSource() == DialogDescriptor.CANCEL_OPTION) {
@@ -179,58 +193,92 @@ abstract public class AbstractNewPanel extends GridBagPanel implements ActionLis
   /** Creates modified part of GUI
    *  The subclasses differs in this part of gui
    */
-  abstract short createSubGUI();
-  
+  abstract javax.swing.JPanel createSubGUI();
   
   /** Creates GUI of Panel
    *  @param int mode for which the dialog is opening
    */
   final void createGUI(){
-    int height = createSubGUI();
-    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_OtherProps")),5,1,2,1,0,0,0,0);
+    this.setLayout ( new GridBagLayout());
+    JPanel p = createSubGUI();
+    GridBagConstraints gridBagConstraints = new GridBagConstraints ();
+    gridBagConstraints.gridwidth = 0;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+    add (p, gridBagConstraints);
+    gridBagConstraints = new java.awt.GridBagConstraints ();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
+    add (new JLabel(JndiRootNode.getLocalizedString("TXT_OtherProps")), gridBagConstraints);      
     this.properties = new SimpleListModel();
     this.list = new JList();
+    this.list.addListSelectionListener(this);
     this.list.setModel(this.properties);
-    this.list.setVisibleRowCount(height);
-    this.list.setPrototypeCellValue("123456789012345678901234567890");
-    this.add(new JScrollPane(list),5,2,2,7);
+    this.list.setVisibleRowCount(8);
+    this.list.setPrototypeCellValue("123456789012345678901234567890123456");
+    gridBagConstraints = new java.awt.GridBagConstraints ();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.gridheight = 2;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+    gridBagConstraints.insets = new java.awt.Insets (8, 8, 8, 0);
+    gridBagConstraints.weightx = 1.0;
+    gridBagConstraints.weighty = 0.5;
+    add (new JScrollPane(this.list), gridBagConstraints);
+    p = new javax.swing.JPanel();
+    p.setLayout(new GridBagLayout());
+    this.addButton = new JButton(JndiRootNode.getLocalizedString("TXT_Add"));
+    this.addButton.setActionCommand("ADD");
+    this.addButton.addActionListener(this);
+    gridBagConstraints = new java.awt.GridBagConstraints ();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 0;
+    gridBagConstraints.insets = new java.awt.Insets (0, 0, 8, 0);
+    gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+    p.add (this.addButton, gridBagConstraints);
+    this.changeButton = new JButton(JndiRootNode.getLocalizedString("TXT_Change"));
+    this.changeButton.setEnabled(false);
+    this.changeButton.setActionCommand("CHANGE");
+    this.changeButton.addActionListener(this);
+    gridBagConstraints = new java.awt.GridBagConstraints ();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.insets = new java.awt.Insets (0, 0, 8, 0);
+    gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+    p.add (this.changeButton, gridBagConstraints);
+    this.removeButton = new JButton(JndiRootNode.getLocalizedString("TXT_Rem"));
+    this.removeButton.setEnabled(false);
+    this.removeButton.setActionCommand("DEL");
+    this.removeButton.addActionListener(this);
+    gridBagConstraints = new java.awt.GridBagConstraints ();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+    p.add (removeButton, gridBagConstraints);
+    gridBagConstraints = new java.awt.GridBagConstraints ();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+    gridBagConstraints.insets = new java.awt.Insets (8, 8, 8, 8);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
+    add (p, gridBagConstraints);
   }
   
-  /** Creates Menu of Panels components
-   *
-   */
-  final void createMenu(){
-    menu = new JPopupMenu();
-    JMenuItem item = new JMenuItem(JndiRootNode.getLocalizedString("TXT_Add"));
-    item.setActionCommand("ADD");
-    item.addActionListener (this);				
-    menu.add(item);
-    item= new JMenuItem(JndiRootNode.getLocalizedString("TXT_Rem"));
-    item.setActionCommand("DEL");
-    item.addActionListener(this);
-    menu.add(item);
-    item = new JMenuItem(JndiRootNode.getLocalizedString("TXT_Change"));
-    item.setActionCommand("CHANGE");
-    item.addActionListener(this);
-    menu.add(item);
-    list.add(menu);
-    list.addMouseListener(new MouseAdapter() {
-      public void mousePressed(MouseEvent event) {
-        if ((event.getModifiers() & (InputEvent.BUTTON2_MASK | InputEvent.BUTTON3_MASK)) != 0) {
-                 AbstractNewPanel.this.menu.show(AbstractNewPanel.this.list,event.getX(),event.getY());
-        }
+  
+  public void valueChanged ( ListSelectionEvent event){
+    if (event.getSource() == this.list){
+      if (this.list.getSelectedIndex()==-1){
+        this.removeButton.setEnabled(false);
+        this.changeButton.setEnabled(false);
       }
-    });
+      else{
+        this.removeButton.setEnabled(true);
+        this.changeButton.setEnabled(true);
+      }
   }
   
-  
-  
-  
+ 
+  }
 }
-/*
- * <<Log>>
- *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  1    Gandalf   1.0         10/6/99  Tomas Zezula    
- * $
- */

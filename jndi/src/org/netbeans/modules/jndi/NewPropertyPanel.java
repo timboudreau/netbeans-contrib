@@ -30,10 +30,10 @@ final class NewPropertyPanel extends GridBagPanel {
   public NewPropertyPanel() {
     name = new JTextField(20);
     value= new JTextField(20);
-    add(new JLabel("Property Name:"),1,1,2,1);
-    add(this.name,1,2,2,1);
-    add(new JLabel("Property Value:"),1,3,2,1);
-    add(this.value,1,4,2,1);
+    add(new JLabel("Property Name:"),1,1,1,1,8,8,8,8);
+    add(this.name,2,1,2,1,8,0,8,8);
+    add(new JLabel("Property Value:"),1,2,1,1,0,8,8,8);
+    add(this.value,2,2,2,1,0,0,8,8);
   }
 
   /** Accessor for name of property
@@ -64,17 +64,3 @@ final class NewPropertyPanel extends GridBagPanel {
     this.value.setText(value);
   }
 }
-
-/*
- * <<Log>>
- *  5    Gandalf   1.4         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  4    Gandalf   1.3         7/9/99   Ales Novak      localization + code 
- *       requirements followed
- *  3    Gandalf   1.2         6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  2    Gandalf   1.1         6/8/99   Ales Novak      sources beautified + 
- *       subcontext creation
- *  1    Gandalf   1.0         6/4/99   Ales Novak      
- * $
- */

@@ -19,6 +19,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.StringSelection;
 import java.util.Enumeration;
 import java.io.IOException;
+import java.awt.datatransfer.*;
 import javax.naming.directory.DirContext;
 import org.openide.TopManager;
 import org.openide.nodes.Children;
@@ -29,6 +30,7 @@ import org.openide.nodes.NodeAdapter;
 import org.openide.nodes.NodeMemberEvent;
 import org.openide.nodes.Sheet;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.datatransfer.ExClipboard;
 
 /** Common base class for JndiNode and JndiLeafNode.
 * The class provides copy (source generating)/delete actions.
@@ -37,12 +39,6 @@ import org.openide.util.actions.SystemAction;
 */
 abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, TemplateCreator {   
 
-  
-  /** Set to true only if this node is being destroyed.
-  * If a node with removed set to true is removed then its parent calls refresh.
-  */
-  private boolean removed = false;
-
   /**
   * @param children
   * @param name
@@ -50,14 +46,11 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
   public JndiObjectNode(Children children, String name) {
     super (children,name);
     getCookieSet().add(this);
-    if (! children.equals(Children.LEAF)) {
-      addNodeListener(new Refresher());
-    }
   }
   
   /** @return true */
   public final boolean canCopy() {
-      return true;
+      return false;
   }
 
   /** @return @link isRoot */
@@ -127,44 +120,39 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
   public abstract String getClassName();
   
   /** Inserts generated text into the clipboard */
-  public final Transferable clipboardCopy() throws IOException {
+  public final void lookupCopy() {
     try {
-      return new StringSelection(createTemplate());
+      ExClipboard clipboard = TopManager.getDefault().getClipboard();
+      StringSelection code = new StringSelection(createTemplate());
+      clipboard.setContents(code,code);
+      JndiRootNode.showLocalizedStatus("STS_CopyLookupCode");
     } catch (NamingException ne) {
-      TopManager.getDefault().notifyException(ne);
-      return null;
+      JndiRootNode.notifyForeignException(ne);
     }
   }
   
-  /** Marks this node as destroyed. */
-  public final void setRemoved() {
-    removed = true;
+  
+  /** Uniform destroy for Nodes in Childer.Array and Children.Kyes
+   *  @exception IOException
+   */
+  public void destroy () throws IOException {
+    super.destroy();
+    Node node = this.getParentNode();
+    if (node instanceof JndiNode){
+      // Children Kyes is used, refresh it
+      ((JndiNode)node).refresh();
+    }
   }
   
   /** Does nothing. */
   public void refresh() {
     throw new UnsupportedOperationException();
   }
-  
-  /** Listens for changes of its subnodes. Calls refresh then. */
-  class Refresher extends NodeAdapter {
-    public void childrenRemoved(NodeMemberEvent ev) {
-      Node[] delta = ev.getDelta();
-      
-      for (int i = 0; i < delta.length; i++) {
-        JndiObjectNode child = (JndiObjectNode) delta[i].getCookie(JndiObjectNode.class);
-        if (child != null) {
-          if (child.removed) {
-            refresh();
-          }
-        }
-      }
-    }
-  }
 }
 
 /*
 * <<Log>>
+*  6    Gandalf   1.5         11/5/99  Tomas Zezula    
 *  5    Gandalf   1.4         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment
 *  4    Gandalf   1.3         10/6/99  Tomas Zezula    

@@ -35,6 +35,7 @@ public class ProviderNode extends AbstractNode implements Cookie{
 
   /** Name used for JndiIcons*/
   public static final String DRIVER = "DRIVER";
+  public static final String DISABLED_DRIVER="DEADDRIVER";
   
   /** key in Hashtable of providers, for which this node is inserted*/
   private String name;
@@ -53,7 +54,12 @@ public class ProviderNode extends AbstractNode implements Cookie{
     if (index < 0) label = name;
     else label = name.substring (index+1);
     this.setName (label);
-    this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DRIVER));
+    try{
+      Class.forName(name);
+      this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DRIVER));
+    }catch (ClassNotFoundException cnf){
+      this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DISABLED_DRIVER));
+    }
   }
   
   
@@ -138,6 +144,8 @@ public class ProviderNode extends AbstractNode implements Cookie{
       set.put (property);
       property = new ProviderProperty (Context.PROVIDER_URL,String.class,JndiRootNode.getLocalizedString("TXT_InitialContext"),JndiRootNode.getLocalizedString("TIP_InitialContext"),properties,true);
       set.put (property);
+      property = new ProviderProperty (JndiRootNode.NB_ROOT,String.class,JndiRootNode.getLocalizedString("TXT_Root"),JndiRootNode.getLocalizedString("TIP_Root"),properties,true);
+      set.put (property);
       property = new ProviderProperty (Context.SECURITY_AUTHENTICATION,String.class,JndiRootNode.getLocalizedString("TXT_Auth"),JndiRootNode.getLocalizedString("TIP_Auth"),properties,true);
       set.put (property);
       property = new ProviderProperty (Context.SECURITY_PRINCIPAL,String.class,JndiRootNode.getLocalizedString("TXT_Principal"),JndiRootNode.getLocalizedString("TIP_Principal"),properties,true);
@@ -170,10 +178,3 @@ public class ProviderNode extends AbstractNode implements Cookie{
   }
   
 }
-/*
- * <<Log>>
- *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  1    Gandalf   1.0         10/6/99  Tomas Zezula    
- * $
- */

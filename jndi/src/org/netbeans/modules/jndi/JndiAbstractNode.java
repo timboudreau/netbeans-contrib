@@ -25,7 +25,7 @@ import org.openide.util.actions.SystemAction;
  *  disabled node it defines an abstract method getInitialContextProperties
  *  which is required for externalizing the node 
  */
-abstract class JndiAbstractNode extends AbstractNode {
+public abstract class JndiAbstractNode extends AbstractNode {
 
     /** My actions */
   private SystemAction[] jndiactions;
@@ -56,10 +56,3 @@ abstract class JndiAbstractNode extends AbstractNode {
   public abstract Hashtable getInitialDirContextProperties() throws NamingException;
   
 }
-/*
- * <<Log>>
- *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  1    Gandalf   1.0         10/6/99  Tomas Zezula    
- * $
- */

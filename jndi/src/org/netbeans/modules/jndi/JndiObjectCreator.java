@@ -46,8 +46,36 @@ final class JndiObjectCreator {
    *  @return String generated java source code
    *  @exception NamingException on Jndi Error
    */
-  static String getCode(Context ctx, CompositeName offset, String className) throws NamingException {
-
+  static String getLookupCode(Context ctx, CompositeName offset, String className) throws NamingException {
+    String code = generateProperties(ctx);
+    code = code + generateObjectReference(offset, className);
+    code = code + generateTail();
+    return code;
+  }
+  
+  /** Creates binding code
+   *  @param Context root context
+   *  @param ComposteName offset offset of context in which the object should be bind
+   *  @param String className name of class for narrowing
+   *  @return String generated code
+   *  @exception NamingException
+   */
+  public static String generateBindingCode (Context ctx, CompositeName offset, String className) throws NamingException {
+    String code = generateProperties(ctx);
+    code = code + generateObjectReference(offset, className);
+    code+= "  jndiObject.bind(<Name>,<Object>);\n";
+    code = code + generateTail();
+    return code;
+  }
+  
+  
+  /** Creates an code for setting environment
+   *  @param Context root context
+   *  @return String code
+   *  @exception NamingException
+   */
+  private static String generateProperties (Context ctx) throws NamingException{
+    
     Hashtable env = ctx.getEnvironment();
     if (env == null) {
       return null;
@@ -65,24 +93,25 @@ final class JndiObjectCreator {
       }
       code = code + "jndiProperties.put(\"" + name + "\",\"" + value + "\");\n";
     }
-    code = code + "try {\n  javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);\n";
-    code = code + "  "+className+" jndiObject = ("+className+")jndiCtx.lookup(\"" + offset.toString() + "\");\n";
-    code= code + "} catch (javax.naming.NamingException ne) {\n  ne.printStackTrace();\n}\n";
     return code;
   }
+  
+  /** Creates code for getting instance of object
+   *  @param CompositeName offset of object
+   *  @param String className, name of class
+   *  @return String code
+   */
+  private static String generateObjectReference(CompositeName offset, String className){
+    String code = new String();
+    code = code + "try {\n  javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);\n";
+    code = code + "  "+className+" jndiObject = ("+className+")jndiCtx.lookup(\"" + offset.toString() + "\");\n";
+    return code;
+  }
+  
+  /** Generates an tail code
+   *  @return String code
+   */
+  private static String generateTail(){
+    return "} catch (javax.naming.NamingException ne) {\n  ne.printStackTrace();\n}\n";
+  }
 }
-
-/*
- * <<Log>>
- *  6    Gandalf   1.5         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  5    Gandalf   1.4         7/9/99   Ales Novak      localization + code 
- *       requirements followed
- *  4    Gandalf   1.3         6/10/99  Ales Novak      beautified code
- *  3    Gandalf   1.2         6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  2    Gandalf   1.1         6/8/99   Ales Novak      sources beautified + 
- *       subcontext creation
- *  1    Gandalf   1.0         6/4/99   Ales Novak      
- * $
- */

@@ -42,6 +42,7 @@ public class ProviderProperties extends Object {
   private String credentials;
   private String authentification;
   private String principal;
+  private String root;
   
   /** Creates new ProviderProperties */
   public ProviderProperties () {
@@ -52,6 +53,7 @@ public class ProviderProperties extends Object {
     this.credentials="";
     this.authentification="";
     this.principal="";
+    this.root="";
   }
   
   
@@ -118,6 +120,14 @@ public class ProviderProperties extends Object {
     firePropertyChange ("additional",null,this.additional);
   }
   
+  /** Mutator for root
+   *  @param String root
+   */
+  public final void setRoot (String root) {
+    this.root = root;
+    firePropertyChange("root",null,this.root);
+  }
+  
   /** Accessor for factory
    *  @return String factory
    */
@@ -167,6 +177,13 @@ public class ProviderProperties extends Object {
     return (Vector) this.additional.clone();
   }
   
+  /** Returns an root of context
+   *  @return String root
+   */
+  public final String getRoot() {
+    return this.root;
+  }
+  
   /** Returns an string representing property according to name of property
    *  @param String key name of property
    *  @return Object value
@@ -182,6 +199,8 @@ public class ProviderProperties extends Object {
       return this.getPrincipal();
     else if (key.equals(Context.SECURITY_CREDENTIALS))
       return this.getCredentials();
+    else if (key.equals(JndiRootNode.NB_ROOT))
+      return this.getRoot();
     else if (key.equals(ProviderProperties.ADDITIONAL)) {
       if (this.additional != null) {
         StringBuffer buf = new StringBuffer();
@@ -213,6 +232,8 @@ public class ProviderProperties extends Object {
       this.setPrincipal((String) value);
     else if (key.equals(Context.SECURITY_CREDENTIALS))
       this.setCredentials((String) value);
+    else if (key.equals(JndiRootNode.NB_ROOT))
+      this.setRoot((String)value);
     else if (key.equals(ProviderProperties.ADDITIONAL)){
       parseAdditional((String) value);
       this.firePropertyChange(ADDITIONAL,null,this.additional);
@@ -248,6 +269,9 @@ public class ProviderProperties extends Object {
       else if (key.equals(Context.SECURITY_CREDENTIALS)){
         this.credentials = value;
       }
+      else if (key.equals(JndiRootNode.NB_ROOT)){
+        this.root = value;
+      }
       else{
         this.additional.addElement(key+"="+value);
       }
@@ -267,6 +291,7 @@ public class ProviderProperties extends Object {
     out.println(Context.SECURITY_AUTHENTICATION+"="+this.authentification);
     out.println(Context.SECURITY_PRINCIPAL+"="+this.principal);
     out.println(Context.SECURITY_CREDENTIALS+"="+this.credentials);
+    out.println(JndiRootNode.NB_ROOT+"="+this.root);
     for (int i= 0; i< this.additional.size();i++) {
       out.println((String)this.additional.elementAt(i));
     }
@@ -307,10 +332,3 @@ public class ProviderProperties extends Object {
   }
   
 }
-/*
- * <<Log>>
- *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  1    Gandalf   1.0         10/6/99  Tomas Zezula    
- * $
- */

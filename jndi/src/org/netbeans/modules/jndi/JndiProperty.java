@@ -51,6 +51,7 @@ public final class JndiProperty extends PropertySupport.ReadOnly{
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         11/5/99  Tomas Zezula    
  *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  1    Gandalf   1.0         7/9/99   Ales Novak      

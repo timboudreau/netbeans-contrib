@@ -61,9 +61,6 @@ public final class JndiRootNode extends AbstractNode{
   
   /** The holder of an instance of this class*/
   private static JndiRootNode instance = null;
-  
-  /** Was the class already setup from externalization */
-  private boolean initialized;
 
   
   /** Constructor
@@ -71,13 +68,11 @@ public final class JndiRootNode extends AbstractNode{
   public JndiRootNode() {
     super(new Children.Array());
     instance = this;
-    this.initialized =false;
     setName("JNDI");
     setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiRootNode.NB_ROOT));
     JndiProvidersNode drivers = new JndiProvidersNode();
     this.getChildren().add(new Node[] {drivers});
     this.jndinewtypes= new NewType[]{ new JndiDataType(this,drivers)};
-    initStartContexts();
   }
   
   
@@ -191,7 +186,7 @@ public final class JndiRootNode extends AbstractNode{
    *  @param credentials credentials for naming system
    *  @param prop vector type java.lang.String, additional properties in form key=value
    */
-  public void addContext(String label, String factory, String context, String authentification, String principal, String credentials, Vector prop)
+  public void addContext(String label, String factory, String context, String root, String authentification, String principal, String credentials, Vector prop)
     throws NamingException {
       if (label==null || factory==null || label.equals("") || factory.equals("")) throw new JndiException("Arguments missing");
       Properties env = new Properties();
@@ -209,6 +204,9 @@ public final class JndiRootNode extends AbstractNode{
       }
       if (credentials != null && !credentials.equals("")) {
         env.put(Context.SECURITY_CREDENTIALS,credentials);
+      }
+      if (root != null && !root.equals("")) {
+        env.put(NB_ROOT,root);
       }
       for (int i = 0; i < prop.size(); i++) {
         StringTokenizer tk = new StringTokenizer(((String)prop.elementAt(i)),"=");
@@ -280,16 +278,15 @@ public final class JndiRootNode extends AbstractNode{
   
   /** Set up initial start contexts
   */
-  protected synchronized void initStartContexts() {
-    if (JndiModule.redProviders != null && ! this.initialized ) {
-      for (int i = 0; i < JndiModule.redProviders.size(); i++) {
+  public synchronized void initStartContexts(java.util.ArrayList nodes) {
+    if (nodes!=null){
+      for (int i = 0; i < nodes.size(); i++) {
         try{
-          this.addContext((Hashtable)JndiModule.redProviders.get(i));
+          this.addContext((Hashtable)nodes.get(i));
         }catch(NamingException ne){
-          this.addDisabledContext((Hashtable)JndiModule.redProviders.get(i));
+          this.addDisabledContext((Hashtable)nodes.get(i));
         }
       }
-      this.initialized = true;
     }
   }
   
@@ -319,33 +316,26 @@ public final class JndiRootNode extends AbstractNode{
   /** Bundle with localizations. */
   private static ResourceBundle bundle;
   /** @return a localized string */
-  static String getLocalizedString(String s) {
+  public static String getLocalizedString(String s) {
     if (bundle == null) {
       bundle = NbBundle.getBundle(JndiRootNode.class);
     }
     return bundle.getString(s);
   }
   
+  /** Shows an status
+   *  @param String message
+   */
+  public static void showStatus (String message) {
+     TopManager.getDefault().setStatusText(message);
+  }
+  
+  /** shows an localized status
+   *  @param String message
+   */
+  public static void showLocalizedStatus (String message) {
+      showStatus(getLocalizedString(message));
+  }
+  
   
 }
-
-/*
- * <<Log>>
- *  10   Gandalf   1.9         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  9    Gandalf   1.8         10/6/99  Tomas Zezula    
- *  8    Gandalf   1.7         8/7/99   Ian Formanek    getString->getLocalizedString
- *        to avoid compiler warnings
- *  7    Gandalf   1.6         7/9/99   Ales Novak      localization + code 
- *       requirements followed
- *  6    Gandalf   1.5         6/10/99  Ales Novak      GemStone support
- *  5    Gandalf   1.4         6/9/99   Ales Novak      refresh action + 
- *       destroying subcontexts
- *  4    Gandalf   1.3         6/9/99   Ian Formanek    ToolsAction
- *  3    Gandalf   1.2         6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  2    Gandalf   1.1         6/8/99   Ales Novak      sources beautified + 
- *       subcontext creation
- *  1    Gandalf   1.0         6/4/99   Ales Novak      
- * $
- */

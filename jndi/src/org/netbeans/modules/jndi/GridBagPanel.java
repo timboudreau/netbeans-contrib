@@ -42,17 +42,38 @@ class GridBagPanel extends JPanel {
    *  @param bottom the bottom inset
    *  @param right the right inset
    */
-  protected void add (Component component, int x, int y, int width, int height, int top, int left, int bottom, int right) {
+  protected void add (Component component, int x, int y, int width, int height,int fill, int anchor,int ipadx, int ipady, double weightx, double weighty, int top, int left, int bottom, int right) {
     GridBagConstraints c = new GridBagConstraints();
-    c.gridx=x;
-    c.gridy=y;
-    c.gridwidth=width;
-    c.gridheight=height;
-    c.fill=GridBagConstraints.BOTH;
-    c.anchor=GridBagConstraints.NORTHWEST;
+    c.gridx = x;
+    c.gridy = y;
+    c.gridwidth = width;
+    c.gridheight = height;
+    c.fill = fill;
+    c.anchor = anchor;
+    c.anchor = anchor;
+    c.weightx = weightx;
+    c.weighty = weighty;
+    c.ipadx=ipadx;
+    c.ipady=ipady;
     c.insets = new Insets(top,left,bottom,right);
     ((GridBagLayout)this.getLayout()).setConstraints(component,c);
     this.add(component);
+  }
+  
+  protected void add (Component component, int x, int y, int width, int height,int fill, int anchor,double weightx, double weighty, int top, int left, int bottom, int right){
+    add (component, x, y, width, height, fill, anchor, 0, 0,weightx, weighty, top, left, bottom, right);
+  }
+  
+  protected void add (Component component, int x, int y, int width, int height,int fill, int anchor, int top, int left, int bottom, int right) {
+    add(component,x,y,width,height,fill,anchor,0,0,top,left,bottom,right);
+  }
+  
+  protected void add (Component component, int x, int y, int width, int height,int fill, int top, int left, int bottom, int right) {
+    add(component,x,y,width,height,fill,GridBagConstraints.NORTHWEST,0,0,top,left,bottom,right);
+  }
+  
+  protected void add (Component component, int x, int y, int width, int height,int top, int left, int bottom, int right) {
+    add(component,x,y,width,height,GridBagConstraints.BOTH,GridBagConstraints.NORTHWEST,0,0,top,left,bottom,right);
   }
   
   /** Adds component to panel
@@ -63,7 +84,7 @@ class GridBagPanel extends JPanel {
    *  @param height the height of the component
    */
   protected void add (Component component, int x, int y, int width, int height) {
-    add(component,x,y,width,height,0,0,0,0);
+    add(component,x,y,width,height,GridBagConstraints.BOTH,GridBagConstraints.NORTHWEST,0,0,0,0,0,0);
   }
 }
 
@@ -71,6 +92,7 @@ class GridBagPanel extends JPanel {
 
 /*
  * <<Log>>
+ *  7    Gandalf   1.6         11/5/99  Tomas Zezula    
  *  6    Gandalf   1.5         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  5    Gandalf   1.4         7/9/99   Ales Novak      localization + code 

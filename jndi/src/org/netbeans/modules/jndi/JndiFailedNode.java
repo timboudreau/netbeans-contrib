@@ -13,25 +13,20 @@
 
 package com.netbeans.enterprise.modules.jndi;
 
-import java.util.Hashtable;
-import java.util.ArrayList;
-import org.openide.modules.ModuleInstall;
-import org.openide.nodes.Node;
-import org.openide.nodes.Children;
-/*JNDI Module
+/** 
  *
- * @author Tomas Zezula
+ * @author  tzezula
+ * @version 
  */
-public final class JndiModule extends ModuleInstall {
-  
-  public void installed() {
-  }
+import javax.naming.directory.DirContext;
+import javax.naming.NamingException;
+import javax.naming.CompositeName;
 
-  public void uninstalled() {
-  }
+public class JndiFailedNode extends JndiLeafNode {
 
-  public void restored() {
+  /** Creates new JndiFailedNode */
+  public JndiFailedNode(DirContext ctx, CompositeName parentOffset, String name, String classname) throws NamingException{
+    super (ctx, parentOffset, name, classname);
+    this.setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiDisabledNode.DISABLED_CONTEXT_ICON));
   }
-
-  
 }
