@@ -1784,6 +1784,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
     
+    private void runDeleteCommand(VcsCommand cmd, String name) {
+        Table files = new Table();
+        files.put(name, findResource(name));
+        VcsCommandExecutor[] execs = VcsAction.doCommand(files, cmd, null, this);
+        for (int i = 0; i < execs.length; i++) {
+            commandsPool.waitToFinish(execs[i]);
+        }
+    }
+    
     protected boolean deleteFile(final File file, String name) throws IOException {
         if (!file.exists()) return true; // non existing file is successfully deleted
         if (!file.canWrite() || !file.canRead()) {
@@ -1796,8 +1805,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         boolean wasDir = file.isDirectory();
         if (wasDir) {
+            VcsCommand deleteDir = getCommand(VcsCommand.NAME_DELETE_DIR);
             // first of all delete whole content
-            File[] arr = file.listFiles(getLocalFileFilter());
+            File[] arr;
+            if (deleteDir != null) {
+                arr = file.listFiles(getLocalFileFilter());
+            } else {
+                arr = file.listFiles();
+            }
             if (arr != null) {
                 for (int i = 0; i < arr.length; i++) {
                     if (!deleteFile (arr[i], name + "/" + arr[i].getName())) {
@@ -1805,8 +1820,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     }
                 }
             }
+            if (deleteDir != null) {
+                runDeleteCommand(deleteDir, name);
+            }
+        } else {
+            VcsCommand deleteFile = getCommand(VcsCommand.NAME_DELETE_FILE);
+            if (deleteFile != null) {
+                runDeleteCommand(deleteFile, name);
+            }
         }
-        boolean success = file.delete();
+        boolean success = true;
+        if (file.exists()) {
+            success = file.delete();
+        }
         if (cache != null) cache.remove(name, wasDir);
         return success;
     }
