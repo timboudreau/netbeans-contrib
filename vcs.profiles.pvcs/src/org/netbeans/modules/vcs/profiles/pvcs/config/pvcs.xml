@@ -274,6 +274,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>6</value>
         </property>
+        <property name="needsHierarchicalOrder">
+          <value>true</value>
+        </property>
       </command>
       <separator />
       <command name="CHECKIN" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKIN)">
