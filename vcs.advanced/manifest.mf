@@ -10,8 +10,8 @@ OpenIDE-Module-Public-Packages: org.netbeans.modules.vcs.profiles.**,
 X-Comment: org.netbeans.modules.vcs.advanced exports Profile and CommandLineVcsFileSystem
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.37
 OpenIDE-Module-Module-Dependencies: 
-  org.netbeans.modules.vcscore/1 = promotionD,
-  org.netbeans.modules.diff/1 = promotionD,
+  org.netbeans.modules.vcscore/1 = promotionE,
+  org.netbeans.modules.diff/1 = promotionE,
   org.openide.io > 1.0,
   org.openide.loaders > 4.11,
   org.netbeans.modules.queries/1 > 1.3
