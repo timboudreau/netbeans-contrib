@@ -143,11 +143,6 @@ public class VcsMountFromTemplateAction extends NodeAction {
             
             // clears the name to default
             wizard.setTargetName(null);
-            
-            // if folder is selected then set it as target
-            //if (targetFolder != null) wizard.setTargetFolder(targetFolder);
-            //wizard.setTemplatesFolder(getVCSFolder());
-            //wizard.setTargetFolder(getTargetFolder());
 
             // instantiates
             wizard.instantiate ();
@@ -167,22 +162,6 @@ public class VcsMountFromTemplateAction extends NodeAction {
     */
     protected boolean enable (Node[] activatedNodes) {
         return true;
-        /*
-        if ((activatedNodes == null) || (activatedNodes.length != 1))
-            return false;
-
-        Cookie c = (Cookie)activatedNodes[0].getCookie (Cookie.class);
-        if (c != null) {
-            // if the current node provides its own wizard...
-            return c.getTemplateWizard () != null;
-        }
-        
-        DataFolder cookie = (DataFolder)activatedNodes[0].getCookie(DataFolder.class);
-        if (cookie != null && !cookie.getPrimaryFile ().isReadOnly ()) {
-            return true;
-        }
-        return false;
-         */
     }
 
     /* Human presentable name of the action. This should be
@@ -211,7 +190,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
     /* Creates presenter that invokes the associated presenter.
     */
     public JMenuItem getMenuPresenter() {
-        JMenuItem menu = new MountMenu (null, new TemplateActionListener (), false, false);
+        JMenuItem menu = new MountMenu (getTemplateRoot(), new TemplateActionListener (), false, false);
         Actions.connect (menu, this, false);
         //    menu.setName (getName ());
         return menu;
@@ -238,7 +217,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
     * templates.
     */
     public JMenuItem getPopupPresenter() {
-        JMenuItem menu = new MountMenu (null, new TemplateActionListener (), false, true);
+        JMenuItem menu = new MountMenu (getTemplateRoot(), new TemplateActionListener (), false, true);
         Actions.connect (menu, this, true);
         //    menu.setName (getName ());
         return menu;
@@ -248,9 +227,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
     * @return a node representing all possible templates
     */
     public static Node getTemplateRoot () {
-        RootChildren ch = new RootChildren ();
-        // create the root
-        return ch.getRootFolder().new FolderNode(ch);
+        return getWizard(null).getTemplatesFolder().getNodeDelegate();
     }
     
     /** Cookie that can be implemented by a node if it wishes to have a 
@@ -260,17 +237,6 @@ public class VcsMountFromTemplateAction extends NodeAction {
         /** Getter for the wizard that should be used for this cookie.
          */
         public TemplateWizard getTemplateWizard ();
-    }
-    
-    private static void setTWIterator(TemplateWizard wizard, DataObject dobj) {
-        /*
-        TemplateWizard.Iterator iterator = wizard.getIterator(dobj);
-        if (iterator == null) {
-            try {
-                wizard.setIterator(dobj, new VcsMountIterator());
-            } catch (java.io.IOException exc) {}
-        }
-         */
     }
     
     private class MountMenu extends MenuView.Menu {
@@ -317,19 +283,11 @@ public class VcsMountFromTemplateAction extends NodeAction {
             }
             return item;
         }
-
-        // this is the only place MenuView.Menu needs the node ready
-	// so lets prepare it on-time
-        public JPopupMenu getPopupMenu() {
-            if (node == null) node = getTemplateRoot();
-            return super.getPopupMenu();
-        }
     }
 
 
     /** Actions listener which instantiates the template */
-    private static class TemplateActionListener
-        implements NodeAcceptor, DataFilter {
+    private static class TemplateActionListener implements NodeAcceptor, DataFilter {
 
         static final long serialVersionUID = 4733270452576543255L;
         public boolean acceptNodes (Node[] nodes) {
@@ -370,197 +328,10 @@ public class VcsMountFromTemplateAction extends NodeAction {
             return obj.isTemplate () || obj instanceof DataFolder;
         }
     }
-    
-    /** Root template childen.
-     */
-    private static class RootChildren extends Children.Keys
-    implements NodeListener {
-        /** last wizard used with the root */
-        private TemplateWizard wizard;
-        /** Folder of templates */
-        private DataFolder rootFolder;
-        /** node to display templates for or null if current selection
-         * should be followed
-         */
-        private WeakReference current;
-        /** weak listener */
-        private NodeListener listener = WeakListener.node (this, null);
-        
-        /** Instance not connected to any node.
-         */
-        public RootChildren () {
-            TopComponent.Registry reg = WindowManager.getDefault().getRegistry ();
-            reg.addPropertyChangeListener (WeakListener.propertyChange (this, reg));
-            
-            updateWizard (getWizard (null));
-        }
-        
-        public DataFolder getRootFolder () {
-            if (rootFolder == null) {
-                // if rootFolder is null then initialize folder
-                doSetKeys ();
-            }
-            return rootFolder;
-        }
-
-        /** Creates nodes for nodes.
-         */
-        protected Node[] createNodes (Object key) {
-            Node n = (Node)key;
-            
-            DataObject obj = (DataObject)n.getCookie (DataObject.class);
-            if (obj != null) {
-                if (obj.isTemplate ()) {
-                    // on normal nodes stop recursion
-                    return new Node[] { new FilterNode (n, LEAF) };
-                }
-            
-                if (obj instanceof DataFolder) {
-                    // on folders use normal filtering
-                    return new Node[] { new FilterNode (n, new TemplateChildren (n)) };
-                }
-            }
-            
-            return null;
-        }
-        
-        /** Check whether the node has not been updated.
-         */
-        private void updateNode (Node n) {            
-            if (current != null && current.get () == n) {
-                return;
-            }
-            
-            if (current != null && current.get () != null) {
-                ((Node)current.get ()).removeNodeListener (listener);
-            }
-            
-            n.addNodeListener (listener);
-            current = new WeakReference (n);
-        }
-        
-        /** Check whether the wizard was not updated.
-         */
-        private void updateWizard (TemplateWizard w) {
-            if (wizard == w) {
-                return;
-            }
-            
-            if (wizard != null) {
-                Node n = wizard.getTemplatesFolder ().getNodeDelegate ();
-                n.removeNodeListener (listener);
-            }
-            
-            Node newNode = w.getTemplatesFolder ().getNodeDelegate ();
-            newNode.addNodeListener (listener);
-            wizard = w;
-            
-            updateKeys ();
-        }
-        
-        /** Updates the keys.
-         */
-        private void updateKeys () {
-            // updateKeys can be called while holding Children.MUTEX
-            //   --> replan getNodes(true) to a new thread
-            RequestProcessor.getDefault().post(new Runnable() {
-                public void run() {
-                    doSetKeys ();
-                }
-            });
-       }
-        
-        // don't call this while holding Children.MUTEX
-        private void doSetKeys () {
-            rootFolder = wizard.getTemplatesFolder ();
-            if (rootFolder.isValid()) {
-                DataObject[] dobjs = rootFolder.getChildren();
-                Node[] nodes = new Node[dobjs.length];
-                for (int i = 0; i < dobjs.length; i++) {
-                    nodes[i] = dobjs[i].getNodeDelegate();
-                }
-                setKeys (nodes);
-            } else {
-                setKeys(new Object[0]);
-            }
-        }
-        
-        /** Fired when the order of children is changed.
-         * @param ev event describing the change
-         */
-        public void childrenReordered(NodeReorderEvent ev) {
-            updateKeys ();
-        }        
-        
-        /** Fired when a set of children is removed.
-         * @param ev event describing the action
-         */
-        public void childrenRemoved(NodeMemberEvent ev) {
-            updateKeys ();
-        }
-        
-        /** Fired when a set of new children is added.
-         * @param ev event describing the action
-         */
-        public void childrenAdded(NodeMemberEvent ev) {
-            updateKeys ();
-        }
-        
-        /** Fired when the node is deleted.
-         * @param ev event describing the node
-         */
-        public void nodeDestroyed(NodeEvent ev) {
-        }
-
-        /** Listen on changes of cookies.
-         */
-        public void propertyChange(java.beans.PropertyChangeEvent ev) {
-            String pn = ev.getPropertyName ();
-            
-            if (current != null && ev.getSource () == current.get ()) {
-                // change in current node
-                if (Node.PROP_COOKIE.equals (pn)) {
-                    // check change in wizard
-                    updateWizard (getWizard ((Node)current.get ()));
-                }
-            } else {
-                // change in selected nodes
-                if (TopComponent.Registry.PROP_ACTIVATED_NODES.equals (pn)) {
-                    // change the selected node
-                    Node[] arr = WindowManager.getDefault().getRegistry ().getActivatedNodes ();
-                    if (arr.length == 1) {
-                        // only if the size is 1
-                        updateNode (arr[0]);
-                    }
-                }
-            }   
-        }
-        
-    }
-
-    /** Filter node children, that stops on data objects (does not go futher)
-    */
-    private static class TemplateChildren extends FilterNode.Children {
-        public TemplateChildren (Node or) {
-            super (or);
-        }
-
-        protected Node copyNode (Node n) {
-            DataFolder df = (DataFolder)n.getCookie (DataFolder.class);
-            if (df == null || df.isTemplate ()) {
-                // on normal nodes stop recursion
-                return new FilterNode (n, LEAF);
-            } else {
-                // on folders use normal filtering
-                return new FilterNode (n, new TemplateChildren (n));
-            }
-        }
-    }
 
     /** My special version of template wizard.
     */
-    private static final class TW extends TemplateWizard 
-    implements FileSystem.AtomicAction {
+    private static final class TW extends TemplateWizard implements FileSystem.AtomicAction {
 
         /** Calls iterator's instantiate. It is called when user selects
          * a option which is not CANCEL_OPTION or CLOSED_OPTION.
