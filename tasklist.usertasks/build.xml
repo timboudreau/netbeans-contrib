@@ -78,14 +78,11 @@ Microsystems, Inc. All Rights Reserved.
     </target>
  
     <target name="clean" depends="init">
+        <delete dir="build"/>
         <delete>
-            <fileset dir="build/classes">
-                <include name="**/*.class"/>
-            </fileset>
             <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
                <patternset refID="tasklist/usertasks.files"/>
             </fileset>
-            
         </delete>
         <delete file="manifest-subst.mf"/>
         <delete file="tasklist-usertasks.nbm"/>
