@@ -101,6 +101,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     public static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.modules.tasklist"); // NOI18N
 
+   private final boolean stats = System.getProperty("netbeans.tasklist.stats") != null;
+
     /** Construct a new SuggestionManager instance. */
     public SuggestionManagerImpl() {
     }
@@ -1595,6 +1597,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
          // XXX This introduces a synchronization problem...
          RequestProcessor.postRequest(new Runnable() {
                  public void run() {
+        long start = 0, end = 0, total = 0;
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
@@ -1603,9 +1606,20 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 if ((haveSaved && scanOnSave(provider))
                     || (haveEdited && scanOnEdit(provider))
                     || (haveShown && scanOnShow(provider))) {
+                    if (stats) {
+                        start = System.currentTimeMillis();
+                    }
                     provider.rescan(document, dataobject);
+                    if (stats) {
+                        end = System.currentTimeMillis();
+                        System.out.println("Scan time for provider " + provider.getClass().getName() + " = " + (end-start) + " ms");
+                        total += (end-start);
+                    }
                 }
             }
+        }
+        if (stats) {
+            System.out.println("TOTAL SCAN TIME = " + total + "\n");
         }
         haveSaved = false;
         haveEdited = false;
