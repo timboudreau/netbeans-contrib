@@ -35,7 +35,7 @@ import org.netbeans.test.oo.gui.jelly.vcscore.SearchVCSFilesystem;
  * @author Jiri Kovalsky
  * @version 1.0
  */
-public class Availability extends NbTestCase {
+public class Availability extends JellyTestCase {
     
     public static String VERSIONING_MENU = "Versioning";
     public static String MOUNT_MENU = VERSIONING_MENU + "|Mount Version Control|Generic VCS";

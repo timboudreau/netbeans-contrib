@@ -31,7 +31,7 @@ import org.netbeans.jellytools.actions.UnmountFSAction;
  * @author Jiri Kovalsky
  * @version 1.0
  */
-public class MountPVCSFilesystem extends NbTestCase {
+public class MountPVCSFilesystem extends JellyTestCase {
     
     public static String VERSIONING_MENU = "Versioning";
     public static String MOUNT_MENU = VERSIONING_MENU + "|Mount Version Control|Generic VCS";

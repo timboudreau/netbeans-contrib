@@ -26,7 +26,7 @@ import org.netbeans.jemmy.operators.*;
  * @author Jiri Kovalsky
  * @version 1.0
  */
-public class Commands extends org.netbeans.junit.NbTestCase {
+public class Commands extends JellyTestCase {
     
     public static String MOUNT_MENU = "Versioning|Mount Version Control|Generic VCS";
     

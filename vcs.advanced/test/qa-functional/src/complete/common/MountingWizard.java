@@ -29,7 +29,7 @@ import org.netbeans.jellytools.properties.*;
  * @author Jiri Kovalsky
  * @version 1.0
  */
-public class MountingWizard extends NbTestCase {
+public class MountingWizard extends JellyTestCase {
     
     public static String VERSIONING_MENU = "Versioning";
     public static String MOUNT_MENU = VERSIONING_MENU + "|Mount Version Control|Generic VCS";

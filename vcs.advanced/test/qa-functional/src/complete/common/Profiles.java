@@ -23,7 +23,7 @@ import org.netbeans.jellytools.properties.*;
  * @author Jiri Kovalsky
  * @version 1.0
  */
-public class Profiles extends org.netbeans.junit.NbTestCase {
+public class Profiles extends JellyTestCase {
     
     public static String MOUNT_MENU = "Versioning|Mount Version Control|Generic VCS";
     

@@ -30,7 +30,7 @@ import org.netbeans.jellytools.modules.vcsgeneric.wizard.*;
  * @author Jiri Kovalsky
  * @version 1.0
  */
-public class FilesystemSettings extends NbTestCase {
+public class FilesystemSettings extends JellyTestCase {
     
     public static String VERSIONING_MENU = "Versioning";
     public static String MOUNT_MENU = VERSIONING_MENU + "|Mount Version Control|Generic VCS";
