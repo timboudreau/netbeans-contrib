@@ -55,6 +55,7 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
     
     private Reference profileRef;
     private Hashtable variablesByNames;
+    private Map defaultVariables;
     private VariableValueAdjustment varValueAdjustment;
     private String[] environmentVars;
     private CommandsTree commandsRoot;
@@ -90,7 +91,9 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
     public GlobalExecutionContext(Profile profile) {
         profileRef = new WeakReference(profile);
         profile.addPropertyChangeListener(WeakListener.propertyChange(this, profile));
+        defaultVariables = getDefaultVariables();
         variablesByNames = new Hashtable(Variables.getDefaultVariablesMap());
+        variablesByNames.putAll(defaultVariables);
         Map variablesMap = profile.getVariables().getSelfConditionedVariableMap(profile.getConditions(), Variables.getDefaultVariablesMap());
         variablesByNames.putAll(variablesMap);
         varValueAdjustment = new VariableValueAdjustment();
@@ -98,6 +101,12 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
         varValueAdjustment.setAdjust(variablesByNames);
         setPasswordDescription(variablesByNames);
         setCommands(copySharedCommands(profile.getGlobalCommands().getCommands(variablesByNames)));
+    }
+    
+    private Map getDefaultVariables() {
+        Map map = new HashMap();
+        map.put("DYNAMIC_ENVIRONMENT_VARS", "true");
+        return map;
     }
     
     private void setPasswordDescription(Map varValuesByNames) {
@@ -349,6 +358,7 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
                 Map variablesMap = new Hashtable(Variables.getDefaultVariablesMap());
                 variablesMap.putAll(profile.getVariables().getVariableMap(Variables.getDefaultVariablesMap()));
                 variablesByNames = new Hashtable(Variables.getDefaultVariablesMap());
+                variablesByNames.putAll(defaultVariables);
                 variablesByNames.putAll(profile.getVariables().getVariableMap(variablesMap));
                 updateEnvironmentVars();
                 varValueAdjustment.setAdjust(variablesByNames);
