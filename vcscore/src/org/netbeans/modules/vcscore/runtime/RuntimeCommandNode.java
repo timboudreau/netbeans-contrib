@@ -49,6 +49,7 @@ class RuntimeCommandNode extends AbstractNode {
         String displayName = vce.getCommand().getDisplayName();
         if (displayName == null || displayName.length() == 0) displayName = vce.getCommand().getName();
         setDisplayName(displayName);
+        setDefaultAction(CommandOutputViewAction.getInstance());
     }
     
     void setState(int state) {
