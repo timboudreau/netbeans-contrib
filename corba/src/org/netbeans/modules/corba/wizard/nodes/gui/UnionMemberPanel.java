@@ -92,7 +92,6 @@ public class UnionMemberPanel extends ExPanel implements DocumentListener {
         type = new javax.swing.JTextField();
         length = new javax.swing.JTextField();
         label = new javax.swing.JTextField();
-        jCheckBox1 = new javax.swing.JCheckBox();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -173,13 +172,10 @@ public class UnionMemberPanel extends ExPanel implements DocumentListener {
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 8, 8);
         add(label, gridBagConstraints);
 
-        add(jCheckBox1, new java.awt.GridBagConstraints());
-
     }//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JTextField length;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel3;

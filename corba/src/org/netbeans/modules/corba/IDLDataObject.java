@@ -895,7 +895,7 @@ public class IDLDataObject extends MultiDataObject
                 System.out.println("removing: " + o); // NOI18N
             this.removeSecondaryEntry((MultiDataObject.Entry) o);
         }
-        
+        this.setStatus(IDLDataObject.STATUS_NOT_PARSED);
         this.startParsing();
         
         //getIdlConstructs ();
@@ -1136,7 +1136,6 @@ public class IDLDataObject extends MultiDataObject
         public void fileChanged(FileEvent e) {
             if (DEBUG)
                 System.out.println("++++++++++++ idl file was changed. ++++++++"); // NOI18N
-            IDLDataObject.this.setStatus(IDLDataObject.STATUS_NOT_PARSED);
             //IDLDataObject.this.handleFindDataObject (
             //IDLDataObject.this.startParsing ();
             IDLDataObject.this.update();

@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.io.OutputStreamWriter;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
+import org.openide.filesystems.FileSystem;
 import org.openide.cookies.OpenCookie;
 /**
  *
@@ -45,6 +46,7 @@ public class IDLWizard extends Object implements TemplateWizard.Iterator {
     private WizardDescriptor.Panel createIDLPanel;
     private WizardDescriptor.Panel finishPanel;
     private WizardDescriptor.Panel destinationChooserPanel;
+    private DataObject idl;
     
     
     public IDLWizard () {
@@ -53,29 +55,34 @@ public class IDLWizard extends Object implements TemplateWizard.Iterator {
     }
     
     public java.util.Set instantiate(org.openide.loaders.TemplateWizard wizard) throws java.io.IOException {
-        DataObject template = wizard.getTemplate();
-        DataFolder destination = wizard.getTargetFolder();
-        String name = wizard.getTargetName();
-        DataObject idl = template.createFromTemplate (destination, name);
-        String idlSource = this.data.getIdlSource();
-        if (idlSource != null && idlSource.length() > 0) {
-            FileLock lock = null;
-            PrintWriter out = null;
-            try {
-                FileObject primaryFile = idl.getPrimaryFile();
-                lock = primaryFile.lock();
-                out = new PrintWriter ( new OutputStreamWriter ( primaryFile.getOutputStream (lock)));
-                java.text.DateFormat format = java.text.DateFormat.getDateTimeInstance (java.text.DateFormat.LONG, java.text.DateFormat.MEDIUM);
-                out.println ("//\n// "+idl.getName()+".idl\n//\n// Created on "+ format.format(new java.util.Date()) +"\n// by "+System.getProperty("user.name")+"\n//\n");
-                out.println (idlSource);
-            }catch (java.io.IOException ioe) {}
-            finally {
-                if (out  != null)
-                    out.close();
-                if (lock != null)
-                    lock.releaseLock();
+        final DataObject template = wizard.getTemplate();
+        final DataFolder destination = wizard.getTargetFolder();
+        final String name = wizard.getTargetName();
+        final FileSystem fs = destination.getPrimaryFile().getFileSystem ();
+        fs.runAtomicAction ( new FileSystem.AtomicAction () {
+            public void run () {
+                FileLock lock = null;
+                PrintWriter out = null;
+                try {
+                    idl = template.createFromTemplate (destination, name);
+                    String idlSource = IDLWizard.this.data.getIdlSource();
+                    if (idlSource != null && idlSource.length() > 0) {                    
+                        FileObject primaryFile = idl.getPrimaryFile();
+                        lock = primaryFile.lock();
+                        out = new PrintWriter ( new OutputStreamWriter ( primaryFile.getOutputStream (lock)));
+                        java.text.DateFormat format = java.text.DateFormat.getDateTimeInstance (java.text.DateFormat.LONG, java.text.DateFormat.MEDIUM);
+                        out.println ("//\n// "+idl.getName()+".idl\n//\n// Created on "+ format.format(new java.util.Date()) +"\n// by "+System.getProperty("user.name")+"\n//\n");
+                        out.println (idlSource);
+                    }
+                }catch (java.io.IOException ioe) {}
+                finally {
+                    if (out  != null)
+                        out.close();
+                    if (lock != null)
+                        lock.releaseLock();
+                }
             }
-        }
+        });
         OpenCookie openCookie = (OpenCookie) idl.getCookie (OpenCookie.class);
         if (openCookie != null)
             openCookie.open();
