@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
+import java.beans.PropertyEditorManager;
 import java.util.Date;
 import java.util.List;
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
@@ -40,7 +41,36 @@ import org.openide.util.actions.SystemAction;
 
 
 class UserTaskNode extends TaskNode {
-    
+    /* /// XXX FIXME TODO PENDING @todo !
+     *
+     * The following is a hack. In order to show Date objects in the
+     * table (I don't want to show String representations of these dates,
+     * because that means sorting happens based on String comparisons instead
+     * of Date comparisons, which is wrong - 6/10 will be considered earlier
+     * than 6/3 for example) it turns out the IDE needs to know about a
+     * Date property editor (even though my Date fields are read-only so
+     * they cannot be edited.)
+     * Therefore, I have to register a dummy DateEditor.
+     * This will not be necessary when
+     *   http://www.netbeans.org/issues/show_bug.cgi?id=19899
+     * is fixed.
+     */
+    static { 
+	 PropertyEditorManager.registerEditor(
+			 getKlass("java.util.Date"), 
+			 getKlass("org.netbeans.modules.tasklist.usertasks.DateEditor"));
+    }
+
+    // From NonGui.java - supports the above hack, please read its comment:
+    /** Lazily loads classes */ // #9951
+    private static final Class getKlass(String cls) {
+        try {
+            return Class.forName(cls, false, UserTask.class.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            throw new NoClassDefFoundError(e.getLocalizedMessage());
+        }
+    }
+        
     // Leaf
     UserTaskNode(UserTask item) {
         super(item);
@@ -167,7 +197,25 @@ class UserTaskNode extends TaskNode {
             ss.put(p);
             
 
-            p = new Reflection(item, Integer.TYPE, "getPercentComplete", "setPercentComplete"); // NOI18N
+            p = new Reflection(item, Integer.TYPE, "getPercentComplete", "setPercentComplete") { // NOI18N
+                public Object getValue() {
+                    UserTask task = (UserTask) instance;
+                    PercentsPropertyEditor.Value v = 
+                        new PercentsPropertyEditor.Value();
+                    v.progress = task.getPercentComplete();
+                    v.computed = task.isProgressComputed();
+                    return v;
+                }
+                public void setValue(Object value) {
+                    UserTask task = (UserTask) instance;
+                    PercentsPropertyEditor.Value v = 
+                        (PercentsPropertyEditor.Value) value;
+                    if (v.computed)
+                        task.setPercentComplete(-1);
+                    else
+                        task.setPercentComplete(v.progress);
+                }
+            };
             p.setName(UserTaskView.PROP_TASK_PERCENT);
             p.setPropertyEditorClass(PercentsPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Percent")); // NOI18N

@@ -505,6 +505,10 @@ class EditTaskPanel extends JPanel implements ActionListener {
         fileCheckBox.setSelected(set);
     }
     
+    void setAssociatedParent(boolean p) {
+        subTaskCheckBox.setSelected(p);
+    }
+    
     String getFilename() {
         return fileTextField.getText().trim();
     }

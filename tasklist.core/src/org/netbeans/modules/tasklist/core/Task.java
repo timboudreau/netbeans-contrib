@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.ResourceBundle;
 import org.netbeans.api.tasklist.Suggestion;
+import org.netbeans.api.tasklist.SuggestionPriority;
 import org.netbeans.api.tasklist.SuggestionProvider;
 import org.openide.ErrorManager;
 import org.openide.nodes.Node;
@@ -119,6 +120,11 @@ public class Task extends Suggestion implements Cloneable {
         }
     }
 
+    public void setPriority(SuggestionPriority priority) {
+        super.setPriority(priority);
+        updatedValues();
+    }
+    
     /** Set the "temporary" status of the task. Temporary tasks
 	are not saved in the todo list, and they may be deleted
 	automatically by the IDE when appropriate. For example,
