@@ -15,12 +15,7 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
 import java.util.*;
 
-import org.openide.filesystems.*;
-import org.openide.loaders.*;
-
-import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
@@ -64,7 +59,6 @@ public class CvsRevisionListGetter extends java.lang.Object implements VcsAdditi
     private CommandOutputListener stdoutNRListener = null;
     private CommandOutputListener stderrNRListener = null;
 
-    private FileStatusProvider statusProvider = null;
     private String currentRevision = null;
     
     /** Creates new CvsRevisionViewer */
@@ -143,7 +137,6 @@ public class CvsRevisionListGetter extends java.lang.Object implements VcsAdditi
 
         this.stdoutNRListener = stdoutNRListener;
         this.stderrNRListener = stderrNRListener;
-        this.statusProvider = fileSystem.getStatusProvider();
         this.logCmd = fileSystem.getCommand(args[0]);
         boolean status;
         try {

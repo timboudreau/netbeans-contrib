@@ -1100,6 +1100,33 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param fos the set of files to check.
      */
     private void checkScheduledStates(Set fos) {
+
+        if (Turbo.implemented()) {
+            VcsConfigVariable schVar = (VcsConfigVariable) variablesByName.get(VAR_STATUS_SCHEDULED_ADD);
+            String scheduledStatusAdd = (schVar != null) ? schVar.getValue() : null;
+            schVar = (VcsConfigVariable) variablesByName.get(VAR_STATUS_SCHEDULED_REMOVE);
+            String scheduledStatusRemove = (schVar != null) ? schVar.getValue() : null;
+            //System.out.println("checkScheduledStates(): scheduledStatusAdd = "+scheduledStatusAdd+", scheduledStatusRemove = "+scheduledStatusRemove);
+            for (Iterator it = fos.iterator(); it.hasNext(); ) {
+                FileObject fo = (FileObject) it.next();
+                //System.out.println("checkScheduledStates("+fo.getPackageNameExt('/', '.')+")");
+                String attr = (String) fo.getAttribute(VcsAttributes.VCS_SCHEDULED_FILE_ATTR);
+                //System.out.println("attr("+VcsAttributes.VCS_SCHEDULED_FILE_ATTR+") = "+attr);
+                if (VcsAttributes.VCS_SCHEDULING_ADD.equals(attr) && scheduledStatusAdd != null) {
+                    FileProperties fprops = Turbo.getMeta(fo);
+                    String status = FileProperties.getStatus(fprops);
+                    if (!scheduledStatusAdd.equals(status) && isSchedulingDone(fo.getPath())) {
+                        try {
+                            fo.setAttribute(VcsAttributes.VCS_SCHEDULED_FILE_ATTR, null);
+                        } catch (IOException exc) {}
+                        removeScheduledFromPrimary(fo, 1);
+                    }
+                }
+            }
+            return;
+        }
+
+        // the original implementation
         FileStatusProvider status = getStatusProvider();
         if (status == null) return ;
         VcsConfigVariable schVar = (VcsConfigVariable) variablesByName.get(VAR_STATUS_SCHEDULED_ADD);
@@ -1350,6 +1377,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @deprecated by both Turbo and CacheHandler
      */
     public FileCacheProvider getCacheProvider() {
+        assert Turbo.implemented() == false;
         return cache;
     }
 
@@ -1358,11 +1386,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @deprecated by both Turbo and CacheHandler
      */
     public FileStatusProvider getStatusProvider() {
+        assert Turbo.implemented() == false;
         return statusProvider;
     }
 
     //-------------------------------------------
     public void setCache(FileCacheProvider cache) {
+        assert Turbo.implemented() == false;
         this.cache = cache;
     }
 
@@ -1450,6 +1480,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
          */
         if (possibleFileStatusInfos == null) {
+
+            if (Turbo.implemented()) {
+                Set fss = getPossibleFileStatusInfos();
+                if (fss == null || fss.size() == 0) {
+                    fss = CacheFileStatusInfo.createDefaultPossibleFileStatusInfos();
+                }
+                Set statusInfos = Collections.unmodifiableSet(fss);
+                setPossibleFileStatusInfos(statusInfos, Collections.EMPTY_MAP);
+                origPossibleFileStatusInfos = statusInfos;
+            } else
+
+            // original implementation
             if (statusProvider != null) {
                 Set statusInfos = Collections.unmodifiableSet(statusProvider.getPossibleFileStatusInfos());
                 setPossibleFileStatusInfos(statusInfos, Collections.EMPTY_MAP);
@@ -2178,6 +2220,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     public String getStatus(FileObject fo) {
+
+        if (Turbo.implemented()) {
+            // TODO what is purpose of the convert bellow, how does work FileObject.equals
+            // note that get locker code does not use it
+            FileProperties fprops = Turbo.getMeta(fo);
+            return FileProperties.getStatus(fprops);
+        }
+
+        // original implementation
         String status;
         if (statusProvider != null) {
             fo = convertForeignFileObjectToMyFileObject(fo);
@@ -2220,6 +2271,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     /** Get the "real" status of a file. If necessary wait for the status to be
      * retrieved from the VCS */
     private String getRealStatus(String fullName) {
+
+        if (Turbo.implemented()) {
+            FileObject fo = findResource(fullName);
+            FileProperties fprops = Turbo.getMeta(fo);
+            String status = FileProperties.getStatus(fprops);
+            synchronized (possibleFileStatusesLock) {
+                FileStatusInfo statusInfo = (FileStatusInfo) possibleFileStatusInfoMap.get(status);
+                if (statusInfo != null) {
+                    return statusInfo.getDisplayName();
+                }
+            }
+            return status;
+        }
+
+        // original implementation
         if (cache != null) {
             //findLoadedCacheDir(fullName);
             String dirName = VcsUtilities.getDirNamePart(fullName);
@@ -2271,6 +2337,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     /** find a cache dir, that currently does not exist, but can be obtained
      * after it's parents are loaded */
     private CacheDir findLoadedCacheDir(String name) {
+
+        assert Turbo.implemented() == false;
+
         String dirName = VcsUtilities.getDirNamePart(name);
         String fileName = VcsUtilities.getFileNamePart(name);
         if (dirName.length() == 0 || dirName.length() == name.length()) return null;
@@ -2324,17 +2393,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         return fo;
-    }
-
-    public String getLocker(FileObject fo) {
-        String locker;
-        if (statusProvider != null) {
-            String fullName = fo.getPath();
-            locker = statusProvider.getFileLocker(fullName);
-            if (locker != null) locker = locker.trim();
-            else locker = "";
-        } else locker = "";
-        return locker;
     }
 
     //-------------------------------------------
@@ -2950,9 +3008,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private String[] childrenWithTurbo(String name) {
         String[] files = getLocalFiles(name);
 
+        // TODO hide dead files, consider deferring to VisibilityQuery
         if (isHideShadowFiles() == false) { // show shadow files
             if (isShowDeadFiles() == false) {
-                // TODO hide dead files, here we need to access status by non-fileobject
                 //files = filterDeadFilesOut(name,files);
             }
             if (files != null) {

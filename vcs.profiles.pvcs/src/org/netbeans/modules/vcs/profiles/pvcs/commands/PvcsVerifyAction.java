@@ -37,6 +37,9 @@ import org.openide.util.SharedClassObject;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.VcsAction;
+import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.turbo.Statuses;
+import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.netbeans.modules.vcscore.actions.AddCommandAction;
 import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
 import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
@@ -102,6 +105,41 @@ public class PvcsVerifyAction extends java.lang.Object implements VcsAdditionalC
     }
     
     private void fillFilesByState(List fos, String getStatusCmd) throws InterruptedException {
+
+        if (Turbo.implemented()) {
+            for (Iterator it = fos.iterator(); it.hasNext(); ) {
+                FileObject fo = (FileObject) it.next();
+                if (!fileSystem.getFile(fo.getPath()).exists()) {
+                    // File does not exist locally - same behavior as whan it was not changed locally:
+                    uptoDateFiles.add(fo);
+                    continue;
+                }
+                FileProperties fprops = Turbo.getMeta(fo);
+                String status = FileProperties.getStatus(fprops);
+                if (Statuses.getLocalStatus().equals(status)) {
+                    localFiles.add(fo);
+                    //System.out.println("  is Local");
+                } else {
+                    if (getStatusCmd != null) {
+                        status = getFreshFileStatus(fo.getPath(), fileSystem.getCommand(getStatusCmd));
+                        //System.out.println("getFreshFileStatus("+file+") = "+status);
+                    }
+                    if (UP_TO_DATE.equals(status)) {
+                        uptoDateFiles.add(fo);
+                        //System.out.println("  is Up to date");
+                    } else {
+                        //System.out.println("  is Unrecognized => should me modified or so.");
+                        String locker = fprops != null ? fprops.getLocker() : null;
+                        if (locker == null || locker.trim().length() == 0) {
+                            notLockedFiles.add(fo);
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
+        // the old implementation
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         if (statusProvider == null) {
             localFiles.addAll(fos);

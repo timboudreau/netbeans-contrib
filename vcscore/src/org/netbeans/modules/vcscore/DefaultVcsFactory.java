@@ -50,6 +50,7 @@ import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
+import org.netbeans.modules.vcscore.turbo.Turbo;
 
 /**
  * This class provides a default implementation of VcsFactory.
@@ -73,6 +74,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      * is the filesystem cache if implements <code>FileStatusProvider</code> or null otherwise.
      */
     public FileStatusProvider getFileStatusProvider() {
+        assert Turbo.implemented() == false;
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         Object cache = fileSystem.getCacheProvider();
         if (cache instanceof FileStatusProvider) return (FileStatusProvider) cache;
@@ -84,6 +86,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      * is <code>VcsFSCache</code>.
      */
     public FileCacheProvider getFileCacheProvider() {
+        assert Turbo.implemented() == false;
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         return new VcsFSCache(fileSystem);
     }

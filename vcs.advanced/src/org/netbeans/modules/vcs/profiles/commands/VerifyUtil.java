@@ -13,40 +13,18 @@
 
 package org.netbeans.modules.vcs.profiles.commands;
 
-import java.awt.Dialog;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.HashSet;
 import java.util.Hashtable;
 
-import javax.swing.JButton;
-import javax.swing.SwingUtilities;
-
-import org.openide.DialogDescriptor;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.loaders.DataShadow;
-import org.openide.util.NbBundle;
-import org.openide.util.SharedClassObject;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.VcsAction;
-import org.netbeans.modules.vcscore.actions.AddCommandAction;
-import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
-import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
-import org.netbeans.modules.vcscore.actions.UpdateCommandAction;
-import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
-import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.*;
-import org.netbeans.modules.vcscore.grouping.GroupUtils;
-import org.netbeans.modules.vcscore.ui.*;
 import org.netbeans.modules.vcscore.util.Table;
 
 /**

@@ -47,6 +47,8 @@ import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.FileReference;
+import org.netbeans.modules.vcscore.turbo.FileProperties;
+import org.netbeans.modules.vcscore.turbo.Statuses;
 
 /**
  * Implementation of file attributes for version control systems. All attributes
@@ -240,6 +242,20 @@ public class VcsAttributes extends Attributes {
         }
         if (VCS_STATUS.equals(attrName)) {
             if (!fileSystem.getFile(name).exists()) return VCS_STATUS_MISSING;
+
+            if (Turbo.implemented()) {
+                FileObject fo = fileSystem.findResource(name);
+                FileProperties fprops = Turbo.getMeta(fo);
+                String status = FileProperties.getStatus(fprops);
+                if (Statuses.getLocalStatus().equals(status)) {
+                    return VCS_STATUS_LOCAL;
+                } else if (Statuses.getUnknownStatus().equals(status)) {
+                    return VCS_STATUS_UNKNOWN;
+                }
+                return VCS_STATUS_UP_TO_DATE;                                
+            }
+
+            // original implementation
             FileStatusProvider statusProvider = fileSystem.getStatusProvider();
             if (statusProvider != null) {
                 String status = statusProvider.getFileStatus(name);

@@ -39,11 +39,13 @@ public final class FileProperties {
     private String date = ""; // NOI18N
     private String time = ""; // NOI18N
     private int    size = 0;
+    private String locker;
 
     // XXX it's not writen to disc layer
     private IgnoreList ignoreList;
 
     private boolean canUpdate = true;
+
 
     public FileProperties() {
         retrieval = System.currentTimeMillis();
@@ -158,4 +160,33 @@ public final class FileProperties {
     public void freeze() {
         canUpdate = false;
     }
+
+    /** Who holds lock on the file. */
+    public String getLocker() {
+        return locker;
+    }
+
+    public void setLocker(String locker) {
+        assert canUpdate;
+        this.locker = locker;
+    }
+
+    /**
+     * Get status or UNKNOWN
+     * @param fprops propeties or null
+     * @return status or UNKNOWN for null properties or status
+     */
+    public static String getStatus(FileProperties fprops) {
+        if (fprops == null) {
+            return Statuses.getUnknownStatus();
+        } else {
+            String status = fprops.getStatus();
+            if (status == null) {
+                return Statuses.getUnknownStatus();
+            } else {
+                return status;
+            }
+        }
+    }
 }
+

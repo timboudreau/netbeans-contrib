@@ -80,7 +80,7 @@ following client code (filesystem and commands) conversions
   <li>VcsFileSystem.getRealStatus() used in search, it also implements CacheHandlerListener
      to perform refresh
   <li>VcsFilesystem.List.children() support for filtering out DEAD and scheduled files.
-      InList context we cannot use FileObject keyed access. Try parent, path tuble key.
+      InList context we cannot use FileObject keyed access. Try VisibilityQuery approach.
   <li>VcsFactory.getStatusProvider() and getCacheProvider() replacements not investigated yet
   <li>RefreshCommandSupport in VCSFileSystem annotation and cvscore.cmdline formatting
 </ul>
