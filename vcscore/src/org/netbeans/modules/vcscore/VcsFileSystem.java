@@ -2304,7 +2304,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         ArrayList files = new ArrayList(Arrays.asList(vcsFiles));
         int n = files.size();
         for (int i = 0; i < n; i++) {
-            String file = name + "/" + (String) files.get(i);
+            String file = (name.length() > 0) ? (name + "/" + (String) files.get(i)) : (String) files.get(i);
             if (VcsCacheFile.STATUS_DEAD.equals(statusProvider.getFileStatus(file))) {
                 files.remove(i--);
                 n--;
