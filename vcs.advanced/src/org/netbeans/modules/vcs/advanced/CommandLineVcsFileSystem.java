@@ -34,6 +34,8 @@ import org.openide.nodes.Node;
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
+import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
+import org.netbeans.modules.vcscore.commands.CommandsPool;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.util.*;
@@ -54,6 +56,24 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED = "POSSIBLE_FILE_STATUSES_LOCALIZED";
     public static final String VAR_NOT_MODIFIABLE_FILE_STATUSES = "NOT_MODIFIABLE_FILE_STATUSES";
     public static final String VAR_ICONS_FOR_FILE_STATUSES = "ICONS_FOR_FILE_STATUSES";
+    
+    /**
+     * The name of a variable, which contains the parent ignore list for
+     * CREATE_FOLDER_IGNORE_LIST command.
+     */
+    public static final String VAR_PARENT_IGNORE_LIST = "PARENT_IGNORE_LIST";
+    
+    /**
+     * This command is executed to get the initial ignore list.
+     * It's supposed to return the ignored files on its data output.
+     */
+    public static final String CMD_CREATE_INITIAL_IGNORE_LIST = "CREATE_INITIAL_IGNORE_LIST";
+    /**
+     * This command is executed to get the ignore list on each folder.
+     * It gets the parent ignore list in PARENT_IGNORE_LIST variable.
+     * It's supposed to return the ignored files on its data output.
+     */
+    public static final String CMD_CREATE_FOLDER_IGNORE_LIST = "CREATE_FOLDER_IGNORE_LIST";
     
     private static final boolean DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE = true;
     
@@ -101,6 +121,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         } catch (PropertyVetoException vetoExc) {
         } catch (IOException ioExc) {
         }
+        setIgnoreListSupport(new GenericIgnoreListSupport());
     }
 
     public VcsFactory getVcsFactory () {
@@ -593,6 +614,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
 
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         in.defaultReadObject();
+        setIgnoreListSupport(new GenericIgnoreListSupport());
     }
     
     private void writeObject(ObjectOutputStream out) throws IOException {
@@ -630,6 +652,68 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         public String getLineBegin() {
             return lineBegin;
         }
+    }
+
+    private class GenericIgnoreListSupport extends Object implements VcsFileSystem.IgnoreListSupport {
+        
+        private ArrayList initialIgnoreList = null;
+        
+        public ArrayList createInitialIgnoreList() {
+            if (initialIgnoreList == null) {
+                initialIgnoreList = new ArrayList();
+                VcsCommand cmd = getCommand(CMD_CREATE_INITIAL_IGNORE_LIST);
+                if (cmd != null) {
+                    Table files = new Table();
+                    files.put ("", findFileObject(""));
+                    VcsCommandExecutor[] executors = VcsAction.doCommand(
+                        files, cmd, null, CommandLineVcsFileSystem.this, null, null,
+                        new CommandDataOutputListener() {
+                            public void outputData(String[] data) {
+                                for (int i = 0; i < data.length; i++) {
+                                    String element = data[i];
+                                    if ("!".equals(element)) initialIgnoreList.clear();
+                                    else initialIgnoreList.add(element);
+                                }
+                            }
+                        }, null, false);
+                    CommandsPool pool = getCommandsPool();
+                    for (int i = 0; i < executors.length; i++) {
+                        pool.waitToFinish (executors[i]);
+                    }
+                }
+            }
+            return initialIgnoreList;
+        }
+        
+        public ArrayList createIgnoreList(FileObject file, ArrayList parentIgnoreList) {
+            VcsCommand cmd = getCommand(CMD_CREATE_FOLDER_IGNORE_LIST);
+            if (cmd == null) {
+                return parentIgnoreList;
+            }
+            String[] parentIgnoreListItems = (String[]) parentIgnoreList.toArray(new String[0]);
+            Hashtable additionalVars = new Hashtable();
+            additionalVars.put(VAR_PARENT_IGNORE_LIST, VcsUtilities.arrayToQuotedStrings(parentIgnoreListItems));
+            final ArrayList ignoreList = new ArrayList();
+            Table files = new Table();
+            files.put(file.getPackageNameExt('/', '.'), file);
+            VcsCommandExecutor[] executors = VcsAction.doCommand(
+                files, cmd, additionalVars, CommandLineVcsFileSystem.this, null, null,
+                new CommandDataOutputListener() {
+                    public void outputData(String[] data) {
+                        for (int i = 0; i < data.length; i++) {
+                            String element = data[i];
+                            if ("!".equals(element)) ignoreList.clear();
+                            else ignoreList.add(element);
+                        }
+                    }
+                }, null, false);
+            CommandsPool pool = getCommandsPool();
+            for (int i = 0; i < executors.length; i++) {
+                pool.waitToFinish(executors[i]);
+            }
+            return ignoreList;
+        }
+        
     }
 
     private String clg(String s) {
