@@ -243,10 +243,10 @@ public abstract class NodeImpl implements Node {
     protected final void dumpPositions(TestCertificate tc, PrintWriter pw) {
         pw.println("<positions>");
         pw.print("<position><![CDATA[");
-        pw.print(getStartingPosition());
+        pw.print(getStartingPosition().dump());
         pw.println("]]></position>");
         pw.print("<position><![CDATA[");
-        pw.print(getEndingPosition());
+        pw.print(getEndingPosition().dump());
         pw.println("]]></position>");
         pw.println("</positions>");
     }

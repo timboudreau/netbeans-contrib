@@ -113,7 +113,11 @@ public final class SourcePosition implements Serializable {
     }
     
     public String toString() {
-        return "Positon:[file=" + getFile() + ", line=" + getLine() + ", column=" + getColumn() + ", offset=" + getOffsetValue() + "]";
+        return "Position:[file=" + getFile() + ", line=" + getLine() + ", column=" + getColumn() + ", offset=" + getOffsetValue() + "]";
+    }
+    
+    public String dump() {
+        return "Position:[file=" + Utilities.getDefault().getFileShortName(getFile()) + ", line=" + getLine() + ", column=" + getColumn() + ", offset=" + getOffsetValue() + "]";
     }
     
     private void writeObject(ObjectOutputStream out) throws IOException {

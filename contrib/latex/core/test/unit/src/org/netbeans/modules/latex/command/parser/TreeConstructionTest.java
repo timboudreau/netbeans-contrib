@@ -7,29 +7,28 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.command.parser;
 
-
 import java.beans.PropertyVetoException;
-import org.netbeans.junit.NbTestCase;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import org.netbeans.modules.latex.UnitUtilities;
-import org.netbeans.modules.latex.model.ParseError;
-import org.netbeans.modules.latex.model.command.DocumentNode;
-import org.netbeans.modules.latex.model.command.SourcePosition;
-import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
-import org.netbeans.modules.latex.model.command.parser.CommandParser;
-import org.openide.filesystems.FileObject;
+import org.netbeans.junit.NbTestCase;
 
+import org.netbeans.modules.latex.UnitUtilities;
+import org.netbeans.modules.latex.model.command.DocumentNode;
+import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
+import org.netbeans.modules.latex.model.command.impl.NBDocumentNodeImpl;
+import org.netbeans.modules.latex.model.command.parser.CommandParser;
+import org.netbeans.modules.latex.test.TestCertificate;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.LocalFileSystem;
 import org.openide.filesystems.Repository;
@@ -39,15 +38,16 @@ import org.xml.sax.SAXException;
  *
  * @author Jan Lahoda
  */
-public class ErrorDetectionAndCorrectionTest extends  NbTestCase {
+public class TreeConstructionTest extends NbTestCase {
     
-    /** Creates a new instance of ErrorDetectionAndCorrectionPerformer */
-    public ErrorDetectionAndCorrectionTest(String name) {
+    /** Creates a new instance of TreeConstructionPerformer */
+    public TreeConstructionTest(String name) {
         super(name);
     }
     
     protected void setUp() throws IOException, SAXException, PropertyVetoException {
-        log("ErrorDetectionAndCorrectionPerformer.setUp started.");
+        System.setProperty("netbeans.test.latex.enable", "true");
+        getLog().println("ErrorDetectionAndCorrectionPerformer.setUp started.");
         
         UnitUtilities.prepareTest(new String[0], new Object[0]);
         
@@ -62,34 +62,30 @@ public class ErrorDetectionAndCorrectionTest extends  NbTestCase {
             Repository.getDefault().addFileSystem(lfs);
         }
         
-        log("ErrorDetectionAndCorrectionPerformer.setUp finished.");
+        getLog().println("ErrorDetectionAndCorrectionPerformer.setUp finished.");
     }
+
     
     public void testTest1() throws Exception {
         performTest("Test1.tex");
     }
 
-    public void testTest2() throws Exception {
-        performTest("Test2.tex");
-    }
-    
-    public void testTest3() throws Exception {
-        performTest("Test3.tex");
-    }
-    
-    public void testTest4() throws Exception {
-        performTest("Test4.tex");
-    }
-    
-    public void testTest5() throws Exception {
-        performTest("Test5.tex");
+    public void testFreearg1() throws Exception {
+        performTest("freearg1.tex");
     }
 
+    public void testFreearg2() throws Exception {
+        performTest("freearg2.tex");
+    }
+
+    public void testFreearg3() throws Exception {
+        performTest("freearg3.tex");
+    }
+    
     public void performTest(String testFileName) throws Exception {
-//        doTest("org/netbeans/test/latex/parser/data/testfiles/ErrorDetectionAndCorrection/" + name + ".tex");
-        getLog().println("ErrorDetectionAndCorrection test start.");
+        getLog().println("TreeConstruction test start.");
         
-        File testFile = new File(new File(getDataDir(), "ErrorDetectionAndCorrectionTest"), testFileName);
+        File testFile = new File(new File(getDataDir(), "TreeConstructionTest"), testFileName);
         FileObject testFileObject = FileUtil.toFileObject(testFile);
         
         assertNotNull("The test file " + testFileName + " translated to " + testFile.getPath() + " was not found on the filesystems.", testFileObject);
@@ -97,23 +93,24 @@ public class ErrorDetectionAndCorrectionTest extends  NbTestCase {
         Collection errors = new ArrayList();
         LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         
+        getLog().println("Parsing:");
         DocumentNode node = new CommandParser().parse(lsi, errors);
+        getLog().println("Done.");
         
-        //Print errors:
-        Iterator iter = errors.iterator();
+        PrintWriter ref = new PrintWriter(getRef());
         
-        while (iter.hasNext()) {
-            ParseError err = (ParseError) iter.next();
-            SourcePosition pos = err.getPosition();
-            
-            getRef().println("(" + pos.getLine() + ":" + pos.getColumn() + "):" + err.getMessage());
-        }
+        //Print node
+        getLog().println("Dumping:");
+        ((NBDocumentNodeImpl) node).dump(TestCertificate.get(), ref);
+        getLog().println("Done.");
         
-        getLog().println("ErrorDetectionAndCorrection test end.");
+        getLog().println("TreeConstruction test end.");
         
-        getRef().flush();
+        ref.flush();
+        
         getLog().flush();
         
         assertFile("Output does not match golden file.", getGoldenFile(), new File(getWorkDir(), this.getName() + ".ref"), new File(getWorkDir(), this.getName() + ".diff"));
     }
+    
 }

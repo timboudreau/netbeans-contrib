@@ -91,6 +91,8 @@ public abstract class Utilities {
     
     public abstract Object   getRelativeFileName(Object file, String relativeFile) throws IOException;
     
+    public abstract String   getFileShortName(Object file);
+    
     /*This was originaly required for some tests, but it probably is not part of a good LaTeX API:
      */
 //    public abstract Object   findFile(File file) throws IOException;

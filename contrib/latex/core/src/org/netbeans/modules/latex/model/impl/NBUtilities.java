@@ -247,5 +247,11 @@ public class NBUtilities extends Utilities {
             throw ex;
         }
     }
+
+    public String getFileShortName(Object file) {
+        FileObject fo = (FileObject) file;
+        
+        return fo.getNameExt();
+    }
     
 }

@@ -48,9 +48,7 @@ public class ParserInput implements DocumentListener {
 
     private boolean changed;
     
-//    private Stack treStack;
     private FileObject file;
-//    private DataObject od; //For performance reasons only!!!!!
     private TokenRootElement currentTRE;
     private Document document;
     private int index;
@@ -62,7 +60,6 @@ public class ParserInput implements DocumentListener {
         
         ad.addDocumentListener(this);
         
-//        ad.readLock();
         documents.add(ad);
         
         return ad;
@@ -75,7 +72,6 @@ public class ParserInput implements DocumentListener {
 
     /** Creates a new instance of ParserInput */
     public ParserInput(FileObject file, Collection documents) throws IOException {
-//        treStack = new Stack();
         assert file != null;
         this.file = file;
         document = getDocument(this.file, documents);
@@ -93,11 +89,6 @@ public class ParserInput implements DocumentListener {
             throw new ParsingAbortedException();
 
         int toUse = index > 0 ? index : 0;
-
-//        if (toUse >= (currentTRE.getElementCount() - 1)) { //XXX
-//            toUse = currentTRE.getElementCount() - 2;
-//        }
-        
         int offset = currentTRE.getElementOffset(toUse);
         
         return new SourcePosition(file, document, offset);
@@ -120,47 +111,7 @@ public class ParserInput implements DocumentListener {
     private Token nextImpl() {
         Token current = (Token) currentTRE.getElement(++index);
         
-//        if (index >= currentTRE.getElementCount()) {
-//            if (treStack.size() > 0) {
-//                File fileDescriptor = (File) treStack.pop();
-//                
-//                file = fileDescriptor.getFile();
-//                currentTRE = fileDescriptor.getTRE();
-//                index = fileDescriptor.getIndex();
-//                document = fileDescriptor.getDocument();
-//            }
-//        }
-        
         return current;
-    }
-    
-    //?????:
-    private void performInclude(String fileName) throws IOException {
-////        System.err.println("to find=\"" + fileName + "\"");
-//        DataFolder folder = DataObject.find(file).getFolder();
-//        
-//        DataObject[] children = folder.getChildren();
-//        
-//        for (int cntr = 0; cntr < children.length; cntr++) {
-//            FileObject fo = children[cntr].getPrimaryFile();
-////            System.err.println("Trying: " + fo);
-//            
-//            if (fileName.equals(fo.getNameExt())
-//                || (fileName.equals(fo.getName()) && "tex".equals(fo.getExt()))) {
-//                treStack.push(new File(currentTRE, index, file, document));
-//                
-//                file = fo;
-//                index = 0;
-//                currentTRE = getTRE(document = getDocument(file));
-//                
-//                usedFiles.add(file);
-//                
-//                return ;
-//            }
-//        }
-//        
-//        //file not found.
-//        ErrorManager.getDefault().notify(new IllegalArgumentException("File " + fileName + " not found."));
     }
     
     public synchronized Token next() throws IOException {
@@ -169,25 +120,7 @@ public class ParserInput implements DocumentListener {
         
         Token token = nextImpl();
         
-//        if (   "\\input".equals(token.getText().toString())
-//            || "\\include".equals(token.getText().toString())) {
-//            Token arg = nextImpl();
-//            
-//            while (arg.getId() == TexLanguage.WHITESPACE) {
-//                arg = nextImpl();
-//            }
-//            
-//            if (arg.getId() == TexLanguage.COMMAND_ARGUMENT_MANDATORY) {
-//                performInclude(LaTeXParser.getArgumentTokenText(arg));
-//                
-//                return next();
-//            }
-//            
-//            //Some kind of error!!!!:
-//            return arg;
-//        } else {
-            return token;
-//        }
+        return token;
     }
     
     public boolean hasNext() {
@@ -211,41 +144,5 @@ public class ParserInput implements DocumentListener {
     public synchronized void removeUpdate(DocumentEvent e) {
         changed = true;
     }
-    
-//    private static class File {
-//        private TokenRootElement tre;
-//        private int index;
-//        private FileObject file;
-//        private DataObject od;
-//        private Document document;
-//
-//        public File(TokenRootElement tre, int index, FileObject file, DataObject od, Document document) {
-//            this.tre = tre;
-//            this.index = index;
-//            this.file = file;
-//            this.od = od;
-//            this.document = document;
-//        }
-//        
-//        public TokenRootElement getTRE() {
-//            return tre;
-//        }
-//        
-//        public int getIndex() {
-//            return index;
-//        }
-//        
-//        public FileObject getFile() {
-//            return file;
-//        }
-//        
-//        public DataObject getOD() {
-//            return od;
-//        }
-//
-//        public Document getDocument() {
-//            return document;
-//        }
-//    }
     
 }

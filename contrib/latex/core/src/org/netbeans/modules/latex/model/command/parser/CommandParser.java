@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.swing.text.AbstractDocument;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.latex.editor.TexLanguage;
+import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.Utilities;
 
 import org.netbeans.modules.latex.model.command.ArgumentNode;
@@ -59,6 +60,7 @@ import org.openide.filesystems.FileObject;
 public class CommandParser {
     
     private static final boolean includeDebug = Boolean.getBoolean("netbeans.latex.parser.include.debug");
+    private static final boolean debug        = Boolean.getBoolean("netbeans.latex.parser.debug");
     
     /** Creates a new instance of LaTeXParser */
     public CommandParser() {
@@ -555,13 +557,13 @@ public class CommandParser {
             Command cmd = findCommand(parent, input, read.getText());
             return cmd != null ? cmd.isPARLike() : false;
         } else
-            return false;
+            return read.getId() == TexLanguage.PARAGRAPH_END;
     }
     
     private boolean isFreeTextEnd(Token read, ParserInput input, Node parent) {
         return    read.getId() == TexLanguage.COMP_BRACKET_RIGHT
-               || read.getId() == TexLanguage.COMP_BRACKET_LEFT
-               || read.getId() == TexLanguage.PARAGRAPH_END
+               /*|| read.getId() == TexLanguage.COMP_BRACKET_LEFT
+               || read.getId() == TexLanguage.PARAGRAPH_END*/
                || isPAREnd(read, input, parent);
     }
     
@@ -605,6 +607,10 @@ public class CommandParser {
     }
 
     private /*GroupNode*/TextNode parseGroup(ParserInput input, /*GroupNodeImpl*/TextNodeImpl node, boolean argument, boolean freeText, boolean parErrorRecovery) throws IOException {
+        if (debug) {
+	    System.err.println("parseGroup: start(" + input + ", " + node + ", " + argument + ", " + freeText + ", " + parErrorRecovery);
+	}
+	
         boolean shouldReadAtEnd = true;
         Token read = input.getToken();
         Token left = read;
@@ -619,6 +625,10 @@ public class CommandParser {
         node.setStartingPosition(input.getPosition());
         
         do {
+	    if (debug) {
+	        System.err.println("parseGroup: read=" + read);
+	    }
+	    
             if (!input.hasNext()) {
                 
                 errors.add(Utilities.getDefault().createError("Unexpected end of the file.", input.getPosition()));
@@ -654,10 +664,14 @@ public class CommandParser {
                 node.addChild(parseGroup(input, n, false, false, parErrorRecovery));
                 afterCommand = true;
             }
-        } while (!(   (freeText && isFreeTextEnd(input.getToken(), input, node.getParent())) 
+        } while (!(   (freeText && isFreeTextEnd(input.getToken(), input, node.getParent()))
                    || ParserUtilities.matches(left, input.getToken())
                    || (errorRecovery = parErrorRecovery && isErrorRecoveryEnd(input.getToken(), input, node.getParent()))));
         
+	if (debug) {
+	    System.err.println("parseGroup: after main loop: input.getToken()=" + input.getToken() + ";" + input.getPosition());
+	}
+	
         shouldReadAtEnd = shouldReadAtEnd && !errorRecovery && !(freeText && input.getToken().getId() == TexLanguage.COMP_BRACKET_RIGHT);
         
         node.setEndingPosition(input.getPosition());
@@ -665,11 +679,22 @@ public class CommandParser {
         if (shouldReadAtEnd && input.hasNext())
             input.next();
         
-        if (errorRecovery)
-            errors.add(Utilities.getDefault().createError("Missing closing bracket added.", node.getEndingPosition()));
+        if (errorRecovery) {
+            ParseError err = Utilities.getDefault().createError("Missing closing bracket added.", node.getEndingPosition());
+            
+            errors.add(err);
+            
+            if (debug) {
+                System.err.println("parseGroup: error=" + err);
+            }
+        }
         
         currentCommandDefiningNode = lastCommandDefiningNode;
         
+	if (debug) {
+	    System.err.println("parseGroup: end, input.getToken()=" + input.getToken());
+	}
+	
         return node;
     }
     
@@ -694,6 +719,10 @@ public class CommandParser {
         
         bni.setContent(node);
         node.setStartingPosition(input.getPosition());
+        
+        if (debug) {
+            System.err.println("parseBlock: start environment name=" + beginText + ", input.getToken()=" + input.getToken());
+        }
         
         while (input.hasNext()) {
             Token read = input.getToken();
@@ -747,6 +776,10 @@ public class CommandParser {
         }
         
         currentCommandDefiningNode = lastCommandDefiningNode;
+        
+        if (debug) {
+            System.err.println("parseBlock: end environment name=" + beginText + ", input.getToken()=" + input.getToken());
+        }
         
         return bni;
     }
