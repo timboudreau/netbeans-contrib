@@ -16,6 +16,7 @@ package org.netbeans.modules.vcscore.runtime;
 import org.openide.nodes.*;
 
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
  * The node of command in the runtime tab.
@@ -53,10 +54,20 @@ class RuntimeCommandNode extends AbstractNode {
     }
     
     private void createProperties(final Sheet.Set set) {
-        set.put(new PropertySupport.ReadOnly("exec", String.class, g("CTL_Exec"), "") {
+        set.put(new PropertySupport.ReadOnly("name", String.class, g("CTL_Name"), "") {
                         public Object getValue() {
                             //System.out.println("getName: cmd = "+cmd);
+                            return executor.getCommand().getName();
+                        }
+                });
+        set.put(new PropertySupport.ReadOnly("exec", String.class, g("CTL_Exec"), "") {
+                        public Object getValue() {
                             return executor.getExec();
+                        }
+                });
+        set.put(new PropertySupport.ReadOnly("files", String.class, g("CTL_Files"), "") {
+                        public Object getValue() {
+                            return VcsUtilities.array2stringNl((String[]) executor.getFiles().toArray(new String[0]));
                         }
                 });
     }
