@@ -92,6 +92,9 @@ public final class SuggestionsScanner implements Cancellable {
     private int usabilityLimit = 503;
     private boolean workaround38476;
 
+    // list that replaces direct manager regiltration
+    private List cummulateInList;
+
     private SuggestionsScanner() {
         manager = (SuggestionManagerImpl) Lookup.getDefault().lookup(SuggestionManager.class);
         registry = SuggestionProviders.getDefault();
@@ -195,14 +198,10 @@ public final class SuggestionsScanner implements Cancellable {
 
 
     /**
-     * Determines if given dataobject lies in scan context
-     * and scans it.
-     *
-     * @param folders scan context
-     * @param recursive iff true scan context is scanned recusively
+     * Return all opened top components in editor mode.
+     * @return never null
      */
-    private void scanPreferred(DataObject.Container[] folders, boolean recursive) {
-
+    static TopComponent[] openedTopComponents() {
         final Object[] wsResult = new Object[1];
         try {
             // I just hope that we are not called from non-AWT thread
@@ -213,13 +212,24 @@ public final class SuggestionsScanner implements Cancellable {
                     wsResult[0] = editorMode.getTopComponents();
                 }
             });
+            return (TopComponent[]) wsResult[0];
         } catch (InterruptedException e) {
-            return; // no preferred scan
+            return new TopComponent[0];
         } catch (InvocationTargetException e) {
-            return; // no preferred scan
+            return new TopComponent[0];
         }
+    }
 
-        TopComponent[] views = (TopComponent[]) wsResult[0];
+    /**
+     * Determines if given dataobject lies in scan context
+     * and scans it.
+     *
+     * @param folders scan context
+     * @param recursive iff true scan context is scanned recusively
+     */
+    private void scanPreferred(DataObject.Container[] folders, boolean recursive) {
+
+        TopComponent[] views = openedTopComponents();
         DataObject[] roots = null;
         for (int i = 0; i<views.length; i++) {
             Node[] nodes = views[i].getActivatedNodes();
@@ -296,6 +306,40 @@ public final class SuggestionsScanner implements Cancellable {
         }
     }
 
+
+    /**
+     * Scan content of selected top component and return results
+     * as list instead of direct registering with manager.
+     */
+    final synchronized List scanTopComponent(TopComponent topComponent) {
+        List ret = Collections.EMPTY_LIST;
+        try {
+
+            // init
+
+            cummulateInList = new LinkedList();
+            progressMonitor = null;
+            scanned.clear();
+            workaround38476 = topComponent.isOpened();
+            suggestionsCounter = 0;
+
+            // perform
+
+            Node[] nodes = topComponent.getActivatedNodes();
+            if (nodes == null) return ret;
+            for (int n = 0; n<nodes.length; n++) {
+                DataObject dobj = (DataObject) nodes[n].getCookie(DataObject.class);
+                if (dobj == null) return ret;
+                scanLeaf(dobj);
+                break;  // one node is enough
+            }
+            ret = cummulateInList;
+        } finally {
+            cummulateInList = null;
+        }
+        return ret;
+    }
+
     /**
      * Scans given data object. Converts it to scanning context.
      */
@@ -315,14 +359,6 @@ public final class SuggestionsScanner implements Cancellable {
         boolean isPrimed = edit.getDocument() == null && directAccess == false;
 
         SuggestionContext env = SPIHole.createSuggestionContext(dobj);
-
-        if (progressMonitor == null) {
-            // XXX stil strange that possibly backgournd process writes directly to UI
-            StatusDisplayer.getDefault().setStatusText(
-                    NbBundle.getMessage(SuggestionsScanner.class,
-                            "ScanningFile", // NOI18N
-                            dobj.getPrimaryFile().getNameExt()));
-        }
 
         scanLeaf(env);
 
@@ -381,7 +417,11 @@ public final class SuggestionsScanner implements Cancellable {
                 if (l != null) {
                     // XXX ensure that scan returns a homogeneous list of tasks
                     suggestionsCounter += l.size();
-                    manager.register(type, l, null, list, true);
+                    if (cummulateInList == null) {
+                        manager.register(type, l, null, list, true);
+                    } else {
+                        cummulateInList.addAll(l);
+                    }
                 }
             }
         }

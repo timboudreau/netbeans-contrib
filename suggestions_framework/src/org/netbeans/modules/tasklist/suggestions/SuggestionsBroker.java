@@ -23,6 +23,7 @@ import org.openide.text.*;
 import org.openide.nodes.Node;
 import org.openide.cookies.EditorCookie;
 import org.openide.util.RequestProcessor;
+import org.openide.filesystems.FileObject;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.Task;
@@ -61,8 +62,22 @@ public final class SuggestionsBroker {
     // hook for unit tests
     Env env = new Env();
 
-    private SuggestionsBroker() {
+    // FileObject, Set<Suggestion>
+    private Map openedFilesSuggestionsMap;
 
+    private int allOpenedClientsCount = 0;
+
+    private Job allOpenedJob;
+
+    private SuggestionList allOpenedList;
+    private FileObject lastFileObject;
+
+    // TODO threading seems to be too complex
+    // performRescan() runs asynchronously in RP
+    // findCurrentFile runs in Timer (eliminate and replace by RP above)
+    // doRescanInAWT runs in AWT
+
+    private SuggestionsBroker() {
     }
 
     public static SuggestionsBroker getDefault() {
@@ -82,6 +97,7 @@ public final class SuggestionsBroker {
         return new Job();
     }
 
+    /** Handle for suggestions foe active document. */
     public class Job {
         public void stopBroker() {
             clientCount--;
@@ -99,7 +115,7 @@ public final class SuggestionsBroker {
 
         /**
          * Returns live list containing current suggestions.
-         * List is made live by invoking {@link #startBroker} and
+         * List is made live by invoking {@link SuggestionsBroker#startBroker} and
          * is abandoned ance last client calls {@link Job#stopBroker}.
          * <p>
          * It's global list so listeners must be carefully unregistered
@@ -113,6 +129,46 @@ public final class SuggestionsBroker {
 
     }
 
+    /** Starts monitoring all opened files */
+    public AllOpenedJob startAllOpenedBroker() {
+        allOpenedClientsCount++;
+        if (allOpenedClientsCount == 1) {
+            openedFilesSuggestionsMap = new HashMap();
+            allOpenedJob = startBroker();
+
+            TopComponent[] documents = SuggestionsScanner.openedTopComponents();
+            SuggestionsScanner scanner = SuggestionsScanner.getDefault();
+            for (int i = 0; i<documents.length; i++) {
+                Node[] nodes = documents[i].getActivatedNodes();
+                if (nodes == null) continue;
+                for (int n = 0; n<nodes.length; n++) {
+                    DataObject dobj = (DataObject) nodes[n].getCookie(DataObject.class);
+                    if (dobj == null) continue;
+                    FileObject fileObject = dobj.getPrimaryFile();
+                    List suggestions = scanner.scanTopComponent(documents[i]);
+                    openedFilesSuggestionsMap.put(fileObject, suggestions);
+                }
+            }
+        }
+        return new AllOpenedJob();
+    }
+
+    /** Handle to suggestions for all opened files request. */
+    public class AllOpenedJob {
+        public SuggestionList getSuggestionList() {
+            return getAllOpenedSuggestionList();
+        }
+
+        public void stopBroker() {
+            allOpenedClientsCount--;
+            if (allOpenedClientsCount == 0) {
+                allOpenedJob.stopBroker();
+                openedFilesSuggestionsMap = null;
+            }
+        }
+    }
+
+
     final SuggestionList getSuggestionsList() {
         return getSuggestionListImpl();
     }
@@ -123,6 +179,14 @@ public final class SuggestionsBroker {
         }
         return list;
     }
+
+    private SuggestionList getAllOpenedSuggestionList() {
+        if (allOpenedList == null) {
+            allOpenedList = new SuggestionList();
+        }
+        return allOpenedList;
+    }
+
     /*
      * Code related to Document scanning. It listens to the source editor and
      * tracks document opens and closes, as well as "current document" changes.
@@ -258,7 +322,7 @@ err.log("Couldn't find current nodes...");
         workspace.addPropertyChangeListener(this);
         */
 
-        doRescan();
+        doRescanInAWT();
     }
 
     /** Cache tracking suggestions in recently visited files */
@@ -274,7 +338,8 @@ err.log("Couldn't find current nodes...");
      * and CaretListener. Actual topcomponent is guarded
      * by attached ComponentListener.
      *
-     * @param delayed
+     * @param delayed <ul><li>true run {@link #performRescan} later in TimerThread
+     *                    <li>false run {@link #performRescan} synchronously
      */
     private void findCurrentFile(boolean delayed) {
         // Unregister previous listeners
@@ -308,32 +373,8 @@ err.log("Couldn't find current nodes...");
         //System.err.println("Add component listener to " + tcToDO(current));
         current.addComponentListener(getWindowSystemMonitor());
 
-        Node[] nodes = current.getActivatedNodes();
-
-        if ((nodes == null) || (nodes.length != 1)) {
-/*
-            if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
-                err.log(
-                  "Unexpected editor component activated nodes " + // NOI18N
-                  " contents: " + nodes); // NOI18N
-            }
-            */
-            return;
-        }
-
-        Node node = nodes[0];
-
-        final DataObject dao = (DataObject) node.getCookie(DataObject.class);
-        //err.log("Considering data object " + dao);
-        if (dao == null) {
-            return;
-        }
-
-        if (!dao.isValid()) {
-            //err.log("The data object is not valid!");
-            return;
-        }
-
+        DataObject dao = extractDataObject(current);
+        if (dao == null) return;
 
         /*
         if (dao == lastDao) {
@@ -459,6 +500,36 @@ err.log("Couldn't find current nodes...");
         }
     }
 
+    private static  DataObject extractDataObject(TopComponent topComponent) {
+        Node[] nodes = topComponent.getActivatedNodes();
+
+        if ((nodes == null) || (nodes.length != 1)) {
+/*
+            if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
+                err.log(
+                  "Unexpected editor component activated nodes " + // NOI18N
+                  " contents: " + nodes); // NOI18N
+            }
+            */
+            return null;
+        }
+
+        Node node = nodes[0];
+
+        final DataObject dao = (DataObject) node.getCookie(DataObject.class);
+        //err.log("Considering data object " + dao);
+        if (dao == null) {
+            return null;
+        }
+
+        if (!dao.isValid()) {
+            //err.log("The data object is not valid!");
+            return null;
+        }
+
+        return dao;
+    }
+
     /**
      * The given document has been edited or saved, and a time interval
      * (by default around 2 seconds I think) has passed without any
@@ -469,6 +540,9 @@ err.log("Couldn't find current nodes...");
      * or adding new ones, depending on the current contents of the
      * document.
      * <p>
+     * Spawns <b>Suggestions Broker thread</b> that finishes actula work
+     * asynchronously.
+     *
      * @param document The document being edited
      * @param dataobject The Data Object for the file being opened
      */
@@ -702,10 +776,31 @@ err.log("Couldn't find current nodes...");
         // enquing a change lookup on the next iteration through the
         // event loop; if a second notification comes in during the
         // same event processing iterationh it's simply discarded.
-        doRescan();
+
+
+        TopComponent tc = null;
+        if (allOpenedClientsCount > 0) {
+             tc = env.findActiveEditor();
+            if (tc == null) {
+                lastFileObject = null;
+            }
+            openedFilesSuggestionsMap.remove(lastFileObject);
+        }
+
+        doRescanInAWT();
+
+        // TODO must be performed after rescan finishes, (in asynchronous thread)
+        if (tc != null) {
+            DataObject dobj = extractDataObject(tc);
+            lastFileObject = (dobj != null) ? dobj.getPrimaryFile() : null;
+            SuggestionList list = getSuggestionListImpl();
+            List scannedSuggestions = list.getRoot().getSubtasks(); // XXX what is lifetime? Do I need a clone?             
+            openedFilesSuggestionsMap.put(lastFileObject, scannedSuggestions);
+        }
     }
 
-    private void doRescan() {
+    /** It sends asynchronously to AWT thread. */
+    private void doRescanInAWT() {
         if (pendingScan) {
             return;
         }
@@ -716,10 +811,13 @@ err.log("Couldn't find current nodes...");
                 // in the mean time - make sure we don't do a
                 // findCurrentFile(true) when we're not supposed to
                 // be processing views
-                if (clientCount > 0) {
-                    findCurrentFile(true);
+                try {
+                    if (clientCount > 0) {
+                        findCurrentFile(true);
+                    }
+                } finally {
+                    pendingScan = false;
                 }
-                pendingScan = false;
             }
         });
     }
