@@ -380,12 +380,15 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="USER_IS_LOGGED_IN">
       <value></value>
     </variable>
+    <variable name="AUTO_EXEC"> <!-- executed after filesystem instantiation if defined -->
+      <value>$[? DO_CHECKOUT][CHECKOUT][]</value>
+    </variable>
   </variables>
   <commands>
     <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS)">
       <property name="labelMnemonic">
         <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_Mnemonic)</value>
-      </property>
+      </property>     
       <command name="LIST" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(LIST)">
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(LIST_Mnemonic)</value>

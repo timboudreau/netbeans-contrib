@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Vector;
+import org.netbeans.api.vcs.commands.Command;
 
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
@@ -37,6 +38,9 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 import org.netbeans.modules.vcs.advanced.VcsCustomizer;
 import org.netbeans.modules.vcs.advanced.recognizer.CommandLineVcsFileSystemInfo;
+import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.spi.vcs.commands.CommandSupport;
+import org.openide.util.RequestProcessor;
 
 /**
  * The wizard iterator to mount the Generic VCS file system.
@@ -46,7 +50,8 @@ import org.netbeans.modules.vcs.advanced.recognizer.CommandLineVcsFileSystemInfo
 public class MountWizardIterator extends Object implements TemplateWizard.Iterator, PropertyChangeListener {
 
     private static MountWizardIterator instance;
-    
+    /* defines command executed after filesystem instantiation */
+    public static final String VAR_AUTO_EXEC = "AUTO_EXEC";     //NOI18N
     //private WizardDescriptor.Panel[] panels;
     private RangeArrayList panels;
    // String[] names;
@@ -82,7 +87,7 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
             data = new MountWizardData(instance);
             data.addProfileChangeListener(this);
             setupPanels(templateWizard);
-            listenerList = new javax.swing.event.EventListenerList();
+            listenerList = new javax.swing.event.EventListenerList();            
         }
     }
     
@@ -100,7 +105,19 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     public java.util.Set instantiate(org.openide.loaders.TemplateWizard templateWizard) throws java.io.IOException {
         CommandLineVcsFileSystemInfo info = new CommandLineVcsFileSystemInfo(data.getFileSystem());
         FSRegistry registry = FSRegistry.getDefault();               
-        registry.register(info);        
+        registry.register(info);
+        String autocmd = (String) data.getFileSystem().getVariablesAsHashtable().get(VAR_AUTO_EXEC); 
+        autocmd = Variables.expand(data.getFileSystem().getVariablesAsHashtable(), autocmd, false);
+        System.err.println("cmd: "+autocmd);
+        if((autocmd != null)&&(autocmd.length() > 0)){
+            final CommandSupport supp = data.getFileSystem().getCommandSupport(autocmd);
+            RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                     Command cmd = supp.createCommand();
+                     cmd.execute();
+                }
+            });
+        }
         return Collections.EMPTY_SET;
     }
     
