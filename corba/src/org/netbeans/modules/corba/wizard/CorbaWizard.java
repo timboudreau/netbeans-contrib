@@ -186,7 +186,7 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                 TopManager.getDefault().notifyException (ioe);
             }
             finally {
-                CorbaWizard.this.rollBack();
+                CorbaWizard.this.rollBack(false);
             }
         }
 
@@ -344,7 +344,7 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                 wg.start ();
             }
             else if (option == WizardDescriptor.CANCEL_OPTION) {
-                this.rollBack();
+                this.rollBack(true);
                 dialog.setVisible(false);
                 dialog.dispose ();
             }
@@ -363,17 +363,19 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
     }
     
     
-    private void rollBack () {
+    private void rollBack (boolean restoreTie) {
         CORBASupportSettings css = this.data.getSettings();
         if (css != null) {
             if (this.data.getDefaultServerBindingValue() != null)
                 css.getActiveSetting().setServerBindingFromString(this.data.getDefaultServerBindingValue());
             if (this.data.getDefaultClientBindingValue() != null)
                 css.getActiveSetting().setClientBindingFromString (this.data.getDefaultClientBindingValue());
-            if (this.data.getDefaultTie())
-                css.getActiveSetting().setSkeletons (ORBSettingsBundle.TIE);
-            else
-                css.getActiveSetting().setSkeletons (ORBSettingsBundle.INHER);
+	    if (restoreTie) {	
+                if (this.data.getDefaultTie())
+                    css.getActiveSetting().setSkeletons (ORBSettingsBundle.TIE);
+                else
+                    css.getActiveSetting().setSkeletons (ORBSettingsBundle.INHER);
+	    }
             if (this.data.getDefaultOrbValue() != null)
                 css.setOrb(this.data.getDefaultOrbValue());
             }
