@@ -1696,7 +1696,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             while (vars.hasMoreElements ()) {
                 VcsConfigVariable var = (VcsConfigVariable) vars.nextElement ();
                 fsVarsByName.put(var.getName(), var);
-                if (configInputPanels == null && var.isBasic ()) {
+                if (configInputPanels == null && var.isBasic () && var.getLabel() != null && var.getLabel().length() > 0) {
                     JLabel lb;
                     JTextField tf;
                     JButton button = null;
