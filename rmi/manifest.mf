@@ -1,9 +1,9 @@
 OpenIDE-Module: com.netbeans.enterprise.modules.rmi/1
 OpenIDE-Module-Name: RMI
 OpenIDE-Module-Install: com/netbeans/enterprise/modules/rmi/RMIModule.class
-OpenIDE-Module-Module-Dependencies: com.netbeans.developer.modules.loaders.java/1, com.netbeans.developer.modules.httpserver/1, com.netbeans.developer.modules.debugger.core/1, org.openidex.util/1, com.netbeans.developer.modules.utilities/1 > 0.9.4
-OpenIDE-Module-Specification-Version: 0.9.4
-OpenIDE-Module-Implementation-Version: 0.9.4
+OpenIDE-Module-Module-Dependencies: com.netbeans.developer.modules.loaders.java/1, com.netbeans.developer.modules.httpserver/1, com.netbeans.developer.modules.debugger.core/1, org.openidex.util/1, com.netbeans.developer.modules.utilities/1 > 1.0
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Implementation-Version: 1.0
 OpenIDE-Module-Description: com.netbeans.enterprise.modules.rmi.docs.HelpSet
 
 Name: com/netbeans/enterprise/modules/rmi/RMIDataLoader.class
