@@ -493,7 +493,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         setRefreshTime(0);
     }
 
-    //-------------------------------------------
+    /**
+     * Clear the debug output.
+     */
     public void debugClear(){
         if( getDebug() ){
             try{
@@ -503,11 +505,24 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
 
-    //-------------------------------------------
+    /**
+     * Print a debug output. If the debug property is true, the message
+     * is printed to the Output Window.
+     * @param msg the message to print out.
+     */
     public void debug(String msg){
         if( getDebug() ){
             TopManager.getDefault().getStdOut().println(msg);
         }
+    }
+
+    /**
+     * Print an error output. Force the message to print to the Output Window.
+     * The debug property is not considered.
+     * @param msg the message to print out.
+     */
+    public void debugErr(String msg){
+        TopManager.getDefault().getStdOut().println(msg);
     }
 
 
@@ -1450,7 +1465,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param fos the collection of <code>FileObject</code>s to act on.
      * @return the actions retrieved from <code>VcsFactory.getActions(fos)</code>
      */
-    public SystemAction[] getActions(Collection fos) {
+    public SystemAction[] getActions(Set fos) {
         return getVcsFactory ().getActions(fos);
     }
 
