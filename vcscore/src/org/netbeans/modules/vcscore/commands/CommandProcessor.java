@@ -207,9 +207,26 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     }
     
     /**
-     * Pre-process the task. This will show the command's customizer.
+     * Pre-process the task. This will show the command's customizer (if any)
+     * and return the status. This method will block until the customization process
+     * is finished. This was made to be called from AWT thread. Use {@link #preprocess}
+     * method in other cases.
+     */
+    public boolean preprocessSynchronous(Command cmd) {
+        if (cmd == null) {
+            throw new NullPointerException("Can not preprocess a 'null' command.");
+        }
+        return doPreprocess2(cmd);
+    }
+    
+    /**
+     * Pre-process the task. This will do the preprocess in the background.
+     * It will show the command's customizer, if any.
      */
     public synchronized void preprocess(Command cmd) {
+        if (cmd == null) {
+            throw new NullPointerException("Can not preprocess a 'null' command.");
+        }
         //taskInfos.put(info.getTask(), info);
         //info.setSubmittingThread(Thread.currentThread());
         commandsToPreprocess.add(cmd);
@@ -240,32 +257,38 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         // used as an execution thread for another command.
         RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
-                List commandListeners;
-                Object provider = null;
-                if (cmd instanceof ProvidedCommand) {
-                    provider = ((ProvidedCommand) cmd).getProvider();
-                }
-                synchronized (commandListenersByProviders) {
-                    commandListeners = new ArrayList(commandListenersForAllProviders);
-                    List providerListeners = (List) commandListenersByProviders.get(provider);
-                    if (providerListeners != null) commandListeners.addAll(providerListeners);
-                }
-                for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
-                    ((CommandProcessListener) it.next()).commandPreprocessing(cmd);
-                }
-                boolean status = false;
-                try {
-                    status = showCustomizer(cmd);
-                } catch (IntrospectionException iex) {
-                    ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, iex);
-                    status = false;
-                } finally {
-                    for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
-                        ((CommandProcessListener) it.next()).commandPreprocessed(cmd, status);
-                    }
-                }
+                doPreprocess2(cmd);
             }
         });
+    }
+    
+    /** Do not call directly unless from a known thread. Read the comment in doPreprocess(). */
+    private boolean doPreprocess2(Command cmd) {
+        List commandListeners;
+        Object provider = null;
+        if (cmd instanceof ProvidedCommand) {
+            provider = ((ProvidedCommand) cmd).getProvider();
+        }
+        synchronized (commandListenersByProviders) {
+            commandListeners = new ArrayList(commandListenersForAllProviders);
+            List providerListeners = (List) commandListenersByProviders.get(provider);
+            if (providerListeners != null) commandListeners.addAll(providerListeners);
+        }
+        for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
+            ((CommandProcessListener) it.next()).commandPreprocessing(cmd);
+        }
+        boolean status = false;
+        try {
+            status = showCustomizer(cmd);
+        } catch (IntrospectionException iex) {
+            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, iex);
+            status = false;
+        } finally {
+            for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
+                ((CommandProcessListener) it.next()).commandPreprocessed(cmd, status);
+            }
+        }
+        return status;
     }
     
     private boolean showCustomizer(Command cmd) throws IntrospectionException {
@@ -286,8 +309,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         return status;
          */
-        FileObject[] files = cmd.getFiles();
-        if (files != null) VcsAction.assureFilesSaved(Arrays.asList(files));
         Component cust = null;
         DialogDescriptor dlg = null;
         //System.out.println("cmd instanceof BeanInfo = "+(cmd instanceof BeanInfo));
@@ -437,6 +458,9 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         //if (fileSystem == null) return ;
         final CommandTask cmdTask = cw.getTask();
         //waitToRun(cmd, vce.getFiles());
+        // Assure that the files we'll be acting on are saved.
+        FileObject[] files = cmdTask.getFiles();
+        if (files != null) VcsAction.assureFilesSaved(Arrays.asList(files));
         final String name = cmdTask.getDisplayName();
         //if (name == null || name.length() == 0) name = cmd.getName();
         //final String finalName = name;

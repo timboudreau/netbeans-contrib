@@ -184,17 +184,27 @@ public class VcsManager extends Object {
     
     /**
      * Let the user to visually customize the command. The method blocks until the
-     * customization is done. This method must not be called from the AWT dispatch
-     * thread, because a deadlock can occur.
+     * customization is done.
      * @param cmd The command to customize.
      * @return True if the customization was successfull (the user pressed the OK button)
      *         or False if the customization was cancelled (the user pressed the Cancel button).
      */
     public boolean showCustomizer(Command cmd) {
         CommandProcessor processor = CommandProcessor.getInstance();
+        if (java.awt.EventQueue.isDispatchThread()) {
+            return processor.preprocessSynchronous(cmd);
+        }
         CustomizationListener custListener = new CustomizationListener(cmd);
         processor.addCommandProcessListener(custListener);
-        processor.preprocess(cmd);
+        try {
+            processor.preprocess(cmd);
+        } catch (Throwable thr) {
+            processor.removeCommandProcessListener(custListener);
+            // Can not throw Throwable without being declared - wrap into RuntimeException
+            RuntimeException rex = new RuntimeException();
+            rex.initCause(thr);
+            throw rex;
+        }
         synchronized (custListener) {
             if (custListener.isPreprocessed()) {
                 //System.out.println("Command was already preprocessed.");
