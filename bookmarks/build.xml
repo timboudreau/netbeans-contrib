@@ -31,6 +31,9 @@
                 <!-- Whatever you need, based on your dependencies. -->
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
                 <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
+                <fileset dir="${nb_all}/openide">
+                    <include name="loaders/netbeans/lib/openide-loaders.jar"/>
+                </fileset>
             </classpath>
         </javac>
     </target>
