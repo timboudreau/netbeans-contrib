@@ -4030,10 +4030,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         
         private void refreshVersioning() {
-            //System.out.println("refreshVersioning("+name+")");
-            FileObject fo = versioningSystem.findExistingResource(name);
-            //System.out.println("  resource = "+fo);
-            if (fo != null) fo.refresh();
+            getStatusChangeRequestProcessor().post(new Runnable() {
+                public void run() {
+                    //System.out.println("refreshVersioning("+name+")");
+                    FileObject fo = versioningSystem.findExistingResource(name);
+                    //System.out.println("  resource = "+fo);
+                    if (fo != null) fo.refresh();
+                }
+            });
         }
     }
     
