@@ -2778,6 +2778,7 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="exec">
 	  <value>${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${NUR}</value>
 	  <value if="IS_WIN9X">${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${NUR}</value>
+          <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${NUR}</value>
 	</property>
 	<property name="display">
 	  <value>true</value>
@@ -2789,13 +2790,17 @@ Microsystems, Inc. All Rights Reserved.
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_INPUT_WORKING_DIR);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INPUT_WORKING_DIR_Mnemonic)),
                             SELECTOR_DIR)
                  PROMPT_FOR(CVS_ROOT, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot):", "$[? CVS_ROOT] [${CVS_ROOT}] [${ENVIRONMENT_VAR_CVSROOT}]",
-                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_CVSRoot);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot_Mnemonic)))
+                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_CVSRoot);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot_Mnemonic)))                 
+                 SELECT_RADIO(BUILT-IN, "", "true", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true)", "true", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_BuiltIn_true);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true_Mnemonic))"],
+                                            ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_false)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_BuiltIn_false);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_false_Mnemonic))",
                  PROMPT_FOR(CVS_EXE, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_EXE):", "${CVS_EXE}",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_EXE);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_EXE_Mnemonic)),
                             SELECTOR_FILE)
-                 IF_VAR_NON_EMPTY"IS_WIN9X"_PROMPT_FOR(SHELL, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(Unix_Shell):", "${SHELL}",
+                 PROMPT_FOR(ENVIRONMENT_VAR_CVS_RSH, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVS_RSH):", "ssh",
+                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_CVS_RSH);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVS_RSH_Mnemonic)))
+                 IF_VAR_NON_EMPTY"IS_WIN9X"_PROMPT_FOR(SHELL, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(Unix_Shell):", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_Unix_Shell);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(Unix_Shell_Mnemonic)),
-                            SELECTOR_FILE)
+                            SELECTOR_FILE)])
                  
                  PROMPT_FOR(CO_MODULE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Module), ${REPOS_DIR},ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Module_mnc)) ,SELECTOR_CMD_SELECTOR_MODULES)
                  PROMPT_FOR(TAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Tag), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Tag_mnc)))
@@ -2828,7 +2833,7 @@ Microsystems, Inc. All Rights Reserved.
       <command name="CHECKOUT_MODULES_S_CMD">
         <property name="exec">
           <value>${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} -f checkout -s ${NUR}</value>
-          <value if="IS_WIN9X">${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} -f checkout -s ${NUR}</value>
+          <value if="IS_WIN9X">${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} -f checkout -s ${NUR}</value>          
 	</property>
       </command>
       <command name="CHECKOUT_MODULES_C_CMD">
@@ -2851,6 +2856,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>${RUN} cd ${ROOTDIR}; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}</value>
 	  <value if="IS_WINNT">${RUN} cd /D ${ROOTDIR} &amp;&amp; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}</value>
 	  <value if="IS_WIN9X">${RUN} cd ${ROOTDIR}; ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}</value>
+          <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_IMPORT_Label), ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_IMPORT_Label)))
@@ -2862,13 +2868,16 @@ Microsystems, Inc. All Rights Reserved.
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_CVSRoot);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot_Mnemonic)))
                  PROMPT_FOR(REPOS_DIR, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_IMPORT_ReposDir)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_IMPORT_ReposDir);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_IMPORT_ReposDir_Mnemonic)))
+                  SELECT_RADIO(BUILT-IN, "", "true", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true)", "true", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_BuiltIn_true);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true_Mnemonic))"],
+                                            ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_false)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_BuiltIn_false);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_false_Mnemonic))",
                  PROMPT_FOR(CVS_EXE, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_EXE):", "${CVS_EXE}",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_EXE);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_EXE_Mnemonic)),
                             SELECTOR_FILE)
-                 IF_VAR_NON_EMPTY"IS_WIN9X"_PROMPT_FOR(SHELL, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(Unix_Shell):", "${SHELL}",
+                 PROMPT_FOR(ENVIRONMENT_VAR_CVS_RSH, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVS_RSH):", "ssh",
+                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_CVS_RSH);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVS_RSH_Mnemonic)))
+                 IF_VAR_NON_EMPTY"IS_WIN9X"_PROMPT_FOR(SHELL, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(Unix_Shell):", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_Unix_Shell);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(Unix_Shell_Mnemonic)),
-                            SELECTOR_FILE)
-                 
+                            SELECTOR_FILE)])                                  
                  PROMPT_FOR(DESCRIPTION, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_IMPORT_Logging_Message), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_IMPORT_Logging_Message_mnc)))
                  PROMPT_FOR(VENDOR_TAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_IMPORT_Vendor_Tag), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_IMPORT_Vendor_Tag_mnc)) ,VALIDATOR_NON_EMPTY)
                  PROMPT_FOR(RELEASE_TAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_IMPORT_Release_Tag), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_IMPORT_Release_Tag_mnc)), VALIDATOR_NON_EMPTY)
