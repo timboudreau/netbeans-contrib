@@ -504,20 +504,24 @@ public final class ProfilesFactory extends Object {
             PropertyDescriptor[] properties = null;
             try {
                 properties = new PropertyDescriptor[] {
+                    new PropertyDescriptor("conditions", ProfileImpl.class),
                     new PropertyDescriptor("variables", ProfileImpl.class),
                     new PropertyDescriptor("commands", ProfileImpl.class),
                     new PropertyDescriptor("globalCommands", ProfileImpl.class),
                 };
                 
-                properties[0].setDisplayName(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("PROP_Variables"));
-                properties[0].setShortDescription(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("HINT_PPROP_Variables"));
-                properties[0].setPropertyEditorClass(UserConditionedVariablesEditor.class);
-                properties[1].setDisplayName(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("PROP_Commands"));
-                properties[1].setShortDescription(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("HINT_PROP_Commands"));
-                properties[1].setPropertyEditorClass(UserConditionedCommandsEditor.class);
-                properties[2].setDisplayName(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("PROP_GlobalCommands"));
-                properties[2].setShortDescription(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("HINT_PROP_GlobalCommands"));
+                properties[0].setDisplayName(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("PROP_Conditions"));
+                properties[0].setShortDescription(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("HINT_PPROP_Conditions"));
+                properties[0].setPropertyEditorClass(UserConditionsEditor.class);
+                properties[1].setDisplayName(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("PROP_Variables"));
+                properties[1].setShortDescription(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("HINT_PPROP_Variables"));
+                properties[1].setPropertyEditorClass(UserConditionedVariablesEditor.class);
+                properties[2].setDisplayName(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("PROP_Commands"));
+                properties[2].setShortDescription(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("HINT_PROP_Commands"));
                 properties[2].setPropertyEditorClass(UserConditionedCommandsEditor.class);
+                properties[3].setDisplayName(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("PROP_GlobalCommands"));
+                properties[3].setShortDescription(NbBundle.getBundle(ProfileImplBeanInfo.class).getString("HINT_PROP_GlobalCommands"));
+                properties[3].setPropertyEditorClass(UserConditionedCommandsEditor.class);
                 
             } catch (java.beans.IntrospectionException intrexc) {
                 ErrorManager manager = (ErrorManager)Lookup.getDefault().lookup(ErrorManager.class);

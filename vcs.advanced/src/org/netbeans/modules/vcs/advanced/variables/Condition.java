@@ -27,7 +27,7 @@ import java.util.Map;
  *
  * @author  Martin Entlicher
  */
-public final class Condition extends Object {
+public final class Condition extends Object implements Cloneable {
     
     /**
      * The variable value is tested for the equality with the specified value.
@@ -78,6 +78,15 @@ public final class Condition extends Object {
     }
     
     /**
+     * Set the name of the condition (== the name of the variable, that should
+     * be set by this condition.
+     * @param name The name of the condition.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    /**
      * Add a new condition for a variable value.
      * @param name The name of the variable to which the condition is to be applied.
      * @param value The value that is to be compared to the variable value.
@@ -97,6 +106,14 @@ public final class Condition extends Object {
     public void addVar(Var var, boolean positive) {
         if (var == null) throw new NullPointerException("Null variable can not be added.");
         cmpVars.put(var, positive ? Boolean.TRUE : Boolean.FALSE);
+    }
+    
+    /**
+     * Remove a variable value.
+     * @param var The variable pattern to be removed.
+     */
+    public void removeVar(Var var) {
+        cmpVars.remove(var);
     }
     
     /**
@@ -126,6 +143,14 @@ public final class Condition extends Object {
     public void addCondition(Condition condition, boolean positive) {
         if (condition == null) throw new NullPointerException("Null condition can not be added.");
         cmpCond.put(condition, positive ? Boolean.TRUE : Boolean.FALSE);
+    }
+    
+    /**
+     * Remove a sub-condition.
+     * @param var The variable pattern to be removed.
+     */
+    public void removeCondition(Condition condition) {
+        cmpCond.remove(condition);
     }
     
     /**
@@ -250,10 +275,24 @@ public final class Condition extends Object {
         return name.hashCode() + operation + cmpVars.hashCode() + cmpCond.hashCode();
     }
     
+    public Object clone() {
+        Condition c = new Condition(name);
+        c.operation = operation;
+        for (Iterator it = cmpVars.keySet().iterator(); it.hasNext(); ) {
+            Var cmpVar = (Var) it.next();
+            c.cmpVars.put(cmpVar.clone(), cmpVars.get(cmpVar));
+        }
+        for (Iterator it = cmpCond.keySet().iterator(); it.hasNext(); ) {
+            Condition cc = (Condition) it.next();
+            c.cmpCond.put(cc.clone(), cmpCond.get(cc));
+        }
+        return c;
+    }
+    
     /**
      * The variable pattern that is used to test the variables with.
      */
-    public static final class Var extends Object {
+    public static final class Var extends Object implements Cloneable {
         
         private String name;
         private String value;
@@ -275,12 +314,24 @@ public final class Condition extends Object {
             return name;
         }
         
+        public void setName(String name) {
+            this.name = name;
+        }
+        
         public String getValue() {
             return value;
         }
         
+        public void setValue(String value) {
+            this.value = value;
+        }
+        
         public int getCompareValue() {
             return compareValue;
+        }
+        
+        public void setCompareValue(int compareValue) {
+            this.compareValue = compareValue;
         }
         
         /**
@@ -320,6 +371,10 @@ public final class Condition extends Object {
          */
         public int hashCode() {
             return name.hashCode() + value.hashCode() + compareValue;
+        }
+        
+        public Object clone() {
+            return new Var(name, value, compareValue);
         }
     
     }
