@@ -89,8 +89,8 @@ public interface MDRepository extends MDRChangeSource {
      * a corresponding <code>endTrans</code> call to each <code>beginTrans</code> call
      * use the <code>try-finally</code> construct:<p>
      * <code>
+     * beginTrans(false);<br>
      * try {<br>
-     * &nbsp;&nbsp;&nbsp;&nbsp;beginTrans(false);<br>
      * &nbsp;&nbsp;&nbsp;&nbsp;// set of JMI calls<br>
      * } finally {<br>
      * &nbsp;&nbsp;&nbsp;&nbsp;endTrans();<br>
