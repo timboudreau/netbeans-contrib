@@ -1146,20 +1146,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private Set findExistingResources(Collection names) {
         Enumeration enum = existingFileObjects(getRoot());
         Set fos = new HashSet();
-        Iterator namesIt = names.iterator();
-        boolean hasNext = namesIt.hasNext();
-        String name = (hasNext) ? (String) namesIt.next() : null;
-        while (enum.hasMoreElements() && hasNext) {
+        int n = names.size();
+        int i = 0;
+        while (enum.hasMoreElements() && i < n) {
             FileObject obj = (FileObject) enum.nextElement();
-            if (name.equals(obj.getPackageNameExt('/', '.'))) {
+            String name = obj.getPackageNameExt('/', '.');
+            if (names.contains(name)) {
                 fos.add(obj);
-                hasNext = namesIt.hasNext();
-                if (hasNext) {
-                    name = (String) namesIt.next();
-                } else {
-                    name = null;
-                    break;
-                }
+                i++;
             }
         }
         return fos;
@@ -4478,7 +4472,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     private class StatusChangeUpdater extends Object implements Runnable {
         
-        private java.util.List namesToUpdate = new ArrayList();
+        private java.util.Set namesToUpdate = new HashSet();
         
         public StatusChangeUpdater() {
         }
@@ -4491,10 +4485,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
          * Run the status update process.
          */
         public void run() {
-            java.util.List names;
+            java.util.Set names;
             synchronized (this) {
                 names = namesToUpdate;
-                namesToUpdate = new ArrayList();
+                namesToUpdate = new HashSet();
             }
             Set fos = findExistingResources(names);
             //System.out.println("statusChanged: findResource("+names+") = "+fos);
