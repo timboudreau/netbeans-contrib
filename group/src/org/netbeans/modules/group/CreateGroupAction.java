@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import org.openide.ErrorManager;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -28,7 +29,9 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeAcceptor;
-import org.openide.TopManager;
+import org.openide.loaders.DataFilter;
+import org.openide.loaders.RepositoryNodeFactory;
+import org.openide.nodes.NodeOperation;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.UserCancelException;
@@ -65,7 +68,7 @@ public class CreateGroupAction extends CookieAction {
                 GroupShadow.writeLinks(list, fo);
             }
         } catch(IOException ex) {
-            TopManager.getDefault().notifyException(ex);
+            ErrorManager.getDefault().notify(ex);
         }
     }
 
@@ -130,7 +133,8 @@ public class CreateGroupAction extends CookieAction {
 
         try {
             // repository
-            Node an = TopManager.getDefault().getPlaces().nodes().repository();
+            Node an = RepositoryNodeFactory.getDefault()
+                                           .repository(DataFilter.ALL);
 
             NodeAcceptor na = new NodeAcceptor() {
                                   public boolean acceptNodes(Node[] nodes) {
@@ -143,7 +147,7 @@ public class CreateGroupAction extends CookieAction {
                               };
 
             // select file system
-            Node[] nodes = TopManager.getDefault().getNodeOperation().select(
+            Node[] nodes = NodeOperation.getDefault().select(
                                NbBundle.getBundle (CreateGroupAction.class).getString ("PROP_Select_File"),
                                NbBundle.getBundle (CreateGroupAction.class).getString ("PROP_Look_In"),
                                an, na, jp
