@@ -207,14 +207,22 @@ public final class SuggestionsScanner implements Cancellable {
 
             if (SwingUtilities.isEventDispatchThread()) {
                 Mode editorMode = WindowManager.getDefault().findMode(CloneableEditorSupport.EDITOR_MODE);
-                return editorMode.getTopComponents();                
+                if (editorMode == null) {
+                    return new TopComponent[0];
+                } else {
+                    return editorMode.getTopComponents();
+                }
             } else {
                 // I just hope that we are not called from non-AWT thread
                 // still holding AWTTreeLock otherwise deadlock
                 SwingUtilities.invokeAndWait(new Runnable() {
                     public void run() {
                         Mode editorMode = WindowManager.getDefault().findMode(CloneableEditorSupport.EDITOR_MODE);
-                        wsResult[0] = editorMode.getTopComponents();
+                        if (editorMode == null) {
+                            wsResult[0] = new TopComponent[0];
+                        } else {
+                            wsResult[0] = editorMode.getTopComponents();
+                        }
                     }
                 });
                 return (TopComponent[]) wsResult[0];

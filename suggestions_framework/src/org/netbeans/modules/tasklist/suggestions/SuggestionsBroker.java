@@ -45,7 +45,12 @@ import java.util.logging.Logger;
 
 /**
  * Broker actively monitors environment and provides
- * suggestions valid in current context (open document).
+ * suggestion lists (jobs) for:
+ * <ul>
+ *   <li>{@link #startBroker}, currently opened document (list managed by SuggestionsManager, see getListByRequest)
+ *   <li>{@link #startAllOpenedBroker}, all opened documents (list managed by this class)
+ *       XXX it does not catch changes/suggestions made by providers on their own
+ * </ul>
  *
  * @author Petr Kuzel
  * @author Tor Norbye (transitive from sacked SuggestionManagerImpl)
@@ -617,6 +622,9 @@ err.log("Couldn't find current nodes...");
                     openedFilesSuggestionsMap.put(lastOpenedFileObject, clones);
 
                     getAllOpenedSuggestionList().addRemove(clones, previous, false, null, null);
+
+                    // TODO remove on enabling
+                    getAllOpenedSuggestionList().print();
                 }
 
                 // enforce comparable requests, works only for single request source
@@ -803,12 +811,6 @@ err.log("Couldn't find current nodes...");
                 DataObject dobj = extractDataObject(tc);
                 lastOpenedFileObject = (dobj != null) ? dobj.getPrimaryFile() : null;
             }
-
-// on CLOSED_EVENT
-//            List previous = (List) openedFilesSuggestionsMap.remove(lastOpenedFileObject);
-//            if (previous != null) {
-//                getAllOpenedSuggestionList().addRemove(null, previous, false, null, null);
-//            }
         }
 
         doRescanInAWT();
@@ -901,6 +903,17 @@ err.log("Couldn't find current nodes...");
         docSuggestions = null;
     }
 
+    private void handleTopComponentClosed(TopComponent tc) {
+        DataObject dobj = extractDataObject(tc);
+        if (dobj == null) return;
+
+        List previous = (List) openedFilesSuggestionsMap.remove(dobj.getPrimaryFile());
+        if (previous != null) {
+            getAllOpenedSuggestionList().addRemove(null, previous, false, null, null);
+        }
+    }
+
+
     private WindowSystemMonitor windowSystemMonitor;
 
     private WindowSystemMonitor getWindowSystemMonitor() {
@@ -911,11 +924,28 @@ err.log("Couldn't find current nodes...");
     }
 
     private class WindowSystemMonitor implements PropertyChangeListener, ComponentListener {
+
+        private Set openedSoFar = new HashSet(0);
+
         /** Reacts to changes */
         public void propertyChange(PropertyChangeEvent ev) {
             String prop = ev.getPropertyName();
             if (prop.equals(TopComponent.Registry.PROP_OPENED)) {
                 componentsChanged();
+
+                // determine what components have been closed, window system does not
+                // provide any other listener to do it in more smart way
+
+                Set actual = TopComponent.getRegistry().getOpened();
+                openedSoFar.removeAll(actual);
+
+                Iterator it = openedSoFar.iterator();
+                while(it.hasNext()) {
+                    TopComponent tc = (TopComponent) it.next();
+                    handleTopComponentClosed(tc);
+                }
+
+                openedSoFar = new HashSet(actual);
             }
         }
 
