@@ -54,8 +54,12 @@ public class VcsAction extends NodeAction implements ActionListener {
 
     protected WeakReference fileSystem = new WeakReference(null);
     protected Collection selectedFileObjects = null;
+
+    private ArrayList switchableList;
     
     private Node[] actionCommandsSubTrees = null; // the commands subtrees to construct actions from
+
+    boolean CTRL_Down = false;
     
     public VcsAction() {
     }
@@ -394,8 +398,14 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
      */
     private void doCommand(Table files, VcsCommand cmd) {
+        Hashtable map = new Hashtable(1);
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        VcsAction.doCommand(files, cmd, null, fileSystem);
+        if (!fileSystem.isExpertMode()) {
+            if (CTRL_Down) {
+                map.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE);
+            }
+        }
+        VcsAction.doCommand(files, cmd, map, fileSystem);
     }
     
     /** Make sure, that the files are saved. If not, save them.
@@ -600,6 +610,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         JMenuItem item = null;
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         VcsCommand cmd = fileSystem.getCommand(name);
+        boolean expertMode = fileSystem.isExpertMode();
 
         if (cmd == null) {
             //E.err("Command "+name+" not configured."); // NOI18N
@@ -620,6 +631,10 @@ public class VcsAction extends NodeAction implements ActionListener {
         if (props != null && props.length > 0) {
             item.setActionCommand(cmd.getName());
             item.addActionListener(this);
+        }
+        Boolean hasExpert = (Boolean)cmd.getProperty(cmd.PROPERTY_SUPPORTS_ADVANCED_MODE);
+        if (hasExpert != null && hasExpert.booleanValue() == true && (!expertMode)) {
+               switchableList.add(item);
         }
         return item;
     }
@@ -691,6 +706,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         boolean onRoot = isOnRoot();
         boolean onDir;
         boolean onFile;
+        switchableList = new ArrayList();
         if (onRoot) {
             onDir = onFile = false;
         } else {
@@ -725,6 +741,24 @@ public class VcsAction extends NodeAction implements ActionListener {
         if (inMenu) {
             menu.setIcon(getIcon());
         }
+        JMenu mn = (JMenu)menu;
+        mn.addMenuKeyListener(new CtrlMenuKeyListener());
+        mn.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuDeselected(javax.swing.event.MenuEvent e) {
+//                deselectedMenu();
+//                System.out.println("menu deselected");
+            }    
+            public void menuCanceled(javax.swing.event.MenuEvent e) {
+//                deselectedMenu();
+//                System.out.println("menu canceled");
+            }    
+            public void menuSelected(javax.swing.event.MenuEvent e) {
+                deselectedMenu();
+//                System.out.println("Selected menu");
+            }    
+        });    
+
+        
         addMenu(commandRoot, /*first, lastOrder, */(JMenu) menu, onDir, onFile, onRoot, statuses);
         if (menu.getSubElements().length == 0) {
             VcsCommand cmd = (VcsCommand) commandRoot.getCookie(VcsCommand.class);
@@ -949,5 +983,43 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
         new Thread(cpr, "Vcs Commands Performing Thread").start();
     }
+
+    private class CtrlMenuKeyListener implements javax.swing.event.MenuKeyListener {
+        public void menuKeyTyped(final javax.swing.event.MenuKeyEvent p1) {
+        }
+        public void menuKeyPressed(final javax.swing.event.MenuKeyEvent p1) {
+            boolean newCTRL_Down = (p1.CTRL_MASK == p1.getModifiers());
+            changeCtrlSigns(newCTRL_Down);
+            CTRL_Down = newCTRL_Down;
+        }
+        public void menuKeyReleased(final javax.swing.event.MenuKeyEvent p1) {
+            boolean newCTRL_Down = (p1.CTRL_MASK == p1.getModifiers());
+            changeCtrlSigns(newCTRL_Down);
+            CTRL_Down = newCTRL_Down;
+        }
+    }
+
+    private void deselectedMenu() {
+        changeCtrlSigns(false);
+        CTRL_Down = false;
+    }   
+
+    private void changeCtrlSigns(boolean newValue) {
+        if (newValue == CTRL_Down) return;
+        Iterator it = switchableList.iterator();
+        while (it.hasNext()) {
+            JMenuItem item = (JMenuItem)it.next();
+            String text = item.getText();
+            if (newValue) {
+                // do turn ctrl sign on
+                if (!text.endsWith("+")) {text = text + "+";}
+            }   else { 
+                // turn it off - ctrl released
+                if (text.endsWith("+")) {text = text.substring(0,text.length() - 1);}
+            }    
+            item.setText(text);
+        }    
+    }    
+    
     
 }

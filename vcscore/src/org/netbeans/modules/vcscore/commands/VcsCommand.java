@@ -231,6 +231,14 @@ public interface VcsCommand extends VcsCommandCookie {
      * status attributes in this property value.
      */
     public static final String PROPERTY_DISABLED_ON_STATUS = "disabledOnStatus";
+    
+    /**
+     * A boolean property that describes if the command supports advanced mode in filesystem.
+     * Such commands are marked by a + sign on the popup (when pressing CTRL key) 
+     * Information wheather the CTRL key was pressed is stored in the variable passed to the executor.
+     * (
+     */
+    public static final String PROPERTY_SUPPORTS_ADVANCED_MODE = "supportsAdvancedMode";
 
     /** All execution of this command can be done concurrently with others.
      */

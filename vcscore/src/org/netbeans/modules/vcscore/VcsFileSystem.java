@@ -109,6 +109,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * is on, this variable is non empty.
      */
     public static final String VAR_EXPERT_MODE = "EXPERT_MODE"; // NOI18N
+    
+    /**
+     * If Expert mode is off.. this variable carries information that CTrl was pressed down when
+     * displaying the Vcsaction = user requested to have the advanced options displayed..
+     */
+    
+    public static final String VAR_CTRL_DOWN_IN_ACTION = "CTRL_DOWN_IN_ACTION";
     /**
      * This variable can contain the display name, which is prepended to the
      * root path of the file system to create the display name.

@@ -509,13 +509,15 @@ public class CommandExecutorSupport extends Object {
                 if (prompt != null && prompt.size() > 0 || ask != null && ask.size() > 0 ||
                 promptFile.size() > 0 || userParamsPromptLabels.size() > 0) {
                     */
-                if (inputDescriptor != null && showInputDescriptor(inputDescriptor, fileSystem.isExpertMode())
+                Boolean ctrlDown = (Boolean)vars.get(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION);
+                boolean expertCondition = fileSystem.isExpertMode() || (ctrlDown != null && ctrlDown.booleanValue() == true);
+                if (inputDescriptor != null && showInputDescriptor(inputDescriptor, expertCondition)
                     || userParamsPromptLabels.size() > 0) {
                         
                     String file = (String) vars.get("FILE"); // NOI18N
-                    VariableInputDialog dlg = new VariableInputDialog(new String[] { file }, inputDescriptor, fileSystem.isExpertMode());
+                    VariableInputDialog dlg = new VariableInputDialog(new String[] { file }, inputDescriptor, expertCondition);
                     dlg.setVCSFileSystem(fileSystem, vars);
-                    if (fileSystem.isExpertMode()) {
+                    if (expertCondition) {
                         if (exec != null) dlg.setExec(exec);
                     }
                     String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
