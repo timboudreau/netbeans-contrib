@@ -3029,10 +3029,10 @@ Microsystems, Inc. All Rights Reserved.
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_CVSRoot);;MNEMONIC_ResourceMsg(VAR_CVSRoot_Mnemonic)))                 -->
                  SELECT_COMBO_EDITABLE(SERVERTYPE, "ResourceMsg(VAR_SERVER_Type):", "pserver",
                                    ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_SERVER_Type);;MNEMONIC_ResourceMsg(VAR_SERVER_Type_Mnemonic)),
-                                   [local, local, DISABLE(CVS_SERVER, ENVIRONMENT_VAR_CVS_CLIENT_PORT, CVS_USERNAME, ENVIRONMENT_VAR_CVS_RSH, BUILT-IN/true, PASSWORD)],
-                                   [server, server, DISABLE(ENVIRONMENT_VAR_CVS_RSH, PASSWORD)],
-                                   [pserver, pserver, ENABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, PASSWORD), DISABLE(ENVIRONMENT_VAR_CVS_RSH)],
-                                   [ext, ext, ENABLE(ENVIRONMENT_VAR_CVS_RSH), DISABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, BUILT-IN/true, PASSWORD)])
+                                   [local, local, DISABLE(CVS_SERVER, ENVIRONMENT_VAR_CVS_CLIENT_PORT, CVS_USERNAME, ENVIRONMENT_VAR_CVS_RSH, BUILT-IN/true, PASSWORD, LOGGED_IN_TEXT)],
+                                   [server, server, DISABLE(ENVIRONMENT_VAR_CVS_RSH, PASSWORD, LOGGED_IN_TEXT)],
+                                   [pserver, pserver, ENABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, PASSWORD, LOGGED_IN_TEXT), DISABLE(ENVIRONMENT_VAR_CVS_RSH)],
+                                   [ext, ext, ENABLE(ENVIRONMENT_VAR_CVS_RSH), DISABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, BUILT-IN/true, PASSWORD, LOGGED_IN_TEXT)])
              PROMPT_FOR(CVS_SERVER, "ResourceMsg(VAR_SERVER_Name):", "",
                         ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_SERVER_Name);;MNEMONIC_ResourceMsg(VAR_SERVER_Name_Mnemonic)))
              PROMPT_FOR(ENVIRONMENT_VAR_CVS_CLIENT_PORT, "ResourceMsg(VAR_SERVER_Port):", "2401",
@@ -3190,10 +3190,10 @@ Microsystems, Inc. All Rights Reserved.
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_CVSRoot);;MNEMONIC_ResourceMsg(VAR_CVSRoot_Mnemonic)), VALIDATOR_NON_EMPTY)-->
                  SELECT_COMBO_EDITABLE(SERVERTYPE, "ResourceMsg(VAR_SERVER_Type):", "pserver",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_SERVER_Type);;MNEMONIC_ResourceMsg(VAR_SERVER_Type_Mnemonic)),
-                            [local, local, DISABLE(CVS_SERVER, ENVIRONMENT_VAR_CVS_CLIENT_PORT, CVS_USERNAME, ENVIRONMENT_VAR_CVS_RSH, BUILT-IN/true, PASSWORD)],
-                            [server, server, DISABLE(ENVIRONMENT_VAR_CVS_RSH, PASSWORD)],
-                            [pserver, pserver, ENABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, PASSWORD), DISABLE(ENVIRONMENT_VAR_CVS_RSH)],
-                            [ext, ext, ENABLE(ENVIRONMENT_VAR_CVS_RSH), DISABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, BUILT-IN/true, PASSWORD)])
+                            [local, local, DISABLE(CVS_SERVER, ENVIRONMENT_VAR_CVS_CLIENT_PORT, CVS_USERNAME, ENVIRONMENT_VAR_CVS_RSH, BUILT-IN/true, PASSWORD, LOGGED_IN_TEXT)],
+                            [server, server, DISABLE(ENVIRONMENT_VAR_CVS_RSH, PASSWORD, LOGGED_IN_TEXT)],
+                            [pserver, pserver, ENABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, PASSWORD, LOGGED_IN_TEXT), DISABLE(ENVIRONMENT_VAR_CVS_RSH)],
+                            [ext, ext, ENABLE(ENVIRONMENT_VAR_CVS_RSH), DISABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, BUILT-IN/true, PASSWORD, LOGGED_IN_TEXT)])
              PROMPT_FOR(CVS_SERVER, "ResourceMsg(VAR_SERVER_Name):", "",
                         ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_SERVER_Name);;MNEMONIC_ResourceMsg(VAR_SERVER_Name_Mnemonic)))
              PROMPT_FOR(ENVIRONMENT_VAR_CVS_CLIENT_PORT, "ResourceMsg(VAR_SERVER_Port):", "2401",
