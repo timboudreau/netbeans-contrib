@@ -438,6 +438,9 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             if (!fileSystem.getFileFilter().accept(dir, name)) {
                 return false;
             }
+            return true;
+            /* We should not call fileSystem.isImportant() here, because it consults 
+             * SharabilityQuery and it can cause problems when called from AWT
             if (!isShowUnimportantFiles()) {
                 File root = fileSystem.getRootDirectory();
                 File file = new File(dir, name);
@@ -454,6 +457,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             } else {
                 return true;
             }
+             */
         }
         
     }
@@ -480,6 +484,20 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                 VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
                 if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) ||
                     (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) && fileSystem.areOnlyHiddenFiles(files)) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
+            }
+            if (!isShowUnimportantFiles()) {
+                files = filterUnimportantFiles(name, files);
+            }
+            return files;
+        }
+        
+        private String[] filterUnimportantFiles(String folder, String[] files) {
+            for (int i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    if (!fileSystem.isImportant(folder + '/' + files[i])) {
+                        files[i] = null;
+                    }
+                }
             }
             return files;
         }
