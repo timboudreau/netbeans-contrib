@@ -156,9 +156,12 @@ public class CommandNode extends AbstractNode {
         if (cmd != null) {
             setName(cmd.getName());
             setDisplayName(cmd.getDisplayName());
+            setShortDescription(NbBundle.getMessage(CommandNode.class, "CommandNode.Description",
+                                (cmd.getDisplayName() == null) ? cmd.getName() : cmd.getDisplayName()));
         } else {
             setName("SEPARATOR");
             setDisplayName(g("CTL_Separator"));
+            setShortDescription(g("CTL_SeparatorName"));
         }
         index = new CommandsIndex();
         getCookieSet().add(index);

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import org.openide.*;
 import org.openide.nodes.*;
 import org.openide.actions.*;
+import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.actions.ActionPerformer;
 import org.openide.util.datatransfer.NewType;
@@ -55,11 +56,13 @@ public class AccessoryVariableNode extends AbstractNode {
             }
         });
         setDisplayName(g("CTL_AccessoryVarsName"));
+        setShortDescription(g("CTL_AccessoryVarsDescription"));
     }
 
     public AccessoryVariableNode(VcsConfigVariable var) {
         super(Children.LEAF);
         setName(var.getName());
+        setShortDescription(NbBundle.getMessage(AccessoryVariableNode.class, "CTL_AccessoryVarDescription", var.getName()));
         init(null, var);
         //list.add(new AccessoryVariableNode[] { this });
     }
@@ -272,7 +275,7 @@ public class AccessoryVariableNode extends AbstractNode {
      */
     
     private String g(String name) {
-        return org.openide.util.NbBundle.getBundle(AccessoryVariableNode.class).getString(name);
+        return NbBundle.getMessage(AccessoryVariableNode.class, name);
     }
 
 }

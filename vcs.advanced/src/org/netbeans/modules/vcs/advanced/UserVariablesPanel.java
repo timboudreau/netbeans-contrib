@@ -91,6 +91,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         Children.Array varCh = new Children.Array();
         AbstractNode varRoot = new AbstractNode(varCh);
         varRoot.setDisplayName(g("CTL_VariablesNodeName"));
+        varRoot.setShortDescription(g("CTL_VariablesNodeDescription"));
         varRoot.setIconBase("org/netbeans/modules/vcs/advanced/variables/AccessoryVariables"); // NOI18N
         basicChildren = new Children.SortedArray();
         //basicCh.add(new Node[] { node });
@@ -152,30 +153,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 
 
     //-------------------------------------------
-    String g(String s) {
-        return NbBundle.getBundle
-               ("org.netbeans.modules.vcs.advanced.Bundle").getString (s);
+    private String g(String s) {
+        return NbBundle.getMessage(UserVariablesPanel.class, s);
     }
-    String  g(String s, Object obj) {
-        return MessageFormat.format (g(s), new Object[] { obj });
-    }
-    String g(String s, Object obj1, Object obj2) {
-        return MessageFormat.format (g(s), new Object[] { obj1, obj2 });
-    }
-    String g(String s, Object obj1, Object obj2, Object obj3) {
-        return MessageFormat.format (g(s), new Object[] { obj1, obj2, obj3 });
-    }
-    
-    //-------------------------------------------
-
 }
-
-/*
- * <<Log>>
- *  5    Jaga      1.2.1.1     3/9/00   Martin Entlicher Fix of long panel width.
- *  4    Jaga      1.2.1.0     3/7/00   Martin Entlicher 
- *  3    Gandalf   1.2         1/27/00  Martin Entlicher NOI18N
- *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
- *  1    Gandalf   1.0         11/24/99 Martin Entlicher 
- * $
- */

@@ -36,6 +36,7 @@ import org.openide.nodes.BeanNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListener;
 
@@ -87,6 +88,8 @@ public class CommandLineVcsFileSystemNode extends AbstractNode {
                     if ("displayName".equals(name)) { // NOI18N
                         String value = getPropertyValue(property);
                         setDisplayName(value);
+                        setShortDescription(NbBundle.getMessage(CommandLineVcsFileSystemNode.class,
+                                            "CommandLineVcsFileSystemNode.Description", value));
                         wasSetDisplayName = true;
                         if (wasSetDisplayName && wasSetSystemName) break;
                     }

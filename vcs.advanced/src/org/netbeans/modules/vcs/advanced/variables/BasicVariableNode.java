@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import org.openide.*;
 import org.openide.nodes.*;
 import org.openide.actions.*;
+import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.actions.ActionPerformer;
 import org.openide.util.datatransfer.NewType;
@@ -43,6 +44,7 @@ public class BasicVariableNode extends AbstractNode {
         init(list, null);
         list.setComparator(getComparator());
         setDisplayName(g("CTL_BasicVarsName"));
+        setShortDescription(g("CTL_BasicVarsDescription"));
     }
     
     private Comparator getComparator() {
@@ -64,6 +66,7 @@ public class BasicVariableNode extends AbstractNode {
     public BasicVariableNode(VcsConfigVariable var) {
         super(Children.LEAF);
         setName(var.getLabel());
+        setShortDescription(NbBundle.getMessage(BasicVariableNode.class, "CTL_BasicVarDescription", var.getLabel()));
         init(null, var);
         //list.add(new BasicVariableNode[] { this });
     }
@@ -457,7 +460,7 @@ public class BasicVariableNode extends AbstractNode {
      */
     
     private String g(String name) {
-        return org.openide.util.NbBundle.getBundle(BasicVariableNode.class).getString(name);
+        return NbBundle.getMessage(BasicVariableNode.class, name);
     }
 
 }
