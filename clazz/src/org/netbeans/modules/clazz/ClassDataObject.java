@@ -96,11 +96,11 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   /** Performs cookie initialization. */
   private void initCookies () {
     // asociate cookies
-    boolean isExecutable = false;
+    //boolean isExecutable = false;
     Class ourClass = null;
     try {
       ourClass = instanceSupport.instanceClass();
-      isExecutable = instanceSupport.isExecutable();
+      //isExecutable = instanceSupport.isExecutable();
     } catch (IOException ex) {
       return;
     } catch (ClassNotFoundException ex) {
@@ -108,8 +108,8 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
     }
     CookieSet cs = getCookieSet();
     cs.add(instanceSupport);
-    if (isExecutable)
-      cs.add(execSupport);
+    //if (isExecutable)
+    cs.add(execSupport);
     cs.add(new SourceSupport(ourClass));
   }
 
@@ -526,6 +526,8 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  23   Gandalf   1.22        7/16/99  Petr Jiricka    Fixed bug that classes 
+ *       without main couldn't be executed
  *  22   Gandalf   1.21        7/9/99   Petr Hrebejk    Add/emove mehods made 
  *       synchronized
  *  21   Gandalf   1.20        6/28/99  Petr Hrebejk    Multiple node factories 
