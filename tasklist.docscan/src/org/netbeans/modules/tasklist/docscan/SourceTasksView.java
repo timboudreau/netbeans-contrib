@@ -142,9 +142,34 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         putClientProperty("TabPolicy", "HideWhenAlone"); // NOI18N
 
         InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
         KeyStroke stop = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
         inputMap.put(stop, stop);
         getActionMap().put(stop, new StopAction());
+
+        KeyStroke refresh = KeyStroke.getKeyStroke(KeyEvent.VK_R, 0);
+        inputMap.put(refresh, refresh);
+        getActionMap().put(refresh, new DelegateAction(getRefresh()));
+
+        KeyStroke filter = KeyStroke.getKeyStroke(KeyEvent.VK_F, 0);
+        inputMap.put(filter, filter);
+        getActionMap().put(filter, new DelegateAction(getFilterMenu()));
+
+        KeyStroke editor = KeyStroke.getKeyStroke(KeyEvent.VK_E, 0);
+        inputMap.put(editor, editor);
+        getActionMap().put(editor, new DelegateAction(getGoto()));
+
+        KeyStroke current = KeyStroke.getKeyStroke(KeyEvent.VK_C, 0);
+        inputMap.put(current, current);
+        getActionMap().put(current, new DelegateAction(getCurrentFile()));
+
+        KeyStroke folder = KeyStroke.getKeyStroke(KeyEvent.VK_S, 0);
+        inputMap.put(folder, folder);
+        getActionMap().put(folder, new DelegateAction(getAllFiles()));
+
+        KeyStroke selectFolder = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.SHIFT_MASK);
+        inputMap.put(selectFolder, selectFolder);
+        getActionMap().put(selectFolder, new DelegateAction(getFolderSelector()));
 
         // toggle according to All vs Current file
         if (job != null) {
@@ -366,7 +391,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private JProgressBar progress;
     private JButton stop;
-    private JComponent refresh;
+    private AbstractButton refresh;
     private JComponent prev;
     private JComponent next;
 
@@ -383,7 +408,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private JButton getStop() {
         if (stop == null) {
             stop = new JButton("Stop");
-            stop.setToolTipText("Interrupts background search.");
+            stop.setToolTipText("Interrupts background search. (ESC)");
             stop.setVisible(job == null);
             stop.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -395,11 +420,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return stop;
     }
 
-    private JComponent getRefresh() {
+    private AbstractButton getRefresh() {
         if (refresh == null) {
             Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/refresh.gif");
             JButton button = new JButton(new ImageIcon(image));
-            button.setToolTipText("Rescans TODOs for selected folder.");
+            button.setToolTipText("Rescans TODOs for selected folder. (r)");
             button.setEnabled(job == null);
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -440,22 +465,18 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return next;
     }
 
-    private void handleRefresh() {
-        this.getList().clear();
-        background = SourceTasksScanner.scanTasksAsync(this);
-    }
 
-    private JComponent allFilesButton;
+    private AbstractButton allFilesButton;
     private ButtonGroup group = new ButtonGroup();;
 
-    private JComponent getAllFiles() {
+    private AbstractButton getAllFiles() {
         if (allFilesButton == null) {
             JToggleButton button = new JToggleButton("Selected Folder");
             if (selectedFolder == null) {
-                button.setToolTipText("Switches to TODOs for selected folder.");
+                button.setToolTipText("Switches to TODOs for selected folder. (s)");
             } else {
                 // restored from settings
-                button.setToolTipText("Switches to TODOs for " + selectedFolder.getPath());
+                button.setToolTipText("Switches to TODOs for " + selectedFolder.getPath() + " (s)");
             }
             group.add(button);
             button.setSelected(job == null);
@@ -479,12 +500,12 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return allFilesButton;
     }
 
-    private JComponent folderSelector;
-    private JComponent getFolderSelector() {
+    private AbstractButton folderSelector;
+    private AbstractButton getFolderSelector() {
         if (folderSelector == null) {
             Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/dropdown.gif");
             JButton button = new JButton(new ImageIcon(image));
-            button.setToolTipText("Selects folder to be scanned.");
+            button.setToolTipText("Selects folder to be scanned. (S)");
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (recentFolders.size() > 0) {
@@ -541,12 +562,12 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
-    private JComponent currentFile;
+    private AbstractButton currentFile;
 
-    private JComponent getCurrentFile() {
+    private AbstractButton getCurrentFile() {
         if (currentFile == null) {
             JToggleButton button = new JToggleButton("Current File");
-            button.setToolTipText("Switches to TODOs for edited document.");
+            button.setToolTipText("Switches to TODOs for edited document. (c)");
             group.add(button);
             button.setSelected(job != null);
             button.addActionListener(new ActionListener() {
@@ -560,13 +581,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return currentFile;
     }
 
-    private JComponent gotoPresenter;
+    private AbstractButton gotoPresenter;
 
-    private JComponent getGoto() {
+    private AbstractButton getGoto() {
         if (gotoPresenter == null) {
             Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/gotosource.gif");
             JButton button = new JButton(new ImageIcon(image));
-            button.setToolTipText("Shows selected TODO in editor");
+            button.setToolTipText("Shows selected TODO in editor. (e)");
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     GoToTaskAction gotoAction = (GoToTaskAction) SystemAction.get(GoToTaskAction.class);
@@ -589,7 +610,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (filterButton == null) {
             Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filterOperations.gif"));
             filterButton = new JButton(icon);
-            filterButton.setToolTipText("Allows to filter found TODOs.");
+            filterButton.setToolTipText("Allows to filter found TODOs. (f)");
             adjustHeight(filterButton);
             filterButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -801,6 +822,18 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
+    private class DelegateAction extends AbstractAction {
+        AbstractButton target;
+
+        DelegateAction(AbstractButton target) {
+            this.target = target;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            target.doClick();
+        }
+    }
+
     protected void componentHidden() {
         releaseWorkaround();
         super.componentHidden();
@@ -838,7 +871,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             }
         }
 
-        allFilesButton.setToolTipText("Switches to TODOs for " + createLabel(selectedFolder));
+        allFilesButton.setToolTipText("Switches to TODOs for " + createLabel(selectedFolder) + " (s)");
         ((JToggleButton)allFilesButton).setSelected(true);
 
         putClientProperty("PersistenceType", "Never"); // NOI18N
@@ -866,7 +899,19 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 selectedFolder = null;  // invalid folder
             }
         } else {
-            getMiniStatus().setText(selectedFolder.getName() + " TODOs restored from cache.");
+            getMiniStatus().setText(createLabel(selectedFolder) + " tasks restored from cache.");
+        }
+    }
+
+    private void handleRefresh() {
+        this.getList().clear();
+        DataObject.Container one;
+        try {
+            one = (DataObject.Container) DataObject.find(selectedFolder);
+            DataObject.Container[] folders = new DataObject.Container[] {one};
+            background = SourceTasksScanner.scanTasksAsync(this, folders);
+        } catch (DataObjectNotFoundException e) {
+            getMiniStatus().setText("Error refreshing " + createLabel(selectedFolder));
         }
     }
 

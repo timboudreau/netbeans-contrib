@@ -70,7 +70,7 @@ public final class SourceTasksAction extends CallableSystemAction {
 
 
     public String getName() {
-        return "TODOs";
+        return NbBundle.getMessage(SourceTasksAction.class, "BK0001");
     }
 
     public HelpCtx getHelpCtx() {

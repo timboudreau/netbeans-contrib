@@ -73,9 +73,11 @@ public class SettingsBeanInfo extends SimpleBeanInfo {
                     "HINT_SCAN_TAGS"));	    //NOI18N
             desc[i++].setHidden(true);
 
-            desc[i].setDisplayName("Usability Limit");
+            desc[i].setDisplayName(NbBundle.getMessage(
+                    SettingsBeanInfo.class,"BK0002")); // NOI18N
             desc[i].setExpert(true);
-            desc[i++].setShortDescription("Stops TODOs search at given limit.");
+            desc[i++].setShortDescription(NbBundle.getMessage(
+                    SettingsBeanInfo.class,"BK0003")); // NOI18N
         } catch (IntrospectionException ex) {
             ex.printStackTrace();
             throw new InternalError();
