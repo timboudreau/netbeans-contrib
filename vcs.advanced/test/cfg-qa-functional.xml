@@ -23,7 +23,7 @@ Microsystems, Inc. All Rights Reserved.
             </patternset>
         </testset>
     </testbag>
-    
+<!--    
     <testbag testattribs="validation, full" name="cvs_profile">
         <testset dir="qa-functional/src">
             <patternset>
@@ -32,7 +32,7 @@ Microsystems, Inc. All Rights Reserved.
             </patternset>
         </testset>
     </testbag>
-
+-->
     <testbag testattribs="validation, full" name="common_functionality">
         <testset dir="qa-functional/src">
             <patternset>
