@@ -210,8 +210,8 @@ class UserTaskNode extends TaskNode {
             ss.put(p);
 
 
-            p = new Reflection(item, Date.class, "getDueDate", null /* readonly*/); // NOI18N
-            //p = new Reflection(item, Date.class, "getDueDate", "setDueDate"); // NOI18N
+            //p = new Reflection(item, Date.class, "getDueDate", null /* readonly*/); // NOI18N
+            p = new Reflection(item, Date.class, "getDueDate", "setDueDate"); // NOI18N
 
             
             p.setName(UserTaskView.PROP_TASK_DUE);

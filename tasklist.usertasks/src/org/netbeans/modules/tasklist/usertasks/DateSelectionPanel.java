@@ -22,6 +22,7 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 
 /**
  * This is a small panel to allow the user to select a full date. When I
@@ -35,7 +36,8 @@ import javax.swing.table.DefaultTableCellRenderer;
  *
  * @author  Trond Norbye
  */
-public class DateSelectionPanel extends javax.swing.JPanel {
+public class DateSelectionPanel extends javax.swing.JPanel
+    implements EnhancedCustomPropertyEditor {
     /**
      * A calendar object I use for varius things (mostly for converting values
      * to string representation...
@@ -527,6 +529,10 @@ public class DateSelectionPanel extends javax.swing.JPanel {
         }
     }
 
+    // When used as a property customizer
+    public Object getPropertyValue() throws IllegalStateException {
+        return getDate();	    
+    }
     
      /**
       * A "main method" if you would like to test the panel...
