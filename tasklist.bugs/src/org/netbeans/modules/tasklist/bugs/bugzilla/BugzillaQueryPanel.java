@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.bugs.bugzilla;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -67,14 +68,24 @@ public class BugzillaQueryPanel extends JPanel implements QueryPanelIF {
     private JTextField mBaseUrlField;
     /** a label for the base url field */
     private JLabel mBaseUrlLabel;
+    /** a label for an example of a base url */
+    private JLabel mBaseUrlExampleLabel;
+    /** a panel to hold the label */
+    private JPanel mBaseUrlExamplePanel;
     /** a text field for the query sting for now */
     private JTextField mQueryField;
     /** A label for the query field */
     private JLabel mQueryLabel;
+    /** a label for an example of a query string */
+    private JLabel mQueryExampleLabel;
+    /** a panel to hold the label */
+    private JPanel mQueryExamplePanel;
     /** A button panel */
     private JPanel mButtonPanel;
     /** A done button */
     private JButton mDoneButton;
+    private JPanel mBaseUrlPanel;
+    private JPanel mQueryStringPanel;
     
     /** an instance of the query */
     private BugQuery mQuery;
@@ -91,28 +102,49 @@ public class BugzillaQueryPanel extends JPanel implements QueryPanelIF {
     private void initComponents() {
         mTopPanel = new JPanel();
         mQueryPanel = new JPanel();
+        mBaseUrlPanel = new JPanel();
         mBaseUrlField = new JTextField();
         mBaseUrlLabel = new JLabel();
+        mBaseUrlExampleLabel = new JLabel();
+        mBaseUrlExamplePanel = new JPanel();
+        mQueryStringPanel = new JPanel();
         mQueryField = new JTextField();
         mQueryLabel = new JLabel();
-        
+        mQueryExampleLabel = new JLabel();
+        mQueryExamplePanel = new JPanel();
         setLayout(new BorderLayout());
         
         mBaseUrlLabel.setText(NbBundle.getMessage(BugzillaQueryPanel.class, "BaseUrl_Label")); // NOI18N
         mBaseUrlField.setPreferredSize(new Dimension(300, 20));
-        mTopPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        mTopPanel.add(mBaseUrlLabel);
-        mTopPanel.add(mBaseUrlField);
+        mBaseUrlExampleLabel.setText(NbBundle.getMessage(BugzillaQueryPanel.class, "BaseUrlExample_Label")); // NOI18N
+        mBaseUrlExampleLabel.setForeground(new Color(153, 153, 153));
+        
+        mTopPanel.setLayout(new BorderLayout());
+        mBaseUrlPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        mBaseUrlPanel.add(mBaseUrlLabel);
+        mBaseUrlPanel.add(mBaseUrlField);
+        mTopPanel.add(mBaseUrlPanel, BorderLayout.CENTER);
+        mBaseUrlExamplePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        mBaseUrlExamplePanel.add(mBaseUrlExampleLabel);
+        mTopPanel.add(mBaseUrlExamplePanel, BorderLayout.SOUTH);
+        
         
         mQueryLabel.setText(NbBundle.getMessage(BugzillaQueryPanel.class, "Query_Label")); // NOI18N
         mQueryField.setPreferredSize(new Dimension(400, 20));
-//        mQueryPanel.setLayout(new GridLayout(2,2));
-        mQueryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        mQueryPanel.add(mQueryLabel);
-        mQueryPanel.add(mQueryField);
+        mQueryExampleLabel.setText(NbBundle.getMessage(BugzillaQueryPanel.class, "QueryExample_Label")); // NOI18N
+        mQueryExampleLabel.setForeground(new Color(153, 153, 153));
+        
+        mQueryPanel.setLayout(new BorderLayout());
+        mQueryStringPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        mQueryStringPanel.add(mQueryLabel);
+        mQueryStringPanel.add(mQueryField);
+        mQueryPanel.add(mQueryStringPanel, BorderLayout.CENTER);
+        mQueryExamplePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        mQueryExamplePanel.add(mQueryExampleLabel);
+        mQueryPanel.add(mQueryExamplePanel, BorderLayout.SOUTH);
         
         add(mTopPanel, BorderLayout.NORTH);
-        add(mQueryPanel, BorderLayout.CENTER);
+        add(mQueryPanel, BorderLayout.SOUTH);
     }
     
     public BugQuery getQueryOptions(BugQuery inQuery) {
