@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -1342,12 +1342,21 @@ for (int i = 0; i < columns.length; i++) {
                     lookup(ClassLoader.class);
             try {
                 nextActionClz = systemClassLoader.
-                        loadClass("org.netbeans.core.output.NextOutJumpAction"); // NOI18N
+                        loadClass("org.netbeans.core.output2.NextOutJumpAction"); // NOI18N
                 prevActionClz = systemClassLoader.
-                        loadClass("org.netbeans.core.output.PreviousOutJumpAction"); // NOI18N
+                        loadClass("org.netbeans.core.output2.PreviousOutJumpAction"); // NOI18N
             } catch (Exception e) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                return;
+                // Check if the old core/output is installed instead.
+                try {
+                    nextActionClz = systemClassLoader.
+                        loadClass("org.netbeans.core.output.NextOutJumpAction"); // NOI18N
+                    prevActionClz = systemClassLoader.
+                        loadClass("org.netbeans.core.output.PreviousOutJumpAction"); // NOI18N
+                } catch (Exception e2) {
+                    // Notify original error.
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    return;
+                }
             }
         }
 
