@@ -604,7 +604,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
             componentList.add(label);
         }
         final javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
-        String value = component.getDefaultValue();
+        String value;
+        if (component.needsPreCommandPerform()) {
+            value = component.getValue();
+        } else {
+            value = component.getDefaultValue();
+        }
         if (value != null) {
             value = Variables.expand(vars, value, true);
             field.setText(value);
@@ -801,9 +806,16 @@ public class VariableInputDialog extends javax.swing.JPanel {
         String label = component.getLabel();
         final javax.swing.JCheckBox chbox = new javax.swing.JCheckBox(" "+label);
         chbox.setBorder(new javax.swing.border.EmptyBorder(1, 0, 1, 0));
-        String askDefault = component.getDefaultValue();
-        component.setValue(askDefault);
+        String askDefault;
+        if (component.needsPreCommandPerform()) {
+            askDefault = component.getValue();
+        } else {
+            askDefault = component.getDefaultValue();
+            component.setValue(askDefault);
+        }
         if (askDefault != null) {
+            askDefault = Variables.expand(vars, askDefault, true);
+            component.setValue(askDefault);
             String valueSelected = component.getValueSelected();
             if (valueSelected != null) {
                 chbox.setSelected(askDefault.equals(valueSelected));
@@ -907,7 +919,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //areas.addElement(area);
         //VcsUtilities.removeEnterFromKeymap(field);
         //fileNames.add(filePrompts.get(message));
-        String fileName = component.getDefaultValue();
+        String fileName;
+        if (component.needsPreCommandPerform()) {
+            fileName = component.getValue();
+        } else {
+            fileName = component.getDefaultValue();
+        }
         //System.out.println("default file name = "+fileName);
         if (fileName == null) {
             try {
@@ -975,8 +992,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
             componentList.add(enum.nextElement());
         }
         awtComponentsByVars.put(component.getVariable(), componentList.toArray(new java.awt.Component[0]));
-        selectButton(component.getDefaultValue(), subComponents, group);
-        component.setValue(component.getDefaultValue());
+        String defValue;
+        if (component.needsPreCommandPerform()) {
+            defValue = component.getValue();
+        } else {
+            defValue = component.getDefaultValue();
+            component.setValue(defValue);
+        }
+        selectButton(defValue, subComponents, group);
         addActionToProcess(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 /*
@@ -1114,15 +1137,23 @@ public class VariableInputDialog extends javax.swing.JPanel {
         variablePanel.add(comboBox, gridBagConstraints2);
         componentList.add(comboBox);
         awtComponentsByVars.put(component.getVariable(), componentList.toArray(new java.awt.Component[0]));
-        String selected = component.getDefaultValue();
-        component.setValue(selected);
+        String selected;
+        if (component.needsPreCommandPerform()) {
+            selected = component.getValue();
+        } else {
+            selected = component.getDefaultValue();
+            component.setValue(selected);
+        }
+        int i;
         if (selected != null) {
-            int i;
             for (i = 0; i < items; i++) {
                 if (selected.equals(values[i])) break;
             }
-            if (i < items) comboBox.setSelectedIndex(i);
-        } else comboBox.setSelectedIndex(0);
+            if (i >= items) i = 0;
+        } else i = 0;
+        comboBox.setSelectedIndex(i);
+        enableComponents(varsEnabled[i], true);
+        enableComponents(varsDisabled[i], false);
         comboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 int selected2 = comboBox.getSelectedIndex();
