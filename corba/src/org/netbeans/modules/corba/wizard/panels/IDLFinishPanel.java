@@ -35,28 +35,32 @@ public class IDLFinishPanel extends AbstractIDLWizardPanel implements javax.swin
         this.jTextArea1.setLineWrap (true);
         this.jTextArea1.setWrapStyleWord (true);
         this.jCheckBox1.addChangeListener (this);
-        try {
-        String file_name = data.getWizard().getTargetName();
-        if (file_name == null || file_name.length() == 0)
-            file_name = bundle.getString("TXT_Requested");
-        String package_name = data.getWizard().getTargetFolder().getName();
-        if (package_name != null && package_name.length() > 0)
-            package_name = " " + java.text.MessageFormat.format(bundle.getString("TXT_InPackage"), new Object[] {package_name});
-            this.jTextArea1.setText (java.text.MessageFormat.format (bundle.getString ("TXT_IDLDoneMessage"),new Object[]{file_name,package_name}));
-        }catch (java.io.IOException ioe) {
-        }
         this.setName(bundle.getString("TXT_FinishIDL"));
         putClientProperty(CorbaWizard.PROP_CONTENT_SELECTED_INDEX, new Integer(3));
     }
     
     public void readIDLSettings (TemplateWizard data) {
+        if (this.data.getIdlSource()==null) {
+            this.jTextArea1.setText (bundle.getString("TXT_Exception"));
+        }
+        else {
+            try {
+                String file_name = this.data.getWizard().getTargetName();
+                if (file_name == null || file_name.length() == 0)
+                    file_name = bundle.getString("TXT_Requested");
+                String package_name = this.data.getWizard().getTargetFolder().getName();
+                if (package_name != null && package_name.length() > 0)
+                    package_name = " " + java.text.MessageFormat.format(bundle.getString("TXT_InPackage"), new Object[] {package_name});
+                this.jTextArea1.setText (java.text.MessageFormat.format (bundle.getString ("TXT_IDLDoneMessage"),new Object[]{file_name,package_name}));
+            }catch (java.io.IOException ioe) {}
+        }
     }
     
     public void storeIDLSettings (TemplateWizard data) {
     }
     
     public boolean isValid () {
-        return true;
+        return this.data.getIdlSource()!=null;
     }
 
     /** This method is called from within the constructor to

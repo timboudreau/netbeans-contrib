@@ -88,12 +88,13 @@ public class ImportIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
                     ((org.netbeans.modules.corba.browser.ir.util.Generatable)nodes[i]).generateCode (out);
             }
             source = buffer.toString();
-        }catch (java.io.IOException ioe) {
-            // Notify file exception here
-            notifyIDLSourceException ();
+            this.data.setIdlSource (source);
+        }catch (Exception ioe) {
+            // Handle exception here
+            TopManager.getDefault().getErrorManager().log (ioe.toString());
+            this.data.setIdlSource (null);
             return;
-	}
-        this.data.setIdlSource (source);
+        }
     }
 
     public boolean isValid () {
@@ -272,10 +273,5 @@ public class ImportIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
             this.refresh.setEnabled (nodes.length == 1 && nodes[0].getCookie (IRContainerNode.class) != null);
             this.fireChange (this);
         }
-    }
-    
-    private void notifyIDLSourceException () {
-	NotifyDescriptor nd = new NotifyDescriptor.Message(bundle.getString("TXT_IOException"), NotifyDescriptor.Message.ERROR_MESSAGE);
-	TopManager.getDefault().notify (nd);
     }
 }

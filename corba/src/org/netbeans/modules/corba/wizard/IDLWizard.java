@@ -48,7 +48,6 @@ public class IDLWizard extends Object implements TemplateWizard.Iterator {
     
     
     public IDLWizard () {
-        this.index = 0;
         this.listeners = new java.util.ArrayList();
         this.data = new IDLWizardData();
     }
@@ -103,6 +102,7 @@ public class IDLWizard extends Object implements TemplateWizard.Iterator {
     }
     
     public void initialize(TemplateWizard wizard) {
+        this.index = 0;
         this.data.setWizard (wizard);
     }
     
@@ -207,9 +207,6 @@ public class IDLWizard extends Object implements TemplateWizard.Iterator {
         if (this.bundle == null)
             this.bundle = NbBundle.getBundle (IDLWizard.class);
         return this.bundle.getString (str);
-    }
-    
-    private void createIDL () {
     }
     
 }
