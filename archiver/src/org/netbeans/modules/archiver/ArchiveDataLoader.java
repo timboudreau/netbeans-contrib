@@ -7,21 +7,23 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.archiver;
 
 import java.io.IOException;
-
-import org.openide.actions.*;
-import org.openide.filesystems.*;
-import org.openide.loaders.*;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObjectExistsException;
+import org.openide.loaders.ExtensionList;
+import org.openide.loaders.MultiDataObject;
+import org.openide.loaders.UniFileLoader;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.SystemAction;
 
 public class ArchiveDataLoader extends UniFileLoader {
+    
+    private static final String MIME_TYPE = "text/xml+java-archiver";
     
     private static final long serialVersionUID = 1L;
     
@@ -36,32 +38,16 @@ public class ArchiveDataLoader extends UniFileLoader {
     protected void initialize() {
         super.initialize();
         ExtensionList extensions = new ExtensionList();
-        extensions.addMimeType("text/xml+java-archiver");
+        extensions.addMimeType(MIME_TYPE);
         setExtensions(extensions);
     }
     
-    protected SystemAction[] defaultActions() {
-        return new SystemAction[] {
-            SystemAction.get(OpenAction.class),
-            SystemAction.get(CustomizeBeanAction.class),
-            SystemAction.get(FileSystemAction.class),
-            null,
-            SystemAction.get(CutAction.class),
-            SystemAction.get(CopyAction.class),
-            SystemAction.get(PasteAction.class),
-            null,
-            SystemAction.get(DeleteAction.class),
-            SystemAction.get(RenameAction.class),
-            null,
-            SystemAction.get(SaveAsTemplateAction.class),
-            null,
-            SystemAction.get(ToolsAction.class),
-            SystemAction.get(PropertiesAction.class),
-        };
+    protected String actionsContext() {
+        return "Loaders/" + MIME_TYPE + "/Actions"; // NOI18N
     }
     
     protected MultiDataObject createMultiObject(FileObject primaryFile) throws DataObjectExistsException, IOException {
         return new ArchiveDataObject(primaryFile, this);
     }
-    
+
 }

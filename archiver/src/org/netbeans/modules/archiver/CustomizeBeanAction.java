@@ -7,53 +7,112 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.archiver;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.beans.*;
-import java.io.*;
-import javax.swing.*;
-import org.openide.*;
+import java.beans.ExceptionListener;
+import java.beans.IntrospectionException;
+import java.beans.XMLEncoder;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.Locale;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JSplitPane;
+import javax.swing.filechooser.FileFilter;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
 import org.openide.awt.Mnemonics;
 import org.openide.cookies.InstanceCookie;
+import org.openide.cookies.OpenCookie;
 import org.openide.explorer.propertysheet.PropertySheet;
-import org.openide.filesystems.*;
-import org.openide.loaders.*;
-import org.openide.nodes.*;
+import org.openide.filesystems.FileLock;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.BeanNode;
+import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.UserCancelException;
-import org.openide.util.actions.CookieAction;
-import org.openide.windows.*;
+import org.openide.util.actions.NodeAction;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
+import org.openide.windows.OutputWriter;
+import org.openide.windows.WindowManager;
 
-public class CustomizeBeanAction extends CookieAction {
+public class CustomizeBeanAction extends NodeAction {
     
-    protected Class[] cookieClasses() {
-        return new Class[] {InstanceCookie.class};
-    }
+    private static final String JAVA_MIME_TYPE = "text/x-java";
     
-    protected int mode() {
-        return MODE_EXACTLY_ONE;
+    protected boolean enable(Node[] activatedNodes) {
+        if (activatedNodes.length != 1) {
+            return false;
+        }
+        if (activatedNodes[0].getCookie(InstanceCookie.class) != null) {
+            return true;
+        }
+        DataObject d = (DataObject) activatedNodes[0].getCookie(DataObject.class);
+        if (d == null) {
+            return false;
+        }
+        FileObject f = d.getPrimaryFile();
+        return f.getMIMEType().equals(JAVA_MIME_TYPE) &&
+            ClassPath.getClassPath(f, ClassPath.SOURCE) != null &&
+            ClassPath.getClassPath(f, ClassPath.EXECUTE) != null;
     }
     
     protected void performAction(Node[] nodes) {
+        assert nodes.length == 1;
+        DataObject dob = (DataObject) nodes[0].getCookie(DataObject.class);
         InstanceCookie ic = (InstanceCookie)nodes[0].getCookie(InstanceCookie.class);
         Object o;
-        Node n;
         try {
-            o = ic.instanceCreate();
-            n = new BeanNode(o);
+            if (ic != null) {
+                // Archive XML file, *.class, etc.
+                o = ic.instanceCreate();
+            } else {
+                // *.java.
+                assert dob != null;
+                FileObject f = dob.getPrimaryFile();
+                ClassPath sourceRoot = ClassPath.getClassPath(f, ClassPath.SOURCE);
+                assert sourceRoot != null;
+                ClassPath execute = ClassPath.getClassPath(f, ClassPath.EXECUTE);
+                ClassLoader l = execute.getClassLoader(true);
+                String name = sourceRoot.getResourceName(f, '.', false);
+                assert name != null;
+                Class c;
+                try {
+                    c = l.loadClass(name);
+                } catch (ClassNotFoundException e) {
+                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message("Class " + name + " must be compiled first; could not be found in " + execute, NotifyDescriptor.ERROR_MESSAGE));
+                    return;
+                }
+                o = c.newInstance();
+            }
         } catch (Exception e) {
+            // Various possible reasons.
             ErrorManager.getDefault().notify(ErrorManager.USER, e);
             return;
         }
         PropertySheet sheet = new PropertySheet();
-        sheet.setNodes(new Node[] {n});
+        try {
+            sheet.setNodes(new Node[] {new BeanNode(o)});
+        } catch (IntrospectionException e) {
+            ErrorManager.getDefault().notify(ErrorManager.USER, e);
+            return;
+        }
         JComponent pane;
         if (o instanceof Component) {
             // XXX better to handle Window specially too...
@@ -66,49 +125,63 @@ public class CustomizeBeanAction extends CookieAction {
         }
         DialogDescriptor d = new DialogDescriptor(pane, "Customize Archived Bean"); // XXX I18N
         JButton archiveButton = new JButton();
-        Mnemonics.setLocalizedText(archiveButton, "&Archive As..."); // XXX I18N
+        Mnemonics.setLocalizedText(archiveButton, "&Archive As XML..."); // XXX I18N
         d.setOptions(new Object[] {archiveButton, NotifyDescriptor.CANCEL_OPTION});
         if (DialogDisplayer.getDefault().notify(d) == archiveButton) {
-            serializeJavaBean(o);
+            File suggestedDir = null;
+            if (dob != null) {
+                File f = FileUtil.toFile(dob.getPrimaryFile());
+                if (f != null) {
+                    suggestedDir = f.getParentFile();
+                }
+            }
+            serializeJavaBean(o, suggestedDir);
         }
     }
     
-    private static void serializeJavaBean(Object bean) {
-        FileObject parent;
-        String name;
-        JPanel p = new JPanel(new BorderLayout(12, 0));
-        JTextField tf = new JTextField(20);
-        JLabel l = new JLabel();
-        Mnemonics.setLocalizedText(l, "&Target:"); // XXX I18N
-        l.setLabelFor(tf);
-        p.add(tf, BorderLayout.CENTER);
-        p.add(l, BorderLayout.WEST);
-        try {
-            // selects one folder from data systems
-            DataFolder df = (DataFolder)NodeOperation.getDefault().select(
-                "Archive As...", // XXX I18N
-                "Save in:", // XXX I18N
-                RepositoryNodeFactory.getDefault().repository(new FolderFilter()),
-                new FolderAcceptor(),
-                p
-            )[0].getCookie(DataFolder.class);
-            parent = df.getPrimaryFile();
-            name = tf.getText();
-        } catch (UserCancelException ex) {
-            return;
+    private static void serializeJavaBean(Object bean, File suggestedDir) {
+        JFileChooser chooser = new JFileChooser();
+        FileUtil.preventFileChooserSymlinkTraversal(chooser, suggestedDir);
+        chooser.setDialogTitle("Archive Bean to XML");
+        chooser.setFileFilter(new XMLFilter());
+        if (chooser.showSaveDialog(WindowManager.getDefault().getMainWindow()) == JFileChooser.APPROVE_OPTION) {
+            FileObject f = store(bean, chooser.getSelectedFile());
+            if (f != null) {
+                try {
+                    DataObject d = DataObject.find(f);
+                    OpenCookie open = (OpenCookie) d.getCookie(OpenCookie.class);
+                    if (open != null) {
+                        open.open();
+                    }
+                } catch (DataObjectNotFoundException e) {
+                    assert false : e;
+                }
+            }
         }
-        store(bean, parent, name);
+    }
+    
+    private static final class XMLFilter extends FileFilter {
+        public XMLFilter() {}
+        public boolean accept(File f) {
+            return f.getName().toLowerCase(Locale.US).endsWith(".xml");
+        }
+        public String getDescription() {
+            return "XML Files";
+        }
     }
     
     private static final class OutputWindowExceptionListener implements ExceptionListener {
         private PrintWriter err;
+        private OutputWriter out;
         public void exceptionThrown(Exception e) {
             if (err == null) {
                 InputOutput io = IOProvider.getDefault().getIO("Archiver", false); // XXX I18N
                 io.setFocusTaken(true);
                 OutputWriter _err = io.getErr();
                 try {
+                    // XXX should call reset even if nothing appears (if there is an old tab)
                     _err.reset();
+                    (out = io.getOut()).reset();
                 } catch (IOException ioe) {
                     ErrorManager.getDefault().notify(ioe);
                 }
@@ -121,15 +194,24 @@ public class CustomizeBeanAction extends CookieAction {
             }
             e.printStackTrace(err);
         }
+        public void close() {
+            if (err != null) {
+                err.close();
+                out.close();
+            }
+        }
     }
     
-    private static void store(final Object bean, final FileObject parent, final String name) {
+    private static FileObject store(final Object bean, File target) {
+        final FileObject parent = FileUtil.toFileObject(target.getParentFile());
+        final String name = target.getName();
+        final FileObject[] toret = new FileObject[1];
         try {
             parent.getFileSystem().runAtomicAction(new FileSystem.AtomicAction() {
                 public void run() throws IOException {
-                    FileObject serFile = parent.getFileObject(name, "xml"); // NOI18N
+                    FileObject serFile = parent.getFileObject(name);
                     if (serFile == null) {
-                        serFile = parent.createData(name, "xml"); // NOI18N
+                        serFile = parent.createData(name);
                     }
                     FileLock lock = serFile.lock();
                     try {
@@ -140,14 +222,17 @@ public class CustomizeBeanAction extends CookieAction {
                         }
                         Thread.currentThread().setContextClassLoader(nue);
                         OutputStream os = serFile.getOutputStream(lock);
+                        OutputWindowExceptionListener listener = new OutputWindowExceptionListener();
                         try {
                             XMLEncoder e = new XMLEncoder(os);
-                            e.setExceptionListener(new OutputWindowExceptionListener());
+                            e.setExceptionListener(listener);
                             e.writeObject(bean);
                             e.close();
+                            toret[0] = serFile;
                         } finally {
                             Thread.currentThread().setContextClassLoader(origL);
                             os.close();
+                            listener.close();
                         }
                     } finally {
                         lock.releaseLock();
@@ -157,40 +242,19 @@ public class CustomizeBeanAction extends CookieAction {
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
         }
-    }
-    
-    private static final class FolderFilter implements DataFilter {
-        FolderFilter() {}
-        public boolean acceptDataObject(DataObject obj) {
-            return obj instanceof DataFolder &&
-                (obj.getPrimaryFile().canWrite() ||
-                 obj.getPrimaryFile().getParent() != null);
-        }
-    }
-    
-    private static final class FolderAcceptor implements NodeAcceptor {
-        FolderAcceptor() {}
-        public boolean acceptNodes(Node[] nodes) {
-            if (nodes == null || nodes.length == 0) {
-                return false;
-            }
-            DataFolder cookie = (DataFolder)nodes[0].getCookie(DataFolder.class);
-            return nodes.length == 1 &&
-                cookie != null &&
-                cookie.getPrimaryFile().canWrite();
-        }
+        return toret[0];
     }
     
     public String getName() {
         return NbBundle.getMessage(CustomizeBeanAction.class, "LBL_Action");
     }
     
-    protected String iconResource() {
-        return "org/netbeans/modules/archiver/beans.gif";
-    }
-    
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
+    }
+
+    protected boolean asynchronous() {
+        return false;
     }
     
 }
