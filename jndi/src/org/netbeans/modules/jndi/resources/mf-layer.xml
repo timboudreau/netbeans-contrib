@@ -29,6 +29,14 @@ Microsystems, Inc. All Rights Reserved.
 	</folder>
 
         <folder name="Services">
-                <file name="jndi-settings.settings" url="jndi-settings.settings"/>
+            <folder name="IDEConfiguration">
+                <folder name="DistributedAndEmbeddedTools">
+                    <file name="jndi-settings.settings" url="jndi-settings.settings">
+                        <attr name="SystemFileSystem.localizingBundle" stringValue="org.netbeans.modules.jndi.Bundle"/>
+                        <attr name="SystemFileSystem.icon" urlValue="nbres:/org/netbeans/modules/jndi/resources/jndi.gif"/>
+                        <attr name="SystemFileSystem.layer" stringValue="project"/>
+                    </file>
+                </folder>
+            </folder>
         </folder>
 </filesystem>

@@ -43,18 +43,36 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
    </folder>
    
-   <folder name="Services"> 
-     <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance" />
-     <folder name = "Hidden">
-        <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings" url="GeneralVcsSettings.settings"/>
+  <folder name="Services"> 
+    <folder name="SourceCreationAndManagement"> 
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle" />
+        <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle" />
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/settings/vcsSettings.gif" />
+        </file>
+    </folder>
+    <folder name = "Hidden">
+        <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings" url="GeneralVcsSettings.settings">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle" />
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/settings/vcsSettings.gif" />
+            <attr name="SystemFileSystem.layer" stringvalue="project" />
+        </file>
         <folder name="VersionControl">
-             <file name="org-netbeans-modules-vcscore-grouping-VcsGroupSettings.settings" url="VcsGroupSettings.settings"/>
+            <file name="org-netbeans-modules-vcscore-grouping-VcsGroupSettings.settings" url="VcsGroupSettings.settings">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.grouping.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif" />
+                <attr name="SystemFileSystem.layer" stringvalue="project" />
+            </file>
         </folder>
-     </folder>
-     <folder name="SearchType">
-       <file name="org-netbeans-modules-vcscore-search-VcsSearchType.settings" url="VcsSearchType.settings"/>
-     </folder>
-   </folder>
+    </folder>
+
+    <folder name="SearchType">
+        <file name="org-netbeans-modules-vcscore-search-VcsSearchType.settings" url="VcsSearchType.settings">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.search.Bundle" />
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/search/find.gif" />
+        </file>
+    </folder>
+  </folder>
 
    <folder name="Templates">
      <folder name="Mount">
@@ -62,6 +80,7 @@ Microsystems, Inc. All Rights Reserved.
          <file name="org-netbeans-modules-vcscore-wizard-mountcvs-CvsMountFS.settings" url="CvsMountFS.settings">
          <attr name="template" boolvalue="true"/>
          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.mountcvs.Bundle" />
+         <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/wizard/mountcvs/cvs.gif" />
          <attr name="templateWizardIterator" methodValue="org.netbeans.modules.vcscore.wizard.mountcvs.MountCvsWizard.singleton"/>
          <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcscore/resources/templatesCVSFS.html"/>
          </file>

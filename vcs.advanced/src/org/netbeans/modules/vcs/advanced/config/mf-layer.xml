@@ -70,6 +70,7 @@ Microsystems, Inc. All Rights Reserved.
           ]] -->
           <attr name="template" boolvalue="true"/>
           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
+          <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/vcs2.gif" />
           <attr name="templateWizardIterator" methodValue="org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardIterator.singleton"/>
           <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/config/templatesGEN_VCS_FS.html"/>
         </file>
