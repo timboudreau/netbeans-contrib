@@ -43,9 +43,9 @@ final class Profiles {
             String root = FileUtil.toFile(fs.getRoot()).getAbsolutePath();
             String path = file.getAbsolutePath().substring(root.length());
             File ret = fs.getCacheFileName(file, path);
-            // TODO check that it does not return null for FS root subdirs
-            // it caused a lot of  problems in original implementation (such entries must be held locked in-memory)
-            assert path.length() > 0 || ret != null;
+            // assert that it does not return null for FS root subdirs
+            // it's allowed to return null for files like "path/CVS/Root"
+            assert path.length() == 0 || path.indexOf(File.separatorChar) != 0 || ret != null : "Root " + root + " path " + path;
             return ret;
         }
         return null;

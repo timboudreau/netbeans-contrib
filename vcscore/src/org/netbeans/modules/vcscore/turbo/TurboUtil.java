@@ -50,12 +50,13 @@ public final class TurboUtil {
      */
     public static void refreshFolder(FileObject folder) {
         if (folder.isFolder() == false) return;
-        FileObject[] files = folder.getChildren();
-        // XXX it would be faster to issue batch command instead of set of commands
-        for (int i = 0; i < files.length; i++) {
-            FileObject fileObject = files[i];
-            Turbo.getRepositoryMeta(fileObject);
-        }
+        Turbo.getRepositoryMeta(folder); // it refreshes whole folder
+//        FileObject[] files = folder.getChildren();
+//        // XXX it would be faster to issue batch command instead of set of commands
+//        for (int i = 0; i < files.length; i++) {
+//            FileObject fileObject = files[i];
+//            Turbo.getRepositoryMeta(fileObject);
+//        }
     }
 
     /**
@@ -69,7 +70,9 @@ public final class TurboUtil {
         // XXX it would be faster to issue batch command instead of set of commands
         for (int i = 0; i < files.length; i++) {
             FileObject fileObject = files[i];
-            refreshRecursively(fileObject); // recursion
+            if (fileObject.isFolder()) {
+                refreshRecursively(fileObject); // recursion
+            }
         }
     }
 
@@ -148,6 +151,8 @@ public final class TurboUtil {
     /**
      * Returns FileReaderListener implementation that populates
      * the cache from the command data execuded over given FS.
+     * <p>
+     * It's used by e.g. LIST command.
      *
      * @param fs filesystem that allows to properly match command
      *   output to fileobjects

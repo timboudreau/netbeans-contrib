@@ -243,5 +243,9 @@ public final class FileProperties {
         return elements;
     }
 
+    public String toString() {
+        return "[" + name + "=>"  + status + "]";
+    }
+
 }
 
