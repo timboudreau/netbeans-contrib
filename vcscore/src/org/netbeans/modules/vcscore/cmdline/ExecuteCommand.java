@@ -622,23 +622,27 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     
     /**
      * Get the set of files being processed by the command.
-     * @return the set of files of type <code>String</code>
+     * @return the set of files of type <code>String</code> relative
+     * to the file system root.
      */
     public Collection getFiles() {
+        String path = (String) vars.get("DIR");
         String file = (String) vars.get("FILE");
-        return Collections.singleton(file);
+        String fullPath = ((path.length() > 0) ? path.replace(File.separatorChar, '/') + "/" : "") + file;
+        return Collections.singleton(fullPath);
         //HashSet set = new HashSet(1);
         //set.add(file);
         //return set;
     }
     
-    /**
+    /*
      * Get the path of the processed files.
      * The path is relative to file system root.
-     */
+     *
     public String getPath() {
         return (String) vars.get("DIR");
     }
+     */
     
     /*
     private String preprocessCommand() {
