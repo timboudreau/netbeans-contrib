@@ -163,6 +163,8 @@ public final class ClassDataLoader extends MultiFileLoader {
 
 /*
  * Log
+ *  11   Gandalf   1.10        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  10   Gandalf   1.9         10/1/99  Jaroslav Tulach Loaders extends 
  *       SharedClassObject
  *  9    Gandalf   1.8         8/31/99  Ian Formanek    Correctly provides 

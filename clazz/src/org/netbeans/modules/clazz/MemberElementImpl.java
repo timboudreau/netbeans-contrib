@@ -92,6 +92,8 @@ static final long serialVersionUID =-6841890195552268874L;
 
 /*
 * Log
+*  8    src-jtulach1.7         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
+*       Microsystems Copyright in File Comment
 *  7    src-jtulach1.6         8/9/99   Ian Formanek    Generated Serial Version 
 *       UID
 *  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 

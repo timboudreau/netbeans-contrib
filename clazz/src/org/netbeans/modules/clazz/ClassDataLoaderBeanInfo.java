@@ -87,6 +87,8 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
 
 /*
 * Log
+*  5    src-jtulach1.4         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
+*       Microsystems Copyright in File Comment
 *  4    src-jtulach1.3         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
 *  3    src-jtulach1.2         3/22/99  Ian Formanek    Icons location fixed

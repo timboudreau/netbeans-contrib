@@ -532,6 +532,8 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  26   Gandalf   1.25        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  25   Gandalf   1.24        8/18/99  Jaroslav Tulach #2641
  *  24   Gandalf   1.23        7/25/99  Ian Formanek    Fixed bug #2745 - 
  *       Property "Class Name" of serialized prototypes displays the file name 

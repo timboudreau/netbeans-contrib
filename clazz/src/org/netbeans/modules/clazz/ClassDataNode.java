@@ -264,6 +264,8 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  24   Gandalf   1.23        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  23   Gandalf   1.22        8/9/99   Jaroslav Tulach Delays initialization of
  *       children => solves one deadlock.
  *  22   Gandalf   1.21        6/28/99  Petr Hrebejk    Multiple node factories 

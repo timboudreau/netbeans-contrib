@@ -67,6 +67,8 @@ public final class SerDataObject extends ClassDataObject {
 
 /*
  * Log
+ *  6    src-jtulach1.5         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  5    src-jtulach1.4         6/25/99  Jesse Glick     Instance context help.
  *  4    src-jtulach1.3         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
