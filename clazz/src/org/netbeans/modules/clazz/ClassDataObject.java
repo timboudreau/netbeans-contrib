@@ -203,6 +203,10 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
         }
         return DataObject.find (serFile);
     }
+    
+    protected DataObject superHandleCopy(DataFolder f) throws IOException {
+        return super.handleCopy(f);
+    }
 
     /**
     * @return class data node
@@ -390,7 +394,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
     * @param f destination folder
     * @return new Name of file in destination
     */
-    private String existInFolder(DataFolder f) throws UserCancelException {
+    protected String existInFolder(DataFolder f) throws UserCancelException {
         FileObject fo = getPrimaryFile();
         String name = fo.getName();
         String ext = "ser"; // NOI18N

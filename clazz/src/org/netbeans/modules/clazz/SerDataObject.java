@@ -17,6 +17,8 @@ import org.openide.filesystems.*;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.InstanceSupport;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 
@@ -57,6 +59,10 @@ public final class SerDataObject extends ClassDataObject {
     */
     protected Node createNodeDelegate () {
         return new SerDataNode (this);
+    }
+    
+    protected DataObject handleCopy(DataFolder f) throws java.io.IOException {
+        return superHandleCopy(f);
     }
 
     public HelpCtx getHelpCtx () {
