@@ -21,7 +21,6 @@ import org.netbeans.jmi.javamodel.JavaClass;
 import org.netbeans.jmi.javamodel.JavaPackage;
 import org.netbeans.jmi.javamodel.Resource;
 import org.netbeans.modules.classfile.ClassFile;
-import org.netbeans.modules.javacore.internalapi.JMIElementCookie;
 import org.netbeans.modules.javacore.internalapi.JavaMetamodel;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -338,9 +337,6 @@ final class SourceElementImpl extends MemberElementImpl
     * @return data object cookie or null
     */
     public Node.Cookie getCookie (Class type) {
-        if (JMIElementCookie.class.isAssignableFrom(type)) {
-            return getJMIElementCookie();
-        }
         if (type.equals(DataObject.class) || type.equals(MultiDataObject.class) ||
                 ClassDataObject.class.isAssignableFrom(type)) {
             return cdo;

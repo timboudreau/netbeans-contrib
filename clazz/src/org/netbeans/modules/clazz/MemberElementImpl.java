@@ -17,7 +17,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import org.netbeans.modules.javacore.internalapi.JMIElementCookie;
+import org.netbeans.jmi.javamodel.Element;
 import org.openide.nodes.CookieSet;
 
 import org.openide.src.MemberElement;
@@ -43,8 +43,6 @@ public abstract class MemberElementImpl extends ElementImpl implements MemberEle
     /** Cached name identifier */
     private transient Identifier name;
 
-    private JMIElementCookie jmiCookie = null;
-    
     static final long serialVersionUID =-6841890195552268874L;
     /** Constructor, asociates this impl with java reflection
     * Member element, which acts as data source.
@@ -92,24 +90,10 @@ public abstract class MemberElementImpl extends ElementImpl implements MemberEle
         throwReadOnlyException();
     }
 
-    protected JMIElementCookie getJMIElementCookie() {
-        if (jmiCookie == null) {
-            synchronized (this) {
-                if (jmiCookie == null) {
-                    jmiCookie = new JMIElementCookieImpl();
-                }
-            }
-        }
-        return jmiCookie;
-    }
-    
     /** Delegates to source element implementation class,
     * if it's possible.
     */
     public Node.Cookie getCookie (Class type) {
-        if (JMIElementCookie.class.isAssignableFrom(type)) {
-            return getJMIElementCookie();
-        }
         ClassElement ce = ((MemberElement)element).getDeclaringClass();
         if ((ce == null) && (element instanceof ClassElement)) {
             ce = (ClassElement)element;
@@ -145,13 +129,6 @@ public abstract class MemberElementImpl extends ElementImpl implements MemberEle
     
     public Task refresh() {
         return Task.EMPTY;
-    }
-    
-    // ..........................................................................
-    class JMIElementCookieImpl implements JMIElementCookie {
-        public org.netbeans.jmi.javamodel.Element getElement() {
-            return (org.netbeans.jmi.javamodel.Element) getJMIElement();
-        }
     }
     
 }
