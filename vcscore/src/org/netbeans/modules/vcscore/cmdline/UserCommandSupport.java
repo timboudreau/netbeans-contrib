@@ -1017,9 +1017,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             module = valueAdjustment.adjustVarValue(module);
         }
         vars.put("MODULE", module);
-        if (module.length() > 0) {
-            module += separatorChar;
-        }
         vars.put("PATH", fullName); // NOI18N
         vars.put("QPATH", (fullName.length() > 0) ? quoting+fullName+quoting : fullName); // NOI18N
         vars.put("DIR", path); // NOI18N
@@ -1094,10 +1091,20 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             qpaths.append(fullName);
             qpaths.append(quoting);
             qpaths.append(" "); // NOI18N
-            mpaths.append(module + fullName);
+            String mpath;
+            if (module == null || module.length() == 0) {
+                mpath = fullName;
+            } else {
+                if (".".equals(fullName)) {
+                    mpath = module;
+                } else {
+                    mpath = module + separatorChar + fullName;
+                }
+            }
+            mpaths.append(mpath);
             mpaths.append(" "); // NOI18N
             qmpaths.append(quoting);
-            qmpaths.append(module + fullName);
+            qmpaths.append(mpath);
             qmpaths.append(quoting);
             qmpaths.append(" "); // NOI18N
         }
