@@ -586,7 +586,7 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
             if (path.length() < rootPathLength) continue;
             VcsDirContainer filesByName = filesByNameCont.addSubdirRecursive(path);
             VcsDirContainer parent = filesByNameCont.getParent(path);
-            if (filesByName != null) {
+            if (filesByName != null && path.length() > rootPathLength) {
                 //VcsDirContainer parent = filesByName.getParent();
                 //System.out.println("addDirName("+path+", "+parent+"("+((parent != null) ? parent.getPath() : "")+"))");
                 if (parent != null) addDirName(path, parent);
