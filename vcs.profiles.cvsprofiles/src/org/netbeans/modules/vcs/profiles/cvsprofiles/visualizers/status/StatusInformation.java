@@ -247,49 +247,16 @@ public final class StatusInformation extends FileInfoContainer {
     }
 
     public void addExistingTag(String tagName, String revisionNumber) {
-        if (symNamesBuffer == null) {
-            symNamesBuffer = new StringBuffer();
+        if (tags == null) {
+            tags = new ArrayList();
         }
-        symNamesBuffer.append(tagName);
-        symNamesBuffer.append(" "); //NOI18N
-        symNamesBuffer.append(revisionNumber);
-        symNamesBuffer.append("\n"); //NOI18N
-    }
-
-    private void createSymNames() {
-        tags = new LinkedList();
-
-        if (symNamesBuffer == null) {
-            return;
-        }
-
-        int length = 0;
-        int lastLength = 0;
-        while (length < symNamesBuffer.length()) {
-            while (length < symNamesBuffer.length() && symNamesBuffer.charAt(length) != '\n') {
-                length++;
-            }
-
-            if (length > lastLength) {
-                String line = symNamesBuffer.substring(lastLength, length);
-                String symName = line.substring(0, line.indexOf(' '));
-                String revisionNumber = line.substring(line.indexOf(' ') + 1);
-                SymName newName = new SymName();
-                newName.setTag(symName);
-                newName.setRevision(revisionNumber);
-                tags.add(newName);
-                lastLength = length + 1;
-                length++;
-            }
-        }
-
-        symNamesBuffer = null;
+        SymName newName = new SymName();
+        newName.setTag(tagName);
+        newName.setRevision(revisionNumber);
+        tags.add(newName);
     }
 
     public List getAllExistingTags() {
-        if (tags == null) {
-            createSymNames();
-        }
         return tags;
     }
 
@@ -301,7 +268,7 @@ public final class StatusInformation extends FileInfoContainer {
      */
     public List getSymNamesForRevision(String revNumber) {
         if (tags == null) {
-            createSymNames();
+            return null;
         }
 
         List list = new LinkedList();
@@ -321,7 +288,7 @@ public final class StatusInformation extends FileInfoContainer {
      */
     public StatusInformation.SymName getSymNameForTag(String tagName) {
         if (tags == null) {
-            createSymNames();
+            return null;
         }
 
         for (Iterator it = tags.iterator(); it.hasNext();) {

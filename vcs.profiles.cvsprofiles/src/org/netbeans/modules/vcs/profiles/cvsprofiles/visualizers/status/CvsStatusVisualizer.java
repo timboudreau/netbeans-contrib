@@ -56,7 +56,7 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
     private static final String OPTIONS = "   Sticky Options:";                 //NOI18N
     private static final String EXISTING_TAGS = "   Existing Tags:";            //NOI18N
     private static final String EMPTY_BEFORE_TAGS = "   ";                      //NOI18N
-    private static final String NO_TAGS = "   No Tags Exist";                   //NOI18N
+    private static final String NO_TAGS = "No Tags Exist";                      //NOI18N
     private static final String UNKNOWN_FILE = "? ";                            //NOI18N
     private static final String STATUS_UNKNOWN = "Unknown";                     //NOI18N
     
@@ -188,7 +188,12 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
     public void stdOutputLine(String line) {  
         debug("output:"+line);
         if (readingTags) {
-            if (line.startsWith(NO_TAGS)) {
+            if (line.indexOf(NO_TAGS) > 0) {
+                if (statusInformation == null) {
+                    statusInformation = new StatusInformation();
+                    resultList.add(statusInformation);
+                }
+                statusInformation.setAllExistingTags(Collections.EMPTY_LIST);
                 readingTags = false;
                 return;
             }

@@ -18,6 +18,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.List;
 import javax.accessibility.*;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -69,7 +70,6 @@ final class StatusInfoPanel extends JPanel {
     public StatusInfoPanel(VcsCommandsProvider cmdProvider) {
         this.cmdProvider = cmdProvider;
         initComponents ();      
-        pnlGetTags.setVisible(false);
         initAccessibility();
         lblRepFile.setDisplayedMnemonic (NbBundle.getBundle(StatusInfoPanel.class).getString("StatusInfoPanel.lblRepFile.mnemonic").charAt(0)); // NOI18N
         lblRepFile.setLabelFor (txRepFile);
@@ -392,7 +392,7 @@ final class StatusInfoPanel extends JPanel {
     
   private void btnAdvancedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdvancedActionPerformed
       spExistingTags.setViewportView(pnlGetTags);      
-      pnlGetTags.setVisible(true);
+      lblGetTagsRunning.setText(NbBundle.getMessage(StatusInfoPanel.class, "StatusInfoPanel.lblGetTagsRunning"));
       RequestProcessor.getDefault().post(new Runnable() {
           public void run() {
               File file = statusInfo.getFile();
@@ -414,13 +414,14 @@ final class StatusInfoPanel extends JPanel {
               cmdTask.waitFinished();
               int status = cmdTask.getExitStatus();
               if(status != 0){
-                  pnlGetTags.setVisible(false);
-                 // lblGetTagsRunning.setText(NbBundle.getMessage(StatusInfoPanel.class, "StatusInfoPanel.getTagsFailed"),NotifyDescriptor.ERROR_MESSAGE);
                   NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(StatusInfoPanel.class, "StatusInfoPanel.getTagsFailed"),NotifyDescriptor.ERROR_MESSAGE);
                   DialogDisplayer.getDefault().notify(nd);
               }
               final StatusInformation sInfo = statVis.getStatusInfo();
-              if (sInfo == null) return ;
+              if (sInfo == null) {
+                  lblGetTagsRunning.setText(NbBundle.getMessage(StatusInfoPanel.class, "StatusInfoPanel.lblTagsNotLoaded"));
+                  return ;
+              }
               statusInfo.setFile(sInfo.getFile());
               statusInfo.setRepositoryFileName(sInfo.getRepositoryFileName());
               statusInfo.setRepositoryRevision(sInfo.getRepositoryRevision());
@@ -432,7 +433,6 @@ final class StatusInfoPanel extends JPanel {
               statusInfo.setAllExistingTags(sInfo.getAllExistingTags());
               javax.swing.SwingUtilities.invokeLater(new Runnable() {
                   public void run() {
-                      spExistingTags.setViewportView(tblExistingTags);
                       setData(statusInfo);
                   }
               });
@@ -551,15 +551,25 @@ final class StatusInfoPanel extends JPanel {
       txOptions.setText(info.getStickyOptions());
 
       model.clear();
-      java.util.Iterator it = info.getAllExistingTags().iterator();
-      while (it.hasNext()) {
-          model.addElement(it.next());
+      List tags = info.getAllExistingTags();
+      if (tags == null) {
+          lblGetTagsRunning.setText(NbBundle.getMessage(StatusInfoPanel.class, "StatusInfoPanel.lblTagsNotLoaded"));
+          spExistingTags.setViewportView(pnlGetTags);
+      } else if (tags.size() == 0) {
+          lblGetTagsRunning.setText(NbBundle.getMessage(StatusInfoPanel.class, "StatusInfoPanel.lblNoTags"));
+          spExistingTags.setViewportView(pnlGetTags);
+      } else {
+          spExistingTags.setViewportView(tblExistingTags);
+          java.util.Iterator it = tags.iterator();
+          while (it.hasNext()) {
+              model.addElement(it.next());
+          }
+          TableInfoModel model = (TableInfoModel)tblExistingTags.getModel();
+          java.util.Collections.sort(model.getList(), model);
+            // find the previsously selected row.
+          tblExistingTags.tableChanged(new javax.swing.event.TableModelEvent(model));
+          tblExistingTags.repaint();
       }
-      TableInfoModel model = (TableInfoModel)tblExistingTags.getModel();
-      java.util.Collections.sort(model.getList(), model);
-        // find the previsously selected row.
-      tblExistingTags.tableChanged(new javax.swing.event.TableModelEvent(model));
-      tblExistingTags.repaint();
   }
 
     /** in this method the displayer should use the data returned by the command to
