@@ -30,49 +30,6 @@ import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 
 class TeamwareSupport {
     
-    static boolean exec(File dir, String[] args,
-        CommandOutputListener stdout, CommandOutputListener stderr) {
-        StringWriter out = new StringWriter();
-        StringWriter err = new StringWriter();
-        boolean success = exec(dir, args, out, err);
-        if (!success) {
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < args.length; i++) {
-                if (i > 0) {
-                    sb.append(" ");
-                }
-                sb.append(args[i]);
-            }
-            stdout.outputLine(sb.toString());
-            stdout.outputLine(out.getBuffer().toString());
-            stderr.outputLine(err.getBuffer().toString());
-        }
-        return success;
-    }
-
-    static boolean exec(File dir, String[] args,
-        Writer out, Writer err) {
-
-        try {
-            Process p = Runtime.getRuntime().exec(args, null, dir);
-            StreamCopier errCopier = new StreamCopier(p.getErrorStream(), err);
-            StreamCopier outCopier = new StreamCopier(p.getInputStream(), out);
-            Thread t1 = new Thread(outCopier);
-            t1.start();
-            Thread t2 = new Thread(errCopier);
-            t2.start();
-            p.waitFor();
-            t1.join();
-            t2.join();
-            return p.exitValue() == 0;
-        } catch (InterruptedException e) {
-            /* fail */
-        } catch (IOException e) {
-            /* fail */
-        }
-        return false;
-    }
-
     static String getRevision(VcsFileSystem fs,
         File file, String revision) throws InterruptedException {
             
