@@ -1335,15 +1335,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
      * @return the validator, or <code>null</code> when no validation is possible.
      */
     public VariableInputValidator validateConfigPanel(int index) {
-        if (configInputDescriptors == null || configInputDescriptors.length <= index) {
-            if (index == 0) {
-                rootDirInputComponent.setValue(rootDirTextField.getText());
-                return rootDirInputComponent.validate();
+        synchronized (configInputPanelsLock) {
+            if (configInputPanels == null || configInputPanels.length <= index) {
+                if (index == 0) {
+                    rootDirInputComponent.setValue(rootDirTextField.getText());
+                    return rootDirInputComponent.validate();
+                } else {
+                    return null;
+                }
             } else {
-                return null;
+                return configInputPanels[index].validateComponents();
             }
-        } else {
-            return configInputDescriptors[index].validate();
         }
     }
     
