@@ -296,7 +296,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private volatile transient CommandsPool commandsPool = null;
     private Integer numberOfFinishedCmdsToCollect = new Integer(CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
     
-    private ArrayList revisionListeners;
+    private transient ArrayList revisionListeners;
 
     /** The offline mode.
      * Whether to run command when doing refresh of folders.
