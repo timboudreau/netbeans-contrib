@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+ * 
+ *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+ *     Use is subject to license terms.
+ *
+ *
+ -->
+<HTML>
+<HEAD>
+<title>JNDI Concepts</title>
+<link rel="stylesheet" href="../../../usersguide/ide.css" type="text/css"></HEAD>
+<body>
+
+<h2>JNDI Concepts</h2>
+<p>
+JNDI technology enables Java programs to gain access to a wide variety of naming
+and directory services in a consistent, Java-centric way. The following
+picture shows a Java application using JNDI to access a directory service.
+</p>
+<p> <img SRC="JNDI1.gif" height=160 width=350 alt="Diagram of Java application using JNDI to acces a directory service. See summary for explanation."> 
+</p>
+<p>The role that each part plays is summarized below:
+</p>
+
+<ul>
+<li><b>Application class.</b> 
+A class that calls the methods of a JNDI service provider to connect
+to naming and directory services and perform operations such as querying
+the service or binding new entries.</li>
+<li><b>JNDI Service Provider.</b> 
+A Java class that can communicate with a naming
+or directory service. JDK 1.3 includes service providers for the following:
+<ul>
+<li>Network&nbsp; Information Service (NISCtxFactory)</li>
+<li>Cos Naming Services (CNCtxFactory)</li>
+<li>LDAP directory services (LdapCtxFactory)</li>
+<li>File system (RefFSCtxFactory)</li>
+<li>RMI Registry (RegistryContextFactory)</li>
+</ul>
+</li>
+<li><b>Naming and Directory Service.</b> 
+Software that manages name to object bindings.</li>
+</ul>
+<p>
+A comprehensive account of JNDI is outside the scope of this document.
+If you are developing programs that use JNDI and you are not familiar with
+the technology, you will do well to look at any of the books that have
+been written on JNDI.</p>
+
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td>
+<a href="jndi_concepts_procs.html">Steps for Generating Code With JNDI</a>
+</td>
+</tr>
+</table>
+
+<hr>
+<small><a href="../credits.html">Legal Notices</a></small>
+</body>
+</html>

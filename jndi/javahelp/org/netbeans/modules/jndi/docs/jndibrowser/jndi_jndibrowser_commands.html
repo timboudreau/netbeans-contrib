@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+ * 
+ *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+ *     Use is subject to license terms.
+ *
+ *
+ -->
+<HTML>
+<HEAD>
+<title>JNDI Browser Commands</title>
+<link rel="stylesheet" href="../../../usersguide/ide.css" type="text/css"></HEAD>
+<body>
+
+<h2>
+JNDI Browser Commands</h2>
+<p>
+You use the JNDI Browser by right-clicking the JNDI node or one of its subnodes.
+The contextual menus for each type of node are described below.</p>
+
+<h3>Providers Node Menu</h3>
+<ul>
+  <li><b>New Provider.&nbsp;</b>Add a JNDI service provider to those supplied 
+    by the IDE.</li>
+  <li><b>Refresh.&nbsp;</b>Refresh the displayed list of JNDI service providers</li>
+</ul>
+<h3>Individual Provider Node (NSCtxFactory, CNCtxFactory, and Similar Nodes) Menu</h3>
+<ul>
+  <li><b>Test Provider.</b>&nbsp;Test the selected JNDI service provider to see 
+    that it is installed and accessible. </li>
+  <li><b>Connect Using.</b>&nbsp;Connect to a naming or directory service using 
+    the selected JNDI service provider. </li>
+  <li><b>Delete.</b>&nbsp;Delete the selected JNDI service provider from the JNDI 
+    Browser. </li>
+  <li><b>Customize.</b>&nbsp;Modify the customizable properties (if any) of the 
+    selected JNDI service provider. </li>
+  <li><b>Properties.</b>&nbsp;Display the properties of the selected JNDI service 
+    provider. </li>
+</ul>
+<h3>Context Node Menu</h3>
+<p> These nodes represent naming and directory services and their hierarchies 
+  of naming contexts. They can contain lower-level contexts or individual naming 
+  entries. </p>
+<ul>
+  <li><b>Copy Lookup Code.</b>&nbsp;Copy, to the system clipboard, code that looks 
+    up the selected context and return a reference to it. When this code is pasted 
+    into a Java class, the class can use the reference to manipulate the context. 
+  </li>
+  <li><b>Copy Binding Code.</b>&nbsp;Copy, to the system clipboard, code that 
+    binds an object into the selected context. When this code is pasted into a 
+    Java class, the class can use the reference to bind a new object in the context.</li>
+</ul>
+<h3>Object Node Menu</h3>
+<p> These nodes represent objects, or individual entries in the naming/directory 
+  service. </p>
+<ul>
+  <li><b>Copy Lookup Code.</b>&nbsp;Copy, to the system clipboard, code that looks 
+    up the selected object and return a reference to it. When this code is pasted 
+    into a Java class, the class can use the reference to manipulate the object.</li>
+</ul>
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td>
+<a href="jndi_jndibrowser_connect.html">Connecting to a Naming or Directory Service</a>
+<br>
+<a href="jndi_jndibrowser_generating.html">Generating Code With the JNDI Browser</a>
+<br>
+<a href="jndi_jndibrowser_addprovider.html">Adding a Service Provider</a>
+</td>
+</tr>
+</table>
+
+<hr>
+<small><a href="../credits.html">Legal Notices</a></small>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+ * 
+ *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+ *     Use is subject to license terms.
+ *
+ *
+ -->
+<HTML>
+<HEAD>
+<title>Steps for Generating Code With JNDI</title>
+<link rel="stylesheet" href="../../../usersguide/ide.css" type="text/css"></HEAD>
+<body>
+
+
+<h2>Steps for Generating Code With JNDI</h2>
+<p>
+The JNDI module generates most of the code that a Java class needs to access
+a naming or directory service via JNDI. The procedures for using the module
+to generate code you can use in a program are outlined below:
+</p>
+<ol>
+<li>Determine what you are trying to accomplish. The questions you need to
+answer include:
+<ul>
+<li>Which naming or directory service are you trying to access?</li>
+
+<li>Which JNDI service provider do you need to access that service?</li>
+
+<li>Will your application be looking up entries or binding new entries?</li>
+
+<li>What connection information do you need to access the naming or directory
+service, such as URL, username, password, and so on.</li>
+</ul></li>
+
+<li>Access the naming or directory service with the JNDI Browser.
+The browser will represent the contents of the service as a tree of nodes
+in the IDE.</li>
+
+<li>Using the browser, navigate through the naming or directory service, and
+locate the item you want to look up or the context in which you want to
+bind a new entry.</li>
+
+<li>Using the browser's context menu, generate lookup or binding code. Paste
+it into your program.</li>
+
+<li>Run and test your programs.</li>
+</ol>
+
+<table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td>
+<a href="jndi_concepts_basics.html">JNDI Concepts</a>
+<br>
+<a href="../jndibrowser/jndi_jndibrowser_connect.html">Connecting to a Naming Directory or Service</a>
+<br>
+<a href="../jndibrowser/jndi_jndibrowser_generating.html">Generating Code With the JNDI Browser</a>
+<br>
+<a href="../jndibrowser/jndi_jndibrowser_commands.html">JNDI Browser Commands</a>
+</td>
+</tr>
+</table>
+
+<hr>
+<small><a href="../credits.html">Legal Notices</a></small>
+</body>
+</html>

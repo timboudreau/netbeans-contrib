@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+ * 
+ *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+ *     Use is subject to license terms.
+ *
+ *
+ -->
+<HTML>
+<HEAD>
+<title>Connecting to a Naming or Directory Service</title>
+<link rel="stylesheet" href="../../../usersguide/ide.css" type="text/css"></HEAD>
+<body>
+
+
+<h2>Connecting to a Naming or Directory Service</h2>
+
+<ol>
+<li>
+In the Runtime tab of the Explorer window, expand the JNDI node.
+</li>
+<li>Right-click the appropriate service provider and choose Connect
+Using from the contextual menu.</li> 
+<li>
+In the New JNDI Context dialog box, type a Context Label. 
+<p>
+This text labels the JNDI subnode that represents
+the service.
+</p>
+</li>
+<li>
+Fill in the additional fields that are required by the naming or directory
+service.</li>
+<li>
+Click OK.
+<p>
+A subnode that represents the naming or directory service
+that you specified is added underneath the JNDI node.
+</li>
+</ol>
+<table>
+<tr>
+<td valign=top><img src="../images/tip.gif" alt="tip"></td>
+<td valign=top align=left>
+You can use the RefFSContextFactory (file system service provider) to
+see how the JNDI browser works. Right-click the RefFSContextFactory
+node and choose Connect Using from the contextual menu. If you are
+working in the Windows programming environment, type
+<code>myCdrive</code> for the Context Label, and
+<code>file://c:/</code> (or some equivalent) for the JNDI Initial
+Context.</td>
+</tr>
+</table><table>
+<tr>
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr>
+<td width="23"></td>
+<td>
+<a href="jndi_jndibrowser_generating.html">Generating Code With the JNDI Browser</a>
+<br>
+<a href="jndi_jndibrowser_addprovider.html">Adding a Service Provider</a>
+</td>
+</tr>
+</table>
+
+<hr>
+<small><a href="../credits.html">Legal Notices</a></small>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+
+<!DOCTYPE toc
+
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 1.0//EN"
+
+         "http://java.sun.com/products/javahelp/toc_1_0.dtd">
+
+<toc version="1.0">
+
+  <tocitem text="Generating Code With JNDI" target="jndi_intro">
+    <tocitem text="JNDI Concepts" target="jndi_concepts_basics" />
+    <tocitem text="Steps for Generating Code With JNDI" target="jndi_concepts_procs" />
+    <tocitem text="Adding a Service Provider" target="jndi_jndibrowser_addprovider" />
+    <tocitem text="Connecting to a Naming or Directory Service" target="jndi_jndibrowser_connect" />
+    <tocitem text="Generating Code With the JNDI Browser" target="jndi_jndibrowser_generating" />
+    <tocitem text="JNDI Browser Commands" target="jndi_jndibrowser_commands" />
+    <tocitem text="Specifying JNDI Settings for a Project" target="jndi_settings_intro" />
+  </tocitem>
+
+</toc>

@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+
+<!DOCTYPE map
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+         "http://java.sun.com/products/javahelp/map_1_0.dtd">
+<map version="1.0">
+   <mapID target="jndi_intro" url="jndi_intro.html" />
+   <mapID target="jndi_concepts_basics" url="concepts/jndi_concepts_basics.html" />
+   <mapID target="jndi_concepts_procs" url="concepts/jndi_concepts_procs.html" />	
+   <mapID target="jndi_jndibrowser_addprovider" url="jndibrowser/jndi_jndibrowser_addprovider.html" />   
+   <mapID target="jndi_jndibrowser_connect" url="jndibrowser/jndi_jndibrowser_connect.html" />
+   <mapID target="jndi_jndibrowser_generating" url="jndibrowser/jndi_jndibrowser_generating.html" />
+   <mapID target="jndi_jndibrowser_commands" url="jndibrowser/jndi_jndibrowser_commands.html" />	
+   <mapID target="jndi_settings_intro" url="settings/jndi_settings.html" />
+
+
+</map>

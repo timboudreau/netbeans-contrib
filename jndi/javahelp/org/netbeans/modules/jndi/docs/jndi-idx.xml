@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!--
+*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+
+<!DOCTYPE index 
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Index Version 1.0//EN"  
+         "http://java.sun.com/products/javahelp/index_1_0.dtd">  
+
+<index version="1.0">
+
+
+   <indexitem text=" " />
+   <indexitem><b>====================================</b></indexitem>
+   <indexitem><b>JNDI</b></indexitem>
+   <indexitem><b>====================================</b></indexitem>
+
+   <indexitem text=" " />
+   <indexitem><b>-A-</b></indexitem>
+    <indexitem text="application classes, JNDI" target="jndi_concepts_basics"></indexitem>
+
+   <indexitem text=" " />
+   <indexitem><b>-C-</b></indexitem>
+      <indexitem text="connecting to directory service" target="jndi_jndibrowser_connect" />
+
+   <indexitem text=" " />
+   <indexitem><b>-D-</b></indexitem>
+      <indexitem text="directory service" target="jndi_concepts_basics" />
+
+  
+   <indexitem text=" " />
+   <indexitem><b>-J-</b></indexitem>
+   <indexitem text="JNDI browser" target="jndi_jndibrowser_generating">
+      <indexitem text="about the module" target="jndi_intro" />
+      <indexitem text="adding a provider" target="jndi_jndibrowser_addprovider" />
+      <indexitem text="binding code in" target="jndi_jndibrowser_generating" />
+      <indexitem text="commands" target="jndi_jndibrowser_commands" />
+      <indexitem text="connecting to a naming or directory service" target="jndi_jndibrowser_connect" />
+      <indexitem text="context node commands" target="jndi_jndibrowser_commands" />
+      <indexitem text="copying commands" target="jndi_jndibrowser_commands" />
+      <indexitem text="deleting providers" target="jndi_jndibrowser_commands" />
+      <indexitem text="generating code" target="jndi_jndibrowser_generating" />
+      <indexitem text="lookup code" target="jndi_jndibrowser_generating" />
+      <indexitem text="naming and directory service" target="jndi_jndibrowser_connect" />
+      <indexitem text="New Provider command" target="jndi_jndibrowser_commands" />
+      <indexitem text="object node commands" target="jndi_jndibrowser_commands" />
+      <indexitem text="provider nodes" target="jndi_jndibrowser_commands" />
+      <indexitem text="technology overview" target="jndi_concepts_basics" />
+      <indexitem text="Test Provider command" target="jndi_jndibrowser_commands" />
+      <indexitem text="using the module" target="jndi_concepts_procs" />     
+   </indexitem>
+
+   <indexitem text=" " />
+   <indexitem><b>-P-</b></indexitem>
+      <indexitem text="project settings, JNDI" target="jndi_settings_intro" />
+  
+
+   <indexitem text=" " />
+   <indexitem><b>-S-</b></indexitem>
+      <indexitem text="service providers" target="jndi_concepts_basics" />
+      <indexitem text="settings" target="jndi_settings_intro" />
+  
+  
+
+</index>
