@@ -210,6 +210,22 @@
       <SubComponents>
         <Component class="javax.swing.JTable" name="tblExistingTags">
         </Component>
+        <Container class="javax.swing.JPanel" name="pnlGetTags">
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
+          <SubComponents>
+            <Component class="javax.swing.JLabel" name="lblGetTagsRunning">
+              <Properties>
+                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="99" green="66" id="CheckBoxMenuItem.acceleratorForeground" palette="3" red="66" type="palette"/>
+                </Property>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle.properties" key="StatusInfoPanel.lblGetTagsRunning" replaceFormat="NbBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+            </Component>
+          </SubComponents>
+        </Container>
       </SubComponents>
     </Container>
     <Component class="javax.swing.JLabel" name="lblExistingTags">

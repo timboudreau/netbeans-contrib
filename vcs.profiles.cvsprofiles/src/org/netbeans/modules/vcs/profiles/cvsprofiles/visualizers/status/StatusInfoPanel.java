@@ -68,7 +68,8 @@ final class StatusInfoPanel extends JPanel {
      */
     public StatusInfoPanel(VcsCommandsProvider cmdProvider) {
         this.cmdProvider = cmdProvider;
-        initComponents ();
+        initComponents ();      
+        pnlGetTags.setVisible(false);
         initAccessibility();
         lblRepFile.setDisplayedMnemonic (NbBundle.getBundle(StatusInfoPanel.class).getString("StatusInfoPanel.lblRepFile.mnemonic").charAt(0)); // NOI18N
         lblRepFile.setLabelFor (txRepFile);
@@ -127,6 +128,8 @@ final class StatusInfoPanel extends JPanel {
         lblDate = new javax.swing.JLabel();
         spExistingTags = new javax.swing.JScrollPane();
         tblExistingTags = new javax.swing.JTable();
+        pnlGetTags = new javax.swing.JPanel();
+        lblGetTagsRunning = new javax.swing.JLabel();
         lblExistingTags = new javax.swing.JLabel();
         btnAdvanced = new javax.swing.JButton();
         txFileName = new javax.swing.JTextField();
@@ -258,6 +261,12 @@ final class StatusInfoPanel extends JPanel {
         spExistingTags.setPreferredSize(new java.awt.Dimension(200, 200));
         spExistingTags.setViewportView(tblExistingTags);
 
+        lblGetTagsRunning.setForeground(javax.swing.UIManager.getDefaults().getColor("CheckBoxMenuItem.acceleratorForeground"));
+        lblGetTagsRunning.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblGetTagsRunning"));
+        pnlGetTags.add(lblGetTagsRunning);
+
+        spExistingTags.setViewportView(pnlGetTags);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
@@ -299,9 +308,9 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 0.2;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         add(txFileName, gridBagConstraints);
 
         txStatus.setEditable(false);
@@ -312,9 +321,9 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 11, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 0.2;
+        gridBagConstraints.insets = new java.awt.Insets(12, 11, 0, 0);
         add(txStatus, gridBagConstraints);
 
         txWorkRev.setEditable(false);
@@ -382,7 +391,8 @@ final class StatusInfoPanel extends JPanel {
     }//GEN-LAST:event_txRepFileActionPerformed
     
   private void btnAdvancedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdvancedActionPerformed
-      
+      spExistingTags.setViewportView(pnlGetTags);      
+      pnlGetTags.setVisible(true);
       RequestProcessor.getDefault().post(new Runnable() {
           public void run() {
               File file = statusInfo.getFile();
@@ -404,6 +414,8 @@ final class StatusInfoPanel extends JPanel {
               cmdTask.waitFinished();
               int status = cmdTask.getExitStatus();
               if(status != 0){
+                  pnlGetTags.setVisible(false);
+                 // lblGetTagsRunning.setText(NbBundle.getMessage(StatusInfoPanel.class, "StatusInfoPanel.getTagsFailed"),NotifyDescriptor.ERROR_MESSAGE);
                   NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(StatusInfoPanel.class, "StatusInfoPanel.getTagsFailed"),NotifyDescriptor.ERROR_MESSAGE);
                   DialogDisplayer.getDefault().notify(nd);
               }
@@ -419,6 +431,7 @@ final class StatusInfoPanel extends JPanel {
               statusInfo.setAllExistingTags(sInfo.getAllExistingTags());
               javax.swing.SwingUtilities.invokeLater(new Runnable() {
                   public void run() {
+                      spExistingTags.setViewportView(tblExistingTags);
                       setData(statusInfo);
                   }
               });
@@ -456,12 +469,14 @@ final class StatusInfoPanel extends JPanel {
     private javax.swing.JLabel lblDate;
     private javax.swing.JLabel lblExistingTags;
     private javax.swing.JLabel lblFileName;
+    private javax.swing.JLabel lblGetTagsRunning;
     private javax.swing.JLabel lblOptions;
     private javax.swing.JLabel lblRepFile;
     private javax.swing.JLabel lblRepRev;
     private javax.swing.JLabel lblStatus;
     private javax.swing.JLabel lblTag;
     private javax.swing.JLabel lblWorkRev;
+    private javax.swing.JPanel pnlGetTags;
     private javax.swing.JScrollPane spExistingTags;
     private javax.swing.JTable tblExistingTags;
     private javax.swing.JTextField txDate;
