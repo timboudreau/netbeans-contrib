@@ -770,31 +770,38 @@ public class ImplGenerator {
 
    */
 
+
    public String exception2java (String ex, String _package, InterfaceElement _interface) {
-      String name_of_interface = _interface.getName ();
-      String exc_name = "";
-      String exc_type = null;
+      if (DEBUG)
+	 System.out.println ("-- is exception with absolute scope name");
+      
       if (isAbsoluteScopeName (ex)) {
-	 exc_type = scopedName2javaName (ex.substring (2, ex.length ()), true);    
+	 // is absolute scope name
+	 IDLElement tmp = findTopLevelModuleForType (ex, _interface);
+	 IDLElement element_for_exception = findElementInElement (ex, tmp);
+	 String full_name = _package + "." + ctype2package (element_for_exception);
+
+	 return full_name;
       }
-      else {
-	 if (isScopeName (ex)) {
-	    exc_name = _package + "." + scopedName2javaName (ex, false);
-	 }
-	 else {
-	    if (isExceptionDefinedIn (_interface, ex)) {
-	       if (DEBUG)
-		  System.out.println ("exception is defined in interface");
-	       exc_name = _package + "." + _interface.getName () + "Package" + "." + ex;
-	    }
-	    else {
-	       if (DEBUG)
-		  System.out.println ("type isn't defined in interface");
-	       exc_name = _package + "." + ex;
-	    }
-	 }
+      if (DEBUG)
+	 System.out.println ("-- is exception with scope name");
+      if (isScopeName (ex)) {
+	 IDLElement tmp = findModuleForScopeType (ex, _interface);
+	 IDLElement element_for_exception = findElementInElement (ex, tmp);
+	 String full_name = _package + "." + ctype2package (element_for_exception);
+
+	 return full_name;
+	 
       }
-      return exc_name;
+      if (DEBUG)
+	 System.out.println ("-- is exception with normal name");
+      IDLElement element_for_exception = findElementByName (ex, _interface);
+      if (DEBUG)
+	 System.out.println ("element_for_exception: " + element_for_exception.getName () + " : " 
+			     + element_for_exception);
+      String full_name = _package + "." + ctype2package (element_for_exception);
+      
+      return full_name;
    }
    
    public void attribute2java (AttributeElement attr, ClassElement clazz) {
