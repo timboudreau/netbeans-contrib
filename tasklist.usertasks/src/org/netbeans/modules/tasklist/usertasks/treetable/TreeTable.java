@@ -25,9 +25,12 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.EventObject;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 
 import javax.swing.JTable;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
@@ -108,6 +111,18 @@ public class TreeTable extends JTable {
         });
         
         this.sortingModel = new SortingModel();
+        
+        InputMap imp2 = getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        ActionMap am = getActionMap();
+ 	     
+        // copied from TreeView which tried to fix #18292
+        // by doing this
+        imp2.put(KeyStroke.getKeyStroke("control C"), "none"); // NOI18N
+        imp2.put(KeyStroke.getKeyStroke("control V"), "none"); // NOI18N
+        imp2.put(KeyStroke.getKeyStroke("control X"), "none"); // NOI18N
+        imp2.put(KeyStroke.getKeyStroke("COPY"), "none"); // NOI18N
+        imp2.put(KeyStroke.getKeyStroke("PASTE"), "none"); // NOI18N
+        imp2.put(KeyStroke.getKeyStroke("CUT"), "none"); // NOI18N
     }
 
     /**
