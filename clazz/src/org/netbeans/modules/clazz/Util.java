@@ -17,6 +17,7 @@ import java.util.ResourceBundle;
 import java.util.*;
 
 import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 import org.netbeans.modules.classfile.Method;
 import org.openide.src.Type;
 import org.openide.src.MethodParameter;
@@ -29,6 +30,7 @@ import org.openide.src.Identifier;
  */
 final class Util extends Object {
     private static ResourceBundle bundle;
+    private static RequestProcessor classProcessor;
     
     static ResourceBundle getBundle() {
         if (bundle != null)
@@ -166,4 +168,10 @@ final class Util extends Object {
             return t;
         }
     }    
+
+    static RequestProcessor getClassProcessor() {
+        if (classProcessor==null)
+            classProcessor=new RequestProcessor("Clazz",5); // NOI18N
+        return classProcessor;
+    }
 }

@@ -146,7 +146,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
         }
         
         private void postReload() {
-            RequestProcessor.getDefault().post(this, 100);
+            Util.getClassProcessor().post(this, 100);
         }
     }
     
