@@ -318,9 +318,11 @@ public class CommandsPool extends Object /*implements CommandListener */{
             RuntimeSupport rSupport = RuntimeSupport.getInstance();
             rSupport.updateCommand(fileSystem.getSystemName(), rCom);
         } else {
-            commandsFinished.remove(cw);
-            commandsWrappers.remove(vce);
-            outputContainers.remove(vce);
+            synchronized (this) {
+                commandsFinished.remove(cw);
+                commandsWrappers.remove(vce);
+                outputContainers.remove(vce);
+            }
             
         }
         if (!isCollectOutput()) {
@@ -390,10 +392,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
     public void removeFinishedCommand(VcsCommandExecutor removedExecutor) {
         VcsCommandWrapper removedWrapper = (VcsCommandWrapper) commandsWrappers.get(removedExecutor);
         if (removedWrapper == null) return ;
-        commandsFinished.remove(removedWrapper);
-        //System.out.println("commandDone("+removedWrapper.getExecutor().getCommand().getName()+"): removing command "+removedExecutor.getCommand().getName());
-        commandsWrappers.remove(removedExecutor);
-        outputContainers.remove(removedExecutor);
+        synchronized (this) {
+            commandsFinished.remove(removedWrapper);
+            //System.out.println("commandDone("+removedWrapper.getExecutor().getCommand().getName()+"): removing command "+removedExecutor.getCommand().getName());
+            commandsWrappers.remove(removedExecutor);
+            outputContainers.remove(removedExecutor);
+        }
         RuntimeCommand runCom = removedWrapper.getRuntimeCommand();
         removedWrapper.setRuntimeCommand(null);
         //VcsFileSystem fs = removedWrapper.getFileSystem();
