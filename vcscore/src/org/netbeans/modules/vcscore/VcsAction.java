@@ -182,9 +182,11 @@ public class VcsAction extends NodeAction implements ActionListener {
      * Do a command on a set of files.
      * @param files the table of pairs of files and file objects, to perform the command on
      * @param cmd the command to perform
+     * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
+     * @param fileSystem the VCS file system
+     * @return the command executor of the last executed command.
      */
-    protected void doCommand(Table files, VcsCommand cmd) {
-        D.deb("doCommand("+files+","+cmd+")"); // NOI18N
+    public static VcsCommandExecutor doCommand(Table files, VcsCommand cmd, Hashtable additionalVars, VcsFileSystem fileSystem) {
         System.out.println("doCommand("+files+", "+cmd+")");
         boolean[] askForEachFile = null;
         if (files.size() > 1) {
@@ -212,10 +214,75 @@ public class VcsAction extends NodeAction implements ActionListener {
             }
              */
             fileSystem.getCommandsPool().waitToRun(cmd, fullName);
+            vars.putAll(additionalVars);
+            ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+            if (ec == null) return null; // No executor for this command.
+            fileSystem.getCommandsPool().add(ec);
+            String exec = VcsAction.prepareCommandToExecute(fileSystem, ec, cmd, vars, /*additionalVars, */fullName, (FileObject) files.get(fullName), askForEachFile);
+            if (exec == null) return null; // The whole command is canceled
+            if (exec.length() == 0) continue; // The command is canceled for this file
+            //OutputContainer container = new OutputContainer(cmd);
+            //ec = new ExecuteCommand(fileSystem, cmd, vars, exec);
+            //ec.setErrorNoRegexListener(container);
+            //ec.setOutputNoRegexListener(container);
+            //ec.setErrorContainer(container);
+            ec.updateExec(exec);
+            fileSystem.getCommandsPool().startExecutor(ec);
+            //ec.start();
+            //cache.setFileStatus(fullName,"Unknown"); // NOI18N
+            synchronized (vars) {
+                if (askForEachFile != null && askForEachFile[0] == true) {
+                    vars = new Hashtable(fileSystem.getVariablesAsHashtable());
+                } else {
+                    vars = new Hashtable(vars);
+                }
+            }
+        }
+        return ec;
+    }
+    
+    /**
+     * Do a command on a set of files.
+     * @param files the table of pairs of files and file objects, to perform the command on
+     * @param cmd the command to perform
+     * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
+     */
+    private void doCommand(Table files, VcsCommand cmd) {
+        doCommand(files, cmd, null, fileSystem);
+        /*
+        D.deb("doCommand("+files+","+cmd+")"); // NOI18N
+        System.out.println("doCommand("+files+", "+cmd+")");
+        boolean[] askForEachFile = null;
+        if (files.size() > 1) {
+            askForEachFile = new boolean[1];
+            askForEachFile[0] = true;
+        }
+        Hashtable vars = fileSystem.getVariablesAsHashtable();
+        VcsCommandExecutor ec = null;
+        //Integer synchAccess = new Integer(0);
+        //int n = files.size();
+        Enumeration filesEnum = files.keys();
+        while(filesEnum.hasMoreElements()) {
+            String fullName = (String) filesEnum.nextElement();
+            if (!filesEnum.hasMoreElements() && askForEachFile != null && askForEachFile[0] == true) {
+                askForEachFile = null; // Do not show the check box for the last file.
+            }
+            /*
+            boolean concurrentExecution = false;
+            if (!concurrentExecution && ec != null) {
+                try {
+                    ec.join();
+                } catch (InterruptedException e) {
+                    // ignoring the interruption -- continuing for next command
+                }
+            }
+             *//*
+            fileSystem.getCommandsPool().waitToRun(cmd, fullName);
+            vars.putAll(additionalVars);
             ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
             if (ec == null) return; // No executor for this command.
             fileSystem.getCommandsPool().add(ec);
-            String exec = prepareCommandToExecute(ec, cmd, vars, /*additionalVars, */fullName, (FileObject) files.get(fullName), askForEachFile);
+            String exec = prepareCommandToExecute(ec, cmd, vars, /*additionalVars, *//*fullName, (FileObject) files.get(fullName), askForEachFile);
             if (exec == null) return; // The whole command is canceled
             if (exec.length() == 0) continue; // The command is canceled for this file
             //OutputContainer container = new OutputContainer(cmd);
@@ -235,6 +302,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 }
             }
         }
+        */
     }
 
     /**
@@ -439,9 +507,9 @@ public class VcsAction extends NodeAction implements ActionListener {
      *         an empty String when this command should be skipped, but successive commands
      *         should be run.
      */
-    public String prepareCommandToExecute(VcsCommandExecutor ec, VcsCommand cmd,
-                                          Hashtable vars, /*Hashtable additionalVars, */
-                                          String fullName, FileObject fo, boolean[] askForEachFile) {
+    public static String prepareCommandToExecute(VcsFileSystem fileSystem, VcsCommandExecutor ec, VcsCommand cmd,
+                                                 Hashtable vars, /*Hashtable additionalVars, */
+                                                 String fullName, FileObject fo, boolean[] askForEachFile) {
         String path=""; // NOI18N
         String file=""; // NOI18N
         //if( fileSystem.folder(fullName) ){
@@ -449,8 +517,8 @@ public class VcsAction extends NodeAction implements ActionListener {
         //file=""; // NOI18N
         //}
         //else{
-        path=MiscStuff.getDirNamePart(fullName);
-        file=MiscStuff.getFileNamePart(fullName);
+        path = MiscStuff.getDirNamePart(fullName);
+        file = MiscStuff.getFileNamePart(fullName);
         //}
         
         if (java.io.File.separatorChar != '/') {
