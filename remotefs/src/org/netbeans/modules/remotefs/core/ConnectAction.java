@@ -23,7 +23,6 @@ import org.openide.TopManager;
 import org.openide.loaders.DataFolder;
 import org.openide.filesystems.*;
 import org.openide.util.actions.CookieAction;
-import org.openide.util.actions.CallbackSystemAction;
 import org.openide.util.actions.NodeAction;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
