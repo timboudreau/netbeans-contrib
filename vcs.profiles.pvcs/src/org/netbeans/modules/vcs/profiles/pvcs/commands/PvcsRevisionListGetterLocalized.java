@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -34,24 +34,24 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  */
 public class PvcsRevisionListGetterLocalized extends Object implements VcsAdditionalCommand, CommandDataOutputListener {
 
-    private static final String archiveStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Archive");
-    private static final String workfileStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Workfile");
-    private static final String createdStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Archive_created");
-    private static final String ownerStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Owner");
-    private static final String attributesStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Attributes");
-    private static final String verLabelsStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Version_labels");
-    private static final String descriptionStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Description");
-    private static final String revisionStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Rev");
-    private static final String revisionCountStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Rev_count");
-    private static final String branchesStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Branches");
-    private static final String lockedByStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Locked_by");
-    private static final String dateCIStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Checked_in");
-    private static final String dateLMStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Last_modified");
-    private static final String authorStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_Author_id");
-    private static final String linesStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_lines");
+    private static final String archiveStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Archive");
+    private static final String workfileStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Workfile");
+    private static final String createdStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Archive_created");
+    private static final String ownerStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Owner");
+    private static final String attributesStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Attributes");
+    private static final String verLabelsStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Version_labels");
+    private static final String descriptionStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Description");
+    private static final String revisionStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Rev");
+    private static final String revisionCountStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Rev_count");
+    private static final String branchesStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Branches");
+    private static final String lockedByStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Locked_by");
+    private static final String dateCIStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Checked_in");
+    private static final String dateLMStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Last_modified");
+    private static final String authorStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_Author_id");
+    private static final String linesStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_lines");
     //private static final String symbNamesStr = new String("symbolic names"); // NOI18N
-    private static final String nextRevisionStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_version_separator");
-    private static final String nextFileStr = org.openide.util.NbBundle.getBundle(PvcsRevisionListGetterLocalized.class).getString("VLOG_file_separator");
+    private static final String nextRevisionStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_version_separator");
+    private static final String nextFileStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS").getString("VLOG_file_separator");
 
     private boolean matchingDescription = false;
     private String description = "";

@@ -306,7 +306,7 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
             model.addElement(configName);
             String label = null;
             if (configExt.equalsIgnoreCase(VariableIO.CONFIG_FILE_EXT)) {
-                String[] labelAndOS = VariableIO.getConfigurationLabelAndOS(dir, config, null);
+                String[] labelAndOS = VariableIO.getConfigurationLabelAndOS(dir, config, null, null);
                 if (labelAndOS != null) {
                     String[] resourceBundles = null;
                     if (labelAndOS.length > 3) {

@@ -36,6 +36,7 @@ import org.netbeans.modules.vcs.advanced.commands.UserCommandIO;
 import org.netbeans.modules.vcs.advanced.conditioned.ConditionedStructuredExec;
 import org.netbeans.modules.vcs.advanced.variables.Condition;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
+import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
@@ -86,6 +87,10 @@ public final class ProfileWriter {
         String type = profile.getType();
         if (type != null) {
             writeAttribute(out, ProfileContentHandler.CONFIG_TYPE_ATTR, type);
+        }
+        String splitloc = profile.getSplitWhenLocalized();
+        if (splitloc != null) {
+            writeAttribute(out, VariableIO.CONFIG_SPLITLOC_ATTR, splitloc);
         }
         out.write(CLOSE_ELM_NL);
         

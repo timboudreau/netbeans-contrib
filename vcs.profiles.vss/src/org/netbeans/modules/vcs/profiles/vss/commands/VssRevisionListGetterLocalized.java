@@ -34,15 +34,15 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  */
 public class VssRevisionListGetterLocalized extends Object implements VcsAdditionalCommand, CommandDataOutputListener {
 
-    private static final String revisionStr = org.openide.util.NbBundle.getBundle(VssRevisionListGetterLocalized.class).getString("HISTORY_Version");
-    private static final String labelStr = org.openide.util.NbBundle.getBundle(VssRevisionListGetterLocalized.class).getString("HISTORY_Label");
-    private static final String userStr = org.openide.util.NbBundle.getBundle(VssRevisionListGetterLocalized.class).getString("HISTORY_User");
-    private static final String dateStr = org.openide.util.NbBundle.getBundle(VssRevisionListGetterLocalized.class).getString("HISTORY_Date");
-    private static final String timeStr = org.openide.util.NbBundle.getBundle(VssRevisionListGetterLocalized.class).getString("HISTORY_Time");
-    private static final String commentStr = org.openide.util.NbBundle.getBundle(VssRevisionListGetterLocalized.class).getString("HISTORY_Comment");
-    private static final String labelTextStr = org.openide.util.NbBundle.getBundle(VssRevisionListGetterLocalized.class).getString("HISTORY_LabelText");
-    private static final String labelTextEndStr = org.openide.util.NbBundle.getBundle(VssRevisionListGetterLocalized.class).getString("HISTORY_LabelTextEnd");
-    private static final String labelCommentStr = org.openide.util.NbBundle.getBundle(VssRevisionListGetterLocalized.class).getString("HISTORY_LabelComment");
+    private static final String revisionStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("HISTORY_Version");
+    private static final String labelStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("HISTORY_Label");
+    private static final String userStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("HISTORY_User");
+    private static final String dateStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("HISTORY_Date");
+    private static final String timeStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("HISTORY_Time");
+    private static final String commentStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("HISTORY_Comment");
+    private static final String labelTextStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("HISTORY_LabelText");
+    private static final String labelTextEndStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("HISTORY_LabelTextEnd");
+    private static final String labelCommentStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("HISTORY_LabelComment");
 
     private ArrayList revisionItems = new ArrayList();
     private ArrayList lastRevisionItems = null;

@@ -114,6 +114,28 @@ public abstract class Profile extends Object {
      * Set the tree structure of global commands.
      */
     public abstract boolean setGlobalCommands(ConditionedCommands commands);
+    
+    /**
+     * When the returned resource is localized into the current locale,
+     * this profile should split into two (the original is kept for the default
+     * English locale, a copy is made for the current locale). <p>
+     * This is necessary for profiles, which integrate version control systems,
+     * that can be localized into the current locale. English version is there
+     * for non-localized VCS, localized copy is there for localized VCS.
+     * @return The resource which is checked for the localized version or
+     *         <code>null</code> when no copy is made.
+     */
+    public String getSplitWhenLocalized() {
+        return null;
+    }
+    
+    /**
+     * Find out whether this is a localized copy of a profile and should be
+     * treated differently (no editing, saving, etc.)
+     */
+    public boolean isLocalizedCopy() {
+        return false;
+    }
 
     public final void addPropertyChangeListener(PropertyChangeListener listener) {
         propertyChangeSupport.addPropertyChangeListener(listener);

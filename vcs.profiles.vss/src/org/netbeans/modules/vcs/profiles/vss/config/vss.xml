@@ -18,9 +18,10 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 
-<configuration>
+<configuration type="netbeans.vss" splitloc="org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS">
   <resourceBundle>org/netbeans/modules/vcs/profiles/vss/config/Bundle</resourceBundle>
-  <label>ResourceMsg(VSS_Label)</label>
+  <resourceBundle>org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS</resourceBundle>
+  <label>$[? LOCALIZED_PROFILE_COPY] [ResourceMsg1(VSS_Localized_Label)] [ResourceMsg1(VSS_Label)]</label>
   
   <os>
     <compatible>"Windows"</compatible>
@@ -59,7 +60,7 @@ Microsystems, Inc. All Rights Reserved.
       <value>"vssver.scc"</value>
     </variable>
     <variable name="WRAPPER" basic="false">
-      <value>vcs.list.VssListCommand.class</value>
+      <value>vcs.list.VssListCommand.class $[? LOCALIZED_PROFILE_COPY] [-loc] []</value>
     </variable>
     <variable name="OPTIONS" basic="false">
       <value>-I- ${IDENT}</value>
@@ -344,7 +345,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(LIST_SUB_Mnemonic)</value>
         </property>
 	<property name="exec">
-          <value>org.netbeans.modules.vcs.profiles.vss.list.VssListRecursive.class LIST_DIR_READER_REC LIST_STATUS_FOLDER_READER_REC LIST_STATUS_READER</value>
+          <value>org.netbeans.modules.vcs.profiles.vss.list.VssListRecursive.class $[? LOCALIZED_PROFILE_COPY] [-loc] [] LIST_DIR_READER_REC LIST_STATUS_FOLDER_READER_REC LIST_STATUS_READER</value>
 	</property>
 	<property name="data.fileName.index">
 	  <value>0</value>
@@ -1609,7 +1610,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <command name="REVISION_LIST">
       <property name="exec">
-        <value>vcs.commands.VssRevisionListGetter.class REVISION_GETTER</value>
+        <value>$[? LOCALIZED_PROFILE_COPY] [vcs.commands.VssRevisionListGetterLocalized.class] [vcs.commands.VssRevisionListGetter.class] REVISION_GETTER</value>
       </property>
       <property name="disabledOnStatus">
           <value>"Local", "Ignored"</value>

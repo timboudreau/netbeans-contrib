@@ -42,6 +42,7 @@ public class VariableIO extends Object {
     public static final String CONFIG_FILE_EXT = "xml";                          // NOI18N
     public static final String CONFIG_ROOT_ELEM = "configuration";               // NOI18N
     public static final String CONFIG_TYPE_ATTR = "type";                        // NOI18N
+    public static final String CONFIG_SPLITLOC_ATTR = "splitloc";                // NOI18N
     public static final String RESOURCE_BUNDLE_TAG = "resourceBundle";           // NOI18N
     public static final String LABEL_TAG = "label";                              // NOI18N
     public static final String OS_TAG = "os";                                    // NOI18N
@@ -158,49 +159,58 @@ public class VariableIO extends Object {
      * Pick the right localized configurations.
      */
     public static final ArrayList getLocalizedConfigurations(FileObject[] ch) {
-        ArrayList res = new ArrayList();
-        Locale locale = Locale.getDefault();
-        String language = locale.getLanguage();
-        String country = locale.getCountry();
-        String variant = locale.getVariant();
-        String localeStr = locale.toString();
-        String languageCountry = language+"_"+country;
-        String baseLocaleStr = "_"+localeStr;
-        String baseLanguage = "_"+language;
-        String baseLanguageCountry = baseLanguage+"_"+country;
-        String baseLanguageCountryVariant = baseLanguageCountry+variant;
-        String[] languages = Locale.getISOLanguages();
-        List languagesList = Arrays.asList(languages);
-        HashSet bundleList = new HashSet();
+        // Create a map of config file names and appropriate FileObjects
+        Map filesMap = new HashMap();
         for (int i = 0; i < ch.length; i++) {
-            bundleList.add(ch[i].getName());
+            filesMap.put(ch[i].getName(), ch[i]);
         }
-        for(int i = 0; i < ch.length; i++) {
+        
+        String branding = NbBundle.getBranding();
+        Set languages = new HashSet();
+        Set countries = new HashSet();
+        Set variants = new HashSet();
+        Locale[] locales = Locale.getAvailableLocales();
+        for (int i = 0; i < locales.length; i++) {
+            String l = locales[i].getLanguage().toLowerCase();
+            if (l.length() > 0) languages.add(l);
+            l = locales[i].getCountry().toLowerCase();
+            if (l.length() > 0) countries.add(l);
+            l = locales[i].getVariant().toLowerCase();
+            if (l.length() > 0) variants.add(l);
+        }
+        
+        // The list of base names - without _<locale>
+        HashSet baseList = new HashSet();
+        for (int i = 0; i < ch.length; i++) {
             String name = ch[i].getName();
-            //System.out.println("name = "+name+", locale = "+locale.toString());
-            int nameIndex = name.indexOf('_');
-            String baseName = name;
-            String localeExt = "";
-            if (nameIndex > 0) {
-                baseName = name.substring(0, nameIndex);
-                localeExt = name.substring(nameIndex + 1);
+            int locBits = 15; // branding, language, country, variant
+            int dash;
+            while ((dash = name.lastIndexOf('_')) > 0 && locBits > 0) {
+                String ending = name.substring(dash + 1).toLowerCase();
+                if (locBits >= 8 && variants.contains(ending)) {
+                    name = name.substring(0, dash);
+                    locBits = 7;
+                } else if (locBits >= 4 && countries.contains(ending)) {
+                    name = name.substring(0, dash);
+                    locBits = 3;
+                } else if (locBits >= 2 && languages.contains(ending)) {
+                    name = name.substring(0, dash);
+                    locBits = 1;
+                } else if (locBits >= 1 && branding.equals(ending)) {
+                    name = name.substring(0, dash);
+                    locBits = 0;
+                } else {
+                    locBits = 0;
+                }
             }
-            if (localeExt.equals(locale.toString())) ; // OK
-            else if (localeExt.equals(languageCountry)) {
-                if (bundleList.contains(baseName+baseLocaleStr)) continue; // current variant is somewhere
-            } else if (localeExt.equals(locale.getLanguage())) {
-                if (bundleList.contains(baseName+baseLanguageCountry) || bundleList.contains(baseName+baseLanguageCountryVariant)) continue;
-            } else if (localeExt.length() == 0) {
-                if (bundleList.contains(baseName+baseLanguage) || bundleList.contains(baseName+baseLanguageCountry) || bundleList.contains(baseName+baseLanguageCountryVariant)) continue;
-            } else if (localeExt.length() > 0) {
-                String lang;
-                int index = localeExt.indexOf('_');
-                if (index > 0) lang = localeExt.substring(0, index);
-                else lang = localeExt;
-                if (languagesList.contains(lang)) continue;
-            }
-            //System.out.println("adding: "+name+"."+ch[i].getExt());
-            res.add(name+"."+ch[i].getExt());
+            baseList.add(name);
+        }
+        ArrayList res = new ArrayList();
+        // Now find the correct names according to current locale
+        for (Iterator it = baseList.iterator(); it.hasNext(); ) {
+            String baseName = (String) it.next();
+            FileObject fo = (FileObject) NbBundle.getLocalizedValue(filesMap, baseName);
+            res.add(fo.getNameExt());
         }
         return res;
     }
@@ -210,6 +220,9 @@ public class VariableIO extends Object {
      * @param name The name of the configuration
      * @param typePtr The "pointer" (array of length 1) to a String into which
      *                the configuration type is put
+     * @param splitLocPtr The "pointer" (array of length 1) to a String into which
+     *                    the name of a resource is put, which when found localized
+     *                    with the current locale, cause the profile to split.
      * @return three items in String array: - label, which needs to be processed
      *                                        with VcsUtilities.getBundleString(),
      *                                      - compatible operating systems
@@ -218,7 +231,8 @@ public class VariableIO extends Object {
      */
     public static synchronized String[] getConfigurationLabelAndOS(final FileObject configRoot,
                                                                    final String name,
-                                                                   final String[] typePtr) {
+                                                                   final String[] typePtr,
+                                                                   final String[] splitLocPtr) {
         FileObject config = configRoot.getFileObject(name);
         if (config == null) {
             org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
@@ -274,6 +288,9 @@ public class VariableIO extends Object {
         labelAndOS[2] = labelContentHandler.getUncompatibleOSs();
         if (typePtr != null) {
             typePtr[0] = labelContentHandler.getType();
+        }
+        if (splitLocPtr != null) {
+            splitLocPtr[0] = labelContentHandler.getSplitLoc();
         }
         labelContentHandler.reset();
         if (resourceBundles != null) {
@@ -728,6 +745,7 @@ public class VariableIO extends Object {
     private static class LabelContentHandler extends Object implements ContentHandler, EntityResolver {
         
         private String type;
+        private String splitLoc;
         private String[] resourceBundles; // The resource bundles defined in the profile.
         private String label;
         private String compatibleOSs;
@@ -739,6 +757,7 @@ public class VariableIO extends Object {
         
         public void reset() {
             type = null;
+            splitLoc = null;
             resourceBundles = null;
             label = null;
             compatibleOSs = null;
@@ -766,6 +785,7 @@ public class VariableIO extends Object {
             //System.out.println("      startElement("+elementName+")");
             if (CONFIG_ROOT_ELEM.equals(elementName)) {
                 type = atts.getValue(CONFIG_TYPE_ATTR);
+                splitLoc = atts.getValue(CONFIG_SPLITLOC_ATTR);
             }
             if (RESOURCE_BUNDLE_TAG.equals(elementName)) {
                 readRB = true;
@@ -838,6 +858,10 @@ public class VariableIO extends Object {
         
         public String getType() {
             return type;
+        }
+        
+        public String getSplitLoc() {
+            return splitLoc;
         }
         
         public String[] getResourceBundles() {

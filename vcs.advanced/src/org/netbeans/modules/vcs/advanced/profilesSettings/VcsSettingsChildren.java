@@ -78,6 +78,9 @@ public class VcsSettingsChildren extends Children.Keys implements PropertyChange
         try {             
             String profileName = (String)key;
             Profile profile = factory.getProfile(profileName);
+            if (profile.isLocalizedCopy()) {
+                return new Node[0];
+            }
             BeanNode node = new ProfileBeanNode(profile);
             node.setName(factory.getProfileDisplayName(profileName));
             //node.setIconBase(ICON_BASE);            

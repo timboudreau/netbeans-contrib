@@ -9,14 +9,15 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
 
-<configuration>
+<configuration type="netbeans.pvcs" splitloc="org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS">
   <resourceBundle>org/netbeans/modules/vcs/profiles/pvcs/config/Bundle</resourceBundle>
-  <label>ResourceMsg(PVCS_Label)</label>
+  <resourceBundle>org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS</resourceBundle>
+  <label>$[? LOCALIZED_PROFILE_COPY] [ResourceMsg1(PVCS_Localized_Label)] [ResourceMsg1(PVCS_Label)]</label>
   
   <os>
     <compatible>"Unix", "Windows"</compatible>
@@ -1403,7 +1404,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <command name="REVISION_LIST">
       <property name="exec">
-        <value>vcs.commands.PvcsRevisionListGetter.class REVISION_GETTER</value>
+        <value>$[? LOCALIZED_PROFILE_COPY] [vcs.commands.PvcsRevisionListGetterLocalized.class] [vcs.commands.PvcsRevisionListGetter.class] REVISION_GETTER</value>
       </property>
       <property name="disabledOnStatus">
           <value>"Local", "Ignored"</value>

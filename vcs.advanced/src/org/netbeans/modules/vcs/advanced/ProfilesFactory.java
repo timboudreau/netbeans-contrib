@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,7 +31,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
@@ -64,6 +67,7 @@ import org.netbeans.modules.vcs.advanced.variables.Condition;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
+import org.netbeans.modules.vcscore.Variables;
 
 /**
  * The factory of VCS profiles.
@@ -87,6 +91,13 @@ public final class ProfilesFactory extends Object {
     
     private static final String PROFILE_ROOT = "vcs/config"; // NOI18N
     
+    /**
+     * This variable is defined in a profile that is created as a localized copy
+     * from the original. It contains the locale as the value. In the original
+     * profile it remains undefined.
+     */
+    public static final String VAR_LOCALIZED_PROFILE_COPY = "LOCALIZED_PROFILE_COPY"; // NOI18N
+    
     private static ProfilesFactory factory;
     
     private FileObject profileRoot;
@@ -103,6 +114,8 @@ public final class ProfilesFactory extends Object {
     private Map uncompatibleOSsByName;
     private Map resourceBundlesByName;
     private Map profilesByName;
+    private Map splitWhenLocalizedByNames;
+    private Map origProfileNamesByLocalized;
     
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
@@ -141,38 +154,82 @@ public final class ProfilesFactory extends Object {
     private void initProfilesInfo() {
         //System.out.println("ProfilesCache.initProfileLabels() root = "+profileRoot);
         profileNames = VariableIO.readConfigurations(profileRoot);
+        //System.out.println("initProfilesInfo() have profile names = "+profileNames);
         profileLabels = new ArrayList(profileNames.size());
         profileLabelsByName = new HashMap();
         profileTypesByName = new HashMap();
         compatibleOSsByName = new HashMap();
         uncompatibleOSsByName = new HashMap();
         resourceBundlesByName = new HashMap();
-        String[] typePtr = new String[1];
+        splitWhenLocalizedByNames = new HashMap();
+        origProfileNamesByLocalized = new HashMap();
+        String[] splitLocNamePtr = new String[1];
         for (int i = 0; i < profileNames.size(); i++) {
             String name = (String) profileNames.get(i);
-            //StringBuffer compatibleOSs = new StringBuffer();
-            //StringBuffer uncompatibleOSs = new StringBuffer();
-            String[] labelAndOSs = VariableIO.getConfigurationLabelAndOS(profileRoot, name, typePtr);
-            if (labelAndOSs == null) {
+            splitLocNamePtr[0] = null;
+            boolean added = addProfileInitials(name, splitLocNamePtr);
+            if (!added) {
                 profileNames.remove(i--);
                 continue;
             }
-            String label = labelAndOSs[0];
-            profileLabels.add(label);
-            profileLabelsByName.put(name, label);
-            profileTypesByName.put(name, typePtr[0]);
-            compatibleOSsByName.put(name, (labelAndOSs[1] != null) ? parseOSs(labelAndOSs[1]) : Collections.EMPTY_SET);
-            uncompatibleOSsByName.put(name, (labelAndOSs[2] != null) ? parseOSs(labelAndOSs[2]) : Collections.EMPTY_SET);
-            if (labelAndOSs.length > 3) {
-                String[] resourceBundles = new String[labelAndOSs.length - 3];
-                System.arraycopy(labelAndOSs, 3, resourceBundles, 0, resourceBundles.length);
-                resourceBundlesByName.put(name, resourceBundles);
+            if (splitLocNamePtr[0] != null) {
+                profileNames.add(++i, splitLocNamePtr[0]);
             }
             //System.out.println("name = "+profileNames.get(i)+", label = "+getProfileLabel((String) profileNames.get(i)));
         }
         // TODO rewrite other methods to handle empty maps
         assert profileNames.size() > 0 : "Other methods do not check empty maps.";  // NOI18N
         profilesByName = new HashMap();
+    }
+    
+    /**
+     * Read the basic profile information - label, type, splitloc, OS compatibility and resource bundles.
+     * This info is put into the appropriate maps.
+     * @param name The name of the profile to read
+     * @param splitLocNamePtr A pointer to String - name of the localized profile
+     *        is returned here if the profile is split.
+     * @return true when profile information was successfully read, false otherwise.
+     */
+    private boolean addProfileInitials(String name, String[] splitLocNamePtr) {
+        String[] typePtr = new String[1];
+        String[] splitLocPtr = new String[1];
+        String[] labelAndOSs = VariableIO.getConfigurationLabelAndOS(profileRoot, name, typePtr, splitLocPtr);
+        if (labelAndOSs == null) {
+            return false;
+        }
+        String label = Variables.expand(Collections.EMPTY_MAP, labelAndOSs[0], false);
+        profileLabels.add(label);
+        profileLabelsByName.put(name, label);
+        profileTypesByName.put(name, typePtr[0]);
+        compatibleOSsByName.put(name, (labelAndOSs[1] != null) ? parseOSs(labelAndOSs[1]) : Collections.EMPTY_SET);
+        uncompatibleOSsByName.put(name, (labelAndOSs[2] != null) ? parseOSs(labelAndOSs[2]) : Collections.EMPTY_SET);
+        String[] resourceBundles = null;
+        if (labelAndOSs.length > 3) {
+            resourceBundles = new String[labelAndOSs.length - 3];
+            System.arraycopy(labelAndOSs, 3, resourceBundles, 0, resourceBundles.length);
+            resourceBundlesByName.put(name, resourceBundles);
+        }
+        if (splitLocPtr[0] != null) {
+            splitWhenLocalizedByNames.put(name, splitLocPtr[0]);
+            String locale = getLocalizedResourceLocale(splitLocPtr[0]);
+            if (locale != null) {
+                origProfileNamesByLocalized.put(name + locale, name);
+                name = name + locale;
+                splitLocNamePtr[0] = name;
+                //profileNames.add(++i, name);
+                // Get the label of the localized profile
+                label = Variables.expand(Collections.singletonMap(VAR_LOCALIZED_PROFILE_COPY, locale), labelAndOSs[0], false);
+                profileLabels.add(label);
+                profileLabelsByName.put(name, label);
+                profileTypesByName.put(name, typePtr[0]);
+                compatibleOSsByName.put(name, (labelAndOSs[1] != null) ? parseOSs(labelAndOSs[1]) : Collections.EMPTY_SET);
+                uncompatibleOSsByName.put(name, (labelAndOSs[2] != null) ? parseOSs(labelAndOSs[2]) : Collections.EMPTY_SET);
+                if (resourceBundles != null) {
+                    resourceBundlesByName.put(name, resourceBundles);
+                }
+            }
+        }
+        return true;
     }
     
     private Set parseOSs(String oss) {
@@ -187,6 +244,51 @@ public final class ProfilesFactory extends Object {
             set = Collections.EMPTY_SET;
         }
         return set;
+    }
+    
+    /**
+     * Find, whether the given resource is localized into the current locale.
+     * @return The locale of the provided resource when it matches the current locale
+     *         or <code>null</code> when no maching locale is found.
+     */
+    private String getLocalizedResourceLocale(String splitlocResource) {
+        try {
+            int dot = splitlocResource.lastIndexOf('.');
+            String name, ext;
+            if (dot > 0) {
+                name = splitlocResource.substring(0, dot);
+                ext = splitlocResource.substring(dot + 1);
+            } else {
+                name = splitlocResource;
+                ext = "properties"; // Suppose .properties files by default // NOI18N
+            }
+            URL locURL = NbBundle.getLocalizedFile(name, ext, Locale.getDefault(), VcsUtilities.getSFSClassLoader());
+            String locFile = locURL.getFile();
+            dot = locFile.lastIndexOf('.');
+            String locName;
+            if (dot > 0) {
+                locName = locFile.substring(0, dot);
+            } else {
+                locName = locFile;
+            }
+            name = name.replace('.', '/');
+            int index = locName.indexOf(name);
+            if (index >= 0) {
+                index += name.length();
+                if (locName.length() > (index + 1)) {
+                    locName = locName.substring(index + 1); // Take out the "_" as well
+                } else {
+                    locName = null;
+                }
+            } else {
+                locName = null;
+            }
+            //System.out.println("getLocalizedResourceLocale("+splitlocResource+"): name = '"+name+"', locName = '"+locName+"'");
+            return locName;
+        } catch (MissingResourceException mrex) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, mrex);
+            return null;
+        }
     }
     
     public synchronized String[] getProfilesNames() {
@@ -235,9 +337,18 @@ public final class ProfilesFactory extends Object {
             profile = (Profile) profileRef.get();
         }
         if (profile == null) {
-            FileObject profileFile = profileRoot.getFileObject(profileName);
+            String origName = (String) origProfileNamesByLocalized.get(profileName);
+            FileObject profileFile;
+            String locale;
+            if (origName != null) {
+                profileFile = profileRoot.getFileObject(origName);
+                locale = profileName.substring(origName.length());
+            } else {
+                profileFile = profileRoot.getFileObject(profileName);
+                locale = null;
+            }
             if (profileFile == null) return null;
-            profile = new ProfilesFactory.ProfileImpl(profileFile);
+            profile = new ProfilesFactory.ProfileImpl(profileFile, locale);
             profileRef = new WeakReference(profile);
             profilesByName.put(profileName, profileRef);
         }
@@ -316,6 +427,8 @@ public final class ProfilesFactory extends Object {
     public class ProfileImpl extends Profile implements FileChangeListener {
         
         private String profileName;
+        private String locale;
+        private String origProfileName;
         private Condition[] conditions;
         private ConditionedVariables variables;
         private ConditionedCommands commands;
@@ -336,7 +449,17 @@ public final class ProfilesFactory extends Object {
         }
         
         public ProfileImpl(FileObject profileFile) {
-            this.profileName = profileFile.getNameExt();
+            this(profileFile, null);
+        }
+        
+        public ProfileImpl(FileObject profileFile, String locale) {
+            this.locale = locale;
+            if (locale == null) {
+                this.profileName = profileFile.getNameExt();
+            } else {
+                this.origProfileName = profileFile.getNameExt();
+                this.profileName = this.origProfileName + locale;
+            }
             profileFile.addFileChangeListener(FileUtil.weakFileChangeListener(this, profileFile));
         }
         
@@ -352,8 +475,16 @@ public final class ProfilesFactory extends Object {
             return getProfileType(profileName);
         }
         
+        public String getSplitWhenLocalized() {
+            return (String) splitWhenLocalizedByNames.get(profileName);
+        }
+        
         public synchronized void preLoadContent(boolean conditions, boolean variables,
                                                 boolean commands, boolean globalCommands) {
+            if (origProfileName != null) {
+                getProfile(origProfileName).preLoadContent(conditions, variables, commands, globalCommands);
+                return ;
+            }
             if (this.conditions != null) conditions = false;
             if (this.variables != null) variables = false;
             if (this.commands != null) commands = false;
@@ -382,6 +513,9 @@ public final class ProfilesFactory extends Object {
         }
         
         public synchronized Condition[] getConditions() {
+            if (origProfileName != null) {
+                return getProfile(origProfileName).getConditions();
+            }
             if (conditions == null) {
                 loadConfig(false, true, false, false, false);
             }
@@ -389,6 +523,13 @@ public final class ProfilesFactory extends Object {
         }
         
         public synchronized ConditionedVariables getVariables() {
+            if (origProfileName != null) {
+                ConditionedVariables cvars = getProfile(origProfileName).getVariables();
+                Collection lvars = new ArrayList(cvars.getUnconditionedVariables());
+                lvars.add(new VcsConfigVariable(VAR_LOCALIZED_PROFILE_COPY, null, locale, false, false, false, null));
+                ConditionedVariables lcvars = new ConditionedVariables(lvars, cvars.getConditionsByVariables(), cvars.getVariablesByConditions());
+                return lcvars;
+            }
             if (variables == null) {
                 loadConfig(false, false, true, false, false);
             }
@@ -396,6 +537,9 @@ public final class ProfilesFactory extends Object {
         }
         
         public synchronized ConditionedCommands getCommands() {
+            if (origProfileName != null) {
+                return getProfile(origProfileName).getCommands();
+            }
             if (commands == null) {
                 loadConfig(false, false, false, true, false);
             }
@@ -403,6 +547,9 @@ public final class ProfilesFactory extends Object {
         }
         
         public synchronized ConditionedCommands getGlobalCommands() {
+            if (origProfileName != null) {
+                return getProfile(origProfileName).getGlobalCommands();
+            }
             if (globalCommands == null) {
                 loadConfig(false, false, false, false, true);
             }
@@ -410,6 +557,9 @@ public final class ProfilesFactory extends Object {
         }
         
         public boolean setConditions(Condition[] conditions) {
+            if (origProfileName != null) {
+                throw new IllegalStateException("Can not alter the localized copy of a profile. Modify the original instead.");
+            }
             synchronized (this) {
                 preLoadContent(true, true, true, true);
                 this.conditions = conditions;
@@ -428,6 +578,9 @@ public final class ProfilesFactory extends Object {
         }
         
         public boolean setVariables(ConditionedVariables variables) {
+            if (origProfileName != null) {
+                throw new IllegalStateException("Can not alter the localized copy of a profile. Modify the original instead.");
+            }
             synchronized (this) {
                 preLoadContent(true, true, true, true);
                 this.variables = variables;
@@ -446,6 +599,9 @@ public final class ProfilesFactory extends Object {
         }
         
         public boolean setCommands(ConditionedCommands commands) {
+            if (origProfileName != null) {
+                throw new IllegalStateException("Can not alter the localized copy of a profile. Modify the original instead.");
+            }
             synchronized (this) {
                 preLoadContent(true, true, true, true);
                 this.commands = commands;
@@ -464,6 +620,9 @@ public final class ProfilesFactory extends Object {
         }
         
         public synchronized boolean setGlobalCommands(ConditionedCommands globalCommands) {
+            if (origProfileName != null) {
+                throw new IllegalStateException("Can not alter the localized copy of a profile. Modify the original instead.");
+            }
             synchronized (this) {
                 preLoadContent(true, true, true, true);
                 this.globalCommands = globalCommands;
@@ -481,6 +640,10 @@ public final class ProfilesFactory extends Object {
             return true;
         }
         
+        public boolean isLocalizedCopy() {
+            return origProfileName != null;
+        }
+
         void unimplementableFromOutside() {
         }
         
@@ -689,23 +852,23 @@ public final class ProfilesFactory extends Object {
             List currentLocales = VariableIO.getLocalizedConfigurations(new FileObject[] { newData });
             if (!currentLocales.contains(newData)) return ; // Ignore other locales
             String name = newData.getNameExt();
-            String[] typePtr = new String[1];
-            String[] labelAndOSs = VariableIO.getConfigurationLabelAndOS(profileRoot, name, typePtr);
-            if (labelAndOSs == null) {
-                return ;
-            }
-            String label = labelAndOSs[0];
+            String[] splitLocNamePtr = new String[1];
             synchronized (ProfilesFactory.this) {
-                profileNames.add(name);
-                profileTypesByName.put(name, typePtr[0]);
-                profileLabelsByName.put(name, label);
+                boolean added = addProfileInitials(name, splitLocNamePtr);
+                if (!added) {
+                    return ;
+                }
                 if (areLabelsResolved) {
+                    String label = (String) profileLabelsByName.get(name);
                     label = VcsUtilities.getBundleString((String[]) resourceBundlesByName.get(name), label);
                     profileLabelsByName.put(name, label);
                 }
-                profileLabels.add(label);
-                compatibleOSsByName.put(name, (labelAndOSs[1] != null) ? parseOSs(labelAndOSs[1]) : Collections.EMPTY_SET);
-                uncompatibleOSsByName.put(name, (labelAndOSs[2] != null) ? parseOSs(labelAndOSs[2]) : Collections.EMPTY_SET);
+                if (splitLocNamePtr[0] != null) {
+                    profileNames.add(splitLocNamePtr[0]);
+                    String label = (String) profileLabelsByName.get(splitLocNamePtr[0]);
+                    label = VcsUtilities.getBundleString((String[]) resourceBundlesByName.get(splitLocNamePtr[0]), label);
+                    profileLabelsByName.put(splitLocNamePtr[0], label);
+                }
             }
             ProfilesFactory.this.firePropertyChange(PROP_PROFILE_ADDED, null, name);
         }
