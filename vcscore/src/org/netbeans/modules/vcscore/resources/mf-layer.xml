@@ -57,7 +57,7 @@ Microsystems, Inc. All Rights Reserved.
 
    <folder name="Templates">
      <folder name="Mount">
-       <!-- <folder name="VCS"> -->
+       <folder name="VCS">
         <file name="org-netbeans-modules-vcscore-wizard-mountcvs-CvsMountFS.settings">
           <![CDATA[
           <!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
@@ -70,7 +70,7 @@ Microsystems, Inc. All Rights Reserved.
           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.mountcvs.Bundle" />
           <attr name="templateWizardIterator" methodValue="org.netbeans.modules.vcscore.wizard.mountcvs.MountCvsWizard.singleton"/>
         </file>
-       <!-- </folder> -->
+       </folder>
      </folder>
    </folder>
 
