@@ -37,13 +37,23 @@ Microsystems, Inc. All Rights Reserved.
 
     <path id="a11y.classpath">
         <pathelement location="../openide/netbeans/lib/openide.jar"/>
+        <pathelement location="../openide/io/netbeans/modules/autoload/openide-io.jar"/>
+
         <pathelement location="../core/netbeans/lib/core.jar"/>
-        <!--<pathelement location="../core/netbeans/lib/ext/terminalemulator.jar"/>-->
-        <pathelement location="../form/netbeans/modules/form.jar"/>
-        <pathelement location="../junit/netbeans/modules/junit.jar"/>
-        <pathelement location="../junit/netbeans/modules/ext/junit-ext.jar"/>
-        <pathelement location="../junit/netbeans/modules/ext/junit-3.7.jar"/>
         
+	<!-- <pathelement location="../core/netbeans/lib/ext/terminalemulator.jar"/>-->
+        
+	<pathelement location="../form/netbeans/modules/form.jar"/>
+        
+	<pathelement location="../junit/netbeans/modules/junit.jar"/>
+	
+        <!-- <pathelement location="../junit/netbeans/modules/ext/junit-ext.jar"/> -->
+	
+        <pathelement location="../junit/netbeans/modules/ext/junit-3.8.1.jar"/>
+        
+        <pathelement location="../xtest/nbjunit/netbeans/modules/ext/nbjunit.jar"/>
+
+
         <!--
 	<pathelement location="../jemmy/jemmy.jar"/>
         <pathelement location="../xtest/lib/junit.jar"/>
