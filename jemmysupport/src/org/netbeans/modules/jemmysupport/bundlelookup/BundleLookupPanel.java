@@ -35,6 +35,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import org.openide.ErrorManager;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -175,7 +176,9 @@ public class BundleLookupPanel extends TopComponent  {
         try {
             setIcon(java.awt.Toolkit.getDefaultToolkit().getImage(
                 getClass().getResource("/org/netbeans/modules/jemmysupport/bundlelookup/BundleLookupAction.gif"))); // NOI18N
-        } catch (Exception e){}
+        } catch (Exception e){
+            ErrorManager.getDefault().notify(e);
+        }
         initComponents();
         TextRegCheck.setEnabled(enableRegExp);
     }

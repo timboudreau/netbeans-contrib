@@ -47,6 +47,7 @@ import org.netbeans.spi.diff.MergeVisualizer;
 import org.netbeans.modules.merge.builtin.visualizer.GraphicalMergeVisualizer;
 import org.netbeans.modules.merge.builtin.visualizer.MergeDialogComponent;
 import org.netbeans.modules.merge.builtin.visualizer.MergePanel;
+import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
@@ -121,7 +122,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                 } else if (aWTEvent.getID()==FocusEvent.FOCUS_LOST) {
                     removeFocus();
                 }
-            } else if ((aWTEvent instanceof KeyEvent)&&(aWTEvent.getID()==KeyEvent.KEY_RELEASED)&&(((KeyEvent)aWTEvent).getKeyCode()==KeyEvent.VK_F12)&&(((KeyEvent)aWTEvent).getModifiers()==KeyEvent.CTRL_MASK)) {
+            } else if ((aWTEvent instanceof KeyEvent)&&(aWTEvent.getID()==KeyEvent.KEY_RELEASED)&&(((KeyEvent)aWTEvent).getKeyCode()==KeyEvent.VK_F12)&&((((KeyEvent)aWTEvent).getModifiers()&KeyEvent.CTRL_MASK)!=0)) {
                 if (focused!=null) {
                     window=focused;
                 } else {
@@ -204,7 +205,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                     }
                 } catch (Exception e) {
                     help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Exception")+e.getMessage()); // NOI18N
-                    e.printStackTrace();
+                    ErrorManager.getDefault().notify(e);
                 }
                 window=null;
             }

@@ -275,6 +275,7 @@ public class ResourceBundleLookupOperator extends TopComponentOperator {
     public void search() {
         try {
             btSearch().push();
+        } catch (ComponentIsNotVisibleException ce) {
         } catch (JemmyException e) {
             if (!(e.getInnerException() instanceof ComponentIsNotVisibleException))
                 throw e;
@@ -286,6 +287,7 @@ public class ResourceBundleLookupOperator extends TopComponentOperator {
     public void stop() {
         try {
             btStop().push();
+        } catch (ComponentIsNotVisibleException ce) {
         } catch (JemmyException e) {
             if (!(e.getInnerException() instanceof ComponentIsNotVisibleException))
                 throw e;

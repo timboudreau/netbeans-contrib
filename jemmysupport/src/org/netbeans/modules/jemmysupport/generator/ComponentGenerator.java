@@ -48,6 +48,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
+import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 
 /** Jemmy Tools Component Generator class generates source code from given Container (Frame, Dialog ...) according to its visible structure.
@@ -97,7 +98,7 @@ public class ComponentGenerator {
     
     /** class holding all informations about knonw operator
      */    
-    protected class OperatorRecord extends Object {
+    private class OperatorRecord extends Object {
         String _operatorClass;
         String _instancePrefix;
         String _instanceSuffix;
@@ -195,7 +196,7 @@ public class ComponentGenerator {
     }
     /** class holding all informations about single component
      */    
-    public class ComponentRecord extends Object {
+    public final class ComponentRecord extends Object {
        
         OperatorRecord _operator;
         String _identification;
@@ -223,21 +224,8 @@ public class ComponentGenerator {
         public ComponentRecord( OperatorRecord operator, String identification, String uniqueName, int index, String componentClass, String[] internalLabels, Icon icon, ComponentOperator componentOperator, ComponentRecord parent ) {
             _icon = icon;
             _operator = operator;
-            if (identification==null) {
-                _identification = "null"; // NOI18N
-            } else {
-                StringBuffer sb = new StringBuffer(identification);
-                int i=0, j=0;
-                while ((i=identification.indexOf('\"',i))>=0) {
-                    sb.insert(i+j,'\\');
-                    i++;
-                    j++;
-                }
-                sb.insert(0,'\"');
-                sb.append('\"');
-                _identification = sb.toString();
-            }
-            _uniqueName = uniqueName;
+            setIdentification(identification);
+             _uniqueName = uniqueName;
             _index = index;
             _componentClass = componentClass;
             _internalLabels = internalLabels;
@@ -300,13 +288,6 @@ public class ComponentGenerator {
             return _shortName;
         }
         
-        /** returns components search index
-         * @return components search index
-         */        
-        public String getIndex() {
-            return String.valueOf(_index);
-        }
-        
         /** returns components class name
          * @return components class name
          */        
@@ -324,12 +305,36 @@ public class ComponentGenerator {
          * @return String source code of constructor arguments */        
         public String getConstructorArgs() {
             String s=getParentGetter()+", "; // NOI18N
-            if (!_identification.equals("null")) s+=_identification+", "; // NOI18N
-            if (_index>0) s+=getIndex();
+            if (_identification!=null && _identification.length()>0) s+=getIdent()+", "; // NOI18N
+            if (_index>0) s+=String.valueOf(_index);
             if (s.endsWith(", ")) return s.substring(0, s.length()-2); // NOI18N
             return s;
         }
 
+        private String getIdent() {
+           if (_identification==null) {
+                return "null"; // NOI18N
+            } else {
+                StringBuffer sb = new StringBuffer("\"");
+                char c;
+                for (int i=0;i<_identification.length();i++) {
+                    switch (c=_identification.charAt(i)) {
+                        case ('\b'):sb.append("\\b");break;
+	                case ('\t'):sb.append("\\t");break;
+	                case ('\n'):sb.append("\\n");break;
+	                case ('\f'):sb.append("\\f");break;
+	                case ('\r'):sb.append("\\r");break;
+	                case ('\"'):sb.append("\\\"");break;
+	                case ('\''):sb.append("\\'");break;
+	                case ('\\'):sb.append("\\\\");break;
+                        default:sb.append(c);
+                    }
+                }
+                sb.append('\"');
+                return sb.toString();
+            }
+        }
+        
         /** getter for "visualizer" code
          * @return String source code that brings component visible */        
         public String getVisualizer() {
@@ -447,8 +452,8 @@ public class ComponentGenerator {
             replace(sb, "__SHORTNAME__", getShortName()); // NOI18N
             replace(sb, "__NAME__", getUniqueName()); // NOI18N
             replace(sb, "__CLASS__", getOperatorClass()); // NOI18N
-            replace(sb, "__ID__", getIdentification()); // NOI18N
-            replace(sb, "__INDEX__", getIndex()); // NOI18N
+            replace(sb, "__ID__", getIdent()); // NOI18N
+            replace(sb, "__INDEX__", String.valueOf(getIndex())); // NOI18N
             replace(sb, "__COMPONENT__", getComponentClass()); // NOI18N
             replace(sb, "__INTERNALLABEL__", internalLabel); // NOI18N
             replace(sb, "__SHORTLABEL__", toJavaID(internalLabel)); // NOI18N
@@ -505,6 +510,31 @@ public class ComponentGenerator {
                 }
             }
             return _node;
+        }
+        
+        /** Setter for property identification.
+         * @param identification New value of property identification.
+         *
+         */
+        public void setIdentification(String identification) {
+            if (identification==null || identification.length()==0) _identification=null;
+            else _identification=identification;
+        }
+       
+        /** Getter for property index.
+         * @return Value of property index.
+         *
+         */
+        public int getIndex() {
+            return _index;
+        }
+        
+        /** Setter for property index.
+         * @param index New value of property index.
+         *
+         */
+        public void setIndex(int index) {
+            _index = index;
         }
         
     }        
@@ -666,7 +696,7 @@ public class ComponentGenerator {
         Constructor c;
         Component component = operator.getSource();
         try {
-            if (identification!=null) {
+            if (identification!=null && identification.length()>0) {
                 c = operator.getClass().getConstructor( new Class[] { ContainerOperator.class, String.class, Integer.TYPE } );
             } else {
                 c = operator.getClass().getConstructor( new Class[] { ContainerOperator.class, Integer.TYPE } );
@@ -677,7 +707,7 @@ public class ComponentGenerator {
         try {
             int i=0;
             while (true) {
-                if (identification!=null) {
+                if (identification!=null && identification.length()>0) {
                     operator = (ComponentOperator) c.newInstance(new Object[] { container, identification, new Integer(i)});
                 } else {
                     operator = (ComponentOperator) c.newInstance(new Object[] { container, new Integer(i)});
@@ -736,7 +766,9 @@ public class ComponentGenerator {
                 }
                 double scale = Math.pow(rect.width*rect.height,.4)/8;
                 icon = new ImageIcon(comp.createImage(new FilteredImageSource(robot.createScreenCapture(rect).getSource(),new AreaAveragingScaleFilter(Math.round(Math.round(rect.width/scale)),Math.round(Math.round(rect.height/scale))))));
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
+            }
         }
         if (componentOperator.getSource()!=containerOperator.getSource()) {
             if (isTopComponent(componentOperator.getSource())) return null;

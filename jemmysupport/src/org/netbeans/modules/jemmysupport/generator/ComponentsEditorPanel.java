@@ -41,6 +41,7 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeNode;
+import org.openide.ErrorManager;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -59,7 +60,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
             rootIcon = new ImageIcon(Utilities.loadImage("org/openide/resources/propertysheet/customize.gif")); // NOI18N
             nodeIcon = new ImageIcon(Utilities.loadImage("org/openide/src/resources/sourceOptions.gif")); // NOI18N
         } catch (Exception e) {
-            e.printStackTrace();
+            ErrorManager.getDefault().notify(e);
         }
     }
     
@@ -77,7 +78,9 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
                 Icon icon = ((ComponentGenerator.ComponentRecord)((DefaultMutableTreeNode)value).getUserObject()).getIcon();
                 if (icon!=null) 
                     setIcon(icon);
-            } catch (Exception e) {};
+            } catch (Exception e) {
+                ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
+            };
             return this;
         }
 
@@ -90,6 +93,8 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
         this.nodes = gen.getNodes();
         gen.addChangeListener(this);
         initComponents();
+        tree.getSelectionModel().setSelectionMode(javax.swing.tree.TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION); 
+        tree.setModel(new DefaultTreeModel(rootNode));
         if ((rootIcon!=null)&&(nodeIcon!=null)) {
             MyCellRenderer rend = new MyCellRenderer();
             rend.setClosedIcon(rootIcon);
@@ -97,8 +102,6 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
             rend.setLeafIcon(nodeIcon);
             tree.setCellRenderer(rend);
         }
-        tree.getSelectionModel().setSelectionMode(javax.swing.tree.TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION); 
-        tree.setModel(new DefaultTreeModel(rootNode));
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
                 nodeChanged(tree.getSelectionPaths());

@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.ArrayList;
 import java.util.MissingResourceException;
 import javax.swing.table.DefaultTableModel;
+import org.openide.ErrorManager;
 import org.openide.filesystems.Repository;
 import org.openide.filesystems.*;
 
@@ -49,7 +50,9 @@ public class BundleLookup {
             matcher=pattern.getDeclaredMethod("matcher", new Class[]{Class.forName("java.lang.CharSequence")}); // NOI18N
             CASE_INSENSITIVE=(Integer)pattern.getDeclaredField("CASE_INSENSITIVE").get(null); // NOI18N
             matches=Class.forName("java.util.regex.Matcher").getDeclaredMethod("matches",null); // NOI18N
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            ErrorManager.getDefault().notify(e);
+        }
     }
     
     static class Regex extends Object {

@@ -33,6 +33,7 @@ import org.netbeans.jellytools.modules.jemmysupport.*;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jellytools.properties.StringProperty;
+import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.drivers.input.KeyRobotDriver;
 import org.netbeans.modules.jemmysupport.generator.data.TestPanel;
 
@@ -54,6 +55,7 @@ public class ComponentGeneratorTest extends JellyTestCase {
      */
     public static junit.framework.Test suite() {
         TestSuite suite = new NbTestSuite();
+        JemmyProperties.setCurrentProperty("Operator.Verification", Boolean.FALSE);
         suite.addTest(new ComponentGeneratorTest("testPrepareFS"));
         suite.addTest(new ComponentGeneratorTest("testGrabFrame"));
         suite.addTest(new ComponentGeneratorTest("testVerifyFrameCode"));

@@ -119,6 +119,7 @@ public class ComponentGeneratorOperator extends JDialogOperator {
     public void start() {
         try {
             btStart().push();
+        } catch (ComponentIsNotVisibleException ce) {
         } catch (JemmyException e) {
             if (!(e.getInnerException() instanceof ComponentIsNotVisibleException))
                 throw e;
@@ -130,6 +131,7 @@ public class ComponentGeneratorOperator extends JDialogOperator {
     public void stop() {
         try {
             btStop().push();
+        } catch (ComponentIsNotVisibleException ce) {
         } catch (JemmyException e) {
             if (!(e.getInnerException() instanceof ComponentIsNotVisibleException))
                 throw e;
