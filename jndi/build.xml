@@ -15,11 +15,11 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="jndi" default="netbeans" basedir=".">
 
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM"/>
-  <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar"/>
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
+  <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/>
 
-  <target name="init">
-    <available property="javax" classname="javax.naming.Context"/>
+  <target name="check-classes">
+    <available property="have_classes" classname="javax.naming.Context"/>
   </target>
 
   <target name="compile">
