@@ -54,6 +54,12 @@ import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.revision.RevisionListener;
+import org.netbeans.modules.vcscore.versioning.VersioningSystem;
+import org.netbeans.modules.vcscore.versioning.VersioningRepository;
+import org.netbeans.modules.vcscore.versioning.RevisionList;
+import org.netbeans.modules.vcscore.versioning.impl.FileSystemInfo;
+import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
+import org.netbeans.modules.vcscore.versioning.impl.DefaultVersioningSystem;
 
 /** Generic VCS filesystem.
  * 
@@ -309,9 +315,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private Boolean createRuntimeCommands = Boolean.TRUE;
     
+    private Boolean createVersioningSystem = Boolean.FALSE;
+    
     private transient IgnoreListSupport ignoreListSupport = null;
     
     private transient Set unimportantFiles;
+    
+    private transient DefaultVersioningSystem versioningSystem = null;
 
     public boolean isLockFilesOn () {
         return lockFilesOn && isEnabledLockFiles();
@@ -1004,6 +1014,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             notModifiableStatuses = Collections.EMPTY_SET;
         }
         if (createRuntimeCommands == null) createRuntimeCommands = Boolean.TRUE;
+        if (createVersioningSystem == null) createVersioningSystem = Boolean.FALSE;
         commandsPool = new CommandsPool(this, false);
         if (numberOfFinishedCmdsToCollect == null) {
             numberOfFinishedCmdsToCollect = new Integer(CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
@@ -1032,6 +1043,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 CommandExecutorSupport.doRefresh(VcsFileSystem.this, "", true);
         }
         super.addNotify();
+        if (isCreateVersioningSystem()) {
+            org.openide.util.RequestProcessor.postRequest(new Runnable() {
+                public void run() {
+                    VersioningExplorer.getRevisionExplorer().open();
+                    if (versioningSystem == null) {
+                        versioningSystem = new DefaultVersioningSystem(new VcsFileSystemInfo());
+                    }
+                    VersioningRepository.getRepository().addVersioningSystem(versioningSystem);
+                }
+            });
+        }
     }
     
     /** Notifies this file system that it has been removed from the repository. 
@@ -1040,6 +1062,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("fileSystem Removed("+this+")");
         commandsPool.cleanup();
         super.removeNotify();
+        if (isCreateVersioningSystem()) {
+            org.openide.util.RequestProcessor.postRequest(new Runnable() {
+                public void run() {
+                    VersioningRepository.getRepository().removeVersioningSystem(versioningSystem);
+                }
+            });
+        }
     }
     
     protected void setCreateRuntimeCommands(boolean createRuntimeCommands) {
@@ -1048,6 +1077,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     protected boolean isCreateRuntimeCommands() {
         return createRuntimeCommands.booleanValue();
+    }
+    
+    protected void setCreateVersioningSystem(boolean createVersioningSystem) {
+        this.createVersioningSystem = new Boolean(createVersioningSystem);
+    }
+    
+    protected boolean isCreateVersioningSystem() {
+        return createVersioningSystem.booleanValue();
     }
     
     private static final long serialVersionUID =8108342718973310275L;
@@ -1563,6 +1600,24 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         } else locker = "";
         return locker;
     }
+    
+    /**
+     * Get the annotate icon for a single file. It does not have to be represented by a FileObject.
+     */
+    private Image annotateIcon(Image icon, int iconType, String fullName) {
+        if (statusProvider != null) {
+            String status = statusProvider.getFileStatus(fullName);
+            if (status != null) {
+                Image img = (Image) statusIconMap.get(status);
+                //System.out.println("annotateIcon: status = "+status+" => img = "+img);
+                if (img == null) img = statusIconDefault;
+                if (img != null) {
+                    icon = org.openide.util.Utilities.mergeImages(icon, img, BADGE_ICON_SHIFT_X, BADGE_ICON_SHIFT_Y);
+                }
+            }
+        }
+        return icon;
+    }
 
     //-------------------------------------------
     public Image annotateIcon(Image icon, int iconType, Set files) {
@@ -1623,8 +1678,20 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return icon;
     }
 
+    /**
+     * Get the annotate name for a single file. It does not have to be represented by a FileObject.
+     */
+    private String annotateName(String fullName, String displayName) {
+        String result;
+        if (statusProvider != null) {
+            result = RefreshCommandSupport.getStatusAnnotation(displayName, fullName, annotationPattern, statusProvider);
+        } else {
+            result = displayName;
+        }
+        return result;
+    }
 
-    /** Annotate a single file.
+    /** Annotate a single file. It can annotate only files represented by a FileObject.
      * @params fullName The full path to the file.
      * @return the annotation string
      */
@@ -2738,6 +2805,74 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private class SettingsPropertyChangeListener implements PropertyChangeListener {
         public void propertyChange(final PropertyChangeEvent event) {
             settingsChanged(event.getPropertyName(), event.getOldValue(), event.getNewValue());
+        }
+    }
+    
+    private class VcsFileSystemInfo extends FileSystemInfo {
+        
+        private VersioningSystem.Status status;
+        private VersioningSystem.Versions versions;
+        
+        public VcsFileSystemInfo() {
+            status = new VersioningStatus();
+            versions = new VersioningVersions();
+        }
+        
+        public AbstractFileSystem.List getList() {
+            return VcsFileSystem.this;
+        }
+        
+        public VersioningSystem.Status getStatus() {
+            return status;
+        }
+        
+        public AbstractFileSystem.Info getInfo() {
+            return VcsFileSystem.this;
+        }
+        
+        public FileSystem getFileSystem() {
+            return VcsFileSystem.this;
+        }
+        
+        public VersioningSystem.Versions getVersions() {
+            return versions;
+        }
+        
+    }
+    
+    private class VersioningStatus extends Object implements VersioningSystem.Status {
+        public String annotateName(String fileName, String displayName) {
+            /*
+            FileObject fo = findFileObject(fileName);
+            if (fo != null) {*/
+            return VcsFileSystem.this.annotateName(fileName, displayName);
+            /*
+            } else {
+                return displayName;
+            }
+             */
+        }
+        
+        public java.awt.Image annotateIcon(String fileName, java.awt.Image icon, int iconType) {
+            //FileObject fo = findFileObject(fileName);
+            //if (fo != null) {
+            return VcsFileSystem.this.annotateIcon(icon, iconType, fileName);
+            //} else {
+            //    return icon;
+            //}
+        }
+    }
+    
+    private class VersioningVersions extends Object implements VersioningSystem.Versions {
+        public RevisionList getRevisions(String name) {
+            RevisionList list = new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList();
+            list.add(new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem("1.1"));
+            list.add(new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem("1.2"));
+            return list;
+        }
+        
+        public java.io.InputStream getInputStream(String name, String revision) throws java.io.FileNotFoundException {
+            return inputStream(name);
         }
     }
     
