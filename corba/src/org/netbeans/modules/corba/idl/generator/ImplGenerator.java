@@ -2050,8 +2050,7 @@ public class ImplGenerator {
 	
 	// add comment 
 	printer.println ("/*\n * This file was generated from " 
-			 + ido.getPrimaryFile ().getName () + ".idl file\n"
-			 + " * by NetBeans Developer Enterprise Implementation Generator\n"
+			 + ido.getPrimaryFile ().getName () + ".idl\n"
 			 + " */");
 	
 	printer.println ("\npackage " + _package + ";\n");
