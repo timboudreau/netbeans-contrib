@@ -70,16 +70,15 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="javadoc" description="Build Javadoc.">
-    <!-- Ant 1.4 bug workaround: <property refid="..."/> does not work inside <ant> -->
-    <property name="_cp" refid="cp"/>
     <ant dir="${nbroot}/nbbuild/javadoctools" antfile="template.xml" target="javadoc">
       <property name="javadoc.base" location="."/>
       <property name="javadoc.name" value="VCSAPI"/>
       <property name="javadoc.title" value="VCS API"/>
       <property name="javadoc.packages" value="org.netbeans.api.vcs,org.netbeans.api.vcs.commands,org.netbeans.spi.vcs,org.netbeans.spi.vcs.commands"/>
-      <property name="javadoc.classpath" value="${_cp}"/>
+      <property name="javadoc.classpath" refid="cp"/>
       <property name="javadoc.apichanges" location="api/doc/changes/apichanges.xml"/>
       <property name="javadoc.arch" location="arch/arch-vcscore.xml"/>
+      <property name="javadoc.manifest" location="manifest.mf"/>
     </ant>
   </target>
 
