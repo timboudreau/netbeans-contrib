@@ -196,7 +196,11 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
             vars.put("USER_IS_LOGGED_IN", "");
         } else {
             if (dialog != null) {
-                dialog.setVisible(false);
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        dialog.setVisible(false);
+                    }
+                });
             }
             vars.put("USER_IS_LOGGED_IN", "true");
         }
