@@ -45,6 +45,7 @@ public final class TLUtils {
                 }
             }
         } catch (Exception e) {
+            ErrorManager.getDefault().log("getLineByNumber - file " + dobj + " and lineno=" + lineno); // NOI18N
             ErrorManager.getDefault().
                 notify(ErrorManager.INFORMATIONAL, e);
         }
