@@ -60,7 +60,7 @@ public class AnnotPatternNode extends AbstractNode implements  java.io.Serializa
                                      AnnotationSupport.ANNOTATION_PATTERN_TIME };
     
     private boolean root;
-    private String type;
+    private String type = ""; // Has to be initially defined to prevent NPE
     private static final String ICON_NODE = "org/netbeans/modules/vcscore/annotation/annotationIcon";    
     private static final String ICON_NODE_TRUE = "org/netbeans/modules/vcscore/annotation/annotationIcon_true";        
     private static final String ICON_NODE_FALSE = "org/netbeans/modules/vcscore/annotation/annotationIcon_false";        
