@@ -23,6 +23,7 @@ import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.DeleteAction;
+import org.openide.actions.PropertiesAction;
 import org.netbeans.modules.jndi.utils.Refreshable;
 import org.netbeans.modules.jndi.utils.JndiPropertyMutator;
 
@@ -74,7 +75,9 @@ public class JndiDisabledNode extends JndiAbstractNode implements Refreshable, N
         return new SystemAction[] {
                    SystemAction.get(RefreshAction.class),
                    null,
-                   SystemAction.get(DeleteAction.class)
+                   SystemAction.get(DeleteAction.class),
+                   null,
+                   SystemAction.get(PropertiesAction.class)
                };
     }
 

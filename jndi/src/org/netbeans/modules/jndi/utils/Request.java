@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.jndi.utils;
 
+import org.openide.TopManager;
+import org.openide.ErrorManager;
 /**
  *
  * @author  tzezula
@@ -30,8 +32,10 @@ public class Request implements Runnable {
         try {
             this.target.preAction();
             this.target.performAction();
-            this.target.postAction();
         }catch (Exception e) {
+            TopManager.getDefault().getErrorManager().notify (ErrorManager.USER,e);
+        }
+        finally {
         }
     }
     

@@ -183,8 +183,12 @@ public class ProviderNode extends AbstractNode implements Cookie{
     public void testProvider () {
         try{
             Class.forName(this.name, true, TopManager.getDefault().currentClassLoader());
+            this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DRIVER));
+            this.fireIconChange ();
             TopManager.getDefault().notify( new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("MSG_CLASS_FOUND"), NotifyDescriptor.Message.INFORMATION_MESSAGE));
         }catch(ClassNotFoundException cnfe){
+            this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DISABLED_DRIVER));
+            this.fireIconChange ();
             TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("MSG_CLASS_NOT_FOUND"), NotifyDescriptor.Message.INFORMATION_MESSAGE));
         }
     }
