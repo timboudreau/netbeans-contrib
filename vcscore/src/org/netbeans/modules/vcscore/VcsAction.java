@@ -116,7 +116,10 @@ public class VcsAction extends NodeAction implements ActionListener {
                 if (variablesForSelectedFiles == null) variablesForSelectedFiles = new HashMap();
                 Hashtable additionalVars = new Hashtable();
                 additionalVars.put(Variables.GROUP_NAME, grNode.getDisplayName());
-                additionalVars.put(Variables.GROUP_DESCRIPTION, grNode.getShortDescription());
+                String description = grNode.getShortDescription();
+                if (description != null) {
+                    additionalVars.put(Variables.GROUP_DESCRIPTION, description);
+                }
                 WeakList varFiles = new WeakList();
                 Enumeration children = nodes[i].getChildren().nodes();
                 while (children.hasMoreElements()) {
