@@ -170,7 +170,8 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(21, 12, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(26, 12, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         jPanel4.add(newButton, gridBagConstraints);
 
         removeButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_VcsManager.btnRemove_mnc").charAt(0));
@@ -181,6 +182,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         jPanel4.add(removeButton, gridBagConstraints);
 
         editButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_VcsManager.lblEdit_mnc").charAt(0));
@@ -191,6 +193,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         jPanel4.add(editButton, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
