@@ -172,9 +172,13 @@ public final class SuggestionsBroker {
                 DataObject dobj = extractDataObject(documents[i]);
                 if (dobj == null) continue;
                 FileObject fileObject = dobj.getPrimaryFile();
-                List suggestions = scanner.scanTopComponent(documents[i], compound);
-                openedFilesSuggestionsMap.put(fileObject, suggestions);
-                allSuggestions.addAll(suggestions);
+
+                // do not scan form files (any file with more topcomponents (editors)) twice
+                if (openedFilesSuggestionsMap.keySet().contains(fileObject) == false) {
+                    List suggestions = scanner.scanTopComponent(documents[i], compound);
+                    openedFilesSuggestionsMap.put(fileObject, suggestions);
+                    allSuggestions.addAll(suggestions);
+                }
             }
             getAllOpenedSuggestionList().addRemove(allSuggestions, null, true, null, null);
 

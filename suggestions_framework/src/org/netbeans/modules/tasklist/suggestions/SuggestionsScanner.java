@@ -448,6 +448,10 @@ public final class SuggestionsScanner implements Cancellable {
         }
     }
 
+
+// COPY&PASTED to DataObjectSearchGroup
+// waiting for issue 42786
+
     /** Test stop condition (thread interrupted or low memory) */
     private boolean shouldStop() {
         if (interrupted) return true;
