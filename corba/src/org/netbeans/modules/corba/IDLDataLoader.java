@@ -392,9 +392,11 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 		}
 	    }
 	}
+/*	
 	else {
 	    System.out.println ("settings == null");
 	}
+*/
     
 	if (DEBUG) {
 	    // profiling hack
