@@ -252,7 +252,11 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
                 }
             }
             if (bestMatch == null) {
-                bestMatch = new File(paths[0] + File.separator + fileName);
+                if (paths.length > 0) {
+                    bestMatch = new File(paths[0] + File.separator + fileName);
+                } else {
+                    bestMatch = new File(fileName);
+                }
             }
         }
         return bestMatch;
