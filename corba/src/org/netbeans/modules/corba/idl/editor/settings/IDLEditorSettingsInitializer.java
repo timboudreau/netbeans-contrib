@@ -25,83 +25,28 @@ import org.netbeans.editor.SettingsNames;
 import org.netbeans.editor.SettingsDefaults;
 import org.netbeans.editor.Coloring;
 import org.netbeans.editor.Syntax;
+import org.netbeans.editor.TokenContext;
+import org.netbeans.editor.TokenContextPath;
+import org.netbeans.editor.TokenCategory;
 import org.netbeans.modules.corba.idl.editor.coloring.IDLKit;
 import org.netbeans.modules.corba.idl.editor.coloring.IDLSyntax;
+import org.netbeans.modules.corba.idl.editor.coloring.IDLTokenContext;
 
-public class IDLEditorSettingsInitializer implements Settings.Initializer {
+public class IDLEditorSettingsInitializer extends Settings.AbstractInitializer {
+
+    /** Name assigned to initializer */
+    public static final String NAME = "idl-editor-settings-initializer";
+
+    public IDLEditorSettingsInitializer() {
+        super(NAME);
+    }
 
     public void updateSettingsMap (Class kitClass, Map settingsMap) {
 
         // IDL Colorings
         if (kitClass == BaseKit.class) {
-            Font boldFont = SettingsDefaults.defaultFont.deriveFont(Font.BOLD);
-            Font italicFont = SettingsDefaults.defaultFont.deriveFont(Font.ITALIC);
-            Settings.Evaluator boldSubst = new SettingsUtil.FontStylePrintColoringEvaluator(Font.BOLD);
-            Settings.Evaluator italicSubst = new SettingsUtil.FontStylePrintColoringEvaluator(Font.ITALIC);
-            Settings.Evaluator lightGraySubst = new SettingsUtil.ForeColorPrintColoringEvaluator(Color.lightGray);
 
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.TEXT.getName(),
-                                     new Coloring(null, null, null)
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.ERROR.getName(),
-                                     new Coloring(null, Color.white, Color.red)
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.KEYWORD.getName(),
-                                     new Coloring(boldFont, Coloring.FONT_MODE_APPLY_STYLE,
-                                                  Color.blue, Coloring.COLOR_MODE_DEFAULT,
-                                                  null, Coloring.COLOR_MODE_DEFAULT
-                                                 )
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.IDENTIFIER.getName(),
-                                     new Coloring(null, null, null)
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.METHOD.getName(),
-                                     new Coloring(boldFont, null, null),
-                                     italicSubst // print font will be italic
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.OPERATOR.getName(),
-                                     new Coloring(null, null, null)
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.LINE_COMMENT.getName(),
-                                     new Coloring(italicFont, Coloring.FONT_MODE_APPLY_STYLE,
-                                                  Color.gray, Coloring.COLOR_MODE_DEFAULT,
-                                                  null, Coloring.COLOR_MODE_DEFAULT
-                                                 ),
-                                     lightGraySubst // print fore color will be gray
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.BLOCK_COMMENT.getName(),
-                                     new Coloring(italicFont, Coloring.FONT_MODE_APPLY_STYLE,
-                                                  Color.gray, Coloring.COLOR_MODE_DEFAULT,
-                                                  null, Coloring.COLOR_MODE_DEFAULT
-                                                 ),
-                                     lightGraySubst // print fore color will be gray
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.CHAR.getName(),
-                                     new Coloring(null, Color.green.darker(), null)
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.STRING.getName(),
-                                     new Coloring(null, Color.magenta, null)
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.INT.getName(),
-                                     new Coloring(null, Color.red, null)
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.HEX.getName(),
-                                     new Coloring(null, Color.red, null)
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.OCTAL.getName(),
-                                     new Coloring(null, Color.red, null)
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.LONG.getName(),
-                                     new Coloring(null, Color.red, null)
-                                    );
-            SettingsUtil.setColoring(settingsMap, IDLSyntax.FLOAT.getName(),
-                                     new Coloring(null, Color.red, null)
-                                    );
-
-            SettingsUtil.setColoring (settingsMap, IDLSyntax.DIRECTIVE.getName(),
-                                      new Coloring(null, Color.green.darker().darker(), null)
-                                     );
-
+            new IDLTokenColoringInitializer().updateSettingsMap(kitClass, settingsMap);
         }
 
 
@@ -109,11 +54,8 @@ public class IDLEditorSettingsInitializer implements Settings.Initializer {
 
             settingsMap.put (SettingsNames.ABBREV_MAP, getIDLAbbrevMap());
 
-            SettingsUtil.updateListSetting(settingsMap, SettingsNames.SYNTAX_CLASS_LIST,
-                                           new Class[] {
-                                               IDLSyntax.class,
-                                           }
-                                          );
+            SettingsUtil.updateListSetting(settingsMap, SettingsNames.TOKEN_CONTEXT_LIST,
+                   new TokenContext[] { IDLTokenContext.context });
 
         }
     }
@@ -163,6 +105,94 @@ public class IDLEditorSettingsInitializer implements Settings.Initializer {
 
         return idlAbbrevMap;
     }
+
+    static class IDLTokenColoringInitializer
+    extends SettingsUtil.TokenColoringInitializer {
+
+        Font boldFont = SettingsDefaults.defaultFont.deriveFont(Font.BOLD);
+        Font italicFont = SettingsDefaults.defaultFont.deriveFont(Font.ITALIC);
+        Settings.Evaluator boldSubst = new SettingsUtil.FontStylePrintColoringEvaluator(Font.BOLD);
+        Settings.Evaluator italicSubst = new SettingsUtil.FontStylePrintColoringEvaluator(Font.ITALIC);
+        Settings.Evaluator lightGraySubst = new SettingsUtil.ForeColorPrintColoringEvaluator(Color.lightGray);
+
+        Coloring emptyColoring = new Coloring(null, null, null);
+
+        Coloring numberColoring = new Coloring(null, Color.red, null);
+
+        public IDLTokenColoringInitializer() {
+            super(IDLTokenContext.context);
+        }
+
+        public Object getTokenColoring(TokenContextPath tokenContextPath,
+        TokenCategory tokenIDOrCategory, boolean printingSet) {
+            if (!printingSet) {
+                switch (tokenIDOrCategory.getNumericID()) {
+                    case IDLTokenContext.TEXT_ID:
+                        return emptyColoring;
+
+                    case IDLTokenContext.ERROR_ID:
+                        return new Coloring(null, Color.white, Color.red);
+
+                    case IDLTokenContext.KEYWORDS_ID:
+                        return new Coloring(boldFont, Coloring.FONT_MODE_APPLY_STYLE,
+                                                  Color.blue, Coloring.COLOR_MODE_DEFAULT,
+                                                  null, Coloring.COLOR_MODE_DEFAULT
+                                                 );
+
+                    case IDLTokenContext.IDENTIFIER_ID:
+                        return new Coloring(null, null, null);
+
+                    case IDLTokenContext.OPERATOR_ID:
+                        return new Coloring(null, null, null);
+
+                    case IDLTokenContext.LINE_COMMENT_ID:
+                        return new Coloring(italicFont, Coloring.FONT_MODE_APPLY_STYLE,
+                                                  Color.gray, Coloring.COLOR_MODE_DEFAULT,
+                                                  null, Coloring.COLOR_MODE_DEFAULT
+                                                 );
+
+                    case IDLTokenContext.BLOCK_COMMENT_ID:
+                        return new Coloring(italicFont, Coloring.FONT_MODE_APPLY_STYLE,
+                                                  Color.gray, Coloring.COLOR_MODE_DEFAULT,
+                                                  null, Coloring.COLOR_MODE_DEFAULT
+                                                 );
+
+                    case IDLTokenContext.CHAR_LITERAL_ID:
+                        return new Coloring(null, Color.green.darker(), null);
+
+                    case IDLTokenContext.STRING_LITERAL_ID:
+                        return new Coloring(null, Color.magenta, null);
+
+                    case IDLTokenContext.INT_LITERAL_ID:
+                    case IDLTokenContext.HEX_LITERAL_ID:
+                    case IDLTokenContext.OCTAL_LITERAL_ID:
+                    case IDLTokenContext.LONG_LITERAL_ID:
+                    case IDLTokenContext.FLOAT_LITERAL_ID:
+                        return numberColoring;
+
+                    case IDLTokenContext.DIRECTIVE_ID:
+                        return new Coloring(null, Color.green.darker().darker(), null);
+
+                }
+
+            } else { // printing set
+                switch (tokenIDOrCategory.getNumericID()) {
+                    case IDLTokenContext.BLOCK_COMMENT_ID:
+                    case IDLTokenContext.LINE_COMMENT_ID:
+                        return lightGraySubst;
+
+                    default:
+                         return SettingsUtil.defaultPrintColoringEvaluator;
+                }
+
+            }
+
+            return null;
+
+        }
+
+    }
+
 }
 
 /*

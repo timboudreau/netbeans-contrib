@@ -26,63 +26,10 @@ import org.netbeans.editor.TokenID;
 
 public class IDLSyntax extends Syntax {
 
-    // Token IDs
-    public static final int TEXT_ID = 1; // plain text
-    public static final int ERROR_ID = 2; // errorneous text
-    public static final int KEYWORD_ID = 3; // keyword
-    public static final int IDENTIFIER_ID = 4; // identifier
-    public static final int METHOD_ID = 5; // method call i.e. name()
-    public static final int OPERATOR_ID = 6; // operators like '+', '*=' etc.
-    public static final int LINE_COMMENT_ID = 7; // comment till end of line
-    public static final int BLOCK_COMMENT_ID = 8; // block comment
-    public static final int CHAR_ID = 9; // char constant e.g. 'c'
-    public static final int STRING_ID = 10; // string constant e.g. "string"
-    public static final int INT_ID = 11; // integer constant e.g. 1234
-    public static final int HEX_ID = 12; // hex constant e.g. 0x5a
-    public static final int OCTAL_ID = 13; // octal constant e.g. 0123
-    public static final int LONG_ID = 14; // long constant e.g. 12L
-    public static final int FLOAT_ID = 15; // float constant e.g. 1.5e+43
-    public static final int DIRECTIVE_ID = 16;  // CPP derective e.g. #include <...>
-
-    // TokenIDs
-    /** Plain text */
-    public static final IDLTokenID TEXT = new IDLTokenID("idl-text", TEXT_ID);
-    /** Errorneous text */
-    public static final IDLTokenID ERROR = new IDLTokenID("idl-error", ERROR_ID);
-    /** IDL keyword */
-    public static final IDLTokenID KEYWORD = new IDLTokenID("idl-keyword", KEYWORD_ID);
-    /** IDL identifier */
-    public static final IDLTokenID IDENTIFIER = new IDLTokenID("idl-identifier", IDENTIFIER_ID);
-    /** IDL method call i.e. name() */
-    public static final IDLTokenID METHOD = new IDLTokenID("idl-method", METHOD_ID);
-    /** IDL operators like '+', '*=' etc. */
-    public static final IDLTokenID OPERATOR = new IDLTokenID("idl-operator", OPERATOR_ID);
-    /** IDL comment till end of line */
-    public static final IDLTokenID LINE_COMMENT = new IDLTokenID("idl-line_comment", LINE_COMMENT_ID);
-    /** IDL block comment */
-    public static final IDLTokenID BLOCK_COMMENT = new IDLTokenID("idl-block_comment", BLOCK_COMMENT_ID);
-    /** IDL char constant e.g. 'c' */
-    public static final IDLTokenID CHAR = new IDLTokenID("idl-char", CHAR_ID);
-    /** IDL string constant e.g. "string" */
-    public static final IDLTokenID STRING = new IDLTokenID("idl-string", STRING_ID);
-    /** IDL integer constant e.g. 1234 */
-    public static final IDLTokenID INT = new IDLTokenID("idl-int", INT_ID);
-    /** IDL hex constant e.g. 0x5a */
-    public static final IDLTokenID HEX = new IDLTokenID("idl-hex", HEX_ID);
-    /** IDL octal constant e.g. 0123 */
-    public static final IDLTokenID OCTAL = new IDLTokenID("idl-octal", OCTAL_ID);
-    /** IDL long constant e.g. 12L */
-    public static final IDLTokenID LONG = new IDLTokenID("idl-long", LONG_ID);
-    /** IDL float constant e.g. 1.5e+43 */
-    public static final IDLTokenID FLOAT = new IDLTokenID("idl-float", FLOAT_ID);
-    /** IDL CPP derective e.g. #include <...> */
-    public static final IDLTokenID DIRECTIVE = new IDLTokenID("idl-directive", DIRECTIVE_ID);
-
 
     // Internal states
     private static final int ISI_ERROR = 1; // after carriage return
     private static final int ISI_TEXT = 2; // inside white space
-    private static final int ISI_WS_P_IDENTIFIER = 3; // inside WS past identifier
     private static final int ISI_LINE_COMMENT = 4; // inside line comment //
     private static final int ISI_BLOCK_COMMENT = 5; // inside block comment /* ... */
     private static final int ISI_STRING = 6; // inside string constant
@@ -117,10 +64,8 @@ public class IDLSyntax extends Syntax {
     private static final int ISA_DIRECTIVE = 36; // after directive
     private static final int ISI_HERROR = 37; // after hash got error
 
-    /** Helper index used for method coloring */
-    int hlpInd = -1; // -1 means invalid value
-
     public IDLSyntax() {
+        tokenContextPath = IDLTokenContext.contextPath;
     }
     /*
       public int nextToken() {
@@ -134,10 +79,6 @@ public class IDLSyntax extends Syntax {
         return Character.isJavaIdentifierPart(ch);
     }
 
-    protected boolean matchKeywords () {
-        return (IDLKeyword.get(buffer, tokenOffset, offset - tokenOffset) != null);
-    }
-
     protected TokenID parseToken() {
         char actChar;
 
@@ -149,7 +90,7 @@ public class IDLSyntax extends Syntax {
                 switch (actChar) {
                 case '\n':
                     offset++;
-                    return EOL;
+                    return IDLTokenContext.EOL;
                 case ' ':
                 case '\t':
                     state = ISI_TEXT;
@@ -218,7 +159,7 @@ public class IDLSyntax extends Syntax {
 
                     // everything else is an operator
                     offset++;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 break;
 
@@ -228,27 +169,14 @@ public class IDLSyntax extends Syntax {
                 case '\t':
                 case '\n':
                     state = INIT;
-                    return ERROR;
+                    return IDLTokenContext.ERROR;
                 }
                 break;
 
             case ISI_TEXT: // white space
                 if (actChar != ' ' && actChar != '\t') {
                     state = INIT;
-                    return TEXT;
-                }
-                break;
-
-            case ISI_WS_P_IDENTIFIER:
-                switch (actChar) {
-                case ' ':
-                case '\t':
-                    break;
-                default:
-                    offset = hlpInd;
-                    hlpInd = -1; // make hlpInd invalid
-                    state = INIT;
-                    return (actChar == '(') ? METHOD : IDENTIFIER;
+                    return IDLTokenContext.TEXT;
                 }
                 break;
 
@@ -256,7 +184,7 @@ public class IDLSyntax extends Syntax {
                 switch (actChar) {
                 case '\n':
                     state = INIT;
-                    return LINE_COMMENT;
+                    return IDLTokenContext.LINE_COMMENT;
                 }
                 break;
 
@@ -265,9 +193,9 @@ public class IDLSyntax extends Syntax {
                 case '\n':
                     if (offset == tokenOffset) { // only '\n'
                         offset++;
-                        return EOL; // stay in ISI_BLOCK_COMMENT state for next line
+                        return IDLTokenContext.EOL; // stay in ISI_BLOCK_COMMENT state for next line
                     } else { // return comment token to qualify for previous if()
-                        return BLOCK_COMMENT;
+                        return IDLTokenContext.BLOCK_COMMENT;
                     }
                 case '*':
                     state = ISA_STAR_I_BLOCK_COMMENT;
@@ -282,11 +210,11 @@ public class IDLSyntax extends Syntax {
                     break;
                 case '\n':
                     state = INIT;
-                    return STRING;
+                    return IDLTokenContext.STRING;
                 case '"':
                     offset++;
                     state = INIT;
-                    return STRING;
+                    return IDLTokenContext.STRING;
                 }
                 break;
 
@@ -309,11 +237,11 @@ public class IDLSyntax extends Syntax {
                     break;
                 case '\n':
                     state = INIT;
-                    return CHAR;
+                    return IDLTokenContext.CHAR;
                 case '\'':
                     offset++;
                     state = INIT;
-                    return CHAR;
+                    return IDLTokenContext.CHAR;
                 }
                 break;
 
@@ -331,24 +259,9 @@ public class IDLSyntax extends Syntax {
 
             case ISI_IDENTIFIER:
                 if (!(Character.isJavaIdentifierPart(actChar))) {
-                    if (matchKeywords()) { // it's keyword
-                        state = INIT;
-                        return KEYWORD;
-                    } else {
-                        switch (actChar) {
-                        case '(': // it's method
-                            state = INIT;
-                            return METHOD;
-                        case ' ':
-                        case '\t':
-                            state = ISI_WS_P_IDENTIFIER;
-                            hlpInd = offset; // end of identifier
-                            break;
-                        default:
-                            state = INIT;
-                            return IDENTIFIER;
-                        }
-                    }
+                    state = INIT;
+                    TokenID kwd = matchKeyword(buffer, tokenOffset, offset - tokenOffset);
+                    return (kwd != null) ? kwd : IDLTokenContext.IDENTIFIER;
                 }
                 break;
 
@@ -357,7 +270,7 @@ public class IDLSyntax extends Syntax {
                 case '=':
                     offset++;
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 case '/':
                     state = ISI_LINE_COMMENT;
                     break;
@@ -366,7 +279,7 @@ public class IDLSyntax extends Syntax {
                     break;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 break;
 
@@ -374,10 +287,10 @@ public class IDLSyntax extends Syntax {
                 switch (actChar) {
                 case '=':
                     offset++;
-                    return  OPERATOR;
+                    return  IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 // break;
 
@@ -388,10 +301,10 @@ public class IDLSyntax extends Syntax {
                     break;
                 case '=':
                     offset++;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 break;
 
@@ -402,10 +315,10 @@ public class IDLSyntax extends Syntax {
                     break;
                 case '=':
                     offset++;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 break;
 
@@ -413,10 +326,10 @@ public class IDLSyntax extends Syntax {
                 switch (actChar) {
                 case '=':
                     offset++;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 // break;
 
@@ -428,10 +341,10 @@ public class IDLSyntax extends Syntax {
                     break;
                 case '=':
                     offset++;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 break;
 
@@ -442,10 +355,10 @@ public class IDLSyntax extends Syntax {
                     break;
                 case '=':
                     offset++;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 break;
 
@@ -455,10 +368,10 @@ public class IDLSyntax extends Syntax {
                     // let it flow to '='
                 case '=':
                     offset++;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 // break;
 
@@ -468,10 +381,10 @@ public class IDLSyntax extends Syntax {
                     // let it flow to '='
                 case '=':
                     offset++;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 // break;
 
@@ -479,14 +392,14 @@ public class IDLSyntax extends Syntax {
                 switch (actChar) {
                 case '=':
                     offset++;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 case '/':
                     offset++;
                     state = INIT;
-                    return ERROR; // '*/' outside comment
+                    return IDLTokenContext.ERROR; // '*/' outside comment
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 // break;
 
@@ -495,7 +408,7 @@ public class IDLSyntax extends Syntax {
                 case '/':
                     offset++;
                     state = INIT;
-                    return BLOCK_COMMENT;
+                    return IDLTokenContext.BLOCK_COMMENT;
                 default:
                     offset--;
                     state = ISI_BLOCK_COMMENT;
@@ -508,10 +421,10 @@ public class IDLSyntax extends Syntax {
                 case '=':
                     offset++;
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 // break;
 
@@ -520,10 +433,10 @@ public class IDLSyntax extends Syntax {
                 case '=':
                     offset++;
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 // break;
 
@@ -532,10 +445,10 @@ public class IDLSyntax extends Syntax {
                 case '=':
                     offset++;
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 // break;
 
@@ -544,10 +457,10 @@ public class IDLSyntax extends Syntax {
                 case '=':
                     offset++;
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 // break;
 
@@ -556,10 +469,10 @@ public class IDLSyntax extends Syntax {
                 case '=':
                     offset++;
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 default:
                     state = INIT;
-                    return OPERATOR;
+                    return IDLTokenContext.OPERATOR;
                 }
                 // break;
 
@@ -576,14 +489,14 @@ public class IDLSyntax extends Syntax {
                 case 'L':
                     offset++;
                     state = INIT;
-                    return LONG;
+                    return IDLTokenContext.LONG_LITERAL;
                 case 'f':
                 case 'F':
                 case 'd':
                 case 'D':
                     offset++;
                     state = INIT;
-                    return FLOAT;
+                    return IDLTokenContext.FLOAT_LITERAL;
                 case '8': // it's error to have '8' and '9' in octal number
                 case '9':
                     state = ISI_ERROR;
@@ -594,7 +507,7 @@ public class IDLSyntax extends Syntax {
                         break;
                     }
                     state = INIT;
-                    return INT;
+                    return IDLTokenContext.INT_LITERAL;
                 }
                 break;
 
@@ -604,14 +517,14 @@ public class IDLSyntax extends Syntax {
                 case 'L':
                     offset++;
                     state = INIT;
-                    return LONG;
+                    return IDLTokenContext.LONG_LITERAL;
                 case '.':
                     state = ISI_FLOAT;
                     break;
                 default:
                     if (!(actChar >= '0' && actChar <= '9')) {
                         state = INIT;
-                        return INT;
+                        return IDLTokenContext.INT_LITERAL;
                     }
                 }
                 break;
@@ -620,7 +533,7 @@ public class IDLSyntax extends Syntax {
                 if (!(actChar >= '0' && actChar <= '7')) {
 
                     state = INIT;
-                    return OCTAL;
+                    return IDLTokenContext.OCTAL_LITERAL;
                 }
                 break;
 
@@ -632,7 +545,7 @@ public class IDLSyntax extends Syntax {
                 case 'D':
                     offset++;
                     state = INIT;
-                    return FLOAT;
+                    return IDLTokenContext.FLOAT_LITERAL;
                 case 'e':
                 case 'E':
                     state = ISI_FLOAT_EXP;
@@ -642,7 +555,7 @@ public class IDLSyntax extends Syntax {
                             || actChar == '.')) {
 
                         state = INIT;
-                        return FLOAT;
+                        return IDLTokenContext.FLOAT_LITERAL;
                     }
                 }
                 break;
@@ -655,12 +568,12 @@ public class IDLSyntax extends Syntax {
                 case 'D':
                     offset++;
                     state = INIT;
-                    return FLOAT;
+                    return IDLTokenContext.FLOAT_LITERAL;
                 default:
                     if (!((actChar >= '0' && actChar <= '9')
                             || actChar == '-' || actChar == '+')) {
                         state = INIT;
-                        return FLOAT;
+                        return IDLTokenContext.FLOAT_LITERAL;
                     }
                 }
                 break;
@@ -671,7 +584,7 @@ public class IDLSyntax extends Syntax {
                         || (actChar >= '0' && actChar <= '9'))) {
 
                     state = INIT;
-                    return HEX;
+                    return IDLTokenContext.HEX_LITERAL;
                 }
                 break;
 
@@ -681,7 +594,7 @@ public class IDLSyntax extends Syntax {
                     break;
                 }
                 state = INIT;
-                return OPERATOR;
+                return IDLTokenContext.OPERATOR;
 
             case ISA_HASH:
                 if (Character.isJavaIdentifierPart(actChar)) {
@@ -689,21 +602,21 @@ public class IDLSyntax extends Syntax {
                 }
                 if (matchDirective()) { // directive found
                     state = ISA_DIRECTIVE;
-                    return DIRECTIVE;
+                    return IDLTokenContext.DIRECTIVE;
                 }
                 switch (actChar) {
                 case '\n':
                     state = INIT;
-                    return TEXT;
+                    return IDLTokenContext.TEXT;
                 }
                 state = ISI_HERROR; // directive error
-                return ERROR;
+                return IDLTokenContext.ERROR;
 
             case ISA_DIRECTIVE:
                 switch (actChar) {
                 case '\n':
                     state = INIT;
-                    return DIRECTIVE;
+                    return IDLTokenContext.DIRECTIVE;
                 }
                 break;
 
@@ -711,7 +624,7 @@ public class IDLSyntax extends Syntax {
                 switch (actChar) {
                 case '\n':
                     state = INIT;
-                    return ERROR;
+                    return IDLTokenContext.ERROR;
                 }
                 break;
 
@@ -728,18 +641,14 @@ public class IDLSyntax extends Syntax {
         if (lastBuffer) {
             switch(state) {
             case ISI_IDENTIFIER:
-                return matchKeywords() ? KEYWORD : IDENTIFIER;
+                TokenID kwd = matchKeyword(buffer, tokenOffset, offset - tokenOffset);
+                return (kwd != null) ? kwd : IDLTokenContext.IDENTIFIER;
             case ISA_HASH:
-                return matchDirective() ? DIRECTIVE : TEXT;
-            case ISI_WS_P_IDENTIFIER:
-                offset = hlpInd;
-                hlpInd = -1;
-                state = INIT;
-                return IDENTIFIER;
+                return matchDirective() ? IDLTokenContext.DIRECTIVE : IDLTokenContext.TEXT;
             case ISA_STAR_I_BLOCK_COMMENT:
-                return BLOCK_COMMENT;
+                return IDLTokenContext.BLOCK_COMMENT;
             case ISA_ZERO:
-                return INT;
+                return IDLTokenContext.INT_LITERAL;
             case ISA_DOT:
             case ISA_SLASH:
             case ISA_EQ:
@@ -756,11 +665,11 @@ public class IDLSyntax extends Syntax {
             case ISA_AND:
             case ISA_XOR:
             case ISA_EXCLAMATION:
-                return OPERATOR;
+                return IDLTokenContext.OPERATOR;
             case ISI_STRING_A_BSLASH:
-                return STRING;
+                return IDLTokenContext.STRING;
             case ISI_CHAR_A_BSLASH:
-                return CHAR;
+                return IDLTokenContext.CHAR;
             }
         }
 
@@ -770,78 +679,469 @@ public class IDLSyntax extends Syntax {
          * that will be prescanned in the next buffer.
          */
 
-        switch (state) {
-        case ISI_ERROR:
-            return ERROR;
-        case ISI_TEXT:
-            return TEXT;
-        case ISI_WS_P_IDENTIFIER: // white space past identifier
-            return EOT; // rescan till begining of ?identifier/keyword?
-        case ISI_IDENTIFIER:
-            return EOT; // rescan till begining of ?identifier/keyword?
-        case ISA_HASH:
-            return EOT; // rescan till begining of ?identifier/keyword?
-        case ISA_DIRECTIVE:
-            return DIRECTIVE;
-        case ISI_HERROR:
-            return ERROR;
-        case ISI_LINE_COMMENT:
-            return LINE_COMMENT;
-        case ISI_BLOCK_COMMENT:
-            return BLOCK_COMMENT;
-        case ISI_STRING:
-            return STRING;
-        case ISI_STRING_A_BSLASH:
-            if (offset - tokenOffset > 1) {
-                offset--; // go to backslash char
-                state = ISI_STRING;
-                return STRING;
-            } else {
-                return EOT; // only one (backslash) char
+        return null;
+
+    }
+
+    public static TokenID matchKeyword(char[] buffer, int offset, int len) {
+        if (len > 11)
+            return null;
+        if (len <= 1)
+            return null;
+        switch (buffer[offset++]) {
+        case 'F':
+            return (len == 5
+                    && buffer[offset++] == 'A'
+                    && buffer[offset++] == 'L'
+                    && buffer[offset++] == 'S'
+                    && buffer[offset++] == 'E')
+                   ? IDLTokenContext.FALSE : null;
+        case 'O':
+            return (len == 6
+                    && buffer[offset++] == 'b'
+                    && buffer[offset++] == 'j'
+                    && buffer[offset++] == 'e'
+                    && buffer[offset++] == 'c'
+                    && buffer[offset++] == 't')
+                   ? IDLTokenContext.OBJECT : null;
+        case 'T':
+            return (len == 4
+                    && buffer[offset++] == 'R'
+                    && buffer[offset++] == 'U'
+                    && buffer[offset++] == 'E')
+                   ? IDLTokenContext.TRUE : null;
+        case 'V':
+            return (len == 9
+                    && buffer[offset++] == 'a'
+                    && buffer[offset++] == 'l'
+                    && buffer[offset++] == 'u'
+                    && buffer[offset++] == 'e'
+                    && buffer[offset++] == 'B'
+                    && buffer[offset++] == 'a'
+                    && buffer[offset++] == 's'
+                    && buffer[offset++] == 'e')
+                   ? IDLTokenContext.VALUEBASE : null;
+        case 'a':
+            if (len <= 2)
+                return null;
+            switch (buffer[offset++]) {
+            case 'b':
+                return (len == 8
+                        && buffer[offset++] == 's'
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'r'
+                        && buffer[offset++] == 'a'
+                        && buffer[offset++] == 'c'
+                        && buffer[offset++] == 't')
+                       ? IDLTokenContext.ABSTRACT : null;
+            case 'n':
+                return (len == 3
+                        && buffer[offset++] == 'y')
+                       ? IDLTokenContext.ANY : null;
+            case 't':
+                return (len == 9
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'r'
+                        && buffer[offset++] == 'i'
+                        && buffer[offset++] == 'b'
+                        && buffer[offset++] == 'u'
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'e')
+                       ? IDLTokenContext.ATTRIBUTE : null;
+            default:
+                return null;
             }
-        case ISI_CHAR:
-            return CHAR;
-        case ISI_CHAR_A_BSLASH:
-            if (offset - tokenOffset > 1) {
-                offset--; // go to backslash char
-                state = ISI_CHAR;
-                return CHAR;
-            } else {
-                return EOT; // only one (backslash) char
+        case 'b':
+            return (len == 7
+                    && buffer[offset++] == 'o'
+                    && buffer[offset++] == 'o'
+                    && buffer[offset++] == 'l'
+                    && buffer[offset++] == 'e'
+                    && buffer[offset++] == 'a'
+                    && buffer[offset++] == 'n')
+                   ? IDLTokenContext.BOOLEAN : null;
+        case 'c':
+            if (len <= 3)
+                return null;
+            switch (buffer[offset++]) {
+            case 'a':
+                return (len == 4
+                        && buffer[offset++] == 's'
+                        && buffer[offset++] == 'e')
+                       ? IDLTokenContext.CASE : null;
+            case 'h':
+                return (len == 4
+                        && buffer[offset++] == 'a'
+                        && buffer[offset++] == 'r')
+                       ? IDLTokenContext.CHAR : null;
+            case 'o':
+                if (len <= 4)
+                    return null;
+                if (buffer[offset++] != 'n')
+                    return null;
+                switch (buffer[offset++]) {
+                case 's':
+                    return (len == 5
+                            && buffer[offset++] == 't')
+                           ? IDLTokenContext.CONST : null;
+                case 't':
+                    return (len == 7
+                            && buffer[offset++] == 'e'
+                            && buffer[offset++] == 'x'
+                            && buffer[offset++] == 't')
+                           ? IDLTokenContext.CONTEXT : null;
+                default:
+                    return null;
+                }
+            case 'u':
+                return (len == 6
+                        && buffer[offset++] == 's'
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'o'
+                        && buffer[offset++] == 'm')
+                       ? IDLTokenContext.CUSTOM : null;
+            default:
+                return null;
             }
-        case ISA_DOT:
-        case ISA_SLASH:
-        case ISA_EQ:
-        case ISA_GT:
-        case ISA_GTGT:
-        case ISA_GTGTGT:
-        case ISA_LT:
-        case ISA_LTLT:
-        case ISA_PLUS:
-        case ISA_MINUS:
-        case ISA_STAR:
-        case ISA_PIPE:
-        case ISA_PERCENT:
-        case ISA_AND:
-        case ISA_XOR:
-        case ISA_EXCLAMATION:
-            return EOT; // only short ones
-        case ISA_STAR_I_BLOCK_COMMENT:
-            return BLOCK_COMMENT;
-        case ISI_INT:
-            return INT;
-        case ISI_OCTAL:
-            return OCTAL;
-        case ISI_FLOAT:
-            return FLOAT;
-        case ISI_FLOAT_EXP:
-            return FLOAT;
-        case ISI_HEX:
-            return HEX;
+        case 'd':
+            if (len <= 5)
+                return null;
+            switch (buffer[offset++]) {
+            case 'e':
+                return (len == 7
+                        && buffer[offset++] == 'f'
+                        && buffer[offset++] == 'a'
+                        && buffer[offset++] == 'u'
+                        && buffer[offset++] == 'l'
+                        && buffer[offset++] == 't')
+                       ? IDLTokenContext.DEFAULT : null;
+            case 'o':
+                return (len == 6
+                        && buffer[offset++] == 'u'
+                        && buffer[offset++] == 'b'
+                        && buffer[offset++] == 'l'
+                        && buffer[offset++] == 'e')
+                       ? IDLTokenContext.DOUBLE : null;
+            default:
+                return null;
+            }
+        case 'e':
+            if (len <= 3)
+                return null;
+            switch (buffer[offset++]) {
+            case 'n':
+                return (len == 4
+                        && buffer[offset++] == 'u'
+                        && buffer[offset++] == 'm')
+                       ? IDLTokenContext.ENUM : null;
+            case 'x':
+                return (len == 9
+                        && buffer[offset++] == 'c'
+                        && buffer[offset++] == 'e'
+                        && buffer[offset++] == 'p'
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'i'
+                        && buffer[offset++] == 'o'
+                        && buffer[offset++] == 'n')
+                       ? IDLTokenContext.EXCEPTION : null;
+            default:
+                return null;
+            }
+        case 'f':
+            if (len <= 4)
+                return null;
+            switch (buffer[offset++]) {
+            case 'a':
+                return (len == 7
+                        && buffer[offset++] == 'c'
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'o'
+                        && buffer[offset++] == 'r'
+                        && buffer[offset++] == 'y')
+                       ? IDLTokenContext.FACTORY : null;
+            case 'i':
+                return (len == 5
+                        && buffer[offset++] == 'x'
+                        && buffer[offset++] == 'e'
+                        && buffer[offset++] == 'd')
+                       ? IDLTokenContext.FIXED : null;
+            case 'l':
+                return (len == 5
+                        && buffer[offset++] == 'o'
+                        && buffer[offset++] == 'a'
+                        && buffer[offset++] == 't')
+                       ? IDLTokenContext.FLOAT : null;
+            default:
+                return null;
+            }
+        case 'i':
+            if (buffer[offset++] != 'n')
+                return null;
+            if (len == 2)
+                return IDLTokenContext.IN;
+            if (len <= 4)
+                return null;
+            switch (buffer[offset++]) {
+            case 'o':
+                return (len == 5
+                        && buffer[offset++] == 'u'
+                        && buffer[offset++] == 't')
+                       ? IDLTokenContext.INOUT : null;
+            case 't':
+                return (len == 9
+                        && buffer[offset++] == 'e'
+                        && buffer[offset++] == 'r'
+                        && buffer[offset++] == 'f'
+                        && buffer[offset++] == 'a'
+                        && buffer[offset++] == 'c'
+                        && buffer[offset++] == 'e')
+                       ? IDLTokenContext.INTERFACE : null;
+            default:
+                return null;
+            }
+        case 'l':
+            return (len == 4
+                    && buffer[offset++] == 'o'
+                    && buffer[offset++] == 'n'
+                    && buffer[offset++] == 'g')
+                   ? IDLTokenContext.LONG : null;
+        case 'm':
+            return (len == 6
+                    && buffer[offset++] == 'o'
+                    && buffer[offset++] == 'd'
+                    && buffer[offset++] == 'u'
+                    && buffer[offset++] == 'l'
+                    && buffer[offset++] == 'e')
+                   ? IDLTokenContext.MODULE : null;
+        case 'n':
+            return (len == 6
+                    && buffer[offset++] == 'a'
+                    && buffer[offset++] == 't'
+                    && buffer[offset++] == 'i'
+                    && buffer[offset++] == 'v'
+                    && buffer[offset++] == 'e')
+                   ? IDLTokenContext.NATIVE : null;
+        case 'o':
+            if (len <= 2)
+                return null;
+            switch (buffer[offset++]) {
+            case 'c':
+                return (len == 5
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'e'
+                        && buffer[offset++] == 't')
+                       ? IDLTokenContext.OCTET : null;
+            case 'n':
+                return (len == 6
+                        && buffer[offset++] == 'e'
+                        && buffer[offset++] == 'w'
+                        && buffer[offset++] == 'a'
+                        && buffer[offset++] == 'y')
+                       ? IDLTokenContext.ONEWAY : null;
+            case 'u':
+                return (len == 3
+                        && buffer[offset++] == 't')
+                       ? IDLTokenContext.OUT : null;
+            default:
+                return null;
+            }
+        case 'p':
+            if (len <= 5)
+                return null;
+            switch (buffer[offset++]) {
+            case 'r':
+                return (len == 7
+                        && buffer[offset++] == 'i'
+                        && buffer[offset++] == 'v'
+                        && buffer[offset++] == 'a'
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'e')
+                       ? IDLTokenContext.PRIVATE : null;
+            case 'u':
+                return (len == 6
+                        && buffer[offset++] == 'b'
+                        && buffer[offset++] == 'l'
+                        && buffer[offset++] == 'i'
+                        && buffer[offset++] == 'c')
+                       ? IDLTokenContext.PUBLIC : null;
+            default:
+                return null;
+            }
+        case 'r':
+            if (len <= 5)
+                return null;
+            switch (buffer[offset++]) {
+            case 'a':
+                return (len == 6
+                        && buffer[offset++] == 'i'
+                        && buffer[offset++] == 's'
+                        && buffer[offset++] == 'e'
+                        && buffer[offset++] == 's')
+                       ? IDLTokenContext.RAISES : null;
+            case 'e':
+                return (len == 8
+                        && buffer[offset++] == 'a'
+                        && buffer[offset++] == 'd'
+                        && buffer[offset++] == 'o'
+                        && buffer[offset++] == 'n'
+                        && buffer[offset++] == 'l'
+                        && buffer[offset++] == 'y')
+                       ? IDLTokenContext.READONLY : null;
+            default:
+                return null;
+            }
+        case 's':
+            if (len <= 4)
+                return null;
+            switch (buffer[offset++]) {
+            case 'e':
+                return (len == 8
+                        && buffer[offset++] == 'q'
+                        && buffer[offset++] == 'u'
+                        && buffer[offset++] == 'e'
+                        && buffer[offset++] == 'n'
+                        && buffer[offset++] == 'c'
+                        && buffer[offset++] == 'e')
+                       ? IDLTokenContext.SEQUENCE : null;
+            case 'h':
+                return (len == 5
+                        && buffer[offset++] == 'o'
+                        && buffer[offset++] == 'r'
+                        && buffer[offset++] == 't')
+                       ? IDLTokenContext.SHORT : null;
+            case 't':
+                if (len <= 5)
+                    return null;
+                if (buffer[offset++] != 'r')
+                    return null;
+                switch (buffer[offset++]) {
+                case 'i':
+                    return (len == 6
+                            && buffer[offset++] == 'n'
+                            && buffer[offset++] == 'g')
+                           ? IDLTokenContext.STRING : null;
+                case 'u':
+                    return (len == 6
+                            && buffer[offset++] == 'c'
+                            && buffer[offset++] == 't')
+                           ? IDLTokenContext.STRUCT : null;
+                default:
+                    return null;
+                }
+            case 'u':
+                return (len == 8
+                        && buffer[offset++] == 'p'
+                        && buffer[offset++] == 'p'
+                        && buffer[offset++] == 'o'
+                        && buffer[offset++] == 'r'
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 's')
+                       ? IDLTokenContext.SUPPORTS : null;
+            case 'w':
+                return (len == 6
+                        && buffer[offset++] == 'i'
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'c'
+                        && buffer[offset++] == 'h')
+                       ? IDLTokenContext.SWITCH : null;
+            default:
+                return null;
+            }
+        case 't':
+            if (len <= 6)
+                return null;
+            switch (buffer[offset++]) {
+            case 'r':
+                return (len == 11
+                        && buffer[offset++] == 'u'
+                        && buffer[offset++] == 'n'
+                        && buffer[offset++] == 'c'
+                        && buffer[offset++] == 'a'
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'a'
+                        && buffer[offset++] == 'b'
+                        && buffer[offset++] == 'l'
+                        && buffer[offset++] == 'e')
+                       ? IDLTokenContext.TRUNCATABLE : null;
+            case 'y':
+                return (len == 7
+                        && buffer[offset++] == 'p'
+                        && buffer[offset++] == 'e'
+                        && buffer[offset++] == 'd'
+                        && buffer[offset++] == 'e'
+                        && buffer[offset++] == 'f')
+                       ? IDLTokenContext.TYPEDEF : null;
+            default:
+                return null;
+            }
+        case 'u':
+            if (len <= 4)
+                return null;
+            if (buffer[offset++] != 'n')
+                return null;
+            switch (buffer[offset++]) {
+            case 'i':
+                return (len == 5
+                        && buffer[offset++] == 'o'
+                        && buffer[offset++] == 'n')
+                       ? IDLTokenContext.UNION : null;
+            case 's':
+                return (len == 8
+                        && buffer[offset++] == 'i'
+                        && buffer[offset++] == 'g'
+                        && buffer[offset++] == 'n'
+                        && buffer[offset++] == 'e'
+                        && buffer[offset++] == 'd')
+                       ? IDLTokenContext.UNSIGNED : null;
+            default:
+                return null;
+            }
+        case 'v':
+            if (len <= 3)
+                return null;
+            switch (buffer[offset++]) {
+            case 'a':
+                return (len == 9
+                        && buffer[offset++] == 'l'
+                        && buffer[offset++] == 'u'
+                        && buffer[offset++] == 'e'
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'y'
+                        && buffer[offset++] == 'p'
+                        && buffer[offset++] == 'e')
+                       ? IDLTokenContext.VALUETYPE : null;
+            case 'o':
+                return (len == 4
+                        && buffer[offset++] == 'i'
+                        && buffer[offset++] == 'd')
+                       ? IDLTokenContext.VOID : null;
+            default:
+                return null;
+            }
+        case 'w':
+            if (len <= 4)
+                return null;
+            switch (buffer[offset++]) {
+            case 'c':
+                return (len == 5
+                        && buffer[offset++] == 'h'
+                        && buffer[offset++] == 'a'
+                        && buffer[offset++] == 'r')
+                       ? IDLTokenContext.WCHAR : null;
+            case 's':
+                return (len == 7
+                        && buffer[offset++] == 't'
+                        && buffer[offset++] == 'r'
+                        && buffer[offset++] == 'i'
+                        && buffer[offset++] == 'n'
+                        && buffer[offset++] == 'g')
+                       ? IDLTokenContext.WSTRING : null;
+            default:
+                return null;
+            }
+        default:
+            return null;
         }
-
-        return EOT;
-
     }
 
     private boolean matchDirective () {
@@ -912,51 +1212,12 @@ public class IDLSyntax extends Syntax {
         }
     }
 
-    public void relocate(char buffer[], int offset, int len,
-                         boolean lastBuffer, int stopPosition) {
-        if (hlpInd >= 0) { // relocate hlpInd before calling super.relocScan()
-            hlpInd += (offset - this.offset);
-        }
-
-        super.relocate(buffer, offset, len, lastBuffer, stopPosition);
-    }
-
-    /** Create scan state appropriate for particular scanner */
-    public Syntax.StateInfo createStateInfo() {
-        return new IDLStateInfo();
-    }
-
-    /** Store state of this scanner into given scan state. */
-    public void storeState(Syntax.StateInfo stateInfo) {
-        super.storeState(stateInfo);
-        ((IDLStateInfo)stateInfo).hlpPreScan = (hlpInd >= 0) ? (offset - hlpInd) : -1;
-    }
-
-    /** Load state into scanner. Indexes are already initialized
-     * when this function is called.
-     */
-    public void loadState(Syntax.StateInfo stateInfo) {
-        super.loadState(stateInfo);
-        int hi = ((IDLStateInfo)stateInfo).hlpPreScan;
-        hlpInd = (hi >= 0) ? (offset - hi) : -1;
-    }
-
-    /** Initialize scanner in case the state stored in syntax mark
-     * is null.
-     */
-    public void loadInitState() {
-        super.loadInitState();
-        hlpInd = -1;
-    }
-
     public String getStateName(int stateNumber) {
         switch(stateNumber) {
         case ISI_ERROR:
             return "ISI_ERROR";
         case ISI_TEXT:
             return "ISI_TEXT";
-        case ISI_WS_P_IDENTIFIER:
-            return "ISI_WS_P_IDENTIFIER";
         case ISI_LINE_COMMENT:
             return "ISI_LINE_COMMENT";
         case ISI_BLOCK_COMMENT:
@@ -1021,19 +1282,6 @@ public class IDLSyntax extends Syntax {
         default:
             return super.getStateName(stateNumber);
         }
-    }
-
-    public String toString() {
-        String s = super.toString();
-        s += ", hlpInd=" + hlpInd;
-        return s;
-    }
-
-    class IDLStateInfo extends Syntax.BaseStateInfo {
-
-        /** Helper prescan for method coloring */
-        int hlpPreScan;
-
     }
 
 }
