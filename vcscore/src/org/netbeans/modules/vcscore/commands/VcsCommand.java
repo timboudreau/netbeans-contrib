@@ -383,6 +383,12 @@ public interface VcsCommand extends VcsCommandCookie {
      * command is already running.
      */
     public static final int EXEC_SERIAL_ALL = 16;
+    /** Serial execution even with respect to the pending commands, that are waiting
+     * for the actual execution. This flag cause, that all pending commands are
+     * considered in addition to the already running commands when evaluating
+     * of whether the command can be executed or not.
+     */
+    public static final int EXEC_SERIAL_WITH_PENDING = 32;
     /** This command is inert with all other commands. When other commands are
      * considered whether they can be executed, commands with inert concurrent
      * execution property are ignored. This can be used for meta commands,

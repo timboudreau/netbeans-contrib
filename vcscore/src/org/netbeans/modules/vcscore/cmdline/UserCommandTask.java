@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -79,6 +81,12 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
      * This set is necessary for tasks synchronization.
      */
     private static Set runningTasks = new HashSet();
+    
+    /**
+     * The list of pending tasks, preserving the order in which they were scheduled.
+     * This list is necessary for tasks synchronization.
+     */
+    private static List pendingTasks = new LinkedList();
     
     /** Creates a new instance of UserCommandTask */
     public UserCommandTask(UserCommandSupport cmdSupport, VcsDescribedCommand cmd) {//, VcsCommandExecutor executor) {
@@ -309,10 +317,15 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     protected int execute() {
         int status = STATUS_SUCCEEDED;
         try {
-            runningTasks.add(this);//, Thread.currentThread());
+            //runningTasks.add(this);//, Thread.currentThread());
+            // Task is added as running when canRun() returns true. It's too late to do it here!
+            // canRun() can be called quickly one after another and excute() in a lazy thread later.
             status = super.execute();
         } finally {
-            runningTasks.remove(this);
+            synchronized (runningTasks) {
+                runningTasks.remove(this);
+                //System.out.println("RUNNING TASK REMOVED: "+this);
+            }
             if (visualizer != null) {
                 visualizer.setExitStatus(executor.getExitStatus());
             }
@@ -466,6 +479,10 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
      * @return true if the command can be run in the current monitor lock, false otherwise.
      */
     private boolean canRun(UserCommandTask task) {
+        if (!pendingTasks.contains(task)) {
+            pendingTasks.add(task);
+            //System.out.println("PENDING TASK ADDED: "+task);
+        }
         VcsCommandExecutor vce = task.getExecutor();
         VcsCommand cmd = vce.getCommand();
         //System.out.println("canRun("+cmd.getName()+")");
@@ -475,82 +492,106 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                             VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
         String concurrencyWith = (String) cmd.getProperty(VcsCommand.PROPERTY_CONCURRENT_EXECUTION_WITH);
         //System.out.println("  concurrency = "+concurrency+", concurrencyWith = "+concurrencyWith);
-        if ((concurrency == VcsCommand.EXEC_CONCURRENT_ALL
-             && concurrencyWith == null)
-            || concurrency == VcsCommand.EXEC_SERIAL_INERT) return true;
-        HashMap concurrencyMap = createConcurrencyMap(concurrencyWith);
-        String name = cmd.getName();
         boolean haveToWait = false;
-        boolean serialOnFile = (concurrency & VcsCommand.EXEC_SERIAL_ON_FILE) != 0;
-        boolean serialOnPackage = (concurrency & VcsCommand.EXEC_SERIAL_ON_PACKAGE) != 0;
-        boolean serialWithParent = (concurrency & VcsCommand.EXEC_SERIAL_WITH_PARENT) != 0;
-        boolean serialOfCommand = (concurrency & VcsCommand.EXEC_SERIAL_OF_COMMAND) != 0;
-        boolean serialOfAll = (concurrency & VcsCommand.EXEC_SERIAL_ALL) != 0;
-        boolean matchOnFile = false;
-        boolean matchOnPackage = false;
-        boolean matchWithParent = false;
-        boolean matchOfCommand = false;
-        //System.out.println("  serialOnFile = "+serialOnFile);
-        //System.out.println("  serialOnPackage = "+serialOnPackage);
-        //System.out.println("  serialWithParent = "+serialWithParent);
-        //System.out.println("  serialOfCommand = "+serialOfCommand);
-        //System.out.println("  serialOfAll = "+serialOfAll);
-        //System.out.println("  commandsToTestAgainst = "+commandsToTestAgainst);
-        //if (serialOfAll && commandsToTestAgainst.size() > 0) return false;
-        //commandsToTestAgainst.addAll(commandsToRun);
-        //commandsToTestAgainst.addAll(commandsWaitQueue);
-        //commandsToTestAgainst.remove(vce);
-        for(Iterator iter = runningTasks.iterator(); iter.hasNext(); ) {
-            UserCommandTask cwTest = (UserCommandTask) iter.next();
-            VcsCommandExecutor ec = cwTest.getExecutor();
-            Collection cmdFiles = ec.getFiles();
-            VcsCommand uc = ec.getCommand();
-            //System.out.println("  testing with cmd = "+uc.getName());
-            int cmdConcurrency = VcsCommandIO.getIntegerPropertyAssumeZero(uc, VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
-            //System.out.println("  cmdConcurrency = "+cmdConcurrency);
-            if (VcsCommand.EXEC_SERIAL_INERT == cmdConcurrency) continue;
-            if (serialOfAll) {
-                haveToWait = true;
-                break;
+        if ((concurrency != VcsCommand.EXEC_CONCURRENT_ALL || concurrencyWith != null)
+            && concurrency != VcsCommand.EXEC_SERIAL_INERT) {
+            
+            HashMap concurrencyMap = createConcurrencyMap(concurrencyWith);
+            String name = cmd.getName();
+            boolean serialOnFile = (concurrency & VcsCommand.EXEC_SERIAL_ON_FILE) != 0;
+            boolean serialOnPackage = (concurrency & VcsCommand.EXEC_SERIAL_ON_PACKAGE) != 0;
+            boolean serialWithParent = (concurrency & VcsCommand.EXEC_SERIAL_WITH_PARENT) != 0;
+            boolean serialOfCommand = (concurrency & VcsCommand.EXEC_SERIAL_OF_COMMAND) != 0;
+            boolean serialOfAll = (concurrency & VcsCommand.EXEC_SERIAL_ALL) != 0;
+            boolean matchOnFile = false;
+            boolean matchOnPackage = false;
+            boolean matchWithParent = false;
+            boolean matchOfCommand = false;
+            //System.out.println("  serialOnFile = "+serialOnFile);
+            //System.out.println("  serialOnPackage = "+serialOnPackage);
+            //System.out.println("  serialWithParent = "+serialWithParent);
+            //System.out.println("  serialOfCommand = "+serialOfCommand);
+            //System.out.println("  serialOfAll = "+serialOfAll);
+            //System.out.println("  commandsToTestAgainst = "+commandsToTestAgainst);
+            //if (serialOfAll && commandsToTestAgainst.size() > 0) return false;
+            //commandsToTestAgainst.addAll(commandsToRun);
+            //commandsToTestAgainst.addAll(commandsWaitQueue);
+            //commandsToTestAgainst.remove(vce);
+            Set tasksToTest;
+            synchronized (runningTasks) {
+                tasksToTest = new HashSet(runningTasks);
             }
-            String cmdName = uc.getName();
-            if (serialOnFile) {
-                for(Iterator it = files.iterator(); it.hasNext(); ) {
-                    String file = (String) it.next();
-                    if (cmdFiles.contains(file)) {
-                        matchOnFile = true;
+            if ((concurrency & VcsCommand.EXEC_SERIAL_WITH_PENDING) != 0) {
+                //tasksToTest = new HashSet(runningTasks);
+                for (Iterator pendingIt = pendingTasks.iterator(); pendingIt.hasNext(); ) {
+                    UserCommandTask pendingTask = (UserCommandTask) pendingIt.next();
+                    if (pendingTask != task) {
+                        tasksToTest.add(pendingTask);
+                    } else {
                         break;
                     }
                 }
             }
-            if (serialOnPackage) {
-                if (areFilesInSamePackage(files, cmdFiles)) {
-                    matchOnPackage = true;
-                }
-            }
-            if (serialWithParent) {
-                if (isParentFolder(files, cmdFiles)) {
-                    matchWithParent = true;
-                }
-            }
-            if (serialOfCommand) {
-                matchOfCommand = name.equals(cmdName);
-            }
-            // if (serialOfCommand && !matchOfCommand) do not wait
-            if ((!serialOfCommand || matchOfCommand) && (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand)) {
-                //System.out.println("  matchOnFile = "+matchOnFile+", matchOnPackage = "+matchOnPackage+", matchWithParent = "+matchWithParent+", matchOfCommand = "+matchOfCommand);
-                haveToWait = true;
-                break;
-            }
-            Integer concurrencyWithNum = (Integer) concurrencyMap.get(cmdName);
-            if (concurrencyWithNum != null) {
-                if (haveToWaitFor(files, cmdFiles, concurrencyWithNum.intValue())) {
+            for(Iterator iter = tasksToTest.iterator(); iter.hasNext(); ) {
+                UserCommandTask cwTest = (UserCommandTask) iter.next();
+                VcsCommandExecutor ec = cwTest.getExecutor();
+                Collection cmdFiles = ec.getFiles();
+                VcsCommand uc = ec.getCommand();
+                //System.out.println("  testing with cmd = "+uc.getName()+", cmdFiles = "+cmdFiles+", TASK = "+cwTest);
+                int cmdConcurrency = VcsCommandIO.getIntegerPropertyAssumeZero(uc, VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
+                //System.out.println("  cmdConcurrency = "+cmdConcurrency);
+                if (VcsCommand.EXEC_SERIAL_INERT == cmdConcurrency) continue;
+                if (serialOfAll) {
                     haveToWait = true;
                     break;
+                }
+                String cmdName = uc.getName();
+                if (serialOnFile) {
+                    for(Iterator it = files.iterator(); it.hasNext(); ) {
+                        String file = (String) it.next();
+                        if (cmdFiles.contains(file)) {
+                            matchOnFile = true;
+                            break;
+                        }
+                    }
+                }
+                if (serialOnPackage) {
+                    if (areFilesInSamePackage(files, cmdFiles)) {
+                        matchOnPackage = true;
+                    }
+                }
+                if (serialWithParent) {
+                    if (isParentFolder(files, cmdFiles)) {
+                        matchWithParent = true;
+                    }
+                }
+                if (serialOfCommand) {
+                    matchOfCommand = name.equals(cmdName);
+                }
+                // if (serialOfCommand && !matchOfCommand) do not wait
+                if ((!serialOfCommand || matchOfCommand) && (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand)) {
+                    //System.out.println("  matchOnFile = "+matchOnFile+", matchOnPackage = "+matchOnPackage+", matchWithParent = "+matchWithParent+", matchOfCommand = "+matchOfCommand);
+                    haveToWait = true;
+                    break;
+                }
+                Integer concurrencyWithNum = (Integer) concurrencyMap.get(cmdName);
+                if (concurrencyWithNum != null) {
+                    if (haveToWaitFor(files, cmdFiles, concurrencyWithNum.intValue())) {
+                        haveToWait = true;
+                        break;
+                    }
                 }
             }
         }
         //System.out.println("haveToWait = "+haveToWait);
+        if (!haveToWait) {
+            synchronized (runningTasks) {
+                runningTasks.add(task);
+                //System.out.println("RUNNING TASK ADDED: "+task);
+            }
+            pendingTasks.remove(task);
+            //System.out.println("PENDING TASK REMOVED: "+task);
+        }
         return !haveToWait;
     }
     
