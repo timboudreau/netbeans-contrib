@@ -144,6 +144,14 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
     }
     
     /**
+     * Get the graphical visualization of the command.
+     * @return null no visualization is desired.
+     */
+    public VcsCommandVisualizer getVisualizer() {
+        return null;
+    }
+    
+    /**
      * Get the set of files being processed by the command.
      * @return the set of files of type <code>String</code>
      */

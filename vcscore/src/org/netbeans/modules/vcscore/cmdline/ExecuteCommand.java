@@ -158,6 +158,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         return exitStatus;
     }
     
+    /**
+     * Get the graphical visualization of the command.
+     * @return null no visualization is desired.
+     */
+    public VcsCommandVisualizer getVisualizer() {
+        return null;
+    }
+    
     /*
     public synchronized void addCommandListener(CommandListener listener) {
         commandListeners.add(listener);
