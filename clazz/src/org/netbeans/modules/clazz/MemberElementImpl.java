@@ -73,19 +73,14 @@ public abstract class MemberElementImpl extends ElementImpl
     */
     public Identifier getName () {
         if (name == null) {
-            String fullName;
-            if (data instanceof Class) {
-                fullName = Utilities.getClassName((Class)data);
-                fullName = fullName.replace('$', '.');
-            } else {
-                fullName = ((Member)data).getName();
-            }
-            int lastDot = fullName.lastIndexOf("."); // NOI18N
-            name = (lastDot == -1) ?
-                   Identifier.create(fullName) :
-                   Identifier.create(fullName, fullName.substring(lastDot + 1));
-        }
+	    name = createName(this.data);
+	}
         return name;
+    }
+    
+    protected Identifier createName(Object data) {
+	String name = ((Member)data).getName();
+	return Identifier.create(name);
     }
 
     /** Unsupported. Throws SourceException.

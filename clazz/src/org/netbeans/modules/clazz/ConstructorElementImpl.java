@@ -64,11 +64,23 @@ class ConstructorElementImpl extends MemberElementImpl
                 // create method parameter
                 parameters[i] = new MethodParameter(
                                     "", Type.createFromClass(curPar), // NOI18N
-                                    (curPar.getModifiers() & Modifier.FINAL) == 0
+				    // no idea whether the parameter was really specified as final or not.
+                                    false
                                 );
             }
         }
         return parameters;
+    }
+    
+    protected Identifier createName(Object data) {
+	if (this instanceof MethodElementImpl) {
+	    return super.createName(data);
+	}
+	String n = ((Member)data).getName();
+	int lastDollar = n.lastIndexOf('$'); // NOI18N
+	return lastDollar == -1 ? 
+	    Identifier.create(n) :
+	    Identifier.create(n.substring(lastDollar + 1));
     }
 
     /** Unsupported, throws SourceException
