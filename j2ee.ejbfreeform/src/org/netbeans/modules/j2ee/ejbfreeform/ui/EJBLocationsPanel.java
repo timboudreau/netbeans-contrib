@@ -15,6 +15,8 @@ package org.netbeans.modules.j2ee.ejbfreeform.ui;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,11 +30,14 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.queries.CollocationQuery;
 import org.netbeans.modules.ant.freeform.spi.ProjectPropertiesPanel;
 import org.netbeans.modules.ant.freeform.spi.support.Util;
+import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
+import org.netbeans.modules.j2ee.dd.api.ejb.EjbJar;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eePlatform;
 import org.netbeans.modules.j2ee.ejbfreeform.EJBProjectGenerator;
 import org.netbeans.modules.j2ee.ejbjarproject.ui.customizer.EjbJarProjectProperties;
+import org.openide.ErrorManager;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -41,6 +46,7 @@ import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.WizardDescriptor;
+import org.openide.filesystems.FileObject;
 
 
 /**
@@ -62,6 +68,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     private ChangeListener listener;
     private DocumentListener documentListener;
     
+    private BigDecimal ejbJarXmlVersion;
+    
     private static final String J2EE_SPEC_14_LABEL = NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_0"); //NOI18N
     private static final String J2EE_SPEC_13_LABEL = NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_1"); //NOI18N
     
@@ -70,7 +78,7 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         this.listener = panel;
         initComponents();
         initServerInstances();
-
+        
         documentListener = new DocumentListener() {           
             public void insertUpdate(DocumentEvent e) {
                 update(e);
@@ -115,6 +123,7 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     }
     
     private void update(DocumentEvent e) {
+        setEjbJarXmlJ2eeVersion(findEbjJarXml(getAsFile(jTextFieldConfigFiles.getText())));
         if (listener != null) {
             listener.stateChanged(null);
         }
@@ -164,6 +173,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         jLabel6 = new javax.swing.JLabel();
         resourcesTextField = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        warningLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -216,16 +227,20 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 11);
         add(jLabel5, gridBagConstraints);
+
+        j2eeSpecComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                j2eeSpecComboBoxActionPerformed(evt);
+            }
+        });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 11);
         add(j2eeSpecComboBox, gridBagConstraints);
         j2eeSpecComboBox.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(EJBLocationsPanel.class, "ACS_LBL_ConfigFilesPanel_J2EESpecLevel_A11YDesc"));
@@ -287,8 +302,39 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         add(jButton1, gridBagConstraints);
         jButton1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(EJBLocationsPanel.class, "ACS_LBL_ConfigFilesPanel_ResourceFolderBrowse_A11YDesc"));
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(jPanel1, gridBagConstraints);
+
+        warningLabel.setForeground(new java.awt.Color(89, 71, 191));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
+        add(warningLabel, gridBagConstraints);
+
     }
     // </editor-fold>//GEN-END:initComponents
+
+    private void j2eeSpecComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_j2eeSpecComboBoxActionPerformed
+        String selectedItem = (String)j2eeSpecComboBox.getSelectedItem();
+        String warningMessage = null;
+        
+        if (J2EE_SPEC_14_LABEL.equals(selectedItem) && new BigDecimal(EjbJar.VERSION_2_0).equals(ejbJarXmlVersion)) {
+            warningMessage = NbBundle.getMessage(EJBLocationsPanel.class, "MSG_EjbJarXmlUpdate");
+        }
+        
+        warningLabel.setText(warningMessage);
+    }//GEN-LAST:event_j2eeSpecComboBoxActionPerformed
 
     private void serverTypeComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_serverTypeComboBoxItemStateChanged
         String prevSelectedItem = (String)j2eeSpecComboBox.getSelectedItem();
@@ -338,9 +384,11 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField jTextFieldConfigFiles;
     private javax.swing.JTextField resourcesTextField;
     private javax.swing.JComboBox serverTypeComboBox;
+    private javax.swing.JLabel warningLabel;
     // End of variables declaration//GEN-END:variables
     
     private static JFileChooser createChooser(String path) {
@@ -482,7 +530,25 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
             EJBProjectGenerator.putEJBModules(projectHelper, aux, panel.getEJBModules());
             EJBProjectGenerator.putServerID(projectHelper, panel.getSelectedServerID());
             EJBProjectGenerator.putResourceFolder(projectHelper, panel.getResourcesFolder());
-            EJBProjectGenerator.putJ2EELevel(projectHelper, ((EJBProjectGenerator.EJBModule)panel.getEJBModules().get(0)).j2eeSpecLevel);
+            
+            String j2eeLevel = ((EJBProjectGenerator.EJBModule)panel.getEJBModules().get(0)).j2eeSpecLevel;
+            EJBProjectGenerator.putJ2EELevel(projectHelper, j2eeLevel);
+            
+            // update the DD to 2.1 if it is 2.0 and the user switched to J2EE 1.4
+            String configFiles = ((EJBProjectGenerator.EJBModule)panel.getEJBModules().get(0)).configFiles;
+            FileObject ejbJarXml = findEbjJarXml(panel.getConfigFilesLocation());
+            try {
+                if (j2eeLevel.equals("1.4") && !new BigDecimal(EjbJar.VERSION_2_1).equals(getEjbJarXmlVersion(ejbJarXml))) { // NOI18N
+                    EjbJar root = DDProvider.getDefault().getDDRoot(ejbJarXml);
+                    root.setVersion(new BigDecimal(EjbJar.VERSION_2_1));
+                    root.write(ejbJarXml);
+                }
+            }
+            catch (IOException e) {
+                final ErrorManager errorManager = ErrorManager.getDefault();
+                String message = NbBundle.getMessage(EJBLocationsPanel.class, "MSG_EjbJarXmlCorrupted");
+                errorManager.notify(errorManager.annotate(e, message));
+            }
         }
         
         public String getDisplayName() {
@@ -582,5 +648,41 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
 
         wizardDescriptor.putProperty("WizardPanel_errorMessage", ""); //NOI18N
         return true;
+    }
+    
+    public static FileObject findEbjJarXml(File configFolder) {
+        FileObject confFolderFo = FileUtil.toFileObject(configFolder);
+        FileObject ejbJarXml = null;
+        if (confFolderFo != null) {
+             ejbJarXml = confFolderFo.getFileObject("ejb-jar.xml"); // NOI18N
+        }
+        return ejbJarXml;
+    }
+    
+    public static BigDecimal getEjbJarXmlVersion(FileObject ejbJarXml) throws IOException {
+        if (ejbJarXml != null) {
+            return DDProvider.getDefault().getDDRoot(ejbJarXml).getVersion();
+        } else {
+            return null;
+        }
+    }
+    
+    private void setEjbJarXmlJ2eeVersion(FileObject ejbJarXml) {
+        try {
+            BigDecimal version = getEjbJarXmlVersion(ejbJarXml);
+            ejbJarXmlVersion = version;
+            if (version == null)
+                return;
+            
+            if(new BigDecimal(EjbJar.VERSION_2_0).equals(version)) {
+                j2eeSpecComboBox.setSelectedItem(J2EE_SPEC_13_LABEL);
+            } else if(new BigDecimal(EjbJar.VERSION_2_1).equals(version)) {
+                j2eeSpecComboBox.setSelectedItem(J2EE_SPEC_14_LABEL);
+            }
+        } catch (IOException e) {
+            final ErrorManager errorManager = ErrorManager.getDefault();
+            String message = NbBundle.getMessage(EJBLocationsPanel.class, "MSG_EjbJarXmlCorrupted");
+            errorManager.notify(errorManager.annotate(e, message));
+        }
     }
 }

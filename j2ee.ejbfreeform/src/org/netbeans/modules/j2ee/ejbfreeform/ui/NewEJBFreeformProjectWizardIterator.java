@@ -16,6 +16,7 @@ package org.netbeans.modules.j2ee.ejbfreeform.ui;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,13 +112,20 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
                     if (imp != null) {
                         FileObject ejbJarFile = imp.getDeploymentDescriptor();
                         EjbJar dd = DDProvider.getDefault().getDDRoot(ejbJarFile);
-                        if (null != dd) {
-                            String dispName = dd.getDefaultDisplayName();
-                            if (null == dispName || dispName.trim().length() == 0) {
-                                dd.setDisplayName(helper.getProjectDirectory().getName());
-                                dd.write(ejbJarFile);
-                            }
+                        boolean write = false;
+                        // set the DD display name if there is none
+                        String dispName = dd.getDefaultDisplayName();
+                        if (null == dispName || dispName.trim().length() == 0) {
+                            dd.setDisplayName(helper.getProjectDirectory().getName());
+                            write = true;
                         }
+                        // update the DD to 2.1 if it is 2.0 and the user chose J2EE 1.4
+                        if (j2eeLevel.equals("1.4") && !new BigDecimal(EjbJar.VERSION_2_1).equals(dd.getVersion())) { // NOI18N
+                            dd.setVersion(new BigDecimal(EjbJar.VERSION_2_1));
+                            write = true;
+                        }
+                        if (write)
+                            dd.write(ejbJarFile);
                     }
                     
                     ProjectManager.getDefault().saveProject(p);
