@@ -36,9 +36,11 @@ import javax.swing.SwingUtilities;
 
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
+import org.openide.filesystems.FileAlreadyLockedException;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 
 import org.netbeans.api.diff.Difference;
 import org.netbeans.api.diff.StreamSource;
@@ -100,8 +102,23 @@ public class PvcsResolveConflicts implements VcsAdditionalCommand {
                         return false;
                     }
                 }
+                FileLock lock;
                 try {
-                    handleMergeFor(file, fo, merge);
+                    if (fo != null) {
+                        lock = fo.lock();
+                    } else {
+                        lock = null;
+                    }
+                } catch (IOException ioex) {
+                    if (ioex instanceof FileAlreadyLockedException) {
+                        ErrorManager.getDefault().notify(ErrorManager.USER,
+                                ErrorManager.getDefault().annotate(ioex,
+                                NbBundle.getMessage(PvcsResolveConflicts.class, "MergedFileLocked", fo.getNameExt())));
+                    }
+                    continue;
+                }
+                try {
+                    handleMergeFor(file, fo, lock, merge);
                 } catch (IOException ioex) {
                     org.openide.ErrorManager.getDefault().notify(ioex);
                 }
@@ -110,7 +127,8 @@ public class PvcsResolveConflicts implements VcsAdditionalCommand {
         return true;
     }
     
-    private void handleMergeFor(final File file, FileObject fo, final MergeVisualizer merge) throws IOException {
+    private void handleMergeFor(final File file, FileObject fo, FileLock lock,
+                                final MergeVisualizer merge) throws IOException {
         if (!file.exists()) {
             DialogDisplayer.getDefault ().notify (new org.openide.NotifyDescriptor.Message(
                 org.openide.util.NbBundle.getMessage(PvcsResolveConflicts.class, "NoConflictsInFile", file)));
@@ -163,7 +181,7 @@ public class PvcsResolveConflicts implements VcsAdditionalCommand {
         final StreamSource result = new MergeResultWriterInfo(f1, f2, f3, file, mimeType,
                                                               originalLeftFileRevision,
                                                               originalRightFileRevision,
-                                                              fo, encoding);
+                                                              fo, lock, encoding);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 try {
@@ -290,7 +308,7 @@ public class PvcsResolveConflicts implements VcsAdditionalCommand {
         public MergeResultWriterInfo(File tempf1, File tempf2, File tempf3,
                                      File outputFile, String mimeType,
                                      String leftFileRevision, String rightFileRevision,
-                                     FileObject fo, String encoding) {
+                                     FileObject fo, FileLock lock, String encoding) {
             this.tempf1 = tempf1;
             this.tempf2 = tempf2;
             this.tempf3 = tempf3;
@@ -299,12 +317,7 @@ public class PvcsResolveConflicts implements VcsAdditionalCommand {
             this.leftFileRevision = leftFileRevision;
             this.rightFileRevision = rightFileRevision;
             this.fo = fo;
-            if (fo != null) {
-                try {
-                    // Lock the file, so that nobody can overwrite it during the merge process.
-                    lock = fo.lock();
-                } catch (IOException ioex) {}
-            }
+            this.lock = lock;
             if (encoding == null) {
                 encoding = EncodedReaderFactory.getDefault().getEncoding(tempf1);
             }
