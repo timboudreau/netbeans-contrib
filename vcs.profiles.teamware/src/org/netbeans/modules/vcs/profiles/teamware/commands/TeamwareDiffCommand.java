@@ -16,35 +16,21 @@
 
 package org.netbeans.modules.vcs.profiles.teamware.commands;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Hashtable;
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.ListSelectionModel;
-
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
-import org.openide.windows.TopComponent;
 
 import org.netbeans.api.diff.Diff;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
-import org.netbeans.modules.vcscore.commands.TextOutputListener;
-import org.netbeans.modules.vcscore.commands.VcsCommand;
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
+import org.openide.windows.TopComponent;
 
 public class TeamwareDiffCommand implements VcsAdditionalCommand {
 
