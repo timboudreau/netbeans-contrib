@@ -41,6 +41,14 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
 
     <folder name="Menu">
+        <folder name="Window">
+            <attr name="oldRootsEnd.txt/TaskList" boolvalue="true" />
+            <folder name="TaskList">
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/openide/resources/actions/empty.gif" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.core.Bundle"/>
+            </folder>
+            <attr name="Form/Debugger" boolvalue="true" />
+        </folder>
         <folder name="Help">
             <folder name="HelpShortcuts">
                 <attr name="org-netbeans-modules-usersguide-sep.instance/org-netbeans-modules-tasklist-mainpage.xml" boolvalue="true"/>
