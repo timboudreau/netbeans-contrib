@@ -9,3 +9,6 @@ Name: com/netbeans/enterprise/modules/vcs/cmdline/CommandLineVcsFileSystem.class
 OpenIDE-Module-Class: Filesystem
 Display-Name: Generic Version Control System
 
+Name: com/netbeans/enterprise/modules/vcs/starteam/StarTeamFileSystem.class
+Display-Name: Star Team VCS
+OpenIDE-Module-Class: Filesystem
