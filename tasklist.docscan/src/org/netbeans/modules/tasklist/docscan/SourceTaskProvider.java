@@ -70,7 +70,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 public class SourceTaskProvider extends DocumentSuggestionProvider
     implements PropertyChangeListener {
 
-    final private static String TYPE = "nb-tasklist-scannedtask"; // NOI18N
+    final static String TYPE = "nb-tasklist-scannedtask"; // NOI18N
 
     private SuggestionContext env;
 

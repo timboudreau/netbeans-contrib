@@ -41,7 +41,7 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @author Petr Kuzel
  */
-final class SourceTasksView extends TaskListView implements SourceTasksAction.ScanProgressMonitor {
+final class SourceTasksView extends TaskListView implements SourceTasksAction.ScanProgressMonitor, SuggestionView {
 
     final static String CATEGORY = "sourcetasks"; // NOI18N
 
@@ -400,6 +400,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         } catch (InterruptedException ignore) {
         } catch (InvocationTargetException ignore) {
         }
+    }
+
+    public boolean isObserved(String category) {
+        return isShowing() && SourceTaskProvider.TYPE.equals(category);
     }
 
 }

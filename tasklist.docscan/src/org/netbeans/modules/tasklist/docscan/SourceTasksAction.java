@@ -32,6 +32,7 @@ import org.netbeans.modules.tasklist.core.TaskList;
 import org.netbeans.modules.tasklist.suggestions.SuggestionManagerImpl;
 import org.netbeans.modules.tasklist.suggestions.SuggestionList;
 import org.netbeans.modules.tasklist.suggestions.ScanSuggestionsAction;
+import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 
 /**
  * Opens window with scanned project source tasks.
@@ -45,6 +46,14 @@ public class SourceTasksAction extends CallableSystemAction {
     }
 
     public void performAction() {
+
+        SuggestionManagerImpl manager = (SuggestionManagerImpl)
+            SuggestionManager.getDefault();
+
+        if (false == manager.isEnabled(SourceTaskProvider.TYPE)) {
+            manager.setEnabled(SourceTaskProvider.TYPE, true, true);
+        }
+
         final SuggestionList list = new SourceTasksList();
         // The category should be DIFFERENT from the category used
         // for the default suggestion view (the active scanning view)

@@ -1,11 +1,11 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -21,8 +21,10 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TLUtils;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -80,8 +82,8 @@ import org.openide.windows.Workspace;
 
 
 final public class SuggestionManagerImpl extends SuggestionManager
-    implements DocumentListener, CaretListener, ComponentListener,
-               PropertyChangeListener {
+        implements DocumentListener, CaretListener, ComponentListener,
+        PropertyChangeListener {
 
     private final boolean stats = System.getProperty("netbeans.tasklist.stats") != null;
 
@@ -109,7 +111,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         // keep that bad MacOS habit, did it?
         if (summary.indexOf('\n') != -1) {
             int n = summary.length();
-            StringBuffer sb = new StringBuffer(2*n); // worst case
+            StringBuffer sb = new StringBuffer(2 * n); // worst case
             for (int i = 0; i < n; i++) {
                 char c = summary.charAt(i);
                 if (c == '\n') {
@@ -124,14 +126,14 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
         SuggestionType st = SuggestionTypes.getTypes().getType(type);
         if (st == null) {
-            throw new IllegalArgumentException("type " + st + 
-                                               " is not registered");
+            throw new IllegalArgumentException("type " + st +
+                    " is not registered");
         }
         SuggestionImpl s = new SuggestionImpl(summary, st,
-                                              action, data);
+                action, data);
         return s;
     }
-    
+
     /**
      * Return true iff the user appears to be "reading" the
      * suggestions. This means it will return false if the
@@ -146,36 +148,40 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * fixed in tasklist version 24.0 when we have eye scanning
      * hardware and access-APIs.)
      * <p>
+     * {@link SuggestionView} for details.
      *
      * @param id The String id of the Suggestion Type we're
      *    interested in. You may pass null to ask about any/all
      *    Suggestion Types. See the {@link Suggestion} documentation
-          for how Suggestion Types are registered and named.
+     for how Suggestion Types are registered and named.
      *
      * @return True iff the suggestions are observed by the user.
      */
     public boolean isObserved(String id) {
-	TaskListView view = 
-	    TaskListView.getTaskListView(SuggestionsView.CATEGORY); // NOI18N
-        if (view == null) {
-            return false;
+        TopComponent.Registry registry = TopComponent.getRegistry();
+        Set opened = registry.getOpened();
+        Iterator it = opened.iterator();
+        while (it.hasNext()) {
+            TopComponent next = (TopComponent) it.next();
+            if (next instanceof SuggestionView) {
+                SuggestionView view = (SuggestionView) next;
+                if (view.isObserved(id)) return true;
+            }
         }
-        // TODO: Check if there are filters on the view, and if so,
-        // return something appropriate.
-        return view.isShowing();
+        return false;
     }
 
     private void updateCategoryCount(SuggestionImpl category, boolean sizeKnown) {
         SuggestionType type = category.getSType();
         int count = category.hasSubtasks() ?
-            category.getSubtasks().size() : 0;
-	String summary;
+                category.getSubtasks().size() : 0;
+        String summary;
         if ((count != 0) || sizeKnown) {
             summary = type.getLocalizedName() + " (" + // NOI18N
-               Integer.toString(count) + ")"; // NOI18N
+                    Integer.toString(count) + ")"; // NOI18N
         } else {
             summary = type.getLocalizedName();
-	}
+        }
         category.setSummary(summary);
     }
 
@@ -186,26 +192,26 @@ final public class SuggestionManagerImpl extends SuggestionManager
     boolean prepared = false;
 
     /** When the Suggestions window is made visible, we notify all the
-        providers that they should run. But that's not correct if there
-        was a filter in effect when you left the window. Thus, we need to
-        check if a SuggestionProvider should be notified. Since I know
-        the filter accepts one and only one SuggestionProvider, for
-        performance reasons it's fastest to just remember which
-        SuggestionProvider is allowed-through. When null, it means there's
-        no filter in effect and all should pass through. */
+     providers that they should run. But that's not correct if there
+     was a filter in effect when you left the window. Thus, we need to
+     check if a SuggestionProvider should be notified. Since I know
+     the filter accepts one and only one SuggestionProvider, for
+     performance reasons it's fastest to just remember which
+     SuggestionProvider is allowed-through. When null, it means there's
+     no filter in effect and all should pass through. */
     SuggestionProvider unfiltered = null;
     /** When non null, a filter is in effect and only the unfilteredType
      * is showing. */
     SuggestionType unfilteredType = null;
-    
-    
+
+
     /** Called when the Suggestions View is opened */
     void notifyViewOpened() {
         if (!prepared) {
             List providers = getProviders();
             ListIterator it = providers.listIterator();
             while (it.hasNext()) {
-                SuggestionProvider provider = (SuggestionProvider)it.next();
+                SuggestionProvider provider = (SuggestionProvider) it.next();
                 provider.notifyPrepare();
             }
             prepared = true;
@@ -231,9 +237,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
             List providers = getProviders();
             ListIterator it = providers.listIterator();
             while (it.hasNext()) {
-                SuggestionProvider provider = (SuggestionProvider)it.next();
+                SuggestionProvider provider = (SuggestionProvider) it.next();
                 if ((unfiltered == null) ||
-                    (unfiltered == provider)) {
+                        (unfiltered == provider)) {
                     provider.notifyRun();
                 }
             }
@@ -248,15 +254,15 @@ final public class SuggestionManagerImpl extends SuggestionManager
             List providers = getProviders();
             ListIterator it = providers.listIterator();
             while (it.hasNext()) {
-                SuggestionProvider provider = (SuggestionProvider)it.next();
+                SuggestionProvider provider = (SuggestionProvider) it.next();
                 if ((unfiltered == null) ||
-                    (unfiltered == provider)) {
+                        (unfiltered == provider)) {
                     provider.notifyStop();
                 }
             }
             docStop();
             running = false;
-            
+
             // Get rid of suggestion cache?
             // Moved to notifyView Closed
             /*
@@ -276,7 +282,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             List providers = getProviders();
             ListIterator it = providers.listIterator();
             while (it.hasNext()) {
-                SuggestionProvider provider = (SuggestionProvider)it.next();
+                SuggestionProvider provider = (SuggestionProvider) it.next();
                 provider.notifyFinish();
             }
             prepared = false;
@@ -295,7 +301,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
     private List providers = null;
     private List docProviders = null; // subset of elements in providers; these implement DocumentSuggestionProvider
     private Map providersByType = null;
-    
+
     /** Return a list of the providers registered
      * @todo Filter out disabled providers
      */
@@ -304,33 +310,33 @@ final public class SuggestionManagerImpl extends SuggestionManager
             providers = new ArrayList(20);
             docProviders = new ArrayList(20);
             Lookup.Template template =
-                new Lookup.Template(SuggestionProvider.class);
+                    new Lookup.Template(SuggestionProvider.class);
             Iterator it = Lookup.getDefault().lookup(template).
-                allInstances().iterator();
+                    allInstances().iterator();
             // Two stage process so we can sort by priority
 
             ArrayList provList = new ArrayList(20);
             while (it.hasNext()) {
-                SuggestionProvider sp = (SuggestionProvider)it.next();
+                SuggestionProvider sp = (SuggestionProvider) it.next();
                 provList.add(sp);
             }
             SuggestionProvider[] provA =
-                (SuggestionProvider[])provList.toArray(
-                                  new SuggestionProvider[provList.size()]);
+                    (SuggestionProvider[]) provList.toArray(
+                            new SuggestionProvider[provList.size()]);
             final SuggestionTypes types = SuggestionTypes.getTypes();
             Arrays.sort(provA, new Comparator() {
-                    public int compare(Object o1, Object o2) {
-                        SuggestionProvider a = (SuggestionProvider)o1;
-                        SuggestionProvider b = (SuggestionProvider)o2;
-                        try {
-                            SuggestionType at = types.getType(a.getTypes()[0]);
-                            SuggestionType bt = types.getType(b.getTypes()[0]);
-                            return at.getPosition() - bt.getPosition();
-                        } catch (Exception e) {
-                            return -1;
-                        }
+                public int compare(Object o1, Object o2) {
+                    SuggestionProvider a = (SuggestionProvider) o1;
+                    SuggestionProvider b = (SuggestionProvider) o2;
+                    try {
+                        SuggestionType at = types.getType(a.getTypes()[0]);
+                        SuggestionType bt = types.getType(b.getTypes()[0]);
+                        return at.getPosition() - bt.getPosition();
+                    } catch (Exception e) {
+                        return -1;
                     }
-                });
+                }
+            });
             for (int i = 0; i < provA.length; i++) {
                 SuggestionProvider sp = provA[i];
                 providers.add(sp);
@@ -348,25 +354,25 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
         return docProviders;
     }
-    
-    
+
+
     private SuggestionList list = null;
 
     /**
-     * Return the TaskList that we're managing
+     * Return the live TaskList that we're managing
      */
     SuggestionList getList() {
         if (list == null) {
             TaskListView view =
-            TaskListView.getTaskListView(SuggestionsView.CATEGORY); // NOI18N
+                    TaskListView.getTaskListView(SuggestionsView.CATEGORY); // NOI18N
             if (view == null) {
-            view = new SuggestionsView();
-            // Let user open the window
-            //   TODO Find a way to manage the tasklist so that I -don't-
-            //   have to create it now; only when it's opened by the user!
-            //view.showInMode();
+                view = new SuggestionsView();
+                // Let user open the window
+                //   TODO Find a way to manage the tasklist so that I -don't-
+                //   have to create it now; only when it's opened by the user!
+                //view.showInMode();
             }
-            list = (SuggestionList)view.getList();
+            list = (SuggestionList) view.getList();
         }
         return list;
     }
@@ -408,13 +414,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
         ManagerSettings.getDefault().setEnabled(id, enabled);
 
-        // Enable/disable providers "live"        
+        // Enable/disable providers "live"
         toggleProvider(type, enabled);
 
         if (!dontSave) {
             writeTypeRegistry();
         }
-        
+
     }
 
     /** Enable/disable a provider identified by a type. The provider
@@ -445,10 +451,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
             provider.notifyRun();
 
             if ((document != null) &&
-                (provider instanceof DocumentSuggestionProvider)) {
+                    (provider instanceof DocumentSuggestionProvider)) {
                 SuggestionContext env = SPIHole.createSuggestionContext(dataobject);
-                ((DocumentSuggestionProvider)provider).docShown(env);
-                ((DocumentSuggestionProvider)provider).rescan(env, currRequest);
+                ((DocumentSuggestionProvider) provider).docShown(env);
+                ((DocumentSuggestionProvider) provider).rescan(env, currRequest);
             }
         } else {
             if (!allTypes) {
@@ -463,16 +469,16 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     }
                 }
             }
-            
+
             // Remove suggestions of this type
             if (provider instanceof DocumentSuggestionProvider) {
                 SuggestionContext env = SPIHole.createSuggestionContext(dataobject);
-                ((DocumentSuggestionProvider)provider).clear(env, currRequest);
-                ((DocumentSuggestionProvider)provider).docHidden(env);
+                ((DocumentSuggestionProvider) provider).clear(env, currRequest);
+                ((DocumentSuggestionProvider) provider).docHidden(env);
             }
             provider.notifyStop();
             provider.notifyFinish();
-            
+
             String typeNames[] = provider.getTypes();
             for (int j = 0; j < typeNames.length; j++) {
                 if (isEnabled(typeNames[j])) {
@@ -497,7 +503,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
      *    {@link Suggestion} documentation for how Suggestion Types
      *    are registered and named.
      *
-     * @return True iff the given suggestion type should have a 
+     * @return True iff the given suggestion type should have a
      *    confirmation dialog.
      */
     public synchronized boolean isConfirm(SuggestionType type) {
@@ -523,7 +529,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             writeTypeRegistry();
         }
     }
-    
+
     /** Notify the SuggestionManager that a particular category filter
      * is in place.
      *
@@ -546,17 +552,17 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 Collection types = SuggestionTypes.getTypes().getAllTypes();
                 Iterator it = types.iterator();
                 while (it.hasNext()) {
-                    SuggestionType t = (SuggestionType)it.next();
+                    SuggestionType t = (SuggestionType) it.next();
                     ArrayList list = new ArrayList(100);
                     Iterator all = allTasks.iterator();
-                    SuggestionImpl category = 
-                        tasklist.getCategoryTask(t, false);
+                    SuggestionImpl category =
+                            tasklist.getCategoryTask(t, false);
                     tasklist.removeCategory(category, true);
                     while (all.hasNext()) {
-                        SuggestionImpl sg = (SuggestionImpl)all.next();
+                        SuggestionImpl sg = (SuggestionImpl) all.next();
                         if (sg.getSType() == t) {
                             if ((sg == category) &&
-                                sg.hasSubtasks()) { // category node
+                                    sg.hasSubtasks()) { // category node
                                 list.addAll(sg.getSubtasks());
                             } else {
                                 list.add(sg);
@@ -577,11 +583,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
             List group = null;
             SuggestionType prevType = null;
             while (it.hasNext()) {
-                SuggestionImpl s = (SuggestionImpl)it.next();
+                SuggestionImpl s = (SuggestionImpl) it.next();
                 if (s.getSType() != prevType) {
                     if (group != null) {
-                        register(prevType.getName(), group, null, 
-                                 tasklist, null, true);
+                        register(prevType.getName(), group, null,
+                                tasklist, null, true);
                         group.clear();
                     } else {
                         group = new ArrayList(50);
@@ -592,7 +598,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
             if ((group != null) && (group.size() > 0)) {
                 register(prevType.getName(), group, null, tasklist, null,
-                         true);
+                        true);
             }
         }
 
@@ -607,7 +613,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
-            SuggestionProvider provider = (SuggestionProvider)it.next();
+            SuggestionProvider provider = (SuggestionProvider) it.next();
 
             // XXX This will process diabled providers/types as well!
             String typeNames[] = provider.getTypes();
@@ -629,10 +635,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
                         SuggestionType sg = suggestionTypes.getType(typeNames[0]);
                         toggleProvider(provider, sg, true, true);
                     } // else:
-                      // The provider is already enabled - we're coming
-                      // from an unfiltered view (and disabled providers
-                      // in an unfiltered view shouldn't be available as
-                      // filter categories)
+                    // The provider is already enabled - we're coming
+                    // from an unfiltered view (and disabled providers
+                    // in an unfiltered view shouldn't be available as
+                    // filter categories)
                 } else {
                     SuggestionType sg = suggestionTypes.getType(typeNames[0]);
                     toggleProvider(provider, sg, false, true);
@@ -677,7 +683,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             // providers
             ListIterator it = providers.listIterator();
             while (it.hasNext()) {
-                SuggestionProvider provider = (SuggestionProvider)it.next();
+                SuggestionProvider provider = (SuggestionProvider) it.next();
                 String typeNames[] = provider.getTypes();
                 if (typeNames == null) {
                     // Should I just let a NullPointerException occur instead?
@@ -691,7 +697,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 }
             }
         }
-        return (SuggestionProvider)providersByType.get(type);
+        return (SuggestionProvider) providersByType.get(type);
     }
 
 
@@ -729,10 +735,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
     /** Iterate over the folder recursively (optional) and scan all files.
-        We skip CVS and SCCS folders intentionally. Would be nice if
-        the filesystem hid these things from us. */
+     We skip CVS and SCCS folders intentionally. Would be nice if
+     the filesystem hid these things from us. */
     public final void scan(DataObject.Container[] folders, SuggestionList list,
-	boolean recursive) {
+                           boolean recursive) {
         // package-private instead of private for the benefit of the testsuite
         for (int i = 0; i < folders.length; i++) {
             if (Thread.interrupted()) return;
@@ -740,7 +746,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             scanFolder(folder, recursive, list);
         }
     }
-    
+
     private void scanFolder(DataObject.Container folder, boolean recursive, SuggestionList list) {
         DataObject[] children = folder.getChildren();
         for (int i = 0; i < children.length; i++) {
@@ -749,10 +755,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
             DataObject f = children[i];
             if (f instanceof DataObject.Container) {
-		if (!recursive) {
-		    continue;
-		}
-		
+                if (!recursive) {
+                    continue;
+                }
+
                 //XXX Skip CVS and SCCS folders
                 String name = f.getPrimaryFile().getNameExt();
                 if ("CVS".equals(name) || "SCCS".equals(name)) { // NOI18N
@@ -761,15 +767,15 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
                 if (progressMonitor == null) {
                     // XXX stil strange that possibly backgournd process writes directly to UI
-                    StatusDisplayer.getDefault ().setStatusText(
-                       NbBundle.getMessage(ScanSuggestionsAction.class,
-                                        "ScanningFolder",  // NOI18N
-                                           f.getPrimaryFile().getNameExt()));
+                    StatusDisplayer.getDefault().setStatusText(
+                            NbBundle.getMessage(ScanSuggestionsAction.class,
+                                    "ScanningFolder", // NOI18N
+                                    f.getPrimaryFile().getNameExt()));
                 } else {
                     progressMonitor.folderEntered(f.getPrimaryFile());
                 }
 
-                scanFolder((DataObject.Container)f, true, list); // recurse!
+                scanFolder((DataObject.Container) f, true, list); // recurse!
                 if (progressMonitor != null) {
                     progressMonitor.folderScanned(f.getPrimaryFile());
                 }
@@ -782,7 +788,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 }
 
                 EditorCookie edit =
-                    (EditorCookie)f.getCookie(EditorCookie.class);
+                        (EditorCookie) f.getCookie(EditorCookie.class);
                 if (edit == null) {
                     continue;
                 }
@@ -791,10 +797,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
                 if (progressMonitor == null) {
                     // XXX stil strange that possibly backgournd process writes directly to UI
-                    StatusDisplayer.getDefault ().setStatusText(
-                       NbBundle.getMessage(ScanSuggestionsAction.class,
-                                           "ScanningFile", // NOI18N
-                                           f.getPrimaryFile().getNameExt()));
+                    StatusDisplayer.getDefault().setStatusText(
+                            NbBundle.getMessage(ScanSuggestionsAction.class,
+                                    "ScanningFile", // NOI18N
+                                    f.getPrimaryFile().getNameExt()));
                 }
 
                 scanLeaf(list, env);
@@ -810,23 +816,23 @@ final public class SuggestionManagerImpl extends SuggestionManager
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             if (Thread.currentThread().isInterrupted()) return;
-            SuggestionProvider provider = (SuggestionProvider)it.next();
+            SuggestionProvider provider = (SuggestionProvider) it.next();
             if (((unfiltered == null) ||
-            (unfiltered == provider)) &&
-            (provider instanceof DocumentSuggestionProvider)) {
-                List l = ((DocumentSuggestionProvider)provider).scan(env);
+                    (unfiltered == provider)) &&
+                    (provider instanceof DocumentSuggestionProvider)) {
+                List l = ((DocumentSuggestionProvider) provider).scan(env);
                 if (l != null) {
                     // XXX ensure that scan returns a homogeneous list of tasks
                     register(provider.getTypes()[0], l, null, list, null,
-                             true);
+                            true);
                 }
             }
         }
     }
-    
+
     List erase = null;
     List origIcon = null;
-    
+
     /** Set a series of suggestions as highlighted. Or, clear the current
      * selection of highlighted nodes.
      * <p>
@@ -838,7 +844,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
      *
      */
     private void highlightNode(SuggestionsView view, Node node, Line line) {
-        SuggestionImpl s = (SuggestionImpl)TaskNode.getTask(node);
+        SuggestionImpl s = (SuggestionImpl) TaskNode.getTask(node);
         if (s.getLine() == line) {
             if (erase == null) {
                 origIcon = new ArrayList(20);
@@ -848,7 +854,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             //s.setHighlighted(true);
             Image badge = Utilities.loadImage("org/netbeans/modules/tasklist/suggestions/badge.gif"); // NOI18N
             Image image = Utilities.mergeImages(s.getIcon(), badge,
-            0, 0);
+                    0, 0);
             s.setIcon(image);
             erase.add(s);
         }
@@ -867,7 +873,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
     Line prevLine = null;
 
     /**
-     * Set the current cursor line to the given line position. 
+     * Set the current cursor line to the given line position.
      * Suggestions on the given line will be highlighted.
      *
      * @param line The current line of the cursor.
@@ -880,19 +886,19 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
         // Clear out previously highlighted items
         if (erase != null) {
-             Iterator it = erase.iterator();
-             Iterator itorig = origIcon.iterator();
-             while (it.hasNext()) {
-                 SuggestionImpl s = (SuggestionImpl)it.next();
-                 Image icon = (Image)itorig.next();
-                 s.setIcon(icon);
-                 //s.setHighlighted(false);
-             }
+            Iterator it = erase.iterator();
+            Iterator itorig = origIcon.iterator();
+            while (it.hasNext()) {
+                SuggestionImpl s = (SuggestionImpl) it.next();
+                Image icon = (Image) itorig.next();
+                s.setIcon(icon);
+                //s.setHighlighted(false);
+            }
         }
         erase = null;
         origIcon = null;
 
-        
+
         if (line == null) {
             // Prevent line==null from highlighting all suggestions
             // without an associated line position...
@@ -905,7 +911,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             highlightNode(view, node, line);
         }
     }
-    
+
 
     // Consult super for correct javadoc
     public void register(String type, List add, List remove, Object request) {
@@ -922,13 +928,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
     }
 
-    public synchronized void register(String typeName, 
+    public synchronized void register(String typeName,
                                       List addList, List removeList,
                                       SuggestionList tasklist,
                                       Object request,
                                       boolean sizeKnown) {
         //System.err.println("register(" + typeName + ", " + addList +
-        //                   ", " + removeList + "," + tasklist + ", " + 
+        //                   ", " + removeList + "," + tasklist + ", " +
         //                   request + ", " + sizeKnown + ")");
 
         if ((request != null) && (request != currRequest)) {
@@ -959,10 +965,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
             first = (Suggestion)addList.get(0);
         } else if ((removeList != null) && (removeList.size() > 0)) {
             first = (Suggestion)removeList.get(0);
-        } 
+        }
         if ((cache != null) && (first != null)) {
             provider = first.getProvider();
-            if ((provider != null) && 
+            if ((provider != null) &&
                 (provider instanceof DocumentSuggestionProvider)) {
                 Line l = first.getLine();
                 if (l != null) {
@@ -974,13 +980,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
         }
         */
-        
+
 
         // Must iterate over the list repeatedly, if it contains
         // multiple types
         boolean split = (type == null);
-        ListIterator ita = null; 
-        ListIterator itr = null; 
+        ListIterator ita = null;
+        ListIterator itr = null;
         if (split) {
             List allAdds = addList;
             List allRems = removeList;
@@ -995,155 +1001,155 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
         while (true) {
 
-        // Populate the list with the next homogeneous subset of the
-        // same type
-        if (split) {
-            if ((ita != null) && (ita.hasNext())) {
-                addList.clear(); // setSize(0); ?
-                type = null;
-                while (ita.hasNext()) {
-                    SuggestionImpl s = (SuggestionImpl)ita.next();
-                    if (type == null) {
-                        type = s.getSType();
-                    } else if (s.getSType() != type) {
-                        ita.previous(); // undo advance
-                        break;
+            // Populate the list with the next homogeneous subset of the
+            // same type
+            if (split) {
+                if ((ita != null) && (ita.hasNext())) {
+                    addList.clear(); // setSize(0); ?
+                    type = null;
+                    while (ita.hasNext()) {
+                        SuggestionImpl s = (SuggestionImpl) ita.next();
+                        if (type == null) {
+                            type = s.getSType();
+                        } else if (s.getSType() != type) {
+                            ita.previous(); // undo advance
+                            break;
+                        }
+                        addList.add(s);
                     }
-                    addList.add(s);
+                } else {
+                    addList = null;
                 }
+
+                if ((itr != null) && (itr.hasNext())) {
+                    removeList.clear();
+                    type = null;
+                    while (itr.hasNext()) {
+                        SuggestionImpl s = (SuggestionImpl) itr.next();
+                        if (type == null) {
+                            type = s.getSType();
+                        } else if (s.getSType() != type) {
+                            itr.previous(); // undo advance
+                            break;
+                        }
+                        removeList.add(s);
+                    }
+                } else {
+                    removeList = null;
+                }
+
+                if ((addList == null) && (removeList == null)) {
+                    break;
+                }
+            }
+
+            SuggestionImpl category = tasklist.getCategoryTask(type, false);
+
+
+            // XXX [PERFORMANCE] Later I can compute the type more quickly
+            // than this - instead of counting each time, keep a count,
+            // stored in a hashmap (I already have a type registry. Just watch
+            // out and remember that because of the Directory Scanning action,
+            // you can have multiple clients of the type registry.
+            int currnum = 0;
+            if (category != null) {
+                currnum = category.getSubtasks().size();
             } else {
-                addList = null;
-            }
-
-            if ((itr != null) && (itr.hasNext())) {
-                removeList.clear();
-                type = null;
-                while (itr.hasNext()) {
-                    SuggestionImpl s = (SuggestionImpl)itr.next();
-                    if (type == null) {
-                        type = s.getSType();
-                    } else if (s.getSType() != type) {
-                        itr.previous(); // undo advance
-                        break;
-                    }
-                    removeList.add(s);
-                }
-            } else {
-                removeList = null;
-            }
-
-            if ((addList == null) && (removeList == null)) {
-                break;
-            }
-        }
-
-        SuggestionImpl category = tasklist.getCategoryTask(type, false);
-
-
-        // XXX [PERFORMANCE] Later I can compute the type more quickly
-        // than this - instead of counting each time, keep a count,
-        // stored in a hashmap (I already have a type registry. Just watch
-        // out and remember that because of the Directory Scanning action,
-        // you can have multiple clients of the type registry.
-        int currnum = 0;
-        if (category != null) {
-            currnum = category.getSubtasks().size();
-        } else {
-            if (tasklist.getTasks() != null) {
-                Iterator it = tasklist.getTasks().iterator();
-                while (it.hasNext()) {
-                    SuggestionImpl s = (SuggestionImpl)it.next();
-                    if (s.getSType() == type) {
-                        currnum++;
-                    }
-                }
-            }
-        }
-        int addnum = (addList != null) ? addList.size() : 0;
-        int remnum = (removeList != null) ? removeList.size() : 0;
-        // Assume no stupidity like overlaps in tasks between the lists
-        int newSize = currnum + addnum - remnum;
-        if ((newSize > tasklist.getGroupTreshold()) && (unfilteredType == null)) {
-            // TODO - show the first MAX_INLINE-1 "inlined", followed by the
-            // category node? Or hide all below the category node? For now,
-            // doing the latter since it's a lot easier.
-
-            if (category == null) {
-                // Now should have subtasks, but previously we didn't;
-                // remove the tasks from the top list
-                category = tasklist.getCategoryTask(type, true);
-                synchronized(this) {
-                    List leftover = null;
-                    if (removeList != null) {
-                        tasklist.addRemove(null, removeList, true, null, null);
-                    }
-                    if (currnum-remnum > 0) {
-                        leftover = new ArrayList(currnum);
-                        Iterator it = tasklist.getTasks().iterator();
-                        while (it.hasNext()) {
-                            SuggestionImpl s = (SuggestionImpl)it.next();
-                            if ((s.getSType() == type) &&
-                                (s != category)) {
-                                leftover.add(s);
-                            }
+                if (tasklist.getTasks() != null) {
+                    Iterator it = tasklist.getTasks().iterator();
+                    while (it.hasNext()) {
+                        SuggestionImpl s = (SuggestionImpl) it.next();
+                        if (s.getSType() == type) {
+                            currnum++;
                         }
                     }
-                    if ((leftover != null) && (leftover.size() > 0)) {
-                        tasklist.addRemove(null, leftover, false, null, null);
-                        tasklist.addRemove(leftover, null, true, category, null);
-                    }
-                    tasklist.addRemove(addList, null, true, category, null);
                 }
+            }
+            int addnum = (addList != null) ? addList.size() : 0;
+            int remnum = (removeList != null) ? removeList.size() : 0;
+            // Assume no stupidity like overlaps in tasks between the lists
+            int newSize = currnum + addnum - remnum;
+            if ((newSize > tasklist.getGroupTreshold()) && (unfilteredType == null)) {
+                // TODO - show the first MAX_INLINE-1 "inlined", followed by the
+                // category node? Or hide all below the category node? For now,
+                // doing the latter since it's a lot easier.
+
+                if (category == null) {
+                    // Now should have subtasks, but previously we didn't;
+                    // remove the tasks from the top list
+                    category = tasklist.getCategoryTask(type, true);
+                    synchronized (this) {
+                        List leftover = null;
+                        if (removeList != null) {
+                            tasklist.addRemove(null, removeList, true, null, null);
+                        }
+                        if (currnum - remnum > 0) {
+                            leftover = new ArrayList(currnum);
+                            Iterator it = tasklist.getTasks().iterator();
+                            while (it.hasNext()) {
+                                SuggestionImpl s = (SuggestionImpl) it.next();
+                                if ((s.getSType() == type) &&
+                                        (s != category)) {
+                                    leftover.add(s);
+                                }
+                            }
+                        }
+                        if ((leftover != null) && (leftover.size() > 0)) {
+                            tasklist.addRemove(null, leftover, false, null, null);
+                            tasklist.addRemove(leftover, null, true, category, null);
+                        }
+                        tasklist.addRemove(addList, null, true, category, null);
+                    }
+                } else {
+                    // Updating tasks within the category node
+                    tasklist.addRemove(addList, removeList, false, category, null);
+                }
+
+                // Leave category task around? Or simply make it invisible?
+                // (Need new Task attribute and appropriate handling in filter
+                // and export methods.)    By leaving it around, we don't reorder
+                // the tasks on the user.
+                //tasklist.removeCategory((SuggestionImpl)suggestions.get(0).getParent(), false);
+                updateCategoryCount(category, sizeKnown); // TODO: skip this when filtered
             } else {
-                // Updating tasks within the category node
-                tasklist.addRemove(addList, removeList, false, category, null);
+                SuggestionImpl after = tasklist.findAfter(type);
+                if (category == null) {
+                    // Didn't have category nodes before and don't need to
+                    // now either...
+                    boolean append = (after != null);
+                    tasklist.addRemove(addList, removeList, append, null, after);
+                } else {
+                    // Had category nodes before but don't need them anymore...
+                    // remove the tasks from the top list
+                    synchronized (this) {
+                        if (removeList != null) {
+                            tasklist.addRemove(null, removeList, false, category,
+                                    null);
+                        }
+                        List leftover = category.getSubtasks();
+                        if (addList != null) {
+                            tasklist.addRemove(addList, null, true, null, after);
+                        }
+                        if ((leftover != null) && (leftover.size() > 0)) {
+                            tasklist.addRemove(leftover, null, true, null, after);
+                        }
+                    }
+                    tasklist.removeCategory(category, true);
+                }
+            }
+            if (!split) {
+                break;
             }
 
-            // Leave category task around? Or simply make it invisible?
-            // (Need new Task attribute and appropriate handling in filter
-            // and export methods.)    By leaving it around, we don't reorder
-            // the tasks on the user.
-            //tasklist.removeCategory((SuggestionImpl)suggestions.get(0).getParent(), false);
-            updateCategoryCount(category, sizeKnown); // TODO: skip this when filtered
-        } else {
-            SuggestionImpl after = tasklist.findAfter(type);
-            if (category == null) {
-                // Didn't have category nodes before and don't need to
-                // now either...
-                boolean append = (after != null);
-                tasklist.addRemove(addList, removeList, append, null, after);
-            } else {
-                // Had category nodes before but don't need them anymore...
-                // remove the tasks from the top list
-                synchronized(this) {
-                    if (removeList != null) {
-                        tasklist.addRemove(null, removeList, false, category,
-                                           null);
-                    }
-                    List leftover = category.getSubtasks();
-                    if (addList != null) {
-                        tasklist.addRemove(addList, null, true, null, after);
-                    }
-                    if ((leftover != null) && (leftover.size() > 0)) {
-                        tasklist.addRemove(leftover, null, true, null, after);
-                    }
-                }
-                tasklist.removeCategory(category, true);
-            }
         }
-        if (!split) {
-            break;
-        }
+    }
 
-        }
-    } 
-    
     /** When true, we're in the process of switching files, so a register
-        removal looks like an "unknown" sized list */
+     removal looks like an "unknown" sized list */
     private boolean switchingFiles = false;
 
-    
-    
+
+
     /*
      * Code related to Document scanning. It listens to the source editor and
      * tracks document opens and closes, as well as "current document" changes.
@@ -1165,11 +1171,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
      *
      */
 
-    
+
     private Document document = null;
     private DataObject dataobject = null;
-    
-    
+
+
     /** The given document has been opened
      * <p>
      * @param document The document being opened
@@ -1192,13 +1198,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     /** Set to the request generation when a new file has been shown */
     private volatile Long haveShown = null;
-    
+
     /** Set to the request generation when a file has been saved */
     private volatile Long haveSaved = null;
-    
+
     /** Set to the request generation when a file has been edited */
     private volatile Long haveEdited = null;
-    
+
     /** Current request reference. Used to correlate register()
      * calls with requests sent to rescan()/clear()
      */
@@ -1214,17 +1220,19 @@ final public class SuggestionManagerImpl extends SuggestionManager
         // For now, just use "global" flag (shared for all providers)
         return ManagerSettings.getDefault().isScanOnShow();
     }
+
     /** Return true iff the given provider should rescan when a file is saved */
     private boolean scanOnSave(DocumentSuggestionProvider provider) {
         // For now, just use "global" flag (shared for all providers)
         return ManagerSettings.getDefault().isScanOnSave();
     }
+
     /** Return true iff the given provider should rescan when a file is edited */
     private boolean scanOnEdit(DocumentSuggestionProvider provider) {
         // For now, just use "global" flag (shared for all providers)
         return ManagerSettings.getDefault().isScanOnEdit();
     }
-    
+
     /**
      * The given document has been saved - and a short time period
      * has passed.
@@ -1240,7 +1248,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
-            DocumentSuggestionProvider provider = 
+            DocumentSuggestionProvider provider =
                 (DocumentSuggestionProvider)it.next();
             if ((unfiltered == null) || (provider == unfiltered)) {
                 provider.docSaved(document, dataobject);
@@ -1251,14 +1259,14 @@ final public class SuggestionManagerImpl extends SuggestionManager
 */
 
     /** List of suggestions restored from the cache that we must delete
-        when leaving this document */
+     when leaving this document */
     private List docSuggestions = null;
 
     private void setScanning(boolean scanning) {
         SuggestionList tasklist = getList();
         TaskListView v = tasklist.getView();
         if (v instanceof SuggestionsView) {
-            SuggestionsView view = (SuggestionsView)v;
+            SuggestionsView view = (SuggestionsView) v;
             view.setScanning(scanning);
         }
     }
@@ -1287,7 +1295,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             register(null, null, docSuggestions, getList(), null, true);
             docSuggestions = null;
         }
-  
+
         /* Scan requests are run in a separate "background" thread.
            However, what happens if the user switches to a different
            tab -while- a scan job is running? If the scan hasn't
@@ -1310,51 +1318,52 @@ final public class SuggestionManagerImpl extends SuggestionManager
         */
 
         final Long origRequest = currRequest;
-         RequestProcessor.postRequest(new Runnable() {
-                 public void run() {
-        long start = 0, end = 0, total = 0;
-        List providers = getDocProviders();
-        ListIterator it = providers.listIterator();
+        RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                long start = 0, end = 0, total = 0;
+                List providers = getDocProviders();
+                ListIterator it = providers.listIterator();
 
-        boolean saved = (haveSaved == currRequest);
-        boolean edited = (haveEdited == currRequest);
-        boolean shown = (haveShown == currRequest);
+                boolean saved = (haveSaved == currRequest);
+                boolean edited = (haveEdited == currRequest);
+                boolean shown = (haveShown == currRequest);
 
-        while (it.hasNext()) {
-            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
-            // Has the request changed? If so, just drop this one
-            if (origRequest != currRequest) {
-                break;
-            }
-            if ((unfiltered == null) || (provider == unfiltered)) {
-                if ((saved && scanOnSave(provider))
-                    || (edited && scanOnEdit(provider))
-                    || (shown && scanOnShow(provider))) {
-                    if (stats) {
-                        start = System.currentTimeMillis();
+                while (it.hasNext()) {
+                    DocumentSuggestionProvider provider = (DocumentSuggestionProvider) it.next();
+                    // Has the request changed? If so, just drop this one
+                    if (origRequest != currRequest) {
+                        break;
                     }
-                    provider.rescan(SPIHole.createSuggestionContext(dataobject), origRequest);
-                    if (stats) {
-                        end = System.currentTimeMillis();
-                        System.out.println("Scan time for provider " + provider.getClass().getName() + " = " + (end-start) + " ms");
-                        total += (end-start);
+                    if ((unfiltered == null) || (provider == unfiltered)) {
+                        if ((saved && scanOnSave(provider))
+                                || (edited && scanOnEdit(provider))
+                                || (shown && scanOnShow(provider))) {
+                            if (stats) {
+                                start = System.currentTimeMillis();
+                            }
+                            provider.rescan(SPIHole.createSuggestionContext(dataobject), origRequest);
+                            if (stats) {
+                                end = System.currentTimeMillis();
+                                System.out.println("Scan time for provider " + provider.getClass().getName() + " = " + (end - start) + " ms");
+                                total += (end - start);
+                            }
+                        }
                     }
                 }
+                if ((finishedRequest == null) ||
+                        (origRequest.longValue() > finishedRequest.longValue())) {
+                    finishedRequest = origRequest;
+                }
+                if (stats) {
+                    System.out.println("TOTAL SCAN TIME = " + total + "\n");
+                }
+                if (currRequest == finishedRequest) {
+                    setScanning(false);
+                }
             }
-        }
-        if ((finishedRequest == null) ||
-            (origRequest.longValue() > finishedRequest.longValue())) {
-            finishedRequest = origRequest;
-        }
-        if (stats) {
-            System.out.println("TOTAL SCAN TIME = " + total + "\n");
-        }
-        if (currRequest == finishedRequest) {
-            setScanning(false);
-        }
-                 }});
+        });
     }
-    
+
     /**
      * The given document has been "shown"; it is now visible.
      * <p>
@@ -1368,9 +1377,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
-            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
+            DocumentSuggestionProvider provider = (DocumentSuggestionProvider) it.next();
             if (((unfiltered == null) || (provider == unfiltered))
-                   && scanOnShow(provider)) {
+                    && scanOnShow(provider)) {
                 provider.docShown(SPIHole.createSuggestionContext(dataobject));
             }
         }
@@ -1405,12 +1414,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
         } else {
             stuffCache(document, dataobject, false);
         }
-        
+
         docSuggestions = null;
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
-            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
+            DocumentSuggestionProvider provider = (DocumentSuggestionProvider) it.next();
             if ((unfiltered == null) || (provider == unfiltered)) {
                 SuggestionContext env = SPIHole.createSuggestionContext(dataobject);
                 provider.clear(env, currRequest);
@@ -1419,7 +1428,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
     }
 
-    /** 
+    /**
      * Grab all the suggestions associated with this document/dataobject
      * and push it into the suggestion cache.
      */
@@ -1427,7 +1436,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                             boolean unregisterOnly) {
         // XXX Performance: if docSuggestions != null, we should be able
         // to just reuse it, since the document must not have been edited!
-        
+
         SuggestionList tasklist = getList();
         if (tasklist.getTasks() == null) {
             return;
@@ -1435,7 +1444,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         Iterator it = tasklist.getTasks().iterator();
         List sgs = new ArrayList(tasklist.getTasks().size());
         while (it.hasNext()) {
-            SuggestionImpl s = (SuggestionImpl)it.next();
+            SuggestionImpl s = (SuggestionImpl) it.next();
             Object seed = s.getSeed();
             // Make sure we don't pick up category nodes here!!!
             if (seed instanceof DocumentSuggestionProvider) {
@@ -1445,7 +1454,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             if (s.hasSubtasks()) {
                 Iterator sit = s.getSubtasks().iterator();
                 while (sit.hasNext()) {
-                    s = (SuggestionImpl)sit.next();
+                    s = (SuggestionImpl) sit.next();
                     seed = s.getSeed();
                     if (seed instanceof DocumentSuggestionProvider) {
                         sgs.add(s);
@@ -1467,12 +1476,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
     public void changedUpdate(DocumentEvent e) {
-	// Do nothing.
-	// Changed update is only called for ATTRIBUTE changes in the
-	// document, which I define as not relevant to the Document
-	// Suggestion Providers.
+        // Do nothing.
+        // Changed update is only called for ATTRIBUTE changes in the
+        // document, which I define as not relevant to the Document
+        // Suggestion Providers.
     }
-	
+
     public void insertUpdate(DocumentEvent e) {
         haveEdited = currRequest;
         scheduleRescan(e, false, ManagerSettings.getDefault().getEditScanDelay());
@@ -1518,26 +1527,26 @@ final public class SuggestionManagerImpl extends SuggestionManager
         if (delay && (runTimer == null)) {
             return;
         }
-        
+
         // Stop our current timer; the previous node has not
         // yet been scanned; too brief an interval
-	if (runTimer != null) {
-	    runTimer.stop();
-	    runTimer = null;
-	}
+        if (runTimer != null) {
+            runTimer.stop();
+            runTimer = null;
+        }
         currDelay = scanDelay;
-	runTimer = new Timer(currDelay,
-		     new ActionListener() {
-			 public void actionPerformed(ActionEvent evt) {
-                             runTimer = null;
-                             if (!wait) {
-                                 rescan(document, dataobject);
-                             }
-			 }
-		     });
-	runTimer.setRepeats(false);
-	runTimer.setCoalesce(true);
-	runTimer.start();
+        runTimer = new Timer(currDelay,
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) {
+                        runTimer = null;
+                        if (!wait) {
+                            rescan(document, dataobject);
+                        }
+                    }
+                });
+        runTimer.setRepeats(false);
+        runTimer.setCoalesce(true);
+        runTimer.start();
     }
 
     /** Most recent delay */
@@ -1545,7 +1554,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     private DocumentEvent waitEvent = null;
     private boolean wait = false;
-    
+
     /** Tell the DocumentListener to wait updating itself indefinitely
      * (until it's told not to wait again). When it's told to stop waiting,
      * itself, it will call rescan if that was called and cancelled
@@ -1563,107 +1572,107 @@ final public class SuggestionManagerImpl extends SuggestionManager
             scheduleRescan(waitEvent, false, currDelay);
         }
     }
-    
+
 
     /** Listener on <code>DataObject.Registry</code>. */
     private static DORegistryListener rl;
 
     /** Start scanning for source items. */
     public void docStart() {
-	org.openide.windows.TopComponent.getRegistry().
-	    addPropertyChangeListener(this);
+        org.openide.windows.TopComponent.getRegistry().
+                addPropertyChangeListener(this);
 
-        
+
         // Start listening on DataObject.Registry
         if (rl == null) {
             rl = new DORegistryListener();
             DataObject.getRegistry().addChangeListener(rl);
         }
 
-	/* OLD:
-	org.openide.windows.TopComponent.getRegistry().
-	    addPropertyChangeListener(this);
+        /* OLD:
+        org.openide.windows.TopComponent.getRegistry().
+            addPropertyChangeListener(this);
 
-	// Also scan the current node right away: pretend source listener was
-	// notified of the change to the current node (which has already occurred)
-	// ... unfortunately this is not as easy as just calling getActivatedNodes
-	// on the registry -- because that node may not be the last EDITORvisible
-	// node... So resort to some hacks.
-	Node[] nodes = NewTaskAction.getEditorNodes();
-	if (nodes != null) {
-	    scanner.propertyChange(new PropertyChangeEvent(
-	      this,
-	      TopComponent.Registry.PROP_ACTIVATED_NODES,
-	      null,
-	      nodes));
-	} else {
-	    // Most likely you're not looking at a panel that has an
-	    // associated node, e.g. the welcome screen, or the editor isn't
-	    // open
-            if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
-            err.log("Couldn't find current nodes...");
-            }
-	}
-	*/
+        // Also scan the current node right away: pretend source listener was
+        // notified of the change to the current node (which has already occurred)
+        // ... unfortunately this is not as easy as just calling getActivatedNodes
+        // on the registry -- because that node may not be the last EDITORvisible
+        // node... So resort to some hacks.
+        Node[] nodes = NewTaskAction.getEditorNodes();
+        if (nodes != null) {
+            scanner.propertyChange(new PropertyChangeEvent(
+              this,
+              TopComponent.Registry.PROP_ACTIVATED_NODES,
+              null,
+              nodes));
+        } else {
+            // Most likely you're not looking at a panel that has an
+            // associated node, e.g. the welcome screen, or the editor isn't
+            // open
+if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
+err.log("Couldn't find current nodes...");
+}
+        }
+        */
 
-	// NEW:
-	/** HACK: We need to always know what the current source file
-	    in the editor is - and even when there isn't a source file
-	    there, we need to know: if you for example switch to the
-	    Welcome screen we should remove the tasks for the formerly
-	    shown source file.
-	    
-	    I've tried listening to the global node, since we should
-	    always get notified when the current node changes. However,
-	    this has a couple of problems. First, we may get notified
-	    of the node change BEFORE the source file is done editing;
-	    in that case we can't find the node in the editor (we need
-	    to check that a node is in the editor since we don't want
-	    the task window to for example show the tasks for the 
-	    current selection in the explorer).  Another problem is
-	    a scenario I just ran into where if you open A, B from
-	    explorer, then select A in the explorer, then select B in
-	    the editor: when you now double click A in the explorer
-	    there's no rescan. (I may have to debug this).
+        // NEW:
+        /** HACK: We need to always know what the current source file
+         in the editor is - and even when there isn't a source file
+         there, we need to know: if you for example switch to the
+         Welcome screen we should remove the tasks for the formerly
+         shown source file.
 
-	    So instead I will go to a more reliable scheme, which 
-	    unfortunately smells more like a hack from a NetBeans
-	    perspective. The basic idea is this: I can find the
-	    source editor, and which top component is showing in
-	    the source editor.  I can get notified of when this
-	    changes - by listening for componentHidden of the
-	    top most pane. Then I just have to go and see which
-	    component is now showing, and switch my component listener
-	    to this new component. (From the component I can discover
-	    which source file it's editing).  This has the benefit
-	    that I'll know precisely when a new file has been loaded
-	    in, etc. It may have the disadvantage that if you open
-	    source files in other modes (by docking and undocking
-	    away from the standard configuration) things get
-	    broken. Perhaps I can keep my old activated-node-listener
-	    scheme in place as a backup solution when locating the
-	    source editor mode etc. fails.
+         I've tried listening to the global node, since we should
+         always get notified when the current node changes. However,
+         this has a couple of problems. First, we may get notified
+         of the node change BEFORE the source file is done editing;
+         in that case we can't find the node in the editor (we need
+         to check that a node is in the editor since we don't want
+         the task window to for example show the tasks for the
+         current selection in the explorer).  Another problem is
+         a scenario I just ran into where if you open A, B from
+         explorer, then select A in the explorer, then select B in
+         the editor: when you now double click A in the explorer
+         there's no rescan. (I may have to debug this).
 
-	    It gets more complicated. What if you open the task window
-	    when the editor is not visible? Then you can't attach a
-	    listener to the current window - so you don't get notified
-	    when a new file is opened. For that reason we also need to
-	    listen to the workspace's property change notification, which
-	    will tell us when the set of modes changes in the workspace.
+         So instead I will go to a more reliable scheme, which
+         unfortunately smells more like a hack from a NetBeans
+         perspective. The basic idea is this: I can find the
+         source editor, and which top component is showing in
+         the source editor.  I can get notified of when this
+         changes - by listening for componentHidden of the
+         top most pane. Then I just have to go and see which
+         component is now showing, and switch my component listener
+         to this new component. (From the component I can discover
+         which source file it's editing).  This has the benefit
+         that I'll know precisely when a new file has been loaded
+         in, etc. It may have the disadvantage that if you open
+         source files in other modes (by docking and undocking
+         away from the standard configuration) things get
+         broken. Perhaps I can keep my old activated-node-listener
+         scheme in place as a backup solution when locating the
+         source editor mode etc. fails.
 
-	    ...and of course the workspace itself can change. So we need
-	    to listen to the workspace change notification in the window
-	    manager as well...
-	*/
+         It gets more complicated. What if you open the task window
+         when the editor is not visible? Then you can't attach a
+         listener to the current window - so you don't get notified
+         when a new file is opened. For that reason we also need to
+         listen to the workspace's property change notification, which
+         will tell us when the set of modes changes in the workspace.
 
-	/*
-	WindowManager manager = WindowManager.getDefault();
-	manager.addPropertyChangeListener(this);
-	Workspace workspace = WindowManager.getDefault().
-	    getCurrentWorkspace();
-	workspace.addPropertyChangeListener(this);
-	*/
-	
+         ...and of course the workspace itself can change. So we need
+         to listen to the workspace change notification in the window
+         manager as well...
+         */
+
+        /*
+        WindowManager manager = WindowManager.getDefault();
+        manager.addPropertyChangeListener(this);
+        Workspace workspace = WindowManager.getDefault().
+            getCurrentWorkspace();
+        workspace.addPropertyChangeListener(this);
+        */
+
         if (pendingScan) {
             return;
         }
@@ -1684,39 +1693,39 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
     /** The topcomponent we're currently tracking as the showing
-	editor component */
+     editor component */
     private TopComponent current = null;
 
     /** FOR DEBUGGING ONLY: Look up the data object for a top
-       component, if possible. Returns the object itself if no DO
-       was found (suitable for printing: DO is best, but component will
-       do.
-    private static Object tcToDO(TopComponent c) {
-	Node[] nodes = c.getActivatedNodes();	
-	if (nodes == null) {
-	    return c;
-	}
-	Node node = nodes[0];
-	if (node == null) {
-	    return c;
-	}
-	DataObject dao = (DataObject)node.getCookie(DataObject.class);
-	if (dao == null) {
-	    return c;
-	} else {
-	    return dao;
-	}
-    }
+     component, if possible. Returns the object itself if no DO
+     was found (suitable for printing: DO is best, but component will
+     do.
+     private static Object tcToDO(TopComponent c) {
+     Node[] nodes = c.getActivatedNodes();
+     if (nodes == null) {
+     return c;
+     }
+     Node node = nodes[0];
+     if (node == null) {
+     return c;
+     }
+     DataObject dao = (DataObject)node.getCookie(DataObject.class);
+     if (dao == null) {
+     return c;
+     } else {
+     return dao;
+     }
+     }
      */
 
     private void findCurrentFile(boolean delayed) {
-	// Unregister previous listeners
-	if (current != null) {
-	    current.removeComponentListener(this);
-	    current = null;
-	}
+        // Unregister previous listeners
+        if (current != null) {
+            current.removeComponentListener(this);
+            current = null;
+        }
         if (document != null) {
-	    document.removeDocumentListener(this);
+            document.removeDocumentListener(this);
             switchingFiles = true;
             docHidden(document, dataobject);
             switchingFiles = false;
@@ -1726,24 +1735,24 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
 
 
-	// Find which component is showing in it
-	// Add my own component listener to it
-	// When componentHidden, unregister my own component listener
-	// Redo above
+        // Find which component is showing in it
+        // Add my own component listener to it
+        // When componentHidden, unregister my own component listener
+        // Redo above
 
-	// Locate source editor
+        // Locate source editor
         Workspace workspace = WindowManager.getDefault().getCurrentWorkspace();
-        
+
         // HACK ALERT !!! HACK ALERT!!! HACK ALERT!!!
         // Look for the source editor window, and then go through its
         // top components, pick the one that is showing - that's the
         // front one!
-        Mode mode  = workspace.findMode(EditorSupport.EDITOR_MODE);
-	if (mode == null) {
+        Mode mode = workspace.findMode(EditorSupport.EDITOR_MODE);
+        if (mode == null) {
             // The editor window was probablyjust closed
-	    return;
-	}
-        TopComponent [] tcs = mode.getTopComponents();
+            return;
+        }
+        TopComponent[] tcs = mode.getTopComponents();
         for (int j = 0; j < tcs.length; j++) {
             TopComponent tc = tcs[j];
             /*
@@ -1756,26 +1765,26 @@ final public class SuggestionManagerImpl extends SuggestionManager
             } else */ if (tc instanceof CloneableEditor) {
                 // Found the source editor...
                 if (tc.isShowing()) {
-		    current = tc;
+                    current = tc;
                     break;
                 }
             }
         }
-	if (current == null) {
-            // The last editor-support window in the editor was probably 
+        if (current == null) {
+            // The last editor-support window in the editor was probably
             // just closed - or was not on top
             return;
-	}
+        }
 
-	// Listen for changes on this component so we know when
-	// it's replaced by something else
-	//System.err.println("Add component listener to " + tcToDO(current));
-	current.addComponentListener(this);
+        // Listen for changes on this component so we know when
+        // it's replaced by something else
+        //System.err.println("Add component listener to " + tcToDO(current));
+        current.addComponentListener(this);
 
-	Node[] nodes = current.getActivatedNodes();
-	
-	if ((nodes == null) || (nodes.length != 1)) {
-            /*
+        Node[] nodes = current.getActivatedNodes();
+
+        if ((nodes == null) || (nodes.length != 1)) {
+/*
             if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
                 err.log(
                   "Unexpected editor component activated nodes " + // NOI18N
@@ -1783,94 +1792,94 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
             */
             return;
-	}
+        }
 
-	Node node = nodes[0];
+        Node node = nodes[0];
 
-	final DataObject dao = (DataObject)node.getCookie(DataObject.class);
-	//err.log("Considering data object " + dao);
-	if (dao == null) {
-	    return;
-	}
+        final DataObject dao = (DataObject) node.getCookie(DataObject.class);
+        //err.log("Considering data object " + dao);
+        if (dao == null) {
+            return;
+        }
 
-	if (!dao.isValid()) {
-	    //err.log("The data object is not valid!");
-	    return;
-	}
+        if (!dao.isValid()) {
+            //err.log("The data object is not valid!");
+            return;
+        }
 
 
         /*
-	if (dao == lastDao) {
-	    // We've been asked to scan the same dataobject as last time;
-	    // don't do that.
-	    // Most likely you've temporarily switched to another (non-editor)
-	    // node, and switched back (for example, double clicking on a node
-	    // in the task window) and we're still on the same file so there's
-	    // no reason to rescan.  We track changes to the currently scanned
-	    // object differently (through a document listener).
-	    err.log("Same dao as last time - not doing anything");
-	    return; // Don't scan again
-	}
-	lastDao = dao;
+        if (dao == lastDao) {
+            // We've been asked to scan the same dataobject as last time;
+            // don't do that.
+            // Most likely you've temporarily switched to another (non-editor)
+            // node, and switched back (for example, double clicking on a node
+            // in the task window) and we're still on the same file so there's
+            // no reason to rescan.  We track changes to the currently scanned
+            // object differently (through a document listener).
+            err.log("Same dao as last time - not doing anything");
+            return; // Don't scan again
+        }
+        lastDao = dao;
         */
-        
-	final EditorCookie edit = (EditorCookie)dao.getCookie(EditorCookie.class);
-	if (edit == null) {
-	    //err.log("No editor cookie - not doing anything");
-	    return;
-	}
-	
-	/* This is probably not necessary now with my new editor-tracking
-	   scheme: I'm only calling this on visible components. This is
-	   a leftover from my noderegistry listener days, and I'm keeping
-	   it around in case I leave the NodeRegistry lister code in as
-	   a fallback mechanism, since this is all a bit of a hack.
-	// See if it looks like this data object is visible
-	JEditorPane[] panes = edit.getOpenedPanes();
-	if (panes == null) {
-	    err.log("No editor panes for this data object");
-	    return;
-	}
-	int k = 0;
-	for (; k < panes.length; k++) {
-	    if (panes[k].isShowing()) {
-		break;
-	    }
-	}
-	if (k == panes.length) {
-	    err.log("No editor panes for this data object are visible");
-	    return;
-	}
-	*/
 
-	final Document doc = edit.getDocument(); // Does not block
+        final EditorCookie edit = (EditorCookie) dao.getCookie(EditorCookie.class);
+        if (edit == null) {
+            //err.log("No editor cookie - not doing anything");
+            return;
+        }
 
-	/* This comment applies to the old implementation, where
-	   we're listening on activated node changes. Now that we're
-	   listening for tab changes, the document should already
-	   have been read in by the time the tab changes and we're
-	   notified of it:
+        /* This is probably not necessary now with my new editor-tracking
+           scheme: I'm only calling this on visible components. This is
+           a leftover from my noderegistry listener days, and I'm keeping
+           it around in case I leave the NodeRegistry lister code in as
+           a fallback mechanism, since this is all a bit of a hack.
+        // See if it looks like this data object is visible
+        JEditorPane[] panes = edit.getOpenedPanes();
+        if (panes == null) {
+            err.log("No editor panes for this data object");
+            return;
+        }
+        int k = 0;
+        for (; k < panes.length; k++) {
+            if (panes[k].isShowing()) {
+            break;
+            }
+        }
+        if (k == panes.length) {
+            err.log("No editor panes for this data object are visible");
+            return;
+        }
+        */
 
-	// We might have a race condition here... you open the
-	// document, and our property change listener gets notified -
-	// but the document hasn't completed loading yet despite our
-	// 1 second timer. Thus we might not get a document... However
-	// since we continue listening for changes, eventually we WILL
-	// discover the document
-	*/
-	if (doc == null) {
-	    //err.log("No document handle...");
-	    return;
-	}
+        final Document doc = edit.getDocument(); // Does not block
 
-	if (document != null) {
-	    // Might be a duplicate removeDocumentListener -- that's
-	    // okay right?
-	    document.removeDocumentListener(this);
-	}
-	document = doc;
-	doc.addDocumentListener(this);
-        
+        /* This comment applies to the old implementation, where
+           we're listening on activated node changes. Now that we're
+           listening for tab changes, the document should already
+           have been read in by the time the tab changes and we're
+           notified of it:
+
+        // We might have a race condition here... you open the
+        // document, and our property change listener gets notified -
+        // but the document hasn't completed loading yet despite our
+        // 1 second timer. Thus we might not get a document... However
+        // since we continue listening for changes, eventually we WILL
+        // discover the document
+        */
+        if (doc == null) {
+            //err.log("No document handle...");
+            return;
+        }
+
+        if (document != null) {
+            // Might be a duplicate removeDocumentListener -- that's
+            // okay right?
+            document.removeDocumentListener(this);
+        }
+        document = doc;
+        doc.addDocumentListener(this);
+
         dataobject = dao;
 
         // TODO: Is MAX_VALUE even feasible here? There's no greater/lessthan
@@ -1878,7 +1887,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         // have to check manually and do it myself in case some kind
         // of overflow exception is thrown
         //  Wait, I'm doing a comparison now - look for currRequest.longValue
-        currRequest = new Long(currRequest.intValue()+1);
+        currRequest = new Long(currRequest.intValue() + 1);
 
         docShown(doc, dataobject);
         addCaretListeners();
@@ -1911,33 +1920,33 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
         }
 
-	if (delayed) {
-	    runTimer = new Timer(ManagerSettings.getDefault().getShowScanDelay(),
-		     new ActionListener() {
-			 public void actionPerformed(ActionEvent evt) {
-                             runTimer = null;
-                             /*
+        if (delayed) {
+            runTimer = new Timer(ManagerSettings.getDefault().getShowScanDelay(),
+                    new ActionListener() {
+                        public void actionPerformed(ActionEvent evt) {
+                            runTimer = null;
+/*
                              if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
                                  err.log("Timer expired - time to scan " + dao);
                              }
                              */
-                             rescan(doc, dataobject);
-			 }
-		     });
-	    runTimer.setRepeats(false);
-	    runTimer.setCoalesce(true);
-	    runTimer.start();
-	} else {
-	    // Do it right away
+                            rescan(doc, dataobject);
+                        }
+                    });
+            runTimer.setRepeats(false);
+            runTimer.setCoalesce(true);
+            runTimer.start();
+        } else {
+            // Do it right away
             rescan(doc, dataobject);
-	}
+        }
     }
 
     JEditorPane[] editors = null;
-    
+
     private void addCaretListeners() {
-	EditorCookie edit = (EditorCookie)dataobject.getCookie(EditorCookie.class);
-	if (edit != null) {
+        EditorCookie edit = (EditorCookie) dataobject.getCookie(EditorCookie.class);
+        if (edit != null) {
             JEditorPane panes[] = edit.getOpenedPanes();
             if ((panes != null) && (panes.length > 0)) {
                 // We want to know about cursor changes in ALL panes
@@ -1948,7 +1957,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
         }
     }
-    
+
     private void removeCaretListeners() {
         if (editors != null) {
             for (int i = 0; i < editors.length; i++) {
@@ -1959,7 +1968,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
     public void componentShown(ComponentEvent e) {
-	// Don't care
+        // Don't care
     }
 
     public void componentHidden(ComponentEvent e) {
@@ -1967,11 +1976,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
     public void componentResized(ComponentEvent e) {
-	// Don't care
+        // Don't care
     }
-    
+
     public void componentMoved(ComponentEvent e) {
-	// Don't care
+        // Don't care
     }
 
     /** Scan the given document for suggestions. Typically called
@@ -1992,7 +2001,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             provider.scan(document, dataobject);
         }
     } */
-    
+
     boolean pendingScan = false;
 
     /** The set of visible top components changed */
@@ -2029,29 +2038,29 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     /** Stop scanning for source items */
     public void docStop() {
-	if (runTimer != null) {
-	    runTimer.stop();
-	    runTimer = null;
-	}
+        if (runTimer != null) {
+            runTimer.stop();
+            runTimer = null;
+        }
 
-	org.openide.windows.TopComponent.getRegistry().
-	    removePropertyChangeListener(this);
+        org.openide.windows.TopComponent.getRegistry().
+                removePropertyChangeListener(this);
 
         if (rl != null) {
             DataObject.getRegistry().removeChangeListener(rl);
             rl = null;
         }
-	
-	// Unregister previous listeners
-	if (current != null) {
-	    current.removeComponentListener(this);
-	    current = null;
-	}
-	if (document != null) {
-	    document.removeDocumentListener(this);
-	    // NOTE: we do NOT null it out since we still need to
-	    // see if the document is unchanged
-	}
+
+        // Unregister previous listeners
+        if (current != null) {
+            current.removeComponentListener(this);
+            current = null;
+        }
+        if (document != null) {
+            document.removeDocumentListener(this);
+            // NOTE: we do NOT null it out since we still need to
+            // see if the document is unchanged
+        }
         if (editors != null) {
             removeCaretListeners();
         }
@@ -2061,47 +2070,47 @@ final public class SuggestionManagerImpl extends SuggestionManager
         switchingFiles = false;
         document = null;
     }
-    
+
     /** Timer which keeps track of outstanding scan requests; we don't
-        scan briefly selected files */
+     scan briefly selected files */
     private Timer runTimer;
 
 
     /** Reacts to changes */
     public void propertyChange(PropertyChangeEvent ev) {
         String prop = ev.getPropertyName();
-        if(prop.equals(TopComponent.Registry.PROP_OPENED)) {
+        if (prop.equals(TopComponent.Registry.PROP_OPENED)) {
             componentsChanged();
         }
-    }    
-    
+    }
+
     int prevLineNo = -1;
-    
+
     /** Moving the cursor position should cause a delay in document scanning,
      * but not trigger a new update */
     public void caretUpdate(CaretEvent caretEvent) {
-	scheduleRescan(null, true, currDelay);
-        
-         // Check to see if I have any existing errors on this line - and if so,
+        scheduleRescan(null, true, currDelay);
+
+        // Check to see if I have any existing errors on this line - and if so,
         // highlight them.
         if (document instanceof StyledDocument) {
             int offset = caretEvent.getDot();
-            int lineno = NbDocument.findLineNumber((StyledDocument)document, offset);
+            int lineno = NbDocument.findLineNumber((StyledDocument) document, offset);
             if (lineno == prevLineNo) {
                 // Just caret motion on the same line as the previous one -- ignore
                 return;
             }
             prevLineNo = lineno;
 
-	    // Here we could add 1 to the line number, since findLineNumber
-	    // returns a 0-based line number, and most APIs return a 1-based
-	    // line number; however, Line.Set.getOriginal also expects
-	    // something zero based, so instead of doing the usual bit
-	    // of subtracting there, we drop the add and subtract altogether
+            // Here we could add 1 to the line number, since findLineNumber
+            // returns a 0-based line number, and most APIs return a 1-based
+            // line number; however, Line.Set.getOriginal also expects
+            // something zero based, so instead of doing the usual bit
+            // of subtracting there, we drop the add and subtract altogether
 
             // Go to the given line
             Line line = null;
-            line = TLUtils.getLineByNumber(dataobject, lineno+1);
+            line = TLUtils.getLineByNumber(dataobject, lineno + 1);
             /*
             try {
                 LineCookie lc = (LineCookie)dataobject.getCookie(LineCookie.class);
@@ -2114,7 +2123,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             } catch (Exception e) {
                 ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
             }
-            */            
+            */
             if (line != null) {
                 setCursorLine(line);
             }
@@ -2125,7 +2134,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
     void editTypes(List enabled, List disabled, List confirmation) {
         Iterator it = enabled.iterator();
         while (it.hasNext()) {
-            SuggestionType type = (SuggestionType)it.next();
+            SuggestionType type = (SuggestionType) it.next();
             if (!isEnabled(type.getName())) {
                 setEnabled(type.getName(), true, true);
             }
@@ -2133,7 +2142,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
         it = disabled.iterator();
         while (it.hasNext()) {
-            SuggestionType type = (SuggestionType)it.next();
+            SuggestionType type = (SuggestionType) it.next();
             if (isEnabled(type.getName())) {
                 setEnabled(type.getName(), false, true);
             }
@@ -2141,11 +2150,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
         Iterator allIt = SuggestionTypes.getTypes().getAllTypes().iterator();
         while (allIt.hasNext()) {
-            SuggestionType t = (SuggestionType)allIt.next();
+            SuggestionType t = (SuggestionType) allIt.next();
             it = confirmation.iterator();
             boolean found = false;
             while (it.hasNext()) {
-                SuggestionType type = (SuggestionType)it.next();
+                SuggestionType type = (SuggestionType) it.next();
                 if (type == t) {
                     found = true;
                     break;
@@ -2153,7 +2162,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
             setConfirm(t, !found, false);
         }
-        
+
         // Flush changes to disk
         writeTypeRegistry();
     }
@@ -2171,7 +2180,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * it can notify files of Save operations.
      */
     class DORegistryListener implements javax.swing.event.ChangeListener {
-        public void stateChanged(ChangeEvent e){
+        public void stateChanged(ChangeEvent e) {
             /* Not sure what the source is, but it isn't dataobject
                  and the javadoc doesn't say anything specific, so
                  I guess I can't rely on that as a filter
@@ -2201,9 +2210,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
      */
     public interface ScanProgress {
         void scanStarted();
+
         void folderEntered(FileObject folder);
+
         void fileScanned(FileObject file);
+
         void folderScanned(FileObject folder);
+
         void scanFinished();
     }
 

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+
 import org.netbeans.modules.tasklist.core.translators.XMLTranslator;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
@@ -29,7 +30,7 @@ import org.openide.util.NbBundle;
  * @author Tor Norbye
  * @author Tim Lebedkov
  */
-public class TaskList { // XXX remove the publicness. 
+public class TaskList { // XXX remove the publicness.
 
     // List category
     public final static String USER_CATEGORY = "usertasks"; // NOI18N
@@ -44,7 +45,7 @@ public class TaskList { // XXX remove the publicness.
         root.setList(this);
     }
 
-   /** Has the options set changed such that we need to save */
+    /** Has the options set changed such that we need to save */
     protected boolean needSave = false;
     protected boolean dontSave = false;
 
@@ -60,23 +61,23 @@ public class TaskList { // XXX remove the publicness.
     protected Task root = null;
 
     /** Set the root task of the tasklist. It's public such that the
-        XML Encoder can access it as a bean property.
-    */
+     XML Encoder can access it as a bean property.
+     */
     public void setRoot(Task root) {
         this.root = root;
         // XXX fire property change event?
     }
-    
+
     public Task getRoot() {
         if (root == null) {
             // Just use the name "Description" since for some reason,
             // when we have no items the TreeView puts the root node
             // description as the header for the leftmost column...
             root = new Task();
-            root.setSummary(NbBundle.getMessage(TaskList.class, 
-                                                    "Description")); // NOI18N
-	    root.setList(this);
-	}
+            root.setSummary(NbBundle.getMessage(TaskList.class,
+                    "Description")); // NOI18N
+            root.setList(this);
+        }
         return root;
     }
 
@@ -99,51 +100,51 @@ public class TaskList { // XXX remove the publicness.
      * task). Overrides the append parameter.
      */
     public void addRemove(List addList, List removeList, boolean append,
-			  Task parent, Task after) {
-	// Disable updates for the duration of the list update
-	setSilentUpdate(true, true, false);
+                          Task parent, Task after) {
+        // Disable updates for the duration of the list update
+        setSilentUpdate(true, true, false);
 
-	boolean modified = false;
+        boolean modified = false;
 
-	// Remove items
-	// TODO add Task.removeSubtasks(List) ? See addSubtasks below
-	ListIterator it;
-	if (removeList != null){
-	    it = removeList.listIterator();
-	    while (it.hasNext()) {
-		Task task = (Task)it.next();
+        // Remove items
+        // TODO add Task.removeSubtasks(List) ? See addSubtasks below
+        ListIterator it;
+        if (removeList != null) {
+            it = removeList.listIterator();
+            while (it.hasNext()) {
+                Task task = (Task) it.next();
                 modified = true;
-		remove(task);
-	    }
-	}
+                remove(task);
+            }
+        }
 
-	if (parent == null) {
-	    if (root == null) {
-		root = getRoot();
-	    }
-	    parent = root;
-	}
-	
-	if (addList != null) {
+        if (parent == null) {
+            if (root == null) {
+                root = getRoot();
+            }
+            parent = root;
+        }
+
+        if (addList != null) {
             modified = true;
 
-	    // User insert: prepend to the list
+            // User insert: prepend to the list
             parent.addSubtasks(addList, append, after);
-	}
-	
-	// Update the task list now
-	// Only save if non-temporary items were added
+        }
 
-	// XXX - now that I have added a parent reference, should
-	// the property notification happen relative to it? Probably yes.
-	// Need parent reference in setSilentUpdate
-	setSilentUpdate(false, true, modified);
+        // Update the task list now
+        // Only save if non-temporary items were added
+
+        // XXX - now that I have added a parent reference, should
+        // the property notification happen relative to it? Probably yes.
+        // Need parent reference in setSilentUpdate
+        setSilentUpdate(false, true, modified);
     }
 
     /** Add a todo item to the todo list.
      * @param item The todo item to be added. */
     public void add(Task task) {
-	add(task, false, true);
+        add(task, false, true);
     }
 
     /** Add a todo item to the todo list.
@@ -163,15 +164,15 @@ public class TaskList { // XXX remove the publicness.
         parent.addSubtask(task, append);
 
         needSave = true;
-        
+
         // Show the new item
-	// XXX fix this
-	if (show) {
-	    notifySelected(task);
-	}
-        
+        // XXX fix this
+        if (show) {
+            notifySelected(task);
+        }
+
         notifyAdded(task);
-        
+
         // TODO make this smarter later on, such that I only save when necessary
         save();
     }
@@ -196,19 +197,18 @@ public class TaskList { // XXX remove the publicness.
         parent.addSubtask(task, after);
 
         needSave = true;
-        
+
         // Show the new item
-	// XXX fix this
-	if (show) {
-	    notifySelected(task);
-	}
-        
+        // XXX fix this
+        if (show) {
+            notifySelected(task);
+        }
+
         // TODO make this smarter later on, such that I only save when necessary
         save();
     }
 
 
-     
     /** Remove a todo item from the list.
      * @param item The todo item to be removed. */
     public void remove(Task task) {
@@ -218,14 +218,14 @@ public class TaskList { // XXX remove the publicness.
             root.removeSubtask(task);
         }
         needSave = true;
-     
+
         // Ensure that we're not showing any markers for this item
-	notifyRemoved(task);
-        
+        notifyRemoved(task);
+
         // TODO make this smarter later on, such that I only save when necessary
         save();
     }
-    
+
     /** Notify the todo list that some aspect of it has been changed, so
      * it should save itself soon. Eventually calls save */
     public void markChanged() {
@@ -237,7 +237,7 @@ public class TaskList { // XXX remove the publicness.
         // only markChanged() - except for the window, perhaps, which may call
         // save on program shutdown. We don't want edits within 10 seconds
         // of shutting down the IDE to be lost...
-	needSave = true;
+        needSave = true;
         save();
     }
 
@@ -250,119 +250,119 @@ public class TaskList { // XXX remove the publicness.
         markChanged();
         notifyChanged(task);
     }
-    
+
     /** Write todo items out to disk */
     public void save() {
         needSave = false;
     }
-    
+
     /** Setter for property silentUpdate.
      * When true, don't notify anybody or save the task list
-       when contents changes. This is used for batch operations
-       (such as inserting a series of tasks when scanning a source file.)
+     when contents changes. This is used for batch operations
+     (such as inserting a series of tasks when scanning a source file.)
      * @param silentUpdate New value of property silentUpdate.
      * @param rootUpdates When true, also suppress root modification properties
      * @param saveOnFinish If true, save the task when we stop being silent
      */
     void setSilentUpdate(boolean silentUpdate, boolean rootUpdates,
-			 boolean saveOnFinish) {// XXX remove the publicness
-	dontSave = silentUpdate;
-	needSave = true;
-	if (rootUpdates) {
-	    if (root == null) {
-		root = getRoot();
-	    }
-	    if (silentUpdate) {
-		// XXX this is going to generate lots of updates.
-		// I should set silentUpdate on the root during the
-		// deletions...
-		root.setSilentUpdate(true, false, false, false);
-	    } else {
-		// XXX It would be better NOT to do this, so I don't get
-		// a refresh after the items have been deleted!
-		root.setSilentUpdate(false, false, true, saveOnFinish);
-	    }
-	}
-	if (!dontSave && saveOnFinish) {
-	    // May do nothing if setSilentUpdate above did a TaskList.markChanged()
-	    save();
-	}
+                         boolean saveOnFinish) {// XXX remove the publicness
+        dontSave = silentUpdate;
+        needSave = true;
+        if (rootUpdates) {
+            if (root == null) {
+                root = getRoot();
+            }
+            if (silentUpdate) {
+                // XXX this is going to generate lots of updates.
+                // I should set silentUpdate on the root during the
+                // deletions...
+                root.setSilentUpdate(true, false, false, false);
+            } else {
+                // XXX It would be better NOT to do this, so I don't get
+                // a refresh after the items have been deleted!
+                root.setSilentUpdate(false, false, true, saveOnFinish);
+            }
+        }
+        if (!dontSave && saveOnFinish) {
+            // May do nothing if setSilentUpdate above did a TaskList.markChanged()
+            save();
+        }
     }
 
     protected ArrayList listeners = null;
 
     public void addListener(TaskListener listener) {
-	if (listeners == null) {
-	    listeners = new ArrayList(4);
-	}
-	listeners.add(listener);
+        if (listeners == null) {
+            listeners = new ArrayList(4);
+        }
+        listeners.add(listener);
     }
 
     public void removeListener(TaskListener listener) {
-	if (listeners == null) {
-	    return;
-	}
-	listeners.remove(listener);
+        if (listeners == null) {
+            return;
+        }
+        listeners.remove(listener);
     }
 
     public void notifyChanged(Task task) {
-	if (listeners != null) {
-	    int n = listeners.size();
-	    for (int i = 0; i < n; i++) {
-		TaskListener tl = (TaskListener)listeners.get(i);
-		tl.changedTask(task);
-	    }
-	}
+        if (listeners != null) {
+            int n = listeners.size();
+            for (int i = 0; i < n; i++) {
+                TaskListener tl = (TaskListener) listeners.get(i);
+                tl.changedTask(task);
+            }
+        }
     }
 
     public void notifyAdded(Task task) {
-	if (listeners != null) {
-	    int n = listeners.size();
-	    for (int i = 0; i < n; i++) {
-		TaskListener tl = (TaskListener)listeners.get(i);
-		tl.addedTask(task);
-	    }
-	}
+        if (listeners != null) {
+            int n = listeners.size();
+            for (int i = 0; i < n; i++) {
+                TaskListener tl = (TaskListener) listeners.get(i);
+                tl.addedTask(task);
+            }
+        }
     }
 
     public void notifySelected(Task task) {
-	if (listeners != null) {
-	    int n = listeners.size();
-	    for (int i = 0; i < n; i++) {
-		TaskListener tl = (TaskListener)listeners.get(i);
-		tl.selectedTask(task);
-	    }
-	}
+        if (listeners != null) {
+            int n = listeners.size();
+            for (int i = 0; i < n; i++) {
+                TaskListener tl = (TaskListener) listeners.get(i);
+                tl.selectedTask(task);
+            }
+        }
     }
 
     public void notifyWarped(Task task) {
-	if (listeners != null) {
-	    int n = listeners.size();
-	    for (int i = 0; i < n; i++) {
-		TaskListener tl = (TaskListener)listeners.get(i);
-		tl.warpedTask(task);
-	    }
-	}
+        if (listeners != null) {
+            int n = listeners.size();
+            for (int i = 0; i < n; i++) {
+                TaskListener tl = (TaskListener) listeners.get(i);
+                tl.warpedTask(task);
+            }
+        }
     }
 
     public void notifyStructureChanged(Task task) {
-	if (listeners != null) {
-	    int n = listeners.size();
-	    for (int i = 0; i < n; i++) {
-		TaskListener tl = (TaskListener)listeners.get(i);
-		tl.structureChanged(task);
-	    }
-	}
+        if (listeners != null) {
+            int n = listeners.size();
+            for (int i = 0; i < n; i++) {
+                TaskListener tl = (TaskListener) listeners.get(i);
+                tl.structureChanged(task);
+            }
+        }
     }
 
     public void notifyRemoved(Task task) {
-	if (listeners != null) {
-	    int n = listeners.size();
-	    for (int i = 0; i < n; i++) {
-		TaskListener tl = (TaskListener)listeners.get(i);
-		tl.removedTask(task);
-	    }
-	}
+        if (listeners != null) {
+            int n = listeners.size();
+            for (int i = 0; i < n; i++) {
+                TaskListener tl = (TaskListener) listeners.get(i);
+                tl.removedTask(task);
+            }
+        }
     }
 
     /** Return a count of the number of tasks in this list. */
@@ -374,7 +374,7 @@ public class TaskList { // XXX remove the publicness.
      * @return Array of translators that can read/write the tasklist
      */
     public FormatTranslator[] getTranslators() {
-        FormatTranslator[] translators = new FormatTranslator[] {
+        FormatTranslator[] translators = new FormatTranslator[]{
             new HTMLSupport(),
             new XMLTranslator()
         };
@@ -390,7 +390,7 @@ public class TaskList { // XXX remove the publicness.
         recursivePrint(root, 0);
         System.err.println("\n\n");
     }
-    
+
     private void recursivePrint(Task node, int depth) {
         if (depth > 20) { // probably invalid list
             Thread.dumpStack();
@@ -404,8 +404,8 @@ public class TaskList { // XXX remove the publicness.
             List l = node.getSubtasks();
             ListIterator it = l.listIterator();
             while (it.hasNext()) {
-                Task task = (Task)it.next();
-                recursivePrint(task, depth+1);
+                Task task = (Task) it.next();
+                recursivePrint(task, depth + 1);
             }
         }
     }
@@ -421,16 +421,17 @@ public class TaskList { // XXX remove the publicness.
 
     private static boolean cacheInited = false;
     private static TaskListCache cache = null;
+
     /** Create a cache object - using reflection, since we want JDK14 APIs */
     private static TaskListCache getCache() {
         if (!cacheInited) {
             cacheInited = true;
-            if (org.openide.modules.Dependency.JAVA_SPEC.compareTo (
-                  new org.openide.modules.SpecificationVersion("1.4") // NOI18N
-                  ) >= 0) { // NOI18N
+            if (org.openide.modules.Dependency.JAVA_SPEC.compareTo(
+                    new org.openide.modules.SpecificationVersion("1.4") // NOI18N
+            ) >= 0) { // NOI18N
                 try {
                     Class c = Class.forName("org.netbeans.modules.tasklist.core.TaskListCache14");
-                    cache = (TaskListCache)c.newInstance();
+                    cache = (TaskListCache) c.newInstance();
                 } catch (ClassNotFoundException cnfe) {
                 } catch (Exception ex) {
                     ErrorManager.getDefault().notify(ex);
@@ -467,8 +468,8 @@ public class TaskList { // XXX remove the publicness.
         return null;
     }
 
-    /** 
-     * Return the list of tasks in this tasklist 
+    /**
+     * Return the list of tasks in this tasklist
      *
      * @return subtasks of the root or null
      */
@@ -507,7 +508,7 @@ public class TaskList { // XXX remove the publicness.
     private Task findNext(List tasks, Task curr, boolean wrap) {
         Iterator it = tasks.iterator();
         while (it.hasNext()) {
-            Task s = (Task)it.next();
+            Task s = (Task) it.next();
             if (currFound && s.isVisitable()) {
                 return s;
             } else if (s == curr) {
@@ -564,7 +565,7 @@ public class TaskList { // XXX remove the publicness.
     private Task findPrev(List tasks, Task curr, boolean wrap) {
         ListIterator it = tasks.listIterator(tasks.size());
         while (it.hasPrevious()) {
-            Task s = (Task)it.previous();
+            Task s = (Task) it.previous();
             if (currFound && s.isVisitable()) {
                 return s;
             } else if (s == curr) {
@@ -597,7 +598,7 @@ public class TaskList { // XXX remove the publicness.
     public void setView(TaskListView view) {
         this.view = view;
     }
-    
+
     /**
      * Get the view where this tasklist is shown, or null
      * which indicates that the list is not shown in any view.
