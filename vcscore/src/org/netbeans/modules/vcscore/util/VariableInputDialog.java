@@ -154,7 +154,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         navigationPanel.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints2;
         
-        prevButton.setText("<<");
+        prevButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.prevButton.text"));
         prevButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 prevButtonActionPerformed(evt);
@@ -166,7 +166,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
         navigationPanel.add(prevButton, gridBagConstraints2);
         
-        nextButton.setText(">>");
+        nextButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.nextButton.text"));
         nextButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nextButtonActionPerformed(evt);
@@ -593,6 +593,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                                    int gridy, javax.swing.JPanel variablePanel, int leftInset) {
         String varLabel = component.getLabel();
         ArrayList componentList = new ArrayList();
+        final javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
         if (varLabel != null && varLabel.length() > 0) {
             javax.swing.JLabel label = new javax.swing.JLabel(varLabel);
             java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
@@ -602,8 +603,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
             gridBagConstraints1.insets = new java.awt.Insets (0, leftInset, 8, 8);
             variablePanel.add(label, gridBagConstraints1);
             componentList.add(label);
+            label.setLabelFor(field);
+            if (component.getLabelMnemonic() != null) {
+                label.setDisplayedMnemonic(component.getLabelMnemonic().charValue());
+            }
         }
-        final javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
         String value;
         if (component.needsPreCommandPerform()) {
             value = component.getValue();
@@ -824,6 +828,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 chbox.setSelected(Boolean.TRUE.toString().equalsIgnoreCase(askDefault));
             }
         }
+        if (component.getLabelMnemonic() != null) {
+            chbox.setMnemonic(component.getLabelMnemonic().charValue());
+        }
         java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = gridy;
@@ -896,6 +903,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
         java.awt.Dimension dimension = component.getDimension();
         if (dimension == null) dimension = new java.awt.Dimension(TEXTAREA_ROWS, TEXTAREA_COLUMNS);
         final javax.swing.JTextArea area = new javax.swing.JTextArea(dimension.width, dimension.height);
+        label.setLabelFor(area);
+        if (component.getLabelMnemonic() != null) {
+            label.setDisplayedMnemonic(component.getLabelMnemonic().charValue());
+        }
         javax.swing.JScrollPane scrollArea = new javax.swing.JScrollPane(area);
         //javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
         java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
@@ -1043,6 +1054,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
             firstSubLabelEmpty = subLabel == null || subLabel.length() == 0;
         }
         final javax.swing.JRadioButton button = new javax.swing.JRadioButton(label);
+        if (component.getLabelMnemonic() != null) {
+            button.setMnemonic(component.getLabelMnemonic().charValue());
+        }
         group.add(button);
         java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
         gridBagConstraints1.gridx = 0;
@@ -1100,17 +1114,6 @@ public class VariableInputDialog extends javax.swing.JPanel {
                                 javax.swing.JPanel variablePanel, int leftInset) {
         ArrayList componentList = new ArrayList();
         String message = component.getLabel();
-        if (message != null && message.length() > 0) {
-            javax.swing.JLabel label = new javax.swing.JLabel(message);
-            java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
-            gridBagConstraints1.gridx = 0;
-            gridBagConstraints1.gridy = gridy;
-            gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-            gridBagConstraints1.insets = new java.awt.Insets (0, leftInset, 8, 8);
-            gridBagConstraints1.gridwidth = 1;
-            variablePanel.add(label, gridBagConstraints1);
-            componentList.add(label);
-        }
         final VariableInputComponent[] subComponents = component.subComponents();
         final int items = subComponents.length;
         final String[] labels = new String[items];
@@ -1126,6 +1129,21 @@ public class VariableInputDialog extends javax.swing.JPanel {
             //System.out.println("SELECT_COMBO["+i+"]: ENABLE("+VcsUtilities.arrayToString(varsEnabled[i])+"), DISABLE("+VcsUtilities.arrayToString(varsDisabled[i])+")");
         }
         final javax.swing.JComboBox comboBox = new javax.swing.JComboBox(labels);
+        if (message != null && message.length() > 0) {
+            javax.swing.JLabel label = new javax.swing.JLabel(message);
+            java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
+            gridBagConstraints1.gridx = 0;
+            gridBagConstraints1.gridy = gridy;
+            gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints1.insets = new java.awt.Insets (0, leftInset, 8, 8);
+            gridBagConstraints1.gridwidth = 1;
+            variablePanel.add(label, gridBagConstraints1);
+            componentList.add(label);
+            label.setLabelFor(comboBox);
+            if (component.getLabelMnemonic() != null) {
+                label.setDisplayedMnemonic(component.getLabelMnemonic().charValue());
+            }
+        }
         java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();
         gridBagConstraints2.gridx = 1;
         gridBagConstraints2.gridy = gridy;

@@ -26,6 +26,7 @@ public class VariableInputComponent extends Object {
     private boolean expert = false;
     private String variable;
     private String label;
+    private Character labelMnemonic;
     private String value = null;
     private String valueSelected = null;
     private String valueUnselected = null;
@@ -42,9 +43,20 @@ public class VariableInputComponent extends Object {
     
     /** Creates new VariableInputComponent */
     public VariableInputComponent(int component, String variable, String label) {
+        this(component, variable, label, null);
+    }
+    
+    /** Creates new VariableInputComponent */
+    public VariableInputComponent(int component, String variable, String label,
+                                  String labelMnemonic) {
         this.component = component;
         this.variable = variable;
         this.label = label;
+        if (labelMnemonic != null && labelMnemonic.length() > 0) {
+            this.labelMnemonic = new Character(labelMnemonic.charAt(0));
+        } else {
+            this.labelMnemonic = null;
+        }
     }
     
     public int getComponent() {
@@ -92,6 +104,10 @@ public class VariableInputComponent extends Object {
     
     public String getLabel() {
         return label;
+    }
+    
+    public Character getLabelMnemonic() {
+        return labelMnemonic;
     }
     
     public void setValue(String value) {

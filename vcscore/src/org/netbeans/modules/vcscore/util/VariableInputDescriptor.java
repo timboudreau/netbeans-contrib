@@ -44,6 +44,7 @@ public class VariableInputDescriptor extends Object {
     
     public static final String INPUT_STR_ENABLE = "ENABLE";
     public static final String INPUT_STR_DISABLE = "DISABLE";
+    public static final String INPUT_STR_MNEMONIC = "MNEMONIC_";
     
     public static final String SELECTOR = "SELECTOR_";
     public static final String SELECTOR_FILE = SELECTOR + "FILE";
@@ -252,11 +253,23 @@ public class VariableInputDescriptor extends Object {
         if (len < 2) {
             throw new VariableInputFormatException(g("EXC_InsufficientArgs"));
         }
-        VariableInputComponent component = new VariableInputComponent(id, inputArgs[0], VcsUtilities.getBundleString(inputArgs[1]));
+        VariableInputComponent component;
+        int argNum; // the number of currently processing argument
+        
+        if (len > 3 && inputArgs[3].startsWith(INPUT_STR_MNEMONIC)) {
+            component = new VariableInputComponent(id, inputArgs[0],
+                                                   VcsUtilities.getBundleString(inputArgs[1]),
+                                                   inputArgs[3].substring(INPUT_STR_MNEMONIC.length()));
+            argNum = 4;
+        } else {
+            component = new VariableInputComponent(id, inputArgs[0],
+                                                   VcsUtilities.getBundleString(inputArgs[1]));
+            argNum = 3;
+        }
+        
         if (len >= 3) {
             component.setValue(VcsUtilities.getBundleString(inputArgs[2])); // default variable value
         }
-        int argNum = 3; // the number of currently processing argument
         if (len > argNum && inputArgs[argNum].indexOf(VariableInputValidator.VALIDATOR) == 0) {
             String validator = inputArgs[argNum];
             component.setValidator(validator);

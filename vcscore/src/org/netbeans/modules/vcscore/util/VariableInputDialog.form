@@ -17,7 +17,9 @@
       <SubComponents>
         <Component class="javax.swing.JButton" name="prevButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="&lt;&lt;"/>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/modules/vcscore/util/Bundle.properties" key="VariableInputDialog.prevButton.text" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
+            </Property>
           </Properties>
 
           <Events>
@@ -31,7 +33,9 @@
         </Component>
         <Component class="javax.swing.JButton" name="nextButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="&gt;&gt;"/>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/modules/vcscore/util/Bundle.properties" key="VariableInputDialog.nextButton.text" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
+            </Property>
           </Properties>
 
           <Events>
