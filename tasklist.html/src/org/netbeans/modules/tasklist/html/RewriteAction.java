@@ -57,15 +57,25 @@ public class RewriteAction extends NodeAction
         if ((node == null) || (node.length != 1)) {
             return false;
         }
-        Suggestion item = (Suggestion)TaskNode.getTask(node[0]);
-        if (item == null) {
+
+        DataObject dobj = (DataObject)node[0].getCookie(DataObject.class);
+        if (dobj == null) {
             return false;
         }
-        Line l = item.getLine();
-        if (l == null) {
+        Document doc = TLUtils.getDocument(dobj);
+        if (doc == null) { // Not open
             return false;
-        }        
-        return true;
+        }
+        if (TidySuggester.isHTML(dobj)) {
+            return true;
+        }
+        if (TidySuggester.isJSP(dobj)) {
+            return true;
+        }
+        if (TidySuggester.isXML(dobj)) {
+            return true;
+        }
+        return false;
     }
 
     private Tidy tidy = null;
@@ -79,13 +89,21 @@ public class RewriteAction extends NodeAction
                // (e.g. the suggestion manager would associate the
                // data object with the node)
         Suggestion item = (Suggestion)TaskNode.getTask(node[0]);
-        Line l = item.getLine();
-        Document doc = TLUtils.getDocument(l);
+        DataObject dobj;
+        if (item != null) {
+            Line l = item.getLine();
+            dobj = l.getDataObject();
+        } else {
+            dobj = (DataObject)node[0].getCookie(DataObject.class);
+            if (dobj == null) {
+                return;
+            }
+        }
+        Document doc = TLUtils.getDocument(dobj);
         if (doc == null) {
             return; // XXX signal error?
         }
 
-        DataObject dobj = l.getDataObject();
         boolean isHTML = TidySuggester.isHTML(dobj);
         boolean isJSP = false;
         boolean isXML = false;
@@ -143,10 +161,16 @@ public class RewriteAction extends NodeAction
         String rewritten = rewrite(doc);
 
         try {
-            // TODO Instead of a two-step process, use replaceSelection
-            // to perform a single step replacement
-            doc.remove(0, doc.getLength());
-            doc.insertString(0, rewritten, null);
+            /* Grrr ... turns out replace() is only available as of JDK 1.4...
+            if (doc instanceof AbstractDocument) {
+                ((AbstractDocument)doc).replace(0, doc.getLength(), rewritten,
+                                                null);
+            }
+            else {
+            */
+                doc.remove(0, doc.getLength());
+                doc.insertString(0, rewritten, null);
+            //}
         } catch (BadLocationException e) {
             ErrorManager.getDefault().notify(e);
         }
@@ -245,11 +269,9 @@ public class RewriteAction extends NodeAction
                                    "Rewrite"); // NOI18N
     }
 
-    /*
     protected String iconResource() {
         return "org/netbeans/modules/tasklist/html/rewrite.gif"; // NOI18N
     }
-    */
     
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
