@@ -90,7 +90,7 @@ public abstract class Entry implements Node.Cookie /*Only for Node.getCookie! Re
     
     public /*!!!!*/ void setModel(BiBTeXModel model) {
         this.model = model;
-        firePropertyChange("MODEL", null, model);
+        firePropertyChange("model", null, model);
     }
     
     public abstract String writeOut();

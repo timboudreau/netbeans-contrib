@@ -23,6 +23,7 @@ import java.util.Map;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
 import org.netbeans.modules.latex.bibtex.IncrementalParserTestStub.*;
 
 /**

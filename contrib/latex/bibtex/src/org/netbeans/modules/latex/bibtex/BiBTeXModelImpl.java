@@ -271,6 +271,9 @@ public class BiBTeXModelImpl extends BiBTeXModel implements PropertyChangeListen
             Object source = evt.getSource();
             
             if (source instanceof Entry) {
+	        if ("model".equals(evt.getPropertyName()))
+		    return;
+
                 final Entry e = (Entry) source;
                 final String toWrite = e.writeOut();
                 

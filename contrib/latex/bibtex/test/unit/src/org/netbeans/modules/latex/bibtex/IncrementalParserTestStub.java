@@ -24,6 +24,9 @@ import java.util.List;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.modules.latex.model.Utilities;
+import org.netbeans.modules.latex.model.bibtex.Entry;
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
+import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -131,7 +134,7 @@ public class IncrementalParserTestStub {
         public void validate(Document doc) throws BadLocationException, IOException {
             BiBTeXModel model = BiBTeXModel.getModel(Utilities.getDefault().getFile(doc));
             List incremental  = model.getEntries();
-            List batch        = new ArrayList(model.doParse());
+            List batch        = new ArrayList(((BiBTeXModelImpl) model).doParse());
             
             if (!incremental.equals(batch)) {
                 String annotation = "";
