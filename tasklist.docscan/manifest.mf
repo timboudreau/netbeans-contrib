@@ -10,7 +10,7 @@ OpenIDE-Module-Install: org/netbeans/modules/tasklist/docscan/ModuleLifecycle.cl
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/2 = @tl.core.impl@,
   org.netbeans.tasklistapi/1 = @tl.api.impl@,
   org.netbeans.modules.suggestions_framework/2 = @tl.suggestions.impl@,
-  org.netbeans.modules.projectapi,
-  org.netbeans.modules.projectuiapi,
+  org.netbeans.modules.projectapi/0,
+  org.netbeans.modules.projectuiapi/0,
   org.netbeans.api.java/1
 OpenIDE-Module-Public-Packages: -
