@@ -61,7 +61,17 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private VcsFileSystem fileSystem = null;
     private UserCommand cmd = null;
     private Hashtable vars = null;
+    /**
+     * The preferred execution string, that should be used instead of the
+     * execution string defined by the command. This is usually pre-processed
+     * command's execution string, where some values may be expanded.
+     */
     private String preferredExec = null;
+    /**
+     * Fully expanded preferred execution string. This is the final execution
+     * string, that is used to run the command.
+     */
+    private String preferredExecExpanded = null;
     /** The command associated with this executor.
      * @deprecated For compatibility with the old VCS "API" only. */
     private VcsDescribedCommand command = null;
@@ -373,7 +383,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         this.vars = vars;
         if (exec != null) {
-            this.preferredExec = Variables.expand(vars, exec, false);
+            this.preferredExecExpanded = Variables.expand(vars, exec, false);
         }
         /*
         if (!(vc instanceof UserCommand)) return "";
@@ -388,7 +398,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * Get the updated execution string. It may contain user input now.
      */
     public String getExec() {
-        return preferredExec;
+        return preferredExecExpanded;
     }
     
     protected final VcsFileSystem getFileSystem() {
@@ -529,7 +539,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //E.deb("runCommand: "+exec); // NOI18N
 
         //exec = Variables.expand(vars,exec, true);
-        preferredExec = VcsUtilities.array2stringNl(execs);
+        preferredExec = preferredExecExpanded = VcsUtilities.array2stringNl(execs);
         StringBuffer[] globalDataOutputWhole = null;
         RE[] globalRegexs = new RE[2];
         for (int i = 0; i < execs.length; i++) {
@@ -579,14 +589,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //D.deb("errorContainer = "+errorContainer); // NOI18N
         switch (exitStatus) {
         case VcsCommandExecutor.SUCCEEDED:
-            commandFinished(preferredExec, true);
+            commandFinished(preferredExecExpanded, true);
             break;
         case VcsCommandExecutor.INTERRUPTED:
             //commandFinished(exec, false);
             //break;
             // Do the same as when the command fails.
         case VcsCommandExecutor.FAILED:
-            commandFinished(preferredExec, false);
+            commandFinished(preferredExecExpanded, false);
             fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
             break;
         }
@@ -640,7 +650,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         E.deb("runClass: "+className); // NOI18N
         boolean success = true;
         Class execClass = null;
-        preferredExec = exec;
+        preferredExec = preferredExecExpanded = exec;
         try {
             execClass =  Class.forName(className, true, VcsUtilities.getSFSClassLoader());
                                        //org.openide.TopManager.getDefault().currentClassLoader());
@@ -750,9 +760,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 maxCmdLength = Integer.parseInt(maxCmdLengthStr);
             } catch (NumberFormatException nfex) {}
         }
-        //System.out.println("ExecuteCommand.run(): exec = "+exec+"\npreferredExec = "+preferredExec);
         if (preferredExec != null) exec = preferredExec;
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
+        //System.out.println("ExecuteCommand.run(): exec = "+exec+"\npreferredExec = "+preferredExec);
         if (exec == null) return ; // Silently ignore null exec
         String execOrig = exec;
         exec = Variables.expand(vars, exec, false);
@@ -762,6 +772,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             return ; // Silently ignore empty exec
         }
         String[] execs;
+        //System.out.println("Exec length = "+exec.length()+", MAX is "+maxCmdLengthStr);
         if (maxCmdLength > 0 && exec.length() > maxCmdLength) {
             execs = splitExec(execOrig, maxCmdLength);
         } else {
@@ -777,7 +788,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         
         String[] allArgs = VcsUtilities.getQuotedArguments(exec);
         String first = allArgs[0];
-        E.deb("first = "+first); // NOI18N
+        //E.deb("first = "+first); // NOI18N
         boolean disableRefresh = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS);
         if (disableRefresh) fileSystem.disableRefresh();
         try {
@@ -796,6 +807,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
     
     private String[] splitExec(String exec, int maxCmdLength) {
+        //System.out.println("splitExec("+exec+", "+maxCmdLength+")");
         String[] varNames = new String[] { "FILES", "QFILES", "PATHS", "QPATHS", "MPATHS", "QMPATHS" };
         int nVARS = varNames.length;
         int[][] fileIndexes = new int[nVARS][];
@@ -809,56 +821,85 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 } catch (java.io.IOException ioex) {}
             }
         }
+        if (nFiles <= 1) {
+            // We can not shrink this anyway, Therefore we simply return the original exec
+            return new String[] { Variables.expand(vars, exec, false) };
+        }
         String[] varValues = new String[nVARS];
         for (int i = 0; i < nVARS; i++) {
             varValues[i] = (String) vars.get(varNames[i]);
         }
+        Hashtable tempVars = new Hashtable(vars);
         ArrayList execs = new ArrayList();
         int startFileIndex = 0;
+        //System.out.println("nFiles = "+nFiles);
         do {
             int i = startFileIndex;
             int j = nFiles;
             String execTemp = null;
+            int lastK = -1;
             while (i < j) {
-                int k = (i + j)/2;
+                int k = (i + j + 1)/2;
+                //System.out.println("  i = "+i+", j = "+j+", k = "+k);
+                if (k == startFileIndex) k++;
+                if (k == lastK) { // prevent an infinite loop.
+                    if (i != k) {
+                        if (i == startFileIndex) {
+                            i = k; // We need to accept a longer execution string :-(
+                        } else {
+                            k = i; // We're in the loop and the exec string was too long
+                            j = i;
+                        }
+                    } else {
+                        break;
+                    }
+                }
                 execTemp = getTempExec(startFileIndex, k, fileIndexes, exec,
-                                       nVARS, varNames, varValues);
+                                       nVARS, varNames, varValues, tempVars);
+                //System.out.print("  exec "+((execTemp.length() < maxCmdLength) ? "<" : ">=")+" MAX =>");
                 if (execTemp.length() < maxCmdLength) {
                     i = k;
-                    j = k; // For simplicity stop it here. Do not look for longer exec.
+                    //j = k; // For simplicity stop it here. Do not look for longer exec.
                 } else {
                     j = k;
                 }
+                lastK = k;
+                //System.out.println("  i = "+i+", j = "+j+", k = "+k+", exec length ("+execTemp.length()+")"+((execTemp.length() < maxCmdLength) ? "<" : ">=")+maxCmdLength);
             }
-            if (i == startFileIndex || execTemp == null) { // The execution string is too long even with one file
-                return new String[] { Variables.expand(vars, exec, false) }; // Therefore I simply return the original exec
-            }
+            //System.out.println("  FINAL: i = "+i+", j = "+j+", k = "+lastK+", exec length ("+execTemp.length()+")"+((execTemp.length() < maxCmdLength) ? "<" : ">=")+maxCmdLength);
             execs.add(execTemp);
             startFileIndex = i;
-            execTemp = getTempExec(startFileIndex, nFiles, fileIndexes, exec,
-                                   nVARS, varNames, varValues);
-            if (execTemp.length() < maxCmdLength || startFileIndex == (nFiles - 1)) {
-                // It's either O.K. or there is the last file anyway.
-                execs.add(execTemp);
-                break;
-            }
         } while (startFileIndex < nFiles);
+        /*
+        System.out.println("return splitted:");
+        for (int i = 0; i < execs.size(); i++) {
+            System.out.println("  '"+execs.get(i)+"'");
+        }
+        System.out.println("========");
+         */
         return (String[]) execs.toArray(new String[0]);
     }
     
     private String getTempExec(int j, int k, int[][] fileIndexes, String exec,
-                               int nVARS, String[] varNames, String[] varValues) {
+                               int nVARS, String[] varNames, String[] varValues,
+                               Hashtable vars) {
         for (int i = 0; i < nVARS; i++) {
             String varTempValue;
-            if (k < fileIndexes[i].length) {
-                varTempValue = varValues[i].substring(fileIndexes[i][j], fileIndexes[i][k]);
+            if (j < k) {
+                if (k < fileIndexes[i].length) {
+                    varTempValue = varValues[i].substring(fileIndexes[i][j], fileIndexes[i][k] - 1);
+                } else {
+                    varTempValue = varValues[i].substring(fileIndexes[i][j]);
+                }
             } else {
-                varTempValue = varValues[i].substring(fileIndexes[i][j]);
+                varTempValue = "";
             }
             vars.put(varNames[i], varTempValue);
+            //System.out.println("  Temp var "+varNames[i]+" = "+varTempValue);
         }
         String execTemp = Variables.expand(vars, exec, false);
         execTemp = execTemp.trim();
+        //System.out.println("tempExec("+j+", "+k+") = '"+execTemp+"'");
         return execTemp;
     }
 
