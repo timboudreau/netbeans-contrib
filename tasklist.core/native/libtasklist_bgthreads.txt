@@ -1,0 +1,7 @@
+Put this native library under {netbeans36}/modules/autoload/bin
+to get improved less intrusive background scanning for TODOs.
+
+WARNING: Use on your own risk it's not officially supported
+(http://tasklist.netbeans.org/issues/show_bug.cgi?id=39894).
+
+Compiled using: (GCC) 3.3.2 20031022 (Red Hat Linux 3.3.2-1).
