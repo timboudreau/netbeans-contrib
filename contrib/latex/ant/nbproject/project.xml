@@ -7,5 +7,4 @@
             <minimum-ant-version>1.6</minimum-ant-version>
         </data>
     </configuration>
-    <display-name>ant</display-name>
 </project>
