@@ -20,6 +20,7 @@ import org.netbeans.test.oo.gui.jelly.*;
 import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.TestOut;
 import org.netbeans.jemmy.util.PNGEncoder;
+import org.netbeans.jemmy.TimeoutExpiredException;
 import org.netbeans.jemmy.operators.*;
 import org.netbeans.jellytools.modules.vcsgeneric.wizard.*;
 import org.netbeans.jellytools.modules.vcsgeneric.pvcs.*;
@@ -51,8 +52,6 @@ public class RegularDevelopment extends NbTestCase {
     public static String REMOVE_REVISION = "PVCS|Remove Revision";
     public static String LOCK = "PVCS|Lock";
     public static String VERSIONING_EXPLORER = "Versioning Explorer";
-    public static String ADD_TO_GROUP = "Include In VCS Group|<Default Group>";
-    public static String VCS_GROUPS = "VCS Groups";
     public static String workingDirectory;
     public static String userName;
     private static final Color MODIFIED_COLOR = new Color(160, 200, 255);
@@ -177,7 +176,7 @@ public class RegularDevelopment extends NbTestCase {
         System.out.println(". done !");
     }
     
-    /** Tries to modify a file in PVCS filesystem.
+    /** Tries to view differences of the modified file in PVCS filesystem.
      * @throws Exception any unexpected exception thrown during test.
      */
     public void testViewDifferences() throws Exception {
@@ -286,7 +285,18 @@ public class RegularDevelopment extends NbTestCase {
         Node C_FileJavaNode = new Node( testNode, "C_File.java [Missing]");
         Node C_FileFormNode = new Node( testNode, "C_File.form [Missing]");
         new ActionNoBlock(VERSIONING_MENU + "|" + GET, GET).perform(new Node[] {C_FileJavaNode, C_FileFormNode});
-        GetCommandOperator getCommand = new GetCommandOperator("C_File.java ...");
+        GetCommandOperator getCommand = null;
+        long oldTimeout = JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
+        JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 5000);
+        try { getCommand = new GetCommandOperator("C_File.java ..."); }
+        catch (TimeoutExpiredException ej) {
+            try { getCommand= new GetCommandOperator("C_File.form ..."); }
+            catch (TimeoutExpiredException ef) {
+                JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
+                captureScreen("Error: Can't find Get dialog.");
+            }
+        }
+        JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
         getCommand.ok();
         Thread.sleep(10000);
         MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
