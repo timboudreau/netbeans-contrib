@@ -77,6 +77,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
   }  
 
   public void propertyChange (PropertyChangeEvent evt) {
+    if (evt.getPropertyName() != FileSystem.PROP_VALID) return;
     if (isValid()) {
       D.deb("Filesystem added to the repository, setting refresh time to "+refreshTimeToSet); // NOI18N
       setRefreshTime(refreshTimeToSet);
@@ -97,6 +98,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
 
 /*
  * <<Log>>
+ *  56   Gandalf   1.55        2/11/00  Martin Entlicher 
  *  55   Gandalf   1.54        2/10/00  Martin Entlicher Warning of nonexistent 
  *       directories called when mounted.
  *  54   Gandalf   1.53        1/27/00  Martin Entlicher NOI18N
