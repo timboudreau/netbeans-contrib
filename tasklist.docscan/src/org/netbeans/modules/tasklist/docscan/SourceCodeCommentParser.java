@@ -18,11 +18,7 @@ package org.netbeans.modules.tasklist.docscan;
 
 import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 
 
 /**
@@ -79,19 +75,7 @@ public class SourceCodeCommentParser {
     public void setDocument(SuggestionContext env) {
         parser.setDocument(env);
     }
-    
-    /**
-     * Set the document to parse
-     * @param doc the document to parse
-     * @throws java.io.IOException if anything goes wrong...
-     *
-     * XXX not used however the idea is smart, do we really need
-     * Document interface from the framework?
-     */
-    public void setDocument(File f) throws IOException {
-        parser.setDocument(f);
-    }
-    
+
     /**
      * get the next line of text from the file
      * @param ret Where to store the result
@@ -117,8 +101,9 @@ public class SourceCodeCommentParser {
          * Create a new instance of the SourceParser
          */
         public SourceParser() {
-            doc = null;
+            chars = null;
             lineno = 0;
+            pos = 0;
             rest = null;
             inComment = false;
         }
@@ -131,38 +116,56 @@ public class SourceCodeCommentParser {
          *         stream.
          */
         public boolean getNextLine(CommentLine ret) throws IOException {
-            ret.line = doc.readLine();
+            ret.line = readLine();
             ++lineno;
             ret.lineno = lineno;
             return ret.line != null;
         }
-        
+
+        /*
+         * 'Tokenizes' charsequence at \n, \r\n and \r boundaries.
+         */
+        protected final String readLine() {
+            StringBuffer sb = new StringBuffer(83);
+            if (pos >= chars.length()) return null;
+            while (pos < chars.length()) {
+                char ch = chars.charAt(pos);
+                if (ch == '\r') {
+                    if (chars.charAt(pos +1) == '\n') {
+                        pos+=2;
+                        break;
+                    } else {
+                        pos++;
+                        break;
+                    }
+                } else if (ch == '\n') {
+                    pos++;
+                    break;
+                } else {
+                    sb.append(ch);
+                    pos++;
+                }
+            }
+            return sb.toString();
+        }
+
         /**
          * Set the document to parse
-         * @param doc the document to parse
+         * @param env to parse
          */
         public void setDocument(SuggestionContext env) {
-            String text = (String) env.getCharSequence(); //XXX downcast
-            this.doc = new BufferedReader(new StringReader(text));
+            this.chars = env.getCharSequence();
             lineno = 0;
+            pos = 0;
             rest = null;
             inComment = false;
         }
-        
-        /**
-         * Set the document to parse
-         * @param doc the document to parse
-         */
-        public void setDocument(File f) throws IOException {
-            this.doc = new BufferedReader(new FileReader(f));
-            lineno = 0;
-            rest = null;
-            inComment = false;
-        }
-        
         
         /** The reader I use to read the document content from */
-        protected BufferedReader doc;
+        private CharSequence chars;
+
+        private int pos;  // position in above sequence
+
         /** Current line in the file */
         protected int                    lineno;
         /** 
@@ -215,7 +218,7 @@ public class SourceCodeCommentParser {
             String line = null;
             
             // Read next line of input!
-            while (rest != null || (line = doc.readLine()) != null) {
+            while (rest != null || (line = readLine()) != null) {
                 if (rest != null) {
                     line = rest;
                     rest = null;

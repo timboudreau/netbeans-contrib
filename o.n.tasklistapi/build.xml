@@ -31,6 +31,7 @@ Microsystems, Inc. All Rights Reserved.
             <include name="openide*.jar" />
         </fileset>
         <pathelement location="${nb_all}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
+        <pathelement location="${nb_all}/java/netbeans/modules/java.jar"/>  <!-- Hard compile-time, soft run-time dependency -->
     </path>
   
     <target name="compile">

@@ -119,7 +119,8 @@ public class SuggestionList extends TaskList {
             Iterator it = tasks.iterator();
             while (it.hasNext()) {
                 SuggestionImpl s = (SuggestionImpl)it.next();
-                if (s.getSType().getPosition() >= pos) {
+                int spos = s.getSType().getPosition();
+                if (spos > pos) {
                     break;
                 } else {
                     after = s;

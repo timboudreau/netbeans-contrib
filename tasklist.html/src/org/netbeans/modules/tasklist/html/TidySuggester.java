@@ -132,8 +132,11 @@ public class TidySuggester extends DocumentSuggestionProvider
         parseObject = dobj;
         if (manager.isEnabled(TYPE)) {
             InputStream input = null;
-            String text = (String) env.getCharSequence(); //XXX downcast, InputStream from FileObject
-            input = new StringBufferInputStream(text);
+            try {
+                input = env.getFileObject().getInputStream();
+            } catch (FileNotFoundException e) {
+                return null;
+            }
 
             if (tidy == null) {
                 tidy = new Tidy();

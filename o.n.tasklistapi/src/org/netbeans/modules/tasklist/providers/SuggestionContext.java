@@ -16,6 +16,7 @@ package org.netbeans.modules.tasklist.providers;
 import org.openide.loaders.DataObject;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
+import org.openide.ErrorManager;
 
 import javax.swing.text.Document;
 import javax.swing.text.BadLocationException;
@@ -35,6 +36,9 @@ public final class SuggestionContext {
 
     private String cachedString;
 
+    // we have soft runtime dependency on java module
+    private static boolean linkageError;
+
     /**
      * For internal framework purposes only!
      */
@@ -46,22 +50,33 @@ public final class SuggestionContext {
      * @return read-only snapshot of context representation
      */
     public CharSequence getCharSequence() {
+
         if (cachedString == null) {
+
+            FileObject fo = getFileObject();
+            if (linkageError == false && fo.hasExt("java")) {  // NOI18N
+                // use faster direct access to file for java sources
+                // I measured 10% speedup
+                try {
+                    // XXX it does not normalize line separators to \n
+                    cachedString = JavaSuggestionContext.getContent(fo);
+                    return cachedString;
+                } catch (LinkageError link) {
+                    // use EditorCookie below
+                    link.printStackTrace();
+                    linkageError = true;
+                }
+            }
+
             EditorCookie edit =
                 (EditorCookie) dataObject.getCookie(EditorCookie.class);
             if (edit != null) {
                 Document doc;
-                // XXX if not opened it could be faster to
-                // take FileChannel and read it into CharBuffer.
-                // It has several drawbacks: guarded blocks makers are not filtered
-                // out, no line normalization is made, encoding must
-                // be heuritically guessed....
                 try {
                     doc = edit.openDocument(); // DOES block
                     cachedString = extractString(doc);
                 } catch (IOException e) {
-                    // XXX
-                    e.printStackTrace();
+                    ErrorManager.getDefault().notify(e);
                 }
             }
         }
