@@ -111,9 +111,9 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         tableLabel = new javax.swing.JLabel();
         treeTableView1 = new org.openide.explorer.view.TreeTableView();
         jPanel4 = new javax.swing.JPanel();
-        recognizeButton = new javax.swing.JButton();
-        unrecognizeButton = new javax.swing.JButton();
-        customizeButton = new javax.swing.JButton();
+        newButton = new javax.swing.JButton();
+        removeButton = new javax.swing.JButton();
+        editButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
 
@@ -124,8 +124,9 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         setPreferredSize(new java.awt.Dimension(750, 260));
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
+        tableLabel.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_lblVersionedDirs_mnc").charAt(0));
         tableLabel.setLabelFor(treeTableView1);
-        tableLabel.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.lblRecognisedVCSes"));
+        tableLabel.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.lblVersionedDirs"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 2, 0);
@@ -143,28 +144,32 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
 
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
-        recognizeButton.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.cbRecognize"));
+        newButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_btnNew_mnc").charAt(0));
+        newButton.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.btnNew"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(8, 12, 0, 0);
-        jPanel4.add(recognizeButton, gridBagConstraints);
+        jPanel4.add(newButton, gridBagConstraints);
 
-        unrecognizeButton.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.cbUnrecognize"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
-        jPanel4.add(unrecognizeButton, gridBagConstraints);
-
-        customizeButton.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.cbCustomize"));
+        removeButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_VcsManager.btnRemove_mnc").charAt(0));
+        removeButton.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.btnRemove"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        jPanel4.add(removeButton, gridBagConstraints);
+
+        editButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_VcsManager.lblEdit_mnc").charAt(0));
+        editButton.setText(org.openide.util.NbBundle.getMessage(VcsManager.class, "VCSManager.btnEdit"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
-        jPanel4.add(customizeButton, gridBagConstraints);
+        jPanel4.add(editButton, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -188,15 +193,16 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
     private void initAccessibility(){
         getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(VcsManager.class, "ACSD.VCSManager"));
         setName(NbBundle.getMessage(VcsManager.class, "ACSN.VCSManager"));        
-        recognizeButton.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(VcsManager.class, "ACSD.VCSManager.recognize"));
-        unrecognizeButton.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(VcsManager.class, "ACSD.VCSManager.unrecognize"));
-        customizeButton.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(VcsManager.class, "ACSD.VCSManager.customize"));
+        newButton.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(VcsManager.class, "ACSD.VCSManager.recognize"));
+        removeButton.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(VcsManager.class, "ACSD.VCSManager.unrecognize"));
+        editButton.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(VcsManager.class, "ACSD.VCSManager.customize"));
         treeTableView1.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(VcsManager.class, "ACSD.VCSManager.treeTableView1"));
         //mnemonics
         tableLabel.setDisplayedMnemonic(NbBundle.getMessage(VcsManager.class, "VCSManager.tableLabel.Mnem").charAt(0));        
-        recognizeButton.setMnemonic(NbBundle.getMessage(VcsManager.class, "VCSManager.recognizeButton.Mnem").charAt(0));
-        unrecognizeButton.setMnemonic(NbBundle.getMessage(VcsManager.class, "VCSManager.unrecognizeButton.Mnem").charAt(0));
-        customizeButton.setMnemonic(NbBundle.getMessage(VcsManager.class, "VCSManager.customizeButton.Mnem").charAt(0));        
+      /*  newButton.setMnemonic(NbBundle.getMessage(VcsManager.class, "VCSManager.recognizeButton.Mnem").charAt(0));
+        removeButton.setMnemonic(NbBundle.getMessage(VcsManager.class, "VCSManager.unrecognizeButton.Mnem").charAt(0));
+        editButton.setMnemonic(NbBundle.getMessage(VcsManager.class, "VCSManager.customizeButton.Mnem").charAt(0));        
+       */
     }
     
     /** Get the explorer manager.
@@ -222,9 +228,9 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
     }        
             
     private void initActions(){
-        recognizeButton.setAction(new RecognizeAction());
-        unrecognizeButton.setAction(new UnrecognizeAction());
-        customizeButton.setAction(new CustomizeAction());
+        newButton.setAction(new RecognizeAction());
+        removeButton.setAction(new UnrecognizeAction());
+        editButton.setAction(new CustomizeAction());
     }
     
     public void propertyChange(PropertyChangeEvent e) {
@@ -339,15 +345,15 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton customizeButton;
+    private javax.swing.JButton editButton;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JButton recognizeButton;
+    private javax.swing.JButton newButton;
+    private javax.swing.JButton removeButton;
     private javax.swing.JLabel tableLabel;
     private org.openide.explorer.view.TreeTableView treeTableView1;
-    private javax.swing.JButton unrecognizeButton;
     // End of variables declaration//GEN-END:variables
     
 }
