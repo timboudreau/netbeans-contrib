@@ -33,9 +33,6 @@ import org.netbeans.modules.vcscore.util.*;
  */
 public class VssListFileCommand extends Object implements VcsAdditionalCommand, CommandDataOutputListener {
 
-    private Debug E=new Debug("VssList", true);
-    private Debug D=E;
-    
     private static final int STATUS_POSITION = 19;
     
     private static final String NOT_EXISTING = "not an existing filename or project";
@@ -206,9 +203,9 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
     }
     
     private void fillFilesByName() {
-        fillFilesByName(currentFiles, "Current");
-        fillFilesByName(missingFiles, "Missing");
-        fillFilesByName(differentFiles, "Locally Modified");
+        fillFilesByName(currentFiles, VssListCommand.STATUS_CURRENT);
+        fillFilesByName(missingFiles, VssListCommand.STATUS_MISSING);
+        fillFilesByName(differentFiles, VssListCommand.STATUS_LOCALLY_MODIFIED);
     }
     
     private void fillFilesByName(Set files, String status) {

@@ -37,19 +37,24 @@ import org.netbeans.modules.vcs.profiles.list.AbstractListCommand;
  */
 public class VssListCommand extends AbstractListCommand {
 
-    private Debug E=new Debug("VssList", true);
-    private Debug D=E;
+    //private Debug E=new Debug("VssList", true);
+    //private Debug D=E;
     
-    private static final String PROJECT_BEGIN = "$/"; // NOI18N
-    private static final String STATUS_MISSING = "Missing"; // NOI18N
-    private static final String STATUS_CURRENT = "Current"; // NOI18N
-    private static final String STATUS_LOCALLY_MODIFIED = "Locally Modified"; // NOI18N
-    private static final String LOCAL_FILES = "Local files not in the current project:"; // NOI18N
-    private static final String SOURCE_SAFE_FILES = "SourceSafe files not in the current folder:"; // NOI18N
-    private static final String DIFFERENT_FILES = "SourceSafe files different from local files:"; // NOI18N
-    private static final String IGNORED_FILE = "vssver.scc"; // NOI18N
+    static final String PROJECT_BEGIN_ENG = "$/"; // NOI18N
+    static final String PROJECT_BEGIN_LOC = org.openide.util.NbBundle.getBundle(VssListCommand.class).getString("VSS_ProjectBegin");
+    static final String STATUS_MISSING = "Missing"; // NOI18N
+    static final String STATUS_CURRENT = "Current"; // NOI18N
+    static final String STATUS_LOCALLY_MODIFIED = "Locally Modified"; // NOI18N
+    static final String LOCAL_FILES_ENG = "Local files not in the current project:"; // NOI18N
+    static final String LOCAL_FILES_LOC = org.openide.util.NbBundle.getBundle(VssListCommand.class).getString("VSS_LocalFiles");
+    static final String SOURCE_SAFE_FILES_ENG = "SourceSafe files not in the current folder:"; // NOI18N
+    static final String SOURCE_SAFE_FILES_LOC = org.openide.util.NbBundle.getBundle(VssListCommand.class).getString("VSS_SourceSafeCurrent");
+    static final String DIFFERENT_FILES_ENG = "SourceSafe files different from local files:"; // NOI18N
+    static final String DIFFERENT_FILES_LOC = org.openide.util.NbBundle.getBundle(VssListCommand.class).getString("VSS_SourceSafeDifferent");
+    static final String IGNORED_FILE = "vssver.scc"; // NOI18N
+    static final String ARG_LOC = "-loc";
 
-    private static final int STATUS_POSITION = 19;
+    static final int STATUS_POSITION = 19;
     
     private String dir=null; //, rootDir=null;
     private String relDir = null;
@@ -60,6 +65,8 @@ public class VssListCommand extends AbstractListCommand {
     private HashSet currentFiles = null;
     private HashSet missingFiles = null;
     private HashSet differentFiles = null;
+    
+    private String PROJECT_BEGIN, LOCAL_FILES, SOURCE_SAFE_FILES, DIFFERENT_FILES;
 
     /** Creates new VssListCommand */
     public VssListCommand() {
@@ -100,7 +107,7 @@ public class VssListCommand extends AbstractListCommand {
         }
         if (dir.charAt(dir.length() - 1) == File.separatorChar)
             dir = dir.substring(0, dir.length() - 1);
-        D.deb("dir="+dir);
+        //D.deb("dir="+dir);
     }
 
     private boolean runCommand(Hashtable vars, String cmdName) throws InterruptedException {
@@ -178,6 +185,13 @@ public class VssListCommand extends AbstractListCommand {
         this.args = args;
         this.vars = new Hashtable(vars);
         this.filesByName = filesByName;
+        boolean localized = false;
+        if (args.length > 1 && ARG_LOC.equals(args[0])) {
+            localized = true;
+            String[] newArgs = new String[args.length - 1];
+            System.arraycopy(args, 1, newArgs, 0, newArgs.length);
+            args = newArgs;
+        }
         if (args.length < 2) {
             if (stderrNRListener != null) stderrNRListener.outputLine("Bad number of arguments. "+
                                                                       "Expecting two arguments: directory reader and status reader.\n"+
@@ -185,6 +199,10 @@ public class VssListCommand extends AbstractListCommand {
                                                                       "performance on large directories.");
             return false;
         }
+        PROJECT_BEGIN = (localized) ? PROJECT_BEGIN_LOC : PROJECT_BEGIN_ENG;
+        LOCAL_FILES = (localized) ? LOCAL_FILES_LOC : LOCAL_FILES_ENG;
+        SOURCE_SAFE_FILES = (localized) ? SOURCE_SAFE_FILES_LOC : SOURCE_SAFE_FILES_ENG;
+        DIFFERENT_FILES = (localized) ? DIFFERENT_FILES_LOC : DIFFERENT_FILES_ENG;
         initVars(this.vars);
         initDir(this.vars);
         readLocalFiles(dir);
@@ -351,7 +369,7 @@ public class VssListCommand extends AbstractListCommand {
                             //D.deb(" ****  status match = "+VcsUtilities.arrayToString(elements));
                             if (elements2[0].indexOf(PROJECT_BEGIN) == 0) return ; // skip the $/... folder
                             if (statuses[2] != null) return ; // The status was already set and we get some garbage
-                            addStatuses(elements2);
+                            addStatuses(elements2, statuses);
                         }
                     }
                 });
@@ -392,8 +410,8 @@ public class VssListCommand extends AbstractListCommand {
         }
     }
 
-    private void addStatuses(String[] elements) {
-        D.deb(" !!!!!!!!!!  adding statuses "+VcsUtilities.arrayToString(elements));
+    static void addStatuses(String[] elements, String[] statuses) {
+        //D.deb(" !!!!!!!!!!  adding statuses "+VcsUtilities.arrayToString(elements));
         /*
         for (int i = 1; i < Math.min(elements.length, statuses.length); i++)
           statuses[i] = elements[i];
@@ -426,11 +444,11 @@ public class VssListCommand extends AbstractListCommand {
         }
     }
     
-    private int findWhiteSpace(String str) {
+    private static int findWhiteSpace(String str) {
         return findWhiteSpace(str, 0);
     }
     
-    private int findWhiteSpace(String str, int index) {
+    private static int findWhiteSpace(String str, int index) {
         for (int i = index; i < str.length(); i++) {
             if (Character.isWhitespace(str.charAt(i))) {
                 return i;
@@ -439,7 +457,7 @@ public class VssListCommand extends AbstractListCommand {
         return -1;
     }
 
-    private String getFileFromRow(String row) {
+    static String getFileFromRow(Collection currentFiles, String row) {
         int index;
         //System.out.println("getFileFromRow("+row+")");
         for (index = findWhiteSpace(row); index >= 0 && index < row.length(); index = findWhiteSpace(row, index + 1)) {
@@ -462,7 +480,7 @@ public class VssListCommand extends AbstractListCommand {
         //System.out.println("removeLocalFiles: "+lastFileName);
         if (lastFileName == null) return ;
         while (lastFileName.length() > 0) {
-            String fileName = getFileFromRow(lastFileName);
+            String fileName = getFileFromRow(currentFiles, lastFileName);
             //System.out.println("file From Row = '"+fileName+"'");
             currentFiles.remove(fileName.trim());
             lastFileName = lastFileName.substring(fileName.length());
