@@ -36,12 +36,12 @@ public interface ObservableList {
     /**
      * The listener is notifiead about list modifications
      */
-    void addListener(TaskListener l);
+    void addTaskListener(TaskListener l);
 
     /**
      * The listener is detached
      */
-    void removeListener(TaskListener l);
+    void removeTaskListener(TaskListener l);
 
     /**
      * Dispatch structureChanged event.

@@ -13,13 +13,15 @@
 
 package org.netbeans.modules.tasklist.core;
 
+import java.util.EventListener;
+
 /** 
  * Listener which when notified off changes in current task
  * updates the editor
  *
  * @author Tor Norbye
  */
-public interface TaskListener  {
+public interface TaskListener extends EventListener {
 
     /** Called to indicate that a particular task is made current.
 	Do what you can to "select" this task. 

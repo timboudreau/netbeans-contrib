@@ -65,7 +65,7 @@ final class FilteredTasksList implements ObservableList {
         return root;
     }
 
-    public synchronized void addListener(TaskListener l) {
+    public synchronized void addTaskListener(TaskListener l) {
         // we do not add directly to peer
         // because we filter fired events
         assert l != null;
@@ -74,16 +74,16 @@ final class FilteredTasksList implements ObservableList {
         clisteners.add(l);
         if (clisteners.size() == 1) {
             handler = new EventHandler();
-            peer.addListener(handler);
+            peer.addTaskListener(handler);
         }
         listeners = clisteners;
     }
 
-    public synchronized void removeListener(TaskListener l) {
+    public synchronized void removeTaskListener(TaskListener l) {
         ArrayList clisteners = new ArrayList(listeners);
         clisteners.remove(l);
         if (clisteners.size() == 0) {
-            peer.removeListener(handler);  // nobody is interested in changes
+            peer.removeTaskListener(handler);  // nobody is interested in changes
             handler = null;
         }
         listeners = clisteners;
@@ -97,7 +97,7 @@ final class FilteredTasksList implements ObservableList {
 //            System.err.println("Leaked listeners: " + listeners);
         }
         listeners.clear();
-        peer.removeListener(handler);  // nobody is interested in changes
+        peer.removeTaskListener(handler);  // nobody is interested in changes
         handler = null;
     }
 

@@ -233,6 +233,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         super.componentClosed();
         interrupt = true;  // stop the background process
         Cache.store();
+        releaseWorkaround();
+        if (job != null) {
+            job.stopBroker();
+            job = null;
+        }
     }
 
     private ColumnProperty createLineColumn(boolean visible, int width) {
@@ -668,7 +673,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (job != null) {
             job.stopBroker();
             job = null;
-            putClientProperty("PersistenceType", "Never");
+            putClientProperty("PersistenceType", "Never"); // NOI18N
         }
         treeTable.setProperties(createColumns());
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
@@ -697,9 +702,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private void handleCurrentFile() {
-        handleStop();
-        job = SuggestionsBroker.getDefault().startBroker();
-        putClientProperty("PersistenceType", "OnlyOpened");
+        if (job == null) {
+            handleStop();
+            job = SuggestionsBroker.getDefault().startBroker();
+        }
+        putClientProperty("PersistenceType", "OnlyOpened");  // NOI18N
         treeTable.setProperties(createColumns());
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
         resultsSnapshot = getList();

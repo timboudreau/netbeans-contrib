@@ -303,14 +303,14 @@ public class TaskList implements ObservableList, TaskListener { // XXX remove th
         }
     }
 
-    public void addListener(TaskListener listener) {
+    public void addTaskListener(TaskListener listener) {
         if (listeners == null) {
             listeners = new ArrayList(4);
         }
         listeners.add(listener);
     }
 
-    public void removeListener(TaskListener listener) {
+    public void removeTaskListener(TaskListener listener) {
         if (listeners == null) {
             return;
         }

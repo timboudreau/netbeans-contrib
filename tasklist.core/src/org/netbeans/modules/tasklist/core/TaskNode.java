@@ -78,7 +78,7 @@ public class TaskNode extends AbstractNode {
     private void init() {
         setName(item.getSummary());
         monitor = new Monitor();
-        item.getList().addListener(monitor);
+        item.getList().addTaskListener(monitor);
         item.addPropertyChangeListener(monitor);
         updateDisplayStuff();
         getCookieSet().add(new InstanceSupport.Instance(item));
@@ -167,7 +167,7 @@ public class TaskNode extends AbstractNode {
     public void destroy() throws IOException {
         item.removePropertyChangeListener(monitor);
         ObservableList tl = item.getList();
-        tl.removeListener(monitor);
+        tl.removeTaskListener(monitor);
         item.getParent().removeSubtask(item);
         super.destroy();
     }

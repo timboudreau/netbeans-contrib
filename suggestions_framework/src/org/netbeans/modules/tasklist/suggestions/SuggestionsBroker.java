@@ -91,9 +91,8 @@ public final class SuggestionsBroker {
                 if (cache != null) {
                     cache.flush();
                 }
-                // it should not be used anyway
-                // XXX keep instance for case it's
-                list.clear();
+                list = null;
+                instance = null;
             }
         }
 
@@ -101,7 +100,11 @@ public final class SuggestionsBroker {
          * Returns live list containing current suggestions.
          * List is made live by invoking {@link #startBroker} and
          * is abandoned ance last client calls {@link Job#stopBroker}.
-         * @return
+         * <p>
+         * It's global list so listeners must be carefully unregistered
+         * unfortunatelly it's rather complex because list
+         * is typically passed to  other clasess (TaskChildren).
+         * Hopefully you can WeakListener.
          */
         public SuggestionList getSuggestionsList() {
             return getSuggestionListImpl();

@@ -553,7 +553,7 @@ public abstract class TaskListView extends TopComponent
     protected void setModel(ObservableList list) {
         hideList();
         tasklist = list;
-        getModel().addListener(this);
+        getModel().addTaskListener(this);
         setRoot();
     }
 
@@ -574,7 +574,7 @@ public abstract class TaskListView extends TopComponent
     protected void hideList() {
         ObservableList prev = getModel();
         if (prev != null) {
-            prev.removeListener(this);
+            prev.removeTaskListener(this);
         }
     }
 

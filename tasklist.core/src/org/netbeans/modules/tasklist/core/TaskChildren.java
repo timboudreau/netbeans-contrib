@@ -19,6 +19,8 @@ import java.util.*;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.util.Mutex;
+import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 
 /**
@@ -80,7 +82,12 @@ public class TaskChildren extends Children.Keys {
         super.addNotify();
         assert monitor == null : "Dangling addNotify()"; // NOI18N
         monitor = new Monitor();
-        parent.getList().addListener(monitor);
+
+        // weak listener must be used here because children
+        // all listening on tasklist that has different
+        // lifetime than parent node nor is driven by it.
+        TaskListener l = (TaskListener) WeakListeners.create(TaskListener.class, monitor, parent.getList());
+        parent.getList().addTaskListener(l);
         refreshKeys();
     }
     
@@ -88,7 +95,7 @@ public class TaskChildren extends Children.Keys {
     protected void removeNotify() {
         keys2tasks = null;
         assert monitor != null : "Dangling removeNotify()"; // NOI18N
-        parent.getList().removeListener(monitor);
+        // parent.getList().removeTaskListener(monitor);
         monitor = null;
         setKeys(Collections.EMPTY_SET);
         super.removeNotify();
