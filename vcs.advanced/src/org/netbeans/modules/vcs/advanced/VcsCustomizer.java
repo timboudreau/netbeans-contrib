@@ -81,6 +81,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
      * variables has no effect.
      */
     public static final String VAR_CONFIG_INPUT_DESCRIPTOR = "CONFIG_INPUT_DESCRIPTOR";
+    /**
+     * The name of a variable, that contains the string representation of variable
+     * input descriptor, that is used to construct the panel with configuration
+     * input components for the mount wizard.
+     * If this variable is not defined, {@link VAR_CONFIG_INPUT_DESCRIPTOR} is taken instead.
+     */
+    public static final String VAR_WIZARD_INPUT_DESCRIPTOR = "WIZARD_INPUT_DESCRIPTOR";
     
     public static final String PROP_PROFILE_SELECTION_CHANGED = "profileSelectionChanged";
 
@@ -101,6 +108,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     
     private Map profileNamesForLabels;
     private String noProfileSelectedLabel;
+    
+    private boolean useWizardDescriptors;
     
     //private static transient FileLock configSaveLock = FileLock.NONE;
 
@@ -151,6 +160,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
      */
     public void setResetEqualFSVars(boolean resetEqualFSVars) {
         this.resetEqualFSVars = resetEqualFSVars;
+    }
+    
+    public void setUseWizardDescriptors(boolean useWizardDescriptors) {
+        this.useWizardDescriptors = useWizardDescriptors;
     }
 
     /** This method is called from within the constructor to
@@ -1543,15 +1556,24 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
      * There can be an arbitrary number of additional configuration input descriptors
      * that are obtained from variables <code>CONFIG_INPUT_DESCRIPTOR1</code>,
      * <code>CONFIG_INPUT_DESCRIPTOR2</code>, etc.
+     * In wizard mode, {@link #VAR_WIZARD_INPUT_DESCRIPTOR} variable is taken
+     * instead, if defined.
      * @return The array of configuration input descriptors, or null when no
      *         descriptors are found.
      */
     private VariableInputDescriptor[] findConfigInputDescriptors(Map fsVars) {
         VariableInputDescriptor[] cids = null;//new VariableInputDescriptor[0];
         int i = 0;
+        boolean wizardID = fsVars.get(VAR_WIZARD_INPUT_DESCRIPTOR) != null;
         do {
-            String configInputDescriptorStr = (i == 0) ? ((String) fsVars.get(VAR_CONFIG_INPUT_DESCRIPTOR))
-                                                       : ((String) fsVars.get(VAR_CONFIG_INPUT_DESCRIPTOR+i));
+            String configInputDescriptorStr;
+            if (wizardID) {
+                configInputDescriptorStr = (i == 0) ? ((String) fsVars.get(VAR_WIZARD_INPUT_DESCRIPTOR))
+                                                    : ((String) fsVars.get(VAR_WIZARD_INPUT_DESCRIPTOR+i));
+            } else {
+                configInputDescriptorStr = (i == 0) ? ((String) fsVars.get(VAR_CONFIG_INPUT_DESCRIPTOR))
+                                                    : ((String) fsVars.get(VAR_CONFIG_INPUT_DESCRIPTOR+i));
+            }
             VariableInputDescriptor configInputDescriptor = null;
             if (configInputDescriptorStr != null && configInputDescriptorStr.length() > 0) {
                 try {
