@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcscore;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -31,6 +32,7 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.Debug;
 import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
+import org.netbeans.modules.vcscore.util.WeakList;
 import org.netbeans.modules.vcscore.caching.VcsFSCache;
 import org.netbeans.modules.vcscore.caching.VcsCacheFile;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
@@ -50,7 +52,7 @@ public class VcsAction extends NodeAction implements ActionListener {
      */
     protected boolean REMOVE_DISABLED = false;
 
-    protected VcsFileSystem fileSystem = null;
+    protected WeakReference fileSystem = new WeakReference(null);
     protected Collection selectedFileObjects = null;
     
     private Node[] actionCommandsSubTrees = null; // the commands subtrees to construct actions from
@@ -59,11 +61,24 @@ public class VcsAction extends NodeAction implements ActionListener {
     }
 
     public void setFileSystem(VcsFileSystem fileSystem) {
-        this.fileSystem = fileSystem;
+        this.fileSystem = new WeakReference(fileSystem);
     }
     
     public void setSelectedFileObjects(Collection fos) {
-        this.selectedFileObjects = fos;
+        /*System.out.println("setSelectedFileObjects():");
+        for (Iterator it = fos.iterator(); it.hasNext(); ) {
+            System.out.println("  "+it.next());
+        }*/
+        ArrayList reordered = VcsUtilities.reorderFileObjects(fos);
+        /*System.out.println(" reorderedFileObjects():");
+        for (Iterator it = reordered.iterator(); it.hasNext(); ) {
+            System.out.println("  "+it.next());
+        }*/
+        this.selectedFileObjects = new WeakList(reordered);
+        /*System.out.println(" Weak setSelectedFileObjects():");
+        for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
+            System.out.println("  "+it.next());
+        }*/
     }
     
     public void setCommandsSubTrees(Node[] commandsSubTrees) {
@@ -81,6 +96,7 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @return the name of the action
      */
     public String getName() {
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         if (fileSystem == null) {
             return org.openide.util.NbBundle.getBundle(VcsAction.class).getString("CTL_Version_Control");
         }
@@ -107,6 +123,7 @@ public class VcsAction extends NodeAction implements ActionListener {
     //protected abstract void doCommand(Vector files, VcsCommand cmd);
 
     private void killAllCommands() {
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         CommandsPool cmdPool = fileSystem.getCommandsPool();
         String[] labels = cmdPool.getRunningCommandsLabels();
         if (labels.length > 0) {
@@ -125,6 +142,7 @@ public class VcsAction extends NodeAction implements ActionListener {
     public void doList(String path) {
         //D.deb("doList('"+path+"')"); // NOI18N
         //System.out.println("VcsAction.doList("+path+")");
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         FileCacheProvider cache = fileSystem.getCacheProvider();
         if (statusProvider == null) return;
@@ -142,6 +160,7 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param path the directory path
      */
     public void doListSub(String path) {
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         CommandExecutorSupport.doRefresh(fileSystem, path, true);
         /*
         //D.deb("doListSub('"+path+"')"); // NOI18N
@@ -375,6 +394,7 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
      */
     private void doCommand(Table files, VcsCommand cmd) {
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         VcsAction.doCommand(files, cmd, null, fileSystem);
     }
     
@@ -493,6 +513,7 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param all whether to add unimportant files as well
      */
     protected void addImportantFiles(Collection fos, Table res, boolean all, boolean doNotTestFS) {
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         addImportantFiles(fos, res, all, fileSystem, doNotTestFS);
     }
 
@@ -538,13 +559,15 @@ public class VcsAction extends NodeAction implements ActionListener {
     
     private Set getSelectedFileStatusAttributes() {
         Set statuses = new HashSet();
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         FileStatusProvider statusProv = fileSystem.getStatusProvider();
+        boolean processAll = fileSystem.isProcessUnimportantFiles();
         if (statusProv != null) {
             if (selectedFileObjects != null) {
                 for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
                     FileObject fo = (FileObject) it.next();
                     String path = fo.getPackageNameExt('/', '.');
-                    if (fileSystem.isImportant(path)) {
+                    if (fileSystem.isImportant(path) || processAll) {
                         String status = statusProv.getFileStatus(path);
                         if (status != null) statuses.add(status);
                     }
@@ -558,7 +581,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                     for (Iterator it = files.iterator(); it.hasNext(); ) {
                         FileObject fo = (FileObject) it.next();
                         String path = fo.getPackageNameExt('/', '.');
-                        if (fileSystem.isImportant(path)) {
+                        if (fileSystem.isImportant(path) || processAll) {
                             String status = statusProv.getFileStatus(path);
                             if (status != null) statuses.add(status);
                         }
@@ -575,6 +598,7 @@ public class VcsAction extends NodeAction implements ActionListener {
      */
     protected JMenuItem createItem(String name){
         JMenuItem item = null;
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         VcsCommand cmd = fileSystem.getCommand(name);
 
         if (cmd == null) {
@@ -624,6 +648,8 @@ public class VcsAction extends NodeAction implements ActionListener {
             }
             boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
 		(String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
+            //System.out.println("VcsAction: isSetContainedInQuotedStrings("+(String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS)+
+            //                   ", "+VcsUtilities.arrayToString((String[]) statuses.toArray(new String[0]))+") = "+disabled);
             if (disabled && REMOVE_DISABLED) continue;
             JMenuItem item;
             if (!child.isLeaf()) {
@@ -830,6 +856,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             return;
         }
          */
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         final VcsCommand cmd = fileSystem.getCommand(cmdName);
         if (cmd == null) return;
         boolean processAll = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_PROCESS_ALL_FILES) || fileSystem.isProcessUnimportantFiles();
