@@ -164,9 +164,11 @@ public class TaskList implements ObservableList, TaskListener {
 
     /**
      * Add top level tasks_ to the list and fire event.
+     * Treats tasks_ as single task keeping their original order.
      */
     public final void addTasks(List tasks_, boolean append) {
         Iterator it = tasks_.iterator();
+        int slot = 0;
         while (it.hasNext()) {
             Task task = (Task) it.next();
             task.addTaskListener(this);
@@ -177,7 +179,7 @@ public class TaskList implements ObservableList, TaskListener {
                 }
             } else {
                 synchronized(tasks) {
-                    tasks.add(0, task);
+                    tasks.add(slot++, task);
                     listCopy = null;
                 }
             }
