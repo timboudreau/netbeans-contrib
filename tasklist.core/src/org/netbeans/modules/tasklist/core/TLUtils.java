@@ -388,9 +388,9 @@ public final class TLUtils {
         logger.setUseParentHandlers(false);
 
         ConsoleHandler ch = new ConsoleHandler();
-        ch.setLevel(Level.WARNING);
+        ch.setLevel(Level.FINE);
         logger.addHandler(ch);
-        logger.setLevel(Level.FINE);
+        logger.setLevel(Level.WARNING);
         return logger;
     }
 

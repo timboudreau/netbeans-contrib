@@ -405,20 +405,16 @@ err.log("Couldn't find current nodes...");
         // Redo above
 
         // Locate source editor
-        current = env.findActiveEditor();
-        if (current == null) {
+        TopComponent tc = env.findActiveEditor();
+        if (tc == null) {
             // The last editor-support window in the editor was probably
             // just closed - or was not on top
             LOGGER.fine("Cannot find active source editor!");   // during startup
             return;
         }
 
-        // Listen for changes on this component so we know when
-        // it's replaced by something else
-        //System.err.println("Add component listener to " + tcToDO(current));
-        current.addComponentListener(getWindowSystemMonitor());
 
-        DataObject dao = extractDataObject(current);
+        DataObject dao = extractDataObject(tc);
         if (dao == null) return;
 
         /*
@@ -458,17 +454,17 @@ err.log("Couldn't find current nodes...");
         // discover the document
         */
         if (doc == null) {
-            LOGGER.fine("No document is loaded in editor!");
+            LOGGER.fine("No document is loaded in editor!");  // can happen during startup
             return;
         }
 
-        if (document != null) {
-            // Might be a duplicate removeDocumentListener -- that's
-            // okay right?
-            document.removeDocumentListener(getEditorMonitor());
-        }
         document = doc;
         doc.addDocumentListener(getEditorMonitor());
+
+        // Listen for changes on this component so we know when
+        // it's replaced by something else XXX looks like PROP_ACTIVATED duplication
+        current = tc;
+        current.addComponentListener(getWindowSystemMonitor());
 
         dataobject = dao;
         notSaved = dao.isModified();
@@ -1012,6 +1008,11 @@ err.log("Couldn't find current nodes...");
                     componentsChanged();
                     openedSoFar = null;
                 }
+            } else if (TopComponent.Registry.PROP_ACTIVATED.equals(prop)) {
+                LOGGER.fine("EVENT top-component activated");
+                if (clientCount >0 && current == null) {
+                    findCurrentFile(false);
+                }
             }
         }
 
@@ -1218,9 +1219,11 @@ err.log("Couldn't find current nodes...");
             TopComponent tc = mode.getSelectedTopComponent();
             if (tc instanceof CloneableEditor) {
                 // Found the source editor...
-                if (tc.isShowing()) {
+//                if (tc.isShowing()) {   // FIXME it returns false for components I can positivelly see
+                                          // hopefully mode does not return hidden TC as selected one.
+                                          // It happens right after startup
                     return tc;
-                }
+//                }
             }
             return null;
         }
