@@ -93,7 +93,7 @@ PROMPT_FOR(ENCODING_D,"Encoding:", "${ENCODING_D}", ACCESSIBILITY(DESCRIPTION_De
             <value>""</value>
         </variable>        
         <variable name="ICONS_FOR_FILE_STATUSES" basic="false">
-            <value>"vcs/resources/badgeUpToDate.gif", "vcs/resources/badgeLocModified.gif", "vcs/resources/badgeMergeConflict.gif", "vcs/resources/badgeLocRemoved.gif", "vcs/resources/badgeLocModified.gif", "", "vcs/resources/badgeLocModified.gif", "vcs/resources/badgeLocModified.gif", "", "vcs/resources/badgeLocRemoved.gif", ""</value>
+            <value>"org/netbeans/modules/vcs/profiles/resources/badgeUpToDate.gif", "org/netbeans/modules/vcs/profiles/resources/badgeLocModified.gif", "org/netbeans/modules/vcs/profiles/resources/badgeMergeConflict.gif", "org/netbeans/modules/vcs/profiles/resources/badgeLocRemoved.gif", "org/netbeans/modules/vcs/profiles/resources/badgeLocModified.gif", "", "org/netbeans/modules/vcs/profiles/resources/badgeLocModified.gif", "org/netbeans/modules/vcs/profiles/resources/badgeLocModified.gif", "", "org/netbeans/modules/vcs/profiles/resources/badgeLocRemoved.gif", ""</value>
         </variable>
         <variable basic="false" name="LOCAL_FILES_FILTERED_OUT">
             <value xml:space="preserve">.svn</value>

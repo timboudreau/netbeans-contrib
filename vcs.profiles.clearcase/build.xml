@@ -54,36 +54,22 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="jars" depends="compile">
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/clearcase/layer-includes-config.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/clearcase/config/*.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/*_ja.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/*_XX.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/.nbattrs"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/Bundle.properties"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/Bundle_*.properties"/>
-    </makelayer>
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/clearcase/layer-includes-configRB.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/clearcase/config/Bundle.properties"/>
-       <include name="org/netbeans/modules/vcs/profiles/clearcase/config/Bundle_*.properties"/>
-    </makelayer>
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/clearcase/layer-includes-list.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/clearcase/list/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/clearcase/list/*.properties"/>
+       <include name="org/netbeans/modules/vcs/profiles/clearcase/config/*.xml"/>
     </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <locjar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/clearcase-profile.jar"
+    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/clearcase-profile.jar"
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nbroot1}/nbbuild/standard-jar-excludes.txt"
 	 excludes="org/netbeans/modules/vcs/profiles/clearcase/mf-layer_XX.xml"
-	 compress="${build.package.compress}" index="${build.package.index}">
-      <locale name="ja"/>
+	 compress="${build.package.compress}">
       <fileset dir="src/" excludesfile="${nbroot1}/nbbuild/standard-jar-excludes.txt">
         <include name="**/*"/>
 	<exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/*_XX.*"/>
       </fileset>
-    </locjar>
+    </jar>
     <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
       <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
         <include name="${nb.modules.dir}/clearcase-profile.jar"/>

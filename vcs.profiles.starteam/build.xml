@@ -52,46 +52,23 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
-    <!--
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-commands.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/starteam/commands/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/starteam/commands/*.properties"/>
-    </makelayer>
-    -->
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-config.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/starteam/config/*.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/starteam/config/*_ja.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/starteam/config/*_XX.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/starteam/config/Bundle.properties"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/starteam/config/Bundle_*.properties"/>
-    </makelayer>
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-configRB.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/starteam/config/Bundle.properties"/>
-       <include name="org/netbeans/modules/vcs/profiles/starteam/config/Bundle_*.properties"/>
-    </makelayer>
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-config_ja.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/starteam/config/*_ja.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/starteam/config/Bundle_ja.properties"/>
-    </makelayer>  
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-list.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/starteam/list/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/starteam/list/*.properties"/>
+       <include name="org/netbeans/modules/vcs/profiles/starteam/config/*.xml"/>
     </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <locjar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/starteam-profile.jar"
+    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/starteam-profile.jar"
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
 	 excludes="org/netbeans/modules/vcs/profiles/starteam/mf-layer_XX.xml"
-	 compress="${build.package.compress}" index="${build.package.index}">
-      <locale name="ja"/>
+	 compress="${build.package.compress}">
       <fileset dir="src/" excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt">
         <include name="**/*"/>
 	<exclude name="org/netbeans/modules/vcs/profiles/starteam/config/*_XX.*"/>
       </fileset>
-    </locjar>
+    </jar>
     <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
       <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
         <include name="${nb.modules.dir}/starteam-profile.jar"/>
