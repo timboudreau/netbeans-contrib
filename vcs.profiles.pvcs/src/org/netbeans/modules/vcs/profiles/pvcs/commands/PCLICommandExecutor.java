@@ -227,6 +227,12 @@ public class PCLICommandExecutor implements Runnable {
         }
     }
     
+    public void sendInput(String text) {
+        if (cmd != null) {
+            cmd.sendInput(text);
+        }
+    }
+    
     private class PCLIStandardOutputListener implements TextOutputListener {
         
         private String lastLine;

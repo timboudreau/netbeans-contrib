@@ -26,6 +26,7 @@ import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.cmdline.exec.ExternalCommand;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
+import org.netbeans.modules.vcscore.commands.TextInput;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
 
 /**
@@ -33,7 +34,8 @@ import org.netbeans.modules.vcscore.commands.TextOutputListener;
  *
  * @author  Martin Entlicher
  */
-public class PCLICommand implements VcsAdditionalCommand, VcsAdditionalCommand.ImmediateOutput {
+public class PCLICommand implements VcsAdditionalCommand, VcsAdditionalCommand.ImmediateOutput,
+                                    TextInput {
     
     private String execStr;
     private CommandOutputListener stdoutListener;
@@ -111,10 +113,15 @@ public class PCLICommand implements VcsAdditionalCommand, VcsAdditionalCommand.I
         this.stdImmediateErrListeners.add(l);
     }
 
+    public void sendInput(String text) {
+        PCLICommandExecutor.getDefault().sendInput(text);
+    }
+    
     void stdOutput(String line) {
         stdoutListener.outputLine(line);
         if (dataRegex != null) {
-            stdoutDataListener.outputData(ExternalCommand.matchToStringArray(dataRegex, line));
+            String[] sa = ExternalCommand.matchToStringArray(dataRegex, line);
+            if (sa != null && sa.length > 0) stdoutDataListener.outputData(sa);
         }
     }
     
@@ -128,7 +135,8 @@ public class PCLICommand implements VcsAdditionalCommand, VcsAdditionalCommand.I
     void errOutput(String line) {
         stderrListener.outputLine(line);
         if (errorRegex != null) {
-            stderrDataListener.outputData(ExternalCommand.matchToStringArray(errorRegex, line));
+            String[] sa = ExternalCommand.matchToStringArray(errorRegex, line);
+            if (sa != null && sa.length > 0) stderrDataListener.outputData(sa);
         }
     }
     
