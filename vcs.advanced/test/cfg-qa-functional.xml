@@ -99,6 +99,15 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
     
+    <testbag testattribs="validation" name="pvcs_profile_validation">
+        <testset dir="qa-functional/src">
+            <patternset>
+		<include name="complete/pvcs_profile/StubAllTogether.class"/>
+		<include name="complete/pvcs_profile/AdditionalCommands.class"/>
+            </patternset>
+        </testset>
+    </testbag>
+    
     <testbag testattribs="full" name="vss_profile">
         <testset dir="qa-functional/src">
             <patternset>
