@@ -272,10 +272,10 @@ Microsystems, Inc. All Rights Reserved.
                         SELECTOR_CMD_RELATIVE_MOUNT_POINT_SELECTOR)
              SELECT_COMBO_EDITABLE(SERVERTYPE, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Type):", "pserver",
                                    ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_SERVER_Type);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Type_Mnemonic)),
-                                   [local, local, DISABLE(CVS_SERVER, ENVIRONMENT_VAR_CVS_CLIENT_PORT, CVS_USERNAME, ENVIRONMENT_VAR_CVS_RSH, BUILT-IN/true, OFFLINE_MODE)],
-                                   [server, server, DISABLE(ENVIRONMENT_VAR_CVS_RSH, OFFLINE_MODE)],
-                                   [pserver, pserver, ENABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, OFFLINE_MODE), DISABLE(ENVIRONMENT_VAR_CVS_RSH)],
-                                   [ext, ext, ENABLE(ENVIRONMENT_VAR_CVS_RSH), DISABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, BUILT-IN/true, OFFLINE_MODE)])
+                                   [local, local, DISABLE(CVS_SERVER, ENVIRONMENT_VAR_CVS_CLIENT_PORT, CVS_USERNAME, ENVIRONMENT_VAR_CVS_RSH, BUILT-IN/true, FILESYSTEM_PROPERTY_offLine)],
+                                   [server, server, DISABLE(ENVIRONMENT_VAR_CVS_RSH, FILESYSTEM_PROPERTY_offLine)],
+                                   [pserver, pserver, ENABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, FILESYSTEM_PROPERTY_offLine), DISABLE(ENVIRONMENT_VAR_CVS_RSH)],
+                                   [ext, ext, ENABLE(ENVIRONMENT_VAR_CVS_RSH), DISABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, BUILT-IN/true, FILESYSTEM_PROPERTY_offLine)])
              PROMPT_FOR(CVS_SERVER, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Name):", "",
                         ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_SERVER_Name);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Name_Mnemonic)))
              PROMPT_FOR(ENVIRONMENT_VAR_CVS_CLIENT_PORT, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Port):", "2401",
@@ -295,10 +295,10 @@ Microsystems, Inc. All Rights Reserved.
                  IF_VAR_NON_EMPTY"IS_WIN9X"_PROMPT_FOR(SHELL, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(Unix_Shell):", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_Unix_Shell);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(Unix_Shell_Mnemonic)),
                             SELECTOR_FILE)])
-             SELECT_RADIO(OFFLINE_MODE, "", "", ["Login to Pserver at ${CVS_SERVER}", "",
-                                                 PROMPT_FOR_PASSWORD(PASSWORD, "Password:", "", SELECTOR_CMD_(&amp;Login)CONNECTION_LOGIN)
-                                                 TEXT(LOGGED_IN_TEXT, 1, 1, LINE_SINGLE)],
-                                                ["Set Offline Mode", "true"])
+             SELECT_RADIO(FILESYSTEM_PROPERTY_offLine, "", "", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_OFFLINE_Login, ${CVS_SERVER})", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_OFFLINE_Login);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_OFFLINE_Login_Mnemonic))",
+                                                                PROMPT_FOR_PASSWORD(PASSWORD, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Password)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_Password);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Password_Mnemonic))", SELECTOR_CMD_(&amp;Login)CONNECTION_LOGIN)
+                                                                TEXT(LOGGED_IN_TEXT, 1, 1, LINE_SINGLE)],
+                                                               ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_OFFLINE_MODE)", "true", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_OFFLINE_MODE);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_OFFLINE_MODE_Mnemonic))"])
       </value>
     </variable>
     <variable name="LOGGED_IN_TEXT">
