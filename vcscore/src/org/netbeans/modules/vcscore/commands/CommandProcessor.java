@@ -1022,33 +1022,31 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                     commandListeners = new ArrayList();
                     commandListenersByProviders.put(provider, commandListeners);
                 }
-                commandListeners.add(listener);
+                if (!commandListeners.contains(listener)) {
+                    commandListeners.add(listener);
+                }
             }
         }
     }
     
     /**
-     * Lazily remove a command listener.
+     * Remove a command listener.
      */
     public void removeCommandProcessListener(final CommandProcessListener listener) {
-        org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
-            public void run() {
-                Object provider = listener.getProvider();
-                synchronized (commandListenersByProviders) {
-                    if (provider == null) {
-                        commandListenersForAllProviders.remove(listener);
-                    } else {
-                        List commandListeners = (List) commandListenersByProviders.get(provider);
-                        if (commandListeners != null) {
-                            commandListeners.remove(listener);
-                            if (commandListeners.size() == 0) {
-                                commandListenersByProviders.remove(provider);
-                            }
-                        }
+        Object provider = listener.getProvider();
+        synchronized (commandListenersByProviders) {
+            if (provider == null) {
+                commandListenersForAllProviders.remove(listener);
+            } else {
+                List commandListeners = (List) commandListenersByProviders.get(provider);
+                if (commandListeners != null) {
+                    commandListeners.remove(listener);
+                    if (commandListeners.size() == 0) {
+                        commandListenersByProviders.remove(provider);
                     }
                 }
             }
-        });
+        }
     }
     
     /** The start time of the command or zero, when the command was not started yet
