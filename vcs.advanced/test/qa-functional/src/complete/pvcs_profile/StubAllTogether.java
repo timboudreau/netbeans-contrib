@@ -459,7 +459,7 @@ public class StubAllTogether extends PVCSStub {
         B_File.pvcsVersioningNode(".java [Current]");
         new RefreshRevisionsAction ().perform (B_File.pvcsVersioningNode ());
         B_File.waitHistory ("REVISION_LIST");
-        B_File.pvcsVersioningNode (" [Current]|1.1  Checked in from VCS group.").select();
+        B_File.pvcsVersioningNode(".java [Current]|1.1  Checked in from VCS group.").select();
         
         compareReferenceFiles();
     }
