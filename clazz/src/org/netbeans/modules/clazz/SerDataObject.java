@@ -22,7 +22,6 @@ import org.openide.nodes.CookieSet;
 import java.io.InputStream;
 import org.openide.filesystems.FileObject;
 import org.openide.ErrorManager;
-import org.openide.TopManager;
 import org.openide.cookies.InstanceCookie;
 import java.io.IOException;
 
@@ -95,7 +94,7 @@ public final class SerDataObject extends ClassDataObject {
 
     protected FileObject handleRename (String name) throws IOException {
         if (name.indexOf(".")!=-1) {
-            throw (IOException)TopManager.getDefault().getErrorManager().annotate(
+            throw (IOException)ErrorManager.getDefault().annotate(
             new IOException("Dot in name"), // NOI18N
             ErrorManager.USER,
             null, Util.getString("MSG_INVName"),

@@ -13,12 +13,9 @@
 
 package org.netbeans.modules.clazz;
 
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.*;
-import java.util.Vector;
 import java.util.ResourceBundle;
 import java.io.*;
 import java.text.MessageFormat;
@@ -26,12 +23,9 @@ import java.text.MessageFormat;
 import javax.swing.SwingUtilities;
 
 import org.openide.nodes.*;
-import org.openide.TopManager;
 import org.openide.loaders.DataNode;
-import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.util.WeakListener;
 import org.openide.src.*;
 import org.openide.src.nodes.SourceChildren;
@@ -223,7 +217,7 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
             return null;
         }
         
-        ErrorManager.Annotation[] ann = TopManager.getDefault().getErrorManager().findAnnotations(t);
+        ErrorManager.Annotation[] ann = ErrorManager.getDefault().findAnnotations(t);
         if (ann == null)
             return t.getLocalizedMessage();
         for (int i = 0; i < ann.length; i++) {

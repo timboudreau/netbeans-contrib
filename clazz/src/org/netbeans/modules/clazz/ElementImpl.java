@@ -20,7 +20,6 @@ import java.io.Externalizable;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 
-import org.openide.TopManager;
 import org.openide.ErrorManager;
 import org.openide.nodes.Node;
 import org.openide.src.Element;
@@ -92,7 +91,7 @@ public abstract class ElementImpl extends Object implements Element.Impl, Extern
 
     
     protected final void throwReadOnlyException() throws SourceException {
-        throw (SourceException)TopManager.getDefault().getErrorManager().annotate(
+        throw (SourceException)ErrorManager.getDefault().annotate(
             new SourceException("Read-only element"), // NOI18N
             ErrorManager.USER,
             null, Util.getString("MSG_CantModify"),

@@ -18,7 +18,7 @@ import java.awt.Image;
 import java.util.ResourceBundle;
 
 import org.openide.loaders.MultiFileLoader;
-import org.openide.TopManager;
+import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -33,7 +33,7 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
         try {
             return new BeanInfo[] { Introspector.getBeanInfo (MultiFileLoader.class) };
         } catch (IntrospectionException ie) {
-	    TopManager.getDefault().getErrorManager().notify(ie);
+	    ErrorManager.getDefault().notify(ie);
             return null;
         }
     }
@@ -56,7 +56,7 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
             descriptors[0].setShortDescription(bundle.getString("HINT_Extensions"));
     	    return descriptors;
         } catch (IntrospectionException e) {
-	    TopManager.getDefault().getErrorManager().notify(e);
+	    ErrorManager.getDefault().notify(e);
 	    return null;
         }
     }

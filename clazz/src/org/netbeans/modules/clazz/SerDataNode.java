@@ -19,10 +19,8 @@ import java.awt.datatransfer.Transferable;
 import java.beans.BeanInfo;
 import java.io.IOException;
 
-import org.openide.TopManager;
 import org.openide.ErrorManager;
 import org.openide.src.nodes.SourceChildren;
-import org.openide.util.datatransfer.ExTransferable;
 
 /** Exetends ClassDataNode, adds behaviour specific to serialized objects.
 * This class is final only for performance reasons,
@@ -67,14 +65,14 @@ final class SerDataNode extends ClassDataNode {
             setIconBase(SER_BASE);
         } catch (IOException ex) {
             // log exception only and set error tooltip
-            TopManager.getDefault().getErrorManager().notify(
+            ErrorManager.getDefault().notify(
                 ErrorManager.INFORMATIONAL, ex
             );
             setIconBase(SER_ERROR_BASE);
             setErrorToolTip(ex);
         } catch (ClassNotFoundException ex) {
             // log exception only and set error tooltip
-            TopManager.getDefault().getErrorManager().notify(
+            ErrorManager.getDefault().notify(
                 ErrorManager.INFORMATIONAL, ex
             );
             setIconBase(SER_ERROR_BASE);

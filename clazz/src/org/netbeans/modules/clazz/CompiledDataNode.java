@@ -19,8 +19,6 @@ import java.util.*;
 import org.openide.loaders.ExecSupport;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
-import org.openide.ErrorManager;
-import org.openide.TopManager;
 import org.openide.util.NbBundle;
 import org.openide.filesystems.FileObject;
 
@@ -57,7 +55,7 @@ public class CompiledDataNode extends ClassDataNode {
     }
     
     private CompiledDataObject getCompiledDataObject() {
-	return (CompiledDataObject)getDataObject();
+    return (CompiledDataObject)getDataObject();
     }
 
     boolean isExecutable() {
@@ -98,36 +96,20 @@ public class CompiledDataNode extends ClassDataNode {
     /** Find right icon for this node. */
     protected void resolveIcons () {
         CompiledDataObject dataObj = getCompiledDataObject();
-//        try {
-            FileObject fo=dataObj.getPrimaryFile();
+        FileObject fo=dataObj.getPrimaryFile();
 
-            if (!(dataObj.getClassName().equals(fo.getPackageName('.')))) {
-                setIconBase(ERROR_BASE);
-            } else if (dataObj.isJavaBean ()) {
-                if (dataObj.isExecutable ())
-                    setIconBase(BEAN_MAIN_BASE);
-                else
-                    setIconBase(BEAN_BASE);
-            } else if (dataObj.isExecutable ())
-                setIconBase(CLASS_MAIN_BASE);
+        if (!(dataObj.getClassName().equals(fo.getPackageName('.')))) {
+            setIconBase(ERROR_BASE);
+        } else if (dataObj.isJavaBean ()) {
+            if (dataObj.isExecutable ())
+                setIconBase(BEAN_MAIN_BASE);
             else
-                setIconBase(CLASS_BASE);
-/*        } catch (IOException ex) {
-            // log exception only and set error tooltip
-            TopManager.getDefault().getErrorManager().notify(
-                ErrorManager.INFORMATIONAL, ex
-            );
-            setIconBase(ERROR_BASE);
-            setErrorToolTip(ex);
-        } catch (ClassNotFoundException ex) {
-            // log exception only and set error tooltip
-            TopManager.getDefault().getErrorManager().notify(
-                ErrorManager.INFORMATIONAL, ex
-            );
-            setIconBase(ERROR_BASE);
-            setErrorToolTip(ex);
-        }
-*/        iconResolved = true;
+                setIconBase(BEAN_BASE);
+        } else if (dataObj.isExecutable ())
+            setIconBase(CLASS_MAIN_BASE);
+        else
+            setIconBase(CLASS_BASE);
+        iconResolved = true;
     }
 
 }

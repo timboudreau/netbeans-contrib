@@ -180,13 +180,13 @@ public abstract class SerStructureNode {
                             SerParser.Stream stream = new SerParser(is).parse();
                             return new Node[] {new SerStructureNode.StreamNode(stream)};
                         } catch (SerParser.CorruptException spce) {
-                            TopManager.getDefault().getErrorManager().notify(ErrorManager.INFORMATIONAL, spce);
+                            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, spce);
                             return new Node[] {};
                         } catch (IOException ioe) {
-                            TopManager.getDefault().getErrorManager().notify(ioe);
+                            ErrorManager.getDefault().notify(ioe);
                             return new Node[] {};
                         } catch (RuntimeException re) {
-                            TopManager.getDefault().getErrorManager().notify(re);
+                            ErrorManager.getDefault().notify(re);
                             return new Node[] {};
                         }
                     }

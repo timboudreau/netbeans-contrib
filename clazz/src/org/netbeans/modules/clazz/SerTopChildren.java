@@ -21,7 +21,6 @@ import org.openide.ErrorManager;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.*;
 import org.openide.src.nodes.*;
-import org.openide.TopManager;
 
 /** Children for a SerDataNode, including the SourceChildren and
  * a node for the serialized structure.
@@ -77,13 +76,13 @@ public class SerTopChildren extends Children.Keys implements NodeListener {
                     is.close();
                 }
             } catch (SerParser.CorruptException spce) {
-                TopManager.getDefault().getErrorManager().notify(ErrorManager.INFORMATIONAL, spce);
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, spce);
                 return new Node[] {};
             } catch (IOException ioe) {
-                TopManager.getDefault().getErrorManager().notify(ioe);
+                ErrorManager.getDefault().notify(ioe);
                 return new Node[] {};
             } catch (RuntimeException re) {
-                TopManager.getDefault().getErrorManager().notify(re);
+                ErrorManager.getDefault().notify(re);
                 return new Node[] {};
             }
         } else {
