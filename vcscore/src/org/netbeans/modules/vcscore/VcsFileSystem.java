@@ -1103,38 +1103,49 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
 
-    private transient ArrayList createIgnoreListQueue = new ArrayList();
-    private transient Thread ignoreListCreationThread = null;
+    private static ArrayList createIgnoreListQueue = new ArrayList();
+    private static Thread ignoreListCreationThread = null;
     
-    private synchronized void addCreateIgnoreList(FileObject fo) {
-        if (createIgnoreListQueue == null) createIgnoreListQueue = new ArrayList();
-        createIgnoreListQueue.add(fo);
-        //System.out.println("addCreateIgnoreList("+fo+"), createIgnoreListQueue.size() = "+createIgnoreListQueue.size());
-        notifyAll();
-        if (ignoreListCreationThread == null || !ignoreListCreationThread.isAlive()) {
-            ignoreListCreationThread = createIgnoreListCreationThread();
-            ignoreListCreationThread.start();
+    private static void addCreateIgnoreList(FileObject fo) {
+        synchronized (createIgnoreListQueue) {
+            if (createIgnoreListQueue == null) createIgnoreListQueue = new ArrayList();
+            createIgnoreListQueue.add(fo);
+            //System.out.println("addCreateIgnoreList("+fo+"), createIgnoreListQueue.size() = "+createIgnoreListQueue.size());
+            createIgnoreListQueue.notifyAll();
+            if (ignoreListCreationThread == null || !ignoreListCreationThread.isAlive()) {
+                ignoreListCreationThread = createIgnoreListCreationThread();
+                ignoreListCreationThread.start();
+            }
         }
     }
     
-    private synchronized void waitForIgnoreListToCreate() {
-        try {
-            wait(60000);
-        } catch (InterruptedException exc) {}
+    private static void waitForIgnoreListToCreate() {
+        synchronized (createIgnoreListQueue) {
+            try {
+                createIgnoreListQueue.wait(60000);
+            } catch (InterruptedException exc) {}
+        }
     }
     
-    private Thread createIgnoreListCreationThread() {
+    private static Thread createIgnoreListCreationThread() {
         return new Thread(new Runnable() {
             public void run() {
-                IgnoreListSupport ignSupport = VcsFileSystem.this.getIgnoreListSupport();
+                //IgnoreListSupport ignSupport = VcsFileSystem.this.getIgnoreListSupport();
                 //System.out.println("createIgnoreListCreationThread STARTING...");
                 do {
                     //System.out.println("createIgnoreListCreationThread RESUMED...");
                     while (createIgnoreListQueue.size() > 0) {
                         FileObject fo = (FileObject) createIgnoreListQueue.remove(0);
+                        FileSystem fs = null;
+                        try {
+                            fs = fo.getFileSystem();
+                        } catch (FileStateInvalidException fsiexc) {}
+                        if (fs == null || !(fs instanceof VcsFileSystem)) continue;
+                        VcsFileSystem vfs = (VcsFileSystem) fs;
+                        IgnoreListSupport ignSupport = vfs.getIgnoreListSupport();
                         String path = fo.getPackageNameExt('/','.');
                         //System.out.println(" creating ignore list: "+fo);
-                        createIgnoreList(fo, path, ignSupport);
+                        vfs.createIgnoreList(fo, path, ignSupport);
                     }
                     waitForIgnoreListToCreate();
                 } while (createIgnoreListQueue.size() > 0);
