@@ -233,6 +233,7 @@ public class RevisionEditorSupport extends CloneableEditorSupport implements Edi
         Node ourNode = list.getNodeDelegate(revisionItem, null);
         editor.setActivatedNodes (new Node[] { ourNode });
         editor.setIcon(ourNode.getIcon (java.beans.BeanInfo.ICON_COLOR_16x16));
+        editor.putClientProperty("PersistenceType", "Never");
         //nodeL = new DataNodeListener(editor);
         //ourNode.addNodeListener(WeakListener.node(nodeL, ourNode));
     }
@@ -401,6 +402,13 @@ public class RevisionEditorSupport extends CloneableEditorSupport implements Edi
             return (CloneableOpenSupport) list.getNodeDelegate(revisionItem, null).getCookie(CloneableOpenSupport.class);
         }
         
+        /**
+         * Disable serialization.
+         */
+        protected Object writeReplace () throws java.io.ObjectStreamException {
+            return null;
+        }
+    
     } // end of Env
     
     /** Listener on file object that notifies the Env object
