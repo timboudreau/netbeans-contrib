@@ -7,50 +7,40 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.jemmysupport.generator;
 
-/*
- * ComponentGenerator.java
- *
- * Created on January 31, 2002, 12:14 PM
- */
-import org.netbeans.jemmy.JemmyProperties;
-import org.netbeans.jemmy.TestOut;
-import org.netbeans.jemmy.operators.*;
 import java.awt.*;
+import java.awt.image.AreaAveragingScaleFilter;
+import java.awt.image.FilteredImageSource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.*;
 import java.text.SimpleDateFormat;
-import javax.accessibility.*;
-import javax.swing.JLabel;
-import org.netbeans.jemmy.ComponentChooser;
+import java.util.*;
+import javax.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleRole;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import java.awt.image.FilteredImageSource;
-import java.awt.image.AreaAveragingScaleFilter;
-import java.beans.EventSetDescriptor;
-import java.beans.IntrospectionException;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.beans.SimpleBeanInfo;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
-import javax.swing.JTabbedPane;
-import javax.swing.JTree;
+import javax.swing.JLabel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
+import org.netbeans.jemmy.ComponentChooser;
+import org.netbeans.jemmy.JemmyProperties;
+import org.netbeans.jemmy.QueueTool;
+import org.netbeans.jemmy.TestOut;
+import org.netbeans.jemmy.operators.*;
 import org.netbeans.modules.jemmysupport.I18NSupport;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
+
 
 /** Jemmy Tools Component Generator class generates source code from given Container (Frame, Dialog ...) according to its visible structure.
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -541,7 +531,10 @@ public class ComponentGenerator {
      * @param props configuration properties
      */   
     public ComponentGenerator(Properties props) {
-        maxComponentCodeLength = Integer.parseInt(props.getProperty("max.code.length")); // NOI18N
+        // install JemmyQueue because later installation may cause problems
+        // (it has to be installed before any modal dialog is open)
+        QueueTool.installQueue();
+        maxComponentCodeLength = Integer.parseInt(props.getProperty("max.code.l11ength")); // NOI18N
         JemmyProperties.setCurrentTimeout("ComponentOperator.WaitComponentTimeout", 0); // NOI18N
         JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
         addOperatorRecords(props);
@@ -763,6 +756,10 @@ public class ComponentGenerator {
                     rect.translate(p.x,p.y);
                 } else {
                     rect=new Rectangle(comp.getLocationOnScreen(), comp.getSize());
+                }
+                if(rect.width == 0 || rect.height == 0) {
+                    // component has zero size, so skip it
+                    return null;
                 }
                 double scale = Math.pow(rect.width*rect.height,.4)/8;
                 icon = new ImageIcon(comp.createImage(new FilteredImageSource(robot.createScreenCapture(rect).getSource(),new AreaAveragingScaleFilter(Math.round(Math.round(rect.width/scale)),Math.round(Math.round(rect.height/scale))))));
