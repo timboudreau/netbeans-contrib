@@ -1366,6 +1366,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (this.nonLocals.remove (fullName)) {
             try {
                 fo.setAttribute ("NetBeansAttrAssignedLoader", VirtualsDataLoader.class.getName());       //NoI18N
+                ((CacheReference)result).setVirtual (true);     //The reference is not valid in the writeAttr yet
             } catch (IOException e) {}
         }
         return result;
