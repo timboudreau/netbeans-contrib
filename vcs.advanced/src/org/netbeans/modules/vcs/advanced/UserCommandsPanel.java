@@ -24,6 +24,7 @@ import org.openide.nodes.*;
 import org.openide.explorer.*;
 import org.openide.explorer.propertysheet.*;
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
+import org.openide.util.HelpCtx;
 
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandNode;
@@ -72,6 +73,7 @@ public class UserCommandsPanel extends JPanel
         getExplorerManager().setRootContext(commandsNode/*createNodes()*/);
         ExplorerActions actions = new ExplorerActions();
         actions.attach(getExplorerManager());
+        HelpCtx.setHelpIDString (this, "VCS_CommandEditor"); // NOI18N
     }
 
     /** Called when the command is changed.
