@@ -43,8 +43,8 @@ import com.netbeans.enterprise.modules.corba.settings.*;
 */
 public class IDLModule implements ModuleInstall {
 
-   //private static final boolean DEBUG = false;
-   private static final boolean DEBUG = true;
+   private static final boolean DEBUG = false;
+   //private static final boolean DEBUG = true;
    
    /** Module installed for the first time. */
    public void installed() {
@@ -482,6 +482,7 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  11   Gandalf   1.10        6/4/99   Karel Gardas    
  *  10   Gandalf   1.9         6/4/99   Karel Gardas    
  *  9    Gandalf   1.8         6/4/99   Karel Gardas    
  *  8    Gandalf   1.7         5/28/99  Karel Gardas    
