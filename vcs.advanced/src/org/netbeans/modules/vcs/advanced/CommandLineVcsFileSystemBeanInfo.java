@@ -48,6 +48,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor runRefreshCommand = null;
         PropertyDescriptor annotationPattern = null;
         PropertyDescriptor autoRefresh = null;
+        PropertyDescriptor notification = null;
 
         try {
             rootDirectory=new PropertyDescriptor
@@ -85,12 +86,14 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             autoRefresh = new PropertyDescriptor
                                ("autoRefresh", CommandLineVcsFileSystem.class, "getAutoRefresh", "setAutoRefresh"); // NOI18N
             autoRefresh.setPropertyEditorClass(RefreshModePropertyEditor.class);
+            notification = new PropertyDescriptor
+                               ("commandNotification", CommandLineVcsFileSystem.class, "isCommandNotification", "setCommandNotification"); // NOI18N
 
 
             desc = new PropertyDescriptor[] {
                        rootDirectory, debug, variables, commands, cacheId, config,
                        lock, lockPrompt, acceptUserParams, runRefreshCommand, annotationPattern,
-                       autoRefresh
+                       autoRefresh, notification
                    };
 
             ResourceBundle bundle = NbBundle.getBundle (CommandLineVcsFileSystemBeanInfo.class);
@@ -120,6 +123,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             annotationPattern.setShortDescription(bundle.getString("HINT_annotationPattern"));
             autoRefresh.setDisplayName        (bundleSettings.getString("PROP_autoRefresh"));
             autoRefresh.setShortDescription   (bundleSettings.getString("HINT_autoRefresh"));
+            notification.setDisplayName       (bundle.getString("PROP_commandNotification"));
+            notification.setShortDescription  (bundle.getString("HINT_commandNotification"));
 
         } catch (IntrospectionException ex) {
             ex.printStackTrace ();
