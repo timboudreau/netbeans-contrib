@@ -56,6 +56,7 @@ Microsystems, Inc. All Rights Reserved.
         <fileset dir="../../../openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
+        <pathelement location="../../../openide/loaders/netbeans/lib/openide-loaders.jar"/>
       </classpath>
     </javac>
   </target>
