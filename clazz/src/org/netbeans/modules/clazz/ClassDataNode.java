@@ -120,11 +120,6 @@ class ClassDataNode extends DataNode implements Runnable {
     return ((ClassDataObject) getDataObject()).getExecution ();
   }
 
-  /** Class cannot be renamed. */
-  public boolean canRename () {
-    return false;
-  }
-
   /** Creates property set for this node */
   protected Sheet createSheet () {
     Sheet s = super.createSheet();
@@ -265,6 +260,7 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  20   Gandalf   1.19        5/10/99  Jaroslav Tulach DataNode.canRename
  *  19   Gandalf   1.18        4/22/99  Ales Novak      new model of execution
  *  18   Gandalf   1.17        4/4/99   Ian Formanek    
  *  17   Gandalf   1.16        3/26/99  David Simonek   
