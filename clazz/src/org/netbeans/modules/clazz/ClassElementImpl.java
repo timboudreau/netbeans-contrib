@@ -13,25 +13,13 @@
 
 package org.netbeans.modules.clazz;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.Collections;
-import java.lang.ref.SoftReference;
-import java.lang.reflect.*;
-
-import org.openide.src.*;
-import org.openide.util.Utilities;
-import org.netbeans.modules.classfile.ClassFile;
-import java.util.Iterator;
-import java.io.IOException;
 import org.openide.loaders.DataObject;
-import java.util.Set;
+import org.netbeans.modules.classfile.*;
 import org.openide.filesystems.FileObject;
-import org.netbeans.modules.classfile.InnerClass;
-import org.netbeans.modules.classfile.Access;
-import org.netbeans.modules.classfile.Method;
-import org.netbeans.modules.classfile.Field;
+import org.openide.src.*;
+import java.io.IOException;
+import java.lang.ref.SoftReference;
+import java.util.*;
 
 /** The implementation of the class element for
 * class objects. Presents data about the class -
@@ -39,8 +27,7 @@ import org.netbeans.modules.classfile.Field;
 *
 * @author Dafe Simonek
 */
-public final class ClassElementImpl extends MemberElementImpl
-    implements ClassElement.Impl {
+public final class ClassElementImpl extends MemberElementImpl implements ClassElement.Impl {
     /** Empty array of initializers - constant to return from getInitializers() */
     private static final InitializerElement[] EMPTY_INITIALIZERS =
         new InitializerElement[0];
@@ -410,7 +397,7 @@ public final class ClassElementImpl extends MemberElementImpl
     /** @return true if given member was generated automatically by compiler,
     * false otherwise. Decision is made by inspecting the name of the member.
     */
-    private static boolean addedByCompiler (org.netbeans.modules.classfile.Field field) {
+    private static boolean addedByCompiler(Field field) {
         String name = field.getName();
         return name.indexOf('$') >= 0;
     }

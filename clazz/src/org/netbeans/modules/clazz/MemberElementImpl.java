@@ -22,7 +22,6 @@ import org.openide.src.SourceException;
 import org.openide.src.Identifier;
 import org.openide.src.ClassElement;
 import org.openide.src.SourceElement;
-import org.openide.util.Utilities;
 import org.openide.nodes.Node;
 import org.netbeans.modules.classfile.ClassFile;
 import org.netbeans.modules.classfile.Access;
