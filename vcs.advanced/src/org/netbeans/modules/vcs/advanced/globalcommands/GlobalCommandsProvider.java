@@ -51,22 +51,22 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
     private boolean runtimeCreated = false;
     private boolean expertMode = false;
     
-    /** Creates a new instance of GlobalCommandsProvider */
-    private GlobalCommandsProvider() {
+    /** Creates a new instance of GlobalCommandsProvider - to be called only by the Lookup system.
+     * Do not call directly!
+     */
+    public GlobalCommandsProvider() {
         ProfilesFactory factory = ProfilesFactory.getDefault();
-        factory.addPropertyChangeListener(WeakListener.propertyChange(this, factory));
-        synchronized (this) {
-            String names[] = factory.getProfilesNames();
-            for (int i = 0; i < names.length; i++) {
-                Profile profile = factory.getProfile(names[i]);
-                if (profile == null || !factory.isOSCompatibleProfile(names[i])) continue;
-                // TODO when a profile is not OS-compatible, we should listen
-                //      for changes of it. It may become OS-compatible later.
-                profilesByNames.put(names[i], profile);
-                profile.addPropertyChangeListener(this);
-            }
-            //collectCommands();
+        String names[] = factory.getProfilesNames();
+        for (int i = 0; i < names.length; i++) {
+            Profile profile = factory.getProfile(names[i]);
+            if (profile == null || !factory.isOSCompatibleProfile(names[i])) continue;
+            // TODO when a profile is not OS-compatible, we should listen
+            //      for changes of it. It may become OS-compatible later.
+            profilesByNames.put(names[i], profile);
+            profile.addPropertyChangeListener(this);
         }
+        factory.addPropertyChangeListener(WeakListener.propertyChange(this, factory));
+        instance = this;
     }
     
     /**

@@ -155,11 +155,13 @@ Microsystems, Inc. All Rights Reserved.
 
     <folder name="Services"> 
         <folder name="Hidden">
+        <!-- Registered in META-INF/services for performance reasons
             <file name="GlobalCommandsProvider.instance">
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.vcs.advanced.globalcommands.GlobalCommandsProvider.getInstance" />
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.vcs.advanced.globalcommands.GlobalCommandsProvider" />
                 <attr name="instanceOf" stringvalue="org.netbeans.spi.vcs.VcsCommandsProvider"/>
             </file>
+            -->
             <folder name="VersionControl">
                 <file name="org-netbeans-modules-vcs-advanced-profilesSettings-VcsSettingsNode.instance">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.profilesSettings.Bundle" />
