@@ -218,7 +218,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //private boolean doCommandRefresh = true;
     
     private volatile transient CommandsPool commandsPool = null;
-    private int numOfFinishedCmdsToCollect = CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
+    private Integer numberOfFinishedCmdsToCollect = new Integer(CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
     
     private ArrayList revisionListeners;
 
@@ -770,7 +770,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             notModifiableStatuses = Collections.EMPTY_SET;
         }
         commandsPool = new CommandsPool(this);
-        commandsPool.setCollectFinishedCmdsNum(numOfFinishedCmdsToCollect);
+        if (numberOfFinishedCmdsToCollect == null) {
+            numberOfFinishedCmdsToCollect = new Integer(CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
+        }
+        commandsPool.setCollectFinishedCmdsNum(numberOfFinishedCmdsToCollect.intValue());
         initListeners();
     }
 
@@ -910,7 +913,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private void writeObject(ObjectOutputStream out) throws IOException {
         //D.deb("writeObject() - saving bean"); // NOI18N
         // cache is transient
-        numOfFinishedCmdsToCollect = commandsPool.getCollectFinishedCmdsNum();
+        numberOfFinishedCmdsToCollect = new Integer(commandsPool.getCollectFinishedCmdsNum());
         out.writeBoolean (true/*cache.isLocalFilesAdd ()*/); // for compatibility
         out.defaultWriteObject();
     }
