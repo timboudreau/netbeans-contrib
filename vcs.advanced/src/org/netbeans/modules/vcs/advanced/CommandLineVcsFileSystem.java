@@ -18,6 +18,7 @@ import java.beans.*;
 import java.text.*;
 
 import gnu.regexp.*;
+import com.netbeans.ide.util.actions.*;
 import com.netbeans.ide.util.NbBundle;
 import com.netbeans.enterprise.modules.scc.*;
 import com.netbeans.enterprise.modules.scc.util.*;
@@ -56,13 +57,22 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   /** user commands Vector<UserCommand> */
   private Vector commands=new Vector(10);
 
+
+  //-------------------------------------------
+  public SystemAction[] getActions(){
+    SystemAction [] actions=new SystemAction[1];
+    actions[0]=new VcsAction();
+    return actions;
+  }
+  
+
   //-------------------------------------------
   public void setDebug(boolean debug){
     this.debug=debug;
   }
 
   //-------------------------------------------
-  public boolean  getDebug(){
+  public boolean getDebug(){
     return debug;
   }  
   
@@ -92,18 +102,18 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   private void readObject(ObjectInputStream in) throws 
     ClassNotFoundException, IOException, NotActiveException{
     in.defaultReadObject();
-    D.deb("readObject() - restoring bean");
+    //D.deb("readObject() - restoring bean");
   }
 
   //-------------------------------------------
   private void writeObject(ObjectOutputStream out) throws IOException {
-    D.deb("writeObject() - saving bean");
+    //D.deb("writeObject() - saving bean");
     out.defaultWriteObject();
   }  
 
   //-------------------------------------------
   public CommandLineVcsFileSystem () {
-    D.deb("CommandLineVcsFileSystem() - new bean instance");
+    //D.deb("CommandLineVcsFileSystem() - new bean instance");
     info = this;
     change = this;
     DefaultAttributes a = new DefaultAttributes (info, change, this);
@@ -477,6 +487,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         4/22/99  Michal Fadljevic 
  *  2    Gandalf   1.1         4/21/99  Michal Fadljevic 
  *  1    Gandalf   1.0         4/15/99  Michal Fadljevic 
  * $
