@@ -129,6 +129,7 @@ public class MenuFromFolder implements Runnable {
                 NamingListener l1 = getNamingListener(ObjectChangeListener.class, ec);
                 NamingListener l2 = getNamingListener(NamespaceChangeListener.class, ec);
                 ec.addNamingListener(path, EventContext.ONELEVEL_SCOPE, l1);
+                ec.addNamingListener(path, EventContext.OBJECT_SCOPE, l1);
                 ec.addNamingListener(path, EventContext.SUBTREE_SCOPE, l2);
             }
             NamingEnumeration en = con.listBindings(path);
