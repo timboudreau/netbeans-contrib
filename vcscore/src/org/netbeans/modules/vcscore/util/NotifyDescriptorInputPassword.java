@@ -56,6 +56,9 @@ public class NotifyDescriptorInputPassword extends NotifyDescriptor.InputLine {
           }
         );
         */
+        textLabel.setLabelFor(passwordField);
+        panel.getAccessibleContext().setAccessibleDescription(
+            org.openide.util.NbBundle.getBundle(NotifyDescriptorInputPassword.class).getString("ACSD_NotifyDescriptorInputPassword.dialog"));
         return panel;
     }
 
