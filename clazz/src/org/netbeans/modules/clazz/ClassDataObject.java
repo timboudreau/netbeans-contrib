@@ -242,7 +242,7 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
     */
     public Node getElementsParent () {
         ElementNodeFactory cef = getBrowserFactory();
-        SourceChildren sourceChildren = new SourceChildren (cef);
+        final SourceChildren sourceChildren = new SourceChildren (cef);
         SourceElementFilter sourceElementFilter = new SourceElementFilter();
         sourceElementFilter.setAllClasses (true);
         sourceChildren.setFilter (sourceElementFilter);
@@ -254,9 +254,11 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
             new SourceElement(new SourceElementImpl(ourClass, this))
         );
 
-        AbstractNode alteranteParent = new AbstractNode (sourceChildren);
-        CookieSet cs = alteranteParent.getCookieSet();
-        cs.add (sourceChildren);
+        AbstractNode alteranteParent = new AbstractNode (sourceChildren) {
+            {
+                getCookieSet().add(sourceChildren);
+            }
+        };
 
         return alteranteParent;
     }

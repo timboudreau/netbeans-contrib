@@ -102,10 +102,12 @@ final class ClassElementNodeFactory extends DefaultFactory {
         }
         if (tree) {
             ClassChildren ch = new ClassChildren(ClassDataObject.getBrowserFactory(), element);
-            ClassElementNode n = new ClassElementNode(element, ch, false);
+            ClassElementNode n = new ClassElementNode(element, ch, false) {
+                {
+                    getCookieSet().add((FilterCookie)getChildren());
+                }
+            };
 
-            CookieSet css = n.getCookieSet ();
-            css.add ((FilterCookie) n.getChildren ());
             n.setElementFormat(new ElementFormat (
                                    NbBundle.getBundle (ClassElementNodeFactory.class).getString("CTL_Class_name_format")
                                ));
