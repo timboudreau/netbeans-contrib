@@ -105,6 +105,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public static final String VAR_ICONS_FOR_FILE_STATUSES = "ICONS_FOR_FILE_STATUSES"; // NOI18N
     
     /**
+     * Variables that start with this prefix will be used to set filesystem properties.
+     */
+    public static final String VAR_FS_PROPERTY_PREFIX = "FILESYSTEM_PROPERTY_"; // NOI18N
+    
+    /**
      * The name of a variable, that may contain the file name of file status disk cache.
      * This name is relative to the given file's parent directory.
      * <p>
@@ -1103,6 +1108,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setDocumentCleanupFromVars();
         setAdditionalParamsLabels();
         setSharedPassword();
+        setFSPropertiesFromVars();
         VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(VAR_PASSWORD_DESCRIPTION);
         if (var != null) {
             passwordDescription = Variables.expand(getVariablesAsHashtable(), var.getValue(), false);
@@ -1120,6 +1126,61 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 setCommands(copySharedCommands(commands), true);
             } else {
                 setCommands(CommandsTree.EMPTY, true);
+            }
+        }
+    }
+    
+    private void setFSPropertiesFromVars() {
+        Hashtable vars = getVariablesAsHashtable();
+        BeanInfo beanInfo;
+        try {
+            beanInfo = java.beans.Introspector.getBeanInfo(this.getClass());
+        } catch (IntrospectionException iex) {
+            ErrorManager.getDefault().notify(iex);
+            return ;
+        }
+        PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
+        Map propertyDescriptorsByNames = new HashMap();
+        for (int i = 0; i < descriptors.length; i++) {
+            propertyDescriptorsByNames.put(descriptors[i].getName(), descriptors[i]);
+        }
+        for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
+            String name = (String) it.next();
+            if (name.startsWith(VAR_FS_PROPERTY_PREFIX)) {
+                String propertyName = name.substring(VAR_FS_PROPERTY_PREFIX.length());
+                PropertyDescriptor pd = (PropertyDescriptor) propertyDescriptorsByNames.get(propertyName);
+                if (pd == null) {
+                    NotifyDescriptor nd = new NotifyDescriptor.Message("MSG_NoSuchProperty");
+                    DialogDisplayer.getDefault().notify(nd);
+                    continue;
+                }
+                Class pt = pd.getPropertyType();
+                String value = (String) vars.get(name);
+                java.lang.reflect.Method wm = pd.getWriteMethod();
+                try {
+                    if (Boolean.TYPE.equals(pt)) {
+                        if (value.length() > 0) {
+                            wm.invoke(this, new Object[] { Boolean.TRUE });
+                        } else {
+                            wm.invoke(this, new Object[] { Boolean.FALSE });
+                        }
+                    } else if (String.class.equals(pt)) {
+                        wm.invoke(this, new Object[] { value });
+                    } else if (Integer.TYPE.equals(pt)) {
+                        int i;
+                        try {
+                            i = Integer.parseInt(value);
+                        } catch (NumberFormatException nfex) {
+                            ErrorManager.getDefault().notify(nfex);
+                            continue;
+                        }
+                        wm.invoke(this, new Object[] { new Integer(i) });
+                    } else {
+                        throw new IllegalArgumentException("Unsupported property type "+pt+" of property '"+propertyName+"' is trying to be set.");
+                    }
+                } catch (Exception ex) {
+                    ErrorManager.getDefault().notify(ex);
+                }
             }
         }
     }
