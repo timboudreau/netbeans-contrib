@@ -236,9 +236,9 @@ public class History {
             return;
         for (int a = rc.length - 1; a >= 0; a --) {
             if (rc[a] == breakpoint)
-                log.print ("==== Breakpoint - ");
+                log.print ("==== Breakpoint ===\n");
             if (rc[a] == startpoint)
-                log.print ("==== Startpoint - ");
+                log.print ("==== Startpoint ===\n");
             Node no = rc[a].getNodeDelegate();
             log.print("History: " + a + " - Status: ");
             if (rc[a].getState() == RuntimeCommand.STATE_DONE)
