@@ -27,7 +27,7 @@ import org.netbeans.modules.jndi.JndiRootNode;
  */
 public class JndiSystemOptionBeanInfo extends SimpleBeanInfo {
 
-    private static final String iconC16="/org/netbeans/modules/jndi/resources/jndi.gif";
+    private static final String iconC16="/org/netbeans/modules/jndi/resources/jndi.gif";    // No I18N
     private static final String iconC32=null;
     private static final String iconM16=null;
     private static final String iconM32=null;
@@ -44,7 +44,10 @@ public class JndiSystemOptionBeanInfo extends SimpleBeanInfo {
 
     public PropertyDescriptor[] getPropertyDescriptors() {
         try{
-            return new PropertyDescriptor[] { createPropertyDescriptor(JndiSystemOption.class, "timeOut",JndiRootNode.getLocalizedString("TITLE_TimeOut"),JndiRootNode.getLocalizedString("TIP_TimeOut"))};
+            PropertyDescriptor[] pds=  new PropertyDescriptor[] { createPropertyDescriptor(JndiSystemOption.class, "timeOut",JndiRootNode.getLocalizedString("TITLE_TimeOut"),JndiRootNode.getLocalizedString("TIP_TimeOut")),  // NO I18N  
+                                                                  createPropertyDescriptor(JndiSystemOption.class, "initialContexts",JndiRootNode.getLocalizedString("TITLE_InitialContexts"), JndiRootNode.getLocalizedString("TIP_InitialContexts"))};    //No I18N
+            pds[1].setHidden (true);
+            return pds;
         }catch (IntrospectionException ie) {return new PropertyDescriptor[0];}
     }
 
@@ -52,6 +55,7 @@ public class JndiSystemOptionBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor descriptor = new PropertyDescriptor (name, clazz);
         descriptor.setShortDescription(description);
         descriptor.setDisplayName(displayName);
+        descriptor.setBound (true);
         return descriptor;
     }
 

@@ -56,14 +56,14 @@ public class JndiSystemOption extends SystemOption {
     public void setTimeOut (int timeOut) {
         int oldTimeOut = this.timeOut;
         this.timeOut = timeOut;
-        firePropertyChange("timeOut",new Integer(oldTimeOut),new Integer(timeOut));
+        firePropertyChange("timeOut",new Integer(oldTimeOut),new Integer(timeOut)); // No I18N
     }
 
     /** Returns the dusplay name of this setting
      *  @return String display name
      */
     public String displayName() {
-        return JndiRootNode.getLocalizedString("Module_Name");
+        return JndiRootNode.getLocalizedString("Module_Name");  // No I18N
     }
 
     /** Reads Jndi module settings
@@ -97,9 +97,10 @@ public class JndiSystemOption extends SystemOption {
                 }
             }
         }
+        this.setInitialContexts (array);
         try{
             out.writeObject( new Integer(timeOut));
-            if (array != null) out.writeObject( array);
+            if (array != null) out.writeObject(this.redProviders);
         }catch (java.io.IOException ioe) {}
     }
 
@@ -115,5 +116,11 @@ public class JndiSystemOption extends SystemOption {
     */
     public ArrayList getInitialContexts () {
 	return this.redProviders;
+    }
+    
+    public void setInitialContexts (ArrayList list) {
+        Object oldValue = this.redProviders;
+        this.redProviders = list;
+        firePropertyChange ("initialContexts",oldValue,this.redProviders);    // No I18N
     }
 }
