@@ -3166,7 +3166,8 @@ public class ImplGenerator implements PropertyChangeListener {
 	final FileObject __final_folder = __folder;
 	final String __repo_id = __id;
 	final ClassElement __final_clazz = __clazz;
-	__folder.getFileSystem ().runAtomicAction 
+        final FileObject[] __final_impl_arr = new FileObject[1];
+        __folder.getFileSystem ().runAtomicAction 
 	    (new org.openide.filesystems.FileSystem.AtomicAction () {
 		    public void run () throws java.io.IOException {
 			final FileObject __final_impl = __final_folder.createData
@@ -3200,18 +3201,18 @@ public class ImplGenerator implements PropertyChangeListener {
 			} finally {
                             if (lock != null)
                                 lock.releaseLock ();
+			    __final_impl_arr[0] = __final_impl;	
                         }
-                        try {
-                            final DataObject __dObj = DataObject.find(__final_impl);
-                            SourceElement __se = (SourceElement)((SourceCookie)__dObj.getCookie(SourceCookie.class)).getSource();
-                            if (__se.getStatus() == SourceElement.STATUS_NOT)
-                                __se.prepare().waitFinished();
-       		        } catch (DataObjectNotFoundException __ex) {
-		            if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-			        System.out.println ("can't find " + __final_impl.toString ()); // NOI18N
-		        }
 		    }
 		});
+                try {
+                    final DataObject __dObj = DataObject.find(__final_impl_arr[0]);
+                    SourceElement __se = (SourceElement)((SourceCookie)__dObj.getCookie(SourceCookie.class)).getSource();
+                    __se.prepare().waitFinished();
+                } catch (DataObjectNotFoundException __ex) {
+                    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
+                        System.out.println ("can't find " + __final_impl_arr[0].toString ()); // NOI18N
+                }
 	//return __result;
     }
 
