@@ -79,7 +79,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
        
     }
     
-   protected OutputPanel createOutputPanel(){
+    protected OutputPanel createOutputPanel(){
         return new OutputPanel();
     }
     
@@ -99,7 +99,8 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
         this.task = (CommandTask) task;
         this.vce = task.getExecutor();
         killListener = new CommandKillListener(this.task);
-        outputPanel.addKillActionListener(killListener);    
+        outputPanel.addKillActionListener(killListener);
+        outputPanel.setIgnoreFailure(VcsCommandIO.getBooleanPropertyAssumeDefault(task.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL));
         final String title;
         String commandName = vce.getCommand().getDisplayName();
         if (commandName == null || commandName.length() == 0) {

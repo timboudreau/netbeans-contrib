@@ -32,7 +32,7 @@ import org.openide.filesystems.FileUtil;
  *
  * @author  Martin Entlicher
  */
-public class CommandOutputCollector extends Object implements CommandProcessListener {
+public final class CommandOutputCollector extends Object implements CommandProcessListener {
     
     /**
      * The default number of lines of commands' output to store in the memory.
@@ -77,6 +77,7 @@ public class CommandOutputCollector extends Object implements CommandProcessList
     private ArrayList[] cmdOutput;
     private ArrayList[] cmdOutputListeners;
     private File[] outputFiles;
+    private boolean[] isCmdOutput = new boolean[4];
     private boolean finalized = false;
 
     public CommandOutputCollector(CommandTask task, VcsCommandsProvider provider) {
@@ -144,6 +145,7 @@ public class CommandOutputCollector extends Object implements CommandProcessList
     
     private void addOutput(int outputId, Object output) {
         synchronized (cmdOutput[outputId]) {
+            isCmdOutput[outputId] = true;
             cmdOutput[outputId].add(output);
             if (cmdOutput[outputId].size() > numOfLinesOfOutputToCollect) {
                 flushOutput(outputId);
@@ -161,6 +163,15 @@ public class CommandOutputCollector extends Object implements CommandProcessList
                 }
             }
         }
+    }
+    
+    /**
+     * Tells whether there is actually some output with the given ID.
+     * @param outputId The output ID: 0 - standard output, 1 - error output,
+     *                 2 - standard data output, 3 - error data output.
+     */
+    public boolean isCmdOutput(int outputId) {
+        return isCmdOutput[outputId];
     }
 
     /** Get the commands provider. The listener gets events only from commands,

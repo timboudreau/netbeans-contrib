@@ -61,6 +61,7 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     private ArrayList killActionListeners = new ArrayList();
     private JTextArea stdDataOutput;
     private JTextArea errDataOutput;
+    private boolean ignoreFailure;
     private CommandOutputCollector outputCollector;
     private Action discardAction;
     
@@ -96,6 +97,13 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.CTRL_DOWN_MASK),
         "discard"); //NOI18N
         getActionMap().put("discard", discardAction);//NOI18N
+    }
+    
+    /**
+     * Set whether the failure of the command should be ignored or not.
+     */
+    public void setIgnoreFailure(boolean ignoreFailure) {
+        this.ignoreFailure = ignoreFailure;
     }
     
     /**
@@ -404,8 +412,9 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                 progress.setValue(100);
                 progress.setVisible(false);
                 btnStop.setVisible(false);
-                if (!isStdOutput() && isErrOutput())
+                if (!ignoreFailure && exit != CommandTask.STATUS_SUCCEEDED && outputCollector.isCmdOutput(1)) {
                     btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
+                }
             }
         });
     }
@@ -666,18 +675,6 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     protected JPanel getOutputPanel() {
         return this;
     }
-    
-    /**
-     *Return true in case command finished with some std output
-     *
-     */
-    protected abstract boolean isStdOutput();
-    
-    /**
-     *Return true in case command finished with some err output
-     *
-     */
-    protected abstract boolean isErrOutput();
     
     
     protected abstract JComponent getErrComponent();

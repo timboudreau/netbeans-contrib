@@ -51,18 +51,4 @@ public class OutputPanel extends AbstractOutputPanel{
         return stdOutput;
     }
     
-    protected boolean isErrOutput() {
-        if (errOutput.getText().length() > 0)
-            return true;
-        else
-            return false;
-    }
-    
-    protected boolean isStdOutput() {
-        if(stdOutput.getText().length() > 0)
-            return true;
-        else
-            return false;
-    }
-    
 }
