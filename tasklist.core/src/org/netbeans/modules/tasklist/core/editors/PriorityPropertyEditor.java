@@ -57,7 +57,7 @@ public class PriorityPropertyEditor extends PropertyEditorSupport {
                 break;
             }
         }
-        assert index != -1 : "Unknown Tag"; // NOI18N
+        if  (index == -1) throw new IllegalArgumentException("Unknown priority");
         
         setValue(Task.getPriority(index + 1));
     }

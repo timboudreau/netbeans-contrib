@@ -24,8 +24,6 @@ import javax.swing.JLabel;
  * @author Tim Lebedkov
  */
 public class StringPropertyEditor extends PropertyEditorSupport {
-    private static final JLabel LABEL = new JLabel();
-    
     public boolean isPaintable() {
         return true;
     }
@@ -33,10 +31,5 @@ public class StringPropertyEditor extends PropertyEditorSupport {
     public void paintValue(java.awt.Graphics gfx, java.awt.Rectangle box) {
         int y = gfx.getFontMetrics().getHeight() - gfx.getFontMetrics().getDescent();
         gfx.drawString(getAsText(), box.x , box.y + y);
-//        gfx.translate(box.x, box.y);
-//        LABEL.setText(getAsText());
-//        LABEL.setSize(box.width, box.height);
-//        LABEL.paint(gfx);
-//        gfx.translate(-box.x, -box.y);
     }
 }
