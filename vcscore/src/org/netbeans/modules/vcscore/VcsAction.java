@@ -43,7 +43,10 @@ import org.netbeans.modules.vcscore.commands.*;
 public class VcsAction extends NodeAction implements ActionListener {
     private Debug E=new Debug("VcsAction", true); // NOI18N
     private Debug D=E;
-    
+
+    /**
+     * Whether to remove disabled commands from the popup menu.
+     */
     protected boolean REMOVE_DISABLED = false;
 
     protected VcsFileSystem fileSystem = null;
