@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -24,7 +24,6 @@ import org.netbeans.jmi.javamodel.Resource;
 
 import org.openide.filesystems.Repository;
 import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileSystemCapability;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 
@@ -43,20 +42,13 @@ import org.openide.src.Identifier;
 /**
  *
  * @author  sdedic
- * @version 
  */
 final class Util {
-    private static ResourceBundle bundle;
+
     private static RequestProcessor classProcessor;
     
     static ResourceBundle getBundle() {
-        if (bundle != null)
-            return bundle;
-        synchronized (Util.class) {
-            if (bundle == null)
-                bundle = NbBundle.getBundle(Util.class);
-        }
-        return bundle;
+        return NbBundle.getBundle(Util.class);
     }
     
     static String getString(String key) {
@@ -185,90 +177,6 @@ final class Util {
             return t;
         }
     }    
-    
-    /**
-     * Tries to find root of the classpath subtree, which contains the given
-     * data object. The function may return null, if the DataObject does not
-     * lie beneath a configured classpath subtree.
-     * @return root of classpath containing the given DataObject.
-     */
-    static DataFolder  findClasspathRoot(DataObject source, Lookup context) 
-        throws FileStateInvalidException {
-        // HACK: the filesystem must be mounted so that its root is a root
-        // for of the classpath subtree. The filesystem either possesses or
-        // lacks the COMPILE capability
-        FileSystem fs = source.getPrimaryFile().getFileSystem();
-        if (!fs.getCapability().capableOf(FileSystemCapability.COMPILE))
-            return null;
-        
-        DataFolder fld = null;
-        try {
-            DataObject d = DataObject.find(fs.getRoot());
-            fld = (DataFolder)d.getCookie(DataFolder.class);
-        } catch (DataObjectNotFoundException ex) {
-            System.err.println("Root not found for filesystem " + fs.getSystemName());
-            ex.printStackTrace();
-        }
-        if (fld == null) {
-            System.err.println("Root file of filesystem is not a folder: " + fs.getSystemName());
-        }
-        return fld;
-        
-        /*
-        Repository rep = (Repository)context.lookup(Repository.class);
-        FileSystem []fs = (FileSystem[])rep.toArray();
-        for (int i = 0; i < fs.length; i++) {
-            DataFolder fld;
-            try {
-                DataObject d = DataObject.find(fs.getRoot());
-                fld = (DataFolder)d.getCookie(DataFolder.class);
-            } catch (DataObjectNotFoundException ex) {
-                System.err.println("Root not found for filesystem " + fs.getSystemName());
-                ex.printStackTrace();
-                continue;
-            }
-            if (fld == null) {
-                System.err.println("Root file of filesystem is not a folder: " + fs.getSystemName());
-                continue;
-            }
-        }
-         */
-    }
-    
-    /**
-     * Returns resource name, in the format used by ClassLoaders, which identifies
-     * the fileobject given the classpath root.
-     * @param f FileObject to convert to a resource name.
-     * @param root root of ClassPath.
-     * @return resource name
-     */
-    static String findResourceName(FileObject f, DataFolder root) {
-        FileObject rootFile = root.getPrimaryFile();
-        if (f == rootFile)
-            return "";
-        StringBuffer sb = new StringBuffer(30);
-        do {
-            sb.append('/');
-            sb.append(f.getNameExt());
-        } while (f != rootFile);
-        return sb.toString();
-    }
-    
-    /**
-     * Finds a codebase, which holds/should hold data for the
-     * specified resource.
-     * @param resource the DataObject resource, which holds metadata source
-     * @param context project-local Lookup for retrieving configuration info
-     */
-//    static Codebase findCodebase(DataObject resource, Lookup context) {
-//        ProjectModel model = ProjectModel.getProjectModel(context);
-//        try {
-//            return model.findCodebase((DataFolder)resource);
-//        } catch (java.io.IOException ex) {
-//            ex.printStackTrace();
-//            return null;
-//        }
-//    }
     
     static String createClassName(String signature) {
         return signature.replace('/', '.').replace('$', '.');

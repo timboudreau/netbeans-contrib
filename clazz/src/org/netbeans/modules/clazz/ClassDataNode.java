@@ -24,7 +24,7 @@ import java.text.MessageFormat;
 import org.openide.nodes.*;
 import org.openide.loaders.DataNode;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 import org.openide.src.*;
 import org.openide.src.nodes.SourceChildren;
 import org.openide.cookies.SourceCookie;
@@ -214,7 +214,7 @@ abstract class ClassDataNode extends DataNode
         if (sc != null) {
             if (!initialized)
                 sc.getSource().addPropertyChangeListener(
-                    WeakListener.propertyChange(this, sc.getSource()));
+                    WeakListeners.propertyChange(this, sc.getSource()));
             initialized = true;
         }
         resolveIcons();

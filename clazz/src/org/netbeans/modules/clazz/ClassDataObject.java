@@ -10,62 +10,51 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
+
 package org.netbeans.modules.clazz;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileChangeAdapter;
-import org.openide.filesystems.FileEvent;
-import org.openide.filesystems.Repository;
-
-import java.lang.reflect.Modifier;
-import org.openide.util.WeakListener;
-import org.openide.util.RequestProcessor;
-
-import org.openide.nodes.Node.Cookie;
-import org.openide.nodes.CookieSet.Factory;
-import org.netbeans.modules.classfile.ClassFile;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.loaders.MultiDataObject;
-import org.openide.loaders.InstanceSupport;
-import org.openide.loaders.DataObjectExistsException;
-import org.openide.loaders.MultiFileLoader;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.InputStream;
-import java.io.ObjectStreamClass;
 import java.io.BufferedInputStream;
-import org.openide.src.nodes.ElementNodeFactory;
-import org.openide.src.nodes.SourceElementFilter;
-import org.openide.src.nodes.SourceChildren;
-import org.openide.src.nodes.FilterFactory;
-import org.openide.src.ClassElement;
-import org.openide.src.SourceElement;
-import org.openide.src.ConstructorElement;
-import org.openide.src.Identifier;
-import org.openide.src.Type;
-
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Node;
-import org.openide.nodes.CookieSet;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import org.openide.cookies.SourceCookie;
-import org.openide.cookies.InstanceCookie;
-import org.openide.ErrorManager;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashSet;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.spi.java.classpath.support.ClassPathSupport;
+import java.util.LinkedList;
 import javax.jmi.reflect.InvalidObjectException;
-
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.modules.classfile.ClassFile;
+import org.netbeans.spi.java.classpath.support.ClassPathSupport;
+import org.openide.ErrorManager;
+import org.openide.cookies.InstanceCookie;
+import org.openide.cookies.SourceCookie;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectExistsException;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.loaders.InstanceSupport;
+import org.openide.loaders.MultiDataObject;
+import org.openide.loaders.MultiFileLoader;
+import org.openide.nodes.CookieSet.Factory;
+import org.openide.nodes.CookieSet;
+import org.openide.nodes.Node.Cookie;
+import org.openide.src.ClassElement;
+import org.openide.src.ConstructorElement;
+import org.openide.src.Identifier;
+import org.openide.src.SourceElement;
+import org.openide.src.Type;
+import org.openide.src.nodes.ElementNodeFactory;
+import org.openide.src.nodes.FilterFactory;
 
 /** This DataObject loads sourceless classes and provides a common framework
  * for presenting them in the IDE.
@@ -76,7 +65,6 @@ import javax.jmi.reflect.InvalidObjectException;
  * the behaviour specific to serialized objects was moved into SerDataObject.
  *
  * @author sdedic
- * @version 1.0
  */
 public class ClassDataObject extends MultiDataObject implements Factory, SourceCookie {
     public static final String PROP_CLASS_LOADING_ERROR = "classLoadingError"; // NOI18N
@@ -129,7 +117,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
             String prop = ev.getPropertyName();
             if (PROP_PRIMARY_FILE.equals(prop)) {
                 FileObject p = getPrimaryFile();
-                p.addFileChangeListener(WeakListener.fileChange(this, getPrimaryFile()));
+                p.addFileChangeListener(FileUtil.weakFileChangeListener(this, getPrimaryFile()));
                 postReload();
             }
         }
@@ -165,7 +153,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
                 if (propL == null) {
                     propL = new PropL();
                     FileObject p = getPrimaryFile();
-                    p.addFileChangeListener(WeakListener.fileChange(propL, p));
+                    p.addFileChangeListener(FileUtil.weakFileChangeListener(propL, p));
                 }
             }
         }
@@ -283,12 +271,12 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
         return true;    
     }
 
-    public boolean isMoveAllowed () {
-        return !getPrimaryFile ().isReadOnly ();
+    public boolean isMoveAllowed() {
+        return getPrimaryFile().canWrite();
     }
 
-    public boolean isRenameAllowed () {
-        return !getPrimaryFile ().isReadOnly ();
+    public boolean isRenameAllowed() {
+        return getPrimaryFile().canWrite();
     }
 
     // =======================================================================
