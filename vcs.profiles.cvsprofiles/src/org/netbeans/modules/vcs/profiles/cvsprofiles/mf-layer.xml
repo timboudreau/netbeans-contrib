@@ -49,7 +49,7 @@ Microsystems, Inc. All Rights Reserved.
       &includefiles_config;
     </folder>
     <folder name="versioningMenu">
-      <file name="cvs.xml" url="cvs.xml">
+      <file name="cvs.xml">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.profiles.cvsprofiles.Bundle" />
             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/openide/resources/actions/empty.gif" />
       </file>

@@ -45,7 +45,7 @@ Microsystems, Inc. All Rights Reserved.
       &includefiles_config;
     </folder>
     <folder name="versioningMenu">
-      <file name="pvcs.xml" url="pvcs.xml">
+      <file name="pvcs.xml">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.profiles.pvcs.Bundle" />
             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/openide/resources/actions/empty.gif" />
       </file>
