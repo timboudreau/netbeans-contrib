@@ -1,5 +1,5 @@
 OpenIDE-Module: com.netbeans.enterprise.modules.jndi/1
-OpenIDE-Module-Name: JNDI Support
+OpenIDE-Module-Name: JNDI
 OpenIDE-Module-Specification-Version: 0.9.3
 OpenIDE-Module-Implementation-Version: 0.9.3
 OpenIDE-Module-Description: com.netbeans.enterprise.modules.jndi.docs.HelpSet
