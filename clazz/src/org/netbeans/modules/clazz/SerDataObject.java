@@ -97,7 +97,7 @@ public final class SerDataObject extends ClassDataObject {
     }
 
     protected FileObject handleRename (String name) throws IOException {
-        if (name.indexOf(".")!=-1) {
+        if (name.indexOf(".")!=-1) { // NOI18N
             throw (IOException)ErrorManager.getDefault().annotate(
             new IOException("Dot in name"), // NOI18N
             ErrorManager.USER,

@@ -55,7 +55,7 @@ public abstract class SerStructureNode {
             if (key instanceof SerParser.NameValue) {
                 SerParser.NameValue nv = (SerParser.NameValue)key;
                 Node n = createNode(nv.value);
-                n.setName(prettify(nv.name.type) + " " + nv.name.name + " = " + n.getName());
+                n.setName(prettify(nv.name.type) + " " + nv.name.name + " = " + n.getName()); // NOI18N
                 return n;
             } else if (key instanceof SerParser.ObjectWrapper) {
                 SerParser.ObjectWrapper ow = (SerParser.ObjectWrapper)key;

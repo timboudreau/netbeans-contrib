@@ -412,14 +412,14 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     synchronized static NodeFactoryPool createBrowserFactory() {
         if (browserFactories != null)
             return browserFactories;
-        browserFactories = createFactoryPool("/NodeFactories/clazz/objectbrowser", createBasicBrowserFactory());
+        browserFactories = createFactoryPool("/NodeFactories/clazz/objectbrowser", createBasicBrowserFactory()); // NOI18N
         return browserFactories;
     }
     
     synchronized static NodeFactoryPool createExplorerFactory() {
         if (explorerFactories != null)
             return explorerFactories;
-        explorerFactories = createFactoryPool("/NodeFactories/clazz/explorer", createBasicExplorerFactory());
+        explorerFactories = createFactoryPool("/NodeFactories/clazz/explorer", createBasicExplorerFactory()); // NOI18N
         return explorerFactories;
     }
 

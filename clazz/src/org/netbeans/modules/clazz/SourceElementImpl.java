@@ -350,8 +350,8 @@ final class SourceElementImpl extends MemberElementImpl
      */
     public void run() {
         if (cdo == null) {
-            throw new IllegalStateException("Cannot load classfile without "
-                + "the DataObject");
+            throw new IllegalStateException("Cannot load classfile without " // NOI18N
+                + "the DataObject"); // NOI18N
         }
         setResource(null);
     }

@@ -305,7 +305,7 @@ final class Util {
                 return Type.VOID;
             }
         }
-        throw new IllegalArgumentException("Invalid TypeDescriptor: " + t);
+        throw new IllegalArgumentException("Invalid TypeDescriptor: " + t); // NOI18N
     }
     
     /**
