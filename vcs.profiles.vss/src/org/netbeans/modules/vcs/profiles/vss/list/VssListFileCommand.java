@@ -303,7 +303,7 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
                 return ;
             }
         } else {
-            if (!file.startsWith(elements[0].substring(0, STATUS_POSITION))) {
+            if (!file.startsWith(elements[0].substring(0, Math.min(STATUS_POSITION, elements[0].length())))) {
                 if (statuses[2] == null) statuses[2] = "";
                 // The element does not start with the file name
                 return ;
