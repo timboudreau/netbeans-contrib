@@ -253,7 +253,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
 
         public void actionPerformed(ActionEvent e){
             addVersioningOpenerListener();
-            ((VcsMountFromTemplateAction) SharedClassObject.findObject (VcsMountFromTemplateAction.class, true)).performAction ();
+            ((VcsMountFromTemplateAction) SharedClassObject.findObject (VcsMountFromTemplateAction.class, true)).actionPerformed(e);
         }      
     
     }
