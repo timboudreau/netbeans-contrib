@@ -17,13 +17,14 @@ import org.netbeans.jemmy.*;
 import org.netbeans.jemmy.operators.*;
 import org.netbeans.test.oo.gui.jam.*;
 import org.netbeans.test.oo.gui.jelly.*;
+import org.netbeans.jellytools.*;
 import org.netbeans.a11y.*;
 import java.io.PrintWriter;
 import java.awt.Component;
 import javax.swing.JDialog;
 import java.io.OutputStreamWriter;
 
-public class Main extends org.netbeans.junit.NbTestCase {
+public class Main extends JellyTestCase {
 
     public Main (String name) {
         super (name);
