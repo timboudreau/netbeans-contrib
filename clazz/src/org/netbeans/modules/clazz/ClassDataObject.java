@@ -735,7 +735,9 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
                     }
                 }
                 else {
-                    StatusDisplayer.getDefault().setStatusText(MessageFormat.format(NbBundle.getMessage(ClassDataObject.class,"TXT_NoSources"),
+                   if (resourceName == null)
+                       resourceName = fo.getName();
+                   StatusDisplayer.getDefault().setStatusText(MessageFormat.format(NbBundle.getMessage(ClassDataObject.class,"TXT_NoSources"),
                         new Object[] {resourceName.replace('/','.')})); //NOI18N
                 }
             } catch (FileStateInvalidException e) {
