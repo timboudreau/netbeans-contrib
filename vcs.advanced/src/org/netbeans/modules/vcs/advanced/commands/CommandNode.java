@@ -36,6 +36,7 @@ import org.openide.util.actions.SystemAction;
 import org.openide.util.actions.ActionPerformer;
 import org.openide.util.datatransfer.NewType;
 
+import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
@@ -82,7 +83,8 @@ public class CommandNode extends AbstractNode {
     
     static {
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_LABEL_MNEMONIC, String.class);
-        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_EXEC, String.class);
+        //stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_EXEC, String.class);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_EXEC_STRUCTURED, StructuredExec.class);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_CONFIRMATION_MSG, String.class);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG, String.class);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG, String.class);
@@ -623,6 +625,14 @@ public class CommandNode extends AbstractNode {
                             firePropertyChange(name, old, defaultValue);
                             if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(name)) {
                                 cmd.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED, null);
+                            }
+                        }
+                        
+                        public PropertyEditor getPropertyEditor() {
+                            if (VcsCommand.PROPERTY_EXEC_STRUCTURED.equals(this.getName())) {
+                                return new StructuredExecEditor(cmd);
+                            } else {
+                                return super.getPropertyEditor();
                             }
                         }
                 });
