@@ -60,7 +60,7 @@ public class IDLDataLoader extends MultiFileLoader {
    public IDLDataLoader() {
        super(IDLDataObject.class);
        if (DEBUG)
-	  System.out.println ("IDLDataLoader...");
+         System.out.println ("IDLDataLoader...");
        initialize();
    }
 
@@ -70,16 +70,16 @@ public class IDLDataLoader extends MultiFileLoader {
       setDisplayName(NbBundle.getBundle(IDLDataLoader.class).
 		     getString("PROP_IDLLoader_Name"));
       ExtensionList ext = new ExtensionList ();
-      //  org.openide.loaders.ExtensionList ext = new org.openide.loaders.ExtensionList();
       ext.addExtension(IDL_EXTENSION);
       //    ext.addExtension("properties"); // now provided by properties DataObject
       setExtensions(ext);
       setActions(new SystemAction[] {
         SystemAction.get(OpenAction.class),
+        SystemAction.get(FileSystemAction.class),
   	    null,
-  	    SystemAction.get (CompileAction.class),
+  	    SystemAction.get(CompileAction.class),
   	    null,
-  	    SystemAction.get (GenerateImplAction.class),
+  	    SystemAction.get(GenerateImplAction.class),
   	    null,
   	    SystemAction.get(CutAction.class),
   	    SystemAction.get(CopyAction.class),
