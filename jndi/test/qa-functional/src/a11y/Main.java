@@ -65,17 +65,19 @@ public class Main extends JellyTestCase {
     }
 
     public void testAll() throws Exception {
-        JellyProperties.setDefaults();
-        JemmyProperties.getProperties().setOutput(TestOut.getNullOutput ());
+//        JellyProperties.setDefaults();
+//        JemmyProperties.getProperties().setOutput(TestOut.getNullOutput ());
 //        JemmyProperties.getProperties().setCurrentDispatchingModel (JemmyProperties.QUEUE_MODEL_MASK | JemmyProperties.ROBOT_MODEL_MASK);
 //        JellyProperties.setJemmyDebugTimeouts();
         JDialog testDialog = null;
         JDialog testDialog2 = null;
-        Explorer exp = Explorer.find ();
+//        Explorer exp = Explorer.find ();
+        ExplorerOperator expl = new ExplorerOperator ();
 
-        new ComponentOperator (exp.getJFrame ()).activateWindow ();
-        exp.switchToRuntimeTab();
-        exp.pushPopupMenuNoBlock("Add Context...", "JNDI");
+//        new ComponentOperator (exp.getJFrame ()).activateWindow ();
+//        exp.switchToRuntimeTab();
+        new ActionNoBlock (null, "Add Context...").perform (new Node (expl.runtimeTab().tree (), "JNDI"));
+//        exp.pushPopupMenuNoBlock("Add Context...", "JNDI");
         testDialog = JDialogOperator.waitJDialog ("New JNDI Context", true, true);
         try {
             testA11Y (testDialog, false);
@@ -83,9 +85,10 @@ public class Main extends JellyTestCase {
             new JButtonOperator (JButtonOperator.findJButton(testDialog, "Cancel", true, true)).push();
         }
 
-        new ComponentOperator (exp.getJFrame ()).activateWindow ();
-        exp.switchToRuntimeTab();
-        exp.pushPopupMenuNoBlock("Add Provider...", "JNDI|Providers");
+//        new ComponentOperator (exp.getJFrame ()).activateWindow ();
+//        exp.switchToRuntimeTab();
+        new ActionNoBlock (null, "Add Provider...").perform (new Node (expl.runtimeTab().tree (), "JNDI|Providers"));
+//        exp.pushPopupMenuNoBlock("Add Provider...", "JNDI|Providers");
         testDialog = JDialogOperator.waitJDialog ("New Provider", true, true);
         try {
             testA11Y (testDialog, false);
@@ -94,7 +97,6 @@ public class Main extends JellyTestCase {
         }
 
 //        new ComponentOperator (exp.getJFrame ()).activateWindow ();
-        ExplorerOperator expl = new ExplorerOperator ();
         new ActionNoBlock (null, "Customize").perform (new Node (expl.runtimeTab().tree (), "JNDI|Providers|CNCtxFactory"));
 //        exp.pushPopupMenuNoBlock("Customize", "JNDI|Providers|CNCtxFactory");
         testDialog = JDialogOperator.waitJDialog ("Customizer Dialog", true, true);
@@ -153,8 +155,9 @@ public class Main extends JellyTestCase {
         }
 
         try {
-            new ComponentOperator (exp.getJFrame ()).activateWindow ();
-            exp.pushPopupMenuNoBlock("Customize", "JNDI|CONTEXT");
+//            new ComponentOperator (exp.getJFrame ()).activateWindow ();
+              new ActionNoBlock (null, "Customize").perform (new Node (expl.runtimeTab().tree (), "JNDI|CONTEXT"));
+//            exp.pushPopupMenuNoBlock("Customize", "JNDI|CONTEXT");
             testDialog = JDialogOperator.waitJDialog ("Customizer Dialog", true, true);
             try {
                 testA11Y (testDialog, true);
@@ -162,8 +165,9 @@ public class Main extends JellyTestCase {
                 new JButtonOperator (JButtonOperator.findJButton (testDialog, "Close", true, true)).push ();
             }
 
-            new ComponentOperator (exp.getJFrame ()).activateWindow ();
-            exp.pushPopupMenuNoBlock("Add Directory...", "JNDI|CONTEXT");
+//            new ComponentOperator (exp.getJFrame ()).activateWindow ();
+              new ActionNoBlock (null, "Add Directory...").perform (new Node (expl.runtimeTab().tree (), "JNDI|CONTEXT"));
+//            exp.pushPopupMenuNoBlock("Add Directory...", "JNDI|CONTEXT");
             testDialog = JDialogOperator.waitJDialog ("New Context", true, true);
             try {
                 testA11Y (testDialog, false);
@@ -171,7 +175,8 @@ public class Main extends JellyTestCase {
                 new JButtonOperator (JButtonOperator.findJButton (testDialog, "Cancel", true, true)).push ();
             }
         } finally {
-            exp.pushPopupMenuNoBlock("Disconnect Context", "JNDI|CONTEXT");
+              new ActionNoBlock (null, "Disconnect Context").perform (new Node (expl.runtimeTab().tree (), "JNDI|CONTEXT"));
+//            exp.pushPopupMenuNoBlock("Disconnect Context", "JNDI|CONTEXT");
         }
         compareReferenceFiles();
     }
