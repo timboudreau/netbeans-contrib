@@ -1,4 +1,5 @@
 IDLFileName: data.corbawizard.Wizard
+Path: |data|corbawizard|Wizard
 -- Source
 Back:   false
 Next:   true

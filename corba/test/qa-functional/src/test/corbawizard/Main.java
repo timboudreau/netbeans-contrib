@@ -130,10 +130,10 @@ public class Main extends JellyTestCase {
     }
     
     public void printTreePath (TreePath tp) {
-        printTreePath (tp, out);
+/*        printTreePath (tp, out);
     }
 
-    public void printTreePath (TreePath tp, PrintStream out) {
+    public void printTreePath (TreePath tp, PrintStream out) {*/
         out.print ("Path: ");
         if (tp == null) {
             out.println ("<NULL>");
@@ -212,7 +212,7 @@ public class Main extends JellyTestCase {
         try { Thread.sleep (5000); } catch (Exception e) {}
         //try { PNGEncoder.captureScreen (getWorkDirPath () + File.separator + "path1.png"); } catch (IOException e) {}
         out.println ("IDLFileName: " + ss.getIDLFileName());
-        printTreePath (ss.tree().getSelectionPath(), getLog ()); // unstable
+        printTreePath (ss.tree().getSelectionPath());
         printButtons (ss);
         new Node (ss.tree (), "").select();
         ev.waitNoEvent(1000);
@@ -476,8 +476,11 @@ public class Main extends JellyTestCase {
         new CORBAWizardAction ().perform (n);
         SelectSourceIDLStep ss = new SelectSourceIDLStep ();
         ss.verify ();
+        ev.waitNoEvent(1000);
+        try { Thread.sleep (5000); } catch (Exception e) {}
+        //try { PNGEncoder.captureScreen (getWorkDirPath () + File.separator + "path1.png"); } catch (IOException e) {}
         out.println ("IDLFileName: " + ss.getIDLFileName());
-        printTreePath (ss.tree().getSelectionPath(), getLog ()); // unstable
+        printTreePath (ss.tree().getSelectionPath());
         ss.next ();
         ta = new TypeAplicationStep ();
         ta.verify ();

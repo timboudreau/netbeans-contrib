@@ -3,6 +3,7 @@ ORB: true
 Bind: true
 --
 IDLFileName: data.corbawizard.Wizard
+Path: |data|corbawizard|Wizard
 Impl:     false
 Tie:      false
 Server:   false
