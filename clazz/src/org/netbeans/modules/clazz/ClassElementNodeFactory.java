@@ -94,12 +94,10 @@ final class ClassElementNodeFactory extends DefaultFactory {
   * @return ElementNode
   */
   public Node createClassNode (final ClassElement element) {
-    ClassChildren ch = new ClassChildren(this, element);
-  
-    ClassElementNode n = new ClassElementNode(element, ch, false);
-    
-    
     if (tree) {
+      ClassChildren ch = new ClassChildren(this, element);
+      ClassElementNode n = new ClassElementNode(element, ch, false);
+      
       CookieSet css = n.getCookieSet ();
       css.add ((FilterCookie) n.getChildren ());
       n.setElementFormat(new ElementFormat (
@@ -113,11 +111,15 @@ final class ClassElementNodeFactory extends DefaultFactory {
         ClassElementFilter.FIELD,
       });
       ch.setFilter (cel);
+      n.setActions(getDefaultActions());
+      return n;
     }
-    
-    n.setActions(getDefaultActions());
-    
-    return n;
+    else {
+      Children ch = createClassChildren(element);
+      ClassElementNode n = new ClassElementNode(element, ch, false);
+      n.setActions(getDefaultActions());
+      return n;
+    }
   }
 
   /** Convenience method for obtaining default actions of nodes */
@@ -142,6 +144,8 @@ final class ClassElementNodeFactory extends DefaultFactory {
 
 /*
 * Log
+*  8    src-jtulach1.7         6/28/99  Petr Hamernik   new hierarchy under 
+*       ClassChildren
 *  7    src-jtulach1.6         6/9/99   Ian Formanek    ToolsAction
 *  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
