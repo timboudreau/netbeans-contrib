@@ -470,6 +470,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     }
     
     private volatile Boolean preCommandsProcessed;
+    private boolean preCommandsExecuted;
     
     private boolean processedPreCommands() {
         if (preCommandsProcessed == null) {
@@ -477,6 +478,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             boolean havePreCommands = preCommands != null && preCommands.length > 0;
             preCommandsProcessed = (havePreCommands) ? Boolean.FALSE : Boolean.TRUE;
             if (havePreCommands) {
+                preCommandsExecuted = false;
                 final HashSet tasks = new HashSet(preCommands.length);
                 CommandProcessor.getInstance().addCommandProcessListener(new CommandProcessListener() {
 
@@ -493,6 +495,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                     public void commandDone(CommandTaskInfo info) {
                         int size;
                         synchronized (tasks) {
+                            if (!preCommandsExecuted) return ;
                             tasks.remove(info.getTask());
                             size = tasks.size();
                         }
@@ -515,6 +518,9 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                                     tasks.add(preCmd.execute());
                                 }
                             }
+                        }
+                        synchronized (tasks) {
+                            preCommandsExecuted = true;
                         }
                     }
                 });
