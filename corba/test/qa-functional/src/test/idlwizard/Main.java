@@ -49,6 +49,7 @@ import org.netbeans.jellytools.modules.corba.idlwizard.IDLSourceStep;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jemmy.EventTool;
 import util.Filter;
+import util.Helper;
 
 public class Main extends JellyTestCase {
     
@@ -375,6 +376,9 @@ public class Main extends JellyTestCase {
         fis.finish ();
         
         out.println ();
+        new Node (exp.repositoryTab ().tree (), "|data|idlwizard|IDLWizard");
+        ev.waitNoEvent (1000);
+        Helper.sleep (1000);
         new OpenAction ().perform (new Node (exp.repositoryTab ().tree (), "|data|idlwizard|IDLWizard"));
         EditorWindowOperator ewo = new EditorWindowOperator ();
         EditorOperator eo = ewo.getEditor ("IDLWizard");
