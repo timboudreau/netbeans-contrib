@@ -1130,14 +1130,14 @@ Microsystems, Inc. All Rights Reserved.
  	  <value>LABEL(ResourceMsg(COMMAND_PVCS_DIFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Label)))
                  SELECT_RADIO_EXPERT(REV_VER1, "", "R",
                   [ResourceMsg(COMMAND_PVCS_DIFF_Rev1), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Rev1);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_Rev1_mnc)),
-                    PROMPT_FOR_EXPERT(REVISION1, "", "")],
+                    PROMPT_FOR_EXPERT(REVISION1, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Rev1)))],
                   [ResourceMsg(COMMAND_PVCS_DIFF_Ver1), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Ver1);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_Ver1_mnc)),
-                    PROMPT_FOR_EXPERT(VERSION1, "", "")])
+                    PROMPT_FOR_EXPERT(VERSION1, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Ver1)))])
                  SELECT_RADIO_EXPERT(REV_VER2, "", "R",
                   [ResourceMsg(COMMAND_PVCS_DIFF_Rev2), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Rev2);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_Rev2_mnc)),
-                    PROMPT_FOR_EXPERT(REVISION2, "", "")],
+                    PROMPT_FOR_EXPERT(REVISION2, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Rev2)))],
                   [ResourceMsg(COMMAND_PVCS_DIFF_Ver2), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Ver2);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_Ver2_mnc)),
-                    PROMPT_FOR_EXPERT(VERSION2, "", "")])
+                    PROMPT_FOR_EXPERT(VERSION2, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Ver2)))])
                  ASK_FOR_EXPERT(IGNORE_WHITE, ResourceMsg(COMMAND_PVCS_DIFF_IgnoreWhite), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_IgnoreWhite);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_IgnoreWhite_mnc)), "-b", "")
                  ASK_FOR_EXPERT(GEN_DELTA, ResourceMsg(COMMAND_PVCS_DIFF_GenDelta), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_GenDelta);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_GenDelta_mnc)), ENABLE(DELTA_FILE))
                  PROMPT_FOR_EXPERT(DELTA_FILE, ResourceMsg(COMMAND_PVCS_DIFF_DeltaFile), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_DeltaFile);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_DeltaFile_mnc)), SELECTOR_FILE)
@@ -1257,19 +1257,19 @@ Microsystems, Inc. All Rights Reserved.
  	  <value>LABEL(ResourceMsg(COMMAND_PVCS_MERGE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Label)))
                  SELECT_RADIO(PARENT, ResourceMsg(COMMAND_PVCS_MERGE_Parent), "R",
                   [ResourceMsg(COMMAND_PVCS_MERGE_RevisionNumberPR), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Parent_RevisionNumber);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_Parent_RevisionNumber_mnc)),
-                    PROMPT_FOR(PARENT_REVISION, "", "")],
+                    PROMPT_FOR(PARENT_REVISION, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Parent_RevisionNumber)))],
                   [ResourceMsg(COMMAND_PVCS_MERGE_VersionLabelPR), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Parent_VersionLabel);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_Parent_VersionLabel_mnc)),
-                    PROMPT_FOR(PARENT_VERSION, "", "")])
+                    PROMPT_FOR(PARENT_VERSION, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Parent_VersionLabel)))])
                  SELECT_RADIO(BRANCH1, ResourceMsg(COMMAND_PVCS_MERGE_Branch1), "R",
                   [ResourceMsg(COMMAND_PVCS_MERGE_RevisionNumberB1), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B1_RevisionNumber);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_B1_RevisionNumber_mnc)),
-                    PROMPT_FOR(BRANCH1_REVISION, "", "")],
+                    PROMPT_FOR(BRANCH1_REVISION, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B1_RevisionNumber)))],
                   [ResourceMsg(COMMAND_PVCS_MERGE_VersionLabelB1), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B1_VersionLabel);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_B1_VersionLabel_mnc)),
-                    PROMPT_FOR(BRANCH1_VERSION, "", "")])
+                    PROMPT_FOR(BRANCH1_VERSION, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B1_VersionLabel)))])
                  SELECT_RADIO(BRANCH2, ResourceMsg(COMMAND_PVCS_MERGE_Branch2), "R",
                   [ResourceMsg(COMMAND_PVCS_MERGE_RevisionNumberB2), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B2_RevisionNumber);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_B2_RevisionNumber_mnc)),
-                    PROMPT_FOR(BRANCH2_REVISION, "", "")],
+                    PROMPT_FOR(BRANCH2_REVISION, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B2_RevisionNumber)))],
                   [ResourceMsg(COMMAND_PVCS_MERGE_VersionLabelB2), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B2_VersionLabel);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_B2_VersionLabel_mnc)),
-                    PROMPT_FOR(BRANCH2_VERSION, "", "")])
+                    PROMPT_FOR(BRANCH2_VERSION, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_B2_VersionLabel)))])
                  PROMPT_FOR_EXPERT(OUT_FILE, ResourceMsg(COMMAND_PVCS_MERGE_OutFile), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_OutFile);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_OutFile_mnc)), SELECTOR_FILE)
           </value>
 	</property>
