@@ -34,6 +34,7 @@ import org.openide.filesystems.FileStatusEvent;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
+import org.openide.util.Utilities;
 
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
@@ -59,8 +60,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static ResourceBundle resourceBundle = null;
     
     private transient Hashtable commandsByName=null;
-    //private transient Vector mainCommands = null;
-    //private transient Vector revisionCommands = null;
 
     protected static final int REFRESH_TIME = 15000; // This is default in LocalFileSystem
     protected volatile int refreshTimeToSet = REFRESH_TIME;
@@ -71,7 +70,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static final String LOCK_FILES_ON = "LOCKFILES"; // NOI18N
     private static final String PROMPT_FOR_LOCK_ON = "PROMPTFORLOCK"; // NOI18N
 
-    public static final String  VAR_QUOTING = "QUOTING"; // NOI18N
+    public static final String VAR_QUOTING = "QUOTING"; // NOI18N
+    public static final String VAR_EXPERT_MODE = "EXPERT_MODE"; // NOI18N
+
     private static final String DEFAULT_QUOTING_VALUE = "\\\\\""; // NOI18N
 
     private static final String DEFAULT_CACHE_ID = "VCS_Cache"; // NOI18N
@@ -96,7 +97,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * The name of the variable for the local additional parameters.
      */
     private static final String USER_PARAM = "USER_PARAM";
-
+    
     private static int last_refreshTime = REFRESH_TIME;
     private static volatile File last_rootFile = new File (System.getProperty("user.home")); // NOI18N
 
@@ -139,10 +140,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient VcsAction action = null;
     private transient VcsFactory factory = null;
 
-    //private transient ErrorCommandDialog errorDialog = null;
-    //private transient volatile boolean lastCommandState = true;
-    //private transient volatile boolean lastCommandFinished = true;
-
     private transient Vector unimportantNames = null;
     private Boolean processUnimportantFiles = Boolean.FALSE;
 
@@ -182,16 +179,23 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private volatile boolean acceptUserParams = false;
     
+    /** The expert mode. When true, the user might be prompted for other options.
+     */
+    private boolean expertMode = false;
+    
     /**
      * Whether to run command when doing refresh of folders. Recommended to turn this property off when working off-line.
      */
     private boolean doCommandRefresh = true;
     
     private volatile transient CommandsPool commandsPool = null;
+    private int numOfFinishedCmdsToCollect = CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
     
     private ArrayList revisionListeners;
 
     private volatile boolean offLine = false;
+
+    private Collection notModifiableStatuses = Collections.EMPTY_SET;
 
     public boolean isLockFilesOn () { return lockFilesOn; }
     public void setLockFilesOn (boolean lock) { lockFilesOn = lock; }
@@ -240,6 +244,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public String[] getUserParams() {
         return userParams;
     }
+    
+    public void setExpertMode(boolean expertMode) {
+        this.expertMode = expertMode;
+    }
+    
+    public boolean getExpertMode() {
+        return expertMode;
+    }
 
     public CommandsPool getCommandsPool() {
         return commandsPool;
@@ -280,6 +292,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         for(Iterator it = revisionListeners.iterator(); it.hasNext(); ) {
             ((RevisionListener) it.next()).revisionsChanged(whatChanged, fo, info);
         }
+    }
+    
+    protected void setNotModifiableStatuses(Collection notModifiableStatuses) {
+        this.notModifiableStatuses = notModifiableStatuses;
     }
     
     /**
@@ -643,7 +659,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (annotationPattern == null) {
             annotationPattern = RefreshCommandSupport.DEFAULT_ANNOTATION_PATTERN;
         }
+        if (notModifiableStatuses == null) {
+            notModifiableStatuses = Collections.EMPTY_SET;
+        }
         commandsPool = new CommandsPool(this);
+        commandsPool.setCollectFinishedCmdsNum(numOfFinishedCmdsToCollect);
     }
 
 
@@ -738,6 +758,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private void writeObject(ObjectOutputStream out) throws IOException {
         //D.deb("writeObject() - saving bean"); // NOI18N
         // cache is transient
+        numOfFinishedCmdsToCollect = commandsPool.getCollectFinishedCmdsNum();
         out.writeBoolean (true/*cache.isLocalFilesAdd ()*/); // for compatibility
         out.defaultWriteObject();
     }
@@ -761,12 +782,20 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
 
-    //-------------------------------------------
+    /**
+     * Set the file system's variables.
+     * @param variables the vector of <code>VcsConfigVariable</code> objects.
+     */
     public void setVariables(Vector variables) {
         //System.out.println("setVariables("+VcsUtilities.toSpaceSeparatedString(variables)+")");
         //D.deb ("setVariables()"); // NOI18N
         boolean containsCd = false;
-        String cdValue = System.getProperty ("os.name").equals ("Windows NT") ? "cd /D" : "cd";
+        // Windows != 95 && != 98 needs "cd /D" to change the directory accross disks !!!
+        // Windows 95 || 98 do not recognize /D => change the directory accross disks is NOT possible by a single command !!!
+        int os = Utilities.getOperatingSystem();
+        String cdValue = (Utilities.isWindows()
+                          && os != Utilities.OS_WIN95
+                          && os != Utilities.OS_WIN98) ? "cd /D" : "cd";
         int len = variables.size ();
         VcsConfigVariable var;
         for(int i = 0; i < len; i++) {
@@ -884,6 +913,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //if (osName.indexOf("Win") >= 0) // NOI18N
         //module=module.replace('\\','/');
         result.put("ROOTDIR", VcsFileSystem.substractRootDir(rootDir, module)); // NOI18N
+        result.put(VAR_EXPERT_MODE, expertMode ? "expert" : "");
 
         return result;
     }
@@ -1377,9 +1407,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
 
-    /**
-     * Annotate a single file.
+    /** Annotate a single file.
      * @params fullName The full path to the file.
+     * @return the annotation string
      */
     public String annotateName(String fullName) {
         FileObject fo = findResource(fullName);
@@ -1391,14 +1421,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (ext != null && ext.length() > 0) name += "."+ext;
         return annotateName(name, Collections.synchronizedSet(hset));
     }
-    
+
+    /** Find the file object from a file path.
+     * @param fullName the full path to the file
+     * @return the file object of that file
+     */
     public FileObject findFileObject(String fullName) {
         return findResource(fullName);
     }
 
-    /**
-     * Annotate the Data Object from a single file.
+    /** Annotate the Data Object file.
      * @params fullName The full path to the file.
+     * @return the annotation string
      */
     public String annotateDOName(String fullName) throws org.openide.loaders.DataObjectNotFoundException {
         FileObject fo = findResource(fullName);
@@ -1411,11 +1445,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return annotateName(fo.getName(), dobj.files());
     }
     
-    //-------------------------------------------
+    /** Annotate the set of files with additional version control attributes.
+     * @param name the original annotation
+     * @param files the files to annotate
+     * @return the annotation string
+     */
     public String annotateName(String name, Set files) {
         String result = name;
-        String fullName = ""; // NOI18N
-        //String fileName=""; // NOI18N
 
         Object[] oo = files.toArray();
         int len = oo.length;
@@ -1426,32 +1462,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (statusProvider != null) {
             if (len == 1) {
                 FileObject ff = (FileObject) oo[0];
-                fullName = ff.getPackageNameExt('/','.');
+                String fullName = ff.getPackageNameExt('/','.');
                 result = RefreshCommandSupport.getStatusAnnotation(name, fullName, annotationPattern, statusProvider);
             } else {
                 ArrayList importantFiles = getImportantFiles(oo);
                 result = RefreshCommandSupport.getStatusAnnotation(name, importantFiles, annotationPattern, statusProvider, multiFilesAnnotationTypes);
             }
         }
-        /*
-        String trans = null;
-        if (possibleFileStatusesMap != null) {
-            synchronized (possibleFileStatusesMap) {
-                trans = (String) possibleFileStatusesMap.get(status);
-            }
-        }
-        if (trans != null) {
-            status = trans;
-        }
-        //D.deb("name = "+fullName+": status = "+status);
-        if (status.length() > 0) {
-            result = name + " ["+status+"]"; // NOI18N
-        }
-        //D.deb("locker = '"+locker+"'");
-        if (locker != null && locker.length() > 0) {
-            result += " ("+locker+")";  // NOI18N
-        }
-         */
         //System.out.println("annotateName("+name+") -> result='"+result+"'");
         //D.deb("annotateName("+name+") -> result='"+result+"'"); // NOI18N
         return result;
@@ -1495,29 +1512,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return getVcsFactory ().getActions(fos);
     }
 
-    /*
-    public void setValidFS(boolean v) {
-        boolean valid = isValid();
-        D.deb("Filesystem is "+((valid) ? "":"not ")+"valid.");
-        if (v != valid) {
-            D.deb("setting valid = "+v);
-            firePropertyChange (org.openide.filesystems.FileSystem.PROP_VALID,
-                                new Boolean (!v), new Boolean (v));
-        }
-        D.deb("Filesystem is "+((isValid()) ? "":"not ")+"valid.");
-    }
-     */
-    
     /**
-     * Get human presentable name.
+     * Get a human presentable name of the file system
      */
     public String getDisplayName() {
-        //D.deb("getDisplayName() isValid="+isValid()); // NOI18N
-        /*
-        if(!isValid())
-          return g("LAB_FileSystemInvalid", rootFile.toString ()); // NOI18N
-        else
-        */
+        if (commandsRoot != null) {
+            String VCSName = commandsRoot.getDisplayName();
+            if (VCSName != null && VCSName.length() > 0) {
+                return VCSName + " " + rootFile.toString();
+            }
+        }
         return g("LAB_FileSystemValid", rootFile.toString ()); // NOI18N
     }
 
@@ -1587,12 +1591,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    //-------------------------------------------
+    /** Set the root directory of the file system.
+     * @param rootFile root directory
+     */
     public void setRootFile(File rootFile) {
         this.rootFile = rootFile;
     }
 
-    //-------------------------------------------
     /** Get the root directory of the file system.
      * @return root directory
      */
@@ -1600,7 +1605,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return rootFile;
     }
 
-    //-------------------------------------------
     /** Set whether the file system should be read only.
      * @param flag <code>true</code> if it should
      */
@@ -1612,16 +1616,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    //-------------------------------------------
     /* Test whether file system is read only.
-     * @return <true> if file system is read only
+     * @return <code>true</code> if file system is read only
      */
     public boolean isReadOnly() {
         //D.deb("isReadOnly() ->"+readOnly); // NOI18N
         return readOnly;
     }
 
-    //-------------------------------------------
     /** Prepare environment by adding the root directory of the file system to the class path.
      * @param environment the environment to add to
      */
@@ -1630,7 +1632,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         environment.addClassPath(rootFile.toString ());
     }
 
-    //-------------------------------------------
     /** Compute the system name of this file system for a given root directory.
      * <P>
      * The default implementation simply returns the filename separated by slashes.
@@ -1643,8 +1644,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return rootFile.toString ().replace(File.separatorChar, '/');
     }
 
-    //-------------------------------------------
-    /** Creates file for given string name.
+    /** Get file representation for given string name.
      * @param name the name
      * @return the file
      */
@@ -1657,28 +1657,27 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     // List
     //
 
-    public String[] getLocalFiles(String name) {
+    private String[] getLocalFiles(String name) {
         File dir = new File(getRootDirectory(), name);
         if (dir == null || !dir.exists() || !dir.canRead()) return new String[0];
         String files[] = dir.list(getLocalFileFilter());
         return files;
     }
 
-    public String[] addLocalFiles(String name, String[] cachedFiles) {
-        File dir = new File(getRootDirectory(), name);
-        if (dir == null || !dir.exists() || !dir.canRead()) return cachedFiles;
-        String[] files = dir.list(getLocalFileFilter());
-        Vector cached = new Vector(Arrays.asList(cachedFiles));
-        if (files != null) {
-            Vector local = new Vector(Arrays.asList(files));
-            local.removeAll(cached);
-            cached.addAll(local);
+    private String[] addLocalFiles(String name, String[] cachedFiles) {
+        String[] files = getLocalFiles(name);
+        if (files == null || files.length == 0) {
+            return cachedFiles;
         }
+        Vector cached = new Vector(Arrays.asList(cachedFiles));
+        Vector local = new Vector(Arrays.asList(files));
+        local.removeAll(cached);
+        cached.addAll(local);
         return (String[]) cached.toArray(new String[0]);
     }
 
-    //-------------------------------------------
-    /* Scans children for given name
+    /* Get children files inside a folder
+     * @param name the name of the folder
      */
     public String[] children (String name) {
         D.deb("children('"+name+"')"); // NOI18N
@@ -1749,7 +1748,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //
     
     /**
-     * Should be called when the modification in a file or folder is expected and should be refreshed.
+     * Should be called when the modification in a file or folder is expected
+     * and its content should be refreshed.
      */
     public void checkForModifications(String path) {
         //System.out.println("checkForModifications("+path+")");
@@ -1801,11 +1801,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (cache != null) cache.addFolder(name);
     }
 
-    //-------------------------------------------
-    /* Create new data file.
-     *
+    /** Create new data file.
      * @param name name of the file
-     *
      * @return the new data file object
      * @exception IOException if the file cannot be created (e.g. already exists)
      */
@@ -1842,9 +1839,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    //-------------------------------------------
-    /* Renames a file.
-     *
+    /** Rename a file.
      * @param oldName old name of the file
      * @param newName new name of the file
      */
@@ -1859,10 +1854,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (cache != null) cache.rename(oldName, newName);
     }
 
-    //-------------------------------------------
-    /* Delete the file.
-     *
-     * @param name name of file
+    /** Delete a file.
+     * @param name name of the file
      * @exception IOException if the file could not be deleted
      */
     public void delete (String name) throws IOException {
@@ -1886,8 +1879,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     // Info
     //
 
-    //-------------------------------------------
-    /*
+    /**
      * Get last modification time.
      * @param name the file to test
      * @return the date
@@ -1897,8 +1889,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return new java.util.Date (getFile (name).lastModified ());
     }
 
-    //-------------------------------------------
-    /* Test if the file is folder or contains data.
+    /** Test if the file is folder or contains data.
      * @param name name of the file
      * @return true if the file is folder, false otherwise
      */
@@ -1917,8 +1908,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         // return getFile (name).isDirectory ();
     }
 
-    //-------------------------------------------
-    /* Test whether this file can be written to or not.
+    /** Test whether this file can be written to or not.
      * All folders are not read only, they are created before writting into them.
      * @param name the file to test
      * @return <CODE>true</CODE> if file is read-only
@@ -1949,9 +1939,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return s == null ? "content/unknown" : s; // NOI18N
     }
 
-    //-------------------------------------------
-    /* Get the size of the file.
-     *
+    /** Get the size of a file.
      * @param name the file to test
      * @return the size of the file in bytes or zero if the file does not contain data (does not
      *  exist or is a folder).
@@ -1961,8 +1949,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return getFile (name).length ();
     }
 
-    /* Get input stream.
-     *
+    /** Get input stream to a file.
      * @param name the file to test
      * @return an input stream to read the contents of this file
      * @exception FileNotFoundException if the file does not exists or is invalid
@@ -1985,8 +1972,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private void fileChanged(String name) {
         D.deb("fileChanged("+name+")");
-        if (statusProvider != null) statusProvider.setFileModified(name);
-        statusChanged(name);
+        if (statusProvider != null) {
+            String oldStatus = statusProvider.getFileStatus(name);
+            if (!notModifiableStatuses.contains(oldStatus)) {
+                statusProvider.setFileModified(name);
+                statusChanged(name);
+            }
+        }
     }
 
     private class FileOutputStreamPlus extends FileOutputStream {
@@ -2002,8 +1994,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    /* Get output stream.
-     *
+    /** Get output stream to a file.
      * @param name the file to test
      * @return output stream to overwrite the contents of this file
      * @exception IOException if an error occures (the file is invalid, etc.)
@@ -2122,11 +2113,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             file.setImportant(false);
 }
     */
-
-    /*
-     * Get the cache identification.
-     */
-    //public abstract String getCacheIdStr();
     
 //-------------------- methods from CacheHandlerListener------------------------
     public void cacheAdded(CacheHandlerEvent event) {
@@ -2177,35 +2163,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    /*
-    public Object getAdvancedConfig () {
-        return this.advanced;
-    }
-
-    /*
-    //------------------------------------------
-    public void setAdvancedConfig (Object advanced) {
-        //super.setAdvancedConfig (advanced);
-        this.advanced = advanced;
-        Vector commands = (Vector) advanced;
-        int len = commands.size();
-        commandsByName = new Hashtable(len + 5);
-        mainCommands = new Vector();
-        revisionCommands = new Vector();
-        for(int i = 0; i < len; i++) {
-            VcsCommand vc = (VcsCommand) commands.elementAt(i);
-            commandsByName.put(vc.getName(), vc);
-            int numRevisions = VcsCommandIO.getIntegerCommandPropertyAssumeZero(vc, VcsCommand.PROPERTY_NUM_REVISIONS);
-            //if (uc.getNumRevisions() == 0) {
-            if (numRevisions == 0) {
-                mainCommands.add(vc);
-            } else {
-                revisionCommands.add(vc);
-            }
-        }        
-    }
-     */
-    
     private void addCommandsToHashTable(Node root) {
         Children children = root.getChildren();
         for (Enumeration subnodes = children.nodes(); subnodes.hasMoreElements(); ) {
@@ -2217,8 +2174,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
     
-    /**
-     * Set the tree structure of commands.
+    /** Set the tree structure of commands.
      * @param root the tree of {@link VcsCommandNode} objects.
      */
     public void setCommands(Node root) {
@@ -2227,32 +2183,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         addCommandsToHashTable(root);
     }
 
-    //-------------------------------------------
-    /*
-    public Vector getCommands(){
-        return (Vector) getAdvancedConfig ();
-    }
+    /** Get the commands.
+     * @return the root command
      */
     public Node getCommands() {
         return commandsRoot;
     }
 
-    /*
-    public Vector getMainCommands() {
-        return mainCommands;
-    }
-    
-    public Vector getRevisionCommands() {
-        return revisionCommands;
-    }
-
-    //-------------------------------------------
-    public void setCommands(Vector commands){
-        setAdvancedConfig (commands);
-    }
+    /** Get a command by its name.
+     * @param name the name of the command to get
+     * @return the command of the given name or <code>null</code>,
+     *         when the command is not defined
      */
-
-    //-------------------------------------------
     public VcsCommand getCommand(String name){
         if (commandsByName == null) {
             setCommands (commandsRoot);
@@ -2313,56 +2255,3 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     //-------------------------------------------
 }
-/*
- * Log
- *  35   Jaga      1.31.1.2    3/21/00  Martin Entlicher Fixed unimportant names
- *  34   Jaga      1.31.1.1    3/15/00  Martin Entlicher Use markUnimportant() 
- *       method.
- *  33   Jaga      1.31.1.0    2/24/00  Martin Entlicher Remember the refresh 
- *       time,  prompt for additional variables.
- *  32   Gandalf   1.31        2/15/00  Martin Entlicher netbeans.user added to 
- *       variables.
- *  31   Gandalf   1.30        2/11/00  Martin Entlicher changed setRootDirectory
- *       to consider its argument as a working directory  without module name.
- *  30   Gandalf   1.29        2/10/00  Martin Entlicher Locking action changed, 
- *       warning of nonexistent root directory or module name, automatic refresh
- *       after last command only.
- *  29   Gandalf   1.28        2/9/00   Martin Entlicher Set user.home as the 
- *       starting directory.
- *  28   Gandalf   1.27        1/19/00  Martin Entlicher Deleted catching of 
- *       annotated name,  new files has initial local status.
- *  27   Gandalf   1.26        1/18/00  Martin Entlicher 
- *  26   Gandalf   1.25        1/17/00  Martin Entlicher 
- *  25   Gandalf   1.24        1/15/00  Ian Formanek    NOI18N
- *  24   Gandalf   1.23        1/6/00   Martin Entlicher 
- *  23   Gandalf   1.22        1/5/00   Martin Entlicher 
- *  22   Gandalf   1.21        12/28/99 Martin Entlicher One ErrorCommandDialog 
- *       for the whole session + Yuri changes
- *  21   Gandalf   1.20        12/21/99 Martin Entlicher Refresh time set after 
- *       the filesystem is mounted.
- *  20   Gandalf   1.19        12/16/99 Martin Entlicher 
- *  19   Gandalf   1.18        12/8/99  Martin Entlicher 
- *  18   Gandalf   1.17        11/30/99 Martin Entlicher 
- *  17   Gandalf   1.16        11/24/99 Martin Entlicher 
- *  16   Gandalf   1.15        11/23/99 Martin Entlicher 
- *  15   Gandalf   1.14        11/16/99 Martin Entlicher Fixed update of file 
- *       status
- *  14   Gandalf   1.13        11/9/99  Martin Entlicher 
- *  13   Gandalf   1.12        11/9/99  Martin Entlicher 
- *  12   Gandalf   1.11        11/4/99  Martin Entlicher 
- *  11   Gandalf   1.10        11/2/99  Pavel Buzek     statusChanged is using 
- *       fireFileStatusChanged
- *  10   Gandalf   1.9         10/26/99 Martin Entlicher 
- *  9    Gandalf   1.8         10/25/99 Pavel Buzek     copyright and log
- *  8    Gandalf   1.7         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  7    Gandalf   1.6         10/12/99 Pavel Buzek     
- *  6    Gandalf   1.5         10/9/99  Pavel Buzek     
- *  5    Gandalf   1.4         10/9/99  Pavel Buzek     
- *  4    Gandalf   1.3         10/9/99  Pavel Buzek     
- *  3    Gandalf   1.2         10/7/99  Pavel Buzek     
- *  2    Gandalf   1.1         10/5/99  Pavel Buzek     VCS at least can be 
- *       mounted
- *  1    Gandalf   1.0         9/30/99  Pavel Buzek     
- * $
-*/
