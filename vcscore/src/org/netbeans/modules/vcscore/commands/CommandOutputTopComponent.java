@@ -76,7 +76,7 @@ public class CommandOutputTopComponent extends TopComponent {
         if(outputTopComponent == null){
             outputTopComponent = new CommandOutputTopComponent();             
             lastMode = WindowManager.getDefault().findMode("output");  //NOI18N
-            lastMode.dockInto(outputTopComponent);       
+            if (lastMode != null) lastMode.dockInto(outputTopComponent);       
         }
         return outputTopComponent;
     }
