@@ -106,6 +106,8 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         gridBagConstraints.weighty = 1.0;
         add(outputPanel, gridBagConstraints);
         outputPanel.setStatus(org.openide.util.NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandExitStatus.running"));
+        getAccessibleContext().setAccessibleName(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSN_CommandOutputVisualizer"));
+        getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSD_CommandOutputVisualizer"));
     }
     
     synchronized void setCommandsPool(CommandsPool pool) {
