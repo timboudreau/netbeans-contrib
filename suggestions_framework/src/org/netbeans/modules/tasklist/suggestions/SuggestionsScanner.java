@@ -370,7 +370,8 @@ public final class SuggestionsScanner implements Cancellable {
         if (edit == null) return;
 
         String extension = dobj.getPrimaryFile().getExt();
-        boolean directAccess = "java".equals(extension) || "properties".equals(extension);  // #38476
+        if (extension.equals("java~") || extension.equals("properties~")) return;  // I didn't understand the logic below behind isPrimed but I definitely don't want backups to be scanned
+        boolean directAccess = "java".equals(extension) || "properties".equals(extension);  // #38476      
         boolean isPrimed = edit.getDocument() == null && directAccess == false;
 
         SuggestionContext env = SPIHole.createSuggestionContext(dobj);
