@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcs.advanced.commands;
 
+import java.util.ArrayList;
+
 import org.w3c.dom.*;
 
 import org.openide.nodes.Children;
@@ -48,6 +50,32 @@ public class UserCommandIO extends Object {
     private UserCommandIO() {
     }
     
+    private static String convertStringArray2String(String[] array) {
+        StringBuffer buf = new StringBuffer();
+        for (int i = 0; i < array.length; i++) {
+            String item = org.openide.util.Utilities.replaceString(array[i], "/", "//");
+            buf.append(item);
+            if (i < array.length - 1) buf.append("/");
+        }
+        return buf.toString();
+    }
+    
+    private static String[] convertString2StringArray(String str) {
+        ArrayList list = new ArrayList();
+        for (int index = 0; index < str.length(); ) {
+            int delim;
+            while (true) {
+                delim = str.indexOf("/", index);
+                if (delim < 0) delim = str.length();
+                else if (delim < str.length() && str.charAt(delim + 1) == '/') continue;
+                break;
+            }
+            list.add(org.openide.util.Utilities.replaceString(str.substring(index, delim), "//", "/"));
+            index = delim + 1;
+        }
+        return (String[]) list.toArray(new String[0]);
+    }
+    
     private static Object getPropertyValue(String name, String valueStr) {
         Class type = (Class) CommandNode.propertyClassTypes.get(name);
         if (type == null) type = (Class) CommandNode.list_propertyClassTypes.get(name);
@@ -64,11 +92,16 @@ public class UserCommandIO extends Object {
             return intObject;
         } else if (String.class.equals(type)) {
             return VcsUtilities.getBundleString(valueStr);
+        } else if (String[].class.equals(type)) {
+            return convertString2StringArray(valueStr);
         } else return valueStr;
     }
     
     private static String getPropertyValueStr(String name, Object value) {
         Class type = (Class) CommandNode.propertyClassTypes.get(name);
+        if (String[].class.equals(type)) {
+            return convertStringArray2String((String[]) value);
+        }
         return value.toString();
     }
 
