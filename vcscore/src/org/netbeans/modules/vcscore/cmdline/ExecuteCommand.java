@@ -599,7 +599,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 int sepIndex = fileName.indexOf('/');
                 if (sepIndex < 0 || sepIndex == (fileName.length() - 1)) {
                     fileDir = findFileDir(fileName);
-                    fileName = fileName.substring(fileDir.length() + 1);
+                    if (fileName.startsWith(fileDir + "/")) {
+                        //System.out.println("fileName = "+fileName+", fileDir = "+fileDir+", substring("+(fileDir.length() + 1)+")");
+                        fileName = fileName.substring(fileDir.length() + 1);
+                        elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
+                    }
                 }
                 //System.out.println("readFileFinished("+fileDir+", "+VcsUtilities.arrayToString(elements)+")");
                 for (Iterator it = fileReaderListeners.iterator(); it.hasNext(); ) {
