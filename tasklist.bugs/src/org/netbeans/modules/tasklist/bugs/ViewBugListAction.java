@@ -13,9 +13,7 @@
 
 package org.netbeans.modules.tasklist.bugs;
 
-import javax.swing.SwingUtilities;
 import org.netbeans.modules.tasklist.core.TaskListView;
-
 
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -27,14 +25,13 @@ import org.openide.util.actions.CallableSystemAction;
 public class ViewBugListAction extends CallableSystemAction {
 
     public void performAction() {
-	SwingUtilities.invokeLater(new Runnable() {
-		public void run() {
-		    show();
-		}
-	    }
-	);
+	    show();
     }
-    
+
+    protected boolean asynchronous() {
+        return false;
+    }
+
     static void show() {
 	TaskListView view = 
 	    TaskListView.getTaskListView(BugsView.CATEGORY); // NOI18N

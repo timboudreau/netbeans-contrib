@@ -15,15 +15,12 @@ package org.netbeans.modules.tasklist.bugs;
 
 import java.awt.Dialog;
 import java.awt.Dimension;
-import javax.swing.JEditorPane;
-import javax.swing.SwingUtilities;
-import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.TaskListView;
 
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
 import org.openide.TopManager;
+import org.openide.DialogDisplayer;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -38,6 +35,7 @@ import org.openide.util.actions.NodeAction;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.Workspace;
+import org.openide.windows.WindowManager;
 
 
 /**
@@ -63,8 +61,7 @@ public class NewQueryAction extends NodeAction {
         // So, we go hunting for the topmosteditor tab, and when we find it,
         // ask for its nodes.
         Node[] nodes = null;
-        Workspace workspace = TopManager.getDefault().getWindowManager().
-            getCurrentWorkspace();
+        Workspace workspace = WindowManager.getDefault().getCurrentWorkspace();
         
         // HACK ALERT !!! HACK ALERT!!! HACK ALERT!!!
         // Look for the source editor window, and then go through its
@@ -89,37 +86,36 @@ public class NewQueryAction extends NodeAction {
     }
      
     protected void performAction(Node[] node) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                BugQuery query = new BugQuery();
-                EditQueryPanel panel = new EditQueryPanel(query, false);
-                
-                panel.setPreferredSize(new Dimension(600,200));
-                DialogDescriptor d = new DialogDescriptor(panel,
-                     NbBundle.getMessage(NewQueryAction.class,
-                                         "TITLE_NEW_QUERY")); // NOI18N
-                d.setModal(true);
-                d.setHelpCtx(new HelpCtx("NewQuery")); // NOI18N
-                d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
-                d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
-                Dialog dlg = TopManager.getDefault().createDialog(d);
-                dlg.pack();
-                dlg.show();
+        BugQuery query = new BugQuery();
+        EditQueryPanel panel = new EditQueryPanel(query, false);
 
-                if (d.getValue() == NotifyDescriptor.OK_OPTION) {
-                    //do the new bug query
-                    String bugEngine = panel.getBugEngine();
-                    String queryString = panel.getQueryString();
-                    query = panel.getQuery();
-                    System.out.println("bugEngine = " + bugEngine + " queryString = \n" + queryString);
-                    
-                    TaskListView tv = new BugsView(query);
-                    tv.showInMode();
-                }
-            }
-        });
+        panel.setPreferredSize(new Dimension(600,200));
+        DialogDescriptor d = new DialogDescriptor(panel,
+             NbBundle.getMessage(NewQueryAction.class,
+                                 "TITLE_NEW_QUERY")); // NOI18N
+        d.setModal(true);
+        d.setHelpCtx(new HelpCtx("NewQuery")); // NOI18N
+        d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
+        d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
+        Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
+        dlg.pack();
+        dlg.show();
+
+        if (d.getValue() == NotifyDescriptor.OK_OPTION) {
+            //do the new bug query
+            String bugEngine = panel.getBugEngine();
+            String queryString = panel.getQueryString();
+            query = panel.getQuery();
+            System.out.println("bugEngine = " + bugEngine + " queryString = \n" + queryString);
+
+            TaskListView tv = new BugsView(query);
+            tv.showInMode();
+        }
     }
-    
+
+    protected boolean asynchronous() {
+        return false;
+    }
     /**
      * @param parentNode default parent; if null, don't parent
      * @param filename suggested filename

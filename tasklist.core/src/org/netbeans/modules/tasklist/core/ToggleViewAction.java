@@ -44,6 +44,7 @@ PropertyChangeListener {
         if (block)
             return;
         block = true;
+        // XXX is it realy called from not AWT thread?
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 toggleView(value);
@@ -51,7 +52,7 @@ PropertyChangeListener {
             }
         });
     }
-    
+
     /**
      * Should return the view to be shown
      *

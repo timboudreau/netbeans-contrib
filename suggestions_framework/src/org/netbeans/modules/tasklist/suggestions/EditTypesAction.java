@@ -16,7 +16,6 @@ package org.netbeans.modules.tasklist.suggestions;
 
 import java.awt.Dialog;
 import java.awt.Dimension;
-import javax.swing.SwingUtilities;
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
 import org.openide.util.HelpCtx;
@@ -36,26 +35,25 @@ public class EditTypesAction extends CallableSystemAction
     implements ActionPerformer {
     
     public void performAction() {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                TypesCustomizer panel = new TypesCustomizer();
-                panel.setPreferredSize(new Dimension(550,550));
-                DialogDescriptor d = new DialogDescriptor(panel,
-                    NbBundle.getMessage(EditTypesAction.class,
-                    "TITLE_typecustomizer")); // NOI18N
-                d.setModal(true);
-                d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
-                d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
-                //Dialog dlg = TopManager.getDefault().createDialog(d);
-                Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
-                dlg.pack();
-                dlg.show();
-                if (d.getValue() == NotifyDescriptor.OK_OPTION) {
-                    panel.apply();
-                }
-            }
-        });        
-        
+        TypesCustomizer panel = new TypesCustomizer();
+        panel.setPreferredSize(new Dimension(550,550));
+        DialogDescriptor d = new DialogDescriptor(panel,
+            NbBundle.getMessage(EditTypesAction.class,
+            "TITLE_typecustomizer")); // NOI18N
+        d.setModal(true);
+        d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
+        d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
+        //Dialog dlg = TopManager.getDefault().createDialog(d);
+        Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
+        dlg.pack();
+        dlg.show();
+        if (d.getValue() == NotifyDescriptor.OK_OPTION) {
+            panel.apply();
+        }
+    }
+
+    protected boolean asynchronous() {
+        return false;
     }
 
     /** XXX why are we ignoring action? */
