@@ -20,7 +20,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
-import java.text.MessageFormat;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.*;
@@ -155,11 +154,6 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private Object componentBeingRapidlyAssignedLock = new Object();
     
     private boolean dynamicVarChanges = false;
-
-    /**
-     * Mnemonics for Browse... and Select... buttons are assigned dynamically.
-     */ 
-    private int buttonMnemonicIndex = 1;
     
     static final long serialVersionUID = 8363935602008486018L;
     
@@ -1342,11 +1336,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 0);
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        String buttonText = MessageFormat.format(
-                org.openide.util.NbBundle.getBundle(VariableInputDialog.class).
-                getString("VariableInputDialog.Browse"), new Object [] { Integer.toString(buttonMnemonicIndex) });
-        javax.swing.JButton button = new javax.swing.JButton(buttonText);
-        button.setMnemonic(KeyEvent.VK_0 + buttonMnemonicIndex++);            
+        javax.swing.JButton button = new javax.swing.JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Browse"));
         button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.BrowseDir.a11yDesc"));
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
@@ -1382,11 +1372,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 0);
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        String buttonText = MessageFormat.format(
-                org.openide.util.NbBundle.getBundle(VariableInputDialog.class).
-                getString("VariableInputDialog.Browse"), new Object [] { Integer.toString(buttonMnemonicIndex) });
-        javax.swing.JButton button = new javax.swing.JButton(buttonText);
-        button.setMnemonic(KeyEvent.VK_0 + buttonMnemonicIndex++);            
+        javax.swing.JButton button = new javax.swing.JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Browse"));
         button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.BrowseFile.a11yDesc"));
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
@@ -1430,25 +1416,21 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 0);
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        String buttonText = null;
-        javax.swing.JButton button = new javax.swing.JButton();
+        String buttonText;
         if (commandNameStr.startsWith("(")) {
             int index = VcsUtilities.getPairIndex(commandNameStr, 1, '(', ')');
             if (index > 0) {
                 buttonText = commandNameStr.substring(1, index);
-                Mnemonics.setLocalizedText(button, buttonText);            
                 commandNameStr = commandNameStr.substring(index + 1);
+            } else {
+                buttonText = org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Select");
             }
+        } else {
+            buttonText = org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Select");
         }
         final String commandName = commandNameStr;
-        if (buttonText == null) {
-            buttonText = MessageFormat.format(
-                    org.openide.util.NbBundle.getBundle(VariableInputDialog.class).
-                    getString("VariableInputDialog.Select"), new Object [] { Integer.toString(buttonMnemonicIndex) });
-            button.setText(buttonText);
-            button.setMnemonic(KeyEvent.VK_0 + buttonMnemonicIndex++);            
-        }
-        
+        javax.swing.JButton button = new javax.swing.JButton(buttonText);
+        Mnemonics.setLocalizedText(button, buttonText);
         button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Select.a11yDesc"));
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
