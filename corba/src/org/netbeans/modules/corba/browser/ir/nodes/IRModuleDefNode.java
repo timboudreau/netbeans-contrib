@@ -47,7 +47,7 @@ public class IRModuleDefNode extends IRContainerNode {
             code = code + generateHead(indent);
             Contained[] contained = _module.contents (DefinitionKind.dk_all, true);
             for (int i=0 ; i < contained.length; i++){
-                switch (contained[i].describe().kind.value()){
+                switch (contained[i].def_kind().value()){
                 case DefinitionKind._dk_Interface:
                     code = code + IRInterfaceDefNode.createGeneratorFor(contained[i]).generateSelf(indent+1);
                     break;

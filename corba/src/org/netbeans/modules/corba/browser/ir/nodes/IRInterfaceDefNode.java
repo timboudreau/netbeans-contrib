@@ -66,7 +66,7 @@ public class IRInterfaceDefNode extends IRContainerNode {
                 // if MARSHAL exception ocured, try to introspect
                 // object in another way.
                 try{
-                    dk = contained[i].describe().kind.value();
+                    dk = contained[i].def_kind().value();
                 }catch (org.omg.CORBA.MARSHAL marshalException){
                     if (contained[i]._is_a("IDL:omg.org/CORBA/OperationDef:1.0"))
                         dk = DefinitionKind._dk_Operation;
