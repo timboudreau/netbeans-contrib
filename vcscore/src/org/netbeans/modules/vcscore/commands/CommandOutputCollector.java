@@ -243,12 +243,20 @@ public class CommandOutputCollector extends Object implements CommandProcessList
         }
     }
     
+    private void addOutputListenerLazily(final int outputId, final Object listener) {
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                addOutputListener(outputId, listener);
+            }
+        });
+    }
+    
     /**
      * Add the listener to the standard output of the command. The listeners are removed
      * when the command finishes.
      */
     public void addTextOutputListener(TextOutputListener l) {
-        addOutputListener(0, l);
+        addOutputListenerLazily(0, l);
     }
     
     /**
@@ -256,7 +264,7 @@ public class CommandOutputCollector extends Object implements CommandProcessList
      * when the command finishes.
      */
     public void addTextErrorListener(TextOutputListener l) {
-        addOutputListener(1, l);
+        addOutputListenerLazily(1, l);
     }
     
     /**
@@ -265,7 +273,7 @@ public class CommandOutputCollector extends Object implements CommandProcessList
      * by this command. The listeners are removed when the command finishes.
      */
     public void addRegexOutputListener(RegexOutputListener l) {
-        addOutputListener(2, l);
+        addOutputListenerLazily(2, l);
     }
     
     /**
@@ -275,7 +283,7 @@ public class CommandOutputCollector extends Object implements CommandProcessList
      * is supposed to fail. The listeners are removed when the command finishes.
      */
     public synchronized void addRegexErrorListener(RegexOutputListener l) {
-        addOutputListener(3, l);
+        addOutputListenerLazily(3, l);
     }
     
     private File createOutputFile(int outputId) {
