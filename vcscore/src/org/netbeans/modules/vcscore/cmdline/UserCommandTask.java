@@ -24,7 +24,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import javax.swing.SwingUtilities;
+import org.netbeans.api.vcs.VcsManager;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -451,28 +453,51 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     }
     
     private void printErrorOutput(final CommandExecutionContext executionContext) {              
-        if (executionContext == null) return ;          
-        if(visualizerGUI == null && visualizerText == null){
-            SwingUtilities.invokeLater(new Runnable(){
-                public void run(){
-                    getVisualizer(false).open(null);                   
-                    visualizerText.errOutputLine("\n"+g("EXEC_STRING")+"\n"+executor.getExec()); //NOI18N
-                    visualizerText.setExitStatus(executor.getExitStatus());
+        if (executionContext == null) return ;                  
+        String exec = getExecutor().getExec();
+        Vector vct = new Vector();
+        if(getFiles() != null){
+            //check whether subcommand has visualizer or not
+            String[] cmdNames = VcsManager.getDefault().findCommands(getFiles());
+            for(int i = 0; i<cmdNames.length; i++){
+                if(exec.indexOf(cmdNames[i]) != -1){
+                    if(hasVisualizer(cmdNames[i]))
+                        vct.addElement(cmdNames[i]);
                 }
-            });
-            
-        }        
-        
-      /*  final boolean isErrorOutput[] = { false };
-        outputCollector.addTextErrorListener(new TextOutputListener() {
-            public void outputLine(String line) {
-                isErrorOutput[0] = true;
-                executionContext.debugErr(line);
             }
-        });
-        if (!isErrorOutput[0]) {
-            executionContext.debugErr(g("MSG_No_error_output"));
-        }*/
+        }
+        if(vct.size() == 0){
+            if(visualizerGUI == null && visualizerText == null){
+                SwingUtilities.invokeLater(new Runnable(){
+                    public void run(){
+                        getVisualizer(false).open(null);
+                        visualizerText.errOutputLine("\n"+g("EXEC_STRING")+"\n"+executor.getExec()); //NOI18N
+                        visualizerText.setExitStatus(executor.getExitStatus());
+                    }
+                });
+                
+            }
+        }
+    
+    }
+    
+    /*
+     * Used to check whether a certain subcommand has visualizer or not
+     */
+    private boolean hasVisualizer(String cmdName){        
+        boolean hasVisualizer=false;
+        VcsDescribedCommand descCmd;
+        try{
+            descCmd = (VcsDescribedCommand)VcsManager.getDefault().createCommand(cmdName, getFiles());
+        }catch(IllegalArgumentException e){            
+            return false;
+        }
+        VcsCommand cmd = descCmd.getVcsCommand();
+        Object textVisualizer = cmd.getProperty("display");        
+        Object guiVisualizer = cmd.getProperty("visualizer");        
+        if((textVisualizer != null)||(guiVisualizer != null))
+            hasVisualizer =true;
+        return hasVisualizer;
     }
     
     /** Get the VCS commands provider, that provided this Command or CommandTask.
