@@ -126,16 +126,16 @@ public class PropertyNode extends AbstractNode {
     /** Refresh this node's icon. */
     private void updateIcon () {
         if (property == null) {
-            setIconBase ("/org/netbeans/modules/sysprops/resources/propertiesRoot");
+            setIconBase ("org/netbeans/modules/sysprops/resources/propertiesRoot");
         } else {
             if (! kids.isEmpty ()) {
                 if (value != null) {
-                    setIconBase ("/org/netbeans/modules/sysprops/resources/propertyFolder");
+                    setIconBase ("org/netbeans/modules/sysprops/resources/propertyFolder");
                 } else {
-                    setIconBase ("/org/netbeans/modules/sysprops/resources/folder");
+                    setIconBase ("org/netbeans/modules/sysprops/resources/folder");
                 }
             } else {
-                setIconBase ("/org/netbeans/modules/sysprops/resources/property");
+                setIconBase ("org/netbeans/modules/sysprops/resources/property");
             }
         }
     }
