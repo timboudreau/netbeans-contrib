@@ -42,6 +42,8 @@ import com.puppycrawl.tools.checkstyle.*;
 import com.puppycrawl.tools.checkstyle.api.*;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.spi.tasklist.SuggestionContext;
 
 /**
  * This class uses the Checkstyle rule checker to provide rule violation

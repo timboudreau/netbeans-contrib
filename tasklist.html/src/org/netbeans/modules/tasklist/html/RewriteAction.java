@@ -208,9 +208,9 @@ public class RewriteAction extends NodeAction
         }
         Suggestion s = (Suggestion)node[0].getCookie(Suggestion.class);
         if (s != null) {
-            SuggestionProvider provider = s.getProvider();
-            if ((provider != null) && (provider instanceof TidySuggester)) {
-                ((TidySuggester)provider).rescan();
+            Object seed = s.getSeed();
+            if (seed instanceof TidySuggester) {
+                ((TidySuggester)seed).rescan();
             }
         }
     }

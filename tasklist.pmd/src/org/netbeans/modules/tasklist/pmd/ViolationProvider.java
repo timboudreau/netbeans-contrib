@@ -45,6 +45,8 @@ import org.openide.util.Utilities;
 import org.openide.text.DataEditorSupport;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.spi.tasklist.SuggestionContext;
 import org.openide.src.ClassElement;
 import org.openide.src.Identifier;
 

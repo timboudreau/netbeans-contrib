@@ -25,7 +25,7 @@ import java.util.ListIterator;
 import java.util.ResourceBundle;
 import org.netbeans.api.tasklist.Suggestion;
 import org.netbeans.api.tasklist.SuggestionPriority;
-import org.netbeans.api.tasklist.SuggestionProvider;
+import org.netbeans.spi.tasklist.SuggestionProvider;
 import org.openide.ErrorManager;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
@@ -703,7 +703,7 @@ public class Task extends Suggestion implements Cloneable {
      * Get the provider. Not defined for tasks - will be subclassed
      * in SuggestionImpl but we don't want Task to be abstract...
      */
-    public SuggestionProvider getProvider() {
+    public Object getSeed() {
          return null;
     }
 

@@ -50,6 +50,10 @@ import org.openide.util.RequestProcessor;
 import org.netbeans.api.tasklist.*;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
+import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.spi.tasklist.SuggestionProvider;
+import org.netbeans.spi.tasklist.SuggestionContext;
+import org.netbeans.apihole.tasklist.SPIHole;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
 import org.openide.loaders.DataObject;
@@ -92,7 +96,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
     public Suggestion createSuggestion(String type,
                                        String summary,
                                        SuggestionPerformer action,
-                                       SuggestionProvider provider) {
+                                       Object data) {
         // "Sanitize" the summary: replace newlines with ':'
         // " " or ":" (let's pick one).
         // (Oh crap. What do we do about CRLF's? Replace with ": " ?
@@ -119,7 +123,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                                                " is not registered");
         }
         SuggestionImpl s = new SuggestionImpl(summary, st,
-                                              action, provider);
+                                              action, data);
         return s;
     }
     
@@ -426,7 +430,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     /** Same as toggleProvider, but the allTypes parameter allows you
      * to specify that ALL the types should be enabled/disabled */
-    private void toggleProvider(SuggestionProvider provider, 
+    private void toggleProvider(SuggestionProvider provider,
                                 SuggestionType type, boolean enable,
                                 boolean allTypes) {
         if (enable) {
@@ -437,8 +441,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
             if ((document != null) &&
                 (provider instanceof DocumentSuggestionProvider)) {
-                ((DocumentSuggestionProvider)provider).docShown(new SuggestionContext(dataobject));
-                ((DocumentSuggestionProvider)provider).rescan(new SuggestionContext(dataobject), currRequest);
+                SuggestionContext env = SPIHole.createSuggestionContext(dataobject);
+                ((DocumentSuggestionProvider)provider).docShown(env);
+                ((DocumentSuggestionProvider)provider).rescan(env, currRequest);
             }
         } else {
             if (!allTypes) {
@@ -456,8 +461,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
             
             // Remove suggestions of this type
             if (provider instanceof DocumentSuggestionProvider) {
-                ((DocumentSuggestionProvider)provider).clear(new SuggestionContext(dataobject), currRequest);
-                ((DocumentSuggestionProvider)provider).docHidden(new SuggestionContext(dataobject));
+                SuggestionContext env = SPIHole.createSuggestionContext(dataobject);
+                ((DocumentSuggestionProvider)provider).clear(env, currRequest);
+                ((DocumentSuggestionProvider)provider).docHidden(env);
             }
             provider.notifyStop();
             provider.notifyFinish();
@@ -747,7 +753,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     continue;
                 }
 
-                SuggestionContext env = new SuggestionContext(f);
+                SuggestionContext env = SPIHole.createSuggestionContext(f);
 
                 StatusDisplayer.getDefault ().setStatusText(
                    NbBundle.getMessage(ScanSuggestionsAction.class,
@@ -1291,7 +1297,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     if (stats) {
                         start = System.currentTimeMillis();
                     }
-                    provider.rescan(new SuggestionContext(dataobject), origRequest);
+                    provider.rescan(SPIHole.createSuggestionContext(dataobject), origRequest);
                     if (stats) {
                         end = System.currentTimeMillis();
                         System.out.println("Scan time for provider " + provider.getClass().getName() + " = " + (end-start) + " ms");
@@ -1329,7 +1335,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
             if (((unfiltered == null) || (provider == unfiltered))
                    && scanOnShow(provider)) {
-                provider.docShown(new SuggestionContext(dataobject));
+                provider.docShown(SPIHole.createSuggestionContext(dataobject));
             }
         }
         haveShown = currRequest;
@@ -1370,8 +1376,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
             if ((unfiltered == null) || (provider == unfiltered)) {
-                provider.clear(new SuggestionContext(dataobject), currRequest);
-                provider.docHidden(new SuggestionContext(dataobject));
+                SuggestionContext env = SPIHole.createSuggestionContext(dataobject);
+                provider.clear(env, currRequest);
+                provider.docHidden(env);
             }
         }
     }
@@ -1393,9 +1400,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
         List sgs = new ArrayList(tasklist.getTasks().size());
         while (it.hasNext()) {
             SuggestionImpl s = (SuggestionImpl)it.next();
-            SuggestionProvider p = s.getProvider();
+            Object seed = s.getSeed();
             // Make sure we don't pick up category nodes here!!!
-            if (p instanceof DocumentSuggestionProvider) {
+            if (seed instanceof DocumentSuggestionProvider) {
                 sgs.add(s);
             }
 
@@ -1403,8 +1410,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 Iterator sit = s.getSubtasks().iterator();
                 while (sit.hasNext()) {
                     s = (SuggestionImpl)sit.next();
-                    p = s.getProvider();
-                    if (p instanceof DocumentSuggestionProvider) {
+                    seed = s.getSeed();
+                    if (seed instanceof DocumentSuggestionProvider) {
                         sgs.add(s);
                     }
                 }

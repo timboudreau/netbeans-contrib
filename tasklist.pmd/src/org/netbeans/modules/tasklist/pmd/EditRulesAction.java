@@ -70,10 +70,9 @@ public class EditRulesAction extends NodeAction {
             settings.setRules(value.toString());
             Suggestion s = (Suggestion)node[0].getCookie(Suggestion.class);
             if (s != null) {
-                SuggestionProvider provider = s.getProvider();
-                if ((provider != null) && 
-                    (provider instanceof ViolationProvider)) {
-                    ((ViolationProvider)provider).rescan();
+                Object seed = s.getSeed();
+                if (seed instanceof ViolationProvider) {
+                    ((ViolationProvider)seed).rescan();
                 }
             }
         }

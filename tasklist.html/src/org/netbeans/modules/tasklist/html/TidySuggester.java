@@ -36,6 +36,8 @@ import org.netbeans.modules.html.*;
 import org.w3c.tidy.*;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.spi.tasklist.SuggestionContext;
 
 
 /**
@@ -45,7 +47,7 @@ import org.netbeans.modules.tasklist.core.TLUtils;
  *
  * @author Tor Norbye
  */
-public class TidySuggester extends DocumentSuggestionProvider 
+public class TidySuggester extends DocumentSuggestionProvider
     implements ErrorReporter  {
 
     final private static String TYPE = "nb-html-errors"; // NOI18N

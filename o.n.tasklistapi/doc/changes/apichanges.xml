@@ -77,6 +77,32 @@ is the proper place.
 
   <changes>
 
+      <change>
+          <api name="general"/>
+          <summary>Framework separated to API and SPI part.</summary>
+          <version major="1" minor="4"/>
+          <date day="14" month="11" year="2003"/>
+          <author login="pkuzel"/>
+          <compatibility deletion="yes" addition="yes"/>
+          <description>
+            <p>SPI intoduced, the new SPI part consists of
+            original framework driven provider classes.
+            <code>SuggestionProvider</code> class notion removed
+            from API method signatures part and replaced by
+            <code>Object</code>. It corresponds with current provider
+            usage (downcasting in providers' implementations).
+            </p><p>Upgrade is rather simple: alter your imports
+            and update module layer registrations (instanceOf).
+            </p>
+          </description>
+          <class package="org.netbeans.spi.tasklist" name="DocumentSuggestionProvider"/>
+          <class package="org.netbeans.spi.tasklist" name="SuggestionProvider"/>
+          <class package="org.netbeans.spi.tasklist" name="SuggestionContext"/>
+          <class package="org.netbeans.api.tasklist" name="SuggestionManager"/>
+          <class package="org.netbeans.api.tasklist" name="Suggestion"/>
+      </change>
+
+
     <change>
         <api name="general"/>
         <summary>SuggestionContext intoduced</summary>

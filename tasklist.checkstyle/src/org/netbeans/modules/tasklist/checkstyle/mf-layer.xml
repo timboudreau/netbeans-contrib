@@ -23,7 +23,7 @@ Microsystems, Inc. All Rights Reserved.
   <folder name="Services">
        <folder name="SuggestionProviders">
           <file name="checkstyle-ViolationProvider.instance">
-             <attr name="instanceOf" stringvalue="org.netbeans.api.tasklist.SuggestionProvider"/>
+             <attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.SuggestionProvider"/>
              <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.checkstyle.ViolationProvider"/>
           </file>
        </folder>

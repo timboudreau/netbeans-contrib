@@ -35,7 +35,7 @@ public class SuggestionImpl extends Task implements Node.Cookie {
     private String filename = null;
     private String basename = null;
     private int linenumber = 0;
-    private SuggestionProvider provider = null;
+    private Object seed = null;
     private String category = null;
     private SuggestionType stype = null;
     //private boolean highlighted = false;
@@ -49,9 +49,9 @@ public class SuggestionImpl extends Task implements Node.Cookie {
 
     public SuggestionImpl(String summary, SuggestionType stype,
                           SuggestionPerformer action,
-                          SuggestionProvider provider) {
+                          Object data) {
         super(summary, null);
-        this.provider = provider;
+        this.seed = data;
         this.stype = stype;
         setAction(action);
         if (stype != null) {
@@ -142,7 +142,7 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         linenumber = from.linenumber;
         basename = from.basename;
         category = from.category;
-        provider = from.provider;
+        seed = from.seed;
         //highlighted = from.highlighted;
         
         // TODO XXX Copy fields from Suggestion as well!
@@ -192,12 +192,12 @@ public class SuggestionImpl extends Task implements Node.Cookie {
     }    
 
     /** 
-     * Get the provider which created this suggestion.
+     * Get the providedData which created this suggestion.
      * May be null (since not only SuggestionProviders
      * are allowed to register suggestions)
      */
-    public SuggestionProvider getProvider() {
-         return provider;
+    public Object getSeed() {
+         return seed;
     }
 
 /*

@@ -16,6 +16,8 @@ package org.netbeans.modules.tasklist.docscan;
 import org.netbeans.api.tasklist.*;
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.*;
+import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.spi.tasklist.SuggestionContext;
 
 import java.beans.*;
 import javax.swing.text.*;
