@@ -1,2 +1,4 @@
 org.netbeans.a11y
-org.netbeans.a11y.ant
+org.netbeans.a11y.tester
+org.netbeans.a11y.ui
+org.netbeans.modules.a11y

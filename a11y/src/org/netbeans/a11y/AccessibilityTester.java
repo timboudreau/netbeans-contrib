@@ -1,24 +1,39 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.a11y;
 
-import javax.accessibility.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Enumeration;
+
+import java.awt.Component;
+import java.awt.Robot;
+import java.awt.AWTException;
+import java.awt.Container;
+
+
 import javax.swing.*;
-import java.util.*;
-import java.io.*;
+import javax.swing.text.JTextComponent;
+import javax.swing.tree.DefaultMutableTreeNode;
+
+import javax.accessibility.*;
+import java.awt.event.KeyEvent;
+
+// Special JDK 1.4 Imports
+import java.awt.FocusTraversalPolicy;
+import java.awt.KeyboardFocusManager;
+
 
 /**
  *  AccessibilityTester assess the accessibility of GUI components.
@@ -34,651 +49,1041 @@ import java.io.*;
  *  System properties used by AccessibiltyTester
  *  <ul>
  *  <li>a11ytest.tab_timeout - timeout (in ms) for cancelling the tab traversal (default = 15000)
- *  <li>a11ytest.tab_delay - the delay (in ms) between tab key presses (default = 200)
- *  <li>a11ytest.excludes - a semicolon separated list of component classes to ignore in the test
+ *  <li>a11ytest.tab_delay - the delay (in ms) between tab key presses (default = 300)
  *  </ul>
  *
- *  @author Tristan Bonsall
+ *  @author Tristan Bonsall, Marian.Mirilovic@sun.com
  */
 public class AccessibilityTester{
 
-  /**
-   *  Check if components implement Accessible.
-   */
-  public static final int IMPLEMENTS_ACCESSIBLE = 1;
-
-  /**
-   *  Check whether components have an accessible name.
-   */
-  public static final int ACCESSIBLE_NAME = 2;
-
-  /**
-   *  Check whether components have an accessible description.
-   */
-  public static final int ACCESSIBLE_DESC = 4;
-
-  /**
-   *  Check whether the LABEL_FOR value is set for all JLabels.
-   */
-  public static final int LABEL_FOR_SET = 8;
-
-  /**
-   *  Check whether every JTextField has a JLabel whose LABEL_FOR value
-   *  is set to that JTextField.
-   */
-  public static final int NO_LABEL_FOR = 16;
-
-  /**
-   *  Check each AbstractButton has a mnemonic.
-   */
-  public static final int MNEMONIC = 32;
-
-  /**
-   *  In Tab traversal, only test showing components
-   */
-  public static final int SHOWING_ONLY = 64;
-
-  private int tests = IMPLEMENTS_ACCESSIBLE | ACCESSIBLE_NAME | ACCESSIBLE_DESC
-                     | LABEL_FOR_SET | NO_LABEL_FOR | MNEMONIC | SHOWING_ONLY;
-
-  /**
-   *  Create a new AccessibilityTester for the specified component.
-   *  <p>
-   *  By default, all tests are performed. To specify which tests to
-   *  do, use {@link #setTests(int) setTests} or the constructor
-   *  {@link #AccessibilityTester(Component, int) AccessibilityTester(Component, int)}
-   *
-   *  @param component the component to check
-   */
-  public AccessibilityTester(Component component){
-
-    this(component, IMPLEMENTS_ACCESSIBLE | ACCESSIBLE_NAME | ACCESSIBLE_DESC
-                   | LABEL_FOR_SET | NO_LABEL_FOR | MNEMONIC | SHOWING_ONLY);
-  }
-
-  /**
-   *  Create a new AccessibilityTester for the specified component
-   *  to perform the specified tests.
-   *
-   *  @param component the component to check
-   *  @param tests the tests to perform
-   */
-  public AccessibilityTester(Component component, int test){
-
-    parent = component;
-    tests = test;
-
-    TAB_TRAVERSAL_TIME_OUT = 15000;
-
-    try{
-
-      TAB_TRAVERSAL_TIME_OUT = new Long(System.getProperty("a11ytest.tab_timeout", "15000")).longValue();
-    }
-    catch(Exception e){
-
-      // Ignore and use default value
-    }
-
-    TAB_TRAVERSAL_DELAY = 200;
-
-    try{
-
-      TAB_TRAVERSAL_DELAY = new Long(System.getProperty("a11ytest.tab_delay", "200")).longValue();
-    }
-    catch(Exception e){
-
-      // Ignore and use default value
-    }
-
-    String excludes = System.getProperty("a11ytest.excludes");
-    if (excludes != null){
-
-      StringTokenizer st = new StringTokenizer(excludes, ";");
-
-      while (st.hasMoreTokens()){
-
-        excludedClasses.add(st.nextToken());
-      }
-    }
-  }
-
-  /**
-   *  Set which tests should be performed. This value should be the
-   *  OR of the required tests:
-   *  <ul>
-   *  <li>{@link #IMPLEMENTS_ACCESSIBLE IMPLEMENTS_ACCESSIBLE}
-   *  <li>{@link #ACCESSIBLE_NAME ACCESSIBLE_NAME}
-   *  <li>{@link #ACCESSIBLE_DESC ACCESSIBLE_DESC}
-   *  <li>{@link #LABEL_FOR_SET LABEL_FOR_SET}
-   *  <li>{@link #NO_LABEL_FOR NO_LABEL_FOR}
-   *  <li>{@link #MNEMONIC MNEMONIC}
-   *  <li>{@link #SHOWING_ONLY SHOWING_ONLY}
-   *  </ul>
-   *
-   *  @param i the tests to perform
-   */
-  public void setTests(int i){
-
-    tests = i;
-  }
-
-  /**
-   *  Assess the accessibility properties of the component.
-   *  <p>
-   *  If the component is null, the method returns.
-   *  If the component is a container, all of the components in
-   *  the container are assessed for their accessibility recursively.
-   */
-  public void testProperties(){
-
-    if (parent == null){
-
-      return;
-    }
-
-    tests(parent);
-    if ((tests & NO_LABEL_FOR) != 0) checkLabelTextFieldPairs();
-  }
-
-  /**
-   *  The actual test method, which is called recursively.
-   */
-  private void tests(Component comp){
-
-    /* Test any children of the component */
-
-    if (comp instanceof Container){
-
-      Container container = (Container)comp;
-      Component[] children = container.getComponents();
-
-      for (int c = 0; c < children.length; c++){
-
-        tests(children[c]);
-      }
-    }
- 
-    if (((tests & SHOWING_ONLY) != 0) && !comp.isShowing()){
-
-      return;
-    }
-
-    /* Check if class is excluded from the test */
-
-    String classname = comp.getClass().toString();
-    if (classname.startsWith("class ")){
- 
-      classname = classname.substring(6);
-    }
-    if (excludedClasses.contains(classname)){
-
-      return;
-    }
-
-    if (comp instanceof Accessible){
-
-      /* Check AccessibleContext of component */
-
-      AccessibleContext ac = comp.getAccessibleContext();
-      if (ac != null){
-
-        String name = ac.getAccessibleName();
-        if (((tests & ACCESSIBLE_NAME) != 0) && (name == null)){
-
-          noName.add(comp);
+    /* AWT Robot - used for testing focus traversal.*/
+    private static Robot robot;
+    
+    /* logging debug if true */
+    public static boolean debugLog = false;
+    
+    /* Parent component of tested window. */
+    private Component parent = null;
+    
+    /** Time out value for the tab traversal. Set by the system property
+     *  'a11ytest.tab_timeout' as a time in milliseconds.  */
+    private long TAB_TRAVERSAL_TIME_OUT = 15000;
+    
+    /** Delay between key presses for the tab traversal. Set by the system property
+     *  'a11ytest.tab_delay' as a time in milliseconds.  */
+    private long TAB_TRAVERSAL_DELAY = 300;
+    
+    
+    private boolean tabTraversalFinished = false;
+    private boolean tabTraversalPerformed = false;
+    private boolean switchTabbed = false;
+    
+    private HashSet excludedClasses = new HashSet();
+    
+    private HashSet traversedComponents = new HashSet();
+    private HashSet traversableComponents = new HashSet();
+    private HashSet labels = new HashSet();
+    private HashSet labelForPointingComponents = new HashSet();
+    
+    private HashSet noName = new HashSet();
+    private HashSet noDesc = new HashSet();
+    private HashSet noAccess = new HashSet();
+    private HashSet noLabelFor = new HashSet();
+    private HashSet noMnemonic = new HashSet();
+    private HashSet wrongMnemonic = new HashSet();
+    
+    private HashSet focused = new HashSet();
+    
+    private java.util.Hashtable mnemonicConflict = new java.util.Hashtable();
+    
+    private boolean merlinTesting = false;
+    
+    private TestSettings testSettings;
+    
+    /** Create a new AccessibilityTester for the specified component to perform the specified tests.
+     *  @param component the component to check
+     *  @param tests the tests to perform  */
+    public AccessibilityTester(Component component, TestSettings set){
+        parent = component;
+        testSettings = set;
+        
+        
+        // Logs read from arguments
+        debugLog = Boolean.getBoolean("a11ytest.log");
+        
+        /* hack for Merlin -
+         * if Tester is running on jdk 1.4 , testing approach is another as on 1.3 <= reason of new Focus Management implementation */
+        String javaVersion = System.getProperty("java.version");
+        if(javaVersion.indexOf("1.4") != -1)
+            merlinTesting = true;
+        /* - end hack for Merlin */
+        
+        TAB_TRAVERSAL_TIME_OUT = 15000;
+        try{
+            TAB_TRAVERSAL_TIME_OUT = Long.getLong("a11ytest.tab_timeout", new Long(15000)).longValue();
+        }catch(Exception e){
+            // Ignore and use default value
         }
-
-        String desc = ac.getAccessibleDescription();
-        if (((tests & ACCESSIBLE_DESC) != 0) && (desc == null)){
-
-          noDesc.add(comp);
+        
+        TAB_TRAVERSAL_DELAY = 300;
+        try{
+            TAB_TRAVERSAL_DELAY = Long.getLong("a11ytest.tab_delay", new Long(300)).longValue();
+        }catch(Exception e){
+            // Ignore and use default value
         }
-      }
-    }
-    else if ((tests & IMPLEMENTS_ACCESSIBLE) != 0){
-
-      noAccess.add(comp);
-    }
-
-    /* Check LABEL_FOR is set for JLabels */
-
-    if (((tests & LABEL_FOR_SET) != 0) && (comp instanceof JLabel)){
-
-      labels.add(comp);
-
-      Component labelFor = ((JLabel)comp).getLabelFor();
-      if (labelFor == null){
-
-        noLabelFor.add(comp);
-      }
-    }
-
-    if (((tests & NO_LABEL_FOR) != 0) && (comp instanceof JTextField)){
-
-      textFields.add(comp);
-    }
-
-    /* Check AbstractButtons have mnemonics */
-
-    if (((tests & MNEMONIC) != 0) && (comp instanceof AbstractButton)){
-
-      AbstractButton button = (AbstractButton)comp;
-      if (button.getMnemonic() == 0){
-
-        noMnemonic.add(comp);
-      }
-    }
-  }
-
-  /**
-   *  Check that every JTextField has an associated JLabel
-   *  whose LABEL_FOR is set to that JTextField.
-   */
-  private void checkLabelTextFieldPairs(){
-
-    Iterator i = textFields.iterator();
-    while(i.hasNext()){
-
-      JTextField textField = (JTextField)(i.next());
-
-      Iterator j = labels.iterator();
-      while(j.hasNext()){
-
-        Component labelFor = ((JLabel)(j.next())).getLabelFor();
-        if ((labelFor != null) && (labelFor == textField)){
-
-          i.remove();
-          break;
-        }
-      }
-    }
-  }
-
-  /**
-   *  Use Tab traversal from the specified component to check which
-   *  components can be reached without the mouse.
-   *  <p>
-   *  A custom focus listener catches the FOCUS_GAINED events and
-   *  adds the focused component to a list. The test terminates when a
-   *  component gains the keyboard focus that is already in the list,
-   *  hence it has already been visited.
-   *  <p>
-   *  This list of components is then removed from the list of traversable
-   *  components. Any components left in the list at this point are not reachable
-   *  by Tab traversal.
-   *
-   *  @param comp the component to begin traversal from
-   */
-  public void testTraversal(Component comp){
-
-    if (parent == null){
-
-      return;
-    }
-
-    /* Build list of focus traversable components in the parent component */
-    /* This is only done once, unless resetReport is called */
-
-    if (!tabTraversalPerformed){
-
-      getTraversableComponents(parent);
-    }
-
-    if (!comp.hasFocus()){
-
-      comp.requestFocus();
-    }
-
-    tabTraversalFinished = false;
-
-    /* Attach custom focus listeners */
-
-    TraversalFocusListener listener = new TraversalFocusListener();
-
-    Iterator i = traversableComponents.iterator();
-    while(i.hasNext()){
-
-      ((Component)(i.next())).addFocusListener(listener);
-    }
-
-    TabTraversalTimeOut timeout = new TabTraversalTimeOut();
-    timeout.start();
-
-    /* Tab through all components */
-
-    try{
-
-      Robot robot = new Robot();
-
-      if (traversableComponents.size() > 0){
-
-        Component lastFocused = null;
-
-        while(!tabTraversalFinished){
-
-          robot.keyPress(KeyEvent.VK_TAB);
-          try{ Thread.currentThread().sleep(TAB_TRAVERSAL_DELAY); } catch(InterruptedException e){}
-
-          Component focused = listener.getFocusedComponent();
-          if (focused == lastFocused){
-
-            // Component probably swallowed Tab keypress so try Ctrl-Tab
-
-            robot.keyPress(KeyEvent.VK_CONTROL);
-            robot.keyPress(KeyEvent.VK_TAB);
-            robot.keyRelease(KeyEvent.VK_CONTROL);
-            try{ Thread.currentThread().sleep(TAB_TRAVERSAL_DELAY); } catch(InterruptedException e){}
-
-            focused = listener.getFocusedComponent();
-            if (focused == lastFocused){
-
-              // Stuck or window lost focus, so give up
-              break;
+        
+        excludedClasses = set.getExcludedClasses();
+        
+        /* hack for Merlin -
+         * must be added parent, needed to provide test all tests */
+        if(merlinTesting) {
+            focused.add(parent);
+            findFocusableContainer_merlin((Container)parent);
+            
+            //- LOG ONLY
+            if(debugLog) {
+                System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <init> Merlin testing start ");
+                System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <init> Parent components="+((Container)parent).getComponentCount());
+                
+                Iterator i = focused.iterator();
+                int j=0;
+                while(i.hasNext()){
+                    j++;
+                    Component fcp = (Component)(i.next());
+                    System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <init> ["+j+"] = " + fcp);
+                }
+                
+                System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <init> Merlin testing end ");
             }
-          }
-          lastFocused = focused;
+            // LOG ONLY -/
         }
-      }
+        /* - end hack for Merlin */
+        
     }
-    catch(AWTException e){}
-
-    timeout.cancel();
-
-    /* Detach focus listeners */																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															
-
-    i = traversableComponents.iterator();
-    while(i.hasNext()){
-
-      ((Component)(i.next())).removeFocusListener(listener);
+    
+    private static synchronized Robot getRobot() throws AWTException {
+        String os = System.getProperty("os.name");
+        
+        //- LOG ONLY
+        if(debugLog) {
+            System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <getRobot()> OS => " + os);
+            
+            if(robot != null)
+                System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <getRobot()> - >>> robot = " + robot.hashCode());
+            else
+                System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <getRobot()> - >>> robot = null");
+        } // LOG ONLY -/
+        
+        if(os.indexOf("Linux")!=-1){
+            
+            // LOG ONLY -/
+            if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <getRobot()> !!!! Linux hack ===> make robot null.");
+            
+            robot = null;
+        }
+        
+        if(robot == null) {
+            robot = new Robot();
+        }
+        
+        return robot;
     }
-
-    /* Set flag to show at least one tab traversal performed */
-
-    tabTraversalPerformed = true;
-  }
-
-  /**
-   *  Get all traversable components that are children of the specified
-   *  component, including the specified component.
-   *
-   *  @param comp the component
-   */
-  private void getTraversableComponents(Component comp){
-
-    if (comp instanceof Container){
-
-      Container container = (Container)comp;
-      Component[] children = container.getComponents();
-
-      for (int c = 0; c < children.length; c++){
-
-        getTraversableComponents(children[c]);
-      }
+    
+    
+    /** Return AWT - tree of tested container.
+     *  Call <code> addToModel(parent); </code>
+     * @return  parent node of AWT tree model of tested container */
+    public DefaultMutableTreeNode getModel(){
+        return addToModel(parent);
     }
-
-    if (!(((tests & SHOWING_ONLY) != 0) && !comp.isShowing()) && comp.isFocusTraversable()){
-
-      traversableComponents.add(comp);
+    
+    
+    /** Create AWT tree of tested conatiner.
+     * @param comp parent of next sub-tree.
+     * @return tree parent node */
+    private DefaultMutableTreeNode addToModel(Component comp){
+        
+        // LOG ONLY -/
+        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <addToModel(Component)> ++++ Component="+comp);
+        
+        DefaultMutableTreeNode treeNode;
+        
+        AccComponent acc_comp = new AccComponent(comp);
+        treeNode = new DefaultMutableTreeNode(acc_comp);
+        
+        if(comp instanceof Container){
+            Container container = (Container)comp;
+            
+            // LOG ONLY -/
+            if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <addToModel(Component)> - Container="+container);
+            
+            Component[] children = container.getComponents();
+            
+            for (int c = 0; c < children.length; c++){
+                treeNode.add(addToModel(children[c]));
+                
+                // LOG ONLY -/
+                if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <addToModel(Component)> - added ["+c+"] child => "+children[c].getClass().getName()+"/"+container);
+                
+            }
+        }
+        
+        return treeNode;
     }
-  }
-
-  /**
-   *  Time out thread for the tab traversal, in case it goes wrong :)
-   *  It may get stuck in a loop if it reaches a component that consumes the
-   *  Tab keypress events. In which case, we simply give up.
-   */
-  private class TabTraversalTimeOut extends Thread{
-
-    /**
-     *  Start the timeout
+    
+    /* Run all tests.
+     * This method run Testing of Accessible Properties and Testing of Focus Traversability of tested container.
      */
-    public void run(){
+    public void startTests() {
+        if(testSettings.accessibleProperties || testSettings.accessibleInterface)
+            testProperties();
+        if(testSettings.tabTraversal)
+            testTraversal();
+    }
+    
+    /** Assess the accessibility properties of the component.
+     *  <p>
+     *  If the component is null, the method returns.
+     *  If the component is a container, all of the components in
+     *  the container are assessed for their accessibility recursively. */
+    public void testProperties(){
+        
+        if (parent == null)
+            return;
+        
+        tests(parent);
+        
+        if (testSettings.AP_mnemonics){
+            
+            //- LOG ONLY - list of conflicts before cleaning
+            if(debugLog) {
+                System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testProperties()> - CONFLICTS = ");
+                Enumeration conf = mnemonicConflict.elements();
+                while(conf.hasMoreElements())  System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testProperties()> -  "+conf.nextElement().toString());
+            } // LOG ONLY -/
+            
+            cleanMnemonicsConflict();
+            
+            // LOG ONLY - list of conflicts after cleaning
+            if(debugLog) {
+                System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testProperties()> - CONFLICTS after clean up = ");
+                Enumeration conf = mnemonicConflict.elements();
+                while(conf.hasMoreElements())   System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] -  <testProperties()> - "+conf.nextElement().toString());
+            } // LOG ONLY -/
+            
+        }
+        
+        if (testSettings.AP_noLabelFor)
+            checkLabelTextComponentPairs();
+    }
+    
+    /** The actual test method, which is called recursively. */
+    private void tests(Component comp){
+        
+        // LOG ONLY -/
+        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <tests(Component)> - ======= Tested component="+comp.getClass().getName());
+        
+        
+        testContainer(comp);
+        
+        /* H1 -> Hack for JLabels - JLabel isn't focusTraversable, but If we want test labelFor pointing we must have all JLabels. */
+        if (testSettings.AP_noLabelFor) {
+            if (testSettings.AP_showingOnly && !comp.isShowing()){
+                if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <tests("+comp.getClass().getName()+")> - Label For => NOT TESTED - because : testSettings.AP_showingOnly="+testSettings.AP_showingOnly+" && !!comp.isShowing()="+!comp.isShowing());
+                return;
+            }
+            
+            if(comp instanceof JLabel) {
+                // LOG ONLY -/
+                if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <tests(Component)> - \t -add label  ="+comp);
+                
+                labels.add(comp);
+            }
+        }
+        
+        /* Check Labels which have set labelFor have mnemonics */
+        if ((comp instanceof JLabel) && testSettings.AP_mnemonics && testSettings.AP_m_label) {
+            JLabel label = (JLabel) comp;
+            int mnemonic = label.getDisplayedMnemonic();
+            
+            // LOG ONLY -/
+            if(debugLog) System.err.print("[org.netbeans.modules.a11y.AccessibilityTester] - <tests(Component)> - \t - label Mnemonic="+mnemonic+"  label.getLabelFor()="+label.getLabelFor()+" label.getDisplayedMnemonic()="+label.getDisplayedMnemonic());
+            
+            Component labelF = label.getLabelFor();
+            
+            if (labelF != null){
+                // hack for Merlin if((labelF.isFocusTraversable()) && (label.getDisplayedMnemonic() <= 0))
+                if(testFocusability(labelF) && (mnemonic <= 0))
+                    noMnemonic.add(comp);
+                
+                testMnemonics(label.getText(), mnemonic, comp);
+                
+            }
+        }
+        
 
-      try{
-
-        sleep(TAB_TRAVERSAL_TIME_OUT);
-      }
-      catch(InterruptedException e){}
-      if (!cancelled){
-
-        tabTraversalFinished = true;
-      }
+        // Test implement Accessible
+        testImplementAccessible(comp);
+        
+        /* Test parent (Window) although will not test non-showed or non-traversable*/
+        if(!comp.equals(parent)){
+            if (testSettings.AP_showingOnly && !comp.isShowing()){
+                if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <tests("+comp.getClass().getName()+")> - NOT TESTED - because : testSettings.AP_showingOnly="+testSettings.AP_showingOnly+" && !!comp.isShowing()="+!comp.isShowing());
+                return;
+            }
+            
+            // hack for Merlin if (testSettings.AP_focusTraversableOnly && !comp.isFocusTraversable()){
+            if (testSettings.AP_focusTraversableOnly && !testFocusability(comp)){
+                if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <tests("+comp.getClass().getName()+")> - NOT TESTED - because : testSettings.AP_focusTraversableOnly="+testSettings.AP_focusTraversableOnly+"  && !testFocusability(comp)="+!testFocusability(comp));
+                return;
+            }
+        }
+        
+        /* Check if class is excluded from the test */
+        String classname = comp.getClass().toString();
+        if (classname.startsWith("class ")){
+            classname = classname.substring(6);
+        }
+        if (excludedClasses.contains(classname)){
+            if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <tests("+comp.getClass().getName()+")> - NOT TESTED - because : Excluded classes contains this class.");
+            return;
+        }
+        
+        
+        // Test Accessible Name and Accessible Description
+        if(comp instanceof Accessible){
+            AccessibleContext comp_AC = comp.getAccessibleContext();
+            
+            if(comp_AC != null) {
+                testAccessibleName(comp, comp_AC);
+                testAccessibleDescription(comp, comp_AC);
+            } else {
+                noName.add(comp);
+                noDesc.add(comp);
+            }
+            
+        }
+        
+        
+        // Test Label For set
+        testLabelForSet(comp);
+        
+        // Test Buttons Mnemonics
+        testButtonsMnemonics(comp);
+        
     }
 
-    /**
-     *  Cancel the timeout if it is no longer required, i.e. test is complete.
+    
+    /* Test any children of the component */
+    private void testContainer(Component comp) {
+        if ((comp instanceof Container)  && !(comp instanceof JComboBox)){
+            Container container = (Container)comp;
+            Component[] children = container.getComponents();
+            
+            for (int c = 0; c < children.length; c++){
+                tests(children[c]);
+            }
+        }
+    }
+    
+    
+    
+    /* Check if component implement accessible*/
+    private void testImplementAccessible(Component comp) {
+        if (testSettings.accessibleInterface && !(comp instanceof Accessible)) {
+            if (testSettings.AI_showingOnly){
+                if(comp.isShowing())
+                    noAccess.add(comp);
+            } else
+                noAccess.add(comp);
+        }
+    }
+    
+    /* Check if component has set accessible name, AccessibleName!=null */
+    private void testAccessibleName(Component comp, AccessibleContext comp_AC) {
+        String name = comp_AC.getAccessibleName();
+        
+        // LOG ONLY -/
+        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testAccessibleName()> - accessibleName="+name);
+        
+        if (testSettings.AP_accessibleName && (name == null)){
+            noName.add(comp);
+        }
+    }
+    
+    
+    /* Check if component has set accessible description, AccessibleDescription!=null */
+    private void testAccessibleDescription(Component comp, AccessibleContext comp_AC) {
+        String desc = comp_AC.getAccessibleDescription();
+        
+        // LOG ONLY -/
+        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testAccessibleDescription()> - accessibleDescription="+desc);
+        
+        if (testSettings.AP_accessibleDescription && (desc == null)){
+            noDesc.add(comp);
+        }
+    }
+    
+    
+    /* Check if button has set mnemonic, mnemonic>0 */
+    private void testButtonsMnemonics(Component comp) {
+        if (testSettings.AP_mnemonics) {
+            
+            // LOG ONLY -/
+            if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testButtonsMnemonics(Component)> - Check mnemonics ");
+            
+            /* Check AbstractButtons have mnemonics */
+            if(testSettings.AP_m_abstractButtons && (comp instanceof AbstractButton)) {
+                AbstractButton button = (AbstractButton)comp;
+                
+                // LOG ONLY -/
+                if(debugLog) System.err.print("[org.netbeans.modules.a11y.AccessibilityTester] - <testButtonsMnemonics(Component)> \t - button Mnemonic="+button.getMnemonic());
+                
+                int mnemonic =  button.getMnemonic();
+                
+                if (mnemonic <= 0){
+                    if (!testSettings.AP_m_defaultCancel && (button instanceof JButton)) {
+                        JButton jButton = (JButton)button;
+                        String tt;
+                        if(!(jButton.isDefaultButton() ||
+                        (((tt=jButton.getText()) != null) && tt.equals(testSettings.getCancelLabel() )))) // tt - hack for rising NPE if text is null
+                            noMnemonic.add(comp);
+                    }else
+                        noMnemonic.add(comp);
+                }
+                
+                testMnemonics(button.getText(), mnemonic, comp);
+            }
+            
+        }
+        
+    }
+
+    
+    /* Check if component has set label for, labelFor!=null */
+    private void testLabelForSet(Component comp) {
+        if (testSettings.AP_labelForSet && (comp instanceof JLabel)){
+            // H1- hack for JLabels      labels.add(comp);
+            Component labelFor = ((JLabel)comp).getLabelFor();
+            
+            // LOG ONLY -/
+            if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testLabelForSet()> - labelFor="+labelFor);
+            
+            if (labelFor == null){
+                noLabelFor.add(comp);
+            }
+        }
+        
+        if (testSettings.AP_noLabelFor) {
+            if ((testSettings.AP_nlf_text && (comp instanceof JTextComponent)) ||
+            (testSettings.AP_nlf_table && (comp instanceof JTable))        ||
+            (testSettings.AP_nlf_list && (comp instanceof JList))          ||
+            (testSettings.AP_nlf_tree && (comp instanceof JTree))          ||
+            (testSettings.AP_nlf_tabbedPane && (comp instanceof JTabbedPane))){
+                labelForPointingComponents.add(comp);
+            }
+        }
+        
+    }
+    
+
+    /* Check if component has set mnemonics-Labels, mnemonics are ASCII, report mnemonics conflict */
+    private void testMnemonics(String str, int mnemonic, Component comp) {
+        if(mnemonic!=0){
+            // test whether label of button contains mnemonic || mnemonic is ASCII
+            if( !labelContainsMnemonic(str, mnemonic) || mnemonic > 127){
+                
+                // LOG ONLY -/
+                if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testMnemonics(String,int,Component)> - WRONG_MNEMONIC " + str + " indexOf="+str.indexOf(mnemonic)+" mnemonic="+mnemonic);
+                
+                wrongMnemonic.add(comp);
+            }
+            
+            // if mnemonics conflict
+            if(!mnemonicConflict.containsKey(""+mnemonic)){
+                HashSet mn = new HashSet();
+                mn.add(comp);
+                mnemonicConflict.put(""+mnemonic,mn);
+            }else {
+                // BAD - do something
+                HashSet mn = (HashSet)mnemonicConflict.get(""+mnemonic);
+                mn.add(comp);
+                mnemonicConflict.put(""+mnemonic,mn);
+            }
+        }
+        
+    }
+    
+    
+    /** Test whether label contains mnemonic
+     * @param label tested label 
+     * @param mnemonic tested mnemonic
+     * @return  true - if label contains mnemonic, false - if it doesn't  */    
+    private boolean labelContainsMnemonic(String label, int mnemonic) {
+        return (label.toLowerCase().indexOf(mnemonic)!=-1 || label.toUpperCase().indexOf(mnemonic)!=-1);
+    }
+
+    /** Clean mnemonics conflict hash table, if each mnemonic is set only for one component.
      */
-    public void cancel(){
-
-      cancelled = true;
+    private void cleanMnemonicsConflict() {
+        Enumeration enum = mnemonicConflict.keys();
+        
+        while(enum.hasMoreElements()) {
+            String key = (String)enum.nextElement();
+            HashSet hs = (HashSet)mnemonicConflict.get(key);
+            if(hs.size()==1)
+                mnemonicConflict.remove(key);
+        }
+        
     }
-
-    private boolean cancelled = false;
-  }
-
-  /**
-   *  A custom FocusListener that will add a component
-   *  to traversedComponents when it obtains keyboard focus.
-   *  <p>
-   *  If the component is already in traversedComponents, the test
-   *  terminates.
-   */
-   private class TraversalFocusListener extends FocusAdapter{
-
-    public void focusGained(FocusEvent e){
-
-      focused = (Component)(e.getSource());
-      if (!traversedComponents.contains(focused)){
-
-        traversedComponents.add(focused);
-      }
-      else{
-
-        tabTraversalFinished = true;
-      }
-    }
-
-    public Component getFocusedComponent(){
-
-      return focused;
-    }
-
-    private Component focused = null;
-  }
-
-  /**
-   *  Remove the traversed components from the traversable components
-   *  to leave the components which cannot be reached.
-   *  <p>
-   *  This is called as the report is generated. It shouldn't be called
-   *  unless all tests are completed.
-   */
-  private void removeTraversedComponents(){
-
-    Iterator i = traversedComponents.iterator();
-    while(i.hasNext()){
-
-      traversableComponents.remove(i.next());
-    }
-  }
-
-  /**
-   *  Abstract class to generate reports from the tests. A subclass will
-   *  implement {@link org.netbeans.a11y.AccessibilityTester.ReportGenerator#getReport(java.io.Writer) getReport}
-   *  and use the accessor methods to format the results as required.
-   *
-   *  @author Tristan Bonsall
-   */
-  public abstract static class ReportGenerator{
-
-    /**
-     *  The AccessibilityTester that the report is being generated for.
+    
+    /** Clean label for components and labels pointing to it.
      */
-    protected AccessibilityTester tester = null;
-
-    /**
-     *  Create a ReportGenerator for an AccessibilityTester.
-     *
-     *  @param at the AccesibilityTester
-     */
-    public ReportGenerator(AccessibilityTester at){
-
-      tester = at;
+    private void checkLabelTextComponentPairs(){
+        Iterator i = labelForPointingComponents.iterator();
+        while(i.hasNext()){
+            Component component = (Component)(i.next());
+            Iterator j = labels.iterator();
+            
+            while(j.hasNext()){
+                Component labelFor = ((JLabel)(j.next())).getLabelFor();
+                if ((labelFor != null) && (labelFor == component)){
+                    i.remove();
+                    break;
+                }
+            }
+        }
     }
-
-    /**
-     *  Get a PrintWriter from a Writer.
-     *
-     *  @param writer a Writer to use for the PrintWriter
-     *  @return a PrintWriter for the Writer
-     */
-    protected PrintWriter getPrintWriter(Writer writer){
-
-      if (writer instanceof PrintWriter){
-
-        return (PrintWriter)writer;
-      }
-      return new PrintWriter(writer);
+    
+    /** Use Tab traversal from the specified component to check which
+     *  components can be reached without the mouse.
+     *  <p>
+     *  A custom focus listener catches the FOCUS_GAINED events and
+     *  adds the focused component to a list. The test terminates when a
+     *  component gains the keyboard focus that is already in the list,
+     *  hence it has already been visited.
+     *  <p>
+     *  This list of components is then removed from the list of traversable
+     *  components. Any components left in the list at this point are not reachable
+     *  by Tab traversal.
+     *  @param comp the component to begin traversal from */
+    public boolean testTraversal() {
+        if (parent == null){
+            return false;
+        }
+        
+        return testTraversalComponent(parent);
     }
-
-    /**
-     *  Create the report and send it to the Writer.
-     *
-     *  @param writer the Writer to output the results to
-     */
-    public abstract void getReport(Writer writer);
-
-    /**
-     *  Get the component that was used when the AccessiblityTester was created.
-     *
-     *  @return the test target
-     */
-    protected Component getTestTarget(){
-
-      return tester.parent;
+    
+    
+    
+    /** Run TAB traversal test
+     * @param comp started component
+     * @return  if false - TAB traversal doesn't finished correct*/    
+    private boolean testTraversalComponent(Component comp){
+        
+        if (parent == null){
+            return false;
+        }
+        
+        /* Build list of focus traversable components in the parent component
+         * This is only done once, unless resetReport is called */
+        if (!tabTraversalPerformed){
+            getTraversableComponents(parent);
+        }
+        
+        if (!comp.hasFocus()){
+            comp.requestFocus();
+            
+            // LOG ONLY -/
+            if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testTraversalComponent(Component)> - After request focus | comp="+comp.getClass().getName()+" hasFocus()="+comp.hasFocus());
+        }
+        
+        tabTraversalFinished = false;
+        switchTabbed = false;
+        
+        
+        /* Attach custom focus listeners */
+        org.netbeans.a11y.AccessibilityTester.TraversalFocusListener listener = new org.netbeans.a11y.AccessibilityTester.TraversalFocusListener();
+        
+        Iterator i = traversableComponents.iterator();
+        while(i.hasNext()){
+            ((Component)(i.next())).addFocusListener(listener);
+        }
+        
+        org.netbeans.a11y.AccessibilityTester.TabTraversalTimeOut timeout = new org.netbeans.a11y.AccessibilityTester.TabTraversalTimeOut();
+        timeout.start();
+        
+        /* Tab through all components */
+        try{
+            Robot robot = getRobot();
+            
+            // - LOG ONLY
+            if(debugLog) {
+                System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testTraversalComponent(Component)> - Robot="+robot.hashCode());
+                Iterator it = traversableComponents.iterator();
+                int ssl=0;
+                while(it.hasNext()){
+                    ssl++;
+                    Component fcp = (Component)(it.next());
+                    System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testTraversalComponent(Component)> - ["+ssl+"] "+fcp);
+                }
+                System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testTraversalComponent(Component)> - Traversable Components + end - =======");
+            } // LOG ONLY -/
+            
+            
+            if (traversableComponents.size() > 0){
+                Component lastFocused = null;
+                
+                while(!tabTraversalFinished){
+                    robot.keyPress(KeyEvent.VK_TAB);
+                    
+                    // LOG ONLY -/
+                    if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testTraversalComponent(Component)> - --> TAB Last Focused component="+lastFocused);
+                    
+                    try{
+                        Thread.currentThread().sleep(TAB_TRAVERSAL_DELAY);
+                    } catch(InterruptedException e){}
+                    
+                    Component focusedComponent = listener.getFocusedComponent();
+                    
+                    // LOG ONLY -/
+                    if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testTraversalComponent(Component)> - --> Focused component="+focusedComponent);
+                    
+                    Component reallyFocusedComponent = SwingUtilities.findFocusOwner(parent);
+                    
+                    // LOG ONLY -/
+                    if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testTraversalComponent(Component)> - --> Really Focused component="+reallyFocusedComponent);
+                    
+                    if((focusedComponent instanceof JTabbedPane) && !testSettings.TT_showingOnly) {
+                        robot.keyPress(KeyEvent.VK_RIGHT);
+                        
+                        // LOG ONLY -/
+                        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testTraversalComponent(Component)> - --> VK_LEFT Focused component="+lastFocused);
+                        
+                        try{
+                            Thread.currentThread().sleep(TAB_TRAVERSAL_DELAY);
+                        } catch(InterruptedException e){}
+                        robot.keyPress(KeyEvent.VK_TAB);
+                        
+                        // LOG ONLY -/
+                        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testTraversalComponent(Component)> - --> TAB Focused component="+lastFocused);
+                        
+                        switchTabbed = true;
+                    }else
+                        switchTabbed = false;
+                    
+                    if((focusedComponent==null && lastFocused==null) &&
+                    !(  (reallyFocusedComponent instanceof JTextComponent) ||
+                    (reallyFocusedComponent instanceof JTabbedPane) ||
+                    (reallyFocusedComponent instanceof JTable)) ) {
+                        
+                        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - ERROR : It's impossible test Tab traversal. After TAB, CTRL + TAB or RIGHT hitting nothing happends.");
+                        
+                        return false;
+                    }
+                    
+                    if (focusedComponent==lastFocused){
+                        // Component probably swallowed Tab keypress so try Ctrl-Tab
+                        robot.keyPress(KeyEvent.VK_CONTROL);
+                        robot.keyPress(KeyEvent.VK_TAB);
+                        robot.keyRelease(KeyEvent.VK_CONTROL);
+                        
+                        // LOG ONLY -/
+                        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testTraversalComponent(Component)> - --> CONTROL_TAB Focused component="+focusedComponent);
+                        
+                        try{ Thread.currentThread().sleep(TAB_TRAVERSAL_DELAY); } catch(InterruptedException e){}
+                        
+                        focusedComponent = listener.getFocusedComponent();
+                        
+                        if ((focusedComponent == lastFocused) && (!switchTabbed)){
+                            
+                            // LOG ONLY -/
+                            if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testTraversalComponent(Component)> - !!!!!  LOCK !!!!!  "+focusedComponent + "==" + lastFocused);
+                            
+                            // Stuck or window lost focus, so give up
+                            break;
+                        }
+                    }
+                    lastFocused = focusedComponent;
+                }
+            }
+        }catch(AWTException e){ e.printStackTrace();}
+        
+        timeout.cancel();
+        
+        /* Detach focus listeners */
+        i = traversableComponents.iterator();
+        while(i.hasNext()){
+            ((Component)(i.next())).removeFocusListener(listener);
+        }
+        
+        /* Set flag to show at least one tab traversal performed */
+        tabTraversalPerformed = true;
+        
+        return true;
     }
-
-    /**
-     *  Get a HashSet containing the components that have no Accessible name.
-     *
-     *  @return the components
-     */
-    protected HashSet getNoName(){
-
-      return tester.noName;
+    
+    /** Get all traversable components that are children of the specified
+     *  component, including the specified component.
+     *  @param comp the component  */
+    private void getTraversableComponents(Component comp){
+        
+        if ((comp instanceof Container)){
+            Container container = (Container)comp;
+            Component[] children = container.getComponents();
+            for (int c = 0; c < children.length; c++){
+                getTraversableComponents(children[c]);
+            }
+        }
+        
+        //hack for Merlin if (!(testSettings.TT_showingOnly && !comp.isShowing()) && comp.isFocusTraversable()){
+        if (!(testSettings.TT_showingOnly && !comp.isShowing()) && testFocusability(comp)){
+            traversableComponents.add(comp);
+        }else{
+        }
     }
-
-    /**
-     *  Get a HashSet containing the components that have no Accessible description.
-     *
-     *  @return the components
-     */
-    protected HashSet getNoDesc(){
-
-      return tester.noDesc;
+ 
+    
+    
+    /** Method for testing if component did traversed before.
+     * @param component tested component
+     * @return true - if component didn't traversed time before or it's JTabbedPane(means should be traversed more than once), false - component was traversed time before */    
+    private boolean contains(Component component) {
+        if(component instanceof JTabbedPane) {
+            /*Iterator i = traversedComponents.iterator();
+            int numberContains=0;
+            while(i.hasNext()){
+                if(i.next() == component)
+                    numberContains++;
+            }
+            if(((JTabbedPane)component).getTabCount() > numberContains) {
+                tabTraversalTabbedPane = true;
+                return true;
+            }*/
+            return true;
+        }else
+            return !traversedComponents.contains(component);
     }
+    
 
-    /**
-     *  Get a HashSet containing the components that do not implement Accessible.
-     *
-     *  @return the components
-     */
-    protected HashSet getNoAccess(){
-
-      return tester.noAccess;
+    
+    /** Testing focusability of component.
+     * @param aComponent tested component
+     * @return true - of isFocusTraversable/JDK1.3,2; traversable components contains this components/JDK1.4 */    
+    private boolean testFocusability(Component aComponent) {
+        
+        if(merlinTesting)
+            return focused.contains(aComponent);
+        else
+            return aComponent.isFocusTraversable();
+        
     }
-
-    /**
-     *  Get a HashSet containing the JLabels which do not have their LABEL_FOR
-     *  field set to a non-null value.
-     *
-     *  @return the components
-     */
-    protected HashSet getNoLabelFor(){
-
-      return tester.noLabelFor;
+    
+    
+    /** Method for testing focus traversal on Merlin(JDK1.4).
+     * @param cont  tested container */    
+    private void findFocusableContainer_merlin(Container cont){
+        
+        // LOG ONLY -/
+        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableContainer_merlin(Container)> -TTTTTT CONT = " + cont);
+        
+        FocusTraversalPolicy fp;
+        
+        if(cont.isFocusTraversalPolicySet()) {
+            fp = cont.getFocusTraversalPolicy();
+            
+            // LOG ONLY -/
+            if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableContainer_merlin(Container)>  - is FocusTraversalPolicy");
+            
+        }else{
+            
+            // LOG ONLY -/
+            if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableContainer_merlin(Container)>  - is NOT FocusTraversalPolicy");
+            
+            KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+            fp = kfm.getDefaultFocusTraversalPolicy();
+        }
+        
+        Component next = fp.getFirstComponent(cont);
+        
+        // LOG ONLY -/
+        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableContainer_merlin(Container)> - next="+next);
+        
+        if(next == cont || focused.contains(next)){
+            
+            //- LOG ONLY
+            if(debugLog)System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableContainer_merlin(Container)> - next==cont / "+ (next==cont) + " ><  focused.contains() / "+focused.contains(next));
+            
+            return;
+        }else{
+            
+            // LOG ONLY -/
+            if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableContainer_merlin(Container)> - ADDED");
+            
+            focused.add(next);
+        }
+        
+        if(next != null)
+            findFocusableComponent_merlin(next, cont, fp);
+        return;
+        
     }
-
-    /**
-     *  Get a HashSet containing the JTextFields that do not have a LABEL_FOR
-     *  pointing to them.
-     *
-     *  @return the components
-     */
-    protected HashSet getNoLabelForPointing(){
-
-      return tester.textFields;
+    
+    
+    /** Method for testing focus traversal on Merlin(JDK1.4).
+     * @param comp tested component
+     * @param cont tested container
+     * @param fp focus traversal policy */
+    private void findFocusableComponent_merlin(Component comp, Container cont, FocusTraversalPolicy fp) {
+        // LOG ONLY -/
+        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - COMP= " + comp);
+        
+        if(comp instanceof Container) {
+            Container comp_cont = (Container) comp;
+            if(comp_cont.isFocusCycleRoot()){
+                
+                // LOG ONLY -/
+                if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - is root");
+                
+                findFocusableContainer_merlin(comp_cont);
+            } else {
+                
+                // LOG ONLY -/
+                if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - isn't root");
+                
+                Component next = fp.getComponentAfter(cont,comp);
+                
+                // LOG ONLY -/
+                if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - COMP next="+next);
+                
+                if(next == cont || focused.contains(next)){
+                    
+                    //- LOG ONLY
+                        if(debugLog)System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - next==cont / "+ (next==cont) + " ><  focused.contains() / "+focused.contains(next));
+                    
+                    return;
+                }else{
+                    
+                    // LOG ONLY -/
+                    if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - ADDED");
+                    
+                    focused.add(next);
+                }
+                
+                findFocusableComponent_merlin(next, cont, fp);
+            }
+        }
     }
-
-    /**
-     *  Get a HashSet containing the AbstractButtons with no mnemonic.
-     *
-     *  @return the components
-     */
-    protected HashSet getNoMnemonic(){
-
-      return tester.noMnemonic;
+    
+    
+    /** Time out thread for the tab traversal, in case it goes wrong :)
+     *  It may get stuck in a loop if it reaches a component that consumes the
+     *  Tab keypress events. In which case, we simply give up. */
+    private class TabTraversalTimeOut extends Thread{
+        
+        /** Start the timeout */
+        public void run(){
+            try{
+                sleep(TAB_TRAVERSAL_TIME_OUT);
+            }
+            catch(InterruptedException e){}
+            if (!cancelled){
+                tabTraversalFinished = true;
+            }
+        }
+        
+        /** Cancel the timeout if it is no longer required, i.e. test is complete. */
+        public void cancel(){
+            cancelled = true;
+        }
+        
+        private boolean cancelled = false;
     }
-
-    /**
-     *  Get a HashSet containing the components that were not reachable by the
-     *  Tab traversal.
-     *
-     *  @return the components
-     */
-    protected HashSet getNotTraversable(){
-
-      tester.removeTraversedComponents();
-      return tester.traversableComponents;
+    
+    /** A custom FocusListener that will add a component
+     *  to traversedComponents when it obtains keyboard focus.
+     *  <p> If the component is already in traversedComponents, the test
+     *  terminates. */
+    private class TraversalFocusListener extends java.awt.event.FocusAdapter{
+        
+        public void focusGained(java.awt.event.FocusEvent e){
+            focusedComponent = (Component)(e.getSource());
+            //            if (!traversedComponents.contains(focusedComponent)){
+            if (contains(focusedComponent)){
+                
+                // LOG ONLY -/
+                if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester$TraversalFocusListener] - <focusGained()> -  FOCUS GAINED - ADD ="+focusedComponent);
+                
+                traversedComponents.add(focusedComponent);
+            }else{
+                
+                // LOG ONLY -/
+                if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTesterTraversalFocusListener] - <focusGained()> - FOCUS GAINED - FINISH ="+focusedComponent);
+                
+                tabTraversalFinished = true;
+            }
+        }
+        
+        public Component getFocusedComponent(){
+            return focusedComponent;
+        }
+        
+        private Component focusedComponent = null;
     }
-  }
-
-  /**
-   *  Reset the test results.
-   */
-  public void resetReport(){
-
-    traversableComponents.clear();
-    traversedComponents.clear();
-    labels.clear();
-    textFields.clear();
-
-    noName.clear();
-    noDesc.clear();
-    noAccess.clear();
-    noLabelFor.clear();
-    noMnemonic.clear();
-
-    tabTraversalPerformed = false;
-  }
-
-  /**
-   *  Time out value for the tab traversal. Set by the system property
-   *  'a11ytest.tab_timeout' as a time in milliseconds.
-   */
-  private long TAB_TRAVERSAL_TIME_OUT = 15000;
-
-  /**
-   *  Delay between key presses for the tab traversal. Set by the system property
-   *  'a11ytest.tab_delay' as a time in milliseconds.
-   */
-  private long TAB_TRAVERSAL_DELAY = 200;
-
-  private boolean tabTraversalFinished = false;
-  private boolean tabTraversalPerformed = false;
-
-  private Component parent = null;
-
-  private HashSet excludedClasses = new HashSet();
-
-  private HashSet traversedComponents = new HashSet();
-  private HashSet traversableComponents = new HashSet();
-  private HashSet labels = new HashSet();
-  private HashSet textFields = new HashSet();
-
-  private HashSet noName = new HashSet();
-  private HashSet noDesc = new HashSet();
-  private HashSet noAccess = new HashSet();
-  private HashSet noLabelFor = new HashSet();
-  private HashSet noMnemonic = new HashSet();
+    
+    /** Remove the traversed components from the traversable components
+     *  to leave the components which cannot be reached.
+     *  <p> This is called as the report is generated. It shouldn't be called
+     *  unless all tests are completed. */
+    private void removeTraversedComponents(){
+        // hack for not traversing and focusing Window on JDK1.4
+        traversableComponents.remove(parent);
+        
+        Iterator i = traversedComponents.iterator();
+        while(i.hasNext()){
+            traversableComponents.remove(i.next());
+        }
+    }
+    
+    /** Abstract class to generate reports from the tests. A subclass will
+     *  implement {@link org.netbeans.a11y.AccessibilityTester.ReportGenerator#getReport(java.io.Writer) getReport}
+     *  and use the accessor methods to format the results as required.
+     *  @author Tristan Bonsall, Marian.Mirilovic@Sun.com */
+    public abstract static class ReportGenerator{
+        
+        /**  The AccessibilityTester that the report is being generated for. */
+        protected AccessibilityTester tester = null;
+        protected TestSettings testSettings;
+        protected boolean printName;
+        protected boolean printDescription;
+        protected boolean printPosition;
+        
+        
+        /** Create a ReportGenerator for an AccessibilityTester.
+         *  @param at the AccesibilityTester  */
+        public ReportGenerator(AccessibilityTester at){
+            tester = at;
+        }
+        
+        /** Create a ReportGenerator for an AccessibilityTester.
+         *  @param at the AccesibilityTester */
+        public ReportGenerator(AccessibilityTester at, TestSettings set){
+            tester = at;
+            testSettings = set;
+            printName = set.report_name;
+            printDescription = set.report_description;
+            printPosition = set.report_position;
+        }
+        
+        /** Get a PrintWriter from a Writer.
+         *  @param writer a Writer to use for the PrintWriter
+         *  @return a PrintWriter for the Writer
+         */
+        protected java.io.PrintWriter getPrintWriter(java.io.Writer writer){
+            if (writer instanceof java.io.PrintWriter){
+                return (java.io.PrintWriter)writer;
+            }
+            return new java.io.PrintWriter(writer);
+        }
+        
+        
+        /** Create the report and send it to the Writer.
+         *  @param writer the Writer to output the results to */
+        public abstract void getReport(java.io.Writer writer);
+        
+        /** Get the component that was used when the AccessiblityTester was created.
+         *  @return the test target
+         */
+        protected Component getTestTarget(){
+            return tester.parent;
+        }
+        
+        /** Get a HashSet containing the components that have no Accessible name.
+         *  @return the components
+         */
+        protected HashSet getNoName(){
+            return tester.noName;
+        }
+        
+        /** Get a HashSet containing the components that have no Accessible description.
+         *  @return the components
+         */
+        protected HashSet getNoDesc(){
+            return tester.noDesc;
+        }
+        
+        /** Get a HashSet containing the components that do not implement Accessible.
+         *  @return the components
+         */
+        protected HashSet getNoAccess(){
+            return tester.noAccess;
+        }
+        
+        /** Get a HashSet containing the JLabels which do not have their LABEL_FOR
+         *  field set to a non-null value.
+         *  @return the components
+         */
+        protected HashSet getNoLabelFor(){
+            return tester.noLabelFor;
+        }
+        
+        /** Get a HashSet containing the JTextComponents that do not have a LABEL_FOR  pointing to them.
+         *  @return the components
+         */
+        protected HashSet getNoLabelForPointing(){
+            return tester.labelForPointingComponents;
+        }
+        
+        /** Get a HashSet containing components with no mnemonic.
+         *  @return the components
+         */
+        protected HashSet getNoMnemonic(){
+            return tester.noMnemonic;
+        }
+        
+        /** Get a HashSet containing components with wrong mnemonic.
+         *  @return the components
+         */
+        protected HashSet getWrongMnemonic(){
+            return tester.wrongMnemonic;
+        }
+        
+        /** Get a Hashtable containing mnemonics with components.
+         *  @return the components
+         */
+        protected java.util.Hashtable getMnemonicConflict(){
+            return tester.mnemonicConflict;
+        }
+        
+        
+        /**  Get a HashSet containing the components that were not reachable by the Tab traversal.
+         *  @return the components
+         */
+        protected HashSet getNotTraversable(){
+            tester.removeTraversedComponents();
+            return tester.traversableComponents;
+        }
+    }
+    
+    /** Reset the test results. */
+/*    public void resetReport(){
+ 
+        traversableComponents.clear();
+        traversedComponents.clear();
+        labels.clear();
+        labelForPointingComponents.clear();
+ 
+        noName.clear();
+        noDesc.clear();
+        noAccess.clear();
+        noLabelFor.clear();
+        noMnemonic.clear();
+        wrongMnemonic.clear();
+        mnemonicConflict.clear();
+ 
+        tabTraversalPerformed = false;
+    }
+ */
 }
+
