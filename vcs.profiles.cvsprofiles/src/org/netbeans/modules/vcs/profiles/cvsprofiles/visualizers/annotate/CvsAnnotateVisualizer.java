@@ -53,7 +53,6 @@ public class CvsAnnotateVisualizer extends OutputVisualizer {
     private String filePath;
     private ArrayList resultList;
     private HashMap file_infoMap;
-    private JTabbedPane contentPane = null;
     
     /** Creates new CvsAnnotateVisualizer */
     public CvsAnnotateVisualizer() {
@@ -61,21 +60,26 @@ public class CvsAnnotateVisualizer extends OutputVisualizer {
         annotationLines = new ArrayList();
         resultList = new ArrayList();
     }
-    
+
     public javax.swing.JComponent getOutputPanel() {
         debug("getOutputPanel");
-        contentPane = new JTabbedPane();
-        contentPane.setTabPlacement(JTabbedPane.BOTTOM);
+        JTabbedPane contentPane = null;
+        if (files.size() != 1) {
+            contentPane = new JTabbedPane();
+            contentPane.setTabPlacement(JTabbedPane.BOTTOM);
+        }
         Iterator it = files.iterator();
-        while(it.hasNext()){            
+        while(it.hasNext()) {            
             String fileName = (String)it.next();
-            filePath=rootDir+File.separator+fileName;
+            filePath = rootDir+File.separator+fileName;
             debug("filePath:"+filePath);
             File file = new File(filePath);
-            contentPane.addTab(file.getName(),showAnnotations(file));
+            if (contentPane != null)
+                contentPane.addTab(file.getName(), showAnnotations(file));
+            else
+                return showAnnotations(file);
         }
         return contentPane;
-        
     }
     
     private javax.swing.JComponent showAnnotations(File file) {

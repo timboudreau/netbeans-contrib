@@ -35,13 +35,10 @@ import org.openide.windows.WindowManager;
  */
 public class VersioningExplorer {
 
-    private static final String MODE_NAME = "VersioningExplorer";
-    
     /**
-     * Map of workspaces as keys and map of explorer panels, that belongs to
-     * these workspaces for individual nodes as values.
+     * Map of explorer panels for individual nodes.
      */
-    private static Map explorersInWorkspaces = new WeakHashMap();
+    private static Map explorersForNodes = new WeakHashMap();
 
     private Panel panel;
     private Node root = null;
@@ -65,23 +62,17 @@ public class VersioningExplorer {
      * Get the Revision Explorer for that node.
      */
     private static VersioningExplorer.Panel getRevisionExplorer(final Node node) {
-        Workspace curr = WindowManager.getDefault().getCurrentWorkspace();
-        synchronized (explorersInWorkspaces) {
-            Map explorersForNodes = (Map) explorersInWorkspaces.get(curr);
+        synchronized (explorersForNodes) {
             VersioningExplorer explorer;
-            if (explorersForNodes != null) {
-                explorer = (VersioningExplorer) explorersForNodes.get(node);
-                if (explorer != null) return explorer.panel;
-            } else {
-                explorersForNodes = new WeakHashMap();
-                explorersInWorkspaces.put(curr, explorersForNodes);
+            explorer = (VersioningExplorer) explorersForNodes.get(node);
+            if (explorer == null) {
+                explorer = new VersioningExplorer(node);
+                explorersForNodes.put(node, explorer);
             }
-            explorer = new VersioningExplorer(node);
-            explorersForNodes.put(node, explorer);
             return explorer.panel;
         }
     }
-    
+
     private void initComponentsSplitted() {
         PropertySheetView propertySheetView = new PropertySheetView();
         try {
@@ -115,32 +106,17 @@ public class VersioningExplorer {
         private transient ArrayList closeListeners = new ArrayList();
     
         static final long serialVersionUID =-264310566346550916L;
-        Panel() {
-            // http://www.netbeans.org/issues/show_bug.cgi?id=24199
-            // the TabPolicy property's value makes sure that the tab is not shown 
-            // for the topcomponent when it is alone in the mode.
-            putClientProperty("TabPolicy", "HideWhenAlone");            
-        }
 
         public void open(Workspace workspace) {
-            Mode myMode = workspace.findMode(this);
-            if (myMode == null) {
-                // create new mode for CI and set the bounds properly
-//                myMode = workspace.createMode(MODE_NAME, getName(), null); //NOI18N // TEMP
-                /*
-                Rectangle workingSpace = workspace.getBounds();
-                myMode.setBounds(new Rectangle(workingSpace.x +(workingSpace.width * 3 / 10), workingSpace.y,
-                                               workingSpace.width * 2 / 10, workingSpace.height / 2));
-                 */
-                
-                myMode = WindowManager.getDefault().findMode("explorer"); // NOI18N
-                if(myMode != null) {
-                    myMode.dockInto(this);
-                }
+            Mode mode = WindowManager.getDefault().findMode(this);
+            if (mode == null) {
+                mode = WindowManager.getDefault().findMode("explorer"); // NOI18N
+                if (mode != null)
+                    mode.dockInto(this);
             }
             super.open(workspace);
         }
-        
+
         /*
          * Override for clean up reasons.
          * Will be moved to the appropriate method when will be made.

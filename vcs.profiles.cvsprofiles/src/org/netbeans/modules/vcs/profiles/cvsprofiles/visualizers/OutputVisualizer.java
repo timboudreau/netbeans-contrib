@@ -24,7 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.openide.windows.Workspace;
-import org.openide.windows.Mode;
 import org.openide.NotifyDescriptor;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
@@ -41,7 +40,6 @@ import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 import org.openide.DialogDisplayer;
 import org.openide.awt.Actions;
-import org.openide.windows.WindowManager;
 
 /**
  * The default visualizer of command output.
@@ -49,8 +47,6 @@ import org.openide.windows.WindowManager;
  */
 public abstract class OutputVisualizer extends VcsCommandVisualizer {
     
-    public static final String MODE_NAME = "GUI VCS Command Output";
-     
     //private static RequestProcessor outputDisplayRequestProcessor;        
     private JComponent outputPanel;
     private ArrayList closeListeners = new ArrayList();
@@ -69,7 +65,6 @@ public abstract class OutputVisualizer extends VcsCommandVisualizer {
     public OutputVisualizer() {
         setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
         putClientProperty("PersistenceType", "Never");
-        putClientProperty("TabPolicy", "HideWhenAlone");
         initAccessibility();
     }
     
@@ -100,9 +95,22 @@ public abstract class OutputVisualizer extends VcsCommandVisualizer {
         Hashtable vars = vce.getVariables();        
         this.rootDir = new File((String)vars.get("ROOTDIR"));
         //actFilePath = ""+vars.get("WORKDIR")+vars.get("FILE");
-        //actFilePath = Variables.expand(vars, actFilePath, false);                                
-        setName(java.text.MessageFormat.format(NbBundle.getBundle(OutputVisualizer.class).getString("CommandOutputVisualizer.name"),
-        new Object[] { findDisplayName(this.task) }));
+        //actFilePath = Variables.expand(vars, actFilePath, false);
+        String commandName = findDisplayName(this.task);
+        String title;
+        if (files.size() == 1) {
+            String filePath = (String) files.iterator().next();
+            File file = new File(filePath);
+            title = java.text.MessageFormat.format(
+                NbBundle.getBundle(OutputVisualizer.class).getString("CommandOutputVisualizer.title_one"), // NOI18N
+                new Object[] { file.getName(), commandName });
+        }
+        else title = java.text.MessageFormat.format(
+            NbBundle.getBundle(OutputVisualizer.class).getString("CommandOutputVisualizer.title_many"), // NOI18N
+            new Object[] { Integer.toString(files.size()), commandName });
+
+        setName(commandName);
+        setDisplayName(title);
     }
     
     /**
@@ -136,17 +144,10 @@ public abstract class OutputVisualizer extends VcsCommandVisualizer {
      * Open the component on the given workspace.
      */
     public void open(Workspace workspace) {
-        if(exit != 0)
+        if (exit != 0)
             return;
-        if (workspace == null) workspace = WindowManager.getDefault().getCurrentWorkspace();
-        if(outputPanel == null)
+        if (outputPanel == null)
             this.initComponents();
-        Mode myMode = workspace.findMode(this);        
-        if (myMode == null) {            
-            String modeName = org.openide.util.NbBundle.getBundle(OutputVisualizer.class).getString("CommandOutputVisualizer.modeName");
-            myMode = workspace.createMode(MODE_NAME, modeName, null); //NOI18N
-            myMode.dockInto(this);
-        }        
         super.open(workspace);
         requestFocus();
     }

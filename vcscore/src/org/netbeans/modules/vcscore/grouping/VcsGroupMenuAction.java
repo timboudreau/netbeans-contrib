@@ -46,8 +46,7 @@ import org.openide.windows.WindowManager;
 * @author Milos Kleint
 */
 public class VcsGroupMenuAction extends CallableSystemAction  {
-    private transient String MODE_NAME = "VcsGroupsMode";//NOI18N
-        
+
     private static final long serialVersionUID = 38657723580032415L;
     
     /** Creates new CvsMenuAction */
@@ -122,45 +121,21 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         
         if (panel == null) {
             panel = new GroupExplorerPanel();
-//            Workspace workspace = WindowManager.getDefault().getCurrentWorkspace();
-//            String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
-//            Mode myMode = workspace.findMode(MODE_NAME);
-//            
-//            if (myMode == null) {
-//                // create new mode for CI and set the bounds properly
-//                myMode = workspace.createMode(MODE_NAME, modeName, null); //NOI18N
-//                /*
-//                Rectangle workingSpace = workspace.getBounds();
-//                myMode.setBounds(new Rectangle(workingSpace.x +(workingSpace.width * 3 / 10), workingSpace.y,
-//                                               workingSpace.width * 2 / 10, workingSpace.height / 2));
-//                 */
-//            }
-//            myMode.dockInto(panel);
-            Mode myMode = WindowManager.getDefault().findMode("explorer"); // NOI18N
-            if(myMode != null) {
-                myMode.dockInto(panel);
-            }
+            Mode mode = WindowManager.getDefault().findMode("explorer"); // NOI18N
+            if(mode != null)
+                mode.dockInto(panel);
         }
         panel.getAccessibleContext().setAccessibleDescription(
             org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSD_AddVcsGroupAction.dialog"));
         panel.setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"));
-        panel.open(WindowManager.getDefault().getCurrentWorkspace());
+        panel.open();
         panel.requestFocus();
-        
     }
     
 
     public static class GroupExplorerPanel extends ExplorerPanel {
         
         private static final long serialVersionUID = 7160066451512137154L;
-        
-        public GroupExplorerPanel() {
-            super();
-            // http://www.netbeans.org/issues/show_bug.cgi?id=24199
-            // the TabPolicy property's value makes sure that the tab is not shown 
-            // for the topcomponent when it is alone in the mode.
-            putClientProperty("TabPolicy", "HideWhenAlone");        
-        }
         
         public void open() {
             if (!isOpened()) {

@@ -19,7 +19,6 @@ import java.util.Hashtable;
 import javax.swing.SwingUtilities;
 
 import org.openide.windows.Workspace;
-import org.openide.windows.Mode;
 import org.openide.NotifyDescriptor;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
@@ -37,8 +36,6 @@ import org.openide.windows.WindowManager;
  */
 public class CommandOutputVisualizer extends VcsCommandVisualizer {
 
-    public static final String MODE_NAME = "Default VCS Command Output";
-    
     //private static final int MAX_NUM_LINES_TO_KEEP = 1000;
     /** Maximum number of characters to keep in the buffer */
     private static final int MAX_BUFFER_SIZE = 3000*80;
@@ -65,11 +62,6 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
         putClientProperty("PersistenceType", "Never");
 
-        // http://www.netbeans.org/issues/show_bug.cgi?id=24199
-        // the TabPolicy property's value makes sure that the tab is not shown 
-        // for the topcomponent when it is alone in the mode.
-        putClientProperty("TabPolicy", "HideWhenAlone");
-        
         initComponents();
         synchronized (CommandOutputVisualizer.class) {
             if (outputDisplayRequestProcessor == null) {
@@ -111,10 +103,29 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         killListener = new CommandKillListener();
         outputPanel.addKillActionListener(killListener);
         outputPanel.setExec(vce.getExec());
-        String name = vce.getCommand().getDisplayName();
-        if (name == null || name.length() == 0) name = vce.getCommand().getName();
-        setName(java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
-                new Object[] { name }));
+        String title;
+        String commandName = vce.getCommand().getDisplayName();
+        if (commandName == null || commandName.length() == 0)
+            commandName = vce.getCommand().getName();
+        setName(commandName);
+        java.util.Collection files = vce.getFiles();
+        if (files.size() == 1) {
+            String filePath = (String) files.iterator().next();
+            java.io.File file = new java.io.File(filePath);
+            title = java.text.MessageFormat.format(
+                NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.title_one"), // NOI18N
+                new Object[] { file.getName(), commandName });
+        }
+        else if (files.size() > 1) {
+            title = java.text.MessageFormat.format(
+                NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.title_many"), // NOI18N
+                new Object[] { Integer.toString(files.size()), commandName }); 
+        }
+        else title = java.text.MessageFormat.format(
+            NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"), // NOI18N
+            new Object[] { commandName });
+
+        setDisplayName(title);
     }
     
     /*
@@ -128,19 +139,11 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     public boolean openAfterCommandFinish() {
         return false;
     }
-    
+
     /**
      * Open the component on the given workspace.
      */
     public void open(Workspace workspace) {
-        if (workspace == null) workspace = WindowManager.getDefault().getCurrentWorkspace();
-        Mode myMode = workspace.findMode(this);
-        if (myMode == null) {
-            // create new mode for CI and set the bounds properly
-            String modeName = org.openide.util.NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.modeName");
-            myMode = workspace.createMode(MODE_NAME, modeName, null); //NOI18N
-            myMode.dockInto(this);
-        }
         super.open(workspace);
         requestFocus();
     }
