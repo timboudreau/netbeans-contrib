@@ -327,11 +327,12 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 return null;
             }
         }
+        files = VcsUtilities.convertFileObjects(files);
         FileObject[] appFiles = CommandCustomizationSupport.getApplicableFiles(fileSystem, cmd, files);
         //System.out.println("getApplicableFiles("+cmd+", "+new ArrayList(Arrays.asList(files))+") = "+
         //                   ((appFiles == null) ? null : new ArrayList(Arrays.asList(appFiles))));
         //Thread.dumpStack();
-        return CommandCustomizationSupport.getApplicableFiles(fileSystem, cmd, files);
+        return appFiles;
         //return files;
     }
     
