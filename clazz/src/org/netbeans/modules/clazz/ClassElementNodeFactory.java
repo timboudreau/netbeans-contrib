@@ -112,6 +112,10 @@ final class ClassElementNodeFactory extends DefaultFactory {
       });
       ch.setFilter (cel);
       n.setActions(getDefaultActions());
+      n.setIconBase (element.isInterface () ? 
+        "/com/netbeans/developer/modules/loaders/clazz/resources/interfaceBr" :
+        "/com/netbeans/developer/modules/loaders/clazz/resources/classBr"
+      );
       return n;
     }
     else {
@@ -144,6 +148,8 @@ final class ClassElementNodeFactory extends DefaultFactory {
 
 /*
 * Log
+*  9    src-jtulach1.8         7/8/99   Jan Jancura     Special icons for Object 
+*       Br.
 *  8    src-jtulach1.7         6/28/99  Petr Hamernik   new hierarchy under 
 *       ClassChildren
 *  7    src-jtulach1.6         6/9/99   Ian Formanek    ToolsAction
