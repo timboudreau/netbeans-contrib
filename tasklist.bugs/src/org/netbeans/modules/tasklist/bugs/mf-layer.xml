@@ -16,22 +16,22 @@ Microsystems, Inc. All Rights Reserved.
 <filesystem>
     <folder name="Actions">
 	<folder name="View">
-            <file name="org-netbeans-modules-tasklist-bugs-ViewBugListAction.instance" />
+            <file name="org-netbeans-modules-tasklist-bugs-NewQueryAction.instance" />
         </folder>
     </folder>        
             
     <folder name="Menu">
         <folder name="View">
-            <file name="org-netbeans-modules-tasklist-bugs-ViewBugListAction.instance" />
-            <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-bugs-ViewBugListAction.instance" boolvalue="true" />
-            <attr name="org-netbeans-modules-tasklist-bugs-ViewBugListAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
+            <file name="org-netbeans-modules-tasklist-bugs-NewQueryAction.instance" />
+            <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-bugs-NewQueryAction.instance" boolvalue="true" />
+            <attr name="org-netbeans-modules-tasklist-bugs-NewQueryAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
          </folder>
      </folder>
 
      <folder name="Toolbars">  
          <folder name="Task">
-             <file name="org-netbeans-modules-tasklist-bugs-ViewBugListAction.instance" />
-             <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-bugs-ViewBugListAction.instance" boolvalue="true" />
+             <file name="org-netbeans-modules-tasklist-bugs-NewQueryAction.instance" />
+             <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-bugs-NewQueryAction.instance" boolvalue="true" />
         </folder>
     </folder>
 </filesystem>
