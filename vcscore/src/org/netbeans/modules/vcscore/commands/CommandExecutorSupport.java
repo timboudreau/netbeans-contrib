@@ -180,9 +180,9 @@ public class CommandExecutorSupport extends Object {
                 return CommandsPool.PREPROCESS_CANCELLED; // The command is cancelled for that file
             }
         }
-        // II. Then filll output from pre commands:
+        // II.a Then fill output from pre commands if we do not have an input descriptor:
         String exec;
-        if (fileSystem != null) {
+        if (fileSystem != null && cmd.getProperty(VcsCommand.PROPERTY_INPUT_DESCRIPTOR) == null) {
             PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
             try {
                 exec = cmdPerf.process((String) cmd.getProperty(VcsCommand.PROPERTY_EXEC));
@@ -196,6 +196,16 @@ public class CommandExecutorSupport extends Object {
         // III. Ask for the variable input
         if (fileSystem != null && !promptForVariables(fileSystem, exec, vars, cmd, askForEachFile)) {
             return CommandsPool.PREPROCESS_CANCELLED; // The command is cancelled for that file
+        }
+        // II.b Then fill output from pre commands if we have input descriptor (was not added before):
+        if (fileSystem != null && cmd.getProperty(VcsCommand.PROPERTY_INPUT_DESCRIPTOR) != null) {
+            PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
+            try {
+                exec = cmdPerf.process((String) cmd.getProperty(VcsCommand.PROPERTY_EXEC));
+            } catch (UserCancelException cancelExc) {
+                return CommandsPool.PREPROCESS_CANCELLED;
+            }
+            exec = insertGlobalOptions(exec, vars);
         }
         // Ask for the confirmation again, if the preprocessing was done, but there is an important file
         if (fileSystem != null && !(askForEachFile != null && askForEachFile[0])) {
