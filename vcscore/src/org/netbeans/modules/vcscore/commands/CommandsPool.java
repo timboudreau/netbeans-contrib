@@ -21,9 +21,6 @@ import java.util.*;
 
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
-import org.openide.filesystems.RepositoryListener;
-import org.openide.filesystems.RepositoryEvent;
-import org.openide.filesystems.RepositoryReorderedEvent;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListener;
 import org.openide.util.WeakSet;
