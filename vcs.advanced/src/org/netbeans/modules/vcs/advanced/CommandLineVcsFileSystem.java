@@ -48,6 +48,7 @@ public class CommandLineVcsFileSystem extends CvsFileSystem {
   public CommandLineVcsFileSystem () {
     //D.deb("CommandLineVcsFileSystem()");
     super ();
+    readConfiguration ();
   }
   
   public VcsFactory getVcsFactory () {
@@ -71,6 +72,7 @@ public class CommandLineVcsFileSystem extends CvsFileSystem {
 
 /*
  * <<Log>>
+ *  44   Gandalf   1.43        10/9/99  Pavel Buzek     
  *  43   Gandalf   1.42        10/9/99  Pavel Buzek     
  *  42   Gandalf   1.41        10/5/99  Pavel Buzek     
  *  41   Gandalf   1.40        9/30/99  Pavel Buzek     
