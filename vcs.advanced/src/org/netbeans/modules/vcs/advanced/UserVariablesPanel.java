@@ -15,6 +15,8 @@ package org.netbeans.modules.vcs.advanced;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
@@ -28,6 +30,7 @@ import org.openide.util.*;
 
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.*;
+import org.netbeans.modules.vcs.advanced.VcsCustomizer;
 import org.netbeans.modules.vcs.advanced.variables.*;
 
 /** User variables panel.
@@ -35,13 +38,23 @@ import org.netbeans.modules.vcs.advanced.variables.*;
  * @author Martin Entlicher
  */
 //-------------------------------------------
-public class UserVariablesPanel extends JPanel implements EnhancedCustomPropertyEditor, ExplorerManager.Provider {
+public class UserVariablesPanel extends JPanel implements EnhancedCustomPropertyEditor,
+                                                          ExplorerManager.Provider,
+                                                          PropertyChangeListener {
+    
+    /** This property is fired when the variable CONFIG_INPUT_DESCRIPTOR is
+     * defined/undefined with a meaningfull value */
+    public static final String PROP_CONFIG_INPUT_DESCRIPTOR = "configInputDescriptor"; // NOI18N
+    
     private Debug E=new Debug("UserVariablesPanel", true); // NOI18N
     //private Debug D=E;
 
     private UserVariablesEditor editor;
     private ExplorerManager manager = null;
-    private Children.SortedArray basicChildren = null;
+    private Children.Array varCh = null;
+    private BasicVariableNode basicRoot = null;
+    private AccessoryVariableNode accessoryRoot = null;
+    private Children basicChildren = null;
     private Children.SortedArray accessoryChildren = null;
 
     //-------------------------------------------
@@ -87,22 +100,58 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         getAccessibleContext().setAccessibleDescription(g("ACS_UserVariablesPanelA11yDesc"));  // NOI18N
     }
     
+    public static final boolean isConfigInputDescriptorVar(VcsConfigVariable var) {
+        if (VcsCustomizer.VAR_CONFIG_INPUT_DESCRIPTOR.equals(var.getName())) {
+            String value = var.getValue();
+            if (value != null && value.length() > 0) {
+                try {
+                    VariableInputDescriptor.parseItems(value);
+                } catch (VariableInputFormatException vifex) {
+                    return false;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private static final Comparator getRootVarsComparator() {
+        return new Comparator() {
+            public int compare(Object o1, Object o2) {
+                if (o1.equals(o2)) return 0;
+                if ((o1 instanceof BasicVariableNode) && (o2 instanceof AccessoryVariableNode)) return -1;
+                else return +1;
+            }
+            public boolean equals(Object obj) {
+                return false;
+            }
+        };
+    }
+    
     private AbstractNode createNodes() {
-        Children.Array varCh = new Children.Array();
+        Children.SortedArray varChSorted = new Children.SortedArray();
+        varChSorted.setComparator(getRootVarsComparator());
+        varCh = varChSorted;
         AbstractNode varRoot = new AbstractNode(varCh);
         varRoot.setDisplayName(g("CTL_VariablesNodeName"));
         varRoot.setShortDescription(g("CTL_VariablesNodeDescription"));
         varRoot.setIconBase("org/netbeans/modules/vcs/advanced/variables/AccessoryVariables"); // NOI18N
         basicChildren = new Children.SortedArray();
-        //basicCh.add(new Node[] { node });
-        AbstractNode basicRoot = new BasicVariableNode(basicChildren);
+        basicRoot = new BasicVariableNode(basicChildren);
         accessoryChildren = new Children.SortedArray();
-        AbstractNode accessoryRoot = new AccessoryVariableNode(accessoryChildren);
+        accessoryRoot = new AccessoryVariableNode(accessoryChildren);
+        //basicRoot.addPropertyChangeListener(WeakListener.propertyChange(this, basicRoot));
+        //accessoryRoot.addPropertyChangeListener(WeakListener.propertyChange(this, accessoryRoot));
+        accessoryRoot.addVariablePropertyChangeListener(this);
         varCh.add(new Node[] { basicRoot, accessoryRoot });
         Vector variables = (Vector) editor.getValue();
+        boolean disableBasic = false;
         for(Enumeration enum = variables.elements(); enum.hasMoreElements(); ) {
             VcsConfigVariable var = (VcsConfigVariable) enum.nextElement();
             String name = var.getName();
+            if (isConfigInputDescriptorVar(var)) {
+                disableBasic = true;
+            }
             if (var.isBasic()) {
                 basicChildren.add(new BasicVariableNode[] { new BasicVariableNode(var) });
             } else {
@@ -113,9 +162,54 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
                 accessoryChildren.add(new AccessoryVariableNode[] { new AccessoryVariableNode(var) });
             }
         }
+        if (disableBasic) disableBasicVariables();
         return varRoot;
     }
+    
+    public void disableBasicVariables() {
+        if (!basicRoot.isEnabled()) return ;
+        Node[] nodes = basicChildren.getNodes();
+        for (int i = 0; i < nodes.length; i++) {
+            BasicVariableNode varNode = (BasicVariableNode) nodes[i];
+            VcsConfigVariable var = varNode.getVariable();
+            var.setOrder(i);
+            accessoryChildren.add(new AccessoryVariableNode[] { new AccessoryVariableNode(var) });
+        }
+        varCh.remove(new Node[] { basicRoot });
+        basicChildren = Children.LEAF;
+        basicRoot = new BasicVariableNode(basicChildren);
+        basicRoot.setEnabled(false);
+        varCh.add(new Node[] { basicRoot });
+    }
+    
+    public void enableBasicVariables() {
+        if (basicRoot.isEnabled()) return ;
+        varCh.remove(new Node[] { basicRoot });
+        basicChildren = new Children.SortedArray();
+        basicRoot = new BasicVariableNode(basicChildren);
+        varCh.add(new Node[] { basicRoot });
+        Node[] nodes = accessoryChildren.getNodes();
+        for (int i = 0; i < nodes.length; i++) {
+            AccessoryVariableNode varNode = (AccessoryVariableNode) nodes[i];
+            VcsConfigVariable var = varNode.getVariable();
+            if (var.isBasic()) {
+                basicChildren.add(new BasicVariableNode[] { new BasicVariableNode(var) });
+                accessoryChildren.remove(new Node[] { varNode });
+            }
+        }
+    }
 
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+        if (PROP_CONFIG_INPUT_DESCRIPTOR.equals(propertyChangeEvent.getPropertyName())) {
+            Object newValue = propertyChangeEvent.getNewValue();
+            if (Boolean.TRUE.equals(newValue)) {
+                disableBasicVariables();
+            } else if (Boolean.FALSE.equals(newValue)) {
+                enableBasicVariables();
+            }
+        }
+    }
+    
     public org.openide.explorer.ExplorerManager getExplorerManager() {
         if (manager == null) {
             synchronized(this) {
@@ -156,4 +250,5 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
     private String g(String s) {
         return NbBundle.getMessage(UserVariablesPanel.class, s);
     }
+    
 }

@@ -34,17 +34,27 @@ import org.netbeans.modules.vcscore.VcsConfigVariable;
  * @author  Martin Entlicher
  */
 public class BasicVariableNode extends AbstractNode {
-
+    
+    private static final String DISABLED_PRE = "<html><font color=\"#999999\">"; // NOI18N
+    private static final String DISABLED_POST = "</font></html>"; // NOI18N
+    
     private VcsConfigVariable var = null;
-    private Children.SortedArray list = null;
+    //private Children.SortedArray list = null;
+    private boolean enabled = true;
 
     /** Creates new BasicVariableNode */
-    public BasicVariableNode(Children.SortedArray list) {
+    public BasicVariableNode(Children list) {
         super(list);
-        init(list, null);
-        list.setComparator(getComparator());
+        if (list instanceof Children.SortedArray) {
+            Children.SortedArray sortedList = (Children.SortedArray) list;
+            init(sortedList, null);
+            sortedList.setComparator(getComparator());
+            setShortDescription(g("CTL_BasicVarsDescription"));
+        } else {
+            setShortDescription(g("CTL_BasicVarsDisabledDescription"));
+            setEnabled(false);
+        }
         setDisplayName(g("CTL_BasicVarsName"));
-        setShortDescription(g("CTL_BasicVarsDescription"));
     }
     
     private Comparator getComparator() {
@@ -80,7 +90,7 @@ public class BasicVariableNode extends AbstractNode {
     
     private void init(Children.SortedArray list, VcsConfigVariable var) {
         this.var = var;
-        this.list = list;
+        //this.list = list;
         getCookieSet().add(new VariablesIndex());
         setIconBase("org/netbeans/modules/vcs/advanced/variables/BasicVariables"); // NOI18N
     }
@@ -104,6 +114,24 @@ public class BasicVariableNode extends AbstractNode {
         } else {
             return super.getName();
         }
+    }
+    
+    public String getDisplayName() {
+        if (enabled) return super.getDisplayName();
+        else return DISABLED_PRE + super.getDisplayName() + DISABLED_POST;
+    }
+    
+    public void setEnabled(boolean enabled) {
+        if (this.enabled == enabled) return ;
+        this.enabled = enabled;
+        if (enabled) setIconBase("org/netbeans/modules/vcs/advanced/variables/BasicVariables"); // NOI18N
+        else setIconBase("org/netbeans/modules/vcs/advanced/variables/BasicVariablesGray"); // NOI18N
+        firePropertyChange(Node.PROP_DISPLAY_NAME, null, null);
+        firePropertyChange(Node.PROP_ICON, null, null);
+    }
+    
+    public boolean isEnabled() {
+        return enabled;
     }
     
     public VcsConfigVariable getVariable() {
@@ -237,6 +265,11 @@ public class BasicVariableNode extends AbstractNode {
         SystemAction[] array = new SystemAction [actions.size()];
         actions.toArray(array);
         return array;
+    }
+    
+    public SystemAction[] getActions() {
+        if (enabled) return super.getActions();
+        else return new SystemAction[0];
     }
 
     public Sheet createSheet() {

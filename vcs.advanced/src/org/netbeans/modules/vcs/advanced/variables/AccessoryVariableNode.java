@@ -14,10 +14,13 @@
 package org.netbeans.modules.vcs.advanced.variables;
 
 import java.awt.datatransfer.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Comparator;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.openide.*;
 import org.openide.nodes.*;
@@ -29,6 +32,9 @@ import org.openide.util.datatransfer.NewType;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 
+import org.netbeans.modules.vcs.advanced.VcsCustomizer;
+import org.netbeans.modules.vcs.advanced.UserVariablesPanel;
+
 /**
  *
  * @author  Martin Entlicher
@@ -37,6 +43,9 @@ public class AccessoryVariableNode extends AbstractNode {
 
     private VcsConfigVariable var = null;
     private Children.Array list = null;
+    //private PropertyChangeSupport propSupport = new PropertyChangeSupport(new Object());
+    // For some reason it does not work with PropertyChangeSupport
+    private ArrayList changeListeners = new ArrayList();
 
     /** Creates new AccessoryVariableNode */
     public AccessoryVariableNode(Children.SortedArray list) {
@@ -105,6 +114,32 @@ public class AccessoryVariableNode extends AbstractNode {
         return var;
     }
     
+    public final void addVariablePropertyChangeListener(PropertyChangeListener propertyChangeListener) {
+        //propSupport.addPropertyChangeListener(propertyChangeListener);
+        synchronized (changeListeners) {
+            changeListeners.add(propertyChangeListener);
+        }
+    }
+    
+    public final void removeVariablePropertyChangeListener(PropertyChangeListener propertyChangeListener) {
+        //propSupport.removePropertyChangeListener(propertyChangeListener);
+        synchronized (changeListeners) {
+            changeListeners.remove(propertyChangeListener);
+        }
+    }
+    
+    protected final void fireVariablePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        //propSupport.firePropertyChange(propertyName, oldValue, newValue);
+        ArrayList listeners;
+        synchronized (changeListeners) {
+            listeners = new ArrayList(changeListeners);
+        }
+        for (Iterator it = listeners.iterator(); it.hasNext(); ) {
+            PropertyChangeListener l = (PropertyChangeListener) it.next();
+            l.propertyChange(new PropertyChangeEvent(this, propertyName, oldValue, newValue));
+        }
+    }
+    
     public Collection getAllAccessoryVariablesNames() {
         AccessoryVariableNode root = this;
         if (Children.LEAF.equals(this.getChildren())) {
@@ -132,6 +167,15 @@ public class AccessoryVariableNode extends AbstractNode {
         
     public boolean canRename() {
         return (Children.LEAF.equals(getChildren()));
+    }
+    
+    public void destroy() throws java.io.IOException {
+        if (VcsCustomizer.VAR_CONFIG_INPUT_DESCRIPTOR.equals(var.getName())) {
+            ((AccessoryVariableNode) getParentNode()).fireVariablePropertyChange(
+                UserVariablesPanel.PROP_CONFIG_INPUT_DESCRIPTOR,
+                Boolean.TRUE, Boolean.FALSE);
+        }
+        super.destroy();
     }
     
     /** Copy this node to the clipboard.
@@ -232,6 +276,11 @@ public class AccessoryVariableNode extends AbstractNode {
             
             public void setValue(Object value) {
                 var.setValue((String) value);
+                if (VcsCustomizer.VAR_CONFIG_INPUT_DESCRIPTOR.equals(var.getName())) {
+                    ((AccessoryVariableNode) AccessoryVariableNode.this.getParentNode()).fireVariablePropertyChange(
+                        UserVariablesPanel.PROP_CONFIG_INPUT_DESCRIPTOR,
+                        Boolean.FALSE, new Boolean(UserVariablesPanel.isConfigInputDescriptorVar(var)));
+                }
                 //cmd.fireChanged();
             }
         });
