@@ -22,8 +22,9 @@ Microsystems, Inc. All Rights Reserved.
             </patternset>
         </testset>
     </testbag>
-    
-    <testbag testattribs="experimental" executor="ide" name="testbag_2" resultsprocessor="RMI_Tests">
+
+    <!--testbag testattribs="experimental" executor="ide" name="testbag_2" resultsprocessor="RMI_Tests"-->
+    <testbag testattribs="stable" executor="ide" name="testbag_2" resultsprocessor="RMI_Tests">
         <testset dir="qa-functional/src">
             <patternset>
 		<include name="rmitests/RMIApiTests.class"/>
@@ -36,11 +37,10 @@ Microsystems, Inc. All Rights Reserved.
     <testbag testattribs="failing" executor="ide" name="testbag_3" resultsprocessor="RMI_Tests">
         <testset dir="qa-functional/src">
             <patternset>
-                
             </patternset>
         </testset>
     </testbag>
-    
+
     <resultsprocessor name="RMI_Tests" antfile="build.xml" target="test_report"/>
     <executor name="ide" antfile="build.xml" target="runidetest"/>
     <executor name="code" antfile="build.xml" target="runcodetest"/>
