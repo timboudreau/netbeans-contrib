@@ -496,7 +496,14 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                         int size;
                         synchronized (tasks) {
                             if (!preCommandsExecuted) return ;
-                            tasks.remove(info.getTask());
+                            boolean removed = tasks.remove(info.getTask());
+                            if (removed) { // It was one of our pre-commands
+                                Map vars = ((VcsDescribedTask) info.getTask()).getVariables();
+                                String cancel = (String) vars.get(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_CANCEL_DIALOG_BY_PRECOMMAND);
+                                if ("true".equals(cancel)) { // NOI18N
+                                    UserCommandTask.this.stop(); // We'll never be executed
+                                }
+                            }
                             size = tasks.size();
                         }
                         if (size == 0) {

@@ -24,6 +24,8 @@ import java.util.Hashtable;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
+import org.openide.ErrorManager;
+import org.openide.util.NbBundle;
 
 /**
  * This class moves the files that are not to be added away from the original
@@ -64,6 +66,18 @@ public class MoveFilesNotToAdd implements VcsAdditionalCommand {
             }
         } else {
             status = moveFiles(folder, moved, new File(args[1]));
+            if (!folder.exists()) { // Oops, we've moved everything!
+                // There is nothing to add !! We'll cancel the add:
+                vars.put(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_CANCEL_DIALOG_BY_PRECOMMAND, "true");
+                // and move everything back:
+                status = moveFiles(moved, folder);
+                if (status) {
+                    status = delete(moved);
+                }
+                ErrorManager.getDefault().notify(ErrorManager.USER,
+                        ErrorManager.getDefault().annotate(new InterruptedException(),
+                        NbBundle.getMessage(MoveFilesNotToAdd.class, "NoAddMsg")));
+            }
         }
         return status;
     }

@@ -685,10 +685,16 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+	<property name="display">
+	  <value>true</value>
+	</property>
         <property name="preCommands">
           <value>ADD_LOCAL_PARENTS $[? RECURSIVE] [, MOVE_FILES_NOT_TO_ADD] []</value>
         </property>
         <property name="commandsAfterSuccess">
+          <value>$[? RECURSIVE] [MOVE_FILES_NOT_ADDED_BACK] []</value>
+        </property>
+        <property name="commandsAfterFail">
           <value>$[? RECURSIVE] [MOVE_FILES_NOT_ADDED_BACK] []</value>
         </property>
         <property name="refreshParentFolder">
