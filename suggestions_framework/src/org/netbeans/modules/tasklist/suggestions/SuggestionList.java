@@ -1,11 +1,11 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -91,14 +91,14 @@ public class SuggestionList extends TaskList {
 //                                                  category);
 //                }
             }
-            
+
             if (categoryTasks == null) {
                 categoryTasks = new HashMap(20);
             }
             categoryTasks.put(type, category);
             // Add the category in the given position
             SuggestionImpl after = findAfter(type);
-            if (after != null) { 
+            if (after != null) {
                 add(category, after);
             } else {
                 add(category, false);
@@ -125,8 +125,6 @@ public class SuggestionList extends TaskList {
         Task parent = task.getParent();
         // User insert: prepend to the list
         parent.addSubtask(task, after);
-
-        markChanged();
     }
 
 
@@ -154,7 +152,6 @@ public class SuggestionList extends TaskList {
         parent.addSubtask(task, append);
 
         notifyAdded(task);
-        markChanged();
     }
 
 
@@ -182,7 +179,7 @@ public class SuggestionList extends TaskList {
         }
         return after;
     }
-    
+
     /** Remove the given category node, if unused.
         @param force If true, remove the category node even if it has subtasks
     */
@@ -193,7 +190,7 @@ public class SuggestionList extends TaskList {
             categoryTasks.remove(category.getSType());
         }
     }
-    
+
     synchronized void removeCategory(SuggestionType type) {
         List tasks = getTasks();
         if (tasks == null) {
@@ -214,7 +211,7 @@ public class SuggestionList extends TaskList {
         }
    }
 
-    
+
     /** Return the set of category tasks (SuggestionImpl objects) */
     Collection getCategoryTasks() {
         if (categoryTasks != null) {

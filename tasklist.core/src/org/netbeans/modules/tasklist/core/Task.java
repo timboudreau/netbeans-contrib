@@ -222,18 +222,6 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         }
     }
 
-    /**
-     * Return the display name of the task, which is identical
-     * to the summary.
-     *
-     * @return The description
-     * @deprecated use getSummary()
-     * @todo Decide if this method is necessary/used or not.
-     */
-    public String getDisplayName() {
-        return getSummary();
-    }
-
     protected void recursivePropertyChange() {
         supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
         if (subtasks != null) {
@@ -307,7 +295,9 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         subtasks.add(pos+1, subtask);
     	subtask.list = list;
         if (!silentUpdate && !subtask.silentUpdate) {
-            updatedStructure();
+            if (getList() instanceof TaskListener) {
+                ((TaskListener) getList()).addedTask(subtask);
+            }
         }
     }
 
@@ -361,7 +351,12 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         } else {
             subtasks.addFirst(subtask);
         }
-        updatedStructure();
+        if (silentUpdate == false) {
+            if (getList() instanceof TaskListener) {
+                ((TaskListener) getList()).addedTask(subtask);
+            }
+        }
+
     }
 
     /** Remove a particular subtask
@@ -385,7 +380,11 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
             subtasks = null;
         }
         if (!silentUpdate && !subtask.silentUpdate) {
-            updatedStructure();
+            if (silentUpdate == false) {
+                if (getList() instanceof TaskListener) {
+                    ((TaskListener) getList()).removedTask(this, subtask);
+                }
+            }
         }
     }
 

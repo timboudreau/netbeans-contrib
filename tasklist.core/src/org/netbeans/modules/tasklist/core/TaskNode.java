@@ -120,7 +120,7 @@ public class TaskNode extends AbstractNode {
     }
 
     protected void updateDisplayStuff() {
-        setDisplayName(item.getDisplayName());
+        setDisplayName(item.getSummary());
         updateIcon();
     }
 
