@@ -499,6 +499,47 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     }
     
     /**
+     * Provides the String representation. Mainly for debug purposes.
+     */
+    public String toString() {
+        StringBuffer localSecondaryFiles = new StringBuffer();
+        int numLocSec;
+        StringBuffer primaryLocal = new StringBuffer();
+        int numPrimLoc;
+        StringBuffer ignored = new StringBuffer();
+        synchronized (objectsWithLocalFiles) {
+            for (Iterator it = filesMap.keySet().iterator(); it.hasNext(); ) {
+                String name = (String) it.next();
+                localSecondaryFiles.append("\t");
+                localSecondaryFiles.append(name);
+                if (it.hasNext()) localSecondaryFiles.append(",\n");
+            }
+            numLocSec = filesMap.size();
+            for (Iterator it = primaryLocalFiles.iterator(); it.hasNext(); ) {
+                String name = (String) it.next();
+                primaryLocal.append("\t");
+                primaryLocal.append(name);
+                if (it.hasNext()) primaryLocal.append(",\n");
+            }
+            numPrimLoc = primaryLocalFiles.size();
+        }
+        for (Iterator it = ignoredSecondaryLocalFiles.iterator(); it.hasNext(); ) {
+            String name = (String) it.next();
+            ignored.append("\t");
+            ignored.append(name);
+            if (it.hasNext()) ignored.append(",\n");
+        }
+        return "VcsObjectIntegritySupport "+Integer.toHexString(hashCode())+"\n"+
+            "  Local Secondary Files: "+numLocSec+"\n"+
+            ((localSecondaryFiles.length() > 0) ? localSecondaryFiles.toString()+"\n" : "")+
+            "  Local Primary Files: "+numPrimLoc+"\n"+
+            ((primaryLocal.length() > 0) ? primaryLocal.toString()+"\n" : "")+
+            "  Ignored Local Secondary Files: "+ignoredSecondaryLocalFiles.size()+"\n"+
+            ((ignored.length() > 0) ? ignored.toString()+"\n" : "");
+    }
+    
+    
+    /**
      * It's necessary to catch the changes of files in versioned DataObjects.
      */
     private class DOFileChangeListener extends Object implements PropertyChangeListener {
