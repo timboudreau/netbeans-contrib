@@ -241,7 +241,12 @@ public class CommandCustomizationSupport extends Object {
         FileObject[] applFiles = new FileObject[filesTable.size()];
         int i = 0;
         for (Iterator it = filesTable.keySet().iterator(); it.hasNext(); ) {
-            applFiles[i++] = (FileObject) filesTable.get(it.next());
+            String path = (String) it.next();
+            FileObject file = (FileObject) filesTable.get(path);
+            if (file == null) {
+                file = new NonExistentFileObject(fileSystem, path);
+            }
+            applFiles[i++] = file;
         }
         return applFiles;
     }
@@ -1300,4 +1305,141 @@ public class CommandCustomizationSupport extends Object {
         return org.openide.util.NbBundle.getBundle(CommandCustomizationSupport.class).getString(s);
     }
     
+    /**
+     * A dummy FileObject, that represents a non-existent FileObject
+     * -- FileObject, that does not exist in the FileSystem !!!
+     * This FO can not be find in any FS through findResource() or any other method.
+     * The only purpose of this FO is to hold the path, that is used for VCS
+     * commands execution.
+     */
+    private static final class NonExistentFileObject extends FileObject {
+        
+        private String path;
+        private String name;
+        private org.openide.filesystems.FileSystem fileSystem;
+        
+        public NonExistentFileObject(org.openide.filesystems.FileSystem fs, String path) {
+            this.fileSystem = fs;
+            this.path = path;
+            int i = path.lastIndexOf('/');
+            if (i >= 0) {
+                name = path.substring(i);
+            } else {
+                name = path;
+            }
+        }
+        
+        public void addFileChangeListener(org.openide.filesystems.FileChangeListener fcl) {
+            // It's not possible to listen on non-existent FileObject
+        }
+        
+        public FileObject createData(String name, String ext) throws java.io.IOException {
+            throw new java.io.IOException("It's not possible to create data inside non-existent file object.");
+        }
+        
+        public FileObject createFolder(String name) throws java.io.IOException {
+            throw new java.io.IOException("It's not possible to create folder inside non-existent file object.");
+        }
+        
+        public void delete(org.openide.filesystems.FileLock lock) throws java.io.IOException {
+            // non-existing file is already deleted
+        }
+        
+        public Object getAttribute(String attrName) {
+            return null; // no attributes
+        }
+        
+        public Enumeration getAttributes() {
+            return java.util.Collections.enumeration(java.util.Collections.EMPTY_SET);
+        }
+        
+        public FileObject[] getChildren() {
+            return new FileObject[0];
+        }
+        
+        public String getExt() {
+            int i = name.lastIndexOf ('.') + 1;
+            /** period at first position is not considered as extension-separator */
+            return i <= 1 || i == name.length ()  ? "" : name.substring (i); // NOI18N
+        }
+        
+        public FileObject getFileObject(String name, String ext) {
+            return null;
+        }
+        
+        public org.openide.filesystems.FileSystem getFileSystem() throws org.openide.filesystems.FileStateInvalidException {
+            return fileSystem;
+        }
+        
+        public java.io.InputStream getInputStream() throws java.io.FileNotFoundException {
+            throw new java.io.FileNotFoundException("File "+getPath()+" does not exist.");
+        }
+        
+        public String getName() {
+            int i = name.lastIndexOf ('.');
+            /** period at first position is not considered as extension-separator */        
+            return i <= 0 ? name : name.substring (0, i);
+        }
+        
+        public java.io.OutputStream getOutputStream(org.openide.filesystems.FileLock lock) throws java.io.IOException {
+            throw new java.io.FileNotFoundException("File "+getPath()+" does not exist.");
+        }
+        
+        public FileObject getParent() {
+            return null;
+        }
+        
+        public String getPath() {
+            return path;
+        }
+        
+        public long getSize() {
+            return 0;
+        }
+        
+        public boolean isData() {
+            return true;
+        }
+        
+        public boolean isFolder() {
+            return false;
+        }
+        
+        public boolean isReadOnly() {
+            return true;
+        }
+        
+        public boolean isRoot() {
+            return false;
+        }
+        
+        public boolean isValid() {
+            return true;
+        }
+        
+        public java.util.Date lastModified() {
+            return new java.util.Date(0);
+        }
+        
+        public org.openide.filesystems.FileLock lock() throws java.io.IOException {
+            throw new java.io.FileNotFoundException("File "+getPath()+" does not exist.");
+        }
+        
+        public void removeFileChangeListener(org.openide.filesystems.FileChangeListener fcl) {
+            // It's not possible to listen on non-existent FileObject
+        }
+        
+        public void rename(org.openide.filesystems.FileLock lock, String name, String ext) throws java.io.IOException {
+            throw new java.io.IOException("Non-existent file can not be renamed.");
+        }
+        
+        public void setAttribute(String attrName, Object value) throws java.io.IOException {
+            // silently ignore
+        }
+        
+        public void setImportant(boolean b) {
+            // silently ignore
+        }
+        
+    }
 }

@@ -1244,6 +1244,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     primary.setAttribute(VcsAttributes.VCS_SCHEDULING_MASTER_FILE_NAME_ATTR, null);
                 }
             } catch (IOException exc) {}
+            // We have removed some sec. files and we must assure, that
+            // the corresponding node will refresh it's status annotation:
+            try {
+                FileSystem fs = fo.getFileSystem();
+                if (fs instanceof VcsFileSystem) {
+                    ((VcsFileSystem) fs).statusChanged(primary.getPath());
+                }
+            } catch (FileStateInvalidException fsiex) {
+                // Ignored. No need to refresh invalid file.
+            }
         }
     }
 
@@ -1264,6 +1274,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     attr.writeAttribute(primaryFile, VcsAttributes.VCS_SCHEDULING_MASTER_FILE_NAME_ATTR, null);
                 }
             } catch (IOException exc) {}
+            // We have removed some sec. files and we must assure, that
+            // the corresponding node will refresh it's status annotation:
+            statusChanged(primaryFile);
         }
     }
 
@@ -3269,6 +3282,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                             attr.writeAttribute(fileName, VcsAttributes.VCS_SCHEDULING_MASTER_FILE_NAME_ATTR, null);
                         }
                     } catch (IOException exc) {}
+                    // We have removed some sec. files and we must assure, that
+                    // the corresponding node will refresh it's status annotation:
+                    statusChanged(fileName);
                 }
             }
         }
