@@ -445,6 +445,20 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             }
             file = message.substring(0, end);
         }
+        // If we have found some file, check whether there is not a better match with a longer name
+        String longerFile = file;
+        while(new File(longerFile).exists()) {
+            file = longerFile;
+            if (end >= l) break;
+            end = message.indexOf(' ', end + 1);
+            if (end < 0) end = l;
+            else {
+                if (end > 0 && message.charAt(end - 1) == endChar) {
+                    return message.substring(0, end - 1);
+                }
+            }
+            longerFile = message.substring(0, end);
+        }
         // Take the first space if the file was not found
         if (end >= l && !(new File(file).exists())) {
             end = message.indexOf(' ');
