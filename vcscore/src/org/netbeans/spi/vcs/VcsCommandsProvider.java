@@ -73,8 +73,10 @@ public abstract class VcsCommandsProvider extends Object {
      * @since 1.13
      */
     public String getType() {
-        throw new UnsupportedOperationException("Override this method and return a String that uniquely "+
-                                                "identifies the type of the provided version control system.");
+        org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL,
+                new UnsupportedOperationException("Override this method and return a String that uniquely "+
+                                                  "identifies the type of the provided version control system."));
+        return getClass().toString();
     }
     
 }
