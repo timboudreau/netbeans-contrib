@@ -821,11 +821,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             result.put(var.getName (), var.getValue ());
         }
 
-        result.put("netbeans.home",System.getProperty("netbeans.home"));
-        result.put("netbeans.user",System.getProperty("netbeans.user"));
-        result.put("java.home",System.getProperty("java.home"));
+        result.put("netbeans.home", System.getProperty("netbeans.home"));
+        result.put("netbeans.user", System.getProperty("netbeans.user"));
+        result.put("java.home", System.getProperty("java.home"));
         String osName=System.getProperty("os.name");
-        result.put("classpath.separator", (osName.indexOf("Win")<0 ? ":":";" )); // NOI18N
+        result.put("classpath.separator", File.pathSeparator); // NOI18N
         result.put("path.separator", ""+File.separator); // NOI18N
         if(result.get("PS")==null) { // NOI18N
             result.put("PS", ""+File.separator); // NOI18N
