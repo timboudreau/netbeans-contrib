@@ -55,8 +55,8 @@ public class RuntimeCommandNode extends AbstractNode implements PropertyChangeLi
         setName(command.getName());
         String displayName = command.getDisplayName();
         if (displayName == null || displayName.length() == 0) displayName = command.getName();
-        setDisplayName(displayName);
-        setShortDescription(NbBundle.getMessage(RuntimeCommandNode.class, "RuntimeCommandNode.Description", displayName));
+        setDisplayName(displayName.trim());
+        setShortDescription(NbBundle.getMessage(RuntimeCommandNode.class, "RuntimeCommandNode.Description", displayName.trim()));
         comm.addPropertyChangeListener(WeakListener.propertyChange(this, comm));
         setState(comm.getState());
         setDefaultAction(CommandOutputViewAction.getInstance());
