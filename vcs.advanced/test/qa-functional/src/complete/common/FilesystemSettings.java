@@ -65,6 +65,7 @@ public class FilesystemSettings extends NbTestCase {
         suite.addTest(new FilesystemSettings("testProcessAllFiles"));
         suite.addTest(new FilesystemSettings("testIgnoredFiles"));
         suite.addTest(new FilesystemSettings("testBackupProperties"));
+        suite.addTest(new FilesystemSettings("testRefreshTime"));
         return suite;
     }
     
@@ -142,6 +143,19 @@ public class FilesystemSettings extends NbTestCase {
         }
         else new File(name).mkdirs();
     }
+
+    /** Returns all of node's children as one String devided with commas.
+     * @param node The node whose children should be returned in one String.
+     * @return Collection of all children of given node.
+     */
+    private String printChildren(Node node) {
+        String[] children = node.getChildren();
+        String output = " [";
+        int count = children.length;
+        for(int i=0; i<count; i++) output = output + (i+1) + ". " + children[i] + ", ";
+        return output + "]";
+    }
+
     /** Checks whether "Annotation Pattern" property works correctly.
      * @throws Any unexpected exception thrown during test.
      */
@@ -237,9 +251,12 @@ public class FilesystemSettings extends NbTestCase {
             }
             sheet.close();
         }
-        if (!found) throw new Exception("Error: Unable to find Lock command processed on A_File.class.");
         api.getFilesystemsTab();
         selectNode(new String[] {filesystem}, true);
+        if (!found) {
+            MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
+            throw new Exception("Error: Unable to find Lock command processed on A_File.class.");
+        }
         MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
         System.out.println(". done !");
     }
@@ -263,10 +280,13 @@ public class FilesystemSettings extends NbTestCase {
         StringProperty ignoredFiles = new StringProperty(sheet.getPropertySheetTabOperator("Expert"), "Ignored Files");
         ignoredFiles.setStringValue("A_File");
         sheet.close();
-        if (filesystemNode.getChildren().length != 0) throw new Exception("Error: A_File node has not disappeared.");
         api.getFilesystemsTab();
         filesystemNode.select();
-        MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
+        if (filesystemNode.getChildren().length != 0) {
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: A_File node has not disappeared." + printChildren(filesystemNode));
+        }
+        new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
     }
 
@@ -281,25 +301,42 @@ public class FilesystemSettings extends NbTestCase {
         RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
         Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
         filesystemNode.tree().expandPath(filesystemNode.getTreePath());
-        if (filesystemNode.getChildren().length != 1) throw new Exception("Error: There are more nodes except A_File.");
+        if (filesystemNode.getChildren().length != 1) {
+            api.getFilesystemsTab();
+            filesystemNode.select();
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: There are more nodes except A_File." + printChildren(filesystemNode));
+        }
         PropertiesAction propertiesAction = new PropertiesAction();
         propertiesAction.perform(filesystemNode);
         PropertySheetOperator sheet = new PropertySheetOperator();
         ComboBoxProperty filterBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Filter Backup Files");
         ComboBoxProperty createBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Create Backup Files");
+        TextFieldProperty refreshTime = new TextFieldProperty(sheet.getPropertySheetTabOperator("Expert"), "Refresh Time For Local Files [ms]");
         filterBackupFiles.setValue("False");
         createBackupFiles.setValue("False");
+        refreshTime.setValue("5000");
+        sheet.close();
         APIController.sleep(10000);
-        if (filesystemNode.getChildren().length != 1) throw new Exception("Error: Some backup files appeared unintentionally.");
+        if (filesystemNode.getChildren().length != 1) {
+            api.getFilesystemsTab();
+            filesystemNode.select();
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: Some backup files appeared unintentionally." + printChildren(filesystemNode));
+        }
         Node fileNode = new Node(explorer.getRootNode(), filesystem + "|A_File");
         OpenAction openAction = new OpenAction();
         openAction.perform(fileNode);
-        sheet.close();
         EditorOperator editor = new EditorOperator("A_File");
         editor.insert("// The first added line.\n");
         new SaveAction().perform();
         APIController.sleep(10000);
-        if (filesystemNode.getChildren().length != 1) throw new Exception("Error: Create backup files does not work.");
+        if (filesystemNode.getChildren().length != 1) {
+            api.getFilesystemsTab();
+            filesystemNode.select();
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: Create backup files does not work." + printChildren(filesystemNode));
+        }
         propertiesAction.perform(filesystemNode);
         sheet = new PropertySheetOperator();
         createBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Create Backup Files");
@@ -308,15 +345,51 @@ public class FilesystemSettings extends NbTestCase {
         editor.requestFocus();
         new SaveAction().perform();
         APIController.sleep(10000);
-        if (filesystemNode.getChildren().length != 2) throw new Exception("Error: Backup files properties do not work.");
+        if (filesystemNode.getChildren().length != 2) {
+            api.getFilesystemsTab();
+            filesystemNode.select();
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: Backup files properties do not work." + printChildren(filesystemNode));
+        }
         propertiesAction.perform(filesystemNode);
         sheet = new PropertySheetOperator();
         filterBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Filter Backup Files");
         filterBackupFiles.setValue("True");
         APIController.sleep(10000);
-        if (filesystemNode.getChildren().length != 1) throw new Exception("Error: Filter backup files does not work.");
+        if (filesystemNode.getChildren().length != 1) {
+            api.getFilesystemsTab();
+            filesystemNode.select();
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: Filter backup files does not work." + printChildren(filesystemNode));
+        }
         sheet.close();
         api.getFilesystemsTab();
+        filesystemNode.select();
+        new UnmountFSAction().perform(filesystemNode);
+        System.out.println(". done !");
+    }
+
+    /** Checks whether "Refresh Time For Local Files [ms]" property works correctly.
+     * @throws Any unexpected exception thrown during test.
+     */
+    public void testRefreshTime() throws Exception {
+        System.out.print(".. Testing refresh time property ..");
+        filesystem = "Empty " + workingDirectory;
+        mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+        APIController.sleep(2000);
+        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+        Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
+        filesystemNode.tree().expandPath(filesystemNode.getTreePath());
+        PropertiesAction propertiesAction = new PropertiesAction();
+        propertiesAction.perform(filesystemNode);
+        PropertySheetOperator sheet = new PropertySheetOperator();
+        TextFieldProperty refreshTime = new TextFieldProperty(sheet.getPropertySheetTabOperator("Expert"), "Refresh Time For Local Files [ms]");
+        refreshTime.setValue("1000");
+        sheet.close();
+        createFile(workingDirectory + File.separator + "B_File.java", true);
+        APIController.sleep(16000);
+        Node fileNode = new Node(explorer.getRootNode(), filesystem + "|B_File");
+        fileNode.select();
         filesystemNode.select();
         new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
