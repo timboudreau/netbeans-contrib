@@ -353,24 +353,22 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         while (killActionListeners.size() > 0) {
             java.awt.event.ActionListener l = (java.awt.event.ActionListener)killActionListeners.remove(0);            
             btnStop.removeActionListener(l);
-            SwingUtilities.invokeLater(new Runnable(){
-                public void run(){                    
-                    btnStop.setEnabled(false);
-                    if(exit == 0)
-                        lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFinished"));
-                    else
-                        lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFailed"));                 
-                    progress.setIndeterminate(false);
-                    progress.setValue(100);
-                    progress.setVisible(false);
-                    btnStop.setVisible(false);
-                    if (!isStdOutput() && isErrOutput())
-                        btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
-                }
-            });
         }
-        
-        
+        SwingUtilities.invokeLater(new Runnable(){
+            public void run(){                    
+                btnStop.setEnabled(false);
+                if(exit == 0)
+                    lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFinished"));
+                else
+                    lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFailed"));                 
+                progress.setIndeterminate(false);
+                progress.setValue(100);
+                progress.setVisible(false);
+                btnStop.setVisible(false);
+                if (!isStdOutput() && isErrOutput())
+                    btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
+            }
+        });
     }    
        
     
