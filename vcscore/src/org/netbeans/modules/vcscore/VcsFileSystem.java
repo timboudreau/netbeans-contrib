@@ -753,10 +753,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 if (ev.getFileSystem().equals(VcsFileSystem.this)) {
                     //System.out.println("FS "+VcsFileSystem.this+" removed");
                     TopManager.getDefault ().getRepository ().removeRepositoryListener (this);
+                    fsRemoved();
                 }
             }
         };//, null);
         TopManager.getDefault ().getRepository ().addRepositoryListener (wl);
+    }
+    
+    /** This method is called when the filesystem is removed from the repository,
+     * to allow to do some cleanup. Sublasses should call super if overide this method
+     */
+    protected void fsRemoved() {
     }
 
     private static final long serialVersionUID =8108342718973310275L;
