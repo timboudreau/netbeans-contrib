@@ -48,6 +48,7 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
     // EJB sources
     public static final String PROP_EJB_EJBMODULES = "ejbModules"; // <List> NOI18N
     public static final String PROP_EJB_SOURCE_FOLDERS = "ejbSourceFolders"; // <List> NOI18N
+    public static final String PROP_EJB_RESOURCE_FOLDERS = "ejbResourceFolders"; // <List> NOI18N
     
     private static final long serialVersionUID = 1L;
     
@@ -82,6 +83,9 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
                     List ejbSources = (List)wiz.getProperty(PROP_EJB_SOURCE_FOLDERS);
                     AuxiliaryConfiguration aux = Util.getAuxiliaryConfiguration(helper);
                     EJBProjectGenerator.putEJBSourceFolder(helper, ejbSources);
+                    
+                    List resources = (List) wiz.getProperty(PROP_EJB_RESOURCE_FOLDERS);
+                    EJBProjectGenerator.putResourceFolder(helper, resources);
         
                     List ejbModules = (List) wiz.getProperty(PROP_EJB_EJBMODULES);
                     if (ejbModules != null) {
@@ -140,6 +144,7 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
         NewFreeformProjectSupport.uninitializeTargetMappingWizardPanel(wiz);
         NewJavaFreeformProjectSupport.uninitializeJavaPanels(wiz);
         wiz.putProperty(PROP_EJB_SOURCE_FOLDERS, null);
+        wiz.putProperty(PROP_EJB_RESOURCE_FOLDERS, null);
         wiz.putProperty(PROP_EJB_EJBMODULES, null);
         this.wiz = null;
         panels = null;

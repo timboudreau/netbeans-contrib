@@ -122,6 +122,7 @@ public class EJBLocationsWizardPanel implements WizardDescriptor.Panel {
         wizardDescriptor.putProperty(NewJavaFreeformProjectSupport.PROP_EXTRA_JAVA_SOURCE_FOLDERS, l);
         
         wizardDescriptor.putProperty(NewEJBFreeformProjectWizardIterator.PROP_EJB_SOURCE_FOLDERS, component.getEJBSrcFolder());
+        wizardDescriptor.putProperty(NewEJBFreeformProjectWizardIterator.PROP_EJB_RESOURCE_FOLDERS, component.getResourcesFolder());
         wizardDescriptor.putProperty("NewProjectWizard_Title", null); // NOI18N
     }
 
@@ -197,4 +198,5 @@ public class EJBLocationsWizardPanel implements WizardDescriptor.Panel {
         
         return null;
     }
+    
 }

@@ -13,17 +13,14 @@
 
 package org.netbeans.modules.j2ee.ejbfreeform;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.ant.freeform.FreeformProjectType;
 import org.netbeans.modules.ant.freeform.spi.support.Util;
+import org.netbeans.modules.j2ee.ejbjarproject.ui.customizer.EjbJarProjectProperties;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
-import org.openide.ErrorManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -142,6 +139,13 @@ public class EJBProjectGenerator {
         property.setAttribute("name", key); // NOI18N
         property.appendChild(doc.createTextNode(value));
         props.appendChild(property);
+    }
+    
+    public static void putResourceFolder(AntProjectHelper helper, List/*<String>*/ resources) {
+        Element data = helper.getPrimaryConfigurationData(true);
+        Document doc = data.getOwnerDocument();
+        putProperty(doc, data, EjbJarProjectProperties.RESOURCE_DIR, (String) resources.get(0));
+        helper.putPrimaryConfigurationData(data, true);
     }
     
     private static List/*<String>*/ getSourceFolders(Document doc, Element parent, String type) {
