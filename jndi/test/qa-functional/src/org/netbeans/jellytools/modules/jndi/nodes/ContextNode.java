@@ -1,0 +1,96 @@
+/*
+ *                 Sun Public License Notice
+ * 
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ * 
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+package org.netbeans.jellytools.modules.jndi.nodes;
+
+import org.netbeans.jellytools.actions.*;
+import org.netbeans.jellytools.modules.jndi.actions.*;
+import org.netbeans.jellytools.nodes.Node;
+import javax.swing.tree.TreePath;
+import java.awt.event.KeyEvent;
+import org.netbeans.jellytools.modules.jndi.actions.AddDirectoryAction;
+import org.netbeans.jemmy.operators.JTreeOperator;
+
+/** ContextNode Class
+ * @author dave */
+public class ContextNode extends Node {
+    
+    private static final Action copyLookupCodeAction = new CopyLookupCodeAction();
+    private static final Action copyBindingCodeAction = new CopyBindingCodeAction();
+    private static final Action refreshAction = new RefreshAction();
+    private static final Action deleteAction = new DeleteAction();
+    private static final Action addDirectoryAction = new AddDirectoryAction();
+    private static final Action propertiesAction = new PropertiesAction();
+
+    /** creates new ContextNode
+     * @param tree JTreeOperator of tree
+     * @param treePath String tree path */
+    public ContextNode(JTreeOperator tree, String treePath) {
+        super(tree, JNDIRootNode.NAME + treePath);
+    }
+
+    /** creates new ContextNode
+     * @param tree JTreeOperator of tree
+     * @param treePath TreePath of node */
+    public ContextNode(JTreeOperator tree, TreePath treePath) {
+        super(tree, treePath);
+    }
+
+    /** creates new ContextNode
+     * @param parent parent Node
+     * @param treePath String tree path from parent Node */
+    public ContextNode(Node parent, String treePath) {
+        super(parent, treePath);
+    }
+
+    /** tests popup menu items for presence */
+    public void verifyPopup() {
+        verifyPopup(new Action[]{
+            copyLookupCodeAction,
+            copyBindingCodeAction,
+            refreshAction,
+            deleteAction,
+            propertiesAction
+        });
+    }
+
+    /** performs CopyLookupCodeAction with this node */
+    public void copyLookupCode() {
+        copyLookupCodeAction.perform(this);
+    }
+
+    /** performs CopyBindingCodeAction with this node */
+    public void copyBindingCode() {
+        copyBindingCodeAction.perform(this);
+    }
+
+    /** performs RefreshAction with this node */
+    public void refresh() {
+        refreshAction.perform(this);
+    }
+
+    /** performs DeleteAction with this node */
+    public void delete() {
+        deleteAction.perform(this);
+    }
+
+    /** performs AddDirectoryAction with this node */
+    public void addDirectory() {
+        addDirectoryAction.perform(this);
+    }
+
+    /** performs PropertiesAction with this node */
+    public void properties() {
+        propertiesAction.perform(this);
+    }
+}
