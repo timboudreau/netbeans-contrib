@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
+import org.openide.ErrorManager;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -108,7 +109,11 @@ public class AddLocalParents extends Object implements VcsAdditionalCommand {
             for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
                 String name = (String) it.next();
                 FileObject fo = fs.findResource(name);
-                addLocalParents(fo, localParents);
+                if (fo != null) {
+                    addLocalParents(fo, localParents);
+                } else {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, new IllegalStateException("No resource found for '"+name+"'"));
+                }
             }
         } else {
             for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
@@ -116,6 +121,8 @@ public class AddLocalParents extends Object implements VcsAdditionalCommand {
                 FileObject fo = FileUtil.toFileObject(new File(fullPath));
                 if (fo != null) {
                     addLocalParents(fo, localParents);
+                } else {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, new IllegalStateException("No resource found for '"+fullPath+"'"));
                 }
             }
         }
