@@ -32,6 +32,10 @@ import org.netbeans.modules.corba.utils.InvalidIORException;
 import org.netbeans.modules.corba.browser.ir.util.AsyncTarget;
 import org.netbeans.modules.corba.browser.ir.util.FromInitialReferencesCookie;
 import org.netbeans.modules.corba.browser.ir.actions.FromInitialReferencesAction;
+
+import org.netbeans.modules.projects.CurrentProjectNode;
+import org.openide.util.Lookup;
+
 /*
  * @author Karel Gardas, Tomas Zezula
  */
@@ -109,8 +113,7 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
             null,
             SystemAction.get (org.openide.actions.PropertiesAction.class)
         };
-        
-        TopManager.getDefault().addPropertyChangeListener (this);
+        CurrentProjectNode.getDefault().addPropertyChangeListener(this);
     }
 
 
@@ -307,7 +310,7 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
     }
     
     public void propertyChange (PropertyChangeEvent event) {
-        if (TopManager.PROP_PLACES.equals (event.getPropertyName())) {
+        if (CurrentProjectNode.PROP_PROJECT_AFTER_OPEN.equals (event.getPropertyName())) {
             // Project has changed.
             // Rebuild cache of nodes.
             this.css = null;
@@ -317,8 +320,7 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
     }
     
     private void lazyInit () {
-        css = (CORBASupportSettings) CORBASupportSettings.findObject
-            (CORBASupportSettings.class, true);
+        css = (CORBASupportSettings) Lookup.getDefault().lookup(CORBASupportSettings.class);
         orb = css.getORB ();
     }
 

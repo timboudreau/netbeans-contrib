@@ -34,6 +34,10 @@ import org.netbeans.modules.corba.settings.*;
 import org.netbeans.modules.corba.utils.InvalidIORException;
 import org.netbeans.modules.corba.browser.ir.actions.FromInitialReferencesAction;
 import org.netbeans.modules.corba.browser.ir.util.FromInitialReferencesCookie;
+
+import org.netbeans.modules.projects.CurrentProjectNode;
+import org.openide.util.Lookup;
+
 /*
  * @author Karel Gardas, Tomas Zezula
  */
@@ -238,9 +242,9 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
                             SystemAction.get (org.openide.actions.PropertiesAction.class)
                         };
 	    this.getCookieSet().add ( new CosNamingCookieImpl ());
-            TopManager.getDefault().addPropertyChangeListener ( new PropertyChangeListener () {
+            CurrentProjectNode.getDefault().addPropertyChangeListener( new PropertyChangeListener () {
                 public void propertyChange (PropertyChangeEvent event) {
-                    if (TopManager.PROP_PLACES.equals (event.getPropertyName())) {
+                    if (CurrentProjectNode.PROP_PROJECT_AFTER_OPEN.equals (event.getPropertyName())) {
                         // Project has changed
                         // Relaod root nodes
                         ContextNode.this.css = null;
