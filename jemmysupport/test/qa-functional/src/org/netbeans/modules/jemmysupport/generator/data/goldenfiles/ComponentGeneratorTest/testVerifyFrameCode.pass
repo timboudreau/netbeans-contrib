@@ -1,0 +1,593 @@
+/*
+ * TestFrame.java
+ *
+ */
+
+import org.netbeans.jemmy.operators.*;
+
+/** Class implementing all necessary methods for handling "Test Frame" JFrame.
+ *
+ * @version 1.0
+ */
+public class TestFrame extends JFrameOperator {
+
+    /** Creates new TestFrame that can handle it.
+     */
+    public TestFrame() {
+        super("Test Frame");
+    }
+
+    private JSplitPaneOperator _sppJSplitPane;
+    private JTabbedPaneOperator _tbpJTabbedPane;
+    private JLabelOperator _lblJLabel1;
+    private JButtonOperator _btJButton1;
+    private JToggleButtonOperator _tbJToggleButton1;
+    private JCheckBoxOperator _cbJCheckBox1;
+    private JRadioButtonOperator _rbJRadioButton1;
+    private JComboBoxOperator _cboJComboBox;
+    public static final String ITEM_JCOMBOBOX1 = "jComboBox1"; 
+    public static final String ITEM_COMBODATA2 = "comboData2"; 
+    public static final String ITEM_COMBODATA3 = "comboData3"; 
+    private JListOperator _lstJList;
+    public static final String ITEM_JLIST1 = "jList1"; 
+    public static final String ITEM_LISTDATA2 = "listData2"; 
+    public static final String ITEM_LISTDATA3 = "listData3"; 
+    private JTextFieldOperator _txtJTextField;
+    private JTextAreaOperator _txtJTextArea;
+    private JProgressBarOperator _prbJProgressBar;
+    private JPasswordFieldOperator _txtJPasswordField;
+    private JEditorPaneOperator _txtJEditorPane;
+    private JTreeOperator _treeJTree;
+    private JTableOperator _tabJTable;
+    private JSliderOperator _sliJSlider;
+    private JButtonOperator _btJButton2;
+    private LabelOperator _lblLabel1;
+    private ButtonOperator _abtButton1;
+    private TextFieldOperator _txtTextField;
+    private CheckboxOperator _Checkbox;
+    private ChoiceOperator _choChoice;
+    private ListOperator _lstList;
+    private TextAreaOperator _txtTextArea;
+    private JButtonOperator _btJButton3;
+
+
+    //******************************
+    // Subcomponents definition part
+    //******************************
+
+    /** Tries to find null JSplitPane in this dialog.
+     * @return JSplitPaneOperator
+     */
+    public JSplitPaneOperator sppJSplitPane() {
+        if (_sppJSplitPane==null) {
+            _sppJSplitPane = new JSplitPaneOperator(this);
+        }
+        return _sppJSplitPane;
+    }
+
+    /** Tries to find null JTabbedPane in this dialog.
+     * @return JTabbedPaneOperator
+     */
+    public JTabbedPaneOperator tbpJTabbedPane() {
+        if (_tbpJTabbedPane==null) {
+            _tbpJTabbedPane = new JTabbedPaneOperator(sppJSplitPane());
+        }
+        return _tbpJTabbedPane;
+    }
+
+    /** Tries to find "jLabel1" JLabel in this dialog.
+     * @return JLabelOperator
+     */
+    public JLabelOperator lblJLabel1() {
+        if (_lblJLabel1==null) {
+            _lblJLabel1 = new JLabelOperator(selectPageTab1(), "jLabel1");
+        }
+        selectPageTab1();
+        return _lblJLabel1;
+    }
+
+    /** Tries to find "jButton1" JButton in this dialog.
+     * @return JButtonOperator
+     */
+    public JButtonOperator btJButton1() {
+        if (_btJButton1==null) {
+            _btJButton1 = new JButtonOperator(selectPageTab1(), "jButton1");
+        }
+        selectPageTab1();
+        return _btJButton1;
+    }
+
+    /** Tries to find "jToggleButton1" JToggleButton in this dialog.
+     * @return JToggleButtonOperator
+     */
+    public JToggleButtonOperator tbJToggleButton1() {
+        if (_tbJToggleButton1==null) {
+            _tbJToggleButton1 = new JToggleButtonOperator(selectPageTab1(), "jToggleButton1");
+        }
+        selectPageTab1();
+        return _tbJToggleButton1;
+    }
+
+    /** Tries to find "jCheckBox1" JCheckBox in this dialog.
+     * @return JCheckBoxOperator
+     */
+    public JCheckBoxOperator cbJCheckBox1() {
+        if (_cbJCheckBox1==null) {
+            _cbJCheckBox1 = new JCheckBoxOperator(selectPageTab1(), "jCheckBox1");
+        }
+        selectPageTab1();
+        return _cbJCheckBox1;
+    }
+
+    /** Tries to find "jRadioButton1" JRadioButton in this dialog.
+     * @return JRadioButtonOperator
+     */
+    public JRadioButtonOperator rbJRadioButton1() {
+        if (_rbJRadioButton1==null) {
+            _rbJRadioButton1 = new JRadioButtonOperator(selectPageTab1(), "jRadioButton1");
+        }
+        selectPageTab1();
+        return _rbJRadioButton1;
+    }
+
+    /** Tries to find null JComboBox in this dialog.
+     * @return JComboBoxOperator
+     */
+    public JComboBoxOperator cboJComboBox() {
+        if (_cboJComboBox==null) {
+            _cboJComboBox = new JComboBoxOperator(selectPageTab1());
+        }
+        selectPageTab1();
+        return _cboJComboBox;
+    }
+
+    /** Tries to find null JList in this dialog.
+     * @return JListOperator
+     */
+    public JListOperator lstJList() {
+        if (_lstJList==null) {
+            _lstJList = new JListOperator(selectPageTab1());
+        }
+        selectPageTab1();
+        return _lstJList;
+    }
+
+    /** Tries to find null JTextField in this dialog.
+     * @return JTextFieldOperator
+     */
+    public JTextFieldOperator txtJTextField() {
+        if (_txtJTextField==null) {
+            _txtJTextField = new JTextFieldOperator(selectPageTab1(), 1);
+        }
+        selectPageTab1();
+        return _txtJTextField;
+    }
+
+    /** Tries to find null JTextArea in this dialog.
+     * @return JTextAreaOperator
+     */
+    public JTextAreaOperator txtJTextArea() {
+        if (_txtJTextArea==null) {
+            _txtJTextArea = new JTextAreaOperator(selectPageTab1());
+        }
+        selectPageTab1();
+        return _txtJTextArea;
+    }
+
+    /** Tries to find null JProgressBar in this dialog.
+     * @return JProgressBarOperator
+     */
+    public JProgressBarOperator prbJProgressBar() {
+        if (_prbJProgressBar==null) {
+            _prbJProgressBar = new JProgressBarOperator(selectPageTab1());
+        }
+        selectPageTab1();
+        return _prbJProgressBar;
+    }
+
+    /** Tries to find null JPasswordField in this dialog.
+     * @return JPasswordFieldOperator
+     */
+    public JPasswordFieldOperator txtJPasswordField() {
+        if (_txtJPasswordField==null) {
+            _txtJPasswordField = new JPasswordFieldOperator(selectPageTab1());
+        }
+        selectPageTab1();
+        return _txtJPasswordField;
+    }
+
+    /** Tries to find null JEditorPane in this dialog.
+     * @return JEditorPaneOperator
+     */
+    public JEditorPaneOperator txtJEditorPane() {
+        if (_txtJEditorPane==null) {
+            _txtJEditorPane = new JEditorPaneOperator(selectPageTab1());
+        }
+        selectPageTab1();
+        return _txtJEditorPane;
+    }
+
+    /** Tries to find null JTree in this dialog.
+     * @return JTreeOperator
+     */
+    public JTreeOperator treeJTree() {
+        if (_treeJTree==null) {
+            _treeJTree = new JTreeOperator(selectPageTab1());
+        }
+        selectPageTab1();
+        return _treeJTree;
+    }
+
+    /** Tries to find null JTable in this dialog.
+     * @return JTableOperator
+     */
+    public JTableOperator tabJTable() {
+        if (_tabJTable==null) {
+            _tabJTable = new JTableOperator(selectPageTab1());
+        }
+        selectPageTab1();
+        return _tabJTable;
+    }
+
+    /** Tries to find null JSlider in this dialog.
+     * @return JSliderOperator
+     */
+    public JSliderOperator sliJSlider() {
+        if (_sliJSlider==null) {
+            _sliJSlider = new JSliderOperator(selectPageTab1());
+        }
+        selectPageTab1();
+        return _sliJSlider;
+    }
+
+    /** Tries to find "jButton2" JButton in this dialog.
+     * @return JButtonOperator
+     */
+    public JButtonOperator btJButton2() {
+        if (_btJButton2==null) {
+            _btJButton2 = new JButtonOperator(selectPageTab2(), "jButton2");
+        }
+        selectPageTab2();
+        return _btJButton2;
+    }
+
+    /** Tries to find "label1" Label in this dialog.
+     * @return LabelOperator
+     */
+    public LabelOperator lblLabel1() {
+        if (_lblLabel1==null) {
+            _lblLabel1 = new LabelOperator(sppJSplitPane(), "label1");
+        }
+        return _lblLabel1;
+    }
+
+    /** Tries to find "button1" Button in this dialog.
+     * @return ButtonOperator
+     */
+    public ButtonOperator abtButton1() {
+        if (_abtButton1==null) {
+            _abtButton1 = new ButtonOperator(sppJSplitPane(), "button1");
+        }
+        return _abtButton1;
+    }
+
+    /** Tries to find null TextField in this dialog.
+     * @return TextFieldOperator
+     */
+    public TextFieldOperator txtTextField() {
+        if (_txtTextField==null) {
+            _txtTextField = new TextFieldOperator(sppJSplitPane());
+        }
+        return _txtTextField;
+    }
+
+    /** Tries to find null Checkbox in this dialog.
+     * @return CheckboxOperator
+     */
+    public CheckboxOperator Checkbox() {
+        if (_Checkbox==null) {
+            _Checkbox = new CheckboxOperator(sppJSplitPane());
+        }
+        return _Checkbox;
+    }
+
+    /** Tries to find null Choice in this dialog.
+     * @return ChoiceOperator
+     */
+    public ChoiceOperator choChoice() {
+        if (_choChoice==null) {
+            _choChoice = new ChoiceOperator(sppJSplitPane());
+        }
+        return _choChoice;
+    }
+
+    /** Tries to find null List in this dialog.
+     * @return ListOperator
+     */
+    public ListOperator lstList() {
+        if (_lstList==null) {
+            _lstList = new ListOperator(sppJSplitPane());
+        }
+        return _lstList;
+    }
+
+    /** Tries to find null TextArea in this dialog.
+     * @return TextAreaOperator
+     */
+    public TextAreaOperator txtTextArea() {
+        if (_txtTextArea==null) {
+            _txtTextArea = new TextAreaOperator(sppJSplitPane());
+        }
+        return _txtTextArea;
+    }
+
+    /** Tries to find "jButton3" JButton in this dialog.
+     * @return JButtonOperator
+     */
+    public JButtonOperator btJButton3() {
+        if (_btJButton3==null) {
+            _btJButton3 = new JButtonOperator(this, "jButton3");
+        }
+        return _btJButton3;
+    }
+
+
+    //****************************************
+    // Low-level functionality definition part
+    //****************************************
+
+    /** changes current selected tab
+     * @param tabName String tab name */
+    public void selectJTabbedPanePage(String tabName) {
+        tbpJTabbedPane().selectPage(tabName);
+    }
+
+    /** changes current selected tab to "tab1"
+     * @return JTabbedPaneOperator of parent tabbed pane
+     */
+    public JTabbedPaneOperator selectPageTab1() {
+        tbpJTabbedPane().selectPage("tab1");
+        return tbpJTabbedPane();
+    }
+
+    /** clicks on "jButton1" JButton
+     */
+    public void jButton1() {
+        btJButton1().push();
+    }
+
+    /** checks or unchecks given JToggleButton
+     * @param state boolean requested state
+     */
+    public void checkJToggleButton1(boolean state) {
+        if (tbJToggleButton1().isSelected()!=state) {
+            tbJToggleButton1().push();
+        }
+    }
+
+    /** checks or unchecks given JCheckBox
+     * @param state boolean requested state
+     */
+    public void checkJCheckBox1(boolean state) {
+        if (cbJCheckBox1().isSelected()!=state) {
+            cbJCheckBox1().push();
+        }
+    }
+
+    /** clicks on "jRadioButton1" JRadioButton
+     */
+    public void jRadioButton1() {
+        rbJRadioButton1().push();
+    }
+
+    /** returns selected item for cboJComboBox
+     * @return String item
+     */
+    public String getSelectedJComboBox() {
+        return cboJComboBox().getSelectedItem().toString();
+    }
+
+    /** selects item for cboJComboBox
+     * @param item String item
+     */
+    public void selectJComboBox(String item) {
+        cboJComboBox().selectItem(item);
+    }
+
+    /** types text for cboJComboBox
+     * @param text String text
+     */
+    public void typeJComboBox(String text) {
+        cboJComboBox().typeText(text);
+    }
+
+    /** gets text for txtJTextField
+     * @return String text
+     */
+    public String getJTextField() {
+        return txtJTextField().getText();
+    }
+
+    /** sets text for txtJTextField
+     * @param text String text
+     */
+    public void setJTextField(String text) {
+        txtJTextField().setText(text);
+    }
+
+    /** types text for txtJTextField
+     * @param text String text
+     */
+    public void typeJTextField(String text) {
+        txtJTextField().typeText(text);
+    }
+
+    /** gets text for txtJTextArea
+     * @return String text
+     */
+    public String getJTextArea() {
+        return txtJTextArea().getText();
+    }
+
+    /** sets text for txtJTextArea
+     * @param text String text
+     */
+    public void setJTextArea(String text) {
+        txtJTextArea().setText(text);
+    }
+
+    /** types text for txtJTextArea
+     * @param text String text
+     */
+    public void typeJTextArea(String text) {
+        txtJTextArea().typeText(text);
+    }
+
+    /** sets text for txtJPasswordField
+     * @param text String text
+     */
+    public void setJPasswordField(String text) {
+        txtJPasswordField().setText(text);
+    }
+
+    /** types text for txtJPasswordField
+     * @param text String text
+     */
+    public void typeJPasswordField(String text) {
+        txtJPasswordField().typeText(text);
+    }
+
+    /** gets text for txtJEditorPane
+     * @return String text
+     */
+    public String getJEditorPane() {
+        return txtJEditorPane().getText();
+    }
+
+    /** sets text for txtJEditorPane
+     * @param text String text
+     */
+    public void setJEditorPane(String text) {
+        txtJEditorPane().setText(text);
+    }
+
+    /** types text for txtJEditorPane
+     * @param text String text
+     */
+    public void typeJEditorPane(String text) {
+        txtJEditorPane().typeText(text);
+    }
+
+    /** changes current selected tab to "tab2"
+     * @return JTabbedPaneOperator of parent tabbed pane
+     */
+    public JTabbedPaneOperator selectPageTab2() {
+        tbpJTabbedPane().selectPage("tab2");
+        return tbpJTabbedPane();
+    }
+
+    /** clicks on "jButton2" JButton
+     */
+    public void jButton2() {
+        btJButton2().push();
+    }
+
+    /** clicks on "button1" Button
+     */
+    public void button1() {
+        abtButton1().push();
+    }
+
+    /** gets text for txtTextField
+     * @return String text
+     */
+    public String getTextField() {
+        return txtTextField().getText();
+    }
+
+    /** sets text for txtTextField
+     * @param text String text
+     */
+    public void setTextField(String text) {
+        txtTextField().setText(text);
+    }
+
+    /** types text for txtTextField
+     * @param text String text
+     */
+    public void typeTextField(String text) {
+        txtTextField().typeText(text);
+    }
+
+    /** gets text for txtTextArea
+     * @return String text
+     */
+    public String getTextArea() {
+        return txtTextArea().getText();
+    }
+
+    /** sets text for txtTextArea
+     * @param text String text
+     */
+    public void setTextArea(String text) {
+        txtTextArea().setText(text);
+    }
+
+    /** types text for txtTextArea
+     * @param text String text
+     */
+    public void typeTextArea(String text) {
+        txtTextArea().typeText(text);
+    }
+
+    /** clicks on "jButton3" JButton
+     */
+    public void jButton3() {
+        btJButton3().push();
+    }
+
+
+    //*****************************************
+    // High-level functionality definition part
+    //*****************************************
+
+    /** Performs verification of TestFrame by accessing all its components.
+     */
+    public void verify() {
+        sppJSplitPane();
+        tbpJTabbedPane();
+        lblJLabel1();
+        btJButton1();
+        tbJToggleButton1();
+        cbJCheckBox1();
+        rbJRadioButton1();
+        cboJComboBox();
+        lstJList();
+        txtJTextField();
+        txtJTextArea();
+        prbJProgressBar();
+        txtJPasswordField();
+        txtJEditorPane();
+        treeJTree();
+        tabJTable();
+        sliJSlider();
+        btJButton2();
+        lblLabel1();
+        abtButton1();
+        txtTextField();
+        Checkbox();
+        choChoice();
+        lstList();
+        txtTextArea();
+        btJButton3();
+    }
+
+    /** Performs simple test of TestFrame
+    * @param args the command line arguments
+    */
+    public static void main(String args[]) {
+        new TestFrame().verify();
+        System.out.println("TestFrame verification finished.");
+    }
+}
+

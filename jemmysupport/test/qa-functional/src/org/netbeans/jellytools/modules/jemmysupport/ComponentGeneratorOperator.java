@@ -152,7 +152,13 @@ public class ComponentGeneratorOperator extends JDialogOperator {
     //*****************************************
 
     public void verifyStatus(String status) {
-        new JLabelOperator(this, status);
+        long t = getTimeouts().getTimeout("ComponentOperator.WaitComponentTimeout");
+        getTimeouts().setTimeout("ComponentOperator.WaitComponentTimeout", 20000);
+        try {
+            new JLabelOperator(this, status);
+        } finally {
+            getTimeouts().setTimeout("ComponentOperator.WaitComponentTimeout", t);
+        }
     }
 
     /** Performs verification of ComponentGeneratorOperator by accessing all its components.

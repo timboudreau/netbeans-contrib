@@ -344,4 +344,7 @@ public class TestPanel extends javax.swing.JPanel {
     private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
     
+    public static void main(String args[]) {
+        showDialog();
+    }
 }
