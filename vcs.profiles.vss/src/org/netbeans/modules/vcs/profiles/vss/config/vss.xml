@@ -999,7 +999,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="preCommands">
           <value>SET_RELEVANT_MASKS</value>
 	</property>
-        <property name="refreshCurrentFolder">
+        <property name="refreshParentFolder">
           <value>true</value>
         </property>
         <property name="refreshRecursivelyPatternUnmatched">
