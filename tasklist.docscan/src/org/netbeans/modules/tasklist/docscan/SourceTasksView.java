@@ -1557,6 +1557,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
           Iterator it = rep.iterator();
           for (int i = 1; i < rep.size()+1; i++) 
             elements[i] = new Filter.ListModelElement((Filter)it.next());
+
+	  if (activei >= rep.size()+1) activei = -1;
           
         }
 
