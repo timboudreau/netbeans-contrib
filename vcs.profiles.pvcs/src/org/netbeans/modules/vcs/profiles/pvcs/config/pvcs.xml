@@ -538,9 +538,6 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
-        <property name="disabledOnStatus">
-          <value>"Local"</value>
-	</property>
 	<property name="input">
 	  <value></value>
 	</property>
@@ -561,6 +558,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="concurrentExec">
           <value>14</value>  <!-- ((SERIAL_ON_PACKAGE || SERIAL_WITH_PARENT) && SERIAL_OF_COMMAND) -->
+        </property>
+        <property name="preCommands">
+          <value>$[? CACHED_ISLOCAL] [CREATE_PROJECT] []</value>
         </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
@@ -594,6 +594,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
 	<property name="ignoreFail">
 	  <value>true</value>
+	</property>
+	<property name="disabledOnStatus">
+	  <value>""</value>
 	</property>
         <property name="commandsAfterSuccess">
           <value>$[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [ADD_INSIDE_FOLDER_CMD]</value>
