@@ -30,6 +30,7 @@ public class GeneralVcsSettings extends SystemOption {
     public static final String PROP_LAST_DIRECTORIES   = "wizardDirectoryCache"; //NOI18N
     public static final String PROP_CVS_COMMAND_PATH   = "wizardCvsCommandPath"; //NOI18N
     public static final String PROP_SH_COMMAND_PATH    = "wizardShellCommandPath"; //NOI18N
+    public static final String PROP_SSH_WARNINGS_DONE  = "wizardSshWarningsDone"; //NOI18N
     public static final String PROP_AUTO_DETECT        = "autoDetect";
     
     public static final int AUTO_REFRESH_NO_REFRESH = 0;
@@ -62,6 +63,7 @@ public class GeneralVcsSettings extends SystemOption {
         setHideShadowFiles(false);
         setOffLine(false);
         setUseGlobal(true);
+        setWizardSshWarningsDone(false);
     }    
     
     /** Get human presentable name */
@@ -205,6 +207,12 @@ public class GeneralVcsSettings extends SystemOption {
             wizardShellCommandPath = shellCommandPath;
     }
 
-
+    public void setWizardSshWarningsDone(boolean done) {
+        putProperty(PROP_SSH_WARNINGS_DONE, new Boolean(done));
+    }
+    
+    public boolean isWizardSshWarningsDone() {
+        return ((Boolean) getProperty(PROP_SSH_WARNINGS_DONE)).booleanValue();
+    }
     
 }
