@@ -31,7 +31,6 @@ public class GeneralVcsSettings extends SystemOption {
     public static final String PROP_AUTO_REFRESH       = "autoRefresh"; // NOI18N
     public static final String PROP_HOME               = "home"; // NOI18N
     public static final String PROP_HIDE_SHADOW_FILES  = "hideShadowFiles"; // NOI18N
-    public static final String PROP_AUTO_DETECT        = "autoDetect"; //NOI18N
     public static final String PROP_DEFAULT_PROFILE    = "defaultProfile"; // NOI18N
     public static final String PROP_RECOGNIZED_FS      = "recognizedFS"; // NOI18N
     
@@ -51,7 +50,6 @@ public class GeneralVcsSettings extends SystemOption {
      */
     protected void initialize() {
         super.initialize();
-        setAutoDetect(true);
         setAutoRefresh(AUTO_REFRESH_ON_DIR_OPEN);
         setHideShadowFiles(false);
         setOffLine(false);
@@ -103,14 +101,6 @@ public class GeneralVcsSettings extends SystemOption {
         putProperty(PROP_AUTO_REFRESH, new Integer(newAutoRefresh), true);
     }
 
-    public boolean isAutoDetect() {
-        return ((Boolean)getProperty(PROP_AUTO_DETECT)).booleanValue();
-    }
-    
-    public void setAutoDetect(boolean newAutoDetect) {
-        putProperty(PROP_AUTO_DETECT, newAutoDetect ? Boolean.TRUE : Boolean.FALSE, true);
-    }
-    
     public File getHome() {
         String home = System.getProperty("Env-HOME");
         if (home == null && org.openide.util.Utilities.isWindows()) {

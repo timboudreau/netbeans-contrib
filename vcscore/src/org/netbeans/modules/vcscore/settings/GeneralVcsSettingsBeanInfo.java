@@ -41,7 +41,6 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
                 new PropertyDescriptor(GeneralVcsSettings.PROP_AUTO_REFRESH, GeneralVcsSettings.class), // [2]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_HOME, GeneralVcsSettings.class), // [3]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_DEFAULT_PROFILE, GeneralVcsSettings.class),// [4]
-                new PropertyDescriptor(GeneralVcsSettings.PROP_AUTO_DETECT, GeneralVcsSettings.class), // [5]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_RECOGNIZED_FS, GeneralVcsSettings.class), // [6]
             };
             properties[0].setDisplayName(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("PROP_useGlobal"));
@@ -54,11 +53,9 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
             properties[3].setDisplayName(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("PROP_home"));
             properties[3].setShortDescription(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("HINT_home"));            
             properties[4].setHidden(true);            
-            properties[5].setDisplayName(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("PROP_autoDetect"));
-            properties[5].setShortDescription(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("HINT_autoDetect"));
-            //properties[6].setDisplayName(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("PROP_recognizedFS"));
-            //properties[6].setShortDescription(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("HINT_recognizedFS"));
-            properties[6].setHidden(true);
+            //properties[5].setDisplayName(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("PROP_recognizedFS"));
+            //properties[5].setShortDescription(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("HINT_recognizedFS"));
+            properties[5].setHidden(true);
             
         } catch (java.beans.IntrospectionException intrexc) {
             org.openide.ErrorManager.getDefault().notify(intrexc);
