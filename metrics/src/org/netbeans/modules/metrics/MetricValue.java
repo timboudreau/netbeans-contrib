@@ -20,7 +20,6 @@
 package org.netbeans.modules.metrics;
 
 import java.io.*;
-import java.util.*;
 
 /**
  * Class that holds a metric value and its approval.

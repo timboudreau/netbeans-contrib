@@ -23,7 +23,6 @@ import org.openide.windows.WindowManager;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyEditor;
 import java.util.EventObject;
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;

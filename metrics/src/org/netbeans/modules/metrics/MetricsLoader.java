@@ -19,12 +19,10 @@
 
 package org.netbeans.modules.metrics;
 
-import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Iterator;
 import org.openide.ErrorManager;
 import org.openide.modules.ModuleInfo;
-import org.openide.modules.SpecificationVersion;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;

@@ -19,21 +19,21 @@
 
 package org.netbeans.modules.metrics;
 
-import org.openide.*;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import org.netbeans.modules.clazz.CompiledDataObject;
+import org.netbeans.modules.java.JavaDataObject;
+import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.util.*;
-import org.openide.util.actions.*;
-
-import org.netbeans.modules.java.JavaDataObject;
-import org.netbeans.modules.clazz.CompiledDataObject;
-
-import java.io.InputStream;
-import java.io.IOException;
-import java.util.*;
+import org.openide.util.HelpCtx;
+import org.openide.util.actions.NodeAction;
 
 public class ShowMetricsAction extends NodeAction {
 
@@ -116,11 +116,11 @@ public class ShowMetricsAction extends NodeAction {
         Iterator iter = metricsSet.iterator();
         while (iter.hasNext()) {
             ClassMetrics cm = (ClassMetrics)iter.next();
-            TopManager.getDefault().setStatusText(
+            StatusDisplayer.getDefault().setStatusText(
                 scanningMsg + " " + cm.getName());
             cm.scanDependencies();
         }
-        TopManager.getDefault().setStatusText("");
+        StatusDisplayer.getDefault().setStatusText("");
 
         return metricsSet;
     }
@@ -179,7 +179,7 @@ public class ShowMetricsAction extends NodeAction {
         throws IOException 
     {
         String msg = readingMsg + " " + name;
-        TopManager.getDefault().setStatusText(msg);
+        StatusDisplayer.getDefault().setStatusText(msg);
         return ClassMetrics.getClassMetrics(fo);
     }
 }

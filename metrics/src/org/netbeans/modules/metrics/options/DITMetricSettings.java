@@ -14,7 +14,6 @@
 package org.netbeans.modules.metrics.options;
 
 import org.openide.options.SystemOption;
-import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
 /** Options for DIT metric.

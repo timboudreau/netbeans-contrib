@@ -20,7 +20,6 @@
 package org.netbeans.modules.metrics;
 
 import org.netbeans.modules.classfile.*;
-import java.util.*;
 
 /**
  * Scans bytecodes for class name references.

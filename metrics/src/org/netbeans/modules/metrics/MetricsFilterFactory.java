@@ -19,13 +19,10 @@
 
 package org.netbeans.modules.metrics;
 
-import org.openide.TopManager;
 import org.openide.filesystems.*;
 import org.openide.nodes.*;
-import org.openide.cookies.*;
 import org.openide.src.nodes.*;
 import org.openide.src.*;
-import org.openide.util.NbBundle;
 
 import org.netbeans.modules.classfile.ClassName;
 import org.netbeans.modules.clazz.CompiledDataObject;

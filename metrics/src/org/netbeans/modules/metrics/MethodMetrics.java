@@ -19,10 +19,13 @@
 
 package org.netbeans.modules.metrics;
 
-import java.beans.*;
-import java.io.IOException;
-import java.util.*;
 import org.netbeans.modules.classfile.*;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Vector;
 
 /**
  *
@@ -130,12 +133,11 @@ public class MethodMetrics implements Comparable, NodeHandler {
      * comprehension by engineers who don't know classfile internals.
      */
     private String expandName(String s) {
-        int i;
-        if ((i = s.indexOf("<init>")) == 0) { //NOI18N
+        if (s.indexOf("<init>") == 0) { //NOI18N
             // Substitute classname for <init> in constructors
             String cls = method.getClassFile().getName().getSimpleName();
             s = cls + s.substring(6);  // strlen("<init>")
-        } else if ((i = s.indexOf("<clinit>")) == 0) //NOI18N
+        } else if (s.indexOf("<clinit>") == 0) //NOI18N
             // Explain what clinit means
             s = "<class_initialization>" + s.substring(8);
         return s;

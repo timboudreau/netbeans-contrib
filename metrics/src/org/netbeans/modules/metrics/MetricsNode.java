@@ -22,11 +22,11 @@ package org.netbeans.modules.metrics;
 import java.util.ResourceBundle;
 import org.openide.nodes.*;
 import org.openide.actions.*;
-import org.openide.src.ClassElement;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 
 import java.beans.*;
+import javax.swing.Action;
 
 /**
  * The base class for specific metric nodes.
@@ -48,10 +48,13 @@ class MetricsNode extends AbstractNode implements Cloneable {
  
         setName(MetricsNode.getString( "LBL_Metrics" ) );
         setShortDescription(MetricsNode.getString( "HINT_Metrics" ) );
-        setDefaultAction (SystemAction.get (PropertiesAction.class));
         setIconBase ("org/netbeans/modules/metrics/resources/barchart");
         this.classMetrics = classMetrics;
 	setPropertyListener();
+    }
+
+    public Action getPreferredAction() {
+        return SystemAction.get(PropertiesAction.class);
     }
 
     private void setPropertyListener() {
@@ -134,12 +137,18 @@ class MetricsNode extends AbstractNode implements Cloneable {
      * Returns an Array of Actions allowed by this Node.
      * @return a list of standard actions
      */
-    protected SystemAction[] createActions () {
-        return new SystemAction[] {
+    public Action[] getActions (boolean context) {
+	if (context)
+	    return super.getActions(context);
+        if (systemActions == null) {
+            systemActions = new SystemAction[] {
                SystemAction.get (ToolsAction.class),
                SystemAction.get (PropertiesAction.class),
-        };
+	    };
+        }
+        return systemActions;
     }
+    private SystemAction[] systemActions = null;
 
     public Object clone() throws CloneNotSupportedException {
 	MetricsNode node = (MetricsNode)super.clone();

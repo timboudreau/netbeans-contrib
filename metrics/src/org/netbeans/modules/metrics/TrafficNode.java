@@ -35,11 +35,10 @@ import java.beans.PropertyChangeListener;
 public class TrafficNode extends FilterNode implements Node.Cookie {
     private Light light;
     private Node.Cookie handlerCookie;
-    private static final boolean debug = true;
 
     public TrafficNode(Node original, ClassMetrics cm) {
         super(original);
-	addCookie(original, cm);
+	addCookie(cm);
         light = cm.getWarningLight();
         cm.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
@@ -51,7 +50,7 @@ public class TrafficNode extends FilterNode implements Node.Cookie {
 
     public TrafficNode(Node original, MethodMetrics mm) {
         super(original);
-	addCookie(original, mm);
+	addCookie(mm);
         light = mm.getWarningLight();
         mm.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
@@ -116,6 +115,7 @@ public class TrafficNode extends FilterNode implements Node.Cookie {
         public String toString() {
             return name;
         }
+
     }
 
     /* Delegates to original, unless it is a NodeHandler cookie.
@@ -133,11 +133,8 @@ public class TrafficNode extends FilterNode implements Node.Cookie {
 	    return super.getCookie (type); // delegate to original node
     }
 
-    private void addCookie(Node original, NodeHandler metricsObject) {
+    private void addCookie(NodeHandler metricsObject) {
 	// The Node API doesn't support filters well...
 	handlerCookie = metricsObject;
     }
-
-    private static Class[] noClasses = new Class[0];
-    private static Object[] noObjects = new Object[0];
 }

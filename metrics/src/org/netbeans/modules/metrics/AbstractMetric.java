@@ -19,23 +19,11 @@
 
 package org.netbeans.modules.metrics;
 
-import org.netbeans.modules.metrics.options.*;
+import org.netbeans.modules.metrics.options.MetricSettings;
 
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
-import java.io.*;
-import javax.swing.JTextArea;
-import javax.swing.UIManager;
-
-import org.openide.TopManager;
-import org.openide.filesystems.FileObject;
-import org.openide.nodes.Node;
-import org.openide.options.SystemOption;
-import org.openide.src.ClassElement;
-import org.openide.src.Identifier;
 
 public abstract class AbstractMetric implements Metric {
     protected ClassMetrics classMetrics;

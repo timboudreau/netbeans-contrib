@@ -32,7 +32,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
 import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 /**
@@ -152,7 +151,7 @@ class TableSorter extends TableMap
         }
     }
 
-    public void  sort(Object sender)
+    public void  sort()
     {
         checkModel();
 
@@ -253,7 +252,7 @@ class TableSorter extends TableMap
         this.ascending = ascending;
         sortingColumns.removeAllElements();
         sortingColumns.addElement(new Integer(column));
-        sort(this);
+        sort();
         super.tableChanged(new TableModelEvent(this)); 
     }
 

@@ -13,7 +13,6 @@
 
 package org.netbeans.modules.metrics.options;
 
-import org.netbeans.modules.metrics.ClassMetrics;
 import org.netbeans.modules.metrics.Metric;
 import org.netbeans.modules.metrics.MetricsLoader;
 

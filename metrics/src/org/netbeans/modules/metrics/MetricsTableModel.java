@@ -21,7 +21,6 @@ package org.netbeans.modules.metrics;
 
 import java.io.*;
 import java.util.Collection;
-import javax.swing.JLabel;
 import javax.swing.event.*;
 import javax.swing.table.*;
 import org.netbeans.modules.classfile.ClassName;

@@ -20,12 +20,11 @@
 package org.netbeans.modules.metrics;
 
 import org.openide.ErrorManager;
-import org.openide.TopManager;
+import org.openide.awt.StatusDisplayer;
 import org.openide.windows.WindowManager;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.*;
 import java.io.*;
 import java.text.MessageFormat;
 import java.util.*;
@@ -207,7 +206,7 @@ class MetricsPane extends JDialog {
 	    MessageFormat mf = new MessageFormat(
 		MetricsNode.bundle.getString("MSG_SavedTo"));
 	    String msg = mf.format(new Object[] { file.getPath() });
-	    TopManager.getDefault().setStatusText(msg);
+	    StatusDisplayer.getDefault().setStatusText(msg);
 	} catch (IOException e) {
 	    ErrorManager.getDefault().notify(e);
 	}

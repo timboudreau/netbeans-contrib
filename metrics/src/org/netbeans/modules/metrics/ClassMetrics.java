@@ -19,15 +19,14 @@
 
 package org.netbeans.modules.metrics;
 
-import org.netbeans.modules.classfile.*;
-
-import org.openide.src.Identifier;
-import org.openide.src.ClassElement;
-import org.openide.filesystems.*;
-
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.modules.classfile.*;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileObject;
 
-import java.beans.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.*;
 
@@ -179,7 +178,6 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
         // has the "true names".
         className = classFile.getName();
 
-        ConstantPool pool = classFile.getConstantPool();
         methods = null;
         dependentClasses = null;
     }

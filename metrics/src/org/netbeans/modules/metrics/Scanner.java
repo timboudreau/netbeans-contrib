@@ -19,7 +19,6 @@
 
 package org.netbeans.modules.metrics;
 
-import org.netbeans.modules.classfile.ConstantPool;
 import org.netbeans.modules.classfile.Code;
 import org.netbeans.modules.classfile.Method;
 

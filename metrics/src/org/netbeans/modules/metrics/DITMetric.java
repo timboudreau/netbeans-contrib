@@ -19,14 +19,8 @@
 
 package org.netbeans.modules.metrics;
 
-import org.netbeans.modules.metrics.options.*;
-
-import java.io.IOException;
-import java.beans.PropertyEditor;
-import java.beans.PropertyEditorSupport;
-
-import org.openide.src.ClassElement;
-import org.openide.src.Identifier;
+import org.netbeans.modules.metrics.options.DITMetricSettings;
+import org.netbeans.modules.metrics.options.MetricSettings;
 
 /**
  * Calculates Depth of Inheritence Tree for a Class.  This
