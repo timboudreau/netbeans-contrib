@@ -14,128 +14,44 @@ Microsystems, Inc. All Rights Reserved.
 
 
 <project name="vcsgeneric" default="netbeans" basedir=".">
-  <import file="../nbbuild/default.xml"/> 
+    <import file="../nbbuild/templates/projectized.xml"/>
 
-  <property name="stdprofiles" value="cvsprofiles, pvcs, vss"/>
-  <property name="build.compiler.debug" value="on"/>
+    <property name="stdprofiles" value="cvsprofiles, pvcs, vss"/>
 
-  <target name="init" depends="default.init">
-    <patternset id="vcsgeneric.files">
-      <include name="${nb.modules.dir}/vcsgen.jar"/>
-    </patternset>
-    <path id="cp">
-      <pathelement location="${openidex.dir}/${nb.modules.dir}/org-openidex-util.jar"/>
-      <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
-      <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
-      <pathelement location="${openide/io.dir}/${nb.modules.dir}/org-openide-io.jar"/>
-      <pathelement location="${vcscore.dir}/${nb.modules.dir}/org-netbeans-modules-vcscore.jar"/>
-      <pathelement location="${diff.dir}/${nb.modules.dir}/org-netbeans-modules-diff.jar"/>
-      <pathelement location="${projects/queries.dir}/${nb.modules.dir}/org-netbeans-modules-queries.jar"/>
-    </path>
-  </target>
+    <target name="profile-cvsprofiles">
+        <echo message="Building CVS profiles..."/>
+        <ant dir="profiles/cvsprofiles" target="netbeans"/>
+    </target>
+    <target name="profile-pvcs">
+        <echo message="Building PVCS profiles..."/>
+        <ant dir="profiles/pvcs" target="netbeans"/>
+    </target>
+    <target name="profile-vss">
+        <echo message="Building VSS profiles..."/>
+        <ant dir="profiles/vss" target="netbeans"/>
+    </target>
 
-  <target name="compile" depends="init">
-    <javac srcdir="src" 
-        deprecation="${build.compiler.deprecation}" 
-        debug="${build.compiler.debug}"
-        source="1.4"
-        destdir="src"
-        excludes="org/netbeans/modules/vcs/advanced/config/">
-      <classpath refID="cp"/>
-    </javac>
-  </target>
-
-  <target name="jars" depends="compile">
-    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
-    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
-    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/vcsgen.jar"
-         manifest="manifest-subst.mf"
-         basedir="src"
-         excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
-	 excludes="org/netbeans/modules/vcs/advanced/config/mf-layer_XX.xml" 
-         compress="false">
-      <fileset dir="src/" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt">
-        <include name="org/netbeans/modules/vcs/profiles/**/*"/>
-	<exclude name="org/netbeans/modules/vcs/profiles/config/*_XX.*"/>
-      </fileset>
-    </jar>
-  </target>
-
-  <target name="profile-cvsprofiles">
-    <echo message="Building CVS profiles..."/>
-    <ant dir="profiles/cvsprofiles" target="netbeans"/>
-  </target>
-  <target name="profile-pvcs">
-    <echo message="Building PVCS profiles..."/>
-    <ant dir="profiles/pvcs" target="netbeans"/>
-  </target>
-  <target name="profile-vss">
-    <echo message="Building VSS profiles..."/>
-    <ant dir="profiles/vss" target="netbeans"/>
-  </target>
-
-  <target name="netbeans" depends="jars">
-    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/vcsgen.jar">
-       <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
-         <patternset refID="vcsgeneric.files"/>
-       </fileset>
-    </genlist>
-  </target>
-
-  <target name="nbm" depends="netbeans">
-    <makenbm file="vcsgen.nbm"
-             productdir="${netbeans.dest.dir}/${cluster.dir}"
-             module="${nb.modules.dir}/vcsgen.jar"
-	     homepage="http://vcsgeneric.${homepage.base}/"
-	     distribution="http://${dist.base}/vcsgen.nbm">
-      <license file="${license.file}"/>
-      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-    </makenbm>
-  </target>
-
-  <target name="clean" depends="init" description="Clean build products.">
-    <delete>
-      <fileset dir="src">
-        <include name="**/*.class"/>
-        <include name="**/*.jar"/>
-        <include name="org/netbeans/modules/vcs/advanced/config/layer-include*.xml"/>
-      </fileset>
-      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
-        <patternset refID="vcsgeneric.files"/>
-      </fileset>
-    </delete>
-    <delete file="manifest-subst.mf"/>
-    <delete file="vcsgen.nbm"/>
-    <delete dir="javadoc"/>
-  </target>
-
-  <target name="javadoc" depends="init" description="Build vcsgeneric module API documentation.">
-    <tstamp/>
-    <property name="apis-footer" value="&lt;font size=-2 color=gray&gt;Built on ${TODAY}.&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Portions Copyright 1997-2003 Sun Microsystems, Inc. All rights reserved.&lt;/font&gt;"/>
-    <echo message="Build vcsgeneric module API documentation..."/>
-    <mkdir dir="javadoc"/>
-    <javadoc destdir="javadoc"
-             packagenames="org.netbeans.modules.*,vcs.*"
-             doctitle="NetBeans vcsgeneric module APIs"
-             windowtitle="NetBeans vcsgeneric module APIs"
-             bottom="${apis-footer}"
-             use="true"
-             splitindex="true"
-             author="false"
-             version="false"
-             maxmemory="384m"
-    >
-      <sourcepath>
-        <pathelement location="src"/>
-        <pathelement location="profiles/clearcase/src"/>
-        <pathelement location="profiles/cvsprofiles/src"/>
-        <pathelement location="profiles/pvcs/src"/>
-        <pathelement location="profiles/starteam/common"/>
-        <pathelement location="profiles/vss/src"/>
-      </sourcepath>
-      <classpath refID="cp"/>
-    </javadoc>    
-  </target>
+    <target name="jar-no-module-deps" unless="module.dependencies">
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" compress="${build.package.compress}" index="${build.package.index}" manifest="${manifest.mf}">
+            <manifest>
+                <attribute name="OpenIDE-Module-Public-Packages" value="${public.packages}"/>
+                <attribute name="OpenIDE-Module-IDE-Dependencies" value="${ide.dependencies}"/>
+                <attribute name="OpenIDE-Module-Build-Version" value="${buildnumber}"/>
+            </manifest>
+            <fileset dir="${build.classes.dir}"/>
+        </jar>
+    </target>
+ 
+    <target name="jar-with-module-deps" if="module.dependencies">
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" compress="${build.package.compress}" index="${build.package.index}" manifest="${manifest.mf}">
+            <manifest>
+                <attribute name="OpenIDE-Module-Public-Packages" value="${public.packages}"/>
+                <attribute name="OpenIDE-Module-IDE-Dependencies" value="${ide.dependencies}"/>
+                <attribute name="OpenIDE-Module-Module-Dependencies" value="${module.dependencies}"/>
+                <attribute name="OpenIDE-Module-Build-Version" value="${buildnumber}"/>
+            </manifest>
+            <fileset dir="${build.classes.dir}"/>
+        </jar>
+    </target>
 
 </project>
