@@ -457,7 +457,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             SwingUtilities.invokeLater(new Runnable(){
                 public void run(){
                     getVisualizer(false).open(null);                    
-                    visualizerText.setExitStatus(1);   
+                    visualizerText.setExitStatus(executor.getExitStatus());
                 }
             });
             
