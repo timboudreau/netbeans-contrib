@@ -76,6 +76,10 @@ public class CommandOutputTopComponent extends TopComponent {
         getActionMap().put("discard", discardAction);//NOI18N
     }
 
+    protected String preferredID(){
+        return "CommandOutputTopComponent";   //NOI18N        
+    }
+    
     // -------- TopComponent singelton & persistence stuff ----------
 
     /** Gets default instance. Don't use directly, it reserved for '.settings' file only,
