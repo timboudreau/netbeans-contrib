@@ -3096,14 +3096,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return in;
     }
 
-    private void fileChanged(String name) {
+    private void fileChanged(final String name) {
         D.deb("fileChanged("+name+")");
         if (statusProvider != null) {
-            String oldStatus = statusProvider.getFileStatus(name);
-            if (!notModifiableStatuses.contains(oldStatus)) {
-                statusProvider.setFileModified(name);
-                statusChanged(name);
-            }
+            // Fire the change asynchronously to prevent deadlocks.
+            org.openide.util.RequestProcessor.postRequest(new Runnable() {
+                public void run() {
+                    String oldStatus = statusProvider.getFileStatus(name);
+                    if (!notModifiableStatuses.contains(oldStatus)) {
+                        statusProvider.setFileModified(name);
+                    }
+                }
+            });
         }
     }
 
@@ -3116,12 +3120,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         public void close() throws IOException {
             super.close();
-            // Fire the change asynchronously to prevent deadlocks.
-            org.openide.util.RequestProcessor.postRequest(new Runnable() {
-                public void run() {
-                    fileChanged(name);
-                }
-            });
+            if (name != null) VcsFileSystem.this.fileChanged(name);
         }
     }
     
