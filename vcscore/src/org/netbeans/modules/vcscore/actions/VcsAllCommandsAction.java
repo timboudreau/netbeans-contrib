@@ -144,7 +144,7 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
     
     private static JMenuItem[] getContextMenu(boolean inMenu, Lookup actionContext) {
         VcsFSCommandsAction contextAction = (VcsFSCommandsAction) VcsFSCommandsAction.get(VcsFSCommandsAction.class);
-        JMenuItem[] contextMenu = contextAction.createMenuItems(inMenu, actionContext);
+        JMenuItem[] contextMenu = contextAction.createMenuItems(inMenu, actionContext, true);
         return contextMenu;
     }
     

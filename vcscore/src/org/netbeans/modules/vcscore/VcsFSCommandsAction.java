@@ -34,6 +34,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import org.netbeans.api.fileinfo.NonRecursiveFolder;
+import org.openide.actions.FileSystemAction;
 
 import org.openide.awt.Actions;
 import org.openide.awt.JInlineMenu;
@@ -93,11 +94,21 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
      * Currently the info can be a String message, or NonRecursiveFolder.class
      * or <code>null</code>.
      */
-    private Map getSelectedFileObjectsFromActiveNodes (Lookup lookup) {
+    private Map getSelectedFileObjectsFromActiveNodes (Lookup lookup, boolean checkFSAction) {
         Map filesWithInfo = new Table();
         ArrayList files = new ArrayList();
         Node[] nodes = (Node[])lookup.lookup (new Lookup.Template (Node.class)).allInstances().toArray (new Node[0]);
         for (int i = 0; i < nodes.length; i++) {
+            boolean isFSAction = !checkFSAction;
+            if (checkFSAction) {
+                javax.swing.Action[] actions = nodes[i].getActions(true);
+                for (int a = 0; a < actions.length; a++) {
+                    if (actions[a] instanceof FileSystemAction) {
+                        isFSAction = true;
+                        break;
+                    }
+                }
+            }
             GroupCookie gc = (GroupCookie) nodes[i].getCookie(GroupCookie.class);
             if (gc != null) {
                 // Put any preceding files there to keep the order:
@@ -147,6 +158,12 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
                     Collection fos;
                     if (fileObjects != null && (fos = fileObjects.allInstances()).size() > 0) {
                         FileObject one = (FileObject) fos.iterator().next();
+                        // Ignore nodes that represent folders and do not have
+                        // FileSystemAction associated. It might be dangerous to
+                        // add VCS actions there, because the UI might not be
+                        // descriptive enough for the user to see what's going
+                        // to happen.
+                        if (!isFSAction && one.isFolder()) continue;
                         addAllFromSingleFS(one, fos, files);
                     } else {
                         DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
@@ -155,8 +172,12 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
                             // We want to have the same VCS actions on the link as on the original.
                             dd = ((DataShadow) dd).getOriginal();
                         }
-                        //files.addAll(dd.files());
-                        //addAllWorkaround(dd.files(), files);
+                        // Ignore nodes that represent folders and do not have
+                        // FileSystemAction associated. It might be dangerous to
+                        // add VCS actions there, because the UI might not be
+                        // descriptive enough for the user to see what's going
+                        // to happen.
+                        if (!isFSAction && dd.getPrimaryFile().isFolder()) continue;
                         addAllFromSingleFS(dd.getPrimaryFile(), dd.files(), files);
                     }
                 }
@@ -266,7 +287,10 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
     }
     
     public JMenuItem[] createMenuItems(boolean inMenu, Lookup lookup) {
-        Map filesWithInfo = getSelectedFileObjectsFromActiveNodes (lookup);
+        return createMenuItems(inMenu, lookup, false);
+    }
+    public JMenuItem[] createMenuItems(boolean inMenu, Lookup lookup, boolean checkFSAction) {
+        Map filesWithInfo = getSelectedFileObjectsFromActiveNodes (lookup, checkFSAction);
         //System.out.println("VcsFSCommandsAction.getPresenter(): selected filesWithInfo: "+filesWithInfo);
         ArrayList menuItems = new ArrayList();
         //CommandsTree[] commands = actionCommandsTree.children();

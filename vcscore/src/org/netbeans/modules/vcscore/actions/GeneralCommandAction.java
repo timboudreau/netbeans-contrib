@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Enumeration;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
+import org.openide.actions.FileSystemAction;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -313,14 +314,25 @@ public class GeneralCommandAction extends NodeAction {
                             System.out.println("checking action on data shadow=" + dobj.getName() + "   " + dobj.getClass());
                         }
  */
-                        if (!checkDataObject(dobj)) return false;
+                        if (!checkDataObject(dobj, true)) return false;
                     }
                 }
             } else {
+                boolean isFSAction = false;
+                javax.swing.Action[] actions = nodes[i].getActions(true);
+                for (int a = 0; a < actions.length; a++) {
+                    if (actions[a] instanceof FileSystemAction) {
+                        isFSAction = true;
+                        break;
+                    }
+                }
                 Lookup.Result fileObjects = nodes[i].getLookup().lookup(new Lookup.Template(FileObject.class));
                 Collection fos = fileObjects.allInstances();
                 if (fos.size() > 0) {
-                    if (!checkFileObjects(fos)) return false;
+                    if (!checkFileObjects(fos, isFSAction)) {
+                        suppMap = null;
+                        return false;
+                    }
                 } else {
                     DataObject dataObj;
                     dataObj = (DataObject)nodes[i].getCookie(DataObject.class);
@@ -328,23 +340,25 @@ public class GeneralCommandAction extends NodeAction {
                         dataObj = ((DataShadow)dataObj).getOriginal();
                     }
     //                System.out.println("dataobj =" + dataObj);
-                    if (!checkDataObject(dataObj)) return false;
+                    if (!checkDataObject(dataObj, isFSAction)) {
+                        suppMap = null;
+                        return false;
+                    }
                 }
             }
         }
         return true;
     }
     
-    private boolean checkDataObject(DataObject dataObj) {
+    private boolean checkDataObject(DataObject dataObj, boolean isFSAction) {
         if (dataObj == null) {
-            suppMap = null;
             return false;
         }
         FileObject fileOb = dataObj.getPrimaryFile();
         if (fileOb == null) {
-            suppMap = null;
             return false;
         }
+        if (!isFSAction && fileOb.isFolder()) return false;
         FileSystem primaryFS = (FileSystem) fileOb.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
         CommandActionSupporter supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);
         if (supp != null) {
@@ -365,7 +379,6 @@ public class GeneralCommandAction extends NodeAction {
             }
 //            addToMap(suppMap, supp, dataObj.files());
         } else {
-            suppMap = null;
 //            System.out.println("no supporter found for " + dataObj.getName());
             // one of the files is not under version control..
             return false;
@@ -373,11 +386,12 @@ public class GeneralCommandAction extends NodeAction {
         return true;
     }
     
-    private boolean checkFileObjects(Collection fileObjects) {
+    private boolean checkFileObjects(Collection fileObjects, boolean isFSAction) {
         FileSystem primaryFS = null;
         boolean addedSomething = false;
         for (Iterator it = fileObjects.iterator(); it.hasNext(); ) {
             FileObject fileOb = (FileObject) it.next();
+            if (!isFSAction && fileOb.isFolder()) return false;
             FileSystem fs = (FileSystem) fileOb.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
             if (fs == null) continue;
             if (primaryFS == null) primaryFS = fs;
