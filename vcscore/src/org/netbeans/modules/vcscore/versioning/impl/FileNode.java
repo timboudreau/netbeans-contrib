@@ -15,12 +15,15 @@ package org.netbeans.modules.vcscore.versioning.impl;
 
 import org.openide.filesystems.*;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.actions.NodeAction;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
 import org.openide.util.RequestProcessor;
+import org.openide.util.HelpCtx;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.ErrorManager;
+import org.openide.nodes.Node;
 
 import org.netbeans.modules.vcscore.versioning.*;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
@@ -31,6 +34,7 @@ import java.util.Set;
 import java.util.Collections;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.awt.event.ActionEvent;
 
 /**
  * Node representing one versioned file. It adds
@@ -54,12 +58,16 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
         
         propListener = new PropertyListenerImpl();
         this.addPropertyChangeListener(propListener);
-        
-        getCookieSet().add(this);
+    }
+
+    public Cookie getCookie(Class type) {
+        if (type.isAssignableFrom(RefreshRevisionsCookie.class)) return this;
+        return super.getCookie(type);
     }
 
     public Action[] getActions(boolean context) {
         return new SystemAction[]{
+            //SystemAction.get(DebugAction.class),
             SystemAction.get(org.openide.actions.OpenLocalExplorerAction.class),
             SystemAction.get(RefreshRevisionsAction.class),
             SystemAction.get(org.openide.actions.FileSystemAction.class),
@@ -160,4 +168,5 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
             }
         }
     }
+
 }
