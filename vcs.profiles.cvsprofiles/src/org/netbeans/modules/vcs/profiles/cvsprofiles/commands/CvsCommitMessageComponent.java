@@ -136,6 +136,8 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
         assert VARIABLE.equals(variable) : "Unexpected var:" + variable; // NOI18N
         if (validityCheck()) {
             return null;
+        } else if (loadingInProgress()) {
+            return "A commit message template is just being loaded";
         } else {
             return "A commit message is required";
         }
@@ -143,7 +145,12 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
 
     /** Non empty text must be entered, and loading must not be in progress. */
     private boolean validityCheck() {
-        return textArea.isEditable() == false || cleanupContent(textArea.getText()).length() > 0;
+        return  loadingInProgress() == false && cleanupContent(textArea.getText()).length() > 0;
+    }
+
+    /** Is running background template loading? */
+    private boolean loadingInProgress() {
+        return textArea.isEditable() == false;
     }
 
     /** Removes all lines begining with "CVS:" */
