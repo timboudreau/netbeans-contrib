@@ -405,6 +405,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient VersioningFileSystem versioningSystem = null;
 
     private transient AbstractFileSystem.List vcsList = null;
+    
+    private transient LocalFilenameFilter localFilenameFilter = null;
 
     /** The refresh request instead of the standard refreshing. */
     private transient VcsRefreshRequest refresher = new VcsRefreshRequest (this, 0, this);
@@ -1486,6 +1488,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     protected void init() {
         D.deb ("init()"); // NOI18N
+        localFilenameFilter = new LocalFilenameFilter();
         if (tempFiles == null) tempFiles = new Vector();
         unimportantFiles = Collections.synchronizedSet(new HashSet());
         //cache = new VcsFSCache(this/*, createNewCacheDir ()*/);
@@ -2987,7 +2990,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     String[] getLocalFiles(String name) {
         File dir = new File(getRootDirectory(), name);
         if (dir == null || !dir.exists() || !dir.canRead()) return new String[0];
-        String files[] = dir.list(getLocalFileFilter());
+        localFilenameFilter.setOptionalFilter(getLocalFileFilter());
+        String files[] = dir.list(localFilenameFilter);
         return files;
     }
 
@@ -4613,6 +4617,32 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             checkVirtualFiles(fos);
         }
 
+    }
+    
+    private class LocalFilenameFilter extends Object implements FilenameFilter {
+        
+        private final boolean ignoreCase;
+        private FilenameFilter optionalFilter;
+        
+        public LocalFilenameFilter() {
+            ignoreCase = Utilities.isWindows();
+        }
+        
+        public void setOptionalFilter(FilenameFilter optionalFilter) {
+            this.optionalFilter = optionalFilter;
+        }
+        
+        public boolean accept(File dir, String name) {
+            if (ignoreCase && IntegritySupportMaintainer.DB_FILE_NAME.equalsIgnoreCase(name) ||
+                !ignoreCase && IntegritySupportMaintainer.DB_FILE_NAME.equals(name)) {
+                return false;
+            } else if (optionalFilter != null) {
+                return optionalFilter.accept(dir, name);
+            } else {
+                return true;
+            }
+        }
+        
     }
 
     public String getBundleProperty(String s) {

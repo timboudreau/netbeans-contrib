@@ -48,9 +48,9 @@ public final class IntegritySupportMaintainer extends Object
                                               implements PropertyChangeListener,
                                                          VetoableChangeListener,
                                                          Runnable {
+    public static final String DB_FILE_NAME = ".nbintdb"; // NOI18N
     private static Map VOISMap = new WeakHashMap();
     private static final int SAVER_SCHEDULE_TIME = 500;
-    private static final String DB_FILE_NAME = ".nbintdb"; // NOI18N
     
     private FileSystem fileSystem;
     private VcsOISActivator objectIntegrityActivator;
