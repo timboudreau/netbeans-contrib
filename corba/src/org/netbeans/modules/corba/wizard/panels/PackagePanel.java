@@ -20,6 +20,7 @@ import java.beans.PropertyVetoException;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.DocumentListener;
 import org.openide.TopManager;
 import org.openide.nodes.Node;
 import org.openide.filesystems.FileObject;
@@ -35,7 +36,7 @@ import org.netbeans.modules.corba.wizard.CorbaWizardData;
  * @author  tzezula
  * @version 
  */
-public class PackagePanel extends AbstractWizardPanel implements PropertyChangeListener, VetoableChangeListener, DataFilter {
+public class PackagePanel extends AbstractWizardPanel implements PropertyChangeListener, VetoableChangeListener, DataFilter, DocumentListener {
 
     //private static final boolean DEBUG = true;
     private static final boolean DEBUG = false;
@@ -56,6 +57,7 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
         this.tree.getExplorerManager().addPropertyChangeListener (this);
         this.tree.getExplorerManager().addVetoableChangeListener (this);
         this.packageName.setEditable (false);
+        this.idlName.getDocument().addDocumentListener(this);
     }
   
     public void readCorbaSettings (CorbaWizardData data) {
@@ -82,11 +84,26 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
             Node[] nodes = (Node[]) newValue;
             if (nodes.length == 1) {
                 Node node = nodes[0];
-                String selection = node.getName();
+                /*String selection = node.getName();
                 node = node.getParentNode();
+                Node lastNode = null;
                 while (node != this.root && node != null){
                     selection = node.getDisplayName()+"."+selection;
+                    lastNode = node;
                     node = node.getParentNode();
+                }*/
+                String selection ="";
+                while (true) {
+                    Node parent = node.getParentNode();
+                    if (parent == null || parent == this.root){
+                        String path = node.getDisplayName()+"/" + selection.replace('.','/');
+                        if (selection.endsWith ("."))
+                            selection = selection.substring (0, selection.length() -1);
+                        selection = java.text.MessageFormat.format("{0} [{1}]", new Object[] {selection,path});
+                        break;
+                    }
+                    selection = node.getDisplayName()+"."+selection;
+                    node = parent;
                 }
                 this.packageName.setText (selection);
                 this.checkFileNameValidity ();
@@ -123,9 +140,8 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
         java.awt.GridBagConstraints gridBagConstraints1;
         setPreferredSize(new java.awt.Dimension(500, 340));
         setMinimumSize(new java.awt.Dimension(480, 320));
-
-
-
+        
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 2;
@@ -135,11 +151,11 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(tree, gridBagConstraints1);
-
+        
+        
         jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_Package"));
         jLabel1.setFont(new java.awt.Font ("Dialog", 0, 18));
-
-
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 0;
@@ -149,19 +165,19 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(jLabel1, gridBagConstraints1);
-
+        
+        
         jLabel2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_PackageName"));
-
-
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 3;
         gridBagConstraints1.insets = new java.awt.Insets(0, 8, 8, 8);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel2, gridBagConstraints1);
-
-
-
+        
+        
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 3;
@@ -170,9 +186,9 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
         gridBagConstraints1.insets = new java.awt.Insets(0, 0, 8, 8);
         gridBagConstraints1.weightx = 1.0;
         add(packageName, gridBagConstraints1);
-
-
-
+        
+        
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 4;
@@ -181,27 +197,21 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
         gridBagConstraints1.weightx = 1.0;
         gridBagConstraints1.weighty = 1.0;
         add(jPanel1, gridBagConstraints1);
-
+        
+        
         jLabel3.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_Name"));
         jLabel3.setLabelFor(idlName);
-
-
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 1;
         gridBagConstraints1.insets = new java.awt.Insets(4, 8, 4, 4);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(jLabel3, gridBagConstraints1);
-
+        
+        
         idlName.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TIP_NameOfIdlFile"));
-        idlName.addFocusListener(new java.awt.event.FocusAdapter() {
-                public void focusLost(java.awt.event.FocusEvent evt) {
-                    idlNameFocusLost(evt);
-                }
-            }
-                                 );
-
-
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 1;
@@ -211,16 +221,11 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.weightx = 1.0;
         add(idlName, gridBagConstraints1);
-
+        
     }//GEN-END:initComponents
 
-    private void idlNameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_idlNameFocusLost
-        // Add your handling code here:
-        this.checkFileNameValidity ();
-    }//GEN-LAST:event_idlNameFocusLost
 
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+// Variables declaration - do not modify//GEN-BEGIN:variables
     private org.openide.explorer.ExplorerPanel tree;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -228,7 +233,7 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JTextField idlName;
-    // End of variables declaration//GEN-END:variables
+// End of variables declaration//GEN-END:variables
 
   
     /** Should the data object be displayed or not?
@@ -258,8 +263,9 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
             String name = this.idlName.getText();
             for (int i=0; i<files.length; i++) {
                 if (files[i].isData() && files[i].getExt().equals("idl") && files[i].getName().equals(name)){
-                    NotifyDescriptor descriptor = new NotifyDescriptor.Message (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("MSG_FileAlreadyExists"));
-                    TopManager.getDefault().notify (descriptor);
+                    //NotifyDescriptor descriptor = new NotifyDescriptor.Message (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("MSG_FileAlreadyExists"));
+                    //TopManager.getDefault().notify (descriptor);
+                    validIdlName = false;
                     return;
                 }
             }
@@ -267,5 +273,18 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
         }finally {
             this.fireChange (this);
         }
+    }
+    
+    
+    public void removeUpdate(final javax.swing.event.DocumentEvent event) {
+        checkFileNameValidity ();
+    }
+    
+    public void changedUpdate(final javax.swing.event.DocumentEvent event) {
+        checkFileNameValidity ();
+    }
+    
+    public void insertUpdate(final javax.swing.event.DocumentEvent event) {
+        checkFileNameValidity ();
     }
 }

@@ -140,10 +140,10 @@ public class ORBPanel extends AbstractWizardPanel {
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
         setPreferredSize(new java.awt.Dimension(500, 340));
-
+        
         jPanel1.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints2;
-
+        
         jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_OrbImplementations"));
           jLabel1.setLabelFor(orbs);
           gridBagConstraints2 = new java.awt.GridBagConstraints();
@@ -152,8 +152,8 @@ public class ORBPanel extends AbstractWizardPanel {
           gridBagConstraints2.insets = new java.awt.Insets(8, 8, 8, 4);
           gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
           jPanel1.add(jLabel1, gridBagConstraints2);
-  
-  
+          
+          
         jLabel2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_BindingMethod"));
           jLabel2.setLabelFor(bindings);
           gridBagConstraints2 = new java.awt.GridBagConstraints();
@@ -162,8 +162,8 @@ public class ORBPanel extends AbstractWizardPanel {
           gridBagConstraints2.insets = new java.awt.Insets(8, 8, 8, 4);
           gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
           jPanel1.add(jLabel2, gridBagConstraints2);
-  
-  
+          
+          
         gridBagConstraints2 = new java.awt.GridBagConstraints();
           gridBagConstraints2.gridx = 1;
           gridBagConstraints2.gridy = 0;
@@ -174,8 +174,8 @@ public class ORBPanel extends AbstractWizardPanel {
           gridBagConstraints2.weightx = 1.0;
           gridBagConstraints2.weighty = 1.0;
           jPanel1.add(orbs, gridBagConstraints2);
-  
-  
+          
+          
         gridBagConstraints2 = new java.awt.GridBagConstraints();
           gridBagConstraints2.gridx = 1;
           gridBagConstraints2.gridy = 1;
@@ -184,8 +184,8 @@ public class ORBPanel extends AbstractWizardPanel {
           gridBagConstraints2.insets = new java.awt.Insets(8, 4, 8, 8);
           gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
           jPanel1.add(bindings, gridBagConstraints2);
-  
-  
+          
+          
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 1;
@@ -195,11 +195,11 @@ public class ORBPanel extends AbstractWizardPanel {
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints1.weightx = 1.0;
         add(jPanel1, gridBagConstraints1);
-
-
+        
+        
         jLabel3.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_ImplementationsBindings"));
         jLabel3.setFont(new java.awt.Font ("Dialog", 0, 18));
-
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 0;
@@ -209,9 +209,9 @@ public class ORBPanel extends AbstractWizardPanel {
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints1.weightx = 1.0;
         add(jLabel3, gridBagConstraints1);
-
-
-
+        
+        
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridwidth = 0;
         gridBagConstraints1.gridheight = 0;
@@ -220,7 +220,7 @@ public class ORBPanel extends AbstractWizardPanel {
         gridBagConstraints1.weightx = 1.0;
         gridBagConstraints1.weighty = 1.0;
         add(jPanel3, gridBagConstraints1);
-
+        
     }//GEN-END:initComponents
 
     
@@ -273,7 +273,7 @@ public class ORBPanel extends AbstractWizardPanel {
 
     
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+// Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -281,7 +281,7 @@ public class ORBPanel extends AbstractWizardPanel {
     private javax.swing.JComboBox bindings;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel3;
-    // End of variables declaration//GEN-END:variables
+// End of variables declaration//GEN-END:variables
 
     
 
