@@ -226,9 +226,11 @@ public class CommandExecutorSupport extends Object {
             String glInput = (String) vars.get(GLOBAL_INPUT_EXPRESSION);
             if (glInput != null) {
                 String search = "${"+USER_GLOBAL_PARAM+"}";
-                int index = exec.indexOf(search);
-                if (index > 0) {
+                int pos = 0;
+                int index;
+                while ((index = exec.indexOf(search, pos)) > 0) {
                     exec = exec.substring(0, index) + glInput + exec.substring(index + search.length());
+                    pos = index + search.length();
                 }
             }
         }
