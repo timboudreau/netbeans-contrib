@@ -33,6 +33,7 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
         Color.CYAN, Color.YELLOW, Color.BLUE, Color.RED, Color.MAGENTA, Color.ORANGE, Color.BLACK
     };
     private int zoom = 100;
+    private AffineTransform lastTransform;
     
     private java.awt.Shape edge;
 
@@ -67,7 +68,7 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
     
     private void paintNode (java.awt.Graphics g, Vertex v, java.awt.FontMetrics fm) {
         Rectangle r = v.getRectangle ();
-        if (r == null || Math.abs (v.x - r.x - r.width / 2) > 1 || Math.abs (v.y - r.y - r.height / 2) > 1) {
+        if (r == null || Math.abs (v.x - r.x - r.width / 2) > 2 || Math.abs (v.y - r.y - r.height / 2) > 2) {
             int x = (int)v.x;
             int y = (int)v.y;
             int w = fm.stringWidth (v.name) + 10;
@@ -88,24 +89,26 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
             
             g.setColor (c);
         }
-        g.fillRect (zoom (r.x), zoom (r.y), r.width, r.height);
+        g.fillRect (r.x, r.y, r.width, r.height);
         
         g.setColor (Color.black);
-        g.drawRect (zoom (r.x), zoom (r.y), r.width - 1, r.height - 1);
-        g.drawString (v.name, zoom (r.x + 5), zoom (r.y) + fm.getAscent ());
+        g.drawRect (r.x, r.y, r.width - 1, r.height - 1);
+        g.drawString (v.name, r.x + 5, r.y + fm.getAscent ());
     }
     
     protected void paintComponent (java.awt.Graphics g) {
         java.awt.Graphics2D g2d = (java.awt.Graphics2D)g;
         
-        java.awt.Dimension d = computeSize ();
-        setSize (d);
+        java.awt.Dimension d = getSize ();
+        g2d.translate (d.width / 2, d.height / 2);
+        g2d.scale (zoom / 100.0, zoom / 100.0);
+        
         for (Iterator it = graph.edges.iterator (); it.hasNext (); ) {
             Edge e = (Edge)it.next ();
-            int x1 = zoom (e.getVertex1 ().getX ());
-            int y1 = zoom (e.getVertex1 ().getY ());
-            int x2 = zoom (e.getVertex2 ().getX ());
-            int y2 = zoom (e.getVertex2 ().getY ());
+            int x1 = e.getVertex1 ().getX ();
+            int y1 = e.getVertex1 ().getY ();
+            int x2 = e.getVertex2 ().getX ();
+            int y2 = e.getVertex2 ().getY ();
             Color c = Color.red.brighter ();
             for (int i = e.strength; i > 0; i--) {
                 c = c.darker ();
@@ -147,40 +150,29 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
             Vertex v = (Vertex)it.next ();
             paintNode (g, v, fm);
         }
+        
+        lastTransform = g2d.getTransform ();
     }
     
     public void setZoom (int zoom) {
         this.zoom = zoom;
         repaint ();
     }
-    
-    private int zoom (int value) {
-        if (zoom == 100) return value;
-        
-        return value * zoom / 100;
-    }
 
-    private int unzoom (int value) {
-        if (zoom == 100) return value;
-        
-        return value * 100 / zoom;
-    }
-
-    private java.awt.Dimension computeSize () {
-        return new java.awt.Dimension (zoom ((int)graph.maxX), zoom ((int)graph.maxY));
-    }
-    /*
-    public java.awt.Dimension getPreferredSize () {
-        java.awt.Dimension d = computeSize ();
-        return new java.awt.Dimension (Math.max (d.width, 300), Math.max (d.height, 300));
-    }*/
-    
     //
     // mouse operations
     //
     
     private void popup (java.awt.event.MouseEvent e) {
-        final Vertex v = graph.findVertex (unzoom (e.getX ()), unzoom (e.getY ()), 20, 20);
+        java.awt.geom.Point2D at;
+        try {
+             at = lastTransform.inverseTransform (e.getPoint (), null);
+        } catch (java.awt.geom.NoninvertibleTransformException ex) {
+            ex.printStackTrace();
+            return;
+        }
+        
+        final Vertex v = graph.findVertex ((int)at.getX (), (int)at.getY (), 20, 20);
         if (v == null) {
             return;
         }
@@ -242,8 +234,15 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
         if (e.getClickCount () != 2) {
             return;
         }
+        java.awt.geom.Point2D at;
+        try {
+             at = lastTransform.inverseTransform (e.getPoint (), null);
+        } catch (java.awt.geom.NoninvertibleTransformException ex) {
+            ex.printStackTrace();
+            return;
+        }
         
-        Vertex v = graph.findVertex (unzoom (e.getX ()), unzoom (e.getY ()), 20, 20);
+        Vertex v = graph.findVertex ((int)at.getX (), (int)at.getY (), 20, 20);
         if (v != null && v != dragging) {
             v.setFixed (false);
             repaint ();
@@ -257,7 +256,15 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
             return;
         }
         
-        Vertex v = graph.findVertex (unzoom (e.getX ()), unzoom (e.getY ()), 20, 20);
+        java.awt.geom.Point2D at;
+        try {
+             at = lastTransform.inverseTransform (e.getPoint (), null);
+        } catch (java.awt.geom.NoninvertibleTransformException ex) {
+            ex.printStackTrace();
+            return;
+        }
+        
+        Vertex v = graph.findVertex ((int)at.getX (), (int)at.getY (), 20, 20);
         if (v == null) {
             return;
         }
@@ -282,8 +289,16 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
         }
         removeMouseMotionListener (this);
 
-        dragging.x = unzoom (e.getX ());
-        dragging.y = unzoom (e.getY ());
+        java.awt.geom.Point2D at;
+        try {
+             at = lastTransform.inverseTransform (e.getPoint (), null);
+        } catch (java.awt.geom.NoninvertibleTransformException ex) {
+            ex.printStackTrace();
+            return;
+        }
+
+        dragging.x = (int)at.getX ();
+        dragging.y = (int)at.getY ();
         dragging.setFixed (true);
         dragging = null;
         
@@ -300,8 +315,16 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
     public void mouseDragged (java.awt.event.MouseEvent e) {
         if (dragging == null) return;
         
-        dragging.x = unzoom (e.getX ());
-        dragging.y = unzoom (e.getY ());
+        java.awt.geom.Point2D at;
+        try {
+             at = lastTransform.inverseTransform (e.getPoint (), null);
+        } catch (java.awt.geom.NoninvertibleTransformException ex) {
+            ex.printStackTrace();
+            return;
+        }
+
+        dragging.x = (int)at.getX ();
+        dragging.y = (int)at.getY ();
         dragging.setFixed (true);
         repaint ();
         e.consume ();

@@ -27,7 +27,6 @@ public final class Graph extends Object {
     
     private int middleSize = 100;
     private int gridSize = 300;
-    private java.awt.Dimension size;
     double minX, maxX, minY, maxY;
     
     /** Creates a new instance of Graph */
@@ -202,16 +201,18 @@ public final class Graph extends Object {
     // forces computation
     //
     
+    /** Initializes the nodes randomly around the 0,0 point in both 
+     * directions specified by dimension.
+     */
     final void initialize (java.awt.Dimension dim) {
         // clean data in vertexes
-        size = dim;
         for (Iterator it = vertexes.iterator (); it.hasNext (); ) {
             Vertex v = (Vertex)it.next ();
             if (v.isFixed ()) {
                 continue;
             }
-            v.x = Math.random () * ((double)dim.width);
-            v.y = Math.random () * ((double)dim.height);
+            v.x = Math.random () * (2 * (double)dim.width) - dim.width;
+            v.y = Math.random () * (2 * (double)dim.height) - dim.height;
         }
     }
     
