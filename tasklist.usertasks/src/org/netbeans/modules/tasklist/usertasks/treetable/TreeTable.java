@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.List;
+import java.util.logging.Level;
 import javax.swing.ActionMap;
 import javax.swing.Icon;
 import javax.swing.InputMap;
@@ -61,10 +62,7 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.UTUtils;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
-import org.netbeans.modules.tasklist.usertasks.UserTaskList;
-import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
-import org.netbeans.modules.tasklist.usertasks.UserTasksTreeTableModel;
+
 
 /**
  * This example shows how to create a simple JTreeTable component, 
@@ -101,6 +99,7 @@ public class TreeTable extends JTable {
 
     public TreeTable(TreeTableModel treeTableModel) {
 	super();
+        putClientProperty("JTable.autoStartsEdit", Boolean.FALSE);
 
         // Create the tree. It will be used as a renderer and editor. 
         // First we create a dummy model for the tree and set later the
@@ -446,6 +445,8 @@ public class TreeTable extends JTable {
      * the tree in the background, and then draw the editor over it.
      */
     public boolean editCellAt(int row, int column, EventObject e){
+        if (e == null && UTUtils.LOGGER.isLoggable(Level.FINE)) 
+            Thread.dumpStack();
         if (cellEditor != null && !cellEditor.stopCellEditing()) {
             return false;
         }

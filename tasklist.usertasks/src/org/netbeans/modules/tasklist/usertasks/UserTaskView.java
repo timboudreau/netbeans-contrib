@@ -14,38 +14,26 @@
 package org.netbeans.modules.tasklist.usertasks;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 import javax.swing.ActionMap;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
 import javax.swing.tree.TreePath;
-
-import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
@@ -60,7 +48,6 @@ import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.RemoveFilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter;
-import org.netbeans.modules.tasklist.usertasks.filter.UserTaskProperties;
 import org.netbeans.modules.tasklist.usertasks.translators.HtmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
@@ -80,9 +67,7 @@ import org.openide.filesystems.Repository;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
@@ -116,9 +101,35 @@ ExplorerManager.Provider, ExportImportProvider {
     
     private static UserTaskView defview = null;
     
-    /** Keeps track of all UserTaskViews */
+    /** 
+     * Keeps track of all UserTaskViews. Access should be synchronized on
+     * UserTaskView.class
+     */
     private transient static List views = new ArrayList();
 
+    static {
+        // repaint the view if the number of working hours per day has
+        // changed (spent time, rem. effort and effort columns should be
+        // repainted
+        Settings.getDefault().addPropertyChangeListener(
+            new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent e) {
+                    if (e.getPropertyName() != Settings.PROP_HOURS_PER_DAY)
+                        return;
+                    
+                    synchronized(UserTaskView.class) {
+                        Iterator it = views.iterator();
+                        while (it.hasNext()) {
+                            WeakReference wr = (WeakReference) it.next();
+                            UserTaskView utv = (UserTaskView) wr.get();
+                            utv.repaint();
+                        }
+                    }
+                }
+            }
+        );
+    }
+    
     /** 
      * Returns the view with the default task list. The view will be opened if
      * it was not.
@@ -465,7 +476,7 @@ ExplorerManager.Provider, ExportImportProvider {
                     setName(tasklist.getFile().getNameExt());
                     setToolTipText(FileUtil.getFileDisplayName(tasklist.getFile()));
                 } else {
-                    setName(UTUtils.getString("TaskViewName")); // NOI18N
+                    setName(NbBundle.getMessage(UserTaskView.class, "TaskViewName")); // NOI18N
                 }
             }
         }); 

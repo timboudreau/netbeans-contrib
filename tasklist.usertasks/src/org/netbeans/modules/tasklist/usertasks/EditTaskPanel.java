@@ -33,10 +33,12 @@ import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
+import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.dependencies.DependenciesPanel;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -116,6 +118,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         new DefaultComboBoxModel(SuggestionPriority.getPriorityNames());
     private ListCellRenderer priorityRenderer = new PriorityListCellRenderer();
     private DurationPanel durationPanel = new DurationPanel();
+    private DependenciesPanel dp;
     
     /** 
      * Creates new form NewTodoItemPanel.
@@ -151,6 +154,10 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             setInputVerifier(new EditTaskPanel.PercentsInputVerifier());
         
         jPanelEffort.add(durationPanel, BorderLayout.CENTER);
+        
+        dp = new DependenciesPanel();
+        dp.setBorder(new EmptyBorder(11, 11, 12, 12));
+        jPanelDependencies.add(dp, BorderLayout.CENTER);
     }
     
     public void addNotify() {
@@ -225,6 +232,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             jRadioButtonComputeSpent.setSelected(true);
         else
             jRadioButtonSpent.setSelected(true);
+        
+        dp.fillPanel(item);
     }
     
     /**
@@ -278,6 +287,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         if (!task.isSpentTimeComputed()) {
             task.setSpentTime(durationPanelSpent.getDuration());
         }
+        
+        dp.fillObject();
     }
     
     /**
@@ -451,6 +462,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         jRadioButtonComputeSpent = new javax.swing.JRadioButton();
         jRadioButtonSpent = new javax.swing.JRadioButton();
         durationPanelSpent = new org.netbeans.modules.tasklist.usertasks.DurationPanel();
+        jPanelDependencies = new javax.swing.JPanel();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -497,10 +509,10 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanelGeneral.add(addLabel, gridBagConstraints);
 
+    addButtonGroup.add(beginningToggle);
     /*
     org.openide.awt.Mnemonics.setLocalizedText(beginningToggle, NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
     */
-    addButtonGroup.add(beginningToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 6;
@@ -519,10 +531,10 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanelGeneral.add(detailsLabel, gridBagConstraints);
 
+    addButtonGroup.add(endToggle);
     /*
     org.openide.awt.Mnemonics.setLocalizedText(endToggle, NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N();
     */
-    addButtonGroup.add(endToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 7;
@@ -740,16 +752,16 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     jPanel4.setLayout(new java.awt.GridBagLayout());
 
     jPanel4.setBorder(new javax.swing.border.TitledBorder(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "Effort")));
+    effortButtonGroup.add(jRadioButtonComputeEffort);
     jRadioButtonComputeEffort.setSelected(true);
     org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonComputeEffort, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ComputeEffortAutomatically"));
-    effortButtonGroup.add(jRadioButtonComputeEffort);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = 2;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     jPanel4.add(jRadioButtonComputeEffort, gridBagConstraints);
 
-    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonEffort, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue"));
     effortButtonGroup.add(jRadioButtonEffort);
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonEffort, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue"));
     jRadioButtonEffort.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
             jRadioButtonEffortItemStateChanged(evt);
@@ -795,16 +807,16 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     jPanel5.add(jComboBoxProgress, gridBagConstraints);
 
+    buttonGroupProgress.add(jRadioButtonComputeProgress);
     jRadioButtonComputeProgress.setSelected(true);
     org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonComputeProgress, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ComputeProgressAutomatically"));
-    buttonGroupProgress.add(jRadioButtonComputeProgress);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = 2;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     jPanel5.add(jRadioButtonComputeProgress, gridBagConstraints);
 
-    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonProgress, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue"));
     buttonGroupProgress.add(jRadioButtonProgress);
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonProgress, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue"));
     jRadioButtonProgress.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
             jRadioButtonProgressItemStateChanged(evt);
@@ -839,16 +851,16 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     jPanel7.setLayout(new java.awt.GridBagLayout());
 
     jPanel7.setBorder(new javax.swing.border.TitledBorder("Spent time"));
+    buttonGroupSpent.add(jRadioButtonComputeSpent);
     jRadioButtonComputeSpent.setSelected(true);
     org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonComputeSpent, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ComputeSpentTkme"));
-    buttonGroupSpent.add(jRadioButtonComputeSpent);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = 2;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     jPanel7.add(jRadioButtonComputeSpent, gridBagConstraints);
 
-    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonSpent, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue"));
     buttonGroupSpent.add(jRadioButtonSpent);
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonSpent, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue"));
     jRadioButtonSpent.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
             jRadioButtonSpentItemStateChanged(evt);
@@ -879,6 +891,10 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     jPanel3.add(jPanel7, gridBagConstraints);
 
     jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "TimeRelated"), jPanel3);
+
+    jPanelDependencies.setLayout(new java.awt.BorderLayout());
+
+    jTabbedPane.addTab(org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("LBL_DependenciesTab"), jPanelDependencies);
 
     add(jTabbedPane, java.awt.BorderLayout.CENTER);
 
@@ -1063,6 +1079,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanelDependencies;
     private javax.swing.JPanel jPanelEffort;
     private javax.swing.JPanel jPanelGeneral;
     private javax.swing.JRadioButton jRadioButtonComputeEffort;

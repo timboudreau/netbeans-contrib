@@ -25,8 +25,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
@@ -42,6 +44,7 @@ import org.netbeans.modules.tasklist.usertasks.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+import org.netbeans.modules.tasklist.usertasks.dependencies.Dependency;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
@@ -81,6 +84,21 @@ public class ICalImportFormat implements ExportImportFormat {
     
     // Format used when the timezone is specified separetly, e.g. with TZ:PST
     private static final String DATEFORMAT = "yyyyMMdd'T'HHmmss"; // NOI18N
+    
+    /** Used to read in dependencies */
+    private static class Dep {
+        /** Dependency type. */
+        public int type;
+        
+        /** this task depends on another one */
+        public UserTask ut;
+        
+        /** ut depends on the task with this UID */
+        public String dependsOn;
+    }
+    
+    /** <Dep> used for reading dependencies */
+    private List dependencies = new ArrayList();
     
     private Reader reader = null;
     private int lineno = 0;
@@ -433,8 +451,13 @@ public class ICalImportFormat implements ExportImportFormat {
                 // but what happens to the stream????
                 return null;
             }
+
             String value = getValue();
             String param = getParam();
+            
+            UTUtils.LOGGER.fine(name);
+            UTUtils.LOGGER.fine(value);
+            UTUtils.LOGGER.fine(param);
             
             if (name.equals("BEGIN")) { // NOI18N
                 if (writer == null) {
@@ -521,6 +544,18 @@ public class ICalImportFormat implements ExportImportFormat {
                 url = value;
             } else if ("RELATED-TO".equals(name)) { // NOI18N
                 related = value;
+            } else if ("X-NETBEANS-DEPENDENCY".equals(name)) { // NOI18N
+                Dep d = new Dep();
+                d.type = Dependency.END_BEGIN;
+                d.ut = task;
+                d.dependsOn = value;
+                int pos = param.indexOf('=');
+                if (pos >= 0) {
+                    String t = param.substring(pos + 1);
+                    if (t.equals("BEGIN_BEGIN"))
+                        d.type = Dependency.BEGIN_BEGIN;
+                }
+                dependencies.add(d);
 //            } else if ("X-NETBEANS-STARTTIME".equals(name)) { // NOI18N  
 //                long start = Long.MAX_VALUE;
 //                try {
@@ -810,6 +845,21 @@ public class ICalImportFormat implements ExportImportFormat {
                 }
             }
         } while (true);
+        
+        // Dependencies
+        UTUtils.LOGGER.fine("processing dependencies: " + dependencies.size());
+        for (int i = 0; i < dependencies.size(); i++) {
+            Dep d = (Dep) dependencies.get(i);
+            UserTask ut = list.findItem(
+                list.getSubtasks().iterator(), d.dependsOn);
+            UTUtils.LOGGER.fine("found task " + ut);
+            if (ut != null) {
+                d.ut.getDependencies().add(new Dependency(ut, d.type));
+            }
+        }
+        
+        dependencies.clear();
+        
         
         String otherItems = writer.getBuffer().toString();
         if (otherItems.length() == 0) {

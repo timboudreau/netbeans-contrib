@@ -59,12 +59,12 @@ public class DurationPanel extends javax.swing.JPanel {
      * @param minutes new duration in minutes
      */
     public void setDuration(int minutes) {
-        int d[] = UserTask.splitDuration(minutes,
+        UserTask.Duration d = UserTask.splitDuration(minutes,
             Settings.getDefault().getHoursPerDay());
         
-        jSpinnerDays.setValue(new Integer(d[2]));
-        jSpinnerHours.setValue(new Integer(d[1]));
-        jSpinnerMinutes.setValue(new Integer(d[0]));
+        jSpinnerDays.setValue(new Integer(d.days));
+        jSpinnerHours.setValue(new Integer(d.hours));
+        jSpinnerMinutes.setValue(new Integer(d.minutes));
     }
     
     /**

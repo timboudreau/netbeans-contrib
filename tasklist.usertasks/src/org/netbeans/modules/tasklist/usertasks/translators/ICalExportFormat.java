@@ -23,6 +23,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.SimpleTimeZone;
 
 import javax.swing.filechooser.FileSystemView;
@@ -36,6 +37,7 @@ import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+import org.netbeans.modules.tasklist.usertasks.dependencies.Dependency;
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
@@ -339,6 +341,20 @@ public class ICalExportFormat implements ExportImportFormat {
             // may be generating UIDs with characters that need to
             // be escaped. Or does the spec forbid that?
             writer.write(parentuid);
+            writer.write("\r\n"); // NOI18N
+        }
+        
+        List dep = task.getDependencies();
+        for (int i = 0; i < dep.size(); i++) {
+            Dependency d = (Dependency) dep.get(i);
+            writer.write("X-NETBEANS-DEPENDENCY;");
+            writer.write("TYPE=");
+            if (d.getType() == Dependency.BEGIN_BEGIN)
+                writer.write("BEGIN_BEGIN");
+            else
+                writer.write("END_BEGIN");
+            writer.write(":"); // NOI18N
+            writer.write(d.getDependsOn().getUID());
             writer.write("\r\n"); // NOI18N
         }
 

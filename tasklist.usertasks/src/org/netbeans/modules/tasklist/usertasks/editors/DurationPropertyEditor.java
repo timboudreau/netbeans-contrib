@@ -32,11 +32,11 @@ public class DurationPropertyEditor extends StringPropertyEditor {
     
     public String getAsText() {
         int duration = ((Integer) getValue()).intValue();
-        int[] d = UserTask.splitDuration(duration,
+        UserTask.Duration d = UserTask.splitDuration(duration,
             Settings.getDefault().getHoursPerDay());
 
         String s = EFFORT_FORMAT.format(new Object[] {
-            new Integer(d[2]), new Integer(d[1]), new Integer(d[0])
+            new Integer(d.days), new Integer(d.hours), new Integer(d.minutes)
         }).trim();
         return s;
     }

@@ -21,7 +21,7 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
     private static final MessageFormat SHORT_EFFORT_FORMAT = 
         new MessageFormat(NbBundle.getMessage(DurationTableCellRenderer.class, 
             "ShortEffortFormat")); // NOI18N
-    private int[] duration;
+    private UserTask.Duration duration;
     
     /**
      * Creates a new instance of DurationTableCellRenderer
@@ -47,9 +47,9 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
             return "";
         
         String s = EFFORT_FORMAT.format(new Object[] {
-            new Integer(duration[2]), 
-            new Integer(duration[1]), 
-            new Integer(duration[0])
+            new Integer(duration.days), 
+            new Integer(duration.hours), 
+            new Integer(duration.minutes)
         }).trim();
         FontMetrics fm = getFontMetrics(getFont());
         int w = getWidth();
@@ -58,9 +58,9 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
         if (w >= fm.stringWidth(s))
             return s;
         return SHORT_EFFORT_FORMAT.format(new Object[] {
-            new Integer(duration[2]), 
-            new Integer(duration[1]), 
-            new Integer(duration[0])
+            new Integer(duration.days), 
+            new Integer(duration.hours), 
+            new Integer(duration.minutes)
         }).trim();
     }
 }

@@ -106,11 +106,11 @@
             </Component>
             <Component class="javax.swing.JRadioButton" name="beginningToggle">
               <Properties>
-                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
-                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="BeginningList" replaceFormat="NbBundle.getMessage(EditTaskPanel.class, &quot;{key}&quot;)); // NOI18N("/>
-                </Property>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="addButtonGroup"/>
+                </Property>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
+                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="BeginningList" replaceFormat="NbBundle.getMessage(EditTaskPanel.class, &quot;{key}&quot;)); // NOI18N("/>
                 </Property>
               </Properties>
               <AuxValues>
@@ -139,11 +139,11 @@
             </Component>
             <Component class="javax.swing.JRadioButton" name="endToggle">
               <Properties>
-                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
-                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="EndList" replaceFormat="NbBundle.getMessage(EditTaskPanel.class, &quot;{key}&quot;)); // NOI18N("/>
-                </Property>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="addButtonGroup"/>
+                </Property>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
+                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="EndList" replaceFormat="NbBundle.getMessage(EditTaskPanel.class, &quot;{key}&quot;)); // NOI18N("/>
                 </Property>
               </Properties>
               <AuxValues>
@@ -423,12 +423,12 @@
               <SubComponents>
                 <Component class="javax.swing.JRadioButton" name="jRadioButtonComputeEffort">
                   <Properties>
+                    <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                      <ComponentRef name="effortButtonGroup"/>
+                    </Property>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                       <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="ComputeEffortAutomatically" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-                    </Property>
-                    <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                      <ComponentRef name="effortButtonGroup"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -442,11 +442,11 @@
                 </Component>
                 <Component class="javax.swing.JRadioButton" name="jRadioButtonEffort">
                   <Properties>
-                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                      <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="UseThisValue" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-                    </Property>
                     <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                       <ComponentRef name="effortButtonGroup"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="UseThisValue" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
                     </Property>
                   </Properties>
                   <Events>
@@ -508,12 +508,12 @@
                 </Component>
                 <Component class="javax.swing.JRadioButton" name="jRadioButtonComputeProgress">
                   <Properties>
+                    <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                      <ComponentRef name="buttonGroupProgress"/>
+                    </Property>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                       <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="ComputeProgressAutomatically" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-                    </Property>
-                    <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                      <ComponentRef name="buttonGroupProgress"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -527,11 +527,11 @@
                 </Component>
                 <Component class="javax.swing.JRadioButton" name="jRadioButtonProgress">
                   <Properties>
-                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                      <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="UseThisValue" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-                    </Property>
                     <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                       <ComponentRef name="buttonGroupProgress"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="UseThisValue" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
                     </Property>
                   </Properties>
                   <Events>
@@ -580,12 +580,12 @@
               <SubComponents>
                 <Component class="javax.swing.JRadioButton" name="jRadioButtonComputeSpent">
                   <Properties>
+                    <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                      <ComponentRef name="buttonGroupSpent"/>
+                    </Property>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                       <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="ComputeSpentTkme" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-                    </Property>
-                    <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                      <ComponentRef name="buttonGroupSpent"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -599,11 +599,11 @@
                 </Component>
                 <Component class="javax.swing.JRadioButton" name="jRadioButtonSpent">
                   <Properties>
-                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                      <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="UseThisValue" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-                    </Property>
                     <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                       <ComponentRef name="buttonGroupSpent"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="UseThisValue" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
                     </Property>
                   </Properties>
                   <Events>
@@ -631,6 +631,19 @@
               </SubComponents>
             </Container>
           </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="jPanelDependencies">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Dependencies">
+                <Property name="tabTitle" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="LBL_DependenciesTab" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
+                </Property>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
         </Container>
       </SubComponents>
     </Container>

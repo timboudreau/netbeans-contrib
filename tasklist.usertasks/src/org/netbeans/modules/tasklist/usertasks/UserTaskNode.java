@@ -144,7 +144,7 @@ public final class UserTaskNode extends AbstractNode {
         return new SystemAction[] {
             SystemAction.get(NewTaskAction.class),
             SystemAction.get(NewTaskListAction.class),
-            SystemAction.get(ShowScheduleViewAction.class),
+            //SystemAction.get(ShowScheduleViewAction.class),
             null,
             SystemAction.get(StartTaskAction.class),
             SystemAction.get(PauseAction.class),
