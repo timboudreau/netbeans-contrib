@@ -13,6 +13,7 @@
 
 package test.corbawizard;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import javax.swing.ListModel;
@@ -41,6 +42,7 @@ import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.Timeouts;
 import org.netbeans.jemmy.operators.JComboBoxOperator;
 import org.netbeans.jemmy.operators.JListOperator;
+import org.netbeans.jemmy.util.PNGEncoder;
 import org.netbeans.junit.NbTestSuite;
 import util.Environment;
 
@@ -206,19 +208,24 @@ public class Main extends JellyTestCase {
         new CORBAWizardAction ().perform (n);
         SelectSourceIDLStep ss = new SelectSourceIDLStep ();
         ss.verify ();
+        ev.waitNoEvent(1000);
+        try { Thread.sleep (5000); } catch (Exception e) {}
+        //try { PNGEncoder.captureScreen (getWorkDirPath () + File.separator + "path1.png"); } catch (IOException e) {}
         out.println ("IDLFileName: " + ss.getIDLFileName());
         printTreePath (ss.tree().getSelectionPath(), getLog ()); // unstable
         printButtons (ss);
         new Node (ss.tree (), "").select();
         ev.waitNoEvent(1000);
-        try { Thread.sleep (1000); } catch (Exception e) {}
+        try { Thread.sleep (5000); } catch (Exception e) {}
+        //try { PNGEncoder.captureScreen (getWorkDirPath () + File.separator + "path2.png"); } catch (IOException e) {}
         out.println ("IDLFileName: " + ss.getIDLFileName());
         printTreePath (ss.tree().getSelectionPath());
         printButtons (ss);
-        //ss.txtIDLFileName().clearText ();
+        ss.txtIDLFileName().clearText ();
         ss.txtIDLFileName().typeText ("data.corbawizard.Wizard");
         ev.waitNoEvent(1000);
-        try { Thread.sleep (1000); } catch (Exception e) {}
+        try { Thread.sleep (5000); } catch (Exception e) {}
+        //try { PNGEncoder.captureScreen (getWorkDirPath () + File.separator + "path3.png"); } catch (IOException e) {}
         out.println ("IDLFileName: " + ss.getIDLFileName());
         printTreePath (ss.tree().getSelectionPath());
         printButtons (ss);
