@@ -1520,6 +1520,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="exec">
 	  <value>${RUN} ${CD} ${QUOTE}${DIRECTORY}${QUOTE}&amp;&amp; ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} export $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${RUN_MODULE_PROGRAM} ${RCS_KFLAG} ${RECURSIVE} ${EXPORT_MODULE} ${NUR}</value>
+	  <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${DIRECTORY}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} export $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${RUN_MODULE_PROGRAM} ${RCS_KFLAG} ${RECURSIVE} ${EXPORT_MODULE} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_EXPORT_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_EXPORT_Label)))
