@@ -20,26 +20,22 @@ import java.io.*;
  * @author Michal Fadljevic
  */
 //-------------------------------------------
-public class Debug //implements Serializable 
-{
+public class Debug implements Serializable {
 
-    private String debClass=null;
+    private String debClass;
     private boolean debEnabled;
-    public static boolean debGeneralEnabled=false;
+    public static boolean debGeneralEnabled = false;
 
-    static final long serialVersionUID = -2570656225846594430L;
-   
-    //-------------------------------------------
-//    static final long serialVersionUID =-2570656225846594430L;
+    static final long serialVersionUID =-2570656225846594430L;
+
     public Debug(String debClass, boolean debEnable){
-        this.debClass=debClass;
-        debEnabled=debEnable;
+        this.debClass = debClass;
+        this.debEnabled = debEnable;
     }
 
     //-------------------------------------------
     public void deb(String prefix,String msg){
-        if (!debGeneralEnabled) return;
-        if (!debEnabled) return;
+        if (!debGeneralEnabled || !debEnabled) return;
         System.err.println(prefix+": "+msg);
         System.err.flush();
     }
@@ -51,7 +47,7 @@ public class Debug //implements Serializable
 
     //-------------------------------------------
     public void err(String prefix, Exception exc, String msg){
-        System.out.println(prefix+":ERR:"+msg); // NOI18N
+        System.out.println(prefix+": ERROR:"+msg); // NOI18N
         if(exc!=null){
             System.out.print("-------------------------------------------"); // NOI18N
             System.out.println("-------------------------------------------"); // NOI18N
