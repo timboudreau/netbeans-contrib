@@ -57,20 +57,26 @@ public abstract class RuntimeCommandsProvider {
         return (RuntimeCommandsProvider) fs.getRoot().getAttribute(FO_ATTRIBUTE);
     }
     
-    protected synchronized void register() {
-        if (registeredProviders == null) {
-            registeredProviders = new ArrayList();
+    protected void register() {
+        synchronized (RuntimeCommandsProvider.class) {
+            if (registeredProviders == null) {
+                registeredProviders = new ArrayList();
+            }
+            registeredProviders.add(this);
         }
-        registeredProviders.add(this);
         fireRegisteredListeners(null, this);
     }
     
-    protected synchronized void unregister() {
-        if (registeredProviders != null) {
-            registeredProviders.remove(this);
-            if (registeredProviders.size() == 0) registeredProviders = null;
-            fireRegisteredListeners(this, null);
+    protected void unregister() {
+        boolean fire = false;
+        synchronized (RuntimeCommandsProvider.class) {
+            if (registeredProviders != null) {
+                registeredProviders.remove(this);
+                if (registeredProviders.size() == 0) registeredProviders = null;
+                fire = true;
+            }
         }
+        if (fire) fireRegisteredListeners(this, null);
     }
     
     static synchronized RuntimeCommandsProvider[] getRegistered() {
