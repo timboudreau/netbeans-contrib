@@ -22,6 +22,9 @@ import org.openide.util.RequestProcessor;
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
+import org.openide.ErrorManager;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**
  * The collector of commands' output. Temporary disk files are used to store the
@@ -62,7 +65,7 @@ public class CommandOutputCollector extends Object implements CommandProcessList
     private static final int NUM_OUTPUTS = 4;
     private static final String[] OUTPUT_FILE_ID = new String[] { "so", "eo", "sd", "ed" };
     
-    private static final String RUNNING_FOLDER_PATH = "system/vcs/running/";
+    private static final String RUNNING_FOLDER_PATH = "vcs/running";
     private static final String FILE_PREFIX = "cmd";
     private static final String FILE_MIDFIX = "_";
     private static final String FILE_POSTFIX = ".txt";
@@ -91,10 +94,35 @@ public class CommandOutputCollector extends Object implements CommandProcessList
     
     private static synchronized void initRunningFolder() {
         if (runningFolder == null) {
-            String userHome = System.getProperty("netbeans.user");
-            runningFolder = new File(userHome, RUNNING_FOLDER_PATH);
-            if (!runningFolder.exists() && !runningFolder.mkdirs()) {
-                runningFolder = new File(userHome);
+            org.openide.filesystems.FileSystem defaultFS = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
+            FileObject fo = defaultFS.findResource(RUNNING_FOLDER_PATH);
+            if (fo == null) {
+                java.util.StringTokenizer folders = new java.util.StringTokenizer(RUNNING_FOLDER_PATH, "/");
+                FileObject root = defaultFS.getRoot();
+                while(folders.hasMoreTokens()) {
+                    String folder = folders.nextToken();
+                    FileObject ff = root.getFileObject(folder);
+                    if (ff == null) {
+                        try {
+                            ff = root.createFolder(folder);
+                        } catch (IOException ioex) {
+                            ErrorManager.getDefault().notify(ioex);
+                            break;
+                        }
+                    }
+                    root = ff;
+                }
+                fo = defaultFS.findResource(RUNNING_FOLDER_PATH);
+            }
+            if (fo != null) {
+                runningFolder = FileUtil.toFile(fo);
+            }
+            if (runningFolder == null) { // We were not successfull, use the old approach: (should not occur)
+                String userHome = System.getProperty("netbeans.user");
+                runningFolder = new File(userHome, RUNNING_FOLDER_PATH);
+                if (!runningFolder.exists() && !runningFolder.mkdirs()) {
+                    runningFolder = new File(userHome);
+                }
             }
         }
     }
