@@ -207,7 +207,7 @@ Microsystems, Inc. All Rights Reserved.
       </value>
     </variable>
     <variable name="AUTO_EXEC"> <!-- executed after filesystem instantiation if defined -->
-      <value>$[? DO_VSS_CHECKOUT][GET][]</value>
+      <value>$[? DO_VSS_CHECKOUT][GETR][]</value>
     </variable>
   </variables>
   <commands>
