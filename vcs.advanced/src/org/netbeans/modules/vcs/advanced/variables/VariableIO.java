@@ -262,6 +262,12 @@ public class VariableIO extends Object {
         return label;
     }
     
+    /** Get the label and OS info.
+     * @return three items in String array: - label, which needs to be processed
+     *                                        with VcsUtilities.getBundleString(),
+     *                                      - compatible operating systems
+     *                                      - uncompatible operating systems
+     */
     public static synchronized String[] getConfigurationLabelAndOS(FileObject configRoot, final String name) {
         FileObject config = configRoot.getFileObject(name);
         if (config == null) {
@@ -282,9 +288,10 @@ public class VariableIO extends Object {
         }
         //System.out.println("VariableIO.getConfigurationLabel("+config+")");
         try {
-            XMLReader reader = XMLUtil.createXMLReader();
+            XMLReader reader = XMLUtil.createXMLReader(false, false);
             reader.setContentHandler(labelContentHandler);
             reader.setEntityResolver(labelContentHandler);
+            // Not to parse the DTD
             //System.out.println("   parsing...");
             InputSource source = new InputSource(config.getInputStream());
             reader.parse(source);
@@ -304,7 +311,7 @@ public class VariableIO extends Object {
             return null;
         }
         String[] labelAndOS = new String[3];
-        labelAndOS[0] = VcsUtilities.getBundleString(labelContentHandler.getLabel());
+        labelAndOS[0] = labelContentHandler.getLabel();
         labelAndOS[1] = labelContentHandler.getCompatibleOSs();
         labelAndOS[2] = labelContentHandler.getUncompatibleOSs();
         return labelAndOS;
@@ -836,6 +843,8 @@ public class VariableIO extends Object {
         }
         
         public InputSource resolveEntity(String pubid, String sysid) throws org.xml.sax.SAXException, java.io.IOException {
+            return SHARED_EMPTY_INPUT_SOURCE;
+            /*
             if (pubid.equals(PUBLIC_ID)) {
                 if (VALIDATE_XML) {
                     // We certainly know where to get this from.
@@ -848,8 +857,19 @@ public class VariableIO extends Object {
                 // Otherwise try the standard places.
                 return org.openide.xml.EntityCatalog.getDefault().resolveEntity(pubid, sysid);
             }
+             */
         }
         
+    }
+    
+    private static InputSource SHARED_EMPTY_INPUT_SOURCE = new InputSource(getUnclosableEmptyStream());
+    
+    private static java.io.InputStream getUnclosableEmptyStream() {
+        return new java.io.ByteArrayInputStream(new byte[0]) {
+            public void close() throws IOException {
+                // Do not close the stream so that it's usable repeatedly
+            }
+        };
     }
     
     private static String g(String s) {

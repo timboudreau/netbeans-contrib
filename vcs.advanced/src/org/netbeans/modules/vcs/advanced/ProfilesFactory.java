@@ -137,7 +137,7 @@ public final class ProfilesFactory extends Object {
                 profileNames.remove(i--);
                 continue;
             }
-            String label = labelAndOSs[0];
+            String label = VcsUtilities.getBundleString(labelAndOSs[0]);
             profileLabels.add(label);
             profileLabelsByName.put(name, label);
             compatibleOSsByName.put(name, (labelAndOSs[1] != null) ? parseOSs(labelAndOSs[1]) : Collections.EMPTY_SET);
