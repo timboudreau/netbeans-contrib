@@ -112,8 +112,6 @@ import org.netbeans.modules.corba.CORBASupport;
 
 public class ImplGenerator implements PropertyChangeListener {
 
-    private java.util.ArrayList m_log = new java.util.ArrayList ();
-
     //public static final boolean DEBUG = true;
     private static final boolean DEBUG = false;
 
@@ -2106,7 +2104,6 @@ public class ImplGenerator implements PropertyChangeListener {
                         if (DEBUG)
                             System.out.println("bounds: " + __bounds);
                         __l_bounds.add (new Pair (__name_of_block, __bounds));
-			m_log.add (new String ("Generating block name:"+__name_of_block+"\n\tstart offset:"+__start_offset+"\n\tend offset:"+__end_offset));
                     }
                     else {
                         // __element is ConstructorElement so we need to create/remove two
@@ -2209,7 +2206,6 @@ public class ImplGenerator implements PropertyChangeListener {
                             if (__action == ImplGenerator.CREATE_SECTION) {
                                 JavaEditor.SimpleSection __section = __editor.createSimpleSection 
                                     (__bounds, __name);
-				m_log.add (new String("Appending Guarded Section name: "+__name+"\n\t"+__bounds));
                             }
                         }
                         __status = GUARDING_OK;
@@ -3147,12 +3143,6 @@ public class ImplGenerator implements PropertyChangeListener {
 			
 			printer.println (__final_clazz.toString ());
 			
-			Iterator it = m_log.iterator();
-			printer.println ("/**Debug");
-			while (it.hasNext())
-			    printer.println (it.next());
-                        printer.println ("*/");
-			
 			printer.close ();
 			//_M_generated_impls.add (clazz);
 			
@@ -3923,7 +3913,6 @@ public class ImplGenerator implements PropertyChangeListener {
 
     private void generate_concrete_value (IDLElement __element) throws Exception {
 	//boolean DEBUG=true;
-	m_log.clear();
 	if (DEBUG)
 	    System.out.println ("generate_concrete_value: " + __element.getName ());
 	List __name = this.element2list_name (__element);
