@@ -362,10 +362,12 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
             InnerClass reflInner=reflInners[i];
             String iname = reflInner.getSimpleName();
             if (iname != null) {
+                java.io.InputStream istm = null;
                 StringBuffer sb = new StringBuffer(name.length() + iname.length() + 7);
+                
                 sb.append(name); sb.append('$'); sb.append(iname);
                 try {
-                    java.io.InputStream istm = findSourceImpl().findStreamForClass(sb.toString());
+                    istm = findSourceImpl().findStreamForClass(sb.toString());
                     if (istm != null) {
                             curCE = new ClassElement(new ClassElementImpl(new ClassFile(istm),reflInner),
                                                      (ClassElement)element);
@@ -380,6 +382,16 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
                     ErrorManager.getDefault().
                         annotate(ex, ErrorManager.INFORMATIONAL, "Invalid class file", null, // NOI18N
                         null, null);
+                } finally {
+                    if (istm!=null) {
+                        try {
+                            istm.close();
+                        } catch (IOException ex) {
+                            ErrorManager.getDefault().
+                            annotate(ex, ErrorManager.INFORMATIONAL, "Cannot close stream", null, // NOI18N
+                            null, null);
+                        }
+                    }
                 }
             }
         }

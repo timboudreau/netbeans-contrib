@@ -264,7 +264,15 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     }
     
     protected ClassFile loadClassFile() throws IOException,ClassNotFoundException {
-        return new ClassFile(getPrimaryEntry().getFile().getInputStream(),false);            
+        InputStream stream=getPrimaryEntry().getFile().getInputStream();
+        
+        if (stream==null)
+            return null;
+        try {
+            return new ClassFile(stream,false);
+        } finally {
+            stream.close();
+        }   
     }
     
     /** Help context for this object.

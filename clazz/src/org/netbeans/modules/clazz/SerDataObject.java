@@ -75,7 +75,11 @@ public final class SerDataObject extends ClassDataObject {
 
         if (stream==null)
             return null;
-        return new ClassFile(stream,false);
+        try {
+            return new ClassFile(stream,false);
+        } finally {
+            stream.close();
+        }
     }
 
     /**
