@@ -57,6 +57,7 @@ final class DummyProject implements Project {
             new SourcesForBinary(),
             new MountSources(),
             new Actions(),
+            // XXX SourceLevelQueryImplementation
         });
         ProjectManager.mutex().postWriteRequest(new Runnable() {
             public void run() {
