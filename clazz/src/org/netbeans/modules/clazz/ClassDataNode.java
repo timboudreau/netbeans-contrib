@@ -92,6 +92,9 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
     protected abstract void resolveIcons();
 
     private void initialize () {
+        SourceCookie sc =
+            (SourceCookie)getDataObject().getCookie(SourceCookie.class);
+        ((SourceChildren)getChildren()).setElement(sc.getSource());
         setIconBase(initialIconBase());
         // icons...
         RequestProcessor.postRequest(this, 200);
@@ -189,7 +192,6 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
         SourceCookie sc =
             (SourceCookie)getDataObject().getCookie(SourceCookie.class);
         if (sc != null) {
-            ((SourceChildren)getChildren()).setElement(sc.getSource());
             if (!initialized)
                 sc.getSource().addPropertyChangeListener(
                     WeakListener.propertyChange(this, sc.getSource()));
