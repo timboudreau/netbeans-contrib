@@ -34,7 +34,8 @@ import com.netbeans.developer.modules.vcs.*;
  */
 
 public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
-  private Debug E=new Debug("VcsCustomizer", false);
+  private Debug E=new Debug("VcsCustomizer", true);
+  private Debug D = E;
 
   static final long serialVersionUID =-8801742771957370172L;
   /** Creates new form VcsCustomizer */
@@ -390,6 +391,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
   private Vector varLabels = new Vector ();
   private Vector varTextFields = new Vector ();
+  private Vector varButtons = new Vector();
   private Vector varVariables = new Vector ();
   private VcsFileSystem fileSystem=null; 
   private PropertyChangeSupport changeSupport=null;
@@ -484,8 +486,11 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     while(varLabels.size ()>0) {
       propsPanel.remove ((JComponent) varLabels.get (0));
       propsPanel.remove ((JComponent) varTextFields.get (0));
+      JComponent button = (JComponent) varButtons.get(0);
+      if (button != null) propsPanel.remove (button);
       varLabels.remove (0);
       varTextFields.remove (0);
+      varButtons.remove(0);
     }
     Enumeration vars = fileSystem.getVariables ().elements ();
     while (vars.hasMoreElements ()) {
@@ -493,6 +498,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       if(var.isBasic ()) {
         JLabel lb;
         JTextField tf;
+        JButton button = null;
         lb = new JLabel ();
         tf = new JTextField ();
         varLabels.add (lb);
@@ -526,6 +532,20 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
         if(!varLabel.endsWith (":")) varLabel += ":";
         lb.setText (varLabel);
         tf.setText (var.getValue ());
+        if (var.isLocalFile ()) {
+          button = new JButton ();
+          button.addActionListener (new BrowseLocalFile (tf));
+        } else if (var.isLocalDir ()) {
+          button = new JButton ();
+          button.addActionListener (new BrowseLocalDir (tf));
+        }
+        if (button != null) {
+          button.setText ("Browse...");
+          gridBagConstraints1.gridx = 2;
+          gridBagConstraints1.fill = java.awt.GridBagConstraints.NONE;
+          propsPanel.add (button, gridBagConstraints1);
+        }
+        varButtons.add (button);
       }      
     }
     java.awt.Component comp = this;
@@ -544,9 +564,16 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       }
     }
     if(var!=null){
-      var.setValue (tf.getText ());
+      var.setValue (tf.getText ().trim());
+      if (var.getName().equals("MODULE")) {
+        String value = var.getValue();
+        if (value.length() > 0 && !value.endsWith(File.separator)) value = value.concat(File.separator);
+        var.setValue(value);
+        rootDirChanged();
+      }
       // enable fs to react on change in variables
       fileSystem.setVariables(fileSystem.getVariables());
+      D.deb("variableChanged(): filesystemVariables = "+fileSystem.getVariables());
     } else {
       E.deb ("Error setting variable:"+tf.getText ());
     }
@@ -591,7 +618,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       configVariablesByLabel.put(label,variables);
 
       
-      Object advanced=fileSystem.getVcsFactory (). getVcsAdvancedCustomizer ().readConfig (props);;
+      Object advanced=fileSystem.getVcsFactory (). getVcsAdvancedCustomizer ().readConfig (props);
       configAdvancedByLabel.put(label, advanced);
       
       configCombo.addItem(label);
@@ -607,7 +634,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     //D.deb("setObject("+bean+")");
     fileSystem=(VcsFileSystem)bean;
 
-    rootDirTextField.setText( fileSystem.getRootDirectory().toString() );
+    rootDirTextField.setText (VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), getModuleValue ()));
     refreshTextField.setText (""+fileSystem.getCustomRefreshTime ());
     updateConfigurations();
     initAdditionalComponents ();
@@ -636,6 +663,18 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 */
   }
   
+  /**
+   * Search for MODULE variable and return its value
+   */
+  private String getModuleValue() {
+    Vector variables = fileSystem.getVariables();
+    for(int i = 0; i < variables.size(); i++) {
+      VcsConfigVariable var = (VcsConfigVariable) variables.get(i);
+      if (var.getName().equals("MODULE")) return var.getValue();
+    }
+    return null;
+  }
+  
   private void rootDirChanged () {
     // root dir set by hand
     String selected= rootDirTextField.getText ();
@@ -643,6 +682,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       //D.deb("no directory selected");
       return ;
     }
+    String module = getModuleValue();
+    if (module != null && module.length() > 0) selected += File.separator + module;
     File dir=new File(selected);
     if( !dir.isDirectory() ){
       E.err("not directory "+dir);
@@ -650,7 +691,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     }
     try{
       fileSystem.setRootDirectory(dir);
-      rootDirTextField.setText(selected);
+      //rootDirTextField.setText(selected);
     }
     catch (PropertyVetoException veto){
       fileSystem.debug("I can not change the working directory");
@@ -668,6 +709,52 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       E.deb("refresh time set to:" + time);
     } catch (NumberFormatException e) {
       E.deb(e.getMessage());    
+    }
+  }
+  
+  //------------------------------
+  private class BrowseLocalFile implements java.awt.event.ActionListener {
+    
+    private JTextField tf;
+    
+    public BrowseLocalFile(JTextField tf) {
+      this.tf = tf;
+    }
+
+    public void actionPerformed (java.awt.event.ActionEvent evt) {
+      ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(tf.getText ()));
+      MiscStuff.centerWindow (chooseFile);
+      chooseFile.show();
+      String selected=chooseFile.getSelectedFile();
+      if( selected==null ){
+        //D.deb("no directory selected");
+        return ;
+      }
+      tf.setText(selected);    
+      variableChanged(new java.awt.event.ActionEvent(tf, 0, ""));
+    }
+  }
+
+  //------------------------------
+  private class BrowseLocalDir implements java.awt.event.ActionListener {
+    
+    private JTextField tf;
+    
+    public BrowseLocalDir(JTextField tf) {
+      this.tf = tf;
+    }
+
+    public void actionPerformed (java.awt.event.ActionEvent evt) {
+      ChooseDirDialog chooseDir = new ChooseDirDialog(new JFrame(), new File(tf.getText ()));
+      MiscStuff.centerWindow (chooseDir);
+      chooseDir.show();
+      String selected=chooseDir.getSelectedDir();
+      if( selected==null ){
+        //D.deb("no directory selected");
+        return ;
+      }
+      tf.setText(selected);
+      variableChanged(new java.awt.event.ActionEvent(tf, 0, ""));
     }
   }
 
@@ -691,6 +778,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  3    Gandalf   1.2         12/8/99  Martin Entlicher Added browse buttons.
 *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
 *  1    Gandalf   1.0         11/24/99 Martin Entlicher 
 * $
