@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -18,11 +18,18 @@ import java.beans.BeanInfo;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
-import org.netbeans.modules.xml.catalog.spi.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import org.netbeans.modules.xml.catalog.spi.CatalogDescriptor;
+import org.netbeans.modules.xml.catalog.spi.CatalogListener;
+import org.netbeans.modules.xml.catalog.spi.CatalogProvider;
+import org.netbeans.modules.xml.catalog.spi.CatalogReader;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.xml.sax.*;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class DocBookCatalog implements CatalogProvider {
     
@@ -103,10 +110,16 @@ public class DocBookCatalog implements CatalogProvider {
 
         public void removeCatalogListener(CatalogListener l) {}
         
-        public void addPropertyChangeListener(PropertyChangeListener l) {
-        }
+        public void addPropertyChangeListener(PropertyChangeListener l) {}
         
-        public void removePropertyChangeListener(PropertyChangeListener l) {
+        public void removePropertyChangeListener(PropertyChangeListener l) {}
+
+        public String resolveURI(String name) {
+            return null;
+        }
+
+        public String resolvePublic(String publicId) {
+            return null;
         }
         
     }
