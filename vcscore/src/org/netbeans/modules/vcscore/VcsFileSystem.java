@@ -66,6 +66,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static final int BADGE_ICON_SHIFT_X = 16;
     private static final int BADGE_ICON_SHIFT_Y = 8;
 
+    public static final String VCS_PROVIDER_ATTRIBUTE = "VCS Provider";
+
     public static final String PROP_ROOT = "root"; // NOI18N
     public static final String PROP_VARIABLES = "variables"; // NOI18N
     public static final String PROP_COMMANDS = "commands"; // NOI18N
@@ -97,6 +99,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static final String LOCAL_FILES_ADD_VAR = "SHOWLOCALFILES"; // NOI18N
     private static final String LOCK_FILES_ON = "LOCKFILES"; // NOI18N
     private static final String PROMPT_FOR_LOCK_ON = "PROMPTFORLOCK"; // NOI18N
+    private static final String EDIT_FILES_ON = "CALLEDITONFILES"; // NOI18N
+    private static final String PROMPT_FOR_EDIT_ON = "PROMPTFOREDIT"; // NOI18N
 
     private static final String DEFAULT_QUOTING_VALUE = "\\\""; // NOI18N
 
@@ -129,7 +133,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private boolean lockFilesOn = false;
     private boolean promptForLockOn = true;
-    private volatile boolean promptForLockResult = false;
+    //private volatile boolean promptForLockResult = false;
+    private boolean promptForEditOn = true;
     private boolean callEditFilesOn = true;
 
     private boolean debug = false;
@@ -241,6 +246,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setAskIfDownloadRecursively (boolean ask) { askIfDownloadRecursively = ask; }
     public boolean isCallEditFilesOn() { return callEditFilesOn; }
     public void setCallEditFilesOn(boolean edit) { callEditFilesOn = edit; }
+    public boolean isPromptForEditOn () { return promptForEditOn; }
+    public void setPromptForEditOn (boolean prompt) { promptForEditOn = prompt; }
     public boolean isUseUnixShell () { return useUnixShell; }
 
     protected void setUseUnixShell (boolean unixShell) {
@@ -979,6 +986,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
                 if(var.getValue ().equalsIgnoreCase (VAR_FALSE)) {
                     setPromptForLockOn (false);
+                }
+            }
+            if(var.getName ().equalsIgnoreCase (EDIT_FILES_ON)) {
+                if(var.getValue ().equalsIgnoreCase (VAR_TRUE)) {
+                    setCallEditFilesOn (true);
+                }
+                if(var.getValue ().equalsIgnoreCase (VAR_FALSE)) {
+                    setCallEditFilesOn (false);
+                }
+            }
+            if(var.getName ().equalsIgnoreCase (PROMPT_FOR_EDIT_ON)) {
+                if(var.getValue ().equalsIgnoreCase (VAR_TRUE)) {
+                    setPromptForEditOn (true);
+                }
+                if(var.getValue ().equalsIgnoreCase (VAR_FALSE)) {
+                    setPromptForEditOn (false);
                 }
             }
             if(var.getName ().equals ("CD")) { // NOI18N
@@ -1780,7 +1803,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         boolean wasDir = file.isDirectory();
         if (wasDir) {
             // first of all delete whole content
-            File[] arr = file.listFiles();
+            File[] arr = file.listFiles(getLocalFileFilter());
             if (arr != null) {
                 for (int i = 0; i < arr.length; i++) {
                     if (!deleteFile (arr[i], name + "/" + arr[i].getName())) {
@@ -1925,6 +1948,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return output;
     }
 
+    /*
     public synchronized boolean getPromptForLockResult() {
         return promptForLockResult;
     }
@@ -1932,6 +1956,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public synchronized void setPromptForLockResult(boolean promptForLockResult) {
         this.promptForLockResult = promptForLockResult;
     }
+     */
     
     /**
      * Whether the LOCK command should be performed for this file. This method should
@@ -1974,12 +1999,55 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (!file.canWrite ()) {
                 VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
                 if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
-                    Table files = new Table();
-                    files.put(name, findResource(name));
-                    VcsAction.doEdit (files, this);
+                    if (isPromptForEditOn()) {
+                        throw new org.openide.util.UserQuestionException(g("MSG_EditFileCh")) {
+                            public void confirmed() {
+                                Table files = new Table();
+                                files.put(name, findResource(name));
+                                VcsAction.doEdit (files, VcsFileSystem.this);
+                            }
+                        };
+                    } else {
+                        Table files = new Table();
+                        files.put(name, findResource(name));
+                        VcsAction.doEdit (files, VcsFileSystem.this);
+                    }
+                    /*
+                    if (isPromptForLockOn ()) {
+                        boolean result;
+                        NotifyDescriptor.Confirmation confirm = new NotifyDescriptor.Confirmation (g("MSG_EditFileCh"), NotifyDescriptor.Confirmation.OK_CANCEL_OPTION); // NOI18N
+                        result = (TopManager.getDefault ().notify (confirm).equals (NotifyDescriptor.Confirmation.OK_OPTION));
+                        VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
+                        Table files = new Table();
+                        files.put(name, findResource(name));
+                        VcsAction.doEdit (files, this);
+                    }
+                     */
                 }
             }
         }
+        if (isLockFilesOn()) {
+            VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
+            // *.orig is a temporary file created by AbstractFileObject
+            // on saving every file to enable undo if saving fails
+            if (vcsFile==null || vcsFile.isLocal () || name.endsWith (".orig")) return; // NOI18N
+            else if (shouldLock(name)) {
+                if (isPromptForLockOn ()) {
+                    throw new org.openide.util.UserQuestionException(g("MSG_LockFileCh")) {
+                        public void confirmed() {
+                            Table files = new Table();
+                            files.put(name, findResource(name));
+                            VcsAction.doLock (files, VcsFileSystem.this);
+                        }
+                    };
+                } else {
+                    Table files = new Table();
+                    files.put(name, findResource(name));
+                    VcsAction.doLock (files, VcsFileSystem.this);
+                }
+            }
+        }
+        /*
         new Thread(new Runnable() {
                        public void run() {
                            D.deb("lock('"+name+"')"); // NOI18N
@@ -2019,6 +2087,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                            }
                        }
                    }, "VCS-Locking Files").start(); // NOI18N
+         */
         if (!file.canWrite () && file.exists()) {
             throw new IOException() {
                 /** Localized message. */
