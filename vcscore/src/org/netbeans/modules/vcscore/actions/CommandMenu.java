@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -463,6 +464,7 @@ public class CommandMenu extends JMenuPlus {
         private void invokeCommand(final CommandSupport[] cmdSupports, final String cmdName, final boolean changeExpertMode, final boolean expertMode){
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
+                    mergePossibleFiles(filesWithInfo);
                     for (Iterator it = filesWithInfo.keySet().iterator(); it.hasNext(); ) {
                         FileObject[] files = (FileObject[]) it.next();
                         Object fileInfo = filesWithInfo.get(files);
@@ -521,6 +523,56 @@ public class CommandMenu extends JMenuPlus {
                     }
                 }
             });
+        }
+        
+        /**
+         * Merges the possible files together.
+         */
+        private static void mergePossibleFiles(Map filesWithInfo) {
+            if (filesWithInfo.size() <= 1) return ; // Nothing to merge
+            FileObject[] lastFiles = null;
+            Object lastInfo = null;
+            Object[] mergedInfoPtr = new Object[1];
+            Map mergedMap = new LinkedHashMap(filesWithInfo.size());
+            for (Iterator it = filesWithInfo.keySet().iterator(); it.hasNext(); ) {
+                FileObject[] files = (FileObject[]) it.next();
+                Object fileInfo = filesWithInfo.get(files);
+                if (lastFiles != null) {
+                    if (canMergeInfos(lastInfo, fileInfo, mergedInfoPtr)) {
+                        files = mergeFiles(lastFiles, files);
+                        fileInfo = mergedInfoPtr[0];
+                    } else {
+                        mergedMap.put(lastFiles, lastInfo);
+                    }
+                }
+                lastFiles = files;
+                lastInfo = fileInfo;
+            }
+            if (lastFiles != null) {
+                mergedMap.put(lastFiles, lastInfo);
+            }
+            filesWithInfo.clear();
+            filesWithInfo.putAll(mergedMap);
+        }
+        
+        private static boolean canMergeInfos(Object i1, Object i2, Object[] mi) {
+            if (i1 == i2) {
+                mi[0] = i1;
+                return true;
+            }
+            if (i1 == NonRecursiveFolder.class && i2 == null ||
+                i1 == null && i2 == NonRecursiveFolder.class) {
+                mi[0] = NonRecursiveFolder.class;
+                return true;
+            }
+            return false;
+        }
+        
+        private static FileObject[] mergeFiles(FileObject[] fos1, FileObject[] fos2) {
+            FileObject[] fos3 = new FileObject[fos1.length + fos2.length];
+            System.arraycopy(fos1, 0, fos3, 0, fos1.length);
+            System.arraycopy(fos2, 0, fos3, fos1.length, fos2.length);
+            return fos3;
         }
         
         

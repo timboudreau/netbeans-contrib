@@ -100,6 +100,11 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
         for (int i = 0; i < nodes.length; i++) {
             GroupCookie gc = (GroupCookie) nodes[i].getCookie(GroupCookie.class);
             if (gc != null) {
+                // Put any preceding files there to keep the order:
+                if (files.size() > 0) {
+                    filesWithInfo.put(files.toArray(new FileObject[0]), null);
+                    files.clear();
+                }
                 /*
                 if (variablesForSelectedFiles == null) variablesForSelectedFiles = new HashMap();
                 Hashtable additionalVars = new Hashtable();
@@ -123,6 +128,11 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
                 Lookup.Result nonRecFolders = nodes[i].getLookup().lookup(new Lookup.Template(NonRecursiveFolder.class));
                 Collection nrfs = nonRecFolders.allInstances();
                 if (nrfs != null && nrfs.size() > 0) {
+                    // Put any preceding files there to keep the order:
+                    if (files.size() > 0) {
+                        filesWithInfo.put(files.toArray(new FileObject[0]), null);
+                        files.clear();
+                    }
                     List nrFiles = new ArrayList(nrfs.size());
                     Collection fos = new ArrayList(nrfs.size());
                     for (Iterator it = nrfs.iterator(); it.hasNext(); ) {
