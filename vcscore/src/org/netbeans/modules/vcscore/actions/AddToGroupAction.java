@@ -106,11 +106,14 @@ public class AddToGroupAction extends NodeAction {
             FileObject fo = (FileObject)children.nextElement();
             if (fo.getExt().equals(VcsGroupNode.PROPFILE_EXT)) {
                 try {
-                    ResourceBundle bundle = new PropertyResourceBundle(fo.getInputStream());
-                    Enumeration en = bundle.getKeys();
-                    String dispName = bundle.getString(VcsGroupNode.PROP_NAME);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(fo.getInputStream()));
+                    String line = reader.readLine();
+                    String dispName = "";
+                    if (line.startsWith(VcsGroupNode.PROP_NAME + "=")) {
+                        dispName = getBundleValue(line);
+                    }
                     FileObject f = foFolder.getFileObject(fo.getName());
-                    if (f != null && f.isFolder()) {
+                    if (f != null && f.isFolder() && dispName.length() > 0) {
                         hasAny = true;
                         menu.add(createItem(fo.getName(), dispName));
                     }
@@ -134,6 +137,16 @@ public class AddToGroupAction extends NodeAction {
  */
         return menu;
     }
+    
+    private String getBundleValue(String keyValue) {
+        if (keyValue != null) {
+            int index = keyValue.indexOf('=');
+            if (index > 0 && keyValue.length() > index) {
+                return keyValue.substring(index + 1);
+            }
+        }
+        return "";
+    }    
 
     //-------------------------------------------
     private JMenuItem createItem(String name, String dispName){
