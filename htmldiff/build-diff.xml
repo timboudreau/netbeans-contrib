@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<project default="all" name="Build Differences Between NetBeans APIs">
+    <property name="new-nb" location="../.." />
+    <property name="new-javadoc" location="${new-nb}/nbbuild/modules_javadoc" />
+<!--    <property name="old-nb" location="../.." /> -->
+    <!-- <property name="old-javadoc" -->
+    
+    
+    <target name="compile">
+    	  <ant dir="." />
+    </target>
+
+    <target name="api-list"  >
+        <style 
+            in="${new-javadoc}/index.xml" 
+            out="list.html" 
+            style="export2html.xsl"
+        />
+    </target>
+    
+    <target name="diff" depends="compile, api-list" >
+        <java classname="org.netbeans.modules.htmldiff.DiffPages" fork="yes" >
+             <jvmarg value="-Xmx512m" />
+             <arg value="${old-javadoc}" /> 
+             <arg value="${new-javadoc}" />
+             <arg value="list.html" />
+             <arg value="diff" />
+             <classpath>
+                  <pathelement location="${new-nb}/diff/netbeans/modules/diff.jar" />
+                  <pathelement location="${new-nb}/openide/netbeans/lib/openide.jar" />
+                  <pathelement location="netbeans/modules/eager/htmldiff.jar" />
+             </classpath>
+        </java>    
+    </target>
+    
+    <target name="all" depends="api-list, diff" />
+
+    <target name="clean" >
+        <delete dir="diff" />
+        <delete file="list.html" />
+    </target>    
+</project>
