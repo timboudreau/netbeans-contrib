@@ -2356,6 +2356,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     String[] filterDeadFilesOut(String name, String[] vcsFiles) {
+        if (vcsFiles == null) return null;
         FileStatusProvider statusProvider = getStatusProvider();
         if (statusProvider == null) return vcsFiles;
         ArrayList files = new ArrayList(Arrays.asList(vcsFiles));
