@@ -22,8 +22,10 @@ import org.openide.NotifyDescriptor;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.modules.vcscore.RetrievingDialog;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.revision.RevisionListener;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
@@ -133,12 +135,42 @@ public class CommandExecutorSupport extends Object {
             if (exec != null && (cache == null || !cache.isFile(refreshPathFile))
                 && (patternMatch != null && patternMatch.length() > 0 && exec.indexOf(patternMatch) >= 0
                     || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0)) {
-                statusProvider.refreshDirRecursive(refreshPath);
+                VcsCommand listSub = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY);
+                Object execList = (listSub != null) ? listSub.getProperty(VcsCommand.PROPERTY_EXEC) : null;
+                if (execList != null && ((String) execList).trim().length() > 0) {
+                    statusProvider.refreshDirRecursive(refreshPath);
+                } else {
+                    RetrievingDialog rd = new RetrievingDialog(fileSystem, refreshPath, new javax.swing.JFrame(), false);
+                    VcsUtilities.centerWindow(rd);
+                    Thread t = new Thread(rd, "VCS Recursive Retrieving Thread - "+refreshPath); // NOI18N
+                    t.start();
+                }
             } else {
                 statusProvider.refreshDir(refreshPath); // NOI18N
             }
         }
         if (!(doRefreshCurrent || doRefreshParent)) fileSystem.removeNumDoAutoRefresh(dir); //(String)vars.get("DIR")); // NOI18N
+    }
+    
+    public static void checkRevisionChanges(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
+        int whatChanged = 0;
+        Object changedInfo = null;
+        VcsCommand cmd = vce.getCommand();
+        if (VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS)) {
+            whatChanged |= RevisionListener.NUM_REVISIONS_CHANGED;
+        }
+        if (VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_CHANGING_REVISION)) {
+            whatChanged |= RevisionListener.ONE_REVISION_CHANGED;
+            Object varName = cmd.getProperty(VcsCommand.PROPERTY_CHANGED_REVISION_VAR_NAME);
+            if (varName != null) changedInfo = vce.getVariables().get(varName);
+        }
+        if (whatChanged != 0) {
+            String[] files = (String[]) vce.getFiles().toArray(new String[0]);
+            for (int i = 0; i < files.length; i++) {
+                org.openide.filesystems.FileObject fo = fileSystem.findFileObject(files[i]);
+                if (fo != null) fileSystem.fireRevisionsChanged(whatChanged, fo, changedInfo);
+            }
+        }
     }
 
     /*
