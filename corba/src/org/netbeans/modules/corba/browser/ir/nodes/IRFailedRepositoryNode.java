@@ -38,7 +38,7 @@ public class IRFailedRepositoryNode extends IRLeafNode implements Removable, Nod
     }
     
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx (IRFailedRepositoryNode.class.getName());
     }
   
     public SystemAction[] createActions(){

@@ -293,7 +293,7 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
     }
     
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx (IRRootNode.class.getName());
     }
     
     public void propertyChange (PropertyChangeEvent event) {

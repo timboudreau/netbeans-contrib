@@ -199,7 +199,7 @@ public class IRRepositoryNode extends IRContainerNode implements Node.Cookie, Re
     }    
     
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx ( IRRepositoryNode.class.getName());
     }
 }
 

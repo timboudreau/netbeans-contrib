@@ -103,7 +103,7 @@ public class ObjectNode extends NamingServiceNode implements Node.Cookie {
     }
     
     public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx (ObjectNode.class.getName());
     }
 
 }
