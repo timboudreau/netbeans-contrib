@@ -714,6 +714,9 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                 <property name="refreshParentFolder">
                     <value xml:space="preserve">true</value>
                 </property>
+                <property name="refreshCurrentFolder">
+                    <value xml:space="preserve">true</value>
+                </property>
                 <property name="supportsAdvancedMode">
                     <value xml:space="preserve">true</value>
                 </property>
