@@ -183,9 +183,14 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
         }
     }
 
-    /** Non empty text must be entered, and loading must not be in progress. */
+    /** Commit message is checked and template loading must not be in progress. */
     private boolean validityCheck() {
-        return  loadingInProgress() == false && cleanupContent(textArea.getText()).length() > 0;
+        return  loadingInProgress() == false && commitMessage();
+    }
+
+    /** Commit message must be entered or good practises policy set to none */
+    private boolean commitMessage() {
+        return cleanupContent(textArea.getText()).length() > 0 || "none".equalsIgnoreCase(System.getProperty("vcs.practices.policy"));
     }
 
     /** Is running background template loading? */
