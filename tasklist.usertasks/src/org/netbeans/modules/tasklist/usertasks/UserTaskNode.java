@@ -20,6 +20,7 @@ import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.netbeans.modules.tasklist.core.ImportAction;
+import org.netbeans.modules.tasklist.core.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
@@ -31,6 +32,7 @@ import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 
 import org.openide.nodes.Node.Property;
+import org.openide.nodes.PropertySupport;
 import org.openide.nodes.PropertySupport.Reflection;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.NbBundle;
@@ -141,7 +143,7 @@ class UserTaskNode extends TaskNode {
         s.put(sse);
         
         try {
-            Property p;
+            PropertySupport.Reflection p;
             p = new Reflection(item, String.class, "getSummary", "setSummary"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_SUMMARY);
             p.setDisplayName(NbBundle.getMessage(TaskNode.class, "Description")); // NOI18N
@@ -151,7 +153,7 @@ class UserTaskNode extends TaskNode {
             
             p = new Reflection(item, Integer.TYPE, "getPriorityNumber", "setPriorityNumber"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_PRIO);
-            
+            p.setPropertyEditorClass(PriorityPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Priority")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "PriorityHint")); // NOI18N
             ss.put(p);
