@@ -825,20 +825,51 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     
     private void deleteEnvButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteEnvButtonActionPerformed
         // Add your handling code here:
-        int row = envTable.getSelectedRow();
-        if (row < 0 || row >= envTable.getRowCount()) return ; // Sometimes the row can be == row count !!! (see issue #33176)
-        String name = (String) envTableModel.getValueAt(row, 0);
-        NotifyDescriptor nd = new NotifyDescriptor.Confirmation(NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarDeleteConfirm", name));
+        int[] rows = envTable.getSelectedRows();        
+        StringBuffer var_string = new StringBuffer();
+        HashSet var_names = new HashSet();
+        String variable;
+        for(int i=0 ; i<rows.length ; i++){            
+            if(rows[i] < 0 || rows[i] >= envTable.getRowCount())
+                continue ;
+            if(i!=0)
+               var_string.append(" ");
+            variable = (String)envTableModel.getValueAt(rows[i],0);
+            var_string.append(variable);
+            var_names.add(variable);
+            if(rows.length > 1 && i<(rows.length -1))
+                var_string.append(",");
+        } 
+        String msg;
+        if(rows.length > 1)
+            msg = NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarDeleteMoreConfirm", var_string);
+        else
+            msg = NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarDeleteConfirm", var_string);
+        NotifyDescriptor nd = new NotifyDescriptor.Confirmation(msg);
+        Vector vars = fileSystem.getVariables();
         if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(nd))) {
-            row = envTableModel.getModelRow(row);
-            ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).removeRow(row);
-            Vector vars = fileSystem.getVariables();
-            VcsConfigVariable var = (VcsConfigVariable) envVariables.remove(name);
-            vars.remove(var);
-            fileSystem.setVariables(vars);
+            String name;            
+            for(Iterator it = var_names.iterator();it.hasNext();){
+                name = (String) it.next(); 
+                deleteRow(name,vars);
+            }
+            fileSystem.setVariables(vars);      
         }
     }//GEN-LAST:event_deleteEnvButtonActionPerformed
 
+    private void deleteRow(String name, Vector vars){
+        int count = envTableModel.getRowCount();
+        for(int i=0; i < count; i++){            
+            if(name.equals(envTableModel.getValueAt(i,0))){
+                int r = envTableModel.getModelRow(i);
+                ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).removeRow(r);
+                VcsConfigVariable var = (VcsConfigVariable) envVariables.remove(name);
+                vars.remove(var);
+                return;
+            }            
+        }
+    }
+    
     private void insertEnvButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertEnvButtonActionPerformed
         // Add your handling code here:
         NotifyDescriptor.InputLine nd = new NotifyDescriptor.InputLine(NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarName"), g ("DLG_EnvVarTitle"));
