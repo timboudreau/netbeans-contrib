@@ -302,22 +302,16 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="CompilerType">
     	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
     	    <!--<attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/rmiStubCompilation.gif"/>-->
-	    <file name="RMIStubCompiler.settings" url="RMIStubCompiler.settings">
-		<attr name="template" boolvalue="true" />
-	    </file>
+	    <file name="RMIStubCompiler.settings" url="RMIStubCompiler.settings"/>
 	    <!-- IIOP -->
-	    <file name="RMIStubCompilerIIOP.settings" url="RMIStubCompilerIIOP.settings">
-		<attr name="template" boolvalue="true" />
-	    </file>
+	    <file name="RMIStubCompilerIIOP.settings" url="RMIStubCompilerIIOP.settings"/>
 	</folder>
 
 	<!-- Debugger -->
         <folder name="DebuggerType">
     	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
     	    <!--<attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIDebugger.gif"/> -->
-	    <file name="RMIDebugger.settings" url="RMIDebugger.settings">
-	        <attr name="template" boolvalue="true"/>
-	    </file>
+	    <file name="RMIDebugger.settings" url="RMIDebugger.settings"/>
 	</folder>
 
 	<!-- Executor -->
@@ -325,39 +319,27 @@ Microsystems, Inc. All Rights Reserved.
     	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
     	    <!--<attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIExecutor.gif"/> -->
 	    <!-- Default -->
-	    <file name="RMIExecutor.settings" url="RMIExecutor.settings">
-	        <attr name="template" boolvalue="true"/>
-	    </file>
+	    <file name="RMIExecutor.settings" url="RMIExecutor.settings"/>
 
 	    <!-- Debug -->
-	    <file name="RMIExecutorDbg.settings" url="RMIExecutorDbg.settings">
-	        <attr name="template" boolvalue="true"/>
-	    </file>
+	    <file name="RMIExecutorDbg.settings" url="RMIExecutorDbg.settings"/>
 	    <attr name="RMIExecutor.settings/RMIExecutorDbg.settings" boolvalue="true" />
 
 
 	    <!-- Client -->
-	    <file name="RMIClientExecutor.settings" url="RMIClientExecutor.settings">
-	        <attr name="template" boolvalue="true"/>
-	    </file>
+	    <file name="RMIClientExecutor.settings" url="RMIClientExecutor.settings"/>
 	    <attr name="RMIExecutorDbg.settings/RMIClientExecutor.settings" boolvalue="true" />
 		
 	    <!-- Client debug -->
-	    <file name="RMIClientExecutorDbg.settings" url="RMIClientExecutorDbg.settings">
-	        <attr name="template" boolvalue="true"/>
-	    </file>
+	    <file name="RMIClientExecutorDbg.settings" url="RMIClientExecutorDbg.settings"/>
 	    <attr name="RMIClientExecutor.settings/RMIClientExecutorDbg.settings" boolvalue="true" />
 
 	    <!-- Unicast Export -->
-	    <file name="RMIUnicastExport.settings" url="RMIUnicastExport.settings">
-	        <attr name="template" boolvalue="true"/>
-	    </file>
+	    <file name="RMIUnicastExport.settings" url="RMIUnicastExport.settings"/>
 	    <attr name="RMIClientExecutorDbg.settings/RMIUnicastExport.settings" boolvalue="true" />
 
 	    <!-- Unicast Export debug -->
-	    <file name="RMIExportDbg.settings" url="RMIExportDbg.settings">
-	        <attr name="template" boolvalue="true" />
-	    </file>
+	    <file name="RMIExportDbg.settings" url="RMIExportDbg.settings"/>
 	    <attr name="RMIUnicastExport.settings/RMIUnicastExportDbg.settings" boolvalue="true" />
 
 	</folder>
