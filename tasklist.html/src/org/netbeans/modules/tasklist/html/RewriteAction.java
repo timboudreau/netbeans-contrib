@@ -257,6 +257,11 @@ public class RewriteAction extends NodeAction
             return;
         }
 
+        //NotifyDescriptor d =
+        // new NotifyDescriptor.Message("Hello...", NotifyDescriptor.INFORMATION_MESSAGE);
+        // TopManager.getDefault().notify(d);
+
+        
         DialogDescriptor d = new DialogDescriptor(tp,
                     NbBundle.getMessage(RewriteAction.class,
                     "TITLE_diff")); // NOI18N

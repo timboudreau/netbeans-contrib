@@ -156,6 +156,14 @@ class SuggestionNode extends TaskNode {
             p.setShortDescription(NbBundle.getMessage(SuggestionsView.class, "SuggestionsRootHint")); // NOI18N
             ss.put(p);
 
+
+            p = new Reflection(item, String.class, "getDetails", null); // NOI18N
+            p.setName(SuggestionsView.PROP_SUGG_DETAILS);
+            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Details")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "DetailsHint")); // NOI18N
+            ss.put(p);
+            
+
             p = new Reflection(item, Integer.TYPE,
                                                "getPriorityNumber", null); // NOI18N
             p.setName(SuggestionsView.PROP_SUGG_PRIO);

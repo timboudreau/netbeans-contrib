@@ -74,7 +74,7 @@ Microsystems, Inc. All Rights Reserved.
         </locjar>
     </target>
 
-    <target name="netbeans" depends="jars">
+    <target name="netbeans" depends="jars,javahelp">
         <genlist targetname="nbm" outputfiledir="netbeans"/>
     </target>
 
@@ -102,10 +102,6 @@ Microsystems, Inc. All Rights Reserved.
         <delete dir="netbeans"/>
         <delete dir="Info"/>
         <delete dir="javadoc"/>
-    </target>
-
-
-    <target name="release">
     </target>
 
 

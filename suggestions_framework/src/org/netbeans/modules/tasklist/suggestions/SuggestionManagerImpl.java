@@ -329,6 +329,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     }
                 }
             }
+
+            // TODO Sort providers by suggestion type position - this may
+            // provide better refresh behavior since the suggestion
+            // updates will move top to bottom
         }
         return providers;
     }
@@ -1409,7 +1413,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
             if (category == null) {
                 // Didn't have category nodes before and don't need to
                 // now either...
-                tasklist.addRemove(adds, removeList, true, null, after);
+                boolean append = (after != null);
+                tasklist.addRemove(adds, removeList, append, null, after);
             } else {
                 // Had category nodes before but don't need them anymore...
                 // remove the tasks from the top list

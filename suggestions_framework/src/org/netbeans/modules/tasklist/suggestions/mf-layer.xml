@@ -15,18 +15,20 @@ Microsystems, Inc. All Rights Reserved.
 
 <filesystem>
     <!-- default order for tasklist provided suggestions:
-      Tasks Due
       Compilation Errors
+      Tasks Due
       Rule Violations
+      HTML Problems
       Source Tasks
       Javadoc Problems
       Copyright Problems
      -->
     <folder name="Suggestions">
       <folder name="Types">
-        <attr name="org-netbeans-modules-tasklist-usertasks-duetasks.xml/org-netbeans-modules-tasklist-javaparser-parse-error.xml" boolvalue="true" />
-        <attr name="org-netbeans-modules-tasklist-javaparser-parse-error.xml/pmd-rule_violation.xml" boolvalue="true" />
-        <attr name="pmd-rule_violation.xml/org-netbeans-modules-tasklist-docscan-scanned_task.xml" boolvalue="true" />
+        <attr name="org-netbeans-modules-tasklist-javaparser-parse-error.xml/org-netbeans-modules-tasklist-usertasks-duetasks.xml" boolvalue="true" />
+        <attr name="org-netbeans-modules-tasklist-usertasks-duetasks.xml/pmd-rule_violation.xml" boolvalue="true" />
+        <attr name="pmd-rule_violation.xml/org-netbeans-modules-tasklist-html-docerror.xml" boolvalue="true" />
+        <attr name="org-netbeans-modules-tasklist-docscan-scanned_task.xml/org-netbeans-modules-tasklist-docscan-scanned_task.xml" boolvalue="true" />
         <attr name="org-netbeans-modules-tasklist-docscan-scanned_task.xml/org-netbeans-modules-tasklist-javadoc-docerror.xml" boolvalue="true" />
         <attr name="org-netbeans-modules-tasklist-javadoc-docerror.xml/org-netbeans-modules-tasklist-docscan-copyright_suggestion.xml" boolvalue="true" />
       </folder>

@@ -32,6 +32,12 @@ class SuggestionAnno extends Annotation {
     public String getShortDescription () {
         // Can I get the confirmation panel here? Check to see
         // if its instanceof String for example?
-        return task.getSummary();
+
+        // Use details summary, if available
+        if (task.getDetails().length() > 0) {
+            return task.getSummary() + "\n\n" + task.getDetails();
+        } else {
+            return task.getSummary();
+        }
     }
 }

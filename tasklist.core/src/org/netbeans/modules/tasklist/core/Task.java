@@ -79,6 +79,13 @@ public class Task extends Suggestion implements Cloneable {
         }
     }
 
+    public void setDetails(String ndesc) {
+        super.setDetails(ndesc);
+        if (!silentUpdate) {
+            updatedValues();
+        }
+    }
+
     /** Set the "temporary" status of the task. Temporary tasks
 	are not saved in the todo list, and they may be deleted
 	automatically by the IDE when appropriate. For example,
@@ -623,9 +630,8 @@ public class Task extends Suggestion implements Cloneable {
         super.setType(from.getType());
         super.setLine(from.getLine());
         super.setAction(from.getAction());
+        super.setDetails(from.getDetails());
 
-        
-        
         // Copying the parent reference may seem odd, since for children
         // it should be changed - but this only affects the root node.
         // For children nodes, we override the parent reference after
