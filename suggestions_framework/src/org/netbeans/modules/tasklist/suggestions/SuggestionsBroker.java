@@ -613,7 +613,7 @@ err.log("Couldn't find current nodes...");
                 }
 
                 if (isOpened[0] == false) {
-                    System.err.println("[TODO] ignoring rescan request for " + tc.getDisplayName());
+                    // System.err.println("[TODO] ignoring rescan request for " + tc.getDisplayName());
                     return;
                 }
 
