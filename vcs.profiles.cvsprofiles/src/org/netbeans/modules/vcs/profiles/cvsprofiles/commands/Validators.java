@@ -7,15 +7,16 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
-import org.openide.util.NbBundle;
-
 import java.io.*;
+
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 
 /**
  * VALIDATOR_JAVA validators. Called by reflection from profile.
@@ -32,24 +33,34 @@ public final class Validators {
         } else {
             Runtime rt = Runtime.getRuntime();
             try {
-                Process process = rt.exec(path.trim() + " -version"); // NOI18N
+                Process process = rt.exec(new String[] { path.trim(), "-version"}); // NOI18N
+                RequestProcessor.getDefault().post(new ProcessWatcher(process), 100);
                 process.waitFor();
                 InputStream in = new BufferedInputStream(process.getInputStream());
                 BufferedReader r = new BufferedReader(new InputStreamReader(in));
                 try {
                     boolean foundCVS = false;
                     boolean foundVersion = false;
+                    String guessedVersion = ""; // NOI18N
                     while (true) {
                         String line = r.readLine();
                         if (line == null) break;
 
                         // cvshome.org client
-                        if (line.indexOf("CVS") != -1) foundCVS = true; // NOI18N
+                        int indexCVS = line.indexOf("CVS"); // NOI18N
+                        if (indexCVS != -1 && !foundCVS) {
+                            foundCVS = true;
+                            if (line.length() > (indexCVS + 4)) {
+                                guessedVersion = line.substring(indexCVS + 4);
+                            }
+                        }
                         if (line.indexOf("1.11") != -1) foundVersion = true; // NOI18N
                         if (line.indexOf("1.12") != -1) foundVersion = true; // NOI18N
                     }
-                    if (!foundCVS || !foundVersion) {
-                        ret = getString("cvs_unsupported");
+                    if (!foundCVS) {
+                        ret = getString("not_cvs", path);
+                    } else if (!foundVersion) {
+                        ret = getString("cvs_unsupported", guessedVersion);
                     }
                 } finally {
                     try {
@@ -59,9 +70,16 @@ public final class Validators {
                     }
                 }
             } catch (IOException e) {
-                ret = path + " " + e.getLocalizedMessage();
+                ret = e.getLocalizedMessage();
+                if (ret.startsWith(e.getClass().getName())) {
+                    ret = ret.substring(e.getClass().getName().length());
+                    if (ret.startsWith(":")) ret = ret.substring(1);
+                    ret = ret.trim();
+                } else {
+                    ret = path + ": " + ret;
+                }
             } catch (InterruptedException e) {
-                ret = path + " " + e.getLocalizedMessage();
+                ret = path + ": " + e.getLocalizedMessage();
             }
         }
         return ret;
@@ -69,5 +87,33 @@ public final class Validators {
 
     private static String getString(String key) {
         return NbBundle.getMessage(Validators.class, key);
+    }
+    
+    private static String getString(String key, Object param) {
+        return NbBundle.getMessage(Validators.class, key, param);
+    }
+    
+    /**
+     * Watch the progress of the process. If it does not finish in time, kill
+     * it forcibly so that we do not block the validation process.
+     */
+    private static final class ProcessWatcher extends Object implements Runnable {
+        
+        private Process process;
+        
+        public ProcessWatcher(Process process) {
+            this.process = process;
+        }
+        
+        public void run() {
+            try {
+                // Ask for the exit value to test whether the process has already finished
+                process.exitValue();
+            } catch (IllegalThreadStateException itsex) {
+                // The process is still running. Kill it:
+                process.destroy();
+            }
+        }
+        
     }
 }
