@@ -75,6 +75,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         cmdButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.cmdButton.mnemonic").charAt (0));
         browseButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.browseButton.mnemonic").charAt (0));
         linkLabel.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+        HelpCtx.setHelpIDString (this, VcsCustomizer.class.getName ());
     }
 
     /** This method is called from within the constructor to
@@ -553,6 +554,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         commandsEditor.setValue(fileSystem.getCommands());
         UserCommandsPanel advancedPanel = new UserCommandsPanel(commandsEditor);
         DialogDescriptor dd = new DialogDescriptor (advancedPanel, org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("TIT_CommandsEditor"));//, "Advanced Properties Editor");
+        dd.setHelpCtx (new HelpCtx ("VCS_CommandEditor"));
         TopManager.getDefault ().createDialog (dd).setVisible(true);
         commandsEditor.setValue(advancedPanel.getPropertyValue());
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
@@ -567,6 +569,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         UserVariablesPanel variablePanel = new UserVariablesPanel (variableEditor);
 
         DialogDescriptor dd = new DialogDescriptor (variablePanel, org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("TIT_VariablesEditor"));//, "Advanced Properties Editor");
+        dd.setHelpCtx (new HelpCtx ("VCS_VariableEditor"));
         TopManager.getDefault ().createDialog (dd).setVisible(true);
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
             fileSystem.setVariables ((Vector) variableEditor.getValue ());
