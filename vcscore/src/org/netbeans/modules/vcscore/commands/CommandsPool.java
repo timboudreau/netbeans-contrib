@@ -347,7 +347,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 outputContainers.remove(removedExecutor);
                 RuntimeCommand runCom = removedWrapper.getRuntimeCommand();
                 removedWrapper.setRuntimeCommand(null);
-                rSupport.removeDone(fileSystem.getSystemName(), runCom);
+                if (runCom != null) rSupport.removeDone(fileSystem.getSystemName(), runCom);
             }
         }
         if (!isCollectOutput()) {
