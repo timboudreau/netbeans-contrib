@@ -20,7 +20,9 @@ Microsystems, Inc. All Rights Reserved.
 
     <target name="set_classpath" depends="idecompile-classpath"> 
     
-        <property name="xtest.extra.jars.path" location="${extra.repository}/jemmy/;${extra.repository}/jellytools/;${nb.repository}/a11y/tests/"/>
+        <property name="jemmy.home" location="${nb.repository}/jemmy/builds"/>
+        <property name="jelly.home" location="${nb.repository}/jellytools/builds"/>
+        <property name="xtest.extra.jars.path" location="${jemmy.home};${jelly.home};${nb.repository}/a11y/tests/"/>
         <property name="xtest.extra.jars"     value="a11y.jar"/>
         <property name="xtest.extra.jars.ide" value="jemmy.jar;jelly2-nb.jar"/>
         <property name="compile.srcdir" value="qa-functional/src"/>

@@ -72,7 +72,9 @@ Microsystems, Inc. All Rights Reserved.
         <!-- List of directories where jars will be searched. -->
         <!-- original -->
         <!--property name="xtest.extra.jars.path" location="${nbextra.home}/jemmy;${nbextra.home}/jellytools;${netbeans.home}/modules;${netbeans.home}/lib;${netbeans.home}/lib/ext"/-->
-        <property name="xtest.extra.jars.path" location="${xtest.home}/lib;${nbextra.home}/jemmy;${nbextra.home}/jellytools;${netbeans.home}/modules;${netbeans.home}/modules/autoload;${netbeans.home}/lib;${netbeans.home}/lib/ext"/>
+        <property name="jemmy.home" location="../../jemmy/builds"/>
+        <property name="jelly.home" location="../../jellytools/builds"/>
+        <property name="xtest.extra.jars.path" location="${jemmy.home};${jelly.home};${xtest.home}/lib;${netbeans.home}/modules;${netbeans.home}/modules/autoload;${netbeans.home}/lib;${netbeans.home}/lib/ext"/>
 
 
 
