@@ -300,6 +300,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
                         JEditorPane pane = getPane();
                         if (pane == null) {
                             Toolkit.getDefaultToolkit().beep();
+                            return;
                         }
                         String toInsert;
                         switch (modeChoice) {
