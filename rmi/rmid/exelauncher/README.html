@@ -1,0 +1,103 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>Win32 loader for Forte for Java Internet Edition rmid wrapper</title>
+</head>
+<body>
+<h1>Win32 loader for Forte for Java Internet Edition rmid wrapper</h1>
+<!--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-->
+<p>
+<h2>SYNOPSIS</h2>
+<blockquote>
+<code>rmid_wrapper.exe [options]</code>
+</blockquote>
+
+<h2>DESCRIPTION</h2>
+
+rmid wrapper is a wrapper for JDK rmid. It provides additional 
+functionality that can be used from the IDE.  rmid_wrapper.exe is a 
+console application. When it is run, there is a
+console opened on the desktop with stderr and stdout output from the Java
+program. You can type Ctrl-Break to get the thread dump or type Ctrl-C to
+kill the whole program.
+
+<p>
+The rmid_wrapper uses java.exe to launch the wrapper.
+
+You can specify additional options. They are
+
+<dl>
+      
+  <dt><code>-jdkhome <i>jdk_home_dir</i></code></dt>
+  <dd>use the specified JDK version instead of the default one. By default the
+      loader looks into the Windows registry and uses the latest JDK available.
+      <p>
+  </dd>
+
+</dl>
+
+All options and arguments are recognized in the same manner as rmid 
+recognizes them. There are a few predefined options:
+
+<dl>
+ <dt>-Dnetbeans.security.policy=rmid.policy</dt>
+ <dd>the wrapper uses default 
+ policy file. It could be replaced by another one but there is one
+ major grant entry that should be part of the policy file:
+
+ <code><pre>
+ grant codeBase "file:${netbeans.home}/-" {
+   permission java.security.AllPermission;
+ };
+ </pre></code>
+ it gives enough permission to the wrapper class. The classes are
+ located in {netbeans.home}/lib/ext/rmi-ext.jar
+ 
+ </dd>
+ <dt>-classpath</dt>
+  <dd>{netbeans.home}/lib/ext/rmi-ext.jar is added to the
+ classpath
+   </dd>
+ 
+ <dt>-Dsun.rmi.server.activation.debugExec</dt>
+  <dd>is set to True
+  </dd>
+ <dt>-Dnetbeans.home<dt>
+   <dd>is set to <code>{directory_of_wrapper_process}\..</code>
+   </dd>
+</dl>
+
+The options above can be redefined (using the -J switch).
+
+<h2>About arguments containing spaces</h2>
+
+If arguments like classpath or properties contain spaces, they must be enclosed
+in double quotes. Write two successive quotes to denote a quote inside an
+argument: for example, &quot;3 1/2 &quot;&quot; floppy drive&quot;.
+
+
+<h2>Examples</h2>
+To change security policy:
+<blockquote><code>rmid_wrapper.exe -J-Djava.security.policy=policy</code></blockquote>
+
+To turn off debugging information:
+<blockquote><code>rmid_wrapper.exe -J-Dsun.rmi.server.activation.debugExec=false</code></blockquote>
+
+
+<h2>Todo's & open issues</h2>
+</body>
+</html>

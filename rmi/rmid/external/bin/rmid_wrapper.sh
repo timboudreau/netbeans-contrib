@@ -1,0 +1,124 @@
+#!/bin/sh
+#                 Sun Public License Notice
+# 
+# The contents of this file are subject to the Sun Public License
+# Version 1.0 (the "License"). You may not use this file except in
+# compliance with the License. A copy of the License is available at
+# http://www.sun.com/
+# 
+# The Original Code is NetBeans. The Initial Developer of the Original
+# Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+# Microsystems, Inc. All Rights Reserved.
+
+
+# loader for rmid wrapper
+#
+# $Id$
+
+#
+# customization
+#
+
+# the value set here can be overriden by $JAVA_PATH or the -jdkhome switch
+jdkhome=""
+
+jreflags="-Xms8m"
+
+#
+# end of customization 
+#
+
+
+PRG=$0
+
+#
+# resolve symlinks
+#
+
+while [ -h "$PRG" ]; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '^.*-> \(.*\)$' 2>/dev/null`
+    if expr "$link" : '^/' 2> /dev/null >/dev/null; then
+	PRG="$link"
+    else
+	PRG="`dirname $PRG`/$link"
+    fi
+done
+
+progdir=`dirname $PRG`
+progname=`basename $0`
+
+idehome="$progdir/.."
+
+# absolutize idehome
+
+oldpwd=`pwd` ; cd "${idehome}"; idehome=`pwd`; cd "$oldpwd"; unset oldpwd
+
+thread_flag=""
+
+jargs=${jreflags}
+jargs="$jargs \"-Dnetbeans.home=$idehome\""
+jargs="$jargs \"-Djava.security.policy=$idehome/bin/rmid.policy\""
+
+args=""
+
+
+#
+# defaults
+#
+
+# if JAVA_PATH is set it overrides the default in the script
+
+if [ ! -z "$JAVA_PATH" ] ; then
+    jdkhome=$JAVA_PATH
+fi
+
+#
+# parse arguments
+#
+
+while [ $# -gt 0 ] ; do
+    case "$1" in
+        -jdkhome) shift; if [ $# -gt 0 ] ; then jdkhome=$1; fi;;
+        -J*) jargs="$jargs `expr $1 : '-J\(.*\)'`";;
+        *) args="$args $1" ;;
+    esac
+    shift
+done
+
+#
+# check JDK
+#
+
+if [ -z "$jdkhome" ] ; then
+    echo "Cannot find JDK. Please set the JAVA_PATH environment variable to point"
+    echo "to your JDK installation directory, or use the -jdkhome switch"
+    echo ""
+    exit 1
+fi
+
+if [ ! -x "${jdkhome}/bin/java" ] ; then
+    echo "Cannot find JDK at ${jdkhome}. Please set the JAVA_PATH"
+    echo "environment variable to point to your JDK installation directory,"
+    echo "or use the -jdkhome switch"
+    echo ""
+    exit 1
+fi
+
+
+#
+# increase file descriptor's limit, on Solaris it's set to 64, too small for
+# fastjavac
+#
+
+ulimit -n 1024
+    
+wrapper_classpath="\"${idehome}/lib/ext/rmi-ext.jar\""
+debug=-Dsun.rmi.server.activation.debugExec=true
+    
+    #
+    # let's go
+    #
+    
+eval $jdkhome/bin/java $thread_flag $jargs $debug -classpath $wrapper_classpath org.netbeans.rmi.RMIDWrapperImpl $args
+

@@ -1,0 +1,22 @@
+// needed permissions
+
+grant codeBase "file:${netbeans.home}/-" {
+   permission java.security.AllPermission;
+};
+
+grant codeBase "file:${netbeans.user}/-" {
+   permission java.security.AllPermission;
+};
+
+
+// internal javac
+grant codeBase "file:${java.home}/../lib/-" {
+  permission java.security.AllPermission;
+};
+
+//
+grant {
+   permission com.sun.rmi.rmid.ExecOptionPermission "-Djava.*";
+   permission com.sun.rmi.rmid.ExecOptionPermission "-Dsun.*";
+};
+  
