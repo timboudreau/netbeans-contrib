@@ -480,8 +480,11 @@ public class CommandMenu extends JMenuPlus {
             buff.append(NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer2.text")); //NOI18N
             textArea.setText(buff.toString());
             textArea.setBackground(label1.getBackground());
-            textArea.setRows(7);
             textArea.setColumns(50);
+            int columnWidth = textArea.getFontMetrics(textArea.getFont()).charWidth('m');
+            textArea.setSize(50*columnWidth, 10);
+            // It's necessary to set explicitly the width! The height is then computed automatically.
+            // If the width is not set explicitly, the height is computed in a wrong way.
             
             GridBagConstraints gridBagConstraints1;
             gridBagConstraints1 = new java.awt.GridBagConstraints();
