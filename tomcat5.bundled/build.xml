@@ -43,8 +43,8 @@ Microsystems, Inc. All Rights Reserved.
     <!-- monitor -->
     <copy file="${schema2beans/rt.dir}/${nb.modules.dir}/org-netbeans-modules-schema2beans.jar" 
           tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.28/common/lib/org-netbeans-modules-schema2beans.jar"/>
-    <copy file="${monitor.dir}/${nb.modules.dir}/ext/httpmonitor.jar"
-          tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.28/common/lib/httpmonitor.jar"/>
+    <copy file="${monitor.dir}/${nb.modules.dir}/ext/org-netbeans-modules-web-httpmonitor.jar"
+          tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.28/common/lib/org-netbeans-modules-web-httpmonitor.jar"/>
     <chmod perm="ugo+x">
       <fileset dir="${netbeans.dest.dir}/${cluster.dir}/${tomcat.filename}/bin">
         <include name="*.sh"/>
