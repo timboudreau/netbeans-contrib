@@ -27,6 +27,7 @@ public interface IDLNodeCookie extends Node.Cookie {
 
 /*
  * <<Log>>
+ *  7    Gandalf   1.6         10/1/99  Karel Gardas    updates from CVS
  *  6    Gandalf   1.5         8/3/99   Karel Gardas    
  *  5    Gandalf   1.4         7/10/99  Karel Gardas    
  *  4    Gandalf   1.3         6/9/99   Ian Formanek    ---- Package Change To 

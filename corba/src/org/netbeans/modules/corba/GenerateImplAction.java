@@ -79,6 +79,7 @@ public class GenerateImplAction extends CookieAction {
 
 /*
  * <<Log>>
+ *  8    Gandalf   1.7         10/1/99  Karel Gardas    updates from CVS
  *  7    Gandalf   1.6         8/3/99   Karel Gardas    
  *  6    Gandalf   1.5         7/10/99  Karel Gardas    
  *  5    Gandalf   1.4         6/9/99   Ian Formanek    Fixed resources for 

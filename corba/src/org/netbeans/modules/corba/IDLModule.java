@@ -303,6 +303,7 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  17   Gandalf   1.16        10/1/99  Karel Gardas    updates from CVS
  *  16   Gandalf   1.15        9/13/99  Jaroslav Tulach 
  *  15   Gandalf   1.14        8/7/99   Karel Gardas    changes in code which 
  *       hide generated files

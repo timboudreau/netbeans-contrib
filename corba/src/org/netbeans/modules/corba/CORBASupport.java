@@ -165,6 +165,7 @@ public class CORBASupport {
 
 /*
  * <<Log>>
+ *  14   Gandalf   1.13        10/1/99  Karel Gardas    updates from CVS
  *  13   Gandalf   1.12        8/7/99   Karel Gardas    changes in code which 
  *       hide generated files
  *  12   Gandalf   1.11        8/3/99   Karel Gardas    
