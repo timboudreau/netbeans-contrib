@@ -52,13 +52,13 @@ Microsystems, Inc. All Rights Reserved.
   </folder>
   
   <folder name="Shortcuts">
-      <file name="C-8.instance">
+      <file name="D-8.instance">
           <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.OpenVersioningAction" />
       </file>
-      <file name="CS-8.instance">
+      <file name="DS-8.instance">
           <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VersioningAction" />
       </file>
-      <file name="C-9.instance">
+      <file name="D-9.instance">
         <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VcsOutputAction" />
       </file>
   </folder>
