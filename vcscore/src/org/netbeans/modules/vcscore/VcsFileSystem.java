@@ -3731,7 +3731,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         // (if it's really desired to do it here), use the delete command with it's own refreshing
         // The files are removed from the cache if the missing status is not set
         // (thus the new status would need to be retrieved later)
-        if (cache != null) {
+        if (success && cache != null) {
             if (!wasDir) {
                 if (missingFileStatus == null) cache.remove(name, wasDir);
             } else {
@@ -3745,7 +3745,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
          */
         addParentToRefresher(name);
-        callDeleteCommand(name, wasDir);
+        if (success) callDeleteCommand(name, wasDir);
         return success;
     }
 
