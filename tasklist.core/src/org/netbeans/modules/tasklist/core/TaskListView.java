@@ -571,7 +571,9 @@ public abstract class TaskListView extends TopComponent
         rootNode = createRootNode();
 
         LOGGER.fine("root created " + rootNode);
-        
+
+        Node prevRoot = getExplorerManager().getRootContext();
+
         if (isFiltered()) {
             // Create filtered view of the tasklist
             FilteredTaskChildren children =
@@ -580,6 +582,12 @@ public abstract class TaskListView extends TopComponent
             getExplorerManager().setRootContext(n);
         } else {
             getExplorerManager().setRootContext(rootNode);
+        }
+
+        try {
+            if (prevRoot != null) prevRoot.destroy();
+        } catch (IOException ex) {
+            throw new IllegalStateException("Unexpected IOex in " + prevRoot);  // NOI18N
         }
     }
 

@@ -90,21 +90,23 @@ public class TaskNode extends AbstractNode {
         ObservableList list = item.getList();
         list.addTaskListener(monitor);
         item.addPropertyChangeListener(monitor);
-        addNodeListener(new NodeAdapter() {
-            // XXX it comes only if being child of Children.Keys
-            public void nodeDestroyed(NodeEvent ev) {
-                if (ev.getNode() == TaskNode.this) {
-                    ObservableList list = item.getList();
-                    list.removeTaskListener(monitor);
-                    item.removePropertyChangeListener(monitor);
-                }
-            }
-        });
+        DisposalListener dl = new DisposalListener();
+        addNodeListener(dl); // XXX it comes only if being child of Children.Keys on setKeys() call
         updateDisplayStuff();
         getCookieSet().add(new InstanceSupport.Instance(item));
         
         // Make reorderable:
         //TODO getCookieSet().add(new ReorderMe ());
+    }
+
+    private class DisposalListener extends NodeAdapter {
+        public void nodeDestroyed(NodeEvent ev) {
+            if (ev.getNode() == TaskNode.this) {
+                ObservableList list = item.getList();
+                list.removeTaskListener(monitor);
+                item.removePropertyChangeListener(monitor);
+            }
+        }
     }
 
     public TaskChildren getTaskChildren() {
@@ -180,7 +182,18 @@ public class TaskNode extends AbstractNode {
         item.removePropertyChangeListener(monitor);
         ObservableList tl = item.getList();
         tl.removeTaskListener(monitor);
-        item.getParent().removeSubtask(item);
+
+        // XXX to alter model use some cookie or so
+        // this call destroy visualization only
+//        Task parent = item.getParent();
+//        if (parent != null) parent.removeSubtask(item);
+
+        // explicitly destroy all children, it's not done automatically
+        Enumeration en = getChildren().nodes();
+        while (en.hasMoreElements()) {
+            Node next = (Node) en.nextElement();
+            next.destroy();
+        }
         super.destroy();
     }
     
