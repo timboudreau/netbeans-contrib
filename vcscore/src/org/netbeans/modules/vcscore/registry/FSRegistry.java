@@ -13,30 +13,129 @@
 
 package org.netbeans.modules.vcscore.registry;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
- * just for awhile
- * @author  Richard Gregor
+ * Registry of recognized filesystem types.
+ *
+ * @author  Martin Entlicher
  */
 public class FSRegistry {
     
+    private static FSRegistry registry;
+    
+    private List registryListeners = new LinkedList();
+    private List fsInfos = new LinkedList();
+    
     /** Creates a new instance of FSRegistry */
-    public FSRegistry() {
+    private FSRegistry() {
+        fsInfos.addAll(RecognizedFS.getDefault().getManuallyRecognized());
     }
     
-    public static FSRegistry getDefault(){
-        return new FSRegistry();
+    /**
+     * Get the default filesystem registry.
+     */
+    public static synchronized FSRegistry getDefault() {
+        if (registry == null) {
+            registry = new FSRegistry();
+        }
+        return registry;
     }
     
-    public void addFSRegistryListener(FSRegistryListener l){
-        //
+    /**
+     * Register a filesystem information.
+     */
+    public void register(FSInfo fsInfo) {
+        register(fsInfo, null, false);
     }
     
-    public FSInfo[] getRegistered(){
-        return null;
+    /**
+     * Register a filesystem information.
+     */
+    void register(FSInfo fsInfo, Object propagationId, boolean autoRecognized) {
+        synchronized (fsInfos) {
+            if (fsInfos.contains(fsInfo)) {
+                // Already registered
+                return ;
+            }
+            fsInfos.add(fsInfo);
+        }
+        if (!autoRecognized) {
+            RecognizedFS.getDefault().addManuallyRecognized(fsInfo);
+        }
+        fireFSInfoChanged(fsInfo, true, propagationId);
     }
     
-    public void unregister(FSInfo info){
-        //
+    /**
+     * Unregister a filesystem information.
+     */
+    public void unregister(FSInfo fsInfo) {
+        unregister(fsInfo, null);
+    }
+    
+    /**
+     * Unregister a filesystem information.
+     */
+    void unregister(FSInfo fsInfo, Object propagationId) {
+        synchronized (fsInfos) {
+            fsInfos.remove(fsInfo);
+        }
+        RecognizedFS.getDefault().removeRecognized(fsInfo);
+        fireFSInfoChanged(fsInfo, false, propagationId);
+    }
+    
+    /**
+     * Get all registered filesystem infos.
+     */
+    public FSInfo[] getRegistered() {
+        synchronized (fsInfos) {
+            return (FSInfo[]) fsInfos.toArray(new FSInfo[fsInfos.size()]);
+        }
+    }
+    
+    /**
+     * Find out whether a given filesystem info is already registered or not.
+     * @param info The filesystem info to test
+     * @return true When the filesystem info is already registered, false otherwise.
+     */
+    public boolean isRegistered(FSInfo info) {
+        synchronized (fsInfos) {
+            return fsInfos.contains(info);
+        }
+    }
+    
+    /**
+     * Add a filesystem registry listener.
+     */
+    public void addFSRegistryListener(FSRegistryListener fsrl) {
+        synchronized (registryListeners) {
+            registryListeners.add(fsrl);
+        }
+    }
+    
+    /**
+     * Remove a filesystem registry listener.
+     */
+    public void removeFSRegistryListener(FSRegistryListener fsrl) {
+        synchronized (registryListeners) {
+            registryListeners.remove(fsrl);
+        }
+    }
+    
+    protected void fireFSInfoChanged(FSInfo fsInfo, boolean added, Object propagationId) {
+        FSRegistryEvent evt = new FSRegistryEvent(this, fsInfo, added);
+        evt.setPropagationId(propagationId);
+        List listeners;
+        synchronized (registryListeners) {
+            listeners = new ArrayList(registryListeners);
+        }
+        for (Iterator it = listeners.iterator(); it.hasNext(); ) {
+            FSRegistryListener l = (FSRegistryListener) it.next();
+            if (added) l.fsAdded(evt);
+            else l.fsRemoved(evt);
+        }
     }
 }
-
