@@ -275,8 +275,8 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     }
 
     private void createTree(String rootString) {
-        setTreeModel(new DefaultTreeModel(new MyTreeNode()));
         File rootDir = new File(rootString);
+        setTreeModel(new DefaultTreeModel(new MyTreeNode(rootDir)));
         if (rootDir.isDirectory()) {
             final MyTreeNode root = new MyTreeNode(rootDir);
             Runnable treeBuild = new Runnable() {
@@ -287,10 +287,9 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
             };
             //new Thread(treeBuild, "Mount Panel Tree Build").start();
             RequestProcessor.postRequest(treeBuild);
-            DefaultTreeCellRenderer  def = new MyTreeCellRenderer();
-            trRelMount.setCellRenderer(def);
             trRelMount.setModel(new DefaultTreeModel(root));
         }
+        trRelMount.setCellRenderer(new MyTreeCellRenderer());
     }
     
     private void folderTreeNodes(final MyTreeNode parent) {
@@ -311,16 +310,18 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
             File parentFile = (File) parent.getUserObject(); 
             File childFile;
             File[] list = parentFile.listFiles();
-            Arrays.sort(list);
-            for (int index = 0; index < list.length; index++) {
-                if (list[index].isDirectory() && list[index].exists()) {
-                    childFile = list[index];
-                    if (!childFile.getName().equals("CVS")) { //CVS dirs go out..
-                        //hasChild = true;
-                        MyTreeNode child = new MyTreeNode(new File(childFile.getAbsolutePath()));
-                        child.setAllowsChildren(true);
-                        children.add(child);
-                        //parent.add(child);
+            if (list != null) {
+                Arrays.sort(list);
+                for (int index = 0; index < list.length; index++) {
+                    if (list[index].isDirectory() && list[index].exists()) {
+                        childFile = list[index];
+                        if (!childFile.getName().equals("CVS")) { //CVS dirs go out..
+                            //hasChild = true;
+                            MyTreeNode child = new MyTreeNode(new File(childFile.getAbsolutePath()));
+                            child.setAllowsChildren(true);
+                            children.add(child);
+                            //parent.add(child);
+                        }
                     }
                 }
             }
