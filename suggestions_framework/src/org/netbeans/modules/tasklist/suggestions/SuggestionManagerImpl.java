@@ -1525,8 +1525,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
     private static int findId = 1;
 
     private void findCurrentFile(boolean delayed) {
-        System.out.println((findId++) + ") findCurrentFile(" + delayed + ")");
-//    private void findCurrentFile(boolean delayed) {
 	// Unregister previous listeners
 	if (current != null) {
 	    //System.err.println("Removing component listener from " + tcToDO(current));
