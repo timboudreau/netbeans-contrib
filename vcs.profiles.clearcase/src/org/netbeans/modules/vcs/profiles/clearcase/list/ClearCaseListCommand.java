@@ -8,7 +8,7 @@
  *
  * The Original Code is Forte for Java, Community Edition. The Initial
  * Developer of the Original Code is Sun Microsystems, Inc. Portions
- * Copyright 1997-2002 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright 1997-2003 Sun Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.vcs.profiles.clearcase.list;
