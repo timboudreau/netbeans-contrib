@@ -163,8 +163,8 @@ public class UserCommandIO extends Object {
      */
     public static String translateCommandProperty(String propertyName, String propertyValue) {
         if (UserCommand.PROPERTY_EXEC.equals(propertyName)) {
-            int classIndex = propertyValue.indexOf(".class");
-            if (classIndex > 0) {
+            int classIndex = 0;
+            while ((classIndex = propertyValue.indexOf(".class", classIndex)) > 0) {
                 int begin;
                 for (begin = classIndex; begin >= 0; begin--) {
                     char c = propertyValue.charAt(begin);
@@ -177,6 +177,9 @@ public class UserCommandIO extends Object {
                     if (!classNameOrig.equals(classNameNew)) {
                         propertyValue = propertyValue.substring(0, begin) + classNameNew + propertyValue.substring(classIndex);
                     }
+                    classIndex = begin + classNameNew.length() + ".class".length();
+                } else {
+                    classIndex += ".class".length();
                 }
             }
         }
