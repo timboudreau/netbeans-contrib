@@ -278,7 +278,7 @@ final class DiskFileAttributeProvider implements FileAttributeProvider {
                 }
             }
 
-            assert sharedList.size() <= folderListing.size() : "cache " + cacheFile + " data " + sharedList;  // there are probably merging error
+            assert (!complete) || sharedList.size() <= folderListing.size() : "cache " + cacheFile + " data " + sharedList;  // there are probably merging error
             rewriteCacheFile(cacheFile, true);
         }
     }
