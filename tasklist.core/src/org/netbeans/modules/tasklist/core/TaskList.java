@@ -403,10 +403,7 @@ public class TaskList { // XXX remove the publicness
     /** Remove all the tasks in this tasklist */
     public void clear() {
         if (root != null) {
-            List list = root.getSubtasks();
-            if (list != null) {
-                list.clear();
-            }
+            root.clear();
         }
     }
 

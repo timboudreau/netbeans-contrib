@@ -41,7 +41,7 @@ public class ShowSuggestionAction extends NodeAction {
             return; // internal error
         }
         SuggestionsView tlv = (SuggestionsView)v;
-        tlv.show(item, new SuggestionAnno(item));
+        tlv.showTask(item, new SuggestionAnno(item));
     }
 
     /** Enable the task iff you've selected exactly one node,

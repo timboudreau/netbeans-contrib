@@ -124,14 +124,11 @@ public class Task extends Suggestion implements Cloneable {
     protected TaskList list;
     protected boolean visitable;
 
-
     /** When true, don't notify anybody of updates to this object - and don't
         modify the edited timestamp. Used by the restore code. */
     protected boolean silentUpdate = false;
     
     protected Task parent;
-
-
     
     /** If this item has subtasks, they are stored in this list */
     protected LinkedList subtasks = null;
@@ -148,6 +145,16 @@ public class Task extends Suggestion implements Cloneable {
         this.parent = parent;
 	list = null;
         visitable = true;
+    }
+    
+    /**
+     * Removes all subtasks.
+     */
+    public void clear() {
+        if (hasSubtasks()) {
+            subtasks.clear();
+            updatedStructure();
+        }
     }
     
     /**
@@ -565,10 +572,6 @@ public class Task extends Suggestion implements Cloneable {
      * writes out all the fields, not just the
      * description. */
     public static void generate(Task item, Writer w) throws IOException {
-	// XXX
-	// For some odd reason, my TodoTransfer's convert method never seems
-	// to get called, so I haven't been able to test this, that's why
-	// I haven't expanded the code as much as it should be.
 	w.write(item.getSummary());
     }
 
@@ -585,14 +588,14 @@ public class Task extends Suggestion implements Cloneable {
         List notes = new LinkedList(); // List<Note>
         String line;
         while ((line = reader.readLine()) != null) {
-	    // XXX For some odd reason, my TodoTransfer's convert
-	    // method never seems to get called, so I haven't been
+	    // XXX TodoTransfer's convert
+	    // method never seems to get called (see explanations in
+            // TaskNode.clipboardCopy), so I haven't been
 	    // able to test this, that's why I haven't expanded the
 	    // code as much as it should be.
 	    Task item = new Task();
 	    item.setSummary(line);
 	    return item;
-	    // XXX not done... see above
 	}
         return null;
     }

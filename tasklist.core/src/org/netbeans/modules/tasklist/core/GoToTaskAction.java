@@ -31,7 +31,7 @@ public class GoToTaskAction extends NodeAction {
             (Task)TaskNode.getTask(nodes[0]); // safe - see enable check
         TaskListView tlv = TaskListView.getCurrent();
         if (tlv != null) {
-            tlv.show(item, null);
+            tlv.showTask(item, null);
         } else {
             System.out.println("No current view!");
         }

@@ -71,6 +71,7 @@ import org.openide.actions.DeleteAction;
 import org.openide.actions.FindAction;
 import org.openide.explorer.ExplorerPanel;
 import org.openide.explorer.view.Visualizer;
+import org.openide.text.Line;
 import org.openide.util.actions.ActionPerformer;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
@@ -87,8 +88,9 @@ import org.openide.util.Utilities;
  *       from this class
  */
 public abstract class TaskListView extends ExplorerPanel
-    implements TaskListener, ActionListener,
-               PropertyChangeListener {
+    implements TaskListener, ActionListener, PropertyChangeListener {
+    /** Property "task summary" */
+    public static final String PROP_TASK_SUMMARY = "taskDesc"; // NOI18N
     
     transient protected TaskNode rootNode = null;
     transient protected MyTreeTable treeTable;
@@ -111,6 +113,9 @@ public abstract class TaskListView extends ExplorerPanel
     
     transient private ActionPerformer deletePerformer;
     
+    /** Annotation showing the current position */
+    transient protected Annotation taskMarker = null;
+    
     /** Construct a new TaskListView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
 	system when deserializing windows. Client code should not call
@@ -127,7 +132,7 @@ public abstract class TaskListView extends ExplorerPanel
 	super();
 
         this.category = category;
-	this.title = title;
+	setName(title);
 	this.persistent = persistent;
 	this.tasklist = tasklist;
         if (tasklist != null) {
@@ -151,6 +156,55 @@ public abstract class TaskListView extends ExplorerPanel
 	    }
 	    views.put(category, this);
 	}
+    }
+
+    // override default ExplorerPanel behaviour.
+    // It was set by explorer manager with setName to "Explorer[<root name>]"
+    protected void updateTitle() {
+    }
+    
+    /** Show the given task. "Showing" means getting the editor to
+     * show the associated file position, and open up an area in the
+     * tasklist view where the details of the task can be fully read.
+     */
+    public void showTask(Task item, Annotation annotation) {
+	hideTask();
+	if (item == null) {
+	    return;
+	}
+
+        Line l = item.getLine();
+        if (l != null) {
+            if (taskMarker == null) {
+                if (annotation != null) {
+                    taskMarker = annotation;
+                } else {
+                    taskMarker = new TaskAnnotation(item);
+                }
+            } else {
+                taskMarker.detach();
+            }
+            if (l != null) {
+                taskMarker.attach(l);
+                // Show the line!
+                l.show(Line.SHOW_GOTO);
+            } else {
+                taskMarker = null;
+            }
+        }
+
+    }
+
+    /** Called to indicate that a particular task should be hidden.
+	This typically means that the task was deleted so it should
+	no longer have any visual cues. The task referred to is the
+	most recent task passed to showTask.
+    */
+    public void hideTask() {
+        if (taskMarker != null) {
+            taskMarker.detach();
+            taskMarker = null;
+        }
     }
 
     /**
@@ -194,7 +248,8 @@ public abstract class TaskListView extends ExplorerPanel
      */    
     protected void componentOpened() {
 	// Register listeners, such as the editor support bridge module
-	registerListeners();
+	// TODO: Listeners from Lookup will not be collected
+        // registerListeners();
 	
 	if (initialized) {
 	    return;
@@ -251,7 +306,8 @@ public abstract class TaskListView extends ExplorerPanel
 
     /** Called when the window is closed. Cleans up. */    
     protected void componentClosed() {
-	hideList();
+        hideTask();
+        hideList();
 
         // Remove any task markers we've added to the editor
         if (unshowItem != null) {
@@ -259,7 +315,7 @@ public abstract class TaskListView extends ExplorerPanel
         }
         
 	// Unregister listeners
-	unregisterListeners();
+        unregisterListeners();
     }
 
 
@@ -701,15 +757,13 @@ public abstract class TaskListView extends ExplorerPanel
 	objectOutput.writeObject(title);
 	objectOutput.write(persistent ? 1 : 0);
     }
-
-    public static final String PROP_TASK_SUMMARY = "taskDesc"; // NOI18N
     
     /** Return the name of this window ("task list"), as
      * shown in IDE tabs etc.
      * @return Name of window */    
-    public String getName() {
+    /*public String getName() {
 	return title;
-    }
+    }*/
 
     /** Create the list of columns to be used in the view.
         NOTE: The first column SHOULD be a tree column.
@@ -1081,17 +1135,17 @@ public abstract class TaskListView extends ExplorerPanel
     }
 
     private Node.Property getNodeProperty(Node node, Node.Property prop) {
-            Node.PropertySet[] propsets = node.getPropertySets();
-            for (int i = 0, n = propsets.length; i < n; i++) {
-                Node.Property[] props = propsets[i].getProperties();
+        Node.PropertySet[] propsets = node.getPropertySets();
+        for (int i = 0, n = propsets.length; i < n; i++) {
+            Node.Property[] props = propsets[i].getProperties();
 
-                for (int j = 0, m = props.length; j < m; j++) {
-                    if (props[j].equals(prop)) {
-                        return props[j];
-                    }
+            for (int j = 0, m = props.length; j < m; j++) {
+                if (props[j].equals(prop)) {
+                    return props[j];
                 }
             }
-            return null;
+        }
+        return null;
     }
         
 
@@ -1415,6 +1469,8 @@ public abstract class TaskListView extends ExplorerPanel
     }
 
     protected void componentHidden() {
+        hideTask();
+        
         // Stop listening for node activation
         getExplorerManager().removePropertyChangeListener(this);	    
         
