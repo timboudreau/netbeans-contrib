@@ -37,6 +37,7 @@ import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 
 import org.netbeans.modules.vcscore.*;
+import org.netbeans.modules.vcscore.cache.CacheReference;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
@@ -191,7 +192,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     
     protected java.lang.ref.Reference createReference(final FileObject fo) {
         java.lang.ref.Reference ref = super.createReference(fo);
-        setVirtualDataLoader(fo);
+        if (checkVirtual(fo.getPackageNameExt('/','.'))) {
+            //System.out.println("   !!! new ref is virtual");
+            if (ref instanceof CacheReference) {
+                ((CacheReference) ref).setVirtual(true);
+            } else {
+                setVirtualDataLoader(fo);
+            }
+        }
         return ref;
     }
     
@@ -249,11 +257,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
     
     public int getRefreshTimeStored() {
-        return getRefreshTime();
+        return getVcsRefreshTime();
     }
     
     public void setRefreshTimeStored(int refreshTime) {
-        setRefreshTime(refreshTime);
+        setVcsRefreshTime(refreshTime);
     }
 
     /**
@@ -554,11 +562,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         if (evt.getPropertyName() != FileSystem.PROP_VALID) return;
         if (isValid()) {
             D.deb("Filesystem added to the repository, setting refresh time to "+refreshTimeToSet); // NOI18N
-            setRefreshTime(refreshTimeToSet);
+            setVcsRefreshTime(refreshTimeToSet);
             warnDirectoriesDoNotExists();
         } else {
             D.deb("Filesystem is not valid any more, setting refresh time to 0"); // NOI18N
-            setRefreshTime(0);
+            setVcsRefreshTime(0);
         }
     }
     
