@@ -1,0 +1,88 @@
+Processing: Command: SETORB File: OB4X
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: NONE
+Done
+Processing: Command: SETGEN File: NOTHING
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/a1/Empty.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/a1/Empty.idl
+Done
+Processing: Command: DUMP File: data/synchro/a1/A/CImpl.java
+DUMP: File: data/synchro/a1/A/CImpl.java
+---- beginning of file ----
+public class CImpl extends data.synchro.a1.A.CPOA {
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a1/BImpl.java
+DUMP: File: data/synchro/a1/BImpl.java
+---- beginning of file ----
+public class BImpl extends data.synchro.a1.BPOA {
+    
+}
+---- end of file ----
+Done
+Processing: Command: SETSKEL File: TIE
+Done
+Processing: Command: SETDEL File: VIRTUAL
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 1
+Processing: Command: GEN File: data/synchro/a1/Empty_1.idl
+GEN: Synchronizing: Count: 1 File: data/synchro/a1/Empty_1.idl
+Done
+Processing: Command: DUMP File: data/synchro/a1/A/CImpl.java
+DUMP: File: data/synchro/a1/A/CImpl.java
+---- beginning of file ----
+public class CImpl implements data.synchro.a1.A.COperations {
+    public CImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a1/BImpl.java
+DUMP: File: data/synchro/a1/BImpl.java
+---- beginning of file ----
+public class BImpl implements data.synchro.a1.BOperations {
+    private data.synchro.a1.A.CImpl _M_variable_of_type_A_C;
+    
+    public BImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A_C = new data.synchro.a1.A.CImpl();
+        
+    }
+    
+    public void _set_parent_of_type_A_C(data.synchro.a1.A.CImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A_C = __value;
+    }
+    
+    public void op() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A_C.op();
+    }
+    
+    
+}
+---- end of file ----
+Done

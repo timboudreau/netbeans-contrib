@@ -1,0 +1,230 @@
+Processing: Command: SETORB File: OB4X
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: STATIC
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/a6/Empty.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/a6/Empty.idl
+Done
+Processing: Command: DUMP File: data/synchro/a6/AImpl.java
+DUMP: File: data/synchro/a6/AImpl.java
+---- beginning of file ----
+public class AImpl extends data.synchro.a6.APOA {
+    public AImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op1() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a6/CImpl.java
+DUMP: File: data/synchro/a6/CImpl.java
+---- beginning of file ----
+public class CImpl extends data.synchro.a6.CPOA {
+    private data.synchro.a6.AImpl _M_variable_of_type_A;
+    
+    public CImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.a6.AImpl();
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.a6.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A.op1();
+    }
+    
+    public void op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a6/FImpl.java
+DUMP: File: data/synchro/a6/FImpl.java
+---- beginning of file ----
+public class FImpl extends data.synchro.a6.FPOA {
+    private data.synchro.a6.AImpl _M_variable_of_type_A;
+    
+    private data.synchro.a6.CImpl _M_variable_of_type_C;
+    
+    public FImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.a6.AImpl();
+        
+        _M_variable_of_type_C = new data.synchro.a6.CImpl();
+        // set parents for IDL:C:1.0
+        _M_variable_of_type_C._set_parent_of_type_A(_M_variable_of_type_A);
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.a6.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void _set_parent_of_type_C(data.synchro.a6.CImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_C = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A.op1();
+    }
+    
+    public void op2() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_C.op2();
+    }
+    
+    public void op3() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: VIRTUAL
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/a6/Empty_1.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/a6/Empty_1.idl
+Done
+Processing: Command: DUMP File: data/synchro/a6/AImpl.java
+DUMP: File: data/synchro/a6/AImpl.java
+---- beginning of file ----
+public class AImpl extends data.synchro.a6.APOA {
+    public AImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op1() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a6/CImpl.java
+DUMP: File: data/synchro/a6/CImpl.java
+---- beginning of file ----
+public class CImpl extends data.synchro.a6.CPOA {
+    private data.synchro.a6.AImpl _M_variable_of_type_A;
+    
+    public CImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.a6.AImpl();
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.a6.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A.op1();
+    }
+    
+    public void op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a6/FImpl.java
+DUMP: File: data/synchro/a6/FImpl.java
+---- beginning of file ----
+public class FImpl extends data.synchro.a6.FPOA {
+    private data.synchro.a6.AImpl _M_variable_of_type_A;
+    
+    private data.synchro.a6.CImpl _M_variable_of_type_C;
+    
+    public FImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.a6.AImpl();
+        
+        _M_variable_of_type_C = new data.synchro.a6.CImpl();
+        // set parents for IDL:C:1.0
+        _M_variable_of_type_C._set_parent_of_type_A(_M_variable_of_type_A);
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.a6.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void _set_parent_of_type_C(data.synchro.a6.CImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_C = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_C.op1();
+    }
+    
+    public void op2() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_C.op2();
+    }
+    
+    public void op3() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done

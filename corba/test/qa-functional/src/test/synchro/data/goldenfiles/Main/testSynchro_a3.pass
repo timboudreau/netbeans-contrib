@@ -1,0 +1,179 @@
+Processing: Command: SETORB File: OB4X
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: STATIC
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/a3/Empty.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/a3/Empty.idl
+Done
+Processing: Command: DUMP File: data/synchro/a3/AImpl.java
+DUMP: File: data/synchro/a3/AImpl.java
+---- beginning of file ----
+public class AImpl extends data.synchro.a3.APOA {
+    public AImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a3/BImpl.java
+DUMP: File: data/synchro/a3/BImpl.java
+---- beginning of file ----
+public class BImpl extends data.synchro.a3.BPOA {
+    private data.synchro.a3.AImpl _M_variable_of_type_A;
+    
+    public BImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.a3.AImpl();
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.a3.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void op() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A.op();
+    }
+    
+    public void op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a3/CImpl.java
+DUMP: File: data/synchro/a3/CImpl.java
+---- beginning of file ----
+public class CImpl extends C {
+    public CImpl() {
+    }
+    
+    public void op3() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a3/DImpl.java
+DUMP: File: data/synchro/a3/DImpl.java
+---- beginning of file ----
+public class DImpl extends D {
+    public DImpl() {
+    }
+    
+    public void op() {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: SETSYNCCOUNT File: 2
+Processing: Command: GEN File: data/synchro/a3/Empty_1.idl
+GEN: Synchronizing: Count: 2 File: data/synchro/a3/Empty_1.idl
+Done
+Processing: Command: DUMP File: data/synchro/a3/AImpl.java
+DUMP: File: data/synchro/a3/AImpl.java
+---- beginning of file ----
+public class AImpl extends data.synchro.a3.APOA {
+    public AImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a3/BImpl.java
+DUMP: File: data/synchro/a3/BImpl.java
+---- beginning of file ----
+public class BImpl extends data.synchro.a3.BPOA {
+    public BImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public data.synchro.a3.A op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a3/CImpl.java
+DUMP: File: data/synchro/a3/CImpl.java
+---- beginning of file ----
+public class CImpl extends C {
+    public CImpl() {
+    }
+    
+    public void op3() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a3/DImpl.java
+DUMP: Saving: File: data/synchro/a3/DImpl.java
+DUMP: File: data/synchro/a3/DImpl.java
+---- beginning of file ----
+public class DImpl extends D {
+    public DImpl() {
+    }
+    
+    public data.synchro.a3.A op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void op3() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done

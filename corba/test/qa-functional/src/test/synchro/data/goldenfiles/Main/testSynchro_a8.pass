@@ -1,0 +1,234 @@
+Processing: Command: SETORB File: OB4X
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: STATIC
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/a8/Empty.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/a8/Empty.idl
+Done
+Processing: Command: DUMP File: data/synchro/a8/AImpl.java
+DUMP: File: data/synchro/a8/AImpl.java
+---- beginning of file ----
+public class AImpl extends data.synchro.a8.APOA {
+    public AImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a8/BImpl.java
+DUMP: File: data/synchro/a8/BImpl.java
+---- beginning of file ----
+public class BImpl extends B {
+    public BImpl() {
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a8/BValueFactoryImpl.java
+DUMP: File: data/synchro/a8/BValueFactoryImpl.java
+---- beginning of file ----
+public class BValueFactoryImpl implements BValueFactory {
+    public data.synchro.a8.B fac(String s) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public java.io.Serializable read_value(org.omg.CORBA_2_3.portable.InputStream __in) {
+        java.io.Serializable __tmp = new data.synchro.a8.BImpl();
+        return __in.read_value(__tmp);
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a8/CImpl.java
+DUMP: File: data/synchro/a8/CImpl.java
+---- beginning of file ----
+public class CImpl extends data.synchro.a8.CPOA {
+    public CImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a8/DImpl.java
+DUMP: File: data/synchro/a8/DImpl.java
+---- beginning of file ----
+public class DImpl extends data.synchro.a8.DPOA {
+    public DImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op2(int l) {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a8/EImpl.java
+DUMP: File: data/synchro/a8/EImpl.java
+---- beginning of file ----
+public class EImpl extends E {
+    public EImpl() {
+    }
+    
+    public void op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: SETSYNCCOUNT File: 3
+Processing: Command: GEN File: data/synchro/a8/Empty_1.idl
+GEN: Synchronizing: Count: 3 File: data/synchro/a8/Empty_1.idl
+Done
+Processing: Command: DUMP File: data/synchro/a8/AImpl.java
+DUMP: File: data/synchro/a8/AImpl.java
+---- beginning of file ----
+public class AImpl extends data.synchro.a8.APOA {
+    public AImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a8/BImpl.java
+DUMP: File: data/synchro/a8/BImpl.java
+---- beginning of file ----
+public class BImpl extends B {
+    public BImpl() {
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a8/BValueFactoryImpl.java
+DUMP: Saving: File: data/synchro/a8/BValueFactoryImpl.java
+DUMP: File: data/synchro/a8/BValueFactoryImpl.java
+---- beginning of file ----
+public class BValueFactoryImpl implements BValueFactory {
+    public data.synchro.a8.B fac(String s) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public data.synchro.a8.B fac2(int l, int l2) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public java.io.Serializable read_value(org.omg.CORBA_2_3.portable.InputStream __in) {
+        java.io.Serializable __tmp = new data.synchro.a8.BImpl();
+        return __in.read_value(__tmp);
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a8/CImpl.java
+DUMP: File: data/synchro/a8/CImpl.java
+---- beginning of file ----
+public class CImpl extends data.synchro.a8.CPOA {
+    public CImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a8/DImpl.java
+DUMP: File: data/synchro/a8/DImpl.java
+---- beginning of file ----
+public class DImpl extends data.synchro.a8.DPOA {
+    public DImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op2(int l) {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a8/EImpl.java
+DUMP: Saving: File: data/synchro/a8/EImpl.java
+DUMP: File: data/synchro/a8/EImpl.java
+---- beginning of file ----
+public class EImpl extends E {
+    public EImpl() {
+    }
+    
+    public void marshal(org.omg.CORBA.DataOutputStream os) {
+    }
+    
+    public void op2(int l) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void unmarshal(org.omg.CORBA.DataInputStream is) {
+    }
+    
+    
+}
+---- end of file ----
+Done

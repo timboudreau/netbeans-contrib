@@ -1,0 +1,198 @@
+Processing: Command: SETORB File: OB4X
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: STATIC
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/a7/Simple.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/a7/Simple.idl
+Done
+Processing: Command: DUMP File: data/synchro/a7/DImpl.java
+DUMP: File: data/synchro/a7/DImpl.java
+---- beginning of file ----
+public class DImpl extends D {
+    public DImpl() {
+    }
+    
+    public void opD() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a7/EImpl.java
+DUMP: File: data/synchro/a7/EImpl.java
+---- beginning of file ----
+public class EImpl extends E {
+    public EImpl() {
+    }
+    
+    public void opD() {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void opE() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a7/FImpl.java
+DUMP: File: data/synchro/a7/FImpl.java
+---- beginning of file ----
+public class FImpl extends F {
+    public FImpl() {
+    }
+    
+    public void opD() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a7/FValueFactoryImpl.java
+DUMP: File: data/synchro/a7/FValueFactoryImpl.java
+---- beginning of file ----
+public class FValueFactoryImpl implements FValueFactory {
+    public data.synchro.a7.F iii(data.synchro.a7.D dd) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public java.io.Serializable read_value(org.omg.CORBA_2_3.portable.InputStream __in) {
+        java.io.Serializable __tmp = new data.synchro.a7.FImpl();
+        return __in.read_value(__tmp);
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a7/XImpl.java
+DUMP: File: data/synchro/a7/XImpl.java
+---- beginning of file ----
+public class XImpl extends data.synchro.a7.XPOA {
+    public XImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void opX(data.synchro.a7.F ff) {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: SETSYNCCOUNT File: 2
+Processing: Command: GEN File: data/synchro/a7/Simple_1.idl
+GEN: Synchronizing: Count: 2 File: data/synchro/a7/Simple_1.idl
+Done
+Processing: Command: DUMP File: data/synchro/a7/DImpl.java
+DUMP: File: data/synchro/a7/DImpl.java
+---- beginning of file ----
+public class DImpl extends D {
+    public DImpl() {
+    }
+    
+    public void opD() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a7/EImpl.java
+DUMP: File: data/synchro/a7/EImpl.java
+---- beginning of file ----
+public class EImpl extends E {
+    public EImpl() {
+    }
+    
+    public void opD() {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void opE() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a7/FImpl.java
+DUMP: Saving: File: data/synchro/a7/FImpl.java
+DUMP: File: data/synchro/a7/FImpl.java
+---- beginning of file ----
+public class FImpl extends F {
+    public FImpl() {
+    }
+    
+    public void opD() {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void opE() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a7/FValueFactoryImpl.java
+DUMP: Saving: File: data/synchro/a7/FValueFactoryImpl.java
+DUMP: File: data/synchro/a7/FValueFactoryImpl.java
+---- beginning of file ----
+public class FValueFactoryImpl implements FValueFactory {
+    public data.synchro.a7.F iii(data.synchro.a7.D dd) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public data.synchro.a7.F init(data.synchro.a7.E ee, int ll) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public java.io.Serializable read_value(org.omg.CORBA_2_3.portable.InputStream __in) {
+        java.io.Serializable __tmp = new data.synchro.a7.FImpl();
+        return __in.read_value(__tmp);
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/a7/XImpl.java
+DUMP: File: data/synchro/a7/XImpl.java
+---- beginning of file ----
+public class XImpl extends data.synchro.a7.XPOA {
+    public XImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void opX(data.synchro.a7.F ff) {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done

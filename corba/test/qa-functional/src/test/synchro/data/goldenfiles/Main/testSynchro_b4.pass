@@ -1,0 +1,209 @@
+Processing: Command: SETORB File: OB4X
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: STATIC
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/b4/Empty.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/b4/Empty.idl
+Done
+Processing: Command: DUMP File: data/synchro/b4/HImpl.java
+DUMP: File: data/synchro/b4/HImpl.java
+---- beginning of file ----
+public class HImpl extends data.synchro.b4.HPOA {
+    public HImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op1() {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void op3() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/b4/IImpl.java
+DUMP: File: data/synchro/b4/IImpl.java
+---- beginning of file ----
+public class IImpl extends data.synchro.b4.IPOA {
+    private data.synchro.b4.HImpl _M_variable_of_type_H;
+    
+    public IImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_H = new data.synchro.b4.HImpl();
+        
+    }
+    
+    public void _set_parent_of_type_H(data.synchro.b4.HImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_H = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_H.op1();
+    }
+    
+    public void op2() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_H.op2();
+    }
+    
+    public void op3() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_H.op3();
+    }
+    
+    public void op4() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: STATIC
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/b4/Empty_1.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/b4/Empty_1.idl
+Done
+Processing: Command: DUMP File: data/synchro/b4/HImpl.java
+DUMP: File: data/synchro/b4/HImpl.java
+---- beginning of file ----
+public class HImpl extends data.synchro.b4.HPOA {
+    private data.synchro.b4.AImpl _M_variable_of_type_A;
+    
+    private data.synchro.b4.CImpl _M_variable_of_type_C;
+    
+    public HImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.b4.AImpl();
+        
+        _M_variable_of_type_C = new data.synchro.b4.CImpl();
+        // set parents for IDL:C:1.0
+        _M_variable_of_type_C._set_parent_of_type_A(_M_variable_of_type_A);
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.b4.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void _set_parent_of_type_C(data.synchro.b4.CImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_C = __value;
+    }
+    
+    public void op1() {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void op2() {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void op3() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/b4/IImpl.java
+DUMP: File: data/synchro/b4/IImpl.java
+---- beginning of file ----
+public class IImpl extends data.synchro.b4.IPOA {
+    private data.synchro.b4.AImpl _M_variable_of_type_A;
+    
+    private data.synchro.b4.CImpl _M_variable_of_type_C;
+    
+    private data.synchro.b4.HImpl _M_variable_of_type_H;
+    
+    public IImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.b4.AImpl();
+        
+        _M_variable_of_type_C = new data.synchro.b4.CImpl();
+        // set parents for IDL:C:1.0
+        _M_variable_of_type_C._set_parent_of_type_A(_M_variable_of_type_A);
+        
+        _M_variable_of_type_H = new data.synchro.b4.HImpl();
+        // set parents for IDL:H:1.0
+        _M_variable_of_type_H._set_parent_of_type_C(_M_variable_of_type_C);
+        _M_variable_of_type_H._set_parent_of_type_A(_M_variable_of_type_A);
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.b4.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void _set_parent_of_type_C(data.synchro.b4.CImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_C = __value;
+    }
+    
+    public void _set_parent_of_type_H(data.synchro.b4.HImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_H = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A.op1();
+    }
+    
+    public void op2() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_C.op2();
+    }
+    
+    public void op3() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_H.op3();
+    }
+    
+    public void op4() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done

@@ -1,0 +1,56 @@
+Processing: Command: SETORB File: OB4X
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: STATIC
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/a9/Empty.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/a9/Empty.idl
+Done
+Processing: Command: DUMP File: data/synchro/a9/IOImpl.java
+DUMP: File: data/synchro/a9/IOImpl.java
+---- beginning of file ----
+public class IOImpl extends data.synchro.a9.IOPOA {
+    public IOImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public String[][][] op(String[][][] A) {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/a9/Empty_1.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/a9/Empty_1.idl
+Done
+Processing: Command: DUMP File: data/synchro/a9/IOImpl.java
+DUMP: File: data/synchro/a9/IOImpl.java
+---- beginning of file ----
+public class IOImpl extends data.synchro.a9.IOPOA {
+    public IOImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public String[][][] op(String[][][] A) {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done

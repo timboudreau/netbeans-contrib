@@ -1,0 +1,70 @@
+Processing: Command: SETORB File: OB4X
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: STATIC
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/a2/calc4.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/a2/calc4.idl
+Done
+Processing: Command: DUMP File: data/synchro/a2/CalcImpl.java
+DUMP: File: data/synchro/a2/CalcImpl.java
+---- beginning of file ----
+public class CalcImpl extends data.synchro.a2.CalcPOA {
+    public CalcImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void add(int x) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public int total() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: SETSKEL File: TIE
+Done
+Processing: Command: SETDEL File: VIRTUAL
+Done
+Processing: Command: SETGEN File: NULL
+Done
+Processing: Command: SETSYNCCOUNT File: 1
+Processing: Command: GEN File: data/synchro/a2/calc4_1.idl
+GEN: Synchronizing: Count: 1 File: data/synchro/a2/calc4_1.idl
+Done
+Processing: Command: DUMP File: data/synchro/a2/CalcImpl.java
+DUMP: File: data/synchro/a2/CalcImpl.java
+---- beginning of file ----
+public class CalcImpl implements data.synchro.a2.CalcOperations {
+    public CalcImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public int add(int x) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public int total(int prev) {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done

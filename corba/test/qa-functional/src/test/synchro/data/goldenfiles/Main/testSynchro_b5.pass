@@ -1,0 +1,490 @@
+Processing: Command: SETORB File: OB4X
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: VIRTUAL
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/b5/Empty.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/b5/Empty.idl
+Done
+Processing: Command: DUMP File: data/synchro/b5/AImpl.java
+DUMP: File: data/synchro/b5/AImpl.java
+---- beginning of file ----
+public class AImpl extends data.synchro.b5.APOA {
+    public AImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op1() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/b5/BImpl.java
+DUMP: File: data/synchro/b5/BImpl.java
+---- beginning of file ----
+public class BImpl extends data.synchro.b5.BPOA {
+    private data.synchro.b5.AImpl _M_variable_of_type_A;
+    
+    public BImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.b5.AImpl();
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.b5.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A.op1();
+    }
+    
+    public void op2a() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/b5/CImpl.java
+DUMP: File: data/synchro/b5/CImpl.java
+---- beginning of file ----
+public class CImpl extends data.synchro.b5.CPOA {
+    private data.synchro.b5.AImpl _M_variable_of_type_A;
+    
+    public CImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.b5.AImpl();
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.b5.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A.op1();
+    }
+    
+    public void op2b() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/b5/DImpl.java
+DUMP: File: data/synchro/b5/DImpl.java
+---- beginning of file ----
+public class DImpl extends data.synchro.b5.DPOA {
+    private data.synchro.b5.AImpl _M_variable_of_type_A;
+    
+    private data.synchro.b5.BImpl _M_variable_of_type_B;
+    
+    private data.synchro.b5.CImpl _M_variable_of_type_C;
+    
+    public DImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.b5.AImpl();
+        
+        _M_variable_of_type_B = new data.synchro.b5.BImpl();
+        // set parents for IDL:B:1.0
+        _M_variable_of_type_B._set_parent_of_type_A(_M_variable_of_type_A);
+        
+        _M_variable_of_type_C = new data.synchro.b5.CImpl();
+        // set parents for IDL:C:1.0
+        _M_variable_of_type_C._set_parent_of_type_A(_M_variable_of_type_A);
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.b5.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void _set_parent_of_type_B(data.synchro.b5.BImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_B = __value;
+    }
+    
+    public void _set_parent_of_type_C(data.synchro.b5.CImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_C = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_B.op1();
+    }
+    
+    public void op2a() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_B.op2a();
+    }
+    
+    public void op2b() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_C.op2b();
+    }
+    
+    public void op3() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/b5/EImpl.java
+DUMP: File: data/synchro/b5/EImpl.java
+---- beginning of file ----
+public class EImpl extends data.synchro.b5.EPOA {
+    private data.synchro.b5.AImpl _M_variable_of_type_A;
+    
+    private data.synchro.b5.BImpl _M_variable_of_type_B;
+    
+    private data.synchro.b5.CImpl _M_variable_of_type_C;
+    
+    private data.synchro.b5.DImpl _M_variable_of_type_D;
+    
+    public EImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.b5.AImpl();
+        
+        _M_variable_of_type_B = new data.synchro.b5.BImpl();
+        // set parents for IDL:B:1.0
+        _M_variable_of_type_B._set_parent_of_type_A(_M_variable_of_type_A);
+        
+        _M_variable_of_type_C = new data.synchro.b5.CImpl();
+        // set parents for IDL:C:1.0
+        _M_variable_of_type_C._set_parent_of_type_A(_M_variable_of_type_A);
+        
+        _M_variable_of_type_D = new data.synchro.b5.DImpl();
+        // set parents for IDL:D:1.0
+        _M_variable_of_type_D._set_parent_of_type_B(_M_variable_of_type_B);
+        _M_variable_of_type_D._set_parent_of_type_A(_M_variable_of_type_A);
+        _M_variable_of_type_D._set_parent_of_type_C(_M_variable_of_type_C);
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.b5.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void _set_parent_of_type_B(data.synchro.b5.BImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_B = __value;
+    }
+    
+    public void _set_parent_of_type_C(data.synchro.b5.CImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_C = __value;
+    }
+    
+    public void _set_parent_of_type_D(data.synchro.b5.DImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_D = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_D.op1();
+    }
+    
+    public void op2a() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_D.op2a();
+    }
+    
+    public void op2b() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_D.op2b();
+    }
+    
+    public void op3() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_D.op3();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: SETSKEL File: INHER
+Done
+Processing: Command: SETDEL File: STATIC
+Done
+Processing: Command: SETGEN File: EXCEPTION
+Done
+Processing: Command: SETSYNCCOUNT File: 0
+Processing: Command: GEN File: data/synchro/b5/Empty_1.idl
+GEN: Synchronizing: Count: 0 File: data/synchro/b5/Empty_1.idl
+Done
+Processing: Command: DUMP File: data/synchro/b5/AImpl.java
+DUMP: File: data/synchro/b5/AImpl.java
+---- beginning of file ----
+public class AImpl extends data.synchro.b5.APOA {
+    public AImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+    }
+    
+    public void op1() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/b5/BImpl.java
+DUMP: File: data/synchro/b5/BImpl.java
+---- beginning of file ----
+public class BImpl extends data.synchro.b5.BPOA {
+    private data.synchro.b5.AImpl _M_variable_of_type_A;
+    
+    public BImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.b5.AImpl();
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.b5.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A.op1();
+    }
+    
+    public void op2a() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/b5/CImpl.java
+DUMP: File: data/synchro/b5/CImpl.java
+---- beginning of file ----
+public class CImpl extends data.synchro.b5.CPOA {
+    private data.synchro.b5.AImpl _M_variable_of_type_A;
+    
+    public CImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.b5.AImpl();
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.b5.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A.op1();
+    }
+    
+    public void op2b() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/b5/DImpl.java
+DUMP: File: data/synchro/b5/DImpl.java
+---- beginning of file ----
+public class DImpl extends data.synchro.b5.DPOA {
+    private data.synchro.b5.AImpl _M_variable_of_type_A;
+    
+    private data.synchro.b5.BImpl _M_variable_of_type_B;
+    
+    private data.synchro.b5.CImpl _M_variable_of_type_C;
+    
+    public DImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.b5.AImpl();
+        
+        _M_variable_of_type_B = new data.synchro.b5.BImpl();
+        // set parents for IDL:B:1.0
+        _M_variable_of_type_B._set_parent_of_type_A(_M_variable_of_type_A);
+        
+        _M_variable_of_type_C = new data.synchro.b5.CImpl();
+        // set parents for IDL:C:1.0
+        _M_variable_of_type_C._set_parent_of_type_A(_M_variable_of_type_A);
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.b5.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void _set_parent_of_type_B(data.synchro.b5.BImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_B = __value;
+    }
+    
+    public void _set_parent_of_type_C(data.synchro.b5.CImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_C = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A.op1();
+    }
+    
+    public void op2a() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_B.op2a();
+    }
+    
+    public void op2b() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_C.op2b();
+    }
+    
+    public void op3() {
+        throw new UnsupportedOperationException();
+    }
+    
+    
+}
+---- end of file ----
+Done
+Processing: Command: DUMP File: data/synchro/b5/EImpl.java
+DUMP: File: data/synchro/b5/EImpl.java
+---- beginning of file ----
+public class EImpl extends data.synchro.b5.EPOA {
+    private data.synchro.b5.AImpl _M_variable_of_type_A;
+    
+    private data.synchro.b5.BImpl _M_variable_of_type_B;
+    
+    private data.synchro.b5.CImpl _M_variable_of_type_C;
+    
+    private data.synchro.b5.DImpl _M_variable_of_type_D;
+    
+    public EImpl() {
+        this._initialize_inheritance_tree();
+    }
+    
+    public void _initialize_inheritance_tree() {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = new data.synchro.b5.AImpl();
+        
+        _M_variable_of_type_B = new data.synchro.b5.BImpl();
+        // set parents for IDL:B:1.0
+        _M_variable_of_type_B._set_parent_of_type_A(_M_variable_of_type_A);
+        
+        _M_variable_of_type_C = new data.synchro.b5.CImpl();
+        // set parents for IDL:C:1.0
+        _M_variable_of_type_C._set_parent_of_type_A(_M_variable_of_type_A);
+        
+        _M_variable_of_type_D = new data.synchro.b5.DImpl();
+        // set parents for IDL:D:1.0
+        _M_variable_of_type_D._set_parent_of_type_B(_M_variable_of_type_B);
+        _M_variable_of_type_D._set_parent_of_type_A(_M_variable_of_type_A);
+        _M_variable_of_type_D._set_parent_of_type_C(_M_variable_of_type_C);
+        
+    }
+    
+    public void _set_parent_of_type_A(data.synchro.b5.AImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_A = __value;
+    }
+    
+    public void _set_parent_of_type_B(data.synchro.b5.BImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_B = __value;
+    }
+    
+    public void _set_parent_of_type_C(data.synchro.b5.CImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_C = __value;
+    }
+    
+    public void _set_parent_of_type_D(data.synchro.b5.DImpl __value) {
+        // Do not edit! This is a method which is necessary for using delegation.
+        _M_variable_of_type_D = __value;
+    }
+    
+    public void op1() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_A.op1();
+    }
+    
+    public void op2a() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_B.op2a();
+    }
+    
+    public void op2b() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_C.op2b();
+    }
+    
+    public void op3() {
+        // Do not edit! This is a delegation method.
+        _M_variable_of_type_D.op3();
+    }
+    
+    
+}
+---- end of file ----
+Done
