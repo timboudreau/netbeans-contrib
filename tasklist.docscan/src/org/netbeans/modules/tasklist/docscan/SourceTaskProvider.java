@@ -48,8 +48,8 @@ import org.openide.loaders.DataObjectNotFoundException;
 
 
 /**
- * This class scans the given document for source tasks and
- * copyright errors.
+ * This class scans the given document for source tasks. It does
+ * not provide any fix action.
  *
  * @todo Move the regexp code into tasktags.
  * @todo I should use Line objects for the tasks - especially the
@@ -72,8 +72,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
 
     final private static String TYPE = "nb-tasklist-scannedtask"; // NOI18N
 
-    // navigate to suggestion line
-    private static final SuggestionPerformer GOTO_PERFORMER = new GotoLineSuggestionPerformer();
     private SuggestionContext env;
 
     /**
@@ -264,7 +262,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
                     if (matchTag != null) {
                         item.setPriority(matchTag.getPriority());
                     }
-                    item.setAction(GOTO_PERFORMER);
 
                     newTasks.add(item);
                 }
@@ -346,7 +343,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
                 if (matchTag != null) {
                     item.setPriority(matchTag.getPriority());
                 }
-                item.setAction(GOTO_PERFORMER);
 
                 newTasks.add(item);
             }
@@ -364,24 +360,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
 
     private void rescan() {
         rescan(env, request);
-    }
-
-
-    private static class GotoLineSuggestionPerformer implements SuggestionPerformer {
-        public void perform(Suggestion suggestion) {
-            Line line = suggestion.getLine();
-            if (line != null) {
-                line.show(Line.SHOW_GOTO);
-            }
-        }
-
-        public Object getConfirmation(Suggestion suggestion) {
-            return null;
-        }
-
-        public boolean hasConfirmation() {
-            return false;
-        }
     }
 
     /** The list of tasks we're currently showing in the tasklist */

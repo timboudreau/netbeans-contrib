@@ -20,34 +20,35 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 import org.openide.text.Line;
 
-/** Go to the source code / associated file for a particular
- * suggestion
- * <p>
- * @author Tor Norbye */
+/**
+ * Go to the source code / associated file for a particular
+ * suggestion.
+ *
+ * @todo   It cannot be node action. It works in its own context
+ *         (selected suggestion).
+ *
+ * @author Tor Norbye
+ */
 public class ShowSuggestionAction extends NodeAction {
-    
+
+    protected boolean asynchronous() {
+        return false;
+    }
+
     /** Do the actual jump to source
      * @param nodes Nodes, where the selected node should be a task
      * node. */    
     protected void performAction(Node[] nodes) {
-        Task item =
-            (Task)TaskNode.getTask(nodes[0]); // safe - see enable check
+        Task item = TaskNode.getTask(nodes[0]); // safe - see enable check
         TaskList list = item.getList();
-        if (list == null) {
-            return; // internal error
-        }
         TaskListView v = list.getView();
-        if ((v == null) || !(v instanceof SuggestionsView)) {
-            return; // internal error
-        }
-        SuggestionsView tlv = (SuggestionsView)v;
-        tlv.showTask(item, new SuggestionAnno(item));
+        v.showTask(item, new SuggestionAnno(item));
     }
 
     /** Enable the task iff you've selected exactly one node,
      * and that node is a tasknode. */    
     protected boolean enable(Node[] nodes) {
-        if ((nodes == null) || (nodes.length == 0)) {
+        if ((nodes == null) || (nodes.length != 1)) {
             return false;
         }
         Task item = TaskNode.getTask(nodes[0]);
