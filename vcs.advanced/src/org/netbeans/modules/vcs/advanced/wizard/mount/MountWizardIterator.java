@@ -114,7 +114,7 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
         return data;
     }
     
-    public org.openide.WizardDescriptor$Panel current() {
+    public org.openide.WizardDescriptor.Panel current() {
         return this.panels[this.currentIndex];
     }
     
