@@ -38,6 +38,8 @@ import java.util.Collection;
 import java.awt.Component;
 import java.util.Enumeration;
 import javax.swing.Icon;
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeNode;
 import org.openide.util.NbBundle;
@@ -69,6 +71,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
     }
     
     Collection nodes;
+    JPopupMenu popup;
 
     static class MyCellRenderer extends DefaultTreeCellRenderer {
         public MyCellRenderer() {
@@ -101,25 +104,27 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
             rend.setLeafIcon(nodeIcon);
             tree.setCellRenderer(rend);
         }
-        tree.getSelectionModel().setSelectionMode(javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION); 
+        tree.getSelectionModel().setSelectionMode(javax.swing.tree.TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION); 
         tree.setModel(new DefaultTreeModel(rootNode));
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
-                nodeChanged(e.getNewLeadSelectionPath());
+                nodeChanged(tree.getSelectionPaths());
             }
         });
     }
     
-    void nodeChanged(TreePath path) {
-        if (path==null) {
+    void nodeChanged(TreePath paths[]) {
+        if (paths==null) {
             propertySheet.setNodes(new Node[0]);
-        } else {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-            try {
-                propertySheet.setNodes(new Node[]{new BeanNode(node.getUserObject())});
-            } catch (IntrospectionException ex) {
-                propertySheet.setNodes(new Node[0]);
+        } else try {
+            Node nodes[]=new Node[paths.length];
+            for (int i=0; i<paths.length; i++) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) paths[i].getLastPathComponent();
+                nodes[i]=new BeanNode(node.getUserObject());
             }
+            propertySheet.setNodes(nodes);
+        } catch (IntrospectionException ex) {
+            propertySheet.setNodes(new Node[0]);
         }
     }        
     
@@ -170,30 +175,40 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
     }//GEN-END:initComponents
 
     private void treeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_treeKeyReleased
-        if ((evt.getKeyCode()==KeyEvent.VK_DELETE)&&(evt.getModifiers()==0)&&(tree.getSelectionCount()==1)&&(tree.getSelectionRows()[0]>0)) {
+        if ((evt.getKeyCode()==KeyEvent.VK_DELETE)&&(evt.getModifiers()==0)&&(tree.getSelectionCount()>0)&&!tree.isRowSelected(0)) {
             DeleteActionPerformed();
         }
     }//GEN-LAST:event_treeKeyReleased
 
     private void treeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeMouseClicked
-        if ((evt.getModifiers()==evt.BUTTON3_MASK)&&(tree.getSelectionCount()==1)&&(tree.getSelectionRows()[0]>0)) {
-            JPopupMenu menu=new JPopupMenu();
-            menu.add(NbBundle.getMessage(ComponentsEditorPanel.class, "CTL_Delete")).addActionListener(new java.awt.event.ActionListener() { // NOI18N
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    DeleteActionPerformed();
-                }
-            });
-            menu.show(tree,evt.getX(),evt.getY());
+        if ((evt.getModifiers()==evt.BUTTON3_MASK)&&(tree.getSelectionCount()>0)&&!tree.isRowSelected(0)) {
+            if (popup==null) {
+                popup=new JPopupMenu();
+                JMenuItem del=new JMenuItem(NbBundle.getMessage(ComponentsEditorPanel.class, "CTL_Delete"));
+                del.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+                del.addActionListener(new java.awt.event.ActionListener() { // NOI18N
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        DeleteActionPerformed();
+                    }
+                });
+                popup.add(del);
+            }
+            popup.show(tree,evt.getX(),evt.getY());
+        } else if (popup!=null) {
+            popup.setVisible(false);
         }
     }//GEN-LAST:event_treeMouseClicked
     
     void DeleteActionPerformed() {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)tree.getSelectionPath().getLastPathComponent();
-        Enumeration enum=node.postorderEnumeration();
-        while (enum.hasMoreElements()) {
-            nodes.remove(((DefaultMutableTreeNode)enum.nextElement()).getUserObject());
+        TreePath paths[]=tree.getSelectionPaths();
+        for (int i=0; paths!=null&&i<paths.length; i++) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode)paths[i].getLastPathComponent();
+            Enumeration enum=node.postorderEnumeration();
+            while (enum.hasMoreElements()) {
+                nodes.remove(((DefaultMutableTreeNode)enum.nextElement()).getUserObject());
+            }
+            ((DefaultTreeModel)tree.getModel()).removeNodeFromParent(node);
         }
-        ((DefaultTreeModel)tree.getModel()).removeNodeFromParent(node);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -217,7 +232,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
     public void stateChanged(javax.swing.event.ChangeEvent changeEvent) {
         DefaultTreeModel model=(DefaultTreeModel)tree.getModel();
         model.nodeChanged(((ComponentGenerator.ComponentRecord)changeEvent.getSource()).getNode());
-        nodeChanged(tree.getSelectionPath());
+        nodeChanged(tree.getSelectionPaths());
     }
     
 }
