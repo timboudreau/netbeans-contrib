@@ -34,7 +34,7 @@ public class Availability extends NbTestCase {
     
     public static String VERSIONING_MENU = "Versioning";
     public static String MOUNT_MENU = VERSIONING_MENU + "|Mount Version Control|Generic VCS";
-    public static String FIND_SERVICE = "Edit|Find...";
+    public static String FIND_SERVICE = "Find...";
     public static String UNMOUNT_MENU = "File|Unmount Filesystem";
     public static String workingDirectory;
     private APIController api;
@@ -121,10 +121,9 @@ public class Availability extends NbTestCase {
             throw new Exception("Error: Can't create local A_File.java file.");
         }
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
-        String SINGLE_REFRESH = VERSIONING_MENU + "|Empty|Refresh";
-        MainFrame.getMainFrame().pushMenuNoBlock(SINGLE_REFRESH);
+        explorer.pushPopupMenu("Empty|Refresh", filesystem);
         APIController.sleep(2000);
-        MainFrame.getMainFrame().pushMenuNoBlock(FIND_SERVICE);
+        explorer.pushPopupMenuNoBlock(FIND_SERVICE, filesystem);
         SearchVCSFilesystem searchDialog = new SearchVCSFilesystem();
         String[] statuses = new String[] {"Dead", "Ignored", "Local", "Locally Modified", "Not in Synch", "Unknown"};
         searchDialog.selectStatuses(statuses);
@@ -174,14 +173,14 @@ public class Availability extends NbTestCase {
         String command = "Lock";
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
         MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|" + profile + "|" + command);
-        assertTrue(command + " command failed", history.isCommandSuccessed(filesystem, command));
         api.getRuntimeTab();
+        assertTrue(command + " command failed.", history.isCommandSuccessed(filesystem, command));
         CommandsHistory commandsHistory = new CommandsHistory();
         if (!commandsHistory.compareStatus("Finished", filesystem, command))
             throw new Exception("Error: Wrong status of " + command + " command.");
         if (!commandsHistory.compareCommandName("LOCK", filesystem, command))
             throw new Exception("Error: Wrong command name of " + command + " command.");
-        String executionString = Utilities.isUnix() ?  "echo put your LOCK command here" : "cmd /X /C \"echo put your LOCK command here\"";
+        String executionString = Utilities.isUnix() ? "echo put your LOCK command here" : "cmd /X /C \"echo put your LOCK command here\"";
         if (!commandsHistory.compareExecutionString(executionString, filesystem, command))
             throw new Exception("Error: Wrong execution string of " + command + " command.");
         if (!commandsHistory.compareProcessedFiles(".", filesystem, command))
