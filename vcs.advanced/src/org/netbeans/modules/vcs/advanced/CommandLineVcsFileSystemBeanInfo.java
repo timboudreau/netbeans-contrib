@@ -47,6 +47,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor lockPrompt=null;
         PropertyDescriptor acceptUserParams = null;
         PropertyDescriptor runRefreshCommand = null;
+        PropertyDescriptor processAllFiles = null;
         PropertyDescriptor annotationPattern = null;
         PropertyDescriptor autoRefresh = null;
         PropertyDescriptor notification = null;
@@ -61,26 +62,33 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             variables=new PropertyDescriptor
                       (VcsFileSystem.PROP_VARIABLES, CommandLineVcsFileSystem.class, "getVariables", "setVariables"); // NOI18N
             variables.setPropertyEditorClass (org.netbeans.modules.vcs.advanced.UserVariablesEditor.class);
+            variables.setExpert(true);
 
             commands=new PropertyDescriptor
                      (VcsFileSystem.PROP_COMMANDS, CommandLineVcsFileSystem.class, "getCommands", "setCommands"); // NOI18N
             commands.setPropertyEditorClass (org.netbeans.modules.vcs.advanced.UserCommandsEditor.class);
+            commands.setExpert(true);
 
             cacheId=new PropertyDescriptor
                     ("cacheId", CommandLineVcsFileSystem.class, "getCacheId", null); // NOI18N
+            cacheId.setExpert(true);
 
             config=new PropertyDescriptor
                    ("config", CommandLineVcsFileSystem.class, "getConfig", null); // NOI18N
 
             lock=new PropertyDescriptor
                  (VcsFileSystem.PROP_CALL_LOCK, CommandLineVcsFileSystem.class, "isLockFilesOn", "setLockFilesOn"); // NOI18N
+            lock.setExpert(true);
 
             lockPrompt=new PropertyDescriptor
                        (VcsFileSystem.PROP_CALL_LOCK_PROMPT, CommandLineVcsFileSystem.class, "isPromptForLockOn", "setPromptForLockOn"); // NOI18N
+            lockPrompt.setExpert(true);
             acceptUserParams = new PropertyDescriptor
                                (VcsFileSystem.PROP_EXPERT_MODE, CommandLineVcsFileSystem.class, "isExpertMode", "setExpertMode"); // NOI18N
             runRefreshCommand = new PropertyDescriptor
                                (GeneralVcsSettings.PROP_OFFLINE, CommandLineVcsFileSystem.class, "isOffLine", "setOffLine"); // NOI18N
+            processAllFiles = new PropertyDescriptor
+                               (VcsFileSystem.PROP_PROCESS_UNIMPORTANT_FILES, CommandLineVcsFileSystem.class, "isProcessUnimportantFiles", "setProcessUnimportantFiles"); // NOI18N
             annotationPattern = new PropertyDescriptor
                                (VcsFileSystem.PROP_ANNOTATION_PATTERN, CommandLineVcsFileSystem.class, "getAnnotationPattern", "setAnnotationPattern"); // NOI18N
             autoRefresh = new PropertyDescriptor
@@ -90,12 +98,13 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                                (VcsFileSystem.PROP_COMMAND_NOTIFICATION, CommandLineVcsFileSystem.class, "isCommandNotification", "setCommandNotification"); // NOI18N
             hideShadowFiles = new PropertyDescriptor
                                (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, CommandLineVcsFileSystem.class, "isHideShadowFiles", "setHideShadowFiles"); // NOI18N
+            hideShadowFiles.setExpert(true);
 
 
             desc = new PropertyDescriptor[] {
                        rootDirectory, debug, variables, commands, cacheId, config,
-                       lock, lockPrompt, acceptUserParams, runRefreshCommand, annotationPattern,
-                       autoRefresh, notification, hideShadowFiles
+                       lock, lockPrompt, acceptUserParams, runRefreshCommand, processAllFiles,
+                       annotationPattern, autoRefresh, notification, hideShadowFiles
                    };
 
             ResourceBundle bundle = NbBundle.getBundle (CommandLineVcsFileSystemBeanInfo.class);
@@ -121,6 +130,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             acceptUserParams.setShortDescription(bundle.getString("HINT_acceptUserParams"));
             runRefreshCommand.setDisplayName  (bundleSettings.getString("PROP_offline"));
             runRefreshCommand.setShortDescription(bundleSettings.getString("HINT_offline"));
+            processAllFiles.setDisplayName    (bundle.getString("PROP_processAllFiles"));
+            processAllFiles.setShortDescription(bundle.getString("HINT_processAllFiles"));
             annotationPattern.setDisplayName  (bundle.getString("PROP_annotationPattern"));
             annotationPattern.setShortDescription(bundle.getString("HINT_annotationPattern"));
             autoRefresh.setDisplayName        (bundleSettings.getString("PROP_autoRefresh"));
