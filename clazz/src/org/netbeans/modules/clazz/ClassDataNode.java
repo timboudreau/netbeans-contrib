@@ -95,7 +95,7 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
         getSourceChildren().setElement(sc.getSource());
         setIconBase(initialIconBase());
         // icons...
-        RequestProcessor.postRequest(this, 200);
+        RequestProcessor.getDefault().post(this, 200);
     }
 
     /** Creates property set for this node */
@@ -193,7 +193,7 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
     
     public void propertyChange(PropertyChangeEvent ev) {
         if (ElementProperties.PROP_STATUS.equals(ev.getPropertyName()))
-            RequestProcessor.postRequest(this, 200);
+            RequestProcessor.getDefault().post(this, 200);
     }
 
     // --------------------------------------------------------------------

@@ -14,7 +14,6 @@
 package org.netbeans.modules.clazz;
 
 import org.openide.ErrorManager;
-import org.openide.util.Lookup;
 import org.openide.loaders.DataObject;
 import org.netbeans.modules.classfile.*;
 import org.openide.filesystems.FileObject;
@@ -356,12 +355,12 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
                             result.put(iname, curCE);
                     }
                 } catch (IOException ex) {
-                    ((ErrorManager)Lookup.getDefault().lookup(ErrorManager.class)).
+                    ErrorManager.getDefault().
                         annotate(ex, ErrorManager.INFORMATIONAL, "Invalid class file", null, // NOI18N
                         null, null);
                 } catch (RuntimeException ex) {
                     ex.printStackTrace();
-                    ((ErrorManager)Lookup.getDefault().lookup(ErrorManager.class)).
+                    ErrorManager.getDefault().
                         annotate(ex, ErrorManager.INFORMATIONAL, "Invalid class file", null, // NOI18N
                         null, null);
                 }

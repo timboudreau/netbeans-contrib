@@ -24,7 +24,6 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.FolderInstance;
 import org.openide.src.nodes.FilterFactory;
 import org.openide.src.nodes.ElementNodeFactory;
-import org.openide.util.Lookup;
 import org.openide.util.TaskListener;
 
 /**
@@ -166,6 +165,6 @@ class NodeFactoryPool extends FolderInstance {
     }
     
     void logError(Exception ex) {
-        ((ErrorManager)Lookup.getDefault().lookup(ErrorManager.class)).notify(ex);
+        ErrorManager.getDefault().notify(ex);
     }
 }

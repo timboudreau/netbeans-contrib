@@ -22,7 +22,7 @@ import org.openide.filesystems.Repository;
 import java.lang.reflect.Modifier;
 import org.openide.util.WeakListener;
 import org.openide.util.HelpCtx;
-import org.openide.util.Lookup;
+import org.openide.util.RequestProcessor;
 
 import org.openide.nodes.Node.Cookie;
 import org.openide.nodes.CookieSet.Factory;
@@ -146,7 +146,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
         }
         
         private void postReload() {
-            org.openide.util.RequestProcessor.postRequest(this, 100);
+            RequestProcessor.getDefault().post(this, 100);
         }
     }
     
@@ -417,7 +417,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     }
 
     static NodeFactoryPool createFactoryPool(String folderName, ElementNodeFactory def) {
-        FileObject f = ((Repository)Lookup.getDefault().lookup(Repository.class)).findResource(folderName);
+        FileObject f = Repository.getDefault().findResource(folderName);
 	if (f == null)
     	    return null;
         try {
