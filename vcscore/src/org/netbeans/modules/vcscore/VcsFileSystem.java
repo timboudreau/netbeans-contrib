@@ -1530,8 +1530,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         // cache is transient
         numberOfFinishedCmdsToCollect = new Integer(RuntimeSupport.getInstance().getCollectFinishedCmdsNum(getSystemName()));
         out.writeBoolean (true/*cache.isLocalFilesAdd ()*/); // for compatibility
+        String myPassword = password;
         if (!rememberPassword) password = null;
         out.defaultWriteObject();
+        password = myPassword; // to keep the password set if the object is written,
+                               // but still in use.
     }
 
 
@@ -1761,7 +1764,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     //-------------------------------------------
     public void setPassword(String password){
-        if (this.password != password) {
+        if (this.password == null && password != null ||
+            this.password != null && !this.password.equals(password)) {
+            
             this.password = password;
             firePropertyChange(PROP_PASSWORD, null, password);
         }
