@@ -1,17 +1,20 @@
 package org.netbeans.modules.tasklist.usertasks;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.editors.PriorityTableCellRenderer;
 import org.netbeans.modules.tasklist.core.filter.Filter;
+import org.netbeans.modules.tasklist.usertasks.editors.CategoryTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PriorityTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.renderers.DateTableCellRenderer;
@@ -19,6 +22,7 @@ import org.netbeans.modules.tasklist.usertasks.renderers.DurationTableCellRender
 import org.netbeans.modules.tasklist.usertasks.renderers.LineTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.PercentsTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.SummaryTreeCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.NodesTreeTable;
@@ -154,5 +158,47 @@ public class UserTasksTreeTable extends NodesTreeTable {
         tcm.getColumn(13).setCellRenderer(dcr);
         tcm.getColumn(UserTaskTreeTableNode.PERCENT_COMPLETE).
             setCellEditor(new PercentsTableCellEditor());
+        tcm.getColumn(UserTaskTreeTableNode.CATEGORY).
+            setCellEditor(new CategoryTableCellEditor());
+    }
+
+    /**
+     * Finds the path to the specified task
+     *
+     * @return found path or null
+     */
+    public TreePath findPath(UserTask task) {
+        List l = new ArrayList();
+        while (task != null) {
+            l.add(0, task);
+            task = (UserTask) task.getParent();
+        }
+        AdvancedTreeTableNode n = 
+            (AdvancedTreeTableNode) getTreeTableModel().getRoot();
+        
+        for (int i = 0; i < l.size(); i++) {
+            int index = n.getIndexOfObject(l.get(i));
+            if (index == -1)
+                return null;
+            n = (AdvancedTreeTableNode) n.getChildAt(index);
+        }
+        return new TreePath(n.getPathToRoot());
+    }
+    
+    /**
+     * Selects the specified task
+     *
+     * @param task task to be selected
+     */
+    public void select(UserTask task) {
+        TreePath tp = findPath(task);
+        UTUtils.LOGGER.fine("path =" + tp + " for task = " + task);
+        if (tp != null) {
+            TreePath pp = tp.getParentPath();
+            getTree().expandPath(pp);
+            int row = this.getRowForPath(tp);
+            UTUtils.LOGGER.fine("row =" + row + " for task = " + task);
+            this.getSelectionModel().setSelectionInterval(row, row);
+        }
     }
 }

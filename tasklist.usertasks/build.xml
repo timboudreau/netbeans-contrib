@@ -88,6 +88,9 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="nbm" depends="netbeans">
+        <echo message="nb.modules.dir = ${nb.modules.dir}"/>
+        <echo message="cluster.dir = ${cluster.dir}"/>
+        <echo message="netbeans.dest.dir = ${netbeans.dest.dir}"/>
         <makenbm file="tasklist-usertasks.nbm"
                  module="${nb.modules.dir}/tasklist-usertasks.jar"
                  productdir="${netbeans.dest.dir}/${cluster.dir}"                 

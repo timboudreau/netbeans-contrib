@@ -51,6 +51,21 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     }
     
     /**
+     * Finds a child with the specified user object
+     *
+     * @param obj user object
+     * @return found node index or -1
+     */
+    public int getIndexOfObject(Object obj) {
+        AdvancedTreeTableNode[] ch = (AdvancedTreeTableNode[]) getChildren();
+        for (int i = 0; i < ch.length; i++) {
+            if (ch[i].getObject() == obj)
+                return i;
+        }
+        return -1;
+    }
+
+    /**
      * Sets new comparator or null
      *
      * @param comparator new comparator
@@ -97,9 +112,6 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
      */
     protected abstract void loadUnfilteredChildren();
 
-    /**
-     * Should load the children in the field <code>children</code>
-     */
     protected void loadChildren() {
         if (unfilteredChildren == null) {
             loadUnfilteredChildren();

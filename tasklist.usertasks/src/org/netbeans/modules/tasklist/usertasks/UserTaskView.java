@@ -421,4 +421,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public void expandAll() {
         tt.expandAll();
     }
+    
+    public void select(Task task) {
+        if (isShowing() == false) return;
+        
+        tt.select((UserTask) task);
+    }
 }

@@ -100,7 +100,7 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
                  write additional files in this directory.
         @return true iff the list was successfully written
     */
-    protected boolean writeList(TaskList list, OutputStream out,
+    public boolean writeList(TaskList list, OutputStream out,
                              boolean interactive, File dir) throws IOException {
         Writer writer = new OutputStreamWriter(out, "utf8");  // NOI18N
         this.view = TaskListView.getCurrent();
