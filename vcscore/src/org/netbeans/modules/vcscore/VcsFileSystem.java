@@ -51,6 +51,8 @@ import org.openide.util.WeakListener;
 import org.openide.util.WeakListeners;
 import org.openide.windows.InputOutput;
 
+import org.netbeans.api.queries.SharabilityQuery;
+
 import org.netbeans.api.vcs.FileStatusInfo;
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
@@ -103,8 +105,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           AbstractFileSystem.List, AbstractFileSystem.Info,
                                                                           AbstractFileSystem.Change, FileSystem.Status,
                                                                           CommandExecutionContext, CacheHandlerListener,
-                                                                          FileObjectImportantness, FileObjectExistence,
-                                                                          VcsOISActivator, Serializable {
+                                                                          FileObjectExistence, VcsOISActivator, Serializable {
 
     public static interface IgnoreListSupport {
 
@@ -400,8 +401,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient VcsActionSupporter actionSupporter = null;
 
     private transient IgnoreListSupport ignoreListSupport = null;
-
-    private transient Set unimportantFiles;
 
     private transient IntegritySupportMaintainer integritySupportMaintainer = null;
 
@@ -1062,57 +1061,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     /*
      * Mark the file as being unimportant.
+     * Unimplemented, obsoleted by SharabilityQuery
      * @param name the file name
      */
     public void markUnimportant(String name) {
-        Reference ref = findReference(name);
-        if (ref != null && ref instanceof CacheReference) {
-            ((CacheReference) ref).markUnimportant();
-        } else {
-            unimportantFiles.add(name);
-        }
     }
 
-    /*
-     * Mark the file as being important or unimportant.
-     * @param name the file name
-     * @param important whether the file is important or not.
+    /**
+     * Returns true when the given file is sharable.
+     * @param name The file name relative to FS root
      */
-    public void markImportant(String name, boolean important) {
-        Reference ref = findReference(name);
-        if (ref != null && ref instanceof CacheReference) {
-            if (important) {
-                ((CacheReference) ref).markImportant();
-            } else {
-                ((CacheReference) ref).markUnimportant();
-            }
-        } else {
-            if (important) {
-                unimportantFiles.remove(name);
-            } else {
-                unimportantFiles.add(name);
-            }
-        }
-        Map map = versioningFolderListeners;
-        if (map != null) {
-            FileObject fo = findResource(name);
-            if (fo != null) {
-                FileObject folder = fo.getParent();
-                if (folder != null) {
-                    FileChangeListener l = (FileChangeListener) map.get(folder);
-                    if (l != null) l.fileChanged(null);
-                }
-            }
-        }
-    }
-
     public boolean isImportant(String name) {
-        Reference ref = findReference(name);
-        if (ref != null && ref instanceof CacheReference) {
-            return ((CacheReference) ref).isImportant();
-        } else {
-            return !unimportantFiles.contains(name);
-        }
+        int sharability = SharabilityQuery.getSharability(getFile(name));
+        return sharability != SharabilityQuery.NOT_SHARABLE;
     }
 
     private static RequestProcessor statusRequestProcessor;
@@ -1536,7 +1497,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         D.deb ("init()"); // NOI18N
         localFilenameFilter = new LocalFilenameFilter();
         if (tempFiles == null) tempFiles = new Vector();
-        unimportantFiles = Collections.synchronizedSet(new HashSet());
         //cache = new VcsFSCache(this/*, createNewCacheDir ()*/);
         cache = getVcsFactory().getFileCacheProvider();
         statusProvider = getVcsFactory().getFileStatusProvider();
@@ -1616,7 +1576,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void activate(VcsObjectIntegritySupport objectIntegritySupport) {
         FileSystemCache fsCache = CacheHandler.getInstance().getCache(getCacheIdStr());
         if (fsCache != null) {
-            objectIntegritySupport.activate(this, fsCache, getFile("").getAbsolutePath(), this, this);
+            objectIntegritySupport.activate(this, fsCache, getFile("").getAbsolutePath(), this);
         }
     }
 

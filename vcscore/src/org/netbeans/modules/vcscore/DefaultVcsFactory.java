@@ -13,13 +13,19 @@
 
 package org.netbeans.modules.vcscore;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
-import org.openide.util.actions.SystemAction;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
+import org.openide.util.actions.SystemAction;
+
+import org.netbeans.api.queries.SharabilityQuery;
 
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
@@ -208,12 +214,27 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
         }
         actions.add(fsAction);
          */
-        actions.add(SystemAction.get(RefreshLocalFolderAction.class));
-        actions.add(SystemAction.get(VcsFSCommandsAction.class));
-        if (fileSystem.getVersioningFileSystem() != null) {
-            actions.add(SystemAction.get(VersioningExplorerAction.class));
+        boolean sharable = true;
+        if (fileSystem != null && !fileSystem.isProcessUnimportantFiles() && fos != null) {
+            sharable = fos.size() == 0; // false if there are some files
+            for (Iterator it = fos.iterator(); it.hasNext(); ) {
+                FileObject fo = (FileObject) it.next();
+                File file = FileUtil.toFile(fo);
+                int sharability = SharabilityQuery.getSharability(file);
+                if (sharability != SharabilityQuery.NOT_SHARABLE) {
+                    sharable = true;
+                    break;
+                }
+            }
         }
-        actions.add(SystemAction.get(AddToGroupAction.class));
+        actions.add(SystemAction.get(RefreshLocalFolderAction.class));
+        if (sharable) {
+            actions.add(SystemAction.get(VcsFSCommandsAction.class));
+            if (fileSystem.getVersioningFileSystem() != null) {
+                actions.add(SystemAction.get(VersioningExplorerAction.class));
+            }
+            actions.add(SystemAction.get(AddToGroupAction.class));
+        }
         //System.out.println("action[0] = "+actions.get(0)+", action[1] = "+actions.get(1)+", equals = "+actions.get(0).equals(actions.get(1)));
         //return (SystemAction[]) actions.toArray(new SystemAction[actions.size()]);
         return (SystemAction[]) actions.toArray(new SystemAction[0]);

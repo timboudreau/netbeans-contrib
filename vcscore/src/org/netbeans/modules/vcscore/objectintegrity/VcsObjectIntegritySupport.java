@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.netbeans.api.queries.SharabilityQuery;
+
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.AddCommand;
 import org.netbeans.api.vcs.commands.Command;
@@ -51,7 +53,6 @@ import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListener;
 
 import org.netbeans.modules.vcscore.FileObjectExistence;
-import org.netbeans.modules.vcscore.FileObjectImportantness;
 import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.cache.CacheFile;
@@ -90,7 +91,6 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     private transient FileSystemCache cache;
     private transient String fsRootPath;
     private transient FileObjectExistence foExistence;
-    private transient FileObjectImportantness foImportantness;
     /** The DataObjects which need to be analyzed for objects integrity. */
     private transient Set objectsToAnalyze;
     /** The paths of FileObjects whose DataObjects need to be analyzed for objects integrity. */
@@ -176,17 +176,14 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      * @param fileSystem The VCS FileSystem on which the object integrity is kept.
      * @param cache The status cache, that is used to check the files status information.
      * @param fsRootPath The path of the filesystem root.
-     * @param foImportantness The information about which FileObjects are important.
      */
     public synchronized void activate(FileSystem fileSystem, FileSystemCache cache,
                                       String fsRootPath,
-                                      FileObjectExistence foExistence,
-                                      FileObjectImportantness foImportantness) {
+                                      FileObjectExistence foExistence) {
         this.fileSystem = fileSystem;
         this.cache = cache;
         this.fsRootPath = fsRootPath;
         this.foExistence = foExistence;
-        this.foImportantness = foImportantness;
         this.objectsToAnalyze = new HashSet();
         this.pathsToAnalyze = new HashSet();
         this.analyzerTask = analyzerRequestProcessor.post(this, ANALYZER_SCHEDULE_TIME, Thread.MIN_PRIORITY);
@@ -372,15 +369,15 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 if (primary.equals(fo)) continue;
                 String filePath = fo.getPath();
                 fs = (FileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-                if (fo.isFolder() || !fileSystem.equals(fs) ||
-                    !foImportantness.isImportant(filePath) ||
-                    ignoredSecondaryLocalFiles.contains(filePath)) {
-                        
+                File file = FileUtil.toFile(fo);
+                if (file == null) {
                     filesToRemove.add(filePath);
                     continue;
                 }
-                File file = FileUtil.toFile(fo);
-                if (file == null) {
+                if (fo.isFolder() || !fileSystem.equals(fs) ||
+                    SharabilityQuery.getSharability(file) == SharabilityQuery.NOT_SHARABLE ||
+                    ignoredSecondaryLocalFiles.contains(filePath)) {
+                        
                     filesToRemove.add(filePath);
                     continue;
                 }
