@@ -313,7 +313,7 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
             if (((org.netbeans.modules.corba.browser.ns.ContextNode)node[0]).isValid())
                 this.refreshButton.setEnabled (true);
         }
-        else {
+        else if (node[0] instanceof org.netbeans.modules.corba.browser.ns.ObjectNode) {
             this.contextName.setText(node[0].getParentNode().getName());
             this.name.setText(node[0].getName());
             this.kind.setText(((org.netbeans.modules.corba.browser.ns.ObjectNode)node[0]).getKind());
@@ -331,6 +331,8 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
         Node[] nodes = (Node[]) newValue;
         if (nodes.length != 1)
             throw new java.beans.PropertyVetoException ("",event);
+	if (!(nodes[0] instanceof org.netbeans.modules.corba.browser.ns.ContextNode || nodes[0] instanceof org.netbeans.modules.corba.browser.ns.ObjectNode))
+	    throw new java.beans.PropertyVetoException ("",event);
     }
     
     public void changedUpdate(javax.swing.event.DocumentEvent event) {
