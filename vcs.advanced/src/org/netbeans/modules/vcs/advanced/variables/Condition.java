@@ -289,6 +289,40 @@ public final class Condition extends Object implements Cloneable {
         return c;
     }
     
+    public static String printCondition(Condition c) {
+        StringBuffer b = new StringBuffer();
+        b.append(c.getName());
+        b.append(": ");
+        b.append((c.getLogicalOperation() == c.LOGICAL_AND) ? "AND" : "OR");
+        Condition.Var[] vars = c.getVars();
+        b.append(" vars = ");
+        for (int i = 0; i < vars.length; i++) {
+            if (!c.isPositiveTest(vars[i])) {
+                b.append("!");
+            }
+            b.append("(");
+            b.append(vars[i].getName());
+            b.append(", '");
+            b.append(vars[i].getValue());
+            b.append("', ");
+            b.append(vars[i].getCompareValue());
+            b.append(")");
+        }
+        Condition[] subc = c.getConditions();
+        if (subc.length > 0) {
+            b.append(" subcond = ");
+            for (int i = 0; i < subc.length; i++) {
+                if (!c.isPositiveTest(subc[i])) {
+                    b.append("!");
+                }
+                b.append("(");
+                b.append(printCondition(subc[i]));
+                b.append(")");
+            }
+        }
+        return b.toString();
+    }
+    
     /**
      * The variable pattern that is used to test the variables with.
      */
