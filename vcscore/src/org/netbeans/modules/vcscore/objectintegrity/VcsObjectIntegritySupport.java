@@ -178,6 +178,10 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     
     private synchronized void firePropertyChange() {
         //System.out.println("VcsObjectIntegritySupport.firePropertyChange("+(propertyChangeSupport != null)+")");
+        PropertyChangeSupport propertyChangeSupport;
+        synchronized (this) {
+            propertyChangeSupport = this.propertyChangeSupport;
+        }
         if (propertyChangeSupport != null) {
             //System.out.println("listeners = "+java.util.Arrays.asList(propertyChangeSupport.getPropertyChangeListeners()));
             propertyChangeSupport.firePropertyChange(PROPERTY_FILES_CHANGED, null, null);
@@ -202,6 +206,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      */
     public void run() {
         Set objects;
+        boolean changed = false;
         synchronized (objectsToAnalyze) {
             objects = objectsToAnalyze;
             objectsToAnalyze = new HashSet();
@@ -221,14 +226,14 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 synchronized (primaryLocalFiles) {
                     primaryLocalFiles.add(primary.getPath());
                 }
-                firePropertyChange();
+                changed = true;
                 continue;
             } else {
-                boolean removed;
                 synchronized (primaryLocalFiles) {
-                    removed = primaryLocalFiles.remove(primary.getPath());
+                    if (primaryLocalFiles.remove(primary.getPath())) {
+                        changed = true;
+                    }
                 }
-                if (removed) firePropertyChange();
             }
             String primaryFilePath = primary.getPath();
             //System.out.println("VOIS.run(): have primary: "+primaryFilePath);
@@ -254,7 +259,6 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                     filesToRemove.add(filePath);
                 }
             }
-            boolean changed;
             synchronized (objectsWithLocalFiles) {
                 Set localSec = (Set) objectsWithLocalFiles.get(primaryFilePath);
                 if (localSec == null) {
@@ -272,11 +276,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                     changed = true;
                 } else {
                     Object removedObj = objectsWithLocalFiles.remove(primaryFilePath);
-                    changed = removedObj != null;
+                    if (removedObj != null) changed = true;
                 }
             }
-            if (changed) firePropertyChange();
         }
+        if (changed) firePropertyChange();
     }
     
     /**
