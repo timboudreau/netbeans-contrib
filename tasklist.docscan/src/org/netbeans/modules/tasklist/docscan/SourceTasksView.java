@@ -30,11 +30,14 @@ import javax.swing.border.Border;
 
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.Lookup;
+import org.openide.util.UserCancelException;
 import org.openide.util.actions.SystemAction;
 import org.openide.filesystems.FileObject;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
-import org.openide.nodes.AbstractNode;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.nodes.*;
+import org.openide.loaders.*;
 
 
 import org.netbeans.modules.tasklist.core.*;
@@ -82,6 +85,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     /** background scanning or null */
     private Background background;
+
+    /** Selcted folder to be scanned or null */
+    private FileObject selectedFolder;  // XXX persist it
 
     /**
      * Externalization entry point (readExternal).
@@ -373,6 +379,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private JButton getStop() {
         if (stop == null) {
             stop = new JButton("Stop");
+            stop.setToolTipText("Interrupts background search.");
             stop.setVisible(job == null);
             stop.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -388,6 +395,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (refresh == null) {
             Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/refresh.gif");
             JButton button = new JButton(new ImageIcon(image));
+            button.setToolTipText("Rescans TODOs for selected folder.");
             button.setEnabled(job == null);
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -433,12 +441,18 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         background = SourceTasksScanner.scanTasksAsync(this);
     }
 
-    private JToggleButton allFilesButton;
+    private JComponent allFilesButton;
     private ButtonGroup group = new ButtonGroup();;
 
-    private JToggleButton getAllFiles() {
+    private JComponent getAllFiles() {
         if (allFilesButton == null) {
-            JToggleButton button = new JToggleButton("All Files");
+            JToggleButton button = new JToggleButton("Selected Folder");
+            if (selectedFolder == null) {
+                button.setToolTipText("Switches to TODOs for selected folder.");
+            } else {
+                // restored from settings
+                button.setToolTipText("Switches to TODOs for " + selectedFolder.getPath());
+            }
             group.add(button);
             button.setSelected(job == null);
             button.addActionListener(new ActionListener() {
@@ -446,17 +460,44 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     handleAllFiles();
                 }
             });
+            adjustHeight(button);
+//            JButton pop = new JButton("V");
+//            adjustHeight(pop);
+//            JToggleButton both = new JToggleButton();
+//            both.setLayout(new BorderLayout());
+//            button.setBorder(null);
+//            pop.setBorder(null);
+//            both.add(button, BorderLayout.WEST);
+//            both.add(pop, BorderLayout.EAST);
             allFilesButton = button;
-            adjustHeight(allFilesButton);
+
         }
         return allFilesButton;
     }
+
+    private JComponent folderSelector;
+    private JComponent getFolderSelector() {
+        if (folderSelector == null) {
+            JToggleButton button = new JToggleButton("...");
+            button.setToolTipText("Selects folder to be scanned.");
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    handleSelectFolder();
+                }
+            });
+            folderSelector = button;
+            button.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 5));
+        }
+        return folderSelector;
+    }
+
 
     private JComponent currentFile;
 
     private JComponent getCurrentFile() {
         if (currentFile == null) {
             JToggleButton button = new JToggleButton("Current File");
+            button.setToolTipText("Switches to TODOs for edited document.");
             group.add(button);
             button.setSelected(job != null);
             button.addActionListener(new ActionListener() {
@@ -476,6 +517,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (gotoPresenter == null) {
             Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/gotosource.gif");
             JButton button = new JButton(new ImageIcon(image));
+            button.setToolTipText("Shows selected TODO in editor");
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     GoToTaskAction gotoAction = (GoToTaskAction) SystemAction.get(GoToTaskAction.class);
@@ -498,6 +540,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (filterButton == null) {
             Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filterOperations.gif"));
             filterButton = new JButton(icon);
+            filterButton.setToolTipText("Allows to filter found TODOs.");
             adjustHeight(filterButton);
             filterButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -552,8 +595,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     /** Toolbar controls must be smaller*/
     private static void adjustHeight(JComponent c) {
+        // it kills roll-over feature
         Insets in = c.getInsets();
-        c.setBorder(BorderFactory.createEmptyBorder(in.top -2, 5, in.bottom -2, 5));
+        c.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
     }
 
     protected Component createNorthComponent() {
@@ -566,17 +610,17 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         toolbar.setBorder(null);
 
         toolbar.add(getAllFiles());
+        toolbar.add(getFolderSelector());
         toolbar.add(getCurrentFile());
         toolbar.add(new JSeparator(JSeparator.VERTICAL));
         toolbar.add(getGoto());
         toolbar.add(getRefresh());
         toolbar.add(getFilterMenu());
+        toolbar.add(new JSeparator(JSeparator.VERTICAL));
 
         JPanel rightpanel = new JPanel();
-        rightpanel.add(new JSeparator(JSeparator.VERTICAL));
         rightpanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         rightpanel.add(getProgress());
-
         JToolBar stoptoolbar = new JToolBar();
         stoptoolbar.setFloatable(false);
         stoptoolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
@@ -654,11 +698,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         estimatedFolders = -1;
         getProgress().setVisible(false);
         getStop().setVisible(false);
-        getRefresh().setEnabled(getAllFiles().isSelected());
+        getRefresh().setEnabled(job == null);
     }
 
     public void statistics(int todos) {
-        if (getAllFiles().isSelected()) {
+        if (job == null) {
             String text = NbBundle.getMessage(SourceTasksView.class,
                                                    "TodoScanDone", new Integer(todos)); // NOI18N
             getMiniStatus().setText(text + (reasonMsg != null ? reasonMsg : ""));
@@ -683,10 +727,42 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         super.componentHidden();
     }
 
+    /** User clicked selected folder, restore from cache or ask for context */
     private void handleAllFiles() {
-        if (job == null) return;
-        job.stopBroker();
-        job = null;
+        if (job != null) {
+            job.stopBroker();
+            job = null;
+        }
+
+        if (selectedFolder == null) {
+            handleSelectFolder();
+            return;
+        } else {
+            // it might be resored from persitent setting and unavailable
+            DataObject seletedDataFolder = null;
+            try {
+                 seletedDataFolder = DataObject.find(selectedFolder);
+            } catch (DataObjectNotFoundException e) {
+                // let it be null
+            }
+            if (seletedDataFolder == null) {
+                handleSelectFolder();
+                return;
+            }
+        }
+
+        ((JToggleButton)allFilesButton).setSelected(true);
+        ((JToggleButton)folderSelector).setSelected(true);
+        String path = selectedFolder.getPath();
+        if ("".equals(path)) { // NOI18N
+            try {
+                path = selectedFolder.getFileSystem().getDisplayName();
+            } catch (FileStateInvalidException e) {
+                // keep empty path
+            }
+        }
+        allFilesButton.setToolTipText("Switches to TODOs for " + path);
+
         putClientProperty("PersistenceType", "Never"); // NOI18N
         treeTable.setProperties(createColumns());
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
@@ -700,8 +776,18 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         setModel(list);
         setFiltered(false);
         getRefresh().setEnabled(true);
+
         if (list != resultsSnapshot) {
-            background = SourceTasksScanner.scanTasksAsync(this);
+            try {
+                DataObject.Container one =
+                    (DataObject.Container) DataObject.find(selectedFolder);
+                DataObject.Container[] folders = new DataObject.Container[] {one};
+                background = SourceTasksScanner.scanTasksAsync(this, folders);
+            } catch (DataObjectNotFoundException e) {
+                selectedFolder = null;  // invalid folder
+            }
+        } else {
+            getMiniStatus().setText(selectedFolder.getName() + " TODOs restored from cache.");
         }
     }
 
@@ -715,8 +801,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private void handleCurrentFile() {
         if (job != null) return;
+        ((JToggleButton)folderSelector).setSelected(false);
         try {
-            if (background != null) handleStop();  //XXX if all files pressed promply it may be wrongly over ridden
+            if (background != null) handleStop();
             background = null;
             job = SuggestionsBroker.getDefault().startBroker();
             putClientProperty("PersistenceType", "OnlyOpened");  // NOI18N
@@ -731,6 +818,52 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             // setModel() above triggers IAE in IconManager after gc()
             getRefresh().setEnabled(false);
             getMiniStatus().setText("");
+        }
+    }
+
+    /** Let user choose what folder to scan and set selectedFolder field. */
+    private void handleSelectFolder() {
+
+        if (background != null) handleStop();
+        background = null;
+
+        // prepare content for selector
+
+        NodeOperation op = NodeOperation.getDefault();
+        Node repo = RepositoryNodeFactory.getDefault().repository(new DataFilter() {
+            public boolean acceptDataObject(DataObject obj) {
+                return obj instanceof DataObject.Container;
+            }
+        });
+        Children kids = new Children.Array();
+        Node[] nodes = repo.getChildren().getNodes(true);
+        for (int i = 0; i<nodes.length; i++) {
+            DataObject dobj = (DataObject) nodes[i].getCookie(DataObject.class);
+            try {
+                FileSystem fs = dobj.getPrimaryFile().getFileSystem();
+                if (fs.isReadOnly()) continue;
+                if (fs.isValid() == false) continue;
+                kids.add(new Node[] {new FilterNode(nodes[i])});
+            } catch (FileStateInvalidException e) {
+                // do not add to chooser
+            }
+        }
+        final Node content = new AbstractNode(kids);
+        content.setName("Filesystems");
+
+        try {
+            Node[] selected = op.select("Select folder", "Folders:", content, new NodeAcceptor() {
+                public boolean acceptNodes(Node[] nodes) {
+                    return nodes.length == 1 && nodes[0] != content;
+                }
+            });
+
+            DataObject dobj = (DataObject) selected[0].getCookie(DataObject.class);
+            resultsSnapshot = null;
+            selectedFolder = dobj.getPrimaryFile();
+            handleAllFiles();
+        } catch (UserCancelException e) {
+            // no folders selected keep previous one
         }
     }
 

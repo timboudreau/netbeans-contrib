@@ -45,7 +45,7 @@ import java.io.IOException;
 final class SourceTasksScanner {
 
     /**
-     * Scans for tasks in asyncronous threads (a scanner
+     * Scans for all project tasks in asynchronous threads (a scanner
      * thread and AWT thread).
      *
      * @param view requestor
@@ -54,9 +54,25 @@ final class SourceTasksScanner {
 
         final SuggestionList list = (SuggestionList) view.getList();
 
-        Bg bg = new Bg(view, list);
+        Bg bg = new Bg(view, list, null);
         return Background.execute(bg);
     }
+
+    /**
+     * Scan selected folders for TODOs.
+     *
+     * @param view target consumer
+     * @param folders contetx to scan
+     * @return interruptible handle
+     */
+    public static Background scanTasksAsync(SourceTasksView view, DataObject.Container[] folders) {
+        final SuggestionList list = (SuggestionList) view.getList();
+
+        Bg bg = new Bg(view, list, folders);
+        return Background.execute(bg);
+
+    }
+
 
     static class Bg implements CancellableRunnable {
 
@@ -64,10 +80,12 @@ final class SourceTasksScanner {
 
         private final SourceTasksView view;
         private final SuggestionList list;
+        private final DataObject.Container[] ctx;
 
-        Bg(SourceTasksView view, SuggestionList list) {
+        Bg(SourceTasksView view, SuggestionList list, DataObject.Container[] ctx) {
             this.view = view;
             this.list = list;
+            this.ctx = ctx;
         }
 
         public void run() {
@@ -109,22 +127,25 @@ final class SourceTasksScanner {
         }
     };
 
-
     static void scanProjectSuggestions(final SuggestionList list, final SourceTasksAction.ScanProgressMonitor view, Bg bg) {
-        List project = new ArrayList(23);
-        boolean enabled = false;
+        DataObject.Container projectFolders[] = bg.ctx;
 
-        if ("project".equals(System.getProperty("todos.project", "repository"))) {
-            enabled = project(project);
+        if (projectFolders == null) {
+            List project = new ArrayList(23);
+            boolean enabled = false;
+
+            if ("project".equals(System.getProperty("todos.project", "repository"))) {
+                enabled = project(project);
+            }
+
+            if (enabled == false) {
+                project.clear();
+                repository(project);
+            }
+
+            projectFolders = new DataObject.Container[project.size()];
+            project.toArray(projectFolders);
         }
-
-        if (enabled == false) {
-            project.clear();
-            repository(project);
-        }
-
-        DataObject.Container projectFolders[] = new DataObject.Container[project.size()];
-        project.toArray(projectFolders);
 
         SuggestionsScanner c = SuggestionsScanner.getDefault();
         bg.cancellable = c;
