@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.table.TableModel;
 
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
@@ -45,12 +46,14 @@ import org.openide.explorer.view.TreeTableView;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
+import org.openide.nodes.Children;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.awt.StatusDisplayer;
 import org.openide.ErrorManager;
 import org.openide.explorer.ExplorerUtils;
+import org.openide.explorer.view.Visualizer;
 import org.openide.actions.FindAction;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileSystem;
@@ -1343,21 +1346,72 @@ for (int i = 0; i < columns.length; i++) {
     /** When true, we've already warned about the need to wrap */
     private boolean wrapWarned = false;
 
+    private Node findNextVisitable(TreeNode last) {
+
+        // find next candidate
+
+        TreeNode next = null;
+        if (last.getChildCount() > 0) {
+            next = last.getChildAt(0);
+        } else {
+            int index = last.getParent().getIndex(last);
+            assert index != -1;
+            index++;
+            if (index < last.getParent().getChildCount()) {
+                next = last.getParent().getChildAt(index);
+            }
+        }
+
+        // try wrap around if warned
+
+        if (next == null && wrapWarned) {
+            TreeNode parent = last;
+            while (parent.getParent() != null) {
+               parent = parent.getParent();
+            }
+            if (parent.getChildCount() > 0) {
+                next = parent.getChildAt(0);
+            }
+        }
+
+        if (next == null) return null;
+
+        // assure it's visitable
+
+        Node nextNode = Visualizer.findNode(next);
+        Task task = (Task) nextNode.getCookie(Task.class);
+        if (task != null && task.isVisitable()) {
+            return nextNode;
+        } else {
+            return findNextVisitable(next);
+        }
+    }
+
+    /** @return last selected or null */
+    private Node findLastSelected() {
+        Node[] selected = getExplorerManager().getSelectedNodes();
+        Node last;
+        if (selected != null && selected.length != 0) {
+            last = selected[selected.length -1];
+        } else {
+            Node[] all = getExplorerManager().getRootContext().getChildren().getNodes();
+            if (all == null || all.length == 0) {
+                return null;
+            } else {
+                last = all[0];
+            }
+        }
+        return last;
+    }
+
     /** Show the next task in the view */
     protected final void nextTask() {
-        ObservableList list = getModel();
-        Task curr = getCurrentTask();
-        Task next = null;
-        if (curr == null) {
-            List sgs = list.getRoot().getSubtasks();
-            if (sgs != null) {
-                next = (Task) sgs.get(0);
-            } else {
-                return;
-            }
-        } else {
-            next = TLUtils.findNext(curr, wrapWarned);
-        }
+
+        Node last = findLastSelected();
+        if (last == null) return;
+
+        Node next = findNextVisitable(Visualizer.findVisualizer(last));
+
         String msg = NbBundle.getBundle(TaskListView.class).
                 getString("MSG_AtLastError"); // NOI18N
         if ((next == null) && !wrapWarned) {
@@ -1366,21 +1420,56 @@ for (int i = 0; i < columns.length; i++) {
         } else {
             wrapWarned = false;
         }
+
         if (next != null) {
-            if (next.getLine() != null) {
-                TaskAnnotation anno = getAnnotation(next);
+            Task nextTask = (Task) next.getCookie(Task.class);
+            if (nextTask.getLine() != null) {
+                TaskAnnotation anno = getAnnotation(nextTask);
                 if (anno != null) {
-                    showTask(next, anno);
+                    showTask(nextTask, anno);
                 }
             }
-            select(next);
-            //StatusDisplayer.getDefault().setStatusText(next.getSummary());
+            select(nextTask); // XXX call EM directly
         }
+
+//        ObservableList list = getModel();
+//        Task curr = getCurrentTask();
+//        Task next = null;
+//        if (curr == null) {
+//            List sgs = list.getRoot().getSubtasks();
+//            if (sgs != null) {
+//                next = (Task) sgs.get(0);
+//            } else {
+//                return;
+//            }
+//        } else {
+//            next = TLUtils.findNext(curr, wrapWarned);
+//        }
+//        String msg = NbBundle.getBundle(TaskListView.class).
+//                getString("MSG_AtLastError"); // NOI18N
+//        if ((next == null) && !wrapWarned) {
+//            StatusDisplayer.getDefault().setStatusText(msg);
+//            wrapWarned = true;
+//        } else {
+//            wrapWarned = false;
+//        }
+//        if (next != null) {
+//            if (next.getLine() != null) {
+//                TaskAnnotation anno = getAnnotation(next);
+//                if (anno != null) {
+//                    showTask(next, anno);
+//                }
+//            }
+//            select(next);
+//            //StatusDisplayer.getDefault().setStatusText(next.getSummary());
+//        }
 
     }
 
     /** Show the previous task in the view */
     protected final void prevTask() {
+        // FIXME it must work with view instead data model
+        // to detect actual sorting, see above method
         ObservableList list = getModel();
         Task curr = getCurrentTask();
         Task prev = null;

@@ -70,7 +70,15 @@ public class TaskNode extends AbstractNode {
         this.item = item;
         assert item.getList() != null;
         init();
-    } 
+    }
+
+    public Node.Cookie getCookie(Class type) {
+        if (type == Task.class) {
+            return getTask();
+        } else {
+            return super.getCookie(type);
+        }
+    }
 
     /**
      * Non-leaf/parent

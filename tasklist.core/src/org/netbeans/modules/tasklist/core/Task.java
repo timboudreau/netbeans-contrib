@@ -64,7 +64,7 @@ import org.openide.util.NbBundle;
  * @author Tor Norbye
  * @author Tim Lebedkov
  */
-public class Task extends Suggestion implements Cloneable {
+public class Task extends Suggestion implements Cloneable, Node.Cookie {
     private static final Logger LOGGER = TLUtils.getLogger(Task.class);
 
     static {
