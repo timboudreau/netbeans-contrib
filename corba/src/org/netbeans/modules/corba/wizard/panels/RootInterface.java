@@ -198,6 +198,7 @@ public class RootInterface extends AbstractCORBAWizardPanel implements javax.swi
         cbName = new javax.swing.JTextField();
         
         cbLabel2.setText (this.bundle.getString("TXT_CallBackInterfaceList"));
+        cbLabel2.setLabelFor (cbList);
         java.awt.GridBagConstraints c = new java.awt.GridBagConstraints ();
         c.gridx = 0;
         c.gridy = 3;
@@ -222,6 +223,7 @@ public class RootInterface extends AbstractCORBAWizardPanel implements javax.swi
         add(cbScrollPane, gridBagConstraints1);
         
         cbLabel.setText(bundle.getString("TXT_SelectedCallBackInterface"));
+        cbLabel.setLabelFor (cbName);
         
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
