@@ -98,10 +98,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizerDialogA11yName"));  // NOI18N
         getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizerDialogA11yDesc"));  // NOI18N
         configCombo.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.configComboBoxA11yName"));  // NOI18N
+        configCombo.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.configComboBoxA11yDesc"));  // NOI18N
         jLabel2.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.jLabel2.textA11yDesc"));  // NOI18N
         rootDirTextField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.workingDirectoryTextField.textA11yName"));  // NOI18N
+        browseButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.browseButton.textA11yDesc")); // NOI18N
         relMountLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.relMountLabel.textA11yDesc"));  // NOI18N
         relMountTextField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.relativeTextField.textA11yName"));  // NOI18N
+        relMountButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.relMountButton.textA11yDesc")); // NOI18N
         jLabel1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_AdditionalProfilesTextA11yDesc"));  // NOI18N
         jLabel5.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.modesLabel.textA11yDesc"));  // NOI18N
         jLabel6.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.actionsLabel.textA11yDesc"));  // NOI18N
@@ -1752,6 +1755,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 lb.setText (varLabel);
                 tf.setText (var.getValue ());
                 tf.setToolTipText(varLabel);
+                tf.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(VcsCustomizer.class, "ACS_VcsCustomizer.varTextField.textA11yDesc", varLabel));
                 lb.setLabelFor(tf);
                 if (var.getLabelMnemonic() != null) {
                     lb.setDisplayedMnemonic(var.getLabelMnemonic().charValue());
@@ -1766,16 +1770,19 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                     button = new JButton ();
                     button.addActionListener (new BrowseLocalFile (tf));
                     button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.browseButton.text"));
+                    button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.browseButtonFile.textA11yDesc"));
                 } else if (var.isLocalDir ()) {
                     button = new JButton ();
                     button.addActionListener (new BrowseLocalDir (tf));
                     button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.browseButton.text"));
+                    button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.browseButtonDir.textA11yDesc"));
                 }
                 String selector = var.getCustomSelector();
                 if (selector != null && selector.length() > 0) {
                     button = new JButton ();
                     button.addActionListener (new RunCustomSelector (tf, var));
                     button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.selectButton.text"));
+                    button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.selectButton.textA11yDesc"));
                 }
                 if (button != null) {
                     button.setToolTipText(button.getText());
