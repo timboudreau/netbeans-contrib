@@ -14,12 +14,13 @@ Microsystems, Inc. All Rights Reserved.
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
 <filesystem>
   <folder name="Menu">
+    <attr name="Build/Versioning" boolvalue="true"/>
     <attr name="Debug/Versioning" boolvalue="true"/>
     <attr name="Versioning/Tools" boolvalue="true"/>
     <folder name="Versioning">
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
-      <file name="org-netbeans-modules-vcscore-actions-VcsMountAction.instance" />
-      <attr name="org-netbeans-modules-vcscore-actions-VcsMountAction.instance/vcs-explorer-sep-1[javax-swing-JSeparator].instance" boolvalue="true"/>
+      <file name="org-netbeans-modules-vcscore-actions-VcsMountFromTemplateAction.instance" />
+      <attr name="org-netbeans-modules-vcscore-actions-VcsMountFromTemplateAction.instance/vcs-explorer-sep-1[javax-swing-JSeparator].instance" boolvalue="true"/>
       <file name="vcs-explorer-sep-1[javax-swing-JSeparator].instance" />
       <attr name="vcs-explorer-sep-1[javax-swing-JSeparator].instance/org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance" boolvalue="true"/>
       <file name="org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance" />
@@ -45,13 +46,32 @@ Microsystems, Inc. All Rights Reserved.
   </folder>
 
    <folder name="vcs">
-    </folder>
+   </folder>
 
    <folder name="Services"> 
      <folder name = "Hidden">
         <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings" url="GeneralVcsSettings.settings"/>
      </folder>
      <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance" />
+   </folder>
+
+   <folder name="Templates">
+     <folder name="Mount">
+       <!-- <folder name="VCS"> -->
+        <file name="org-netbeans-modules-vcscore-wizard-mountcvs-CvsMountFS.settings">
+          <![CDATA[
+          <!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+          <settings version="1.0">
+            <instanceof class="org.openide.filesystems.FileSystem"/>
+            <instance class="org.netbeans.modules.vcscore.wizard.mountcvs.CvsMountFS"/>
+          </settings>
+          ]]>
+          <attr name="template" boolvalue="true"/>
+          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.mountcvs.Bundle" />
+          <attr name="templateWizardIterator" methodValue="org.netbeans.modules.vcscore.wizard.mountcvs.MountCvsWizard.singleton"/>
+        </file>
+       <!-- </folder> -->
+     </folder>
    </folder>
 
 </filesystem>
