@@ -604,17 +604,21 @@ public class BundleLookupPanel extends TopComponent  {
                        
     /** opens panel
      */    
-    public static void openPanel() {
+    public static void openPanel(String text) {
         if (panel==null)
             panel=new BundleLookupPanel();
         panel.open();
+        if (text!=null && panel.SearchButton.isVisible()) {
+            panel.SearchTextField.setText(text);
+            panel.SearchButtonActionPerformed(null);
+        }
     }
                        
     /** opens panel for debugging purposes
      * @param args command line argument
      */    
     public static void main(String args[]) {
-        BundleLookupPanel.openPanel();
+        BundleLookupPanel.openPanel(null);
     }
     
 }

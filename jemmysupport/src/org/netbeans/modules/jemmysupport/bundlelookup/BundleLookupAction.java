@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.jemmysupport.bundlelookup;
 
+import javax.swing.JEditorPane;
+import org.openide.cookies.EditorCookie;
 import org.openide.util.actions.NodeAction;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -26,11 +28,28 @@ public class BundleLookupAction extends NodeAction {
     
     private static final long serialVersionUID = 2491826043823675616L;
     
+    private String tryGetText(Node[] nodes) {
+        for (int i=0; i<nodes.length; i++) {
+            EditorCookie cookie=(EditorCookie)nodes[i].getCookie(EditorCookie.class);
+            if (cookie!=null) {
+                JEditorPane panes[]=cookie.getOpenedPanes();
+                for (int j=0; j<panes.length; j++) {
+                    String text=panes[j].getSelectedText();
+                    if (text!=null && text.length()>0) {
+                        if (text.startsWith("\"") && text.endsWith("\"")) text=text.substring(1, text.length()-1);
+                        return text;
+                    }
+                }
+            }
+        }
+        return null;
+    }        
+    
     /** method performing the action
      * @param nodes selected nodes
      */    
     protected void performAction(Node[] nodes) {
-        BundleLookupPanel.openPanel();
+        BundleLookupPanel.openPanel(tryGetText(nodes));
     }
     
     /** action is enabled for any selected node
