@@ -610,6 +610,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                      (executionContext instanceof VcsFileSystem) ? ((VcsFileSystem) executionContext).getRelativeMountPoint() : "",
                      true);
         cmd.setAdditionalVariables(vars);
+        setCommandFilesFromTable(cmd, subFiles, executionContext);
         // Suppose, that the command is already preprocessed.
         //System.out.println("RestrictedFileMap = "+subFiles+", files = "+files+", MODULE = "+cmd.getAdditionalVariables().get("MODULE")+", DIR = "+cmd.getAdditionalVariables().get("DIR"));
         //System.out.println("\nVARS for cmd = "+cmd+" ARE:"+vars+"\n");
