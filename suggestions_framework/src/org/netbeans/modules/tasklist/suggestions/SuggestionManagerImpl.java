@@ -415,13 +415,19 @@ final public class SuggestionManagerImpl extends SuggestionManager
             // right life cycle for each provider.
             provider.notifyPrepare();
             provider.notifyRun();
-            
-            // XXX what about provider.docStart() (or whatever docStart will do to the document?)
+
+            if ((document != null) &&
+                (provider instanceof DocumentSuggestionProvider)) {
+                ((DocumentSuggestionProvider)provider).docShown(document, dataobject);
+            }
         } else {
             // Remove suggestions of this type
+            if (provider instanceof DocumentSuggestionProvider) {
+                ((DocumentSuggestionProvider)provider).docHidden(document, dataobject);
+            }
             provider.notifyStop();
-            // XXX what about provider.docStop() (or whatever docStop will do to the document?)
             provider.notifyFinish();
+
             getList().removeCategory(type); // XXX should only do this once!
         }
 
@@ -574,11 +580,17 @@ final public class SuggestionManagerImpl extends SuggestionManager
             // provider
             if (enabled) {
                 provider.notifyRun();
-                // what about docStart() or the equivalent
+                if ((document != null) &&
+                  (provider instanceof DocumentSuggestionProvider)) {
+                  ((DocumentSuggestionProvider)provider).docShown(document, dataobject);
+                }
+
                 unfiltered = provider;
             } else {
+                if (provider instanceof DocumentSuggestionProvider) {
+                   ((DocumentSuggestionProvider)provider).docHidden(document, dataobject);
+                }
                 provider.notifyStop();
-                // what about docStop or the equivalent
             }
         }
 
