@@ -40,6 +40,9 @@ import com.netbeans.developer.modules.vcs.util.*;
  */
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends CvsFileSystem {
+  private Debug D = new Debug ("CommandLineVcsFileSystem", false);
+  private static transient String CONFIG_ROOT="vcs/config";
+  private transient Hashtable commandsByName=null;
  
   //-------------------------------------------
   public CommandLineVcsFileSystem () {
@@ -49,11 +52,26 @@ public class CommandLineVcsFileSystem extends CvsFileSystem {
   
   public VcsFactory getVcsFactory () {
     return new CommandLineVcsFactory ();
-  }    
+  }
+  
+  //-------------------------------------------
+  public String getConfigRoot(){
+    return CONFIG_ROOT;
+  }
+  
+  public void readConfiguration () {
+    D.deb ("readConfiguration ()");
+    CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
+      "system"+File.separator+"vcs"+File.separator+"config";
+    Properties props=VcsConfigVariable.readPredefinedProperties(CONFIG_ROOT+File.separator+"empty.properties");
+    setVariables (VcsConfigVariable.readVariables(props));
+    setAdvancedConfig (getVcsFactory ().getVcsAdvancedCustomizer().readConfig (props));
+  }  
 }
 
 /*
  * <<Log>>
+ *  43   Gandalf   1.42        10/9/99  Pavel Buzek     
  *  42   Gandalf   1.41        10/5/99  Pavel Buzek     
  *  41   Gandalf   1.40        9/30/99  Pavel Buzek     
  *  40   Gandalf   1.39        9/13/99  Pavel Buzek     
