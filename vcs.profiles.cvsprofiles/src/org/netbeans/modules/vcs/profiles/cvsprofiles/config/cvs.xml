@@ -2383,7 +2383,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} diff $[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] [] $[? TAG1] [-r ${TAG1}] [] $[? TAG2] [-r ${TAG2}] [] ${RCS_KFLAG} ${IGNORE_WHITE} ${IGNORE_SPACE} ${IGNORE_CASE} ${ADDITIONAL_OPTIONS} ${OUTPUT_FORMAT} ${QFILE} ${NUR}</value>
+	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} diff $[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] [] $[? TAG1] [-r ${TAG1}] [] $[? TAG2] [-r ${TAG2}] [] ${RCS_KFLAG} ${IGNORE_WHITE} ${IGNORE_SPACE} ${IGNORE_CASE} ${ADDITIONAL_OPTIONS} ${OUTPUT_FORMAT} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_DIFF_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_DIFF_Label)))
@@ -2408,6 +2408,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="error.regex">
 	  <value>$ ^</value>
 	</property>
+        <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>
 	<property name="ignoreFail">
 	  <value>true</value>
 	</property>
