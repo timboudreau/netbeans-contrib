@@ -93,6 +93,7 @@ public class CommandNode extends AbstractNode {
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_HIDDEN, Boolean.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_HIDDEN_TEST_EXPRESSION, String.class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_DISABLED_ON_STATUS, String.class);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_DISABLED_WHEN_NOT_LOCKED, Boolean.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_CONCURRENT_EXECUTION, Integer.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_EXEC_PRIORITY, Integer.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, Boolean.TYPE);
