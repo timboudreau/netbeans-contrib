@@ -115,8 +115,8 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
                                           DialogDescriptor.OK_CANCEL_OPTION,
                                           DialogDescriptor.OK_OPTION,
                                           new ActionListener() {
-                                              public void actionPerformed(ActionEvent event) {
-                                                  if (event.getSource() == DialogDescriptor.OK_OPTION) {
+                                              public void actionPerformed(ActionEvent event2) {
+                                                  if (event2.getSource() == DialogDescriptor.OK_OPTION) {
                                                       if ((panel.getName().length()==0) ||
                                                               (panel.getValue().length() == 0)) {
                                                           TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
@@ -126,7 +126,7 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
                                                       properties.addElement(pr);
                                                       dlg.setVisible(false);
                                                       dlg.dispose();
-                                                  } else if (event.getSource() == DialogDescriptor.CANCEL_OPTION) {
+                                                  } else if (event2.getSource() == DialogDescriptor.CANCEL_OPTION) {
                                                       dlg.setVisible(false);
                                                       dlg.dispose();
                                                   }
@@ -159,8 +159,8 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
                                           DialogDescriptor.OK_CANCEL_OPTION,
                                           DialogDescriptor.OK_OPTION,
                                           new ActionListener() {
-                                              public void actionPerformed(ActionEvent event) {
-                                                  if (event.getSource() == DialogDescriptor.OK_OPTION) {
+                                              public void actionPerformed(ActionEvent event2) {
+                                                  if (event2.getSource() == DialogDescriptor.OK_OPTION) {
                                                       if ((panel.getName().length() == 0) ||
                                                               (panel.getValue().length() == 0)) {
                                                           TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
@@ -173,7 +173,7 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
                                                       AbstractNewPanel.this.changeButton.setEnabled(false);
                                                       dlg.setVisible(false);
                                                       dlg.dispose();
-                                                  } else if (event.getSource() == DialogDescriptor.CANCEL_OPTION) {
+                                                  } else if (event2.getSource() == DialogDescriptor.CANCEL_OPTION) {
                                                       dlg.setVisible(false);
                                                       dlg.dispose();
                                                   }

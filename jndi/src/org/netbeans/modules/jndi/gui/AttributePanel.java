@@ -197,8 +197,8 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
                                   DialogDescriptor.OK_CANCEL_OPTION,
                                   DialogDescriptor.OK_OPTION,
                                   new ActionListener(){
-                                      public void actionPerformed(ActionEvent event){
-                                          if (event.getSource() == DialogDescriptor.OK_OPTION){
+                                      public void actionPerformed(ActionEvent event2){
+                                          if (event2.getSource() == DialogDescriptor.OK_OPTION){
                                               try{
                                                   BasicAttributes attrs = new BasicAttributes();
                                                   BasicAttribute attr = new BasicAttribute(p.getName(),p.getValue());
@@ -247,8 +247,8 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
                                       DialogDescriptor.OK_CANCEL_OPTION,
                                       DialogDescriptor.OK_OPTION,
                                       new ActionListener(){
-                                          public void actionPerformed(ActionEvent event){
-                                              if (event.getSource() == DialogDescriptor.OK_OPTION){
+                                          public void actionPerformed(ActionEvent event2){
+                                              if (event2.getSource() == DialogDescriptor.OK_OPTION){
                                                   try{
                                                       BasicAttributes attrs;
                                                       BasicAttribute attr;
