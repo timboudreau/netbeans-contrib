@@ -2,6 +2,7 @@ NetBeans-Module: com.netbeans.enterprise.modules.vcs.cmdline/1
 NetBeans-Module-Name: Generic Command Line VCS
 NetBeans-Module-Specification-Version: 1.0
 NetBeans-Module-Implementation-Version: 1.0
+Class-Path: ext/regexp.jar
 
 Name: com/netbeans/enterprise/modules/vcs/cmdline/CommandLineVcsFileSystem.class
 NetBeans-Module-Class: Filesystem
