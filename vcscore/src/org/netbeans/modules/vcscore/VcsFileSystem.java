@@ -2140,7 +2140,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     /**
      * Set the tree structure of commands.
-     * @param commandsTreeModel the tree of <code>MutableTreeNode</code> objects.
+     * @param root the tree of {@link VcsCommandNode} objects.
      */
     public void setCommands(Node root) {
         advanced = root;
