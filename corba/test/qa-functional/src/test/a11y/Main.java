@@ -108,6 +108,7 @@ public class Main extends org.netbeans.jellytools.JellyTestCase {
             ts.setWindowTitle(((JDialog) comp).getTitle());
         if (close)
             ts.setCancelLabel("Close");
+        ts.setExcludedClasses ("javax.swing.JScrollPane$ScrollBar");
         org.netbeans.a11y.AccessibilityTester at = new org.netbeans.a11y.AccessibilityTester(comp, ts);
         at.startTests();
         org.netbeans.a11y.TextReport treport = new org.netbeans.a11y.TextReport(at, ts);

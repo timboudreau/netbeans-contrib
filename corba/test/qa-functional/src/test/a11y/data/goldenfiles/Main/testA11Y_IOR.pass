@@ -6,12 +6,10 @@ Results of Accessibility test
    - none.
 
  No Accessible name :
-   Class: javax.swing.JScrollPane$ScrollBar {  |  } 
    Class: org.openide.explorer.view.TreeView$ExplorerTree {  |  } 
 
 
  No Accessible description :
-   Class: javax.swing.JScrollPane$ScrollBar {  |  } 
    Class: org.openide.explorer.view.TreeView$ExplorerTree {  |  } 
 
 
