@@ -75,12 +75,29 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
      * @throws UserCancelException when the user cancelles the command.
      */
     public String process(String exec) throws UserCancelException {
+        return process(exec, null);
+    }
+    
+    /**
+     * Execute all commands and insert their output to the exec string.
+     * @param cmdOutputStates a collection, that is filled with the exit states
+     *        of the executed commands. Boolean.TRUE for successfull execution
+     *        and Boolean.FALSE for unsuccessfull execution. The collection can
+     *        be null.
+     * @return the exec string with commands output.
+     * @throws UserCancelException when the user cancelles the command.
+     */
+    public String process(String exec, Collection cmdExitStates) throws UserCancelException {
         //String exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec == null) return null;
         //UserCommand[] preCommands = cmd.getPreCommands();
         ArrayList commands = findPreCommands(exec);
         String[] commandNames = (String[]) new TreeSet(commands).toArray(new String[0]);
-        processPreCommands(commandNames);
+        Collection exiStates = processPreCommands(commandNames);
+        if (cmdExitStates != null) {
+            cmdExitStates.clear();
+            cmdExitStates.addAll(exiStates);
+        }
         exec = insertPreCommandsOutput(exec, commandNames);
         return exec;
     }
@@ -140,7 +157,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     }
      */
     
-    private void processPreCommands(String[] preCommands) throws UserCancelException {
+    private Collection processPreCommands(String[] preCommands) throws UserCancelException {
         preCommandOutput = new Vector[preCommands.length];
         preCommandError = new Vector[preCommands.length];
         CommandsPool pool = fileSystem.getCommandsPool();
@@ -160,11 +177,18 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             pool.startExecutor(executor);
             runningExecutors.add(executor);
         }
+        ArrayList exitStates = new ArrayList();
         while (runningExecutors.size() > 0) {
             VcsCommandExecutor vce = (VcsCommandExecutor) runningExecutors.get(0);
             pool.waitToFinish(vce);
             runningExecutors.remove(0);
+            if (vce.getExitStatus() == VcsCommandExecutor.SUCCEEDED) {
+                exitStates.add(Boolean.TRUE);
+            } else {
+                exitStates.add(Boolean.FALSE);
+            }
         }
+        return exitStates;
         //return insertPreCommandsOutput(exec, preCommands);
     }
 

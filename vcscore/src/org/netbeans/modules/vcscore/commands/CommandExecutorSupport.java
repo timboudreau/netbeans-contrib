@@ -124,6 +124,26 @@ public class CommandExecutorSupport extends Object {
         return num;
     }
     
+    private static String processConfirmation(String confirmation, Hashtable vars, VcsFileSystem fileSystem) throws UserCancelException {
+        confirmation = Variables.expand(vars, confirmation, true);
+        PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
+        ArrayList confCommandsOutput = new ArrayList();
+        confirmation = cmdPerf.process(confirmation, confCommandsOutput);
+        vars.put("CONFIRMATION_MSG", confirmation);
+        boolean confCommandsSuccess = true;
+        if (confCommandsOutput.size() > 0) {
+            for (Iterator it = confCommandsOutput.iterator(); it.hasNext(); ) {
+                confCommandsSuccess = confCommandsSuccess && ((Boolean) it.next()).booleanValue();
+            }
+        }
+        if (confCommandsSuccess) {
+            vars.put("CONFIRMATION_SUCCESS", Boolean.TRUE.toString());
+        } else {
+            vars.remove("CONFIRMATION_SUCCESS");
+        }
+        return confirmation;
+    }
+    
     /**
      * Pre process the command. Ask for the confirmation, execute any precommands,
      * prompt the user for input variables.
@@ -141,14 +161,11 @@ public class CommandExecutorSupport extends Object {
         pathSeparator = Variables.expand(vars, pathSeparator, false);
         if (fullName == null || fileSystem.isImportant(fullName)) {
             vars.put("NUM_IMPORTANT_FILES", ""+numImportant(fileSystem, paths, pathSeparator));
-            confirmation = Variables.expand(vars, confirmation, true);
-            PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
             try {
-                confirmation = cmdPerf.process(confirmation);
+                confirmation = processConfirmation(confirmation, vars, fileSystem);
             } catch (UserCancelException cancelExc) {
                 return CommandsPool.PREPROCESS_CANCELLED;
             }
-            vars.put("CONFIRMATION_MSG", confirmation);
             confirmed = true;
         //} else {
         //    confirmation = null;
@@ -178,8 +195,11 @@ public class CommandExecutorSupport extends Object {
             int numImp = numImportant(fileSystem, paths, pathSeparator);
             if (!confirmed && numImp > 0) {
                 vars.put("NUM_IMPORTANT_FILES", ""+numImp);
-                confirmation = Variables.expand(vars, confirmation, true);
-                vars.put("CONFIRMATION_MSG", confirmation);
+                try {
+                    confirmation = processConfirmation(confirmation, vars, fileSystem);
+                } catch (UserCancelException cancelExc) {
+                    return CommandsPool.PREPROCESS_CANCELLED;
+                }
                 if (confirmation.length() > 0) {
                     if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
                             TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (
