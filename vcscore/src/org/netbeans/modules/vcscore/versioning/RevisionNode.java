@@ -82,7 +82,7 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
     }
 
     public org.openide.util.HelpCtx getHelpCtx() {
-        return new org.openide.util.HelpCtx(this.getClass());
+        return null;
     }
     
     private void init(RevisionList list, RevisionItem item) {
