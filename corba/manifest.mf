@@ -1,8 +1,8 @@
 OpenIDE-Module: org.netbeans.modules.corba/1
 OpenIDE-Module-Name: CORBA
 OpenIDE-Module-Install: org/netbeans/modules/corba/IDLModule.class
-OpenIDE-Module-Specification-Version: 1.1
-OpenIDE-Module-Implementation-Version: 1.1
+OpenIDE-Module-Specification-Version: 1.2
+OpenIDE-Module-Implementation-Version: 1.2
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1
 OpenIDE-Module-Description: org.netbeans.modules.corba.docs.HelpSet
 
