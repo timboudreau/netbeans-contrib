@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -35,15 +35,12 @@ Microsystems, Inc. All Rights Reserved.
   <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="../../../nbbuild/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="../../../nbbuild/nbantext.jar"/>
 
-<!-- must be done by dependencies in nbbuild/build.xml -->
-<!--
   <target name="build-lexer-editorbridge">
     <ant dir="../.." target="netbeans" inheritAll="false"/>
     <ant dir=".." target="netbeans" inheritAll="false"/>
   </target>
+
   <target name="compile" depends="build-lexer-editorbridge">
--->
-  <target name="compile">
     <javac srcdir="src" destdir="src"
            excludes="${src.openide.util},${src.antlr}"
            deprecation="${build.compiler.deprecation}"
@@ -77,7 +74,7 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist targetname="nbm" outputfiledir="../../../openide/netbeans"/>
+    <genlist targetname="nbm" outputfiledir="netbeans"/>
   </target>
 
 
