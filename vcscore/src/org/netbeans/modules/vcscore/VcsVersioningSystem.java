@@ -286,6 +286,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         Iterator it2 = list.iterator();
         while (it2.hasNext()) {
             RevisionItem item = (RevisionItem)it2.next();
+            if (item.isBranch()) continue;
             if (isShowMessages()) {
                 String messageString = item.getMessage();
                 item.setDisplayName(item.getRevisionVCS() + ((messageString != null) ? ("  " + cutMessageString(messageString)) : "")); //NOI18N
