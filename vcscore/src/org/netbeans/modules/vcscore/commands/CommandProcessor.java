@@ -190,6 +190,23 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     }
     
     /**
+     * Get the parent task if any. Parent task is the task that executed
+     * the child task.
+     * @param task The task.
+     * @return It's parent task or <code>null</code> when there is no parent task.
+     */
+    public CommandTask getParentTask(CommandTask task) {
+        CommandTaskInfo cw = (CommandTaskInfo) taskInfos.get(task);
+        if (cw != null) {
+            cw = cw.getSubmittingInfo();
+            if (cw != null) {
+                return cw.getTask();
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Pre-process the task. This will show the command's customizer.
      */
     public synchronized void preprocess(Command cmd) {

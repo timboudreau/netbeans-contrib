@@ -44,6 +44,7 @@ import org.netbeans.modules.vcscore.cmdline.CommandLineVcsDirReader;
 import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.commands.CommandOutputCollector;
 import org.netbeans.modules.vcscore.commands.CommandOutputVisualizer;
+import org.netbeans.modules.vcscore.commands.CommandProcessor;
 import org.netbeans.modules.vcscore.commands.CommandTaskInfo;
 import org.netbeans.modules.vcscore.commands.InteractiveCommandOutputVisualizer;
 import org.netbeans.modules.vcscore.commands.ProvidedCommand;
@@ -349,6 +350,10 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         VcsFileSystem fileSystem = cmdSupport.getFileSystem();
         String message = null;
         String name = cmd.getDisplayName();
+        // In case the utility command does not have a parent, report the message as well.
+        if (name == null && CommandProcessor.getInstance().getParentTask(this) == null) {
+            name = cmd.getName();
+        }
         if (name != null) {
             int i = name.indexOf('&');
             if (i >= 0) name = name.substring(0, i) + name.substring(i + 1);
