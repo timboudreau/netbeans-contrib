@@ -50,6 +50,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor annotationPattern = null;
         PropertyDescriptor autoRefresh = null;
         PropertyDescriptor notification = null;
+        PropertyDescriptor hideShadowFiles = null;
 
         try {
             rootDirectory=new PropertyDescriptor
@@ -87,12 +88,14 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             autoRefresh.setPropertyEditorClass(RefreshModePropertyEditor.class);
             notification = new PropertyDescriptor
                                (VcsFileSystem.PROP_COMMAND_NOTIFICATION, CommandLineVcsFileSystem.class, "isCommandNotification", "setCommandNotification"); // NOI18N
+            hideShadowFiles = new PropertyDescriptor
+                               (VcsSettings.PROP_HIDE_SHADOW_FILES, CommandLineVcsFileSystem.class, "isHideShadowFiles", "setHideShadowFiles"); // NOI18N
 
 
             desc = new PropertyDescriptor[] {
                        rootDirectory, debug, variables, commands, cacheId, config,
                        lock, lockPrompt, acceptUserParams, runRefreshCommand, annotationPattern,
-                       autoRefresh, notification
+                       autoRefresh, notification, hideShadowFiles
                    };
 
             ResourceBundle bundle = NbBundle.getBundle (CommandLineVcsFileSystemBeanInfo.class);
@@ -124,6 +127,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             autoRefresh.setShortDescription   (bundleSettings.getString("HINT_autoRefresh"));
             notification.setDisplayName       (bundle.getString("PROP_commandNotification"));
             notification.setShortDescription  (bundle.getString("HINT_commandNotification"));
+            hideShadowFiles.setDisplayName    (bundleSettings.getString("PROP_hideShadowFiles"));
+            hideShadowFiles.setShortDescription(bundleSettings.getString("HINT_hideShadowFiles"));
 
         } catch (IntrospectionException ex) {
             ex.printStackTrace ();
