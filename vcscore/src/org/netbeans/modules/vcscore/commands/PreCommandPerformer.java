@@ -347,13 +347,19 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             try {
                 int commaIndex2 = whichElement.indexOf(',', commaIndex + 1);
                 if (commaIndex2 < 0) commaIndex2 = whichElement.length();
-                maxFirstLines = Integer.parseInt(whichElement.substring(commaIndex + 1, commaIndex2).trim());
-                if (commaIndex2 < whichElement.length()) {
-                    maxLastLines = Integer.parseInt(whichElement.substring(commaIndex2 + 1).trim());
+                String maxFirstLinesStr = whichElement.substring(commaIndex + 1, commaIndex2).trim();
+                if (maxFirstLinesStr.length() > 0) {
+                    maxFirstLines = Integer.parseInt(maxFirstLinesStr);
+                    if (commaIndex2 < whichElement.length()) {
+                        String maxLastLinesStr = whichElement.substring(commaIndex2 + 1).trim();
+                        if (maxLastLinesStr.length() > 0) {
+                            maxLastLines = Integer.parseInt(maxLastLinesStr);
+                        }
+                    }
                 }
                 whichElement = whichElement.substring(0, commaIndex).trim();
             } catch (NumberFormatException exc) {
-                // Ignored
+                ErrorManager.getDefault().notify(exc);
             }
         }
         try {
@@ -395,7 +401,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             }
             if (insertNewLine) insertion.append(nl); // End with a new line
         } catch (NumberFormatException exc) {
-            // Ignored
+            ErrorManager.getDefault().notify(exc);
         }
         insertion.append(exec.substring(end, exec.length()));
         return insertion.toString();
