@@ -20,7 +20,6 @@ import java.awt.datatransfer.*;
 import java.rmi.*;
 import java.rmi.registry.*;
 
-import org.openide.TopManager;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -33,6 +32,7 @@ import org.netbeans.modules.jndi.*;
 import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.openide.util.Lookup;
 
 public class RegistryTest extends org.netbeans.junit.NbTestCase {
     
@@ -57,7 +57,7 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
     }
     
     public static String getStringFromClipboard() throws IOException, UnsupportedFlavorException {
-        ExClipboard clip = TopManager.getDefault().getClipboard();
+        ExClipboard clip = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
         Transferable str = (Transferable) clip.getContents(null);
         return str.getTransferData(DataFlavor.stringFlavor).toString ();
     }
@@ -117,8 +117,7 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
         ref = getRef ();
         log = getLog ();
         
-        Node runtimeNode = TopManager.getDefault().getPlaces().nodes().environment();
-        Node jndiNode = waitSubNode(runtimeNode, "JNDI");
+        Node jndiNode = JndiRootNode.getDefault ();
         if (jndiNode == null)
             throw new RuntimeException ("JNDI node does not exists!");
         Node jndiRootNode = jndiNode;

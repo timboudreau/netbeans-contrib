@@ -16,8 +16,8 @@ package basic.JNDITest;
 import java.io.*;
 import java.awt.datatransfer.*;
 
-import org.openide.TopManager;
 import org.openide.nodes.*;
+import org.openide.util.Lookup;
 import org.openide.util.actions.*;
 import org.openide.util.datatransfer.*;
 
@@ -65,19 +65,19 @@ public class Helper {
     }
     
     public static void printClipboardAsString (final PrintStream out) throws IOException, UnsupportedFlavorException {
-        ExClipboard clip = TopManager.getDefault ().getClipboard ();
+        ExClipboard clip = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
         Transferable str = (Transferable) clip.getContents (null);
         out.println (str.getTransferData (DataFlavor.stringFlavor).toString ());
     }
 
     public static String getStringFromClipboard() throws IOException, UnsupportedFlavorException {
-        ExClipboard clip = TopManager.getDefault().getClipboard();
+        ExClipboard clip = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
         Transferable str = (Transferable) clip.getContents(null);
         return str.getTransferData(DataFlavor.stringFlavor).toString ();
     }
     
     public static void printClipboardAsStringWithReplace (final PrintStream out, String src, String dst, String lsrc, String ldst) throws IOException, UnsupportedFlavorException {
-        ExClipboard clip = TopManager.getDefault ().getClipboard ();
+        ExClipboard clip = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
         Transferable strsel = (Transferable) clip.getContents (null);
         String str = strsel.getTransferData (DataFlavor.stringFlavor).toString ();
         String strout = "";

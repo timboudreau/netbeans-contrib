@@ -18,7 +18,6 @@ import java.util.ArrayList;
 
 import java.awt.datatransfer.*;
 
-import org.openide.TopManager;
 import org.openide.nodes.*;
 import org.openide.actions.*;
 import org.openide.util.datatransfer.*;
@@ -27,6 +26,7 @@ import org.netbeans.modules.jndi.*;
 import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.openide.util.Lookup;
 
 
 public class RefFSTest extends org.netbeans.junit.NbTestCase {
@@ -53,7 +53,7 @@ public class RefFSTest extends org.netbeans.junit.NbTestCase {
     }
     
     public static String getStringFromClipboard() throws IOException, UnsupportedFlavorException {
-        ExClipboard clip = TopManager.getDefault().getClipboard();
+        ExClipboard clip = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
         Transferable str = (Transferable) clip.getContents(null);
         return str.getTransferData(DataFlavor.stringFlavor).toString ();
     }
@@ -136,8 +136,7 @@ public class RefFSTest extends org.netbeans.junit.NbTestCase {
         ref = getRef ();
         log = getLog ();
         
-        Node runtimeNode = TopManager.getDefault().getPlaces().nodes().environment();
-        Node jndiNode = waitSubNode(runtimeNode, "JNDI");
+        Node jndiNode = JndiRootNode.getDefault ();
         if (jndiNode == null)
             throw new RuntimeException ("JNDI node does not exists!");
         Node jndiRootNode = jndiNode;

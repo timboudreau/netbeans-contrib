@@ -20,7 +20,6 @@ import java.awt.datatransfer.*;
 import java.rmi.*;
 import java.rmi.registry.*;
 
-import org.openide.TopManager;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -35,6 +34,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.netbeans.modules.jndi.utils.DisconnectCtxCookie;
 import org.openide.actions.DeleteAction;
+import org.openide.filesystems.Repository;
+import org.openide.util.Lookup;
 
 public class CNSTest extends org.netbeans.junit.NbTestCase {
     
@@ -60,7 +61,7 @@ public class CNSTest extends org.netbeans.junit.NbTestCase {
     }
     
     public static String getStringFromClipboard() throws IOException, UnsupportedFlavorException {
-        ExClipboard clip = TopManager.getDefault().getClipboard();
+        ExClipboard clip = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
         Transferable str = (Transferable) clip.getContents(null);
         return str.getTransferData(DataFlavor.stringFlavor).toString ();
     }
@@ -124,8 +125,7 @@ public class CNSTest extends org.netbeans.junit.NbTestCase {
         Process process = null;
     
         try {
-            Node runtimeNode = TopManager.getDefault().getPlaces().nodes().environment();
-            Node jndiNode = waitSubNode(runtimeNode, "JNDI");
+            Node jndiNode = JndiRootNode.getDefault();
             if (jndiNode == null)
                 throw new RuntimeException ("JNDI node does not exists!");
             Node jndiRootNode = jndiNode;
@@ -145,7 +145,7 @@ public class CNSTest extends org.netbeans.junit.NbTestCase {
 */            
             process = Runtime.getRuntime().exec (System.getProperty("java.home") + "/bin/tnameserv -ORBInitialPort 11198");
             ProcessExecutor mp = new ProcessExecutor ();
-            FileObject fo = TopManager.getDefault ().getRepository ().find ("providers.CNSTest.CNSBinding", "CNSBindingServerMain", "class");
+            FileObject fo = Repository.getDefault ().find ("providers.CNSTest.CNSBinding", "CNSBindingServerMain", "class");
             if (fo == null)
                 throw new RuntimeException ("Cannot find servermain fileobject");
             DataObject dao = null;

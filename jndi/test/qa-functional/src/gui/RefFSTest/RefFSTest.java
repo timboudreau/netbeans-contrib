@@ -42,7 +42,7 @@ import org.netbeans.jemmy.EventTool;
 import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.Timeouts;
 import org.netbeans.junit.AssertionFailedErrorException;
-import org.openide.TopManager;
+import org.openide.util.Lookup;
 import org.openide.util.datatransfer.ExClipboard;
 
 public class RefFSTest extends JellyTestCase {
@@ -90,7 +90,7 @@ public class RefFSTest extends JellyTestCase {
 
     public static String getStringFromClipboard() {
         try {
-            ExClipboard clip = TopManager.getDefault().getClipboard();
+            ExClipboard clip = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
             Transferable str = (Transferable) clip.getContents(null);
             Object o = str.getTransferData(DataFlavor.stringFlavor);
             return o.toString ();

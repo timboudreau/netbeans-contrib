@@ -18,13 +18,14 @@ import java.util.ArrayList;
 
 import java.awt.datatransfer.*;
 
-import org.openide.TopManager;
 import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
-import org.netbeans.modules.properties.*;
 import org.netbeans.modules.jndi.*;
+import org.netbeans.modules.properties.BundleStructure;
+import org.netbeans.modules.properties.PropertiesDataObject;
+import org.openide.util.Lookup;
 
 public class JNDITest extends org.netbeans.junit.NbTestCase {
    
@@ -49,8 +50,8 @@ public class JNDITest extends org.netbeans.junit.NbTestCase {
             ref.println ();
 
         /* Get and test JNDI and Providers node */
-            Node jndiNode = null, providersNode = null, n = TopManager.getDefault().getPlaces().nodes().environment();
-            jndiNode = Helper.waitSubNode (n, "JNDI");
+            Node jndiNode = null, providersNode = null, n = null;
+            jndiNode = JndiRootNode.getDefault ();
             assertNotNull("JNDI node does not exists!", jndiNode);
             Node jndiRootNode = jndiNode;
             providersNode = Helper.findSubNode (jndiNode, "Providers");
@@ -63,7 +64,7 @@ public class JNDITest extends org.netbeans.junit.NbTestCase {
             Helper.printProperties (providersNode, ref);
 
         /* Get JNDI System DataFolder */
-            FileSystem dfs = TopManager.getDefault ().getRepository ().getDefaultFileSystem ();
+            FileSystem dfs = Repository.getDefault ().getDefaultFileSystem ();
             FileObject[] fos = dfs.getRoot ().getChildren ();
             DataFolder jndiDataFolder = null;
             for (int i = 0; i < fos.length; i ++)
