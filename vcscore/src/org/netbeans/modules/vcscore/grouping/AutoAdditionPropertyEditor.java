@@ -39,7 +39,7 @@ public class AutoAdditionPropertyEditor extends PropertyEditorSupport {
     private final static String ASK = bundle.getString("AutoAddition.ask"); // NOI18N
 
     /** array of hosts */
-    private static final String[] modes = {MANUAL, TO_DEFAULT, ASK};
+    private static final String[] modes = {MANUAL, TO_DEFAULT};
 
     /** @return names of the supported LookAndFeels */
     public String[] getTags() {
