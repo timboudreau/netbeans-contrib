@@ -47,7 +47,10 @@ public class CvsPreCheckoutFolder extends Object implements VcsAdditionalCommand
                         CommandDataOutputListener stdoutListener, String dataRegex,
                         CommandDataOutputListener stderrListener, String errorRegex) {
                             
-        String root = (String) vars.get("ROOTDIR");
+        String root = (String) vars.get("CHECKOUT_ROOTDIR"); // For CHECKOUT_IMPORTED global command
+        if (root == null) {
+            root = (String) vars.get("ROOTDIR");
+        }
         String dir = (String) vars.get("DIR");
         String file = (String) vars.get("FILE");
         // Do nothing when we're not in root.
