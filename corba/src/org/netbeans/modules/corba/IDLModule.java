@@ -24,8 +24,6 @@ import com.netbeans.developer.modules.loaders.java.settings.ExternalCompilerSett
 import org.openide.execution.NbProcessDescriptor;
 
 import org.openide.TopManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileSystem;
 
 import java.util.Vector;
@@ -48,228 +46,24 @@ public class IDLModule implements ModuleInstall {
    
    /** Module installed for the first time. */
    public void installed() {
-      if (DEBUG)
-	 System.err.println ("CORBA Support Module installing...");
+        if (DEBUG) System.err.println ("CORBA Support Module installing...");
       copyImpls ();
       copyTemplates ();
+
       restored ();
-      if (DEBUG)
-	 System.err.println ("CORBA Support Module installed :)");
+        if (DEBUG) System.err.println ("CORBA Support Module installed :)");
    }
 
-   public void copyImpls () {
-
-      String[] list_of_files = {"orbacus.impl", "javaorb.impl", "visibroker.impl", "orbixweb.impl",
-				"jacorb.impl", "jdk1.2-orb.impl", "orbacus-for-windows.impl"};
-      String _package =   "/com/netbeans/enterprise/modules/corba/impl";
-      TopManager tm = TopManager.getDefault ();
-      
-      try {
-	 Enumeration folders = tm.getRepository ().getDefaultFileSystem ().getRoot ().getFolders 
-	    (false);
-	 boolean is_corba = false;
-	 FileObject fo = null;
-	 for (int i=1; folders.hasMoreElements (); ) {
-	    fo = (FileObject)folders.nextElement ();
-	    if (fo.toString ().equals ("CORBA")) {
-	       // it exists 
-	       if (DEBUG)
-		  System.out.println ("CORBA exists :-)");
-	       is_corba = true;
-	       break;
-	    }
-	 }
-	 if (!is_corba) {
-
-	    FileObject system = tm.getRepository ().getDefaultFileSystem ().getRoot ();
-	    fo = system.createFolder ("CORBA");
-	 }
-
-	 if (fo.getChildren ().length == 0) {
-	    // copy of implementations files
-	    for (int i=0; i<list_of_files.length; i++) {
-	       FileObject tmp_file = fo.createData (getFileName (list_of_files[i]), 
-						    getFileExt (list_of_files[i]));
-	       FileLock lock = tmp_file.lock ();
-	       OutputStream o = tmp_file.getOutputStream (lock);
-	       if (DEBUG)
-		  System.out.println ("file: " + tmp_file );
-	       PrintStream out = new PrintStream (o);
-	       //String name = _package + "." + list_of_files[i];
-	       String name = _package + "/" + list_of_files[i];
-	       if (DEBUG)
-		  System.out.println ("name: " + name);
-	       InputStream input = CORBASupportSettings.class.getResourceAsStream 
-		  (name);
-	       
-	       if (input == null) {
-		  System.err.println ("can't find " + name + " resource.");
-		  continue;
-	       }
-	       BufferedReader in = new BufferedReader (new InputStreamReader (input));
-	       String tmp;
-	       try {
-		  while ((tmp = in.readLine ()) != null) {
-		     out.println (tmp);
-		  }
-	       } catch (IOException e) {
-		  e.printStackTrace ();
-	       }
-	       
-	    }
-	 }
-	 else {
-	    if (DEBUG)
-	       System.out.println ("in system/CORBA exists files :-)");
-	 }
-      } catch (IOException e) {
-	 e.printStackTrace ();
-      }
-   }
-
-
-   public String[] getFileNameAndExt (String name) {
-      int index = name.lastIndexOf (".", 0);
-      String[] retval = new String[2];
-      retval[0] = new String (name.substring (0, index));
-      retval[1] = new String (name.substring (index+1, name.length ()));
-      if (DEBUG) {
-	 System.out.println ("name: " + retval[0]);
-	 System.out.println ("ext: " + retval[1]);
-      }
-      return retval;
-   }
-
-   public String getFileName (String name) {
-      if (DEBUG)
-	 System.out.println ("orig: " + name);
-      String retval = name.substring (0, name.lastIndexOf ('.'));
-      if (DEBUG)
-	 System.out.println ("name: " + retval);
-      return retval;
-   }
-
-   public String getFileNameWithoutTemplate (String name) {
-      if (DEBUG)
-	 System.out.println ("orig: " + name);
-      String retval = name.substring (0, name.lastIndexOf ('.'));
-      if (DEBUG)
-	 System.out.println ("name: " + retval);
-      return retval;
-   }
-
-   public String getFileExt (String name) {
-      if (DEBUG)
-         System.out.println ("orig: " + name);
-      String retval = name.substring (name.lastIndexOf ('.')+1, name.length ());
-      if (DEBUG)
-	 System.out.println ("ext: " + retval);
-      return retval;
-   }
-
-   
-   public void copyTemplates () {
-
-      String[] list_of_templates     = {"Empty.idl.template", "Simple.idl.template", 
-					"SimpleInterface.idl.template", "ClientMain.java.template",
-					"ServerMain.java.template"};
-      String _package =   "/com/netbeans/enterprise/modules/corba/templates";
-      TopManager tm = TopManager.getDefault ();
-      
-      FileObject templates = null;
-
-      templates = tm.getRepository ().getDefaultFileSystem ().getRoot ().getFileObject 
-	    ("Templates"); 
-      if (templates == null)
-	 System.err.println ("can't find system/Templates folder!");
-
-      FileObject fo = null;
-	 /*
-	 boolean is_corba = false;
-	 for (int i=1; folders.hasMoreElements (); ) {
-	    fo = (FileObject)folders.nextElement ();
-	    if (fo.toString ().equals ("CORBA")) {
-	       // it exists 
-	       if (DEBUG)
-		  System.out.println ("CORBA exists :-)");
-	       is_corba = true;
-	       break;
-	    }
-	 }
-	 */
-
-      boolean is_corba = false;
-      boolean error = false;
-	
-      try {
-	 if (templates != null) {
-	    fo = templates.createFolder ("CORBA");
-	    is_corba = true;
-	 }
-      } catch (IOException e) {
-	 error = true;
-      }
-   
-      if (error) {
-	 fo = templates.getFileObject ("CORBA");
-	 if (fo != null)
-	    is_corba = true;
-	 else {
-	    System.err.println ("can't create folder system/Templates/CORBA !");
-	    return;
-	 }
-      }
-      try {
-	 if (fo.getChildren ().length == 0) {
-	    // copy of Templates
-	    for (int i=0; i<list_of_templates.length; i++) {
-	       FileObject tmp_file 
-		  = fo.createData (getFileName (getFileNameWithoutTemplate (list_of_templates[i])),
-		  getFileExt (getFileNameWithoutTemplate (list_of_templates[i])));
-	       DataObject.find (tmp_file).setTemplate (true);
-	       FileLock lock = tmp_file.lock ();
-	       OutputStream o = tmp_file.getOutputStream (lock);
-	       if (DEBUG)
-		  System.out.println ("file: " + tmp_file );
-	       PrintStream out = new PrintStream (o);
-	       //String name = _package + "." + list_of_files[i];
-	       String name = _package + "/" + list_of_templates[i];
-	       if (DEBUG)
-		  System.out.println ("name: " + name);
-	       InputStream input = CORBASupportSettings.class.getResourceAsStream 
-		  (name);
-	       
-	       if (input == null) {
-		  System.err.println ("can't find " + name + " resource.");
-		  continue;
-	       }
-	       BufferedReader in = new BufferedReader (new InputStreamReader (input));
-	       String tmp;
-	       try {
-		  while ((tmp = in.readLine ()) != null) {
-		     out.println (tmp);
-		  }
-	       } catch (IOException e) {
-		  e.printStackTrace ();
-	       }
-	    }
-	 }
-      } catch (IOException e) {
-	 System.err.println ("unexpected error!");
-      }
-	    
-   }
 
    /** Module installed again. */
    public void restored() {
-      if (DEBUG)
-	 System.out.println ("CORBA Support Module restoring...");
+        if (DEBUG) System.out.println ("CORBA Support Module restoring...");
       //System.out.println ("setting template map :))");
 
       Compiler.Manager.register (IDLDataObject.class, new Compiler.Manager () {
-	 public void prepareJob (CompilerJob job, Class type, DataObject ido) {
-	    ((IDLDataObject)ido).createCompiler (job, type);
-	 }
+        public void prepareJob (CompilerJob job, Class type, DataObject ido) {
+          ((IDLDataObject)ido).createCompiler (job, type);
+        }
       });
 
       /*
@@ -478,10 +272,36 @@ public class IDLModule implements ModuleInstall {
       return true; // agree to close
    }
    
+// -----------------------------------------------------------------------------
+// Private methods
+  
+  private void copyTemplates () {
+    try {
+      org.openide.filesystems.FileUtil.extractJar (
+        org.openide.TopManager.getDefault ().getPlaces ().folders().templates ().getPrimaryFile (),
+        getClass ().getClassLoader ().getResourceAsStream ("com/netbeans/enterprise/modules/corba/resources/templates.jar")
+      );
+    } catch (java.io.IOException e) {
+      org.openide.TopManager.getDefault ().notifyException (e);
+    }
+  }
+
+  private void copyImpls () {
+    try {
+      org.openide.filesystems.FileUtil.extractJar (
+        org.openide.TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot (),
+        getClass ().getClassLoader ().getResourceAsStream ("com/netbeans/enterprise/modules/corba/resources/impls.jar")
+      );
+    } catch (java.io.IOException e) {
+      org.openide.TopManager.getDefault ().notifyException (e);
+    }
+  }
 }
 
 /*
  * <<Log>>
+ *  13   Gandalf   1.12        6/10/99  Ian Formanek    Modified copying 
+ *       templates and impls on install
  *  12   Gandalf   1.11        6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
  *  11   Gandalf   1.10        6/4/99   Karel Gardas    
