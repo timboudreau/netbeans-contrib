@@ -123,6 +123,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     private transient VariableInputDescriptor[] configInputDescriptors;
     private transient VariableInputComponent rootDirInputComponent;
     
+    /** A lock for the synchronized access to properties of the filesystem */
+    private transient Object fsChangeLock = new Object();
+    
     //private static transient FileLock configSaveLock = FileLock.NONE;
 
     static final long serialVersionUID = -8801742771957370172L;
@@ -1399,14 +1402,16 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     private void loadConfig(String profileName, String label) {
         if(!label.equals (fileSystem.getConfig ())) {
             Profile profile = ProfilesFactory.getDefault().getProfile(profileName);
-            fileSystem.setProfile(profile);
-            if (profile != null) {
-                initLastConditionValues();
-                String autoFillVarsStr = (String) fileSystem.getVariablesAsHashtable().get(VAR_AUTO_FILL);
-                if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
-                else autoFillVars.clear();
-            } else {
-                autoFillVars.clear();
+            synchronized (fsChangeLock) {
+                fileSystem.setProfile(profile);
+                if (profile != null) {
+                    initLastConditionValues();
+                    String autoFillVarsStr = (String) fileSystem.getVariablesAsHashtable().get(VAR_AUTO_FILL);
+                    if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
+                    else autoFillVars.clear();
+                } else {
+                    autoFillVars.clear();
+                }
             }
             /*
             Vector variables = cache.getProfileVariables(label);//(Vector) configVariablesByLabel.get(label);
@@ -1602,191 +1607,214 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         //Vector envVariablesRemovedVector = new Vector();
         envVariables.clear();
         envVariablesRemoved.clear();
-        Enumeration vars = fileSystem.getVariables ().elements ();
-        final Hashtable fsVars = fileSystem.getVariablesAsHashtable();
-        String autoFillVarsStr = (String) fsVars.get(VAR_AUTO_FILL);
-        if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
-        else autoFillVars.clear();
-        
-        configInputDescriptors = findConfigInputDescriptors(fsVars);
-        if (configInputDescriptors != null) {
-            //Hashtable dlgVars = new Hashtable(fsVars);
-            synchronized (configInputPanelsLock) {
-                configInputPanels = new VariableInputDialog[configInputDescriptors.length];
-                if (configInputDescriptors.length > 1) {
-                    additionalConfigPanels = new JPanel[configInputDescriptors.length - 1];
-                }
-                for (int i = 0; i < configInputDescriptors.length; i++) {
-                    Hashtable dialogVars = new Hashtable(fsVars);
-                    VariableInputDialog dlg = new VariableInputDialog(new String[] { "" }, configInputDescriptors[i], false, dialogVars, rapidVariablesAssignment);
-                    dlg.setExecutionContext(fileSystem, dialogVars);
-                    dlg.setGlobalInput(null);
-                    dlg.showPromptEach(false);
-                    java.awt.GridBagConstraints gridBagConstraints;
-                    gridBagConstraints = new java.awt.GridBagConstraints();
-                    if (i == 0) {
-                        gridBagConstraints.gridx = 0;
-                        gridBagConstraints.gridy = 4;
-                        gridBagConstraints.gridwidth = 3;
-                        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
-                        //gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-                        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-                        gridBagConstraints.weightx = 1;
-                        gridBagConstraints.weighty = 1;
-                        propsPanel.add(dlg.getVariableInputPanel(), gridBagConstraints);
-                    } else {
-                        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
-                        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-                        gridBagConstraints.weightx = 1;
-                        gridBagConstraints.weighty = 1;
-                        JPanel panel = new JPanel(new java.awt.GridBagLayout());
-                        panel.add(dlg.getVariableInputPanel(), gridBagConstraints);
-                        jTabbedPane1.insertTab(configInputDescriptors[i].getLabel(), null, panel, null, i);
-                        additionalConfigPanels[i - 1] = panel;
+        synchronized (fsChangeLock) {
+            Enumeration vars = fileSystem.getVariables ().elements ();
+            final Hashtable fsVars = fileSystem.getVariablesAsHashtable();
+            String autoFillVarsStr = (String) fsVars.get(VAR_AUTO_FILL);
+            if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
+            else autoFillVars.clear();
+
+            configInputDescriptors = findConfigInputDescriptors(fsVars);
+            if (configInputDescriptors != null) {
+                //Hashtable dlgVars = new Hashtable(fsVars);
+                synchronized (configInputPanelsLock) {
+                    configInputPanels = new VariableInputDialog[configInputDescriptors.length];
+                    if (configInputDescriptors.length > 1) {
+                        additionalConfigPanels = new JPanel[configInputDescriptors.length - 1];
                     }
-                    configInputPanels[i] = dlg;
-                    dlg.addPropertyChangeListener(new PropertyChangeListener() {
-                        public void propertyChange(PropertyChangeEvent evt) {
-                            String name = evt.getPropertyName();
-                            if (name.equals(VariableInputDialog.PROP_VARIABLES_CHANGED)) {
-                                Collection changedProps = (Collection) evt.getNewValue();
-                                variablesChanged(changedProps, fsVars);
-                                return ;
-                            }
-                            // If propagation ID is defined, the var value should not be reset.
-                            if (evt.getPropagationId() != null) return ;
-                            if (name.startsWith(VariableInputDialog.PROP_VAR_CHANGED)) {
-                                String varName = name.substring(VariableInputDialog.PROP_VAR_CHANGED.length());
-                                variableChanged(varName, (String) evt.getOldValue(), (String) evt.getNewValue(), fsVars);
-                            }
+                    for (int i = 0; i < configInputDescriptors.length; i++) {
+                        Hashtable dialogVars = new Hashtable(fsVars);
+                        VariableInputDialog dlg = new VariableInputDialog(new String[] { "" }, configInputDescriptors[i], false, dialogVars, rapidVariablesAssignment);
+                        dlg.setExecutionContext(fileSystem, dialogVars);
+                        dlg.setGlobalInput(null);
+                        dlg.showPromptEach(false);
+                        java.awt.GridBagConstraints gridBagConstraints;
+                        gridBagConstraints = new java.awt.GridBagConstraints();
+                        if (i == 0) {
+                            gridBagConstraints.gridx = 0;
+                            gridBagConstraints.gridy = 4;
+                            gridBagConstraints.gridwidth = 3;
+                            gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+                            //gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+                            gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+                            gridBagConstraints.weightx = 1;
+                            gridBagConstraints.weighty = 1;
+                            propsPanel.add(dlg.getVariableInputPanel(), gridBagConstraints);
+                        } else {
+                            gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
+                            gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+                            gridBagConstraints.weightx = 1;
+                            gridBagConstraints.weighty = 1;
+                            JPanel panel = new JPanel(new java.awt.GridBagLayout());
+                            panel.add(dlg.getVariableInputPanel(), gridBagConstraints);
+                            jTabbedPane1.insertTab(configInputDescriptors[i].getLabel(), null, panel, null, i);
+                            additionalConfigPanels[i - 1] = panel;
                         }
-                    });
+                        configInputPanels[i] = dlg;
+                        dlg.addPropertyChangeListener(new PropertyChangeListener() {
+                            public void propertyChange(PropertyChangeEvent evt) {
+                                String name = evt.getPropertyName();
+                                if (name.equals(VariableInputDialog.PROP_VARIABLES_CHANGED)) {
+                                    Collection changedProps = (Collection) evt.getNewValue();
+                                    variablesChanged(changedProps, fsVars);
+                                    return ;
+                                }
+                                // If propagation ID is defined, the var value should not be reset.
+                                if (evt.getPropagationId() != null) return ;
+                                if (name.startsWith(VariableInputDialog.PROP_VAR_CHANGED)) {
+                                    String varName = name.substring(VariableInputDialog.PROP_VAR_CHANGED.length());
+                                    variableChanged(varName, (String) evt.getOldValue(), (String) evt.getNewValue(), fsVars);
+                                }
+                            }
+                        });
+                    }
                 }
             }
-        }
-        jLabel2.setVisible(configInputDescriptors == null);
-        rootDirTextField.setVisible(configInputDescriptors == null);
-        browseButton.setVisible(configInputDescriptors == null && useWizardDescriptors);
-        fsVarsByName = new HashMap();
-        while (vars.hasMoreElements ()) {
-            VcsConfigVariable var = (VcsConfigVariable) vars.nextElement ();
-            fsVarsByName.put(var.getName(), var);
-            if (configInputPanels == null && var.isBasic ()) {
-                JLabel lb;
-                JTextField tf;
-                JButton button = null;
-                lb = new JLabel ();
-                tf = new JTextField ();
-                varLabels.add (lb);
-                varTextFields.add (tf);
+            jLabel2.setVisible(configInputDescriptors == null);
+            rootDirTextField.setVisible(configInputDescriptors == null);
+            browseButton.setVisible(configInputDescriptors == null && useWizardDescriptors);
+            fsVarsByName = new HashMap();
+            while (vars.hasMoreElements ()) {
+                VcsConfigVariable var = (VcsConfigVariable) vars.nextElement ();
+                fsVarsByName.put(var.getName(), var);
+                if (configInputPanels == null && var.isBasic ()) {
+                    JLabel lb;
+                    JTextField tf;
+                    JButton button = null;
+                    lb = new JLabel ();
+                    tf = new JTextField ();
+                    varLabels.add (lb);
+                    varTextFields.add (tf);
 
-                java.awt.GridBagConstraints gridBagConstraints1;
-                gridBagConstraints1 = new java.awt.GridBagConstraints ();
-                gridBagConstraints1.gridx = 0;
-                gridBagConstraints1.gridy = varLabels.size () + 4;
-                gridBagConstraints1.insets = new java.awt.Insets (0, 0, 5, 12);
-                gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-                gridBagConstraints1.weightx = 0;
-                propsPanel.add (lb, gridBagConstraints1);
-                tf.addActionListener (new java.awt.event.ActionListener () {
-                                          public void actionPerformed (java.awt.event.ActionEvent evt) {
-                                              if (rapidVariablesAssignment) {
-                                                  synchronized (fieldBeingRapidlyAssignedLock) {
-                                                      if (fieldBeingRapidlyAssigned == evt.getSource()) {
-                                                          fieldBeingRapidlyAssigned = null;
+                    java.awt.GridBagConstraints gridBagConstraints1;
+                    gridBagConstraints1 = new java.awt.GridBagConstraints ();
+                    gridBagConstraints1.gridx = 0;
+                    gridBagConstraints1.gridy = varLabels.size () + 4;
+                    gridBagConstraints1.insets = new java.awt.Insets (0, 0, 5, 12);
+                    gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+                    gridBagConstraints1.weightx = 0;
+                    propsPanel.add (lb, gridBagConstraints1);
+                    tf.addActionListener (new java.awt.event.ActionListener () {
+                                              public void actionPerformed (java.awt.event.ActionEvent evt) {
+                                                  if (rapidVariablesAssignment) {
+                                                      synchronized (fieldBeingRapidlyAssignedLock) {
+                                                          if (fieldBeingRapidlyAssigned == evt.getSource()) {
+                                                              fieldBeingRapidlyAssigned = null;
+                                                          }
                                                       }
                                                   }
+                                                  variableChanged (evt);
                                               }
-                                              variableChanged (evt);
                                           }
-                                      }
-                                     );
-                tf.addFocusListener (new java.awt.event.FocusAdapter () {
-                                         public void focusLost (java.awt.event.FocusEvent evt) {
-                                             if (rapidVariablesAssignment) {
-                                                 synchronized (fieldBeingRapidlyAssignedLock) {
-                                                     if (fieldBeingRapidlyAssigned == evt.getSource()) {
-                                                         fieldBeingRapidlyAssigned = null;
+                                         );
+                    tf.addFocusListener (new java.awt.event.FocusAdapter () {
+                                             public void focusLost (java.awt.event.FocusEvent evt) {
+                                                 if (rapidVariablesAssignment) {
+                                                     synchronized (fieldBeingRapidlyAssignedLock) {
+                                                         if (fieldBeingRapidlyAssigned == evt.getSource()) {
+                                                             fieldBeingRapidlyAssigned = null;
+                                                         }
                                                      }
                                                  }
+                                                 variableChanged (evt);
                                              }
-                                             variableChanged (evt);
                                          }
-                                     }
-                                    );
-                if (rapidVariablesAssignment) {
-                    tf.getDocument().addDocumentListener(new RapidDocumentChangeListener(tf));
-                }
+                                        );
+                    if (rapidVariablesAssignment) {
+                        tf.getDocument().addDocumentListener(new RapidDocumentChangeListener(tf));
+                    }
 
-                gridBagConstraints1.gridx = 1;
-                gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-                gridBagConstraints1.insets = new java.awt.Insets (0, 0, 5, 5);
-                gridBagConstraints1.weightx = 1;
-                propsPanel.add (tf, gridBagConstraints1);
-                varVariables.add (var);
-                String varLabel = var.getLabel ().trim ();
-                if(!varLabel.endsWith (":")) varLabel += ":"; // NOI18N
-                lb.setText (varLabel);
-                tf.setText (var.getValue ());
-                tf.setToolTipText(varLabel);
-                tf.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(VcsCustomizer.class, "ACS_VcsCustomizer.varTextField.textA11yDesc", varLabel));
-                lb.setLabelFor(tf);
-                if (var.getLabelMnemonic() != null) {
-                    lb.setDisplayedMnemonic(var.getLabelMnemonic().charValue());
-                }
-                    if (var.getA11yName() != null)
-                        tf.getAccessibleContext().setAccessibleName(var.getA11yName());
-                    if (var.getA11yDescription() != null)
-                        tf.getAccessibleContext().setAccessibleDescription(var.getA11yDescription());
-                if (var.isLocalFile ()) {
-                    button = new JButton ();
-                    button.addActionListener (new BrowseLocalFile (tf));
-                    button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.browseButton.text"));
-                    button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.browseButtonFile.textA11yDesc"));
-                } else if (var.isLocalDir ()) {
-                    button = new JButton ();
-                    button.addActionListener (new BrowseLocalDir (tf));
-                    button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.browseButton.text"));
-                    button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.browseButtonDir.textA11yDesc"));
-                }
-                String selector = var.getCustomSelector();
-                if (selector != null && selector.length() > 0) {
-                    button = new JButton ();
-                    button.addActionListener (new RunCustomSelector (tf, var));
-                    button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.selectButton.text"));
-                    button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.selectButton.textA11yDesc"));
-                }
-                if (button != null) {
-                    button.setToolTipText(button.getText());
-                    gridBagConstraints1.gridx = 2;
+                    gridBagConstraints1.gridx = 1;
                     gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-                    gridBagConstraints1.weightx = 0;
-                    gridBagConstraints1.insets = new java.awt.Insets (0, 0, 5, 0);
-                    propsPanel.add (button, gridBagConstraints1);
+                    gridBagConstraints1.insets = new java.awt.Insets (0, 0, 5, 5);
+                    gridBagConstraints1.weightx = 1;
+                    propsPanel.add (tf, gridBagConstraints1);
+                    varVariables.add (var);
+                    String varLabel = var.getLabel ().trim ();
+                    if(!varLabel.endsWith (":")) varLabel += ":"; // NOI18N
+                    lb.setText (varLabel);
+                    tf.setText (var.getValue ());
+                    tf.setToolTipText(varLabel);
+                    tf.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(VcsCustomizer.class, "ACS_VcsCustomizer.varTextField.textA11yDesc", varLabel));
+                    lb.setLabelFor(tf);
+                    if (var.getLabelMnemonic() != null) {
+                        lb.setDisplayedMnemonic(var.getLabelMnemonic().charValue());
+                    }
+                        if (var.getA11yName() != null)
+                            tf.getAccessibleContext().setAccessibleName(var.getA11yName());
+                        if (var.getA11yDescription() != null)
+                            tf.getAccessibleContext().setAccessibleDescription(var.getA11yDescription());
+                    if (var.isLocalFile ()) {
+                        button = new JButton ();
+                        button.addActionListener (new BrowseLocalFile (tf));
+                        button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.browseButton.text"));
+                        button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.browseButtonFile.textA11yDesc"));
+                    } else if (var.isLocalDir ()) {
+                        button = new JButton ();
+                        button.addActionListener (new BrowseLocalDir (tf));
+                        button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.browseButton.text"));
+                        button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.browseButtonDir.textA11yDesc"));
+                    }
+                    String selector = var.getCustomSelector();
+                    if (selector != null && selector.length() > 0) {
+                        button = new JButton ();
+                        button.addActionListener (new RunCustomSelector (tf, var));
+                        button.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.selectButton.text"));
+                        button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.selectButton.textA11yDesc"));
+                    }
+                    if (button != null) {
+                        button.setToolTipText(button.getText());
+                        gridBagConstraints1.gridx = 2;
+                        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+                        gridBagConstraints1.weightx = 0;
+                        gridBagConstraints1.insets = new java.awt.Insets (0, 0, 5, 0);
+                        propsPanel.add (button, gridBagConstraints1);
+                    }
+                    varButtons.add (button);
+                    VcsUtilities.removeEnterFromKeymap(tf);
                 }
-                varButtons.add (button);
-                VcsUtilities.removeEnterFromKeymap(tf);
+                if (var.getName().startsWith(VcsFileSystem.VAR_ENVIRONMENT_PREFIX)) {
+                    String name = var.getName().substring(VcsFileSystem.VAR_ENVIRONMENT_PREFIX.length());
+                    //Vector row = new Vector(2);
+                    //row.add(name);
+                    //row.add(var.getValue());
+                    //envVariablesVector.add(row);
+                    ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).addRow(new String[] { name, var.getValue() });
+                    envVariables.put(name, var);
+                    int row = envTableModel.getRowCount() - 1;
+                    javax.swing.table.TableCellEditor editor = envTable.getCellEditor(row, 1);
+                    editor.addCellEditorListener(new EnvCellEditorListener(name, row, 1));
+                }
+                if (var.getName().startsWith(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX)) {
+                    String name = var.getName().substring(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX.length());
+                    //envTableModel.addRow(new String[] { name, var.getValue() });
+                    envVariablesRemoved.put(name, var);
+                    //int row = envTableModel.getRowCount() - 1;
+                    //javax.swing.table.TableCellEditor editor = envTable.getCellEditor(row, 1);
+                    //editor.addCellEditorListener(new EnvCellEditorListener(name, row, 1));
+                }
             }
-            if (var.getName().startsWith(VcsFileSystem.VAR_ENVIRONMENT_PREFIX)) {
-                String name = var.getName().substring(VcsFileSystem.VAR_ENVIRONMENT_PREFIX.length());
-                //Vector row = new Vector(2);
-                //row.add(name);
-                //row.add(var.getValue());
-                //envVariablesVector.add(row);
-                ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).addRow(new String[] { name, var.getValue() });
-                envVariables.put(name, var);
-                int row = envTableModel.getRowCount() - 1;
-                javax.swing.table.TableCellEditor editor = envTable.getCellEditor(row, 1);
-                editor.addCellEditorListener(new EnvCellEditorListener(name, row, 1));
+            VariableInputDialog[] cip = null;
+            synchronized (configInputPanelsLock) {
+                if (configInputPanels != null) {
+                    cip = new VariableInputDialog[configInputPanels.length];
+                    System.arraycopy(configInputPanels, 0, cip, 0, configInputPanels.length);
+                }
             }
-            if (var.getName().startsWith(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX)) {
-                String name = var.getName().substring(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX.length());
-                //envTableModel.addRow(new String[] { name, var.getValue() });
-                envVariablesRemoved.put(name, var);
-                //int row = envTableModel.getRowCount() - 1;
-                //javax.swing.table.TableCellEditor editor = envTable.getCellEditor(row, 1);
-                //editor.addCellEditorListener(new EnvCellEditorListener(name, row, 1));
+            if (cip != null) {
+                Hashtable dialogVars = new Hashtable(fsVars);
+                for (int i = 0; i < cip.length; i++) {
+                    cip[i].updateVariableValues(dialogVars);
+                }
             }
+            if (doAutoFillVars) {
+                for (Iterator it = autoFillVars.values().iterator(); it.hasNext(); ) {
+                    String cmd = (String) it.next();
+                    autoFillVariables(cmd);
+                }
+            }
+            updateConditionalValues();
+            updateAdvancedConfig();
         }
         Map systemEnvVars = VcsUtilities.getSystemEnvVars();
         int row = 0;
@@ -1812,119 +1840,102 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 VcsUtilities.centerWindow(window);
             }
         }
-        VariableInputDialog[] cip = null;
-        synchronized (configInputPanelsLock) {
-            if (configInputPanels != null) {
-                cip = new VariableInputDialog[configInputPanels.length];
-                System.arraycopy(configInputPanels, 0, cip, 0, configInputPanels.length);
-            }
-        }
-        if (cip != null) {
-            Hashtable dialogVars = new Hashtable(fsVars);
-            for (int i = 0; i < cip.length; i++) {
-                cip[i].updateVariableValues(dialogVars);
-            }
-        }
-        if (doAutoFillVars) {
-            for (Iterator it = autoFillVars.values().iterator(); it.hasNext(); ) {
-                String cmd = (String) it.next();
-                autoFillVariables(cmd);
-            }
-        }
-        updateConditionalValues();
-        updateAdvancedConfig();
     }
     
     private void variablesChanged(Collection changedProps, Hashtable fsVars) {
         //System.out.println("VcsCustomizer.variablesChanged("+changedProps.size()+")");
-        Vector vars = fileSystem.getVariables();
-        Set autoFillCommands = null;
-        for (Iterator it = changedProps.iterator(); it.hasNext(); ) {
-            PropertyChangeEvent evt = (PropertyChangeEvent) it.next();
-            // If propagation ID is defined, the var value should not be reset.
-            if (evt.getPropagationId() != null) continue ;
-            String name = evt.getPropertyName();
-            if (name.startsWith(VariableInputDialog.PROP_VAR_CHANGED)) {
-                String varName = name.substring(VariableInputDialog.PROP_VAR_CHANGED.length());
-                //variableChanged(varName, (String) evt.getOldValue(), (String) evt.getNewValue(), fsVars);
-                String newValue = (String) evt.getNewValue();
-                VcsConfigVariable var = (VcsConfigVariable) fsVarsByName.get(varName);
-                if (var == null) {
-                    var = new VcsConfigVariable(varName, null, newValue, false, false, false, null);
-                    vars.add(var);
-                    fsVarsByName.put(varName, var);
-                } else {
-                    var.setValue(newValue);
-                }
-                //System.out.println("  "+varName+"='"+newValue+"', fsVars = '"+fsVars.get(varName)+"'");
-                if (!resetEqualFSVars && !newValue.equals(fsVars.get(varName))) {
-                    fsVars.put(varName, newValue);
-                    if (!setSpecialProperties(varName, newValue, fsVars)) {
-                        String cmd = (String) autoFillVars.get(varName);
-                        if (cmd != null) {
-                            if (autoFillCommands == null) {
-                                autoFillCommands = new HashSet();
+        synchronized (fsChangeLock) {
+            Vector vars = fileSystem.getVariables();
+            Set autoFillCommands = null;
+            for (Iterator it = changedProps.iterator(); it.hasNext(); ) {
+                PropertyChangeEvent evt = (PropertyChangeEvent) it.next();
+                // If propagation ID is defined, the var value should not be reset.
+                if (evt.getPropagationId() != null) continue ;
+                String name = evt.getPropertyName();
+                if (name.startsWith(VariableInputDialog.PROP_VAR_CHANGED)) {
+                    String varName = name.substring(VariableInputDialog.PROP_VAR_CHANGED.length());
+                    //variableChanged(varName, (String) evt.getOldValue(), (String) evt.getNewValue(), fsVars);
+                    String newValue = (String) evt.getNewValue();
+                    VcsConfigVariable var = (VcsConfigVariable) fsVarsByName.get(varName);
+                    if (var == null) {
+                        var = new VcsConfigVariable(varName, null, newValue, false, false, false, null);
+                        vars.add(var);
+                        fsVarsByName.put(varName, var);
+                    } else {
+                        var.setValue(newValue);
+                    }
+                    //System.out.println("  "+varName+"='"+newValue+"', fsVars = '"+fsVars.get(varName)+"'");
+                    if (!resetEqualFSVars && !newValue.equals(fsVars.get(varName))) {
+                        fsVars.put(varName, newValue);
+                        if (!setSpecialProperties(varName, newValue, fsVars)) {
+                            String cmd = (String) autoFillVars.get(varName);
+                            if (cmd != null) {
+                                if (autoFillCommands == null) {
+                                    autoFillCommands = new HashSet();
+                                }
+                                autoFillCommands.add(cmd);
                             }
-                            autoFillCommands.add(cmd);
                         }
                     }
                 }
             }
-        }
-        fileSystem.setVariables(vars);
-        if (autoFillCommands != null) {
-            for (Iterator it = autoFillCommands.iterator(); it.hasNext(); ) {
-                String cmd = (String) it.next();
-                autoFillVariables(cmd);
+            fileSystem.setVariables(vars);
+            if (autoFillCommands != null) {
+                for (Iterator it = autoFillCommands.iterator(); it.hasNext(); ) {
+                    String cmd = (String) it.next();
+                    autoFillVariables(cmd);
+                }
             }
+            updateConditionalValues();
         }
-        updateConditionalValues();
     }
     
     private void variableChanged (String varName, String oldValue, String newValue, Hashtable fsVars) {
         //System.out.println("VcsCustomizer.variableChanged("+varName+", "+oldValue+" => "+newValue+".");
-        VcsConfigVariable var;
-        if (fsVars == null) {
-            //fsVarsByName = new HashMap();
+        synchronized (fsChangeLock) {
+            VcsConfigVariable var;
+            if (fsVars == null) {
+                //fsVarsByName = new HashMap();
+                Vector vars = fileSystem.getVariables();
+                Enumeration vare = vars.elements ();
+                boolean set = false;
+                while (vare.hasMoreElements ()) {
+                    var = (VcsConfigVariable) vare.nextElement ();
+                    //fsVarsByName.put(var.getName(), var);
+                    if (varName.equals(var.getName())) {
+                        var.setValue(newValue);
+                        set = true;
+                        break;
+                    }
+                }
+                if (!set) {
+                    vars.add(new VcsConfigVariable(varName, null, newValue, false, false, false, null));
+                }
+                fileSystem.setVariables(vars);
+                updateConditionalValues();
+                return ;
+            }
+            var = (VcsConfigVariable) fsVarsByName.get(varName);
+            if (!resetEqualFSVars && var != null && newValue.equals(var.getValue())) return ;
             Vector vars = fileSystem.getVariables();
-            Enumeration vare = vars.elements ();
-            boolean set = false;
-            while (vare.hasMoreElements ()) {
-                var = (VcsConfigVariable) vare.nextElement ();
-                //fsVarsByName.put(var.getName(), var);
-                if (varName.equals(var.getName())) {
-                    var.setValue(newValue);
-                    set = true;
-                    break;
+            //System.out.println("variable changed: "+varName+" = '"+newValue+"'");
+            if (var == null) {
+                var = new VcsConfigVariable(varName, null, newValue, false, false, false, null);
+                vars.add(var);
+                fsVarsByName.put(varName, var);
+            } else {
+                var.setValue(newValue);
+            }
+            fsVars.put(varName, newValue);
+            fileSystem.setVariables(vars);
+            if (!setSpecialProperties(varName, newValue, fsVars)) {
+                String cmd = (String) autoFillVars.get(varName);
+                if (cmd != null) {
+                    autoFillVariables(cmd);
                 }
             }
-            if (!set) {
-                vars.add(new VcsConfigVariable(varName, null, newValue, false, false, false, null));
-            }
-            fileSystem.setVariables(vars);
             updateConditionalValues();
-            return ;
         }
-        var = (VcsConfigVariable) fsVarsByName.get(varName);
-        if (!resetEqualFSVars && var != null && newValue.equals(var.getValue())) return ;
-        Vector vars = fileSystem.getVariables();
-        //System.out.println("variable changed: "+varName+" = '"+newValue+"'");
-        if (var == null) {
-            var = new VcsConfigVariable(varName, null, newValue, false, false, false, null);
-            vars.add(var);
-            fsVarsByName.put(varName, var);
-        } else {
-            var.setValue(newValue);
-        }
-        fsVars.put(varName, newValue);
-        fileSystem.setVariables(vars);
-        if (!setSpecialProperties(varName, newValue, fsVars)) {
-            String cmd = (String) autoFillVars.get(varName);
-            if (cmd != null) {
-                autoFillVariables(cmd);
-            }
-        }
-        updateConditionalValues();
     }
     
     private boolean setSpecialProperties(String varName, String newValue, Hashtable fsVars) {
@@ -1947,27 +1958,29 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     private void variableChanged (java.awt.AWTEvent evt) {
         JTextField tf = (JTextField) evt.getSource ();
         VcsConfigVariable var=null;
-        for(int i=0; i<varTextFields.size () && var==null; i++) {
-            if(tf == varTextFields.get (i)) {
-                var = (VcsConfigVariable) varVariables.get (i);
+        synchronized (fsChangeLock) {
+            for(int i=0; i<varTextFields.size () && var==null; i++) {
+                if(tf == varTextFields.get (i)) {
+                    var = (VcsConfigVariable) varVariables.get (i);
+                }
             }
-        }
-        if(var!=null){
-            var.setValue (tf.getText ().trim());
-            if (var.getName().equals("MODULE")) { // NOI18N
-                /*
-                String value = var.getValue();
-                if (value.length() > 0 && !value.endsWith(File.separator)) value = value.concat(File.separator);
-                var.setValue(value);
-                */
-                rootDirChanged();
+            if(var!=null){
+                var.setValue (tf.getText ().trim());
+                if (var.getName().equals("MODULE")) { // NOI18N
+                    /*
+                    String value = var.getValue();
+                    if (value.length() > 0 && !value.endsWith(File.separator)) value = value.concat(File.separator);
+                    var.setValue(value);
+                    */
+                    rootDirChanged();
+                }
+                // enable fs to react on change in variables
+                fileSystem.setVariables(fileSystem.getVariables());
+                String cmd = (String) autoFillVars.get(var.getName());
+                if (cmd != null) autoFillVariables(cmd);
             }
-            // enable fs to react on change in variables
-            fileSystem.setVariables(fileSystem.getVariables());
-            String cmd = (String) autoFillVars.get(var.getName());
-            if (cmd != null) autoFillVariables(cmd);
+            updateConditionalValues();
         }
-        updateConditionalValues();
     }
     
     private volatile RequestProcessor.Task autoFillTask;
@@ -1993,6 +2006,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         }
         
         public void run() {
+            // Do not synchronize the execution of the command.
+            // If the command would block, the IDE will deadlock.
             Hashtable vars = fileSystem.getVariablesAsHashtable();
             HashMap varsOrig = (configInputPanels != null) ? new HashMap(vars) : null;
             VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
@@ -2004,78 +2019,81 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             } catch (InterruptedException iexc) {
                 return ;
             }
-            if (!useWizardDescriptors) {
-                vars.remove("ROOTDIR"); // Do not change ROOTDIR in customizer
-            }
-            //System.out.println("AUTOFILL FINISHED ("+cmd.getName()+").");
-            VariableValueAdjustment varAdjust = fileSystem.getVarValueAdjustment();
-            Set adjustedNames = varAdjust.getAdjustedVariableNames();
-            int len = varTextFields.size();
-            for (int i = 0; i < len; i++) {
-                VcsConfigVariable var = (VcsConfigVariable) varVariables.get(i);
-                String name = var.getName();
-                String value = (String) vars.get(name);
-                if (value != null) {
-                    if (adjustedNames.contains(name)) {
-                        value = varAdjust.revertAdjustedVarValue(value);
-                    }
-                    JTextField field = (JTextField) varTextFields.get(i);
-                    field.setText(value);
-                    var.setValue(value);
+            synchronized (fsChangeLock) { // Going to change the variables,
+                // do not allow other modifications in the mean time
+                if (!useWizardDescriptors) {
+                    vars.remove("ROOTDIR"); // Do not change ROOTDIR in customizer
                 }
-            }
-            Vector variables = fileSystem.getVariables();            
-            VariableInputDialog[] cip = null;
-            synchronized (configInputPanelsLock) {
-                if (configInputPanels != null) {
-                    cip = new VariableInputDialog[configInputPanels.length];
-                    System.arraycopy(configInputPanels, 0, cip, 0, configInputPanels.length);
-                }
-            }
-            if (cip != null) {
-                for (Iterator it = adjustedNames.iterator(); it.hasNext(); ) {
-                    String name = (String) it.next();
-                    String value = (String) vars.get(name);
-                    if (value != null) {
-                        value = varAdjust.revertAdjustedVarValue(value);
-                        vars.put(name, value);
-                    }
-                }
-                for (int i = 0; i < cip.length; i++) {
-                    cip[i].updateVariableValues(vars);
-                }
-                for (Iterator it = variables.iterator(); it.hasNext(); ) {
-                    VcsConfigVariable var = (VcsConfigVariable) it.next();
+                //System.out.println("AUTOFILL FINISHED ("+cmd.getName()+").");
+                VariableValueAdjustment varAdjust = fileSystem.getVarValueAdjustment();
+                Set adjustedNames = varAdjust.getAdjustedVariableNames();
+                int len = varTextFields.size();
+                for (int i = 0; i < len; i++) {
+                    VcsConfigVariable var = (VcsConfigVariable) varVariables.get(i);
                     String name = var.getName();
                     String value = (String) vars.get(name);
-                    if (value != null && !value.equals(varsOrig.get(name))) {
-                        String oldValue = var.getValue();
-                        if (oldValue != null) {
-                            if (oldValue.indexOf("${") >= 0 || oldValue.indexOf("$[?") >= 0) {
-                                continue; // Skip expandable values, they must not be reset
-                            }
+                    if (value != null) {
+                        if (adjustedNames.contains(name)) {
+                            value = varAdjust.revertAdjustedVarValue(value);
                         }
+                        JTextField field = (JTextField) varTextFields.get(i);
+                        field.setText(value);
                         var.setValue(value);
                     }
                 }
-                /*
-                if (varsOrig != null) {
-                    for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
-                        String name = (String) it.next();
-                        if (!varsOrig.containsKey(name)) {
-                            VcsConfigVariable var = new VcsConfigVariable(name, null, (String) vars.get(name), false, false, false, null);
-                            variables.add(var);
-                            System.out.println("  Adding variable \""+name+"\" = '"+vars.get(name)+"' to fileSystem.");
-                        }
+                Vector variables = fileSystem.getVariables();            
+                VariableInputDialog[] cip = null;
+                synchronized (configInputPanelsLock) {
+                    if (configInputPanels != null) {
+                        cip = new VariableInputDialog[configInputPanels.length];
+                        System.arraycopy(configInputPanels, 0, cip, 0, configInputPanels.length);
                     }
                 }
-                 */
+                if (cip != null) {
+                    for (Iterator it = adjustedNames.iterator(); it.hasNext(); ) {
+                        String name = (String) it.next();
+                        String value = (String) vars.get(name);
+                        if (value != null) {
+                            value = varAdjust.revertAdjustedVarValue(value);
+                            vars.put(name, value);
+                        }
+                    }
+                    for (int i = 0; i < cip.length; i++) {
+                        cip[i].updateVariableValues(vars);
+                    }
+                    for (Iterator it = variables.iterator(); it.hasNext(); ) {
+                        VcsConfigVariable var = (VcsConfigVariable) it.next();
+                        String name = var.getName();
+                        String value = (String) vars.get(name);
+                        if (value != null && !value.equals(varsOrig.get(name))) {
+                            String oldValue = var.getValue();
+                            if (oldValue != null) {
+                                if (oldValue.indexOf("${") >= 0 || oldValue.indexOf("$[?") >= 0) {
+                                    continue; // Skip expandable values, they must not be reset
+                                }
+                            }
+                            var.setValue(value);
+                        }
+                    }
+                    /*
+                    if (varsOrig != null) {
+                        for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
+                            String name = (String) it.next();
+                            if (!varsOrig.containsKey(name)) {
+                                VcsConfigVariable var = new VcsConfigVariable(name, null, (String) vars.get(name), false, false, false, null);
+                                variables.add(var);
+                                System.out.println("  Adding variable \""+name+"\" = '"+vars.get(name)+"' to fileSystem.");
+                            }
+                        }
+                    }
+                     */
+                }
+                // enable fs to react on change in variables
+                fileSystem.setVariables(variables);
+                lastCommandName = null;
+                autoFillTask = null;
+                updateConditionalValues();
             }
-            // enable fs to react on change in variables
-            fileSystem.setVariables(variables);
-            lastCommandName = null;
-            autoFillTask = null;
-            updateConditionalValues();
         }
     }
     
@@ -2085,10 +2103,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
      * did not change.
      */
     private void initLastConditionValues() {
-        Profile profile = fileSystem.getProfile();
-        if (profile == null) return ;
-        ConditionedVariables cVars = profile.getVariables();
-        cVarsUpdater = new ConditionedVariablesUpdater(cVars, fileSystem.getVariablesAsHashtable());
+        synchronized (fsChangeLock) {
+            Profile profile = fileSystem.getProfile();
+            if (profile == null) return ;
+            ConditionedVariables cVars = profile.getVariables();
+            cVarsUpdater = new ConditionedVariablesUpdater(cVars, fileSystem.getVariablesAsHashtable());
+        }
     }
     
     /**
@@ -2098,14 +2118,18 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
      * the variable values only when the condition result actually change.
      */
     private void updateConditionalValues() {
-        //System.out.println("updateConditionalValues()");
-        Profile profile = fileSystem.getProfile();
-        if (profile == null) return ;
-        ConditionedVariables cVars = profile.getVariables();
-        Vector variables = cVarsUpdater.updateConditionalValues(cVars, fileSystem.getVariablesAsHashtable(),
-                                                                fsVarsByName, fileSystem.getVariables());
-        fileSystem.setVariables(variables);
-        updateFinishableState(fileSystem.getVariablesAsHashtable());
+        Hashtable fsVars;
+        synchronized (fsChangeLock) {
+            //System.out.println("updateConditionalValues()");
+            Profile profile = fileSystem.getProfile();
+            if (profile == null) return ;
+            ConditionedVariables cVars = profile.getVariables();
+            Vector variables = cVarsUpdater.updateConditionalValues(cVars, fileSystem.getVariablesAsHashtable(),
+                                                                    fsVarsByName, fileSystem.getVariables());
+            fileSystem.setVariables(variables);
+            fsVars = fileSystem.getVariablesAsHashtable();
+        }
+        updateFinishableState(fsVars);
     }
     
     private transient Boolean lastFinishableState;
