@@ -112,7 +112,7 @@ public class TaskList implements ObservableList, TaskListener {
 //            parent = root;
 //        }
 
-        if (addList != null) {
+        if (addList != null && addList.size()>0) {
             modified = true;
 
             // User insert: prepend to the list

@@ -435,7 +435,7 @@ public final class SuggestionsScanner implements Cancellable {
                     ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
                 }
-                if (l != null) {
+                if (l != null && l.size() > 0) {
                     // XXX ensure that scan returns a homogeneous list of tasks
                     suggestionsCounter += l.size();
                     if (cummulateInList == null) {
