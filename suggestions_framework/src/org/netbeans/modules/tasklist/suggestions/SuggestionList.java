@@ -120,7 +120,7 @@ public class SuggestionList extends TaskList {
             root = getRoot();
         }
         if (task.getParent() == null) {
-            task.setParent(root);
+            root.addSubtask(task);
         }
         Task parent = task.getParent();
         // User insert: prepend to the list
@@ -144,7 +144,7 @@ public class SuggestionList extends TaskList {
             root = getRoot();
         }
         if (task.getParent() == null) {
-            task.setParent(root);
+            root.addSubtask(task);
         }
 
         // it's really funny contruct

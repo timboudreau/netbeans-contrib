@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
+import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -25,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ButtonGroup;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
@@ -102,12 +104,28 @@ class EditTaskPanel extends JPanel implements ActionListener {
         }
     }
     
+    /**
+     * InputVerifier for a JTextField with an integer
+     */
+    private static class IntTextFieldInputVerifier extends InputVerifier {
+        public boolean verify(javax.swing.JComponent input) {
+            String p = ((JTextComponent) input).getText();
+            try {
+                Integer.parseInt(p);
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+    }
+    
+    private static boolean appendDefault = Settings.getDefault().getAppend();
+    
     private SimpleDateFormat format;
     private ComboBoxModel prioritiesModel = 
         new DefaultComboBoxModel(SuggestionPriority.getPriorityNames());
     private ListCellRenderer priorityRenderer = new PriorityListCellRenderer();
-    
-    private static boolean appendDefault = Settings.getDefault().getAppend();
+    private DurationPanel durationPanel = new DurationPanel();
     
     /** 
      * Creates new form NewTodoItemPanel.
@@ -124,13 +142,11 @@ class EditTaskPanel extends JPanel implements ActionListener {
         
         addSourceButton.addActionListener(this);
         
-        descriptionTextField.requestFocus();
-
         if (editing) {
-            remove(addLabel);
-            remove(beginningToggle);
-            remove(endToggle);
-            remove(addSourceButton);
+            jPanelGeneral.remove(addLabel);
+            jPanelGeneral.remove(beginningToggle);
+            jPanelGeneral.remove(endToggle);
+            jPanelGeneral.remove(addSourceButton);
         } else {
             boolean append = appendDefault;
             if (append) {
@@ -143,7 +159,14 @@ class EditTaskPanel extends JPanel implements ActionListener {
         jComboBoxProgress.setModel(new DefaultComboBoxModel(PERCENTS));
         ((JComponent) jComboBoxProgress.getEditor().getEditorComponent()).
             setInputVerifier(new EditTaskPanel.PercentsInputVerifier());
+        
+        jPanelEffort.add(durationPanel, BorderLayout.CENTER);
     }
+    
+    public void addNotify() {
+        super.addNotify();
+        descriptionTextField.requestFocus();
+    }    
     
     /**
      * Fills the panel with the values of a user task
@@ -180,7 +203,18 @@ class EditTaskPanel extends JPanel implements ActionListener {
         categoryCombo.setSelectedItem(item.getCategory());
         
         jComboBoxProgress.setSelectedItem(item.getPercentComplete() + "%"); // NOI18N
-        jCheckBoxComputeProgress.setSelected(item.isProgressComputed());
+        if (item.isProgressComputed())
+            jRadioButtonComputeProgress.setSelected(true);
+        else
+            jRadioButtonProgress.setSelected(true);
+        jRadioButtonProgressItemStateChanged(null);
+        
+        durationPanel.setDuration(item.getEffort());
+        if (item.isEffortComputed())
+            jRadioButtonComputeEffort.setSelected(true);
+        else
+            jRadioButtonEffort.setSelected(true);
+        jRadioButtonEffortItemStateChanged(null);
         
         DateFormat df = DateFormat.getDateTimeInstance(
             DateFormat.LONG, DateFormat.LONG);
@@ -214,10 +248,15 @@ class EditTaskPanel extends JPanel implements ActionListener {
         }
         
         task.setDueDate(getDueDate());
-        task.setProgressComputed(jCheckBoxComputeProgress.isSelected());
-        if (!jCheckBoxComputeProgress.isSelected()) {
+        task.setProgressComputed(jRadioButtonComputeProgress.isSelected());
+        if (!task.isProgressComputed()) {
             task.setPercentComplete(
                 parsePercents((String) jComboBoxProgress.getSelectedItem()));
+        }
+        
+        task.setEffortComputed(jRadioButtonComputeEffort.isSelected());
+        if (!task.isEffortComputed()) {
+            task.setEffort(durationPanel.getDuration());
         }
     }
     
@@ -337,84 +376,133 @@ class EditTaskPanel extends JPanel implements ActionListener {
         java.awt.GridBagConstraints gridBagConstraints;
 
         addButtonGroup = new javax.swing.ButtonGroup();
+        effortButtonGroup = new javax.swing.ButtonGroup();
+        buttonGroupProgress = new javax.swing.ButtonGroup();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanelGeneral = new javax.swing.JPanel();
         descLabel = new javax.swing.JLabel();
-        descriptionTextField = new javax.swing.JTextField();
-        detailsLabel = new javax.swing.JLabel();
+        categoryCombo = new javax.swing.JComboBox();
         detailsScrollPane = new javax.swing.JScrollPane();
         detailsTextArea = new javax.swing.JTextArea();
-        prioLabel = new javax.swing.JLabel();
-        priorityComboBox = new javax.swing.JComboBox();
-        opt1Label = new javax.swing.JLabel();
-        categoryLabel = new javax.swing.JLabel();
-        categoryCombo = new javax.swing.JComboBox();
-        opt2Label = new javax.swing.JLabel();
-        jLabelProgress = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        fileCheckBox = new javax.swing.JCheckBox();
-        fileTextField = new javax.swing.JTextField();
-        lineLabel = new javax.swing.JLabel();
-        lineTextField = new javax.swing.JTextField();
-        dueCheckBox = new javax.swing.JCheckBox();
-        dueDateTextField = new javax.swing.JTextField();
-        dueDateBrowseButton = new javax.swing.JButton();
         addLabel = new javax.swing.JLabel();
         beginningToggle = new javax.swing.JRadioButton();
+        detailsLabel = new javax.swing.JLabel();
         endToggle = new javax.swing.JRadioButton();
+        descriptionTextField = new javax.swing.JTextField();
+        priorityComboBox = new javax.swing.JComboBox();
+        fileCheckBox = new javax.swing.JCheckBox();
+        categoryLabel = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        fileTextField = new javax.swing.JTextField();
+        lineTextField = new javax.swing.JTextField();
+        lineLabel = new javax.swing.JLabel();
         addSourceButton = new javax.swing.JButton();
-        jCheckBoxComputeProgress = new javax.swing.JCheckBox();
-        jComboBoxProgress = new javax.swing.JComboBox();
-        jLabel5 = new javax.swing.JLabel();
+        prioLabel = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        dueDateTextField = new javax.swing.JTextField();
+        dueCheckBox = new javax.swing.JCheckBox();
+        jPanel1 = new javax.swing.JPanel();
+        dueDateBrowseButton = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
-        jLabelCreated = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         jLabelLastEdited = new javax.swing.JLabel();
+        jLabelCreated = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jRadioButtonComputeEffort = new javax.swing.JRadioButton();
+        jRadioButtonEffort = new javax.swing.JRadioButton();
+        jPanelEffort = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
+        jComboBoxProgress = new javax.swing.JComboBox();
+        jRadioButtonComputeProgress = new javax.swing.JRadioButton();
+        jRadioButtonProgress = new javax.swing.JRadioButton();
+        jPanel6 = new javax.swing.JPanel();
 
-        setLayout(new java.awt.GridBagLayout());
+        setLayout(new java.awt.BorderLayout());
 
-        setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(12, 12, 12, 12)));
         setPreferredSize(new java.awt.Dimension(400, 300));
+        jPanelGeneral.setLayout(new java.awt.GridBagLayout());
+
+        jPanelGeneral.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(11, 11, 12, 12)));
         descLabel.setLabelFor(descriptionTextField);
         /*
         descLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "Brief_Description")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 0;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(descLabel, gridBagConstraints);
+    jPanelGeneral.add(descLabel, gridBagConstraints);
+
+    categoryCombo.setEditable(true);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 3;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanelGeneral.add(categoryCombo, gridBagConstraints);
+
+    detailsTextArea.setRows(5);
+    detailsScrollPane.setViewportView(detailsTextArea);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 1;
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.weightx = 1.0;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+    gridBagConstraints.weighty = 1.0;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
-    add(descriptionTextField, gridBagConstraints);
+    jPanelGeneral.add(detailsScrollPane, gridBagConstraints);
+
+    addLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "AddTo")); // NOI18N();
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 6;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanelGeneral.add(addLabel, gridBagConstraints);
+
+    /*
+    beginningToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
+    */
+    addButtonGroup.add(beginningToggle);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 6;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanelGeneral.add(beginningToggle, gridBagConstraints);
 
     detailsLabel.setLabelFor(detailsTextArea);
     /*
     detailsLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "DetailsLabel")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(detailsLabel, gridBagConstraints);
+    jPanelGeneral.add(detailsLabel, gridBagConstraints);
 
-    detailsTextArea.setRows(5);
-    detailsScrollPane.setViewportView(detailsTextArea);
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.weighty = 1.0;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
-    add(detailsScrollPane, gridBagConstraints);
-
-    prioLabel.setLabelFor(priorityComboBox);
     /*
-    prioLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "PriorityLabel")); // NOI18N);
+    endToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N();
     */
+    addButtonGroup.add(endToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 7;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(prioLabel, gridBagConstraints);
+    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
+    jPanelGeneral.add(endToggle, gridBagConstraints);
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 0;
+    gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.weightx = 1.0;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
+    jPanelGeneral.add(descriptionTextField, gridBagConstraints);
 
     priorityComboBox.setModel(prioritiesModel);
     priorityComboBox.setRenderer(priorityRenderer);
@@ -425,67 +513,17 @@ class EditTaskPanel extends JPanel implements ActionListener {
     });
 
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(priorityComboBox, gridBagConstraints);
-
-    /*
-    */
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 2;
+    gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 2;
-    gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
-    add(opt1Label, gridBagConstraints);
-
-    categoryLabel.setLabelFor(categoryCombo);
-    /*
-    categoryLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "CategoryLabel")); // NOI18N);
-    */
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(categoryLabel, gridBagConstraints);
-
-    categoryCombo.setEditable(true);
-    gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(categoryCombo, gridBagConstraints);
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 2;
-    gridBagConstraints.gridy = 3;
-    gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
-    add(opt2Label, gridBagConstraints);
-
-    jLabelProgress.setLabelFor(jCheckBoxComputeProgress);
-    /*
-    jLabelProgress.setText(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ProgressLabel")); // NOI18N);
-    */
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 4;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(jLabelProgress, gridBagConstraints);
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 3;
-    gridBagConstraints.gridy = 4;
-    gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.weightx = 1.0;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
-    add(jPanel1, gridBagConstraints);
+    jPanelGeneral.add(priorityComboBox, gridBagConstraints);
 
     /*
     fileCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "AssociatedFile")); // NOI18N);
     */
+    fileCheckBox.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(0, 0, 0, 0)));
     fileCheckBox.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
             fileCheckBoxItemStateChanged(evt);
@@ -494,43 +532,102 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 6;
+    gridBagConstraints.gridy = 5;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(fileCheckBox, gridBagConstraints);
+    jPanelGeneral.add(fileCheckBox, gridBagConstraints);
+
+    categoryLabel.setLabelFor(categoryCombo);
+    /*
+    categoryLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "CategoryLabel")); // NOI18N);
+    */
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 3;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanelGeneral.add(categoryLabel, gridBagConstraints);
+
+    jPanel2.setLayout(new java.awt.GridBagLayout());
 
     fileTextField.setColumns(100);
     fileTextField.setEditable(false);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 6;
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 0;
     gridBagConstraints.gridwidth = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.weightx = 0.7;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(fileTextField, gridBagConstraints);
+    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
+    jPanel2.add(fileTextField, gridBagConstraints);
+
+    lineTextField.setEditable(false);
+    lineTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 3;
+    gridBagConstraints.gridy = 0;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.weightx = 0.3;
+    jPanel2.add(lineTextField, gridBagConstraints);
 
     lineLabel.setLabelFor(lineTextField);
     /*
     lineLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "LineLabel")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 3;
-    gridBagConstraints.gridy = 6;
+    gridBagConstraints.gridx = 2;
+    gridBagConstraints.gridy = 0;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(lineLabel, gridBagConstraints);
+    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
+    jPanel2.add(lineLabel, gridBagConstraints);
 
-    lineTextField.setEditable(false);
-    lineTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 4;
-    gridBagConstraints.gridy = 6;
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 5;
+    gridBagConstraints.gridwidth = 3;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.weightx = 0.3;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
-    add(lineTextField, gridBagConstraints);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanelGeneral.add(jPanel2, gridBagConstraints);
+
+    /*
+    addSourceButton.setText(NbBundle.getMessage(EditTaskPanel.class, "AddToSource")); // NOI18N();
+    */
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 8;
+    gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.weightx = 1.0;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    jPanelGeneral.add(addSourceButton, gridBagConstraints);
+
+    prioLabel.setLabelFor(priorityComboBox);
+    /*
+    prioLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "PriorityLabel")); // NOI18N);
+    */
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanelGeneral.add(prioLabel, gridBagConstraints);
+
+    jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "General"), jPanelGeneral);
+
+    jPanel3.setLayout(new java.awt.GridBagLayout());
+
+    jPanel3.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(11, 11, 12, 12)));
+    dueDateTextField.setColumns(14);
+    dueDateTextField.setEditable(false);
+    dueDateTextField.setEnabled(false);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 0;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel3.add(dueDateTextField, gridBagConstraints);
 
     /*
     dueCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "DueDateCb")); // NOI18N();
@@ -543,20 +640,20 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 5;
+    gridBagConstraints.gridy = 0;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(dueCheckBox, gridBagConstraints);
+    jPanel3.add(dueCheckBox, gridBagConstraints);
 
-    dueDateTextField.setColumns(14);
-    dueDateTextField.setEditable(false);
-    dueDateTextField.setEnabled(false);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 5;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(dueDateTextField, gridBagConstraints);
+    gridBagConstraints.gridx = 3;
+    gridBagConstraints.gridy = 7;
+    gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.weightx = 1.0;
+    gridBagConstraints.weighty = 1.0;
+    jPanel3.add(jPanel1, gridBagConstraints);
 
     /*
     dueDateBrowseButton.setText("...");
@@ -570,115 +667,151 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 2;
-    gridBagConstraints.gridy = 5;
+    gridBagConstraints.gridy = 0;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(dueDateBrowseButton, gridBagConstraints);
-
-    addLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "AddTo")); // NOI18N();
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 9;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(addLabel, gridBagConstraints);
-
-    /*
-    beginningToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
-    */
-    addButtonGroup.add(beginningToggle);
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 9;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(beginningToggle, gridBagConstraints);
-
-    /*
-    endToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N();
-    */
-    addButtonGroup.add(endToggle);
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 10;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
-    add(endToggle, gridBagConstraints);
-
-    /*
-    addSourceButton.setText(NbBundle.getMessage(EditTaskPanel.class, "AddToSource")); // NOI18N();
-    */
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 2;
-    gridBagConstraints.gridy = 9;
-    gridBagConstraints.gridwidth = 2;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.weightx = 1.0;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-    add(addSourceButton, gridBagConstraints);
-
-    /*
-    jCheckBoxComputeProgress.setText(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ProgressComputed")); // NOI18N);
-    */
-    jCheckBoxComputeProgress.addItemListener(new java.awt.event.ItemListener() {
-        public void itemStateChanged(java.awt.event.ItemEvent evt) {
-            jCheckBoxComputeProgressItemStateChanged(evt);
-        }
-    });
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 4;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(jCheckBoxComputeProgress, gridBagConstraints);
-
-    jComboBoxProgress.setEditable(true);
-    jComboBoxProgress.setInputVerifier(new PercentsInputVerifier());
-    jComboBoxProgress.setMinimumSize(new java.awt.Dimension(60, 21));
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 2;
-    gridBagConstraints.gridy = 4;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(jComboBoxProgress, gridBagConstraints);
-
-    jLabel5.setText(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "CreatedLabel")); // NOI18N);
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 7;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(jLabel5, gridBagConstraints);
+    jPanel3.add(dueDateBrowseButton, gridBagConstraints);
 
     jLabel6.setText(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "LastEditedLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 8;
+    gridBagConstraints.gridy = 3;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(jLabel6, gridBagConstraints);
+    jPanel3.add(jLabel6, gridBagConstraints);
+
+    jLabel5.setText(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "CreatedLabel")); // NOI18N);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 4;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel3.add(jLabel5, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 7;
+    gridBagConstraints.gridy = 3;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(jLabelCreated, gridBagConstraints);
+    jPanel3.add(jLabelLastEdited, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 8;
+    gridBagConstraints.gridy = 4;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(jLabelLastEdited, gridBagConstraints);
+    jPanel3.add(jLabelCreated, gridBagConstraints);
+
+    jPanel4.setLayout(new java.awt.GridBagLayout());
+
+    jPanel4.setBorder(new javax.swing.border.TitledBorder(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "Effort")));
+    jRadioButtonComputeEffort.setSelected(true);
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonComputeEffort, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ComputeEffortAutomatically"));
+    effortButtonGroup.add(jRadioButtonComputeEffort);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    jPanel4.add(jRadioButtonComputeEffort, gridBagConstraints);
+
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonEffort, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue"));
+    effortButtonGroup.add(jRadioButtonEffort);
+    jRadioButtonEffort.addItemListener(new java.awt.event.ItemListener() {
+        public void itemStateChanged(java.awt.event.ItemEvent evt) {
+            jRadioButtonEffortItemStateChanged(evt);
+        }
+    });
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    jPanel4.add(jRadioButtonEffort, gridBagConstraints);
+
+    jPanelEffort.setLayout(new java.awt.BorderLayout());
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.gridheight = 2;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.weightx = 1.0;
+    jPanel4.add(jPanelEffort, gridBagConstraints);
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.gridwidth = 3;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel3.add(jPanel4, gridBagConstraints);
+
+    jPanel5.setLayout(new java.awt.GridBagLayout());
+
+    jPanel5.setBorder(new javax.swing.border.TitledBorder(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "Progress")));
+    jComboBoxProgress.setEditable(true);
+    jComboBoxProgress.setInputVerifier(new PercentsInputVerifier());
+    jComboBoxProgress.setMinimumSize(new java.awt.Dimension(60, 21));
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    jPanel5.add(jComboBoxProgress, gridBagConstraints);
+
+    jRadioButtonComputeProgress.setSelected(true);
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonComputeProgress, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ComputeProgressAutomatically"));
+    buttonGroupProgress.add(jRadioButtonComputeProgress);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    jPanel5.add(jRadioButtonComputeProgress, gridBagConstraints);
+
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonProgress, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue"));
+    buttonGroupProgress.add(jRadioButtonProgress);
+    jRadioButtonProgress.addItemListener(new java.awt.event.ItemListener() {
+        public void itemStateChanged(java.awt.event.ItemEvent evt) {
+            jRadioButtonProgressItemStateChanged(evt);
+        }
+    });
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    jPanel5.add(jRadioButtonProgress, gridBagConstraints);
+
+    jPanel6.setPreferredSize(new java.awt.Dimension(0, 0));
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 2;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+    gridBagConstraints.weightx = 1.0;
+    gridBagConstraints.weighty = 1.0;
+    jPanel5.add(jPanel6, gridBagConstraints);
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.gridwidth = 3;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel3.add(jPanel5, gridBagConstraints);
+
+    jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "TimeRelated"), jPanel3);
+
+    add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
     }//GEN-END:initComponents
 
-    private void jCheckBoxComputeProgressItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxComputeProgressItemStateChanged
-        jComboBoxProgress.setEnabled(!jCheckBoxComputeProgress.isSelected());
-    }//GEN-LAST:event_jCheckBoxComputeProgressItemStateChanged
+    private void jRadioButtonProgressItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonProgressItemStateChanged
+        jComboBoxProgress.setEnabled(jRadioButtonProgress.isSelected());
+    }//GEN-LAST:event_jRadioButtonProgressItemStateChanged
+
+    private void jRadioButtonEffortItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonEffortItemStateChanged
+        durationPanel.setEnabled(jRadioButtonEffort.isSelected());
+    }//GEN-LAST:event_jRadioButtonEffortItemStateChanged
 
     private void priorityComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_priorityComboBoxActionPerformed
         // I don't know why JComboBox does not use my renderer to draw 
@@ -709,10 +842,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
                  EditTaskPanel.class, "AssociatedFile")); // NOI18N
         Mnemonics.setLocalizedText(categoryLabel, NbBundle.getMessage(
                      EditTaskPanel.class, "CategoryLabel")); // NOI18N
-        Mnemonics.setLocalizedText(jLabelProgress, NbBundle.getMessage(
-            EditTaskPanel.class, "ProgressLabel")); // NOI18N
-        Mnemonics.setLocalizedText(jCheckBoxComputeProgress, NbBundle.getMessage(
-            EditTaskPanel.class, "ProgressComputed")); // NOI18N
         Mnemonics.setLocalizedText(lineLabel, NbBundle.getMessage(
                  EditTaskPanel.class, "LineLabel")); // NOI18N
         Mnemonics.setLocalizedText(dueCheckBox, NbBundle.getMessage(
@@ -815,12 +944,14 @@ class EditTaskPanel extends JPanel implements ActionListener {
             }
         }
     }//GEN-LAST:event_dueDateBrowseButtonActionPerformed
-    
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup addButtonGroup;
     private javax.swing.JLabel addLabel;
     private javax.swing.JButton addSourceButton;
     private javax.swing.JRadioButton beginningToggle;
+    private javax.swing.ButtonGroup buttonGroupProgress;
     private javax.swing.JComboBox categoryCombo;
     private javax.swing.JLabel categoryLabel;
     private javax.swing.JLabel descLabel;
@@ -831,21 +962,30 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JCheckBox dueCheckBox;
     private javax.swing.JButton dueDateBrowseButton;
     private javax.swing.JTextField dueDateTextField;
+    private javax.swing.ButtonGroup effortButtonGroup;
     private javax.swing.JRadioButton endToggle;
     private javax.swing.JCheckBox fileCheckBox;
     private javax.swing.JTextField fileTextField;
-    private javax.swing.JCheckBox jCheckBoxComputeProgress;
     private javax.swing.JComboBox jComboBoxProgress;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabelCreated;
     private javax.swing.JLabel jLabelLastEdited;
-    private javax.swing.JLabel jLabelProgress;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanelEffort;
+    private javax.swing.JPanel jPanelGeneral;
+    private javax.swing.JRadioButton jRadioButtonComputeEffort;
+    private javax.swing.JRadioButton jRadioButtonComputeProgress;
+    private javax.swing.JRadioButton jRadioButtonEffort;
+    private javax.swing.JRadioButton jRadioButtonProgress;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel lineLabel;
     private javax.swing.JTextField lineTextField;
-    private javax.swing.JLabel opt1Label;
-    private javax.swing.JLabel opt2Label;
     private javax.swing.JLabel prioLabel;
     private javax.swing.JComboBox priorityComboBox;
     // End of variables declaration//GEN-END:variables

@@ -18,8 +18,11 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.beans.PropertyEditorManager;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
@@ -28,11 +31,13 @@ import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.netbeans.modules.tasklist.core.ImportAction;
+import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.TaskTransfer;
 import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
+import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
 import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
@@ -54,6 +59,12 @@ import org.openide.util.datatransfer.PasteType;
 
 
 class UserTaskNode extends TaskNode {
+    private static final Logger LOGGER = TLUtils.getLogger(UserTaskNode.class);
+    
+    static {
+        LOGGER.setLevel(Level.OFF);
+    }
+    
     /* /// XXX FIXME TODO PENDING @todo !
      *
      * The following is a hack. In order to show Date objects in the
@@ -83,7 +94,11 @@ class UserTaskNode extends TaskNode {
             throw new NoClassDefFoundError(e.getLocalizedMessage());
         }
     }
-        
+     
+    private static final MessageFormat EFFORT_FORMAT = 
+        new MessageFormat(NbBundle.getMessage(UserTaskNode.class, 
+            "EffortFormat")); // NOI18N
+    
     // Leaf
     UserTaskNode(UserTask item) {
         super(item);
@@ -217,11 +232,25 @@ class UserTaskNode extends TaskNode {
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "PercentHint")); // NOI18N
             ss.put(p);
             
-            /*p = new Reflection(item, Integer.TYPE, "getEffort", "setEffort"); // NOI18N
+            p = new Reflection(item, Integer.TYPE, "getEffort", null) { // NOI18N
+                public Object getValue() {
+                    UserTask task = (UserTask) instance;
+                    int[] d = UserTask.splitDuration(task.getEffort(),
+                        Settings.getDefault().getHoursPerDay());
+                    
+                    String s = EFFORT_FORMAT.format(new Object[] {
+                        new Integer(d[2]), new Integer(d[1]), new Integer(d[0])
+                    }).trim();
+                    LOGGER.fine("computed value " + s);
+                    return s;
+                }
+            };
             p.setName("effort");
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Effort")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Effort2")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "EffortHint")); // NOI18N
-            ss.put(p); TODO effort field */
+            p.setValue("suppressCustomEditor", Boolean.TRUE);
+            p.setPropertyEditorClass(StringPropertyEditor.class);
+            ss.put(p);
 
             p = new Reflection(item, String.class, "getDetails", "setDetails"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_DETAILS);
@@ -233,6 +262,7 @@ class UserTaskNode extends TaskNode {
             p.setName(UserTaskView.PROP_TASK_FILE);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "File")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "FileHint")); // NOI18N
+            p.setValue("suppressCustomEditor", Boolean.TRUE);
             ss.put(p);
 
             p = new Reflection(item, Integer.TYPE, "getLineNumber", "setLineNumber"); // NOI18N
@@ -247,18 +277,21 @@ class UserTaskNode extends TaskNode {
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Category")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "CategoryHint")); // NOI18N
             p.setValue("canEditAsText", Boolean.TRUE); // NOI18N
+            p.setValue("suppressCustomEditor", Boolean.TRUE);
             ss.put(p);
 
             p = new Reflection(item, Date.class, "getCreatedDate", null /* readonly*/); // NOI18N
             p.setName(UserTaskView.PROP_TASK_CREATED);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Created")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "CreatedHint")); // NOI18N
+            p.setValue("suppressCustomEditor", Boolean.TRUE);
             ss.put(p);
 
             p = new Reflection(item, Date.class, "getLastEditedDate", null /* readonly*/); // NOI18N
             p.setName(UserTaskView.PROP_TASK_EDITED);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Edited")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "EditedHint")); // NOI18N
+            p.setValue("suppressCustomEditor", Boolean.TRUE);
             ss.put(p);
 
 

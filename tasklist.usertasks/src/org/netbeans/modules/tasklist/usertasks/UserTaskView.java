@@ -223,6 +223,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public static final String PROP_TASK_CREATED = "created"; // NOI18N
     public static final String PROP_TASK_EDITED = "edited"; // NOI18N
     public static final String PROP_TASK_PERCENT = "percentComplete"; // NOI18N
+    public static final String PROP_EFFORT = "effort"; // NOI18N
     
     protected ColumnProperty[] createColumns() {
         return new ColumnProperty[] {
@@ -236,7 +237,8 @@ public class UserTaskView extends TaskListView implements TaskListener {
             getEditedColumn(false, 150),
             getDueColumn(false, 150),
             getDoneColumn(true, 40),
-            getPercentColumn(false, 100)
+            getPercentColumn(false, 100),
+            getEffortColumn(false, 50)
             
             // When adding more columns here, also remember to go to the 
             // constructor and add a column width setting 
@@ -285,7 +287,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     public ColumnProperty getFileColumn(boolean visible, int width) {
-        return new ColumnProperty(
+        ColumnProperty cp = new ColumnProperty(
 	    4, // UID -- never change (part of serialization
             PROP_TASK_FILE,
             String.class,
@@ -295,6 +297,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
             visible,
             width
             );
+        return cp;
     }
 
     public ColumnProperty getLineColumn(boolean visible, int width) {
@@ -311,7 +314,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     public ColumnProperty getCreatedColumn(boolean visible, int width) {
-        return new ColumnProperty(
+        ColumnProperty cp = new ColumnProperty(
 	    6, // UID -- never change (part of serialization
             PROP_TASK_CREATED,
             //String.class,
@@ -322,10 +325,11 @@ public class UserTaskView extends TaskListView implements TaskListener {
             visible,
             width
             );
+        return cp;
     }
 
     public ColumnProperty getEditedColumn(boolean visible, int width) {
-        return new ColumnProperty(
+        ColumnProperty cp = new ColumnProperty(
 	    7, // UID -- never change (part of serialization
             PROP_TASK_EDITED,
             //String.class,
@@ -336,6 +340,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
             visible,
             width
             );
+        return cp;
     }
 
     public ColumnProperty getDoneColumn(boolean visible, int width) {
@@ -378,6 +383,18 @@ public class UserTaskView extends TaskListView implements TaskListener {
             );
     }
             
+    public ColumnProperty getEffortColumn(boolean visible, int width) {
+        return new ColumnProperty(
+    	    11, // UID -- never change (part of serialization
+            PROP_EFFORT,
+            Integer.TYPE,
+            NbBundle.getMessage(UserTaskView.class, "Effort2"), // NOI18N
+            NbBundle.getMessage(UserTaskView.class, "EffortHint"), // NOI18N
+            true,
+            visible,
+            width
+            );
+    }
     
     private static UserTaskView defview = null;
 

@@ -18,53 +18,22 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.tasklist.client.Suggestion;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.netbeans.modules.tasklist.providers.SuggestionProvider;
 import org.openide.ErrorManager;
 import org.openide.nodes.Node;
-import org.openide.util.NbBundle;
+import org.openide.nodes.Node.Cookie;
 
 /**
  * Class which represents a task in the tasklist.
  *
- * <p>
- * Field "temporary":
- * Here's a little background on that field.  Earlier, there used to be a
- * single tasklist window which contained both your user entered tasks, as
- * well as "dynamic" items like TODOs scanned from your source code. You
- * obviously don't want these TODOs showing up in your user task list file -
- * or even cause a tasklist filesave when they're added or modified. Thus,
- * the temporary attribute.
- *
- * We don't need it now since we have separate views for user tasks
- * (persistent) and dynamic tasks (temporary). However, one of the feedback
- * datapoints from the UI review was that the distinction between user tasks
- * and suggestions is a bit murky (especially in the area of TODOs which the
- * user did enter - but in the source code). Afterall, VS.NET and Eclipse
- * have single tasklist windows, not multiple (although granted their user
- * task support is a bit more limited).
- *
- * So if we'll have a single view in the future the concept may become useful
- * again - but of course various other code changes will be necessary, so we
- * don't need to hang on to this attribute now.
- *
- * This attribute was used during saving, in firing change events and in
- * FormatTranslators.
- * </p>
- *
  * @author Tor Norbye
  * @author Tim Lebedkov
  */
-public class Task extends Suggestion implements Cloneable, Node.Cookie {
+public class Task extends Suggestion implements Cloneable, Cookie {
     private static final Logger LOGGER = TLUtils.getLogger(Task.class);
 
     static {
@@ -77,7 +46,11 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
      */
     public static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
-    protected final PropertyChangeSupport supp = new PropertyChangeSupport(this);
+    /**
+     * WARNING: do not use this object directly. Always call
+     * this.firePropertyChange()!
+     */
+    private final PropertyChangeSupport supp = new PropertyChangeSupport(this);
 
     protected ObservableList list;
     protected boolean visitable;
@@ -123,7 +96,7 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
     public void clear() {
         if (hasSubtasks()) {
             subtasks.clear();
-            updatedStructure();
+            fireStructureChanged();
         }
     }
 
@@ -148,22 +121,21 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
      * @param ndesc The new description text
      */
     public void setSummary(String ndesc) {
+        String old = getSummary();
         super.setSummary(ndesc);
-        if (!silentUpdate) {
-            updatedValues();
-        }
+        firePropertyChange("summary", old, ndesc);
     }
 
     public void setDetails(String ndesc) {
+        String old = getDetails();
         super.setDetails(ndesc);
-        if (!silentUpdate) {
-            updatedValues();
-        }
+        firePropertyChange("details", old, ndesc);
     }
 
     public void setPriority(SuggestionPriority priority) {
+        SuggestionPriority old = getPriority();
         super.setPriority(priority);
-        updatedValues();
+        firePropertyChange("priority", old, priority);
     }
 
     /**
@@ -205,23 +177,50 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         }
     }
 
-    protected void updatedValues() {
-        if (!silentUpdate) {
-            supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
-            if (getList() instanceof TaskListener) {
-                ((TaskListener) getList()).changedTask(this);
-            }
-        }
-    }
-
-    protected void updatedStructure() {
+    protected final void fireStructureChanged() {
         if (!silentUpdate) {
             if (getList() instanceof TaskListener) {
                 ((TaskListener) getList()).structureChanged(this);
             }
+            if (this instanceof TaskListener) {
+                ((TaskListener) this).structureChanged(this);
+            }
         }
     }
 
+    /**
+     * Fires an addedTask event
+     *
+     * @param t task that was added
+     */
+    protected final void fireAddedTask(Task t) {
+        if (!silentUpdate) {
+            if (getList() instanceof TaskListener) {
+                ((TaskListener) getList()).addedTask(t);
+            }
+            if (this instanceof TaskListener) {
+                ((TaskListener) this).addedTask(t);
+            }
+        }
+    }
+
+
+    /**
+     * Fires an removedTask event
+     *
+     * @param t task that was removed
+     */
+    protected final void fireRemovedTask(Task t) {
+        if (!silentUpdate) {
+            if (getList() instanceof TaskListener) {
+                ((TaskListener) getList()).removedTask(this, t);
+            }
+            if (this instanceof TaskListener) {
+                ((TaskListener) this).removedTask(this, t);
+            }
+        }
+    }
+    
     protected void recursivePropertyChange() {
         supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
         if (subtasks != null) {
@@ -294,11 +293,24 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         int pos = subtasks.indexOf(after);
         subtasks.add(pos+1, subtask);
     	subtask.list = list;
-        if (!silentUpdate && !subtask.silentUpdate) {
-            if (getList() instanceof TaskListener) {
-                ((TaskListener) getList()).addedTask(subtask);
-            }
+        fireAddedTask(subtask);
+    }
+
+    /**
+     * Add subtask in a particular place
+     *
+     * @param position position for the subtask
+     * @param subtask The subtask to be added
+     */
+    public void addSubtask(int position, Task subtask) {
+        subtask.parent = this;
+        if (subtasks == null) {
+            subtasks = new LinkedList();
         }
+        subtasks.add(position, subtask);
+    	subtask.list = list;
+        
+        fireAddedTask(subtask);
     }
 
     /** Add a list of subtasks to this task.
@@ -329,7 +341,7 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         } else {
             subtasks.addAll(0, tasks);
         }
-        updatedStructure();
+        fireStructureChanged();
     }
 
    /**
@@ -351,12 +363,7 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         } else {
             subtasks.addFirst(subtask);
         }
-        if (silentUpdate == false) {
-            if (getList() instanceof TaskListener) {
-                ((TaskListener) getList()).addedTask(subtask);
-            }
-        }
-
+        fireAddedTask(subtask);
     }
 
     /** Remove a particular subtask
@@ -379,13 +386,8 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         if (subtasks.size() == 0) {
             subtasks = null;
         }
-        if (!silentUpdate && !subtask.silentUpdate) {
-            if (silentUpdate == false) {
-                if (getList() instanceof TaskListener) {
-                    ((TaskListener) getList()).removedTask(this, subtask);
-                }
-            }
-        }
+        
+        fireRemovedTask(subtask);
     }
 
     /**
@@ -412,7 +414,7 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
      * XXX make paskage private or even private
      * @deprecated iCalSupport should use addSubtask
      */
-    public final void setParent(Task parent) {
+    /*public final void setParent(Task parent) {
         this.parent = parent;
         // Should we broadcast this change??? Probably not, it's always
         // manipulated as part of add/deletion operations which are tracked
@@ -420,7 +422,7 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         // if (!silentUpdate) {
         //     supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
         // }
-    }
+    }*/
 
     /**
      * Indicate if this item is a "zombie" (e.g. it has been removed
@@ -505,11 +507,11 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         this.silentUpdate = silentUpdate;
         if (!silentUpdate) {
             if (fireAttrs) {
-                supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
+                firePropertyChange(PROP_ATTRS_CHANGED, null, null);
             }
 
             if (fireChildren) {
-                getList().notifyStructureChanged(this);
+                fireStructureChanged();
             }
         }
     }

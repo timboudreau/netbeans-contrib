@@ -24,6 +24,7 @@ Microsystems, Inc. All Rights Reserved.
     due, created and modified - date format: YYYY-MM-DDThh:mm:ssTZD 
         (see http://www.w3.org/TR/NOTE-datetime)
     line - 1 = the first line in a file
+    effort - effort in minutes
 -->
 <!ELEMENT task (summary, details?, (task)*)>
 <!ATTLIST task 
@@ -31,6 +32,8 @@ Microsystems, Inc. All Rights Reserved.
     category CDATA #IMPLIED
     progress CDATA #REQUIRED
     progress-computed (yes|no) "no"
+    effort CDATA #REQUIRED
+    effort-computed (yes|no) "no"
     due CDATA #IMPLIED
     file CDATA #IMPLIED
     line CDATA #IMPLIED
