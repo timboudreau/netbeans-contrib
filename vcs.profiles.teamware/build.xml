@@ -12,7 +12,6 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-
 <project name="vcsgeneric/profiles/teamware" default="netbeans" basedir=".">
   <import file="../../../nbbuild/default.xml"/>
     
@@ -24,7 +23,7 @@ Microsystems, Inc. All Rights Reserved.
       <include name="${nb.modules.dir}/teamware-profile.jar"/>
     </patternset>
     <path id="cp">
-      <pathelement location="${diff.dir}/${nb.modules.dir}/diff.jar"/>
+      <pathelement location="${diff.dir}/${nb.modules.dir}/org-netbeans-modules-diff.jar"/>
       <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
       <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
       <pathelement location="${openidex.dir}/${nb.modules.dir}/org-openidex-util.jar"/>
