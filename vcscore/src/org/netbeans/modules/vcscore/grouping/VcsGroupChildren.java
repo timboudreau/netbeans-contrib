@@ -104,7 +104,7 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
         if (key.getClass().getName().equals("org.openide.loaders.BrokenDataShadow")) { //NOI18N
             DataObject obj = (DataObject)key;
             obj.addPropertyChangeListener(this);
-            return new Node[] {obj.getNodeDelegate()};
+            return new Node[] {obj.getNodeDelegate().cloneNode()};
         }
         return new Node[0];
     }
