@@ -1358,7 +1358,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             if (projects.contains(project)) continue;
             projects.add(project);
             LogicalViewProvider viewProvider = LogicalViews.physicalView(project);
-            kids.add(new Node[] {viewProvider.createLogicalView()});
+            kids.add(new Node[] {viewProvider.createLogicalView()});  // TODO #41718 filter out dist, build and nbproject J2SE project output folders
         }
         final Node content = new AbstractNode(kids) {
             public void setName(String name) {
