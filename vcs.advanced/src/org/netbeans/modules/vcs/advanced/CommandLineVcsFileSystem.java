@@ -51,7 +51,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   /** is read only */
   private boolean readOnly;
 
-  private boolean debug=false;
+  private boolean debug=true;
   
   /** user variables Vector<String> 'name=value' */
   private Vector variables=new Vector(10);
@@ -64,7 +64,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   */
   private transient Hashtable commandsByName=null;
   
-  private transient VcsCache cache=null;
+  //private transient VcsCache cache=null;
   
   //-------------------------------------------
   public CommandLineVcsFileSystem () {
@@ -81,14 +81,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     variables=UserCommand.readVariables("st30",props);
     commands=UserCommand.readCommands("st30",props);
 
-    cache=new VcsCache(this);
+    //cache=new VcsCache(this);
   }
 
   //-------------------------------------------
   private void readObject(ObjectInputStream in) throws 
     ClassNotFoundException, IOException, NotActiveException{
     in.defaultReadObject();
-    cache=new VcsCache(this);
+    //cache=new VcsCache(this);
     D.deb("readObject() - restoring bean");
   }
 
@@ -97,21 +97,22 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     //D.deb("writeObject() - saving bean");
     out.defaultWriteObject();
   }  
-
   
   //-------------------------------------------
   public void setDebug(boolean debug){
     this.debug=debug;
   }
+
   //-------------------------------------------
   public boolean getDebug(){
     return debug;
   }  
-  
+
   //-------------------------------------------
   public Vector getVariables(){
     return variables;
   }
+
   //-------------------------------------------
   public void setVariables(Vector variables){
     this.variables=variables;
@@ -157,7 +158,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     }
     return (UserCommand)commandsByName.get(name);
   }
-  
+
   //-------------------------------------------
   public FileSystem.Status getStatus(){
     return this;
@@ -168,7 +169,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     //D.deb("annotateIcon()");
     return icon;
   }
-  
+
   //-------------------------------------------
   public String annotateName(String name, Set files) {
     //D.deb("annotateName("+name+")");
@@ -182,7 +183,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     }
     return name;
   }
-  
 
   //-------------------------------------------
   public SystemAction[] getActions(){
@@ -194,7 +194,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   //-------------------------------------------
   /* Human presentable name */
   public String getDisplayName() {
-    D.deb("getDisplayName() "+isValid());
+    D.deb("getDisplayName() isValid="+isValid());
     if(!isValid())
       return getString("LAB_FileSystemInvalid", rootFile.toString ());
     else
@@ -226,7 +226,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
    * @return root directory
   */
   public File getRootDirectory () {
-    D.deb("getRootDirectory() "+rootFile);
+    D.deb("getRootDirectory() ->"+rootFile);
     return rootFile;
   }
 
@@ -247,7 +247,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
    * @return <true> if file system is read only
    */
   public boolean isReadOnly() {
-    D.deb("isReadOnly() "+readOnly);
+    D.deb("isReadOnly() ->"+readOnly);
     return readOnly;
   }
 
@@ -256,7 +256,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @param environment the environment to add to
   */
   public void prepareEnvironment(FileSystem.Environment environment) {
-    D.deb("prepareEnvironment() "+rootFile.toString());
+    D.deb("prepareEnvironment() ->"+rootFile.toString());
     environment.addClassPath(rootFile.toString ());
   }
 
@@ -269,7 +269,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @return system name for the filesystem
   */
   protected String computeSystemName (File rootFile) {
-    D.deb("computeSystemName()"+rootFile.toString ().replace(File.separatorChar, '/') );
+    D.deb("computeSystemName() ->"+rootFile.toString ().replace(File.separatorChar, '/') );
     return rootFile.toString ().replace(File.separatorChar, '/');
   }
 
@@ -295,7 +295,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     String[] files=null;
     File f = getFile (name);
     if (f.isDirectory ()) {
-      files=cache.getSubdirs(name);
+      //files=cache.getSubdirs(name);
       if( files==null ){
 	D.deb("fallback -> return local files");
 	files=f.list();
@@ -480,7 +480,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     D.deb("outputStream("+name+")");
     return new FileOutputStream (getFile (name));
   }
-  
+
   /** Does nothing to lock the file.
   *
   * @param name name of the file
@@ -512,7 +512,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @return the resource
   */
   static String getString(String s) {
-    return NbBundle.getBundle("com.netbeans.enterprise.modules.vcs.cmdline.Bundle").getString (s);
+    return NbBundle.getBundle
+      ("com.netbeans.enterprise.modules.vcs.cmdline.Bundle").getString (s);
   }
 
   //-------------------------------------------
@@ -552,6 +553,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  7    Gandalf   1.6         4/27/99  Michal Fadljevic 
  *  6    Gandalf   1.5         4/26/99  Michal Fadljevic 
  *  5    Gandalf   1.4         4/22/99  Michal Fadljevic 
  *  4    Gandalf   1.3         4/22/99  Michal Fadljevic 
