@@ -3201,6 +3201,15 @@ public class ImplGenerator implements PropertyChangeListener {
                             if (lock != null)
                                 lock.releaseLock ();
                         }
+                        try {
+                            final DataObject __dObj = DataObject.find(__final_impl);
+                            SourceElement __se = (SourceElement)((SourceCookie)__dObj.getCookie(SourceCookie.class)).getSource();
+                            if (__se.getStatus() == SourceElement.STATUS_NOT)
+                                __se.prepare().waitFinished();
+       		        } catch (DataObjectNotFoundException __ex) {
+		            if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
+			        System.out.println ("can't find " + __final_impl.toString ()); // NOI18N
+		        }
 		    }
 		});
 	//return __result;
