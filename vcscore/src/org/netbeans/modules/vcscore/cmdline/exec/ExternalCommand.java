@@ -263,12 +263,17 @@ public class ExternalCommand {
             try{
                 if (envp == null) {
                     proc = Runtime.getRuntime().exec(commandArr);
+                    //System.out.println("exec("+VcsUtilities.array2string(commandArr)+")");
                 } else {
                     proc = Runtime.getRuntime().exec(commandArr, envp);
+                    //System.out.println("exec("+VcsUtilities.array2string(commandArr)+", envp = "+envp+")");
                 }
             }
             catch (IOException e){
-                E.err("Runtime.exec failed."); // NOI18N
+                //E.err("Runtime.exec failed."); // NOI18N
+                org.openide.TopManager.getDefault().notifyException(
+                    org.openide.TopManager.getDefault().getErrorManager().annotate(e,
+                    g("EXT_CMD_RuntimeExc", VcsUtilities.array2string(commandArr))));
                 stderrNextLine(g("EXT_CMD_RuntimeFailed", command)); // NOI18N
                 setExitStatus(VcsCommandExecutor.FAILED);
                 return getExitStatus();
@@ -684,8 +689,7 @@ public class ExternalCommand {
 
     //-------------------------------------------
     String g(String s) {
-        return NbBundle.getBundle
-               ("org.netbeans.modules.vcscore.cmdline.Bundle").getString (s);
+        return NbBundle.getBundle(ExternalCommand.class).getString (s);
     }
     String  g(String s, Object obj) {
         return MessageFormat.format (g(s), new Object[] { obj });
