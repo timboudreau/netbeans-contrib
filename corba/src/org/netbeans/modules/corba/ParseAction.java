@@ -76,14 +76,16 @@ public class ParseAction extends CookieAction {
     }
 
 
-    protected boolean enable (Node[] activatedNodes) {
+    protected boolean enable (Node[] __activated_nodes) {
         //name = "Update Implementations"; // NOI18N
 	//System.out.println ("ParseAction::enable (" + activatedNodes + ");");
         try {
-            IDLDataObject __ido = (IDLDataObject)activatedNodes[0].getCookie 
-		(IDLDataObject.class);
-	    if (__ido == null)
-		throw new AssertionException ("__ido == null");
+	    for (int __i=0; __i<__activated_nodes.length; __i++) {
+		IDLDataObject __ido = (IDLDataObject)__activated_nodes[__i].getCookie
+		    (IDLDataObject.class);
+		if (__ido == null)
+		    throw new AssertionException ("__ido == null");
+	    }
         } catch (Exception __ex) {
             //__ex.printStackTrace ();
 	    //System.out.println ("-> false");
@@ -99,12 +101,15 @@ public class ParseAction extends CookieAction {
     *
     * @param activatedNodes gives array of actually activated nodes.
     */
-    protected void performAction (final Node[] activatedNodes) {
-        ParseCookie __cookie = (ParseCookie)activatedNodes[0].getCookie(ParseCookie.class);
-        if (__cookie != null) {
-            __cookie.parse ((IDLDataObject)activatedNodes[0].getCookie
-			    (IDLDataObject.class));
-        }
+    protected void performAction (final Node[] __activated_nodes) {
+	for (int __i=0; __i<__activated_nodes.length; __i++) {
+	    ParseCookie __cookie 
+		= (ParseCookie)__activated_nodes[__i].getCookie(ParseCookie.class);
+	    if (__cookie != null) {
+		__cookie.parse ((IDLDataObject)__activated_nodes[__i].getCookie
+				(IDLDataObject.class));
+	    }
+	}
     }
 }
 

@@ -1,11 +1,21 @@
 OpenIDE-Module: org.netbeans.modules.corba/1
-OpenIDE-Module-Description: org.netbeans.modules.corba.docs.corba
 OpenIDE-Module-Layer: org/netbeans/modules/corba/resources/mf-layer.xml
 OpenIDE-Module-Name: CORBA
 OpenIDE-Module-Install: org/netbeans/modules/corba/IDLModule.class
 OpenIDE-Module-Specification-Version: 1.3
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1
+OpenIDE-Module-Display-Category: Distributed Application Support
+OpenIDE-Module-Short-Description: Helps you write programs that use CORBA
+  technology.
+OpenIDE-Module-Long-Description: The CORBA module helps you write programs
+  that use CORBA technology. It provides a wizard and a set of templates,
+  either of which can be used to generate most of the code needed for
+  Java-language CORBA programs. A Naming Service browser is able to generate
+  the code for naming service binding and lookup, while an Interface
+  Repository Browser allows users to obtain interface definitions from a
+  repository. Among other features, a GUI-based interactive POA Support and
+  an Implementation Generator technology should be mentioned.
 
 Name: org/netbeans/modules/corba/IDLDataLoader.class
 OpenIDE-Module-Class: Loader

@@ -15,12 +15,14 @@ package org.netbeans.modules.corba.wizard;
 
 import java.awt.Dialog;
 import java.util.ArrayList;
-import java.awt.event.ActionEvent;
+//import java.awt.event.ActionEvent;
 import org.openide.*;
 import org.openide.loaders.*;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.SystemAction;
+//import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.corba.wizard.panels.*;
+import org.netbeans.modules.corba.wizard.CorbaWizard;
+import org.netbeans.modules.corba.IDLDataObject;
 import java.io.PrintWriter;
 import java.io.OutputStreamWriter;
 import org.openide.filesystems.FileObject;
@@ -80,12 +82,19 @@ public class IDLWizard extends Object implements TemplateWizard.Iterator {
             openCookie.open();
         if (this.data.continueCorbaWizard()) {
             // Add continuation of CORBA Wizard here
-            new Thread () {
+/*            new Thread () {
                 public void run () {
                     SystemAction action = SystemAction.get (org.netbeans.modules.corba.wizard.CorbaWizardAction.class);
                     action.actionPerformed ( new ActionEvent (this,0,""));
                 }
             }.start();
+ */
+            if (idl instanceof IDLDataObject) {
+                new CorbaWizard ((IDLDataObject)idl).run();
+            }
+            else {
+                new CorbaWizard ().run();
+            }
         }
         return java.util.Collections.singleton (idl);
     }

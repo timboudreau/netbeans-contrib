@@ -80,30 +80,62 @@ public class GenerateImplAction extends CookieAction {
     }
 
 
-    protected boolean enable (Node[] activatedNodes) {
+    protected boolean enable (Node[] __activated_nodes) {
         //name = "Update Implementations"; // NOI18N
 	//System.out.println ("GenerateImplAction::enable (" + activatedNodes + ");");
+	String __old_name = _M_name;
+	boolean __generate = false;
+	boolean __update_and_generate = false;
+	boolean __update = false;
         try {
-            IDLDataObject __ido = (IDLDataObject)activatedNodes[0].getCookie 
-		(IDLDataObject.class);
-	    if (__ido == null)
-		throw new AssertionException ("__ido == null");
-	    int __value = __ido.hasGeneratedImplementation ();
-	    String __old_name = _M_name;
-            if (__value == 0)
-                _M_name = _M_generate;
-            if (__value == 1)
-                _M_name = _M_update_and_generate;
-            if (__value == 2)
-                _M_name = _M_update;
-	    this.firePropertyChange ("name", __old_name, _M_name);
-	    //this.firePropertyChange ("name", __old_name, _M_name);
-	    //this.firePropertyChange ("name", __old_name, _M_name);
+	    for (int __i=0; __i<__activated_nodes.length; __i++) {
+		IDLDataObject __ido = (IDLDataObject)__activated_nodes[__i].getCookie 
+		    (IDLDataObject.class);
+		if (__ido == null)
+		    throw new AssertionException ("__ido == null");
+		int __value = __ido.hasGeneratedImplementation ();
+		if (__value == 0) {
+		    //_M_name = _M_generate;
+		    __generate = true;
+		}
+		if (__value == 1) {
+		    //_M_name = _M_update_and_generate;
+		    __update_and_generate = true;
+		}
+		if (__value == 2) {
+		    //_M_name = _M_update;
+		    __update = true;
+		}
+	    }
         } catch (Exception __ex) {
             //__ex.printStackTrace ();
 	    //System.out.println ("-> false");
             return false;
-        }
+        } finally {
+	    if (__generate) {
+		//System.out.println ("generate...");
+		_M_name = _M_generate;
+	    }
+	    if (__update) {
+		//System.out.println ("update...");
+		_M_name = _M_update;
+	    }
+	    if (__generate && __update && !__update_and_generate) {
+		//System.out.println ("__generate && __update && !__update_and_generate");
+		__update_and_generate = true;
+	    }
+	    if (__update_and_generate) {
+		//System.out.println ("__update_and_generate");
+		_M_name = _M_update_and_generate;
+	    }
+	    if (!__update_and_generate && !__update && !__generate) {
+		// exception for first IDO
+		_M_name = _M_update_and_generate;
+	    }
+	    this.firePropertyChange ("name", __old_name, _M_name);
+	    //this.firePropertyChange ("name", __old_name, _M_name);
+	    //this.firePropertyChange ("name", __old_name, _M_name);
+	}
 	//System.out.println ("-> true");
         return true;
     }
@@ -114,11 +146,15 @@ public class GenerateImplAction extends CookieAction {
     *
     * @param activatedNodes gives array of actually activated nodes.
     */
-    protected void performAction (final Node[] activatedNodes) {
-        IDLNodeCookie unc = (IDLNodeCookie)activatedNodes[0].getCookie(IDLNodeCookie.class);
-        if (unc != null) {
-            unc.GenerateImpl((IDLDataObject)activatedNodes[0].getCookie (IDLDataObject.class));
-        }
+    protected void performAction (final Node[] __activated_nodes) {
+	for (int __i=0; __i<__activated_nodes.length; __i++) {
+	    IDLNodeCookie __unc 
+		= (IDLNodeCookie)__activated_nodes[__i].getCookie(IDLNodeCookie.class);
+	    if (__unc != null) {
+		__unc.GenerateImpl 
+		    ((IDLDataObject)__activated_nodes[__i].getCookie (IDLDataObject.class));
+	    }
+	}
     }
 }
 

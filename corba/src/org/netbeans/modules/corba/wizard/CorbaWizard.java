@@ -197,7 +197,8 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                         if (bd.getName().equals(CorbaWizard.this.data.getClientBindMethod())) {
                             WizardSettings ws = bd.getWizardSettings();
                             if (ws != null && ws.isSupported()) {
-                                Iterator wri = ws.getRequirements().iterator();                               while (wri.hasNext()) {
+                                Iterator wri = ws.getRequirements().iterator();
+                                while (wri.hasNext()) {
                                     WizardRequirement wr = (WizardRequirement)wri.next();
                                     if (wr.getType().equals(STRING))
                                         activeSettings.addJavaTemplateCodePatchPair(wr.getValue(), (String)bindingDetail.get(wr.getValue())); // NOI18N
@@ -260,8 +261,11 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                             Pair pair = (Pair)implNames.next();
                             if (((String)pair.second).indexOf(ifaceName) != -1) {
                                 String implName = pair.first.toString() + pair.second.toString();
-                                if (pkg != null)
-                                    implName = pkg.getPrimaryFile().getPackageName('.') + "." + implName;
+                                if (pkg != null) {
+                                    String pkgName = pkg.getPrimaryFile().getPackageName('.');
+                                    if (pkgName != null && pkgName.length() > 0) 
+                                        implName = pkg.getPrimaryFile().getPackageName('.') + "." + implName;
+                                }
                                 ClassElement cle = ClassElement.forName( implName );
                                 if (cle != null) {
                                     Identifier sid = cle.getSuperclass();
@@ -278,7 +282,11 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                                             String baseName = iids[j].getName();
                                             if (baseName != null && baseName.startsWith(activeSettings.getImplIntPrefix()) && baseName.endsWith(activeSettings.getImplIntPostfix())) {
                                                 cbImplClassName = baseName.substring(activeSettings.getImplIntPrefix().length(), baseName.length() - activeSettings.getImplIntPostfix().length());
-                                                cbImplClassName = iids[j].getQualifier() + "." + activeSettings.getTieClassPrefix() + cbImplClassName + activeSettings.getTieClassPostfix();
+                                                String qual = iids[j].getQualifier();
+                                                if (qual != null && qual.length() > 0)
+                                                    cbImplClassName = qual + "." + activeSettings.getTieClassPrefix() + cbImplClassName + activeSettings.getTieClassPostfix();
+                                                else
+                                                    cbImplClassName = activeSettings.getTieClassPrefix() + cbImplClassName + activeSettings.getTieClassPostfix();
                                                 activeSettings.addJavaTemplateCodePatchPair("/*FFJ_CORBA_TODO_SERVANT_CLASS_NAME*/", cbImplClassName); // NOI18N
                                                 cbImplClassTIECtorParam = "new " + implName + "()"; // NOI18N
                                                 activeSettings.addJavaTemplateCodePatchPair("/*FFJ_CORBA_TODO_TIE_SERVANT_CTOR_PARAM*/", cbImplClassTIECtorParam); // NOI18N
@@ -340,8 +348,11 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                         Pair pair = (Pair)implNames.next();
                         if (((String)pair.second).indexOf(ifaceName) != -1) {
                             String implName = pair.first.toString() + pair.second.toString();
-                            if (pkg != null)
-                                implName = pkg.getPrimaryFile().getPackageName('.') + "." + implName;
+                            if (pkg != null) {
+                                String pkgName = pkg.getPrimaryFile().getPackageName('.');
+                                if (pkgName != null && pkgName.length() > 0)
+                                    implName =  pkgName + "." + implName;
+                            }
                             ClassElement cle = ClassElement.forName( implName );
                             if (cle != null) {
                                 Identifier sid = cle.getSuperclass();
@@ -358,7 +369,11 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                                         String baseName = iids[j].getName();
                                         if (baseName != null && baseName.startsWith(activeSettings.getImplIntPrefix()) && baseName.endsWith(activeSettings.getImplIntPostfix())) {
                                             implClassName = baseName.substring(activeSettings.getImplIntPrefix().length(), baseName.length() - activeSettings.getImplIntPostfix().length());
-                                            implClassName = iids[j].getQualifier() + "." + activeSettings.getTieClassPrefix() + implClassName + activeSettings.getTieClassPostfix();
+                                            String qual = iids[j].getQualifier();
+                                            if (qual != null && qual.length() > 0)
+                                                implClassName =  qual + "." + activeSettings.getTieClassPrefix() + implClassName + activeSettings.getTieClassPostfix();
+                                            else
+                                                implClassName =  activeSettings.getTieClassPrefix() + implClassName + activeSettings.getTieClassPostfix();
                                             activeSettings.addJavaTemplateCodePatchPair("/*FFJ_CORBA_TODO_SERVANT_CLASS_NAME*/", implClassName); // NOI18N
                                             implClassTIECtorParam = "new " + implName + "()"; // NOI18N
                                             activeSettings.addJavaTemplateCodePatchPair("/*FFJ_CORBA_TODO_TIE_SERVANT_CTOR_PARAM*/", implClassTIECtorParam); // NOI18N
@@ -493,8 +508,11 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
         
         private String idlScopedName2JavaName (String name, DataFolder pkg) {
             String javaName = Utilities.replaceString(name, "::", ".");
-            if (pkg != null)
-                javaName = pkg.getPrimaryFile().getPackageName('.') + "." + javaName;
+            if (pkg != null) {
+                String pkgName = pkg.getPrimaryFile().getPackageName('.');
+                if (pkgName != null && pkgName.length() > 0)
+                    javaName = pkgName + "." + javaName;
+            }
             return javaName;
         }
     }

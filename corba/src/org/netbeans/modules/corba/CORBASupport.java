@@ -43,8 +43,18 @@ public class CORBASupport {
     public static final String CANT_GENERATE = CORBASupport.bundle.getString
 	("CTL_CANTGENERATE"); // NOI18N
     
+    public static final String CANT_GENERATE_INTO_RO_FS = CORBASupport.bundle.getString
+	("CTL_CANTGENERATE_INTO_RO_FS"); // NOI18N
+    
     public static final String GENERATE = CORBASupport.bundle.getString
 	("CTL_GENERATE"); // NOI18N
+
+    public static final String PARTIAL_CONFIGURATION = CORBASupport.bundle.getString
+	("CTL_PARTIAL_CONFIGURATION");
+
+    public static final String OPENORB_CONFIGURATION = CORBASupport.bundle.getString
+	("CTL_OPENORB_CONFIGURATION");
+
     /*
       public static final String INHER = CORBASupport.bundle.getString ("CTL_Inher");
       

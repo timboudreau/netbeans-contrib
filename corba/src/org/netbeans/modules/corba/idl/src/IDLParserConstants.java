@@ -17,19 +17,19 @@ package org.netbeans.modules.corba.idl.src;
 public interface IDLParserConstants {
 
   int EOF = 0;
-  int ID = 84;
-  int OCTALINT = 85;
-  int DECIMALINT = 86;
-  int HEXADECIMALINT = 87;
-  int FLOATONE = 88;
-  int FLOATTWO = 89;
-  int CHARACTER = 90;
-  int WCHARACTER = 91;
-  int STRING = 92;
-  int WSTRING = 93;
-  int FIXED = 94;
-  int VERSION = 95;
-  int FILE = 96;
+  int ID = 81;
+  int OCTALINT = 82;
+  int DECIMALINT = 83;
+  int HEXADECIMALINT = 84;
+  int FLOATONE = 85;
+  int FLOATTWO = 86;
+  int CHARACTER = 87;
+  int WCHARACTER = 88;
+  int STRING = 89;
+  int WSTRING = 90;
+  int FIXED = 91;
+  int VERSION = 92;
+  int FILE = 93;
 
   int DEFAULT = 0;
 
@@ -42,11 +42,8 @@ public interface IDLParserConstants {
     "<token of kind 5>",
     "<token of kind 6>",
     "<token of kind 7>",
+    "<token of kind 8>",
     "\"#\"",
-    "\"pragma\"",
-    "\"ID\"",
-    "\"prefix\"",
-    "\"version\"",
     "\";\"",
     "\"module\"",
     "\"{\"",

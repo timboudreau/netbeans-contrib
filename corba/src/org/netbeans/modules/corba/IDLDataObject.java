@@ -784,6 +784,8 @@ public class IDLDataObject extends MultiDataObject
         LinkedList __retval = new LinkedList ();
         String __impl_prefix = null;
         String __impl_postfix = null;
+        String __value_impl_prefix = null;
+        String __value_impl_postfix = null;
         CORBASupportSettings __css = (CORBASupportSettings)CORBASupportSettings.findObject
 	    (CORBASupportSettings.class, true);
 	if (!__css.getActiveSetting ().isTie ()) {
@@ -796,6 +798,8 @@ public class IDLDataObject extends MultiDataObject
 	    __impl_prefix = __css.getActiveSetting ().getTieImplPrefix ();
 	    __impl_postfix = __css.getActiveSetting ().getTieImplPostfix ();
 	}
+	__value_impl_prefix = __css.getActiveSetting ().getValueImplPrefix ();
+	__value_impl_postfix = __css.getActiveSetting ().getValueImplPostfix ();
         LinkedList __int_names = this.getIdlInterfaces (STYLE_ALL);
 	Iterator __iterator = __int_names.iterator ();
 	while (__iterator.hasNext ()) {
@@ -803,6 +807,15 @@ public class IDLDataObject extends MultiDataObject
 	    String __package = ImplGenerator.modules2package (__interface);
 	    __retval.add (new Pair 
 		(__package, __impl_prefix + __interface.getName () + __impl_postfix));
+	}
+        LinkedList __val_names = this.getIDLValues ();
+	__iterator = __val_names.iterator ();
+	while (__iterator.hasNext ()) {
+	    ValueElement __value = (ValueElement)__iterator.next ();
+	    String __package = ImplGenerator.modules2package (__value);
+	    __retval.add (new Pair 
+		(__package, __value_impl_prefix + __value.getName () +
+		 __value_impl_postfix));
 	}
 
         return __retval;
@@ -1231,7 +1244,16 @@ public class IDLDataObject extends MultiDataObject
             new NotSetuped ();
             return;
         }
-
+	try {
+	    if (this.getPrimaryFile ().getFileSystem ().isReadOnly ()) {
+		TopManager.getDefault ().notify (new NotifyDescriptor.Message
+		    (CORBASupport.CANT_GENERATE_INTO_RO_FS));
+		return;
+	    }
+	} catch (FileStateInvalidException __ex) {
+	    TopManager.getDefault ().getErrorManager ().notify (__ex);
+	    return;
+	}
         if (DEBUG)
 	    System.out.println ("generating of idl implemenations..."); // NOI18N
         generator = new ImplGenerator (this);

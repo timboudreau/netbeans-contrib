@@ -185,6 +185,12 @@ SKIP :
 	  | <"#" ([" ","\t"])* (["a"-"z","A"-"Z","0"-"9","_"])+ ([" ","\t"])*  
 	  (["a"-"z","A"-"Z","0"-"9"])+ (["\""])+ (["a"-"z","A"-"Z","0"-"9","_"])+ (["\""])+ (["\n"])* >
 	*/
+
+	/*
+	 * Handling # pragma <anything>
+	 */
+	| < "#" "pragma" ( (~["\n","\r"]) )* >
+
 }
 
 /* comment for matching directives    */
@@ -238,7 +244,7 @@ void cpp_directive() :
       }
   } 
 }
-
+/*
 void pragma() :
 {}
 {
@@ -248,7 +254,7 @@ void pragma() :
   LOOKAHEAD(3)
   pragma_prefix()
 |
-      //LOOKAHEAD(2)
+  //LOOKAHEAD(2)
   pragma_version()
 }
 
@@ -289,7 +295,7 @@ void pragma_version() :
   //__t=( (["0"-"9"])+ "." (["0"-"9"]) )
   { System.out.println ("#pragma version " + __name + " " + __version);} 
 }
-
+*/
 
 /* Production 1 */
 
@@ -320,8 +326,10 @@ void definition() :
 |
   LOOKAHEAD(2)
   cpp_directive()
-|
-  pragma()
+      /*
+	|
+	pragma()
+      */
 }
 
 /* Production 3 */
@@ -424,8 +432,10 @@ void export() :
 |
   LOOKAHEAD(2)
   cpp_directive()
-|
-  pragma()
+      /*
+	|
+	pragma()
+      */
 }
 
 /* Production 10 */
@@ -1434,8 +1444,10 @@ void member() #MemberElement :
 |
   LOOKAHEAD(2)
   cpp_directive()
-|
-  pragma()
+      /*
+	|
+	pragma()
+      */
 }
 
 /* Production 72 */
@@ -1506,7 +1518,7 @@ void casex() #UnionMemberElement :
 {}
 {
   { String cases = "", tmp = ""; IDLType type; Vector tmp_vec; DeclaratorElement element; }
-  ( tmp = case_label() {cases += tmp + ", ";} )+ [ pragma() ] tmp_vec = element_spec() 
+  ( tmp = case_label() {cases += tmp + ", ";} )+ /*[ pragma() ]*/ tmp_vec = element_spec() 
   {
     type = (IDLType)tmp_vec.elementAt (0);
     element = (DeclaratorElement)tmp_vec.elementAt (1);
@@ -1566,7 +1578,7 @@ IDLType enum_type() #EnumTypeElement :
      jjtThis.setColumn (id.getColumn ());
      jjtThis.setFileName (id.getFileName ());
    } 
-  "{" [ pragma() ] enumerator() ( "," [ pragma() ] enumerator() )* "}"
+  "{" /*[ pragma() ]*/ enumerator() ( "," /*[ pragma() ]*/ enumerator() )* "}"
   { return type;}
 }
 
@@ -2188,7 +2200,6 @@ TOKEN :
 |
   < VERSION : ( (["0"-"9"])+ "." (["0"-"9"])+ ) >
 |
-  <  FILE : ( "\"" ( (~["\"","\n","\r"]) )* "\"" ) >
+  < FILE : ( "\"" ( (~["\"","\n","\r"]) )* "\"" ) >
 }
-
 

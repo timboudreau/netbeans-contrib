@@ -16,6 +16,8 @@ package org.netbeans.modules.corba;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectInput;
 
 import java.util.ResourceBundle;
 import java.util.Map;
@@ -32,6 +34,7 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.FileEntry;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.loaders.ExtensionList;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileChangeListener;
@@ -66,6 +69,8 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     
     private static final String JAVA_EXTENSION = "java"; // NOI18N
     private static final String CLASS_EXTENSION = "class"; // NOI18N
+
+    public static final String PROP_EXTENSIONS = "extensions"; // NOI18N
 
     protected transient int fi_counter = 0;
     
@@ -111,6 +116,34 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 	    SystemAction.get(ToolsAction.class),
 	    SystemAction.get(PropertiesAction.class),
 	});
+    }
+
+    public ExtensionList getExtensions () {
+	ExtensionList extensions = (ExtensionList)getProperty(PROP_EXTENSIONS);
+	if (extensions == null) {
+            extensions = new ExtensionList();
+            extensions.addExtension(IDL_EXTENSION);
+	    putProperty(PROP_EXTENSIONS, extensions, false);
+        }
+        return extensions;
+    }
+
+    public void setExtensions(ExtensionList ext) {
+        putProperty(PROP_EXTENSIONS, ext, true);
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+	super.writeExternal(out);
+	out.writeInt(1);
+	out.writeObject(getProperty(PROP_EXTENSIONS));	
+    }
+    
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+	super.readExternal(in);
+	if (in.available() > 0) {
+	    in.readInt();
+	    putProperty(PROP_EXTENSIONS, in.readObject(), false);
+	}
     }
 
     /** Creates new IDLDataObject for this FileObject.
@@ -310,7 +343,8 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 	}
 
 	String __ext = __fo.getExt();
-	if (__ext.equals (IDL_EXTENSION)) {
+        if (getExtensions().isRegistered(__fo)) {
+//	if (__ext.equals (IDL_EXTENSION)) {
 	    this.addFileObjectToCache (__fo);
 	    if (DEBUG) {
 		// profiling hack

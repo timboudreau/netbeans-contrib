@@ -35,15 +35,20 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 
 
     // initialization of the array of descriptors
-    static {
+/*    static {
+        final ResourceBundle bundle =
+            NbBundle.getBundle(IDLDataLoaderBeanInfo.class);
 	//System.out.println ("// initialization of the array of descriptors"); // NOI18N
         try {
             descriptors = new PropertyDescriptor[] {
+	        new PropertyDescriptor("extensions", IDLDataLoader.class, "getExtensions", "setExtensions"), // NOI18N
 		new PropertyDescriptor ("_M_hide_generated_files", IDLDataLoader.class, // NOI18N
 					"getHide", "setHide") // NOI18N
-		    };
+            };
+            descriptors[0].setDisplayName(bundle.getString("PROP_Extensions"));
+            descriptors[0].setShortDescription(bundle.getString("HINT_Extensions"));
 	    // hidden options for serialization
-	    descriptors[0].setHidden (true);
+	    descriptors[1].setHidden (true);
 
 	    //System.out.println ("// initialization of the array of descriptors"); // NOI18N
 	} catch (IntrospectionException ex) {
@@ -52,7 +57,7 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 		ex.printStackTrace ();
         }
     }
-
+*/
     /** Default constructor.
     */
     public IDLDataLoaderBeanInfo() {
@@ -86,6 +91,26 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
     private static void initializeDescriptors () {
         final ResourceBundle bundle =
             NbBundle.getBundle(IDLDataLoaderBeanInfo.class);
+	//System.out.println ("// initialization of the array of descriptors"); // NOI18N
+        try {
+            descriptors = new PropertyDescriptor[] {
+	        new PropertyDescriptor("extensions", IDLDataLoader.class, "getExtensions", "setExtensions"), // NOI18N
+		new PropertyDescriptor ("_M_hide_generated_files", IDLDataLoader.class, // NOI18N
+					"getHide", "setHide") // NOI18N
+            };
+            descriptors[0].setDisplayName(bundle.getString("PROP_Extensions"));
+            descriptors[0].setShortDescription(bundle.getString("HINT_Extensions"));
+	    // hidden options for serialization
+	    descriptors[1].setHidden (true);
+
+	    //System.out.println ("// initialization of the array of descriptors"); // NOI18N
+	} catch (IntrospectionException ex) {
+            //throw new InternalError ();
+            if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
+		ex.printStackTrace ();
+        }
+/*        final ResourceBundle bundle =
+            NbBundle.getBundle(IDLDataLoaderBeanInfo.class);
 	//System.out.println ("initializeDescriptors"); // NOI18N
         try {
             descriptors =  new PropertyDescriptor[] {
@@ -98,6 +123,7 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		e.printStackTrace ();
         }
+*/
     }
     
     public BeanInfo[] getAdditionalBeanInfo() {

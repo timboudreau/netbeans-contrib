@@ -382,7 +382,49 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     }
 
     public void initOrb () {
-        _M_orb = ORB.init (new String[] {""}, null); // NOI18N
+	String __orb_class = System.getProperty ("org.omg.CORBA.ORBClass");
+	String __orb_singleton = System.getProperty ("org.omg.CORBA.ORBSingletonClass");
+	boolean __set_property = false;
+	if (__orb_class == null && __orb_singleton == null) {
+	    __set_property = true;
+	}
+	else {
+	    if (__orb_class == null || __orb_singleton == null) {
+		// partial setup
+		/*
+		  System.out.println ("Partial ORB setup:");
+		  System.out.println ();
+		  System.out.println ("org.omg.CORBA.ORBClass = " + __orb_class);
+		  System.out.println ("org.omg.CORBA.ORBSingletonClass = " + __orb_singleton); 
+		  System.out.println ();
+		  System.out.println ("IDE will use standard OpenORB Configuration!");
+		*/
+		StringBuffer __buf = new StringBuffer ();
+		__buf.append (CORBASupport.PARTIAL_CONFIGURATION);
+		__buf.append ("\n\n");
+		__buf.append ("org.omg.CORBA.ORBClass = ");
+		__buf.append (__orb_class);
+		__buf.append ("\n");
+		__buf.append ("org.omg.CORBA.ORBSingletonClass = ");
+		__buf.append (__orb_singleton);
+		__buf.append ("\n\n");
+		__buf.append (CORBASupport.OPENORB_CONFIGURATION);
+		String __msg = __buf.toString ();
+		__set_property = true;
+		TopManager.getDefault ().notify (new NotifyDescriptor.Message
+		    (__msg));
+	    }
+	}
+	Properties __props = System.getProperties ();
+	if (__set_property) {
+	    __props.put ("org.omg.CORBA.ORBClass", "org.openorb.CORBA.ORB");
+	    __props.put ("org.omg.CORBA.ORBSingletonClass",
+			 "org.openorb.CORBA.ORBSingleton");
+	    __props.put ("openorb.config", "openorb.xml");
+	}
+	System.out.println ("Initializing ORB");
+        _M_orb = ORB.init (new String[] {""}, __props); // NOI18N
+	System.out.println ("ORB class: " + _M_orb.getClass ().getName ());
     }
 
 
@@ -455,6 +497,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
 
     public void setBeans (java.lang.Object[] __beans) {
+	try {
 	//boolean DEBUG = true;
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::setBeans (" 
@@ -482,8 +525,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    ORBSettings __setting = (ORBSettings)__beans[i];
 	    if (DEBUG)
 		System.out.println ("trying " + __setting.getName ());
-	    if (DEBUG)
-		System.out.println (__setting);
+	    //if (DEBUG)
+	    //System.out.println (__setting);
 	    Iterator __iter = _S_loaded_context.iterator ();
 	    while (__iter.hasNext ()) {
 		ORBSettings __tmp = (ORBSettings)__iter.next ();
@@ -646,6 +689,11 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    if (DEBUG)
 		System.out.println ("seting java template map after loading");
 	    this.getActiveSetting ().setJavaTemplateTable ();
+	}
+
+	} catch (Exception __ex) {
+	    //__ex.printStackTrace ();
+	    TopManager.getDefault ().getErrorManager ().notify (__ex);
 	}
     }
 

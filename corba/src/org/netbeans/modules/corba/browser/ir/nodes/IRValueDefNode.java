@@ -73,7 +73,7 @@ public class IRValueDefNode extends IRContainerNode {
                 }
             }
             
-            if (_value.supported_interfaces().length > 0) {
+            if (_value.supported_interfaces() != null && _value.supported_interfaces().length > 0) {
                 code = code + "supports ";
                 for (int i=0; i<_value.supported_interfaces().length; i++) {
                     if (i==0) 
@@ -236,7 +236,7 @@ public class IRValueDefNode extends IRContainerNode {
         });
         set.put ( new PropertySupport.ReadOnly (Util.getLocalizedString("TITLE_Base"), String.class, Util.getLocalizedString("TITLE_Base"), Util.getLocalizedString("TIP_ValueBase")) {
             public java.lang.Object getValue () {
-                if  (_value != null) 
+                if  (_value != null && _value.base_value()!=null) 
                     return _value.base_value().name();
                 else
                     return "";
@@ -245,6 +245,8 @@ public class IRValueDefNode extends IRContainerNode {
         set.put ( new PropertySupport.ReadOnly (Util.getLocalizedString("TITLE_AbstractBase"), String.class, Util.getLocalizedString("TITLE_AbstractBase"), Util.getLocalizedString("TIP_ValueAbstractBase")) {
             public java.lang.Object getValue () {
                 ValueDef[] avs = _value.abstract_base_values ();
+		if (avs == null)
+		    return "";
                 String list = "";
                 for (int i=0; i<avs.length; i++) {
                     if (i!=0)
@@ -258,6 +260,8 @@ public class IRValueDefNode extends IRContainerNode {
         set.put ( new PropertySupport.ReadOnly (Util.getLocalizedString("TITLE_Supports"), String.class, Util.getLocalizedString("TITLE_Supports"), Util.getLocalizedString("TIP_ValueSupports")) {
             public java.lang.Object getValue () {
                 InterfaceDef[] ints = _value.supported_interfaces ();
+		if (ints == null)
+		    return "";
                 String list = "";
                 for (int i=0; i<ints.length; i++) {
                     if (i!=0)
