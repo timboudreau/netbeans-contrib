@@ -32,7 +32,7 @@ Microsystems, Inc. All Rights Reserved.
         <fileset dir="${nbroot}/openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-	<pathelement location="${nbroot}/openidex/netbeans/lib/ext/openidex.jar"/>
+	<pathelement location="${nbroot}/openidex/netbeans/modules/openidex.jar"/>
 	<pathelement location="${nbroot}/java/netbeans/modules/java.jar"/>
 	<pathelement location="compiletime/idlj.jar"/>
 	<pathelement location="compiletime/corbanscs.jar"/>
