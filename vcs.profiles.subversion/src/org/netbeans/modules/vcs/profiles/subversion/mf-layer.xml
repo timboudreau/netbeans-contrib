@@ -22,7 +22,7 @@ Microsystems, Inc. All Rights Reserved.
       <folder name="modules">
         <folder name="vcs">
           <folder name="profiles">
-            <folder name="pvcs">
+            <folder name="subversion">
               <folder name="config">
                 &includefiles_configRB;
               </folder>
