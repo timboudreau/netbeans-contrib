@@ -18,6 +18,7 @@ Microsystems, Inc. All Rights Reserved.
   <property name="nbroot" value=".."/>
   <property name="binroot" location="../../nbextra"/>
   <property name="nbext" value="${nbroot}/nbbuild"/>
+  <property name="nbm_alias" value="nb_ide"/>
 
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/>
@@ -93,7 +94,7 @@ Microsystems, Inc. All Rights Reserved.
       <description>
         RMI module
       </description>
-      <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
+      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>
 

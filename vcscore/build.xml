@@ -15,6 +15,7 @@ Microsystems, Inc. All Rights Reserved.
 <project name="vcscore" default="netbeans" basedir=".">
 
   <property name="binroot" location="../../nbextra"/>
+  <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" location="../nbbuild/standard-nbm-license.txt"/>
@@ -70,7 +71,7 @@ Microsystems, Inc. All Rights Reserved.
       <description>
         Core version-control support.
       </description>
-      <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
+      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>
 
