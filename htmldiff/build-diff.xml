@@ -41,7 +41,7 @@ Microsystems, Inc. All Rights Reserved.
             tag="release35"
             cvsRoot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
             compressionlevel="3" 
-            package="nbbuild openide core libs xml autoupdate java/srcmodel java/arch debuggercore/oldapi debuggercore/arch"
+            package="nbbuild editor openide core libs xml autoupdate java/srcmodel java/arch debuggercore/oldapi debuggercore/arch"
         />
         <patch patchfile="patch35.diff" dir="${old-nb}" strip="0" />
     </target>
@@ -61,7 +61,8 @@ Microsystems, Inc. All Rights Reserved.
             <property name="modules" value="
                 java/srcmodel,
                 autoupdate,
-                debuggercore/oldapi" 
+                debuggercore/oldapi,
+                editor" 
             />
         </ant>
     </target>
@@ -81,7 +82,8 @@ Microsystems, Inc. All Rights Reserved.
             <property name="modules" value="
                 java/srcmodel,
                 autoupdate,
-                debuggercore/oldapi" 
+                debuggercore/oldapi,
+                editor" 
             />
         </ant>
     </target>
