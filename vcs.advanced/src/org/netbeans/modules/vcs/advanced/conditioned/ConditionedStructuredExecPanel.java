@@ -40,12 +40,37 @@ public class ConditionedStructuredExecPanel extends StructuredExecPanel {
     }
     
     protected void postInitComponents() {
-        DefaultTableModel model = new DefaultTableModel(new Object[0][0], new Object[] {
+        argTableModel = new DefaultTableModel(new Object[0][0], new Object[] {
             org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.Arguments"),
+            org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.ArgLine"),
             org.openide.util.NbBundle.getMessage(ConditionedStructuredExecPanel.class, "ConditionedStructuredExecPanel.Conditions")
-        });
-        getArgTable().setModel(model);
+        }) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Boolean.class, IfUnlessCondition.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        };
+        final javax.swing.JTable argTable = getArgTable();
+        argTable.setModel(argTableModel);
         addConditionPanel();
+        Object lineHeaderValue = argTable.getColumnModel().getColumn(1).getHeaderValue();
+        javax.swing.table.TableCellRenderer tcr = argTable.getColumnModel().getColumn(1).getHeaderRenderer();
+        if (tcr == null) {
+            tcr = argTable.getTableHeader().getDefaultRenderer();
+        }
+        java.awt.Component lineHeaderComponent = tcr.getTableCellRendererComponent(argTable, lineHeaderValue, false, true, 0, 1);
+        int width = lineHeaderComponent.getPreferredSize().width;
+        argTable.getColumnModel().getColumn(1).setPreferredWidth(width + 24);
+        argTable.getColumnModel().getColumn(1).setMaxWidth(width + 24);
+        editButton.setVisible(false);
+        argTable.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent lsev) {
+                removeButton.setSelected(argTable.getSelectedRows().length > 0);
+            }
+        });
     }
     
     private void addConditionPanel() {
