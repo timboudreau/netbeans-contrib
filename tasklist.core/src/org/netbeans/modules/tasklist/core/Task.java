@@ -22,10 +22,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.ResourceBundle;
 import org.netbeans.api.tasklist.Suggestion;
 import org.netbeans.api.tasklist.SuggestionProvider;
 import org.openide.ErrorManager;
 import org.openide.nodes.Node;
+import org.openide.util.NbBundle;
 
 
 
@@ -35,6 +37,35 @@ import org.openide.nodes.Node;
  * tasklist.
  * @author Tor Norbye */
 public class Task extends Suggestion implements Cloneable {
+    /** Keys for the Bundle.properties */
+    private static final String[] PRIORITIES_KEYS = {
+        "PriorityUndefined",
+        "PriorityLow",
+        "PriorityMediumLow",
+        "PriorityMedium",
+        "PriorityMediumHigh",
+        "PriorityHigh"
+    };
+    
+    /** Names for priorities */
+    private static String[] PRIORITIES;
+    
+    static {
+        PRIORITIES = new String[PRIORITIES_KEYS.length];
+        ResourceBundle rb = NbBundle.getBundle(Task.class);
+        for (int i = 0; i < PRIORITIES_KEYS.length; i++) {
+            PRIORITIES[i] = rb.getString(PRIORITIES_KEYS[i]);
+        }
+    }
+    
+    /**
+     * Returns names for priorities
+     *
+     * @return [0] - undefined, [1] - low, ...
+     */
+    public static String[] getPriorityNames() {
+        return PRIORITIES;
+    }
 
     /** The subtask list has changed */
     public static final String PROP_CHILDREN_CHANGED = "children"; // NOI18N

@@ -23,6 +23,7 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Set;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 import org.netbeans.modules.tasklist.core.Task;
@@ -44,6 +45,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private BeanTreeView treeView;
     private Task parent = null;
     private SimpleDateFormat format;
+    private ComboBoxModel prioritiesModel = 
+        new DefaultComboBoxModel(Task.getPriorityNames());
     
     private static boolean appendDefault = Settings.getDefault().getAppend();
     
@@ -121,7 +124,12 @@ class EditTaskPanel extends JPanel implements ActionListener {
             if (item.getSummary() != null) {
                 descriptionTextField.setText(item.getSummary());
             }
-            priorityTextField.setText(Integer.toString(item.getPriorityNumber()));
+            int p = item.getPriorityNumber();
+            if (p < 0)
+                p = 0;
+            if (p > 5)
+                p = 5;
+            priorityComboBox.setSelectedIndex(p);
             if (item.getFilename() != null) {
                 fileTextField.setText(item.getFilename());
                 fileCheckBox.setSelected(true);
@@ -141,8 +149,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
         }
         
         addSourceButton.addActionListener(this);
-        plusButton.addActionListener(this);
-        minusButton.addActionListener(this);
         
         descriptionTextField.requestDefaultFocus();
         descriptionTextField.requestFocus();
@@ -180,9 +186,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         subTaskCheckBox = new javax.swing.JCheckBox();
         subtaskPanel = new javax.swing.JPanel();
         prioLabel = new javax.swing.JLabel();
-        priorityTextField = new javax.swing.JTextField();
-        plusButton = new javax.swing.JButton();
-        minusButton = new javax.swing.JButton();
+        priorityComboBox = new javax.swing.JComboBox();
         opt1Label = new javax.swing.JLabel();
         categoryLabel = new javax.swing.JLabel();
         categoryCombo = new javax.swing.JComboBox();
@@ -207,21 +211,21 @@ class EditTaskPanel extends JPanel implements ActionListener {
         descLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "Brief_Description")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 12);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(descLabel, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.weightx = 1.0;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(descriptionTextField, gridBagConstraints);
 
     detailsLabel.setLabelFor(detailsScrollPane);
     detailsLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "DetailsLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(detailsLabel, gridBagConstraints);
 
     detailsTextArea.setRows(5);
@@ -231,13 +235,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
     gridBagConstraints.weighty = 1.0;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(detailsScrollPane, gridBagConstraints);
 
     subTaskCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "SubtaskOf")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(subTaskCheckBox, gridBagConstraints);
 
     subtaskPanel.setLayout(new java.awt.BorderLayout());
@@ -247,63 +251,50 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
     gridBagConstraints.weightx = 1.0;
     gridBagConstraints.weighty = 1.0;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(subtaskPanel, gridBagConstraints);
 
-    prioLabel.setLabelFor(priorityTextField);
     prioLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "PriorityLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(prioLabel, gridBagConstraints);
 
-    priorityTextField.setColumns(20);
-    priorityTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-    priorityTextField.setText("3");
+    priorityComboBox.setModel(prioritiesModel);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-    add(priorityTextField, gridBagConstraints);
-
-    plusButton.setText("+");
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(12, 18, 0, 0);
-    add(plusButton, gridBagConstraints);
-
-    minusButton.setText("-");
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
-    add(minusButton, gridBagConstraints);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
+    add(priorityComboBox, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 0);
     add(opt1Label, gridBagConstraints);
 
     categoryLabel.setLabelFor(categoryCombo);
     categoryLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "CategoryLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(categoryLabel, gridBagConstraints);
 
     categoryCombo.setEditable(true);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(categoryCombo, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 0);
     add(opt2Label, gridBagConstraints);
 
     fileCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "AssociatedFile")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(fileCheckBox, gridBagConstraints);
 
     fileTextField.setColumns(100);
@@ -311,14 +302,14 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.gridwidth = 7;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.weightx = 0.7;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(fileTextField, gridBagConstraints);
 
     lineLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "LineLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-    gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(lineLabel, gridBagConstraints);
 
     lineTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
@@ -326,63 +317,69 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.weightx = 0.5;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(lineTextField, gridBagConstraints);
 
     dueCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "DueLabel")); // NOI18N();
     dueCheckBox.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
-            dueCheckBoxItemStateChanged(evt);
+            EditTaskPanel.this.dueCheckBoxItemStateChanged(evt);
         }
     });
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(dueCheckBox, gridBagConstraints);
 
     dueDateTextField.setEditable(false);
     dueDateTextField.setEnabled(false);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridwidth = 8;
+    gridBagConstraints.gridwidth = 7;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(dueDateTextField, gridBagConstraints);
 
     dueDateBrowseButton.setText("...");
     dueDateBrowseButton.setEnabled(false);
     dueDateBrowseButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            dueDateBrowseButtonActionPerformed(evt);
+            EditTaskPanel.this.dueDateBrowseButtonActionPerformed(evt);
         }
     });
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(dueDateBrowseButton, gridBagConstraints);
 
     addLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "AddTo")); // NOI18N();
     gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 7;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(addLabel, gridBagConstraints);
 
     beginningToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
-    appendGroup.add(beginningToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.gridy = 7;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(beginningToggle, gridBagConstraints);
 
     endToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N();
-    appendGroup.add(endToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.gridx = 2;
+    gridBagConstraints.gridy = 7;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(endToggle, gridBagConstraints);
 
     addSourceButton.setText(NbBundle.getMessage(EditTaskPanel.class, "AddToSource")); // NOI18N();
     gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 3;
+    gridBagConstraints.gridy = 7;
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
     gridBagConstraints.weightx = 1.0;
@@ -442,10 +439,10 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JCheckBox fileCheckBox;
     private javax.swing.ButtonGroup appendGroup;
     private javax.swing.JLabel addLabel;
-    private javax.swing.JButton minusButton;
     private javax.swing.JScrollPane detailsScrollPane;
     private javax.swing.JButton dueDateBrowseButton;
     private javax.swing.JTextField dueDateTextField;
+    private javax.swing.JComboBox priorityComboBox;
     private javax.swing.JCheckBox subTaskCheckBox;
     private javax.swing.JTextArea detailsTextArea;
     private javax.swing.JTextField fileTextField;
@@ -456,8 +453,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JLabel lineLabel;
     private javax.swing.JLabel opt1Label;
     private javax.swing.JLabel descLabel;
-    private javax.swing.JButton plusButton;
-    private javax.swing.JTextField priorityTextField;
     private javax.swing.JRadioButton beginningToggle;
     private javax.swing.JRadioButton endToggle;
     private javax.swing.JTextField lineTextField;
@@ -483,12 +478,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     }
     
     int getPrio() {
-        try {
-            int i = Integer.parseInt(priorityTextField.getText());
-            return i;
-        } catch (NumberFormatException e) {
-        }
-        return 3; // Default
+        return priorityComboBox.getSelectedIndex();
     }
     
     boolean hasAssociatedFilePos() {
@@ -598,14 +588,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
         if (source == addSourceButton) {
            HelpCtx help = new HelpCtx("NewTask"); // NOI18N
            TopManager.getDefault().showHelp(help);
-        } else if (source == plusButton) {
-            priorityTextField.setText(Integer.toString(getPrio()+1));
-        } else if (source == minusButton) {
-            int newprio = getPrio()-1;
-            if (newprio < 0) {
-                newprio = 0;
-            }
-            priorityTextField.setText(Integer.toString(newprio));
         }
     }
     

@@ -97,6 +97,9 @@ public class DateSelectionPanel extends javax.swing.JPanel
         tablemodel.setMonth(calendar.get(calendar.MONTH));
         tablemodel.setYear(calendar.get(calendar.YEAR));
         tablemodel.setSelectedDay(calendar.get(calendar.DAY_OF_MONTH));
+        
+        calendarTable.getTableHeader().setReorderingAllowed(false);
+        calendarTable.getTableHeader().setResizingAllowed(false);
     }
     
     /**
@@ -138,10 +141,12 @@ public class DateSelectionPanel extends javax.swing.JPanel
 
         setLayout(new java.awt.BorderLayout());
 
+        setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(11, 11, 12, 12)));
+        jPanel1.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(0, 0, 11, 0)));
         monthNameCmb.setMaximumRowCount(12);
         monthNameCmb.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                monthNameCmbActionPerformed(evt);
+                DateSelectionPanel.this.monthNameCmbActionPerformed(evt);
             }
         });
 
@@ -150,7 +155,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
         prevYearBtn.setText("<");
         prevYearBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                prevYearBtnActionPerformed(evt);
+                DateSelectionPanel.this.prevYearBtnActionPerformed(evt);
             }
         });
 
@@ -172,7 +177,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
         });
         yearFld.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
-                yearFldFocusLost(evt);
+                DateSelectionPanel.this.yearFldFocusLost(evt);
             }
         });
 
@@ -181,7 +186,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
         nextYearBtn.setText(">");
         nextYearBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nextYearBtnActionPerformed(evt);
+                DateSelectionPanel.this.nextYearBtnActionPerformed(evt);
             }
         });
 
