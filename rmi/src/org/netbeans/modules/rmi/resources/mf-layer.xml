@@ -254,6 +254,35 @@ Microsystems, Inc. All Rights Reserved.
       </file>
       
     </folder>
+
+    <!-- Default services -->    
+    <folder name="Services">
+    	<!-- Compiler -->
+        <folder name="CompilerType">
+    	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
+    	    <!--<attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/rmiStubCompilation.gif"/>-->
+    	    <file name="RMIStubCompiler.settings" url="RMIStubCompiler.settings">
+    		<attr name="template" boolvalue="true" />
+    	    </file>
+        </folder>
+
+        <!-- Debugger -->
+        <folder name="DebuggerType">
+    	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
+    	    <!--<attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIDebugger.gif"/> -->
+            <file name="RMIDebugger.settings" url="RMIDebugger.settings">
+                <attr name="template" boolvalue="true"/>
+            </file>
+        </folder>
+        <!-- Executor -->
+        <folder name="Executor">
+    	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
+    	    <!--<attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIExecutor.gif"/> -->
+            <file name="RMIExecutor.settings" url="RMIExecutor.settings">
+                <attr name="template" boolvalue="true"/>
+            </file>
+        </folder>
+    </folder>
     
   </folder>
 
@@ -272,6 +301,10 @@ Microsystems, Inc. All Rights Reserved.
     	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
     	    <!--<attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/rmiStubCompilation.gif"/>-->
 	    <file name="RMIStubCompiler.settings" url="RMIStubCompiler.settings">
+		<attr name="template" boolvalue="true" />
+	    </file>
+	    <!-- IIOP -->
+	    <file name="RMIStubCompilerIIOP.settings" url="RMIStubCompilerIIOP.settings">
 		<attr name="template" boolvalue="true" />
 	    </file>
 	</folder>
