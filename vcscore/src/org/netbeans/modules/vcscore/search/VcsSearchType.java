@@ -191,9 +191,8 @@ public class VcsSearchType extends SearchType {
         boolean statusesAdded = false;
         //statuses = new Vector();
         for(int i = 0; i < nodes.length; i++) {
-            Node node = nodes[i];
-            
-            DataFolder dataFolder = (DataFolder)node.getCookie(DataFolder.class);
+            if (nodes[i].getCookie(DataObject.class) == null) continue;
+            DataFolder dataFolder = (DataFolder)nodes[i].getCookie(DataFolder.class);
             if(dataFolder != null) {
                 FileObject fo = dataFolder.getPrimaryFile();
                 FileSystem fs = null;
@@ -204,45 +203,33 @@ public class VcsSearchType extends SearchType {
                         fsie.printStackTrace();
                     }
                 }
-
                 if(fs instanceof VcsSearchTypeFileSystem) {
                     String[] possibleStatuses = ((VcsSearchTypeFileSystem)fs).getPossibleFileStatuses();
                     if(!statusesAdded) {
                         statuses = new Vector();
                         statusesAdded = true;
                     }
-
                     addStatuses(possibleStatuses);
-                    
-                    return true;
                 }
-            }
-        }
-
-        for(int i = 0; i < nodes.length; i++) {
-            InstanceCookie.Of ic = (InstanceCookie.Of)nodes[i].getCookie(InstanceCookie.Of.class);
-            if(ic != null && ic.instanceOf(Repository.class)) {
-                
-                FileSystem[] fileSystems = TopManager.getDefault().getRepository().toArray();
-                for(int j = 0; j < fileSystems.length; j++) {
-                    if(fileSystems[j] instanceof VcsSearchTypeFileSystem) {
-                        String[] possibleStatuses = ((VcsSearchTypeFileSystem)fileSystems[j]).getPossibleFileStatuses();
-                        if(!statusesAdded) {
-                            statuses = new Vector();
-                            statusesAdded = true;
+            } else {
+                InstanceCookie.Of ic = (InstanceCookie.Of)nodes[i].getCookie(InstanceCookie.Of.class);
+                if(ic != null && ic.instanceOf(Repository.class)) {
+                    FileSystem[] fileSystems = TopManager.getDefault().getRepository().toArray();
+                    for(int j = 0; j < fileSystems.length; j++) {
+                        if(fileSystems[j] instanceof VcsSearchTypeFileSystem) {
+                            String[] possibleStatuses = ((VcsSearchTypeFileSystem)fileSystems[j]).getPossibleFileStatuses();
+                            if(!statusesAdded) {
+                                statuses = new Vector();
+                                statusesAdded = true;
+                            }
+                            addStatuses(possibleStatuses);
                         }
-                        
-                        addStatuses(possibleStatuses);
-                        
-                        return true;
                     }
                 }
-                
-                return false;
             }
         }
 
-        return false;
+        return statusesAdded;
     }
 
     public String getTabText() {
