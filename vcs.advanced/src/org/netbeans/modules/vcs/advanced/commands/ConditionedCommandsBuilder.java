@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
+import org.netbeans.modules.vcs.advanced.conditioned.ConditionedStructuredExec;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
@@ -25,6 +26,7 @@ import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 
 import org.netbeans.modules.vcs.advanced.variables.Condition;
+import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 
 /**
  * Builder of the ConditionedCommands.
@@ -372,7 +374,13 @@ public final class ConditionedCommandsBuilder {
             for (Iterator it = valuesByConditions.keySet().iterator(); it.hasNext(); ) {
                 Condition c = (Condition) it.next();
                 if (c.isSatisfied(conditionalVars)) {
-                    return valuesByConditions.get(c);
+                    Object value = valuesByConditions.get(c);
+                    if (value instanceof ConditionedStructuredExec) {
+                        //value = getStructuredExec((ConditionedStructuredExec) value, conditionalVars);
+                        ConditionedStructuredExec cexec = (ConditionedStructuredExec) value;
+                        value = new StructuredExec(cexec.getWorking(), cexec.getExecutable(), cexec.getArguments(conditionalVars));
+                    }
+                    return value;
                 }
             }
             return null;
