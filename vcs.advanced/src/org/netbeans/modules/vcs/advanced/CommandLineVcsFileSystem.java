@@ -39,7 +39,7 @@ import com.netbeans.developer.modules.vcs.util.Debug;
  * @author Michal Fadljevic
  */
 //-------------------------------------------
-public class CommandLineVcsFileSystem extends VcsFileSystem {
+public class CommandLineVcsFileSystem extends VcsFileSystem implements java.beans.PropertyChangeListener {
   private Debug D = new Debug ("CommandLineVcsFileSystem", true);
   private static transient String CONFIG_ROOT="vcs/config";
   private transient Hashtable commandsByName=null;
@@ -50,10 +50,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
     //D.deb("CommandLineVcsFileSystem()");
     super ();
     readConfiguration ();
+    addPropertyChangeListener(this);
   }
   
   public VcsFactory getVcsFactory () {
-    D.deb("getVcsFactory ()");
     return new CommandLineVcsFactory ();
   }
   
@@ -72,6 +72,16 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
     setAdvancedConfig (getVcsFactory ().getVcsAdvancedCustomizer().readConfig (props));
   }  
 
+  public void propertyChange (PropertyChangeEvent evt) {
+    if (isValid()) {
+      D.deb("Filesystem added to the repository, setting refresh time to "+refreshTimeToSet);
+      setRefreshTime(refreshTimeToSet);
+    } else {
+      D.deb("Filesystem is not valid any more, setting refresh time to 0");
+      setRefreshTime(0);
+    }
+  }
+  
   /*
   protected String g(String s) {
     return NbBundle.getBundle
@@ -82,6 +92,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
 
 /*
  * <<Log>>
+ *  51   Gandalf   1.50        12/21/99 Martin Entlicher Refresh time set after 
+ *       mounting into the Repository.
  *  50   Gandalf   1.49        11/30/99 Martin Entlicher 
  *  49   Gandalf   1.48        11/27/99 Patrik Knakal   
  *  48   Gandalf   1.47        11/23/99 Martin Entlicher 
