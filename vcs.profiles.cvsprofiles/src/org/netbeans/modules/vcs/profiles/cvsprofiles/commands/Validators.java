@@ -35,7 +35,6 @@ public final class Validators {
             try {
                 Process process = rt.exec(new String[] { path.trim(), "-version"}); // NOI18N
                 RequestProcessor.getDefault().post(new ProcessWatcher(process), 100);
-                process.waitFor();
                 InputStream in = new BufferedInputStream(process.getInputStream());
                 BufferedReader r = new BufferedReader(new InputStreamReader(in));
                 try {
@@ -66,6 +65,7 @@ public final class Validators {
                     } else if (!foundVersion) {
                         ret = getString("cvs_unsupported", guessedVersion);
                     }
+                    process.waitFor();
                 } finally {
                     try {
                         r.close();
