@@ -82,6 +82,9 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="DOCUMENT_CLEANUP_REMOVE1" basic="false">
       <value>COMMIT_CMD, 1, "CVS:"</value>
     </variable>
+    <variable name="ARGUMENT_FILES_TO_CLONE" basic="false">
+      <value>TEMPLATE_FILE</value>
+    </variable>
     <variable name="POSSIBLE_FILE_STATUSES" basic="false">
       <value>"Up-to-date", "Locally Modified", "Locally Added", "Locally Removed", "Needs Checkout", "Needs Patch", "Needs Merge", "File had conflicts on merge", "Unknown"</value>
     </variable>

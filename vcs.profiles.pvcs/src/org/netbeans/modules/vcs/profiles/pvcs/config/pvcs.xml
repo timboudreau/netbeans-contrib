@@ -164,6 +164,9 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="ADJUST_VARS" basic="false" if="IS_WINDOWS">
       <value>"ROOTDIR", "PROJECT_DB", "ARCHIVE", "WORKFILE", "CACHED_ATTR"</value>
     </variable>
+    <variable name="ARGUMENT_FILES_TO_CLONE" basic="false">
+      <value>DESCRIPTION_FILE</value>
+    </variable>
     <variable name="MSG_PROMPT_FOR_AUTO_LOCK" basic = "false">
       <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MSG_PROMPT_FOR_AUTO_LOCK)</value>
     </variable>

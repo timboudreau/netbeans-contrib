@@ -167,6 +167,9 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="MAX_CMD_LENGTH" basic="false">
       <value>1000</value>
     </variable>
+    <variable name="ARGUMENT_FILES_TO_CLONE" basic="false">
+      <value>DESCRIPTION_FILE</value>
+    </variable>
   </variables>
   <commands>
     <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS)">
