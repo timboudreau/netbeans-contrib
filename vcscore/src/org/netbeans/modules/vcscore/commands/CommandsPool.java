@@ -289,9 +289,11 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 vce.addFileReaderListener((FileReaderListener) cache);
             }
         }
+        cw.setStartTime(System.currentTimeMillis());
     }
     
     private void commandDone(VcsCommandWrapper cw) {
+        cw.setFinishTime(System.currentTimeMillis());
         VcsCommandExecutor vce = cw.getExecutor();
         //System.out.println("commandDone("+cw.getExecutor().getCommand().getName()+")");
         VcsFileSystem fileSystem = cw.getFileSystem();
@@ -990,6 +992,33 @@ public class CommandsPool extends Object /*implements CommandListener */{
         });
     }
     
+    /** The start time of the command or zero, when the command was not started yet
+     * or can not be found.
+     */
+    public long getStartTime(VcsCommandExecutor vce) {
+        VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
+        if (cw == null) return 0;
+        return cw.getStartTime();
+    }
+    
+    /** The finish time of the command or zero, when the command did not finish yet
+     * or can not be found.
+     */
+    public long getFinishTime(VcsCommandExecutor vce) {
+        VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
+        if (cw == null) return 0;
+        return cw.getFinishTime();
+    }
+    
+    /** The execution time of the command or zero, when the command did not finish yet
+     * or can not be found.
+     */
+    public long getExecutionTime(VcsCommandExecutor vce) {
+        VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
+        if (cw == null) return 0;
+        return cw.getExecutionTime();
+    }
+    
     /**
      * Get the localized string representation of the command exit status.
      * @param exit the exit status, that will be converted to the string.
@@ -1019,6 +1048,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
         private Thread runningThread;
         private RuntimeCommand runtimeCommand;
         private boolean interrupted = false;
+        private long startTime = 0;
+        private long finishTime = 0;
         
         public VcsCommandWrapper(VcsCommandExecutor vce, VcsFileSystem vfs) {
             this.vce = vce;
@@ -1070,6 +1101,30 @@ public class CommandsPool extends Object /*implements CommandListener */{
         
         public boolean isInterrupted() {
             return interrupted;
+        }
+        
+        public void setStartTime(long startTime) {
+            this.startTime = startTime;
+        }
+        
+        public long getStartTime() {
+            return startTime;
+        }
+        
+        public void setFinishTime(long finishTime) {
+            this.finishTime = finishTime;
+        }
+        
+        public long getFinishTime() {
+            return finishTime;
+        }
+        
+        public long getExecutionTime() {
+            if (startTime != 0 && finishTime != 0) {
+                return finishTime - startTime;
+            } else {
+                return 0;
+            }
         }
     }
 

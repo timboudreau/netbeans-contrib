@@ -94,6 +94,41 @@ public class VcsRuntimeCommand extends RuntimeCommand {
                             return CommandsPool.getExitStatusString(executor.getExitStatus());
                         }
                 });
+        if (Boolean.getBoolean("netbeans.vcsdebug")) {
+        set.put(new PropertySupport.ReadOnly("startTime", String.class, "Start Time", null) {
+                        public Object getValue() {
+                            long time = pool.getStartTime(executor);
+                            if (time == 0) return null;
+                            else return new java.util.Date(time).toLocaleString();
+                        }
+                });
+        set.put(new PropertySupport.ReadOnly("finishTime", String.class, "Finish Time", null) {
+                        public Object getValue() {
+                            long time = pool.getFinishTime(executor);
+                            if (time == 0) return null;
+                            else return new java.util.Date(time).toLocaleString();
+                        }
+                });
+        set.put(new PropertySupport.ReadOnly("executionTime", String.class, "Execution Time", null) {
+                        public Object getValue() {
+                            long time = pool.getExecutionTime(executor);
+                            if (time == 0) return null;
+                            else {
+                                long allms = time;
+                                int ms = (int) (time - (time/1000)*1000);
+                                time /= 1000;
+                                int s = (int) (time - (time/60)*60);
+                                time /= 60;
+                                int min = (int) (time - (time/60)*60);
+                                time /= 60;
+                                int h = (int) (time - (time/24)*24);
+                                time /= 24;
+                                int d = (int) time;
+                                return allms+" ms = "+d+"d "+h+"h "+min+"min "+s+"s "+ms+"ms";
+                            }
+                        }
+                });
+        }
                 
     }
 
