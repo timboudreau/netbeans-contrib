@@ -53,12 +53,6 @@ import org.openide.windows.Workspace;
  */
 public class CvsUpdateVisualizer extends OutputVisualizer {
 
-    /**
-     * Sent by MergedResponse when 2 files were merged.
-     * The value is a String instance that tells the full path to the file.
-     */
-    public static final String MERGED_PATH = "Merged_Response_File_Path"; // NOI18N
-    
     public static final String UNKNOWN = ": nothing known about"; //NOI18N
     public static final String EXAM_DIR = ": Updating"; //NOI18N
     public static final String TO_ADD = ": use `cvs add' to create an entry for"; //NOI18N
@@ -401,16 +395,6 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         fileInfoContainer.setFile(fileToDelete);
     }
 
-    public void parseEnhancedMessage(String key, Object value) {
-        if (key.equals(MERGED_PATH)) {
-            if (fileInfoContainer != null) {
-                String path = value.toString();
-                File newFile = new File(path);
-                fileInfoContainer.setFile(newFile);
-            }
-        }
-    }
-   
     public void outputDone() {
         //System.out.println("outputDone("+this.hashCode()+") ENTERED, fic = "+fileInfoContainer+", cp = "+(contentPane != null)+", oi = "+outputInfosToShow);
         if (contentPane != null) {
