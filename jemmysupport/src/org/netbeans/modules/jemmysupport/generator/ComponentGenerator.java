@@ -468,7 +468,7 @@ public class ComponentGenerator {
          * @return string representation of this class
          */        
         public String toString() {
-            return getUniqueName()+" ("+getOperatorClass()+")"; // NOI18N
+            return (isDefaultName()?"<html><b>":"")+getUniqueName()+" ("+getOperatorClass()+")"; // NOI18N
         }
         
         /** Setter for property shortName.
@@ -537,6 +537,9 @@ public class ComponentGenerator {
             _index = index;
         }
         
+        public boolean isDefaultName() {
+            return _uniqueName.startsWith(_operator._instancePrefix+_componentClass+_operator._instanceSuffix);
+        }
     }        
     
     /** creates new ComponentGenerator with configuration from given properties
