@@ -1248,7 +1248,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                         if (fileName.startsWith(fileDir + "/")) {
                             //System.out.println("fileName = "+fileName+", fileDir = "+fileDir+", substring("+(fileDir.length() + 1)+")");
                             fileName = fileName.substring(fileDir.length() + 1);
-                            elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
                         }
                         if (fileDir.length() == 0) {
                             filePath = fileName;
@@ -1264,8 +1263,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                         }
                         fileDir = VcsUtilities.getDirNamePart(filePath);
                         fileName = VcsUtilities.getFileNamePart(filePath);
-                        elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
                     }
+                    elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
                 }
                 if (substituteStatuses) {
                     elements = performStatusSubstitution(elements);
