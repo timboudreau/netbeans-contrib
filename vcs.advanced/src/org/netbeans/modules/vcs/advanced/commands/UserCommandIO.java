@@ -62,6 +62,8 @@ public class UserCommandIO extends Object {
                 intObject = null;
             }
             return intObject;
+        } else if (String.class.equals(type)) {
+            return VcsUtilities.getBundleString(valueStr);
         } else return valueStr;
     }
     
@@ -86,7 +88,7 @@ public class UserCommandIO extends Object {
                 Node subNode = textList.item(0);
                 if (subNode instanceof Text) {
                     Text textNode = (Text) subNode;
-                    label = textNode.getData();
+                    label = VcsUtilities.getBundleString(textNode.getData());
                 }
             }
         }
