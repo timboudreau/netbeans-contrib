@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -249,7 +249,10 @@ public class VssListCommand extends AbstractListCommand {
                             String pattern = elements[0].substring(0, STATUS_POSITION).trim();
                             String file = (String) distinguishable.get(pattern);
                             if (file != null) {
-                                String[] statuses = new String[3];
+                                String[] statuses = (String[]) filesByName.get(file);
+                                if (statuses == null) {
+                                    statuses = new String[3];
+                                }
                                 statuses[0] = file;
                                 if (currentFiles != null && currentFiles.contains(file)) {
                                     statuses[1] = STATUS_CURRENT;
@@ -258,7 +261,7 @@ public class VssListCommand extends AbstractListCommand {
                                 } else {
                                     statuses[1] = STATUS_LOCALLY_MODIFIED;
                                 }
-                                statuses[2] = elements[0].substring(index, index2).trim();
+                                statuses[2] = addLocker(statuses[2], elements[0].substring(index, index2).trim());
                                 filesByName.put(statuses[0], statuses);
                                 stdoutListener.outputData(statuses);
                                 processedFiles.add(file);
@@ -342,6 +345,15 @@ public class VssListCommand extends AbstractListCommand {
         }
     }
     
+    /**
+     * Add multiple locker status. Lockers are separated by commas.
+     */
+    static String addLocker(String lockerStatus, String locker) {
+        if (lockerStatus == null || lockerStatus.length() == 0) return locker;
+        if (locker == null || locker.length() == 0) return lockerStatus;
+        return lockerStatus + ", " + locker;
+    }
+    
     private void readLocalFiles(String dir) {
         File fileDir = new File(dir);
         currentFiles = new HashSet();
@@ -362,20 +374,20 @@ public class VssListCommand extends AbstractListCommand {
         for (int i = 1; i < Math.min(elements.length, statuses.length); i++)
           statuses[i] = elements[i];
         */
-        if (statuses[2] != null) return ; // The status is already set (it can be called more than once with some garbage then)
+        //if (statuses[2] != null) return ; // The status is already set (it can be called more than once with some garbage then)
         int fileIndex = statuses[0].lastIndexOf('/');
         if (fileIndex < 0) fileIndex = 0;
         else fileIndex++;
         String file = statuses[0].substring(fileIndex);
         if (file.length() <= STATUS_POSITION) {
             if (!elements[0].startsWith(file)) {
-                statuses[2] = "";
+                if (statuses[2] == null) statuses[2] = "";
                 // The element does not start with the file name
                 return ;
             }
         } else {
             if (!file.startsWith(elements[0].substring(0, STATUS_POSITION))) {
-                statuses[2] = "";
+                if (statuses[2] == null) statuses[2] = "";
                 // The element does not start with the file name
                 return ;
             }
@@ -384,9 +396,9 @@ public class VssListCommand extends AbstractListCommand {
         int index2 = elements[0].indexOf("  ", index);
         if (index2 < 0) index2 = elements[0].length();
         if (index < index2) {
-            statuses[2] = elements[0].substring(index, index2).trim();
+            statuses[2] = addLocker(statuses[2], elements[0].substring(index, index2).trim());
         } else {
-            statuses[2] = "";
+            if (statuses[2] == null) statuses[2] = "";
         }
     }
     

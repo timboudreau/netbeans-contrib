@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -288,7 +288,7 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
         for (int i = 1; i < Math.min(elements.length, statuses.length); i++)
           statuses[i] = elements[i];
         */
-        if (statuses[2] != null) return ; // The status is already set (it can be called more than once with some garbage then)
+        //if (statuses[2] != null) return ; // The status is already set (it can be called more than once with some garbage then)
         int fileIndex = statuses[0].lastIndexOf('/');
         if (fileIndex < 0) fileIndex = 0;
         else fileIndex++;
@@ -298,13 +298,13 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
         //System.out.println("elements[0] = '"+elements[0]+"'");
         if (file.length() <= STATUS_POSITION) {
             if (!elements[0].startsWith(file)) {
-                statuses[2] = "";
+                if (statuses[2] == null) statuses[2] = "";
                 // The element does not start with the file name
                 return ;
             }
         } else {
             if (!file.startsWith(elements[0].substring(0, STATUS_POSITION))) {
-                statuses[2] = "";
+                if (statuses[2] == null) statuses[2] = "";
                 // The element does not start with the file name
                 return ;
             }
@@ -313,9 +313,9 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
         int index2 = elements[0].indexOf("  ", index);
         if (index2 < 0) index2 = elements[0].length();
         if (index < index2) {
-            statuses[2] = elements[0].substring(index, index2).trim();
+            statuses[2] = VssListCommand.addLocker(statuses[2], elements[0].substring(index, index2).trim());
         } else {
-            statuses[2] = "";
+            if (statuses[2] == null) statuses[2] = "";
         }
     }
     

@@ -390,21 +390,38 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_COMMIT)</value>
         </property>
       </command>
-      <command name="CHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT)">
-        <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT_Mnemonic)</value>
+      <command name="CHECKOUT_TEST">
+        <property name="exec">
+          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-N ${IDENT} ${QFILE} ${NUR}</value>
         </property>
-	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
-	</property>
-	<property name="supportsAdvancedMode">
-	  <value>true</value>
-         </property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_CHECKOUT)))
                  PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKOUT_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKOUT_Options_mnc)))
           </value>
 	</property>
+	<property name="error.regex.global">
+	  <value>(^.*)\(Y/N\)N$</value>
+	</property>
+        <property name="ignoreFail">
+  	  <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+      </command>
+      <command name="CHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT_Mnemonic)</value>
+        </property>
+	<property name="exec">
+	  <value>$[? CONFIRMATION_MSG] [${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}] [$[? CONFIRMATION_SUCCESS] [cmd /X /C "echo >nul"] [${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}]]</value>
+	</property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+        </property>
+        <property name="confirmationMsg">
+          <value>{INSERT_ERROR_OF_CHECKOUT_TEST(0)}</value>
+        </property>
 	<property name="onDir">
 	  <value>false</value>
 	</property>
@@ -433,22 +450,39 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_UPDATE)</value>
         </property>
       </command>
-      <command name="CHECKOUTR" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT)">
-        <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT_Mnemonic)</value>
+      <command name="CHECKOUTR_TEST">
+        <property name="exec">
+          <value>${RUNPATH} ${QUOTE}${VSSCMD}${QUOTE} checkout ${RECURSIVE} ${CHECKOUT_OPTIONS} -I-N ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
         </property>
-	<property name="exec">
-	  <value>${RUNPATH} ${QUOTE}${VSSCMD}${QUOTE} checkout ${RECURSIVE} ${CHECKOUT_OPTIONS} ${OPTIONS} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
-	</property>
-	<property name="supportsAdvancedMode">
-	  <value>true</value>
-         </property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_CHECKOUT)))
                  ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKOUT_Rec), "true", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKOUT_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKOUT_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKOUT_Options_mnc)))
           </value>
 	</property>
+	<property name="error.regex.global">
+	  <value>(^.*)\(Y/N\)N$</value>
+	</property>
+        <property name="ignoreFail">
+  	  <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+      </command>
+      <command name="CHECKOUTR" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT_Mnemonic)</value>
+        </property>
+	<property name="exec">
+	  <value>$[? CONFIRMATION_MSG] [${RUNPATH} ${QUOTE}${VSSCMD}${QUOTE} checkout ${RECURSIVE} ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}] [$[? CONFIRMATION_SUCCESS] [cmd /X /C "echo >nul"] [${RUNPATH} ${QUOTE}${VSSCMD}${QUOTE} checkout ${RECURSIVE} ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}]]</value>
+	</property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
+        </property>
+        <property name="confirmationMsg">
+          <value>{INSERT_ERROR_OF_CHECKOUTR_TEST(0)}</value>
+        </property>
 	<property name="onFile">
 	  <value>false</value>
 	</property>
