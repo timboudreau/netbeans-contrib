@@ -7,6 +7,8 @@ import org.netbeans.jellytools.NewWizardOperator;
 import org.netbeans.jellytools.modules.corba.nodes.IDLNode;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jellytools.JellyTestCase;
+import org.netbeans.jemmy.operators.JEditorPaneOperator;
+import util.Helper;
 
 public class Main extends JellyTestCase {
     
@@ -30,13 +32,16 @@ public class Main extends JellyTestCase {
         exp = new ExplorerOperator ();
         NewWizardOperator.create ("CORBA|Empty", "|data|indentation", "01");
         new IDLNode (exp.repositoryTab().tree (), "|data|indentation|01").open ();
+        Helper.sleep (5000);
         EditorWindowOperator ewo = new EditorWindowOperator ();
         EditorOperator eo = ewo.getEditor ("01");
-        eo.txtEditorPane().setText("");
+        JEditorPaneOperator ep = eo.txtEditorPane();
+        ep.clearText();
+        ep.setCaretPosition(0);
         for (int a = 0; a < idl01.length; a ++) {
             for (int b = 0; b < idl01[a].length (); b ++)
-                eo.typeKey (idl01[a].charAt (b));
-            eo.typeKey('\n');
+                ep.typeKey (idl01[a].charAt (b));
+            ep.typeKey('\n');
         }
         getRef ().println (eo.getText ());
         eo.close (false);
