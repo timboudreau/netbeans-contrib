@@ -34,12 +34,6 @@ public class RelativeMountDialog extends DialogDescriptor {
     public RelativeMountDialog(Object innerPane, String title) {
         super(innerPane, title);
         mountPanel = (RelativeMountPanel) innerPane;
-    }
-
-    public void setDir(String rootDir, String relMount) {
-        this.rootDir = rootDir;
-        this.relMount = relMount;
-        mountPanel.initTree(rootDir, relMount);
         setButtonListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent ev) {
                 if (ev.getID() == java.awt.event.ActionEvent.ACTION_PERFORMED) {
@@ -51,6 +45,12 @@ public class RelativeMountDialog extends DialogDescriptor {
                 }
             }
         });
+    }
+
+    public void setDir(String rootDir, String relMount) {
+        this.rootDir = rootDir;
+        this.relMount = relMount;
+        mountPanel.initTree(rootDir, relMount);
     }
     
     public String getRelMount() {
