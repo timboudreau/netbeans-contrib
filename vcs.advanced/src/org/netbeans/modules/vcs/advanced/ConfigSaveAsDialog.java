@@ -19,6 +19,9 @@ import java.util.HashMap;
 
 import org.openide.TopManager;
 import org.openide.filesystems.*;
+import java.awt.event.*;
+import javax.swing.event.*;
+
 
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
@@ -48,6 +51,31 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
         fillFileList();
         this.setSize(340, 265);
         initAccessibility();
+        ActionListener list = new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkToEnableSave();
+            }
+        };
+        FocusAdapter focusList = new java.awt.event.FocusAdapter() {         
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                checkToEnableSave();
+            }
+        };
+
+        this.configLabelTextField.addActionListener(list);
+        this.fileNameTextField.addActionListener(list);
+        this.configLabelTextField.addFocusListener(focusList);
+        this.fileNameTextField.addFocusListener(focusList);
+        checkToEnableSave();
+    }
+    
+    private void checkToEnableSave() {
+        if (configLabelTextField.getText().length() == 0 || 
+               fileNameTextField.getText().length() == 0) {
+            saveButton.setEnabled(false);
+        } else {
+            saveButton.setEnabled(true);
+        }
     }
     
     private void initAccessibility()
@@ -122,8 +150,8 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
         jPanel2.add(fileNameLabel, gridBagConstraints);
 
-        fileNameTextField.setToolTipText(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialog.fileNameTextField.textA11yDesc"));
         fileNameTextField.setColumns(10);
+        fileNameTextField.setToolTipText(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialog.fileNameTextField.textA11yDesc"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
@@ -154,8 +182,8 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
 
         jPanel1.setLayout(new java.awt.GridLayout(1, 0, 5, 0));
 
-        saveButton.setToolTipText(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialog.saveButton.textA11yDesc"));
         saveButton.setText(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ConfigSaveAsDialog.saveButton.text"));
+        saveButton.setToolTipText(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialog.saveButton.textA11yDesc"));
         saveButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveButtonActionPerformed(evt);
@@ -164,8 +192,8 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
 
         jPanel1.add(saveButton);
 
-        cancelButton.setToolTipText(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialog.cancelButton.textA11yDesc"));
         cancelButton.setText(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ConfigSaveAsDialog.cancelButton.text"));
+        cancelButton.setToolTipText(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialog.cancelButton.textA11yDesc"));
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelButtonActionPerformed(evt);
@@ -190,6 +218,7 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
         //fileNameTextField.repaint();
         String label = (String) configLabels.get(selectedFile);
         if (label != null) configLabelTextField.setText(label);
+        checkToEnableSave();
     }//GEN-LAST:event_fileListMouseClicked
 
     private void saveButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
@@ -262,17 +291,17 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
     */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel listPanel;
-    private javax.swing.JScrollPane fileScrollPane;
-    private javax.swing.JLabel configLabelLabel;
-    private javax.swing.JTextField configLabelTextField;
-    private javax.swing.JButton cancelButton;
-    private javax.swing.JTextField fileNameTextField;
-    private javax.swing.JButton saveButton;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JList fileList;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane fileScrollPane;
+    private javax.swing.JTextField fileNameTextField;
+    private javax.swing.JTextField configLabelTextField;
+    private javax.swing.JButton saveButton;
     private javax.swing.JLabel fileNameLabel;
+    private javax.swing.JButton cancelButton;
+    private javax.swing.JPanel listPanel;
+    private javax.swing.JLabel configLabelLabel;
     // End of variables declaration//GEN-END:variables
 
 }
