@@ -35,7 +35,7 @@ Microsystems, Inc. All Rights Reserved.
                 <pathelement path="../api/src"/>
                 <!-- tasklist core -->
                 <pathelement path="../core/src"/>
-                <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
+                <!--<pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> XXX -->
                 <fileset dir="../../core/external">
                     <include name="xml-apis*.jar"/>
                 </fileset>
@@ -92,4 +92,8 @@ Microsystems, Inc. All Rights Reserved.
     <target name="javahelp">
     </target>
 
+    <!-- This target will only work *inside* the IDE! -->
+    <target name= "test" depends="jars" description="Test the module inside the running IDE." >
+       <nbinstaller action="reinstall" module="netbeans/modules/tasklist-bugs.jar"/>
+    </target>
 </project>

@@ -41,7 +41,6 @@ import java.text.MessageFormat;
 
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
-import org.openide.TopManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.Repository;
 import org.openide.filesystems.FileObject;
@@ -62,6 +61,8 @@ import org.openide.xml.*;
 
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.bugs.*;
+import org.openide.awt.HtmlBrowser;
+import org.openide.awt.StatusDisplayer;
 
 /**
  * Bridge which provides Bugzilla data to the BugList
@@ -107,14 +108,14 @@ public class BZBugEngine implements BugEngine { // XXX remove the publicness
             String query = inQuery.getQueryString();
             if ((baseurl == null || baseurl.equals("")) || (query == null || query.equals(""))) {
                 //They didn't enter anything on the gui
-                TopManager.getDefault().setStatusText(
+                StatusDisplayer.getDefault().setStatusText(
                                     NbBundle.getMessage(BZBugEngine.class, 
                                                   "BadQuery")); // NOI18N
                 return;
             }
             System.out.println("Baseurl = " + baseurl + " query = " + query);
 
-            TopManager.getDefault().setStatusText(
+            StatusDisplayer.getDefault().setStatusText(
                               NbBundle.getMessage(BZBugEngine.class, 
                                                   "Refreshing")); // NOI18N
             URL url = null;
@@ -126,7 +127,7 @@ public class BZBugEngine implements BugEngine { // XXX remove the publicness
             if (url != null) {
                 Bugzilla bz = new Bugzilla(url);
                 try {
-                    TopManager.getDefault().setStatusText(
+                    StatusDisplayer.getDefault().setStatusText(
                                     NbBundle.getMessage(BZBugEngine.class, 
                                                   "DoingQuery")); // NOI18N
                     int bugids[] = bz.query(query);
@@ -136,7 +137,7 @@ public class BZBugEngine implements BugEngine { // XXX remove the publicness
                     int n = bugids.length;
                     LinkedList issues = new LinkedList();
                     for (int i = 0; i < n; i++) {
-                        TopManager.getDefault().setStatusText(
+                        StatusDisplayer.getDefault().setStatusText(
                                        MessageFormat.format(
                                         NbBundle.getMessage(BZBugEngine.class, 
                                                  "QueryingBug"), // NOI18N
@@ -168,7 +169,7 @@ public class BZBugEngine implements BugEngine { // XXX remove the publicness
                     ErrorManager.getDefault().notify(se);
                     System.out.println("Couldn't read bug list: sax exception");
                 } catch (java.net.UnknownHostException uhe) {
-                    TopManager.getDefault().setStatusText(
+                    StatusDisplayer.getDefault().setStatusText(
                                        MessageFormat.format(
                                         NbBundle.getMessage(BZBugEngine.class, 
                                                  "NoNet"), // NOI18N
@@ -178,7 +179,7 @@ public class BZBugEngine implements BugEngine { // XXX remove the publicness
                     ErrorManager.getDefault().notify(ioe);
                     System.out.println("Couldn't read bug list: io exception");
                 }
-                TopManager.getDefault().setStatusText("");
+                StatusDisplayer.getDefault().setStatusText("");
             }
         } finally {
             if (view != null) {
@@ -194,9 +195,9 @@ public class BZBugEngine implements BugEngine { // XXX remove the publicness
 	// Show URL
 	try {
 	    URL url = new URL(urlstring);
-	    TopManager.getDefault().showUrl(url);
+	    HtmlBrowser.URLDisplayer.getDefault().showURL(url);
 	} catch (MalformedURLException e) {
-	    TopManager.getDefault().getErrorManager().notify(e);
+	    ErrorManager.getDefault().notify(e);
 	}	
     }
 }

@@ -41,7 +41,6 @@ import java.text.MessageFormat;
 
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
-import org.openide.TopManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.Repository;
 import org.openide.filesystems.FileObject;
@@ -67,6 +66,8 @@ import org.netbeans.modules.tasklist.core.TaskListView;
 
 
 import org.netbeans.modules.tasklist.bugs.*;
+import org.openide.awt.HtmlBrowser;
+import org.openide.awt.StatusDisplayer;
 
 /**
  * Bridge which provides Issuezilla data to the BugList
@@ -128,7 +129,7 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
 
         if ((baseurl == null || baseurl.equals("")) || (query == null || query.equals(""))) {
             //They didn't enter anything on the gui
-            TopManager.getDefault().setStatusText(
+            StatusDisplayer.getDefault().setStatusText(
                                 NbBundle.getMessage(IZBugEngine.class, 
                                               "BadQuery")); // NOI18N
             return;
@@ -137,7 +138,7 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
         //String query= "issue_type=DEFECT&component=projects&issue_status=UNCONFIRMED&issue_status=NEW&issue_status=STARTED&issue_status=REOPENED&version=4.0+dev&email1=&emailtype1=substring&emailassigned_to1=1&email2=&emailtype2=substring&emailreporter2=1&issueidtype=include&issue_id=&changedin=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&short_desc=&short_desc_type=substring&long_desc=&long_desc_type=substring&issue_file_loc=&issue_file_loc_type=substring&status_whiteboard=&status_whiteboard_type=substring&keywords=&keywords_type=anywords&field0-0-0=noop&type0-0-0=noop&value0-0-0=&cmdtype=doit&newqueryname=&order=Reuse+same+sort+as+last+time";
 
 
-	TopManager.getDefault().setStatusText(
+	StatusDisplayer.getDefault().setStatusText(
                           NbBundle.getMessage(IZBugEngine.class, 
                                               "Refreshing")); // NOI18N
 	URL url = null;
@@ -149,7 +150,7 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
 	if (url != null) {
 	    Issuezilla iz = new Issuezilla(url);
 	    try {
-		TopManager.getDefault().setStatusText(
+		StatusDisplayer.getDefault().setStatusText(
                                 NbBundle.getMessage(IZBugEngine.class, 
                                               "DoingQuery")); // NOI18N
 
@@ -160,7 +161,7 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
 		int n = bugids.length;
 		LinkedList issues = new LinkedList();
 		for (int i = 0; i < n; i++) {
-		    TopManager.getDefault().setStatusText(
+		    StatusDisplayer.getDefault().setStatusText(
                                    MessageFormat.format(
                                     NbBundle.getMessage(IZBugEngine.class, 
 					     "QueryingBug"), // NOI18N
@@ -192,7 +193,7 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
 		ErrorManager.getDefault().notify(se);
 		System.out.println("Couldn't read bug list: sax exception");
             } catch (java.net.UnknownHostException uhe) {
-                TopManager.getDefault().setStatusText(
+                StatusDisplayer.getDefault().setStatusText(
                                    MessageFormat.format(
                                     NbBundle.getMessage(IZBugEngine.class, 
 					     "NoNet"), // NOI18N
@@ -202,7 +203,7 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
 		ErrorManager.getDefault().notify(ioe);
 		System.out.println("Couldn't read bug list: io exception");
 	    }
-	    TopManager.getDefault().setStatusText("");
+	    StatusDisplayer.getDefault().setStatusText("");
 	}
 
         } finally {
@@ -219,9 +220,9 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
 	// Show URL
 	try {
 	    URL url = new URL(urlstring);
-	    TopManager.getDefault().showUrl(url);
+	    HtmlBrowser.URLDisplayer.getDefault().showURL(url);
 	} catch (MalformedURLException e) {
-	    TopManager.getDefault().getErrorManager().notify(e);
+	    ErrorManager.getDefault().notify(e);
 	}	
     }
 }

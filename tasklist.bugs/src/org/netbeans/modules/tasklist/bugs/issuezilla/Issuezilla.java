@@ -21,9 +21,9 @@ import java.text.MessageFormat;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.ParserConfigurationException;
+import org.openide.awt.StatusDisplayer;
 import org.xml.sax.SAXException;
 
-import org.openide.TopManager;
 import org.openide.util.NbBundle;
 
 /**
@@ -180,7 +180,7 @@ public final class Issuezilla extends java.lang.Object {
                 catch (IOException ex) {
                     synchronized ( this ) {
                         try {
-                            TopManager.getDefault().setStatusText(
+                            StatusDisplayer.getDefault().setStatusText(
                                    MessageFormat.format(
                                     NbBundle.getMessage(Issuezilla.class, 
 					     "CantConnect"), // NOI18N
@@ -221,7 +221,7 @@ public final class Issuezilla extends java.lang.Object {
             catch (IOException ex) {
                 synchronized ( this ) {
                     try {
-                        TopManager.getDefault().setStatusText(
+                        StatusDisplayer.getDefault().setStatusText(
                                    MessageFormat.format(
                                     NbBundle.getMessage(Issuezilla.class, 
 					     "CantConnect"), // NOI18N
@@ -264,7 +264,7 @@ public final class Issuezilla extends java.lang.Object {
             }
         
             String number = line.substring (index, end);
-            TopManager.getDefault().setStatusText(
+            StatusDisplayer.getDefault().setStatusText(
                        MessageFormat.format(
                                     NbBundle.getMessage(Issuezilla.class, 
 					     "QueryBug"), // NOI18N

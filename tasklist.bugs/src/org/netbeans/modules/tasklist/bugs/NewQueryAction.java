@@ -19,7 +19,6 @@ import org.netbeans.modules.tasklist.core.TaskListView;
 
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
-import org.openide.TopManager;
 import org.openide.DialogDisplayer;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
