@@ -27,6 +27,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.util.*;
 
+import org.openide.ErrorManager;
 import org.openide.TopManager;
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
@@ -231,6 +232,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                 try {
                     status = showCustomizer(cmd);
                 } catch (IntrospectionException iex) {
+                    ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, iex);
                     status = false;
                 } finally {
                     for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
@@ -283,7 +285,15 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
         // HACK with the PrivilegedAction to get a custom customizer
         } else if (cmd instanceof java.security.PrivilegedAction) {
-            Object customizer = ((java.security.PrivilegedAction) cmd).run();
+            Object customizer;
+            try {
+                customizer = ((java.security.PrivilegedAction) cmd).run();
+            } catch (ThreadDeath td) {
+                throw td;
+            } catch (Throwable th) {
+                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, th);
+                customizer = null;
+            }
             //System.out.println("customizer of command "+cmd+" = "+customizer);
             //System.out.println("customizer instanceof Component = "+(customizer instanceof Component));
             if (customizer instanceof UserCancelException) {
@@ -725,11 +735,11 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                 try {
                     cw.run();
                 } catch (RuntimeException rexc) {
-                    TopManager.getDefault().notifyException(rexc);
+                    ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, rexc);
                 } catch (ThreadDeath tderr) {
                     err = tderr;
                 } catch (Throwable t) {
-                    TopManager.getDefault().notifyException(t);
+                    ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
                 }
                 commandDone(cw);
                 if (err != null) throw err;

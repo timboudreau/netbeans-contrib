@@ -457,7 +457,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 customizer = (UserCommandCustomizer) finalCustomizer;
             } else customizer = null;
         }
-        cmd.setPreferredExec(newExec);
+        if (newExec != null) cmd.setPreferredExec(newExec);
         cmd.setAdditionalVariables(vars);
         //System.out.println("subFiles = "+subFiles+", files = "+files+", MODULE = "+cmd.getAdditionalVariables().get("MODULE")+", DIR = "+cmd.getAdditionalVariables().get("DIR"));
         if (finalCustomizer == null && files != null) {
@@ -517,7 +517,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                                                cmdCanRunOnMultipleFiles,
                                                cmdCanRunOnMultipleFilesInFolder);
             String newExec = CommandCustomizationSupport.preCustomize(fileSystem, nextCmd.getVcsCommand(), newVars);
-            nextCmd.setPreferredExec(newExec);
+            if (newExec != null) nextCmd.setPreferredExec(newExec);
             nextCmd.setAdditionalVariables(newVars);
             return nextCustomizedCommand;
         }

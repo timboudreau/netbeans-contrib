@@ -354,7 +354,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec) {
         this.preferredExec = exec;
         fileSystem.getVarValueAdjustment().adjustVarValues(vars);
-        if (exec.indexOf(Variables.TEMPORARY_FILE) >= 0) {
+        if (exec != null && exec.indexOf(Variables.TEMPORARY_FILE) >= 0) {
             try {
                 File tempFile = File.createTempFile("VCS", "tmp");
                 tempFile.deleteOnExit();
