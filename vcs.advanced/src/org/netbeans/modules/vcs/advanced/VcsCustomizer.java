@@ -1113,8 +1113,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 else if (Utilities.isWindows())
                 {
                     FileSystemView fsView = FileSystemView.getFileSystemView();
-                    File[] desktopFiles = fsView.getRoots()[0].listFiles();
-                    for (int i = 0; i < desktopFiles.length; i++)
+                    rootDirFile = fsView.getRoots()[0].listFiles()[0];
+/*                    for (int i = 0; i < desktopFiles.length; i++)
                         if (fsView.isComputerNode(desktopFiles[i]))
                         {
                             File[] files = desktopFiles[i].listFiles();
@@ -1127,7 +1127,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                                 }
                             }
                             break;
-                        }
+                        }*/
                 }
             }
             catch (Exception ex)
