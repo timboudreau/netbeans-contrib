@@ -11,7 +11,7 @@
          "http://java.sun.com/products/javahelp/toc_1_0.dtd">
 
 <toc version="1.0">
-<tocitem text="Core IDE Help">
+<tocitem text="Testing Tools">
   <tocitem text="Jemmy Support Tools" target="jemmysupport_intro">
     <tocitem text="Jemmy Component Generator" target="jemmysupport_generator" />
     <tocitem text="Resource Bundle Lookup" target="jemmysupport_lookup" />
