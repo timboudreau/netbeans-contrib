@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.jmiutils/1
 OpenIDE-Module-Layer: org/netbeans/modules/jmiutils/resources/layer.xml
-OpenIDE-Module-Specification-Version: 0.83
+OpenIDE-Module-Specification-Version: 0.84
 OpenIDE-Module-Implementation-Version: ${mdr.jmiutils.impl.version}
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jmiutils/Bundle.properties
 Class-Path: ext/jmiutils.jar
