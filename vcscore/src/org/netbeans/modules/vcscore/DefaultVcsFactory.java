@@ -73,7 +73,12 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      * @return an instance of <code>CommandLineVcsDirReader</code> or null when can not be created.
      */
     public VcsCommandExecutor getVcsDirReader(DirReaderListener listener, String path) {
-        VcsCommand list = fileSystem.getCommand(VcsCommand.NAME_REFRESH); // NOI18N
+        VcsCommand list;
+        if (fileSystem.isOffLine()) {
+            list = fileSystem.getCommand(VcsCommand.NAME_REFRESH_OFFLINE);
+        } else {
+            list = fileSystem.getCommand(VcsCommand.NAME_REFRESH);
+        }
         if (list == null) return null;
         Hashtable vars = fileSystem.getVariablesAsHashtable();
 
@@ -98,7 +103,12 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      * @return an instance of <code>CommandLineVcsDirReader</code> or null when can not be created.
      */
     public VcsCommandExecutor getVcsDirReaderRecursive(DirReaderListener listener, String path) {
-        VcsCommand list = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY); // NOI18N
+        VcsCommand list;
+        if (fileSystem.isOffLine()) {
+            list = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY_OFFLINE);
+        } else {
+            list = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY);
+        }
         if (list == null) return null;
         Hashtable vars = fileSystem.getVariablesAsHashtable();
 
