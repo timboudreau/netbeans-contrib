@@ -4,7 +4,7 @@ OpenIDE-Module-Description: org.netbeans.modules.rmi.docs.rmi
 OpenIDE-Module-Install: org/netbeans/modules/rmi/RMIModule.class
 OpenIDE-Module-Layer: org/netbeans/modules/rmi/resources/mf-layer.xml
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1, org.netbeans.modules.httpserver/1, org.netbeans.modules.debugger.core/1, org.openidex.util/1, org.netbeans.modules.utilities/1 > 1.2
-OpenIDE-Module-Specification-Version: 1.2
+OpenIDE-Module-Specification-Version: 1.3
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 
 Name: org/netbeans/modules/rmi/RMIDataLoader.class
