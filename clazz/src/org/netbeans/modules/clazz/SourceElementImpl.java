@@ -141,7 +141,22 @@ final class SourceElementImpl extends MemberElementImpl
     * @return the element or null if such class does not exist
     */
     public ClassElement getClass (Identifier name) {
-        return (ClassElement)getAllClassesMap ().get(name);
+        ClassElement el = getClassElement();
+        String srcName = name.getSourceName();
+        String fullName = name.getFullName();
+        Identifier idEl = el.getName();
+        String srcEl = idEl.getSourceName();
+        String fullEl = idEl.getFullName();
+        
+        if (srcEl.equals(srcName)) {
+            if (srcName.equals(fullName) || fullEl.equals(fullName))
+                return el;
+            else
+                return null;
+        } else if (fullEl.equals(fullName)) {
+            return el;
+        }
+        return null;
     }
 
     /** @return Top level class which we are asociated with
@@ -295,25 +310,3 @@ final class SourceElementImpl extends MemberElementImpl
         return new SourceElement(this);
     }
 }
-
-/*
-* Log
-*  11   src-jtulach1.10        1/20/00  David Simonek   #2119 bugfix
-*  10   src-jtulach1.9         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
-*       Microsystems Copyright in File Comment
-*  9    src-jtulach1.8         9/14/99  David Simonek   classes with no package 
-*       now supported correctly
-*  8    src-jtulach1.7         8/9/99   Ian Formanek    Generated Serial Version 
-*       UID
-*  7    src-jtulach1.6         7/8/99   Petr Hamernik   runAtomic simple 
-*       implementation
-*  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
-*       org.openide ----
-*  5    src-jtulach1.4         4/1/99   Jan Jancura     Object browser support
-*  4    src-jtulach1.3         3/26/99  David Simonek   properties, actions 
-*       completed, more robust now
-*  3    src-jtulach1.2         2/17/99  Petr Hamernik   serialization changed.
-*  2    src-jtulach1.1         2/11/99  David Simonek   
-*  1    src-jtulach1.0         1/29/99  David Simonek   
-* $
-*/
