@@ -35,7 +35,6 @@ import org.openide.loaders.DataFolder;
 import org.openidex.util.Utilities2;
 
 import org.netbeans.modules.java.settings.JavaSettings;
-import org.netbeans.modules.java.settings.ExternalCompilerSettings;
 import org.netbeans.modules.editor.options.AllOptions;
 import org.netbeans.editor.Settings;
 
