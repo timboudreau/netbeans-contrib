@@ -133,6 +133,9 @@ public abstract class TaskListView extends TopComponent
     public TaskListView(String category, String title, Image icon,
                         boolean persistent, TaskList tasklist) {
         initExplorerManager();
+        
+        assert category != null : "category == null";
+        
         this.category = category;
         setName(title);
         this.persistent = persistent;
@@ -165,6 +168,8 @@ public abstract class TaskListView extends TopComponent
     }
 
     public ExplorerManager getExplorerManager() {
+        assert manager != null : 
+            "getExplorerManager() called before initExplorerManager()"; // NOI18N
         return manager;
     }
 
@@ -422,6 +427,8 @@ public abstract class TaskListView extends TopComponent
         SystemAction[] actions = getGlobalToolBarActions();
         if (actions != null) {
             JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
+            toolbar.setFloatable(false);
+            toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
             toolbar.setOrientation(JToolBar.VERTICAL);
             toolbars.add(toolbar);
         }
@@ -429,6 +436,8 @@ public abstract class TaskListView extends TopComponent
         actions = getToolBarActions();
         if (actions != null) {
             JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
+            toolbar.setFloatable(false);
+            toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
             toolbar.setOrientation(JToolBar.VERTICAL);
             toolbars.add(toolbar);
         }

@@ -23,7 +23,6 @@ import javax.swing.JLabel;
 import org.netbeans.api.tasklist.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 import org.netbeans.modules.tasklist.core.Task;
-import org.openide.explorer.propertysheet.editors.EnhancedPropertyEditor;
 
 /**
  * PropertyEditor for task priorities.
@@ -33,13 +32,9 @@ import org.openide.explorer.propertysheet.editors.EnhancedPropertyEditor;
  *
  * @author Tim Lebedkov
  */
-public class PriorityPropertyEditor extends PropertyEditorSupport 
-implements EnhancedPropertyEditor {
+public class PriorityPropertyEditor extends PropertyEditorSupport {
     private static final String[] TAGS = Task.getPriorityNames();
-    
     private static final JLabel LABEL = new JLabel();
-    
-    private JComboBox editor;
     
     /**
      * Constructor
@@ -59,8 +54,7 @@ implements EnhancedPropertyEditor {
                 break;
             }
         }
-        if (index == -1)
-            throw new IllegalArgumentException("Unknown tag"); // NOI18N
+        assert index != -1 : "Unknown Tag"; // NOI18N
         
         setValue(Task.getPriority(index + 1));
     }
@@ -78,31 +72,6 @@ implements EnhancedPropertyEditor {
         gfx.translate(-box.x, -box.y);
     }
 
-    public Component getInPlaceCustomEditor() {
-        if (editor == null) {
-            editor = new JComboBox();
-            editor.setRenderer(new PriorityListCellRenderer());
-            editor.setModel(new DefaultComboBoxModel(TAGS));
-            editor.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    int sel = editor.getSelectedIndex();
-                    editor.setForeground(PriorityListCellRenderer.COLORS[sel]);
-                    setValue(Task.getPriority(sel + 1));
-                }
-            });
-        }
-        editor.setSelectedIndex(getIntValue() - 1);
-        return editor;
-    }
-
-    public boolean hasInPlaceCustomEditor() {
-        return true;
-    }
-
-    public boolean supportsEditingTaggedValues() {
-        return false;
-    }
-    
     /**
      * Returns value as integer
      *
@@ -114,5 +83,9 @@ implements EnhancedPropertyEditor {
             return ((SuggestionPriority) v).intValue();
         else
             return SuggestionPriority.LOW.intValue();
+    }
+    
+    public String[] getTags() {
+        return TAGS;
     }
 }
