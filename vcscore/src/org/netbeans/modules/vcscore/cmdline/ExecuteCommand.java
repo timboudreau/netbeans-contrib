@@ -221,7 +221,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         commandDataOutputListener = null;
         commandDataErrorOutputListener = null;
         fileReaderListeners = null;
-        if (success) {
+        if (success || VcsCommandIO.getIntegerPropertyAssumeNegative(cmd, VcsCommand.PROPERTY_REFRESH_ON_FAIL) == 1) {
             refreshRemainingFiles();
             /* Moved to CommandExecutorSupport
             String path = (String) vars.get("DIR") + "/" + (String) vars.get("FILE");
