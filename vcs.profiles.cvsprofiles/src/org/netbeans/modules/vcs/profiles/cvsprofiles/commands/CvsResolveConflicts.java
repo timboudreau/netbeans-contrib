@@ -13,8 +13,6 @@
 
 package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
-//import java.awt.event.ActionEvent;
-//import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.VetoableChangeListener;
 import java.io.BufferedReader;
@@ -25,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Hashtable;
 
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 
@@ -97,7 +97,7 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                     }
                 }
                 try {
-                    handleMergeFor(file, (fo == null) ? "text/plain" : fo.getMIMEType(), merge);
+                    handleMergeFor(file, fo, merge);
                 } catch (IOException ioex) {
                     org.openide.TopManager.getDefault().notifyException(ioex);
                 }
@@ -106,7 +106,8 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         return true;
     }
     
-    private void handleMergeFor(final File file, String mimeType, MergeVisualizer merge) throws IOException {
+    private void handleMergeFor(final File file, FileObject fo, MergeVisualizer merge) throws IOException {
+        String mimeType = (fo == null) ? "text/plain" : fo.getMIMEType();
         File f1 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
         File f2 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
         File f3 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
@@ -140,21 +141,8 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                              /*file.getName(), resultTitle,*/
                              new MergeResultWriterInfo(f1, f2, f3, file, mimeType,
                                                        originalLeftFileRevision,
-                                                       originalRightFileRevision)/*, new VetoableChangeListener() {
-                                 public void vetoableChange(PropertyChangeEvent evt) {
-                                     if ("OK".equals(evt.getActionCommand())) {
-                                         try {
-                                            org.openide.filesystems.FileUtil.copy(
-                                                new FileInputStream(f3), new FileOutputStream(file));
-                                         } catch (IOException ioex) {
-                                             org.openide.TopManager.getDefault().notify(new org.openide.NotifyDescriptor.Message(
-                                                 org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class,
-                                                                                      "Merge.problemsSave",
-                                                                                      ioex.getLocalizedMessage())));
-                                         }
-                                     }
-                                 }
-                             }*/);
+                                                       originalRightFileRevision,
+                                                       fo));
     }
     
     /**
@@ -290,10 +278,13 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         private String mimeType;
         private String leftFileRevision;
         private String rightFileRevision;
+        private FileObject fo;
+        private FileLock lock;
         
         public MergeResultWriterInfo(File tempf1, File tempf2, File tempf3,
                                      File outputFile, String mimeType,
-                                     String leftFileRevision, String rightFileRevision) {
+                                     String leftFileRevision, String rightFileRevision,
+                                     FileObject fo) {
             this.tempf1 = tempf1;
             this.tempf2 = tempf2;
             this.tempf3 = tempf3;
@@ -301,6 +292,13 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
             this.mimeType = mimeType;
             this.leftFileRevision = leftFileRevision;
             this.rightFileRevision = rightFileRevision;
+            this.fo = fo;
+            if (fo != null) {
+                try {
+                    // Lock the file, so that nobody can overwrite it during the merge process.
+                    lock = fo.lock();
+                } catch (IOException ioex) {}
+            }
         }
         
         public String getName() {
@@ -327,7 +325,11 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
          */
         public Writer createWriter(Difference[] conflicts) throws IOException {
             if (conflicts == null || conflicts.length == 0) {
-                return new FileWriter(outputFile);
+                if (fo != null) {
+                    return new OutputStreamWriter(fo.getOutputStream((lock != null) ? lock : (lock = fo.lock())));
+                } else {
+                    return new FileWriter(outputFile);
+                }
             } else {
                 return new MergeConflictFileWriter(outputFile, conflicts,
                                                    leftFileRevision, rightFileRevision);
@@ -342,6 +344,11 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
             tempf1.delete();
             tempf2.delete();
             tempf3.delete();
+            if (lock != null) {
+                lock.releaseLock();
+                lock = null;
+            }
+            fo = null;
         }
         
     }
