@@ -1,6 +1,7 @@
 OpenIDE-Module: org.netbeans.modules.vcs.advanced/1
 OpenIDE-Module-Name: VCS Generic Command-Line Support
 OpenIDE-Module-Display-Category: Version Control
+OpenIDE-Module-Short-Description: Enables you to integrate any version control system that has a command-line interface.
 OpenIDE-Module-Long-Description: The VCS Generic Support  module enables you to integrate any version control system that has a command-line interface (such as CVS, RCS, or SCCS) into the IDE. The module also comes with configurations for PVCS and Visual Source Safe, which you can use as is or customize. You can get additional configurations from http://vcsgeneric.netbeans.org/profiles/index.html.
 OpenIDE-Module-Install: org/netbeans/modules/vcs/advanced/CommandLineVcsModule.class
 OpenIDE-Module-Specification-Version: 1.5
