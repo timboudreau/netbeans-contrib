@@ -53,9 +53,23 @@ public final class TLUtils {
 
     /** Replace the given symbol on the line with the new symbol - starting
         roughly at the given column (symbol should be at col or col+1)
+        @param sb Buffer to write into
+        @param text The text to be copied into the buffer, except for
+            the substitution of symbol into newSymbol.
+        @param pos Earliest possible starting position of the symbol
+        @param symbol The symbol which may occur multiple times; we want
+            each reference replaced (provided it's a java identifier - not
+            a prefix or suffix of a larger identifier
+        @param newSymbol The string to replace the old symbol
+        @param bold If true, make the new symbol bold
+        @param underlineBegin If -1, underline the newSymbol starting at
+            this position, ending at underlineEnd.
+        @param underlineEnd Only considererdd if underlineBegin != -1; 
+            ending position for underlining started at underlineBegin.
     */
     public static void replaceSymbol(StringBuffer sb, String text, int pos, String symbol, 
-                                String newSymbol, boolean bold) {
+                                     String newSymbol, boolean bold,
+                                     int underlineBegin, int underlineEnd) {
         //System.out.println("replace('" + text + "', " + pos + ", '" + symbol + "', '" + newSymbol + "')");
         if (pos > 0) {
             // For some compilers, the position is off by 1 so make sure 
@@ -80,11 +94,26 @@ public final class TLUtils {
                 sb.append(text.charAt(i));
             }
             if (bold) {
-                sb.append("<b>");
+                sb.append("<b>"); // NOI18N
             }
-            sb.append(newSymbol);
+            if (underlineBegin != -1) {
+                for (int i = 0; i < underlineBegin; i++) {
+                    sb.append(newSymbol.charAt(i));
+                }
+                sb.append("<u>"); // NOI18N
+                for (int i = underlineBegin; i < underlineEnd; i++) {
+                    sb.append(newSymbol.charAt(i));
+                }
+                sb.append("</u>"); // NOI18N
+                int nl = newSymbol.length();
+                for (int i = underlineEnd; i < nl; i++) {
+                    sb.append(newSymbol.charAt(i));
+                }
+            } else {
+                sb.append(newSymbol);
+            }
             if (bold) {
-                sb.append("</b>");
+                sb.append("</b>"); // NOI18N
             }
             pos = n+symLen;
             from = pos;

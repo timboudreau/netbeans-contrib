@@ -18,6 +18,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskList;
 import java.io.File;
@@ -41,6 +43,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import javax.swing.JEditorPane;
 import javax.swing.Timer;
+import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
@@ -88,7 +91,8 @@ import org.openide.windows.Workspace;
 
 
 final public class SuggestionManagerImpl extends SuggestionManager
-    implements DocumentListener, CaretListener, ComponentListener {
+    implements DocumentListener, CaretListener, ComponentListener,
+               PropertyChangeListener {
 
     public static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.modules.tasklist"); // NOI18N
 
@@ -1389,6 +1393,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
     
     /** Start scanning for source items. */
     public void docStart() {
+	org.openide.windows.TopComponent.getRegistry().
+	    addPropertyChangeListener(this);
 	/* OLD:
 	org.openide.windows.TopComponent.getRegistry().
 	    addPropertyChangeListener(this);
@@ -1516,7 +1522,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	      so factor this into a validation method or something like that
 	      along with the propertyChange code, e.g. isCurrentEditorObject
     */
+    private static int findId = 1;
+
     private void findCurrentFile(boolean delayed) {
+        System.out.println((findId++) + ") findCurrentFile(" + delayed + ")");
+//    private void findCurrentFile(boolean delayed) {
 	// Unregister previous listeners
 	if (current != null) {
 	    //System.err.println("Removing component listener from " + tcToDO(current));
@@ -1550,11 +1560,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         // front one!
         Mode mode  = workspace.findMode(EditorSupport.EDITOR_MODE);
 	if (mode == null) {
-	    // No source editor
-	    // Perhaps we're on a workspace without an editor. In that
-	    // case, look for the editor on the editing workspace.
-	    // ... nope, that won't work, it will cause havoc
-	    // for my visibility check. Yuck yuck yuck.
+            // The editor window was probablyjust closed
 	    return;
 	}
         TopComponent [] tcs = mode.getTopComponents();
@@ -1575,8 +1581,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
         }
 	if (current == null) {
-	    // No source editor
-	    // "None of the editor components were on top!"
+            // The last editor-support window in the editor was probably 
+            // just closed - or was not on top
             return;
 	}
 
@@ -1733,16 +1739,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     /** The component is now showing: tell debugger to send us updates! */
     public void componentShown(ComponentEvent e) {
-        //super.componentShown();
 	// Don't care
     }
 
     /** The component is no longer showing: tell debugger to stop computing
 	updates on our behalf! */
     public void componentHidden(ComponentEvent e) {
-        //super.componentHidden();
-	//err.log("componentHidden");
-	findCurrentFile(true);
+        componentsChanged();
     }
 
     /** Don't care - but must implement full ComponentListener interface */
@@ -1776,10 +1779,41 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
     } */
     
+    boolean pendingScan = false;
+
+    /** The set of visible top components changed */
+    private void componentsChanged() {
+        // We may receive "changed events" from different sources:
+        // componentHidden (which is the only source which tells us
+        // when you've switched between two open tabs) and
+        // TopComponent.registry's propertyChange on PROP_OPENED
+        // (which is the only source telling us about tabs closing).
+
+        // However, there is some overlap - when you open a new
+        // tab, we get notified by both. So coalesce these events by
+        // enquing a change lookup on the next iteration through the
+        // event loop; if a second notification comes in during the
+        // same event processing iterationh it's simply discarded.
+
+        if (pendingScan) {
+            return;
+        }
+        pendingScan = true;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                findCurrentFile(true);
+                pendingScan = false;
+            }
+        });
+    }
 
     /** Stop scanning for source items */
     public void docStop() {
+	org.openide.windows.TopComponent.getRegistry().
+	    removePropertyChangeListener(this);
 	/*
+	org.openide.windows.TopComponent.getRegistry().
+	    removePropertyChangeListener(this);
 	WindowManager manager = TopManager.getDefault().getWindowManager();
 	manager.removePropertyChangeListener(this);
 	Workspace workspace = TopManager.getDefault().getWindowManager().
@@ -1822,8 +1856,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
     /** Cache for delay settings we want to use the timer for */
     private int scanDelay = 1000;
 
-    
     /** Reacts to changes */
+    public void propertyChange(PropertyChangeEvent ev) {
+        String prop = ev.getPropertyName();
+        if(prop.equals(TopComponent.Registry.PROP_OPENED)) {
+            componentsChanged();
+        }
+    }    
     //public void propertyChange(PropertyChangeEvent ev) {
 
         //String prop = ev.getPropertyName();
