@@ -200,6 +200,16 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return dir;
     }
 
+    protected void fsRemoved() {
+        super.fsRemoved();
+        File dir = new File (cachePath);
+        if(dir.exists () && dir.isDirectory () && dir.canWrite ()) {
+            if(!VcsUtilities.deleteRecursive(dir)) {
+                // Ignored. Let it be, when I can not remove it.
+            }
+        }
+    }
+    
     protected boolean readConfigurationCompat () {
         D.deb ("readConfigurationCompat ()"); // NOI18N
         //CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
