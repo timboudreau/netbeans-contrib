@@ -145,7 +145,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
         cleanup();
     }
     
-    private void cleanup() {
+    /**
+     * Destroy the FS node under VCS Commands node on the Runtime tab.
+     * This also stops the execution starter loop.
+     * You will not be able to execute any command by CommandsPool after this method finishes !
+     */
+    public void cleanup() {
         runtimeNode.removePropertyChangeListener(runtimeNodePropertyChange);
         try {
             runtimeNode.destroy();
