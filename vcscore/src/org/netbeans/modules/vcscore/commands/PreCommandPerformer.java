@@ -286,7 +286,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
                     int where = Arrays.binarySearch(commands, name);
                     int endOfInsert = exec.indexOf(")}", end);
                     if (endOfInsert > 0) {
-                        exec = fileOutput(exec, begin, endOfInsert + ")}".length(), exec.substring(end + 1, endOfInsert), where);
+                        exec = fileOutput(exec, begin, endOfInsert + ")}".length(), exec.substring(end + 1, endOfInsert), where, name);
                     }
                 }
             }
@@ -373,7 +373,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
         return insertion.toString();
     }
     
-    private String fileOutput(String exec, int begin, int end, String whichElement, int whichOutput) {
+    private String fileOutput(String exec, int begin, int end, String whichElement, int whichOutput, String cmdName) {
         File outputFile;
         Writer writer;
         try {
@@ -402,6 +402,9 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
         } catch (IOException ioexc) {
             TopManager.getDefault().notifyException(ioexc);
             return exec;
+        }
+        if (preCommandOutput[whichOutput].size() == 0) {
+            vars.put("FILE_EMPTY_OUTPUT_OF_"+cmdName+whichElement, "true");
         }
         return exec.substring(0, begin) + outputFile.getAbsolutePath()
                + exec.substring(end, exec.length());
