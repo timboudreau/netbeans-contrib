@@ -338,7 +338,7 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
          * This method is called when the visual merging process is finished.
          * All possible writting processes are finished before this method is called.
          */
-        public void notifyClosed() {
+        public void close() {
             tempf1.delete();
             tempf2.delete();
             tempf3.delete();
