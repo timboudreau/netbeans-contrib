@@ -29,7 +29,7 @@ import org.openide.windows.CloneableOpenSupport;
  * @author  tzezula
  * @version 
  */
-public final class IOREditorSupport extends DataEditorSupport implements OpenCookie, EditCookie, EditorCookie, PrintCookie {
+public final class IOREditorSupport extends DataEditorSupport implements OpenCookie, EditCookie, EditorCookie.Observable, PrintCookie {
     
     private static class Environment extends DataEditorSupport.Env {
     

@@ -83,7 +83,7 @@ import org.openide.util.NbBundle;
  *
  * @author Jaroslav Tulach, Martin Entlicher
  */
-public class RevisionEditorSupport extends CloneableEditorSupport implements EditorCookie, OpenCookie, PrintCookie, CloseCookie {
+public class RevisionEditorSupport extends CloneableEditorSupport implements EditorCookie.Observable, OpenCookie, PrintCookie, CloseCookie {
     private final RevisionList list;
     private final RevisionItem revisionItem;
     /** Which file object we are associated with */
