@@ -19,7 +19,6 @@ import java.beans.*;
 import java.text.*;
 import javax.swing.*;
 
-import gnu.regexp.*;
 import org.openide.util.actions.*;
 import org.openide.util.NbBundle;
 import org.openide.*;
@@ -146,6 +145,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
 
 /*
  * <<Log>>
+ *  39   Gandalf   1.38        9/10/99  Martin Entlicher removed import regexp
  *  38   Gandalf   1.37        9/8/99   Pavel Buzek     
  *  37   Gandalf   1.36        9/8/99   Pavel Buzek     class model changed, 
  *       customization improved, several bugs fixed
