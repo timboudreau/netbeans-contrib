@@ -18,6 +18,7 @@ package org.netbeans.modules.vcscore.ui;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -115,15 +116,17 @@ public class OutputPanel extends javax.swing.JPanel {
     }
         
     public void commandFinished(boolean isFinished) {
-        if (isFinished) {            
+        if (isFinished) {                        
             while (killActionListeners.size() > 0) {
                 kill.removeActionListener((java.awt.event.ActionListener) killActionListeners.remove(0));
                 SwingUtilities.invokeLater(new Runnable(){
                     public void run(){
-                        kill.setEnabled(false);
+                        kill.setEnabled(false);                        
+                        if(stdOutputTextArea.getText().length() == 0)
+                            btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
                     }
                 });
-            }
+            }            
             
         }
     }

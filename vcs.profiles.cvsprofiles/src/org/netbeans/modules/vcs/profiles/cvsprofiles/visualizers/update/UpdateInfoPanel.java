@@ -98,7 +98,7 @@ public class UpdateInfoPanel extends JPanel{
             }
             public void insertUpdate(DocumentEvent e){
                 btnErr.setEnabled(true);
-                errEnabled = true;
+                errEnabled = true;                 
             }
             public void removeUpdate(DocumentEvent e){
                 
@@ -353,7 +353,9 @@ public class UpdateInfoPanel extends JPanel{
     private void disableKill(){
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){
-                kill.setEnabled(false);
+                kill.setEnabled(false);                
+                if(tblUpdates.getModel().getRowCount() == 0)
+                    btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
             }
         });
     }
@@ -369,11 +371,11 @@ public class UpdateInfoPanel extends JPanel{
     }
     
     
-    public void showExecutionFailed() {     
+    public void showExecutionFailed() {            
         displayOutputData();
         disableKill();
-        
     }
+ 
     
     public void showFinishedCommand() { 
         displayOutputData();

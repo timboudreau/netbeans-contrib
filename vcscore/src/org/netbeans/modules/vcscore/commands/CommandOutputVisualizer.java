@@ -56,7 +56,6 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
     private static RequestProcessor outputDisplayRequestProcessor;
     private static Hashtable outputDisplayStuff;
 
-    //private CommandOutputPanel outputPanel;
     private OutputPanel outputPanel;
     private ArrayList closeListeners = new ArrayList();
     private CommandTask task;
@@ -85,16 +84,13 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
     public CommandOutputVisualizer(java.awt.event.ActionListener killListener, String execString, String name) {
         this();
         this.killListener = killListener;
-        outputPanel.addKillActionListener(this.killListener);
-     //   outputPanel.setExec(execString);      
+        outputPanel.addKillActionListener(this.killListener);        
         setName(java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
                 new Object[] { name }));
        
     }
     
-   // protected CommandOutputPanel createOutputPanel() {
-    protected OutputPanel createOutputPanel(){
-        //return new CommandOutputPanel();
+   protected OutputPanel createOutputPanel(){
         return new OutputPanel();
     }
     
@@ -106,7 +102,6 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         add(outputPanel, gridBagConstraints);
-      //  outputPanel.setStatus(org.openide.util.NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandExitStatus.running"));
         getAccessibleContext().setAccessibleName(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSN_CommandOutputVisualizer"));
         getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSD_CommandOutputVisualizer"));
     }
@@ -115,8 +110,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
         this.task = (CommandTask) task;
         this.vce = task.getExecutor();
         killListener = new CommandKillListener(this.task);
-        outputPanel.addKillActionListener(killListener);
-    //    outputPanel.setExec(vce.getExec());
+        outputPanel.addKillActionListener(killListener);    
         final String title;
         String commandName = vce.getCommand().getDisplayName();
         if (commandName == null || commandName.length() == 0) {
