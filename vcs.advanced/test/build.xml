@@ -65,6 +65,7 @@ Microsystems, Inc. All Rights Reserved.
     <!-- target unless you realy know what you are doing -->
     <target name="runtests" depends="buildtests">
         <echo message="Module: Running tests for ${xtest.module}, testtype ${xtest.testtype}, attribs=${xtest.attribs}"/>
+        <cvspass cvsroot=":pserver:test@mercury:/cvsroot" password="test"/>
         <ant dir="." antfile="${xtest.module_harness.antfile}"
              target="runtests"/>
     </target>
