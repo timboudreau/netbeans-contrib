@@ -457,7 +457,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
         private void updateKeys () {
             DataFolder folder = wizard.getTemplatesFolder ();
             if (folder.isValid()) {
-                setKeys (folder.getNodeDelegate ().getChildren ().getNodes ());
+                setKeys (folder.getNodeDelegate ().getChildren ().getNodes (true));
             } else {
                 setKeys(new Object[0]);
             }
