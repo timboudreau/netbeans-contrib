@@ -1958,8 +1958,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         File of = getFile (oldName);
         File nf = getFile (newName);
 
-        if (!of.renameTo (nf)) {
-            throw new IOException(g("EXC_CannotRename", oldName, getDisplayName (), newName)); // NOI18N
+        // #7086 - (nf.exists() && !nf.equals(of)) instead of nf.exists() - fix for Win32
+        if ((nf.exists() && !nf.equals(of)) || !of.renameTo (nf)) {
+            final String msg = g("EXC_CannotRename", oldName, getDisplayName (), newName); // NOI18N
+            throw new IOException(msg) {
+                public String getLocalizedMessage() {
+                    return msg;
+                }
+            };
         }
         if (cache != null) cache.rename(oldName, newName);
     }
