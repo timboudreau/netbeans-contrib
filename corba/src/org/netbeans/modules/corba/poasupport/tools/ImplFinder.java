@@ -1,11 +1,11 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -54,10 +54,10 @@ public class ImplFinder implements PropertyChangeListener {
     
     private static ImplFinder defaultImplFinder;
     private ORBSettings os;
-    private PropertyChangeListener weak1 = WeakListener.propertyChange (this, POASupport.getCORBASettings());
-    private PropertyChangeListener weak2 = WeakListener.propertyChange (this, POASupport.getCORBASettings().getActiveSetting());
-
-    public static ImplFinder getDefault () {
+    private PropertyChangeListener weak1 = WeakListener.propertyChange(this, POASupport.getCORBASettings());
+    private PropertyChangeListener weak2 = WeakListener.propertyChange(this, POASupport.getCORBASettings().getActiveSetting());
+    
+    public static ImplFinder getDefault() {
         if (defaultImplFinder == null) {
             defaultImplFinder = new ImplFinder();
         }
@@ -72,7 +72,7 @@ public class ImplFinder implements PropertyChangeListener {
         os.addPropertyChangeListener(weak2);
         resetSearchMode();
     }
-
+    
     private void resetSearchMode() {
         String method = os.getFindMethod();
         if (method.equals(ORBSettingsBundle.PACKAGE))
@@ -126,20 +126,71 @@ public class ImplFinder implements PropertyChangeListener {
             implPostfix = os.getImplBaseImplPostfix();
         }
         try {
-            for (Enumeration e = _root.getChildren(searchMode != SEARCH_PACKAGE); e.hasMoreElements();) {
-                FileObject fo = (FileObject)e.nextElement();
-                String ext = fo.getExt();
-                DataObject dobj = null;
-                switch (_type) {
-                    case SERVANT:
+            switch (_type) {
+                case SERVANT_MANAGER:
+                    for (Enumeration e = _root.getChildren(searchMode != SEARCH_PACKAGE); e.hasMoreElements();) {
+                        FileObject fo = (FileObject)e.nextElement();
+                        String ext = fo.getExt();
+                        DataObject dobj = null;
+                        if ((ext.equals(JAVA_EXTENSION)) && ((dobj = DataObject.find(fo)) instanceof JavaDataObject)) {
+                            SourceElement source = ((JavaDataObject)dobj).getSource();
+                            if (source != null) {
+                                ClassElement ce = source.getClass(Identifier.create(fo.getName()));
+                                if (ce == null || ce.isInterface())
+                                    break;
+                                if (inheritsFrom(ce, "org.omg.PortableServer.ServantActivatorPOA") ||
+                                inheritsFrom(ce, "org.omg.PortableServer.ServantLocatorPOA"))
+                                    if (source.getPackage() != null)
+                                        ret.add(source.getPackage() + "." + fo.getName());
+                                    else
+                                        ret.add(fo.getName());
+                            }
+                        }
+                    }
+                    break;
+                case ADAPTER_ACTIVATOR:
+                    for (Enumeration e = _root.getChildren(searchMode != SEARCH_PACKAGE); e.hasMoreElements();) {
+                        FileObject fo = (FileObject)e.nextElement();
+                        String ext = fo.getExt();
+                        DataObject dobj = null;
+                        if ((ext.equals(JAVA_EXTENSION)) && ((dobj = DataObject.find(fo)) instanceof JavaDataObject)) {
+                            SourceElement source = ((JavaDataObject)dobj).getSource();
+                            if (source != null) {
+                                ClassElement ce = source.getClass(Identifier.create(fo.getName()));
+                                if (ce == null || ce.isInterface())
+                                    break;
+                                if (inheritsFrom(ce, "org.omg.PortableServer.AdapterActivatorPOA"))
+                                    if (source.getPackage() != null)
+                                        ret.add(source.getPackage() + "." + fo.getName());
+                                    else
+                                        ret.add(fo.getName());
+                            }
+                        }
+                    }
+                    break;
+                case SERVANT:
+                    for (Enumeration e = _root.getFileSystem().getRoot().getChildren(true); e.hasMoreElements();) {
+                        FileObject fo = (FileObject)e.nextElement();
+                        String ext = fo.getExt();
+                        DataObject dobj = null;
                         if (ext.equals(IDL_EXTENSION) && ((dobj = DataObject.find(fo)) instanceof IDLDataObject)) {
                             Iterator implNames = ((IDLDataObject)dobj).getImplementationNames().iterator();
                             while (implNames.hasNext()) {
                                 Pair pair  = (Pair)implNames.next();
-                                String implName = pair.first.toString() + pair.second.toString();
+                                String implName = "";
                                 String pkgName = fo.getParent().getPackageName('.');
                                 if (pkgName != null && pkgName.length() > 0)
-                                    implName = pkgName + "." + implName;
+                                    implName = pkgName + ".";
+                                String _pkg1 = "." + _root.getPackageName('.');
+                                String _pkg2 = "." + implName + pair.first.toString();
+                                if (!_pkg1.endsWith("."))
+                                    _pkg1 += ".";
+                                if (!_pkg2.endsWith("."))
+                                    _pkg2 += ".";
+                                if ((searchMode == SEARCH_PACKAGE && !_pkg1.equals(_pkg2))||
+                                    (searchMode == SEARCH_PACKAGE_DEEP && !_pkg2.startsWith(_pkg1)))
+                                    continue;
+                                implName += pair.first.toString() + pair.second.toString();
                                 ClassElement ce = ClassElement.forName( implName );
                                 if (ce != null) {
                                     Identifier sid = ce.getSuperclass();
@@ -165,51 +216,11 @@ public class ImplFinder implements PropertyChangeListener {
                                 }
                             }
                         }
-                        break;
-                    case SERVANT_MANAGER:
-                        if ((ext.equals(JAVA_EXTENSION)) && ((dobj = DataObject.find(fo)) instanceof JavaDataObject)) {
-                            SourceElement source = ((JavaDataObject)dobj).getSource();
-                            if (source != null) {
-                                ClassElement ce = source.getClass(Identifier.create(fo.getName()));
-                                if (ce == null || ce.isInterface())
-                                    break;
-                                if (inheritsFrom(ce, "org.omg.PortableServer.ServantActivatorPOA") ||
-                                inheritsFrom(ce, "org.omg.PortableServer.ServantLocatorPOA"))
-                                    if (source.getPackage() != null)
-                                        ret.add(source.getPackage() + "." + fo.getName());
-                                    else
-                                        ret.add(fo.getName());
-                            }
-                        }
-                        break;
-                    case ADAPTER_ACTIVATOR:
-                        if ((ext.equals(JAVA_EXTENSION)) && ((dobj = DataObject.find(fo)) instanceof JavaDataObject)) {
-                            SourceElement source = ((JavaDataObject)dobj).getSource();
-                            if (source != null) {
-                                ClassElement ce = source.getClass(Identifier.create(fo.getName()));
-                                if (ce == null || ce.isInterface())
-                                    break;
-                                if (inheritsFrom(ce, "org.omg.PortableServer.AdapterActivatorPOA"))
-                                    if (source.getPackage() != null)
-                                        ret.add(source.getPackage() + "." + fo.getName());
-                                    else
-                                        ret.add(fo.getName());
-                            }
-                        }
-                }
+                    }
             }
         }
         catch(Exception ex) {
         }
-        /*
-        if (_type == SERVANT_MANAGER) {
-            ret.add("org.omg.PortableServer.ServantActivatorPOATie");
-            ret.add("org.omg.PortableServer.ServantLocatorPOATie");
-        }
-        else if (_type == ADAPTER_ACTIVATOR) {
-            ret.add("org.omg.PortableServer.AdapterActivatorPOATie");
-        }
-         */
         return ret;
     }
     
