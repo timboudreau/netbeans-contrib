@@ -15,9 +15,17 @@
 package org.netbeans.modules.latex.model.command.impl;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
+
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+
 import java.util.Set;
 import org.netbeans.modules.latex.model.command.Command;
 
@@ -35,9 +43,9 @@ import org.netbeans.modules.latex.test.TestCertificate;
  *
  * @author Jan Lahoda
  */
-public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode, FileChangeListener {
+public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode/*, FileChangeListener*/ {
     
-    private FileObject[] files;
+    private List/*<FileObject>*/ files;
     private boolean      uptoDate;
     
     private LaTeXSource source;
@@ -48,8 +56,9 @@ public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode, Fi
     public NBDocumentNodeImpl(LaTeXSource source) {
         super(null, null);
         
-        this.source = source;
-        uptoDate = true;
+        this.source   = source;
+        this.uptoDate = true;
+        this.files    = new ArrayList();
         
         CommandCollection coll = new CommandCollection();
         
@@ -57,43 +66,47 @@ public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode, Fi
         setCommandCollection(coll);
     }
     
-    public Object[] getFiles() {
-        return files;
+    public Collection getFiles() {
+        return Collections.unmodifiableCollection(files);
     }
     
-    public void setFiles(Object[] files) {
-        Object[] oldFiles = this.files;
-        
-        Set newF = new HashSet(Arrays.asList(files));
-        Set old  = oldFiles == null ? new HashSet() : new HashSet(Arrays.asList(oldFiles));
-        
-        Set toRemove = new HashSet(old);
-        
-        toRemove.removeAll(newF);
-        
-        Set toAdd    = new HashSet(newF);
-        
-        toAdd.removeAll(old);
-        
-        Iterator toRemoveIterator = toRemove.iterator();
-        
-        //This does not make much sense, as below a weak listener is added, and here "hard" listener is
-        //being removed.
-        while (toRemoveIterator.hasNext()) {
-            ((FileObject) toRemoveIterator.next()).removeFileChangeListener(this);
-        }
-        
-        Iterator toAddIterator    = toAdd.iterator();
-        
-        while (toAddIterator.hasNext()) {
-            FileObject fo = (FileObject) toAddIterator.next();
-            
-            fo.addFileChangeListener(WeakListener.fileChange(this, fo));
-        }
-        
-        this.files = (FileObject[] ) newF.toArray(new FileObject[newF.size()]);
+    public void addUsedFile(FileObject file) {
+        files.add(file);
     }
     
+//    public void setFiles(Object[] files) {
+//        Object[] oldFiles = this.files;
+//        
+//        Set newF = new HashSet(Arrays.asList(files));
+//        Set old  = oldFiles == null ? new HashSet() : new HashSet(Arrays.asList(oldFiles));
+//        
+//        Set toRemove = new HashSet(old);
+//        
+//        toRemove.removeAll(newF);
+//        
+//        Set toAdd    = new HashSet(newF);
+//        
+//        toAdd.removeAll(old);
+//        
+//        Iterator toRemoveIterator = toRemove.iterator();
+//        
+//        //This does not make much sense, as below a weak listener is added, and here "hard" listener is
+//        //being removed.
+//        while (toRemoveIterator.hasNext()) {
+//            ((FileObject) toRemoveIterator.next()).removeFileChangeListener(this);
+//        }
+//        
+//        Iterator toAddIterator    = toAdd.iterator();
+//        
+//        while (toAddIterator.hasNext()) {
+//            FileObject fo = (FileObject) toAddIterator.next();
+//            
+//            fo.addFileChangeListener(WeakListener.fileChange(this, fo));
+//        }
+//        
+//        this.files = (FileObject[] ) newF.toArray(new FileObject[newF.size()]);
+//    }
+//    
     public DocumentNode getDocumentNode() {
         return this;
     }
@@ -114,23 +127,23 @@ public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode, Fi
         return "article"; //TODO: this is only test impl.
     }
     
-    public void fileAttributeChanged(FileAttributeEvent fe) {
-    }
-    
-    public void fileChanged(FileEvent fe) {
-    }
-    
-    public void fileDataCreated(FileEvent fe) {
-    }
-    
-    public void fileDeleted(FileEvent fe) {
-    }
-    
-    public void fileFolderCreated(FileEvent fe) {
-    }
-    
-    public void fileRenamed(FileRenameEvent fe) {
-    }
+//    public void fileAttributeChanged(FileAttributeEvent fe) {
+//    }
+//    
+//    public void fileChanged(FileEvent fe) {
+//    }
+//    
+//    public void fileDataCreated(FileEvent fe) {
+//    }
+//    
+//    public void fileDeleted(FileEvent fe) {
+//    }
+//    
+//    public void fileFolderCreated(FileEvent fe) {
+//    }
+//    
+//    public void fileRenamed(FileRenameEvent fe) {
+//    }
     
     public void traverse(TraverseHandler th) {
 //        if (!th.argumentStart(this))

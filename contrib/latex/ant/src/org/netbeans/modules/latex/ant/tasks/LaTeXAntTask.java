@@ -116,7 +116,12 @@ public class LaTeXAntTask extends Task implements TaskContainer {
             }
             
             if (doLatex) {
-                log("LaTeXing", Project.MSG_VERBOSE);
+                log("LaTeXing, mainfile:" + mainFile, Project.MSG_VERBOSE);
+                
+                File absoluteMainFile = Utilities.resolveFile(getProject(), mainFile);
+                
+                if (!absoluteMainFile.exists())
+                    log("!mainfile does not exist", Project.MSG_VERBOSE);
                 
                 forceReparse = false;
                 
@@ -131,7 +136,7 @@ public class LaTeXAntTask extends Task implements TaskContainer {
                 
                 cmdLine.addArguments(new String[] {new File(mainFile).getName()});
                 
-                File baseDir = new File(mainFile).getParentFile();
+                File baseDir = absoluteMainFile.getParentFile();
                 
                 Execute exec = new Execute(new org.netbeans.modules.latex.ant.tasks.LaTeXPumpStreamHandler(baseDir));
                 

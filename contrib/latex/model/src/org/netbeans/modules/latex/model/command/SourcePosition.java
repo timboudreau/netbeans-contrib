@@ -43,15 +43,15 @@ public final class SourcePosition implements Serializable {
     
     /**For use only during parsing for performance reasons!!!!!!!!!!
      */
-    public SourcePosition(DataObject od, Document doc, int offset) {
-        try {
-            position  = doc.createPosition(offset);
-            this.doc = doc;
-            this.file = od.getPrimaryFile();
-        } catch (BadLocationException e) {
-            throw new IllegalStateException(e.getMessage());
-        }
-    }
+//    public SourcePosition(DataObject od, Document doc, int offset) {
+//        try {
+//            position  = doc.createPosition(offset);
+//            this.doc = doc;
+//            this.file = od.getPrimaryFile();
+//        } catch (BadLocationException e) {
+//            throw new IllegalStateException(e.getMessage());
+//        }
+//    }
 
     public SourcePosition(Document doc, int offset) {
         this(Utilities.getDefault().getFile(doc), doc, offset);

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module.
+The Initial Developer of the Original Code is Jan Lahoda.
+Portions created by Jan Lahoda are Copyright 2002-2003.
+All Rights Reserved.
+
+Contributor(s): Jan Lahoda
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<?xml-stylesheet type="text/xml" href="http://openide.netbeans.org/fs/filesystem.xsl"?>
+
+<filesystem>
+
+    <folder name="Services">
+        <folder name="Hidden">
+        
+            <file name="LaTeXGUIProjectFactory.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.guiproject.LaTeXGUIProjectFactory"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.spi.project.ProjectFactory"/>
+            </file>
+            
+            <file name="LaTeXFileOwnerQuery.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.guiproject.LaTeXFileOwnerQuery"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.spi.project.FileOwnerQueryImplementation"/>
+            </file>
+            
+            <file name="LaTeXGUIProjectFactorySourceFactory.instance">
+                <attr methodvalue="org.netbeans.modules.latex.guiproject.LaTeXGUIProjectFactorySourceFactory.instanceCreate" name="instanceCreate"/>
+<!--                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.guiproject.LaTeXGUIProjectFactorySourceFactory"/>-->
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.command.LaTeXSourceFactory"/>
+            </file>
+
+            <attr name="LaTeXGUIProjectFactorySourceFactory.instance/FileObjectLaTeXSourceFactory.instance" boolvalue="true" />
+
+        </folder>
+    </folder>
+    
+    <folder name="Actions">
+        <folder name="Project">
+            <file name="Show.instance">
+                <attr methodvalue="org.netbeans.modules.latex.guiproject.ActionsFactory.createMainProjectShowAction" name="instanceCreate"/>
+            </file>
+        </folder>
+    </folder>
+    
+    <folder name="Menu">
+      <folder name="BuildProject">
+            <file name="Show.shadow">
+	        <attr name="originalFile" stringvalue="Actions/Project/Show.instance" />
+            </file>
+        </folder>
+    </folder>
+    
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="LaTeX">
+                <file name="new-latex-project.xml">
+                    <attr name="template" boolvalue="true" />
+                    <attr name="instantiatingIterator" newvalue="org.netbeans.modules.latex.guiproject.wizard.NewLaTeXGUIProjectWizardIterator" />
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.latex.guiproject.Bundle" />
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    
+    <folder name="latex">
+        <folder name="guiproject">
+            <file name="build.xml" url="build.xml">
+            </file>
+            <file name="build-settings.properties" url="build-settings.properties">
+            </file>
+            <file name="document.tex" url="document.tex">
+            </file>
+        </folder>
+    </folder>
+</filesystem>

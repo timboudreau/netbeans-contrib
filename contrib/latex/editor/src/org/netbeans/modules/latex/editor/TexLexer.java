@@ -19,15 +19,13 @@ import org.netbeans.api.lexer.LexerInput;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.swing.TokenElement;
-import org.netbeans.modules.lexer.editorbridge.OffsetTokenElement;
-import org.netbeans.modules.lexer.editorbridge.TokenRootElement;
 import org.netbeans.spi.lexer.util.IntegerCache;
 
 /**
  *
  * @author  Jan Lahoda
  */
-public class TexLexer implements Lexer {
+/*package private*/ class TexLexer implements Lexer {
     
     private LexerInput  input;
     private int         state;

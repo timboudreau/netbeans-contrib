@@ -16,6 +16,8 @@ package org.netbeans.modules.latex.ant.tasks;
 
 import java.io.File;
 
+import org.apache.tools.ant.Project;
+
 /**Utility methods for Ant tasks.
  *
  * @author Jan Lahoda
@@ -51,6 +53,17 @@ public class Utilities {
     
     public static boolean isUpToDate(File source, String targetExtension) {
         return isUpToDate(source, replaceExtension(source, targetExtension));
+    }
+    
+    public static File resolveFile(Project project, String fileName) {
+        File resolved = new File(project.getBaseDir(), fileName);
+        
+        if (resolved.exists())
+            return resolved;
+        
+        resolved = new File(fileName);
+        
+        return resolved;
     }
     
 }

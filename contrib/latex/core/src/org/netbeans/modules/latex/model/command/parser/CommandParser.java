@@ -98,7 +98,7 @@ public class CommandParser {
     public synchronized DocumentNode parseImpl(LaTeXSourceImpl source, Collection documents, Collection/*<ParseError>*/ errors) throws IOException {
         this.errors    = errors;
         this.documents = documents;
-        this.usedFiles = new ArrayList();
+//        this.usedFiles = new ArrayList();
         this.mainFile  = (FileObject) source.getMainFile();
         this.labels    = new HashSet/*<String>*/();
         this.currentCommandDefiningNode = null;
@@ -107,12 +107,12 @@ public class CommandParser {
         
         NBDocumentNodeImpl result = parseDocument(input, source);
         
-        result.setFiles(usedFiles.toArray());
+//        result.setFiles(usedFiles.toArray());
         
         closeFile(input);
         
         this.errors = null;
-        this.usedFiles = null;
+//        this.usedFiles = null;
         this.mainFile = null;
         this.documents = null;
         this.labels   = null;
@@ -149,34 +149,40 @@ public class CommandParser {
 //        }
     }
     
-    private Collection usedFiles;
+//    private Collection usedFiles;
     private Collection documents;
     private FileObject mainFile;
     private NodeImpl   currentCommandDefiningNode;
     
-    private ParserInput openFile(String file) throws IOException {
-        int extStart = file.lastIndexOf('.');
-        String name;
-        String ext;
+    private FileObject findFile(String file, String extensionsString) throws IOException {
+        FileObject toOpen = (FileObject) Utilities.getDefault().getRelativeFileName(mainFile, file);
         
-        if (extStart == (-1)) {
-            name = file;
-            ext = "tex";
-        } else {
-            name = file.substring(0, extStart);
-            ext  = file.substring(extStart + 1);
+        if (toOpen != null) {
+            return toOpen;
+        }
+        
+        String[] extensions = extensionsString.split(":");
+        
+        for (int cntr = 0; cntr < extensions.length; cntr++) {
+            toOpen = (FileObject) Utilities.getDefault().getRelativeFileName(mainFile, file + "." + extensions[cntr]);
+            if (toOpen != null) {
+                return toOpen;
+            }
         }
         
         if (includeDebug) {
-            System.err.println("name = " + name );
-            System.err.println("ext = " + ext );
-            
+            System.err.println("file=" + file);
+            System.err.println("extensionsString" + extensionsString);
             System.err.println("mainFile = " + mainFile );
             System.err.println("mainFile.getParent() = " + mainFile.getParent() );
-            System.err.println("mainFile.getParent().getFileObject(name, ext) = " + mainFile.getParent().getFileObject(name, ext));
+            System.err.println("not found");
         }
         
-        FileObject toOpen = (FileObject) Utilities.getDefault().getRelativeFileName(mainFile, name + "." + ext);
+        return null;
+    }
+    
+    private ParserInput openFile(String file) throws IOException {
+        FileObject toOpen = findFile(file, "tex");
         
         if (toOpen == null)
             return null;
@@ -185,7 +191,7 @@ public class CommandParser {
     }
     
     private ParserInput openFile(FileObject file) throws IOException {
-        usedFiles.add(file);
+//        usedFiles.add(file);
         return new ParserInput(file, documents);
     }
     
@@ -255,7 +261,23 @@ public class CommandParser {
         
         return null;
     }
-
+    
+    private void handleAddArgument(CommandNodeImpl cni, int argIndex, ArgumentNodeImpl ani) throws IOException {
+        cni.putArgument(argIndex, ani);
+        
+        Command.Param param = ani.getArgument();
+        
+        if (param.hasAttribute("use-file-argument")) {
+            String   extensionsString = param.getAttribute("use-file-argument-extensions");
+            String   fileName = ani.getText().toString();
+            FileObject file = findFile(fileName, extensionsString);
+            
+            if (file != null) {
+                ((NBDocumentNodeImpl) ani.getDocumentNode()).addUsedFile(file);
+            }
+        }
+    }
+    
     private NodeImpl parseCommand(Node parent, ParserInput input) throws IOException {
         Token command = input.getToken();
         
@@ -292,7 +314,7 @@ public class CommandParser {
                 ani.setArgument(arg);
                 
                 if ("verb".equals(arg.getAttribute("type"))) {
-                    cni.putArgument(currentArgument, parseVerbArgument(input,  ani));
+                    handleAddArgument(cni, currentArgument, parseVerbArgument(input,  ani));
                 } else {
                     errors.add(Utilities.getDefault().createError("Unknown special argument (internal error).", input.getPosition()));
                 }
@@ -319,7 +341,7 @@ public class CommandParser {
                     an.setStartingPosition(absoluteStartPosition);
                     an.setEndingPosition(absoluteStartPosition);
                     
-                    cni.putArgument(currentArgument, an);
+                    handleAddArgument(cni, currentArgument, an);
                     
                     currentArgument++;
                 }
@@ -348,9 +370,9 @@ public class CommandParser {
             ani.setArgument(param);
             
             if (param.hasAttribute(Command.Param.ATTR_NO_PARSE))
-                cni.putArgument(currentArgument, (ArgumentNode) parseBalancedText(input, ani, true /*!!!!!!*/));
+                handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseBalancedText(input, ani, true /*!!!!!!*/));
             else
-                cni.putArgument(currentArgument, (ArgumentNode) parseGroup(input, ani, true, freeText, true /*!!!!!!*/));
+                handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseGroup(input, ani, true, freeText, true /*!!!!!!*/));
             
             currentArgument++;
             
@@ -359,7 +381,7 @@ public class CommandParser {
         
         cni.setEndingPosition(endingPosition);
         
-        if ("\\documentclass".equals(cni.getCommand().getCommand())) {
+        if ("\\documentclass".equals(cni.getCommand().getCommand())) {//TODO: this is quite obsolette way :-)
             CommandCollection coll = new CommandCollection();
             String documentClass = cni.getArgument(1).getText().toString();
             
@@ -370,7 +392,7 @@ public class CommandParser {
             currentCommandDefiningNode = cni;
         }
 
-        if ("\\usepackage".equals(cni.getCommand().getCommand())) {
+        if ("\\usepackage".equals(cni.getCommand().getCommand())) {//TODO: this is quite obsolette way :-)
             if (cni.getArgumentCount() == cni.getCommand().getArgumentCount()) {
                 CommandCollection coll = new CommandCollection();
                 
@@ -380,8 +402,8 @@ public class CommandParser {
             }
         }
         
-        if ("\\newcommand".equals(cni.getCommand().getCommand()) || "\\renewcommand".equals(cni.getCommand().getCommand())) {
-            if (cni.getArgumentCount() == 4) {
+        if ("\\newcommand".equals(cni.getCommand().getCommand()) || "\\renewcommand".equals(cni.getCommand().getCommand())) {//TODO: this is quite obsolette way :-)
+            if (cni.getArgumentCount() == 4) {//TODO: this is quite obsolette way :-)
                 Iterator nameTokens = cni.getArgument(0).getDeepNodeTokens(); nameTokens.next();/*{*/
                 String name = ((Token) nameTokens.next()).getText().toString(); //!!!Check that it has exactly one argument of type command!
                 Iterator argTokens = cni.getArgument(1).getDeepNodeTokens(); if (argTokens.hasNext()) argTokens.next();
@@ -454,12 +476,12 @@ public class CommandParser {
             }
         }
 
-        if (cni.getCommand().isBeginLike()) {
+        if (cni.getCommand().isBeginLike()) {//TODO: this is quite obsolette way :-)
             return parseBlock(input, cni);
         }
         
-        if (cni.getCommand().isLabelLike()) {
-            if (cni.getArgumentCount() != 1)
+        if (cni.getCommand().isLabelLike()) {//TODO: this is quite obsolette way :-)
+            if (cni.getArgumentCount() != 1)//TODO: this is quite obsolette way :-)
                 errors.add(Utilities.getDefault().createError("Incorrect number of arguments for \\label (like). Expected 1, found " + cni.getArgumentCount() + ".", cni.getStartingPosition()));
             else {
                 String label = cni.getArgument(0).getText().toString();
@@ -476,8 +498,8 @@ public class CommandParser {
 //            errors.add(Utilities.getDefault().createError("Too much \\ends: \\end{" + cni.getArgument(0).getText() + "}", cni.getStartingPosition()));
 //        }
         
-        if (cni.getCommand().isInputLike()) {
-            if (cni.getArgumentCount() != 1) {
+        if (cni.getCommand().isInputLike()) {//TODO: this is quite obsolette way :-)
+            if (cni.getArgumentCount() != 1) {//TODO: this is quite obsolette way :-)
                 errors.add(Utilities.getDefault().createError("For \\input or \\include is expected one parameter, found " + cni.getArgumentCount() + ".", cni.getStartingPosition()));
             } else {
                 String fileName = cni.getArgument(0).getText().toString();

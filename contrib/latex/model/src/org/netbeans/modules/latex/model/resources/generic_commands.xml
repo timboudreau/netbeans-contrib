@@ -29,7 +29,8 @@ Microsystems, Inc. All Rights Reserved.
   <attribute name="input" value="true" />
   <argument type="mandatory">
     <attribute name="#include" value="true" />
-
+    <attribute name="use-file-argument" value="true" />
+    <attribute name="use-file-argument-extensions" value="tex" />
     <attribute name="#code" value="true" />
   </argument>
 </command>
@@ -128,7 +129,8 @@ Microsystems, Inc. All Rights Reserved.
   <attribute name="input" value="true" />
   <argument type="free">
     <attribute name="#include" value="true" />
-
+    <attribute name="use-file-argument" value="true" />
+    <attribute name="use-file-argument-extensions" value="tex" />
     <attribute name="#code" value="true" />
   </argument>
 </command>
@@ -319,6 +321,8 @@ Microsystems, Inc. All Rights Reserved.
 <command name="\bibliography">
   <argument type="mandatory">
     <attribute name="#code" value="true" />
+    <attribute name="use-file-argument" value="true" />
+    <attribute name="use-file-argument-extensions" value="bib" />
   </argument>
 </command>
 

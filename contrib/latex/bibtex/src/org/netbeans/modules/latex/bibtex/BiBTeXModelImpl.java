@@ -210,6 +210,9 @@ public class BiBTeXModelImpl extends BiBTeXModel implements PropertyChangeListen
             
             plannedChange = true;
         }
+        
+        if (!upToDate)
+            getEntries();
 
         try {
             final Entry          last    = entries.isEmpty() ? null : (Entry) entries.last();
@@ -312,6 +315,9 @@ public class BiBTeXModelImpl extends BiBTeXModel implements PropertyChangeListen
     }
     
     public void removeEntry(final Entry e) {
+        if (!upToDate)
+            getEntries();
+        
         assert entries.contains(e);
         
         synchronized (PLANNED_LOCK) {

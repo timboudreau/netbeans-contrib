@@ -35,6 +35,8 @@ import org.openide.loaders.DataObject;
 
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.latex.editor.TexLanguage;
+import org.netbeans.modules.latex.model.Utilities;
+
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.lexer.editorbridge.TokenRootElement;
 
@@ -48,21 +50,15 @@ public class ParserInput implements DocumentListener {
     
 //    private Stack treStack;
     private FileObject file;
-    private DataObject od; //For performance reasons only!!!!!
+//    private DataObject od; //For performance reasons only!!!!!
     private TokenRootElement currentTRE;
     private Document document;
     private int index;
     private Set usedFiles;
     
     private Document getDocument(FileObject fo, Collection documents) throws IOException {
-        od = DataObject.find(fo);
-        EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
-        
-        if (ec == null)
-            return null;
-        
         changed = false;
-        AbstractDocument ad = (AbstractDocument) ec.openDocument();
+        AbstractDocument ad = (AbstractDocument) Utilities.getDefault().openDocument(fo);
         
         ad.addDocumentListener(this);
         
@@ -78,10 +74,11 @@ public class ParserInput implements DocumentListener {
     }
 
     /** Creates a new instance of ParserInput */
-    public ParserInput(FileObject od, Collection documents) throws IOException {
+    public ParserInput(FileObject file, Collection documents) throws IOException {
 //        treStack = new Stack();
-        file = od;
-        document = getDocument(file, documents);
+        assert file != null;
+        this.file = file;
+        document = getDocument(this.file, documents);
         
         if (document == null)
             throw new IOException("The document cannot be opened.");
@@ -103,7 +100,7 @@ public class ParserInput implements DocumentListener {
         
         int offset = currentTRE.getElementOffset(toUse);
         
-        return new SourcePosition(od, document, offset);
+        return new SourcePosition(file, document, offset);
     }
     
     public int getIndex() {

@@ -103,8 +103,10 @@ public class BiBTeXAntTask extends Task {
         if (mainFile == null)
             throw new BuildException("The mainfile has to be set!");
         
-        File source = new File(mainFile);
+        File source = Utilities.resolveFile(getProject(), mainFile);
 
+        log("BiBTeX: " + source, Project.MSG_VERBOSE);
+        
         if (isUpToDate(source)) {
             log("BiBTeX: Up-to-date, no processing.", Project.MSG_VERBOSE);
         } else {
@@ -113,15 +115,14 @@ public class BiBTeXAntTask extends Task {
             cmdLine.setExecutable(command);
             cmdLine.addArguments(Commandline.translateCommandline(arguments));
             
-            if (mainFile.endsWith(".tex"))
-                mainFile = mainFile.substring(0, mainFile.length() - 4);
+            File aux = Utilities.replaceExtension(source, ".aux");
             
-            cmdLine.addArguments(new String[] {mainFile});
+            cmdLine.addArguments(new String[] {aux.getName()});
             
             Execute exec = new Execute();
             
             exec.setCommandline(cmdLine.getCommandline());
-            exec.setWorkingDirectory(source.getParentFile());
+            exec.setWorkingDirectory(aux.getParentFile());
             
             try {
                 exec.execute();

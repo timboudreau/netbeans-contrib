@@ -13,6 +13,7 @@
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.model.command;
+import java.util.Collection;
 
 
 /**
@@ -21,9 +22,9 @@ package org.netbeans.modules.latex.model.command;
  */
 public interface DocumentNode extends TextNode {
     
-    public Object[] getFiles();
+    public Collection  getFiles();
     
-    public boolean  isUpToDate();
+    public boolean     isUpToDate();
     
 //    public void     performUpToDate(Runnable r);
     
