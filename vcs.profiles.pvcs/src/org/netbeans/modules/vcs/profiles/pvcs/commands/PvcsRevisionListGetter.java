@@ -86,6 +86,8 @@ public class PvcsRevisionListGetter extends Object implements VcsAdditionalComma
         matchingDescription = false;
         //symbolicNames = new Hashtable();
         revisionItems = new ArrayList();
+        vars = new Hashtable(vars);
+        fileSystem.getVarValueAdjustment().revertAdjustedVarValues(vars);
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(logCmd, vars);
         vce.addDataOutputListener(this);
         fileSystem.getCommandsPool().preprocessCommand(vce, vars, fileSystem);

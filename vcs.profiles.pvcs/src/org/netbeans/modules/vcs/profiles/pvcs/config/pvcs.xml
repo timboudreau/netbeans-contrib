@@ -162,7 +162,7 @@ Microsystems, Inc. All Rights Reserved.
       <value>\\</value>
     </variable>
     <variable name="ADJUST_VARS" basic="false" if="IS_WINDOWS">
-      <value>"ROOTDIR", "PROJECT_DB", "ARCHIVE", "WORKFILE"</value>
+      <value>"ROOTDIR", "PROJECT_DB", "ARCHIVE", "WORKFILE", "CACHED_ATTR"</value>
     </variable>
     <variable name="MSG_PROMPT_FOR_AUTO_LOCK" basic = "false">
       <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MSG_PROMPT_FOR_AUTO_LOCK)</value>
@@ -816,10 +816,21 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
+        <!--
 	<property name="exec">
 	  <value>$[? GEN_DELTA] [${RUN} vdiff -dl $[? REV_VER1] [-r${REVISION1}] [-v${CMD_QUOTE}${VERSION1}${CMD_QUOTE}] $[? REV_VER2] [$[? REVISION2] [-r${REVISION2}] []] [$[? VERSION2] [-v${CMD_QUOTE}${VERSION2}${CMD_QUOTE}] []] ${IGNORE_WHITE} -d $[? DELTA_FILE] [-xo${CMD_QUOTE}${DELTA_FILE}${CMD_QUOTE}] [] ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}]
                                 [vcs.commands.Diff.class $[? REV_VER1] [${REVISION1}] ["${BACKSLASH}${VERSION1}"] $[? REV_VER2] [${REVISION2}] ["${BACKSLASH}${VERSION2}"] 3 CHECKOUT_CMD DIFF_CA_CMD]</value>
 	</property>
+        -->
+        <run dir="${WORKDIR}">
+          <executable value="$[? GEN_DELTA] [vdiff] [org.netbeans.modules.vcs.profiles.commands.Diff.class]"/>
+          <arg value="$[? GEN_DELTA] [-dl] []"/>
+          <arg value="$[? REV_VER1] [$[? GEN_DELTA] [-r][]${REVISION1}] [$[? GEN_DELTA] [-v][${BACKSLASH}]${VERSION1}]"/>
+          <arg value="$[? REV_VER2] [$[? GEN_DELTA] [$[? REVISION2] [-r${REVISION2}] []] [${REVISION2}]] [$[? GEN_DELTA] [$[? VERSION2] [-v${VERSION2}] []] [${BACKSLASH}${VERSION2}]]"/>
+          <arg line="$[? GEN_DELTA] [${IGNORE_WHITE} -d] [3 CHECKOUT_CMD DIFF_CA_CMD]"/>
+          <arg value="$[? GEN_DELTA] [$[? DELTA_FILE] [-xo${DELTA_FILE}] []] []"/>
+          <arg value="$[? GEN_DELTA] [{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})] []"/>
+        </run>
   	<property name="inputDescriptor">
  	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_DIFF_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_DIFF_Label)))
                  SELECT_RADIO_EXPERT(REV_VER1, "", "R",
@@ -879,6 +890,12 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
       </command>
+      <command name="BACKUP_FILE">
+	<property name="exec">
+	  <value>${RUN} mv ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} ${NUR}</value>
+	  <value if="IS_WINNT">${RUN} (attrib -r ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} >nul || echo.>nul) &amp;&amp; (del ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} 2>nul || echo.>nul) &amp;&amp; (move ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} 2>nul || echo.>nul) ${NUR}</value>
+	</property>
+      </command>
       <command name="MERGE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MERGE)">
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_MERGE_Mnemonic)</value>
@@ -886,10 +903,24 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
+        <!--
 	<property name="exec">
 	  <value>${RUN} ${CD} ${CMD_QUOTE}${WORKDIR}${CMD_QUOTE}; mv ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE}; vmrg -n $[? PARENT] [-r${PARENT_REVISION}] [-v${CMD_QUOTE}${PARENT_VERSION}${CMD_QUOTE}] $[? BRANCH1] [$[? BRANCH1_REVISION] [-r${BRANCH1_REVISION}] []] [$[? BRANCH1_VERSION] [-v${CMD_QUOTE}${BRANCH1_VERSION}${CMD_QUOTE}] []] $[? BRANCH2] [$[? BRANCH2_REVISION] [-r${BRANCH2_REVISION}] []] [$[? BRANCH2_VERSION] [-v${CMD_QUOTE}${BRANCH2_VERSION}${CMD_QUOTE}] []] $[? OUT_FILE] [-o${CMD_QUOTE}${OUT_FILE}${CMD_QUOTE}] [] ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}\(${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}\) ${NUR}</value>
 	  <value if="IS_WINNT">${RUN} ${CD} ${CMD_QUOTE}${WORKDIR}${CMD_QUOTE} &amp;&amp; (attrib -r ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} >nul || echo.>nul) &amp;&amp; (del ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} 2>nul || echo.>nul) &amp;&amp; (move ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} 2>nul || echo.>nul) &amp;&amp; vmrg -n $[? PARENT] [-r${PARENT_REVISION}] [-v${CMD_QUOTE}${PARENT_VERSION}${CMD_QUOTE}] $[? BRANCH1] [$[? BRANCH1_REVISION] [-r${BRANCH1_REVISION}] []] [$[? BRANCH1_VERSION] [-v${CMD_QUOTE}${BRANCH1_VERSION}${CMD_QUOTE}] []] $[? BRANCH2] [$[? BRANCH2_REVISION] [-r${BRANCH2_REVISION}] []] [$[? BRANCH2_VERSION] [-v${CMD_QUOTE}${BRANCH2_VERSION}${CMD_QUOTE}] []] $[? OUT_FILE] [-o${CMD_QUOTE}${OUT_FILE}${CMD_QUOTE}] [] ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}(${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}) ${NUR}</value>
 	</property>
+        -->
+        <run dir="${WORKDIR}">
+          <executable value="vmrg"/>
+          <arg value="-n"/>
+          <arg value="$[? PARENT] [-r${PARENT_REVISION}] [-v${PARENT_VERSION}]"/>
+          <arg value="$[? BRANCH1] [$[? BRANCH1_REVISION] [-r${BRANCH1_REVISION}] []] [$[? BRANCH1_VERSION] [-v${BRANCH1_VERSION}] []]"/>
+          <arg value="$[? BRANCH2] [$[? BRANCH2_REVISION] [-r${BRANCH2_REVISION}] []] [$[? BRANCH2_VERSION] [-v${BRANCH2_VERSION}] []]"/>
+          <arg value="$[? OUT_FILE] [-o${OUT_FILE}] []"/>
+          <arg value="{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})"/>
+        </run>
+        <property name="confirmationMsg">
+          <value>{INSERT_OUTPUT_OF_BACKUP_FILE(0)}</value>
+        </property>
   	<property name="inputDescriptor">
  	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_Label)))
                  SELECT_RADIO(PARENT, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_Parent), "R",
@@ -942,25 +973,53 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <command name="CHECKOUT_CMD">
+        <!--
 	<property name="exec">
 	  <value>${RUN} get -y $[? REVISION] [-r${CMD_QUOTE}${REVISION}${CMD_QUOTE}] [] $[? SUFFIX] [-s${SUFFIX}] [] ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${TEMPDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}</value>
 	</property>
+        -->
+        <run dir="${WORKDIR}">
+            <executable value="get"/>
+            <arg value="$[? REVISION] [-r${REVISION}] []"/>
+            <arg value="$[? SUFFIX] [-s${SUFFIX}] []"/>
+            <arg value="{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${TEMPDIR}${PS}${FILE})"/>
+        </run>
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
         </property>
       </command>
       <command name="DIFF_CA_CMD">
+        <!--
 	<property name="exec">
 	  <value>${RUNW} vdiff -dl $[? REV_VER1] [-r${REVISION1}] [-v${CMD_QUOTE}${VERSION1}${CMD_QUOTE}] $[? REV_VER2] [$[? REVISION2] [-r${REVISION2}] []] [$[? VERSION2] [-v${CMD_QUOTE}${VERSION2}${CMD_QUOTE}] []] ${IGNORE_WHITE} ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}</value>
 	</property>
+        -->
+        <run dir="${WORKDIR}">
+          <executable value="vdiff"/>
+          <arg value="-dl"/>
+          <arg value="$[? REV_VER1] [-r${REVISION1}] [-v${VERSION1}]"/>
+          <arg value="$[? REV_VER2] [$[? REVISION2] [-r${REVISION2}] []] [$[? VERSION2] [-v${VERSION2}] []]"/>
+          <arg value="${IGNORE_WHITE}"/>
+          <arg value="{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})"/>
+        </run>
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
         </property>
       </command>
       <command name="DIFF_CA_REVISIONS_CMD">
+        <!--
 	<property name="exec">
 	  <value>${RUNW} vdiff -dl -r${REVISION1} $[? REVISION2] [-r${REVISION2}] [] ${IGNORE_WHITE} ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}</value>
 	</property>
+        -->
+        <run dir="${WORKDIR}">
+          <executable value="vdiff"/>
+          <arg value="-dl"/>
+          <arg value="-r${REVISION1}"/>
+          <arg value="$[? REVISION2] [-r${REVISION2}] []"/>
+          <arg value="${IGNORE_WHITE}"/>
+          <arg value="{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})"/>
+        </run>
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
         </property>
@@ -1050,17 +1109,33 @@ Microsystems, Inc. All Rights Reserved.
       </property>
     </command>
     <command name="REVISION_GETTER">
+      <!--
       <property name="exec">
           <value>${RUN} vlog -i ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}</value>
       </property>
+      -->
+      <run dir="${WORKDIR}">
+        <executable value="vlog"/>
+        <arg value="-i"/>
+        <arg value="{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})"/>
+      </run>
       <property name="concurrentExec">
         <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
       </property>
     </command>
     <command name="REVISION_OPEN">
+      <!--
       <property name="exec">
           <value>${RUN} get -y $[? REVISION] [-r${REVISION}] [] -p ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}</value>
       </property>
+      -->
+      <run dir="${WORKDIR}">
+        <executable value="get"/>
+        <arg value="-y"/>
+        <arg value="$[? REVISION] [-r${REVISION}] []"/>
+        <arg value="-p"/>
+        <arg value="{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})"/>
+      </run>
       <property name="numRevisions">
 	<value>1</value>
       </property>
@@ -1115,9 +1190,16 @@ Microsystems, Inc. All Rights Reserved.
         </property>
     </command>
     <command name="VERIFY_ACTION_DIFF">
+        <!--
         <property name="exec">
             <value>${RUNW} vdiff -t -r ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_(} ${NUR}</value>
         </property>
+        -->
+        <run dir="${WORKDIR}">
+          <executable value="vdiff"/>
+          <arg line="-t -r"/>
+          <arg value="{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}(${WORKDIR}${PS}${FILE})"/>
+        </run>
         <property name="executionPriority">
           <value>1</value> <!-- HIGH PRIORITY -->
         </property>
