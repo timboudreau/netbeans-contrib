@@ -15,7 +15,7 @@ package org.netbeans.modules.vcs.advanced.commands;
 
 import java.util.Iterator;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
 
@@ -30,6 +30,7 @@ import org.openide.util.datatransfer.NewType;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
+import org.netbeans.modules.vcscore.util.Table;
 
 /**
  * The Node representation of a VCS command.
@@ -42,31 +43,28 @@ public class CommandNode extends AbstractNode {
     private ResourceBundle resourceBundle = null;
     private CommandsIndex index = null;
     
-    public static HashMap propertyClassTypes = new HashMap();
-    public static HashMap list_propertyClassTypes = new HashMap();
+    public static Table propertyClassTypes = new Table();
+    public static Table list_propertyClassTypes = new Table();
     
     static {
         propertyClassTypes.put(VcsCommand.PROPERTY_ADVANCED_NAME, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_CHANGED_REVISION_VAR_NAME, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_CHANGING_REVISION, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_CONCURRENT_EXECUTION, Integer.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_EXEC, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_CONFIRMATION_MSG, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_EXEC, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_INPUT_DESCRIPTOR, String.class);
         //propertyClassTypes.put(VcsCommand.PROPERTY_NOT_ON_ROOT, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_NUM_REVISIONS, Integer.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_ON_DIR, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_ON_FILE, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_ON_ROOT, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_IGNORE_FAIL, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_HIDDEN, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_DISABLED_ON_STATUS, String.class);
+        propertyClassTypes.put(VcsCommand.PROPERTY_CONCURRENT_EXECUTION, Integer.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, Boolean.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES, Boolean.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER, Boolean.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER, Boolean.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_IGNORE_FAIL, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, Boolean.TYPE);
         propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED, String.class);
@@ -76,15 +74,19 @@ public class CommandNode extends AbstractNode {
         propertyClassTypes.put(UserCommand.PROPERTY_DATA_REGEX, String.class);
         propertyClassTypes.put(UserCommand.PROPERTY_ERROR_REGEX, String.class);
         propertyClassTypes.put(UserCommand.PROPERTY_INPUT, String.class);
-        list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_ATTR, Integer.TYPE);
-        list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_DATE, Integer.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_NUM_REVISIONS, Integer.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_CHANGED_REVISION_VAR_NAME, String.class);
+        propertyClassTypes.put(VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS, Boolean.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_CHANGING_REVISION, Boolean.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_FILE_NAME, Integer.TYPE);
+        list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_STATUS, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_LOCKER, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_REVISION, Integer.TYPE);
-        list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_SIZE, Integer.TYPE);
-        list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_STATUS, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_STICKY, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_TIME, Integer.TYPE);
+        list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_DATE, Integer.TYPE);
+        list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_SIZE, Integer.TYPE);
+        list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_ATTR, Integer.TYPE);
         //propertyClassTypes.put(UserCommand.PROPERTY_PRECOMMANDS_EXECUTE, Boolean.TYPE);
     }
 
@@ -200,7 +202,7 @@ public class CommandNode extends AbstractNode {
     }
     
     private void addProperties(final Sheet.Set set, final VcsCommand cmd,
-                               final HashMap propertyClassTypes, final Object defaultValue) {
+                               final Map propertyClassTypes, final Object defaultValue) {
         
         for (Iterator it = propertyClassTypes.keySet().iterator(); it.hasNext(); ) {
             String propertyName = (String) it.next();
@@ -223,6 +225,12 @@ public class CommandNode extends AbstractNode {
                             //System.out.println("getName: cmd = "+cmd);
                             String name = getName();
                             Object value = cmd.getProperty(name);
+                            /*
+                            Class valueType = getValueType();
+                            if (!(value.getClass().equals(valueType))) {
+                                System.out.println("name = "+name+": value = "+value+", class = "+value.getClass()+", value Type = "+getValueType());
+                            }
+                             */
                             if (value == null) {
                                 value = VcsCommandIO.getDefaultPropertyValue(name);
                             }
