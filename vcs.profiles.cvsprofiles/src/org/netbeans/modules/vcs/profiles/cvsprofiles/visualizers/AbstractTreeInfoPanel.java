@@ -257,7 +257,6 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
           // !!!needs to be after table setup, because it deletes the list
           trDirStructure.setModel(new DefaultTreeModel(createTree(topDirectory)));
       }    
-      
   }
   
   protected abstract void setPanel(Object infoData);
@@ -310,6 +309,7 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
       File childFile;
       boolean hasChild = false;
       File[] list = parentFile.listFiles();
+      java.util.Arrays.sort(list);
       for (int index = 0; index < list.length; index++) {
           if (list[index].isDirectory()) {
               childFile = list[index];
