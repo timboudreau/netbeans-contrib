@@ -365,6 +365,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             progress = new JProgressBar();
             progress.setVisible(job == null);
             progress.setMinimum(0);
+            adjustHeight(progress);
         }
         return progress;
     }
@@ -378,6 +379,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     handleStop();
                 }
             });
+            adjustHeight(stop);
         }
         return stop;
     }
@@ -393,6 +395,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 }
             });
             refresh = button;
+            adjustHeight(refresh);
         }
         return refresh;
     }
@@ -406,6 +409,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 }
             });
             prev = button;
+            adjustHeight(prev);
         }
         return prev;
     }
@@ -419,6 +423,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 }
             });
             next = button;
+            adjustHeight(next);
         }
         return next;
     }
@@ -442,6 +447,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 }
             });
             allFilesButton = button;
+            adjustHeight(allFilesButton);
         }
         return allFilesButton;
     }
@@ -459,13 +465,14 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 }
             });
             currentFile = button;
+            adjustHeight(currentFile);
         }
         return currentFile;
     }
 
-    private Component gotoPresenter;
+    private JComponent gotoPresenter;
 
-    private Component getGoto() {
+    private JComponent getGoto() {
         if (gotoPresenter == null) {
             Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/gotosource.gif");
             JButton button = new JButton(new ImageIcon(image));
@@ -480,6 +487,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 }
             });
             gotoPresenter = button;
+            adjustHeight(gotoPresenter);
         }
         return gotoPresenter;
     }
@@ -490,6 +498,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (filterButton == null) {
             Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filterOperations.gif"));
             filterButton = new JButton(icon);
+            adjustHeight(filterButton);
             filterButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JPopupMenu popup = new JPopupMenu();
@@ -539,6 +548,12 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             });
         }
         return filterButton;
+    }
+
+    /** Toolbar controls must be smaller*/
+    private static void adjustHeight(JComponent c) {
+        Insets in = c.getInsets();
+        c.setBorder(BorderFactory.createEmptyBorder(in.top -2, 5, in.bottom -2, 5));
     }
 
     protected Component createNorthComponent() {
