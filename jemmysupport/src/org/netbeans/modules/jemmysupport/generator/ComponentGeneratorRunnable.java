@@ -25,9 +25,7 @@ import java.awt.event.MouseEvent;
 import java.awt.*;
 import javax.swing.JLabel;
 import javax.swing.JInternalFrame;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.io.File;
+import java.io.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.util.Properties;
@@ -36,24 +34,21 @@ import org.netbeans.jemmy.ComponentChooser;
 import org.netbeans.jemmy.operators.*;
 import org.netbeans.jemmy.util.PNGEncoder;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringReader;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import org.netbeans.api.diff.Difference;
 import org.netbeans.api.diff.StreamSource;
 import org.netbeans.spi.diff.DiffProvider;
 import org.netbeans.spi.diff.MergeVisualizer;
-import org.openide.filesystems.FileUtil;
+import org.netbeans.modules.merge.builtin.visualizer.GraphicalMergeVisualizer;
+import org.netbeans.modules.merge.builtin.visualizer.MergeDialogComponent;
+import org.netbeans.modules.merge.builtin.visualizer.MergePanel;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.io.ReaderInputStream;
 
 /** class observing CTRL-F12 key and launching ComponentGenerator
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -144,23 +139,14 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
         }
     }
 
-    static void mergeConflicts(File f, Reader r) throws IOException {
-        File tmp = File.createTempFile("merge", "temporary");
-        tmp.deleteOnExit();
-        tmp.createNewFile();
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            FileUtil.copy(in = new ReaderInputStream(r), out = new FileOutputStream(tmp));
-        } finally {
-            if (in != null) in.close();
-            if (out != null) out.close();
-        }
-        StreamSource s1=StreamSource.createSource(f.getName(), NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_OldComponent"), "text/x-java", f); // NOI18N
-        StreamSource s2=StreamSource.createSource(f.getName(), NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_NewComponent"), "text/x-java", tmp); // NOI18N
+    static void mergeConflicts(File f, String s) throws IOException {
+        StreamSource s1=new ComponentSource(f);
+        StreamSource s2=new ComponentSource(f.getName(), s);
         DiffProvider diff=(DiffProvider)Lookup.getDefault().lookup(DiffProvider.class);
         MergeVisualizer merge=(MergeVisualizer)Lookup.getDefault().lookup(MergeVisualizer.class);
-        merge.createView(diff.computeDiff(s1.createReader(), s2.createReader()), s1, s2, s1).show();
+        Component c=merge.createView(diff.computeDiff(s1.createReader(), s2.createReader()), s1, s2, s1);
+        if (c instanceof MergeDialogComponent)
+            ((MergeDialogComponent)c).getSelectedMergePanel().firePropertyChange(MergePanel.PROP_CAN_BE_SAVED,false,true);
     }
     
     /** method implementing Runnable interface
@@ -197,7 +183,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                     if ((!showEditor)||(ComponentsEditorPanel.showDialog(gen))) {
                         file=new File(directory+"/"+gen.getClassName()+".java"); // NOI18N
                         if (merge && file.exists()) {
-                            mergeConflicts(file, new StringReader(gen.getComponentCode()));
+                            mergeConflicts(file, gen.getComponentCode());
                         } else {
                             out=new PrintStream(new FileOutputStream(file));
                             out.println(gen.getComponentCode());
@@ -224,5 +210,50 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
             removeFocus();
         }
     }
-   
+    
+    private static class ComponentSource extends StreamSource {
+        
+        private String content;
+        private File file;
+        private String name;
+        
+        ComponentSource(String name, String content) {
+            this.file = null;
+            this.content = content;
+            this.name = name;
+        }
+        
+        ComponentSource(File file) {
+            this.file = file;
+            this.content = null;
+            this.name = file.getName();
+        }
+        
+        public String getName() {
+            return name;
+        }
+        
+        public String getTitle() {
+            return NbBundle.getMessage(ComponentGeneratorRunnable.class, file==null?"LBL_NewComponent":"LBL_OldComponent"); // NOI18N
+        }
+        
+        public String getMIMEType() {
+            return "text/x-java"; // NOI18N
+        }
+        
+        public Reader createReader() throws IOException {
+            if (file != null) return new BufferedReader(new FileReader(file));
+            return new StringReader(content);
+        }
+        
+        public Writer createWriter(Difference[] conflicts) throws IOException {
+            if (file != null) return new BufferedWriter(new FileWriter(file));
+            return null;
+        }
+        
+        public void notifyClosed() {
+        }
+    
+    }
+  
 }
