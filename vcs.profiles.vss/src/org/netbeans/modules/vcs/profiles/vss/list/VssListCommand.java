@@ -327,6 +327,7 @@ public class VssListCommand extends AbstractListCommand {
                         if (elements2 != null) {
                             //D.deb(" ****  status match = "+VcsUtilities.arrayToString(elements));
                             if (elements2[0].indexOf(PROJECT_BEGIN) == 0) return ; // skip the $/... folder
+                            if (statuses[2] != null) return ; // The status was already set and we get some garbage
                             addStatuses(elements2);
                         }
                     }
