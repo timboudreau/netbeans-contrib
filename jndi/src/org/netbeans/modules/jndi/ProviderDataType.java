@@ -13,7 +13,7 @@
 
 package org.netbeans.modules.jndi;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -28,28 +28,35 @@ import org.openide.filesystems.Repository;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
+import org.netbeans.modules.jndi.settings.JndiSystemOption;
 
 
 /** This class represents a NewType for JndiProvidersNode
  */
 public class ProviderDataType extends NewType {
 
-    /** Node for which the class was created*/
-    private JndiProvidersNode node;
-
     /** Temporary Dialog holder */
     private Dialog dlg;
+    
+    /** Owner of this DataType*/
+    private JndiProvidersNode node;
+    
+    /** Cached JndiSystemOption*/
+    private JndiSystemOption settings;
 
 
     /** Creates new ProviderDataType
      *  @param JndiProviderNode node for which the class is being created
      */
-    public ProviderDataType(JndiProvidersNode node) {
+    public ProviderDataType (JndiProvidersNode node) {
         this.node = node;
     }
 
     /** Creation of new child node */
     public void create () {
+        if (this.settings == null) {
+            settings = (JndiSystemOption)JndiSystemOption.findObject (JndiSystemOption.class);
+        }
         final NewProviderPanel panel = new NewProviderPanel();
         final DialogDescriptor descriptor = new DialogDescriptor(panel,
                                             JndiRootNode.getLocalizedString("TITLE_NewProvider"),
@@ -70,7 +77,7 @@ public class ProviderDataType extends NewType {
                                                             TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Template_Item"), NotifyDescriptor.Message.ERROR_MESSAGE));
                                                             return;
                                                         }
-                                                        if (ProviderDataType.this.node.providers.get(provider)!=null){
+                                                        if (ProviderDataType.this.settings.getProviders(false).get(provider)!=null){
                                                             TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Template_Provider_Exists"),NotifyDescriptor.Message.ERROR_MESSAGE));
                                                             return;
                                                         }
@@ -92,8 +99,8 @@ public class ProviderDataType extends NewType {
                                                             java.io.OutputStream out = templateFile.getOutputStream(lock);
                                                             p.store(out,JndiRootNode.getLocalizedString("FILE_COMMENT"));
                                                             out.close();
-                                                            p.addPropertyChangeListener(node);
-                                                            ProviderDataType.this.node.providers.put(provider,p);
+                                                            p.addPropertyChangeListener(ProviderDataType.this.settings);
+                                                            ProviderDataType.this.settings.getProviders(false).put(provider,p);
                                                             ProviderDataType.this.node.getChildren ().add ( new Node[] {new ProviderNode (provider)});
                                                         }catch(java.io.IOException ioe){
                                                             ioe.printStackTrace();

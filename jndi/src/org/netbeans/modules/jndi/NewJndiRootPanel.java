@@ -26,9 +26,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
 import java.awt.GridBagConstraints;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Vector;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 import javax.swing.JTextField;
 import javax.swing.JPanel;
@@ -39,6 +39,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.naming.Context;
+import org.netbeans.modules.jndi.settings.JndiSystemOption;
 
 import org.openide.TopManager;
 import org.openide.DialogDescriptor;
@@ -59,20 +60,21 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
     JTextField label;
 
     /** Reference to Hashtable holding the Properties of providers */
-    Hashtable providers;
+    HashMap providers;
 
 
     /** constructor takes as parameter array of factories and protocols
      * @param fcs array of factories
      * @param proto array of protocols
      */
-    public NewJndiRootPanel(Hashtable providers) {
+    public NewJndiRootPanel() {
         super();
         String className = null;
-        this.providers=providers;
-        java.util.Enumeration enum = this.providers.keys ();
-        while (enum.hasMoreElements () ) {
-            className = (String) enum.nextElement ();
+        JndiSystemOption settings = (JndiSystemOption) JndiSystemOption.findObject (JndiSystemOption.class, true);
+        this.providers = settings.getProviders (false);
+        Iterator it = this.providers.keySet().iterator();
+        while (it.hasNext() ) {
+            className = (String) it.next();
             this.factory.addItem (className);
         }
         this.label.requestFocus();

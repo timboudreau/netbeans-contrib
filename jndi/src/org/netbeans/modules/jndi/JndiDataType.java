@@ -85,16 +85,13 @@ final class JndiDataType extends NewType {
     private Dialog dlg = null;
     /** Panel for Dialog */
     private NewJndiRootPanel panel;
-    /** Hashtable of providers taken from JNDI root node */
-    private JndiProvidersNode pnode;
     /** State of connect Thread*/
     private short state;
 
     /** Constructor
      *  @param node the Jndi root node
      */
-    public JndiDataType(JndiRootNode node, JndiProvidersNode pnode) {
-        this.pnode=pnode;
+    public JndiDataType(JndiRootNode node) {
         this.node = node;
     }
 
@@ -130,7 +127,7 @@ final class JndiDataType extends NewType {
 
         if (node instanceof JndiRootNode) {
             // Ask for new initial context and context factory
-            panel = new NewJndiRootPanel(this.pnode.providers);
+            panel = new NewJndiRootPanel();
             panel.select(provider);
             final JButton okButton = new JButton (JndiRootNode.getLocalizedString("CTL_Ok"));
             final JButton cancelButton = new JButton (JndiRootNode.getLocalizedString("CTL_Cancel"));
@@ -158,7 +155,6 @@ final class JndiDataType extends NewType {
                                                     // Here we have to check the context, if it works
                                                     // because all ehe operation starting with addContext
                                                     // are asynchronous to AWT Thread
-                                                    Class.forName(panel.getFactory());
                                                     String root = panel.getRoot();
                                                     Hashtable env = ((JndiRootNode)node).createContextProperties(
                                                     panel.getLabel(),
@@ -169,16 +165,8 @@ final class JndiDataType extends NewType {
                                                     panel.getPrincipal(),
                                                     panel.getCredentials(),
                                                     panel.getAditionalProperties());
-                                                    Context ctx = new JndiDirContext(env);
-                                                    if (root != null && root.length() > 0){
-                                                        ctx  = (Context) ctx.lookup(root);
-                                                    }
-                                                    else{
-                                                        // If we don't perform lookup
-                                                        // we should check the context
-                                                        ((JndiDirContext)ctx).checkContext();
-                                                    }
-                                                    ((JndiRootNode)node).addContext(ctx, true);
+                                                    checkContextValidity (env);         // Should be optimized
+                                                    ((JndiRootNode)node).addContext(env);
                                                     synchronized (this) { 
                                                         this.status = new ConnectOperationStatus (SUCCESSFULL);
                                                     }
@@ -215,6 +203,12 @@ final class JndiDataType extends NewType {
                                           
                                           public synchronized ConnectOperationStatus getOperationStatus () {
                                               return this.status;
+                                          }
+                                          
+                                          private void checkContextValidity (Hashtable env) throws Exception {
+                                              Class.forName((String)env.get (javax.naming.Context.INITIAL_CONTEXT_FACTORY));
+                                              JndiDirContext ctx = new JndiDirContext (env);
+                                              ctx.checkContext ();
                                           }
                                           
                                          };
@@ -299,7 +293,6 @@ final class JndiDataType extends NewType {
         } else if (node instanceof JndiNode) {
 
             // Ask for subcontext name
-            // This is under construction
             final NewJndiSubContextPanel subCtxPanel = new NewJndiSubContextPanel();
             descriptor = new DialogDescriptor(subCtxPanel,
                                               JndiRootNode.getLocalizedString("TITLE_NewJndiDirectory"),

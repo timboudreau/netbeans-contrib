@@ -31,6 +31,7 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node.Cookie;
 import org.openide.nodes.Sheet;
+import org.netbeans.modules.jndi.settings.JndiSystemOption;
 
 
 /** This class represents a provider (factory)
@@ -45,6 +46,9 @@ public class ProviderNode extends AbstractNode implements Cookie{
     private String name;
     /** System actions of this node*/
     private SystemAction[] nodeActions;
+    
+    /** Cached JNDI system option */
+    JndiSystemOption settings;
 
     /** Creates new ProviderNode
      *  @param String name key in Hashtable of providers
@@ -143,7 +147,7 @@ public class ProviderNode extends AbstractNode implements Cookie{
     public Sheet createSheet () {
         Sheet sheet = Sheet.createDefault ();
         Sheet.Set set = sheet.get (Sheet.PROPERTIES);
-        ProviderProperties properties = (ProviderProperties) ((JndiProvidersNode)this.getParentNode()).providers.get (this.name);
+        ProviderProperties properties = (ProviderProperties) this.getSettings().getProviders(false).get (this.name);
         if (properties != null) {
             Property property = new ProviderProperty (Context.INITIAL_CONTEXT_FACTORY, String.class,JndiRootNode.getLocalizedString("TXT_Factory"),JndiRootNode.getLocalizedString("TIP_Factory"),properties,false);
             set.put (property);
@@ -167,7 +171,10 @@ public class ProviderNode extends AbstractNode implements Cookie{
      *  @exception IOException
      */
     public void destroy () throws IOException {
-        ((JndiProvidersNode) this.getParentNode ()).destroyProvider (this.name);
+        JndiSystemOption settings = this.getSettings();
+        if (settings != null) {
+            settings.destroyProvider (this.name);
+        }
         super.destroy ();
     }
 
@@ -187,7 +194,7 @@ public class ProviderNode extends AbstractNode implements Cookie{
      */
     public void connectUsing() {
         try{
-            ((JndiDataType)JndiRootNode.getDefault().jndinewtypes[0]).create(name);
+            ((JndiDataType)JndiRootNode.getDefault().getNewTypes()[0]).create(name);
         }catch(java.io.IOException ioe){/** Should never happend*/}
     }
 
@@ -196,8 +203,13 @@ public class ProviderNode extends AbstractNode implements Cookie{
      *  @return Component customizer
      */
     public java.awt.Component getCustomizer(){
-        Customizer p = new Customizer(((JndiProvidersNode)this.getParentNode()).providers.get (this.name));
-        return p;
+        JndiSystemOption settings = this.getSettings();
+        if (settings != null) {
+            Customizer p = new Customizer(settings.getProviders(false).get (this.name));
+            return p;
+        }
+        else
+            return null;
     }
 
 
@@ -253,7 +265,7 @@ public class ProviderNode extends AbstractNode implements Cookie{
                 oldv = this.target.getContext();
                 if (!newv.equals(oldv)){
                     this.target.setContext(this.context.getText());
-                    ProviderNode.this.updateData(Context.INITIAL_CONTEXT_FACTORY,oldv,newv);
+                    ProviderNode.this.updateData(Context.PROVIDER_URL,oldv,newv);
                 }
             }
             else if (event.getSource()==this.authentification){
@@ -329,6 +341,14 @@ public class ProviderNode extends AbstractNode implements Cookie{
                 ProviderNode.this.updateData(ProviderProperties.ADDITIONAL,newv,null);
             }
         }
+    }
+    
+    
+    private JndiSystemOption getSettings () {
+        if (this.settings == null) {
+            this.settings = (JndiSystemOption) JndiSystemOption.findObject (JndiSystemOption.class);
+        }
+        return this.settings;
     }
 
 

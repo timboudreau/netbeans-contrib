@@ -52,8 +52,6 @@ import org.netbeans.modules.jndi.gui.AttributePanel;
  */
 public final class JndiNode extends JndiObjectNode implements Refreshable, DisconnectCtxCookie, Node.Cookie{
 
-    /** Is this node root of context*/
-    private boolean isRoot;
     /** NewType for this node*/
     private NewType[] jndinewtypes;
 
@@ -62,13 +60,16 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
 
     /** Holder for dialogs*/
     private transient Dialog dlg;
+    
+    /** Unique index of this node */
+    private int index;
 
     /**Constructor for creation of Top Level Directory
      * @param ctx DirContext which this node represents
      */
-    public JndiNode(Context ctx) throws NamingException {
+    public JndiNode(Context ctx, int index) throws NamingException {
         super ((String)ctx.getEnvironment().get(JndiRootNode.NB_LABEL), new JndiChildren(ctx, new CompositeName()));
-        isRoot = true;
+        this.index = index;
         this.init ();
     }
 
@@ -79,12 +80,12 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
      */
     public JndiNode(JndiKey key, CompositeName offset) throws javax.naming.InvalidNameException {
         super (key, new JndiChildren((javax.naming.Context)key.name.getObject(), (CompositeName)((CompositeName)offset.clone()).add(key.name.getName())));
-        isRoot = false;
+        this.index = -1;
         this.init ();
     }
 
     public boolean isRoot() {
-        return isRoot;
+        return this.index != -1;
     }
 
     /** This method creates template for accessing this node
@@ -225,9 +226,8 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
      */
     public void disconnect () {
         try {
-            JndiRootNode rootNode = ((JndiRootNode)this.getParentNode());
+            ((JndiRootNodeChildren)this.getParentNode().getChildren()).remove (this.index);
             super.destroy ();
-            rootNode.syncProjectSettings();
         }catch (java.io.IOException ioe) {
             // Should never happen
             JndiRootNode.notifyForeignException (ioe);
