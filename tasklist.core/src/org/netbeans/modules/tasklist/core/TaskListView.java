@@ -1017,26 +1017,26 @@ for (int i = 0; i < columns.length; i++) {
     }
 
     /**
-     Return the "current" component. Ideally, my context menu
-     actions can figure out which component they're invoked from.
-     But I can't do that (the way I did this in the ifdef module
-     was inserting some code in my own popup performer, but in this
-     case I don't have access to the popup performer - it's created
-     and managed privately by the TreeTableView.
-     <p>
-     So instead try some likely choices, like the currently visible
-     component.
-     <p>
-     My original todo comment:
-     The question is how I associate actions with context menus they're
-     brought up from (e.g. the view) - for expand, goto, and edit.
-     And what if they're invoked from a toolbar? In that case I'll want
-     to use the ACTIVATED component. And what if there is none? Then
-     they should be grayed out. Yuckarola! Perhaps I can leave them
-     sensitive with a beep. Or perhaps make them act on the default view?
-     OR perhaps ALL views (okay for expand, not for show).
+     * Return the "current" component. Ideally, my context menu
+     * actions can figure out which component they're invoked from.
+     * But I can't do that (the way I did this in the ifdef module
+     * was inserting some code in my own popup performer, but in this
+     * case I don't have access to the popup performer - it's created
+     * and managed privately by the TreeTableView.
+     * <p>
+     * So instead try some likely choices, like the currently active
+     * component and history of recently visible components
+     * (may be necessary for main toolbar actions).
+     *
+     * @return most appropriate view or <code>null</code> 
      */
     public static TaskListView getCurrent() {
+
+        TopComponent activated = WindowManager.getDefault().getRegistry().getActivated();
+        if (activated instanceof TaskListView) {
+            return (TaskListView) activated;
+        }
+
         // Try to figure out which view is current. If none is found to
         // be visible, guess one.
         if (views == null) {
@@ -1179,7 +1179,9 @@ for (int i = 0; i < columns.length; i++) {
      */
     public TaskList getList() {
         // XXX  FilteredTasksList may appear here for TODOs Current File
-        return (TaskList) getModel();
+        ObservableList model = getModel();
+        assert model instanceof TaskList : "CCE " + model;
+        return (TaskList) model;
     }
 
     public ObservableList getModel() {
