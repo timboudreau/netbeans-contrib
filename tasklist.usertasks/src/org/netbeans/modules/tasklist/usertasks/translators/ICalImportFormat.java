@@ -21,6 +21,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,6 +38,7 @@ import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.OpenFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+import org.netbeans.modules.tasklist.usertasks.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
@@ -43,6 +46,9 @@ import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.URLMapper;
+import org.openide.text.Line;
 import org.openide.util.NbBundle;
 
 /**
@@ -417,6 +423,10 @@ public class ICalImportFormat implements ExportImportFormat {
         StringWriter writer = null;
         String related = null;
         
+        String filename = null;
+        String url = null;
+        String lineNumber = null;
+        
         while (true) {
             processContentLine();
             String name = getParamName();
@@ -506,15 +516,11 @@ public class ICalImportFormat implements ExportImportFormat {
             } else if ("SUMMARY".equals(name)) { // NOI18N
                 task.setSummary(value);
             } else if ("X-NETBEANS-FILENAME".equals(name)) { // NOI18N
-                task.setFilename(value);
+                filename = value;
             } else if ("X-NETBEANS-LINE".equals(name)) { // NOI18N
-                int lineno = 0;
-                try {
-                    lineno = Integer.parseInt(value);
-                } catch (NumberFormatException e) {
-                    ErrorManager.getDefault().notify(e);
-                }
-                task.setLineNumber(lineno);
+                lineNumber = value;
+            } else if ("URL".equals(name)) {
+                url = value;
             } else if ("RELATED-TO".equals(name)) { // NOI18N
                 related = value;
 //            } else if ("X-NETBEANS-STARTTIME".equals(name)) { // NOI18N  
@@ -601,6 +607,48 @@ public class ICalImportFormat implements ExportImportFormat {
                 
                 writeEscaped(writer, name, param, value);
                 writer.write("\r\n"); // NOI18N
+            }
+        }
+        
+        int lineno = 1;
+        if (lineNumber != null) {
+            try {
+                lineno = Integer.parseInt(lineNumber);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+        
+        if (lineno < 1)
+            lineno = 1;
+        
+        FileObject fo = null;
+        if (url != null) {
+            try {
+                fo = URLMapper.findFileObject(new URL(url));
+            } catch (MalformedURLException e) {
+                // ignore
+            }
+        }
+        
+        if (fo == null && filename != null) {
+            fo = UTUtils.getFileObjectForFile(filename);
+        }
+        
+        if (fo != null) {
+            Line line = UTUtils.getLineByFile(fo, lineno - 1);
+            if (line == null)
+                line = UTUtils.getLineByFile(fo, 0);
+            
+            if (line != null) {
+                task.setLine(line);
+            }
+        } else if (url != null) {
+            try {
+                task.setUrl(new URL(url));
+                task.setLineNumber(lineno - 1);
+            } catch (MalformedURLException e) {
+                // ignore
             }
         }
         

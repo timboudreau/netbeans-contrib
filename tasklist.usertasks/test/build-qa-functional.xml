@@ -18,6 +18,10 @@ Microsystems, Inc. All Rights Reserved.
       ==================================================== -->
 
 <project name="User Tasks QA functional tests" basedir="." default="all">
+    <!-- Creates an empty Java project in IDE -->
+    <!-- <property name="xtest.ide.create.project" value="true"/> -->
+    <!-- Opens project at specified location -->
+    <property name="xtest.ide.open.project" location="${xtest.data}/SampleApp"/>
 
     <!-- =================== -->
     <!-- Setting classpathes -->

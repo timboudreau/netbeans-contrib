@@ -46,7 +46,6 @@ import javax.swing.UIManager;
 import javax.swing.tree.TreePath;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.core.TaskViewListener;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
@@ -76,6 +75,7 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
@@ -102,8 +102,8 @@ ExplorerManager.Provider, ExportImportProvider {
     public static final String PROP_TASK_DUE = UserTaskProperties.PROPID_DUE_DATE;
     public static final String PROP_TASK_PRIO = "priority"; // NOI18N
     public static final String PROP_TASK_CAT = "category"; // NOI18N
-    public static final String PROP_TASK_FILE = "filename"; // NOI18N
-    public static final String PROP_TASK_LINE = "line"; // NOI18N
+    public static final String PROP_TASK_URL = "url"; // NOI18N
+    public static final String PROP_TASK_LINE = "lineNumber"; // NOI18N
     public static final String PROP_TASK_DETAILS = "details"; // NOI18N
     public static final String PROP_TASK_CREATED = "created"; // NOI18N
     public static final String PROP_TASK_EDITED = "edited"; // NOI18N
@@ -114,6 +114,9 @@ ExplorerManager.Provider, ExportImportProvider {
     
     private static final long serialVersionUID = 1;
 
+    private static final Image ICON = Utilities.loadImage(
+        "org/netbeans/modules/tasklist/usertasks/actions/taskView.gif"); // NOI18N
+    
     private static int nextViewId = 0;
     
     private static UserTaskView defview = null;
@@ -149,7 +152,7 @@ ExplorerManager.Provider, ExportImportProvider {
     static boolean defaultViewCreated() {
         return defview != null;
     }
-    
+
     /** 
      * Return the currently active user task view, or null
      *
@@ -175,6 +178,11 @@ ExplorerManager.Provider, ExportImportProvider {
         return null;
     }
     
+    private boolean lookupAttempted = false;
+
+    /** When true, we've already warned about the need to wrap */
+    private boolean wrapWarned = false;
+
     private UserTasksTreeTable tt;
     
     private int viewId;
@@ -209,7 +217,7 @@ ExplorerManager.Provider, ExportImportProvider {
         setIcon(icon);
 
         registerTaskListView(this);
-        setModel(tasklist);
+        setList(tasklist);
     }
 
     /** 
@@ -266,7 +274,7 @@ ExplorerManager.Provider, ExportImportProvider {
     
     protected Component createCenterComponent() {
         tt = new UserTasksTreeTable(
-            getExplorerManager(), (UserTaskList) getModel(),
+            getExplorerManager(), (UserTaskList) getList(),
             getFilter());
         
         final JScrollPane sp = new JScrollPane(tt,
@@ -286,13 +294,6 @@ ExplorerManager.Provider, ExportImportProvider {
         RemoveFilterUserTaskAction removeFilter =
                 (RemoveFilterUserTaskAction) SystemAction.get(RemoveFilterUserTaskAction.class);
         removeFilter.enable();
-
-        // it's strange I'd expect live listener based solution
-        Iterator it = getModel().getSubtasks().iterator();
-        while (it.hasNext()) {
-            UserTask next = (UserTask) it.next();
-            next.updateLineNumberRecursively();
-        }
 
         /* debug Ctrl+C,V,X
          if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
@@ -474,7 +475,7 @@ for (int i = 0; i < columns.length; i++) {
                     if (fo != null) {
                             UserTaskList utl = new UserTaskList();
                             utl.readFile(fo);
-                        setModel(utl);
+                        setList(utl);
                         SwingUtilities.invokeLater(new Runnable() {
                             public void run() {
                                 setName(fo.getNameExt());
@@ -590,37 +591,7 @@ for (int i = 0; i < columns.length; i++) {
      * @return created node
      */
     protected Node createRootNode() {
-        return new UserTaskListNode((UserTaskList) getModel(), null);
-    }
-
-    /** Show the given task. "Showing" means getting the editor to
-     * show the associated file position, and open up an area in the
-     * tasklist view where the details of the task can be fully read.
-     *
-     * @param item selected task (or null for hiding last)
-     * @param annotation annotation to use or null for
-     *        default view provided annotation.
-     */
-    public void showTaskInEditor(UserTask item, UserTaskAnnotation annotation) {
-        UserTask task = item;
-        UserTask prevTask = null;
-        if ((taskMarker != null) &&
-            (taskMarker.getTask() instanceof UserTask)) {
-            prevTask = (UserTask)taskMarker.getTask();
-        }
-        if (task.getAnnotation() != null) {
-            task.getAnnotation().detach();
-            task.setAnnotation(null);
-        }
-        if (annotation == null) annotation = getAnnotation(item);
-        annotationManager.showTask(item, annotation);
-        if (prevTask != null) {
-            if ((prevTask.getLine() != null) && (task.getAnnotation() == null)) {
-                UserTaskAnnotation anno = new UserTaskAnnotation(prevTask, false);
-                anno.attach(prevTask.getLine());
-                prevTask.setAnnotation(anno);                
-            }
-        }
+        return new UserTaskListNode((UserTaskList) getList(), null);
     }
 
     /**
@@ -628,28 +599,15 @@ for (int i = 0; i < columns.length; i++) {
      *
      * @param list new tree
      */
-    protected void setModel(UserTaskList list) {
-        hideList();
+    public void setList(UserTaskList list) {
         tasklist = list;
-        // TODO getModel().addTaskListener(this);
-        UserTaskList utl = (UserTaskList) this.getList();
-        utl.showAnnotations(utl.getSubtasks().iterator());
+        UserTaskList utl = this.getList();
+        if (list.getFile() != null)
+            setToolTipText(FileUtil.getFileDisplayName(list.getFile()));
     }
     
-    protected void hideList() {
-        /*UserTaskList prev = getModel();
-        if (prev != null) {
-            prev.removeTaskListener(this);
-        }
-        UserTaskList utl = (UserTaskList) this.getModel();
-        if (utl != null)
-            utl.hideAnnotations(utl.getTasks().iterator());
-         *
-         * TODO */
-    }
-
     public String toString() { 
-        return "UserTaskView(" + getName() + ", " + category + ", " + getModel() + ")"; // NOI18N
+        return "UserTaskView(" + getName() + ", " + category + ", " + getList() + ")"; // NOI18N
     }
     
     /** 
@@ -677,7 +635,7 @@ for (int i = 0; i < columns.length; i++) {
         if (ttm instanceof UserTasksTreeTableModel) {
             ((UserTasksTreeTableModel) ttm).destroy();
         }
-        tt.setTreeTableModel(new UserTasksTreeTableModel((UserTaskList) getModel(), 
+        tt.setTreeTableModel(new UserTasksTreeTableModel((UserTaskList) getList(), 
             tt.getSortingModel(), getFilter()));
     }
 
@@ -976,22 +934,6 @@ for (int i = 0; i < columns.length; i++) {
     }
 
 
-    // XXX probably new instance per view would be better
-    // or explicit hideTaskInEditor should not hide foreign annotations
-    // but showTaskInEditor's call to hideTaskInEditor should hide them
-    private UserTaskEditorListener annotationManager = 
-        UserTaskEditorListener.getDefault();
-
-    /**
-     * Called to indicate that a particular task should be hidden.
-     * This typically means that the task was deleted so it should
-     * no longer have any visual cues. The task referred to is the
-     * most recent task passed to showTaskInEditor.
-     */
-    public void hideTaskInEditor() {
-        annotationManager.hideTask();
-    }
-
     /**
      * Could be overriden to change actions on second toolbar row.
      * @return
@@ -1123,24 +1065,30 @@ for (int i = 0; i < columns.length; i++) {
         add(toolbars, BorderLayout.WEST);
 
         // Populate the view
-        setModel(tasklist);
+        setList(tasklist);
+        
+        tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
     }
 
 
     /** Called when the window is closed. Cleans up. */
     protected void componentClosed() {
-        hideTaskInEditor();
-        hideList();
-
-        // Remove any task markers we've added to the editor
-        if (unshowItem != null) {
-            removedTask(null, unshowItem, 0); // TODO cannot find the parent of unshowItem
-        }
-
+        getList().destroy();
+        
         // Unregister listeningViews
         unregisterListeners();
         
         storeColumnsConfiguration();
+
+ 	Iterator it = views.iterator();
+        while (it.hasNext()) {
+            WeakReference wr = (WeakReference) it.next();
+	    UserTaskView tlv = (UserTaskView) wr.get();
+            if (tlv == this) {
+                it.remove();
+                break;
+            }
+        }
     }
 
     protected void componentDeactivated() {
@@ -1179,47 +1127,6 @@ for (int i = 0; i < columns.length; i++) {
         else
             return def;
     }
-
-    private UserTask unshowItem = null;
-
-    /** Show the given todolist item. "Showing" means getting the
-     * editor to show the associated file position, and open up an
-     * area in the todolist view where the details of the todolist
-     * item can be fully read.
-     */
-    /*
-    public void show(Task item, Annotation anno) {
-	if (listeningViews != null) {
-	    // Stash item so I can notify of deletion -- see TaskViewListener
-	    // doc
-	    unshowItem = item;
-	    int n = listeningViews.size();
-	    for (int i = 0; i < n; i++) {
-		TaskViewListener tl = (TaskViewListener)listeningViews.get(i);
-		tl.showTaskInEditor(item, anno);
-	    }
-	}
-    }
-    */
-
-    /** Unshow the given task, if it's the one currently showing */
-    /*
-    public void unshow(Task item) {
-        if (item != unshowItem) {
-            return;
-        }
-	if (listeningViews != null) {
-	    // Stash item so I can notify of deletion -- see TaskViewListener
-	    // doc
-	    unshowItem = null;
-	    int n = listeningViews.size();
-	    for (int i = 0; i < n; i++) {
-		TaskViewListener tl = (TaskViewListener)listeningViews.get(i);
-		tl.hideTaskInEditor();
-	    }
-	}
-    }
-    */
 
     /** List of TaskViewListener object listening on the tasklist view
      for visibility, selection, etc. */
@@ -1277,79 +1184,12 @@ for (int i = 0; i < columns.length; i++) {
         requestActive();
     }
 
-    /** 
-     * Called to indicate that a particular task is made current.
-     * Do what you can to "select" this task.
-     *
-     * <p>
-     * Dispatches {@link TaskViewListener#showTask} to all registered views.
-     */
-    public void selectedTask(UserTask item) {
-        if (listeningViews != null) {
-            // Stash item so I can notify of deletion -- see TaskViewListener
-            // doc
-            unshowItem = item;
-            int n = listeningViews.size();
-            for (int i = 0; i < n; i++) {
-                UserTaskViewListener tl = (UserTaskViewListener) listeningViews.get(i);
-                tl.showTask(item, getAnnotation(item));
-            }
-        }
-    }
-
-    /** 
-     * Called to indicate that a particular task has been "warped to".
-     * Do what you can to "warp to" this task. Typically means show
-     * associated fileposition in the editor.
-     */
-    public void warpedTask(UserTask item) {
-        // XXX currently identical to selectedTask above!
-        if (listeningViews != null) {
-            // Stash item so I can notify of deletion -- see TaskViewListener
-            // doc
-            unshowItem = item;
-            int n = listeningViews.size();
-            for (int i = 0; i < n; i++) {
-                UserTaskViewListener tl = (UserTaskViewListener) listeningViews.get(i);
-                tl.showTask(item, null);
-            }
-        }
-    }
-
-    public void addedTask(UserTask t) {
-        // Nothing to do?
-    }
-
-    public void tasksReordered(UserTask parent) {
-    }
-    
-    public void removedTask(UserTask pt, UserTask task, int index) {
-        if ((task == unshowItem) && (listeningViews != null)) {
-            unshowItem = null;
-            int n = listeningViews.size();
-            for (int i = 0; i < n; i++) {
-                UserTaskViewListener tl = (UserTaskViewListener) listeningViews.get(i);
-                tl.hideTask();
-            }
-        }
-    }
-
-    public void structureChanged(UserTask t) {
-    }
-
     /**  
      * Return the tasklist shown in this view 
      */
     public UserTaskList getList() {
-        UserTaskList model = getModel();
-        return model;
+        return this.tasklist;
     }
-
-    public UserTaskList getModel() {
-        return tasklist;
-    }
-
-    // End of stuff taken from TreeTableView
 
     /**
      * Get the toggle filter for this view. It's
@@ -1358,8 +1198,7 @@ for (int i = 0; i < columns.length; i++) {
      * @return The toggle filter or <code>null</code> if not defined.
      */
     public final Filter getFilter() {
-      //      return getFilters().getActive();
-      return activeFilter;
+        return activeFilter;
     }
 
     /** 
@@ -1391,54 +1230,25 @@ for (int i = 0; i < columns.length; i++) {
         setFiltered();
     }
 
-    private boolean lookupAttempted = false;
-
-    private static void invokeLater(Runnable runnable) {
-        if (SwingUtilities.isEventDispatchThread()) {
-            runnable.run();
-        } else {
-            SwingUtilities.invokeLater(runnable);
-        }
-    }
-
-    /** When true, we've already warned about the need to wrap */
-    private boolean wrapWarned = false;
-
-    /**
-     * @param tail if true take the last one from multiple selection
-     *        othervise the first one
-     * @return last selected or null
-     */
-    private Node currentlySelected(boolean tail) {
-        Node[] selected = getExplorerManager().getSelectedNodes();
-        if (selected != null && selected.length != 0) {
-            if (tail) {
-                return selected[selected.length -1];
-            } else {
-                return selected[0];
-            }
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Return an editor annotation to use to show the given task
-     *
-     * @return created annotation or null
-     */
-    protected UserTaskAnnotation getAnnotation(UserTask task) {
-        return new UserTaskAnnotation(task, this);
-    }
-
-    protected void componentHidden() {
-        hideTaskInEditor();
-    }
-
     public void requestActive() {
         super.requestActive();
         if (tt != null) {
             tt.requestFocus();
         }
     }
+
+    public Image getIcon() {
+        return ICON;
+    }
+
+    /* XXX check isSliding
+    public void showTask(UserTask item, Annotation annotation) {
+        // #35917 do not move focus if in sliding mode
+        if (view.getClientProperty("isSliding") == Boolean.TRUE) {  // NOi18N
+            l.show(Line.SHOW_SHOW);
+        } else {
+            l.show(Line.SHOW_GOTO);
+        }
+    }
+     **/
 }

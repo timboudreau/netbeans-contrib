@@ -46,6 +46,8 @@ import org.openide.util.actions.SystemAction;
  * TT for user tasks
  */
 public class UserTasksTreeTable extends NodesTreeTable {
+    private UserTask selected;
+    
     /**
      * Creates a new instance of UserTasksTreeTable
      * 
@@ -84,6 +86,26 @@ public class UserTasksTreeTable extends NodesTreeTable {
                 }
             );
         }
+        
+        getSelectionModel().addListSelectionListener(
+            new ListSelectionListener() {
+                public void valueChanged(ListSelectionEvent e) {
+                    int row = getSelectedRow();
+                    UserTask ut = null;
+                    if (row >= 0) {
+                        Object node = getNodeForRow(row);
+                        if (node instanceof UserTaskTreeTableNode) {
+                            ut = ((UserTaskTreeTableNode) node).getUserTask();
+                        }
+                    }
+                    if (selected != null && selected.getAnnotation() != null) 
+                        selected.getAnnotation().setHighlight(false);
+                    selected = ut;
+                    if (selected != null && selected.getAnnotation() != null)
+                        selected.getAnnotation().setHighlight(true);
+                }
+            }
+        );
     }
 
     public Node createNode(Object obj) {

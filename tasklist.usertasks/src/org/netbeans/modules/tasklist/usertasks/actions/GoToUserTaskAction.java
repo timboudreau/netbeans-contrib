@@ -13,15 +13,13 @@
 package org.netbeans.modules.tasklist.usertasks.actions;
 
 import org.openide.nodes.Node;
+import org.openide.text.Line;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.NodeAction;
-
-import javax.swing.*;
-import java.awt.*;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
-import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+
+import org.openide.util.actions.CookieAction;
 
 
 /**
@@ -30,7 +28,7 @@ import org.netbeans.modules.tasklist.usertasks.UserTaskView;
  *
  * @author Tor Norbye
  */
-public class GoToUserTaskAction extends NodeAction {
+public class GoToUserTaskAction extends CookieAction {
 
     private static final long serialVersionUID = 1;
 
@@ -44,32 +42,20 @@ public class GoToUserTaskAction extends NodeAction {
      * node. 
      */    
     protected void performAction(Node[] nodes) {
-        final UserTaskView tlv = UserTaskView.getCurrent();
-        if (tlv != null) {
-            final UserTask item = ((UserTaskNode) nodes[0]).getTask(); // safe - see enable check
-            assert item != null;
-            SwingUtilities.invokeLater(new Runnable() {  //#39904 eliminate problems with focus
-                public void run() {
-                    tlv.showTaskInEditor(item, null);
-                }
-            });
-        } else {
-            //XXX System.out.println("No current view!");
-            Toolkit.getDefaultToolkit().beep();
-        }
+        SingleLineCookie c = 
+            (SingleLineCookie) nodes[0].getCookie(SingleLineCookie.class);
+        Line line = c.getLine();
+        assert line != null;
+        line.show(Line.SHOW_GOTO);
     }
     
-    /** Enable the task iff you've selected exactly one node,
-     * and that node is a tasknode. */    
-    protected boolean enable(Node[] nodes) {
-        if (nodes.length != 1)
-            return false;
-        if (!(nodes[0] instanceof UserTaskNode))
-            return false;
-        
-        UserTask item = ((UserTaskNode) nodes[0]).getTask();
-        return item.getLine() != null;
+    protected Class[] cookieClasses() {
+        return new Class[] {SingleLineCookie.class};
     }
+    
+    protected int mode() {
+        return CookieAction.MODE_EXACTLY_ONE;
+    }    
     
     public String getName() {
         return NbBundle.getMessage(GoToUserTaskAction.class, "LBL_Goto"); // NOI18N

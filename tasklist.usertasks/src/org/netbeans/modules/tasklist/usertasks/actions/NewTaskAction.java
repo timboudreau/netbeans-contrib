@@ -17,6 +17,7 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import javax.swing.JButton;
 
 import org.netbeans.modules.tasklist.usertasks.EditTaskPanel;
@@ -31,6 +32,7 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.Mnemonics;
 import org.openide.nodes.Node;
+import org.openide.text.Line;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
@@ -54,8 +56,8 @@ public class NewTaskAction extends NodeAction {
     private UserTaskView utv;
     private UserTask parent;
     private UserTaskList utl;
-    private String filename;
-    private int line;
+    private URL url;
+    private int lineNumber;
     private boolean associate;
     
     protected boolean enable(Node[] node) {
@@ -140,18 +142,16 @@ public class NewTaskAction extends NodeAction {
         // See if the user wants to append or prepend
         boolean append = panel.getAppend();
         if (parent != null) {
-        	if (append)
-        		parent.getSubtasks().add(ut);
-        	else
-        		parent.getSubtasks().add(0, ut);
+            if (append)
+                parent.getSubtasks().add(ut);
+            else
+                parent.getSubtasks().add(0, ut);
         } else {
-        	if (append)
-        		utl.getSubtasks().add(ut);
-        	else
-        		utl.getSubtasks().add(0, ut);
+            if (append)
+                utl.getSubtasks().add(ut);
+            else
+                utl.getSubtasks().add(0, ut);
         }
-
-        ut.updateAnnotation();
 
         // After the add - view the todo list as well!
         utv.showInMode();
@@ -176,18 +176,18 @@ public class NewTaskAction extends NodeAction {
         // ask for its nodes.
         
         // find cursor position
-        Object[] cursor = UTUtils.findCursorPosition(nodes);
+        Line cursor = UTUtils.findCursorPosition(nodes);
         if (cursor == null) {
             Node[] editorNodes = UTUtils.getEditorNodes();
             if (editorNodes != null)
                 cursor = UTUtils.findCursorPosition(editorNodes);
         }
         if (cursor != null) {
-            filename = (String) cursor[0];
-            line = ((Integer) cursor[1]).intValue();
+            this.lineNumber = cursor.getLineNumber();
+            this.url = UTUtils.getExternalURLForLine(cursor);
         } else {
-            filename = null;
-            line = 0;
+            this.url = null;
+            this.lineNumber = -1;
         }
         
         // find parent task
@@ -212,43 +212,41 @@ public class NewTaskAction extends NodeAction {
      *
      * @param utl user task list. null = default task list
      * @param parentNode default parent; if null the root node will be used
-     * @param filename suggested filename
-     * @parem line suggested line number (1-based)
+     * @param url associated URL
+     * @parem lineNumber line number. 
      * @param associate if true, set the checkbox for the filename by default (only
      *         makes sense if filename != null)
      */
     public static void performAction(UserTaskList utl, UserTask parent, 
-        String filename, int line,  boolean associate) {
+        URL url, int lineNumber, boolean associate) {
         NewTaskAction nta = (NewTaskAction) NewTaskAction.get(NewTaskAction.class);
-        nta.filename = filename;
-        nta.line = line;
         nta.associate = associate;
         if (utl == null)
             utl = UserTaskList.getDefault();
         nta.utl = utl;
+        nta.url = url;
+        nta.lineNumber = lineNumber;
         nta.parent = parent;
-        nta.performTheAction();
         
         // After the add - view the todo list as well!
         nta.utv = UserTaskView.getCurrent();
         if (nta.utv == null)
             nta.utv = UserTaskView.getDefault();
+        
+        nta.performTheAction();
     }
     
     /**
      * Performs the action
      */
     private void performTheAction() {
-        // After the add - view the todo list as well!
-        UserTaskView view = (UserTaskView) UserTaskView.getCurrent();
-        if (view == null)
-            view = UserTaskView.getDefault();
-        
         UserTask ut = new UserTask("", utl); // NOI18N
 
         EditTaskPanel panel = getEditTaskPanel();
         panel.fillPanel(ut);
         panel.setAssociatedFilePos(associate);
+        panel.setUrl(url);
+        panel.setLineNumber(lineNumber);
         panel.focusSummary();
         
         getDialog().show();
@@ -269,8 +267,6 @@ public class NewTaskAction extends NodeAction {
             	else
                     utl.getSubtasks().add(0, ut);
             }
-
-            ut.updateAnnotation();
 
             assert utv != null;
             

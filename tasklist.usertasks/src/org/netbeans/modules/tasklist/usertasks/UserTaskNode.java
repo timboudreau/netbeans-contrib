@@ -19,6 +19,9 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
@@ -41,6 +44,7 @@ import org.netbeans.modules.tasklist.usertasks.actions.NewTaskListAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.SingleLineCookie;
 import org.netbeans.modules.tasklist.usertasks.actions.StartCookie;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.StopCookie;
@@ -61,6 +65,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.Sheet.Set;
+import org.openide.text.Line;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
@@ -88,17 +93,22 @@ public final class UserTaskNode extends AbstractNode {
     UserTasksTreeTable tt) {
         super(Children.LEAF);
         assert item != null;
+        
         this.utl = utl;
         this.item = item;
         this.node = node;
         this.tt = tt;
         
+        setName(item.getSummary());
+        
         item.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent e) {
-                UserTaskNode.this.firePropertyChange(e.getPropertyName(),
-                    e.getOldValue(), e.getNewValue());
                 String n = e.getPropertyName();
-                if (n == "started" || n == "spentTimeComputed") { // NOI18N
+                if (n != "line" && n != "started") {
+                    UserTaskNode.this.firePropertyChange(e.getPropertyName(),
+                        e.getOldValue(), e.getNewValue());
+                }
+                if (n == "started" || n == "spentTimeComputed" || n == "line") { // NOI18N
                     fireCookieChange();
                 }
             }
@@ -269,14 +279,56 @@ public final class UserTaskNode extends AbstractNode {
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_detailsProperty")); // NOI18N
             ss.put(p);
             
-            p = new PropertySupport.Reflection(item, String.class, "getFileBaseName", "setFileBaseName"); // NOI18N
-            p.setName(UserTaskView.PROP_TASK_FILE);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_filenameProperty")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_filenameProperty")); // NOI18N
-            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
+            p = new PropertySupport.Reflection(item, String.class, (String) null, null) { // NOI18N
+                public boolean canRead() {
+                    return true;
+                }
+                public boolean canWrite() {
+                    return true;
+                }
+                public Object getValue () throws
+                    IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                    URL url = ((UserTask) instance).getUrl();
+                    if (url == null)
+                        return ""; // NOI18N
+                    else
+                        return url.toExternalForm();
+                }
+                public void setValue (Object val) throws
+                    IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                    try {
+                        URL url = new URL((String) val);
+                        ((UserTask) instance).setUrl(url);
+                    } catch (MalformedURLException e) {
+                        throw new IllegalArgumentException(e.getMessage());
+                    }
+                }
+            };
+            p.setName(UserTaskView.PROP_TASK_URL);
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_urlProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_urlProperty")); // NOI18N
+            //p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             ss.put(p);
 
-            p = new PropertySupport.Reflection(item, Integer.TYPE, "getLineNumber", "setLineNumber"); // NOI18N
+            p = new PropertySupport.Reflection(item, Integer.TYPE, (String) null, null) { // NOI18N
+                public boolean canRead() {
+                    return true;
+                }
+                public boolean canWrite() {
+                    return true;
+                }
+                public Object getValue () throws
+                    IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                    return new Integer(((UserTask) instance).getLineNumber() + 1);
+                }
+                public void setValue (Object val) throws
+                    IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                    int n = ((Integer) val).intValue();
+                    if (n < 1)
+                        throw new IllegalArgumentException(); 
+                    ((UserTask) instance).setLineNumber(n - 1);
+                }
+            };
             p.setName(UserTaskView.PROP_TASK_LINE);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_lineProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_lineProperty")); // NOI18N
@@ -401,6 +453,16 @@ public final class UserTaskNode extends AbstractNode {
             }
         } else if (type == UserTask.class) {
             return item;
+        } else if (type == SingleLineCookie.class) {
+            final Line l = uitem.getLine();
+            if (l != null)
+                return new SingleLineCookie() {
+                    public Line getLine() {
+                        return l;
+                    }
+                };
+            else
+                return null;
         } else {
             return super.getCookie(type);
         }
@@ -432,6 +494,7 @@ public final class UserTaskNode extends AbstractNode {
         AdvancedTreeTableNode n = 
             (AdvancedTreeTableNode) this.node.findNextNodeAfterDelete();
         UTUtils.LOGGER.fine("selected node after delete:" + n); // NOI18N
+        item.destroy();
         if (item.getParent() != null)
             item.getParent().getSubtasks().remove(item);
         else

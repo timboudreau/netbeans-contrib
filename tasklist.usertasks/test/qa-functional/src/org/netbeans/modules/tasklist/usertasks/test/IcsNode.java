@@ -14,7 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks.test;
 
 import org.netbeans.jellytools.FilesTabOperator;
-import org.netbeans.jellytools.actions.ExecuteAction;
+import org.netbeans.jellytools.actions.OpenAction;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jemmy.operators.JTreeOperator;
 
@@ -22,8 +22,6 @@ import org.netbeans.jemmy.operators.JTreeOperator;
  * Ics file.
  */
 public class IcsNode extends Node {
-    static final ExecuteAction executeAction = new ExecuteAction();
-    
     /** Creates a new instance of AntTargetNode */
     public IcsNode(String treePath) {
         super(new FilesTabOperator().tree(), treePath);
@@ -39,11 +37,7 @@ public class IcsNode extends Node {
         super(parent, trg);
     }
     
-    /** performs ExecuteAction with this node */    
-    public void execute() {
-        executeAction.perform(this);
-    }
-    
-    public void addTask(String tsk) {
+    public void open() {
+        new OpenAction().perform(this);
     }
 }

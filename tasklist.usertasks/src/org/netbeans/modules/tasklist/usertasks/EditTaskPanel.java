@@ -20,6 +20,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,7 +52,6 @@ import org.openide.util.NbBundle;
  * this file using the form builder.
  *
  * @author Tor Norbye
- * @author Tim Lebedkov
  */
 public class EditTaskPanel extends JPanel implements ActionListener {
 
@@ -176,13 +177,14 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         }
         int p = item.getPriority().intValue() - 1;
         priorityComboBox.setSelectedIndex(p);
-        if (item.hasAssociatedFilePos()) {
-            fileTextField.setText(item.getFilename());
-            if (fileTextField.getText().length() > 0)
-                fileTextField.setCaretPosition(fileTextField.getText().length()-1);
-            fileCheckBox.setSelected(true);
-            if (item.getLineNumber() > 0) {
-                lineTextField.setText(Integer.toString(item.getLineNumber()));
+        if (item.getLine() != null) {
+            URL url = item.getUrl();
+            if (url != null) {
+                fileTextField.setText(url.toExternalForm());
+                if (fileTextField.getText().length() > 0)
+                    fileTextField.setCaretPosition(fileTextField.getText().length()-1);
+                fileCheckBox.setSelected(true);
+                lineTextField.setText(Integer.toString(item.getLineNumber() + 1));
             }
         } else {
             fileCheckBox.setSelected(false);
@@ -239,15 +241,25 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             task.setCategory(categoryCombo.getSelectedItem().toString().trim());
         task.setPriority(SuggestionPriority.getPriority(priorityComboBox.getSelectedIndex() + 1));
         if (fileCheckBox.isSelected()) {
-            task.setFilename(fileTextField.getText().trim());
             try {
-                task.setLineNumber(Integer.parseInt(lineTextField.getText()));
-            } catch (NumberFormatException e) {
-                // TODO validation
+                URL url = new URL(fileTextField.getText().trim());
+                task.setUrl(url);
+                try {
+                    int lineno = Integer.parseInt(lineTextField.getText());
+                    if (lineno > 0)
+                        task.setLineNumber(lineno - 1);
+                    else
+                        ; // TODO: validation
+                } catch (NumberFormatException e) {
+                    // TODO validation
+                    e.printStackTrace();
+                }
+            } catch (MalformedURLException e) {
+                // TODO: validation
+                e.printStackTrace();
             }
         } else {
-            task.setFilename(null);
-            task.setLineNumber(0);
+            task.setLine(null);
         }
         
         task.setDueDate(getDueDate());
@@ -328,12 +340,22 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     /**
      * Changes associated file position in the dialog
      *
-     * @param file filename
-     * @param line line number
+     * @param n line number
      */
-    public void setFilePosition(String file, int line) {
-        fileTextField.setText(file);
-        lineTextField.setText(String.valueOf(line));
+    public void setLineNumber(int n) {
+        lineTextField.setText(Integer.toString(n + 1));
+    }
+
+    /**
+     * Sets new URL.
+     *
+     * @param URL an URL or null
+     */
+    public void setUrl(URL url) {
+        if (url != null)
+            fileTextField.setText(url.toExternalForm());
+        else
+            fileTextField.setText(""); // NOI18N
     }
     
     public void setAssociatedFilePos(boolean set) {

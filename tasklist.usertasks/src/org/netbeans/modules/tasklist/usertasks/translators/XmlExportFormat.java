@@ -14,7 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks.translators;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -210,16 +210,12 @@ public class XmlExportFormat implements ExportImportFormat {
             node.setAttribute("due", dateToString(task.getDueDate())); // NOI18N
         }
         
-        if (task.getFilename().length() != 0) {
-            File f = new File(task.getFilename());
-            try {
-                node.setAttribute("file", // NOI18N
-                    f.toURI().toURL().toExternalForm());
-            } catch (MalformedURLException e) {
-                // ignore
-            }
+        URL url = task.getUrl();
+        if (url != null) {
+            node.setAttribute("file", // NOI18N
+                url.toExternalForm());
             node.setAttribute("line", // NOI18N
-                String.valueOf(task.getLineNumber()));
+                String.valueOf(task.getLineNumber() + 1));
         }
         
         node.setAttribute("created", // NOI18N

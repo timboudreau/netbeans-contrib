@@ -12,6 +12,7 @@
  */
 package org.netbeans.modules.tasklist.usertasks.filter;
 
+import java.net.URL;
 import java.util.Date;
 
 import org.netbeans.modules.tasklist.client.SuggestionProperty;
@@ -52,14 +53,18 @@ public class UserTaskProperties extends TaskProperties {
     public static final SuggestionProperty PROP_FILENAME =
         new SuggestionProperty(PROPID_FILENAME, String.class) {
             public Object getValue(Object obj) {
-                return ((UserTask) obj).getFileBaseName();
+                URL url = ((UserTask) obj).getUrl();
+                if (url == null)
+                    return "";
+                else
+                    return url.toExternalForm();
             }
         };
 
     public static final SuggestionProperty PROP_LINE_NUMBER =
         new SuggestionProperty(PROPID_LINE_NUMBER, Integer.class) {
             public Object getValue(Object obj) {
-                return new Integer(((UserTask) obj).getLineNumber());
+                return new Integer(((UserTask) obj).getLineNumber() + 1);
             }
         };
 

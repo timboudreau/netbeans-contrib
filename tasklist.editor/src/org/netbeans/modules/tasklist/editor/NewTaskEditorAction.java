@@ -14,11 +14,10 @@
 package org.netbeans.modules.tasklist.editor;
 
 import java.awt.event.ActionEvent;
-import java.io.File;
+import java.net.URL;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.JTextComponent;
-import javax.swing.*;
 
 import org.netbeans.editor.BaseAction;
 import org.netbeans.editor.BaseDocument;
@@ -28,11 +27,12 @@ import org.netbeans.editor.LocaleSupport.Localizer;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
+import org.openide.text.DataEditorSupport;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
-import org.openide.text.DataEditorSupport;
+
 
 
 /**
@@ -78,7 +78,6 @@ public class NewTaskEditorAction extends BaseAction implements Localizer {
         int line = 0;
         try {
             line = Utilities.getLineOffset(doc, caret.getDot());
-            line++; // It seems to be off-by-one (zero based)
         } catch (BadLocationException e) {
             target.getToolkit().beep();
             return;
@@ -86,19 +85,15 @@ public class NewTaskEditorAction extends BaseAction implements Localizer {
 
         Line lineObj = NbEditorUtilities.getLine(doc, caret.getDot(), false);
         DataObject dob = DataEditorSupport.findDataObject(lineObj);
+        if (dob == null)
+            return;
+        
         FileObject fo = dob.getPrimaryFile();
-        File file = FileUtil.toFile(fo);
-        String filename;
-        if (file == null) {
-            filename = null;
-        } else {
-            filename = file.getPath();
-        }
+        URL url = URLMapper.findURL(fo, URLMapper.EXTERNAL);
+        if (url == null)
+            return;
 
-        if (!((filename != null) && (filename.length() > 0))) {
-            line = 0;
-        }
-        NewTaskAction.performAction(null, null, filename, line, true);
+        NewTaskAction.performAction(null, null, url, line, true);
     }
 
     public String getString(String str) {

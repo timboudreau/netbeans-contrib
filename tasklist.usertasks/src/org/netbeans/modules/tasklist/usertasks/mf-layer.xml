@@ -54,13 +54,6 @@ Microsystems, Inc. All Rights Reserved.
             <attr name="org-netbeans-modules-tasklist-usertasks-helpsetref.xml/org-netbeans-modules-usersguide-below-regular.txt" boolvalue="true"/>
         </folder>
         
-       <folder name="SuggestionProviders">
-          <file name="org-netbeans-modules-tasklist-usertasks-DueTasksProvider.instance">
-             <attr name="instanceOf" stringvalue="org.netbeans.modules.tasklist.providers.SuggestionProvider"/>
-             <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.usertasks.DueTasksProvider"/>
-          </file>
-       </folder>
-
     <file name="org-netbeans-modules-tasklist-usertasks-Settings.settings" url="Settings.settings">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
 	<attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/tasklist/core/task.gif"/>
@@ -148,5 +141,13 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
 
   </folder>
+
+    <folder name="Editors">
+        <folder name="AnnotationTypes">
+            <file name="DoneTaskAnnotation.xml" url="DoneTaskAnnotation.xml"/>
+            <file name="DoneTaskNoHighlightAnnotation.xml" url="DoneTaskNoHighlightAnnotation.xml"/>
+        </folder>
+    </folder>
+
 </filesystem>
 

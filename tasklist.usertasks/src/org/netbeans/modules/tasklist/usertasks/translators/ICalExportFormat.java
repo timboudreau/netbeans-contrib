@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -313,24 +314,21 @@ public class ICalExportFormat implements ExportImportFormat {
         }
 
 
-        // Filename
-        String filename = task.getFilename();
-        if (filename != null && filename.length() > 0) {
-            writeEscaped(writer, "X-NETBEANS-FILENAME",  // NOI18N
-                         null, filename);
+        // URL
+        URL url = task.getUrl();
+        if (url != null) {
+            writeEscaped(writer, "URL",  // NOI18N
+                null, url.toExternalForm());
             writer.write("\r\n"); // NOI18N
         }
-
+        
         // Line number
         int lineno = task.getLineNumber();
-        if (lineno != 0) {
+        if (lineno >= 0) {
             writer.write("X-NETBEANS-LINE:"); // NOI18N
-            writer.write(Integer.toString(lineno));
+            writer.write(Integer.toString(lineno + 1));
             writer.write("\r\n"); // NOI18N
         }
-
-        // URL -- not yet implemented
-        // <url uri="url://here"/>
 
         // Parent item
         // attribute reltype for related-to defaults to "PARENT" so we

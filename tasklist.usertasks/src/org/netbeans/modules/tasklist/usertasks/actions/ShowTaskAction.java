@@ -24,6 +24,7 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
+import org.openide.text.Line;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
@@ -55,16 +56,20 @@ public class ShowTaskAction extends NodeAction {
         panel.fillPanel(item);
         
         // find cursor position
-        Object[] cursor = UTUtils.findCursorPosition(node);
-        if (cursor == null) {
-            Node[] editorNodes = UTUtils.getEditorNodes();
-            if (editorNodes != null)
-                cursor = UTUtils.findCursorPosition(editorNodes);
-        }
-        if (cursor != null) {
-            String filename = (String) cursor[0];
-            int line = ((Integer) cursor[1]).intValue();
-            panel.setFilePosition(filename, line);
+        if (item.getUrl() == null) {
+            Line cursor = UTUtils.findCursorPosition(node);
+            if (cursor == null) {
+                Node[] editorNodes = UTUtils.getEditorNodes();
+                if (editorNodes != null)
+                    cursor = UTUtils.findCursorPosition(editorNodes);
+            }
+            if (cursor == null) {
+                panel.setUrl(null);
+                panel.setLineNumber(0);
+            } else {
+                panel.setUrl(UTUtils.getExternalURLForLine(cursor));
+                panel.setLineNumber(cursor.getLineNumber());
+            }
         }
         
         DialogDescriptor d = new DialogDescriptor(panel,
@@ -78,11 +83,6 @@ public class ShowTaskAction extends NodeAction {
 
         if (d.getValue() == NotifyDescriptor.OK_OPTION) {
             panel.fillObject(item);
-            UTUtils.LOGGER.fine("file " + item.getFilename()); // NOI18N
-            UTUtils.LOGGER.fine("line " + item.getLineNumber()); // NOI18N
-            item.updateAnnotation();
-            UTUtils.LOGGER.fine("file " + item.getFilename()); // NOI18N
-            UTUtils.LOGGER.fine("line " + item.getLineNumber()); // NOI18N
         }
     }
 

@@ -24,7 +24,6 @@ import org.openide.util.actions.CallableSystemAction;
  * @author Tor Norbye 
  */
 public final class ExpandAllUserTasksAction extends CallableSystemAction {
-
     private static final long serialVersionUID = 1;
 
     /**
@@ -46,5 +45,9 @@ public final class ExpandAllUserTasksAction extends CallableSystemAction {
         return HelpCtx.DEFAULT_HELP;
         // If you will provide context help then use:
         // return new HelpCtx (MyAction.class);
+    }
+
+    protected boolean asynchronous() {
+        return false;
     }
 }
