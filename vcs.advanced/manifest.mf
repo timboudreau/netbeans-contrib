@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 OpenIDE-Module-Install: com/netbeans/enterprise/modules/vcs/cmdline/Co
  mmandLineVcsModule.class
 OpenIDE-Module-Name: Generic Command Line VCS
-OpenIDE-Module-Implementation-Version: 0.9.2
+OpenIDE-Module-Implementation-Version: 0.9.3
 Created-By: 1.2.2 (Sun Microsystems Inc.)
 Class-Path: ext/regexp.jar, cvs.jar
-OpenIDE-Module-Specification-Version: 0.9.2
+OpenIDE-Module-Specification-Version: 0.9.3
 OpenIDE-Module: com.netbeans.enterprise.modules.vcs.cmdline/1
 OpenIDE-Module-Description: com.netbeans.enterprise.modules.vcs.cmdlin
  e.docs.HelpSet
