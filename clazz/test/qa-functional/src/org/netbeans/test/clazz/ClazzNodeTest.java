@@ -140,6 +140,7 @@ public class ClazzNodeTest extends JellyTestCase {
         
         FolderNode dstNode = new FolderNode(testFSName + "|" + DST_PACKAGE.replace('.', '|'));
         dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste"));
+        srcNode.waitNotPresent();
         new EventTool().waitNoEvent(1000);
         assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".class")); //NOI18N
         assertNull(Repository.getDefault().findResource(SRC_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".class")); //NOI18N
@@ -149,6 +150,7 @@ public class ClazzNodeTest extends JellyTestCase {
         
         dstNode = new FolderNode(testFSName + "|" + SRC_PACKAGE.replace('.', '|'));
         dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste"));
+        srcNode.waitNotPresent();
         new EventTool().waitNoEvent(1000);
     }
 
