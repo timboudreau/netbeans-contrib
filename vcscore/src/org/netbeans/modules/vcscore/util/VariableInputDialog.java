@@ -2145,7 +2145,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
         });
         addActionToProcess(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
-                String selectedValue = (String) comboBox.getSelectedItem();
+                int selected2 = comboBox.getSelectedIndex();
+                String selectedValue;
+                if (selected2 < 0) {
+                    selectedValue = (String) comboBox.getSelectedItem();
+                } else {
+                    selectedValue = subComponents[selected2].getValue();
+                }
                 component.setValue(selectedValue);
                 if (vars != null) {
                     if (comboBox.isEnabled()) {
