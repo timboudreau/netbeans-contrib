@@ -854,7 +854,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	  (0, this.getOrb ().length () 
 	  - (ORBSettingsBundle.CTL_UNSUPPORTED.length () + 1));
 	*/
-	if (!__orb_name.equals (this.getActiveSetting ().getOrbName ())) {
+	if (__settings == null
+	    || (!(__orb_name.equals (__settings.getOrbName ())))) {
 	    Iterator __iter = _S_implementations.iterator ();
 	    while (__iter.hasNext ()) {
 		ORBSettings __tmp = (ORBSettings)__iter.next ();

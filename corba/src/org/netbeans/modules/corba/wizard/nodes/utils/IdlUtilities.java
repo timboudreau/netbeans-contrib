@@ -16,7 +16,7 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
 import java.util.StringTokenizer;
 /**
  *
- * @author  root
+ * @author  Tomas Zezula
  * @version 
  */
 public class IdlUtilities {

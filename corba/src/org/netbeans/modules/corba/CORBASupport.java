@@ -146,6 +146,12 @@ public class CORBASupport {
     public static final  String UPDATE_METHOD = CORBASupport.bundle.getString
 	("CTL_UPDATE_METHOD"); // NOI18N
    
+    public static final String UNDEFINED_INTERFACE = CORBASupport.bundle.getString
+	("CTL_UNDEFINED_INTERFACE"); // NOI18N
+
+    public static final String UNDEFINED_VALUE = CORBASupport.bundle.getString
+	("CTL_UNDEFINED_VALUE"); // NOI18N
+
     /** constant for idl extension */
     public static final String IDL_EXT = "idl"; // NOI18N
 

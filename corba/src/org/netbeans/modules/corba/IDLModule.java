@@ -81,10 +81,14 @@ public class IDLModule extends ModuleInstall {
         if (DEBUG)
             System.out.println ("restoring editor support ..."); // NOI18N
 
-
-        CORBASupportSettings __css = (CORBASupportSettings) CORBASupportSettings.findObject
-	    (CORBASupportSettings.class, true);
-        __css.init ();
+	try {
+	    CORBASupportSettings __css
+		= (CORBASupportSettings)CORBASupportSettings.findObject
+		(CORBASupportSettings.class, true);
+	    __css.init ();
+	} catch (Exception __x) {
+	    TopManager.getDefault ().getErrorManager ().notify (__x);
+	}
         invokeDynamic( "org.netbeans.modules.java.JavaDataObject", // NOI18N
                        "addExplorerFilterFactory", // NOI18N
                        factory = new POAExplorerFactory() );

@@ -185,6 +185,8 @@ public class ImplGenerator implements PropertyChangeListener {
 
     private ClassElement _M_working_class;
 
+    private String _M_file_name;
+
     static {
 	ImplGenerator.initKeywordsMaps ();
 	_S_symbol_table = new SymbolTable ();
@@ -844,7 +846,8 @@ public class ImplGenerator implements PropertyChangeListener {
                 __type = __type.getParent ();
                 if (__type instanceof ModuleElement)
                     __mods.add (__type.getName ());
-                if (__type instanceof InterfaceElement)
+                if (__type instanceof InterfaceElement
+		    || __type instanceof ValueAbsElement)
                     __mods.add (__type.getName () + "Package"); // NOI18N
 
             }
@@ -4580,6 +4583,12 @@ public class ImplGenerator implements PropertyChangeListener {
 	_S_symbol_table.add_element (__name, __element);
 	if (__interface.isAbstract ())
 	    return;
+	if (!__interface.getFileName ().equals (_M_file_name)) {
+	    _M_working_class = null;
+	    // I have to generate all names inside interface into symbol table
+	    this.generate_from_element (__element);
+	    return;
+	}
 	try {
 	    _M_working_class = this.prepare_interface_class (__interface);
 	} catch (java.io.IOException __ex) {
@@ -4755,6 +4764,12 @@ public class ImplGenerator implements PropertyChangeListener {
 	ValueElement __value = (ValueElement)__element;
 	this.check_value_parents (__value);
 	_S_symbol_table.add_element (__name, __element);
+	if (!__value.getFileName ().equals (_M_file_name)) {
+	    _M_working_class = null;
+	    // I have to generate all names inside interface into symbol table
+	    this.generate_from_element (__element);
+	    return;
+	}
 	try {
 	    _M_working_class = this.prepare_value_class (__value);
 	} catch (java.io.IOException __ex) {
@@ -4847,17 +4862,21 @@ public class ImplGenerator implements PropertyChangeListener {
     private void generate_operation (IDLElement __element) throws Exception {
 	if (DEBUG)
 	    System.out.println ("generate_operation (" + __element + ");");
-	OperationElement __oper = (OperationElement)__element;
-	MethodElement __method = this.operation2java (__oper);
-	_M_working_class.addMethod (__method);
+	if (_M_working_class != null) {
+	    OperationElement __oper = (OperationElement)__element;
+	    MethodElement __method = this.operation2java (__oper);
+	    _M_working_class.addMethod (__method);
+	}
     }
 
     private void generate_attribute (IDLElement __element) throws Exception {
 	if (DEBUG)
 	    System.out.println ("generate_attribute (" + __element + ");");
-	AttributeElement __attr = (AttributeElement)__element;
-	MethodElement[] __methods = this.attribute2java (__attr);
-	_M_working_class.addMethods (__methods);
+	if (_M_working_class != null) {
+	    AttributeElement __attr = (AttributeElement)__element;
+	    MethodElement[] __methods = this.attribute2java (__attr);
+	    _M_working_class.addMethods (__methods);
+	}
     }
 
     private void generate_forward_interface (IDLElement __element) throws Exception {
@@ -4981,16 +5000,55 @@ public class ImplGenerator implements PropertyChangeListener {
 	// status of _M_ido is equal to IDLDataObject.STATUS_OK
 	_M_src = _M_ido.getSources ();
         //Vector members = _M_src.getMembers ();     // update for working with modules :-))
-	String __file_name = "";
+	//String __file_name = "";
 	try {
 	    //String __filesystem = _M_ido.getPrimaryFile ().getFileSystem ().getDisplayName ();
 	    //__file_name = __filesystem + File.separator
 	    //+ _M_ido.getPrimaryFile ().toString ();
-	    __file_name = _M_ido.getRealFileName ();
+	    _M_file_name = _M_ido.getRealFileName ();
 	} catch (FileStateInvalidException __ex) {
 	}
 	try {
 	    this.generate_from_element (_M_src);
+	} catch (SymbolNotFoundException __ex) {
+	    if (!_M_run_testsuite) {
+		java.lang.Object[] __arr = new Object[] {__ex.getSymbolName ()};
+		TopManager.getDefault ().notify 
+		    (new NotifyDescriptor.Exception 
+			(__ex, MessageFormat.format (CORBASupport.CANT_FIND_SYMBOL, 
+						     __arr)));
+		_M_exception_occured = true;
+	    }
+	    else {
+		__ex.printStackTrace ();
+		throw new RuntimeException (); 
+	    }
+	} catch (UndefinedInterfaceException __ex) {
+	    if (!_M_run_testsuite) {
+		java.lang.Object[] __arr = new Object[] {__ex.getSymbolName ()};
+		TopManager.getDefault ().notify 
+		    (new NotifyDescriptor.Exception 
+			(__ex, MessageFormat.format (CORBASupport.UNDEFINED_INTERFACE, 
+						     __arr)));
+		_M_exception_occured = true;
+	    }
+	    else {
+		__ex.printStackTrace ();
+		throw new RuntimeException (); 
+	    }
+	} catch (UndefinedValueException __ex) {
+	    if (!_M_run_testsuite) {
+		java.lang.Object[] __arr = new Object[] {__ex.getSymbolName ()};
+		TopManager.getDefault ().notify 
+		    (new NotifyDescriptor.Exception 
+			(__ex, MessageFormat.format (CORBASupport.UNDEFINED_VALUE, 
+						     __arr)));
+		_M_exception_occured = true;
+	    }
+	    else {
+		__ex.printStackTrace ();
+		throw new RuntimeException (); 
+	    }
 	} catch (Exception __x) {
 	    if (!_M_run_testsuite)
 		TopManager.getDefault ().getErrorManager ().notify (__x);
