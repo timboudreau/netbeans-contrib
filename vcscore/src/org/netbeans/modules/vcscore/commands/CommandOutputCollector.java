@@ -510,17 +510,23 @@ public final class CommandOutputCollector extends Object implements CommandProce
             int index1 = line.indexOf(" / ", lastIndex);
             int index2 = line.indexOf(" /null/ ", lastIndex);
             if (index1 < 0 && index2 < 0) break;
-            if (index1 >= 0) index = index1;
-            else index = index2;
+            if (index1 >= 0 && index2 >= 0) {
+                index = Math.min(index1, index2);
+            } else {
+                if (index1 >= 0) index = index1;
+                else index = index2;
+            }
             int sepLength;
-            if (index2 >= 0 && index2 < index) {
-                index = index2;
+            String element;
+            if (index == index2) {
                 sepLength = " /null/ ".length();
+                element = null;
             } else {
                 sepLength = " / ".length();
+                element = line.substring(lastIndex, index);
+                element = org.openide.util.Utilities.replaceString(element, " // ", "/");
             }
-            String element = line.substring(lastIndex, index);
-            elements.add(org.openide.util.Utilities.replaceString(element, " // ", "/"));
+            elements.add(element);
             lastIndex = index + sepLength;
         }
         return (String[]) elements.toArray(new String[0]);
