@@ -13,7 +13,7 @@
 
 package Templates.CORBA;
 
-__ORB_IMPORT__
+__SERVER_IMPORT__
 /**
  *
  * @author  __USER__

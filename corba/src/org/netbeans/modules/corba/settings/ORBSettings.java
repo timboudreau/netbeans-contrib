@@ -54,7 +54,7 @@ public class ORBSettings implements java.io.Serializable {
 
     static final long serialVersionUID = 6055827315091215552L;
 
-    private String[] _M_check_sections = {"CTL_NAME", "IMPORT", "SETTINGS_ORB_PROPERTIES", // NOI18N
+    private String[] _M_check_sections = {"CTL_NAME", "SERVER_IMPORT", "CLIENT_IMPORT", "SETTINGS_ORB_PROPERTIES", // NOI18N
 					  "ORB_SERVER_INIT", "ORB_CLIENT_INIT", "ORB_SERVER_RUN", // NOI18N
 					  "ORB_OBJECT_ACTIVATION", "DIR_PARAM", // NOI18N
 					  "PACKAGE_PARAM", "COMPILER", "PACKAGE_DELIMITER", // NOI18N
@@ -1101,21 +1101,23 @@ public class ORBSettings implements java.io.Serializable {
             __properties.setProperty ("SETTINGS_ORB_PROPERTIES", _M_properties.getProperty
 				      ("SETTINGS_ORB_PROPERTIES")); // NOI18N
             if (_M_properties.getProperty
-		("IMPORT_" + this.getClientBindingName ()) != null) { // NOI18N
-                __properties.setProperty ("ORB_IMPORT",_M_properties.getProperty
-					  ("IMPORT_" + this.getClientBindingName ())); // NOI18N
+		("CLIENT_IMPORT_" + this.getClientBindingName ()) != null) { // NOI18N
+                __properties.setProperty ("CLIENT_IMPORT", _M_properties.getProperty
+					  ("CLIENT_IMPORT_" + this.getClientBindingName ())); // NOI18N
             }
 	    else {
-                if (_M_properties.getProperty
-		    ("IMPORT_" + this.getServerBindingName ()) != null) { // NOI18N
-                    __properties.setProperty ("ORB_IMPORT",_M_properties.getProperty
-					      ("IMPORT_" + this.getServerBindingName ())); // NOI18N
-                }
-                else {
-                    __properties.setProperty ("ORB_IMPORT", _M_properties.getProperty
-					      ("IMPORT")); // NOI18N
-                }
-            }
+		__properties.setProperty ("CLIENT_IMPORT", _M_properties.getProperty
+					  ("CLIENT_IMPORT")); // NOI18N
+	    }
+	    if (_M_properties.getProperty
+		("SERVER_IMPORT_" + this.getServerBindingName ()) != null) { // NOI18N
+		__properties.setProperty ("SERVER_IMPORT", _M_properties.getProperty
+					  ("SERVER_IMPORT_" + this.getServerBindingName ())); // NOI18N
+	    }
+	    else {
+		__properties.setProperty ("SERVER_IMPORT", _M_properties.getProperty
+					  ("SERVER_IMPORT")); // NOI18N
+	    }
 	    
             __properties.setProperty ("ORB_SERVER_INIT", _M_properties.getProperty
 				      ("ORB_SERVER_INIT")); // NOI18N
@@ -1347,7 +1349,7 @@ public class ORBSettings implements java.io.Serializable {
     }
 
     public String getSynchro () {
-        //System.out.println ("getSynchro () -> " + synchro); // NOI18N
+        //System.out.println ("getSynchro () -> " + _M_synchro); // NOI18N
         return _M_synchro;
     }
 
