@@ -167,7 +167,7 @@ public class Main extends JellyTestCase {
 //        nonso.setName(poaFileName);
 //        nonso.finish();
 
-        NewWizardOperator.create("CORBA|ServderMain", poaFolder, poaFileName);
+        NewWizardOperator.create("CORBA|ServerMain", poaFolder, poaFileName);
 
         ev.waitNoEvent(1000);
         util.Helper.sleep (5000);
