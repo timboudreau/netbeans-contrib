@@ -962,7 +962,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void deleteEnvButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteEnvButtonActionPerformed
         // Add your handling code here:
         int row = envTable.getSelectedRow();
-        if (row < 0) return ;
+        if (row < 0 || row >= envTable.getRowCount()) return ; // Sometimes the row can be == row count !!! (see issue #33176)
         String name = (String) envTableModel.getValueAt(row, 0);
         NotifyDescriptor nd = new NotifyDescriptor.Confirmation(NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarDeleteConfirm", name));
         if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(nd))) {
@@ -1499,6 +1499,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         envTableModel = new TableSorter(envTable.getModel());
         envTableModel.sortByColumn(0, true);
         envTable.setModel(envTableModel);
+        deleteEnvButton.setEnabled(false);
+        envTable.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent lsev) {
+                //lsev.getFirstIndex();
+                int row = envTable.getSelectedRow();
+                int numRows = envTable.getRowCount();
+                // There can be row == 0 & numRows == 0 !!!
+                //System.out.println("Table selected row: "+row+", numRows = "+numRows);
+                deleteEnvButton.setEnabled(row >= 0 && row < numRows);
+            }
+        });
         ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).setColumnIdentifiers(new String[] { NbBundle.getMessage(VcsCustomizer.class, "LBL_VarNames"), NbBundle.getMessage(VcsCustomizer.class, "LBL_VarValues") });
         envTableModel.addMouseListenerToHeaderInTable(envTable);
         systemEnvTableModel = new TableSorter(systemEnvTable.getModel());
