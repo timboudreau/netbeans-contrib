@@ -49,8 +49,9 @@ public final class DDProvider {
     }
     
     /**
-     * Returns the root of deployment descriptor bean graph for file object.
-     *
+     * Returns the root of deployment descriptor bean graph for given file object.
+     * The method is useful for clints planning to read only the deployment descriptor
+     * or to listen to the changes.
      * @param fo FileObject representing the web.xml file
      * @return WebApp object - root of the deployment descriptor bean graph
      */
@@ -127,7 +128,19 @@ public final class DDProvider {
         ddMap.put(fo, new WeakReference (webApp));
         return webApp;
     }
-    
+
+    /**
+     * Returns the root of deployment descriptor bean graph for given file object.
+     * The method is useful for clients planning to modify the deployment descriptor.
+     * Finally the {@link org.netbeans.api.web.dd.WebApp#write(org.openide.filesystems.FileObject)} should be used
+     * for writing the changes.
+     * @param fo FileObject representing the web.xml file
+     * @return WebApp object - root of the deployment descriptor bean graph
+     */
+    public WebApp getDDRootCopy(FileObject fo) throws java.io.IOException {
+        return (WebApp)getDDRoot(fo).clone();
+    }
+
     private WebAppProxy getFromCache (FileObject fo) {
         WeakReference wr = (WeakReference) ddMap.get(fo);
         if (wr == null) {
