@@ -77,7 +77,11 @@ Microsystems, Inc. All Rights Reserved.
     </makelayer>
     <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config.xml">
        <include name="vcs/config/*.*"/>
+       <exclude name="vcs/config/*_ja.*"/>
     </makelayer>
+    <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config_ja.xml">
+       <include name="vcs/config/*_ja.*"/>
+    </makelayer>  
     <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-list.xml">
        <include name="vcs/list/*.class"/>
        <include name="vcs/list/*.java"/>
