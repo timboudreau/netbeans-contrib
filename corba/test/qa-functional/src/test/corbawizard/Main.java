@@ -205,6 +205,9 @@ public class Main extends JellyTestCase {
         Environment.loadORBEnvironment("JDK14").setNSBinding ();
         Node n;
         n = new IDLNode (exp.repositoryTab().tree (), "|data|corbawizard|Wizard");
+        n.select ();
+        ev.waitNoEvent(1000);
+        try { Thread.sleep (5000); } catch (Exception e) {}
         new CORBAWizardAction ().perform (n);
         SelectSourceIDLStep ss = new SelectSourceIDLStep ();
         ss.verify ();
@@ -473,6 +476,9 @@ public class Main extends JellyTestCase {
         
         Node n;
         n = new IDLNode (exp.repositoryTab().tree (), "|data|corbawizard|Wizard");
+        n.select ();
+        ev.waitNoEvent(1000);
+        try { Thread.sleep (5000); } catch (Exception e) {}
         new CORBAWizardAction ().perform (n);
         SelectSourceIDLStep ss = new SelectSourceIDLStep ();
         ss.verify ();
