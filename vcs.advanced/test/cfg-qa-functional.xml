@@ -42,7 +42,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,validation,cvs_profile_JellyAddFeatures" name="cvs_profile_JellyAddFeatures">
+    <testbag testattribs="full,cvs_profile_JellyAddFeatures" name="cvs_profile_JellyAddFeatures">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyAddFeatures.class"/>
@@ -50,7 +50,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,validation,cvs_profile_JellyGroup" name="cvs_profile_JellyGroup">
+    <testbag testattribs="full,cvs_profile_JellyGroup" name="cvs_profile_JellyGroup">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyGroup.class"/>
@@ -58,7 +58,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,validation,cvs_profile_JellyCommands" name="cvs_profile_JellyCommands">
+    <testbag testattribs="full,cvs_profile_JellyCommands" name="cvs_profile_JellyCommands">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyCommands.class"/>
@@ -66,7 +66,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,validation,cvs_profile_JellyAddCommands" name="cvs_profile_JellyAddCommands">
+    <testbag testattribs="full,cvs_profile_JellyAddCommands" name="cvs_profile_JellyAddCommands">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyAddCommands.class"/>
