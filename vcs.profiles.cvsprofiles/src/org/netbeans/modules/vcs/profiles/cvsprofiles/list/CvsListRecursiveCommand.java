@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -510,7 +510,11 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand implements 
             lastStatus = status;
         }
         else if (line.startsWith(CvsListCommand.MATCH_REVISION)) {
-            lastRevision = line.substring(CvsListCommand.MATCH_REVISION.length()).trim().intern();
+            int startRev = CvsListCommand.MATCH_REVISION.length();
+            while (startRev < line.length() && Character.isWhitespace(line.charAt(startRev))) startRev++;
+            int endRev = startRev + 1;
+            while (endRev < line.length() && !Character.isWhitespace(line.charAt(endRev))) endRev++;
+            lastRevision = line.substring(startRev, endRev).intern();
         }
         else if (!haveExaminingPaths && line.startsWith(MATCH_REPOSITORY_REVISION)) {
             int repositoryIndex = MATCH_REPOSITORY_REVISION.length();
