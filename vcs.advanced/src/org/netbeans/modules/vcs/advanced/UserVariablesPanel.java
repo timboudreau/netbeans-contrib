@@ -93,13 +93,13 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         for(Enumeration enum = variables.elements(); enum.hasMoreElements(); ) {
             VcsConfigVariable var = (VcsConfigVariable) enum.nextElement();
             String name = var.getName();
-            if (name.indexOf(VcsFileSystem.VAR_ENVIRONMENT_PREFIX) == 0 ||
-                name.indexOf(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX) == 0 ||
-                "MODULE".equals(name))
-                continue;
             if (var.isBasic()) {
                 basicChildren.add(new BasicVariableNode[] { new BasicVariableNode(var) });
             } else {
+                if (name.indexOf(VcsFileSystem.VAR_ENVIRONMENT_PREFIX) == 0 ||
+                    name.indexOf(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX) == 0 ||
+                    "MODULE".equals(name))
+                    continue;
                 accessoryChildren.add(new AccessoryVariableNode[] { new AccessoryVariableNode(var) });
             }
         }
