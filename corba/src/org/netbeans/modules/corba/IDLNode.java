@@ -67,6 +67,7 @@ public class IDLNode extends DataNode {
 
 /*
 * <<Log>>
+*  2    Gandalf   1.1         4/24/99  Karel Gardas    
 *  1    Gandalf   1.0         4/23/99  Karel Gardas    
 * $
 */

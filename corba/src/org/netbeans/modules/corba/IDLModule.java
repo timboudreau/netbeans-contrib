@@ -37,6 +37,7 @@ import com.netbeans.enterprise.modules.corba.settings.*;
 public class IDLModule implements ModuleInstall {
 
    private static final boolean DEBUG = false;
+   //private static final boolean DEBUG = true;
    
    /** Module installed for the first time. */
    public void installed() {
@@ -49,7 +50,8 @@ public class IDLModule implements ModuleInstall {
 
    /** Module installed again. */
    public void restored() {
-      //System.err.println ("CORBA Support Module restoring...2:)");
+      if (DEBUG)
+	 System.out.println ("CORBA Support Module restoring...");
       //System.out.println ("setting template map :))");
       
       Compiler.Manager.register (IDLDataObject.class,
@@ -114,7 +116,7 @@ public class IDLModule implements ModuleInstall {
       //JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
       
       if (DEBUG)
-	 System.err.println ("CORBA Support Module restored :) - updated - uplne :)");
+	 System.err.println ("CORBA Support Module restored...");
    }
 
    /** Module was uninstalled. */
@@ -130,6 +132,7 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         4/24/99  Karel Gardas    
  *  1    Gandalf   1.0         4/23/99  Karel Gardas    
  * $
  */

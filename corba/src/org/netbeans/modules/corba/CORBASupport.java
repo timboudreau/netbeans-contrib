@@ -44,27 +44,36 @@ public class CORBASupport {
 
     public static final String TIE = CORBASupport.bundle.getString ("CTL_Tie");
 
-    public static final String SB1 = CORBASupport.bundle.getString ("CTL_ServerBinding1");
+    public static final String SERVER_NS = CORBASupport.bundle.getString 
+       ("CTL_SERVER_NS");
   
-    public static final String SB2 = CORBASupport.bundle.getString ("CTL_ServerBinding2");
+    public static final String SERVER_IOR_TO_FILE = CORBASupport.bundle.getString 
+       ("CTL_SERVER_IOR_TO_FILE");
 
-    public static final String SB3 = CORBASupport.bundle.getString ("CTL_ServerBinding3");
+    public static final String SERVER_IOR_TO_OUTPUT = CORBASupport.bundle.getString 
+       ("CTL_SERVER_IOR_TO_OUTPUT");
 
-    public static final String SB4 = CORBASupport.bundle.getString ("CTL_ServerBinding4");
+    public static final String SERVER_BINDER = CORBASupport.bundle.getString 
+       ("CTL_SERVER_BINDER");
 
-    public static final String CB1 = CORBASupport.bundle.getString ("CTL_ClientBinding1");
+    public static final String CLIENT_NS = CORBASupport.bundle.getString 
+       ("CTL_CLIENT_NS");
 
-    public static final String CB2 = CORBASupport.bundle.getString ("CTL_ClientBinding2");
+    public static final String CLIENT_IOR_FROM_FILE = CORBASupport.bundle.getString 
+       ("CTL_CLIENT_IOR_FROM_FILE");
 
-    public static final String CB3 = CORBASupport.bundle.getString ("CTL_ClientBinding3");
+    public static final String CLIENT_IOR_FROM_INPUT = CORBASupport.bundle.getString 
+       ("CTL_CLIENT_IOR_FROM_INPUT");
 
-    public static final String CB4 = CORBASupport.bundle.getString ("CTL_ClientBinding4");
+    public static final String CLIENT_BINDER = CORBASupport.bundle.getString 
+       ("CTL_CLIENT_BINDER");
 
+    /*
     public static final String ORBIX_IMPORT = CORBASupport.bundle.getString 
 	("CTL_ORBIX_IMPORT");
     public static final String ORBIX_PROPS_SETTINGS = CORBASupport.bundle.getString 
 	("CTL_ORBIX_SETTINGS_ORB_PROPERTIES");
-    public static final String ORBIX_INIT = CORBASupport.bundle.getString ("CTL_ORBIX_ORB_INIT");
+    //public static final String ORBIX_INIT = CORBASupport.bundle.getString ("CTL_ORBIX_ORB_INIT");
 
     public static final String ORBIX_DIR_PARAM = CORBASupport.bundle.getString 
 	("CTL_ORBIX_DIR_PARAM");
@@ -79,8 +88,8 @@ public class CORBASupport {
 	("CTL_VISIBROKER_IMPORT");
     public static final String VISIBROKER_PROPS_SETTINGS = CORBASupport.bundle.getString 
 	("CTL_VISIBROKER_SETTINGS_ORB_PROPERTIES");
-    public static final String VISIBROKER_INIT = CORBASupport.bundle.getString 
-	("CTL_VISIBROKER_ORB_INIT");
+    //public static final String VISIBROKER_INIT = CORBASupport.bundle.getString 
+    //	("CTL_VISIBROKER_ORB_INIT");
 
     public static final String VISIBROKER_DIR_PARAM = CORBASupport.bundle.getString 
 	("CTL_VISIBROKER_DIR_PARAM");
@@ -93,7 +102,7 @@ public class CORBASupport {
 	("CTL_ORBACUS_IMPORT");
     public static final String ORBACUS_PROPS_SETTINGS = CORBASupport.bundle.getString 
 	("CTL_ORBACUS_SETTINGS_ORB_PROPERTIES");
-    public static final String ORBACUS_INIT = CORBASupport.bundle.getString ("CTL_ORBACUS_ORB_INIT");
+    //public static final String ORBACUS_INIT = CORBASupport.bundle.getString ("CTL_ORBACUS_ORB_INIT");
     public static final String ORBACUS_DIR_PARAM = CORBASupport.bundle.getString 
 	("CTL_ORBACUS_DIR_PARAM");
     public static final String ORBACUS_PACKAGE_PARAM = CORBASupport.bundle.getString 
@@ -118,7 +127,7 @@ public class CORBASupport {
 	("CTL_JAVAORB_IMPORT");
     public static final String JAVAORB_PROPS_SETTINGS = CORBASupport.bundle.getString 
 	("CTL_JAVAORB_SETTINGS_ORB_PROPERTIES");
-    public static final String JAVAORB_INIT = CORBASupport.bundle.getString ("CTL_JAVAORB_ORB_INIT");
+    //public static final String JAVAORB_INIT = CORBASupport.bundle.getString ("CTL_JAVAORB_ORB_INIT");
     public static final String JAVAORB_DIR_PARAM = CORBASupport.bundle.getString 
 	("CTL_JAVAORB_DIR_PARAM");
     public static final String JAVAORB_PACKAGE_PARAM = CORBASupport.bundle.getString 
@@ -128,6 +137,8 @@ public class CORBASupport {
     //public static final String JAVAORB_PACKAGE_DELIMITER = CORBASupport.bundle.getString
     //	("CTL_JAVAORB_PACKAGE_DELIMITER");
     
+    */
+
     /** constant for idl extension */
     private static final String IDL_EXT = "idl";
     
@@ -145,6 +156,7 @@ public class CORBASupport {
 
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         4/24/99  Karel Gardas    
  *  1    Gandalf   1.0         4/23/99  Karel Gardas    
  * $
  */

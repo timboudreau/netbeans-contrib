@@ -28,8 +28,11 @@ import com.netbeans.enterprise.modules.corba.*;
 public class ClientBindingPropertyEditor extends PropertyEditorSupport {
 
   /** array of orbs */
-  private static final String[] choices = {CORBASupport.CB1, CORBASupport.CB2, 
-					CORBASupport.CB3, CORBASupport.CB4};
+  private static final String[] choices = {CORBASupport.CLIENT_NS, 
+					   CORBASupport.CLIENT_IOR_FROM_FILE, 
+					   CORBASupport.CLIENT_IOR_FROM_INPUT,
+					   CORBASupport.CLIENT_BINDER
+  };
 
   /** @return names of the supported orbs*/
   public String[] getTags() {
@@ -49,6 +52,7 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
 
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         4/24/99  Karel Gardas    
  *  1    Gandalf   1.0         4/23/99  Karel Gardas    
  * $
  */

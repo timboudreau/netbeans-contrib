@@ -46,13 +46,18 @@ public class IDLDataLoader extends MultiFileLoader {
 
    /** Creates new IDLDataLoader */
 
+   //private static final boolean DEBUG = true;
+   private static final boolean DEBUG = false;
+
    public static final String IDL_EXTENSION = "idl";
 
    public ExtensionList extensions = null;
 
    public IDLDataLoader() {
-      super(IDLDataObject.class);
-      initialize();
+       super(IDLDataObject.class);
+       if (DEBUG)
+	  System.out.println ("IDLDataLoader...");
+       initialize();
    }
 
    /** Does initialization. Initializes display name,
