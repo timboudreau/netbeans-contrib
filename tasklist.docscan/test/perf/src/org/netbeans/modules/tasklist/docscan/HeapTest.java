@@ -81,7 +81,7 @@ public final class HeapTest extends NbTestCase {
         view.selectedFolder = dataFS.findResource("leaks");
         view.getAllFiles().doClick(1);
 
-        // wait till all threads done (otherwise we get arndam numbers)
+        // wait till all threads done (otherwise we get randam numbers)
         try {
             Thread.sleep(20000);
         } catch (InterruptedException e) {

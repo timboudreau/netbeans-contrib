@@ -86,6 +86,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private static final int CURRENT_FILE_MODE = 1;
     private static final int OPENED_FILES_MODE = 2;
     private static final int SELECTED_FOLDER_MODE = 3;
+    private static final int MODE_COUNT = SELECTED_FOLDER_MODE;
 
     // current job or null if snapshot
     private SuggestionsBroker.Job job;
@@ -108,11 +109,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     /** Active opened files job or null */
     private SuggestionsBroker.AllOpenedJob allJob;
 
-    private static Border buttonBorder;
-
-    private final int CURRENT_FILE_TAB = 0;
-    private final int SELECTED_FOLDER_TAB = 1;
-    private final TabState[] tabStates = new TabState[2];
+    private final TabState[] tabStates = new TabState[MODE_COUNT];
 
 
 
@@ -1054,6 +1051,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private void handleOpenedFiles() {
 
         // we are still in old mode, stop it
+        saveFilterState();
 
         switch (getMode()) {
             case CURRENT_FILE_MODE:
@@ -1076,28 +1074,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
         TaskList list = allJob.getSuggestionList();
         setModel(list);
-//        swapTabStates(CURRENT_FILE_TAB, SELECTED_FOLDER_TAB);
+        loadFilterState(OPENED_FILES_MODE);
         getRefresh().setEnabled(false);
 
     }
 
     /** User clicked selected folder, restore from cache or ask for context */
     private void handleAllFiles() {
-
-        // terminate old mode
-
-        switch (getMode()) {
-            case CURRENT_FILE_MODE:
-                job.stopBroker();
-                job = null;
-                break;
-            case OPENED_FILES_MODE:
-                allJob.stopBroker();
-                allJob = null;
-                break;
-            case SELECTED_FOLDER_MODE:
-                break;
-        }
 
         // prepare (& check) new mode parameters
 
@@ -1127,6 +1110,23 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             }
         }
 
+        // terminate old mode
+
+        saveFilterState();
+
+        switch (getMode()) {
+            case CURRENT_FILE_MODE:
+                job.stopBroker();
+                job = null;
+                break;
+            case OPENED_FILES_MODE:
+                allJob.stopBroker();
+                allJob = null;
+                break;
+            case SELECTED_FOLDER_MODE:
+                break;
+        }
+
         // enter new mode
 
         allFilesButton.setToolTipText(Util.getMessage("see-folder-hint2", createLabel(selectedFolder)) + " (s)"); // NOI18N
@@ -1142,7 +1142,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
         releaseWorkaround();
         setModel(list);
-        swapTabStates(CURRENT_FILE_TAB, SELECTED_FOLDER_TAB);
+        loadFilterState(SELECTED_FOLDER_MODE);
         getRefresh().setEnabled(true);
 
         if (list != resultsSnapshot) {
@@ -1199,15 +1199,21 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return SELECTED_FOLDER_MODE;
     }
 
-    /** Swap filter and its enableness  */
-    private void swapTabStates(int oldTab, int newTab) {
-        TabState oldState = (tabStates[oldTab] == null) ?
-                new TabState() : tabStates[oldTab];
-        oldState.filtered = isFiltered();
-        oldState.filter = getFilter();
-        tabStates[oldTab] = oldState;
+    /** Stores filter state for current mode */
+    private void saveFilterState() {
+        int mode = getMode();
+        TabState state = tabStates[mode -1];
+        if (state == null) {
+            tabStates[mode -1] = new TabState();
+            state = tabStates[mode -1];
+        }
+        state.filtered = isFiltered();
+        state.filter = getFilter();
+    }
 
-        TabState state = tabStates[newTab];
+    /** Restore filter state from saved one for given mode. */
+    private void loadFilterState(int mode) {  // XXX mode param could be replaced by getMode()
+        TabState state = tabStates[mode -1];
         if (state != null) {
             setFilter(state.filter, false);
             setFiltered(state.filtered);
@@ -1230,6 +1236,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         // terminate previous mode
 
+        saveFilterState();
         switch (getMode()) {
             case CURRENT_FILE_MODE:
                 return;
@@ -1250,7 +1257,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             treeTable.setProperties(createColumns());
             treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
             setModel(createFilteredList(job.getSuggestionsList()));
-            swapTabStates(SELECTED_FOLDER_TAB, CURRENT_FILE_TAB);
+            loadFilterState(CURRENT_FILE_MODE);
         } finally {
             // setModel() above triggers IAE in IconManager after gc()
             getRefresh().setEnabled(false);
