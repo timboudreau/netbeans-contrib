@@ -11,25 +11,44 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+
 package org.netbeans.modules.vcscore.search;
 
-import java.util.*;
 
-import org.openidex.search.*;
-import org.openide.nodes.Node;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
+
 import org.openide.cookies.InstanceCookie;
-import org.openide.util.*;
-import org.openide.filesystems.*;
-import org.openide.loaders.*;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.Repository;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.Node;
+import org.openide.TopManager;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListener;
+import org.openidex.search.*;
 
 
 /**
+ * SearchType which searches statuses of files in cvs filesystems.
  *
- * @author  Martin Entlicher
+ * @author  Martin Entlicher, Peter Zavadsky
+ * @see org.openidex.search.SearchType
  */
-public class VcsSearchType extends org.netbeans.modules.search.types.DataObjectType /*SearchType*/ {
+public class VcsSearchType extends SearchType {
 
+    public static final long serialVersionUID = 812466793021976245L;    
+    
     private String matchStatus = null;
     private boolean matchExcept = false;
 
@@ -37,15 +56,82 @@ public class VcsSearchType extends org.netbeans.modules.search.types.DataObjectT
     private int[] indexes;
     private Vector matchStatuses = null;
 
-    public static final long serialVersionUID = 812466793021976245L;
-
+    /** Property change listener. */
+    private PropertyChangeListener propListener;
+    
+    
     /** Creates new VcsSearchType */
     public VcsSearchType() {
-        setValid(false);
     }
 
+
+    /** Prepares search object for search. Listens on the underlying 
+     * object and fires SearchType.PROP_OBJECT_CHANGED property change
+     * in cases object has changed. */
+    protected void prepareSearchObject(Object searchObject) {
+        DataObject dataObject = extractDataObject(searchObject);
+
+        if(dataObject == null) 
+            return;
+        
+        dataObject.addPropertyChangeListener(
+            WeakListener.propertyChange(getDataObjectListener(), dataObject)
+        );
+        
+    }
+
+    /** Gets property change listener which listens on changes on searched data object. */
+    private synchronized PropertyChangeListener getDataObjectListener() {
+        if(propListener == null) {
+            propListener = new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if(DataObject.PROP_COOKIE.equals(evt.getPropertyName()))
+                        firePropertyChange(SearchType.PROP_OBJECT_CHANGED, null, evt.getSource());
+                }
+            };
+        }
+        
+        return propListener;
+    }
+    
+    /** Tests object. Implements superclass abstract method. */
+    public boolean testObject(Object object) {
+        DataObject dataObject = extractDataObject(object);
+            
+        if(dataObject == null)
+            return false;
+        
+        return testDataObject(dataObject);
+    }
+
+    /** Gets data object from search object. */
+    private static DataObject extractDataObject(Object object) {
+        DataObject dataObject = null;
+        
+        if(object instanceof DataObject) {
+            dataObject = (DataObject)object;
+        } else if(object instanceof FileObject) {
+            try{
+                dataObject = DataObject.find((FileObject)object);
+            } catch(DataObjectNotFoundException dnfe) {
+                dnfe.printStackTrace();
+            }
+        }
+
+        return dataObject;
+    }
+
+    /** Creates array of search type classes.
+     * @return array containing one element - <code>DataObject</code> class */
+    protected Class[] createSearchTypeClasses() {
+        return new Class[] {DataObject.class};
+    }
+    
+    /** Adds available cvs statuses. */
     private void addStatuses(String[] possibleStatuses) {
-        if (possibleStatuses == null) return;
+        if (possibleStatuses == null)
+            return;
+        
         for(int i = 0; i < possibleStatuses.length; i++) {
             if (!statuses.contains(possibleStatuses[i])) statuses.add(possibleStatuses[i]);
         }
@@ -59,65 +145,131 @@ public class VcsSearchType extends org.netbeans.modules.search.types.DataObjectT
         return (String[]) statuses.toArray(new String[0]);
     }
 
-    public boolean enabled(Node[] nodes) {
-        //System.out.println("enabled(): this = "+this);
-        boolean isVcsFileSystem = false;
-        if (nodes == null || nodes.length == 0) return false;
-        boolean statusesAdded = false;
+    /** Overrides superclass method. */
+    public Node[] acceptSearchRootNodes(Node[] roots) {
+        if(roots == null || roots.length == 0) 
+            return roots;
+
+        List acceptedRoots = new ArrayList(roots.length);
         //statuses = new Vector();
-        for (int i =0; i < nodes.length; i++) {
-            Node node = nodes[i];
-            if (node.getCookie(org.openide.loaders.DataFolder.class) != null) {
-                Node.Cookie cake = node.getCookie(org.openide.loaders.DataFolder.class);
-                if ( cake != null) {
-                    DataFolder folder = (DataFolder) cake;
-                    FileObject fo = folder.getPrimaryFile();
-                    FileSystem fs = null;
-                    try {
-                        fs = fo.getFileSystem();
-                    } catch (FileStateInvalidException exc) {
-                        fs = null;
+        for(int i = 0; i < roots.length; i++) {
+            Node root = roots[i];
+            
+            DataFolder dataFolder = (DataFolder)root.getCookie(DataFolder.class);
+            if(dataFolder != null) {
+                FileObject fo = dataFolder.getPrimaryFile();
+                FileSystem fs = null;
+                try {
+                    fs = fo.getFileSystem();
+                } catch(FileStateInvalidException fsie) {
+                    if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
+                        fsie.printStackTrace();
                     }
-                    if (fs == null) return false;
-                    if (fs instanceof VcsSearchTypeFileSystem) {
-                        String[] possibleStatuses = ((VcsSearchTypeFileSystem) fs).getPossibleFileStatuses();
-                        if (!statusesAdded) {
-                            statuses = new Vector();
-                            statusesAdded = true;
-                        }
-                        addStatuses(possibleStatuses);
-                        isVcsFileSystem = true;
-                    } else return false;
+                }
+                
+                if(fs instanceof VcsSearchTypeFileSystem) {
+                    acceptedRoots.add(root);
+                    continue;
                 }
             }
 
-            boolean isRep = false;
             try {
-                InstanceCookie ic = (InstanceCookie)node.getCookie (InstanceCookie.class);
-                isRep = ic != null && org.openide.filesystems.Repository.class.isAssignableFrom (ic.instanceClass ());
-            } catch (java.io.IOException ex) {
+                InstanceCookie ic = (InstanceCookie)root.getCookie (InstanceCookie.class);
+                if(ic != null && Repository.class.isAssignableFrom (ic.instanceClass ())) {
+                    acceptedRoots.add(root);
+                }
+                
+            } catch(IOException ioe) {
                 // does not provide instance
-            } catch (ClassNotFoundException ex) {
+                if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
+                    ioe.printStackTrace();
+                }
+            } catch(ClassNotFoundException cnfe) {
                 // does not provide instance
+                if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
+                    cnfe.printStackTrace();
+                }
             }
 
-            if (isRep) {
-                return isVcsFileSystem;
+        }
+
+        return (Node[])acceptedRoots.toArray(new Node[acceptedRoots.size()]);
+    }
+
+    /** Implements superclass abstract method. */
+    public boolean enabled(Node[] nodes) {
+        if(nodes == null || nodes.length == 0)
+            return false;
+
+        boolean statusesAdded = false;
+        //statuses = new Vector();
+        for(int i = 0; i < nodes.length; i++) {
+            Node node = nodes[i];
+            
+            DataFolder dataFolder = (DataFolder)node.getCookie(DataFolder.class);
+            if(dataFolder != null) {
+                FileObject fo = dataFolder.getPrimaryFile();
+                FileSystem fs = null;
+                try {
+                    fs = fo.getFileSystem();
+                } catch(FileStateInvalidException fsie) {
+                    if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
+                        fsie.printStackTrace();
+                    }
+                }
+
+                if(fs instanceof VcsSearchTypeFileSystem) {
+                    String[] possibleStatuses = ((VcsSearchTypeFileSystem)fs).getPossibleFileStatuses();
+                    if(!statusesAdded) {
+                        statuses = new Vector();
+                        statusesAdded = true;
+                    }
+
+                    addStatuses(possibleStatuses);
+                    
+                    return true;
+                }
             }
         }
 
-        return isVcsFileSystem;
-    }
+        for(int i = 0; i < nodes.length; i++) {
+            try {
+                InstanceCookie ic = (InstanceCookie)nodes[i].getCookie (InstanceCookie.class);
+                if(ic != null && Repository.class.isAssignableFrom (ic.instanceClass ())) {
+                    FileSystem[] fileSystems = TopManager.getDefault().getRepository().toArray();
+                    
+                    for(int j = 0; j < fileSystems.length; j++) {
+                        if(fileSystems[j] instanceof VcsSearchTypeFileSystem) {
+                            String[] possibleStatuses = ((VcsSearchTypeFileSystem)fileSystems[j]).getPossibleFileStatuses();
+                            if(!statusesAdded) {
+                                statuses = new Vector();
+                                statusesAdded = true;
+                            }
 
-    /*
-    public Class getScannerClass() {
-        return VcsScanner.class;
-    }
+                            addStatuses(possibleStatuses);
+                            
+                            
+                            return true;
+                        }
+                    }
+                    
+                    return false;
+                }
+            } catch(IOException ioe) {
+                // does not provide instance
+                if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
+                    ioe.printStackTrace();
+                }
+            } catch(ClassNotFoundException cnfe) {
+                // does not provide instance
+                if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
+                    cnfe.printStackTrace();
+                }
+            }
+        }
 
-    public Class[] getDetailClasses() {
-        return null;
+        return false;
     }
-    */
 
     public String getTabText() {
         return NbBundle.getBundle(VcsSearchType.class).getString ("CTL_Status");
@@ -161,28 +313,14 @@ public class VcsSearchType extends org.netbeans.modules.search.types.DataObjectT
         this.matchExcept = matchExcept;
     }
 
-    /*
-    public boolean test(VcsFileSystem fs, FileObject fo) {
-        if (!fs.isImportant(fo.getPackageNameExt('/', '.'))) return false;
-        String status = fs.getStatus(fo);
-        if (matchStatus == null) return true;
-        if (matchExcept) {
-            //System.out.println("Except: "+status+" = "+matchStatus+": "+!matchStatus.equals(status));
-            return !matchStatus.equals(status);
-        } else {
-            //System.out.println("Cmp.  : "+status+" = "+matchStatus+": "+matchStatus.equals(status));
-            return matchStatus.equals(status);
-        }
-    }
-    */
 
-    public boolean test(DataObject dobj) {
+    private boolean testDataObject(DataObject dobj) {
         if (matchStatuses == null) return true;
         FileObject fo = dobj.getPrimaryFile();
         FileSystem fs = null;
         try {
             fs = fo.getFileSystem();
-        } catch(org.openide.filesystems.FileStateInvalidException exc) {
+        } catch(FileStateInvalidException exc) {
             fs = null;
         }
         if (fs == null || !(fs instanceof VcsSearchTypeFileSystem)) return false;

@@ -6,7 +6,7 @@ OpenIDE-Module-Long-Description: The VCS Core module provides basic structure an
 OpenIDE-Module-Specification-Version: 1.5
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Layer: org/netbeans/modules/vcscore/resources/mf-layer.xml
-OpenIDE-Module-Module-Dependencies: org.openidex.util/1, org.netbeans.modules.utilities/1
+OpenIDE-Module-Module-Dependencies: org.openidex.util/1 > 1.9
 OpenIDE-Module-Package-Dependencies: org.apache.regexp[RE]
 
 Name: org/netbeans/modules/vcscore/search/VcsSearchType.class
