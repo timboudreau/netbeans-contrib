@@ -49,7 +49,7 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
         <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
-        <pathelement location="${binroot}/core/release/lib/ext/xerces.jar"/>
+        <pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar"/>
       </classpath>
     </javac>
     <!-- <ant dir="profiles/pvcs" inheritAll="false" target="compile"/> -->

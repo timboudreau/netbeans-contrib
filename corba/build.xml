@@ -63,7 +63,7 @@ Microsystems, Inc. All Rights Reserved.
 	<!-- Hopefully set up by nbbuild/build.xml: -->
 	<pathelement location="${jdkhome}/lib/tools.jar"/>
 	<pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
-	<pathelement location="${binroot}/core/release/lib/ext/xerces.jar"/>
+	<pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar"/>
       </classpath>
     </javac>
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">

@@ -47,7 +47,7 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot1}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
 	<pathelement location="${nbroot1}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
         <pathelement location="${nbroot1}/diff/netbeans/modules/diff.jar"/>
-        <pathelement location="${binroot}/core/release/lib/ext/xerces.jar"/>
+        <pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar"/>
         <pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
       </classpath>
     </javac>
