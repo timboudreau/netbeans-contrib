@@ -62,7 +62,7 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
     private String[] environmentVars;
     private CommandsTree commandsRoot;
     private Map commandsByName;
-    private boolean commandNotification = false;
+    private boolean commandNotification = true;
     private boolean promptForVarsForEachFile = false;
     private String password = null;
     private String passwordDescription = null;
