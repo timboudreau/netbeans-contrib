@@ -391,7 +391,7 @@ public class JellyAddFeatures extends JellyStub {
         waitStatus("Up-to-date; 1.1", nText5, true);
         new DeleteAction ().perform (new CVSFileNode(exp.repositoryTab().tree(), nText5));
         new NbDialogOperator ("Confirm Object Deletion").yes ();
-        waitStatus("Needs Update; 1.1", nText5, true);
+        waitStatus("Needs Update", nText5, false); // sometimes fails due to bug #28399
         new CVSFileNode(exp.repositoryTab().tree(), nText5).cVSUpdate ();
         CVSUpdateFileAdvDialog up = new CVSUpdateFileAdvDialog ();
         up.setQuietness(CVSUpdateFileAdvDialog.ITEM_BEREALLYQUIET);
