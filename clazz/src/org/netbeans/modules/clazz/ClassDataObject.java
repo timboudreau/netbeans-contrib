@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.clazz;
@@ -96,7 +96,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     static final long serialVersionUID = -1;
 
     /** Support for working with class */
-    transient private InstanceSupport.Origin instanceSupport;
+    transient private InstanceSupport instanceSupport;
 
     transient private boolean sourceCreated;
     /**
@@ -156,7 +156,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     /**
      * Creates InstanceSupport for the primary .class file.
      */
-    protected InstanceSupport.Origin createInstanceSupport() {
+    protected InstanceSupport createInstanceSupport() {
         if (instanceSupport != null)
             return instanceSupport;
         synchronized (this) {
@@ -190,7 +190,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     }
     
     public Cookie createCookie(Class desired) {
-        if (desired == InstanceCookie.class || desired == InstanceCookie.Origin.class) {
+        if (desired == InstanceCookie.class) {
             return createInstanceSupport();
         }
         return null;
@@ -218,7 +218,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
         if (prevCookie != null) {
             s.remove(prevCookie);
             s.add(new Class[] {
-                InstanceCookie.Origin.class
+                InstanceCookie.class
             }, this);
         }
 
@@ -466,7 +466,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
             p.removeFactory(factory);
     }
 
-    protected final class ClazzInstanceSupport extends InstanceSupport.Origin {
+    protected final class ClazzInstanceSupport extends InstanceSupport {
 
         /** the class is bean */
         private Boolean bean;

@@ -81,7 +81,7 @@ public class CompiledDataObject extends ClassDataObject {
 
         CookieSet cs = getCookieSet();
         // only JavaBeans should offer `Customize Bean' action
-        cs.add(InstanceCookie.Origin.class, this);
+        cs.add(InstanceCookie.class, this);
     }
     
     protected Node.Cookie createBeanInstanceSupport() {
