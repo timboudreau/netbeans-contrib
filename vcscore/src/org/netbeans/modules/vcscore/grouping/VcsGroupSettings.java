@@ -100,7 +100,7 @@ public class VcsGroupSettings extends SystemOption {
      * @return Value of property disableGroups.
      */
     public boolean isDisableGroups() {
-        return ((Boolean)getProperty(PROP_DISABLE_GROUPS)).booleanValue();;
+        return ((Boolean)getProperty(PROP_DISABLE_GROUPS)).booleanValue();
     }
     
     /** Setter for property disableGroups.

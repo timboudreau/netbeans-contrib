@@ -74,7 +74,7 @@ public class GeneralVcsSettings extends SystemOption {
     /** Whether these settings overide the filesystem settings.
      */
     public boolean isUseGlobal() {
-        return ((Boolean)getProperty(PROP_USE_GLOBAL)).booleanValue();;
+        return ((Boolean)getProperty(PROP_USE_GLOBAL)).booleanValue();
     }
 
     /** Set whether these settings overide the filesystem settings.
@@ -87,7 +87,7 @@ public class GeneralVcsSettings extends SystemOption {
      * @return Value of property offLine.
      */
     public boolean isOffLine() {
-        return ((Boolean)getProperty(PROP_OFFLINE)).booleanValue();;
+        return ((Boolean)getProperty(PROP_OFFLINE)).booleanValue();
     }
     
     /** Setter for property offLine.
