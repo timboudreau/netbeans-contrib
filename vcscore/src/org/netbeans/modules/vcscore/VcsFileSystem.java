@@ -2747,15 +2747,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public String mimeType (String name) {
         D.deb("mimeType('"+name+"')"); // NOI18N
-        int i = name.lastIndexOf ('.');
-        String s;
-        try {
-            s = FileUtil.getMIMEType (name.substring (i + 1));
-        } catch (IndexOutOfBoundsException e) {
-            s = null;
-        }
-        D.deb("mimeType() -> '"+s+"'"); // NOI18N
-        return s == null ? "content/unknown" : s; // NOI18N
+        FileObject fo = findResource(name);
+        String mimeType = (fo != null) ? FileUtil.getMIMEType(fo) : "content/unknown"; // NOI18N
+        return mimeType;
     }
 
     /** Get the size of a file.
