@@ -287,6 +287,15 @@ public final class TaskTagsPanel extends javax.swing.JPanel
             }
         } else if (source == changeButton) {
             int row = patternsTable.getSelectedRow();
+            if (row == -1) {
+                if (patternsTable.getRowCount() > 0) {
+                    patternsTable.getSelectionModel().setSelectionInterval(0,0);
+                    row = patternsTable.getSelectedRow();
+                } else {
+                    updateSensitivity();
+                    return;
+                }
+            }
             String pattern = (String) model.getValueAt(row, 0);
             NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine(Util.getString("pat-col"), Util.getString("edit-pat"));
             d.setInputText(pattern);
@@ -299,7 +308,11 @@ public final class TaskTagsPanel extends javax.swing.JPanel
             }
         } else if (source == deleteButton) {
             int row = patternsTable.getSelectedRow();
-            model.removeRow(row);
+            if (row == -1) {
+                updateSensitivity();
+            } else {
+                model.removeRow(row);
+            }
         }
         updateSensitivity();
     }
