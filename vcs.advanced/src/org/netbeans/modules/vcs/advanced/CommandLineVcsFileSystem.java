@@ -1116,6 +1116,37 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * @param variables the vector of <code>VcsConfigVariable</code> objects.
      */
     public void setVariables(Vector variables){
+        if (profile != null) {
+            Condition[] conditions = profile.getConditions();
+            if (conditions != null) {
+                super.setVariables(variables);
+                Hashtable varsMap = getVariablesAsHashtable();
+                HashMap configVars = new HashMap(variables.size());
+                for (int i = variables.size() - 1; i >= 0; i--) {
+                    VcsConfigVariable var = (VcsConfigVariable) variables.get (i);
+                    //varsMap.put(var.getName(), var.getValue());
+                    configVars.put(var.getName(), var);
+                }
+                for (int i = 0; i < conditions.length; i++) {
+                    String name = conditions[i].getName();
+                    if (conditions[i].isSatisfied(varsMap)) {
+                        //varsMap.put(name, Boolean.TRUE.toString());
+                        VcsConfigVariable var = (VcsConfigVariable) configVars.get(name);
+                        if (var == null) {
+                            variables.add(new VcsConfigVariable(name, null, Boolean.TRUE.toString(), false, false, false, null));
+                        } else {
+                            var.setValue(Boolean.TRUE.toString());
+                        }
+                    } else {
+                        //varsMap.remove(name);
+                        VcsConfigVariable var = (VcsConfigVariable) configVars.remove(name);
+                        if (var != null) {
+                            variables.remove(var);
+                        }
+                    }
+                }
+            }
+        }
         super.setVariables(variables);
         //setPossibleFileStatusesFromVars();
         //setBadgeIconsFromVars();
