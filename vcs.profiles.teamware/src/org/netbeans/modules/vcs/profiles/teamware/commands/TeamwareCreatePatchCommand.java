@@ -149,8 +149,8 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         File rFile = null;
         try {
             rFile = File.createTempFile("sccs", "txt");
-            retrieveOldVersion(file, rFile, "");
-            out.print(getDiffs(patchRoot, rFile, file));
+            boolean exists = retrieveOldVersion(file, rFile, "");
+            out.print(getDiffs(patchRoot, rFile, file, exists));
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
@@ -163,8 +163,8 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         File rFile = null;
         try {
             rFile = File.createTempFile("sccs", "txt");
-            retrieveOldVersion(file, rFile, "-c" + sinceDate);
-            out.print(getDiffs(patchRoot, rFile, file));
+            boolean exists = retrieveOldVersion(file, rFile, "-c" + sinceDate);
+            out.print(getDiffs(patchRoot, rFile, file, exists));
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
@@ -173,7 +173,9 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         }
     }
     
-    private void retrieveOldVersion(File file, File rFile, String revArgs) throws Exception {
+    /** Returns true iff there was a valid version available of the file
+     * requested. */
+    private boolean retrieveOldVersion(File file, File rFile, String revArgs) throws Exception {
         rFile.setReadOnly();
         Hashtable vars = new Hashtable();
         vars.put("WORKDIR", file.getParent());
@@ -185,9 +187,7 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
             fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         fileSystem.getCommandsPool().startExecutor(ec, fileSystem);
         fileSystem.getCommandsPool().waitToFinish(ec);
-        if (ec.getExitStatus() != 0) {
-            return;
-        }
+        return ec.getExitStatus() == 0;
     }
     
     /* The rest of the code here is lifted from
@@ -205,7 +205,10 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
     private static final String LINE_PREP_REMOVE = "- ";
     private static final String LINE_PREP_CHANGE = "! ";
 
-    private String getDiffs(File patchRoot, File oldFile, File currentFile) throws IOException {
+    private String getDiffs(File patchRoot,
+        File oldFile, File currentFile,
+        boolean exists) throws IOException {
+            
         DiffProvider dp =
             (DiffProvider) Lookup.getDefault().lookup(DiffProvider.class);
         BufferedReader br1 = new BufferedReader(new FileReader(oldFile));
@@ -238,9 +241,11 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         content.append("\n------- ");
         content.append(currentFile.getName());
         content.append(" -------\n");
-        content.append(CONTEXT_MARK1B);
-        content.append(patchedFileName);
-        content.append("\n");
+        if (exists) {
+            content.append(CONTEXT_MARK1B);
+            content.append(patchedFileName);
+            content.append("\n");
+        }
         content.append(CONTEXT_MARK2B);
         content.append(oldFileName);
         content.append("\n");
@@ -261,9 +266,13 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
             line1 = dumpContext(0, diffs, i, cr[0], context, contextNumLines, br1, line1);
             if (line1 <= cr[1]) cr[1] = line1 - 1;
             content.append(CONTEXT_MARK1B);
-            content.append(begin);
-            content.append(CONTEXT_MARK_DELIMETER);
-            content.append(cr[1]);
+            if (exists) {
+                content.append(begin);
+                content.append(CONTEXT_MARK_DELIMETER);
+                content.append(cr[1]);
+            } else {
+                content.append("0");
+            }
             content.append(CONTEXT_MARK1E);
             content.append(context);
 
