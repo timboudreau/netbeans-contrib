@@ -1,4 +1,8 @@
 <updates>
+    <update version="1.22.2">
+        <change>Infrastructure fix that restores suggestions view functionality (#41883)</change>
+    </update>
+
     <update version="1.21">
         <change>Filtering dialog polished</change>
         <change>Several memory leaks eliminated</change>
