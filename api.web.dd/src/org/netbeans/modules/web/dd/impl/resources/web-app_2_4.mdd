@@ -4,6 +4,7 @@
             <dtd-name>web-app</dtd-name>
             <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
             <bean-name>WebApp</bean-name>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
             <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
             <implements> 
                 org.netbeans.api.web.dd.WebApp
@@ -97,22 +98,29 @@
                 <wrapper-class>boolean</wrapper-class>
 	</meta-element>
 	<meta-element>
-		<dtd-name>param-valueType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>InitParam</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.InitParam
-                </implements>
+            <dtd-name>param-valueType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>InitParam</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.InitParam, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getParamName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>filterType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>Filter</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.Filter
-                </implements>
+            <dtd-name>filterType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>Filter</bean-name>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
+            <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.Filter, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getFilterName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>filter-mappingType</dtd-name>
@@ -123,46 +131,57 @@
                 </implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>listenerType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>Listener</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.Listener
-                </implements>
+            <dtd-name>listenerType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>Listener</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.Listener
+            </implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>servletType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>Servlet</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.Servlet
-                </implements>
+            <dtd-name>servletType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>Servlet</bean-name>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
+            <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.Servlet, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getServletName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>servlet-mappingType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>ServletMapping</bean-name>
-                <implements> 
-                    org.netbeans.api.web.dd.ServletMapping
-                </implements>
+            <dtd-name>servlet-mappingType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>ServletMapping</bean-name>
+            <implements> 
+                org.netbeans.api.web.dd.ServletMapping, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getUrlPattern(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>session-configType</dtd-name>
 		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
 		<bean-name>SessionConfig</bean-name>
+                <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
                 <implements> 
                     org.netbeans.api.web.dd.SessionConfig
                 </implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>mime-mappingType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>MimeMapping</bean-name>
-                <implements> 
-                    org.netbeans.api.web.dd.MimeMapping
-                </implements>
+            <dtd-name>mime-mappingType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>MimeMapping</bean-name>
+            <implements> 
+                org.netbeans.api.web.dd.MimeMapping, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getExtension(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>welcome-file-listType</dtd-name>
@@ -173,17 +192,26 @@
                 </implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>error-pageType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>ErrorPage</bean-name>
-                <implements> 
-                    org.netbeans.api.web.dd.ErrorPage
-                </implements>
+            <dtd-name>error-pageType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>ErrorPage</bean-name>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
+            <implements> 
+                org.netbeans.api.web.dd.ErrorPage, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() {
+                    Object code = getErrorCode();
+                    String exceptionType = getExceptionType();
+                    return (code==null?"":code.toString())+":"+(exceptionType==null?"":exceptionType);
+                }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>jsp-configType</dtd-name>
 		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
 		<bean-name>JspConfig</bean-name>
+                <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
                 <extends>org.netbeans.modules.web.dd.impl.common.EnclosingBean</extends>
                 <implements> 
                     org.netbeans.api.web.dd.JspConfig
@@ -193,6 +221,7 @@
 		<dtd-name>security-constraintType</dtd-name>
 		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
 		<bean-name>SecurityConstraint</bean-name>
+                <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
                 <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
                 <implements> 
                     org.netbeans.api.web.dd.SecurityConstraint
@@ -202,45 +231,56 @@
 		<dtd-name>login-configType</dtd-name>
 		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
 		<bean-name>LoginConfig</bean-name>
+                <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
                 <extends>org.netbeans.modules.web.dd.impl.common.EnclosingBean</extends>
                 <implements> 
                     org.netbeans.api.web.dd.LoginConfig
                 </implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>security-roleType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>SecurityRole</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.SecurityRole
-                </implements>
+            <dtd-name>security-roleType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>SecurityRole</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.SecurityRole, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getRoleName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>message-destinationType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>MessageDestination</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.MessageDestination
-                </implements>
+            <dtd-name>message-destinationType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>MessageDestination</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.MessageDestination, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getMessageDestinationName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>locale-encoding-mapping-listType</dtd-name>
 		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
 		<bean-name>LocaleEncodingMappingList</bean-name>
+                <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
                 <extends>org.netbeans.modules.web.dd.impl.common.EnclosingBean</extends>
                 <implements> 
                     org.netbeans.api.web.dd.LocaleEncodingMappingList
                 </implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>locale-encoding-mappingType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>LocaleEncodingMapping</bean-name>
-                <implements> 
-                    org.netbeans.api.web.dd.LocaleEncodingMapping
-                </implements>
+            <dtd-name>locale-encoding-mappingType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>LocaleEncodingMapping</bean-name>
+            <implements> 
+                org.netbeans.api.web.dd.LocaleEncodingMapping, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getLocale(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>localeType</dtd-name>
@@ -287,58 +327,76 @@
 		<wrapper-class>java.lang.String</wrapper-class>
 	</meta-element>
 	<meta-element>
-		<dtd-name>env-entryType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>EnvEntry</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.EnvEntry
-                </implements>
+            <dtd-name>env-entryType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>EnvEntry</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.EnvEntry, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getEnvEntryName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>ejb-refType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>EjbRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.EjbRef
-                </implements>
+            <dtd-name>ejb-refType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>EjbRef</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.EjbRef, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getEjbRefName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>ejb-local-refType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>EjbLocalRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.EjbLocalRef
-                </implements>
+            <dtd-name>ejb-local-refType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>EjbLocalRef</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.EjbLocalRef, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getEjbRefName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>resource-refType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>ResourceRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.ResourceRef
-                </implements>
+            <dtd-name>resource-refType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>ResourceRef</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.ResourceRef, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getResRefName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>resource-env-refType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>ResourceEnvRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.ResourceEnvRef
-                </implements>
+            <dtd-name>resource-env-refType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>ResourceEnvRef</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.ResourceEnvRef, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getResourceEnvRefName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>message-destination-refType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>MessageDestinationRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.MessageDestinationRef
-                </implements>
+            <dtd-name>message-destination-refType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>MessageDestinationRef</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.MessageDestinationRef, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getMessageDestinationRefName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>jndi-nameType</dtd-name>
@@ -383,13 +441,17 @@
 		<wrapper-class>java.lang.String</wrapper-class>
 	</meta-element>
 	<meta-element>
-		<dtd-name>service-refType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>ServiceRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.ServiceRef
-                </implements>
+            <dtd-name>service-refType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>ServiceRef</bean-name>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
+            <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.ServiceRef, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getServiceRefName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>xsdAnyURIType</dtd-name>
@@ -412,13 +474,17 @@
                 </implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>service-ref_handlerType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>ServiceRefHandler</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.ServiceRefHandler
-                </implements>
+            <dtd-name>service-ref_handlerType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>ServiceRefHandler</bean-name>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
+            <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.ServiceRefHandler, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getHandlerName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>ejb-ref-nameType</dtd-name>
@@ -501,13 +567,16 @@
 		<wrapper-class>java.lang.String</wrapper-class>
 	</meta-element>
 	<meta-element>
-		<dtd-name>web-resource-collectionType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>WebResourceCollection</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.WebResourceCollection
-                </implements>
+            <dtd-name>web-resource-collectionType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>WebResourceCollection</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.WebResourceCollection, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getWebResourceName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>auth-constraintType</dtd-name>
@@ -546,12 +615,15 @@
 		<wrapper-class>java.lang.String</wrapper-class>
 	</meta-element>
 	<meta-element>
-		<dtd-name>taglibType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>Taglib</bean-name>
-                <implements> 
-                    org.netbeans.api.web.dd.Taglib
-                </implements>
+            <dtd-name>taglibType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>Taglib</bean-name>
+            <implements> 
+                org.netbeans.api.web.dd.Taglib, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getTaglibUri(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>jsp-property-groupType</dtd-name>
@@ -602,13 +674,16 @@
                 </implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>security-role-refType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>SecurityRoleRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
-                <implements> 
-                    org.netbeans.api.web.dd.SecurityRoleRef
-                </implements>
+            <dtd-name>security-role-refType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/j2ee</namespace>
+            <bean-name>SecurityRoleRef</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanMultiple</extends>
+            <implements> 
+                org.netbeans.api.web.dd.SecurityRoleRef, org.netbeans.modules.web.dd.impl.common.KeyBean
+            </implements>
+            <user-code>
+                public Object getKeyValue() { return getRoleName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>jsp-fileType</dtd-name>

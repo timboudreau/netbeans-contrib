@@ -4,6 +4,7 @@
             <dtd-name>web-app</dtd-name>
             <bean-name>WebApp</bean-name>
             <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanSingle</extends>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
             <implements>org.netbeans.api.web.dd.WebApp</implements>
             <user-code>
                 public void setVersion(java.lang.String value) {
@@ -129,13 +130,20 @@
 		<dtd-name>context-param</dtd-name>
 		<bean-name>ContextParam</bean-name>
                 <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.InitParam</implements>
+		<implements>org.netbeans.api.web.dd.InitParam, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+                <user-code>
+                    public Object getKeyValue() { return getParamName(); }
+                </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>filter</dtd-name>
-		<bean-name>Filter</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.Filter</implements>
+            <dtd-name>filter</dtd-name>
+            <bean-name>Filter</bean-name>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
+            <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanSingle</extends>
+            <implements>org.netbeans.api.web.dd.Filter, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getFilterName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
             <dtd-name>filter-mapping</dtd-name>
@@ -181,15 +189,22 @@
             </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>servlet</dtd-name>
-		<bean-name>Servlet</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.Servlet</implements>
+            <dtd-name>servlet</dtd-name>
+            <bean-name>Servlet</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanSingle</extends>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
+            <implements>org.netbeans.api.web.dd.Servlet, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getServletName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>servlet-mapping</dtd-name>
-		<bean-name>ServletMapping</bean-name>
-		<implements>org.netbeans.api.web.dd.ServletMapping</implements>
+            <dtd-name>servlet-mapping</dtd-name>
+            <bean-name>ServletMapping</bean-name>
+            <implements>org.netbeans.api.web.dd.ServletMapping, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getUrlPattern(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>session-config</dtd-name>
@@ -197,9 +212,12 @@
 		<implements>org.netbeans.api.web.dd.SessionConfig</implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>mime-mapping</dtd-name>
-		<bean-name>MimeMapping</bean-name>
-		<implements>org.netbeans.api.web.dd.MimeMapping</implements>
+            <dtd-name>mime-mapping</dtd-name>
+            <bean-name>MimeMapping</bean-name>
+            <implements>org.netbeans.api.web.dd.MimeMapping, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getExtension(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>welcome-file-list</dtd-name>
@@ -207,62 +225,93 @@
 		<implements>org.netbeans.api.web.dd.WelcomeFileList</implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>error-page</dtd-name>
-		<bean-name>ErrorPage</bean-name>
-		<implements>org.netbeans.api.web.dd.ErrorPage</implements>
+            <dtd-name>error-page</dtd-name>
+            <bean-name>ErrorPage</bean-name>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
+            <implements>org.netbeans.api.web.dd.ErrorPage, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() {
+                    Object code = getErrorCode();
+                    String exceptionType = getExceptionType();
+                    return (code==null?"":code.toString())+":"+(exceptionType==null?"":exceptionType);
+                }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>taglib</dtd-name>
-		<bean-name>Taglib</bean-name>
-		<implements>org.netbeans.api.web.dd.Taglib</implements>
+            <dtd-name>taglib</dtd-name>
+            <bean-name>Taglib</bean-name>
+            <implements>org.netbeans.api.web.dd.Taglib, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getTaglibUri(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>resource-env-ref</dtd-name>
-		<bean-name>ResourceEnvRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.ResourceEnvRef</implements>
+            <dtd-name>resource-env-ref</dtd-name>
+            <bean-name>ResourceEnvRef</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
+            <implements>org.netbeans.api.web.dd.ResourceEnvRef, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getResourceEnvRefName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>resource-ref</dtd-name>
-		<bean-name>ResourceRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.ResourceRef</implements>
+            <dtd-name>resource-ref</dtd-name>
+            <bean-name>ResourceRef</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
+            <implements>org.netbeans.api.web.dd.ResourceRef, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getResRefName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>security-constraint</dtd-name>
-		<bean-name>SecurityConstraint</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.SecurityConstraint</implements>
+            <dtd-name>security-constraint</dtd-name>
+            <bean-name>SecurityConstraint</bean-name>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
+            <extends>org.netbeans.modules.web.dd.impl.common.ComponentBeanSingle</extends>
+            <implements>org.netbeans.api.web.dd.SecurityConstraint</implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>login-config</dtd-name>
-		<bean-name>LoginConfig</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.EnclosingBean</extends>
-		<implements>org.netbeans.api.web.dd.LoginConfig</implements>
+            <dtd-name>login-config</dtd-name>
+            <bean-name>LoginConfig</bean-name>
+            <comparator-class>org.netbeans.modules.web.dd.impl.common.Comparator</comparator-class>
+            <extends>org.netbeans.modules.web.dd.impl.common.EnclosingBean</extends>
+            <implements>org.netbeans.api.web.dd.LoginConfig</implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>security-role</dtd-name>
-		<bean-name>SecurityRole</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.SecurityRole</implements>
+            <dtd-name>security-role</dtd-name>
+            <bean-name>SecurityRole</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
+            <implements>org.netbeans.api.web.dd.SecurityRole, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getRoleName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>env-entry</dtd-name>
-		<bean-name>EnvEntry</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.EnvEntry</implements>
+            <dtd-name>env-entry</dtd-name>
+            <bean-name>EnvEntry</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
+            <implements>org.netbeans.api.web.dd.EnvEntry, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getEnvEntryName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>ejb-ref</dtd-name>
-		<bean-name>EjbRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.EjbRef</implements>
+            <dtd-name>ejb-ref</dtd-name>
+            <bean-name>EjbRef</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
+            <implements>org.netbeans.api.web.dd.EjbRef, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getEjbRefName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
-		<dtd-name>ejb-local-ref</dtd-name>
-		<bean-name>EjbLocalRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.EjbLocalRef</implements>
+            <dtd-name>ejb-local-ref</dtd-name>
+            <bean-name>EjbLocalRef</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
+            <implements>org.netbeans.api.web.dd.EjbLocalRef, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getEjbRefName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>ejb-ref-name</dtd-name>
@@ -350,10 +399,13 @@
 		<wrapper-class>String</wrapper-class>
 	</meta-element>
 	<meta-element>
-		<dtd-name>web-resource-collection</dtd-name>
-		<bean-name>WebResourceCollection</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.WebResourceCollection</implements>
+            <dtd-name>web-resource-collection</dtd-name>
+            <bean-name>WebResourceCollection</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
+            <implements>org.netbeans.api.web.dd.WebResourceCollection, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getWebResourceName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>auth-constraint</dtd-name>
@@ -471,7 +523,10 @@
 		<dtd-name>init-param</dtd-name>
 		<bean-name>InitParam</bean-name>
                 <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.InitParam</implements>
+		<implements>org.netbeans.api.web.dd.InitParam, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+                <user-code>
+                    public Object getKeyValue() { return getParamName(); }
+                </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>load-on-startup</dtd-name>
@@ -485,10 +540,13 @@
 		<implements>org.netbeans.api.web.dd.RunAs</implements>
 	</meta-element>
 	<meta-element>
-		<dtd-name>security-role-ref</dtd-name>
-		<bean-name>SecurityRoleRef</bean-name>
-                <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
-		<implements>org.netbeans.api.web.dd.SecurityRoleRef</implements>
+            <dtd-name>security-role-ref</dtd-name>
+            <bean-name>SecurityRoleRef</bean-name>
+            <extends>org.netbeans.modules.web.dd.impl.common.DescriptionBeanSingle</extends>
+            <implements>org.netbeans.api.web.dd.SecurityRoleRef, org.netbeans.modules.web.dd.impl.common.KeyBean</implements>
+            <user-code>
+                public Object getKeyValue() { return getRoleName(); }
+            </user-code>
 	</meta-element>
 	<meta-element>
 		<dtd-name>role-link</dtd-name>
