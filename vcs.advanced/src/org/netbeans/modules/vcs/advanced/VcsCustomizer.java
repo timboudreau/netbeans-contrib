@@ -2256,6 +2256,37 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private Map lastConditionValues = new HashMap();
     
     /**
+     * Initialize the last conditioned values. This is necessary so that
+     * {@link #updateConditionalValues()} does not reset variables that
+     * did not change.
+     */
+    private void initLastConditionValues() {
+        Profile profile = fileSystem.getProfile();
+        if (profile == null) return ;
+        ConditionedVariables cVars = profile.getVariables();
+        Map conditionsByVariables = cVars.getConditionsByVariables();
+        Map varsByConditions = cVars.getVariablesByConditions();
+        if (conditionsByVariables.size() == 0) return ;
+        Hashtable vars = fileSystem.getVariablesAsHashtable();
+        for(Iterator it = conditionsByVariables.keySet().iterator(); it.hasNext(); ) {
+            String name = (String) it.next();
+            Condition[] conditions = (Condition[]) conditionsByVariables.get(name);
+            for (int i = 0; i < conditions.length; i++) {
+                if (conditions[i].isSatisfied(vars)) {
+                    VcsConfigVariable var = (VcsConfigVariable) varsByConditions.get(conditions[i]);
+                    if (var != null) {
+                        String value = (String) lastConditionValues.get(name);
+                        if (!var.getValue().equals(value)) {
+                            value = var.getValue();
+                            lastConditionValues.put(name, value);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
      * Conditional variables should be updated when the variables change.
      * However we must pay attention not to alter variables, that were set 
      * intentionally by the user in the customizer. Thus we should update
@@ -2576,6 +2607,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
         relMountTextField.setText(module);
         oldSelectedLabel = fileSystem.getConfig();
+        initLastConditionValues();
         updateConfigurations();
         updateAdvancedConfig();
         initAdditionalComponents (resetEqualFSVars);
