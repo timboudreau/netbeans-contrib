@@ -35,4 +35,10 @@ public interface TreeTableNode extends TreeNode {
      * @return true = editable
      */
     public boolean isCellEditable(int column);
+
+    /**
+     * Sets the value for node <code>node</code>,
+     * at column number <code>column</code>.
+     */
+    public void setValueAt(Object aValue, int column);
 }

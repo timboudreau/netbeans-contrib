@@ -21,13 +21,6 @@ import org.openide.nodes.Node;
  * TT for user tasks
  */
 public class UserTasksTreeTable extends NodesTreeTable {
-    // TODO: use module logger
-    private static final Logger LOGGER = 
-        TLUtils.getLogger(UserTasksTreeTable.class);
-    static {
-        LOGGER.setLevel(Level.FINE);
-    }
-    
     /**
      * Creates a new instance of UserTasksTreeTable
      * TODO: comment

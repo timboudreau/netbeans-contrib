@@ -80,6 +80,9 @@ Microsystems, Inc. All Rights Reserved.
     <target name="clean" depends="init">
         <delete dir="build"/>
         <delete>
+            <fileset dir="." includes="**/*.class"/>
+        </delete>
+        <delete>
             <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
                <patternset refID="tasklist/usertasks.files"/>
             </fileset>

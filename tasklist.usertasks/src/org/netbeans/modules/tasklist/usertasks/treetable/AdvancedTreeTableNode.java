@@ -106,7 +106,24 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     }
 
     public void refreshChildren() {
+        if (unfilteredChildren != null) {
+            for (int i = 0; i < unfilteredChildren.length; i++) {
+                ((AdvancedTreeTableNode) unfilteredChildren[i]).destroy();
+            }
+        }
         this.children = null;
         this.unfilteredChildren = null;
+    }
+
+    /**
+     * Will be called after removing the node from the hierarchy
+     */
+    public void destroy() {
+        this.parent = null;
+        if (unfilteredChildren != null) {
+            for (int i = 0; i < unfilteredChildren.length; i++) {
+                ((AdvancedTreeTableNode) unfilteredChildren[i]).destroy();
+            }
+        }
     }
 }

@@ -26,6 +26,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.modules.tasklist.usertasks.UTUtils;
 import org.openide.ErrorManager;
 import org.openide.awt.MouseUtils;
 import org.openide.explorer.ExplorerManager;
@@ -36,12 +37,6 @@ import org.openide.util.Utilities;
  * TreeTable with support for Nodes
  */
 public abstract class NodesTreeTable extends TreeTable {
-    private static final Logger LOGGER = TLUtils.getLogger(NodesTreeTable.class);
-    
-    static {
-        LOGGER.setLevel(Level.OFF);
-    }
-    
     private ExplorerManager em;
     
     /** Creates a new instance of NodesTreeTable */
@@ -109,9 +104,9 @@ public abstract class NodesTreeTable extends TreeTable {
                         nodes = new Node[0];
                 }
                 
-                if (LOGGER.isLoggable(Level.FINE)) {
-                    LOGGER.fine(em.getRootContext() + ""); // NOI18N
-                    LOGGER.fine(nodes.length == 0 ?
+                if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
+                    UTUtils.LOGGER.fine(em.getRootContext() + ""); // NOI18N
+                    UTUtils.LOGGER.fine(nodes.length == 0 ?
                         "null" : nodes[0].toString()); // NOI18N
                 }
                 

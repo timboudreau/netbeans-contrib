@@ -83,6 +83,7 @@ TreeTableModel {
     }
     
     public void setValueAt(Object aValue, Object node, int column) {
+        ((TreeTableNode) node).setValueAt(aValue, column);
     }
 
     public static class ToStringComparator implements Comparator {

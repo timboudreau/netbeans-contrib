@@ -58,12 +58,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
     private static final long serialVersionUID = 1;
 
-    private static final Logger LOGGER = TLUtils.getLogger(EditTaskPanel.class);
-    
-    static {
-        LOGGER.setLevel(Level.OFF);
-    }
-    
     private static String[] PERCENTS = {
         "0%", "5%", "10%", "15%", "20%", "25%", "30%", "35%", "40%", "45%", "50%", // NOI18N
         "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%" // NOI18N
@@ -95,7 +89,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
                 parsePercents(p);
                 return true;
             } catch (NumberFormatException e) {
-                LOGGER.fine("wrong format");
+                UTUtils.LOGGER.fine("wrong format");
                 return false;
             }
         }
@@ -195,7 +189,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         if (categories.length > 0) {
             DefaultComboBoxModel model = new DefaultComboBoxModel(categories);
             categoryCombo.setModel(model);
-            LOGGER.fine("categories.size = " + categories.length); // NOI18N
+            UTUtils.LOGGER.fine("categories.size = " + categories.length); // NOI18N
         }
         categoryCombo.setSelectedItem(item.getCategory());
         

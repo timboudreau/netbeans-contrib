@@ -44,6 +44,7 @@ import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.openide.actions.DeleteAction;
 import org.openide.awt.MouseUtils;
 import org.openide.filesystems.FileObject;
@@ -63,12 +64,6 @@ import org.openide.windows.WindowManager;
 public class UserTaskView extends TaskListView implements TaskListener {
     private static final long serialVersionUID = 1;
 
-    private static final Logger LOGGER = TLUtils.getLogger(UserTaskView.class);
-    
-    static {
-        LOGGER.setLevel(Level.OFF);
-    }
-    
     private UserTasksTreeTable tt;
     
     /** 
@@ -578,6 +573,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
 
     protected void setFiltered() {
         super.setFiltered();
+        TreeTableModel ttm = tt.getTreeTableModel();
+        if (ttm instanceof UserTasksTreeTableModel) {
+            ((UserTasksTreeTableModel) ttm).destroy();
+        }
         tt.setTreeTableModel(new UserTasksTreeTableModel((UserTaskList) getModel(), 
             tt.getSortingModel(), getFilter()));
     }
@@ -591,7 +590,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     protected void loadColumnsConfiguration() {
-        if (LOGGER.isLoggable(Level.FINE))
+        if (UTUtils.LOGGER.isLoggable(Level.FINE))
             Thread.dumpStack();
         if (tt == null)
             return;

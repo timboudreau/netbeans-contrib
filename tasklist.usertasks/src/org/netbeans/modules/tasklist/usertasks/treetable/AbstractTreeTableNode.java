@@ -28,7 +28,7 @@ public abstract class AbstractTreeTableNode implements TreeTableNode {
     /** could be used to show that this node has no children */
     protected static TreeTableNode[] EMPTY_CHILDREN = {};
     
-    private TreeTableNode parent;
+    protected TreeTableNode parent;
     
     /** children of this node. null means "not yet loaded" */
     protected TreeTableNode children[];

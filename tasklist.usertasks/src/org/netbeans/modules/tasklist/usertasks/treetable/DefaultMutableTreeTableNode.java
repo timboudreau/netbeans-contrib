@@ -11,7 +11,7 @@ import javax.swing.tree.TreeNode;
  * Default mutable TT node
  */
 public class DefaultMutableTreeTableNode extends DefaultMutableTreeNode implements
-MutableTreeTableNode {
+TreeTableNode {
     private ArrayList values;
     
     /**

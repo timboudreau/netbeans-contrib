@@ -61,6 +61,10 @@ public interface TreeTableModel extends TreeModel {
     /**
      * Sets the value for node <code>node</code>,
      * at column number <code>column</code>.
+     *
+     * @param aValue new value
+     * @param node a node from this model
+     * @param column column index
      */
     public void setValueAt(Object aValue, Object node, int column);
 }

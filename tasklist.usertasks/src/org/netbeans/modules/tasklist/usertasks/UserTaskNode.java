@@ -54,12 +54,6 @@ import org.openide.util.datatransfer.PasteType;
 
 
 final class UserTaskNode extends AbstractNode {
-    private static final Logger LOGGER = TLUtils.getLogger(UserTaskNode.class);
-    
-    static {
-        LOGGER.setLevel(Level.OFF);
-    }
-
     private UserTask item;
     private UserTaskList utl;
     
@@ -75,6 +69,7 @@ final class UserTaskNode extends AbstractNode {
         assert item != null;
         this.utl = utl;
         this.item = item;
+        
         //init();
     } 
 

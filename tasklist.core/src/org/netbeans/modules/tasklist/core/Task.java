@@ -49,7 +49,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
     /** Set&lt;TaskListener> */
-    private EventListenerList listeners = new EventListenerList();
+    protected EventListenerList listeners = new EventListenerList();
     // TODO: old code private Set listeners = new HashSet(2);
 
     private boolean visitable;
