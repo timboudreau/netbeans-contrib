@@ -497,6 +497,8 @@ public class LogInfoPanel extends javax.swing.JPanel {
     }
     
     public void setData(LogInformation info) {
+        if(info == null)
+            return;
         tblRevisions.clearSelection();
         tblSymNames.clearSelection();
         logInfo = info;

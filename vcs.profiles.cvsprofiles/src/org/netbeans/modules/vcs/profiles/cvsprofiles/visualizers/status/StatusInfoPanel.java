@@ -526,6 +526,8 @@ final class StatusInfoPanel extends JPanel {
   }
 
   public void setData(StatusInformation info) {      
+      if(info == null)
+          return;
       statusInfo = info;
       txFileName.setText(info.getFile().getName());      
       txStatus.setText(info.getStatusString());
