@@ -28,6 +28,9 @@ import java.util.*;
  */
 public class FTPClient implements RemoteClient  {
 
+  /** An empty array of File attributes. */
+  private static final FTPFileAttributes[] EMPTY_LIST = new FTPFileAttributes[0];
+    
   /** Control connection stream */
   private BufferedReader in;
   /** Control connection stream */
@@ -622,8 +625,9 @@ public class FTPClient implements RemoteClient  {
         }
     }      
     if (attrib == null) {
-      if (!anyerror)
-          attrib = new FTPFileAttributes[0];
+//      quick workaround - this method should not return null
+//      if (!anyerror)
+          attrib = EMPTY_LIST;
     }  
     return attrib;
   }

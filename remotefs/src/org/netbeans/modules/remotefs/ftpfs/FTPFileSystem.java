@@ -84,6 +84,9 @@ public class FTPFileSystem extends RemoteFileSystem implements  FTPClient.Reconn
 
   /** Called when FTPSettings changed */
   protected void ftpSettingsChanged(PropertyChangeEvent event) {
+      // bugfix #18714, according to the general contract of PropertyChangeEvent, 
+      // property name may be null if multiple properties have been changed.
+      if (event.getPropertyName() == null) return;
      if (event.getPropertyName().equals(FTPSettings.PROP_PASSIVE_MODE)) {
         if (client != null) ((FTPClient)client).setPassiveMode(((Boolean)(event.getNewValue())).booleanValue());
      }

@@ -262,8 +262,10 @@ public class RemoteFile {
     //TODO: refresh x always
     if (notify.isRefreshServer() && onserver && client.isConnected()) {
         RemoteFileAttributes RemoteFiles[] = client.list(getName());
-        for (int i=0; i<RemoteFiles.length; i++) 
-            if (RemoteFiles[i]!=null) servermap.put(RemoteFiles[i].getName().getName(), RemoteFiles[i]);
+        if (RemoteFiles != null) {
+            for (int i=0; i<RemoteFiles.length; i++) 
+                if (RemoteFiles[i]!=null) servermap.put(RemoteFiles[i].getName().getName(), RemoteFiles[i]);
+        } 
         // gets set of RemoteFiles names
         serverset = servermap.keySet();
     }

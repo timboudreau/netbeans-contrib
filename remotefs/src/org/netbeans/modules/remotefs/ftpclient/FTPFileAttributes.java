@@ -94,7 +94,9 @@ public class FTPFileAttributes extends RemoteFileAttributes  {
 	    else if (month.equalsIgnoreCase("OCT")) nmonth = 10;
 	    else if (month.equalsIgnoreCase("NOV")) nmonth = 11;
 	    else if (month.equalsIgnoreCase("DEC")) nmonth = 12;
-	    else return false;
+            // [PENDING] temporary workaround for localized filesystems
+            // nevertheless, the solution may be very difficult.
+            else nmonth = 1;
 	    nmonth--;
 	    
 	    Calendar cal = Calendar.getInstance();

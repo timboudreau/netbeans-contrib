@@ -133,7 +133,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
   }
   
   private void writeObject(ObjectOutputStream s)  throws IOException {
-      removeClient(); 
+      // removeClient(); 
       s.defaultWriteObject();
   }
  
@@ -144,12 +144,16 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     SystemAction newactions[] = new SystemAction[actions.length+4];
     for (int i=0;i<actions.length;i++) 
         newactions[i]=actions[i];
-    newactions[actions.length] = new SynchronizeAction();
-    newactions[actions.length+1] = new DownloadAllAction();
-    newactions[actions.length+2] = new CleanCacheAction();
-    newactions[actions.length+3] = new ConnectAction();
+    newactions[actions.length] = getAction(SynchronizeAction.class);
+    newactions[actions.length+1] = getAction(DownloadAllAction.class);
+    newactions[actions.length+2] = getAction(CleanCacheAction.class);
+    newactions[actions.length+3] = getAction(ConnectAction.class);
     ((ConnectAction)newactions[actions.length+3]).setFS(this);
     return newactions;
+  }
+  
+  private SystemAction getAction(Class clazz) {
+      return (SystemAction) org.openide.util.SharedClassObject.findObject(clazz, true);
   }
   
   protected void removeClient() {
