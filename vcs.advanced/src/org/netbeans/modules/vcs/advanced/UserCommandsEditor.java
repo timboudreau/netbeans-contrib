@@ -80,7 +80,14 @@ public class UserCommandsEditor implements PropertyEditor {
       E.err("Vector expected instead of "+value);
       throw new IllegalArgumentException("Vector expected instead of "+value);
     }
-    commands = (Vector) value;
+    // make local copy of value - deep copy using clone
+    commands=new Vector();
+    Vector vect = (Vector) value;
+    for(int i=0;i<vect.size (); i++) {
+      UserCommand cmd = (UserCommand) vect.get (i);
+      commands.add (cmd.clone ());
+    }
+    
     changeSupport.firePropertyChange("",null,null);
   }
 
@@ -108,6 +115,7 @@ public class UserCommandsEditor implements PropertyEditor {
 
 /*
  * <<Log>>
+ *  9    Gandalf   1.8         9/8/99   Pavel Buzek     
  *  8    Gandalf   1.7         9/8/99   Pavel Buzek     class model changed, 
  *       customization improved, several bugs fixed
  *  7    Gandalf   1.6         8/31/99  Pavel Buzek     

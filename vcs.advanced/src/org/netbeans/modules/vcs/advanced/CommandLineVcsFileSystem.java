@@ -83,15 +83,20 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
   }
 
 
-  //-------------------------------------------
-  public void setCommands(Vector commands){
-    setAdvancedConfig (commands);
+  public void setAdvancedConfig (Object advanced) {
+    super.setAdvancedConfig (advanced);
+    Vector commands = (Vector) advanced;
     int len=commands.size();
     commandsByName=new Hashtable(len+5);
     for(int i=0;i<len;i++){
       UserCommand uc=(UserCommand)commands.elementAt(i);
       commandsByName.put(uc.getName(), uc);
     }
+  }
+  
+  //-------------------------------------------
+  public void setCommands(Vector commands){
+    setAdvancedConfig (commands);
   }
 
 
@@ -141,6 +146,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
 
 /*
  * <<Log>>
+ *  38   Gandalf   1.37        9/8/99   Pavel Buzek     
  *  37   Gandalf   1.36        9/8/99   Pavel Buzek     class model changed, 
  *       customization improved, several bugs fixed
  *  36   Gandalf   1.35        8/31/99  Pavel Buzek     
