@@ -27,6 +27,7 @@ import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.cmdline.UserCommandTask;
+import org.netbeans.modules.vcscore.commands.CommandOutputTopComponent;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
 import org.netbeans.modules.vcscore.commands.CommandTaskInfo;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
@@ -104,6 +105,7 @@ public class VcsRuntimeCommand extends RuntimeCommand {
                     visualizer.open(null);
                 }
             }
+            CommandOutputTopComponent.getInstance().open();
         }
         //pool.openCommandOutput(executor);
     }
