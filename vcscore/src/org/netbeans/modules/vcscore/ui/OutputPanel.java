@@ -122,7 +122,7 @@ public class OutputPanel extends javax.swing.JPanel {
                 SwingUtilities.invokeLater(new Runnable(){
                     public void run(){
                         kill.setEnabled(false);                        
-                        if(stdOutputTextArea.getText().length() == 0)
+                        if((stdOutputTextArea.getText().length() == 0)&&(errOutputTextArea.getText().length()>0))
                             btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
                     }
                 });

@@ -355,7 +355,7 @@ public class UpdateInfoPanel extends JPanel{
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){
                 kill.setEnabled(false);                
-                if(tblUpdates.getModel().getRowCount() == 0)
+                if((tblUpdates.getModel().getRowCount() == 0)&&(errTextArea.getText().length() > 0))
                     btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
             }
         });
