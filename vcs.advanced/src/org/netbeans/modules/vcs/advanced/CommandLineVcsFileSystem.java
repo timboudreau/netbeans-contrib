@@ -308,9 +308,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private void setNotModifiableStatusesFromVars() {
         VcsConfigVariable var = (VcsConfigVariable) variablesByName.get("NOT_MODIFIABLE_FILE_STATUSES");
         if (var != null) {
-            ArrayList notModifiableStatuses = new ArrayList();
             String[] statuses = VcsUtilities.getQuotedStrings(var.getValue());
-            setNotModifiableStatuses(Arrays.asList(statuses));
+            setNotModifiableStatuses(new ArrayList(Arrays.asList(statuses))); // using Arraylist to be Serializable
         }
     }
     
