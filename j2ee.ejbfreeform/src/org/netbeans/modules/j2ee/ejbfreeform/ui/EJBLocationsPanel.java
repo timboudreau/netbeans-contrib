@@ -14,12 +14,16 @@
 package org.netbeans.modules.j2ee.ejbfreeform.ui;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.queries.CollocationQuery;
 import org.netbeans.modules.ant.freeform.spi.ProjectPropertiesPanel;
@@ -35,6 +39,7 @@ import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
+import org.openide.WizardDescriptor;
 
 
 /**
@@ -53,18 +58,35 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     private AntProjectHelper projectHelper;
     
     private java.util.List serverIDs;
+    private ChangeListener listener;
+    private DocumentListener documentListener;
     
     private static final String J2EE_SPEC_14_LABEL = NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_0"); //NOI18N
     private static final String J2EE_SPEC_13_LABEL = NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_1"); //NOI18N
     
     /** Creates new form EJBLocations */
-    public EJBLocationsPanel() {
+    public EJBLocationsPanel(EJBLocationsWizardPanel panel) {
+        this.listener = panel;
         initComponents();
         initServerInstances();
+
+        documentListener = new DocumentListener() {           
+            public void insertUpdate(DocumentEvent e) {
+                update(e);
+            }
+            public void removeUpdate(DocumentEvent e) {
+                update(e);
+            }
+            public void changedUpdate(DocumentEvent e) {
+                update(e);
+            }
+        };
+        
+        this.jTextFieldConfigFiles.getDocument().addDocumentListener(documentListener);
     }
     
-    public EJBLocationsPanel(Project project, AntProjectHelper projectHelper, PropertyEvaluator projectEvaluator, AuxiliaryConfiguration aux) {
-        this();
+    public EJBLocationsPanel(EJBLocationsWizardPanel panel, Project project, AntProjectHelper projectHelper, PropertyEvaluator projectEvaluator, AuxiliaryConfiguration aux) {
+        this(panel);
         this.projectHelper = projectHelper;
         setFolders(Util.getProjectLocation(projectHelper, projectEvaluator), FileUtil.toFile(projectHelper.getProjectDirectory()));
         
@@ -80,8 +102,15 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
             else
                 j2eeSpecComboBox.setSelectedItem(NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_1"));
         }
+
     }
     
+    private void update(DocumentEvent e) {
+        if (listener != null) {
+            listener.stateChanged(null);
+        }
+    }
+
     /**
      * Convert given string value (e.g. "${project.dir}/src" to a file
      * and try to relativize it.
@@ -370,7 +399,7 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     }
     
     protected void setConfigFiles(String path) {
-        setConfigFiles(getAsFile(path));
+        jTextFieldConfigFiles.setText(path);
     }
     
     protected void setSrcPackages(String path) {
@@ -378,11 +407,11 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     }
     
     private void setConfigFiles(final File file) {
-        jTextFieldConfigFiles.setText(relativizeFile(file));
+        jTextFieldConfigFiles.setText(file.getAbsolutePath());
     }
     
     private void setResources(final File file) {
-        resourcesTextField.setText(relativizeFile(file));
+        resourcesTextField.setText(file.getAbsolutePath());
     }
     
     protected File getConfigFilesLocation() {
@@ -442,7 +471,7 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         
         public JComponent getComponent() {
             if (panel == null) {
-                panel = new EJBLocationsPanel(project, projectHelper, projectEvaluator, aux);
+                panel = new EJBLocationsPanel(null, project, projectHelper, projectEvaluator, aux);
             }
             return panel;
         }
@@ -473,13 +502,6 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
             serverTypeComboBox.setEnabled(false);
             j2eeSpecComboBox.setEnabled(false);
         }
-
-//        String[] instanceIDs = Deployment.getDefault().getServerInstanceIDs();
-//        for (int i = 0; i < instanceIDs.length; i++) {
-//            System.out.println("### " + i + " : " + Deployment.getDefault().getServerInstanceDisplayName(instanceIDs[i]));
-//            String sID = Deployment.getDefault().getServerID(instanceIDs[i]);
-//            System.out.println("###     " + Deployment.getDefault().getServerDisplayName(sID));
-//        }
     }
 
     /**
@@ -514,4 +536,22 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         return item == null ? null: item.equals(J2EE_SPEC_14_LABEL) ? J2eeModule.J2EE_14 : J2eeModule.J2EE_13;
     }
     
+    public boolean valid(WizardDescriptor wizardDescriptor) {
+        File cfLoc = getConfigFilesLocation();
+        if (!cfLoc.isDirectory()) {
+            return false;
+        }
+        File[] dds = getConfigFilesLocation().listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.equals("ejb-jar.xml");
+            }
+        });
+        if (dds.length == 0) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(EJBLocationsPanel.class,"MSG_NoEjbJarXml")); //NOI18N
+            return false;
+        }
+
+        wizardDescriptor.putProperty("WizardPanel_errorMessage", ""); //NOI18N
+        return true;
+    }
 }

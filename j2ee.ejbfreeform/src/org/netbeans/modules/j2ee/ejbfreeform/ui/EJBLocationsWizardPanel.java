@@ -38,7 +38,7 @@ import org.openide.util.NbBundle;
 /**
  * @author  Radko Najman
  */
-public class EJBLocationsWizardPanel implements WizardDescriptor.Panel {
+public class EJBLocationsWizardPanel implements WizardDescriptor.Panel, ChangeListener {
 
     private EJBLocationsPanel component;
     private WizardDescriptor wizardDescriptor;
@@ -50,7 +50,7 @@ public class EJBLocationsWizardPanel implements WizardDescriptor.Panel {
 
     public Component getComponent() {
         if (component == null) {
-            component = new EJBLocationsPanel();
+            component = new EJBLocationsPanel(this);
         }
         return component;
     }
@@ -61,7 +61,7 @@ public class EJBLocationsWizardPanel implements WizardDescriptor.Panel {
 
     public boolean isValid() {
         getComponent();
-        return true;
+        return component.valid(wizardDescriptor);
     }
 
     private final Set/*<ChangeListener>*/ listeners = new HashSet(1);
@@ -134,10 +134,7 @@ public class EJBLocationsWizardPanel implements WizardDescriptor.Panel {
         while (ch.hasMoreElements ()) {
             FileObject f = (FileObject) ch.nextElement ();
             if (f.getNameExt().equals ("ejb-jar.xml")) { // NOI18N
-//                final FileObject webXmlFleObject = f.getFileObject ("web.xml"); // NOI18N
-//                if (webXmlFleObject!= null && webXmlFleObject.isData ()) { 
-                    return FileUtil.toFile(f.getParent()).getAbsolutePath();
-//                }
+                return FileUtil.toFile(f.getParent()).getAbsolutePath();
             }
         }
         return ""; // NOI18N
@@ -199,6 +196,10 @@ public class EJBLocationsWizardPanel implements WizardDescriptor.Panel {
         }
         
         return null;
+    }
+
+    public void stateChanged(ChangeEvent e) {
+        fireChangeEvent();
     }
     
 }
