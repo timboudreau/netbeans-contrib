@@ -38,7 +38,7 @@ import org.openide.util.enum.SequenceEnumeration;
  */
 public abstract class ManagedRemoteFileSystem extends RemoteFileSystem 
       implements RemoteManager.RemoteOwner, RemoteFile.Notify {
-
+  static final long serialVersionUID = 5983095716602271792L;
   private static final boolean DEBUG = true;
   
   /** RemoteManager */

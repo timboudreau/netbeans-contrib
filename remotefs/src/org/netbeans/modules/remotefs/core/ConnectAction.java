@@ -38,6 +38,7 @@ import org.openide.util.enum.QueueEnumeration;
 * @author Libor Martinek
 */
 public class ConnectAction extends NodeAction {
+  static final long serialVersionUID = -7910677883191530621L;
   private RemoteFileSystem fs = null;  
     
   /** @return DataFolder class */

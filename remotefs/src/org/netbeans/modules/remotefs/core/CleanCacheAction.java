@@ -36,6 +36,8 @@ import org.openide.util.enum.QueueEnumeration;
 * @author Libor Martinek
 */
 public class CleanCacheAction extends CookieAction {
+  static final long serialVersionUID = -3753767019886770140L;
+    
   /** @return DataFolder class */
   protected Class[] cookieClasses () {
     return new Class[] { DataFolder.class };
