@@ -237,6 +237,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     firePropertyChange("variables", old, variables);
   }
   
+
   //-------------------------------------------
   public Hashtable getVariablesAsHashtable(){
     int len=variables.size();
@@ -251,6 +252,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
       String value=line.substring(eq+1);
       result.put(key,value);
     }
+
+    result.put("netbeans.home",System.getProperty("netbeans.home"));
+    String osName=System.getProperty("os.name");
+    result.put("classpath.separator", (osName.indexOf("Win")<0 ? ":":";" ));
+
     return result;
   }
 
@@ -757,6 +763,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  22   Gandalf   1.21        5/24/99  Michal Fadljevic 
  *  21   Gandalf   1.20        5/21/99  Michal Fadljevic 
  *  20   Gandalf   1.19        5/21/99  Michal Fadljevic 
  *  19   Gandalf   1.18        5/21/99  Michal Fadljevic 
