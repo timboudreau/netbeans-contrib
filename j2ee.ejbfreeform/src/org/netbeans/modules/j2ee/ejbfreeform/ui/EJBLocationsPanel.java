@@ -97,6 +97,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
             String classpath = getLocationDisplayName(projectEvaluator, baseFolder, wm.classpath);
             jTextFieldConfigFiles.setText(configFiles);
             
+            setSrcPackages(classpath);
+            
             if (wm.j2eeSpecLevel.equals("1.4"))
                 j2eeSpecComboBox.setSelectedItem(NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_0"));
             else
