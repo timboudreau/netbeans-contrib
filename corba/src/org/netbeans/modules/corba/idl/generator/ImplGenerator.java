@@ -156,7 +156,7 @@ public class ImplGenerator implements PropertyChangeListener {
     //private boolean _M_open = false;
 
     //private boolean _M_run_testsuite = true;
-    private boolean _M_run_testsuite = false;
+    private static boolean _M_run_testsuite = false;
 
     CORBASupportSettings _M_css;
     ORBSettings _M_settings;
