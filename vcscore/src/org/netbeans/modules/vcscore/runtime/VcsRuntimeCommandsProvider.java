@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.openide.nodes.Node;
 import org.openide.nodes.Index;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
@@ -56,9 +56,9 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
     public VcsRuntimeCommandsProvider(VcsFileSystem fs) {
         this.fs = fs;
         rcl = new RuntimeCommandsListener();
-        processor.addCommandProcessListener(rcl);
+        processor.addCommandProcessListener((CommandProcessListener) WeakListeners.create(CommandProcessListener.class, rcl, processor));
         //processor.removeFinishedCommandsUponRequest(true, fs);
-        fs.addPropertyChangeListener(WeakListener.propertyChange(rcl, fs));
+        fs.addPropertyChangeListener(WeakListeners.propertyChange(rcl, fs));
         numOfCommandsToKeep = fs.getNumberOfFinishedCmdsToCollect();
     }
     
@@ -74,7 +74,7 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
                 fsRuntime.setIconBase(str);
             }
         }
-        fsRuntime.addPropertyChangeListener(WeakListener.propertyChange(rcl, fsRuntime));
+        fsRuntime.addPropertyChangeListener(WeakListeners.propertyChange(rcl, fsRuntime));
         //attachListeners(fsRuntime);
         return fsRuntime;
     }
@@ -120,11 +120,13 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
     }
     
     protected void notifyAdded() {
-        processor.addCommandProcessListener(rcl);
+        //processor.addCommandProcessListener(rcl);
+        // We use a weak listener instead for the case when this is not added at all
     }
     
     protected void notifyRemoved() {
-        processor.removeCommandProcessListener(rcl);
+        //processor.removeCommandProcessListener(rcl);
+        // We use a weak listener instead for the case when this is not added at all
         //processor.removeFinishedCommandsUponRequest(false, fs);
     }
     

@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import java.util.EventListener;
+
 import org.netbeans.api.vcs.commands.Command;
 
 import org.netbeans.spi.vcs.VcsCommandsProvider;
@@ -22,7 +24,7 @@ import org.netbeans.spi.vcs.VcsCommandsProvider;
  *
  * @author  Martin Entlicher
  */
-public interface CommandProcessListener {
+public interface CommandProcessListener extends EventListener {
     
     /**
      * Get the commands provider. The listener gets events only from commands,
