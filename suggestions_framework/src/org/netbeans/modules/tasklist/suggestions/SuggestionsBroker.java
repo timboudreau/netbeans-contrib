@@ -1241,6 +1241,10 @@ err.log("Couldn't find current nodes...");
      */
     static class Env {
 
+        private final Object waitLock = new Object();
+
+        private static final TopComponent NULL_TC = new TopComponent();
+
         void addTCRegistryListener(PropertyChangeListener pcl) {
             TopComponent.getRegistry().addPropertyChangeListener(pcl);
         }
@@ -1267,18 +1271,34 @@ err.log("Couldn't find current nodes...");
             if (SwingUtilities.isEventDispatchThread()) {
                 return findActiveEditorAWT();
             } else {
-                final TopComponent [] retval = new TopComponent[1];
-                Runnable doIt = new Runnable() { public void run() {
-                            retval[0] = findActiveEditorAWT();
-                }};
+
+                final TopComponent [] retval = new TopComponent[] {NULL_TC};
+                Runnable doIt = new Runnable() {
+                    public void run() {
+                        synchronized(waitLock) {
+                            try {
+                                retval[0] = findActiveEditorAWT();
+                            } finally {
+                                if (retval[0] == NULL_TC) {
+                                    retval[0] = null;
+                                }
+                                waitLock.notifyAll();
+                            }
+                        }
+                    }
+                };
 
                 try {
-                    SwingUtilities.invokeAndWait(doIt);
+
+                    //#50502 wait for results on private monitor to avoid deadlocks
+                    SwingUtilities.invokeLater(doIt);
+                    synchronized(waitLock) {
+                        while (retval[0] == NULL_TC) {
+                            waitLock.wait();
+                        }
+                    }
                     return retval[0];
                 } catch (InterruptedException ex) {
-                    return null;
-                } catch (java.lang.reflect.InvocationTargetException ite) {
-                    ErrorManager.getDefault().notify(ite);
                     return null;
                 }
             }
