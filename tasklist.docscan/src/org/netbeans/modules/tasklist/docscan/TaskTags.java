@@ -19,9 +19,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import org.openide.ErrorManager;
 
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
-
+import java.util.regex.*;
 
 /** Represents a set of tags in the user's source code that marks
  * lines describing tasks
@@ -61,7 +59,7 @@ public final class TaskTags implements Externalizable {
         return null;
     }
 
-    private RE regexp = null;
+    private Pattern regexp = null;
 
     /** Gets the scan regular expression - used during scanning for
      * todo items. We use a regular expression since (I believe, but 
@@ -71,7 +69,7 @@ public final class TaskTags implements Externalizable {
      * fast since it precomputes the bytecode(?) which as quickly as
      * possible checks all the matches.
     */
-    public RE getScanRegexp() {
+    public Pattern getScanRegexp() {
         // Create regexp from tags
         if (regexp == null) {
             StringBuffer sb = new StringBuffer(200);
@@ -116,8 +114,8 @@ public final class TaskTags implements Externalizable {
                 }
             }
             try {
-                regexp = new RE(sb.toString());
-            } catch (RESyntaxException e) {
+                regexp = Pattern.compile(sb.toString());
+            } catch (PatternSyntaxException e) {
                 // Internal error: the regexp should have been validated when
                 // the user edited it
                 ErrorManager.getDefault().notify(ErrorManager.ERROR, e);

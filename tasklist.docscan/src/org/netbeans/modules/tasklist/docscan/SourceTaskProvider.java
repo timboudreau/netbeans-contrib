@@ -27,8 +27,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
+import java.util.regex.*;
 
 import org.openide.ErrorManager;
 import org.openide.nodes.*;
@@ -212,11 +211,11 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
         try {
             while (sccp.getNextLine(cl)) {
                 // I am inside a comment, scan for todo-items:
-                if (regexp.match(cl.line, 0)) {
+                Matcher matcher = regexp.matcher(cl.line);
+                if (matcher.find()) {
                     String description = cl.line.trim();
                     
-                    matchTag = getTag(cl.line, regexp.getParenStart(0),
-                                      regexp.getParenEnd(0));
+                    matchTag = getTag(cl.line, matcher.start(), matcher.end());
 
                     // [trond] I personally would like to strip off
                     // non-text characters in front of the task
@@ -231,7 +230,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
                     // relevant comment or code as part of the task
                     if (washComment) {
                         int idx = 0;
-                        int stop = regexp.getParenStart(0);
+                        int stop = matcher.start();
 
                         while (idx < stop) {
                             char c = description.charAt(idx);
@@ -288,12 +287,12 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
             int index = 0;
             int lineno = 1;
             int len = text.length();
-            
-            while (index < len && regexp.match(text, index)) {
-                matchTag = getTag(text, regexp.getParenStart(0),
-                                  regexp.getParenEnd(0));
-                int begin = regexp.getParenStart(0);
-	        int end   = regexp.getParenEnd(0);
+
+            Matcher matcher = regexp.matcher(text);
+            while (index < len && matcher.find(index)) {
+                int begin = matcher.start();
+	        int end   = matcher.end();
+                matchTag = getTag(text, begin, end);
 
                 // begin should be the beginning of this line (but avoid 
                 // clash if I have two tokens on the same line...
@@ -370,7 +369,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     private Object request = null;
 
     /** Regular expression used for matching tasks in the todolist */
-    private RE regexp = null;
+    private Pattern regexp = null;
 
     /** Set of tags used for scanning. Equivalent to the regexp above. */
     private TaskTags tags = null;
