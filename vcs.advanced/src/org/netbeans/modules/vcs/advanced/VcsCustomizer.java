@@ -943,7 +943,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     }//GEN-LAST:event_insertEnvButtonActionPerformed
 
     private void selectEnvVar(String name) {
-        for (int row = envTableModel.getRowCount(); row >= 0; row--) {
+        for (int row = envTableModel.getRowCount() - 1; row >= 0; row--) {
             if (name.equals(envTable.getValueAt(row, 0))) {
                 envTable.setRowSelectionInterval(row, row);
                 break;
