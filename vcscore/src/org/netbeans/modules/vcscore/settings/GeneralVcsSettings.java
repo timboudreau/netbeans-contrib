@@ -48,8 +48,10 @@ public class GeneralVcsSettings extends SystemOption {
     public static final int FILE_ANNOTATION_FULL = 1;
     /** Substitues {status} annotation template by shortedned status */
     public static final int FILE_ANNOTATION_SHORT = 2;
+    /** For modified files substitues {status} annotation template by full status otherwise empty */
+    public static final int FILE_ANNOTATION_FULL_FOR_MODIFIED_ONLY = 3;    
     /** Ignores {status} annotation template and colors file name instead. */
-    public static final int FILE_ANNOTATION_COLORED = 3;
+    public static final int FILE_ANNOTATION_COLORED = 4;
 
 
     static final long serialVersionUID = -3279219340064367270L;

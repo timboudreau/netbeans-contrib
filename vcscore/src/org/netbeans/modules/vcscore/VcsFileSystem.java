@@ -2364,19 +2364,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             // result not changed - the name
         } else if (len == 1) {
             FileObject fo = (FileObject) oo[0];
-            result = StatusFormat.getHtmlStatusAnnotation(name, fo, annotationPattern, getPossibleFileStatusInfoMap());
+            result = StatusFormat.getHtmlStatusAnnotation(name, fo, annotationPattern, fileAnnotation, getPossibleFileStatusInfoMap());
         } else {
             String mergedStatus = mergeStatus(oo);
 
             if (mergedStatus != null) {
                 // all files have the same status
                 FileObject fo = (FileObject) oo[0];
-                result = StatusFormat.getHtmlStatusAnnotation(name, fo, annotationPattern, getPossibleFileStatusInfoMap());
+                result = StatusFormat.getHtmlStatusAnnotation(name, fo, annotationPattern, fileAnnotation, getPossibleFileStatusInfoMap());
             } else {
                 // XXX mix, do not annotate at all
                 // TODO : do either original implementation or something better here
                 FileObject fo = (FileObject) oo[0];
-                result = StatusFormat.getHtmlStatusAnnotation(name, fo, "${fileName}", getPossibleFileStatusInfoMap());
+                result = StatusFormat.getHtmlStatusAnnotation(name, fo, "${fileName}", fileAnnotation, getPossibleFileStatusInfoMap());
             }
         }
         return result;
@@ -2424,19 +2424,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             // result not changed - the name
         } else if (len == 1) {
             FileObject fo = (FileObject) oo[0];
-            result = StatusFormat.getStatusAnnotation(name, fo, annotationPattern, getPossibleFileStatusInfoMap());
+            result = StatusFormat.getStatusAnnotation(name, fo, annotationPattern, fileAnnotation, getPossibleFileStatusInfoMap());
         } else {
             String mergedStatus = mergeStatus(oo);
 
             if (mergedStatus != null) {
                 // all files have the same status
                 FileObject fo = (FileObject) oo[0];
-                result = StatusFormat.getStatusAnnotation(name, fo, annotationPattern, getPossibleFileStatusInfoMap());
+                result = StatusFormat.getStatusAnnotation(name, fo, annotationPattern, fileAnnotation, getPossibleFileStatusInfoMap());
             } else {
                 // XXX mix, do not annotate at all
                 // TODO : do either original implementation or something better here
                 FileObject fo = (FileObject) oo[0];
-                result = StatusFormat.getStatusAnnotation(name, fo, "${fileName}", getPossibleFileStatusInfoMap());
+                result = StatusFormat.getStatusAnnotation(name, fo, "${fileName}", fileAnnotation, getPossibleFileStatusInfoMap());
             }
         }
         return result;
@@ -2521,7 +2521,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Hashtable vars = getVariablesAsHashtable();
         String displayNameAnnotation = (String) vars.get(VAR_FS_DISPLAY_NAME_ANNOTATION);
         if (displayNameAnnotation != null) {
-            displayNameAnnotation = StatusFormat.getStatusAnnotation("", getRoot(), displayNameAnnotation, vars);
+            displayNameAnnotation = StatusFormat.getStatusAnnotation("", getRoot(), displayNameAnnotation, fileAnnotation, vars);
             return displayNameAnnotation;
         }
         VcsConfigVariable preDisplayNameVar = (VcsConfigVariable) variablesByName.get(VAR_FS_DISPLAY_NAME);
@@ -2716,7 +2716,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Hashtable vars = getVariablesAsHashtable();
         String systemNameAnnotation = (String) vars.get(VAR_FS_SYSTEM_NAME_ANNOTATION);
         if (systemNameAnnotation != null) {
-            systemNameAnnotation = StatusFormat.getStatusAnnotation("", getRoot(), systemNameAnnotation, vars);
+            systemNameAnnotation = StatusFormat.getStatusAnnotation("", getRoot(), systemNameAnnotation, fileAnnotation, vars);
             return systemNameAnnotation;
         }
         return this.getClass().getName()+" "+rootFile.toString ().replace(File.separatorChar, '/');

@@ -74,11 +74,11 @@ public class CommandOutputTopComponent extends TopComponent {
         initComponents();
         setName(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.topName")); //NOI18N
         initPopupMenu();
-        new CommandOutputTopComponent.OutputTabPopupListener();  
-        getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(       
+        new CommandOutputTopComponent.OutputTabPopupListener();
+        getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
         KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.CTRL_DOWN_MASK),
         "discard"); //NOI18N
-        
+
         getActionMap().put("discard", discardAction);//NOI18N
     }
 

@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore.caching;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.Statuses;
@@ -240,11 +241,13 @@ public final class StatusFormat {
      * @param name the name of the node which is annotated
      * @param fo fileobject to annotate
      * @param annotationPattern the pattern how the annotation should be displayed
+     * @param annotationStyle defines what varibles values are provided into pattern
+     * input {@link org.netbeans.modules.vcscore.settings.GeneralVcsSettings}
      * @return the annotation pattern filled up with proper attributes
      */
     public static String getStatusAnnotation(String name, FileObject fo, String annotationPattern,
-                                             Map possibleFileStatusInfoMap) {
-        return getStatusAnnotation(name, fo, annotationPattern, null, possibleFileStatusInfoMap);
+                                             int annotationStyle, Map possibleFileStatusInfoMap) {
+        return getStatusAnnotation(name, fo, annotationPattern, annotationStyle, null, possibleFileStatusInfoMap);
     }
 
     /**
@@ -253,7 +256,7 @@ public final class StatusFormat {
      * (pretty complicated contract).
      */
     public static String getStatusAnnotation(String name, FileObject fileObject,
-                                             String pattern, Map extraVars,
+                                             String pattern, int annotationStyle, Map extraVars,
                                              Map possibleFileStatusInfoMap) {
         Hashtable vars = new Hashtable();
         if (extraVars != null) vars.putAll(extraVars);
@@ -271,6 +274,12 @@ public final class StatusFormat {
             status = FileProperties.getStatus(fprops);
             FileStatusInfo statusInfo = (FileStatusInfo) possibleFileStatusInfoMap.get(status);
             if (statusInfo != null) {
+                if (annotationStyle == GeneralVcsSettings.FILE_ANNOTATION_FULL_FOR_MODIFIED_ONLY
+                    && (statusInfo.represents(FileStatusInfo.UP_TO_DATE)
+                       || statusInfo.represents(Statuses.createIgnoredFileInfo())
+                    )) {
+                    return name;
+                }
                 status = statusInfo.getDisplayName();
             }
         }
@@ -307,10 +316,12 @@ public final class StatusFormat {
      * @param name the name of the node which is annotated
      * @param fo fileobject to annotate
      * @param annotationPattern the pattern how the annotation should be displayed
+     * @param annotationStyle defines what varibles values are provided into pattern
+     * input {@link org.netbeans.modules.vcscore.settings.GeneralVcsSettings}
      * @return the annotation pattern filled up with proper attributes
      */
     public static String getHtmlStatusAnnotation(String name, FileObject fo, final String annotationPattern,
-                                                 Map possibleFileStatusInfoMap) {
+                                                 int annotationStyle, Map possibleFileStatusInfoMap) {
 
         assert name.indexOf(File.separatorChar) == -1 : "#51577 trap " + name;  // NOI18N
 
@@ -337,6 +348,12 @@ public final class StatusFormat {
 
             FileStatusInfo statusInfo = (FileStatusInfo) possibleFileStatusInfoMap.get(status);
             if (statusInfo != null) {
+                if (annotationStyle == GeneralVcsSettings.FILE_ANNOTATION_FULL_FOR_MODIFIED_ONLY
+                    && (statusInfo.represents(FileStatusInfo.UP_TO_DATE)
+                       || statusInfo.represents(Statuses.createIgnoredFileInfo())
+                    )) {
+                    return name;
+                }
                 status = statusInfo.getDisplayName();
                 status = escapeSpecialHTMLCharacters(status);
                 if (statusInfo instanceof javax.swing.colorchooser.ColorSelectionModel) {

@@ -34,10 +34,13 @@ public class AnnotationModePropertyEditor extends PropertyEditorSupport {
     private final static String SHORT = NbBundle.getMessage(RefreshModePropertyEditor.class, "AnnotationModePropertyEditor.shortAnnotation");
 
     /** localized string*/
+    private final static String FULL_MODIFIED = NbBundle.getMessage(RefreshModePropertyEditor.class, "AnnotationModePropertyEditor.fullModifiedAnnotation");
+
+    /** localized string*/
     //private final static String COLORED = NbBundle.getMessage(RefreshModePropertyEditor.class, "AnnotationModePropertyEditor.coloredAnnotation");
 
     /** array of annotation modes */
-    private static final String[] modes = { NONE, FULL, SHORT };
+    private static final String[] modes = { NONE, FULL, SHORT, FULL_MODIFIED };
 
     /** @return names of the supported annotation modes */
     public String[] getTags() {
@@ -48,7 +51,7 @@ public class AnnotationModePropertyEditor extends PropertyEditorSupport {
     public String getAsText () {
         Integer mode = (Integer) getValue();
         int index = mode.intValue();
-        if (index < 0 || index > 2) {
+        if (index < 0 || index > 3) {
             return FULL;
         }
         return modes[index];
@@ -62,8 +65,10 @@ public class AnnotationModePropertyEditor extends PropertyEditorSupport {
             setValue(new Integer(1));
         } else if (text.equals(SHORT)) {
             setValue(new Integer(2));
+        } else if (text.equals(FULL_MODIFIED)) {
+            setValue(new Integer(3));
         //} else if (text.equals(COLORED)) {
-        //    setValue(new Integer(3));
+        //    setValue(new Integer(4));
         } else {
             throw new IllegalArgumentException (text);
         }

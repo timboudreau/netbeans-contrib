@@ -90,16 +90,22 @@ public final class Statuses {
             Statuses.STATUS_DEAD,
             NbBundle.getBundle(Statuses.class).getString("CTL_StatusDead"),
             null));
-        statusInfos.add(new CacheFileStatusInfo(
-            Statuses.STATUS_IGNORED,
-            NbBundle.getBundle(Statuses.class).getString( "CTL_StatusIgnored"),
-            null));
+        statusInfos.add(createIgnoredFileInfo());
         statusInfos.add(new CacheFileStatusInfo(
             Statuses.STATUS_UNKNOWN,
             NbBundle.getBundle(Statuses.class).getString( "unknown"),
             null));
 
         return statusInfos;
+    }
+
+    /** TEmporary well known status definition missing in {@link FileStatusInfo} */
+    public static FileStatusInfo createIgnoredFileInfo() {
+        return new CacheFileStatusInfo(
+            Statuses.STATUS_IGNORED,
+            NbBundle.getBundle(Statuses.class).getString( "CTL_StatusIgnored"),
+            null
+        );
     }
 
     /**
