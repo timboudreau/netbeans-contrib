@@ -44,6 +44,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="jars" depends="compile">
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-config.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/vss/config/*.xml"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/vss/config/*_XX.*"/>
     </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
