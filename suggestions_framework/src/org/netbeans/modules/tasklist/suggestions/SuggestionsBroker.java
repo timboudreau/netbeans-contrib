@@ -614,35 +614,16 @@ err.log("Couldn't find current nodes...");
                 // update "allOpened" suggestion list
 
                 if (allOpenedClientsCount > 0) {
-                    // copy clones to private "allOpened" suggestions list
-                    // (it must be cloned because tasklist membership is task property)
-                    // TODO should task know about its suggestions list? I think it should not.
-                    Iterator it = scannedSuggestions.iterator();
-                    List clones = new ArrayList(scannedSuggestions.size());
-                    while (it.hasNext()) {
-                        Task next = (Task) it.next();
-                        clones.add(next.cloneTask());
-                    }
-
                     FileObject fo = dataobject.getPrimaryFile();
                     List previous = (List) openedFilesSuggestionsMap.remove(fo);
-                    openedFilesSuggestionsMap.put(fo, clones);
+                    openedFilesSuggestionsMap.put(fo, scannedSuggestions);
 
-                    getAllOpenedSuggestionList().addRemove(clones, previous, false, null, null);
+                    getAllOpenedSuggestionList().addRemove(scannedSuggestions, previous, false, null, null);
                 }
 
                 if (clientCount > 0) {
-                    // copy clones to private "current" suggestions list
-                    // (it must be cloned because tasklist membership is task property)
-                    Iterator it = scannedSuggestions.iterator();
-                    List clones = new ArrayList(scannedSuggestions.size());
-                    while (it.hasNext()) {
-                        Task next = (Task) it.next();
-                        clones.add(next.cloneTask());
-                    }
-
                     List previous = new ArrayList(getCurrentSuggestionsList().getTasks());
-                    getCurrentSuggestionsList().addRemove(clones, previous, false, null, null);
+                    getCurrentSuggestionsList().addRemove(scannedSuggestions, previous, false, null, null);
 
                 }
 

@@ -589,9 +589,10 @@ public class Task extends Suggestion implements Cloneable, Cookie {
 
     /**
      * Clones task's properies without its
-     * membership relations (parent and list).
+     * membership relations (parent).
      */
-    public Task cloneTask() {
+    final Task cloneTask() {
+        // Does not work well as we subclass a suggestion that is 1:1 to its agent 
         Task clone = (Task) clone();
         clone.parent = null;
         return clone;

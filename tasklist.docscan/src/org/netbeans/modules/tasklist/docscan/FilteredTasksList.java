@@ -109,9 +109,7 @@ final class FilteredTasksList implements ObservableList {
         while (it.hasNext()) {
             Task task = (Task) it.next();
             if (task.getSeed() instanceof SourceTaskProvider) {
-                // loosing identity here
-                Task clone = task.cloneTask();
-                tasks.add(clone);
+                tasks.add(task);
             } else {
                 // There are those nesting category tasks
                 // if grouping treshold is matched.
@@ -145,9 +143,7 @@ final class FilteredTasksList implements ObservableList {
             if (t.getSeed() instanceof SourceTaskProvider) {
                 try {
                     silent = true;
-                    // loosing identity here
-                    Task clone = t.cloneTask();
-                    tasks.add(clone);
+                    tasks.add(t);
                 } finally {
                     silent = false;
                 }
@@ -173,22 +169,8 @@ final class FilteredTasksList implements ObservableList {
             if (t.getSeed() instanceof SourceTaskProvider) {
                 boolean removed = false;
                 try {
-                    // find pairing task by key identity
-                    Object key = t.getKey();
-                    Task remove = null;
-                    Iterator it = getTasks().iterator();
-                    while (it.hasNext()) {
-                        Task task = (Task) it.next();
-                        if (key == task.getKey()) {
-                            remove = task;
-                            break;
-                        }
-                    }
-
-                    if (remove != null) {
-                        silent = true;
-                        removed = tasks.remove(remove);
-                    }
+                    silent = true;
+                    removed = tasks.remove(t);
                 } finally {
                     silent = false;
                 }
