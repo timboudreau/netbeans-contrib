@@ -15,11 +15,13 @@ package org.netbeans.modules.vcscore.commands;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Hashtable;
 import javax.swing.SwingUtilities;
 
 import org.openide.windows.Workspace;
 import org.openide.windows.Mode;
 import org.openide.NotifyDescriptor;
+import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
@@ -33,13 +35,24 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
 
     public static final String MODE_NAME = "Default VCS Command Output";
     
-    private static final int MAX_NUM_LINES_TO_KEEP = 5000;
+    //private static final int MAX_NUM_LINES_TO_KEEP = 1000;
+    /** Maximum number of characters to keep in the buffer */
+    private static final int MAX_BUFFER_SIZE = 3000*80;
+    /** When both the buffer and the text area are full, replace only this part
+     * of the buffer */
+    private static final int FAST_APPEND_SIZE = 100*80;
+    /** The maximum number of characters to keep in the text area */
+    private static final int MAX_AREA_SIZE = MAX_BUFFER_SIZE - FAST_APPEND_SIZE;
+    
+    private static RequestProcessor outputDisplayRequestProcessor;
+    private static Hashtable outputDisplayStuff;
 
     private CommandOutputPanel outputPanel;
     private ArrayList closeListeners = new ArrayList();
     private VcsCommandExecutor vce;
     private CommandsPool pool = null;
     private CommandKillListener killListener = null;
+    
     
     private static final long serialVersionUID = -8901790341334731237L;
     
@@ -57,6 +70,12 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
                 new Object[] { name }));
         setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
         putClientProperty("PersistenceType", "Never");
+        synchronized (CommandOutputVisualizer.class) {
+            if (outputDisplayRequestProcessor == null) {
+                outputDisplayRequestProcessor = new RequestProcessor("Output Display Request Processor");
+                outputDisplayRequestProcessor.post(new OutputDisplayer());
+            }
+        }
         /*
         vce.addOutputListener(new CommandOutputListener() {
             public void outputLine(String line) {
@@ -140,12 +159,23 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         return null;
     }
     
-    private void keepReasonableNumOfLines(javax.swing.JTextArea area) {
-        if (area.getLineCount() > MAX_NUM_LINES_TO_KEEP) {
-            try {
-                area.replaceRange(null, area.getLineStartOffset(0), area.getLineStartOffset(10));
-            } catch (javax.swing.text.BadLocationException exc) {
+    private void appendLineToArea(javax.swing.JTextArea area, String line) {
+        synchronized (outputDisplayStuff) {
+        StringBuffer buffer = (StringBuffer) outputDisplayStuff.get(area);
+        if (buffer == null) {
+            buffer = new StringBuffer(line + "\n");
+            synchronized (outputDisplayStuff) {
+                outputDisplayStuff.put(area, buffer);
+                if (outputDisplayStuff.size() == 1) {
+                    outputDisplayStuff.notify(); // it was empty before!
+                }
             }
+        } else {
+            buffer.append(line + "\n");
+            if (buffer.length() > MAX_BUFFER_SIZE) {
+                buffer.delete(0, buffer.length() - MAX_AREA_SIZE  - 1);
+            }
+        }
         }
     }
     
@@ -154,13 +184,7 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
      */
     public void stdOutputLine(final String line) {
         // to prevent deadlocks, append output in the AWT thread
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run () {
-                javax.swing.JTextArea area = outputPanel.getStdOutputArea();
-                area.append(line + "\n");
-                keepReasonableNumOfLines(area);
-            }
-        });
+        appendLineToArea(outputPanel.getStdOutputArea(), line);
     }
     
     /**
@@ -168,13 +192,7 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
      */
     public void errOutputLine(final String line) {
         // to prevent deadlocks, append output in the AWT thread
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run () {
-                javax.swing.JTextArea area = outputPanel.getErrOutputArea();
-                area.append(line + "\n");
-                keepReasonableNumOfLines(area);
-            }
-        });
+        appendLineToArea(outputPanel.getErrOutputArea(), line);
     }
 
     /**
@@ -182,11 +200,7 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
      */
     public void stdOutputData(final String[] data) {
         // to prevent deadlocks, append output in the AWT thread
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run () {
-                outputPanel.getStdDataOutputArea().append(VcsUtilities.arrayToString(data) + "\n");
-            }
-        });
+        appendLineToArea(outputPanel.getStdDataOutputArea(), VcsUtilities.arrayToString(data));
     }
     
     /**
@@ -194,11 +208,7 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
      */
     public void errOutputData(final String[] data) {
         // to prevent deadlocks, append output in the AWT thread
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run () {
-                outputPanel.getErrDataOutputArea().append(VcsUtilities.arrayToString(data) + "\n");
-            }
-        });
+        appendLineToArea(outputPanel.getErrDataOutputArea(), VcsUtilities.arrayToString(data));
     }
     
     public void setExitStatus(int exit) {
@@ -255,6 +265,80 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
                         if (pool != null) pool.kill(vce);
                     }
                 }
+            }
+        }
+    }
+    
+    private static class OutputDisplayer extends Object implements Runnable {
+        
+        private java.util.Random random;
+        
+        public OutputDisplayer() {
+            outputDisplayStuff = new Hashtable();
+            random = new java.util.Random();
+        }
+        
+        public void run() {
+            if (SwingUtilities.isEventDispatchThread()) {
+                int index = random.nextInt(outputDisplayStuff.size());
+                java.util.Enumeration keysEnum = outputDisplayStuff.keys();
+                javax.swing.JTextArea area;
+                do {
+                    area = (javax.swing.JTextArea) keysEnum.nextElement();
+                } while (--index >= 0);
+                String append;
+                String replace;
+                int start;
+                int end = area.getDocument().getLength();
+                synchronized (outputDisplayStuff) {
+                    StringBuffer buffer = (StringBuffer) outputDisplayStuff.get(area);
+                    if (buffer.length() >= MAX_AREA_SIZE) {
+                        append = null;
+                        replace = buffer.substring(buffer.length() - FAST_APPEND_SIZE, buffer.length()).toString();
+                        buffer.delete(0, replace.length());
+                        start = end - replace.length();
+                        if (start < 0) start = 0;
+                    } else {
+                        buffer = (StringBuffer) outputDisplayStuff.remove(area);
+                        append = buffer.toString();
+                        start = 0;
+                        end += append.length();
+                        if (end < MAX_AREA_SIZE) end = 0;
+                        else end = end - MAX_AREA_SIZE + FAST_APPEND_SIZE;
+                        replace = null;
+                    }
+                }
+                if (append != null) {
+                    area.append(append);
+                }
+                if (end > 0) {
+                    area.replaceRange(replace, start, end);
+                }
+            } else {
+                do {
+                    synchronized (outputDisplayStuff) {
+                        if (outputDisplayStuff.size() == 0) {
+                            try {
+                                outputDisplayStuff.wait();
+                            } catch (InterruptedException iexc) {
+                                break;
+                            }
+                        }
+                    }
+                    do {
+                        try {
+                            SwingUtilities.invokeAndWait(this);
+                            // Let the AWT to catch it's breath
+                            Thread.currentThread().yield();
+                            Thread.currentThread().sleep(250);
+                        } catch (InterruptedException iexc) {
+                            break;
+                        } catch (java.lang.reflect.InvocationTargetException itexc) {
+                            org.openide.TopManager.getDefault().notifyException(itexc);
+                            break;
+                        }
+                    } while (outputDisplayStuff.size() > 0);
+                } while (true);
             }
         }
     }
