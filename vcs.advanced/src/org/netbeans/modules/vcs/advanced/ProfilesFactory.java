@@ -268,7 +268,10 @@ public final class ProfilesFactory extends Object {
                                            Set compatibleOSs, Set uncompatibleOSs,
                                            ConditionedVariables variables,
                                            ConditionedCommands commands) throws IOException {
-        FileObject profileFile = profileRoot.createData(name, VariableIO.CONFIG_FILE_EXT);
+        FileObject profileFile = profileRoot.getFileObject(name, VariableIO.CONFIG_FILE_EXT);
+        if (profileFile == null) {
+            profileFile = profileRoot.createData(name, VariableIO.CONFIG_FILE_EXT);
+        }
         name = profileFile.getNameExt();
         profileNames.add(name);
         profileLabels.add(displayName);
@@ -532,11 +535,14 @@ public final class ProfilesFactory extends Object {
             FileObject file = profileRoot.getFileObject(profileName);//, VariableIO.CONFIG_FILE_EXT);
             if (file != null) {
                 org.openide.filesystems.FileLock lock = null;
+                java.io.OutputStream out = null;
                 try {
                     lock = file.lock();
-                    org.openide.xml.XMLUtil.write(doc, file.getOutputStream(lock), null);
+                    out = file.getOutputStream(lock);
+                    org.openide.xml.XMLUtil.write(doc, out, null);
                     //XMLDataObject.write(doc, new BufferedWriter(new OutputStreamWriter(file.getOutputStream(lock))));
                 } finally {
+                    if (out != null) out.close();
                     if (lock != null) lock.releaseLock();
                 }
             }
