@@ -511,9 +511,12 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             psStr = Variables.expand(vars, psStr, true);
         }
         char ps = (psStr == null || psStr.length() < 1) ? java.io.File.pathSeparatorChar : psStr.charAt(0);
-        String fsRoot = ((String) vars.get("ROOTDIR")) + ps + vars.get("MODULE");
+        String relativeMountPoint = fileSystem.getRelativeMountPoint();
+        String fsRoot = (String) vars.get("ROOTDIR");
+        if (relativeMountPoint != null && relativeMountPoint.length() > 0) {
+            fsRoot += ps + relativeMountPoint;//vars.get("MODULE");
+        }
         String relativePath = (String) vars.get("COMMON_PARENT");
-        String relativeToFSRoot = null;
         if ("".equals(vars.get("MULTIPLE_FILES")) && !"".equals(vars.get("FILE_IS_FOLDER"))) {
             if (relativePath != null) {
                 relativePath = relativePath + "/" + (String) vars.get("PATH");
@@ -521,7 +524,6 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 relativePath = (String) vars.get("PATH");
                 if (".".equals(relativePath)) relativePath = null;
             }
-            relativeToFSRoot = (String) vars.get("FILE");
         }
         if (relativePath != null) {
             relativePath = relativePath.replace(File.separatorChar, '/');
@@ -533,7 +535,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             wincat = createCatExec();
             if (wincat == null) {
                 haveLocalCat = true;
-                wincat = createLocalCatExecs(fsRoot, relativeToFSRoot);
+                wincat = createLocalCatExecs(fsRoot, relativePath);
             }
             vars.put("WINCAT", wincat);
         }
@@ -565,7 +567,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 break;
             }
             String buffered = buff.toString();
-            ArrayList filesCommited = getCommitedFiles(fsRoot, relativeToFSRoot, buffered, ps);
+            ArrayList filesCommited = getCommitedFiles(fsRoot, relativePath, buffered, ps);
             buffered = addMessageComment(vars, buffered);
             vars.put("FILE_TEMPLATE", fileOutput(buffered));
             // commit all remaining files if they can not be retrieved from the template
@@ -588,7 +590,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             vars = new Hashtable(varsOriginal);
         } while (filePaths.size() > 0);
         //cpool.preprocessCommand(vce, vars);
-        if (haveLocalCat && wincat != null) removeLocalCatExecs(fsRoot, relativeToFSRoot, wincat);
+        if (haveLocalCat && wincat != null) removeLocalCatExecs(fsRoot, relativePath, wincat);
         return true;
     }
     
