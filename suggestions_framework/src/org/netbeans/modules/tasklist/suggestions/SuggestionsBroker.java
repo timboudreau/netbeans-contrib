@@ -417,7 +417,7 @@ err.log("Couldn't find current nodes...");
 
         DataObject dao = extractDataObject(tc);
         if (dao == null) {
-            // here we have tc found by findActiveEditor() that uses classification logic to detect real editors 
+            // here we have tc found by findActiveEditor() that uses classification logic to detect real editors
             LOGGER.warning("Suspicious editor without dataobject: " + tc);   // NOI18N
             return false;
         }
@@ -645,22 +645,28 @@ err.log("Couldn't find current nodes...");
     private static boolean isTopComponentOpened(final TopComponent tc) {
         if (tc == null) return false;
         final boolean[] isOpened = new boolean[1];
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    isOpened[0] = tc.isOpened();   // must be called from AWT
-                }
-            });
-        } catch (InterruptedException e) {
-            ErrorManager err = ErrorManager.getDefault();
-            err.annotate(e, "[TODO] cannot get " + tc.getDisplayName() + " state, interrupted.");  // NOI18N
-            err.notify(e);
-        } catch (InvocationTargetException e) {
-            ErrorManager err = ErrorManager.getDefault();
-            err.annotate(e, "[TODO] cannot get " + tc.getDisplayName() + " state.");  // NOI18N
-            err.notify(e);
+        int attempt = 0;
+        while (attempt < 57) {  // reattempt on interrupt that I got from unknow thread
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        isOpened[0] = tc.isOpened();   // must be called from AWT
+                    }
+                });
+                return isOpened[0];
+            } catch (InterruptedException e) {
+                ErrorManager err = ErrorManager.getDefault();
+                err.annotate(e, "[TODO] while get " + tc.getDisplayName() + " state, interrupted, ignoring...");  // NOI18N
+                err.notify(ErrorManager.INFORMATIONAL, e);
+                attempt++;
+            } catch (InvocationTargetException e) {
+                ErrorManager err = ErrorManager.getDefault();
+                err.annotate(e, "[TODO] cannot get " + tc.getDisplayName() + " state.");  // NOI18N
+                err.notify(e);
+                return false;
+            }
         }
-        return isOpened[0];
+        return false;
     }
 
     private RequestProcessor rp = new RequestProcessor("Suggestions Broker");  // NOI18N
