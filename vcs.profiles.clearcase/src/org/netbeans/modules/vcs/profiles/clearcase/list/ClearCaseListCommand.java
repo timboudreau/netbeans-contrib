@@ -25,22 +25,25 @@ import org.netbeans.modules.vcs.profiles.list.AbstractListCommand;
 
 /**
  * Implements List command for ClearCase.
- * @author  Alan Tai, Martin Entlicher
+ * @author  Alan Tai, Martin Entlicher, Peter Wisnovsky
  */
 public class ClearCaseListCommand extends AbstractListCommand
 {
-
-    private Debug E=new Debug("ClearCaseListCommand",true);
-    private Debug D=E;
-
-    private String dir=null;
+    /** Directory in which we are executing */
+    private String dir = null;
 
     /** Creates new ClearCaseListCommand */
     public ClearCaseListCommand()
     {
     }
 
-    public void setFileSystem(VcsFileSystem fileSystem) {
+    /**
+     * This is odd, since it only calls super.setFileSystem. Yet
+     * without it it dumps core. Perhaps someone is doing reflection
+     * on the class?
+     */
+    public void setFileSystem(VcsFileSystem fileSystem) 
+    {
         super.setFileSystem(fileSystem);
     }
 
@@ -57,12 +60,14 @@ public class ClearCaseListCommand extends AbstractListCommand
             this.dir = ""; // NOI18N
         }
         String module = (String) vars.get("MODULE"); // NOI18N
-        D.deb("rootDir = "+rootDir+", module = "+module+", dir = "+dir); // NOI18N
-        if (dir.equals(""))
-        { // NOI18N
+        if (dir.equals("")) // NOI18N
+        {
             dir=rootDir;
-            if (module != null && module.length() > 0) dir += File.separator + module;
-        } else {
+            if (module != null && module.length() > 0)
+                dir += File.separator + module;
+        } 
+        else 
+        {
             if (module == null)
                 dir=rootDir+File.separator+dir;
             else
@@ -70,7 +75,6 @@ public class ClearCaseListCommand extends AbstractListCommand
         }
         if (dir.charAt(dir.length() - 1) == File.separatorChar)
             dir = dir.substring(0, dir.length() - 1);
-        D.deb("dir="+dir); // NOI18N
     }
 
     /**
@@ -98,7 +102,8 @@ public class ClearCaseListCommand extends AbstractListCommand
         this.dataRegex = dataRegex;
         this.errorRegex = errorRegex;
         this.filesByName = filesByName;
-        if (args.length < 1) {
+        if (args.length < 1) 
+        {
             stderrNRListener.outputLine("Expecting a command name as an argument!"); //NOI18N
             return false;
         }
@@ -113,47 +118,80 @@ public class ClearCaseListCommand extends AbstractListCommand
         return !shouldFail;
     }
 
-    public void outputData(String[] elements)
+    /**
+     * Output data. The architecture of the VCS generic module for
+     * these sort of commands is that the lines from the output of
+     * running "cleartool ls" are piped into this method as an array
+     * of strings for each line
+     * 
+     * @param elements the line from running "ct ls"
+     */
+    public void outputData(String elements[])
     {
-        D.deb("elements: " + elements[0]);
+        ////////////////////////////////////////////////////////////////
+        // Static vars
+
+        // The syntax of the lines is, for versioned files:
+        // filename@@/main/branch/version#  Rule: branch [-mkbranch branch]
+        //
+        // For local files:
+        // filename
+        //
+        // For checked files:
+        // filename@@/main/branch/CHECKEDOUT from /main/branch/version#     Rule: CHECKEDOUT
+        // 
+        // For removed checkedout files
+        // filename@@/main/branch/CHECKEDOUT from /main/bugfix/2 [checkedout but removed]
+        //
+        // For eclipsed files
+        // Y.java@@ [eclipsed]
+
+        // Index of the name of the file
 		final int nameIndex = 0;
+
+        // The separator between the name
         final String statusSep = "@@";
-        final String statusEndStr = "Rule: ";
-        String line=elements[0];
-        D.deb("match: line = "+line);
+
+        String line = elements[0];
+
+        // Is there an @@ in the line?
         int statIndex = line.indexOf(statusSep, nameIndex);
+
         if (statIndex < 0)
         {
-			return; // view private objects will be added by VCS as local files
+            // If there was no @@, then this must be a local file.
+			return;
 		}
-        int endStatIndex = line.indexOf(statusEndStr, statIndex);
-        if (endStatIndex < 0) endStatIndex = line.length() - 1;
+
+        // fileInfo holds the filename and annotation of the file in an
+        // array indices 0 and 1, respectively
         String[] fileInfo = new String[2];
+
+        // Put the name in the fileInfo
         fileInfo[0] = line.substring(nameIndex, statIndex);
-        File file = new File(dir+File.separator+fileInfo[0]);
-        if(file != null && file.isDirectory() )
+
+        // Is the file a directory? If so, add a slash to the
+        // filename. I don't know why one would need to do this, but
+        // we do!
+        File file = new File(dir + File.separator + fileInfo[0]);
+        if (file != null && file.isDirectory() )
         {
             fileInfo[0] += "/";
         }
 
-		String checkedOut = null;
-                if ((endStatIndex + statusEndStr.length()) < line.length())
-                {
-                    checkedOut = line.substring(endStatIndex + statusEndStr.length(), line.length());
-                } else {
-                    checkedOut = "";
-                }
-//		if(checkedOut.trim()=="CHECKEDOUT")
-		if(checkedOut.trim().equals("CHECKEDOUT"))
-		{
-			fileInfo[1] = line.substring(statIndex + statusSep.length(), endStatIndex);
-			if (fileInfo[1] != null) fileInfo[1] = fileInfo[1].trim();
-		}
-		else
-		{
-			fileInfo[1] = "";
-		}
+        ////////////////////////////////////////////////////////////////
+        // Map the status
 
+        if (line.indexOf("[checkedout but removed]") > -1)
+            fileInfo[1] = "CHECKEDOUT REMOVED";
+        else if (line.indexOf("CHECKEDOUT") > -1)
+            fileInfo[1] = "CHECKEDOUT";
+        else if (line.indexOf("[eclipsed]") > -1)
+            fileInfo[1] = "ECLIPSED";
+        else
+            fileInfo[1] = line.substring(statIndex + 2, line.indexOf(' ', statIndex + 2)); // Trim the rule
+        
+        // Put it in the output. Wierd.
     	filesByName.put(fileInfo[0], fileInfo);
     }
 }
