@@ -22,7 +22,6 @@ import org.openide.filesystems.*;
 import org.openide.loaders.*;
 import org.openide.util.NbBundle;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
 
 /**
  *
@@ -82,8 +81,8 @@ public class VcsSearchType extends org.netbeans.modules.search.types.DataObjectT
                         fs = null;
                     }
                     if (fs == null) return false;
-                    if (fs instanceof VcsFileSystem) {
-                        String[] possibleStatuses = ((VcsFileSystem) fs).getPossibleFileStatuses();
+                    if (fs instanceof VcsSearchTypeFileSystem) {
+                        String[] possibleStatuses = ((VcsSearchTypeFileSystem) fs).getPossibleFileStatuses();
                         if (!statusesAdded) {
                             statuses = new Vector();
                             statusesAdded = true;
@@ -178,8 +177,8 @@ public class VcsSearchType extends org.netbeans.modules.search.types.DataObjectT
         } catch(org.openide.filesystems.FileStateInvalidException exc) {
             fs = null;
         }
-        if (fs == null || !(fs instanceof VcsFileSystem)) return false;
-        VcsFileSystem vfs = (VcsFileSystem) fs;
+        if (fs == null || !(fs instanceof VcsSearchTypeFileSystem)) return false;
+        VcsSearchTypeFileSystem vfs = (VcsSearchTypeFileSystem) fs;
         String status = vfs.getStatus(dobj);
         if (matchExcept) {
             return !matchStatuses.contains(status);
