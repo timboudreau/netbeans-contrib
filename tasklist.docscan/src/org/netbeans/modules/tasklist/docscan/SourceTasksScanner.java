@@ -15,6 +15,7 @@ package org.netbeans.modules.tasklist.docscan;
 
 import org.netbeans.modules.tasklist.suggestions.SuggestionList;
 import org.netbeans.modules.tasklist.suggestions.SuggestionsScanner;
+import org.netbeans.modules.tasklist.core.Background;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 import org.openide.ErrorManager;
@@ -51,40 +52,38 @@ final class SourceTasksScanner {
 
         final SuggestionList list = (SuggestionList) view.getList();
 
-        RequestProcessor.getDefault().post(
-            new Runnable() {
-                public void run() {
+        Background.execute( new Runnable() {
+            public void run() {
+                try {
                     try {
-                        try {
-                            // block until previous AWT events get processed
-                            // it does not survive nested invokeAndWaits
-                            SwingUtilities.invokeAndWait(
-                                new Runnable() {
-                                    public void run() {
-                                        view.setCursor(Utilities.createProgressCursor(view));
-                                    }
-                                }
-                            );
-                        } catch (InterruptedException ignore) {
-                            // XXX
-                        } catch (InvocationTargetException e) {
-                            ErrorManager.getDefault().notify(e);
-                        }
-                        scanProjectSuggestions(list, view);
-
-                    } finally {
-                        SwingUtilities.invokeLater(
+                        // block until previous AWT events get processed
+                        // it does not survive nested invokeAndWaits
+                        SwingUtilities.invokeAndWait(
                             new Runnable() {
                                 public void run() {
-                                    view.statistics(list.size());
-                                    view.setCursor(null);
+                                    view.setCursor(Utilities.createProgressCursor(view));
                                 }
                             }
                         );
+                    } catch (InterruptedException ignore) {
+                        // XXX
+                    } catch (InvocationTargetException e) {
+                        ErrorManager.getDefault().notify(e);
                     }
+                    scanProjectSuggestions(list, view);
+
+                } finally {
+                    SwingUtilities.invokeLater(
+                        new Runnable() {
+                            public void run() {
+                                view.statistics(list.size());
+                                view.setCursor(null);
+                            }
+                        }
+                    );
                 }
-            }, 53, Thread.MIN_PRIORITY    //
-        );
+            }
+        });
     }
 
     static void scanProjectSuggestions(final SuggestionList list, final SourceTasksAction.ScanProgressMonitor view) {

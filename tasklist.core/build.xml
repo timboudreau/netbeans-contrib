@@ -55,8 +55,13 @@ Microsystems, Inc. All Rights Reserved.
         </locjar>
     </target>
 
-    <target name="netbeans" depends="jars,javahelp">
+    <target name="netbeans" depends="jars,javahelp,native">
         <genlist targetname="nbm" outputfiledir="netbeans"/>
+    </target>
+
+    <target name="native">
+        <mkdir dir="netbeans/modules/autoload/bin"/>
+        <copy file="native/libtasklist_bgthreads.so" todir="netbeans/modules/autoload/bin"/>
     </target>
 
     <target name="nbm" depends="netbeans">
