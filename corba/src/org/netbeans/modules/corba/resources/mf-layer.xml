@@ -236,4 +236,11 @@ SystemFileSystem
         </folder>
     </folder>
   </folder>
+  <folder name="xml">
+	<folder name="entities">
+		<folder name="Forte_for_Java">
+			<file name="DTD_ORBSettings_1_0" url="nbres:/org/netbeans/modules/corba/resources/impls/ORBSettings.dtd"/>
+		</folder>
+	</folder>
+  </folder>
 </filesystem>

@@ -14,8 +14,8 @@ Microsystems, Inc. All Rights Reserved.
 
 
 <!DOCTYPE orb-settings PUBLIC "-//Forte for Java//DTD ORBSettings 1.0//EN" "ORBSettings.dtd"[
-<!ENTITY corba23-poa SYSTEM "corba23-poa.ent">
-<!ENTITY corba23-generic-impl SYSTEM "corba23-generic-impl.ent">
+<!ENTITY corba23-poa SYSTEM "nbres:/org/netbeans/modules/corba/resources/impls/corba23-poa.ent">
+<!ENTITY corba23-generic-impl SYSTEM "nbres:/org/netbeans/modules/corba/resources/impls/corba23-generic-impl.ent">
 ]>
 <orb-settings name='JacORB 1.3.x' tag='jacorb12' supported='false'>
   

@@ -14,8 +14,8 @@ Microsystems, Inc. All Rights Reserved.
 
 
 <!DOCTYPE orb-settings PUBLIC "-//Forte for Java//DTD ORBSettings 1.0//EN" "ORBSettings.dtd"[
-<!ENTITY corba20-generic-impl SYSTEM "corba20-generic-impl.ent">
-<!ENTITY orbacus3-generic SYSTEM "orbacus3-generic.ent">
+<!ENTITY corba20-generic-impl SYSTEM "nbres:/org/netbeans/modules/corba/resources/impls/corba20-generic-impl.ent">
+<!ENTITY orbacus3-generic SYSTEM "nbres:/org/netbeans/modules/corba/resources/impls/orbacus3-generic.ent">
 ]>
 <orb-settings name='ORBacus for Java 3.x' tag='orbacus3u' supported='false'>
   

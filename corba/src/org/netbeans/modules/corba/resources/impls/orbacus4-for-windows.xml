@@ -15,9 +15,9 @@ Microsystems, Inc. All Rights Reserved.
 
 <!DOCTYPE orb-settings PUBLIC "-//Forte for Java//DTD ORBSettings 1.0//EN" "ORBSettings.dtd"
 [
-<!ENTITY corba23-poa SYSTEM "corba23-poa.ent">
-<!ENTITY corba23-generic-impl SYSTEM "corba23-generic-impl.ent">
-<!ENTITY orbacus4-generic SYSTEM "orbacus4-generic.ent">
+<!ENTITY corba23-poa SYSTEM "nbres:/org/netbeans/modules/corba/resources/impls/corba23-poa.ent">
+<!ENTITY corba23-generic-impl SYSTEM "nbres:/org/netbeans/modules/corba/resources/impls/corba23-generic-impl.ent">
+<!ENTITY orbacus4-generic SYSTEM "nbres:/org/netbeans/modules/corba/resources/impls/orbacus4-generic.ent">
 ]>
 
 <orb-settings name='ORBacus for Java 4.x for Windows' tag='orbacus4w' supported='true'>
