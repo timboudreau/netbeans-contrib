@@ -14,7 +14,10 @@
 package org.netbeans.api.web.dd.common;
 
 /**
- * Ability to find an instance of CommonDDBean class nested inside this bean 
+ * Ability to find an instance of CommonDDBean class nested inside this bean.
+ *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
  *
  * @author Milan Kuchtiak
  */

@@ -16,6 +16,8 @@ import org.netbeans.api.web.dd.common.VersionNotSupportedException;
 /**
  * Generated interface for FilterMapping element.
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
  */
 public interface FilterMapping extends org.netbeans.api.web.dd.common.CommonDDBean {
         /** Setter for filter-name property.

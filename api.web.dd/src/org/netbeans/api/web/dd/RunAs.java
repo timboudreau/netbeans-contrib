@@ -16,6 +16,8 @@ import org.netbeans.api.web.dd.common.*;
 /**
  * Generated interface for RunAs element.
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
  */
 public interface RunAs extends CommonDDBean, DescriptionInterface {
         /** Setter for role-name property.

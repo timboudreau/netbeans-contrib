@@ -16,6 +16,8 @@ import org.netbeans.api.web.dd.common.*;
 /**
  * Generated interface for LocaleEncodingMappingList element.
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
  */
 public interface LocaleEncodingMappingList extends CommonDDBean, CreateCapability, FindCapability {
         /** Setter for locale-encoding-mapping element.

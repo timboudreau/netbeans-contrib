@@ -15,6 +15,9 @@ package org.netbeans.api.web.dd.common;
 /**
  * Super interface for all DD elements having the icon property/properties. 
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
+ *
  * @author Milan Kuchtiak
  */
 public interface IconInterface {

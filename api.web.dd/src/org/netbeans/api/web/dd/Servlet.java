@@ -13,8 +13,10 @@
 
 package org.netbeans.api.web.dd;
 /**
- * Generated interface for Servlet element
+ * Generated interface for Servlet element.
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
  */
 
 public interface Servlet extends org.netbeans.api.web.dd.common.ComponentInterface {

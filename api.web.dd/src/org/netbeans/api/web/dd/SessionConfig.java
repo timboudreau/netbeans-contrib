@@ -15,6 +15,8 @@ package org.netbeans.api.web.dd;
 /**
  * Generated interface for SessionConfig element.
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
  */
 public interface SessionConfig extends org.netbeans.api.web.dd.common.CommonDDBean {
         /** Setter for session-timeout property.

@@ -15,6 +15,9 @@ package org.netbeans.api.web.dd.common;
 /**
  * Ability to create a new CommonDDBean objects.
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
+ *
  * @author Milan Kuchtiak
  */
 public interface CreateCapability {

@@ -16,6 +16,8 @@ import org.netbeans.api.web.dd.common.*;
 /**
  * Generated interface for MessageDestinationRef element.
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
  */
 public interface MessageDestinationRef extends CommonDDBean, DescriptionInterface {
         /** Setter for message-destination-ref-name property.

@@ -15,6 +15,8 @@ package org.netbeans.api.web.dd;
 /**
  * Generated interface for Filter element.
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
  */
 public interface Filter extends org.netbeans.api.web.dd.common.ComponentInterface  {
         /** Setter for filter-name property.

@@ -16,6 +16,8 @@ import org.netbeans.api.web.dd.common.*;
 /**
  * Generated interface for MessageDestination element.
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
  */
 public interface MessageDestination extends CommonDDBean, DescriptionInterface, DisplayNameInterface, IconInterface {
         /** Setter for message-destination-name property.

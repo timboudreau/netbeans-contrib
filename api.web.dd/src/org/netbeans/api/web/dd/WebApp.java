@@ -19,6 +19,8 @@ import org.netbeans.api.web.dd.common.VersionNotSupportedException;
  * for deployment descriptor(web.xml) file.<br>
  * For getting the root (WebApp object) use the {@link DDProvider#getDDRoot} method.
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
  */
 public interface WebApp extends org.netbeans.api.web.dd.common.RootInterface {
         public static final String PROPERTY_VERSION="dd_version"; //NOI18N

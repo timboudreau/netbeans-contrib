@@ -144,6 +144,7 @@ Microsystems, Inc. All Rights Reserved.
        <property name="javadoc.classpath" value="${_cp}"/> 
        <property name="javadoc.arch" location="../arch/arch-DD-API.xml"/>
        <property name="javadoc.overview" location="doc/overview.html"/>
+       <property name="javadoc.docfiles" location="doc"/>
       </ant>
       <mkdir dir="javadoc/DD-API/arch"/>
       <copy file="doc/ddapi_architecture.html" todir="javadoc/DD-API/arch"/>

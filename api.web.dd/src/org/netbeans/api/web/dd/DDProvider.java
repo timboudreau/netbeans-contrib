@@ -58,19 +58,26 @@ public final class DDProvider {
         if (webApp!=null) return webApp;
         fo.addFileChangeListener(new FileChangeAdapter(){
             public void fileChanged(FileEvent evt) {
+                System.out.println("fileChanged()"+evt.getSource());
                 FileObject fo=evt.getFile();
+                System.out.println("fileChanged()"+fo);
                 try {
                     WebAppProxy webApp = (WebAppProxy) ddMap.get(fo);
+                    System.out.println("webApp="+webApp);
                     if (webApp!=null) {
                         String version = getVersion(fo.getInputStream());
+                        System.out.println("version="+version);
                         // replacing original file in proxy WebApp
                         if (!version.equals(webApp.getVersion())) {
                             webApp.setOriginal(createWebApp(fo.getInputStream(),version));
                         }
                     }
                 } 
-                catch (java.io.IOException ex){}
-                catch (org.xml.sax.SAXException ex){}
+                catch (java.io.IOException ex){System.out.println("IO EX = "+ex.getMessage());}
+                catch (org.xml.sax.SAXException ex){
+                    System.out.println("SAX EX = "+ex.getMessage());
+                    ddMap.remove(fo);
+                }
             }
         });
         WebApp original = createWebApp(fo.getInputStream(), getVersion(fo.getInputStream()));

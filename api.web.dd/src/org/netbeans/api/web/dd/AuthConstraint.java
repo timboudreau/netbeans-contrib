@@ -17,6 +17,8 @@ import org.netbeans.api.web.dd.common.*;
 /**
  * Generated interface for AuthConstraint element.
  *
+ *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
+ *</p>
  */
 public interface AuthConstraint extends CommonDDBean, DescriptionInterface {
         /** Setter for role-name property.
