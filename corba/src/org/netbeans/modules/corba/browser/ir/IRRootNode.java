@@ -57,7 +57,7 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
     public IRRootNode () {
         super (new IRRootNodeChildren ());
         instance = this;
-        setName ("CORBA Interface Repository");
+        setName (NbBundle.getBundle(IRRootNode.class).getString("CTL_CORBAInterfaceRepository"));
         init ();
     }
 

@@ -60,7 +60,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
     public ContextNode () {
         super (new ContextChildren ());
         //super (Children.LEAF);
-        setName ("CORBA Naming Service");
+        setName (NbBundle.getBundle(ContextNode.class).getString("CTL_CORBANamingService")); 
         _root = true;
         init ();
     }
@@ -225,7 +225,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             org.omg.CORBA.Object o = orb.string_to_object (ref);
             nc = NamingContextHelper.narrow (o);
             if (nc == null)
-                System.out.println ("error while binding!!!");
+                TopManager.getDefault().notify ( new NotifyDescriptor.Message (NbBundle.getBundle(ContextNode.class).getString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
             //setName (name);
             //setKind ("");
             //((ContextChildren)getChildren ()).setContext (context);
@@ -242,7 +242,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             org.omg.CORBA.Object o = orb.string_to_object (ior);
             nc = NamingContextHelper.narrow (o);
             if (nc == null)
-                System.out.println ("can't bind to context");
+                TopManager.getDefault().notify ( new NotifyDescriptor.Message (NbBundle.getBundle(ContextNode.class).getString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
         }
 
         //if (context == null) {
@@ -369,7 +369,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                 lazyInit();
             obj = orb.string_to_object (ref);
             if (obj == null)
-                System.out.println ("can't bind to object");
+                TopManager.getDefault().notify( new NotifyDescriptor.Message(NbBundle.getBundle(ContextNode.class).getString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
             //setName (name);
             //setKind ("");
             //}
@@ -383,7 +383,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                 lazyInit();
             obj = orb.string_to_object (ior);
             if (obj == null)
-                System.out.println ("can't bind to object");
+                TopManager.getDefault().notify( new NotifyDescriptor.Message(NbBundle.getBundle(ContextNode.class).getString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
         }
 
         if (context != null) {
