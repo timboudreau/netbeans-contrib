@@ -16,18 +16,12 @@
 
 package org.netbeans.modules.vcs.profiles.teamware.commands;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 import org.netbeans.modules.vcs.profiles.teamware.util.SFile;
-
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 
 class TeamwareRefreshSupport {

@@ -17,23 +17,7 @@
 package org.netbeans.modules.vcs.profiles.teamware.commands;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Set;
-import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.actions.CommandActionSupporter;
-import org.netbeans.modules.vcscore.actions.GeneralCommandAction;
-
-import org.netbeans.modules.vcscore.commands.CommandOutputListener;
-import org.netbeans.modules.vcscore.commands.TextOutputListener;
-import org.netbeans.modules.vcscore.commands.VcsCommand;
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
-import org.openide.filesystems.FileObject;
 
 class TeamwareSupport {
     
