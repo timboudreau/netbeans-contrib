@@ -597,6 +597,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         org.openide.nodes.Node commands = null;
         if (configFileName != null) {
             org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName);
+            if (doc == null) return ;
             try {
                 commands = (org.openide.nodes.Node) CommandLineVcsAdvancedCustomizer.readConfig (doc);
             } catch (org.w3c.dom.DOMException exc) {
