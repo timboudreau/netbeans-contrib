@@ -28,25 +28,15 @@ public class GeneralVcsSettings extends SystemOption {
     public static final String PROP_AUTO_REFRESH       = "autoRefresh"; // NOI18N
     public static final String PROP_HOME               = "home"; // NOI18N
     public static final String PROP_HIDE_SHADOW_FILES  = "hideShadowFiles"; // NOI18N
-    public static final String PROP_LAST_DIRECTORIES   = "wizardDirectoryCache"; //NOI18N
-    public static final String PROP_CVS_COMMAND_PATH   = "wizardCvsCommandPath"; //NOI18N
-    public static final String PROP_SH_COMMAND_PATH    = "wizardShellCommandPath"; //NOI18N
-    public static final String PROP_SSH_WARNINGS_DONE  = "wizardSshWarningsDone"; //NOI18N
     public static final String PROP_AUTO_DETECT        = "autoDetect"; //NOI18N
+    public static final String PROP_DEFAULT_PROFILE    = "defaultProfile"; // NOI18N
+
     
     public static final int AUTO_REFRESH_NO_REFRESH = 0;
     public static final int AUTO_REFRESH_ON_DIR_OPEN = 1;
     public static final int AUTO_REFRESH_ON_MOUNT = 2;
     public static final int AUTO_REFRESH_ON_RESTART = 3;
     public static final int AUTO_REFRESH_ON_MOUNT_AND_RESTART = 4;
-    
-    private static final String DEFAULT_CVS_EXEC = "cvs";    //NOI18N
-    private static final String DEFAULT_SHELL_EXEC = "sh";   //NOI18N
-    private static String wizardCvsCommandPath;
-    
-    private static String wizardShellCommandPath;
-    
-//    private static java.util.LinkedList wizardDirectoryCache;
     
     static final long serialVersionUID = -3279219340064367270L;
     
@@ -63,8 +53,6 @@ public class GeneralVcsSettings extends SystemOption {
         setHideShadowFiles(false);
         setOffLine(false);
         setUseGlobal(true);
-        setWizardSshWarningsDone(false);
-//        setWizardDirectoryCache(new LinkedList());
     }    
     
     /** Get human presentable name */
@@ -176,56 +164,17 @@ public class GeneralVcsSettings extends SystemOption {
     }
     
     /**
-     * contains list of Strings that were previously entered in the cvsfs mount wizard as working directory
+     * Set the default VCS profile that is pre-selected in mount wizard.
      */
-
-    public java.util.LinkedList getWizardDirectoryCache () {
-        Object[] arr = (Object[])getProperty(PROP_LAST_DIRECTORIES);
-        LinkedList toReturn = new LinkedList();
-        if (arr != null) {
-            for (int i = 0; i < arr.length; i++) {
-                toReturn.add(arr[i]);
-            }
-        }
-        return toReturn;
+    public void setDefaultProfile(String defaultProfile) {
+        putProperty(PROP_DEFAULT_PROFILE, defaultProfile, true);
     }
     
-    public void setWizardDirectoryCache (java.util.LinkedList cache) {
-        if (cache == null) {
-            cache = new LinkedList();
-        }
-        putProperty(PROP_LAST_DIRECTORIES, cache.toArray());
-        firePropertyChange(PROP_LAST_DIRECTORIES, null, cache.toArray());
-    }
-    
-    public String getWizardCvsCommandPath () {
-        if (wizardCvsCommandPath == null || wizardCvsCommandPath.length() == 0)
-            return DEFAULT_CVS_EXEC;
-        else
-            return wizardCvsCommandPath;
-    }
-    
-    public void setWizardCvsCommandPath (String cvsCommandPath) {
-             wizardCvsCommandPath = cvsCommandPath;
-    }
-    
-    public String getWizardShellCommandPath() {
-        if (wizardShellCommandPath == null || wizardShellCommandPath.length() ==0)
-            return DEFAULT_SHELL_EXEC;
-        else
-            return wizardShellCommandPath;
-    }
-    
-    public void setWizardShellCommandPath(String shellCommandPath) {
-            wizardShellCommandPath = shellCommandPath;
-    }
-
-    public void setWizardSshWarningsDone(boolean done) {
-        putProperty(PROP_SSH_WARNINGS_DONE, done ? Boolean.TRUE : Boolean.FALSE);
-    }
-    
-    public boolean isWizardSshWarningsDone() {
-        return ((Boolean) getProperty(PROP_SSH_WARNINGS_DONE)).booleanValue();
+    /**
+     * Get the default VCS profile that is pre-selected in mount wizard.
+     */
+    public String getDefaultProfile() {
+        return (String) getProperty(PROP_DEFAULT_PROFILE);
     }
     
 }
