@@ -27,7 +27,7 @@ public class History {
     
     FileSystem filesystem;
     RuntimeCommandsProvider provider;
-    RuntimeCommand breakpoint;
+    RuntimeCommand breakpoint, startpoint;
     PrintStream log;
     
     public History(FileSystem filesystem) {
@@ -39,6 +39,7 @@ public class History {
         this.log = log;
         provider = RuntimeCommandsProvider.findProvider(filesystem);
         breakpoint ();
+        startpoint = breakpoint;
     }
     
     public FileSystem getFileSystem () {
@@ -128,6 +129,8 @@ public class History {
         for (int a = rc.length - 1; a >= 0; a --) {
             if (rc[a] == breakpoint)
                 log.print ("==== Breakpoint - ");
+            if (rc[a] == startpoint)
+                log.print ("==== Startpoint - ");
             Node no = rc[a].getNodeDelegate();
             String s1 = getPropertyValue (no, "Properties", "Processed Files");
             String s2 = getPropertyValue (no, "Properties", "Execution String");
