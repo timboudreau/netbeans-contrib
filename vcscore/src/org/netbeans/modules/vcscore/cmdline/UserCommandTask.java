@@ -301,6 +301,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         FileObject[] files = cmd.getFiles();
         //System.out.println("UserCommandTask("+getName()+").getFiles() files = "+((files == null) ? null : java.util.Arrays.asList(files)));
         if (files == null) {
+            // XXX assert false : "can cause issues such as #53337, but we are not sure if it can be removed during stabilization";
             if (executor != null) {
                 VcsFileSystem fileSystem = null;
                 CommandExecutionContext executionContext = cmdSupport.getExecutionContext();

@@ -243,7 +243,10 @@ public class CommandProcessor extends Object /*implements CommandListener */{
      * Process the task. This will schedule the task for execution.
      */
     public synchronized void process(CommandTaskInfo info) {
-        taskInfos.put(info.getTask(), info);
+        CommandTask commandTask = info.getTask();
+        String commandName = commandTask.getName();
+        FileObject[] files = commandTask.getFiles();
+        taskInfos.put(commandTask, info);
         info.setSubmittingInfo((CommandTaskInfo) threadTaskInfo.get());
         taskWaitQueue.add(info);
         notifyAll();

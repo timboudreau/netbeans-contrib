@@ -203,19 +203,20 @@ public final class VcsAction extends Object {//NodeAction implements ActionListe
         }
         UserCommandSupport.setCommandFilesFromTable(command, files, fileSystem);
         if (!VcsManager.getDefault().showCustomizer(command)) return new VcsCommandExecutor[0];
-        CommandTask task = command.execute();
-        if (task instanceof UserCommandTask) {
-            return new VcsCommandExecutor[] { ((UserCommandTask) task).getExecutor() };
-        } else if (task instanceof WrappingCommandTask) {
-            UserCommandTask[] tasks = ((WrappingCommandTask) task).getTasks();
-            VcsCommandExecutor[] executors = new VcsCommandExecutor[tasks.length];
-            for (int i = 0; i < executors.length; i++) {
-                executors[i] = tasks[i].getExecutor();
+        if (command.getFiles() != null) {
+            CommandTask task = command.execute();
+            if (task instanceof UserCommandTask) {
+                return new VcsCommandExecutor[] { ((UserCommandTask) task).getExecutor() };
+            } else if (task instanceof WrappingCommandTask) {
+                UserCommandTask[] tasks = ((WrappingCommandTask) task).getTasks();
+                VcsCommandExecutor[] executors = new VcsCommandExecutor[tasks.length];
+                for (int i = 0; i < executors.length; i++) {
+                    executors[i] = tasks[i].getExecutor();
+                }
+                return executors;
             }
-            return executors;
-        } else {
-            return new VcsCommandExecutor[0];
         }
+        return new VcsCommandExecutor[0];
     }
 
     /** Make sure, that the files are saved. If not, save them.
