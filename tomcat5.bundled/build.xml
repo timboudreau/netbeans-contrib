@@ -15,7 +15,7 @@ Microsystems, Inc. All Rights Reserved.
 <project name="tomcatint-tomcat5-bundled" basedir="." default="netbeans">
   <import file="../../../nbbuild/default.xml"/> 
 
-  <property name="tomcat.filename" value="jakarta-tomcat-5.0.24"/>
+  <property name="tomcat.filename" value="jakarta-tomcat-5.0.25"/>
 
   <target name="init" depends="default.init">
     <ant dir="${nb_all}/tomcatint/external" target="unscramble"/>
@@ -42,9 +42,9 @@ Microsystems, Inc. All Rights Reserved.
     <unzip src="../../external/${tomcat.filename}.zip" dest="${netbeans.dest.dir}/${cluster.dir}" />
     <!-- monitor -->
     <copy file="${schema2beans/rt.dir}/${nb.modules.dir}/org-netbeans-modules-schema2beans.jar" 
-          tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.24/common/lib/schema2beans.jar"/>
+          tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.25/common/lib/schema2beans.jar"/>
     <copy file="${monitor.dir}/${nb.modules.dir}/ext/httpmonitor.jar"
-          tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.24/common/lib/httpmonitor.jar"/>
+          tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.25/common/lib/httpmonitor.jar"/>
     <chmod perm="ugo+x">
       <fileset dir="${netbeans.dest.dir}/${cluster.dir}/${tomcat.filename}/bin">
         <include name="*.sh"/>
