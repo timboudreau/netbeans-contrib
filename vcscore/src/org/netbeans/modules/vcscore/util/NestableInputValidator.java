@@ -28,10 +28,14 @@ final class NestableInputValidator extends VariableInputValidator {
     }
 
     public String getMessage() {
-        return nestedComponent.getNestableComponent(false).getVerificationMessage(getVariable());
+        String varName = nestedComponent.getVariable();
+        NestableInputComponent egg = nestedComponent.getNestableComponent(false);
+        return egg.getVerificationMessage(varName);
     }
 
     public boolean isValid() {
-        return nestedComponent.getNestableComponent(false).getVerificationMessage(getVariable()) != null;
+        String varName = nestedComponent.getVariable();
+        NestableInputComponent egg = nestedComponent.getNestableComponent(false);
+        return egg.getVerificationMessage(varName) == null;
     }
 }

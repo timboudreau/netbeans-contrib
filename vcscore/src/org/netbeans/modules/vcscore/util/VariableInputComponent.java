@@ -76,6 +76,7 @@ public class VariableInputComponent extends Object {
 
     /** Creates new VariableInputComponent */
     public VariableInputComponent(int component, String variable, Class componentClass) {
+        variable.hashCode();  // NPE check
         this.component = component;
         this.variable = variable;
         this.componentClass = componentClass;
@@ -165,7 +166,11 @@ public class VariableInputComponent extends Object {
     }
     
     public String getValue() {
-        return value;
+//        if (component == VariableInputDescriptor.INPUT_JCOMPONENT) {
+//            return getNestableComponent(false).getValue(getVariable());
+//        } else {
+            return value;
+//        }
     }
     
     public void setValueSelected(String valueSelected) {

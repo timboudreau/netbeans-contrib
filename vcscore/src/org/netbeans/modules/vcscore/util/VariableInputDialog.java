@@ -841,7 +841,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
         this.executionContext = executionContext;
         this.vars = vars;
     }
-    
+
+    CommandExecutionContext getCommandExecutionContext() {
+        return executionContext;
+    }
+
+    Hashtable getCommandHashtable() {
+        return vars;
+    }
+
     /**
      * Use this method to supply new variable values to the components.
      * If you gonna call this method, you should create this object via
@@ -2325,13 +2333,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
 
     /** Adds custom JComponent into variablePanel. It takes full width. */
-    private void addJComponent(VariableInputComponent component, int gridy, JPanel inputPanel, int leftInset, Component[] mainComponent_ptr) {
-        NestableInputComponent embed = component.getNestableComponent(true);
-        JComponent c = (JComponent) embed;
-        String var = component.getVariable();
+    private void addJComponent(final VariableInputComponent component, int gridy, JPanel inputPanel, int leftInset, Component[] mainComponent_ptr) {
+        final NestableInputComponent embed = component.getNestableComponent(true);
+        final JComponent eggAsComponent = (JComponent) embed;
+        final String variableName = component.getVariable();
 
-        embed.joinNest(new VariableInputNest(this, var));
-        mainComponent_ptr[0] = c;
+        embed.joinNest(new VariableInputNest(this, embed, variableName));
+        mainComponent_ptr[0] = eggAsComponent;
         GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = gridy;
@@ -2340,9 +2348,37 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints1.weightx = 1.0;
         gridBagConstraints1.insets = new java.awt.Insets(0, leftInset, 8, 0);
-        inputPanel.add(c, gridBagConstraints1);
-        awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { c });
+        
+        inputPanel.add(eggAsComponent, gridBagConstraints1);
+        awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { eggAsComponent });
         componentsByVars.put(component.getVariable(), component);
+
+        // OK button handler
+        addActionToProcess(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                if (vars != null) {
+                    if (eggAsComponent.isEnabled()) {
+                        Object value = embed.getValue(variableName);
+                        if (value != null) {
+                            vars.put(variableName, value);
+                        } else {
+                            vars.remove(variableName);
+                        }
+                    } else {
+                        vars.remove(variableName);
+                    }
+                }
+            }
+        });
+//        addHistoryListener(new VariableInputDialog.HistoryListener() {
+//            public void changeHistory(int index1, int index2) {
+//                if (index1 == historySize && index2 < index1) {
+//                    writeFileContents(area, component.getValue(), promptAreaNum);
+//                }
+//                initArea(area, component.getHistoryValue(index2));
+//            }
+//        });
+
     }
 
 

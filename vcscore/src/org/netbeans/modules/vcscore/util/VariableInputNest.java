@@ -13,6 +13,10 @@
 
 package org.netbeans.modules.vcscore.util;
 
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
+
+import java.util.Hashtable;
+
 /**
  * Provides services for embedded JCOMPONENT
  * in VariableInputDialog.
@@ -25,10 +29,13 @@ public final class VariableInputNest {
 
     private final VariableInputDialog peer;
 
+    private final NestableInputComponent egg;
+
     /** Constructed by framework only. */
-    VariableInputNest(VariableInputDialog peer, String variable) {
+    VariableInputNest(VariableInputDialog peer, NestableInputComponent egg, String variable) {
         this.peer = peer;
         this.variable = variable;
+        this.egg = egg;
     }
 
     /**
@@ -39,12 +46,21 @@ public final class VariableInputNest {
     }
 
     /**
-     * Notifies VID validaton framework about value
-     * validity change.
+     * Notifies VID validaton framework about value change
+     * possibly triggering validity change.
      */
-    public void fireVerificationMessage(String msg) {
-        // TODO how to kick up the VID validation framework?
-        // I basicaly need to disable OK button and possibly
-        // set error message
+    public void fireValueChanged(String variable, Object newValue) {
+        String propName = VariableInputDialog.PROP_VAR_CHANGED + variable;
+        peer.firePropertyChange(propName, null, newValue);
+    }
+
+    /** If customizing command returns it's CommandExecutionContext */
+    public CommandExecutionContext getCommandExecutionContext() {
+        return peer.getCommandExecutionContext();
+    }
+
+    /** If customizing command returns it's variables */
+    public Hashtable getCommandHashtable() {
+        return peer.getCommandHashtable();
     }
 }
