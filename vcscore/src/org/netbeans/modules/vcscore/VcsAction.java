@@ -404,8 +404,10 @@ public class VcsAction extends NodeAction implements ActionListener {
      */
     protected boolean isOnFile() {
         if (selectedFileObjects != null) {
+            //System.out.println("isOnFile(): selectedFileObjects = "+selectedFileObjects+", size = "+selectedFileObjects.size());
             for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
+                //System.out.println("  fo = "+fo);
                 if (!fo.isFolder()) return true;
             }
             return false;
@@ -623,6 +625,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             onDir = isOnDirectory();
             onFile = isOnFile();
         }
+        //System.out.println("onRoot = "+onRoot+", onDir = "+onDir+", onFile = "+onFile);
         Set statuses = getSelectedFileStatusAttributes();
         JInlineMenu inlineMenu = new JInlineMenu();
         ArrayList menuItems = new ArrayList();
@@ -717,8 +720,8 @@ public class VcsAction extends NodeAction implements ActionListener {
         StringBuffer vfiles = new StringBuffer();
         for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
             fullName = (String) enum.nextElement();
-            if (fullName.length() == 0) fullName = ".";
             fo = (FileObject) files.get(fullName);
+            if (fullName.length() == 0) fullName = ".";
             isFileFolder |= fo.isFolder();
             file = VcsUtilities.getFileNamePart(fullName);
             fullName = fullName.replace('/', java.io.File.separatorChar);
