@@ -14,7 +14,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="metrics" basedir="." default="netbeans">
 
-  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
+  <property name="dist.base" value="www.netbeans.org/download/nbms/alpha/dev"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="license.file" location="../nbbuild/standard-nbm-license.txt"/>
 
