@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.advanced.commands;
 
+import java.awt.Image;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Map;
@@ -44,45 +45,48 @@ public class CommandNode extends AbstractNode {
     private ResourceBundle resourceBundle = null;
     private CommandsIndex index = null;
     
-    public static Table propertyClassTypes = new Table();
-    public static Table list_propertyClassTypes = new Table();
+    private static Table stdandard_propertyClassTypes = new Table();
+    private static Table expert_propertyClassTypes = new Table();
+    private static Table list_propertyClassTypes = new Table();
+    
+    private static Image[] SEPARATOR_ICONS = new Image[4];
     
     static {
-        propertyClassTypes.put(VcsCommand.PROPERTY_ADVANCED_NAME, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_SUPPORTS_ADVANCED_MODE, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_EXEC, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_CONFIRMATION_MSG, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_INPUT_DESCRIPTOR, String.class);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_EXEC, String.class);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_CONFIRMATION_MSG, String.class);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG, String.class);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG, String.class);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_INPUT_DESCRIPTOR, String.class);
         //propertyClassTypes.put(VcsCommand.PROPERTY_NOT_ON_ROOT, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_ON_DIR, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_ON_FILE, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_ON_ROOT, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_HIDDEN, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_DISABLED_ON_STATUS, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_CONCURRENT_EXECUTION, Integer.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_IGNORE_FAIL, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS, Boolean.TYPE);
-        propertyClassTypes.put(UserCommand.PROPERTY_DATA_REGEX, String.class);
-        propertyClassTypes.put(UserCommand.PROPERTY_ERROR_REGEX, String.class);
-        propertyClassTypes.put(UserCommand.PROPERTY_INPUT, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_NUM_REVISIONS, Integer.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_CHANGED_REVISION_VAR_NAME, String.class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_CHANGING_REVISION, Boolean.TYPE);
-        propertyClassTypes.put(VcsCommand.PROPERTY_USER_PARAMS, String[].class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_LOAD_ATTRS_TO_VARS, String[].class);
-        propertyClassTypes.put(VcsCommand.PROPERTY_DISTINGUISH_BINARY_FILES, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_ON_DIR, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_ON_FILE, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_ON_ROOT, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_DISTINGUISH_BINARY_FILES, Boolean.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_ADVANCED_NAME, String.class);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_SUPPORTS_ADVANCED_MODE, Boolean.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_HIDDEN, Boolean.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_DISABLED_ON_STATUS, String.class);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_CONCURRENT_EXECUTION, Integer.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, Boolean.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER, Boolean.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_IGNORE_FAIL, Boolean.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED, String.class);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED, String.class);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS, Boolean.TYPE);
+        expert_propertyClassTypes.put(UserCommand.PROPERTY_DATA_REGEX, String.class);
+        expert_propertyClassTypes.put(UserCommand.PROPERTY_ERROR_REGEX, String.class);
+        expert_propertyClassTypes.put(UserCommand.PROPERTY_INPUT, String.class);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_NUM_REVISIONS, Integer.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_CHANGED_REVISION_VAR_NAME, String.class);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS, Boolean.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_CHANGING_REVISION, Boolean.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_USER_PARAMS, String[].class);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_LOAD_ATTRS_TO_VARS, String[].class);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_FILE_NAME, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_STATUS, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_LOCKER, Integer.TYPE);
@@ -113,16 +117,105 @@ public class CommandNode extends AbstractNode {
         index = new CommandsIndex();
         getCookieSet().add(index);
     }
+    
+    /**
+     * Get the Class type of the known command properties.
+     * @return the class type or null, when the property is not known
+     */
+    public static Class getPropertyClass(String propertyName) {
+        Class clazz = (Class) stdandard_propertyClassTypes.get(propertyName);
+        if (clazz != null) return clazz;
+        clazz = (Class) expert_propertyClassTypes.get(propertyName);
+        if (clazz != null) return clazz;
+        clazz = (Class) list_propertyClassTypes.get(propertyName);
+        if (clazz != null) return clazz;
+        return null;
+    }
 
     public void setCommand(VcsCommand cmd) {
         this.cmd = cmd;
         init();
+        fireIconChange();
     }
     
     public VcsCommand getCommand() {
         return cmd;
     }
     
+    private Image getSeparatorIcon(int type) {
+        Image icon;
+        if (java.beans.BeanInfo.ICON_MONO_16x16 == type) {
+            if (SEPARATOR_ICONS[0] == null) {
+                try {
+                    SEPARATOR_ICONS[0] = new org.openide.nodes.BeanNode(new javax.swing.JSeparator()).getIcon(type);
+                } catch (java.beans.IntrospectionException exc) {
+                    exc.printStackTrace();
+                }
+            }
+            icon = SEPARATOR_ICONS[0];
+        }
+        if (java.beans.BeanInfo.ICON_MONO_32x32 == type) {
+            if (SEPARATOR_ICONS[1] == null) {
+                try {
+                    SEPARATOR_ICONS[1] = new org.openide.nodes.BeanNode(new javax.swing.JSeparator()).getIcon(type);
+                } catch (java.beans.IntrospectionException exc) {
+                    exc.printStackTrace();
+                }
+            }
+            icon = SEPARATOR_ICONS[1];
+        }
+        if (java.beans.BeanInfo.ICON_COLOR_16x16 == type) {
+            if (SEPARATOR_ICONS[2] == null) {
+                try {
+                    SEPARATOR_ICONS[2] = new org.openide.nodes.BeanNode(new javax.swing.JSeparator()).getIcon(type);
+                } catch (java.beans.IntrospectionException exc) {
+                    exc.printStackTrace();
+                }
+            }
+            icon = SEPARATOR_ICONS[2];
+        }
+        if (java.beans.BeanInfo.ICON_COLOR_32x32 == type) {
+            if (SEPARATOR_ICONS[3] == null) {
+                try {
+                    SEPARATOR_ICONS[3] = new org.openide.nodes.BeanNode(new javax.swing.JSeparator()).getIcon(type);
+                } catch (java.beans.IntrospectionException exc) {
+                    exc.printStackTrace();
+                }
+            }
+            icon = SEPARATOR_ICONS[3];
+        } else icon = null;
+        System.out.println("  type = "+type+", icon = "+icon);
+        if (icon != null) {
+            return icon;
+        } else {
+            return super.getIcon(type);
+        }
+    }
+    
+    /** Find an icon for this node.
+     *
+     * @param type constants from {@link java.beans.BeanInfo}
+     *
+     * @return icon to use to represent the bean
+     */
+    public Image getIcon (int type) {
+        System.out.println("getIcon("+type+"): cmd = "+cmd);
+        if (cmd == null) {
+            return getSeparatorIcon(type);
+        } else {
+            return super.getIcon(type);
+        }
+    }
+    
+    public Image getOpenedIcon(int type) {
+        System.out.println("getOpenedIcon("+type+"): cmd = "+cmd);
+        if (cmd == null) {
+            return getSeparatorIcon(type);
+        } else {
+            return super.getOpenedIcon(type);
+        }
+    }
+
     public boolean canCopy() {
         return true;
     }
@@ -143,18 +236,21 @@ public class CommandNode extends AbstractNode {
         Sheet sheet = Sheet.createDefault();
         Sheet.Set set = sheet.get(Sheet.PROPERTIES);
         if (cmd == null) set.put(new PropertySupport.Name(this));
-        else createProperties(cmd, set);
+        else {
+            createStandardProperties(cmd, set);
+            sheet.put(createExpertProperties(cmd));
+        }
         return sheet;
     }
     
-    private void createProperties(final VcsCommand cmd, final Sheet.Set set) {
+    private void createStandardProperties(final VcsCommand cmd, final Sheet.Set set) {
         if (cmd == null) {
-            set.put(new PropertySupport.ReadOnly("label", String.class, g("CTL_Label"), "") {
+            set.put(new PropertySupport.ReadOnly("label", String.class, g("CTL_Label"), g("HINT_Label")) {
                         public Object getValue() {
                             return g("CTL_Separator");
                         }
                     });
-            set.put(new PropertySupport.ReadOnly("name", String.class, g("CTL_Name"), "") {
+            set.put(new PropertySupport.ReadOnly("name", String.class, g("CTL_Name"), g("HINT_Name")) {
                         public Object getValue() {
                             return g("CTL_SeparatorName");
                         }
@@ -162,7 +258,7 @@ public class CommandNode extends AbstractNode {
             return;
                         
         }
-        set.put(new PropertySupport.ReadWrite("label", String.class, g("CTL_Label"), "") {
+        set.put(new PropertySupport.ReadWrite("label", String.class, g("CTL_Label"), g("HINT_Label")) {
                     public Object getValue() {
                         //System.out.println("getLabel: cmd = "+cmd);
                         return cmd.getDisplayName();
@@ -183,7 +279,7 @@ public class CommandNode extends AbstractNode {
                         CommandNode.this.setDisplayName(null);
                     }
                 });
-        set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), "") {
+        set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), g("HINT_Name")) {
                     public Object getValue() {
                         //System.out.println("getLabel: cmd = "+cmd);
                         return cmd.getName();
@@ -197,13 +293,19 @@ public class CommandNode extends AbstractNode {
                 });
         String[] propertyNames = cmd.getPropertyNames();
         if (propertyNames.length != 0) {
-            addProperties(set, cmd, propertyClassTypes, null);
+            addProperties(set, cmd, stdandard_propertyClassTypes, null);
             if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
                 VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName())) {
 
                 addProperties(set, cmd, list_propertyClassTypes, new Integer(-1));
             }
         }
+    }
+    
+    private Sheet.Set createExpertProperties(final VcsCommand cmd) {
+        Sheet.Set set = Sheet.createExpertSet();
+        addProperties(set, cmd, expert_propertyClassTypes, null);
+        return set;
     }
     
     private void addProperties(final Sheet.Set set, final VcsCommand cmd,
@@ -220,11 +322,17 @@ public class CommandNode extends AbstractNode {
             }
             //System.out.println("label for property '"+propertyNames[i]+"' = "+label);
             if (label == null) continue;
+            String tooltip;
+            try {
+                tooltip = g("HINT_"+propertyName);
+            } catch (MissingResourceException exc) {
+                tooltip = "";
+            }
             Class valueClass = (Class) propertyClassTypes.get(propertyName);
             if (valueClass == null) continue;
             set.put(new PropertySupport.ReadWrite(
                         propertyName, valueClass,
-                        label, ""
+                        label, tooltip
                     ) {
                         public Object getValue() {
                             //System.out.println("getName: cmd = "+cmd);

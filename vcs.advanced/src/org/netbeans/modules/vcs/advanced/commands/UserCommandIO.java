@@ -82,8 +82,7 @@ public class UserCommandIO extends Object {
     }
     
     private static Object getPropertyValue(String name, String valueStr) {
-        Class type = (Class) CommandNode.propertyClassTypes.get(name);
-        if (type == null) type = (Class) CommandNode.list_propertyClassTypes.get(name);
+        Class type = CommandNode.getPropertyClass(name);
         if (Boolean.TYPE.equals(type)) {
             return Boolean.valueOf(valueStr);
         } else if (Integer.TYPE.equals(type)) {
@@ -104,7 +103,7 @@ public class UserCommandIO extends Object {
     
     private static String getPropertyValueStr(String name, Object value) {
         if (name.indexOf(VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY) >= 0) return null;
-        Class type = (Class) CommandNode.propertyClassTypes.get(name);
+        Class type = CommandNode.getPropertyClass(name);
         if (String[].class.equals(type)) {
             return convertStringArray2String((String[]) value);
         }
