@@ -14,6 +14,7 @@
 package org.netbeans.modules.vcscore.ui;
 
 import javax.swing.*;
+import org.openide.util.NbBundle;
 
 /**
  * OutputPanel.java
@@ -30,6 +31,8 @@ public class OutputPanel extends AbstractOutputPanel{
         if(errOutput == null){
             errOutput = new JTextArea();
             errOutput.setEditable(false);
+            errOutput.getAccessibleContext().setAccessibleName(NbBundle.getBundle(OutputPanel.class).getString("ACS_OutputPanel.ErrComponent"));//NOI18N
+            errOutput.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(OutputPanel.class).getString("ACSD_OutputPanel.ErrComponent"));//NOI18N
         }
         return errOutput;
     }
@@ -38,6 +41,8 @@ public class OutputPanel extends AbstractOutputPanel{
         if(stdOutput == null){
             stdOutput = new JTextArea();
             stdOutput.setEditable(false);
+            stdOutput.getAccessibleContext().setAccessibleName(NbBundle.getBundle(OutputPanel.class).getString("ACS_OutputPanel.StdComponent"));//NOI18N
+            stdOutput.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(OutputPanel.class).getString("ACSD_OutputPanel.StdComponent"));//NOI18N
         }
         return stdOutput;
     }
