@@ -671,8 +671,12 @@ public final class ProfilesFactory extends Object {
             String label = labelAndOSs[0];
             synchronized (ProfilesFactory.this) {
                 profileNames.add(name);
-                profileLabels.add(label);
                 profileLabelsByName.put(name, label);
+                if (areLabelsResolved) {
+                    label = VcsUtilities.getBundleString((String[]) resourceBundlesByName.get(name), label);
+                    profileLabelsByName.put(name, label);
+                }
+                profileLabels.add(label);
                 compatibleOSsByName.put(name, (labelAndOSs[1] != null) ? parseOSs(labelAndOSs[1]) : Collections.EMPTY_SET);
                 uncompatibleOSsByName.put(name, (labelAndOSs[2] != null) ? parseOSs(labelAndOSs[2]) : Collections.EMPTY_SET);
             }
