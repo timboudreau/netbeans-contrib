@@ -16,3 +16,10 @@ OpenIDE-Module-Class: Option
 Name: com/netbeans/enterprise/modules/corba/browser/ns/ContextNode.class
 OpenIDE-Module-Class: Node
 Type: Environment
+
+Name: com/netbeans/enterprise/modules/corba/browser/ir/IRRootNode.class
+OpenIDE-Module-Class: Node
+Type: Environment
+
+Name: com/netbeans/enterprise/modules/corba/wizard/CorbaWizardAction.class
+OpenIDE-Module-Class: Action
