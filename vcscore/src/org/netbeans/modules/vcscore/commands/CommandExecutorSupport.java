@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.Iterator;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.caching.FileCacheProvider;
+import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 
 /**
  * This class contains a support for VCS commands execution.
@@ -44,6 +46,9 @@ public class CommandExecutorSupport extends Object {
     }
     
     private static void doRefresh(VcsFileSystem fileSystem, String exec, VcsCommand cmd, String dir, String file) {
+        FileCacheProvider cache = fileSystem.getCacheProvider();
+        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
+        if (statusProvider == null) return; // No refresh without a status provider
         boolean doRefreshCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER);
         boolean doRefreshParent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER);
         if((doRefreshCurrent || doRefreshParent) && fileSystem.getDoAutoRefresh(dir/*(String) vars.get("DIR")*/)) { // NOI18N
@@ -52,15 +57,19 @@ public class CommandExecutorSupport extends Object {
             String refreshPath = dir;//(String) vars.get("DIR");
             refreshPath.replace(java.io.File.separatorChar, '/');
             String refreshPathFile = refreshPath + ((refreshPath.length() > 0) ? "/" : "") + file; //(String) vars.get("FILE");
-            if (!doRefreshParent && fileSystem.getCache().isDir(refreshPathFile)) refreshPath = refreshPathFile;
+            if (!doRefreshParent && cache != null && cache.isDir(refreshPathFile)) refreshPath = refreshPathFile;
             String pattern = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED);
-            if (pattern != null && pattern.length() > 0 && exec.indexOf(pattern) >= 0 && !fileSystem.getCache().isFile(refreshPathFile)) {
-                fileSystem.getCache().refreshDirRecursive(refreshPath);
+            if (pattern != null && pattern.length() > 0 && exec.indexOf(pattern) >= 0 && (cache == null || !cache.isFile(refreshPathFile))) {
+                statusProvider.refreshDirRecursive(refreshPath);
             } else {
-                fileSystem.getCache().refreshDir(refreshPath); // NOI18N
+                statusProvider.refreshDir(refreshPath); // NOI18N
             }
         }
         if (!(doRefreshCurrent || doRefreshParent)) fileSystem.removeNumDoAutoRefresh(dir); //(String)vars.get("DIR")); // NOI18N
     }
 
+    /*
+    public static String preprocessCommand(VcsCommand cmd, Hashtable vars) {
+    }
+     */
 }

@@ -30,6 +30,8 @@ import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.Debug;
 import org.netbeans.modules.vcscore.caching.VcsFSCache;
 import org.netbeans.modules.vcscore.caching.VcsCacheFile;
+import org.netbeans.modules.vcscore.caching.FileCacheProvider;
+import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.commands.*;
 
 /**
@@ -68,9 +70,11 @@ public class VcsAction extends NodeAction implements ActionListener {
         this.selectedFileObject = fo;
     }
 
+    /*
     public VcsCacheFile parseFromCache (String[] cacheRecord) {
         return null; // TODO
     }
+     */
 
     /**
      * Get a human presentable name of the action.
@@ -118,13 +122,16 @@ public class VcsAction extends NodeAction implements ActionListener {
     public void doList(String path) {
         //D.deb("doList('"+path+"')"); // NOI18N
         //System.out.println("VcsAction.doList("+path+")");
-        VcsFSCache cache = fileSystem.getCache();
-        if (cache.isDir(path)) {
-            cache.refreshDir(path);
+        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
+        FileCacheProvider cache = fileSystem.getCacheProvider();
+        if (statusProvider == null) return;
+        if (cache == null || cache.isDir(path)) {
+            statusProvider.refreshDir(path);
             return ;
+        } else {
+            String dirName = VcsUtilities.getDirNamePart(path);
+            statusProvider.refreshDir(dirName);
         }
-        String dirName = VcsUtilities.getDirNamePart(path);
-        cache.refreshDir(dirName);
     }
 
     /**
@@ -133,10 +140,12 @@ public class VcsAction extends NodeAction implements ActionListener {
      */
     public void doListSub(String path) {
         //D.deb("doListSub('"+path+"')"); // NOI18N
+        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
+        FileCacheProvider cache = fileSystem.getCacheProvider();
+        if (statusProvider == null) return;
         VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY);
-        VcsFSCache cache = fileSystem.getCache();
         String dirName = ""; // NOI18N
-        if (cache.isDir(path)) {
+        if (cache == null || cache.isDir(path)) {
             dirName = path;
         }
         else{
@@ -145,7 +154,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         //Object exec = VcsCommandIO.getCommandProperty(cmd, "exec", String.class);
         Object exec = cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (cmd != null && (exec != null && ((String) exec).trim().length() > 0)) {
-            cache.refreshDirRecursive(dirName);
+            statusProvider.refreshDirRecursive(dirName);
         } else {
             RetrievingDialog rd = new RetrievingDialog(fileSystem, dirName, new JFrame(), false);
             VcsUtilities.centerWindow(rd);
