@@ -44,6 +44,9 @@ import org.openide.util.SharedClassObject;
 import org.openide.util.UserQuestionException;
 import org.openide.util.WeakListener;
 
+import org.apache.regexp.RE;
+import org.apache.regexp.RESyntaxException;
+
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
 import org.netbeans.modules.vcscore.cache.CacheFile;
@@ -101,6 +104,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public static final String PROP_ANNOTATION_PATTERN = "annotationPattern"; // NOI18N
     public static final String PROP_ANNOTATION_TYPES = "annotationTypes"; // NOI18N
     public static final String PROP_COMMAND_NOTIFICATION = "commandNotification"; // NOI18N
+    public static final String PROP_IGNORED_GARBAGE_FILES = "ignoredGarbageFiles"; // NOI18N
     
     private static ResourceBundle resourceBundle = null;
     
@@ -322,6 +326,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private transient Set unimportantFiles;
     
+    /** regexp of ignorable children */
+    private String ignoredGarbageFiles = ""; // NOI18N
+    
+    /** regexp matcher for ignoredFiles, null if not needed */
+    private transient RE ignoredGarbageRE = null;
+
     private transient VersioningFileSystem versioningSystem = null;
     
     private transient AbstractFileSystem.List vcsList = null;
@@ -470,6 +480,43 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
     
+    public String getIgnoredGarbageFiles () {
+        return ignoredGarbageFiles;
+    }
+    
+    public synchronized void setIgnoredGarbageFiles (String nue) throws IllegalArgumentException {
+        if (! nue.equals (ignoredGarbageFiles)) {
+            if (nue.length () > 0) {
+                try {
+                    ignoredGarbageRE = new RE (nue);
+                } catch (RESyntaxException rese) {
+                    IllegalArgumentException iae = new IllegalArgumentException ();
+                    TopManager.getDefault ().getErrorManager ().annotate (iae, rese);
+                    throw iae;
+                }
+            } else {
+                ignoredGarbageRE = null;
+            }
+            ignoredGarbageFiles = nue;
+            firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null, null); // NOI18N
+            refreshExistingFolders();
+        }
+    }
+    
+    protected void refreshExistingFolders() {
+        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                Enumeration e = existingFileObjects(getRoot());
+                while (e.hasMoreElements()) {
+                    FileObject fo = (FileObject) e.nextElement();
+                    if (fo.isFolder()) {
+                        fo.refresh(true);
+                    }
+                }
+            }
+        });
+    }
+    
     public void setOffLine(boolean offLine) {
         if (offLine != this.offLine) {
             this.offLine = offLine;
@@ -505,6 +552,30 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (hideShadowFiles != this.hideShadowFiles) {
             this.hideShadowFiles = hideShadowFiles;
             firePropertyChange (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, new Boolean(!hideShadowFiles), new Boolean(hideShadowFiles));
+        }
+    }
+    
+    public boolean isShowDeadFiles() {
+        VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(Variables.SHOW_DEAD_FILES);
+        if (var == null) {
+            return false;
+        } else {
+            return (var.getValue().trim().length() > 0);
+        }
+    }
+    
+    public void setShowDeadFiles(boolean showDeadFiles) {
+        VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(Variables.SHOW_DEAD_FILES);
+        if (var == null) {
+            if (showDeadFiles) {
+                var = new VcsConfigVariable(Variables.SHOW_DEAD_FILES, null, "true", false, false, false, null);
+                synchronized (this) {
+                    variablesByName.put(Variables.SHOW_DEAD_FILES, var);
+                    variables.add(var);
+                }
+            }
+        } else {
+            var.setValue(showDeadFiles ? "true" : "");
         }
     }
     
@@ -1241,6 +1312,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         last_useUnixShell = useUnixShell;
         updateEnvironmentVars();
         init();
+        if (ignoredGarbageFiles == null) {
+            ignoredGarbageFiles = "";
+        } else if (ignoredGarbageFiles.length () > 0) {
+            try {
+                ignoredGarbageRE = new RE (ignoredGarbageFiles);
+            } catch (RESyntaxException rese) {
+                TopManager.getDefault ().notifyException (rese);
+            }
+        }
         //cache.setLocalFilesAdd (localFilesOn);
         ProjectChangeHack.restored();
         org.openide.util.RequestProcessor.postRequest(new Runnable () {
@@ -2098,7 +2178,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     // List
     //
 
-    private String[] getLocalFiles(String name) {
+    String[] getLocalFiles(String name) {
         File dir = new File(getRootDirectory(), name);
         if (dir == null || !dir.exists() || !dir.canRead()) return new String[0];
         String files[] = dir.list(getLocalFileFilter());
@@ -2131,7 +2211,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    private String[] addLocalFiles(String name, String[] cachedFiles, Map removedFilesScheduledForRemove) {
+    String[] addLocalFiles(String name, String[] cachedFiles, Map removedFilesScheduledForRemove) {
         String[] files = getLocalFiles(name);
         if (files == null || files.length == 0) {
             return cachedFiles;
@@ -2160,9 +2240,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
 
         HashMap removedFilesScheduledForRemove = new HashMap();
-        if (cache != null) {// && cache.isDir(name)) {
+        if (cache != null && !isHideShadowFiles()) {// && cache.isDir(name)) {
             cache.readDirFromDiskCache(name);
             vcsFiles = cache.getFilesAndSubdirs(name);
+            if (!isShowDeadFiles()) {
+                vcsFiles = filterDeadFilesOut(name, vcsFiles);
+            }
             //System.out.println("  getFilesAndSubdirs = "+VcsUtilities.arrayToString(vcsFiles));
             //D.deb("vcsFiles=" + VcsUtilities.arrayToString(vcsFiles)); // NOI18N
             /*
@@ -2181,7 +2264,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 vcsFiles = filterScheduledSecondaryFiles(name, vcsFiles, removedFilesScheduledForRemove);
             }
         }
-        if (vcsFiles == null || isHideShadowFiles()) files = getLocalFiles(name);
+        if (vcsFiles == null) files = getLocalFiles(name);
         else files = addLocalFiles(name, vcsFiles, removedFilesScheduledForRemove);
         //cleanupNonExistingAddedFiles(name, files);
         //D.deb("children('"+name+"') = "+VcsUtilities.arrayToString(files));
@@ -2194,7 +2277,28 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("children = "+files);
         //System.out.println("  children = "+VcsUtilities.arrayToString(files));
         if (versioningSystem != null) addVersioningFolderListener(name);
+        
+        for (int i = 0; i < files.length; i++) {
+            if (ignoredGarbageRE != null && ignoredGarbageRE.match (files[i])) {
+                files[i] = null;
+            }
+        }
         return files;
+    }
+    
+    String[] filterDeadFilesOut(String name, String[] vcsFiles) {
+        FileStatusProvider statusProvider = getStatusProvider();
+        if (statusProvider == null) return vcsFiles;
+        ArrayList files = new ArrayList(Arrays.asList(vcsFiles));
+        int n = files.size();
+        for (int i = 0; i < n; i++) {
+            String file = name + "/" + (String) files.get(i);
+            if (VcsCacheFile.STATUS_DEAD.equals(statusProvider.getFileStatus(file))) {
+                files.remove(i--);
+                n--;
+            }
+        }
+        return (String[]) files.toArray(new String[0]);
     }
     
     private transient WeakHashMap versioningFolderListeners;
