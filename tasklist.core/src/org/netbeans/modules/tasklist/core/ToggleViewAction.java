@@ -23,6 +23,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.BooleanStateAction;
 import org.openide.util.actions.CallableSystemAction;
+import org.openide.util.actions.Presenter;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -34,16 +35,21 @@ import org.openide.windows.Workspace;
  * @author Tim Lebedkov
  */
 public abstract class ToggleViewAction extends BooleanStateAction implements
-PropertyChangeListener {
+PropertyChangeListener, Presenter.Menu {
     private boolean block;
     private String mode = "output"; // NOI18N
     private WeakReference activated;
     
+    public javax.swing.JMenuItem getMenuPresenter() {
+        return new Actions.MenuItem(this, true);
+    }
+
     public void setBooleanState(final boolean value) {
         super.setBooleanState(value);
         if (block)
             return;
         block = true;
+        
         // XXX is it realy called from not AWT thread?
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
