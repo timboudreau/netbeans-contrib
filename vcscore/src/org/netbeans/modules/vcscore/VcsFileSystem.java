@@ -935,9 +935,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
         
-    public synchronized String getRelativeMountPoint() {
-      Hashtable vars = variablesByName;
-      VcsConfigVariable module = (VcsConfigVariable) vars.get("MODULE");
+    public String getRelativeMountPoint() {
+      VcsConfigVariable module = (VcsConfigVariable) variablesByName.get("MODULE");
       if (module == null) return "";
       return module.getValue();
     }    
