@@ -40,7 +40,7 @@ public class POAFile1 {
             props.put("org.omg.CORBA.ORBSingletonClass", "com.ooc.CORBA.ORBSingleton");
             System.setProperties(props);
             ORB orb = ORB.init(args, props);
-            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));//GEN-BEGIN:poa_section_orbacus4u
+            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
             
             Policy[] _policies;
             
@@ -86,25 +86,25 @@ public class POAFile1 {
                 poa.create_id_uniqueness_policy(IdUniquenessPolicyValue.MULTIPLE_ID),
                 poa.create_request_processing_policy(RequestProcessingPolicyValue.USE_DEFAULT_SERVANT)
             };
-            POA var_5_child_Parent_of_children = var_Parent_of_children.create_POA("5.child Parent_of_children", null, _policies);//GEN-END:poa_section_orbacus4u
+            POA var_5_child_Parent_of_children = var_Parent_of_children.create_POA("5.child Parent_of_children", null, _policies);
             // add your creating of object implementation here
-            MyAdapterActivator var_adapter_activator = new MyAdapterActivator();//GEN-BEGIN:servant_section
+            MyAdapterActivator var_adapter_activator = new MyAdapterActivator();
             var_3_child_Parent_of_children.the_activator(var_adapter_activator._this());
             byte[] HelloWorld_ID = var_5_child_Parent_of_children.activate_object(HelloWorld);
             HelloWorldImpl var_default_servant = new HelloWorldImpl();
             var_5_child_Parent_of_children.set_servant(var_default_servant._this());
             MyServantManager var_servant_manager = new MyServantManager();
-            var_3_child_Parent_of_children.set_servant_manager(var_servant_manager._this());//GEN-END:servant_section
+            var_3_child_Parent_of_children.set_servant_manager(var_servant_manager._this());
             // IOR will be written to standard output
             System.out.println(orb.object_to_string(poa.servant_to_reference(/*servant_variable*/)));
-            poa.the_POAManager().activate();//GEN-BEGIN:poa_activate_section
+            poa.the_POAManager().activate();
             var_MyChildPOA_DefaultValues.the_POAManager().activate();
             var_Parent_of_children.the_POAManager().activate();
             var_1_child_Parent_of_children.the_POAManager().activate();
             var_2_child_Parent_of_children.the_POAManager().activate();
             var_3_child_Parent_of_children.the_POAManager().activate();
             var_4_child_Parent_of_children.the_POAManager().activate();
-            var_5_child_Parent_of_children.the_POAManager().activate();//GEN-END:poa_activate_section
+            var_5_child_Parent_of_children.the_POAManager().activate();
             orb.run();
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -96,6 +96,7 @@ public class Main extends JellyTestCase {
         filter.addFilterAfter ("@author");
         filter.addFilterAfter ("Created on");
         filter.addFilterAfter ("by ");
+        filter.addFilterFrom ("//GEN-");
     }
     
     public void tearDown () {
