@@ -360,6 +360,8 @@ public class JellyAddFeatures extends JellyStub {
         JellyStub.viewOutput(history, "UPDATE_CMD", hText4);
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("UPDATE_CMD");
         String str = coo.txtStandardError().getText ();
+        getLog ().println ("Standard Error:");
+        getLog ().println (str);
         assertTrue ("Standard error does not contain this text: Checking out text4", str.indexOf ("Checking out text4") >= 0);
         assertTrue ("Standard error does not contain this text: RCS:", str.indexOf ("RCS:") >= 0);
         assertTrue ("Standard error does not contain this text: VERS: 1.1", str.indexOf ("VERS: 1.1") >= 0);
