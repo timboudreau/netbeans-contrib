@@ -30,6 +30,24 @@ import java.io.ByteArrayOutputStream;
  */
 
 public class IndexTreeNode extends HelpTreeNode{
+    
+    /**
+     * Header part of xml file
+     */
+    public static final String HEADER="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+    "<!DOCTYPE toc\n PUBLIC \""+javax.help.IndexView.publicIDString+
+    "\"\n        \"http://java.sun.com/products/javahelp/index_1_0.dtd\">\n"+
+    "\n<index version=\"1.0\">\n";
+    
+    /**
+     * XML element name
+     */
+    public static final String ELEMENT="indexitem";
+    
+    /**
+     * Footer of xml document
+     */
+    public static final String FOOTER="</index>";
 
     public IndexTreeNode(IndexTreeItem item){
         super(item);
@@ -44,15 +62,9 @@ public class IndexTreeNode extends HelpTreeNode{
         TreeNode paren = getParent();        
         IndexTreeItem item = (IndexTreeItem)getUserObject();        
         writer.write(getOffset()+"<"+getXMLElement()+ " text=\""+item.getName()+"\" ");
-    /*    String target = item.getTarget();
-        if(target != null)
+        String target = item.getTarget();
+        if((target != null)&&(target.length() > 0))
             writer.write("target=\""+target+"\" ");
-        String url = item.getURLSpec();
-        if(url != null)
-            writer.write("url=\""+url+"\"");
-        String hstitle = item.getHelpSetTitle();
-        if(hstitle != null)
-            writer.write(" hstitle=\""+hstitle+"\"");*/
         Enumeration chldn = children(); 
         if(chldn.equals(DefaultMutableTreeNode.EMPTY_ENUMERATION))
             writer.write("/>\n");
@@ -69,6 +81,25 @@ public class IndexTreeNode extends HelpTreeNode{
      
     }   
  
+    /**
+     * Returns the XML header string
+     */
+    public String getXMLHeader(){
+        return this.HEADER;
+    }
+    /**
+     * Returns the XML element string
+     */
+    public String getXMLElement(){
+        return this.ELEMENT;
+    }
+        
+    /**
+     * Returns footer of XML doc
+     */
+    public String getFooter(){
+        return FOOTER;
+    }
         
     /**
      * Debugging code
@@ -76,7 +107,7 @@ public class IndexTreeNode extends HelpTreeNode{
     private static final boolean debug = false;
     private static void debug(String msg) {
   	if (debug) {
-  	    System.err.println("HelpTreeNode: "+msg);
+  	    System.err.println("IndexTreeNode: "+msg);
 	}
     }
     

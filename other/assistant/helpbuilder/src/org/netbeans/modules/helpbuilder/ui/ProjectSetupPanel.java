@@ -327,20 +327,8 @@ public class ProjectSetupPanel extends javax.swing.JPanel implements DocumentLis
     private void updatePath(){
         absPath = getAbsPath(selectedNode);
         txtFolder.setText(absPath);
-        putClientProperty(PROP_TARGET_LOCATION, absPath);
-        
-   /*     if(selectedPath.length() == 0)
-            //is root
-            if(txtFolder.getText().length() > 0){
-                txtDirectory.setText(selectedNode.getName()+File.separator+txtFolder.getText());
-            }else{
-                txtDirectory.setText(selectedNode.getName());
-            }
-        else if((selectedPath != null)&&(selectedPath.length()>0))
-            txtDirectory.setText(selectedPath+File.separator+txtFolder.getText());
-        else
-            txtDirectory.setText("");
-        */
+        putClientProperty(PROP_TARGET_LOCATION, absPath);        
+   
     }
     
     public static String getTargetLocation(){

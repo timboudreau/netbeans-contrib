@@ -75,6 +75,13 @@ public class IndexTreeItem extends HelpTreeItem {
     }
     
     /**
+     * Sets the id for this item.
+     */
+    public void setTarget(String target) {
+        this.target = target;
+    }
+    
+    /**
      *Returns the external representation of url for this item.
      */
     public String getURLSpec(){

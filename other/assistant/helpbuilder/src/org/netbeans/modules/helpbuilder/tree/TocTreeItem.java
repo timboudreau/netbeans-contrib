@@ -17,6 +17,7 @@ import java.util.Vector;
 import java.util.Locale;
 import java.io.IOException;
 import java.net.URL;
+import org.netbeans.modules.helpbuilder.processors.HelpSetProcessor;
 
 /**
  * A class for individual tree items.
@@ -120,7 +121,7 @@ public class TocTreeItem extends HelpTreeItem {
      * Sets this item as homeID
      */
     public void setHomeID(boolean value){
-        this.homeID = value;
+        this.homeID = value;        
     }
 
     /**

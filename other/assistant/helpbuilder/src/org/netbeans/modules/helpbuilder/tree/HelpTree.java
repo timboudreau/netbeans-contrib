@@ -29,6 +29,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionListener;
 import org.netbeans.modules.helpbuilder.plaf.basic.BasicHelpCellRenderer;
+import org.netbeans.modules.helpbuilder.processors.HelpSetProcessor;
+import org.netbeans.modules.helpbuilder.processors.MapProcessor;
 import org.netbeans.modules.helpbuilder.ui.AddIndexPanel;
 import org.netbeans.modules.helpbuilder.ui.AddPanel;
 import org.openide.DialogDescriptor;
@@ -180,6 +182,13 @@ public class HelpTree extends JTree implements TreeSelectionListener{
             Object ret = DialogDisplayer.getDefault().notify(dd);
             if(ret == AddPanel.OK_OPTION){                
                 TocTreeNode node = new TocTreeNode(new TocTreeItem(addPanel.getName(),addPanel.getMapTarget(),addPanel.getUrlSpec(),addPanel.isHomeID(),Locale.getDefault()));
+                String target = addPanel.getMapTarget();
+                if(addPanel.isHomeID())
+                    HelpSetProcessor.getDefault().setHomeID(target);                
+                String url = addPanel.getUrlSpec();
+                if((target != null)&&(target.length() > 0))
+                    if((url != null)&&(url.length() > 0))
+                        MapProcessor.getDefault().addMap(new MapProcessor.Map(target, url));                
                 DefaultTreeModel model = (DefaultTreeModel)getModel();                        
                 TreePath path = HelpTree.this.getSelectionPath();
                 DefaultMutableTreeNode parentNode = rootNode;
@@ -192,7 +201,7 @@ public class HelpTree extends JTree implements TreeSelectionListener{
                 }else{
                     model.insertNodeInto(node, parentNode,  parentNode.getChildCount());                    
                 } 
-                setActiveNode(node);
+                setActiveNode(node);                
                 
             }
         }
@@ -217,7 +226,7 @@ public class HelpTree extends JTree implements TreeSelectionListener{
             dd.setOptions(addPanel.getOptions());            
             Object ret = DialogDisplayer.getDefault().notify(dd);
             if(ret == AddIndexPanel.OK_OPTION){                
-                IndexTreeNode node = new IndexTreeNode(new IndexTreeItem(addPanel.getName(),addPanel.getUrlSpec(),addPanel.getUrlSpec(),false,Locale.getDefault()));
+                IndexTreeNode node = new IndexTreeNode(new IndexTreeItem(addPanel.getName(),addPanel.getMapTarget(),addPanel.getUrlSpec(),false,Locale.getDefault()));
                 DefaultTreeModel model = (DefaultTreeModel)getModel();                        
                 TreePath path = HelpTree.this.getSelectionPath();
                 DefaultMutableTreeNode parentNode = rootNode;
@@ -298,14 +307,16 @@ public class HelpTree extends JTree implements TreeSelectionListener{
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent(); 
             IndexTreeItem item = (IndexTreeItem) selectedNode.getUserObject();
             editPanel.setName(item.getName());
-            editPanel.setUrlSpec(item.getURLSpec());           
+            editPanel.setUrlSpec(item.getURLSpec());       
+            editPanel.setMapTarget(item.getTarget());
             
             DialogDescriptor dd = new DialogDescriptor(editPanel,editPanel.getName());            
             dd.setOptions(editPanel.getOptions());            
             Object ret = DialogDisplayer.getDefault().notify(dd);
             if(ret == AddPanel.OK_OPTION){
                 item.setName(editPanel.getName());
-                item.setURLSpec(editPanel.getUrlSpec());                
+                item.setURLSpec(editPanel.getUrlSpec());
+                item.setTarget(editPanel.getMapTarget());
                 ((DefaultTreeModel)getModel()).reload(selectedNode); 
                 setActiveNode(selectedNode);
             }

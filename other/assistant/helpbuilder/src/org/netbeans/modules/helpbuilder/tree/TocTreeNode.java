@@ -35,7 +35,7 @@ public class TocTreeNode extends HelpTreeNode{
      * Header part of xml file
      */
     public static final String HEADER="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
-    "<!DOCTYPE toc\n PUBLIC \""+//TocView.publicIDString+
+    "<!DOCTYPE toc\n PUBLIC \""+javax.help.TOCView.publicIDString+
     "\"\n        \"http://java.sun.com/products/javahelp/toc_1_0.dtd\">\n"+
     "\n<toc version=\"1.0\">\n";
     
@@ -64,7 +64,7 @@ public class TocTreeNode extends HelpTreeNode{
         TocTreeItem item = (TocTreeItem)getUserObject();        
         writer.write(getOffset()+"<"+getXMLElement()+ " text=\""+item.getName()+"\" ");
         String target = item.getTarget();
-        if(target != null)
+        if((target != null)&&(target.length() > 0))
             writer.write("target=\""+target+"\" ");        
         Enumeration chldn = children(); 
         if(chldn.equals(DefaultMutableTreeNode.EMPTY_ENUMERATION))
@@ -108,7 +108,7 @@ public class TocTreeNode extends HelpTreeNode{
     private static final boolean debug = false;
     private static void debug(String msg) {
   	if (debug) {
-  	    System.err.println("HelpTreeNode: "+msg);
+  	    System.err.println("TocTreeNode: "+msg);
 	}
     }
     

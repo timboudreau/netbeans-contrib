@@ -13,6 +13,9 @@
 
 package org.netbeans.modules.helpbuilder.processors;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 /**
  *
  * TocProcessor.java
@@ -23,7 +26,7 @@ package org.netbeans.modules.helpbuilder.processors;
  */
 public class TocProcessor implements ViewProcessor{
     
-    public void export() {
+    public void export(OutputStream out) throws IOException{ 
         throw new UnsupportedOperationException();
-    }         
+    }   
 }

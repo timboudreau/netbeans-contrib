@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.modules.helpbuilder.processors.HelpSetProcessor;
+import org.netbeans.modules.helpbuilder.processors.MapProcessor;
 import org.netbeans.modules.helpbuilder.tree.HelpTreeNode;
 import org.openide.ErrorManager;
 
@@ -79,9 +81,22 @@ public class ProjectFinishPanel extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         HelpTreeNode node = TocSetupPanel.getNode();
+        String location = ProjectSetupPanel.getTargetLocation()+File.separator;
+        HelpSetProcessor processor = HelpSetProcessor.getDefault();     
+        processor.addView(new HelpSetProcessor.View("TOC", "TOC", "javax.help.TOCView", "toc.xml", ""));
+        processor.addView(new HelpSetProcessor.View("Index", "INDEX", "javax.help.IndexView", "index.xml", ""));
+        processor.setMapRef("Map.jhm");
+        MapProcessor mapProcessor = MapProcessor.getDefault();        
         try{
-            FileOutputStream out = new FileOutputStream(ProjectSetupPanel.getTargetLocation()+File.separator+"TOC.xml");
+            FileOutputStream out = new FileOutputStream(location + "TOC.xml");
             node.export(out);
+            out = new FileOutputStream(location+"Index.xml");
+            node = IndexSetupPanel.getNode();
+            node.export(out);
+            out = new FileOutputStream(location+"HelpSet.hs");           
+            processor.export(out);
+            out = new FileOutputStream(location+"Map.jhm");
+            mapProcessor.export(out);
         }catch(Exception fnf){
             ErrorManager.getDefault().notify(fnf);
         }

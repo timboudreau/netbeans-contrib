@@ -13,6 +13,9 @@
 
 package org.netbeans.modules.helpbuilder.processors;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 /**
  *
  * HelpProcessor.java
@@ -26,6 +29,6 @@ public interface HelpProcessor {
     /**
      * Exports processor data to appropriate file
      */
-    public void export();
+    public void export(OutputStream out) throws IOException;
  
 }

@@ -42,12 +42,13 @@ import org.openide.util.NbBundle;
 public class IndexSetupPanel extends javax.swing.JPanel {
     private final IndexSetup descriptor;
     private HelpTree tree;
+    private static IndexTreeNode node;
     
     /** Create the wizard panel and set up some basic properties. */
     public IndexSetupPanel(final IndexSetup descriptor) {
         this.descriptor = descriptor;
         initComponents ();                
-        IndexTreeNode node = new IndexTreeNode(new IndexTreeItem("Root Node"));
+        node = new IndexTreeNode(new IndexTreeItem("Root Node"));
         IndexTreeNode node1 = new IndexTreeNode(new IndexTreeItem("Index"));
         IndexTreeNode node2 = new IndexTreeNode(new IndexTreeItem("Sub Index"));
         node.add(node1);
@@ -85,6 +86,10 @@ public class IndexSetupPanel extends javax.swing.JPanel {
         */
     }
 
+    public static HelpTreeNode getNode(){
+        return (HelpTreeNode) node;
+    }
+    
     private void initActions(){
         btnRemove.setAction(tree.getRemoveAction());
         btnRemove.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("ACS_btnRemove_mnc").charAt(0));
