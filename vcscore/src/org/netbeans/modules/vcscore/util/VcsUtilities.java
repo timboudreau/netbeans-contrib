@@ -100,8 +100,9 @@ public class VcsUtilities {
         StringBuffer sb=new StringBuffer();
         sb.append("["); // NOI18N
         for(int i=0;i<sa.length;i++){
-            if(sa[i]==null) sa[i]=""; // NOI18N
-            sb.append(sa[i]);
+            if(sa[i] != null) {
+                sb.append(sa[i]);
+            }
             if(i<sa.length-1){
                 sb.append(","); // NOI18N
             }
@@ -142,8 +143,9 @@ public class VcsUtilities {
         }
         StringBuffer sb=new StringBuffer();
         for(int i=0;i<sa.length;i++){
-            if(sa[i]==null) sa[i]=""; // NOI18N
-            sb.append(sa[i]);
+            if(sa[i]!=null) {
+                sb.append(sa[i]);
+            }
             if(i<sa.length-1){
                 sb.append(" "); // NOI18N
             }
