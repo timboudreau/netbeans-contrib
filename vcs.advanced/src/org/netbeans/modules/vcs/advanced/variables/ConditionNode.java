@@ -52,7 +52,7 @@ public class ConditionNode extends AbstractNode {
     private PropertyChangeSupport conditionChangeSupport = new PropertyChangeSupport(this);
 
     public ConditionNode(Condition condition) {
-        super(new Children.Array());
+        super(new ChildrenArray());
         this.condition = condition;
         operatorNode = new OperatorNode(null, condition);
         setShortDescription(NbBundle.getMessage(ConditionNode.class, "CTL_ConditionDescription", condition.getName()));
@@ -221,15 +221,29 @@ public class ConditionNode extends AbstractNode {
     
     private static void negateNode(Node node) {
         Node parent = node.getParentNode();
+        Children parentChildren = parent.getChildren();
         if (parent instanceof NegationNode) {
             Node grandParent = parent.getParentNode();
-            parent.getChildren().remove(new Node[] { node });
-            grandParent.getChildren().remove(new Node[] { parent });
-            grandParent.getChildren().add(new Node[] { node });
+            parentChildren.remove(new Node[] { node });
+            Children grandParentChildren = grandParent.getChildren();
+            if(grandParentChildren instanceof ChildrenArray) {
+                ChildrenArray grandParentChildrenArray = (ChildrenArray) grandParentChildren;
+                int pos = grandParentChildrenArray.indexOf(parent);
+                grandParentChildrenArray.set(pos, node);
+            } else {
+                grandParentChildren.remove(new Node[] { parent });
+                grandParentChildren.add(new Node[] { node });
+            }
         } else {
             NegationNode nn = new NegationNode();
-            parent.getChildren().remove(new Node[] { node });
-            parent.getChildren().add(new Node[] { nn });
+            if (parentChildren instanceof ChildrenArray) {
+                ChildrenArray parentChildrenArray = (ChildrenArray) parentChildren;
+                int pos = parentChildrenArray.indexOf(node);
+                parentChildrenArray.set(pos, nn);
+            } else {
+                parentChildren.remove(new Node[] { node });
+                parentChildren.add(new Node[] { nn });
+            }
             nn.getChildren().add(new Node[] { node });
         }
     }
@@ -433,7 +447,7 @@ public class ConditionNode extends AbstractNode {
         private Condition enclosingCondition;
         
         public OperatorNode(Condition enclosingCondition, Condition c) {
-            super(new Children.Array());
+            super(new ChildrenArray());
             this.operation = c.getLogicalOperation();
             this.c = c;
             this.enclosingCondition = enclosingCondition;
@@ -645,7 +659,7 @@ public class ConditionNode extends AbstractNode {
     private static class NegationNode extends AbstractNode {
         
         public NegationNode() {
-            super(new Children.Array());
+            super(new ChildrenArray());
             setShortDescription(NbBundle.getMessage(ConditionNode.class, "CTL_ConditionNegationDescription"));
             setIconBase("org/netbeans/modules/vcs/advanced/variables/ConditionIcon"); // NOI18N
         }
@@ -784,6 +798,34 @@ public class ConditionNode extends AbstractNode {
             }
         }
     
+    }
+    
+    /**
+     * An implementation of Children.Array, that enables to add nodes at a specific index
+     */
+    private static final class ChildrenArray extends Children.Array {
+        
+        private ArrayList nodesArray;
+        
+        public ChildrenArray() {
+            super(new ArrayList());
+            nodesArray = (ArrayList) nodes;
+        }
+        
+        public void add(int index, Node node) {
+            nodesArray.add(index, node);
+            refresh();
+        }
+        
+        public void set(int index, Node node) {
+            nodesArray.set(index, node);
+            refresh();
+        }
+        
+        public int indexOf(Node node) {
+            return nodesArray.indexOf(node);
+        }
+        
     }
     
     private static String g(String name) {
