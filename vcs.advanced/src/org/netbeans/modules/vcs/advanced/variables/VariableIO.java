@@ -31,8 +31,6 @@ import org.openide.xml.XMLUtil;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
-import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
-
 /**
  * This class provides input/output of variables from/to xml file.
  *
@@ -69,6 +67,8 @@ public class VariableIO extends Object {
     /** The DTD for a configuration profile. */
     public static final String PUBLIC_ID = "-//NetBeans//DTD VCS Configuration 1.0//EN"; // NOI18N
     public static final String SYSTEM_ID = "http://www.netbeans.org/dtds/vcs-configuration-1_0.dtd"; // NOI18N
+    
+    public static final String TEMPORARY_CONFIG_FILE_NAME = "tmp"; // NOI18N
     
     /** Whether to validate XML files. Safer, but slows down. */
     private static final boolean VALIDATE_XML = false;
@@ -121,7 +121,7 @@ public class VariableIO extends Object {
             String ext = fo.getExt();
             if (!ext.equalsIgnoreCase(CONFIG_FILE_EXT)
                 && !ext.equalsIgnoreCase(VariableIOCompat.CONFIG_FILE_EXT)
-                || CommandLineVcsFileSystem.isTemporaryConfig(fo.getName())
+                || isTemporaryConfig(fo.getName())
                 || isResourceBundle(fo)) {
                 list.remove(i);
                 i--;
@@ -131,6 +131,25 @@ public class VariableIO extends Object {
         ArrayList res = getLocalizedConfigurations(ch);
         hideOlderConfs(res);
         return res;
+    }
+    
+    /**
+     * Finds out, whether the configuration file name is a temporary configuration.
+     * Temporary configurations are saved during serialization of the FS.
+     */
+    public static boolean isTemporaryConfig(String configFileName) {
+        if (configFileName.startsWith(TEMPORARY_CONFIG_FILE_NAME)) {
+            String tempNo = configFileName.substring(TEMPORARY_CONFIG_FILE_NAME.length());
+            if (tempNo.length() == 5) {
+                try {
+                    Integer.parseInt(tempNo);
+                } catch (NumberFormatException exc) {
+                    return false;
+                }
+                return true;
+            }
+        }
+        return false;
     }
     
     private static void hideOlderConfs(ArrayList list) {

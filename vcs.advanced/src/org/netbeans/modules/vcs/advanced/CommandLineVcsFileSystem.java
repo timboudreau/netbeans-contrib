@@ -160,8 +160,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     //private static final String DEFAULT_CONFIG_NAME = "empty.xml";
     //private static final String DEFAULT_CONFIG_NAME_COMPAT = "empty.properties";
     
-    public static final String TEMPORARY_CONFIG_FILE_NAME = "tmp"; // NOI18N
-    
     /** Ugly, but I can not do this in the constuctor, because it can cause deadlock.
      * And I need to initialize the commands somehow, because null will fail somewhere else.
      * Commands should not be stored in Node structure in future releases, since it cause problems (deadlocks) */
@@ -1270,25 +1268,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
 
-    /**
-     * Finds out, whether the configuration file name is a temporary configuration.
-     * Temporary configurations are saved during serialization of the FS.
-     */
-    public static boolean isTemporaryConfig(String configFileName) {
-        if (configFileName.startsWith(TEMPORARY_CONFIG_FILE_NAME)) {
-            String tempNo = configFileName.substring(TEMPORARY_CONFIG_FILE_NAME.length());
-            if (tempNo.length() == 5) {
-                try {
-                    Integer.parseInt(tempNo);
-                } catch (NumberFormatException exc) {
-                    return false;
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-    
     private CommandsTree tryToFindDefaultCommands() {
         if (config == null) return null;
         //ProfilesCache cache = new ProfilesCache(CONFIG_ROOT_FO, this);
