@@ -66,6 +66,14 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
+    <testbag testattribs="full,cvs_profile_6" name="cvs_profile_6">
+        <testset dir="qa-functional/src">
+            <patternset>
+                <include name="complete/cvs_profile/JellyAddCommands.class"/>
+            </patternset>
+        </testset>
+    </testbag>
+
     <testbag testattribs="full" name="common_functionality">
         <testset dir="qa-functional/src">
             <patternset>
