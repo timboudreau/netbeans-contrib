@@ -57,7 +57,7 @@ public class AssistantComponent extends TopComponent{
     }
     
     private AssistantModel getModel(){
-       return TestModel.getModel();         
+       return new TestModel().getModel();         
         
     }
     
