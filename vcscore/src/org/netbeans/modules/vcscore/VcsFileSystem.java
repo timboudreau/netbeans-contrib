@@ -2583,7 +2583,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return files;
     }
     
-    private boolean areOnlyHiddenFiles(String[] files) {
+    boolean areOnlyHiddenFiles(String[] files) {
         ArrayList fileList = new ArrayList(Arrays.asList(files));
         fileList.remove(".nbattrs"); // NOI18N
         fileList.remove("fileSystem.attributes"); // NOI18N
