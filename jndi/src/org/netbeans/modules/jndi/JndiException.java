@@ -16,12 +16,21 @@ package com.netbeans.enterprise.modules.jndi;
 import javax.naming.NamingException;
 
 
-/** JNDI Exception is exception used by JNDI package*/
+
+/** JNDI Exception is exception used by JNDI package
+ *
+ *  @author Tomas Zezula 
+ */
 final class JndiException extends NamingException {
+  
+  /** Constructor*/
   public JndiException() {
     super();
   }
   
+  /** Constructor
+   * @param msg message holds by exception
+   */
   public JndiException(String msg) {
     super(msg);
   }

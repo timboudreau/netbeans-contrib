@@ -17,26 +17,35 @@ import java.util.Hashtable;
 import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 
-/** THis class extends InitialDirContext and has methods for timeout handling*/
+/** This class extends InitialDirContext with methods for timeout handling
+ * 
+ *  @author Ales Novak, Tom Zezula
+ */
 final class JndiDirContext extends InitialDirContext {
   
   public final static int SLEEP_TIME = 100;
   public final static int TIME_OUT = 10000;
   
-  protected boolean inwork;		// Flag context in work  
-  protected int iExpecterCount;	// Operation called for ... time    
+  /** Flag context in work */ 
+  protected boolean inwork;	
+  /** Time */	
+  protected int iExpecterCount;
+  /** Environment used for InitialContext*/	
   protected Hashtable envTable;
 
-
-  //Constuctor takes environment with proper properties 
+  /**
+   * Constuctor 
+   * @param env  hashtable of properties for InitialDirContext
+   */
   public JndiDirContext(Hashtable env) throws NamingException {
     super(env);
     this.envTable = env;
     this.inwork = false;
     iExpecterCount = 0;
   }
-  
-  //Timer
+ 
+  /** Timer
+   */
   public void waitForFinish() {
     iExpecterCount++;
     try {
@@ -53,22 +62,25 @@ final class JndiDirContext extends InitialDirContext {
     }
   }
   
-  //Is in progress?
+  /** Returns true if operation on context is in progress
+   *  @return true if operation in progress 
+   */
   public boolean getInWork() {
     return inwork;
   }
   
-  //Set/Clear flag
+  /** Sets/Clears in_work flag
+   *  @param inwork status
+   */
   public synchronized void setInWotk(boolean inwork) {
     this.inwork = inwork;
   }
   
+  /** Returns environment for which the Context was created
+   *  @return Hashtable of key type java.lang.String, value type java.lang.String
+   */ 
   public Hashtable getEnvironment() {
     return envTable;
   }
   
-  
-  public void setEnvironment(Hashtable env) {
-    envTable = env;
-  }
 }

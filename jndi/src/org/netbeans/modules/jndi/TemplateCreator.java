@@ -15,7 +15,12 @@ package com.netbeans.enterprise.modules.jndi;
 
 import javax.naming.NamingException;
 
+/** Interface for Jndi Nodes that generates java source code
+ *
+ *  @author Tomas Zezula
+ */
 interface TemplateCreator {
-  //produces code for accessing object
+  /** Produces code for accessing object
+   */
   String createTemplate() throws NamingException;
 }

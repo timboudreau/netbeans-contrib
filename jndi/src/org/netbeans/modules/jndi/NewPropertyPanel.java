@@ -16,12 +16,17 @@ package com.netbeans.enterprise.modules.jndi;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 
+/** Property panel for specifying additional properties
+ *
+ *  @author Tomas Zezula
+ */
 final class NewPropertyPanel extends GridBagPanel {
 
   private JTextField name;
   private JTextField value;
   
-  
+  /** Constructor
+   */
   public NewPropertyPanel() {
     name = new JTextField(20);
     value= new JTextField(20);
@@ -31,18 +36,30 @@ final class NewPropertyPanel extends GridBagPanel {
     add(this.value,1,4,2,1);
   }
 
+  /** Accessor for name of property
+   *  @return String name of property
+   */
   public String getName() {
     return name.getText();
   }
 
+  /** Accessor for value of property
+   * @return String value
+   */
   public String getValue() {
     return value.getText();
   }
   
+  /** Sets the name of property
+   *  @param name name of property
+   */
   public void setName(String name) {
     this.name.setText(name);
   }
-  
+ 
+  /** Sets the value of property
+   *  @param value value of property
+   */  
   public void setValue(String value) {
     this.value.setText(value);
   }

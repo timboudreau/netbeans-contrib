@@ -21,14 +21,27 @@ import javax.swing.JPanel;
 
 
 
-/** Base class for handling GridBagLayout */
+/** Panel with GridBagLayout
+ *
+ * @author Tomas Zezula
+ */
 class GridBagPanel extends JPanel {
   
   public GridBagPanel() {
     this.setLayout(new GridBagLayout());
   }
 
-  // GridBagLayout add version
+  /** Adds componet to panel
+   *  @param component the component to be inserted
+   *  @param x the horizontal position
+   *  @param y the vertical position
+   *  @param width the width of the component
+   *  @param height the height of the component
+   *  @param top the top inset
+   *  @param left the left inset
+   *  @param bottom the bottom inset
+   *  @param right the right inset
+   */
   protected void add (Component component, int x, int y, int width, int height, int top, int left, int bottom, int right) {
     GridBagConstraints c = new GridBagConstraints();
     c.gridx=x;
@@ -41,7 +54,14 @@ class GridBagPanel extends JPanel {
     ((GridBagLayout)this.getLayout()).setConstraints(component,c);
     this.add(component);
   }
-    
+  
+  /** Adds component to panel
+   *  @param component the component to be inserted
+   *  @param x the horizontal position
+   *  @param y the vertical position
+   *  @param width the width of the component
+   *  @param height the height of the component
+   */
   protected void add (Component component, int x, int y, int width, int height) {
     add(component,x,y,width,height,0,0,0,0);
   }
@@ -49,5 +69,16 @@ class GridBagPanel extends JPanel {
 
 
 
-
-
+/*
+ * <<Log>>
+ *  5    Gandalf   1.4         7/9/99   Ales Novak      localization + code 
+ *       requirements followed
+ *  4    Gandalf   1.3         6/10/99  Ales Novak      gemstone support + 
+ *       localizations
+ *  3    Gandalf   1.2         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
+ *  2    Gandalf   1.1         6/8/99   Ales Novak      sources beautified + 
+ *       subcontext creation
+ *  1    Gandalf   1.0         6/4/99   Ales Novak      
+ * $
+ */

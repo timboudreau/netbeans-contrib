@@ -11,12 +11,14 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-
 package com.netbeans.enterprise.modules.jndi;
 
 import org.openide.modules.ModuleInstall;
 
-/*JNDI Module*/
+/*JNDI Module
+ *
+ * @author Tomas Zezula
+ */
 public final class JndiModule implements ModuleInstall {
   public void installed() {
   }

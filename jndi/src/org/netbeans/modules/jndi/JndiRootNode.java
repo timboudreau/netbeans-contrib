@@ -35,55 +35,85 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 
-/** Top Level JNDI Node*/
+/** Top Level JNDI Node
+ *
+ * @author Ales Novak, Tomas Zezula
+ */
 public final class JndiRootNode extends AbstractNode {
-    
-  public final static String NB_LABEL="NB_LABEL";
-  public final static String NB_ROOT="HomePath";
   
+  /** Name of property holding the name of context */
+  public final static String NB_LABEL="NB_LABEL";
+  /** Name of property holding the initial offset */
+  public final static String NB_ROOT="HomePath";
+  /** SystemActions*/
   protected SystemAction[] jndiactions = null;
+  /** NewTypes*/
   protected NewType[] jndinewtypes = null;
   
+  /** Constructor
+   */
   public JndiRootNode() {
     super(new Children.Array());
     setName("JNDI");
     setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiRootNode.NB_ROOT));
     initStartContexts();
-    createProperties();		
+    createProperties();
   }
   
+  /** Returns name of the node
+   *  @return Object the name of node
+   */
   public Object getValue() {
     return getName();
   }
 
+  /** Sets name of this node
+   *  @param name name of the object
+   */  
   public void setValue(Object name) {
     if (name instanceof String) {
       setName((String) name);
     }
   }
   
-  
+  /** Disable Destroying
+   * @return false
+   */
   public boolean canDestroy() {
     return false;
   }
   
+  /** Disable Copy
+   * @return false
+   */
   public boolean canCopy() {
     return false;
   }
   
+  /** Disable Cut
+   * @return false
+   */
   public boolean canCut() {
     return false;
   }
   
+  /** Disable Rename
+   *  @return false
+   */
   public boolean canRename() {
     return false;
   }
-  
+
+  /** No default action
+   *  @return null;
+   */  
   public SystemAction getDefaultAction() {
     return null;
   }
 
-  // returns actions for this node	
+  /** Returns actions for this node	
+   *  @return array of SystemAction
+   */
   public SystemAction[] getActions() {
     if (jndiactions == null) {
       jndiactions = this.createActions();
@@ -91,17 +121,20 @@ public final class JndiRootNode extends AbstractNode {
     return jndiactions;
   }
   
-  // creates actions for this node 
+  /** Creates actions for this node 
+   *  @return array of SystemAction
+   */
   public SystemAction[] createActions() {
     return new SystemAction[] {
       SystemAction.get(NewAction.class),
       null,
       SystemAction.get(ToolsAction.class),
-      SystemAction.get(PropertiesAction.class),
     };
   }
   
-  // cretes an JNDIType 
+  /** Creates an JNDI Type
+   *  @return array with JndiDataType
+   */
   public NewType[] getNewTypes() {
     if (jndinewtypes == null) {
       jndinewtypes= new NewType[]{ new JndiDataType(this)};
@@ -109,13 +142,16 @@ public final class JndiRootNode extends AbstractNode {
     return jndinewtypes;
   }
 
+  /** Creates handle
+   *  @return Handle 
+   */ 
   public Handle getHandle() {
     return DefaultHandle.createHandle(this);
   }
 
-  /**
-  This function add an Context
-  **/	
+  /** This function adds an Context
+   *  @param context adds context from String
+   */	
   public void addContext(String context) throws NamingException {
     JndiNode[] nodes;	    
     nodes = new JndiNode[1]; 
@@ -125,7 +161,15 @@ public final class JndiRootNode extends AbstractNode {
     getChildren().add(nodes);
   }
   
-  //The same as above only takes parameters as separated strings
+  /** This function adds an Context
+   *  @param label name of node
+   *  @param factory JndiFactory
+   *  @param context starting Context
+   *  @param authentification authentification to naming system
+   *  @param principals principals for naming system
+   *  @param credentials credentials for naming system
+   *  @param prop vector type java.lang.String, additional properties in form key=value
+   */
   public void addContext(String label, String factory, String context, String authentification, String principal, String credentials, Vector prop)
     throws NamingException {
       if (label==null || factory==null || label.equals("") || factory.equals("")) throw new JndiException("Arguments missing");
@@ -165,11 +209,9 @@ public final class JndiRootNode extends AbstractNode {
   
   
   
-  /**
-  This function takes a string and converts it to set of properties
-  Returns:
-      Properties if OK.
-      null       if Err **/ 
+  /**This function takes a string and converts it to set of properties
+   * @return Properties set of properties if Ok, null on error
+   */ 
   protected Properties parseStartContext(String ident) throws NamingException {
     StringTokenizer tk = new StringTokenizer(ident,"|");
     Properties env = new Properties();
@@ -199,16 +241,18 @@ public final class JndiRootNode extends AbstractNode {
   }
   
   
-  /** 
-  * Set up initial start contexts
+  /** Set up initial start contexts
   */
   protected void initStartContexts() {
   }
 
+  /** CreatesProperties
+   */
   protected void createProperties() {
   }
 
-  /** Notifies about an exception that was raised in non Netbeans code. */
+  /** Notifies about an exception that was raised in non Netbeans code. 
+   */
   static void notifyForeignException(Throwable t) {
 
     String msg;

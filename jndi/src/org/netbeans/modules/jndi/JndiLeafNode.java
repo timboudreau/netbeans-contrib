@@ -27,24 +27,43 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.actions.SystemAction;
 
-/** This class is Leaf Node in JNDI tree eg. File...*/
+/** This class represents Leaf Node (Not context) in JNDI tree
+ *
+ *  @author Ales Novak, Tomas Zezula
+ */
 final class JndiLeafNode extends JndiObjectNode {
 
+  /** InitalDirContext*/
   protected DirContext ctx;
+  /** Offset of this node relative to ctx*/
   protected CompositeName offset;
-    
+  /** The class name*/
+  protected String className;
+  
+  /** Constructor
+   *  @param ctx  initial context
+   *  @param parentOffset offset of parent directory
+   *  @param name name of this node
+   *  @param classname name of Class represented by this name
+   */ 
   public JndiLeafNode(DirContext ctx, CompositeName parentOffset, String name, String classname) throws NamingException {
     super(Children.LEAF, name);
     this.ctx = ctx;
     this.offset = parentOffset;
+    this.className=classname;
     setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(classname));
   }
   
-  // Generates code for accessing object that is represented by this node
+  /** Generates code for accessing object that is represented by this node
+   *  @return String the java source code
+   */
   public String createTemplate() throws NamingException {
-    return JndiObjectCreator.getCode(ctx, offset);
+    return JndiObjectCreator.getCode(ctx, offset, className);
   }
-     
+    
+  /** Returns SystemAction  
+   *  @return array of SystemAction
+   */
   public SystemAction[] createActions() {
     return new SystemAction[] {
       SystemAction.get(CopyAction.class),
@@ -63,7 +82,6 @@ final class JndiLeafNode extends JndiObjectNode {
   * @exception IOException
   */
   public void destroy() throws IOException {
-
     try {
       // destroy this context first
       ctx.unbind(offset);
@@ -72,5 +90,27 @@ final class JndiLeafNode extends JndiObjectNode {
     } catch (NamingException e) {
       JndiRootNode.notifyForeignException(e);
     }
-  }  
+  }
+
+  /** Returns initial directory context
+   *  @return DirContext the initial dir context
+   */
+  public DirContext getContext(){
+    return this.ctx;
+  }
+
+  /** Returns offset of the node in respect to InitialContext
+   *  @return CompositeName the offset
+   */
+  public CompositeName getOffset(){
+    return this.offset;
+  }
+  
+  /** Returns class name
+   *  @return String class name
+   */
+   public String getClassName(){
+     return this.className;
+   }
+    
 }

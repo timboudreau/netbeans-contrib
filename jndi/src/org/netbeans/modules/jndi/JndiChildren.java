@@ -25,40 +25,54 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 
 /** Children class for Directories in JNDI tree.
-*    It's responsible for lazy initialization as well
-*    it is an holder of Context and actual offset of node in Contxt
-*/
+ *  It's responsible for lazy initialization as well
+ *  as it is an data model for JndiNode.
+ *
+ *  @author Ales Novak, Tomas Zezula 
+ */
 final class JndiChildren extends Children.Keys {
-  
+
+  /** This constant represents the name of context class */  
   public final static String CONTEXT_CLASS_NAME = "javax.naming.Context";
 
   /** Class object for javax.naming.Context */
   private static Class ctxClass;
 
-  private final DirContext parentContext;	// Initial Directory context
-  private final CompositeName offset;	// Offset in Initial Directory context
+  /** Initial Directory context */
+  private final DirContext parentContext;
+
+  /** Offset in Initial Directory context */
+  private final CompositeName offset;	
   
   
-  //Constructor takes the initial context as its parameter
+  /** Constructor
+   *  @param parentContext the initial context
+   *  @param offset the relative offset of Node in context
+   */
   public JndiChildren(DirContext parentContext, CompositeName offset) throws NamingException {
     this.parentContext = parentContext;
     this.offset = offset;
     prepareKeys();
   }
   
-  // Returns actual offset
+  /** Returns actual offset
+   *  @return the relative offset of Node
+   */
   public CompositeName getOffset() {
     return offset;
   }
   
-  // Returns context
+  /** Returns context
+   *  @return the initial context
+   */
   public DirContext getContext() {
     return parentContext;
   }
     
-  // this method creates keys and set them
+  /** This method creates keys
+   *  exception NamingException if Context.list() failed
+   */
   public void prepareKeys() throws NamingException {
-
     NamingEnumeration ne = parentContext.list(offset);
     if (ne == null) return;
     ArrayList v = new ArrayList();
@@ -68,7 +82,10 @@ final class JndiChildren extends Children.Keys {
     this.setKeys(v);
   }
   
-  // creates Node for key
+  /** Creates Node for key
+   *  @param key the key for which the Node should be created
+   *  @return the array of created Nodes
+   */
   public Node[] createNodes(Object key) {
     try {
       if (key == null) {
@@ -92,7 +109,9 @@ final class JndiChildren extends Children.Keys {
     }
   }
 
-  /** Heuristicaly decides whether specified class is a Context or not. */
+  /** Heuristicaly decides whether specified class is a Context or not. 
+   *  @param className the name of Class
+   *  @return true if className represents the name of Context*/
   static boolean isContext(String className) {
     if (className.equals(CONTEXT_CLASS_NAME)) {
       return true;
@@ -111,7 +130,10 @@ final class JndiChildren extends Children.Keys {
     return false;
   }
 
-  /** @return <tt>true</tt> iff <tt>s</tt> is one of int, long, char, boolean, float, byte, double */
+  /** Decides if the string represents the name of primitive type
+   *  @param s the name of type
+   *  @return true iff s is one of int, long, char, boolean, float, byte, double 
+   */
   private static boolean isPrimitive(String s) {
     if (s.indexOf('.') >= 0) {
       return false;
@@ -127,7 +149,9 @@ final class JndiChildren extends Children.Keys {
       s.equals("boolean");
   }
 
-  /** @return Class object for javax.naming.Context */
+  /** Returns the super class for classes representing the Context
+   *  @return Class object for javax.naming.Context
+   */
   static Class getCtxClass() throws ClassNotFoundException {
     if (ctxClass == null) {
       ctxClass = Class.forName(CONTEXT_CLASS_NAME);
@@ -137,9 +161,18 @@ final class JndiChildren extends Children.Keys {
 }
 
 
-
-
-
-
-
-
+/*
+ * <<Log>>
+ *  6    Gandalf   1.5         7/9/99   Ales Novak      localization + code 
+ *       requirements followed
+ *  5    Gandalf   1.4         6/18/99  Ales Novak      redesigned + delete 
+ *       action
+ *  4    Gandalf   1.3         6/9/99   Ales Novak      refresh action + 
+ *       destroying subcontexts
+ *  3    Gandalf   1.2         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
+ *  2    Gandalf   1.1         6/8/99   Ales Novak      sources beautified + 
+ *       subcontext creation
+ *  1    Gandalf   1.0         6/4/99   Ales Novak      
+ * $
+ */

@@ -18,10 +18,16 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 
-/** Panel for adding new subdirectory */
+/** Panel for adding new subdirectory 
+ *
+ *  @author Tomas Zezula
+ */
 final class NewJndiSubContextPanel extends JPanel {
+  /** name of directory */
   private JTextField name;    
 
+  /** Constructor
+   */
   public NewJndiSubContextPanel() {
     this.setLayout(new BorderLayout());
     this.name = new JTextField(25);
@@ -29,7 +35,9 @@ final class NewJndiSubContextPanel extends JPanel {
     this.add("Center", this.name); 
   }
     
-  //accessor for directory name
+  /** Accessor for directory name
+   *  @return String name of Context
+   */
   public String getName() {
     return name.getText();
   }

@@ -24,33 +24,46 @@ import org.openide.util.datatransfer.*;
 import org.openide.*;
 import org.openide.nodes.*;
 
-/** This class represents Datatype for JNDI subtree.
-* It is responsible for adding of new contexts and creating subdirs
-*/
+
+/** This class represents Datatype for JNDI Nodes
+ *  It is responsible for adding of new contexts and creating subdirs in Jndi tree
+ *
+ *  @author Ales Novak, Tomas Zezula
+ */
 final class JndiDataType extends NewType {
 
+  /** Node for which is the NewType created */
   protected AbstractNode node;
+  /** Variable for dialog */
   private Dialog dlg = null;
+  /** Panel for Dialog */
   private NewJndiRootPanel panel;
 
-  // Constructor for JNDI root
+  /** Constructor
+   *  @param node the Jndi root node
+   */
   public JndiDataType(JndiRootNode node) {
     this.node = node;
   }
   
-  // Constructor for JNDI subdirectory
+  /** Constructor for
+   *  @param node the Jndi context
+   */
   public JndiDataType(JndiNode node) {
     this.node = node;
   }
   
-  // Constructoy for JNDI leafnode
+  /** Constructor
+   *  @param node the Jndi non COntext object
+   */ 
   public JndiDataType(JndiLeafNode node) {
     this.node = node;
   }
   
   
-  //This method creates either new context, it this.node is instance of JndiRootNode
-  // or Subdir if this.node is instance of JNDINode
+  /** This method creates either new context, if this.node is instance of JndiRootNode,
+   *  or Subdir if this.node is instance of JNDINode
+   */
   public void create() throws IOException {
 
     DialogDescriptor descriptor = null;
@@ -103,7 +116,7 @@ final class JndiDataType extends NewType {
               }
               if (t.isAlive()) {
                 t.interrupt();
-                // t.stop();?
+                // t.stop();
               }
               dlg.setVisible(false);
               dlg.dispose();
@@ -151,10 +164,12 @@ final class JndiDataType extends NewType {
       dlg.setVisible(true);
     }
     
-    // Jndi Leaf can't create subcontexts  
+    // Jndi Leaf can't create subcontexts
   }
   
-  //Returns stingified type of node
+  /** Returns name of Node class
+   *  @return stringified type of node
+   */
   public String getName() {
     if (this.node instanceof JndiRootNode) {
       return "Context";

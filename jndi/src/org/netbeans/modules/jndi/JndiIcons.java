@@ -16,25 +16,27 @@ package com.netbeans.enterprise.modules.jndi;
 import java.util.Hashtable;
 import javax.naming.NameClassPair;
 
-/** This class represents icon holder.
-* Its goal is to return proper icon for name
-*/
+/** This class is an icon holder.
+ *   
+ * @author Tomas Zezula
+ */
 abstract class JndiIcons extends Object {
 
+  /** The directory with Jndi icons*/
   public final static String ICON_BASE = "/com/netbeans/enterprise/modules/jndi/resources/";
-
+  /** The array of pairs (Class,IconName)*/
   private final static String[] defaultIcons = {"*","def",
                                               JndiRootNode.NB_ROOT,"jndi",
                                               "javax.naming.Context","folder",
                                               "java.io.File","file"};
+  /** Hashtable with Class name as key, Icon name as value*/
   private static Hashtable icontable;
   
-
-  private JndiIcons() {
-  }
   
-  
-  //Returns Icon for string containig
+  /** Returns icon name for string containig the name of Class
+   *  @param name  name oc Class
+   *  @return name of icon
+   */
   public static String getIconName(String name) {
     String iconname;
 
@@ -49,8 +51,11 @@ abstract class JndiIcons extends Object {
     }
   }
   
-  //the same as above but for ClassNamePair    
-  public static String getIconName(NameClassPair name, boolean tree) {
+  /** Returns the name of icon for NameClassPair
+   *  @param name  NameClassPair for which the icon should be returned  
+   *  @return String name of icon
+   */
+  public static String getIconName(NameClassPair name) {
 
     String iconname;
     
@@ -70,7 +75,8 @@ abstract class JndiIcons extends Object {
     }
   }
   
-  //lazy_initialization
+  /**lazy_initialization
+   */
   private static void lazyInitialize() {
     icontable = new Hashtable();
     for (int i=0; i < defaultIcons.length; i += 2) {

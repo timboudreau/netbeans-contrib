@@ -17,8 +17,9 @@ import javax.naming.CompositeName;
 import javax.naming.NamingException;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.StringSelection;
+import java.util.Enumeration;
 import java.io.IOException;
-
+import javax.naming.directory.DirContext;
 import org.openide.TopManager;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -26,12 +27,13 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node.Cookie;
 import org.openide.nodes.NodeAdapter;
 import org.openide.nodes.NodeMemberEvent;
+import org.openide.nodes.Sheet;
 import org.openide.util.actions.SystemAction;
 
 /** Common base class for JndiNode and JndiLeafNode.
 * The class provides copy (source generating)/delete actions.
 *
-* @author Ales Novak
+* @author Ales Novak, Tomas Zezula
 */
 abstract class JndiObjectNode extends AbstractNode implements Cookie, TemplateCreator {   
 
@@ -76,10 +78,68 @@ abstract class JndiObjectNode extends AbstractNode implements Cookie, TemplateCr
   /** @return @link isRoot */
   public final boolean canDestroy() {
     return true;
-  } 
-
+  }
   
+  /** Creates property sheet for the node
+   *  @return Sheet the property sheet
+   */
+  public Sheet createSheet () {
+    Sheet sheet = Sheet.createDefault ();
+    sheet.get (Sheet.PROPERTIES).put (
+      new JndiProperty ("NAME",
+                        String.class,
+			JndiRootNode.getString("TXT_Name"),
+			this.getName ()));
+    sheet.get (Sheet.PROPERTIES).put (
+      new JndiProperty ("OFFSET",
+                        String.class,
+			JndiRootNode.getString("TXT_Path"),
+			this.getOffset().toString ()));
+    sheet.get(Sheet.PROPERTIES).put (
+      new JndiProperty ("CLASS",
+                        String.class,
+			JndiRootNode.getString("TXT_Class"),
+			this.getClassName()));
+    Enumeration keys =	( (JndiDirContext) this.getContext()).getEnvironment ().keys();		
+    Enumeration elements =( (JndiDirContext) this.getContext ()).getEnvironment ().elements ();
+    while (keys.hasMoreElements()){
+	String key = (String)keys.nextElement();
+	String value = (String)elements.nextElement();
+	if (key.equals(JndiRootNode.NB_ROOT) || 
+	    key.equals(JndiRootNode.NB_LABEL)) {
+	  continue;
+	}
+	sheet.get (Sheet.PROPERTIES).put (
+	  new JndiProperty (key,
+	                    String.class,
+			    key,
+			    value));
+    }
+    setSheet (sheet);			  
+    return sheet;
+  }  
+
+  /** Creates a java source code for obtaining 
+   *  reference to this node
+   *  @return String the java source code
+   *  @exception NamingException when a JNDI fault happends.
+   */
   public abstract String createTemplate() throws NamingException;
+  
+  /** Returns initial dir context
+   *  @return DirContext initial context of this JNDI subtree 
+   */
+  public abstract DirContext getContext();
+  
+  /** Returns the offset of this Node in subtree of his context
+   * @return CompositeName the offset in subtree
+   */
+  public abstract CompositeName getOffset();
+  
+  /** Returns class name of Jndi Object
+   *  @return String class name
+   */
+  public abstract String getClassName();
   
   /** Inserts generated text into the clipboard */
   public final Transferable clipboardCopy() throws IOException {
@@ -120,6 +180,8 @@ abstract class JndiObjectNode extends AbstractNode implements Cookie, TemplateCr
 
 /*
 * <<Log>>
+*  2    Gandalf   1.1         7/9/99   Ales Novak      localization + code 
+*       requirements followed
 *  1    Gandalf   1.0         6/18/99  Ales Novak      
 * $
 */

@@ -38,7 +38,10 @@ import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
 
 
-/** Panel for dialog for adding new Context*/
+/** Panel for dialog for adding new Context
+ *
+ *  @author Ales Novak, Tomas Zezula
+ */
 final class NewJndiRootPanel extends GridBagPanel implements ItemListener, ActionListener {
   /* this two static constants are for testing only
   in final version only valid constructor will be NewJndiRootPanel(String[],String[])*/
@@ -60,12 +63,16 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
   NewPropertyPanel panel;    
 
 
-  // default constructor
+  /** default constructor
+   */
   public NewJndiRootPanel() {
     this(factories, protocols);
   }
 
-  // constructor takes as parameter array of factories and protocols
+  /** constructor takes as parameter array of factories and protocols
+   * @param fcs array of factories
+   * @param proto array of protocols
+   */
   public NewJndiRootPanel(String[] fcs, String[] proto) {
     this.proto = proto;
     this.label = new JTextField(26);
@@ -118,42 +125,59 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
     });
   }
 
-
-  //accessor for Label
+  /** Accessor for Label
+   *  @return String name of JndiRootNode
+   */
   public String getLabel()  {
     return this.label.getText();
   }
 
-  //accessor for Factory
+  /** Accessor for Factory
+   *  @return String name of Factory
+   */
   public String getFactory() {
     return (String) factory.getSelectedItem();
   }
 
-  //accessor for Context
+  /** Accessor for Context
+   *  @return String name of starting context
+   */
   public String getContext() {
     return context.getText();
   }
 
 
-  //accessor for Autentification
+  /** Accessor for Autentification
+   *  @return String autentification
+   */
   public String getAuthentification() {
     return authentification.getText();
   }
 
-  //accessor for principals
+  /** Accessor for principals
+   *  @return String principals
+   */
   public String getPrincipal() {
     return principal.getText();
   }
 
-  //accessor for credentials
+  /** Accessor for credentials
+   *  @return String credentials
+   */
   public String getCredentials() {
     return credentials.getText();
   }
 
+  /** Accessor for additional properties
+   *  @return Vector of type java.lang.String of format key=value
+   */
   public Vector getAditionalProperties() {
     return properties;
   }
 
+  /** Synchronization of Factory and Protocol
+   *  @param event ItemEvent
+   */
   public void itemStateChanged(ItemEvent event) {
 
     if (event.getSource() == factory) {
@@ -164,6 +188,9 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
     }
   }
 
+  /** Action handling
+   *  @param ActionEvent event
+   */
   public void actionPerformed(ActionEvent event) {
     if (event.getActionCommand().equals("ADD")) {
       panel = new NewPropertyPanel();
@@ -242,5 +269,3 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
     }
   }
 }
-
-

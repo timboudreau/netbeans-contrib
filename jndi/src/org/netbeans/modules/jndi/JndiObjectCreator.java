@@ -20,11 +20,14 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 /** This class is generator for code that allows accessing of the object
-* in the Jndi Tree
-*/
+ *  in the Jndi Tree
+ *
+ *  @author Ales Novak, Tomas Zezula 
+ */
 final class JndiObjectCreator {
 
-  // This method corrects string that contains \ to \\
+  /** This method corrects string that contains \ to \\ 
+   */
   static String correctValue(String str) {
     StringBuffer sb = new StringBuffer(str);
     for (int i = 0; i < sb.length(); i++) {
@@ -36,13 +39,20 @@ final class JndiObjectCreator {
     return sb.toString();
   }
 
-  static String getCode(Context ctx, CompositeName offset) throws NamingException {
+  /** Returns Java source code for accessing object
+   *  @param ctx InitialContext
+   *  @param offset offset of object with respect to ctx
+   *  @patam className name of class
+   *  @return String generated java source code
+   *  @exception NamingException on Jndi Error
+   */
+  static String getCode(Context ctx, CompositeName offset, String className) throws NamingException {
 
     Hashtable env = ctx.getEnvironment();
     if (env == null) {
       return null;
     }
-    String code = "//Inserted by Jndi module\n";
+    String code = "/** Inserted by Jndi module */\n";
     code = code + "java.util.Properties jndiProperties = new java.util.Properties();\n";
     Enumeration keys = env.keys();
     Enumeration values = env.elements();
@@ -56,7 +66,7 @@ final class JndiObjectCreator {
       code = code + "jndiProperties.put(\"" + name + "\",\"" + value + "\");\n";
     }
     code = code + "try {\n  javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);\n";
-    code = code + "  Object jndiObject = jndiCtx.lookup(\"" + offset.toString() + "\");\n";
+    code = code + "  "+className+" jndiObject = ("+className+")jndiCtx.lookup(\"" + offset.toString() + "\");\n";
     code= code + "} catch (javax.naming.NamingException ne) {\n  ne.printStackTrace();\n}\n";
     return code;
   }

@@ -31,13 +31,21 @@ import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 
-/** This class represents JNDI subdirectory */
+
+/** This class represents JNDI subdirectory 
+ *
+ *  @author Ales Novak, Tomas Zezula
+ */
 final class JndiNode extends JndiObjectNode {
 
+  /** Is this node root of context*/
   private boolean isRoot;
-  private NewType[] jndinewtypes;
-  
-  //Constructor for creation of Top Level Directory
+  /** NewType for this node*/
+  private NewType[] jndinewtypes;  
+
+  /**Constructor for creation of Top Level Directory
+   * @param ctx DirContext which this node represents
+   */
   public JndiNode(DirContext ctx) throws NamingException {
     this (ctx, 
           new CompositeName(((String) ctx.getEnvironment().get(JndiRootNode.NB_ROOT))), 
@@ -45,10 +53,11 @@ final class JndiNode extends JndiObjectNode {
     isRoot = true;
   }
   
-  //Constructor of subdirectory 
-  // ctx 	DirectoryCOntext
-  // parent_name offset of directory i am in
-  // my_name	name of this directory
+  /** Constructor of subdirectory 
+   *  ctx  DirectoryContext
+   *  parent_name offset of parent directory
+   *  my_name	name of this directory
+   */
   public JndiNode(DirContext ctx, CompositeName parentName, String myName) throws NamingException {
     super (new JndiChildren(ctx, parentName), myName);
     isRoot = false;
@@ -59,11 +68,16 @@ final class JndiNode extends JndiObjectNode {
     return isRoot;
   }
 
-  //This method creates template for accessing this node
+  /** This method creates template for accessing this node
+   *  @return String java source code
+   */ 
   public String createTemplate() throws NamingException {
-    return JndiObjectCreator.getCode(((JndiChildren)this.getChildren()).getContext(),((JndiChildren)this.getChildren()).getOffset());
+    return JndiObjectCreator.getCode(((JndiChildren)this.getChildren()).getContext(),((JndiChildren)this.getChildren()).getOffset(), this.getClassName());
   }  
   
+  /** Returns NewTypes for this node
+   *  @return array of NewNode
+   */ 
   public NewType[] getNewTypes() {
     if (this.jndinewtypes == null) {
       this.jndinewtypes = new NewType[] {new JndiDataType(this)};
@@ -97,7 +111,9 @@ final class JndiNode extends JndiObjectNode {
     }
   }
   
-  
+  /** Returns system actions for this node
+   * @return array of SystemAction
+   */
   public SystemAction[] createActions() {
     return new SystemAction[] {
       SystemAction.get(CopyAction.class),
@@ -112,14 +128,35 @@ final class JndiNode extends JndiObjectNode {
     };
   }
   
-  /** Refreshes this node. */
+  /** Refreshes this node. 
+   */
   public void refresh() {
     try {
       ((JndiChildren) getChildren()).prepareKeys();
     } catch (NamingException e) {
       JndiRootNode.notifyForeignException(e);
     }
-  }  
+  }
+ 
+  /** Returns initial directory context
+   *  @return DirContext the initial dir context
+   */ 
+  public DirContext getContext(){
+    return ((JndiChildren)this.getChildren()).getContext();
+  }
+  
+
+  /** Returns offset of the node in respect to InitialContext
+   *  @return CompositeName the offset
+   */
+  public CompositeName getOffset(){
+    return ((JndiChildren)this.getChildren()).getOffset();
+  }
+  
+  /** Returns class name 
+   *  @return String class name
+   */
+  public String getClassName(){
+    return "javax.naming.Context";
+  }
 }
-
-
