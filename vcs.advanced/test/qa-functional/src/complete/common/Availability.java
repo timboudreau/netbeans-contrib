@@ -1,11 +1,11 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -26,7 +26,9 @@ import org.netbeans.test.oo.gui.jelly.vcscore.*;
 import org.openide.util.Utilities;
 import org.netbeans.jellytools.*;
 import org.netbeans.jellytools.nodes.Node;
+import org.netbeans.jellytools.actions.Action;
 import org.netbeans.jellytools.modules.vcsgeneric.wizard.*;
+import org.netbeans.jellytools.modules.vcscore.VersioningFrameOperator;
 
 
 /** XTest / JUnit test class performing availability check of all basic features
@@ -80,7 +82,7 @@ public class Availability extends NbTestCase {
     protected void setUp() {
         JellyProperties.setDefaults();
         JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
-        api = new APIController ();
+        api = new APIController();
         api.setOut(new PrintWriter(System.out, true));
         explorer = api.getExplorer();
         history = new APICommandsHistory(api);
@@ -121,7 +123,7 @@ public class Availability extends NbTestCase {
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
         System.out.println(". done !");
     }
-
+    
     /** Checks that there is additional search service available allowing to find files by their status.
      * @throws Exception any unexpected exception thrown during test.
      */
@@ -167,21 +169,28 @@ public class Availability extends NbTestCase {
         VCSWizardProfile wizard = new VCSWizardProfile();
         wizard.close();
         String filesystem = "Empty " + workingDirectory;
-        explorer.pushPopupMenu("Empty", filesystem);
-        JPopupMenuOperator rootMenu = new JPopupMenuOperator();
-        String[] rootMenuItems = new String[] {"Empty", "Versioning Explorer"};
-        int count = rootMenuItems.length;
-        for(int i=0; i<count; i++)
-            new JMenuItemOperator(rootMenu, rootMenuItems[i]);
-        JPopupMenuOperator emptyMenu = new JPopupMenuOperator(new JMenuOperator(rootMenu, "Empty").getPopupMenu());
-        String[] emptyMenuItems = new String[] {"Refresh", "Refresh Recursively", "Check In", "Check Out", "Lock",
-            "Unlock", "Add", "Remove"};
-        count = emptyMenuItems.length;
-        for(int i=0; i<count; i++)
-            new JMenuItemOperator(emptyMenu, emptyMenuItems[i]);
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        new Action(null, "Versioning Explorer").perform(filesystemNode);
+        new VersioningFrameOperator().close();
+        new Action(null, "Empty|Refresh").perform(filesystemNode);
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        new Action(null, "Empty|Refresh Recursively").perform(filesystemNode);
+        new JButtonOperator(new JDialogOperator("Retrieving..."), "Close").push();
+        new Action(null, "Empty|Check in").perform(filesystemNode);
+        MainWindowOperator.getDefault().waitStatusText("Command Check in finished.");
+        new Action(null, "Empty|Check out").perform(filesystemNode);
+        MainWindowOperator.getDefault().waitStatusText("Command Check out finished.");
+        new Action(null, "Empty|Lock").perform(filesystemNode);
+        MainWindowOperator.getDefault().waitStatusText("Command Lock finished.");
+        new Action(null, "Empty|Unlock").perform(filesystemNode);
+        MainWindowOperator.getDefault().waitStatusText("Command Unlock finished.");
+        new Action(null, "Empty|Add").perform(filesystemNode);
+        MainWindowOperator.getDefault().waitStatusText("Command Add finished.");
+        new Action(null, "Empty|Remove").perform(filesystemNode);
+        MainWindowOperator.getDefault().waitStatusText("Command Remove finished.");
         System.out.println(". done !");
     }
-
+    
     /** Checks that there is history of VCS commands under "Runtime" tab of explorer with proper functionality.
      * @throws Exception any unexpected exception thrown during test.
      */
@@ -235,7 +244,7 @@ public class Availability extends NbTestCase {
         }
         System.out.println(". done !");
     }
-
+    
     /** Unmounts the filesystem mounted in testVersioningMenu test case.
      * throws Exception Any unexpected exception thrown during test.
      */
@@ -246,7 +255,7 @@ public class Availability extends NbTestCase {
         MainFrame.getMainFrame().pushMenuNoBlock(UNMOUNT_MENU);
         System.out.println(". done !");
     }
-
+    
     /** Tries to invoke an action through versioning toolbar.
      * throws Exception Any unexpected exception thrown during test.
      */
