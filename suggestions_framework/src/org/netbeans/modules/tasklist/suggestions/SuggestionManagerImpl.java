@@ -355,13 +355,32 @@ final public class SuggestionManagerImpl extends SuggestionManager
         return docProviders;
     }
 
-
-    private SuggestionList list = null;
+    // there is only one SuggestionManager instance
+    private static SuggestionList list = null;
 
     /**
      * Return the live TaskList that we're managing
+     * XXX the list it is retrieved from last
+     * active suggections view. However there could
+     * be several lists visible. Introduce ProxyList
+     * delegating to set of lists.
      */
-    SuggestionList getList() {
+    static SuggestionList getList() {
+
+        TopComponent.Registry registry = TopComponent.getRegistry();
+        Set opened = registry.getOpened();
+        Iterator it = opened.iterator();
+        while (it.hasNext()) {
+            TopComponent next = (TopComponent) it.next();
+            if (next instanceof SuggestionView) {
+                SuggestionView view = (SuggestionView) next;
+                SuggestionList model = view.getSuggestionsModel();
+                if (model != null) return model;
+            }
+        }
+
+        //XXX Original code that should not be reached, well docHidden() gets here
+        //assert false : "Original code that should not be reached";
         if (list == null) {
             TaskListView view =
                     TaskListView.getTaskListView(SuggestionsView.CATEGORY); // NOI18N

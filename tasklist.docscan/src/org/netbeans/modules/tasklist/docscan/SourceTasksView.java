@@ -406,4 +406,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return isShowing() && SourceTaskProvider.TYPE.equals(category);
     }
 
+    public SuggestionList getSuggestionsModel() {
+        return null;
+    }
+
 }

@@ -21,6 +21,21 @@ package org.netbeans.modules.tasklist.suggestions;
  */
 public interface SuggestionView {
 
+    /**
+     * Tests whether given view shows given tasks
+     * @param category
+     * @return
+     */
     boolean isObserved(String category);
+
+
+    /**
+     * Provide access to live data model.
+     * @return task list that the view manages
+     *         or null if it's not interested
+     *         in list updates (i.e. snapshot
+     *         or hidden view).
+     */
+    SuggestionList getSuggestionsModel();
 
 }
