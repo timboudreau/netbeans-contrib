@@ -85,31 +85,31 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
-        lblWarning.setText(java.util.ResourceBundle.getBundle("vcs/commands/Bundle").getString("CvsModuleSelectorDialog.lbWarning.text"));
+        lblWarning.setText(org.openide.util.NbBundle.getMessage(CvsModuleSelectorDialog.class, "CvsModuleSelectorDialog.lbWarning.text"));
         lblWarning.setLabelFor(lblOptions);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 12);
         add(lblWarning, gridBagConstraints);
 
-        lblOptions.setText(java.util.ResourceBundle.getBundle("vcs/commands/Bundle").getString("CvsModuleSelectorDialog.lblOptions.text"));
+        lblOptions.setText(org.openide.util.NbBundle.getMessage(CvsModuleSelectorDialog.class, "CvsModuleSelectorDialog.lblOptions.text"));
         lblOptions.setLabelFor(rbCheckoutModule);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 6, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 6, 12);
         add(lblOptions, gridBagConstraints);
 
-        rbCheckoutModule.setToolTipText(org.openide.util.NbBundle.getBundle(CvsModuleSelectorDialog.class).getString("ACS_CvsModuleSelectorDialog.rbCheckoutModule.textA11yDesc"));
+        rbCheckoutModule.setToolTipText(org.openide.util.NbBundle.getMessage(CvsModuleSelectorDialog.class, "ACS_CvsModuleSelectorDialog.rbCheckoutModule.textA11yDesc"));
         rbCheckoutModule.setSelected(true);
-        rbCheckoutModule.setText(java.util.ResourceBundle.getBundle("vcs/commands/Bundle").getString("CvsModuleSelectorDialog.rbCheckoutModule.text"));
+        rbCheckoutModule.setText(org.openide.util.NbBundle.getMessage(CvsModuleSelectorDialog.class, "CvsModuleSelectorDialog.rbCheckoutModule.text"));
         rbCheckoutModule.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rbCheckoutModuleActionPerformed(evt);
@@ -121,12 +121,12 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 6, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 6, 12);
         add(rbCheckoutModule, gridBagConstraints);
 
-        rbIgnore.setToolTipText(org.openide.util.NbBundle.getBundle(CvsModuleSelectorDialog.class).getString("ACS_CvsModuleSelectorDialog.rbIgnore.textA11yDesc"));
-        rbIgnore.setText(java.util.ResourceBundle.getBundle("vcs/commands/Bundle").getString("CvsModuleSelectorDialog.rbIgnore.text"));
+        rbIgnore.setToolTipText(org.openide.util.NbBundle.getMessage(CvsModuleSelectorDialog.class, "ACS_CvsModuleSelectorDialog.rbIgnore.textA11yDesc"));
+        rbIgnore.setText(org.openide.util.NbBundle.getMessage(CvsModuleSelectorDialog.class, "CvsModuleSelectorDialog.rbIgnore.text"));
         rbIgnore.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rbIgnoreActionPerformed(evt);
@@ -138,8 +138,8 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
         gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 6, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 6, 12);
         add(rbIgnore, gridBagConstraints);
 
         statusLabel.setText("kuk");
@@ -148,13 +148,13 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 6, 6);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 6, 6);
         add(statusLabel, gridBagConstraints);
 
-        refresh.setToolTipText(org.openide.util.NbBundle.getBundle(CvsModuleSelectorDialog.class).getString("ACS_CvsModuleSelectorDialog.refreshA11yDesc"));
-        refresh.setText(java.util.ResourceBundle.getBundle("vcs/commands/Bundle").getString("CvsModuleSelectorDialog.refresh"));
+        refresh.setToolTipText(org.openide.util.NbBundle.getMessage(CvsModuleSelectorDialog.class, "ACS_CvsModuleSelectorDialog.refreshA11yDesc"));
+        refresh.setText(org.openide.util.NbBundle.getMessage(CvsModuleSelectorDialog.class, "CvsModuleSelectorDialog.refresh"));
         refresh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 refreshModules(evt);
@@ -167,7 +167,6 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 12);
         add(refresh, gridBagConstraints);
 
-        listScrollPane.setToolTipText("null");
         tblModules.setShowVerticalLines(false);
         tblModules.setPreferredScrollableViewportSize(new java.awt.Dimension(300, 200));
         tblModules.setShowHorizontalLines(false);
@@ -179,9 +178,9 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.gridheight = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
         add(listScrollPane, gridBagConstraints);
 
     }//GEN-END:initComponents
