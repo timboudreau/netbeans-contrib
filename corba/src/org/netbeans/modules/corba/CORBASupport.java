@@ -37,6 +37,12 @@ public class CORBASupport {
     public static final String NOT_SETUPED = CORBASupport.bundle.getString
             ("CTL_NotSetuped");
 
+    public static final String CANT_GENERATE = CORBASupport.bundle.getString
+            ("CTL_CantGenerate");
+
+    public static final String GENERATE = CORBASupport.bundle.getString
+            ("CTL_GENERATE");
+
     public static final String INHER = CORBASupport.bundle.getString ("CTL_Inher");
 
     public static final String TIE = CORBASupport.bundle.getString ("CTL_Tie");
@@ -89,8 +95,14 @@ public class CORBASupport {
     public static final String IDL_COMPILATION_HINT = CORBASupport.bundle.getString
 	("HINT_COMPILATION");
 
+    public static final String ORB_FOR_COMPILATION = CORBASupport.bundle.getString
+	("PROP_ORB_FOR_COMPILATION");
+
+    public static final String ORB_FOR_COMPILATION_HINT = CORBASupport.bundle.getString
+	("HINT_ORB_FOR_COMPILATION");
+
     /** constant for idl extension */
-    private static final String IDL_EXT = "idl";
+    public static final String IDL_EXT = "idl";
 
     /** constant for java extension */
     private static final String JAVA_EXT = "java";

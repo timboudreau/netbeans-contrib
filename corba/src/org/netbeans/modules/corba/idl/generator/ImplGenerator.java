@@ -17,6 +17,10 @@ import java.util.Vector;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
+import java.util.Iterator;
+
+import java.text.MessageFormat;
+
 import java.io.*;
 import java.lang.reflect.*;
 
@@ -67,6 +71,7 @@ public class ImplGenerator {
 
     private IDLDataObject ido;
 
+    private List _M_generated_impls;
 
     private boolean WAS_TEMPLATE = false;
     // this variable indicate if in calling of hasTemplateParent is template type or not
@@ -969,7 +974,7 @@ public class ImplGenerator {
                 IDLElement tmp_element = findElementByName (type.getName (), from);
                 if (DEBUG)
                     System.out.println ("tmp_element: " + tmp_element.getName () + " : " + tmp_element);
-                System.out.println ("956: Package: "+_package);
+                //System.out.println ("956: Package: "+_package);
                 String full_name = _package + "." + ctype2package (tmp_element);
                 full_name = full_name + "Holder";
 
@@ -1961,7 +1966,7 @@ public class ImplGenerator {
     */
 
     public void interface2java (InterfaceElement element)
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, java.io.IOException {
         if (DEBUG)
             System.out.println ("interface2java: " + element.getName ());
         if (DEBUG)
@@ -2007,7 +2012,12 @@ public class ImplGenerator {
             status_package += st.nextToken () + "/";
         }
 
-        TopManager.getDefault ().setStatusText ("Generate " + status_package + impl_name + " ...");
+	String __status_package = status_package;
+	String __impl_name = impl_name;
+	//System.out.println ("Generate " + __status_package + __impl_name + " ...");
+	java.lang.Object[] __arr = new Object[] {__status_package + __impl_name};
+	TopManager.getDefault ().setStatusText 
+	    (MessageFormat.format (CORBASupport.GENERATE, __arr));
 
         Vector members = element.getMembers ();
 
@@ -2026,7 +2036,7 @@ public class ImplGenerator {
         try {
             //org.openide.src.SourceElement source = new SourceElement ();
 
-            ClassElement clazz = new ClassElement ();
+            final ClassElement clazz = new ClassElement ();
             clazz.setName (org.openide.src.Identifier.create (impl_name));
             if (!TIE)
                 clazz.setSuperclass (org.openide.src.Identifier.create (super_name));
@@ -2061,18 +2071,24 @@ public class ImplGenerator {
                 full_name = full_name + impl_name;
                 if (DEBUG)
                     System.out.println ("full name: " + full_name);
-                ClassElement dest = ClassElement.forName (full_name);
+                final ClassElement dest = ClassElement.forName (full_name);
                 if (DEBUG) {
                     System.out.println ("orig class: " + dest.toString ());
                     System.out.println ("new class: " + clazz.toString ());
                 }
 
 		if (css.getActiveSetting ().getSynchro () != CORBASupport.SYNCHRO_DISABLE) {
-		    List changes = new LinkedList ();
-		    JavaConnections.compareMethods (dest, clazz, changes, "Add Method {0}",
-						    "Update Method {0}");
-		    if (changes.size () > 0)
-                        JavaConnections.showChangesDialog (changes, (byte)JavaConnections.TYPE_ALL);
+		    javax.swing.SwingUtilities.invokeLater (new Runnable () {
+			    public void run () {
+				List changes = new LinkedList ();
+				JavaConnections.compareMethods 
+				    (dest, clazz, changes, "Add Method {0}",
+				     "Update Method {0}");
+				if (changes.size () > 0)
+				    JavaConnections.showChangesDialog 
+					(changes, (byte)JavaConnections.TYPE_ALL);
+			    }
+			});
                 }
 		else {
 		    this.showMessage = false;
@@ -2082,11 +2098,11 @@ public class ImplGenerator {
             else {
                 if (DEBUG)
                     System.out.println ("file don't exists");
-                try {
-                    impl = folder.createData (impl_name, "java");
-                } catch (IOException e) {
-                    e.printStackTrace ();
-                }
+                //try {
+		impl = folder.createData (impl_name, "java");
+                //} catch (IOException e) {
+		//e.printStackTrace ();
+                //}
 
                 FileLock lock = impl.lock ();
                 //	 if (source != null)
@@ -2103,18 +2119,21 @@ public class ImplGenerator {
                 printer.println (clazz.toString ());
                 lock.releaseLock ();
             }
-	    JavaDataObject __jdo = (JavaDataObject)DataObject.find (impl);
-	    OpenCookie __cookie = (OpenCookie)__jdo.getCookie (OpenCookie.class);
-	    __cookie.open ();
+	    //JavaDataObject __jdo = (JavaDataObject)DataObject.find (impl);
+	    //OpenCookie __cookie = (OpenCookie)__jdo.getCookie (OpenCookie.class);
+	    //__cookie.open ();
+	    _M_generated_impls.add (impl);
+
 	} catch (org.openide.src.SourceException e) {
 	    //e.printStackTrace ();
-	} catch (java.io.IOException e) {
-	    e.printStackTrace ();
+	    //} catch (java.io.IOException e) {
+	    //e.printStackTrace ();
+	    //throw e;
 	}
     }
 	
 	
-	public void generate () {
+    public void generate () {
 	this.showMessage = true;  // We suppose that we generate or synchronization is not disabled
         if (DEBUG) {
             System.out.println ("generate :-))");
@@ -2124,6 +2143,9 @@ public class ImplGenerator {
                 ex.printStackTrace ();
             }
         }
+	
+	_M_generated_impls = new LinkedList ();
+
         if (src == null) {
             TopManager.getDefault ().setStatusText ("Parse Error in " + ido.getPrimaryFile ().getName ()
                                                     + ".");
@@ -2137,15 +2159,39 @@ public class ImplGenerator {
                 try {
                     interface2java ((InterfaceElement)members.elementAt (i));
                     //} catch (SymbolNotFound e) {
-                } catch (SymbolNotFoundException e) {
-                    System.err.println ("can't find symbol: " + e.getSymbolName ());
+                } catch (SymbolNotFoundException __ex) {
+		    TopManager.getDefault ().notify 
+			(new NotifyDescriptor.Exception 
+			    (__ex, "can't find symbol: " + __ex.getSymbolName ()));
+                    //System.err.println ("can't find symbol: " + e.getSymbolName ());
                     //System.err.println (e);
-                }
+                } catch (Exception __ex) {
+		    TopManager.getDefault ().notify (new NotifyDescriptor.Exception (__ex));
+		}
         }
 
+	// open all generated classes in IDE Editor
+	Iterator __iterator = _M_generated_impls.iterator ();
+	while (__iterator.hasNext ()) {
+	    FileObject __fo = null;
+	    try {
+		__fo = (FileObject)__iterator.next ();
+		JavaDataObject __jdo = (JavaDataObject)DataObject.find (__fo);
+		OpenCookie __cookie = (OpenCookie)__jdo.getCookie (OpenCookie.class);
+		__cookie.open ();
+	    } catch (DataObjectNotFoundException __ex) {
+		System.out.println ("can't find " + __fo.toString ());
+	    }
+	}
+
 	if (this.showMessage) { // Bug Fix, when sync is disabled, don't show the message
-        TopManager.getDefault ().setStatusText ("Successfully Generated Implementation Classes for "
-                                                + ido.getPrimaryFile ().getName () + ".");
+	    javax.swing.SwingUtilities.invokeLater (new Runnable () {
+		    public void run () {
+			TopManager.getDefault ().setStatusText 
+			    ("Successfully Generated Implementation Classes for "
+			     + ido.getPrimaryFile ().getName () + ".");
+		    }
+		});
 	}
 	else {
 	    TopManager.getDefault ().setStatusText ("Idl synchronization for this project is disabled.");
@@ -2156,7 +2202,7 @@ public class ImplGenerator {
 
     public void setBodyOfMethod (MethodElement method) throws SourceException {
         if (DEBUG) {
-            System.out.println ("setBodyOfMethod (" + method + ");");
+	    System.out.println ("setBodyOfMethod (" + method + ");");
             //System.out.println ("css.getGeneration () : " + css.getGeneration ());
         }
 
