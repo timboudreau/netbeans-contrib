@@ -1125,7 +1125,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             if (greatestParent == null) {
                 greatestParent = parent;
             } else {
-                if (!parent.startsWith(greatestParent)) {
+                if (!parent.startsWith(greatestParent) || (parent.length() > greatestParent.length() && parent.charAt(greatestParent.length()) != '/')) {
                     StringBuffer commonParent = new StringBuffer();
                     for (int i = 0; i < parent.length() && i < greatestParent.length(); i++) {
                         char c = parent.charAt(i);
@@ -1135,8 +1135,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     // It can happen, that I end up in a middle of a folder name
                     // (e.g. "mySources" and "myLibraries" will end up with "my" which is not a folder name)
                     int end = commonParent.length();
-                    if (!(parent.length() == end || parent.charAt(end) == '/' ||
-                          greatestParent.length() == end || greatestParent.charAt(end) == '/')) {
+                    if (!((parent.length() == end || parent.charAt(end) == '/') &&
+                          (greatestParent.length() == end || greatestParent.charAt(end) == '/'))) {
                         // I'm somewhere in the middle of a folder name!
                         for (int i = end - 1; i >= 0; i--) {
                             char c = commonParent.charAt(i);
