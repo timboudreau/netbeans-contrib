@@ -209,6 +209,7 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
     /** Remove a task from the list.
      * @param task The task to be removed. */
     public void remove(Task task) {
+        Task pt = task.getParent();
         if (task.getParent() != null) {
             task.getParent().removeSubtask(task);
         } else {
@@ -217,7 +218,7 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         needSave = true;
 
         // Ensure that we're not showing any markers for this item
-        notifyRemoved(task);
+        notifyRemoved(pt, task);
 
         // TODO make this smarter later on, such that I only save when necessary
         save();
@@ -354,12 +355,12 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         }
     }
 
-    public void notifyRemoved(Task task) {
+    public void notifyRemoved(Task pt, Task task) {
         if (listeners != null) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
                 TaskListener tl = (TaskListener) listeners.get(i);
-                tl.removedTask(task);
+                tl.removedTask(pt, task);
             }
         }
     }
@@ -428,4 +429,27 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         return getRoot().getSubtasks();
     }
 
+    /**
+     * @deprecated
+     */
+    public void selectedTask(Task task) {
+    }
+    
+    /**
+     * @deprecated
+     */
+    public void warpedTask(Task task) {
+    }
+
+    public void addedTask(Task task) {
+    }
+    
+    public void removedTask(Task pt, Task task) {
+    }
+
+    public void changedTask(Task task) {
+    }
+
+    public void structureChanged(Task task) {
+    }
 }

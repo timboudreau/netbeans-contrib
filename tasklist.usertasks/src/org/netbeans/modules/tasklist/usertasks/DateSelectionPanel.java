@@ -32,7 +32,6 @@ import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
  * move on to the next phase in my project, but one should really:
  *
  * @todo The panel is too big...
- * @todo +++
  *
  * @author  Trond Norbye
  */
@@ -64,7 +63,11 @@ public class DateSelectionPanel extends javax.swing.JPanel
         this(new Date());
     }
     
-    /** Create a new DateSelectionPanel with the given date selected... */
+    /**
+     * Create a new DateSelectionPanel with the given date selected...
+     *
+     * @param date initial selection
+     */
     public DateSelectionPanel(Date date) {
         initComponents();
 
@@ -104,6 +107,8 @@ public class DateSelectionPanel extends javax.swing.JPanel
     
     /**
      * Returns the selected date
+     *
+     * @return selected date
      */
     public Date getDate() {
         Date ret;

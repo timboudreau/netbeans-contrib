@@ -113,20 +113,27 @@ public class Task extends Suggestion implements Cloneable {
         }
     }
 
-    /** Some of this items attributes (such as its description - anything
-     * except the subtask list) has changed */
+    /** 
+     * Some of this items attributes (such as its description - anything
+     * except the subtask list) has changed 
+     */
     public static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
+    protected final PropertyChangeSupport supp =
+        new PropertyChangeSupport(this);
+    
     protected ObservableList list;
     protected boolean visitable;
 
-    /** When true, don't notify anybody of updates to this object - and don't
-        modify the edited timestamp. Used by the restore code. */
+    /** 
+     * When true, don't notify anybody of updates to this object - and don't
+     * modify the edited timestamp. Used by the restore code. 
+     */
     protected boolean silentUpdate = false;
     
     protected Task parent;
 
-    // key shared by all clones
+    /** key shared by all clones */
     private Object key;
 
     /** If this item has subtasks, they are stored in this list */
@@ -137,7 +144,7 @@ public class Task extends Suggestion implements Cloneable {
         we can use it to search for a reincarnation of the task. */
     protected boolean zombie = false;
     
-    public Task() { // TODO consider using a factory instead
+    public Task() {
         super(null, null, null);
         parent = null;
 	    list = null;
@@ -165,6 +172,7 @@ public class Task extends Suggestion implements Cloneable {
     
     /**
      * Returns indent level for this task. If parent == null returns 0
+     *
      * @return indent level for this task
      */
     public int getLevel() {
@@ -177,8 +185,11 @@ public class Task extends Suggestion implements Cloneable {
         return level;
     }
     
-    /** Set the description/summary of the task.
-     * @param ndesc The new description text */    
+    /** 
+     * Set the description/summary of the task.
+     *
+     * @param ndesc The new description text 
+     */    
     public void setSummary(String ndesc) {
         super.setSummary(ndesc);
         if (!silentUpdate) {
@@ -198,19 +209,24 @@ public class Task extends Suggestion implements Cloneable {
         updatedValues();
     }
     
-    /** @return true iff this task is "visitable"; returns true
+    /** 
+     * @return true iff this task is "visitable"; returns true
      * if this node has its own content, false if it's just a "category"
      * node. Used for keyboard traversal: if you press Next (F12) you
-     * don't want it to skip over all nonvisitable nodes. */
+     * don't want it to skip over all nonvisitable nodes. 
+     */
     public boolean isVisitable() {
         return visitable;
     }
 
-    /** Set whether or not this task is "visitable".
+    /** 
+     * Set whether or not this task is "visitable".
+     *
      * @param visitable true if this node has its own content, false
      * if it's just a "category" node. Used for keyboard traversal: if
      * you press Next (F12) you don't want it to skip over all
-     * nonvisitable nodes. */
+     * nonvisitable nodes. 
+     */
     public void setVisitable(boolean visitable) {
         this.visitable = visitable;
     }
@@ -254,9 +270,6 @@ public class Task extends Suggestion implements Cloneable {
         }
     }
 
-    protected final PropertyChangeSupport supp = 
-        new PropertyChangeSupport(this);
-    
     /** Listen to changes in bean properties.
      * @param l listener to be notified of changes */
     public void addPropertyChangeListener(PropertyChangeListener l) {
@@ -672,12 +685,12 @@ public class Task extends Suggestion implements Cloneable {
 
     /** Set the list this task is contained in. */
     public void setList(ObservableList list) { // XXX remove publicness
-	    this.list = list;
+        this.list = list;
     }
 
     /** Get the list this task is contained in. */
     public ObservableList getList() {
-	    return list;
+        return list;
     }
 
     /**

@@ -178,7 +178,7 @@ final class FilteredTasksList implements ObservableList {
             }
         }
 
-        public void removedTask(Task t) {
+        public void removedTask(Task pt, Task t) {
             if (t.getSeed() instanceof SourceTaskProvider) {
                 try {
                     // find pairing task by key identity
@@ -203,14 +203,16 @@ final class FilteredTasksList implements ObservableList {
                 Iterator it = listeners.iterator();
                 while (it.hasNext()) {
                     TaskListener listener = (TaskListener) it.next();
-                    listener.removedTask(t);
+                    listener.removedTask(null, t); // TODO cannot find the parent of t
                 }
             } else if (t.hasSubtasks()) {
                 // category nodes
                 Iterator it = t.getSubtasks().iterator();
                 while (it.hasNext()) {
                     Task task = (Task) it.next();
-                    removedTask(task);  // recursion
+                    
+                    // TODO cannot find the parent of task
+                    removedTask(null, task);  // recursion
                 }
             }
         }

@@ -196,7 +196,6 @@ class UserTaskNode extends TaskNode {
             
             p = new Reflection(item, Boolean.TYPE, "isDone", "setDone"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_DONE);
-            p.setPropertyEditorClass(DonePropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Done")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "DoneHint")); // NOI18N
             ss.put(p);
@@ -252,6 +251,7 @@ class UserTaskNode extends TaskNode {
             p.setPropertyEditorClass(CategoryPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Category")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "CategoryHint")); // NOI18N
+            p.setValue("canEditAsText", Boolean.TRUE); // NOI18N
             ss.put(p);
 
             //p = new PropertySupport.Reflection(item, String.class, "getCreatedDateString", null /* readonly*/); // NOI18N
@@ -269,17 +269,11 @@ class UserTaskNode extends TaskNode {
             ss.put(p);
 
 
-            //p = new Reflection(item, Date.class, "getDueDate", null /* readonly*/); // NOI18N
-            p = new Reflection(item, Date.class, "getDueDate", "setDueDate"); // NOI18N
-
-            
+            p = new Reflection(item, Date.class, "getDueDate", "setDueDate"); // NOI18N            
             p.setName(UserTaskView.PROP_TASK_DUE);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Due")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "DueHint")); // NOI18N
             ss.put(p);
-
-
-            
         } catch (NoSuchMethodException nsme) {
             ErrorManager.getDefault().notify(nsme);
         }

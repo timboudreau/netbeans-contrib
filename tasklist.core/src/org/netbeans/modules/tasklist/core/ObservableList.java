@@ -19,7 +19,6 @@ package org.netbeans.modules.tasklist.core;
  * @author Petr Kuzel
  */
 public interface ObservableList {
-
     /**
      * Return top level task.
      *

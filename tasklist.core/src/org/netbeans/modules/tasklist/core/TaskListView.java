@@ -484,7 +484,7 @@ public abstract class TaskListView extends TopComponent
 
         // Remove any task markers we've added to the editor
         if (unshowItem != null) {
-            removedTask(unshowItem);
+            removedTask(null, unshowItem); // TODO cannot find the parent of unshowItem
         }
 
         // Unregister listeners
@@ -662,15 +662,15 @@ table.setGridColor((java.awt.Color)javax.swing.UIManager.getDefaults().get("Labe
             */
         }
 
-        JTree getTree() {
+        public JTree getTree() {
             return tree;
         }
 
-        JTable getTable() {
+        public JTable getTable() {
             return treeTable;
         }
 
-        TableModel getModel() {
+        public TableModel getModel() {
             // XXX it's private: return tableModel;
             return (TableModel) treeTable.getModel();
         }
@@ -1141,9 +1141,7 @@ for (int i = 0; i < columns.length; i++) {
         // Nothing to do?
     }
 
-    /** A task has been added. If null, a number of tasks have
-     been added. */
-    public void removedTask(Task task) {
+    public void removedTask(Task pt, Task task) {
         if ((task == unshowItem) && (listeners != null)) {
             unshowItem = null;
             int n = listeners.size();

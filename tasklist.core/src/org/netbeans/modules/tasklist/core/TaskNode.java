@@ -418,7 +418,7 @@ public class TaskNode extends AbstractNode {
             }
         }
 
-        public void removedTask(Task t) {
+        public void removedTask(Task pt, Task t) {
             // children's job
         }
 

@@ -243,7 +243,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     public ColumnProperty getCategoryColumn(boolean visible, int width) {
-        return new ColumnProperty(
+        ColumnProperty cp = new ColumnProperty(
 	    2, // UID -- never change (part of serialization
             PROP_TASK_CAT,
             String.class,
@@ -253,6 +253,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
             visible,
             width
             );
+        return cp;
     }
    
     public ColumnProperty getDetailsColumn(boolean visible, int width) {
