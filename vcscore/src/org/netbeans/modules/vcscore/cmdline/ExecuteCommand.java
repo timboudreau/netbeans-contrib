@@ -385,6 +385,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             commandFinished(exec, false);
             //fileSystem.debug(cmd.getName()+": "+g("MSG_Timeout")+"\n"); // NOI18N
             //if (errorContainer != null) errorContainer.match(cmd.getName()+": "+g("MSG_Timeout")); // NOI18N
+            break;
         case VcsCommandExecutor.FAILED:
             commandFinished(exec, false);
             //D.deb("exec failed "+ec.getExitStatus()); // NOI18N
