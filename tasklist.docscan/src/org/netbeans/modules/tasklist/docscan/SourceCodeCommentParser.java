@@ -18,7 +18,14 @@ package org.netbeans.modules.tasklist.docscan;
 
 import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 
 /**
@@ -28,7 +35,7 @@ import java.io.*;
  * @author Trond Norbye
  */
 final class SourceCodeCommentParser {
-    
+
     /**
      * Default instance, treat all lines as comments!!
      */
@@ -63,8 +70,8 @@ final class SourceCodeCommentParser {
      * @param blockEnd the end tag of a block comment
      */
     public SourceCodeCommentParser(String lineComment, 
-                            String blockStart, 
-                            String blockEnd) {
+                                   String blockStart, 
+                                   String blockEnd) {
         parser = new CommentParser(lineComment, blockStart, blockEnd);
     }
     
@@ -75,25 +82,22 @@ final class SourceCodeCommentParser {
     public void setDocument(SuggestionContext env) {
         parser.setDocument(env);
     }
-
+    
     /**
-     * get the next line of text from the file
+     * get the range for the next comment line...
      * @param ret Where to store the result
      * @return false when EOF, true otherwise
      */
-    public boolean getNextLine(CommentLine ret) throws IOException {
-        return parser.getNextLine(ret);
+    public boolean nextRegion(CommentRegion reg) throws IOException {
+        return parser.nextRegion(reg);
     }
-    
+
     /**
      * I don't know if this was a smart thing to do, but instead of testing
      * each time if I should skip comments or not, I decided to create an
      * an internal parser that I could extend to my needs... The most generic
      * parser treats everything as comments, and should hence "work" for all
      * unknown file types ;)
-     * Since I was to lazy to override the setDocument method in the
-     * Comment parser, I inserted the variables rest and inComment into the 
-     * base class so I could initialize them here....
      */
     private class SourceParser {
         
@@ -101,80 +105,79 @@ final class SourceCodeCommentParser {
          * Create a new instance of the SourceParser
          */
         public SourceParser() {
-            chars = null;
-            lineno = 0;
-            pos = 0;
-            rest = null;
-            inComment = false;
+            text = null;
+            curr = 0;
+            matcher = null;
         }
         
         /**
-         * Get the next line of text from the file.
+         * Get the indexes of the next comment region..
          * @param ret Where to store the result
          * @return false when EOF, true otherwise
          * @throws java.io.IOException if a read error occurs on the input
          *         stream.
          */
-        public boolean getNextLine(CommentLine ret) throws IOException {
-            ret.line = readLine();
-            ++lineno;
-            ret.lineno = lineno;
-            return ret.line != null;
-        }
-
-        /*
-         * 'Tokenizes' charsequence at \n, \r\n and \r boundaries.
-         */
-        protected final String readLine() {
-            StringBuffer sb = new StringBuffer(83);
-            if (pos >= chars.length()) return null;
-            while (pos < chars.length()) {
-                char ch = chars.charAt(pos);
-                if (ch == '\r') {
-                    if (chars.charAt(pos +1) == '\n') {
-                        pos+=2;
-                        break;
-                    } else {
-                        pos++;
-                        break;
-                    }
-                } else if (ch == '\n') {
-                    pos++;
-                    break;
-                } else {
-                    sb.append(ch);
-                    pos++;
-                }
+        public boolean nextRegion(CommentRegion reg) throws IOException {
+            if (text == null) {
+                return false;
             }
-            return sb.toString();
+
+            reg.start = curr;
+            reg.stop = text.length();
+
+            if (reg.start == reg.stop) {
+                return false;
+            }
+
+            curr = reg.stop;
+            return true;
+        }
+                
+        /**
+         * Set the document to parse
+         * @param doc the document to parse
+         */
+        public void setDocument(SuggestionContext env) {
+            text = (String) env.getCharSequence(); //XXX downcast
+
+            if (pattern != null) {
+                matcher = pattern.matcher(text);
+            }
         }
 
         /**
-         * Set the document to parse
-         * @param env to parse
+         * Append all characters in a string to a stringbuffer as \\unnnn
+         * @param buf destination buffer
+         * @param str the string to append
          */
-        public void setDocument(SuggestionContext env) {
-            this.chars = env.getCharSequence();
-            lineno = 0;
-            pos = 0;
-            rest = null;
-            inComment = false;
+        protected void appendEncodedChars(StringBuffer buf, String str) {
+            int len = str.length();
+            
+            for (int ii = 0; ii < len; ++ii) {
+                String s = Integer.toHexString((int)str.charAt(ii));
+                
+                buf.append("\\u");
+                for(int i = 0, n = 4 - s.length(); i < n; i++) {
+                    buf.append('0');
+                }
+                buf.append(s);
+            }
         }
-        
-        /** The reader I use to read the document content from */
-        private CharSequence chars;
 
-        private int pos;  // position in above sequence
-
-        /** Current line in the file */
-        protected int                    lineno;
-        /** 
-         * If I had to split the line i just read (mix of comment and code),
-         * rest contains the rest of the line I just read.
+        /**
+         * A StringBuffer that I use towards the source reader to avoid the
+         * creation of a lot of strings...
          */
-        protected String                 rest;
-        /** Am I currently inside a comment? */
-        protected boolean inComment;
+        protected String text;
+        
+        /** current position in the text*/
+        protected int curr;
+
+        /** A matcher that may be utilized by a subclass... */
+        protected Matcher matcher;
+        /** The pattern to search for in the text */
+        protected Pattern pattern;
+
     }
     
     /**
@@ -198,15 +201,34 @@ final class SourceCodeCommentParser {
          * @param blockStart the start token for a multiline comment block
          * @param blockEnd the end token for a multiline comment block
          */
-        public CommentParser(String lineComment, 
-                             String blockStart, 
+        public CommentParser(String lineComment,
+                             String blockStart,
                              String blockEnd) {
+            super();
             this.lineComment = lineComment;
             this.blockStart = blockStart;
             this.blockEnd = blockEnd;
-            inComment = false;
+
+            StringBuffer sb = new StringBuffer();
+            
+            boolean needor = false;
+
+            if (lineComment != null) {
+                appendEncodedChars(sb, lineComment);
+                needor = true;
+            }
+
+            if (blockStart != null) {
+                if (needor) {
+                    sb.append('|');
+                }
+                appendEncodedChars(sb, blockStart);
+            }
+
+            pattern = Pattern.compile(sb.toString());
+            matcher = null;
         }
-        
+
         /**
          * Get the next line of text from the file.
          * @param ret Where to store the result
@@ -214,74 +236,34 @@ final class SourceCodeCommentParser {
          * @throws java.io.IOException if a read error occurs on the input
          *         stream.
          */
-        public boolean getNextLine(CommentLine ret) throws IOException {
-            String line = null;
+        public boolean nextRegion(CommentRegion reg) throws IOException {
+            boolean ret = false;
             
-            // Read next line of input!
-            while (rest != null || (line = readLine()) != null) {
-                if (rest != null) {
-                    line = rest;
-                    rest = null;
-                } else {
-                    ++lineno;
-                }
-                
-                if (!inComment) {
-                    // I'm not inside a comment, but this line might contain one
-                    int lineIdx = java.lang.Integer.MAX_VALUE;
-                    if (lineComment != null) {
-                        lineIdx = line.indexOf(lineComment);
-                        if (lineIdx == -1) {
-                            lineIdx = java.lang.Integer.MAX_VALUE;
-                        }
-                    }
-                    
-                    int blockIdx = java.lang.Integer.MAX_VALUE;
-                    if (blockStart != null) {
-                        blockIdx = line.indexOf(blockStart);
-                        if (blockIdx == -1) {
-                            blockIdx = java.lang.Integer.MAX_VALUE;
-                        }
-                    }
-                    
-                    int idx = java.lang.Math.min(lineIdx, blockIdx);
-                    if (idx != java.lang.Integer.MAX_VALUE) {
-                        // This line contains the start of a comment!!!!
-                        if (idx == lineIdx) {
-                            // XXX " " is a shortcut for #38651
-                            ret.line = " " + line.substring(idx + lineComment.length());
-                            ret.lineno = lineno;
-                            return true;
-                        } else {
-                            line = line.substring(idx + blockStart.length());
-                            inComment = true;
-                        }
+            if (matcher != null && matcher.find(curr)) {
+                String token = text.substring(matcher.start(), matcher.end());
+
+                reg.start = matcher.start();
+
+                if (lineComment.equals(token)) {
+                    int idx = text.indexOf("\n", reg.start);
+                    if (idx != -1) {
+                        reg.stop = idx;
                     } else {
-                        // Get the next line of source code!!
-                        continue;
+                        reg.stop = text.length();
                     }
-                }
-                
-                // We're inside a comment... search for the end of the
-                // comment... The _only_ way to get here is if blockStart !=
-                // null, and it should _not_ be possible to configure a
-                // setup where you have a block start and not a block end!
-                
-                int idx = line.indexOf(blockEnd);
-                
-                if (idx != -1) {
-                    rest = line.substring(idx + blockEnd.length());
-                    line = line.substring(0, idx);
-                    inComment = false;
+                } else {
+                    int idx = text.indexOf(blockEnd, reg.start);
+                    if (idx != -1) {
+                        reg.stop = idx + blockEnd.length();
+                    } else {
+                        reg.stop = text.length();
+                    }
                 }
 
-                // XXX " " is a shortcut for #38651
-                ret.line = " " + line;
-                ret.lineno = lineno;
-                return true;
+                curr = reg.stop + 1;
+                ret = true;
             }
-            
-            return false;
+            return ret;
         }
         
         /** The string that indicates the start of a single line comment */
@@ -290,18 +272,22 @@ final class SourceCodeCommentParser {
         protected String  blockStart;
         /** The string that indicates the end of a multiline comment */
         protected String  blockEnd;
+
     }
-    
-    /**
-     * A small holder-class for the source code line and line number...
-     */
-    public static class CommentLine {
-        /** The current line number in the source code file */
-        public int    lineno;
-        /** The comment part of that source line... */
-        public String line;
+
+    /** A little handy struct to pass up to the parent.. */
+    public static class CommentRegion {
+        /** The position in the text where the comment starts */
+        public int start;
+        /** The position in the text where the comment ends */
+        public int stop; 
+        
+        /** Create a new instance */
+        public CommentRegion() {
+            start = stop = 0;
+        }
     }
-    
+
     /** The parser used by this SourceCodeCommentParser */
     private SourceParser parser;
 }

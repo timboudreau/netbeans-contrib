@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -142,19 +142,21 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
 
         boolean skipCode = settings().getSkipComments();
         List tasks = null;
+    
         if (skipCode) {
             tasks = scanCommentsOnly(env);
         } else {
             tasks = scanAll(env);
         }
         Cache.put(env, tasks);
+
         return tasks;
     }
     
     
     public void clear(SuggestionContext env,
                       Object request) {
-	// Remove existing items
+        // Remove existing items
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
             manager.register(TYPE, null, showingTasks, request);
@@ -164,7 +166,8 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
 
 
     /**
-     * Given the contents of a buffer, scan it for todo items.
+     * Given the contents of a buffer, scan it for todo items. Ignore
+     * all items found outside comment sections...
      * @param doc The document to scan
      * @param dobj The data object whose primary file should be scanned
      */
@@ -197,69 +200,107 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
             sccp = new SourceCodeCommentParser();
         }
 
+        CharSequence text = env.getCharSequence();
         sccp.setDocument(env);
-        SourceCodeCommentParser.CommentLine cl =
-            new SourceCodeCommentParser.CommentLine();
+
+        SourceCodeCommentParser.CommentRegion reg =
+            new SourceCodeCommentParser.CommentRegion();
         
         TaskTag matchTag = null;
+
         try {
-            Pattern regexp = settings().getTaskTags().getScanRegexp();
-            while (sccp.getNextLine(cl)) {
-                // I am inside a comment, scan for todo-items:
-                Matcher matcher = regexp.matcher(cl.line);
-                if (matcher.find()) {
-                    String description = cl.line.trim();
-                    
-                    matchTag = getTag(cl.line, matcher.start(), matcher.end());
+            Matcher matcher = settings.getTaskTags().getScanRegexp().matcher(text);
+            int len = text.length();
+            int lineno = 1;
+            int index = 0;
 
-                    // [trond] I personally would like to strip off
-                    // non-text characters in front of the task
-                    // description, but it seemd that Tor disagreed
-                    // there... I'll keep the code here until someone
-                    // complains.....
-                    // [tor] No, I don't disagree with stripping off
-                    // non-text characters; I disagreed with stripping
-                    // off all the line contents in front of the
-                    // matched token, since I often put the TODO token
-                    // at the end of a line and I'd like to see the
-                    // relevant comment or code as part of the task
-                    if (washComment) {
-                        int idx = 0;
-                        int stop = matcher.start();
+            // find the first comment region
+            if (!sccp.nextRegion(reg)) {
+                // Done searching the document... bail out..
+                return newTasks;
+            }
 
-                        while (idx < stop) {
-                            char c = description.charAt(idx);
-                            if (c == '@' || Character.isLetter(c)) {// NOI18N
-                                break;
-                            } else {
-                                ++idx;
-                            }
+            while (index < len && matcher.find(index)) {
+                int begin = matcher.start();
+                int end   = matcher.end();
+                boolean toosoon = false;
+                boolean goahead;
+
+                do {
+                    goahead = true;
+
+                    // A match within the source comment?                   
+                    if (begin < reg.start) {
+                        toosoon = true;
+                        // too soon.. get next match
+                    } else if (begin > reg.stop) {
+                        goahead = false;
+                        if (!sccp.nextRegion(reg)) {
+                            // Done searching the document... bail out..
+                            return newTasks;
                         }
-                    
-                        if (idx != 0) {
-                            description = description.substring(idx);
-                        }
-                    }
-                    
-                    SuggestionManager manager = SuggestionManager.getDefault();
-                    Suggestion item =
-                        manager.createSuggestion(SourceTaskProvider.TYPE,
-                                                description,
-                                                null,
-                                                this);
-                    try {
-                        DataObject dataObject = DataObject.find(env.getFileObject());
-                        item.setLine(TLUtils.getLineByNumber(dataObject, cl.lineno));
-                    } catch (IOException ex) {
+                    } 
+                } while (!goahead);
 
-                    }
-
-                    if (matchTag != null) {
-                        item.setPriority(matchTag.getPriority());
-                    }
-
-                    newTasks.add(item);
+                if (toosoon) {
+                    // find next match!
+                    index = end;
+                    continue;
                 }
+
+                matchTag = getTag(text, begin, end);
+
+                // begin should be the beginning of this line (but avoid 
+                // clash if I have two tokens on the same line...
+                char c = 'a'; // NOI18N
+                int nonwhite = begin;
+                while (begin >= index && (c = text.charAt(begin)) != '\n') { // NOI18N
+                    if (c != ' ' && c != '\t') { // NOI18N
+                        nonwhite = begin;
+                    }
+                    --begin;
+                }
+                
+                begin = nonwhite;
+                
+                // end should be the last "nonwhite" character on this line...
+                nonwhite = end;
+                while (end < len) {
+                    c = text.charAt(end);
+                    if (c == '\n' || c == '\r') {// NOI18N
+                        break;
+                    } else if (c != ' ' && c != '\t') {// NOI18N
+                            nonwhite = end;
+                    }
+                    ++end;
+                }
+
+                // calculate current line number
+                int idx = index;
+                while (idx <= begin) {
+                    if (text.charAt(idx) == '\n') {// NOI18N
+                        ++lineno;
+                    }
+                    ++idx;
+                }
+                
+                index = end;
+                
+                String description = text.subSequence(begin, nonwhite+1).toString();
+
+                SuggestionManager manager = SuggestionManager.getDefault();
+                Suggestion item =
+                    manager.createSuggestion(SourceTaskProvider.TYPE,
+                                             description,
+                                             null,
+                                             this);
+                DataObject dataObject = DataObject.find(env.getFileObject());
+                item.setLine(TLUtils.getLineByNumber(dataObject, lineno));
+                if (matchTag != null) {
+                    item.setPriority(matchTag.getPriority());
+                }
+
+                newTasks.add(item);
             }
         } catch (Exception e) {
             ErrorManager.getDefault().notify(e);
@@ -273,7 +314,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
     private List scanAll(SuggestionContext env) {
         ArrayList newTasks = new ArrayList();
  
-      	CharSequence text = env.getCharSequence();
+        CharSequence text = env.getCharSequence();
 
         TaskTag matchTag = null;
         try {
@@ -284,7 +325,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
             Matcher matcher = settings().getTaskTags().getScanRegexp().matcher(text);
             while (index < len && matcher.find(index)) {
                 int begin = matcher.start();
-	            int end   = matcher.end();
+                int end   = matcher.end();
                 matchTag = getTag(text, begin, end);
 
                 // begin should be the beginning of this line (but avoid 
