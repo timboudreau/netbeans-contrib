@@ -123,7 +123,7 @@ class ClassDataNode extends DataNode implements Runnable {
   /** Creates property set for this node */
   protected Sheet createSheet () {
     Sheet s = super.createSheet();
-    ResourceBundle bundle = NbBundle.getBundle(this);
+    ResourceBundle bundle = NbBundle.getBundle(ClassDataNode.class);
     Sheet.Set ps = s.get(Sheet.PROPERTIES);
     ps.put(new PropertySupport.ReadOnly (
              PROP_CLASS_NAME,
@@ -297,6 +297,8 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  16   Gandalf   1.15        3/26/99  Ian Formanek    Fixed use of obsoleted 
+ *       NbBundle.getBundle (this)
  *  15   Gandalf   1.14        3/22/99  Ian Formanek    Icons location fixed
  *  14   Gandalf   1.13        3/22/99  Ian Formanek    Icons moved from 
  *       modules/resources to this package

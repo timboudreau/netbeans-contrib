@@ -341,7 +341,7 @@ public class ClassDataObject extends MultiDataObject {
     String destName = fo.getName();
     if (f.getPrimaryFile().getFileObject(name, ext) != null) {
       // file with the same name exists - ask user what to do
-      ResourceBundle bundle = NbBundle.getBundle(this);
+      ResourceBundle bundle = NbBundle.getBundle(ClassDataObject.class);
       final String rewriteStr = bundle.getString("CTL_Rewrite");
       final String renameStr = bundle.getString("CTL_Rename");
       NotifyDescriptor nd = new NotifyDescriptor.Confirmation(
@@ -433,6 +433,8 @@ public class ClassDataObject extends MultiDataObject {
 
 /*
  * Log
+ *  12   Gandalf   1.11        3/26/99  Ian Formanek    Fixed use of obsoleted 
+ *       NbBundle.getBundle (this)
  *  11   Gandalf   1.10        3/3/99   Jaroslav Tulach Uses ExecSupport to 
  *       provide DebuggerCookie
  *  10   Gandalf   1.9         2/5/99   David Simonek   

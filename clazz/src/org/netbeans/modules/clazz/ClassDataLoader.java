@@ -46,7 +46,7 @@ public final class ClassDataLoader extends MultiFileLoader {
   }
 
   private void initialize () {
-    setDisplayName(NbBundle.getBundle(this).
+    setDisplayName(NbBundle.getBundle(ClassDataLoader.class).
                    getString("PROP_ClassLoader_Name"));
     setActions (new SystemAction [] {
       SystemAction.get(CustomizeBeanAction.class),
@@ -162,6 +162,8 @@ public final class ClassDataLoader extends MultiFileLoader {
 
 /*
  * Log
+ *  6    Gandalf   1.5         3/26/99  Ian Formanek    Fixed use of obsoleted 
+ *       NbBundle.getBundle (this)
  *  5    Gandalf   1.4         3/14/99  Jaroslav Tulach Change of 
  *       MultiDataObject.Entry.
  *  4    Gandalf   1.3         2/16/99  David Simonek   
