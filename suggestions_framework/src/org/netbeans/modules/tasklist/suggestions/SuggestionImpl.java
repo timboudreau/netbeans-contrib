@@ -108,7 +108,7 @@ public class SuggestionImpl extends Task implements Node.Cookie {
       }
 
       public String toString() {
-	return filename + ":" + line;
+	return filename + ":" + (line+1);
       }
     }
 
