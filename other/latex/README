@@ -31,10 +31,12 @@ Requirements:
 Fast Installation:
 ------------------
 0. Make sure you have installed the lexer and editorbridge modules
-1. Copy modules docsup-syntax.jar and docsup.jar from
-   dictionary docsup/netbeans/modules from this package
+1. Checkout contrib/latex (cvs checkout contrib/latex).
+2. Go into contrib/latex and run ant.
+3. Copy modules latex-syntax.jar and latex.jar from
+   dictionary contrib/latex/netbeans/modules from this package
    into ${NB-USER-DIR}/modules.
-2. Restart NetBeans.
+4. Restart NetBeans.
 
 In this case a few features are inaccesible:
 -spell checker (all words are considered incorrect)
@@ -58,29 +60,22 @@ http://wordlist.sourceforge.net/
 (get SCOWL and choose one dictionary from this package)
 
 The dictionary should be placed in:
-docsup/external/dictionary.txt
+contrib/latex/external/dictionary.txt
 
 The LaTeX help can be downloaded here:
 http://www.emerson.emory.edu/services/latex/latex2e/latex2e_toc.html
 (get latex2e.tar.gz)
 
 The help should be placed in:
-docsup/external/latex2e.tar.gz
-
-Compiling non-SPL code:
-
-The non-SPL code has to be "compiled" to be usable. It is possible to
-compile it without recompiling whole module. Simply do:
-
-cd docsup
-ant compile-non-spl
+contrib/latex/external/latex2e.tar.gz
 
 Installation:
 
 0. Make sure you have installed the lexer and editorbridge modules
-1. Compile non-SPL code
-2. Copy whole directory docsup/netbeans/modules into ${NB-USER-DIR}/modules.
-3. Restart NetBeans
+1. Checkout contrib/latex (cvs checkout contrib/latex).
+2. Go into contrib/latex and run ant.
+3. Copy whole directory contrib/latex/netbeans/modules into ${NB-USER-DIR}/modules.
+4. Restart NetBeans
 
 Bugs:
 -----
