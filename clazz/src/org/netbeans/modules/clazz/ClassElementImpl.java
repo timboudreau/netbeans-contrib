@@ -50,6 +50,9 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     /** Methods of this class element */
     private SoftReference methods;
 
+    /* InnerClass attribute of a associeted with this classfile */ 
+    private InnerClass innerclass;
+    
     /** One JavaDoc empty implementation for all objects */
     private static final ClassJavaDocImpl.Class CLASS_JAVADOC_IMPL = new ClassJavaDocImpl.Class ();
 
@@ -60,11 +63,26 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
         super(data);
     }
 
+    private ClassElementImpl (final ClassFile data,InnerClass inner) {
+        this(data);
+        innerclass=inner;
+    }
+    
     /** Not supported. Throws source exception */
     public void setSuperclass(Identifier superClass) throws SourceException {
         throwReadOnlyException();
     }
 
+    public int getModifiers () {
+        int access;
+        
+        if (innerclass!=null)
+            access=innerclass.getAccess();
+        else
+            access=((ClassFile)data).getAccess();
+        return access & (~Access.INTERFACE & ~Access.SYNCHRONIZED);
+    }
+        
     public Identifier getSuperclass() {
         if (superClass == null) {
             ClassName cn = ((ClassFile)data).getSuperClass();
@@ -325,14 +343,15 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
         ClassElement curCE = null;
         Map result = new HashMap(reflInners.length);
         for (int i = 0; i < reflInners.length; i++) {
-            String iname = reflInners[i].getSimpleName();
+            InnerClass reflInner=reflInners[i];
+            String iname = reflInner.getSimpleName();
             if (iname != null) {
                 StringBuffer sb = new StringBuffer(name.length() + iname.length() + 7);
                 sb.append(name); sb.append('$'); sb.append(iname);
                 try {
                     java.io.InputStream istm = findSourceImpl().findStreamForClass(sb.toString());
                     if (istm != null) {
-                            curCE = new ClassElement(new ClassElementImpl(new ClassFile(istm)),
+                            curCE = new ClassElement(new ClassElementImpl(new ClassFile(istm),reflInner),
                                                      (ClassElement)element);
                             result.put(iname, curCE);
                     }

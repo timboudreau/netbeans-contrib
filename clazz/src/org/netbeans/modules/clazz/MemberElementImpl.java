@@ -49,15 +49,6 @@ public abstract class MemberElementImpl extends ElementImpl
     /** @return Modifiers for this element.
     */
     public int getModifiers () {
-        if (data instanceof ClassFile) {
-            // Class doesn't implement Member interface...
-            // and moreover we must throw away interface and acc_super modifiers if present
-            try {
-                return ((ClassFile)data).getAccess() & (~Access.INTERFACE & ~Access.SYNCHRONIZED);
-            } catch (Exception exc) {
-                return 0;
-            }
-        }
         return ((org.netbeans.modules.classfile.Field)data).getAccess();
     }
 
