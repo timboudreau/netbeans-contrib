@@ -29,6 +29,8 @@ import org.netbeans.modules.vcs.profiles.teamware.util.SRevisionItem;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.windows.TopComponent;
 
 public class TeamwareDiffCommand implements VcsAdditionalCommand {
@@ -40,15 +42,17 @@ public class TeamwareDiffCommand implements VcsAdditionalCommand {
                         final CommandDataOutputListener stderrData, String errorRegex) {
 
         File file = TeamwareSupport.getFile(vars);
+        FileObject fo = FileUtil.toFileObject(file);
+        String MIMEType = fo.getMIMEType();
         SFile sFile = new SFile(file);
         SRevisionItem revision = sFile.getRevisions().getActiveRevision();
         String name1 = file.getName();
         String name2 = name1 + ": " + revision;
         try {
             Component c = Diff.getDefault().createDiff(
+                name2, name2, new StringReader(sFile.getAsString(revision, false)),
                 name1, name1, new FileReader(file),
-                name2, name2, new StringReader(sFile.getAsString(revision, true)),
-                "text/java");
+                MIMEType);
             if (c != null) {
                 ((TopComponent) c).open();
             }
