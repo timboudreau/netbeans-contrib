@@ -326,18 +326,19 @@ public class ExternalCommand {
             //processCommandOutput();
             D.deb("watchDog.cancel()"); // NOI18N
             if (watchDog != null) watchDog.cancel();
-            output.doStop();
-            boolean finished = false;
-            do {
-                try {
-                    output.waitToFinish();
-                    finished = true;
-                } catch (InterruptedException iexc) {
-                    // It's dangerous to finish before output finishes
-                    output.doReallyStop();
-                }
-            } while (!finished);
-                
+            if (output != null) { // if exec() throws an exception, output == null !
+                output.doStop();
+                boolean finished = false;
+                do {
+                    try {
+                        output.waitToFinish();
+                        finished = true;
+                    } catch (InterruptedException iexc) {
+                        // It's dangerous to finish before output finishes
+                        output.doReallyStop();
+                    }
+                } while (!finished);
+            }
         }
 
         D.deb("exec() -> "+getExitStatus()); // NOI18N
