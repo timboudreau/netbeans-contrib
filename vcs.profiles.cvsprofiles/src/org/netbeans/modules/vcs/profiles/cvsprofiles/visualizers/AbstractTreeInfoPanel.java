@@ -114,6 +114,7 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
         jScrollPane2.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.scroll"));//NOI18N
         jScrollPane2.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel.scroll"));//NOI18N
         tblTable = new javax.swing.JTable();
+        tblTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         tblTable.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.table"));//NOI18N
         tblTable.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel.table"));//NOI18N
         pnlTree.setLayout(new java.awt.BorderLayout());
@@ -122,7 +123,6 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
         jTabbedPane1.setTabPlacement(javax.swing.SwingConstants.BOTTOM);
         jTabbedPane1.setPreferredSize(new java.awt.Dimension(80, 60));
         trDirStructure.setShowsRootHandles(true);
-        trDirStructure.setPreferredSize(new java.awt.Dimension(80, 60));
         trDirStructure.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 trDirStructureValueChanged(evt);
@@ -131,25 +131,6 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
         jScrollPane1.setViewportView(trDirStructure);
         String treeTitle = NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("AbstractTreeInfoPanel.treeTitle"); //NOI18N
         jTabbedPane1.addTab(treeTitle, jScrollPane1); 
-        tblTable.setModel(new javax.swing.table.DefaultTableModel (
-        new Object [][] {
-            {null, null, null, null},
-            {null, null, null, null},
-            {null, null, null, null},
-            {null, null, null, null}
-        },
-        new String [] {
-            "Title 1", "Title 2", "Title 3", "Title 4" // NOI18N
-        }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
-            };
-            
-            public Class getColumnClass (int columnIndex) {
-                return types [columnIndex];
-            }
-        });
         jScrollPane2.setViewportView(tblTable);
         String tableTitle = NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("AbstractTreeInfoPanel.tableTitle"); //NOI18N
         jTabbedPane1.addTab(tableTitle, jScrollPane2);
@@ -241,10 +222,40 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
       tblTable.clearSelection();
       TableInfoModel model = (TableInfoModel)createTable(); 
       tblTable.setModel(model);
+      initColumnSizes(tblTable);
       if (!isTreeDisabled()) {
           // !!!needs to be after table setup, because it deletes the list
           trDirStructure.setModel(new DefaultTreeModel(createTree(topDirectory)));
-      }    
+      }
+  }
+  
+  /**
+   * Calculates the suitable preferred column sizes with respect to width of
+   * individual cells.
+   */
+  private static void initColumnSizes(JTable table) {
+      TableCellRenderer headerRenderer = table.getTableHeader().getDefaultRenderer();
+      int nc = table.getColumnCount();
+      int nr = table.getRowCount();
+      for (int i = 0; i < nc; i++) {
+          TableColumn column = table.getColumnModel().getColumn(i);
+          Component comp = headerRenderer.getTableCellRendererComponent(
+                              null, column.getHeaderValue(),
+                              false, false, 0, 0);
+          int maxWidth = comp.getPreferredSize().width;
+
+          for (int j = 0; j < nr; j++) {
+              comp = table.getDefaultRenderer(table.getColumnClass(i)).
+                                  getTableCellRendererComponent(
+                                      table, table.getValueAt(j, i),
+                                      false, false, j, i);
+              int cellWidth = comp.getPreferredSize().width;
+              if (cellWidth > maxWidth) {
+                  maxWidth = cellWidth;
+              }
+          }
+          column.setPreferredWidth(maxWidth + 10); // Add a small inset so that it looks better
+      }
   }
   
   protected abstract void setPanel(Object infoData);
