@@ -173,7 +173,9 @@ public class BundleLookupPanel extends TopComponent  {
      */
     public BundleLookupPanel() {
         super();
-        setName(NbBundle.getMessage(BundleLookupPanel.class, "Title")); // NOI18N
+        setDisplayName(NbBundle.getMessage(BundleLookupPanel.class, "Title")); // NOI18N
+        // set component name
+        setName("BundleLookupPanel"); // NOI18N
         try {
             setIcon(java.awt.Toolkit.getDefaultToolkit().getImage(
                 getClass().getResource("/org/netbeans/modules/jemmysupport/bundlelookup/BundleLookupAction.gif"))); // NOI18N
@@ -605,8 +607,9 @@ public class BundleLookupPanel extends TopComponent  {
     /** opens panel
      */    
     public static void openPanel(String text) {
-        if (panel==null)
+        if (panel==null) {
             panel=new BundleLookupPanel();
+        }
         panel.open();
         panel.requestActive();
         if (text!=null && panel.SearchButton.isVisible()) {
@@ -628,4 +631,10 @@ public class BundleLookupPanel extends TopComponent  {
         return PERSISTENCE_ONLY_OPENED;
     }
     
+    /** Return unique identifier.
+     * @return unique identifier
+     */
+    protected String preferredID() {
+        return getName();
+    }
 }
