@@ -186,7 +186,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
                     //commandsSubTrees.add(new Integer(i));
             }
         }
-        if (numOfSubTrees == 0) return null;
+        if (numOfSubTrees == 0) return new SystemAction[0];
         fsAction = (VcsAction) SystemAction.get(VcsAction.class);
         synchronized (fsActionAccessLock) {
             fsAction.setFileSystem(fileSystem);
