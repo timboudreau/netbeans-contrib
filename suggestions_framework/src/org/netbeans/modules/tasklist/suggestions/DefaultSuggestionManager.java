@@ -16,6 +16,7 @@ package org.netbeans.modules.tasklist.suggestions;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
 import org.netbeans.modules.tasklist.client.Suggestion;
 import org.netbeans.modules.tasklist.client.SuggestionPerformer;
+import org.netbeans.modules.tasklist.client.SuggestionAgent;
 
 import java.util.List;
 import java.util.ListIterator;
@@ -42,7 +43,7 @@ import java.util.Iterator;
 public class DefaultSuggestionManager extends SuggestionManager {
 
     // See super for accurate javadoc
-    public Suggestion createSuggestion(String type,
+    public SuggestionAgent createSuggestion(String type,
                                        String summary,
                                        SuggestionPerformer action,
                                        Object data) {
@@ -76,7 +77,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
         }
         SuggestionImpl s = new SuggestionImpl(summary, st,
                 action, data);
-        return s;
+        return new SuggestionAgent(s);
     }
 
     public boolean isEnabled(String id) {
@@ -90,8 +91,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
     /**
      * Must be over written, does nothing.
      */
-    public void register(String type, List add, List remove,
-                         Object request) {
+    public void register(String type, List add, List remove) {
         assert false : "This public contract is not implemented use private one!";
     }
 

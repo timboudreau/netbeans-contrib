@@ -38,6 +38,7 @@ import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.client.Suggestion;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.SuggestionAgent;
 import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
@@ -149,7 +150,7 @@ public class TidySuggester extends DocumentSuggestionProvider
         //System.err.println("reportError(" + line + ", " + col + ", " + error + ", " + message + ")");
         
         SuggestionManager manager = SuggestionManager.getDefault();
-        Suggestion s = manager.createSuggestion(TYPE,
+        SuggestionAgent s = manager.createSuggestion(TYPE,
                                                 message,
                                                 null,
                                                 this);
@@ -165,7 +166,7 @@ public class TidySuggester extends DocumentSuggestionProvider
         if (parseTasks == null) {
             parseTasks = new ArrayList(30);
         }
-        parseTasks.add(s);
+        parseTasks.add(s.getSuggestion());
     }
 
     private Object request = null;

@@ -80,6 +80,31 @@ is the proper place.
       <change>
           <api name="general"/>
           <summary>Simplified DocumentSuggestionProvider contract</summary>
+          <version major="1" minor="11"/>
+          <date day="16" month="4" year="2004"/>
+          <author login="pkuzel"/>
+          <compatibility deletion="yes" addition="yes"/>
+          <description>
+              <p>
+                  Suggestion class splitted to part for clients (getters)
+                  and providers (setters). All setters moved to
+                  <code>SugegstionAgent</code> class that is disclosed
+                  to suggestion provider only. Suggestion properties
+                  (icon, summary, priority, detail and valid) support listeners.
+              </p>
+              <p>
+                  <code>SuggestionManager.register()</code> does not take request
+                  parameter anymore because it's not issued by the framework anyway.
+              </p>
+          </description>
+          <class package="org.netbeans.api.tasklist" name="Suggestion"/>
+          <class package="org.netbeans.api.tasklist" name="SuggestionAgent"/>
+          <class package="org.netbeans.api.tasklist" name="SuggestionManager"/>
+      </change>
+
+      <change>
+          <api name="general"/>
+          <summary>Simplified DocumentSuggestionProvider contract</summary>
           <version major="1" minor="10"/>
           <date day="9" month="4" year="2004"/>
           <author login="pkuzel"/>

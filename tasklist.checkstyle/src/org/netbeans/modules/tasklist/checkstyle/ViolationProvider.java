@@ -44,10 +44,7 @@ import com.puppycrawl.tools.checkstyle.*;
 import com.puppycrawl.tools.checkstyle.api.*;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.client.Suggestion;
-import org.netbeans.modules.tasklist.client.SuggestionManager;
-import org.netbeans.modules.tasklist.client.SuggestionPerformer;
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.*;
 import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
@@ -244,7 +241,7 @@ public class ViolationProvider extends DocumentSuggestionProvider
             String description = aEvt.getLocalizedMessage().getMessage();
                     
             SuggestionManager manager = SuggestionManager.getDefault();
-            Suggestion s = manager.createSuggestion(
+            SuggestionAgent s = manager.createSuggestion(
                         TYPE,
                         description,
                         action,

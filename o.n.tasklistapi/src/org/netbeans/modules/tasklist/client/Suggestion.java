@@ -14,6 +14,9 @@
 package org.netbeans.modules.tasklist.client;
 
 import java.awt.Image;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
 import org.openide.text.Line;
 
 /**
@@ -99,6 +102,28 @@ import org.openide.text.Line;
 
 abstract public class Suggestion {
 
+    /** Agent that can mutate this suggestion */
+    SuggestionAgent agent;
+
+    private final PropertyChangeSupport supp = new PropertyChangeSupport(this);
+
+    /** Id of bound summary property. */
+    public static final String PROP_SUMMARY = "summary";
+
+    /** Id of bound icon property. */
+    public static final String PROP_ICON = "icon";
+
+    /** Id of bound details property. */
+    public static final String PROP_DETAILS = "details";
+
+    /** Id of bound priority property. */
+    public static final String PROP_PRIORITY = "priority";
+
+    /** Id of bound priority property. */
+    public static final String PROP_VALID = "valid";
+
+    private boolean valid;
+
     /** Use {@link org.netbeans.modules.tasklist.client.SuggestionManager#createSuggestion} to create these.
      * <p>
      * NOTE: This constructor may not be called except by a
@@ -115,6 +140,7 @@ abstract public class Suggestion {
         this.type = type;
         this.summary = summary;
         this.action = action;
+        valid = true;
     }
 
     // Attributes:
@@ -157,12 +183,17 @@ abstract public class Suggestion {
      * of the task. The summary should not be null.
      *
      * @param summary The summary of the task.
+     *
+     * @deprecated use SuggestionAgent#setSummary
      */
-    public void setSummary(final String summary) {
+    protected void setSummary(final String summary) {
         if (summary == null) {
             throw new NullPointerException();
         }
+        String old = getSummary();
+        if (old.equals(summary)) return;
         this.summary = summary;
+        firePropertyChange(PROP_SUMMARY, old, summary);
     }
 
     /**
@@ -184,9 +215,14 @@ abstract public class Suggestion {
      * of description of the task. Can be null. 
      *
      * @param details The details of the task
+     *
+     * @deprecated use SuggestionAgent#setDetails
      */
-    public void setDetails(final String details) {
+    protected void setDetails(final String details) {
+        String old = getDetails();
+        if (old.equals(details)) return;
         this.details = details;
+        firePropertyChange(PROP_DETAILS, old, details);
     }
 
     /**
@@ -232,9 +268,14 @@ abstract public class Suggestion {
      * <p>
      *
      * @param priority The priority of the task.
+     *
+     * @deprecated use SuggestionAgent#setPriority
      */
-    public void setPriority(final SuggestionPriority priority) {
+    protected void setPriority(final SuggestionPriority priority) {
+        SuggestionPriority old = getPriority();
+        if (old == priority) return;
         this.priority = priority;
+        firePropertyChange(PROP_PRIORITY, old, priority);
     }
 
     /**
@@ -255,9 +296,14 @@ abstract public class Suggestion {
      * <p>
      *
      * @param icon The icon to be shown with the task.
+     *
+     * @deprecated use SuggestionAgent#setIcon
      */
-    public void setIcon(final Image icon) {
+    protected void setIcon(final Image icon) {
+        Image old = getIcon();
+        if (old == icon) return;
         this.icon = icon;
+        firePropertyChange(PROP_ICON, old, icon);
     }
 
     /**
@@ -277,8 +323,10 @@ abstract public class Suggestion {
      * <p>
      *
      * @param line The line associated with the suggestion.
+     *
+     * @deprecated use SuggestionAgent#setLine, moreover it should be moved to contructor
      */
-    public void setLine(final Line line) {
+    protected void setLine(final Line line) {
         this.line = line;
     }
 
@@ -298,8 +346,10 @@ abstract public class Suggestion {
      * <p>
      *
      * @param action The action that the task represents.
+     *
+     * @deprecated use SuggestionAgent#setAction
      */
-    public void setAction(final SuggestionPerformer action) {
+    protected final void setAction(final SuggestionPerformer action) {
         this.action = action;
     }
 
@@ -320,6 +370,8 @@ abstract public class Suggestion {
      * <p>
      *
      * @param type The type name for this suggestion
+     *
+     * @deprecated should be constant since contruction time
      */
     protected void setType(final String type) {
         this.type = type;
@@ -343,4 +395,57 @@ abstract public class Suggestion {
      * @since 1.4
      */
     public abstract Object getSeed();
+
+    /**
+     * Provider sets to invalid once it stop maintaining it.
+     *
+     * @return false if invalid
+     * @since 1.11
+     */
+    public boolean isValid() {
+        return valid;
+    }
+
+    void invalidate() {
+        if (valid == false) return;
+        valid = false;
+        supp.firePropertyChange(PROP_VALID, true, false);
+    }
+
+    /**
+     * Listen to changes in bean properties.
+     * @param l listener to be notified of changes
+     *
+     * @since 1.11
+     */
+    public final void addPropertyChangeListener(PropertyChangeListener l) {
+        supp.removePropertyChangeListener(l);
+        supp.addPropertyChangeListener(l);
+    }
+
+    /**
+     * Stop listening to changes in bean properties.
+     *
+     * @param l listener who will no longer be notified of changes
+     *
+     * @since 1.11
+     */
+    public final void removePropertyChangeListener(PropertyChangeListener l) {
+        supp.removePropertyChangeListener(l);
+    }
+
+
+    /**
+     * Fires a PropertyChangeEvent
+     *
+     * @param propertyName changed property
+     * @param oldValue old value (may be null)
+     * @param newValue new value (may be null)
+     *
+     * @since 1.11
+     */
+    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        supp.firePropertyChange(propertyName, oldValue, newValue);
+    }
+
 }

@@ -46,11 +46,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      */
     public static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
-    /**
-     * WARNING: do not use this object directly. Always call
-     * this.firePropertyChange()!
-     */
-    private final PropertyChangeSupport supp = new PropertyChangeSupport(this);
 
     protected ObservableList list;
     private boolean visitable;
@@ -121,21 +116,15 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      * @param ndesc The new description text
      */
     public void setSummary(String ndesc) {
-        String old = getSummary();
         super.setSummary(ndesc);
-        firePropertyChange("summary", old, ndesc);
     }
 
     public void setDetails(String ndesc) {
-        String old = getDetails();
         super.setDetails(ndesc);
-        firePropertyChange("details", old, ndesc);
     }
 
     public void setPriority(SuggestionPriority priority) {
-        SuggestionPriority old = getPriority();
         super.setPriority(priority);
-        firePropertyChange("priority", old, priority);
     }
 
     /**
@@ -170,7 +159,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     protected void firePropertyChange(String propertyName, Object oldValue,
     Object newValue) {
         if (!silentUpdate) {
-            supp.firePropertyChange(propertyName, oldValue, newValue);
+            super.firePropertyChange(propertyName, oldValue, newValue);
         }
     }
 
@@ -219,7 +208,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     }
     
     protected void recursivePropertyChange() {
-        supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
+        firePropertyChange(PROP_ATTRS_CHANGED, null, null);
         if (subtasks != null) {
             ListIterator it = subtasks.listIterator();
             while (it.hasNext()) {
@@ -227,24 +216,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
                 item.recursivePropertyChange();
             }
         }
-    }
-
-    /**
-     * Listen to changes in bean properties.
-     * @param l listener to be notified of changes
-     */
-    public void addPropertyChangeListener(PropertyChangeListener l) {
-        supp.removePropertyChangeListener(l);
-        supp.addPropertyChangeListener(l);
-    }
-
-    /**
-     * Stop listening to changes in bean properties.
-     *
-     * @param l listener who will no longer be notified of changes
-     */
-    public void removePropertyChangeListener(PropertyChangeListener l) {
-        supp.removePropertyChangeListener(l);
     }
 
     /**

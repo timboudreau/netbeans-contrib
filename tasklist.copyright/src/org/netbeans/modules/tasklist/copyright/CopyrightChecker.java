@@ -285,7 +285,7 @@ public class CopyrightChecker extends DocumentSuggestionProvider {
             final int lineno = linenum;
 
             SuggestionManager manager = SuggestionManager.getDefault();
-            Suggestion copyrightTask = manager.createSuggestion(TYPE,
+            SuggestionAgent copyrightTask = manager.createSuggestion(TYPE,
                 description, null, this);
             try {
                 DataObject dataObject = DataObject.find(env.getFileObject());
@@ -314,7 +314,7 @@ public class CopyrightChecker extends DocumentSuggestionProvider {
                 env, fRangeEnd, fBegin, fListEnd, fDateEnd, doc, lineno, year);
             copyrightTask.setAction(jackson);
             copyrightTask.setPriority(SuggestionPriority.LOW);
-            return copyrightTask;
+            return copyrightTask.getSuggestion();
         } else {
             // Make no-copyright warnings optional
             // TODO - check for that here
@@ -324,7 +324,7 @@ public class CopyrightChecker extends DocumentSuggestionProvider {
 
             SuggestionPerformer action = new AddCopyrightPerformer(env);
             SuggestionManager manager = SuggestionManager.getDefault();
-            Suggestion copyrightTask = manager.createSuggestion(TYPE,
+            SuggestionAgent copyrightTask = manager.createSuggestion(TYPE,
                 warning, action, this);
             try {
                 DataObject dataObject = DataObject.find(env.getFileObject());
@@ -335,7 +335,7 @@ public class CopyrightChecker extends DocumentSuggestionProvider {
             }
             
             // Normal priority sounds about right
-            return copyrightTask;
+            return copyrightTask.getSuggestion();
         }
     }
 }

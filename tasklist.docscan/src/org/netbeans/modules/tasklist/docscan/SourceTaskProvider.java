@@ -28,6 +28,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.client.Suggestion;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
+import org.netbeans.modules.tasklist.client.SuggestionAgent;
 import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
@@ -293,7 +294,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
                 String description = text.subSequence(begin, nonwhite+1).toString();
 
                 SuggestionManager manager = SuggestionManager.getDefault();
-                Suggestion item =
+                SuggestionAgent item =
                     manager.createSuggestion(SourceTaskProvider.TYPE,
                                              description,
                                              null,
@@ -304,7 +305,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
                     item.setPriority(matchTag.getPriority());
                 }
 
-                newTasks.add(item);
+                newTasks.add(item.getSuggestion());
             }
         } catch (Exception e) {
             ErrorManager.getDefault().notify(e);
@@ -371,7 +372,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
                 String description = text.subSequence(begin, nonwhite+1).toString();
 
                 SuggestionManager manager = SuggestionManager.getDefault();
-                Suggestion item =
+                SuggestionAgent item =
                     manager.createSuggestion(SourceTaskProvider.TYPE,
                                              description,
                                              null,
@@ -382,7 +383,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
                     item.setPriority(matchTag.getPriority());
                 }
 
-                newTasks.add(item);
+                newTasks.add(item.getSuggestion());
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -120,7 +120,7 @@ abstract public class SuggestionManager {
      *       of current practice (reporting it as several suggestions).
      *
      */
-    abstract public Suggestion createSuggestion(String type,
+    abstract public SuggestionAgent createSuggestion(String type,
                                                 String summary,
                                                 SuggestionPerformer action,
                                                 Object seed);
@@ -199,13 +199,8 @@ abstract public class SuggestionManager {
      * @param remove List of suggestions that should be removed. Note that
      *    the remove is performed before the add, so if a task appears
      *    in both list it will not be removed.
-     * @param request Normally null. For DocumentSuggestionProviders,
-     *    pass in the request object provided in rescan() here, such
-     *    that results can be routed correctly even when results
-     *    are provided asynchronously.
      */
-    abstract public void register(String type, List add, List remove,
-                                  Object request);
+    abstract public void register(String type, List add, List remove);
 
     /** Get the default Suggestion Manager.
      * <p>

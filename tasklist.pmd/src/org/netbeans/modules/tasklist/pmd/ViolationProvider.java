@@ -44,10 +44,7 @@ import org.openide.util.Utilities;
 import org.openide.text.DataEditorSupport;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.client.Suggestion;
-import org.netbeans.modules.tasklist.client.SuggestionManager;
-import org.netbeans.modules.tasklist.client.SuggestionPerformer;
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.*;
 import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 import org.netbeans.modules.tasklist.providers.SuggestionContext;
 import org.openide.src.ClassElement;
@@ -216,7 +213,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                             action = null;
                         }
 
-                        Suggestion s = manager.createSuggestion(
+                        SuggestionAgent s = manager.createSuggestion(
                             TYPE,
                             rulename + " : " + // NOI18N
                                violation.getDescription(),
@@ -242,7 +239,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                         if (tasks == null) {
                             tasks = new ArrayList(ctx.getReport().size());
                         }
-                        tasks.add(s);
+                        tasks.add(s.getSuggestion());
                     } catch (Exception e) {
                         ErrorManager.getDefault().notify(e);
                     }

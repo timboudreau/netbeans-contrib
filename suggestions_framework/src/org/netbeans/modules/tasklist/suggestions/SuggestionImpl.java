@@ -215,6 +215,11 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         updatedValues(); // TODO - just set this on the setIcon method?
     }
 */
+
+    // XXX expose protected method
+    public void setIcon(Image image) {
+        super.setIcon(image);
+    }
 }
 
 
