@@ -847,7 +847,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
         });
         addHistoryListener(new VariableInputDialog.HistoryListener() {
             public void changeHistory(int index1, int index) {
+                Object oldValue = component.getValue();
                 field.setText(component.getHistoryValue(index));
+                component.setValue(field.getText());
+                firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), oldValue, component.getValue());
             }
         });
     }
@@ -1317,7 +1320,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         Enumeration enum = group.getElements();
         for (int i = 0; enum.hasMoreElements(); i++) {
             javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
-            if (value.equals(subComponents[i].getValue())) radio.setSelected(true);
+            if (value.equals(subComponents[i].getValue())) radio.doClick(); // <-- to trigger an action event
         }
     }
 
