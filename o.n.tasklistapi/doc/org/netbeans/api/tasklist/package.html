@@ -105,10 +105,7 @@ So here's what a complete code segment might look like:
         public void perform(Suggestion s) {
             beep(); beep(); beep();
         }
-        public Component getConfirmationComponent(Suggestion s) {
-            return null;
-        }
-        public String getConfirmationDescription(Suggestion s) {
+        public Object getConfirmation(Suggestion s) {
             return "Ring the system bell 3 times, then quit. Will echo \007.";
         }
      });
