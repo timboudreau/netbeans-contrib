@@ -53,7 +53,7 @@ final class Util extends Object {
     }
 
     public static class SignatureToType{
-        private byte[] signature;        
+        private char[] signature;        
         private int len;        
         private int i = 0;
         
@@ -61,7 +61,7 @@ final class Util extends Object {
         private MethodParameter[] params = null;    //return MethodParameter[]
         
         public SignatureToType(String signature){
-            this.signature = signature.getBytes();//.substring(signature.indexOf(')')+1).getBytes();
+            this.signature = signature.toCharArray();//.substring(signature.indexOf(')')+1).getBytes();
             len = this.signature.length;
             for( ; i < len; i++ ){
                 if (this.signature[i] == '('){
@@ -93,7 +93,7 @@ final class Util extends Object {
             switch ((char) signature[i]) {
             case 'B':
                 i++;
-                return Type.BOOLEAN;
+                return Type.BYTE;
             case 'C':
                 i++;
                 return Type.CHAR;
