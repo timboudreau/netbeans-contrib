@@ -126,6 +126,14 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
         baseurl = inQuery.getBaseUrl() + "/buglist.cgi?";
         query = inQuery.getQueryString();
 
+        if ((baseurl == null || baseurl.equals("")) || (query == null || query.equals(""))) {
+            //They didn't enter anything on the gui
+            TopManager.getDefault().setStatusText(
+                                NbBundle.getMessage(IZBugEngine.class, 
+                                              "BadQuery")); // NOI18N
+            return;
+        }
+        
         //String query= "issue_type=DEFECT&component=projects&issue_status=UNCONFIRMED&issue_status=NEW&issue_status=STARTED&issue_status=REOPENED&version=4.0+dev&email1=&emailtype1=substring&emailassigned_to1=1&email2=&emailtype2=substring&emailreporter2=1&issueidtype=include&issue_id=&changedin=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&short_desc=&short_desc_type=substring&long_desc=&long_desc_type=substring&issue_file_loc=&issue_file_loc_type=substring&status_whiteboard=&status_whiteboard_type=substring&keywords=&keywords_type=anywords&field0-0-0=noop&type0-0-0=noop&value0-0-0=&cmdtype=doit&newqueryname=&order=Reuse+same+sort+as+last+time";
 
 

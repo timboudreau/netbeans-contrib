@@ -105,6 +105,13 @@ public class BZBugEngine implements BugEngine { // XXX remove the publicness
             // Do a bug query
             String baseurl = inQuery.getBaseUrl() + "/buglist.cgi?";
             String query = inQuery.getQueryString();
+            if ((baseurl == null || baseurl.equals("")) || (query == null || query.equals(""))) {
+                //They didn't enter anything on the gui
+                TopManager.getDefault().setStatusText(
+                                    NbBundle.getMessage(BZBugEngine.class, 
+                                                  "BadQuery")); // NOI18N
+                return;
+            }
             System.out.println("Baseurl = " + baseurl + " query = " + query);
 
             TopManager.getDefault().setStatusText(
