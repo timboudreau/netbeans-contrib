@@ -47,6 +47,7 @@ public final class ManagerSettings implements Node.Handle {
     public static final String AFTER_SAVE_SCAN_DELAY = "saveScanDelay";
 
 
+
     /** Delay to wait after a file has been shown before we rescan */
     private int showScanDelay = DEFAULT_SHOW_SCAN_DELAY;
 

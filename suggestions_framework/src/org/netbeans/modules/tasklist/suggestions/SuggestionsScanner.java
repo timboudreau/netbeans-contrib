@@ -78,6 +78,7 @@ public final class SuggestionsScanner implements Cancellable {
     private static Reference memoryReference;
     private volatile boolean interrupted;
     private int suggestionsCounter;
+    private int usabilityLimit = 503;
 
     private SuggestionsScanner() {
         manager = (SuggestionManagerImpl) Lookup.getDefault().lookup(SuggestionManager.class);
@@ -425,7 +426,7 @@ public final class SuggestionsScanner implements Cancellable {
 
     /** Stop scannig after discovering limit suggestions */
     private int getCountLimit() {
-        return 303;
+        return usabilityLimit;
     }
 
     private static int countFolders(FileObject projectFolder) {
@@ -450,6 +451,11 @@ public final class SuggestionsScanner implements Cancellable {
             progressMonitor.scanTerminated(-2);
         }
         return true;
+    }
+
+    /** Set treshold meaning to stop the scanner. */
+    public void setUsabilityLimit(int usabilityLimit) {
+        this.usabilityLimit = usabilityLimit;
     }
 
     /**

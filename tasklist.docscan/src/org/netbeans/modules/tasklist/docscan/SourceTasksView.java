@@ -487,7 +487,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             button.setToolTipText("Selects folder to be scanned.");
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    showFolderSelectorPopup();
+                    if (recentFolders.size() > 0) {
+                        showFolderSelectorPopup();
+                    } else {
+                        handleSelectFolder();
+                    }
                 }
             });
             adjustHeight(button);

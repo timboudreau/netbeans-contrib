@@ -32,6 +32,11 @@ public final class Settings extends SystemOption {
     public static final String PROP_SCAN_TAGS = "taskTags";		//NOI18N
     static final String PROP_MODIFICATION_TIME = "modificationTime";  // NOI18N
 
+    /** Defines how many suggestions make sence. */
+    public static final String PROP_USABILITY_LIMIT = "usabilityLimit";  // NOI18N
+    private final static int DEFAULT_USABILITY_LIMIT = 300;
+
+
     /** Return the signleton */
     public static Settings getDefault() {
         return (Settings) findObject(Settings.class, true);
@@ -84,6 +89,21 @@ public final class Settings extends SystemOption {
         //firePropertyChange(PROP_SCAN_SKIP, null, b);
     }
 
+
+    public void setUsabilityLimit(int limit) {
+        if (limit > 1000) limit = 1000;
+        if (limit <=0) limit = DEFAULT_USABILITY_LIMIT;
+        putProperty(PROP_USABILITY_LIMIT, new Integer(limit));
+    }
+
+    public int getUsabilityLimit() {
+        Integer limit = (Integer) getProperty(PROP_USABILITY_LIMIT);
+        if (limit == null) {
+            return DEFAULT_USABILITY_LIMIT;
+        } else {
+            return limit.intValue();
+        }
+    }
 
     public TaskTags getTaskTags() {
         if (tags == null) {

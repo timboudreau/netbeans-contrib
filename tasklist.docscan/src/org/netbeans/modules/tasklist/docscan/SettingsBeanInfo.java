@@ -55,6 +55,7 @@ public class SettingsBeanInfo extends SimpleBeanInfo {
                 new PropertyDescriptor(Settings.PROP_SCAN_TAGS,
                         Settings.class),
                 new PropertyDescriptor(Settings.PROP_MODIFICATION_TIME, Settings.class),
+                new PropertyDescriptor(Settings.PROP_USABILITY_LIMIT, Settings.class),
             };
 
             desc[i].setDisplayName(NbBundle.getMessage(
@@ -72,6 +73,9 @@ public class SettingsBeanInfo extends SimpleBeanInfo {
                     "HINT_SCAN_TAGS"));	    //NOI18N
             desc[i++].setHidden(true);
 
+            desc[i].setDisplayName("Usability Limit");
+            desc[i].setExpert(true);
+            desc[i++].setShortDescription("Stops TODOs search at given limit.");
         } catch (IntrospectionException ex) {
             ex.printStackTrace();
             throw new InternalError();
