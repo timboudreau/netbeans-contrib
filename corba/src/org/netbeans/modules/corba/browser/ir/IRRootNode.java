@@ -58,9 +58,6 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
 
     private String name;
 
-    static {
-        instance = null;
-    }
     
     
     private static class Request implements Runnable {
@@ -81,13 +78,15 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
 
     public IRRootNode () {
         super (new IRRootNodeChildren ());
-        instance = this;
         this.rqProcessor = new RequestProcessor ("CORBA-Browsers");
         setName (Util.getLocalizedString("CTL_CORBAInterfaceRepository"));
         init ();
     }
 
     public static IRRootNode getDefault(){
+        if (instance == null) {
+            instance = new IRRootNode ();
+        }
         return instance;
     }
     

@@ -70,7 +70,6 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
     private boolean valid;
     
     static {
-        singletonInstance = null;
 	localNameServices = new HashMap ();
     }
     
@@ -162,7 +161,6 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
         //super (Children.LEAF);
         setName (this.getLocalizedString("CTL_CORBANamingService")); 
         _root = true;
-        singletonInstance = this;
         init ();
     }
 
@@ -506,6 +504,9 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
     }
     
     public static ContextNode getDefault () {
+        if (singletonInstance == null) {
+            singletonInstance = new ContextNode ();
+        }
         return singletonInstance;
     }
 
