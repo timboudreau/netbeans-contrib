@@ -29,10 +29,12 @@ public class RMIHelper extends Object {
   public RMIHelper() {
   }
   
-  /** Test if ce1 implements given class.
+  /** Test if ce1 implements given class or if interface ce1 extends given class.
   */
   public static boolean implementsClass(ClassElement ce1, String classname) {
     Identifier cn = Identifier.create(classname);
+    if (ce1.getName().equals(cn)) return true;
+
     ArrayList list = new ArrayList();
     Set done = new HashSet();
 
@@ -65,6 +67,7 @@ public class RMIHelper extends Object {
 
 /* 
 * <<Log>>
+*  2    Gandalf   1.1         1/28/00  Martin Ryzl     
 *  1    Gandalf   1.0         1/24/00  Martin Ryzl     
 * $ 
 */ 
