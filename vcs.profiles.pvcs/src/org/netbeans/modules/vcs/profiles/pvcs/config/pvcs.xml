@@ -301,6 +301,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="displayInteractive">
 	  <value>true</value>
 	</property>
+        <property name="disabledWhenNotLocked">
+          <value>true</value>
+	</property>
 	<property name="data.regex">
 	  <value>$ ^</value>
 	</property>
