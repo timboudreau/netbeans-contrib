@@ -1334,7 +1334,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     /**
      * Get the provider of the cache.
-     * @deprecated by both Turbo and CacheHandler
      */
     public FileCacheProvider getCacheProvider() {
         return cache;
@@ -1342,7 +1341,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     /**
      * Get the provider of file status attributes.
-     * @deprecated by both Turbo and CacheHandler
      */
     public FileStatusProvider getStatusProvider() {
         return statusProvider;
