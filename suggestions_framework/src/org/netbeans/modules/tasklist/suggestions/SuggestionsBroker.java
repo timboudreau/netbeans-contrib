@@ -1060,7 +1060,9 @@ err.log("Couldn't find current nodes...");
 //                }
             } else if (TopComponent.Registry.PROP_ACTIVATED.equals(prop)) {
                 LOGGER.fine("EVENT top-component activated");
-                if (clientCount >0 && currentTC == null) {
+
+                TopComponent activated = WindowManager.getDefault().getRegistry().getActivated();
+                if (clientCount > 0 && isSelectedEditor(activated) && currentTC == null) {
                     prepareRescanInAWT(false);
                 }
             }
@@ -1088,6 +1090,14 @@ err.log("Couldn't find current nodes...");
             // Don't care
         }
 
+        private boolean isSelectedEditor(Component tc) {
+            Mode mode = WindowManager.getDefault().findMode(CloneableEditorSupport.EDITOR_MODE);
+            TopComponent selected = null;
+            if (mode != null) {
+                selected  = mode.getSelectedTopComponent();
+            }
+            return selected == tc;
+        }
     }
 
 

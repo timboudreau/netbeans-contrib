@@ -378,7 +378,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
-
     protected void componentClosed() {
         super.componentClosed();
         if (background != null) background.interrupt();
@@ -550,12 +549,12 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (isFiltered()) {
             msg.append(Util.getString("filter-flag"));
         }
-        if (job == null && selectedFolder != null) {
+        if (job == null && allJob== null && selectedFolder != null) {
             if (msg.length() > 0) prefix = ", "; // NOI18N
             msg.append(prefix + Util.getMessage("ctx-flag", createLabel(selectedFolder)));
         }
 
-        if (reasonMsg != null && job == null) {
+        if (reasonMsg != null && job == null && allJob== null) {
             if (msg.length() > 0) prefix = ", "; // NOI18N
             msg.append(prefix + Util.getMessage("usa-flag", "" + TLUtils.recursiveCount(getModel().getTasks().iterator())));
             getMiniStatus().setToolTipText(reasonMsg);
@@ -1182,7 +1181,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     protected void componentHidden() {
-        releaseWorkaround();
+        // TODO should stop current job and restore it on component showing
+        // it requires separate mode field instead of deriving it from job fields
         super.componentHidden();
     }
 
@@ -1217,6 +1217,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 background = null;
                 break;
         }
+        releaseWorkaround();
 
         // enter new mode
 
@@ -1230,6 +1231,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         getRefresh().setEnabled(false);
         getTable().requestFocusInWindow();
 
+        updateMiniStatus();
         putClientProperty(JComponent.TOOL_TIP_TEXT_KEY, getToolTipText());
     }
 
@@ -1344,7 +1346,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             path = file.getPath();
         }
         if (path.length() > 60) {
-            return "..." + path.substring(path.length() - 60);
+            return "..." + path.substring(path.length() - 57);
         } else {
             return path;
         }
