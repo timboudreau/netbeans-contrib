@@ -253,7 +253,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      */
     public java.io.File getWorkingDirectory() {
         String defaultRoot = VcsFileSystem.substractRootDir (getRootDirectory ().toString (), getRelativeMountPoint());
-        return new java.io.File(defaultRoot);
+        return FileUtil.normalizeFile(new java.io.File(defaultRoot));
     }
     
     /**

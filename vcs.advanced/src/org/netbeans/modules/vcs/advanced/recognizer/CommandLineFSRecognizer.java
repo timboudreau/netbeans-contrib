@@ -26,6 +26,7 @@ import java.util.Vector;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
 import org.openide.util.Lookup;
 import org.openide.util.WeakListener;
@@ -143,7 +144,7 @@ public class CommandLineFSRecognizer extends FSRecognizer implements PropertyCha
                 if (status) {
                     String root = (String) vars.get("ROOTDIR");
                     //System.out.println("  root = "+root);
-                    folder = new File(root);
+                    folder = FileUtil.normalizeFile(new File(root));
                     return new CommandLineVcsFileSystemInfo(folder, profileName, vars);
                 }
             }
@@ -157,7 +158,7 @@ public class CommandLineFSRecognizer extends FSRecognizer implements PropertyCha
      * that were not recognized automatically.
      */
     public FSInfo createFSInfo() {
-        return new CommandLineVcsFileSystemInfo(new File(""), null, null);
+        return new CommandLineVcsFileSystemInfo(FileUtil.normalizeFile(new File("")), null, null);
     }
     
     /**
