@@ -437,7 +437,7 @@ public class BundlizerPanel extends javax.swing.JPanel {
                         curr += ',' + f.getName();
                     }
                     keysToFiles.put (key, curr);
-                } else if (s.startsWith ("OpenIDE")) {
+                } else if (s.indexOf("OpenIDE") != -1 || s.indexOf("/") != -1) {
                     keysToFiles.put (key, "RETAINED");
                 }
             }
