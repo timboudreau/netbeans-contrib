@@ -17,6 +17,8 @@ import org.omg.CORBA.*;
 import org.omg.CosNaming.*;
 
 import java.awt.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 import java.io.*;
 import java.net.*;
 import java.util.Vector;
@@ -239,6 +241,18 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
                             SystemAction.get (org.openide.actions.PropertiesAction.class)
                         };
 	    this.getCookieSet().add ( new CosNamingCookieImpl ());
+            TopManager.getDefault().addPropertyChangeListener ( new PropertyChangeListener () {
+                public void propertyChange (PropertyChangeEvent event) {
+                    if (TopManager.PROP_PLACES.equals (event.getPropertyName())) {
+                        // Project has changed
+                        // Relaod root nodes
+                        ContextNode.this.css = null;
+                        ContextNode.this.contexts.clear ();
+                        ContextNode.this._loaded = false;
+                        ContextNode.this.refresh();
+                    }
+                }
+            });
         }
         setDisplayName (getName ());
         this.getCookieSet().add (this);

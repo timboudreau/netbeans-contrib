@@ -15,6 +15,8 @@ package org.netbeans.modules.corba.browser.ir;
 
 import org.omg.CORBA.*;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 import java.io.*;
 import java.net.*;
 import java.util.Vector;
@@ -33,7 +35,7 @@ import org.netbeans.modules.corba.browser.ir.actions.FromInitialReferencesAction
  * @author Karel Gardas, Tomas Zezula
  */
 
-public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitialReferencesCookie {
+public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitialReferencesCookie, PropertyChangeListener {
 
     static final String ICON_BASE_ROOT
         = "org/netbeans/modules/corba/browser/ir/resources/ir-root";    // No I18N
@@ -107,6 +109,8 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
             null,
             SystemAction.get (org.openide.actions.PropertiesAction.class)
         };
+        
+        TopManager.getDefault().addPropertyChangeListener (this);
     }
 
 
@@ -290,6 +294,16 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
     
     public HelpCtx getHelpCtx () {
         return HelpCtx.DEFAULT_HELP;
+    }
+    
+    public void propertyChange (PropertyChangeEvent event) {
+        if (TopManager.PROP_PLACES.equals (event.getPropertyName())) {
+            // Project has changed.
+            // Rebuild cache of nodes.
+            this.css = null;
+            this.restore ();
+            this.refresh ();
+        }
     }
     
     private void lazyInit () {
