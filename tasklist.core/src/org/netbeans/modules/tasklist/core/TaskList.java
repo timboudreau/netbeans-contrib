@@ -421,55 +421,6 @@ public class TaskList { // XXX remove the publicness.
         }
     }
 
-    private static boolean cacheInited = false;
-    private static TaskListCache cache = null;
-
-    /** Create a cache object - using reflection, since we want JDK14 APIs */
-    private static TaskListCache getCache() {
-        if (!cacheInited) {
-            cacheInited = true;
-            if (org.openide.modules.Dependency.JAVA_SPEC.compareTo(
-                    new org.openide.modules.SpecificationVersion("1.4") // NOI18N
-            ) >= 0) { // NOI18N
-                try {
-                    Class c = Class.forName("org.netbeans.modules.tasklist.core.TaskListCache14");
-                    cache = (TaskListCache) c.newInstance();
-                } catch (ClassNotFoundException cnfe) {
-                } catch (Exception ex) {
-                    ErrorManager.getDefault().notify(ex);
-                }
-            }
-        }
-        return cache;
-    }
-
-    /** Save the given tasklist as the given filename. The XML
-     * used is the JSR-57 / java.beans.XMLEncoder one.
-     * <p>
-     * @param list TaskList to be saved.
-     * @param output Stream to write the XML to
-     */
-    public static void writeXML(TaskList list, OutputStream output) {
-        TaskListCache cache = getCache();
-        if (cache != null) {
-            cache.writeXML(list, output);
-        }
-    }
-
-    /** Read the input stream and interpret it as an XML object stream,
-     * as defined by JSR-57 / java.beans.XMLDecoder.
-     * <p>
-     * @param input Stream to read the XML from
-     * @return A TaskList object, or null if something goes wrong.
-     */
-    public static TaskList readXML(InputStream input) {
-        TaskListCache cache = getCache();
-        if (cache != null) {
-            return cache.readXML(input);
-        }
-        return null;
-    }
-
     /**
      * Return the list of tasks in this tasklist
      *

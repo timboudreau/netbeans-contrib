@@ -22,7 +22,9 @@ import javax.swing.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.NbBundle;
 import org.openide.nodes.Node;
+import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Sheet;
+import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
 import org.openide.actions.PropertiesAction;
 import org.openide.ErrorManager;
@@ -41,48 +43,58 @@ import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 
 /**
  * Represents one scanned source task as a Node with
- * actions, coookies, properties, clipboard operations and
+ * actions, cookies, properties, clipboard operations and
  * children (at root represents all tasks in list).
  *
- * XXX unused there is missing hook
  * @author Petr Kuzel
  */
-final class SourceTaskNode extends TaskNode {
+final class SourceTaskNode extends AbstractNode {
 
-    // Leaf
-    SourceTaskNode(SourceTask item) {
-        super(item);
-        init(item);
-    }
+    private Node item;
+    private String summary;
 
-    /**
-     * Entry point
-     * @param item
-     * @param subtasks
-     */
-    SourceTaskNode(SourceTask item, List subtasks) {
-        super(item, subtasks);
-        init(item);
-    }
-
-    private void init(SourceTask item) {
-        this.item = item;
+    // cached leaf
+    SourceTaskNode(String summary, String file, int line, int prio) {
+        super(Children.LEAF);
+        this.summary = summary;
+        item = this;
         setIconBase("org/netbeans/modules/tasklist/docscan/scanned-task"); // NOI18N
     }
+
+//    // Leaf
+//    SourceTaskNode(SourceTask item) {
+//        super(item);
+//        init(item);
+//    }
+//
+//    /**
+//     * Entry point
+//     * @param item
+//     * @param subtasks
+//     */
+//    SourceTaskNode(SourceTask item, List subtasks) {
+//        super(item, subtasks);
+//        init(item);
+//    }
+//
+//    private void init(SourceTask item) {
+//        this.item = item;
+//        setIconBase("org/netbeans/modules/tasklist/docscan/scanned-task"); // NOI18N
+//    }
 
     public Action getPreferredAction() {
         return SystemAction.get(GoToTaskAction.class);
     }
 
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):
-    public Node cloneNode() {
-        SourceTask eitem = (SourceTask) item;
-        if (eitem.hasSubtasks()) {
-            return new SourceTaskNode(eitem, eitem.getSubtasks());
-        } else {
-            return new SourceTaskNode(eitem);
-        }
-    }
+//    public Node cloneNode() {
+//        SourceTask eitem = (SourceTask) item;
+//        if (eitem.hasSubtasks()) {
+//            return new SourceTaskNode(eitem, eitem.getSubtasks());
+//        } else {
+//            return new SourceTaskNode(eitem);
+//        }
+//    }
 
     public Action[] getActions(boolean context) {
         if (context == true) {
@@ -125,7 +137,7 @@ final class SourceTaskNode extends TaskNode {
      */
     protected Sheet createSheet() {
         Sheet s = Sheet.createDefault();
-        if (item.getParent() == null)
+        if (item.getParentNode() == null)
             return s;
         Sheet.Set ss = s.get(Sheet.PROPERTIES);
 
@@ -135,13 +147,6 @@ final class SourceTaskNode extends TaskNode {
             p.setName(TaskListView.PROP_TASK_SUMMARY);
             p.setDisplayName(NbBundle.getMessage(SourceTaskNode.class, "SuggestionsRoot")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(SourceTaskNode.class, "SuggestionsRootHint")); // NOI18N
-            ss.put(p);
-
-
-            p = new PropertySupport.Reflection(item, String.class, "getDetails", null); // NOI18N
-            p.setName(SourceTasksView.PROP_SUGG_DETAILS);
-            p.setDisplayName(NbBundle.getMessage(SourceTaskNode.class, "Details")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SourceTaskNode.class, "DetailsHint")); // NOI18N
             ss.put(p);
 
 
@@ -173,6 +178,27 @@ final class SourceTaskNode extends TaskNode {
         return s;
     }
 
+    // experiment how does it work when restoring visualization
+    // layer from cache
+
+    public String getFileBaseName() {
+        return "<from cache>";
+    }
+
+    public int getLineNumber() {
+        return -1;
+    }
+
+    public int getPriority() {
+        return 1;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    // /experiment
+
     public boolean canRename() {
         return false;
     }
@@ -187,7 +213,7 @@ final class SourceTaskNode extends TaskNode {
      */
     public boolean canCopy() {
         // Can't copy the root node:
-        return (item.getParent() != null);
+        return (item.getParentNode() != null);
     }
 
     /** Can this node be cut?
@@ -209,23 +235,23 @@ final class SourceTaskNode extends TaskNode {
      * @todo Should this be done in TaskNode (for all tasklist
      * tasks) or just here?
      */
-    public Node.Cookie getCookie(Class cl) {
-        Node.Cookie c = super.getCookie(cl);
-        if (c != null) {
-            return c;
-        }
-        if (cl.isAssignableFrom(Suggestion.class)) {
-            return (SuggestionImpl) item;  // FIXME wrong dependency, you can use lookup instead
-        }
-        Line l = item.getLine();
-        if (l != null) {
-            DataObject dao = DataEditorSupport.findDataObject(l);
-            if (dao != null)
-                return dao.getCookie(cl);
-            else
-                return null;
-        }
-        return null;
-    }
+//    public Node.Cookie getCookie(Class cl) {
+//        Node.Cookie c = super.getCookie(cl);
+//        if (c != null) {
+//            return c;
+//        }
+//        if (cl.isAssignableFrom(Suggestion.class)) {
+//            return (SuggestionImpl) item;  // FIXME wrong dependency, you can use lookup instead
+//        }
+//        Line l = item.getLine();
+//        if (l != null) {
+//            DataObject dao = DataEditorSupport.findDataObject(l);
+//            if (dao != null)
+//                return dao.getCookie(cl);
+//            else
+//                return null;
+//        }
+//        return null;
+//    }
 
 }

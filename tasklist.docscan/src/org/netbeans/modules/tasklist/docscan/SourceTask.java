@@ -24,11 +24,11 @@ import org.openide.nodes.Node;
  */
 final class SourceTask extends Task {
 
-    public Node[] createNode() {
-        if (hasSubtasks()) {
-            return new Node[] { new SourceTaskNode(this, getSubtasks())};
-        } else {
-            return new Node[] { new SourceTaskNode(this)};
-        }
-    }
+//    public Node[] createNode() {
+//        if (hasSubtasks()) {
+//            return new Node[] { new SourceTaskNode(this, getSubtasks())};
+//        } else {
+//            return new Node[] { new SourceTaskNode(this)};
+//        }
+//    }
 }

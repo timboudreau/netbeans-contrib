@@ -20,7 +20,10 @@ import java.awt.event.KeyEvent;
 import java.io.ObjectOutput;
 import java.io.IOException;
 import java.io.ObjectInput;
+import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
+import java.util.Iterator;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -30,16 +33,19 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.filesystems.FileObject;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.nodes.AbstractNode;
+
 
 import org.netbeans.modules.tasklist.core.*;
-import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.suggestions.*;
 import org.netbeans.api.tasklist.SuggestionPriority;
 
 
 /**
- * View containing only source tasks (TODOs).
+ * View containing only source tasks (TODOs) either for
+ * all files in project or for current file.
  *
  * @author Petr Kuzel
  */
@@ -49,12 +55,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private final int MAIN_COLUMN_UID = 2352;
     private final int PRIORITY_COLUMN_UID = 7896;
-    private final int DETAILS_COLUMN_UID = 1098;
     private final int FILE_COLUMN_UID = 8902;
     private final int LINE_COLUMN_UID = 6646;
 
     //XXX keep with sync with SuggestionNode, hidden dependency
-    static final String PROP_SUGG_DETAILS = "suggDetails"; // NOI18N
     static final String PROP_SUGG_PRIO = "suggPrio"; // NOI18N
     static final String PROP_SUGG_FILE = "suggFile"; // NOI18N
     static final String PROP_SUGG_LINE = "suggLine"; // NOI18N
@@ -64,28 +68,48 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private SuggestionsBroker.Job job;
 
     /**
-     * Construct a Scaned tasks view with the given window title, and the given
-     * list to show the contents in
-     * @param name The name of the window
-     * @param list The tasklist to store the scanned tasks in
+     * Externalization entry point (readExternal).
      */
-    public SourceTasksView(String name, SourceTasksList list, String icon) {
+    public SourceTasksView() {
+        super();
+        // readExternal, init
+    }
+
+    /**
+     * Construct TODOs from all files in project.
+     * @param list live tasklist driving view
+     */
+    public SourceTasksView(SourceTasksList list) {
         super(
                 CATEGORY,
-                name,
-                Utilities.loadImage(icon),
-                false,
+                "TODOs",
+                Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"), // NOI18N
+                true,
                 list
         );
 
+        init();
+    }
+
+    /**
+     * Common initialization code shared by constructor and externalization
+     */
+    private void init() {
         // When the tab is alone in a container, don't show a tab;
         // the category nodes provide enough feedback.
-        putClientProperty("TabPolicy", "HideWhenAlone");
+        putClientProperty("TabPolicy", "HideWhenAlone"); // NOI18N
 
         InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         KeyStroke stop = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
         inputMap.put(stop, stop);
         getActionMap().put(stop, new StopAction());
+
+        // toggle according to All vs Current file
+        if (job != null) {
+            putClientProperty("PersistenceType", "OnlyOpened"); // NOI18N
+        } else {
+            putClientProperty("PersistenceType", "Never"); // NOI18N
+        }
     }
 
     protected TaskNode createRootNode() {
@@ -94,18 +118,46 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
 
+    private ColumnProperty[] allFilesColumns;
+    private ColumnProperty[] currentFileColumns;
+
     protected ColumnProperty[] createColumns() {
         // No point allowing other attributes of the task since that's
         // all we support for scan items (they are not created by
         // the user - and they are not persisted.
-        return new ColumnProperty[]{
-            createMainColumn(800),
-            createPriorityColumn(false, 100),
-            createDetailsColumn(false, 800),
-            createFileColumn(true, 150),
-            createLineColumn(true, 50)
-        };
 
+        // See overridden loadColumnConfiguration to supress
+        // loading from sourcetasks_columns.xml
+        if (job == null) {
+            if (allFilesColumns == null) {
+                allFilesColumns = new ColumnProperty[]{
+                    createMainColumn(800),
+                    createPriorityColumn(false, 100),
+                    createFileColumn(true, 150),
+                    createLineColumn(true, 50)
+                };
+            }
+            return allFilesColumns;
+        } else {
+            if (currentFileColumns == null) {
+                currentFileColumns = new ColumnProperty[]{
+                    createMainColumn(800),
+                    createPriorityColumn(false, 100),
+                    createLineColumn(true, 50)
+                };
+            }
+            return currentFileColumns;
+        }
+    }
+
+    protected void loadColumnsConfiguration() {
+        // TODO read from proper file
+    }
+
+    protected void storeColumnsConfiguration() {
+        // XXX write to proper file
+        // also note direct call to treeTable.setProperties in subview switch
+        // that bypass setting proper client values at columns
     }
 
     private ColumnProperty createMainColumn(int width) {
@@ -162,31 +214,85 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
 
-    private ColumnProperty createDetailsColumn(boolean visible, int width) {
-        return new ColumnProperty(
-                DETAILS_COLUMN_UID, // UID -- never change (part of serialization
-                PROP_SUGG_DETAILS,
-                String.class,
-                NbBundle.getMessage(SourceTaskNode.class, "Details"), // NOI18N
-                NbBundle.getMessage(SourceTaskNode.class, "DetailsHint"), // NOI18N
-                true,
-                visible,
-                width
-        );
-    }
-
 
     protected void componentOpened() {
         super.componentOpened();
         setNorthComponentVisible(true);
     }
 
+
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
-        // TODO super.writeExternal(objectOutput);
+
+        // It's called by window system depending on actual value of:
+        // putClientProperty("PersistenceType", "OnlyOpened"|"Never");
+
+        // version 1 format
+        // write int 1
+        // skip call to super.writeExternal
+        // write bool snapshot flag
+
+        objectOutput.writeInt(1);  // version
+
+        // Super method is driven by a private
+        // filed passed in contructor and it denies
+        // to write anything => fails on read on OptionalDataException
+        //super.writeExternal(objectOutput);
+
+        boolean snapshot = job == null;
+        objectOutput.writeBoolean(snapshot);
+        if (snapshot) {
+            // write down tasklist, we know it's not hierachical
+//            TaskList list = getList();
+//            Task root = list.getRoot();
+//            LinkedList tasks = root.getSubtasks();
+//            Iterator it = tasks.iterator();
+//            objectOutput.writeInt(tasks.size());
+//            while (it.hasNext()) {
+//                SuggestionImpl task = (SuggestionImpl) it.next();
+//                String summary = task.getSummary();
+//                String file = task.getFileBaseName();
+//                int line = task.getLine().getLineNumber();
+//                int prio = task.getPriorityNumber();
+//                objectOutput.writeUTF(summary);
+//                objectOutput.writeUTF(file);
+//                objectOutput.writeInt(line);
+//                objectOutput.writeInt(prio);
+//            }
+        }
     }
 
     public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException {
-        // TODO super.readExternal(objectInput);
+
+        super.category = CATEGORY;
+        super.setName("TODOs");
+        super.setIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"));
+
+        int version = objectInput.readInt();
+        if (version == 1) {
+            // read writeExternal
+            //super.readExternal(objectInput);
+
+            boolean snapshot = objectInput.readBoolean();
+            if (snapshot) {
+                // read cache
+    //            int size = objectInput.readInt();
+    //            Children.Array tasks = new Children.Array();
+    //            for (int i = 0; i<size; i++) {
+    //                String summary = objectInput.readUTF();
+    //                String file = objectInput.readUTF();
+    //                int line = objectInput.readInt();
+    //                int prio = objectInput.readInt();
+    //                tasks.add(new Node[] {new SourceTaskNode(summary, file, line, prio)});
+    //            }
+    //            getExplorerManager().setRootContext(new AbstractNode(tasks));
+            } else {
+                job = SuggestionsBroker.getDefault().startBroker();
+                super.tasklist = job.getSuggestionsList();
+            }
+        }
+
+        init();
+
     }
 
     public String toString() {
@@ -204,6 +310,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private JProgressBar getProgress() {
         if (progress == null) {
             progress = new JProgressBar();
+            progress.setVisible(job == null);
             progress.setMinimum(0);
         }
         return progress;
@@ -212,6 +319,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private JButton getStop() {
         if (stop == null) {
             stop = new JButton("stop");
+            stop.setVisible(job == null);
             stop.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     handleStop();
@@ -273,7 +381,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (allFilesButton == null) {
             JToggleButton button = new JToggleButton("All Files");
             group.add(button);
-            button.setSelected(true);
+            button.setSelected(job == null);
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     handleAllFiles();
@@ -290,6 +398,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (currentFile == null) {
             JToggleButton button = new JToggleButton("Current File");
             group.add(button);
+            button.setSelected(job != null);
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     handleCurrentFile();
@@ -424,7 +533,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             bar.setVisible(true);
 
             JButton stop = getStop();
-            stop.setText("Stop");
             stop.setVisible(true);
 
             getRefresh().setEnabled(false);
@@ -478,13 +586,15 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private void handleStop() {
-        getStop().setText("Stopping...");
+        getMiniStatus().setText("Stopping...");
         interrupt = true;
     }
 
     private class StopAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
-            handleStop();
+            if (getStop().isVisible()) {
+                handleStop();
+            }
         }
     }
 
@@ -492,10 +602,15 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         // scan for todos
         if (job != null) {
             job.stopBroker();
+            job = null;
+            putClientProperty("PersistenceType", "Never");
         }
+        treeTable.setProperties(createColumns());
+        treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
         SuggestionList list = new SourceTasksList();
         showList(list);
         setFiltered(false);
+        interrupt = false;
         SourceTasksAction.scanTasksAsync(this);
         getRefresh().setEnabled(true);
     }
@@ -503,7 +618,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private void handleCurrentFile() {
         handleStop();
         job = SuggestionsBroker.getDefault().startBroker();
-        showList(job.getSuggestionsList());
+        putClientProperty("PersistenceType", "OnlyOpened");
+        treeTable.setProperties(createColumns());
+        treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
+        showList(job.getSuggestionsList());  // FIXME Wrap it to a filtered one
         getRefresh().setEnabled(false);
         setFiltered(false);
         getMiniStatus().setText("");

@@ -15,7 +15,7 @@ package org.netbeans.modules.tasklist.docscan;
 
 import java.util.*;
 import java.lang.reflect.InvocationTargetException;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
@@ -60,12 +60,10 @@ public class SourceTasksAction extends CallableSystemAction {
         // column configurations (filename is not useful in the active
         // suggestions view window, but is critical in the directory
         // scan for example.)
-        final SourceTasksView view = new SourceTasksView("TODOs",
-            list,
-            "org/netbeans/modules/tasklist/docscan/scanned-task.gif" // NOI18N
-        );
+        final SourceTasksView view = new SourceTasksView(list);
 
         view.showInMode();
+        RepaintManager.currentManager(view).paintDirtyRegions();
         scanTasksAsync(view);
     }
 

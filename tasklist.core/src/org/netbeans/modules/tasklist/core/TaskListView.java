@@ -406,8 +406,7 @@ public abstract class TaskListView extends TopComponent
         }
         initialized = true;
 
-        ColumnsConfiguration cc = getDefaultColumns();
-        cc.configure(this);
+        loadColumnsConfiguration();
 
         FindAction find = (FindAction) FindAction.get(FindAction.class);
         FilterAction filter = (FilterAction) FilterAction.get(FilterAction.class);
@@ -508,8 +507,23 @@ public abstract class TaskListView extends TopComponent
         super.componentDeactivated();
         assert initialized : "#37438 dangling componentDeactivated event, no componentOpened() called at " + this;
         ExplorerUtils.activateActions(manager, true);
+        storeColumnsConfiguration();
+    }
+
+    /**
+     * Store current column configuration to settings
+     */
+    protected void storeColumnsConfiguration() {
         ColumnsConfiguration columns = getDefaultColumns();
         columns.loadFrom(this);
+    }
+
+    /**
+     * Restore column configuration from settings
+     */
+    protected void loadColumnsConfiguration() {
+        ColumnsConfiguration cc = getDefaultColumns();
+        cc.configure(this);
     }
 
     /** Create the root node to be used in this view */
@@ -823,7 +837,7 @@ for (int i = 0; i < columns.length; i++) {
         //  don't want this.)
         // TopComponent persists the name and tooltip text; we
         //  don't care about that either.
-        // super.writeExternal(objectOutput);
+        //super.writeExternal(objectOutput);
 
         // Version 1 format:
         // String: selected uid
