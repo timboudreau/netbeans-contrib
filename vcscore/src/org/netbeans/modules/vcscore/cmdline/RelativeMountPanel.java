@@ -723,8 +723,12 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     }
     
     private class MyTreeCellRenderer extends DefaultTreeCellRenderer {
-        String DEFAULT_FOLDER = "/org/openide/loaders/defaultFolder.gif";
-        String DEFAULT_OPEN_FOLDER = "/org/openide/loaders/defaultFolderOpen.gif";
+        
+        private String DEFAULT_FOLDER = "/org/openide/loaders/defaultFolder.gif"; // NOI18N
+        private String DEFAULT_OPEN_FOLDER = "/org/openide/loaders/defaultFolderOpen.gif"; // NOI18N
+        
+        private Image FOLDER_ICON = (Image) UIManager.get("Nb.Explorer.Folder.icon"); // NOI18N
+        private Image OPEN_FOLDER_ICON = (Image) UIManager.get("Nb.Explorer.Folder.openedIcon"); // NOI18N
 
         static final long serialVersionUID = -1075722862531035018L;
         
@@ -754,11 +758,19 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                     }
                 }
                 if (!expanded) {
-                    java.net.URL url1 = this.getClass().getResource(DEFAULT_FOLDER);
-                    label.setIcon(new ImageIcon(url1));
+                    if (FOLDER_ICON != null) {
+                        label.setIcon(new ImageIcon(FOLDER_ICON));
+                    } else {
+                        java.net.URL url1 = this.getClass().getResource(DEFAULT_FOLDER);
+                        label.setIcon(new ImageIcon(url1));
+                    }
                 } else {
-                    java.net.URL url2 = this.getClass().getResource(DEFAULT_OPEN_FOLDER);
-                    label.setIcon(new ImageIcon(url2));
+                    if (OPEN_FOLDER_ICON != null) {
+                        label.setIcon(new ImageIcon(OPEN_FOLDER_ICON));
+                    } else {
+                        java.net.URL url2 = this.getClass().getResource(DEFAULT_OPEN_FOLDER);
+                        label.setIcon(new ImageIcon(url2));
+                    }
                 }
 
             }

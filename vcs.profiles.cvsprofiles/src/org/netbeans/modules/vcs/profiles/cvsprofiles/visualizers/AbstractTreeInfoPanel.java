@@ -33,10 +33,14 @@ import org.netbeans.modules.vcscore.util.table.*;
  *
  */
 public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implements TreeCellRenderer {    
-    protected  String DEFAULT_FOLDER = "/org/openide/loaders/defaultFolder.gif"; // NOI18N
-    protected  String DEFAULT_OPEN_FOLDER = "/org/openide/loaders/defaultFolderOpen.gif"; // NOI18N
-    protected  String DEFAULT_FILE = "/org/openide/resources/defaultNode.gif"; // NOI18N
     
+    private static final String DEFAULT_FOLDER = "/org/openide/loaders/defaultFolder.gif"; // NOI18N
+    private static final String DEFAULT_OPEN_FOLDER = "/org/openide/loaders/defaultFolderOpen.gif"; // NOI18N
+    private static final String DEFAULT_FILE = "/org/openide/resources/defaultNode.gif"; // NOI18N
+    
+    private static final Image FOLDER_ICON = (Image) UIManager.get("Nb.Explorer.Folder.icon"); // NOI18N
+    private static final Image OPEN_FOLDER_ICON = (Image) UIManager.get("Nb.Explorer.Folder.openedIcon"); // NOI18N
+
     protected File topDirectory;
     private ArrayList files;
     private ArrayList filesBackup;
@@ -415,11 +419,19 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
                   if (userObj instanceof File) { // it is a directory
                       label.setText(((File)userObj).getName());
                       if (!expanded) {
-                          java.net.URL url1 = this.getClass().getResource(DEFAULT_FOLDER);
-                          label.setIcon(new ImageIcon(url1));
+                          if (FOLDER_ICON != null) {
+                              label.setIcon(new ImageIcon(FOLDER_ICON));
+                          } else {
+                              java.net.URL url1 = this.getClass().getResource(DEFAULT_FOLDER);
+                              label.setIcon(new ImageIcon(url1));
+                          }
                       } else {
-                          java.net.URL url2 = this.getClass().getResource(DEFAULT_OPEN_FOLDER);
-                          label.setIcon(new ImageIcon(url2));
+                          if (OPEN_FOLDER_ICON != null) {
+                              label.setIcon(new ImageIcon(OPEN_FOLDER_ICON));
+                          } else {
+                              java.net.URL url2 = this.getClass().getResource(DEFAULT_OPEN_FOLDER);
+                              label.setIcon(new ImageIcon(url2));
+                          }
                       }
                   } else if (userObj instanceof FileInfoContainer) { //is File
                       FileInfoContainer info = (FileInfoContainer)userObj;

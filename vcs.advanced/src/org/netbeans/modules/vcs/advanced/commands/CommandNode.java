@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
+import javax.swing.UIManager;
 
 import org.openide.*;
 import org.openide.nodes.*;
@@ -63,9 +64,11 @@ public class CommandNode extends AbstractNode {
 
     private static final String DEFAULT_FOLDER = "org/openide/loaders/defaultFolder.gif"; // NOI18N
     private static final String DEFAULT_OPEN_FOLDER = "org/openide/loaders/defaultFolderOpen.gif"; // NOI18N
-    //private static final String DEFAULT_COMMAND = "org/netbeans/modules/vcscore/runtime/commandIcon.gif"; // NOI18N
     private static final String DEFAULT_COMMAND = "org/netbeans/modules/vcs/advanced/commands/commandsJmenuItem.gif"; // NOI18N
     private static final String DEFAULT_HIDDEN_COMMAND_BADGE = "org/netbeans/modules/vcs/advanced/commands/commandsHiddenBadgeIcon.gif"; // NOI18N
+
+    private static final Image FOLDER_ICON = (Image) UIManager.get("Nb.Explorer.Folder.icon"); // NOI18N
+    private static final Image OPEN_FOLDER_ICON = (Image) UIManager.get("Nb.Explorer.Folder.openedIcon"); // NOI18N
 
     private VcsCommand cmd = null;
     private IfUnlessCondition mainCondition = null;
@@ -380,7 +383,11 @@ public class CommandNode extends AbstractNode {
         if (cmd == null) {
             return getSeparatorIcon(type);
         } else if (isFolderCommand(cmd)) {
-            return Utilities.loadImage(DEFAULT_FOLDER);
+            if (FOLDER_ICON != null) {
+                return FOLDER_ICON;
+            } else {
+                return Utilities.loadImage(DEFAULT_FOLDER);
+            }
         } else {
             if (cmd.getDisplayName() == null) {
                 return Utilities.mergeImages(Utilities.loadImage(DEFAULT_COMMAND), Utilities.loadImage(DEFAULT_HIDDEN_COMMAND_BADGE), 16, 8);
@@ -392,7 +399,11 @@ public class CommandNode extends AbstractNode {
     
     public Image getOpenedIcon(int type) {
         //System.out.println("getOpenedIcon("+type+"): cmd = "+cmd);
-        return Utilities.loadImage(DEFAULT_OPEN_FOLDER);
+        if (OPEN_FOLDER_ICON != null) {
+            return OPEN_FOLDER_ICON;
+        } else {
+            return Utilities.loadImage(DEFAULT_OPEN_FOLDER);
+        }
     }
 
     public boolean canCopy() {
