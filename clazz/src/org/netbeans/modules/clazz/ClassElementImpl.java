@@ -363,7 +363,7 @@ public final class ClassElementImpl extends MemberElementImpl
             if (!addedByCompiler(reflMethods[i])) {
                 curME = new MethodElement(new MethodElementImpl(reflMethods[i]),
                                           (ClassElement)element);
-                result.put(new MethodElement.Key(curME), curME);
+                result.put(new MethodElement.Key(curME, true), curME);
             }
         }
         return result;
