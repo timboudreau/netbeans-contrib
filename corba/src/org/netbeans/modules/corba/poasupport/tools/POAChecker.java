@@ -249,19 +249,19 @@ public class POAChecker {
         if ((element.getServantManager() != null) && (!isServantManagerEnabled(element, policies))) {
             String msg = MessageFormat.format(POASupport.getString("MSG_Confirm_Delete_ServantManager"), new Object[] {name, value});
             NotifyDescriptor desc = new NotifyDescriptor.Confirmation(msg, NotifyDescriptor.OK_CANCEL_OPTION);
-            if (NotifyDescriptor.CANCEL_OPTION.equals (TopManager.getDefault().notify(desc)))
+            if (!NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault().notify(desc)))
                 return false;
         }
         if ((element.getDefaultServant() != null) && (!isDefaultServantEnabled(element, policies))) {
             String msg = MessageFormat.format(POASupport.getString("MSG_Confirm_Delete_DefaultServant"), new Object[] {name, value});
             NotifyDescriptor desc = new NotifyDescriptor.Confirmation(msg, NotifyDescriptor.OK_CANCEL_OPTION);
-            if (NotifyDescriptor.CANCEL_OPTION.equals (TopManager.getDefault().notify(desc)))
+            if (!NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault().notify(desc)))
                 return false;
         }
         if ((element.getServants().size() > 0) && (checkDisabledServantActivation(element, policies).equals(POASettings.ALL_SERVANTS))) {
             String msg = MessageFormat.format(POASupport.getString("MSG_Confirm_Delete_Servants"), new Object[] {name, value});
             NotifyDescriptor desc = new NotifyDescriptor.Confirmation(msg, NotifyDescriptor.OK_CANCEL_OPTION);
-            if (NotifyDescriptor.CANCEL_OPTION.equals (TopManager.getDefault().notify(desc)))
+            if (!NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault().notify(desc)))
                 return false;
         }
         return true;
