@@ -187,12 +187,14 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         synchronized (this) {
             fs = (CommandLineVcsFileSystem) weakFsInstance.get();
             //System.out.println("  fs = "+((fs == null) ? "null" : fs.getSystemName()));
-            if (fs == null) {
+            if (fs == null && fo != null) {
                 fs = new CommandLineVcsFileSystem(true);
                 needToReadFSProperties = true;
                 weakFsInstance = new WeakReference(fs);
             }
         }
+        FileObject fo = this.fo;
+        if (fo == null) return null;
         if (needToReadFSProperties) {
             try {
                 if (doc == null) {
