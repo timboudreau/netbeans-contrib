@@ -17,14 +17,14 @@ package com.netbeans.enterprise.modules.corba.idl.src;
 public interface IDLParserConstants {
 
   int EOF = 0;
-  int ID = 66;
-  int OCTALINT = 67;
-  int DECIMALINT = 68;
-  int HEXADECIMALINT = 69;
-  int FLOATONE = 70;
-  int FLOATTWO = 71;
-  int CHARACTER = 72;
-  int STRING = 73;
+  int ID = 67;
+  int OCTALINT = 68;
+  int DECIMALINT = 69;
+  int HEXADECIMALINT = 70;
+  int FLOATONE = 71;
+  int FLOATTWO = 72;
+  int CHARACTER = 73;
+  int STRING = 74;
 
   int DEFAULT = 0;
 
@@ -73,6 +73,7 @@ public interface IDLParserConstants {
     "\"boolean\"",
     "\"octet\"",
     "\"any\"",
+    "\"Object\"",
     "\"struct\"",
     "\"union\"",
     "\"switch\"",

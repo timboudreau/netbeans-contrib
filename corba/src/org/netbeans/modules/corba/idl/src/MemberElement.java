@@ -15,7 +15,7 @@ package com.netbeans.enterprise.modules.corba.idl.src;
 
 public class MemberElement extends IDLElement {
    
-   String type;
+   IDLType type;
 
    public MemberElement (int id) {
       super(id);
@@ -25,17 +25,31 @@ public class MemberElement extends IDLElement {
       super(p, id);
    }
 
-   public void setType (String t) {
+   public void setType (IDLType t) {
       type = t;
    }
 
-   public String getType () {
+   public IDLType getType () {
       return type;
    }
-
-   public void jjtClose () {
+  /*
+    public void jjtSetParent (Node n) {
+    super.jjtSetParent (n);
+    }
+  */
+  public void jjtClose () {
       //System.out.println ("MemberElement.jjtClose ()");
       super.jjtClose ();
+      // remove all children of type Identifier
+      /*
+	java.util.Vector tmp_members = getMembers ();
+	for (int i=0; i<tmp_members.size (); i++) {
+	if (tmp_members.elementAt (i) instanceof Identifier) {
+	tmp_members.removeElementAt (i);
+	System.out.println ("remove element at " + i + " from " + getType ());
+	}
+	}
+      */
       /*
 	public void jjtSetParent (Node n) {
 	super.jjtSetParent (n);
@@ -52,21 +66,24 @@ public class MemberElement extends IDLElement {
 	 }
       }
       if (getMember (0) instanceof TypeElement && !(getMember (0) instanceof DeclaratorElement)) {
-	 // first is struct, enum or union
-	 String type = ((TypeElement)getMember (0)).getName ();
+	// first is struct, enum or union
+	//Type type = ((TypeElement)getMember (0)).getType ();
+	IDLType type = new IDLType (-1, ((TypeElement)getMember (0)).getName ());
 	 for (int i = 1; i<getMembers ().size (); i++)
 	    ((DeclaratorElement)getMember (i)).setType (type);
       }
       if (getMember (0) instanceof Identifier) {
-	 String type = ((Identifier)getMember (0)).getName ();
-         for (int i = 1; i<getMembers ().size (); i++)
-            if (getMember (i) instanceof DeclaratorElement) { 
-	       // this is becase of scoped names in Memeber
-	       ((DeclaratorElement)getMember (i)).setType (type);
-	    }
+	//String type = ((Identifier)getMember (0)).getName ();
+	for (int i = 1; i<getMembers ().size (); i++)
+	  if (getMember (i) instanceof DeclaratorElement) { 
+	    // this is because of scoped names in Member
+	    //((DeclaratorElement)getMember (i)).setType (type);
+	    ((DeclaratorElement)getMember (i)).setType (getType ());
+	  }
       }
+
 	 
-   }
+  }
 
 }
 

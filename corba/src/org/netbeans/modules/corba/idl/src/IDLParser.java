@@ -96,10 +96,10 @@ public class IDLParser/*@bgen(jjtree)*/implements IDLParserTreeConstants, IDLPar
       case 13:
       case 17:
       case 34:
-      case 44:
       case 45:
-      case 49:
-      case 58:
+      case 46:
+      case 50:
+      case 59:
         ;
         break;
       default:
@@ -113,9 +113,9 @@ public class IDLParser/*@bgen(jjtree)*/implements IDLParserTreeConstants, IDLPar
   final public void definition() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 34:
-    case 44:
     case 45:
-    case 49:
+    case 46:
+    case 50:
       type_dcl();
       jj_consume_token(9);
       break;
@@ -123,7 +123,7 @@ public class IDLParser/*@bgen(jjtree)*/implements IDLParserTreeConstants, IDLPar
       const_dcl();
       jj_consume_token(9);
       break;
-    case 58:
+    case 59:
       except_dcl();
       jj_consume_token(9);
       break;
@@ -169,10 +169,10 @@ void module() #ModuleElement :
         case 13:
         case 17:
         case 34:
-        case 44:
         case 45:
-        case 49:
-        case 58:
+        case 46:
+        case 50:
+        case 59:
           ;
           break;
         default:
@@ -317,13 +317,14 @@ void interface_header() :
       case 43:
       case 44:
       case 45:
-      case 49:
-      case 53:
-      case 56:
+      case 46:
+      case 50:
+      case 54:
       case 57:
       case 58:
       case 59:
       case 60:
+      case 61:
       case ID:
         ;
         break;
@@ -339,9 +340,9 @@ void interface_header() :
   final public void export() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 34:
-    case 44:
     case 45:
-    case 49:
+    case 46:
+    case 50:
       type_dcl();
       jj_consume_token(9);
       break;
@@ -349,12 +350,12 @@ void interface_header() :
       const_dcl();
       jj_consume_token(9);
       break;
-    case 58:
+    case 59:
       except_dcl();
       jj_consume_token(9);
       break;
-    case 56:
     case 57:
+    case 58:
       attr_dcl();
       jj_consume_token(9);
       break;
@@ -368,9 +369,10 @@ void interface_header() :
     case 41:
     case 42:
     case 43:
-    case 53:
-    case 59:
+    case 44:
+    case 54:
     case 60:
+    case 61:
     case ID:
       op_dcl();
       jj_consume_token(9);
@@ -469,7 +471,7 @@ void const_dcl() #ConstElement :
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-    String type, exp, name; Identifier id;
+    IDLType type; String exp, name; Identifier id;
       jj_consume_token(17);
       type = const_type();
       id = identifier();
@@ -477,7 +479,7 @@ void const_dcl() #ConstElement :
       exp = const_exp();
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
-    jjtn000.setType (type); jjtn000.setName (id.getName ()); jjtn000.setExpression (exp);
+    jjtn000.setType (type.name); jjtn000.setName (id.getName ()); jjtn000.setExpression (exp);
     } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -517,12 +519,12 @@ void const_type() :
   scoped_name()
 }
 */
-  final public String const_type() throws ParseException {
+  final public IDLType const_type() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 37:
     case 38:
     case 39:
-    String type;
+    IDLType type; String name;
       type = integer_type();
     {if (true) return type;}
       break;
@@ -539,14 +541,14 @@ void const_type() :
       type = floating_pt_type();
     {if (true) return type;}
       break;
-    case 53:
+    case 54:
       type = string_type();
     {if (true) return type;}
       break;
     case 16:
     case ID:
-      type = scoped_name();
-    {if (true) return type;}
+      name = scoped_name();
+    {if (true) return new IDLType (IDLType.SCOPED, name);}
       break;
     default:
       jj_la1[10] = jj_gen;
@@ -1015,33 +1017,33 @@ void type_dcl() #TypeElement :
     try {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case 34:
-    String type;
+    IDLType type;
         jj_consume_token(34);
         type = type_declarator();
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
     jjtn000.setType (type); /* System.out.println ("IDL.jjt " + jjtThis.getType ()); */
         break;
-      case 44:
+      case 45:
         type = struct_type();
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
-    jjtn000.setName (type);
-    jjtn000.setType ("struct");
+    jjtn000.setName (type.name);
+    jjtn000.setType (new IDLType (IDLType.STRUCT, "struct"));
         break;
-      case 45:
+      case 46:
         type = union_type();
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
-    jjtn000.setName (type);
-    jjtn000.setType ("union");
+    jjtn000.setName (type.name);
+    jjtn000.setType (new IDLType (IDLType.UNION, "union"));
         break;
-      case 49:
+      case 50:
         type = enum_type();
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
-    jjtn000.setName (type);
-    jjtn000.setType ("enum");
+    jjtn000.setName (type.name);
+    jjtn000.setType (new IDLType (IDLType.ENUM, "enum"));
         break;
       default:
         jj_la1[25] = jj_gen;
@@ -1077,8 +1079,8 @@ void type_declarator() :
   type_spec() declarators()
 }
 */
-  final public String type_declarator() throws ParseException {
-    String type;
+  final public IDLType type_declarator() throws ParseException {
+    IDLType type;
     type = type_spec();
     declarators();
     {if (true) return type;}
@@ -1095,7 +1097,7 @@ void type_spec() :
   constr_type_spec()
 }
 */
-  final public String type_spec() throws ParseException {
+  final public IDLType type_spec() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 16:
     case 35:
@@ -1107,18 +1109,19 @@ void type_spec() :
     case 41:
     case 42:
     case 43:
-    case 50:
-    case 53:
-    case ID:
-   String name;
-      name = simple_type_spec();
-   {if (true) return name;}
-      break;
     case 44:
+    case 51:
+    case 54:
+    case ID:
+   IDLType type;
+      type = simple_type_spec();
+   {if (true) return type;}
+      break;
     case 45:
-    case 49:
-      name = constr_type_spec();
-   {if (true) return name;}
+    case 46:
+    case 50:
+      type = constr_type_spec();
+   {if (true) return type;}
       break;
     default:
       jj_la1[26] = jj_gen;
@@ -1140,7 +1143,7 @@ void simple_type_spec() :
   scoped_name()
 }
 */
-  final public String simple_type_spec() throws ParseException {
+  final public IDLType simple_type_spec() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 35:
     case 36:
@@ -1151,19 +1154,20 @@ void simple_type_spec() :
     case 41:
     case 42:
     case 43:
-   String name;
-      name = base_type_spec();
-   {if (true) return name;}
+    case 44:
+   IDLType type; String name;
+      type = base_type_spec();
+   {if (true) return type;}
       break;
-    case 50:
-    case 53:
-      name = template_type_spec();
-   {if (true) return name;}
+    case 51:
+    case 54:
+      type = template_type_spec();
+   {if (true) return type;}
       break;
     case 16:
     case ID:
       name = scoped_name();
-   {if (true) return name;}
+    {if (true) return new IDLType (IDLType.SCOPED, name);}
       break;
     default:
       jj_la1[27] = jj_gen;
@@ -1191,11 +1195,11 @@ void base_type_spec() :
   any_type()
 }
 */
-  final public String base_type_spec() throws ParseException {
+  final public IDLType base_type_spec() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 35:
     case 36:
-    String type;
+    IDLType type;
       type = floating_pt_type();
     {if (true) return type;}
       break;
@@ -1221,6 +1225,10 @@ void base_type_spec() :
       type = any_type();
     {if (true) return type;}
       break;
+    case 44:
+      type = object_type();
+    {if (true) return type;}
+      break;
     default:
       jj_la1[28] = jj_gen;
       jj_consume_token(-1);
@@ -1239,14 +1247,14 @@ void template_type_spec() :
   string_type()
 }
 */
-  final public String template_type_spec() throws ParseException {
+  final public IDLType template_type_spec() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 50:
-    String type;
+    case 51:
+    IDLType type;
       type = sequence_type();
     {if (true) return type;}
       break;
-    case 53:
+    case 54:
       type = string_type();
     {if (true) return type;}
       break;
@@ -1270,18 +1278,18 @@ void constr_type_spec() :
   enum_type()
 }
 */
-  final public String constr_type_spec() throws ParseException {
+  final public IDLType constr_type_spec() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 44:
-    String type;
+    case 45:
+    IDLType type;
       type = struct_type();
     {if (true) return type;}
       break;
-    case 45:
+    case 46:
       type = union_type();
     {if (true) return type;}
       break;
-    case 49:
+    case 50:
       type = enum_type();
     {if (true) return type;}
       break;
@@ -1406,15 +1414,15 @@ void floating_pt_type() :
   "double"
 }
 */
-  final public String floating_pt_type() throws ParseException {
+  final public IDLType floating_pt_type() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 35:
       jj_consume_token(35);
-    {if (true) return "float";}
+    {if (true) return new IDLType (IDLType.FLOAT, "float");}
       break;
     case 36:
       jj_consume_token(36);
-    {if (true) return "double";}
+    {if (true) return new IDLType (IDLType.DOUBLE, "double");}
       break;
     default:
       jj_la1[33] = jj_gen;
@@ -1434,11 +1442,11 @@ void integer_type() :
   unsigned_int()
 }
 */
-  final public String integer_type() throws ParseException {
+  final public IDLType integer_type() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 37:
     case 38:
-    String type;
+    IDLType type;
       type = signed_int();
     {if (true) return type;}
       break;
@@ -1464,10 +1472,10 @@ void signed_int() :
   signed_short_int()
 }
 */
-  final public String signed_int() throws ParseException {
+  final public IDLType signed_int() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 37:
-    String type;
+    IDLType type;
       type = signed_long_int();
     {if (true) return type;}
       break;
@@ -1491,9 +1499,9 @@ void signed_long_int() :
   "long"
 }
 */
-  final public String signed_long_int() throws ParseException {
+  final public IDLType signed_long_int() throws ParseException {
     jj_consume_token(37);
-    {if (true) return "long";}
+    {if (true) return new IDLType (IDLType.LONG, "long");}
     throw new Error("Missing return statement in function");
   }
 
@@ -1505,9 +1513,9 @@ void signed_short_int() :
   "short"
 }
 */
-  final public String signed_short_int() throws ParseException {
+  final public IDLType signed_short_int() throws ParseException {
     jj_consume_token(38);
-    {if (true) return "short";}
+    {if (true) return new IDLType (IDLType.SHORT, "short");}
     throw new Error("Missing return statement in function");
   }
 
@@ -1522,15 +1530,15 @@ void unsigned_int() :
   unsigned_short_int()
 }
 */
-  final public String unsigned_int() throws ParseException {
+  final public IDLType unsigned_int() throws ParseException {
     if (jj_2_3(2)) {
-    String type;
+    IDLType type;
       type = unsigned_long_int();
     {if (true) return type;}
     } else {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case 39:
-    String type;
+    IDLType type;
         type = unsigned_short_int();
     {if (true) return type;}
         break;
@@ -1551,10 +1559,10 @@ void unsigned_long_int() :
   "unsigned" "long"
 }
 */
-  final public String unsigned_long_int() throws ParseException {
+  final public IDLType unsigned_long_int() throws ParseException {
     jj_consume_token(39);
     jj_consume_token(37);
-    {if (true) return "unsigned long";}
+    {if (true) return new IDLType (IDLType.ULONG, "unsigned long");}
     throw new Error("Missing return statement in function");
   }
 
@@ -1566,10 +1574,10 @@ void unsigned_short_int() :
   "unsigned" "short"
 }
 */
-  final public String unsigned_short_int() throws ParseException {
+  final public IDLType unsigned_short_int() throws ParseException {
     jj_consume_token(39);
     jj_consume_token(38);
-    {if (true) return "unsigned short";}
+    {if (true) return new IDLType (IDLType.USHORT, "unsigned short");}
     throw new Error("Missing return statement in function");
   }
 
@@ -1581,9 +1589,9 @@ void char_type() :
   "char"
 }
 */
-  final public String char_type() throws ParseException {
+  final public IDLType char_type() throws ParseException {
     jj_consume_token(40);
-    {if (true) return "char";}
+    {if (true) return new IDLType (IDLType.CHAR, "char");}
     throw new Error("Missing return statement in function");
   }
 
@@ -1595,9 +1603,9 @@ void boolean_type() :
   "boolean"
 }
 */
-  final public String boolean_type() throws ParseException {
+  final public IDLType boolean_type() throws ParseException {
     jj_consume_token(41);
-    {if (true) return "boolean";}
+    {if (true) return new IDLType (IDLType.BOOLEAN, "boolean");}
     throw new Error("Missing return statement in function");
   }
 
@@ -1609,9 +1617,9 @@ void octet_type() :
   "octet"
 }
 */
-  final public String octet_type() throws ParseException {
+  final public IDLType octet_type() throws ParseException {
     jj_consume_token(42);
-    {if (true) return "octet";}
+    {if (true) return new IDLType (IDLType.OCTET, "octet");}
     throw new Error("Missing return statement in function");
   }
 
@@ -1623,9 +1631,15 @@ void any_type() :
   "any"
 }
 */
-  final public String any_type() throws ParseException {
+  final public IDLType any_type() throws ParseException {
     jj_consume_token(43);
-    {if (true) return "any";}
+    {if (true) return new IDLType (IDLType.ANY, "any");}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public IDLType object_type() throws ParseException {
+    jj_consume_token(44);
+    {if (true) return new IDLType (IDLType.OBJECT, "Object");}
     throw new Error("Missing return statement in function");
   }
 
@@ -1637,22 +1651,25 @@ void struct_type() :
   "struct" identifier() "{" member_list() "}"
 }
 */
-  final public String struct_type() throws ParseException {
+  final public IDLType struct_type() throws ParseException {
  /*@bgen(jjtree) StructTypeElement */
   StructTypeElement jjtn000 = new StructTypeElement(JJTSTRUCTTYPEELEMENT);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-    String name; Identifier id; Vector vect = new Vector ();
-      jj_consume_token(44);
+    String name; Identifier id; Vector vect = new Vector (); IDLType type;
+      jj_consume_token(45);
       id = identifier();
-                               name = id.getName (); jjtn000.setType ("struct");
+     name = id.getName ();
+     type = new IDLType (IDLType.STRUCT, "struct");
+     //type = new IDLType (IDLType.STRUCT, name); 
+     jjtn000.setType (type);
       jj_consume_token(11);
       member_list();
       jj_consume_token(12);
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
-    {if (true) return name;}
+    {if (true) return type;}
     } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -1693,9 +1710,10 @@ void struct_type() :
       case 43:
       case 44:
       case 45:
-      case 49:
+      case 46:
       case 50:
-      case 53:
+      case 51:
+      case 54:
       case ID:
         ;
         break;
@@ -1713,7 +1731,7 @@ void struct_type() :
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-    String type, name = "";
+    IDLType type; String name = "";
       type = type_spec();
                        jjtn000.setType (type); jjtn000.setName (name);
       declarators();
@@ -1756,27 +1774,29 @@ void union_type() :
   "union" identifier() "switch" "(" switch_type_spec() ")" "{" switch_body() "}"
 }
 */
-  final public String union_type() throws ParseException {
+  final public IDLType union_type() throws ParseException {
  /*@bgen(jjtree) UnionTypeElement */
   UnionTypeElement jjtn000 = new UnionTypeElement(JJTUNIONTYPEELEMENT);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-    String name; Identifier id; Vector vect = new Vector (); String type;
-      jj_consume_token(45);
-      id = identifier();
-                              name = id.getName (); jjtn000.setType ("union");
+    String name; Identifier id; Vector vect = new Vector (); IDLType type;
       jj_consume_token(46);
+      id = identifier();
+      name = id.getName ();
+      type = new IDLType (IDLType.UNION, "union");
+      jjtn000.setType (type);
+      jj_consume_token(47);
       jj_consume_token(30);
       type = switch_type_spec();
       jj_consume_token(31);
-    jjtn000.setSwitchType (type);
+    jjtn000.setSwitchType (type.name);
       jj_consume_token(11);
       switch_body();
       jj_consume_token(12);
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
-    {if (true) return name;}
+    {if (true) return type;}
     } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -1815,12 +1835,12 @@ void switch_type_spec() :
   scoped_name()
 }
 */
-  final public String switch_type_spec() throws ParseException {
+  final public IDLType switch_type_spec() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 37:
     case 38:
     case 39:
-    String type;
+    IDLType type; String name;
       type = integer_type();
     {if (true) return type;}
       break;
@@ -1832,14 +1852,14 @@ void switch_type_spec() :
       type = boolean_type();
     {if (true) return type;}
       break;
-    case 49:
+    case 50:
       type = enum_type();
     {if (true) return type;}
       break;
     case 16:
     case ID:
-      type = scoped_name();
-    {if (true) return type;}
+      name = scoped_name();
+    {if (true) return new IDLType (IDLType.SCOPED, name);}
       break;
     default:
       jj_la1[38] = jj_gen;
@@ -1855,8 +1875,8 @@ void switch_type_spec() :
     while (true) {
       casex();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 47:
       case 48:
+      case 49:
         ;
         break;
       default:
@@ -1873,14 +1893,14 @@ void switch_type_spec() :
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-    String cases = "", tmp, type;
+    String cases = "", tmp; IDLType type;
       label_15:
       while (true) {
         tmp = case_label();
                         cases += tmp + ", ";
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 47:
         case 48:
+        case 49:
           ;
           break;
         default:
@@ -1924,16 +1944,16 @@ void case_label() :
 */
   final public String case_label() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 47:
+    case 48:
    String label = "", exp;
-      jj_consume_token(47);
+      jj_consume_token(48);
       exp = const_exp();
                              label += exp;
       jj_consume_token(14);
     {if (true) return label;}
       break;
-    case 48:
-      jj_consume_token(48);
+    case 49:
+      jj_consume_token(49);
       jj_consume_token(14);
     {if (true) return "default";}
       break;
@@ -1946,8 +1966,8 @@ void case_label() :
   }
 
 /* Production 58 */
-  final public String element_spec() throws ParseException {
-    String type, name = "";
+  final public IDLType element_spec() throws ParseException {
+    IDLType type; String name = "";
     type = type_spec();
     declarator();
     {if (true) return type;}
@@ -1962,16 +1982,18 @@ void enum_type() :
   "enum" identifier() "{" enumerator() ( "," enumerator() )* "}"
 }
 */
-  final public String enum_type() throws ParseException {
+  final public IDLType enum_type() throws ParseException {
  /*@bgen(jjtree) EnumTypeElement */
   EnumTypeElement jjtn000 = new EnumTypeElement(JJTENUMTYPEELEMENT);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-    String name; Identifier id; Vector vect = new Vector ();
-      jj_consume_token(49);
+    IDLType type; String name; Identifier id; Vector vect = new Vector ();
+      jj_consume_token(50);
       id = identifier();
-                             name = id.getName (); jjtn000.setType ("enum");
+     name = id.getName ();
+     type = new IDLType (IDLType.ENUM, "enum");
+     jjtn000.setType (type);
       jj_consume_token(11);
       enumerator();
       label_16:
@@ -1990,7 +2012,7 @@ void enum_type() :
       jj_consume_token(12);
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
-    {if (true) return name;}
+    {if (true) return type;}
     } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -2063,12 +2085,12 @@ void sequence_type() :
   "sequence" "<" simple_type_spec() [ "," positive_int_const() ] ">"
 }
 */
-  final public String sequence_type() throws ParseException {
-    String type, num = "", retval = "";
-    jj_consume_token(50);
+  final public IDLType sequence_type() throws ParseException {
+    IDLType type; String num = "", retval = ""; int val;
     jj_consume_token(51);
+    jj_consume_token(52);
     type = simple_type_spec();
-                                            retval = "sequence <" + type;
+                                            retval = "sequence <" + type.getName ();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 15:
       jj_consume_token(15);
@@ -2079,9 +2101,17 @@ void sequence_type() :
       jj_la1[43] = jj_gen;
       ;
     }
-    jj_consume_token(52);
+    jj_consume_token(53);
                                                                           retval += ">";
-    {if (true) return retval;}
+    //if (!num.equals (""))
+    try {
+      val = (new Integer (num)).intValue ();
+    } catch (java.lang.NumberFormatException e) {
+    //else
+      val = -1;
+    }
+
+    {if (true) return new IDLType (IDLType.SEQUENCE, retval, type, val);}
     throw new Error("Missing return statement in function");
   }
 
@@ -2093,24 +2123,30 @@ void string_type() :
   "string" [ "<" positive_int_const() ">" ]
 }
 */
-  final public String string_type() throws ParseException {
-    String name, tmp;
-    jj_consume_token(53);
+  final public IDLType string_type() throws ParseException {
+    String name, tmp = ""; int val;
+    jj_consume_token(54);
              name = "string";
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 51:
-      jj_consume_token(51);
+    case 52:
+      jj_consume_token(52);
          name = name + "<";
       tmp = positive_int_const();
                                                           name += tmp;
-      jj_consume_token(52);
+      jj_consume_token(53);
                                                                              name = name + ">";
       break;
     default:
       jj_la1[44] = jj_gen;
       ;
     }
-    {if (true) return name;}
+    //if (!tmp.equals (""))
+    try {
+      {if (true) return new IDLType (IDLType.STRING, name, null, (new Integer (tmp)).intValue ());}
+    } catch (java.lang.NumberFormatException e) {
+    //else
+      {if (true) return new IDLType (IDLType.STRING, name, null, -1);}
+    }
     throw new Error("Missing return statement in function");
   }
 
@@ -2130,7 +2166,7 @@ void array_declarator() :
       tmp = fixed_array_size();
                                             dim += tmp;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 54:
+      case 55:
         ;
         break;
       default:
@@ -2152,9 +2188,9 @@ void fixed_array_size() :
 */
   final public String fixed_array_size() throws ParseException {
     String dim;
-    jj_consume_token(54);
-    dim = positive_int_const();
     jj_consume_token(55);
+    dim = positive_int_const();
+    jj_consume_token(56);
     {if (true) return ("[" + dim + "]");}
     throw new Error("Missing return statement in function");
   }
@@ -2166,17 +2202,17 @@ void fixed_array_size() :
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-    String name, other, type;
+    String name, other; IDLType type;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 56:
-        jj_consume_token(56);
+      case 57:
+        jj_consume_token(57);
                 jjtn000.setReadOnly (true);
         break;
       default:
         jj_la1[46] = jj_gen;
         ;
       }
-      jj_consume_token(57);
+      jj_consume_token(58);
       type = param_type_spec();
                             jjtn000.setType (type);
       name = simple_declarator();
@@ -2223,7 +2259,7 @@ void fixed_array_size() :
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-      jj_consume_token(58);
+      jj_consume_token(59);
       identifier();
       jj_consume_token(11);
       label_19:
@@ -2241,9 +2277,10 @@ void fixed_array_size() :
         case 43:
         case 44:
         case 45:
-        case 49:
+        case 46:
         case 50:
-        case 53:
+        case 51:
+        case 54:
         case ID:
           ;
           break;
@@ -2293,9 +2330,9 @@ void op_dcl() #OperationElement :
     Vector params, exceptions, contexts;
     Identifier name;
     /* Element returnType; */
-    String returnType;
+    IDLType returnType;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 59:
+      case 60:
         attr = op_attribute();
                              jjtn000.setAttribute (attr);
         break;
@@ -2309,7 +2346,7 @@ void op_dcl() #OperationElement :
                            jjtn000.setName (name.getName ());
       parameter_dcls();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 64:
+      case 65:
         exceptions = raises_expr();
                                   jjtn000.setExceptions (exceptions);
         break;
@@ -2318,7 +2355,7 @@ void op_dcl() #OperationElement :
         ;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 65:
+      case 66:
         contexts = context_expr();
                                  jjtn000.setContexts (contexts);
         break;
@@ -2356,7 +2393,7 @@ void op_attribute() :
 }
 */
   final public String op_attribute() throws ParseException {
-    jj_consume_token(59);
+    jj_consume_token(60);
     {if (true) return "oneway";}
     throw new Error("Missing return statement in function");
   }
@@ -2376,13 +2413,13 @@ Identifier op_type_spec() :
 {}
 {
   {
-    String type; 
+    IDLType type; 
     Identifier id;
   }
   type = param_type_spec()
   {
     id = new Identifier (-1); 
-    id.setName (type);
+    id.setName (type.name);
     return id;
   }
 |
@@ -2394,7 +2431,7 @@ Identifier op_type_spec() :
   }
 }
 */
-  final public String op_type_spec() throws ParseException {
+  final public IDLType op_type_spec() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 16:
     case 35:
@@ -2406,15 +2443,16 @@ Identifier op_type_spec() :
     case 41:
     case 42:
     case 43:
-    case 53:
+    case 44:
+    case 54:
     case ID:
-    String type;
+   IDLType type;
       type = param_type_spec();
     {if (true) return type;}
       break;
-    case 60:
-      jj_consume_token(60);
-     {if (true) return "void";}
+    case 61:
+      jj_consume_token(61);
+    {if (true) return new IDLType (IDLType.VOID, "void");}
       break;
     default:
       jj_la1[52] = jj_gen;
@@ -2428,9 +2466,9 @@ Identifier op_type_spec() :
   final public void parameter_dcls() throws ParseException {
     jj_consume_token(30);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 61:
     case 62:
     case 63:
+    case 64:
       param_dcl();
       label_20:
       while (true) {
@@ -2489,7 +2527,7 @@ String param_dcl() :
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-    String type, name; int attr;
+    IDLType type; String name; int attr;
       attr = param_attribute();
       type = param_type_spec();
       name = simple_declarator();
@@ -2531,16 +2569,16 @@ void param_attribute() :
 */
   final public int param_attribute() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 61:
-      jj_consume_token(61);
-    {if (true) return 0;}
-      break;
     case 62:
       jj_consume_token(62);
-    {if (true) return 2;}
+    {if (true) return 0;}
       break;
     case 63:
       jj_consume_token(63);
+    {if (true) return 2;}
+      break;
+    case 64:
+      jj_consume_token(64);
     {if (true) return 1;}
       break;
     default:
@@ -2561,7 +2599,7 @@ void raises_expr() :
 */
   final public Vector raises_expr() throws ParseException {
     String name; Vector es = new Vector ();
-    jj_consume_token(64);
+    jj_consume_token(65);
     jj_consume_token(30);
     name = scoped_name();
                                       es.addElement (name);
@@ -2594,7 +2632,7 @@ void context_expr() :
 */
   final public Vector context_expr() throws ParseException {
     String name; Vector cs = new Vector ();
-    jj_consume_token(65);
+    jj_consume_token(66);
     jj_consume_token(30);
     name = string_literal();
                                           cs.addElement (name);
@@ -2629,7 +2667,7 @@ void param_type_spec() :
   scoped_name()
 }
 */
-  final public String param_type_spec() throws ParseException {
+  final public IDLType param_type_spec() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 35:
     case 36:
@@ -2640,18 +2678,19 @@ void param_type_spec() :
     case 41:
     case 42:
     case 43:
-    String type;
+    case 44:
+   IDLType type; String name;
       type = base_type_spec();
     {if (true) return type;}
       break;
-    case 53:
+    case 54:
       type = string_type();
     {if (true) return type;}
       break;
     case 16:
     case ID:
-      type = scoped_name();
-    {if (true) return type;}
+      name = scoped_name();
+    {if (true) return new IDLType (IDLType.SCOPED, name);}
       break;
     default:
       jj_la1[58] = jj_gen;
@@ -2793,35 +2832,17 @@ void floating_pt_literal() :
     return retval;
   }
 
-  final private boolean jj_3R_29() {
-    if (jj_3R_31()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3_2() {
-    if (jj_3R_24()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_26() {
-    if (jj_scan_token(13)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+  final private boolean jj_3R_27() {
     if (jj_3R_28()) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_29()) jj_scanpos = xsp;
-    else if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_25() {
-    if (jj_scan_token(39)) return true;
+    if (jj_3R_30()) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    if (jj_scan_token(37)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_30()) { jj_scanpos = xsp; break; }
+      if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    }
     return false;
   }
 
@@ -2839,14 +2860,8 @@ void floating_pt_literal() :
     return false;
   }
 
-  final private boolean jj_3R_32() {
-    if (jj_scan_token(54)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_30() {
-    if (jj_3R_32()) return true;
+  final private boolean jj_3R_28() {
+    if (jj_scan_token(ID)) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }
@@ -2857,17 +2872,9 @@ void floating_pt_literal() :
     return false;
   }
 
-  final private boolean jj_3R_27() {
-    if (jj_3R_28()) return true;
+  final private boolean jj_3R_24() {
+    if (jj_3R_27()) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    Token xsp;
-    if (jj_3R_30()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_30()) { jj_scanpos = xsp; break; }
-      if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    }
     return false;
   }
 
@@ -2877,15 +2884,47 @@ void floating_pt_literal() :
     return false;
   }
 
-  final private boolean jj_3R_24() {
-    if (jj_3R_27()) return true;
+  final private boolean jj_3_2() {
+    if (jj_3R_24()) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }
 
-  final private boolean jj_3R_28() {
-    if (jj_scan_token(ID)) return true;
+  final private boolean jj_3R_29() {
+    if (jj_3R_31()) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_32() {
+    if (jj_scan_token(55)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_30() {
+    if (jj_3R_32()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_25() {
+    if (jj_scan_token(39)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    if (jj_scan_token(37)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_26() {
+    if (jj_scan_token(13)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    if (jj_3R_28()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_29()) jj_scanpos = xsp;
+    else if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }
 
@@ -2900,8 +2939,8 @@ void floating_pt_literal() :
   private int jj_gen;
   final private int[] jj_la1 = new int[61];
   final private int[] jj_la1_0 = {0x22400,0x22400,0x22400,0x2000,0x4000,0x30000,0x30000,0x8000,0x10000,0x10000,0x10000,0x80000,0x100000,0x200000,0xc00000,0xc00000,0x3000000,0x3000000,0x1c000000,0x1c000000,0x23000000,0x23000000,0x40010000,0x0,0x0,0x0,0x10000,0x10000,0x0,0x0,0x0,0x8000,0x0,0x0,0x0,0x0,0x0,0x10000,0x10000,0x0,0x0,0x0,0x8000,0x8000,0x0,0x0,0x0,0x8000,0x10000,0x0,0x0,0x0,0x10000,0x8000,0x0,0x0,0x8000,0x8000,0x10000,0x0,0x0,};
-  final private int[] jj_la1_1 = {0x4023004,0x4023004,0x4023004,0x0,0x0,0x1f223ffc,0x1f223ffc,0x0,0x0,0x0,0x2003f8,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3,0x3,0x3,0x23004,0x263ff8,0x240ff8,0xff8,0x240000,0x23000,0x0,0x0,0x18,0xe0,0x60,0x80,0x263ff8,0x203e0,0x18000,0x18000,0x18000,0x0,0x0,0x80000,0x400000,0x1000000,0x0,0x263ff8,0x8000000,0x0,0x0,0x10200ff8,0x0,0xe0000000,0xe0000000,0x0,0x0,0x200ff8,0x0,0x0,};
-  final private int[] jj_la1_2 = {0x0,0x0,0x0,0x0,0x0,0x4,0x4,0x0,0x0,0x0,0x4,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3fc,0x3f8,0x0,0x0,0x4,0x4,0x0,0x0,0x0,0x0,0x4,0x0,0x0,0x0,0x0,0x4,0x4,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x4,0x0,0x1,0x2,0x4,0x0,0x0,0x0,0x0,0x0,0x4,0x38,0xc0,};
+  final private int[] jj_la1_1 = {0x8046004,0x8046004,0x8046004,0x0,0x0,0x3e447ffc,0x3e447ffc,0x0,0x0,0x0,0x4003f8,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3,0x3,0x3,0x46004,0x4c7ff8,0x481ff8,0x1ff8,0x480000,0x46000,0x0,0x0,0x18,0xe0,0x60,0x80,0x4c7ff8,0x403e0,0x30000,0x30000,0x30000,0x0,0x0,0x100000,0x800000,0x2000000,0x0,0x4c7ff8,0x10000000,0x0,0x0,0x20401ff8,0x0,0xc0000000,0xc0000000,0x0,0x0,0x401ff8,0x0,0x0,};
+  final private int[] jj_la1_2 = {0x0,0x0,0x0,0x0,0x0,0x8,0x8,0x0,0x0,0x0,0x8,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7f8,0x7f0,0x0,0x0,0x8,0x8,0x0,0x0,0x0,0x0,0x8,0x0,0x0,0x0,0x0,0x8,0x8,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x8,0x0,0x2,0x4,0x8,0x0,0x1,0x1,0x0,0x0,0x8,0x70,0x180,};
   final private JJCalls[] jj_2_rtns = new JJCalls[3];
   private boolean jj_rescan = false;
   private int jj_gc = 0;
@@ -3070,8 +3109,8 @@ void floating_pt_literal() :
 
   final public ParseException generateParseException() {
     jj_expentries.removeAllElements();
-    boolean[] la1tokens = new boolean[74];
-    for (int i = 0; i < 74; i++) {
+    boolean[] la1tokens = new boolean[75];
+    for (int i = 0; i < 75; i++) {
       la1tokens[i] = false;
     }
     if (jj_kind >= 0) {
@@ -3093,7 +3132,7 @@ void floating_pt_literal() :
         }
       }
     }
-    for (int i = 0; i < 74; i++) {
+    for (int i = 0; i < 75; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

@@ -19,7 +19,7 @@ public class OperationElement extends IDLElement {
 
    private String op_attribute;
    //private Element op_type_spec;
-   private String op_type_spec;
+   private IDLType op_type_spec;
    //private Element name;
    private Vector params;
    private Vector exceptions;
@@ -57,11 +57,11 @@ public class OperationElement extends IDLElement {
    }
    */
 
-   public void setReturnType (String type) {
+   public void setReturnType (IDLType type) {
       op_type_spec = type;
    }
 
-   public String getReturnType () {
+   public IDLType getReturnType () {
       return op_type_spec;
    }
 

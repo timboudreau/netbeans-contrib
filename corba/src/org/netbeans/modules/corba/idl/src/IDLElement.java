@@ -130,6 +130,7 @@ public class IDLElement extends SimpleNode
 
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         10/5/99  Karel Gardas    
  *  1    Gandalf   1.0         8/3/99   Karel Gardas    initial revision
  * $
  */

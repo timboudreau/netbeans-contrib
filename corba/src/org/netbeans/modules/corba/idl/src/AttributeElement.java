@@ -18,7 +18,7 @@ import java.util.Vector;
 public class AttributeElement extends IDLElement {
 
    private boolean readonly;
-   private String type;
+   private IDLType type;
    private Vector other;
 
    public AttributeElement(int id) {
@@ -39,11 +39,11 @@ public class AttributeElement extends IDLElement {
       return readonly;
    }
 
-   public void setType (String t) {
+   public void setType (IDLType t) {
       type = t;
    }
 
-   public String getType () {
+   public IDLType getType () {
       return type;
    }
 

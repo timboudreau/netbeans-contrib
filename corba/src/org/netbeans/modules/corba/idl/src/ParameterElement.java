@@ -16,7 +16,7 @@ package com.netbeans.enterprise.modules.corba.idl.src;
 public class ParameterElement extends IDLElement {
 
    private int attr;
-   private String type;
+   private IDLType type;
 
    public ParameterElement (int id) {
       super(id);
@@ -35,11 +35,11 @@ public class ParameterElement extends IDLElement {
       return attr;
    }
 
-   public void setType (String t) {
+   public void setType (IDLType t) {
       type = t;
    }
 
-   public String getType () {
+   public IDLType getType () {
       return type;
    }
    

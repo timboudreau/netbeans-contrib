@@ -1,3 +1,19 @@
+/*
+ * IDL.jjt -- synopsis.
+ *
+ * Copyright (C) 1997-1999 NetBeans, Inc.
+ *
+ * $Author Karel Gardas$
+ * <<Date>>
+ * <<Revision>>
+ *
+ * This file is part of $Project: Corona$.
+ *
+ * This software is the exclusive property of NetBeans, Inc.("SOFTWARE").
+ * Any distribution, public posting, duplication, or dissemination of this
+ * SOFTWARE, either by print, electronically, or any other form, is strictly
+ * prohibited and will be prosecuted to the full extent of the law.
+ */
 
 options {
 	MULTI=true;
@@ -282,9 +298,9 @@ void const_dcl() #ConstElement :
 void const_dcl() #ConstElement :
 {}
 {
-  { String type, exp, name; Identifier id;}
+  { IDLType type; String exp, name; Identifier id;}
   "const" type = const_type() id = identifier() "=" exp = const_exp()
-  { jjtThis.setType (type); jjtThis.setName (id.getName ()); jjtThis.setExpression (exp);}
+  { jjtThis.setType (type.name); jjtThis.setName (id.getName ()); jjtThis.setExpression (exp);}
 }
 
 /* Production 13 */
@@ -305,10 +321,10 @@ void const_type() :
   scoped_name()
 }
 */
-String const_type() :
+IDLType const_type() :
 {}
 {
-  { String type;}
+  { IDLType type; String name; }
   type = integer_type()
   { return type;}
 |
@@ -324,8 +340,8 @@ String const_type() :
   type = string_type()
   { return type;}
 |
-  type = scoped_name()
-  { return type;}
+  name = scoped_name()
+  { return new IDLType (IDLType.SCOPED, name);}
 }
 
 /* Production 14 */
@@ -597,27 +613,27 @@ void type_dcl() #TypeElement :
 void type_dcl() #TypeElement : 
 {}
 {
-  { String type;}
+  { IDLType type;}
   "typedef" 
   type = type_declarator() 
   { jjtThis.setType (type); /* System.out.println ("IDL.jjt " + jjtThis.getType ()); */ }
 |
   type = struct_type()
   { 
-    jjtThis.setName (type); 
-    jjtThis.setType ("struct");
+    jjtThis.setName (type.name); 
+    jjtThis.setType (new IDLType (IDLType.STRUCT, "struct"));
   }
 |
   type = union_type()
   { 
-    jjtThis.setName (type);
-    jjtThis.setType ("union");
+    jjtThis.setName (type.name);
+    jjtThis.setType (new IDLType (IDLType.UNION, "union"));
   }
 |
   type = enum_type()
   { 
-    jjtThis.setName (type);
-    jjtThis.setType ("enum");
+    jjtThis.setName (type.name);
+    jjtThis.setType (new IDLType (IDLType.ENUM, "enum"));
   }
 }
 
@@ -630,10 +646,10 @@ void type_declarator() :
 }
 */
 
-String type_declarator() :
+IDLType type_declarator() :
 {}
 { 
-  { String type;}
+  { IDLType type;}
   type = type_spec() declarators()
   { return type;}
 }
@@ -648,15 +664,15 @@ void type_spec() :
   constr_type_spec()
 }
 */
-String type_spec() :
+IDLType type_spec() :
 {}
 {
-  {String name;}
-  name = simple_type_spec()
-  {return name;}
+  {IDLType type;}
+  type = simple_type_spec()
+  {return type;}
 |
-  name = constr_type_spec()
-  {return name;}
+  type = constr_type_spec()
+  {return type;}
 }
 
 /* Production 30 */
@@ -671,18 +687,18 @@ void simple_type_spec() :
   scoped_name()
 }
 */
-String simple_type_spec() :
+IDLType simple_type_spec() :
 {}
 {
-  {String name;}
-  name = base_type_spec()
-  {return name;}
+  {IDLType type; String name; }
+  type = base_type_spec()
+  {return type;}
 |
-  name = template_type_spec()	
-  {return name;}
+  type = template_type_spec()	
+  {return type;}
 |
   name = scoped_name()
-  {return name;}
+  { return new IDLType (IDLType.SCOPED, name);}
 }
 
 /* Production 31 */
@@ -703,11 +719,11 @@ void base_type_spec() :
   any_type()
 }
 */
-String base_type_spec() :
+IDLType base_type_spec() :
 {}
 {
   {
-    String type; 
+    IDLType type; 
   }
   type = floating_pt_type() 
   {
@@ -730,6 +746,11 @@ String base_type_spec() :
   {
     return type;
   }
+|
+  type = object_type()
+  {
+    return type;
+  }
 }
 
 /* Production 32 */
@@ -742,10 +763,10 @@ void template_type_spec() :
   string_type()
 }
 */
-String template_type_spec() :
+IDLType template_type_spec() :
 {}
 {
-  { String type;}
+  { IDLType type;}
   type = sequence_type()
   { return type;}
 |
@@ -765,10 +786,10 @@ void constr_type_spec() :
   enum_type()
 }
 */
-String constr_type_spec() :
+IDLType constr_type_spec() :
 {}
 {
-  { String type;}
+  { IDLType type;}
   type = struct_type()
   { return type;}
 |
@@ -851,17 +872,17 @@ void floating_pt_type() :
   "double"
 }
 */
-String floating_pt_type() :
+IDLType floating_pt_type() :
 {}
 {
   "float"
   {
-    return "float";
+    return new IDLType (IDLType.FLOAT, "float");
   }
 |
   "double"
   {
-    return "double";
+    return new IDLType (IDLType.DOUBLE, "double");
   }
 }
 
@@ -875,11 +896,12 @@ void integer_type() :
   unsigned_int()
 }
 */
-String integer_type() :
+
+IDLType integer_type() :
 {}
 {
   {
-    String type;
+    IDLType type;
   }
   type = signed_int()
   {
@@ -902,11 +924,11 @@ void signed_int() :
   signed_short_int()
 }
 */
-String signed_int() :
+IDLType signed_int() :
 {}
 {
   {
-    String type;
+    IDLType type;
   }
   type = signed_long_int()
   {
@@ -927,12 +949,12 @@ void signed_long_int() :
   "long"
 }
 */
-String signed_long_int() :
+IDLType signed_long_int() :
 {}
 {
   "long"
   {
-    return "long";
+    return new IDLType (IDLType.LONG, "long");
   }
 }
 
@@ -944,12 +966,12 @@ void signed_short_int() :
   "short"
 }
 */
-String signed_short_int() :
+IDLType signed_short_int() :
 {}
 {
   "short"
   {
-    return "short";
+    return new IDLType (IDLType.SHORT, "short");
   }
 }
 
@@ -964,12 +986,12 @@ void unsigned_int() :
   unsigned_short_int()
 }
 */
-String unsigned_int() :
+IDLType unsigned_int() :
 {}
 {
   LOOKAHEAD(2)
   {
-    String type;
+    IDLType type;
   }
   type = unsigned_long_int()
   {
@@ -977,7 +999,7 @@ String unsigned_int() :
   }
 |
   {
-    String type;
+    IDLType type;
   }
   type = unsigned_short_int()
   {
@@ -993,12 +1015,12 @@ void unsigned_long_int() :
   "unsigned" "long"
 }
 */
-String unsigned_long_int() :
+IDLType unsigned_long_int() :
 {}
 {
   "unsigned" "long"
   {
-    return "unsigned long";
+    return new IDLType (IDLType.ULONG, "unsigned long");
   }
 }
 
@@ -1010,12 +1032,12 @@ void unsigned_short_int() :
   "unsigned" "short"
 }
 */
-String unsigned_short_int() :
+IDLType unsigned_short_int() :
 {}
 {
   "unsigned" "short"
   {
-    return "unsigned short";
+    return new IDLType (IDLType.USHORT, "unsigned short");
   }
 }
 
@@ -1027,12 +1049,12 @@ void char_type() :
   "char"
 }
 */
-String char_type() :
+IDLType char_type() :
 {}
 {
   "char" 
   {
-    return "char";
+    return new IDLType (IDLType.CHAR, "char");
   }
 }
 
@@ -1044,12 +1066,12 @@ void boolean_type() :
   "boolean"
 }
 */
-String boolean_type() :
+IDLType boolean_type() :
 {}
 {
   "boolean"
   { 
-    return "boolean";
+    return new IDLType (IDLType.BOOLEAN, "boolean");
   }
 }
 
@@ -1061,12 +1083,12 @@ void octet_type() :
   "octet"
 }
 */
-String octet_type() :
+IDLType octet_type() :
 {}
 {
   "octet"
   {
-    return "octet";
+    return new IDLType (IDLType.OCTET, "octet");
   }
 }
 
@@ -1078,12 +1100,21 @@ void any_type() :
   "any"
 }
 */
-String any_type() :
+IDLType any_type() :
 {}
 {
   "any"
   {
-    return "any";
+    return new IDLType (IDLType.ANY, "any");
+  }
+}
+
+IDLType object_type() :
+{}
+{
+  "Object"
+  {
+    return new IDLType (IDLType.OBJECT, "Object");
   }
 }
 
@@ -1095,13 +1126,19 @@ void struct_type() :
   "struct" identifier() "{" member_list() "}"
 }
 */
-String struct_type() #StructTypeElement :
+IDLType struct_type() #StructTypeElement :
 {}
 {
-  { String name; Identifier id; Vector vect = new Vector ();}
-  "struct" id = identifier() { name = id.getName (); jjtThis.setType ("struct");} 
+  { String name; Identifier id; Vector vect = new Vector (); IDLType type; }
+  "struct" id = identifier() 
+   { 
+     name = id.getName (); 
+     type = new IDLType (IDLType.STRUCT, "struct"); 
+     //type = new IDLType (IDLType.STRUCT, name); 
+     jjtThis.setType (type);
+   } 
   "{" member_list() "}"
-  { return name;}
+  { return type;}
 /*
   { 
      vect.addElement ("struct");
@@ -1124,7 +1161,7 @@ void member_list() :
 void member() #MemberElement : 
 {}
 {
-  { String type, name = "";}
+  { IDLType type; String name = "";}
   type = type_spec() { jjtThis.setType (type); jjtThis.setName (name);} 
   declarators() ";"
 }
@@ -1145,15 +1182,20 @@ void union_type() :
   "union" identifier() "switch" "(" switch_type_spec() ")" "{" switch_body() "}"
 }
 */
-String union_type() #UnionTypeElement :
+IDLType union_type() #UnionTypeElement :
 {}
 { 
-  { String name; Identifier id; Vector vect = new Vector (); String type;}
-  "union" id = identifier() { name = id.getName (); jjtThis.setType ("union");} 
+  { String name; Identifier id; Vector vect = new Vector (); IDLType type;}
+  "union" id = identifier() 
+   { 
+      name = id.getName (); 
+      type = new IDLType (IDLType.UNION, "union");
+      jjtThis.setType (type);
+   } 
   "switch" "(" type = switch_type_spec() ")" 
-  { jjtThis.setSwitchType (type);}
+  { jjtThis.setSwitchType (type.name);}
   "{" switch_body() "}"
-  { return name;}
+  { return type;}
 /*
   { 
     vect.addElement ("union");
@@ -1180,10 +1222,10 @@ void switch_type_spec() :
   scoped_name()
 }
 */
-String switch_type_spec() :
+IDLType switch_type_spec() :
 {}
 {
-  { String type;}
+  { IDLType type; String name; }
   type = integer_type()
   { return type;}
 |
@@ -1196,8 +1238,8 @@ String switch_type_spec() :
   type = enum_type()
   { return type;}
 |
-  type = scoped_name()
-  { return type;}
+  name = scoped_name()
+  { return new IDLType (IDLType.SCOPED, name);}
 }
 
 /* Production 55 */
@@ -1213,7 +1255,7 @@ void switch_body() :
 void casex() #UnionMemberElement :
 {}
 {
-  { String cases = "", tmp, type;}
+  { String cases = "", tmp; IDLType type;}
   ( tmp = case_label() {cases += tmp + ", ";} )+ type = element_spec() 
   {jjtThis.setType (type); jjtThis.setCases (cases.substring (0, cases.length () - 2));} 
   ";"
@@ -1242,10 +1284,10 @@ String case_label() :
 
 /* Production 58 */
 
-String element_spec() :
+IDLType element_spec() :
 {}
 {
-  { String type, name = "";}
+  { IDLType type; String name = "";}
   type = type_spec() 
   /* type_spec () */
   declarator ()
@@ -1260,13 +1302,18 @@ void enum_type() :
   "enum" identifier() "{" enumerator() ( "," enumerator() )* "}"
 }
 */
-String enum_type() #EnumTypeElement :
+IDLType enum_type() #EnumTypeElement :
 {}
 {
-  { String name; Identifier id; Vector vect = new Vector ();}
-  "enum" id = identifier() { name = id.getName (); jjtThis.setType ("enum");} 
+  { IDLType type; String name; Identifier id; Vector vect = new Vector ();}
+  "enum" id = identifier() 
+   { 
+     name = id.getName (); 
+     type = new IDLType (IDLType.ENUM, "enum");
+     jjtThis.setType (type);
+   } 
   "{" enumerator() ( "," enumerator() )* "}"
-  { return name;}
+  { return type;}
 /*
   { 
     vect.addElement ("enum");
@@ -1304,13 +1351,23 @@ void sequence_type() :
   "sequence" "<" simple_type_spec() [ "," positive_int_const() ] ">"
 }
 */
-String sequence_type() :
+IDLType sequence_type() :
 {}
 {
-  { String type, num = "", retval = "";}
-  "sequence" "<" type = simple_type_spec() {retval = "sequence <" + type;} 
+  { IDLType type; String num = "", retval = ""; int val;}
+  "sequence" "<" type = simple_type_spec() {retval = "sequence <" + type.getName ();} 
   [ "," num = positive_int_const() {retval = retval + ", " + num;} ] ">" {retval += ">";}
-  { return retval;}
+  { 
+    //if (!num.equals (""))
+    try {
+      val = (new Integer (num)).intValue ();
+    } catch (java.lang.NumberFormatException e) {
+    //else
+      val = -1;
+    }
+
+    return new IDLType (IDLType.SEQUENCE, retval, type, val);
+  }
 }
 
 /* Production 62 */
@@ -1321,15 +1378,23 @@ void string_type() :
   "string" [ "<" positive_int_const() ">" ]
 }
 */
-String string_type() :
+IDLType string_type() :
 {}
 {
   {
-    String name, tmp;
+    String name, tmp = ""; int val;
   }
   "string" { name = "string";} 
   [ "<" {name = name + "<";} tmp = positive_int_const() { name += tmp;} ">" {name = name + ">";} ]
-  { return name;}
+  { 
+    //if (!tmp.equals (""))
+    try {
+      return new IDLType (IDLType.STRING, name, null, (new Integer (tmp)).intValue ());
+    } catch (java.lang.NumberFormatException e) {
+    //else
+      return new IDLType (IDLType.STRING, name, null, -1);
+    }
+  }
 }
 
 /* Production 63 */
@@ -1369,7 +1434,7 @@ String fixed_array_size() :
 void attr_dcl() #AttributeElement :
 {}
 {
-  { String name, other, type;}
+  { String name, other; IDLType type;}
   [ "readonly" {jjtThis.setReadOnly (true);} ] "attribute" 
   type = param_type_spec() {jjtThis.setType (type);}
   name = simple_declarator() {jjtThis.setName (name);} 
@@ -1400,7 +1465,7 @@ void op_dcl() #OperationElement :
     Vector params, exceptions, contexts;
     Identifier name;
     /* Element returnType; */
-    String returnType;
+    IDLType returnType;
   }
     [ attr = op_attribute() {jjtThis.setAttribute (attr);} ] 
     ( returnType = op_type_spec() {jjtThis.setReturnType (returnType);} ) 
@@ -1444,13 +1509,13 @@ Identifier op_type_spec() :
 {}
 {
   {
-    String type; 
+    IDLType type; 
     Identifier id;
   }
   type = param_type_spec()
   {
     id = new Identifier (-1); 
-    id.setName (type);
+    id.setName (type.name);
     return id;
   }
 |
@@ -1462,21 +1527,16 @@ Identifier op_type_spec() :
   }
 }
 */
-String op_type_spec() :
+IDLType op_type_spec() :
 {}
 {
-  {
-    String type; 
-  }
+  {IDLType type; }
+
   type = param_type_spec()
-  {
-    return type;
-  }
+  { return type; }
 |
   "void"  
-  {
-     return "void";
-  }
+  { return new IDLType (IDLType.VOID, "void"); }
 }
 
 /* Production 70 */
@@ -1519,7 +1579,7 @@ String param_dcl() :
 void param_dcl() #ParameterElement :
 {}
 {
-  { String type, name; int attr;}
+  { IDLType type; String name; int attr;}
   attr = param_attribute() type = param_type_spec() name = simple_declarator()
   { jjtThis.setAttribute (attr); jjtThis.setType (type); jjtThis.setName (name); }
 }
@@ -1595,20 +1655,19 @@ void param_type_spec() :
   scoped_name()
 }
 */
-String param_type_spec() :
+IDLType param_type_spec() :
 {}
 {
-  {
-    String type;
-  }
+  {IDLType type; String name; }
+
   type = base_type_spec()
   { return type;}
 |
   type = string_type()
   { return type;}
 |
-  type = scoped_name()
-  { return type;}
+  name = scoped_name()
+  { return new IDLType (IDLType.SCOPED, name);}
 }
 
 /* Definitions of complex regular expressions follow */

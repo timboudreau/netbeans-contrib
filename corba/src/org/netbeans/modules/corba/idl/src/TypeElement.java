@@ -17,54 +17,77 @@ import java.util.Vector;
 
 public class TypeElement extends IDLElement {
 
-   //private static final boolean DEBUG = true;
-   public static final boolean DEBUG = false;
+  //private static final boolean DEBUG = true;
+  public static final boolean DEBUG = false;
 
-   private String type;
-   //private Vector members;
+  private String type_name;
+  private IDLType type;
+  //private Vector members;
 
-   public TypeElement (int id) {
-      super(id);
-      //members = new Vector ();
-      setName ("typedef");
-      setType ("none");
-   }
+  public TypeElement (int id) {
+    super(id);
+    //members = new Vector ();
+    setName ("typedef");
+    setTypeName ("none");
+  }
 
-   public TypeElement (IDLParser p, int id) {
-      super(p, id);
-      //members = new Vector ();
-      setName ("typedef");
-      setType ("none");
-   }
+  public TypeElement (IDLParser p, int id) {
+    super(p, id);
+    //members = new Vector ();
+    setName ("typedef");
+    setTypeName ("none");
+  }
 
-   public void setType (String t) {
-      type = t;
-   }
+  public void setTypeName (String t) {
+    type_name = t;
+  }
 
-   public String getType () {
-      return type;
-   }
+  public String getTypeName () {
+    return type_name;
+  }
 
-   public void jjtSetParent (Node n) {
-      super.jjtSetParent (n);
-      String type;
-      if (DEBUG) {
-	 System.out.println ("TypeElement.jjtSetParent ()");
-	 System.out.println ("type: " + getType ());
+  public IDLType getType () {
+    return type;
+  }
+
+  public void setType (IDLType val) {
+    type = val;
+  }
+
+  public void jjtSetParent (Node n) {
+    super.jjtSetParent (n);
+    String type;
+    if (DEBUG) {
+      System.out.println ("TypeElement.jjtSetParent ()");
+      if (getType () != null)
+	System.out.println ("type: " + getType ().getName ());
+    }
+    if (getMember (0) instanceof Identifier)
+      setName (((Identifier)getMember (0)).getName ());
+
+    if ((getMember (0) instanceof StructTypeElement) 
+	|| (getMember (0) instanceof UnionTypeElement) 
+	|| (getMember (0) instanceof EnumTypeElement)) {
+      setType (new IDLType (-1 ,(((TypeElement)getMember (0)).getName ())));
+    }
+
+    if (DEBUG)
+      System.out.println ("name: " + getName ());
+
+    else {
+      // constr type
+      //setType (((Identifier)getMember (0).getMember (0)).getName ());
+      //setType ("typedef");
+      //for (int i = 1; i<getMembers ().size (); i++)
+    } 
+    for (int i = 0; i<getMembers ().size (); i++) {
+      if (getMembers ().elementAt (i) instanceof DeclaratorElement) {
+	//((DeclaratorElement)getMembers ().elementAt (i)).setType (new Type (-1, getName ()));
+	((DeclaratorElement)getMembers ().elementAt (i)).setType (getType ());
       }
-      if (getMember (0) instanceof Identifier)
-	 setName (((Identifier)getMember (0)).getName ());
-      else {
-	 // constr type
-	 //setType (((Identifier)getMember (0).getMember (0)).getName ());
-	 //setType ("typedef");
-	 //for (int i = 1; i<getMembers ().size (); i++)
-      } 
-      for (int i = 0; i<getMembers ().size (); i++) {
-	 if (getMembers ().elementAt (i) instanceof DeclaratorElement)
-	    ((DeclaratorElement)getMembers ().elementAt (i)).setType (getType ());
-      }
-   }      
+    }
+  }      
 
 }
+
 
