@@ -285,10 +285,14 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 if (".".equals(relativePath)) relativePath = null;
             }
         }
+        File updatedFileRoot;
         if (relativePath != null) {
             relativePath = relativePath.replace(File.separatorChar, '/');
+            updatedFileRoot = new File(fsRoot, relativePath);
+        } else {
+            updatedFileRoot = new File(fsRoot);
         }
-        fileStatusUpdater = new FileStatusUpdater(new File(fsRoot, relativePath), relativePath, (String) vars.get("CVS_REPOSITORY"), stdoutNRListener, stdoutListener);
+        fileStatusUpdater = new FileStatusUpdater(updatedFileRoot, relativePath, (String) vars.get("CVS_REPOSITORY"), stdoutNRListener, stdoutListener);
         fsRoot = fsRoot.replace('/', ps);
         //final StringBuffer buff = new StringBuffer();
         ArrayList filePaths = getFilePaths((String) vars.get("COMMON_PARENT"), (String) vars.get("PATHS"), ps);
@@ -416,9 +420,10 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             this.pathsBuilder = new StatusFilePathsBuilder(workingDir, cvsRepository);
             this.workingDir = workingDir;
             workPathLength = workingDir.getAbsolutePath().length();
-            this.relativePath = relativePath;
-            if (relativePath.length() > 0) {
+            if (relativePath != null && relativePath.length() > 0) {
                 this.relativePath += "/";
+            } else {
+                this.relativePath = "";
             }
             elementsToSend = new ArrayList();
         }
