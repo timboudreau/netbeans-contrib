@@ -36,6 +36,7 @@ import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.util.Table;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 import org.openide.ErrorManager;
 
@@ -61,8 +62,6 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
     private static final String DELETED_REVISION = "delete"; //NOI18N
     
     private VcsFileSystem fileSystem = null;
-    
-    private HashMap cachedEntries = new HashMap();
     
     private FileStatusUpdater fileStatusUpdater;
 
@@ -93,12 +92,14 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         return files;
     }
 
-    private ArrayList getCommitedFiles(String fsRoot, String relativePath,
-                                       String template, char ps) {
+    static List getCommitedFiles(String fsRoot, String relativePath,
+                                 String template, char ps) {
         //System.out.println("getCommitedFiles("+template+")");
         ArrayList list = new ArrayList();
         int beginPath = template.indexOf(COMMITTING);
         //System.out.println("beginPath = "+beginPath);
+        Map cachedEntries = new HashMap();
+    
         File root = new File(fsRoot);
         if (beginPath < 0) beginPath = template.length();
         do {
@@ -128,21 +129,22 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 beginFile += PRE_FILE.length();
                 String files = template.substring(beginFile, eol).trim();
                 files = files.replace(File.separatorChar, '/');
-                addFiles(list, root, path, files, ps);
+                addFiles(list, root, path, files, ps, cachedEntries);
                 //list.add(path + "/" + file);
             } while (true);
         } while (beginPath < template.length());
         return list;
     }
     
-    private void addFiles(List list, File root, String path, String files, char ps) {
+    private static void addFiles(List list, File root, String path, String files,
+                                 char ps, Map cachedEntries) {
         int begin = 0;
         int end = files.indexOf(' ');
         if (end < 0) end = files.length();
         while (begin < end) {
             String name;
             if (end < files.length()) {
-                name = getFileFromRow(files.substring(begin), root, path, ps);
+                name = getFileFromRow(files.substring(begin), root, path, ps, cachedEntries);
                 end = begin + name.length();
             } else {
                 name = files.substring(begin, end);
@@ -159,7 +161,8 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         }
     }
     
-    private String getFileFromRow(String row, File root, String path, char ps) {
+    private static String getFileFromRow(String row, File root, String path,
+                                         char ps, Map cachedEntries) {
         int index;
         //System.out.println("getFileFromRow("+row+")");
         for (index = row.indexOf(' '); index > 0 && index < row.length(); index = row.indexOf(' ', index + 1)) {
@@ -168,10 +171,10 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             if (sepIndex > 0) {
                 String fileName = file.substring(sepIndex + 1);
                 String filePath = file.substring(0, sepIndex);
-                if (isCVSFile(root, path + "/" + filePath, fileName, ps)) break;
+                if (isCVSFile(root, path + "/" + filePath, fileName, ps, cachedEntries)) break;
             } else {
                 //System.out.println(" file = "+file);
-                if (isCVSFile(root, path, file, ps)) break;
+                if (isCVSFile(root, path, file, ps, cachedEntries)) break;
                 //System.out.println("   is not CVS file!");
             }
         }
@@ -180,15 +183,16 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         else return row;
     }
     
-    private boolean isCVSFile(File root, String path, String name, char ps) {
+    private static boolean isCVSFile(File root, String path, String name,
+                                     char ps, Map cachedEntries) {
         path = path.replace('/', ps);
         File dir = new File(root, path);
         File entries = new File(dir, "CVS/Entries");
         if (!entries.exists() || !entries.canRead()) return true;
-        return isFileInEntries(name, entries);
+        return isFileInEntries(name, entries, cachedEntries);
     }
     
-    private boolean isFileInEntries(String name, File entries) {
+    private static boolean isFileInEntries(String name, File entries, Map cachedEntries) {
         List files = (List) cachedEntries.get(entries);
         if (files == null) {
             files = loadEntries(entries);
@@ -197,7 +201,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         return files.contains(name);
     }
     
-    private List loadEntries(File entries) {
+    private static List loadEntries(File entries) {
         ArrayList entriesFiles = new ArrayList();
         if (entries.exists() && entries.canRead() && entries.canWrite()) {
             int fileIndex = -1;
@@ -227,7 +231,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
     //private void setProcessingFiles(ArrayList files, Hashtable vars) {
     //}
 
-    private Table getFiles(ArrayList filesList) {
+    private Table getFiles(List filesList) {
         Table files = new Table();
         for (Iterator it = filesList.iterator(); it.hasNext(); ) {
             String file = (String) it.next();
@@ -240,7 +244,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
     /**
      * Run the commit and return the appropriate task IDs.
      */
-    private long[] doCommit(CommandsPool cpool, VcsCommand cmdCommit, ArrayList filesList,
+    private long[] doCommit(CommandsPool cpool, VcsCommand cmdCommit, List filesList,
                             Hashtable vars, CommandOutputListener stderrNRListener,
                             CommandDataOutputListener stderrListener,
                             VcsCommandExecutor[][] executorsRet) {
@@ -301,7 +305,17 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         //boolean committed = false;
         String committedStr = (String) vars.get("IS_COMMITTED");
         boolean committed = committedStr != null && committedStr.length() > 0;
-        ArrayList alreadyCommittedFiles = new ArrayList();
+        List alreadyCommittedFiles;
+        String alreadyCommittedFilesStr = (String) vars.get("ALREADY_COMMITTED_FILES");
+        if (alreadyCommittedFilesStr == null) {
+            alreadyCommittedFiles = new ArrayList();
+        } else {
+            try {
+                alreadyCommittedFiles = (List) VcsUtilities.decodeValue(alreadyCommittedFilesStr);
+            } catch (IOException ioex) {
+                alreadyCommittedFiles = new ArrayList();
+            }
+        }
         //do {
             //VcsCommand cmdTemplate = fileSystem.getCommand(args[0]);
             VcsCommand cmdCommit1 = fileSystem.getCommand(args[0]);
@@ -311,7 +325,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             //buff.delete(0, buff.length());
             String templateContent = (String) vars.get("ORIGINAL_TEMPLATE_CONTENT");
             if (templateContent == null) templateContent = "";
-            ArrayList filesCommited = null;
+            List filesCommited = null;
             if ("-f".equals(vars.get("FORCE"))) {
                 filesCommited = new ArrayList(filePaths);
             } else {
@@ -357,6 +371,9 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             if (filePaths.size() > 0) {
                 vars.put("TEMPLATE_FILE_PLEASE_WAIT_TEXT", NbBundle.getMessage(CvsCommit.class, "CvsCommit.templateFileCheck"));
                 vars.put("COMMIT_COMMANDS_IDS", IDStr);
+                try {
+                    vars.put("ALREADY_COMMITTED_FILES", VcsUtilities.encodeValue(alreadyCommittedFiles));
+                } catch (IOException ioex) {}
                 CommandSupport cmdSupport = fileSystem.getCommandSupport("COMMIT"); // Myself
                 Command cmd = cmdSupport.createCommand();
                 if (cmd instanceof VcsDescribedCommand) {

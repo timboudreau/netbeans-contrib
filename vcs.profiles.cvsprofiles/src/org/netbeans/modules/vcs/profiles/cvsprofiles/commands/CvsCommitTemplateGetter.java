@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.openide.ErrorManager;
@@ -356,12 +357,22 @@ public class CvsCommitTemplateGetter implements VcsAdditionalCommand, RegexOutpu
                 return false;
             }
             String committedStr = (String) vars.get("IS_COMMITTED");
+            String alreadyCommittedFilesStr = (String) vars.get("ALREADY_COMMITTED_FILES");
             vars.clear(); // So that many variables are not unnecessarily updated.
             String outputStr = output.toString();
             vars.put("ORIGINAL_TEMPLATE_CONTENT", outputStr);//outputFile.getAbsolutePath());
             vars.put(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_UPDATE_CHANGED_FROM_SELECTOR, "true");
-            if (outputStr.trim().length() == 0) {
-                boolean committed = committedStr != null && committedStr.length() > 0;
+            boolean areRemainingFiles = true;
+            if (alreadyCommittedFilesStr != null) {
+                List alreadyCommittedFiles;
+                try {
+                    alreadyCommittedFiles = (List) VcsUtilities.decodeValue(alreadyCommittedFilesStr);
+                    areRemainingFiles = areSomeFilesRemaining(fsRoot, relativePath, outputStr, ps, alreadyCommittedFiles);
+                } catch (IOException ioex) {
+                }
+            }
+            if (outputStr.trim().length() == 0 || !areRemainingFiles) {
+                boolean committed = committedStr != null && committedStr.length() > 0 || !areRemainingFiles;
                 if (committed) {
                     vars.put(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_CANCEL_DIALOG_BY_PRECOMMAND, "true");
                 }
@@ -370,6 +381,14 @@ public class CvsCommitTemplateGetter implements VcsAdditionalCommand, RegexOutpu
             if (haveLocalCat && wincat != null) removeLocalCatExecs(fsRoot, relativePath, wincat);
         }
         return true;
+    }
+    
+    private boolean areSomeFilesRemaining(String fsRoot, String relativePath,
+                                          String templateContent, char ps,
+                                          List filesCommitted) {
+        List filesToBeCommited = CvsCommit.getCommitedFiles(fsRoot, relativePath, templateContent, ps);
+        filesToBeCommited.removeAll(filesCommitted);
+        return filesToBeCommited.size() > 0;
     }
     
     private static void waitForCommands(String IDStr) throws InterruptedException {
