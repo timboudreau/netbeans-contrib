@@ -89,11 +89,6 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
         _M_folders = new HashMap();
     }
     
-    /** Does initialization. Initializes display name,
-     * extension list and the actions. */
-    protected void initialize() {
-    }
-    
     protected SystemAction[] defaultActions () {
         return new SystemAction[] {
             SystemAction.get(OpenAction.class),

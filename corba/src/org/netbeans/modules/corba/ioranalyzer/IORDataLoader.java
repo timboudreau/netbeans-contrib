@@ -71,6 +71,7 @@ public class IORDataLoader extends UniFileLoader {
     }
     
     protected void initialize () {
+        super.initialize();
         ExtensionList eList = new ExtensionList();
         eList.addExtension ("ior");
         this.setExtensions (eList);
