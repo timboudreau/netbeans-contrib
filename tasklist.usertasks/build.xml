@@ -13,60 +13,56 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="tasklist/usertasks" default="netbeans" basedir=".">
-    <property file="build.ant.properties"/>
 
-    <property name="nb_all" value="../.."/>
+    <import file="../../nbbuild/default.xml"/>
 
-    <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-
-    <property name="nbm_alias" value="nb_ide"/>
-    <property name="homepage.base" value="netbeans.org"/>
-    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-    <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
     <property file="../version.properties"/>
+
+    <target name="init" depends="default.init">
+      <patternset id="tasklist/usertasks.files">
+        <include name="${nb.modules/autoload.dir}/tasklist-usertasks.jar"/>
+      </patternset>
+      <path id="cp">
+        <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+        <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+        <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+        <pathelement path="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>
+        <pathelement path="${tasklist/core.dir}/${nb.modules/autoload.dir}/tasklist-core.jar"/>
+      </path>
+    </target>
   
-    <target name="compile">
+    <target name="compile" depends="init">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4">
-            <classpath>
-                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
-                <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
-                <pathelement location="${nb_all}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-                <!-- tasklist api -->
-                <pathelement path="../api/src"/>
-                <!-- tasklist core -->
-                <pathelement path="../core/src"/>
-                <fileset dir="../../core/external">
-                    <include name="xml-apis*.jar"/>
-                </fileset>
-            </classpath>
+            <classpath refID="cp"/>
         </javac>
     </target>
 
     <target name="jars" depends="compile">
-        <mkdir dir="netbeans/modules"/>
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <filter filtersfile="../version.properties"/>
         <filter token="tl.usertasks.spec" value="${tl.usertasks.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/tasklist-usertasks.jar"
-                manifest="manifest-subst.mf"
-                basedir="src"
-	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
-	        compress="false">
-            <locale name="ja"/>
-        </locjar>
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/tasklist-usertasks.jar"
+             manifest="manifest-subst.mf"
+             basedir="src"
+	     excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
+	     compress="false">
+        </jar>
     </target>
 
     <target name="netbeans" depends="jars">
-        <genlist targetname="nbm" outputfiledir="netbeans"/>
+        <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/tasklist-usertasks.jar">
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+                <patternset refID="tasklist/usertasks.files"/>
+           </fileset>
+        </genlist>
     </target>
-
+    
     <target name="nbm" depends="netbeans">
-        <makenbm file="../tasklist-usertasks.nbm"
-                 topdir="."
-                 module="netbeans/modules/tasklist-usertasks.jar"
+        <makenbm file="tasklist-usertasks.nbm"
+                 module="${nb.modules.dir}/tasklist-usertasks.jar"
+                 productdir="${netbeans.dest.dir}/${cluster.dir}"                 
                  homepage="http://tasklist.${homepage.base}/updates/tasklist-usertasks.html"
                  distribution="http://${dist.base}/tasklist-usertasks.nbm"
                  needsrestart="false">
@@ -84,9 +80,13 @@ Microsystems, Inc. All Rights Reserved.
             <fileset dir="src">
                 <include name="**/*.class"/>
             </fileset>
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+               <patternset refID="tasklist/suggestions.files"/>
+            </fileset>
+            
         </delete>
         <delete file="manifest-subst.mf"/>
-        <delete file="../tasklist-usertasks.nbm"/>
+        <delete file="tasklist-usertasks.nbm"/>
         <delete dir="netbeans"/>
         <delete dir="Info"/>
         <delete dir="javadoc"/>
