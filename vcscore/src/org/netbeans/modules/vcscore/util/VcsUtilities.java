@@ -462,9 +462,7 @@ public class VcsUtilities {
 
     //-------------------------------------------
     public static void centerWindow (Window w) {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension dialogSize = w.getSize();
-        w.setLocation((screenSize.width-dialogSize.width)/2,(screenSize.height-dialogSize.height)/2);
+        w.setBounds(org.openide.util.Utilities.findCenterBounds(w.getSize()));
     }
 
     public static boolean deleteRecursive (File dir) {

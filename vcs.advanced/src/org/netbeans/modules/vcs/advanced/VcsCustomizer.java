@@ -1627,7 +1627,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints1.gridy = 1;
         panel.add (advancedPanel, gridBagConstraints1);
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Rectangle screenBounds = org.openide.util.Utilities.getUsableScreenBounds();
+        Dimension screenSize = screenBounds.getSize();
+        
         screenSize.setSize((int) (screenSize.width*ADVANCED_DLG_WIDTH_RELATIVE),
                            variablePanel.getPreferredSize().height+advancedPanel.getPreferredSize().height+16);
         panel.setPreferredSize(screenSize);
