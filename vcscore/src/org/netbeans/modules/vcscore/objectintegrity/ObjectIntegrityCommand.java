@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore.objectintegrity;
 
+import org.openide.filesystems.FileObject;
+
 import org.netbeans.api.vcs.commands.AddCommand;
 import org.netbeans.api.vcs.commands.Command;
 
@@ -30,6 +32,10 @@ public interface ObjectIntegrityCommand extends Command {
     public void setAddCommand(AddCommand addCmd);
     
     public AddCommand getAddCommand();
+    
+    public void setFilesToAdd(FileObject[] filesToAdd);
+    
+    public FileObject[] getFilesToAdd();
     
     /*
     /** Set the ignored paths, that will never be suggested for addition any more. *

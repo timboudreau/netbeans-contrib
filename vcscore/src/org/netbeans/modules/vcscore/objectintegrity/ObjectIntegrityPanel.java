@@ -172,24 +172,23 @@ public class ObjectIntegrityPanel extends javax.swing.JPanel {
         };
         Boolean[] willAdd = new Boolean[filePaths.length];
         Arrays.fill(willAdd, Boolean.TRUE);
-        Object[][] values = new Object[][] {
-            willAdd, filePaths
-        };
-        ((DefaultTableModel) filesTable.getModel()).setDataVector(values, columnNames);
+        DefaultTableModel model = (DefaultTableModel) filesTable.getModel();
+        model.setColumnCount(0);
+        model.addColumn(columnNames[0], willAdd);
+        model.addColumn(columnNames[1], filePaths);
+        filesTable.getColumnModel().getColumn(0).setPreferredWidth(10);
     }
     
     /**
      * Get the array of file paths, that were selected to be added.
      */
     public String[] getSelectedFilePaths() {
-        Vector data = ((DefaultTableModel) filesTable.getModel()).getDataVector();
-        Vector willAdd = (Vector) data.get(0);
-        Vector filePaths = (Vector) data.get(1);
-        int n = filePaths.size();
+        TableModel model = filesTable.getModel();
+        int n = model.getRowCount();
         ArrayList pathsToAdd = new ArrayList(n);
         for (int i = 0; i < n; i++) {
-            if (((Boolean) willAdd.get(i)).booleanValue()) {
-                pathsToAdd.add(filePaths.get(i));
+            if (((Boolean) model.getValueAt(i, 0)).booleanValue()) {
+                pathsToAdd.add(model.getValueAt(i, 1));
             }
         }
         return (String[]) pathsToAdd.toArray(new String[pathsToAdd.size()]);

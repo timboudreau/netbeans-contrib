@@ -340,7 +340,20 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         boolean status;
         //System.out.println("customizer = "+cust);
         if (dlg != null) {
-            status = NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dlg));
+            Object option = DialogDisplayer.getDefault().notify(dlg);
+            List closingOptions = Arrays.asList(dlg.getClosingOptions());
+            if (closingOptions.contains(option)) {
+                if (NotifyDescriptor.CANCEL_OPTION.equals(option) ||
+                    NotifyDescriptor.CLOSED_OPTION.equals(option) ||
+                    NotifyDescriptor.NO_OPTION.equals(option)) {
+                    
+                    status = false;
+                } else {
+                    status = true;
+                }
+            } else {
+                status = false;
+            }
         } else if (cust != null) {
             ActionListener actionL = null;
             java.lang.reflect.Method addActionListenerMethod = null;

@@ -41,17 +41,9 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
  */
 public class ObjectIntegrityCommandSupport extends CommandSupport implements java.security.PrivilegedAction {
     
-    /** The add command, that will be called to add files. */
-    //private AddCommand addCommand;
-    /** The check in command, that is used to retrieve some options. */
-    //private CheckInCommand checkInCommand;
-    
     /** Creates a new instance of ObjectIntegrityCommandSupport */
-    public ObjectIntegrityCommandSupport(/*AddCommand addCommand,
-                                         CheckInCommand checkInCommand*/) {
+    public ObjectIntegrityCommandSupport() {
         super(ObjectIntegrityCommand.class);
-        //this.addCommand = addCommand;
-        //this.checkInCommand = checkInCommand;
     }
     
     /**
@@ -65,7 +57,9 @@ public class ObjectIntegrityCommandSupport extends CommandSupport implements jav
         AddCommand addCmd = cmd.getAddCommand();
         addCmd.setExpertMode(cmd.isExpertMode());
         addCmd.setGUIMode(cmd.isGUIMode());
-        addCmd.setFiles(cmd.getFiles());
+        FileObject[] filesToAdd = cmd.getFilesToAdd();
+        if (filesToAdd == null) return CommandTask.STATUS_SUCCEEDED;
+        addCmd.setFiles(filesToAdd);
         boolean customized = VcsManager.getDefault().showCustomizer(addCmd);
         if (customized) {
             CommandTask cmdTask = addCmd.execute();
@@ -86,11 +80,17 @@ public class ObjectIntegrityCommandSupport extends CommandSupport implements jav
      * it can not act on any file listed.
      */
     public FileObject[] getApplicableFiles(FileObject[] files) {
+        //System.out.println("ObjectIntegrityCommandSupport.getApplicableFiles("+java.util.Arrays.asList(files)+")");
         ObjectIntegrityCommand cmd = (ObjectIntegrityCommand) getCommand();
         VcsObjectIntegritySupport integritySupport = cmd.getObjectIntegritySupport();
-        files = findFilesToAdd(integritySupport, files);
-        if (files.length == 0) return null;
-        else return files;
+        if (integritySupport != null) {
+            files = findFilesToAdd(integritySupport, files);
+            if (files.length == 0) {
+                files = null;
+            }
+        }
+        //System.out.println("   filesToAdd = "+((files == null) ? null : java.util.Arrays.asList(files)));
+        return files;
     }
     
     /** Get the display name of the command. It will be visible on the popup menu under this name.
@@ -98,7 +98,7 @@ public class ObjectIntegrityCommandSupport extends CommandSupport implements jav
      */
     public String getDisplayName() {
         return NbBundle.getMessage(ObjectIntegrityCommandSupport.class,
-                                   "ObjectIntegrityCommand.name");
+                                   "ObjectIntegrityCommand.name"); // NOI18N
     }
     
     /** Get the name of the command.
@@ -128,8 +128,8 @@ public class ObjectIntegrityCommandSupport extends CommandSupport implements jav
     public Object run() {
         ObjectIntegrityCommand cmd = (ObjectIntegrityCommand) getCommand();
         ObjectIntegrityPanel integrityPanel = new ObjectIntegrityPanel();
-        //integrityPanel.setCommand(cmd);
         FileObject[] files = cmd.getFiles();
+        if (files == null) return null;//new org.openide.util.UserCancelException();
         String[] filePaths = new String[files.length];
         for (int i = 0; i < files.length; i++) {
             filePaths[i] = files[i].getPath();
@@ -143,41 +143,10 @@ public class ObjectIntegrityCommandSupport extends CommandSupport implements jav
             NbBundle.getMessage(ObjectIntegrityCommandSupport.class, "ObjectIntegrityCommand.dlg.title"),
             true, options, options[0], DialogDescriptor.BOTTOM_ALIGN,
             new HelpCtx(ObjectIntegrityCommandSupport.class),
-            new DialogActionListener(cmd, integrityPanel));
+            new DialogActionListener(cmd, integrityPanel, options));
+        dlgDescriptor.setClosingOptions(options); // All options are closing.
         return dlgDescriptor;
     }
-    
-    /**
-     * Returns a map of providers and the associated files. The associated
-     * files are an array of FileObjects.
-     *
-    private static Map findCommandProvidersForFiles(FileObject[] files) {
-        Map providers = new HashMap();
-        for (int i = 0; i < files.length; i++) {
-            FileObject fo = files[i];
-            VcsCommandsProvider provider = VcsCommandsProvider.findProvider(fo);
-            //System.out.println("  fo = "+fo+" provider = "+provider);
-            if (provider != null) {
-                if (providers.containsKey(provider)) {
-                    List fileList = (List) providers.get(provider);
-                    fileList.add(fo);
-                } else {
-                    List fileList = new ArrayList();
-                    fileList.add(fo);
-                    providers.put(provider, fileList);
-                    //System.out.println("  put("+provider+", "+fileList+")");
-                }
-            }
-        }
-        for (Iterator it = providers.keySet().iterator(); it.hasNext(); ) {
-            VcsCommandsProvider provider = (VcsCommandsProvider) it.next();
-            List fileList = (List) providers.get(provider);
-            FileObject[] fileArray = (FileObject[]) fileList.toArray(new FileObject[fileList.size()]);
-            providers.put(provider, fileArray);
-        }
-        return providers;
-    }
-     */
     
     private static FileObject[] findFilesToAdd(VcsObjectIntegritySupport objectIntegritySupport,
                                                FileObject[] files) {
@@ -228,16 +197,31 @@ public class ObjectIntegrityCommandSupport extends CommandSupport implements jav
         
         private ObjectIntegrityCommand cmd;
         private ObjectIntegrityPanel integrityPanel;
+        private Object[] options;
         
         public DialogActionListener(ObjectIntegrityCommand cmd,
-                                    ObjectIntegrityPanel integrityPanel) {
+                                    ObjectIntegrityPanel integrityPanel,
+                                    Object[] options) {
             this.cmd = cmd;
             this.integrityPanel = integrityPanel;
+            this.options = options;
         }
         
         /** Invoked when an action occurs.
          */
         public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+            if (options[0].equals(command)) { // Add
+                String[] filePaths = integrityPanel.getSelectedFilePaths();
+                VcsObjectIntegritySupport vcsOIS = cmd.getObjectIntegritySupport();
+                FileObject[] files = new FileObject[filePaths.length];
+                for (int i = 0; i < filePaths.length; i++) {
+                    files[i] = vcsOIS.findFileObject(filePaths[i]);
+                }
+                cmd.setFilesToAdd(files);
+            } else if (options[1].equals(command)) { // Skip
+                cmd.setFilesToAdd(null);
+            }
         }
         
     }

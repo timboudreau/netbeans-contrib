@@ -36,6 +36,7 @@ import org.netbeans.api.vcs.commands.MessagingCommand;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
+import org.netbeans.modules.vcscore.VcsFSCommandsAction;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 
 /**
@@ -278,7 +279,6 @@ public class CommandMenu extends JMenuPlus {
                         Command cmd = null;
                         if (cmdSupport != null) {
                             cmd = cmdSupport.createCommand();
-                            cmd.setFiles(files);
                         } else {
                             try {
                                 cmd = VcsManager.getDefault().createCommand(cmdName, files);
@@ -290,8 +290,9 @@ public class CommandMenu extends JMenuPlus {
                             }
                             cmd.setGUIMode(true);
                             if (CTRL_Down[0]) cmd.setExpertMode(CTRL_Down[0] ^ CTRL_Down[1]);
-                            boolean customized = VcsManager.getDefault().showCustomizer(cmd);
-                            if (customized) cmd.execute();
+                            VcsFSCommandsAction.executeCommand(cmd, files);
+                            //boolean customized = VcsManager.getDefault().showCustomizer(cmd);
+                            //if (customized) cmd.execute();
                         }
                     }
                 }

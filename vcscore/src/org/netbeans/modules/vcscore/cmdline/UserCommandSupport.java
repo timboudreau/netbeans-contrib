@@ -95,6 +95,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     private UserCommand cmd;
     private VcsFileSystem fileSystem;
     private String displayName;
+    private Class implementedCommandClass = null;
+    
     /** A flag of whether the command associated with this clon of
      * UserCommandSupport was already customized or not, so that we know whether
      * a customization needs to be done before the execution. */
@@ -106,25 +108,34 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         this.cmd = cmd;
         this.fileSystem = fileSystem;
         this.displayName = getDisplayName(cmd, fileSystem);
+        this.implementedCommandClass = findImplementedCommandClass(cmd);
     }
     
     private static Class[] getClassesForCommand(UserCommand cmd) {
         List classes = new ArrayList();
         classes.add(VcsDescribedCommand.class);
         classes.add(CustomizationStatus.class);
+        Class cmdClass = findImplementedCommandClass(cmd);
+        if (cmdClass != null) {
+            classes.add(cmdClass);
+        }
+        return (Class[]) classes.toArray(new Class[classes.size()]);
+    }
+    
+    private static Class findImplementedCommandClass(UserCommand cmd) {
         String cmdClassName = (String) cmd.getProperty(VcsCommand.PROPERTY_ASSOCIATED_COMMAND_INTERFACE_NAME);
         //System.out.println("getClassesForCommand("+cmd+"), cmdClassName = "+cmdClassName);
+        Class cmdClass = null;
         if (cmdClassName != null) {
             try {
                 ClassLoader systemClassLoader = (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
-                Class cmdClass = Class.forName(cmdClassName, false, systemClassLoader);
-                classes.add(cmdClass);
+                cmdClass = Class.forName(cmdClassName, false, systemClassLoader);
                 //System.out.println("Got class "+cmdClass+" for command "+cmd.getName());
             } catch (ClassNotFoundException cnfex) {
                 org.openide.ErrorManager.getDefault().notify(cnfex);
             }
         }
-        return (Class[]) classes.toArray(new Class[classes.size()]);
+        return cmdClass;
     }
     
     private static String getDisplayName(UserCommand cmd, VcsFileSystem fileSystem) {
@@ -170,6 +181,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      */
     public String getDisplayName() {
         return displayName;
+    }
+    
+    public Class getImplementedCommandClass() {
+        return implementedCommandClass;
     }
     
     /*

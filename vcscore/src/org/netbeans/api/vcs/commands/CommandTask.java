@@ -106,10 +106,10 @@ public abstract class CommandTask extends Task {
                     status = STATUS_FAILED;
                 }
             }
+            notifyFinished();
             synchronized (notifyLock) {
                 notifyLock.notifyAll();
             }
-            notifyFinished();
         }
         // Free all listeners after the command finished.
         //outputListeners = null;

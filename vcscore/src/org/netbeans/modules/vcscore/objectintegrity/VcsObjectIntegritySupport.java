@@ -13,6 +13,9 @@
 
 package org.netbeans.modules.vcscore.objectintegrity;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,9 +26,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.AddCommand;
 import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -68,6 +73,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      */
     public static final String ATTRIBUTE_NAME = VcsObjectIntegritySupport.class.getName();
     
+    /**
+     * This property is fired when the file names change.
+     */
+    public static final String PROPERTY_FILES_CHANGED = "filesChanged"; // NOI18N
+    
     private static final int ANALYZER_SCHEDULE_TIME = 200;
     
     private transient FileSystem fileSystem;
@@ -78,6 +88,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     private transient RequestProcessor.Task analyzerTask;
     private transient boolean activated = false;
     
+    private transient OperationListener operationListener;
+    private transient CacheHandlerListener cacheHandlerListaner;
+    private transient PropertyChangeSupport propertyChangeSupport;
+    private transient PropertyChangeListener doFileChangeListener;
+    
     //private List localFileNames = new ArrayList();
     /** A map of set of names of local secondary files by names of primary files. */
     private Map objectsWithLocalFiles = new HashMap();
@@ -86,10 +101,12 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     /** The set of names of primary files, that are local. They might become non-local later. */
     private Set primaryLocalFiles = new HashSet();
     
+    private static final long serialVersionUID = 7128452018671390570L;
     /** Creates a new instance of VcsObjectIntegritySupport.
      * It's unusable until it's activated.
      */
     public VcsObjectIntegritySupport() {
+        //System.out.println("VOIS Created.");
     }
     
     /**
@@ -116,17 +133,61 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         this.objectsToAnalyze = new HashSet();
         this.analyzerTask = RequestProcessor.getDefault().post(this, ANALYZER_SCHEDULE_TIME, Thread.MIN_PRIORITY);
         DataLoaderPool pool = (DataLoaderPool) Lookup.getDefault().lookup(DataLoaderPool.class);
-        pool.addOperationListener((OperationListener) WeakListener.create(OperationListener.class, this, pool));
-        cache.addCacheHandlerListener((CacheHandlerListener) WeakListener.create(CacheHandlerListener.class, this, cache));
+        operationListener = (OperationListener) WeakListener.create(OperationListener.class, this, pool);
+        pool.addOperationListener(operationListener);
+        cacheHandlerListaner = (CacheHandlerListener) WeakListener.create(CacheHandlerListener.class, this, cache);
+        cache.addCacheHandlerListener(cacheHandlerListaner);
+        propertyChangeSupport = new PropertyChangeSupport(this);
+        doFileChangeListener = new DOFileChangeListener();
         this.activated = true;
+        //System.out.println("VOIS Activated for ("+fsRootPath+"):"+fileSystem);
+    }
+    
+    /**
+     * Deactivate this object integrity support.
+     */
+    public synchronized void deactivate() {
+        if (operationListener != null) {
+            DataLoaderPool pool = (DataLoaderPool) Lookup.getDefault().lookup(DataLoaderPool.class);
+            pool.removeOperationListener(operationListener);
+        }
+        if (cacheHandlerListaner != null) {
+            cache.removeCacheHandlerListener(cacheHandlerListaner);
+        }
+        analyzerTask.waitFinished();
+        propertyChangeSupport = null;
+        activated = false;
+        //System.out.println("VOID DEActivated for ("+fsRootPath+"):"+fileSystem);
+    }
+    
+    public synchronized void addPropertyChangeListener(PropertyChangeListener l) {
+        if (propertyChangeSupport != null) {
+            //System.out.println(this+"addPropertyChangeListener("+l+")");
+            propertyChangeSupport.addPropertyChangeListener(l);
+        }
+    }
+    
+    public synchronized void removePropertyChangeListener(PropertyChangeListener l) {
+        if (propertyChangeSupport != null) {
+            //System.out.println(this+"removePropertyChangeListener("+l+")");
+            propertyChangeSupport.removePropertyChangeListener(l);
+        }
+    }
+    
+    private synchronized void firePropertyChange() {
+        //System.out.println("VcsObjectIntegritySupport.firePropertyChange("+(propertyChangeSupport != null)+")");
+        if (propertyChangeSupport != null) {
+            //System.out.println("listeners = "+java.util.Arrays.asList(propertyChangeSupport.getPropertyChangeListeners()));
+            propertyChangeSupport.firePropertyChange(PROPERTY_FILES_CHANGED, null, null);
+        }
     }
     
     /**
      * Called after a DataObject is recognized. Do not call this directly!
      */
     public void operationPostCreate(OperationEvent operationEvent) {
-        //System.out.println("operationPostCreate("+operationEvent+")");
         DataObject dobj = operationEvent.getObject();
+        //System.out.println("operationPostCreate("+dobj+")");
         synchronized (objectsToAnalyze) {
             objectsToAnalyze.add(dobj);
         }
@@ -148,6 +209,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             FileObject primary = dobj.getPrimaryFile();
             FileSystem fs = (FileSystem) primary.getAttribute(VcsAttributes.VCS_NATIVE_FS);
             if (primary.isFolder() || !fileSystem.equals(fs)) {
+                //System.out.println("VOIS.run(): ignoring primary = "+primary+" from "+fs);
                 continue;
             }
             //fileSystem.getCacheProvider().
@@ -157,19 +219,26 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 synchronized (primaryLocalFiles) {
                     primaryLocalFiles.add(primary.getPath());
                 }
+                firePropertyChange();
                 continue;
             } else {
+                boolean removed;
                 synchronized (primaryLocalFiles) {
-                    primaryLocalFiles.remove(primary.getPath());
+                    removed = primaryLocalFiles.remove(primary.getPath());
                 }
+                if (removed) firePropertyChange();
             }
             String primaryFilePath = primary.getPath();
+            //System.out.println("VOIS.run(): have primary: "+primaryFilePath);
+            dobj.addPropertyChangeListener(doFileChangeListener);
+            boolean changed;
             synchronized (objectsWithLocalFiles) {
                 Set localSec = (Set) objectsWithLocalFiles.get(primaryFilePath);
                 if (localSec == null) {
                     localSec = new HashSet();
                 }
                 Set fileSet = dobj.files();
+                fileSet.remove(primary);
                 for (Iterator fileIt = fileSet.iterator(); fileIt.hasNext(); ) {
                     FileObject fo = (FileObject) fileIt.next();
                     String filePath = fo.getPath();
@@ -187,9 +256,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                     }
                     File file = FileUtil.toFile(fo);
                     CacheFile cFile = cache.getCacheFile(file, CacheHandler.STRAT_DISK, null);
+                    //System.out.println("   VOIS.run(): secondary '"+fo+"', cache = "+cFile);
                     if (cFile == null || cFile.isLocal()) {
                         localSec.add(filePath);
                         filesMap.put(filePath, primaryFilePath);
+                        //System.out.println("   VOIS.run(): ADD secondary: "+filePath);
                     } else {
                         filesMap.remove(filePath);
                         localSec.remove(filePath);
@@ -197,9 +268,12 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 }
                 if (localSec.size() > 0) {
                     objectsWithLocalFiles.put(primaryFilePath, localSec);
+                    changed = true;
                 } else {
-                    objectsWithLocalFiles.remove(primaryFilePath);
+                    Object removedObj = objectsWithLocalFiles.remove(primaryFilePath);
+                    changed = removedObj != null;
                 }
+                if (changed) firePropertyChange();
             }
         }
     }
@@ -240,6 +314,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      */
     public void cacheAdded(CacheHandlerEvent event) {
         CacheFile cFile = event.getCacheFile();
+        //System.out.println("VOIS.cacheAdded("+cFile+")");
         if (cFile instanceof CacheDir || cFile.isLocal()) return ;
         String path = getFilePath(cFile, fsRootPath);
         if (path != null) {
@@ -262,19 +337,23 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 }
                 return ;
             }
+            boolean changed = false;
             synchronized (objectsWithLocalFiles) {
                 String primary = (String) filesMap.remove(path);
                 if (primary != null) {
                     // It was a local secondary file, so it needs to be removed.
                     Set localSec = (Set) objectsWithLocalFiles.get(primary);
                     if (localSec != null) {
+                        //System.out.println("    removing secondary: "+path);
                         localSec.remove(path);
                         if (localSec.size() == 0) {
                             objectsWithLocalFiles.remove(primary);
                         }
+                        changed = true;
                     }
                 }
             }
+            if (changed) firePropertyChange();
         }
     }
     
@@ -287,6 +366,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         if (cFile instanceof CacheDir || cFile.isLocal()) return ;
         String path = getFilePath(cFile, fsRootPath);
         if (path != null) {
+            boolean changed = false;
             synchronized (objectsWithLocalFiles) {
                 // If it was a primary file, remove all local secondary files:
                 Set localSet = (Set) objectsWithLocalFiles.remove(path);
@@ -295,8 +375,10 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                         String secondary = (String) it.next();
                         filesMap.remove(secondary);
                     }
+                    changed = true;
                 }
             }
+            if (changed) firePropertyChange();
         }
     }
     
@@ -307,13 +389,16 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     public void statusChanged(CacheHandlerEvent event) {
         CacheFile cFile = event.getCacheFile();
         if (cFile instanceof CacheDir) return ;
+        //System.out.println("VOIS.statusChanged("+cFile+")");
         String path = getFilePath(cFile, fsRootPath);
         if (path != null) {
+            boolean changed = false;
             if (cFile.isLocal()) {
                 synchronized (objectsWithLocalFiles) {
                     // If it was a primary file, remove all local secondary files:
                     Set localSet = (Set) objectsWithLocalFiles.remove(path);
                     if (localSet != null) {
+                        //System.out.println("   Removed primary: "+path);
                         for (Iterator it = localSet.iterator(); it.hasNext(); ) {
                             String secondary = (String) it.next();
                             filesMap.remove(secondary);
@@ -321,6 +406,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                         synchronized (primaryLocalFiles) {
                             primaryLocalFiles.add(path);
                         }
+                        changed = true;
                     }
                     // If a versioned secondary FileObject becomes local,
                     // it can be too performance expensive to find the
@@ -337,6 +423,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                         if (localSet != null) {
                             localSet.remove(path);
                         }
+                        changed = true;
                     }
                 }
                 synchronized (primaryLocalFiles) {
@@ -357,8 +444,33 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                     }
                 }
             }
+            if (changed) firePropertyChange();
         }
     }
+    
+    /**
+     * It's necessary to catch the changes of files in versioned DataObjects.
+     */
+    private class DOFileChangeListener extends Object implements PropertyChangeListener {
+        
+        /** This method gets called when a bound property is changed.
+         * @param evt A PropertyChangeEvent object describing the event source
+         *   	and the property that has changed.
+         */
+        public void propertyChange(PropertyChangeEvent evt) {
+            String name = evt.getPropertyName();
+            if (DataObject.PROP_FILES.equals(name)) {
+                DataObject dobj = (DataObject) evt.getSource();
+                //System.out.println("FILES Change of "+dobj);
+                synchronized (objectsToAnalyze) {
+                    objectsToAnalyze.add(dobj);
+                }
+                analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
+            }
+        }
+        
+    }
+    
     
     // Utility static stuff:
     
@@ -399,16 +511,27 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      * @param files The list of files, that are to be integrated into VCS.
      * @param origCommand The original (CheckInCommand) command, that is used
      *        just to copy some options from (to retain the expert and GUI mode).
+     * @return true when the integrity keeper was customized successfully, or
+     *         false when it was canceled and so the commit should be canceled
+     *         as well.
      */
-    public static void runIntegrityKeeper(FileObject[] files, Command origCommand) {
+    public static boolean runIntegrityKeeper(FileObject[] files, Command origCommand) {
+        //System.out.println("VOIS.runIntegrityKeeper("+java.util.Arrays.asList(files)+", "+origCommand+")");
         Map providersForFiles = findCommandProvidersForFiles(files);
+        boolean customized = true;
         for (Iterator it = providersForFiles.keySet().iterator(); it.hasNext(); ) {
             VcsCommandsProvider provider = (VcsCommandsProvider) it.next();
             AddCommand addCmd = (AddCommand) provider.createCommand(AddCommand.class);
+            //System.out.println("  "+provider+".createCommand(AddCommand.class) = "+addCmd);
             if (addCmd != null) {
                 FileObject[] cmdFiles = (FileObject[]) providersForFiles.get(provider);
-                VcsObjectIntegritySupport objectIntegritySupport =
-                    (VcsObjectIntegritySupport) cmdFiles[0].getAttribute(VcsObjectIntegritySupport.ATTRIBUTE_NAME);
+                //System.out.println("  cmdFiles = "+java.util.Arrays.asList(cmdFiles));
+                VcsObjectIntegritySupport objectIntegritySupport = null;
+                FileSystem fs = (FileSystem) cmdFiles[0].getAttribute(VcsAttributes.VCS_NATIVE_FS);
+                if (fs != null) {
+                    objectIntegritySupport = IntegritySupportMaintainer.findObjectIntegritySupport(fs);
+                }
+                //System.out.println("  objectIntegritySupport = "+objectIntegritySupport);
                 if (objectIntegritySupport == null) continue;
                 ObjectIntegrityCommandSupport integrityCmdSupport = new ObjectIntegrityCommandSupport();
                 ObjectIntegrityCommand integrityCmd = 
@@ -418,10 +541,18 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 integrityCmd.setFiles(cmdFiles);
                 integrityCmd.setExpertMode(origCommand.isExpertMode());
                 integrityCmd.setGUIMode(origCommand.isGUIMode());
-                boolean customized = VcsManager.getDefault().showCustomizer(integrityCmd);
-                if (customized) integrityCmd.execute();
+                customized = VcsManager.getDefault().showCustomizer(integrityCmd);
+                if (customized) {
+                    CommandTask task = integrityCmd.execute();
+                    try {
+                        task.waitFinished(0);
+                    } catch (InterruptedException iex) {
+                        // Ignore and stop waiting.
+                    }
+                }
             }
         }
+        return customized;
     }
     
 }

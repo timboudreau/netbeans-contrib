@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -43,6 +44,8 @@ import org.openide.util.RequestProcessor;
 import org.openide.util.actions.NodeAction;
 
 import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.AddCommand;
+import org.netbeans.api.vcs.commands.CheckInCommand;
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
@@ -53,6 +56,7 @@ import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 import org.netbeans.modules.vcscore.grouping.GroupCookie;
+import org.netbeans.modules.vcscore.objectintegrity.VcsObjectIntegritySupport;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.WeakList;
 
@@ -381,6 +385,42 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
     }
     
     /**
+     * Execute the command. If the command is CheckInCommand, check for the
+     * presence of VcsObjectIntegritySupport is done and AddCommand is performed
+     * if necessary. <p>
+     *
+     * Every command execution, that wish to present the object integrity dialog
+     * should go through this method.
+     *
+     * @param cmd The command to execute.
+     * @param files The files to act on. It's necessary to pass the files here
+     *        rather than set them directly to the command, because the command
+     *        can ignore some files, that would then not be considered for addition.
+     * @return The task representing the running command.
+     */
+    public static CommandTask executeCommand(Command cmd, FileObject[] files) {
+        CommandTask task = null;
+        //System.out.println("VcsFSCommandsAction.executeCommand("+cmd+")");
+        //System.out.println("   is merged command = "+(cmd instanceof MergedCommandSupport.MergedCommand)+", is check in command = "+(cmd instanceof CheckInCommand));
+        boolean customized = true;
+        if (!(cmd instanceof MergedCommandSupport.MergedCommand) &&
+            (cmd instanceof CheckInCommand)) {
+            
+            if (files != null && files.length > 0) {
+                customized = VcsObjectIntegritySupport.runIntegrityKeeper(files, cmd);
+            }
+        }
+        if (customized) {
+            cmd.setFiles(files);
+            customized = VcsManager.getDefault().showCustomizer(cmd);
+            if (customized) {
+                task = cmd.execute();
+            }
+        }
+        return task;
+    }
+    
+    /**
      * Get a help context for the action.
      * @return the help context for this action
      */
@@ -405,6 +445,7 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
             List il1 = new ArrayList(Arrays.asList(intrf1));
             List il2 = Arrays.asList(intrf2);
             il1.retainAll(il2);
+            il1.add(MergedCommand.class);
             return (Class[]) il1.toArray(new Class[il1.size()]);
         }
         
@@ -460,18 +501,14 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
                 transferPropertyValues(cmd, cmd1);
                 cmd1.setGUIMode(cmd.isGUIMode());
                 cmd1.setExpertMode(cmd.isExpertMode());
-                cmd1.setFiles(files1);
-                boolean customized = VcsManager.getDefault().showCustomizer(cmd1);
-                if (customized) task1 = cmd1.execute();
+                task1 = executeCommand(cmd1, files1);
             }
             if (files2 != null) {
                 Command cmd2 = cmdSupport2.createCommand();
                 transferPropertyValues(cmd, cmd2);
                 cmd2.setGUIMode(cmd.isGUIMode());
                 cmd2.setExpertMode(cmd.isExpertMode());
-                cmd2.setFiles(files2);
-                boolean customized = VcsManager.getDefault().showCustomizer(cmd2);
-                if (customized) task2 = cmd2.execute();
+                task2 = executeCommand(cmd2, files2);
             }
             try {
                 if (task1 != null) task1.waitFinished(0);
@@ -535,6 +572,13 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
         
         protected Object clone() {
             return new MergedCommandSupport(cmdSupport1, cmdSupport2);
+        }
+        
+        /**
+         * Just a marker interface, that the command is the result of a merge
+         * of two other commands.
+         */
+        public static interface MergedCommand {
         }
         
     }

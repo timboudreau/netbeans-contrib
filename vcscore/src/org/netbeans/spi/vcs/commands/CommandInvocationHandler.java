@@ -208,7 +208,11 @@ class CommandInvocationHandler extends Object /*CommandSupport.Info*/ implements
                     throw new IllegalArgumentException("setFiles("+args[0]+"): needs FileObject[] value.");
                 }
             } else {
-                properties.put(propName, args[0]);
+                if (args[0] == null) {
+                    properties.remove(propName);
+                } else {
+                    properties.put(propName, args[0]);
+                }
             }
             return null;
         }

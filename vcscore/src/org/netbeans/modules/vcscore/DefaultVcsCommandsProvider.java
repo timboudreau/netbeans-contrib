@@ -20,6 +20,7 @@ import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 
 /**
@@ -110,12 +111,10 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
             CommandSupport support = subCommands[i].getCommandSupport();
             if (support != null) {
                 commandSupportsByNames.put(support.getName(), support);
-                try {
-                    java.lang.reflect.Field classField = support.getClass().getField("commandClass");
-                    classField.setAccessible(true);
-                    Class commandClass = (Class) classField.get(support);
+                if (support instanceof UserCommandSupport) {
+                    Class commandClass = ((UserCommandSupport) support).getImplementedCommandClass();
                     commandSupportsByClasses.put(commandClass, support);
-                } catch (Exception ex) {}
+                }
             }
             if (subCommands[i].hasChildren()) fillCommands(subCommands[i]);
         }

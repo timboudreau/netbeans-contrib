@@ -66,30 +66,32 @@ import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
 import org.netbeans.modules.vcscore.cache.CacheFile;
 import org.netbeans.modules.vcscore.cache.CacheDir;
+import org.netbeans.modules.vcscore.cache.CacheHandler;
 import org.netbeans.modules.vcscore.cache.CacheReference;
+import org.netbeans.modules.vcscore.cache.FileSystemCache;
 import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
-import org.netbeans.modules.vcscore.util.*;
-import org.netbeans.modules.vcscore.util.virtuals.VcsRefreshRequest;
-import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
-import org.netbeans.modules.vcscore.util.virtuals.VirtualsRefreshing;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.grouping.AddToGroupDialog;
 import org.netbeans.modules.vcscore.grouping.GroupUtils;
 import org.netbeans.modules.vcscore.grouping.VcsGroupSettings;
+import org.netbeans.modules.vcscore.objectintegrity.IntegritySupportMaintainer;
+import org.netbeans.modules.vcscore.objectintegrity.VcsOISActivator;
+import org.netbeans.modules.vcscore.objectintegrity.VcsObjectIntegritySupport;
 import org.netbeans.modules.vcscore.runtime.RuntimeFolderNode;
 import org.netbeans.modules.vcscore.runtime.VcsRuntimeCommandsProvider;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
+import org.netbeans.modules.vcscore.util.*;
+import org.netbeans.modules.vcscore.util.virtuals.VcsRefreshRequest;
+import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
+import org.netbeans.modules.vcscore.util.virtuals.VirtualsRefreshing;
 import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionListener;
-//import org.netbeans.modules.vcscore.versioning.VcsFileObject;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
-import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 
 /** Generic VCS filesystem.
  * 
@@ -100,7 +102,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           VcsSearchTypeFileSystem, VirtualsRefreshing,
                                                                           AbstractFileSystem.List, AbstractFileSystem.Info,
                                                                           AbstractFileSystem.Change, FileSystem.Status,
-                                                                          CacheHandlerListener, Serializable {
+                                                                          CacheHandlerListener, FileObjectImportantness,
+                                                                          VcsOISActivator, Serializable {
                                                                               
     public static interface IgnoreListSupport {
         
@@ -387,6 +390,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient IgnoreListSupport ignoreListSupport = null;
     
     private transient Set unimportantFiles;
+    
+    private transient IntegritySupportMaintainer integritySupportMaintainer = null;
     
     /** regexp of ignorable children */
     private String ignoredGarbageFiles = ""; // NOI18N
@@ -1530,6 +1535,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (isCreateRuntimeCommands()) {
                 ((VcsAttributes) attr).setRuntimeCommandsProvider(new VcsRuntimeCommandsProvider(this));
             }
+        }
+        FileSystemCache fsCache = CacheHandler.getInstance().getCache(getCacheIdStr());
+        if (fsCache != null) {
+            // Hold the IntegritySupportMaintainer so that it's not garbage-collected.
+            integritySupportMaintainer = new IntegritySupportMaintainer(this, this);
+        }
+    }
+    
+    public void activate(VcsObjectIntegritySupport objectIntegritySupport) {
+        FileSystemCache fsCache = CacheHandler.getInstance().getCache(getCacheIdStr());
+        if (fsCache != null) {
+            objectIntegritySupport.activate(this, fsCache, getFile("").getAbsolutePath(), this);
         }
     }
 
@@ -2741,6 +2758,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             throw new IOException(g("EXC_RootNotExist", r.toString ())); // NOI18N
         }
 
+        // Provide a possibility to veto the change of the root.
+        fireVetoableChange (PROP_ROOT, getRoot(), null);
         //Hashtable vars = getVariablesAsHashtable();
         synchronized (this) {
             String module = getRelativeMountPoint();
@@ -3761,7 +3780,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             // assure, that we mark the file as modified only once.
             // FileOutputStream will call close() on finalization even when close() was called before.
             if (name != null) {
-                VcsFileSystem.this.fileChanged(name);
+                if (!isIDESettingsFile(name) && !name.endsWith(getBackupExtension())) {
+                    VcsFileSystem.this.fileChanged(name);
+                }
                 name = null;
             }
         }
@@ -3771,7 +3792,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return "~"; // NOI18N
     }
     
-    private boolean isIDESettingsFile(String name) {
+    private static boolean isIDESettingsFile(String name) {
         name = name.replace(java.io.File.separatorChar, '/');
         return name.equals(".nbattrs") ||               // NOI18N
                name.endsWith("/.nbattrs") ||            // NOI18N
