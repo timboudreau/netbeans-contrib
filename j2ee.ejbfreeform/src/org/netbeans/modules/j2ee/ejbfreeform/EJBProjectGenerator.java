@@ -99,10 +99,9 @@ public class EJBProjectGenerator {
         
         
         List sourceRootNames = getSourceFolders(doc, foldersEl, "java");
-        // TODO: ma154696: add support for multiple source roots?
-        //  now I get only first one, have to check impact of more roots 
-        // to Enterprise beans node (which one to put into view items
-        putProperty(doc, data, "src.dir", (String) sourceRootNames.get(0));
+//        // TODO: ma154696: add support for multiple source roots?
+//        //  now I get only first one, have to check impact of more roots 
+//        // to Enterprise beans node (which one to put into view items
         addSourceFolderViewItem(doc, itemsEl, EJBProjectNature.STYLE_EJBS, "XXX Enterprise Beans", (String) sourceRootNames.get(0));
         
         helper.putPrimaryConfigurationData(data, true);
