@@ -1503,7 +1503,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>${CDM_EXECUTE} status ${VERBOSE} ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
-	  <value>LABEL(ResourceMsg1(COMMAND_STATUS_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_STATUS_Label)))
+	  <value>VARIABLE_DEFAULTS(VERBOSE USER)
+                 LABEL(ResourceMsg1(COMMAND_STATUS_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_STATUS_Label)))
                  ASK_FOR_EXPERT(VERBOSE, ResourceMsg1(COMMAND_STATUS_Verbose), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_STATUS_Verbose);;MNEMONIC_ResourceMsg1(ACS_COMMAND_STATUS_Verbose_mnc)) ,"-v", "")
                  IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg1(COMMAND_Recursive), "$[? recursionBanned] [-l] [-R]",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Recursive_mnc)) ,"-R", "-l")</value>
 	</property>
@@ -1576,7 +1577,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>${CDM_EXECUTE} log ${ONLY_PRINT} ${NO_TAGS} $[? REVISIONS] [-r${QUOTE}${REVISIONS}${QUOTE}] [] $[? DATES] [-d ${QUOTE}${DATES}${QUOTE}] [] $[? STATES] [-s ${QUOTE}${STATES}${QUOTE}] [] $[? USERS] [-w${USERS}] [] ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
-	  <value>LABEL(ResourceMsg1(COMMAND_LOG_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_LOG_Label)))
+	  <value>VARIABLE_DEFAULTS(ONLY_PRINT USER, NO_TAGS USER, REVISIONS USER, DATES USER, STATES USER, USERS USER)
+                 LABEL(ResourceMsg1(COMMAND_LOG_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_LOG_Label)))
                  SELECT_RADIO_EXPERT(ONLY_PRINT, "", "", [ResourceMsg1(COMMAND_LOG_Do_Not_Restrict_Output), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_LOG_Do_Not_Restrict_Output);;MNEMONIC_ResourceMsg1(ACS_COMMAND_LOG_Do_Not_Restrict_Output_mnc))],
                   [ResourceMsg1(COMMAND_LOG_Only_Print_Name_Of_RCS_File), "-R",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_LOG_Only_Print_Name_Of_RCS_File);;MNEMONIC_ResourceMsg1(ACS_COMMAND_LOG_Only_Print_Name_Of_RCS_File_mnc))],
                   [ResourceMsg1(COMMAND_LOG_Only_Print_Header), "-h",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_LOG_Only_Print_Header);;MNEMONIC_ResourceMsg1(ACS_COMMAND_LOG_Only_Print_Header_mnc))],
@@ -1632,7 +1634,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>${RUNCDM} ${CVS_DEF_EXE} history ${REPORT} ${SPEC_MODULE} ${RECORD_TYPE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
         </property>
 	<property name="inputDescriptor">
-	  <value>LABEL(ResourceMsg1(COMMAND_HISTORY_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_HISTORY_Label)))
+	  <value>VARIABLE_DEFAULTS(REPORT USER, SPEC_MODULE USER, RECORD_TYPE USER)
+                 LABEL(ResourceMsg1(COMMAND_HISTORY_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_HISTORY_Label)))
                  SELECT_RADIO(REPORT, ResourceMsg1(COMMAND_HISTORY_Report), "-o",
                   [ResourceMsg1(COMMAND_HISTORY_Report_On_Tags), "-T", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_HISTORY_Report_On_Tags);;MNEMONIC_ResourceMsg1(ACS_COMMAND_HISTORY_Report_On_Tags_mnc))],
                   [ResourceMsg1(COMMAND_HISTORY_Report_On_Commited), "-c",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_HISTORY_Report_On_Commited);;MNEMONIC_ResourceMsg1(ACS_COMMAND_HISTORY_Report_On_Commited_mnc))],
@@ -1680,7 +1683,8 @@ Microsystems, Inc. All Rights Reserved.
           <value>${CDW_EXECUTE} annotate $[? SPEC_REVISION] [-r ${SPEC_REVISION}] [] $[? SPEC_DATE] [-D ${QUOTE}${SPEC_DATE}${QUOTE}] [] ${USE_HEAD} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
-	  <value>LABEL(ResourceMsg1(COMMAND_ANNOTATE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Label)))
+	  <value>VARIABLE_DEFAULTS(SPEC_REVISION USER, SPEC_DATE USER, USE_HEAD USER)
+                 LABEL(ResourceMsg1(COMMAND_ANNOTATE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Label)))
                  PROMPT_FOR_EXPERT(SPEC_REVISION, ResourceMsg1(COMMAND_ANNOTATE_Spec_Revision), "${CACHED_REVISION}", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Spec_Revision);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ANNOTATE_Spec_Revision_mnc)))
                  PROMPT_FOR_EXPERT(SPEC_DATE, ResourceMsg1(COMMAND_ANNOTATE_Spec_Date), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Spec_Date);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ANNOTATE_Spec_Date_mnc)))
                  ASK_FOR_EXPERT(USE_HEAD, ResourceMsg1(COMMAND_ANNOTATE_Use_Head), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Use_Head);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ANNOTATE_Use_Head_mnc)) ,"-f", "")
@@ -1817,7 +1821,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${DIRECTORY}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} $[? NOT_USE_CVSRC] [${NOT_USE_CVSRC} ][]${COMPRESSION} export $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${RUN_MODULE_PROGRAM} ${RCS_KFLAG} ${RECURSIVE} ${EXPORT_MODULE} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
-	  <value>LABEL(ResourceMsg1(COMMAND_EXPORT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Label)))
+	  <value>VARIABLE_DEFAULTS(DIRECTORY USER, EXPORT_MODULE USER, TAG USER, DATE USER, FORCE_HEAD_MATCH USER, RUN_MODULE_PROGRAM USER, RCS_KFLAG EXPERT_USER, MODULEDIR USER, DO_NOT_SHORTEN USER)
+                 LABEL(ResourceMsg1(COMMAND_EXPORT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Label)))
                  PROMPT_FOR(DIRECTORY, ResourceMsg1(COMMAND_EXPORT_Directory), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Directory);;MNEMONIC_ResourceMsg1(ACS_COMMAND_EXPORT_Directory_mnc)),SELECTOR_DIR)
                  PROMPT_FOR(EXPORT_MODULE, ResourceMsg1(COMMAND_EXPORT_Module), ${QMPATHS},ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Module);;MNEMONIC_ResourceMsg1(ACS_COMMAND_EXPORT_Module_mnc)), SELECTOR_CMD_SELECTOR_MODULES)
                  PROMPT_FOR(TAG, ResourceMsg1(COMMAND_EXPORT_Tag), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Tag);;MNEMONIC_ResourceMsg1(ACS_COMMAND_EXPORT_Tag_mnc)),IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
@@ -1829,7 +1834,8 @@ Microsystems, Inc. All Rights Reserved.
                  ASK_FOR_EXPERT(DO_NOT_SHORTEN, ResourceMsg1(COMMAND_EXPORT_Do_Not_Shorten_Paths), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Do_Not_Shorten_Paths);;MNEMONIC_ResourceMsg1(ACS_COMMAND_EXPORT_Do_Not_Shorten_Paths_mnc)), "-N", "")
                  IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg1(COMMAND_Recursive), "$[? recursionBanned] [-l] [-R]",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Recursive_mnc)), "-R", "-l")
           </value>
-	  <value if="IS_WINNT">LABEL(ResourceMsg1(COMMAND_EXPORT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Label)))
+	  <value if="IS_WINNT">VARIABLE_DEFAULTS(DIRECTORY USER, EXPORT_MODULE USER, TAG USER, DATE USER, FORCE_HEAD_MATCH USER, RUN_MODULE_PROGRAM USER, RCS_KFLAG EXPERT_USER, MODULEDIR USER, DO_NOT_SHORTEN USER)
+                 LABEL(ResourceMsg1(COMMAND_EXPORT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Label)))
                  PROMPT_FOR(DIRECTORY, ResourceMsg1(COMMAND_EXPORT_Directory), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Directory);;MNEMONIC_ResourceMsg1(ACS_COMMAND_EXPORT_Directory_mnc)),SELECTOR_DIR)
                  PROMPT_FOR(EXPORT_MODULE, ResourceMsg1(COMMAND_EXPORT_Module), ${MPATHS_\/},ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Module);;MNEMONIC_ResourceMsg1(ACS_COMMAND_EXPORT_Module_mnc)), SELECTOR_CMD_SELECTOR_MODULES)
                  PROMPT_FOR(TAG, ResourceMsg1(COMMAND_EXPORT_Tag), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Tag);;MNEMONIC_ResourceMsg1(ACS_COMMAND_EXPORT_Tag_mnc)),IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
