@@ -82,6 +82,7 @@ public class Main extends JellyTestCase {
         filter = new Filter ();
         filter.addFilterAfter ("@author");
         filter.addFilterAfter ("Created on");
+        filter.addFilterAfter ("by ");
     }
     
     public void dumpFile (String node, String name) {

@@ -279,7 +279,7 @@ public class GenCallBack implements Runnable {
 // GenAdapter.java
 //
 // Created on
-// by dave
+// by 
 //
 package data.poasupport.generate;
 import org.omg.PortableServer.POA;
@@ -296,7 +296,7 @@ public class GenAdapter extends org.omg.PortableServer.AdapterActivatorPOA {
 // GenServant.java
 //
 // Created on
-// by dave
+// by 
 //
 package data.poasupport.generate;
 import org.omg.PortableServer.Servant;
@@ -319,7 +319,7 @@ public class GenServant extends org.omg.PortableServer.ServantActivatorPOA {
 // GenLocator.java
 //
 // Created on
-// by dave
+// by 
 //
 package data.poasupport.generate;
 import org.omg.PortableServer.Servant;
