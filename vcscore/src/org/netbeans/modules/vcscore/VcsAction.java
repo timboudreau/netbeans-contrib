@@ -765,6 +765,9 @@ public class VcsAction extends NodeAction implements ActionListener {
         path = valueAdjustment.adjustVarValue(path);
         fullName = valueAdjustment.adjustVarValue(fullName);
         if (fullName.length() == 0) fullName = ".";
+        String module = (String) vars.get("MODULE");
+        if (module == null) module = "";
+        if (module.length() > 0) module += separator;
         vars.put("PATH", fullName); // NOI18N
         vars.put("QPATH", (fullName.length() > 0) ? quoting+fullName+quoting : fullName); // NOI18N
         vars.put("DIR", path); // NOI18N
@@ -776,6 +779,8 @@ public class VcsAction extends NodeAction implements ActionListener {
         // Second, set the multifiles variables
         StringBuffer qpaths = new StringBuffer();
         StringBuffer paths = new StringBuffer();
+        StringBuffer mpaths = new StringBuffer();
+        StringBuffer qmpaths = new StringBuffer();
         StringBuffer vfiles = new StringBuffer();
         StringBuffer qfiles = new StringBuffer();
         for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
@@ -799,11 +804,19 @@ public class VcsAction extends NodeAction implements ActionListener {
             qpaths.append(fullName);
             qpaths.append(quoting);
             qpaths.append(" ");
+            mpaths.append(module + fullName);
+            mpaths.append(" ");
+            qmpaths.append(quoting);
+            qmpaths.append(module + fullName);
+            qmpaths.append(quoting);
+            qmpaths.append(" ");
         }
         vars.put("FILES", vfiles.delete(vfiles.length() - 1, vfiles.length()).toString());
         vars.put("QFILES", qfiles.toString().trim());
         vars.put("PATHS", paths.delete(paths.length() - 2, paths.length()).toString());
         vars.put("QPATHS", qpaths.toString().trim());
+        vars.put("MPATHS", mpaths.toString().trim());
+        vars.put("QMPATHS", qmpaths.toString().trim());
         vars.put("NUM_FILES", ""+files.size());
         vars.put("MULTIPLE_FILES", (files.size() > 1) ? Boolean.TRUE.toString() : "");
         vars.put("FILES_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// among FILES there is a folder
