@@ -160,13 +160,6 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         FileCacheProvider cache = fileSystem.getCacheProvider();
 	if (cache != null) {
             ref = cache.createReference(fo);
-            final VcsFileSystem.IgnoreListSupport ignSupport = fileSystem.getIgnoreListSupport();
-            if (ignSupport != null) {
-                final String path = fo.getPackageNameExt('/','.');
-                if (cache.isDir (path)) {
-                    fileSystem.addCreateIgnoreList(fo);
-                }
-            }
 	}
 	return ref;
     }
