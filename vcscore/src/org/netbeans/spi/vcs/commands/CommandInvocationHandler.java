@@ -132,7 +132,7 @@ class CommandInvocationHandler extends Object /*CommandSupport.Info*/ implements
             return support.toString();
         } else if ("equals".equals(name)) {
             try {
-                return new Boolean((java.lang.reflect.Proxy.getInvocationHandler(args[0]).equals(this)));
+                return Boolean.valueOf((java.lang.reflect.Proxy.getInvocationHandler(args[0]).equals(this)));
             } catch (IllegalArgumentException iaex) {
                 return Boolean.FALSE;
             }
@@ -171,9 +171,9 @@ class CommandInvocationHandler extends Object /*CommandSupport.Info*/ implements
             } else if ("files".equals(propName)) {
                 return files;
             } else if ("gUIMode".equals(propName)) {
-                return new Boolean(guiMode);
+                return Boolean.valueOf(guiMode);
             } else if ("expertMode".equals(propName)) {
-                return new Boolean(expertMode);
+                return Boolean.valueOf(expertMode);
             } else if ("commandSupport".equals(propName)) {
                 return support;
             } else {
