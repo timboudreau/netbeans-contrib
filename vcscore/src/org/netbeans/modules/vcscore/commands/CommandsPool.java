@@ -302,14 +302,17 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (exit != VcsCommandExecutor.SUCCEEDED && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
             fileSystem.debugErr(message);
             printErrorOutput(vce);
-            notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG);
+            if (fileSystem.isCommandNotification()) {
+                notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG);
+            }
         } else {
             fileSystem.debug(message);
-            notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG);
+            if (fileSystem.isCommandNotification()) {
+                notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG);
+            }
         }
         if (notification != null) {
-            notification = Variables.expand(vce.getVariables(), notification, false);
-            TopManager.getDefault().notify(new NotifyDescriptor.Message(notification));
+            CommandExecutorSupport.commandNotification(vce, notification, fileSystem);
         }
         VcsCommandVisualizer visualizer = vce.getVisualizer();
         if (visualizer != null) {
