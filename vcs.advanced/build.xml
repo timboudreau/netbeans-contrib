@@ -86,6 +86,7 @@ Microsystems, Inc. All Rights Reserved.
     <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-list.xml">
        <include name="vcs/list/*.class"/>
        <include name="vcs/list/*.java"/>
+       <include name="vcs/list/*.properties"/>
     </makelayer>
     <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
