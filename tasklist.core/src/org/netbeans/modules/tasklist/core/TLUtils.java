@@ -418,5 +418,15 @@ public final class TLUtils {
         }
     }
 
+    /** Recusrsively count all tasks in passed iterator. */
+    public static int recursiveCount(Iterator tasks) {
+        if (tasks == null) return 0;
+        int count = 0;
+        while (tasks.hasNext()) {
+            Task next = (Task) tasks.next();
+            count += next.getSubtaskCountRecursively();
+        }
+        return count;
+    }
 
 }

@@ -513,7 +513,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         if (reasonMsg != null && job == null) {
             if (msg.length() > 0) prefix = ", "; // NOI18N
-            msg.append(prefix + Util.getMessage("usa-flag", "" + getModel().getRoot().getSubtaskCountRecursively()));
+            msg.append(prefix + Util.getMessage("usa-flag", "" + TLUtils.recursiveCount(getModel().getTasks().iterator())));
             getMiniStatus().setToolTipText(reasonMsg);
         } else {
             getMiniStatus().setToolTipText("");

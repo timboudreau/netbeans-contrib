@@ -118,12 +118,12 @@ final class FilteredTasksList implements ObservableList {
     private void refreshSnapshot() {
         if (root == null) return;
         root.clear();
-        loadSourceTasks(peer.getRoot());
+        loadSourceTasks(peer.getTasks());
     }
 
-    private void loadSourceTasks(Task parent) {
-        if (parent.hasSubtasks() == false) return;
-        Iterator it = parent.subtasksIterator();
+    private void loadSourceTasks(List tasks) {
+        if (tasks.size() == 0) return;
+        Iterator it = tasks.iterator();
         while (it.hasNext()) {
             Task task = (Task) it.next();
             if (task.getSeed() instanceof SourceTaskProvider) {
@@ -135,7 +135,7 @@ final class FilteredTasksList implements ObservableList {
                 // if grouping treshold is matched.
                 // Eliminate them to sustain list assumption.
                 if (task.hasSubtasks()) {
-                    loadSourceTasks(task);  // recursion
+                    loadSourceTasks(task.getSubtasks());  // recursion
                 }
             }
         }

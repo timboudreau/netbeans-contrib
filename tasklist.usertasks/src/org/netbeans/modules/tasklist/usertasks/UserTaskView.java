@@ -132,7 +132,13 @@ public class UserTaskView extends TaskListView implements TaskListener {
     
     public void componentActivated() {
         super.componentActivated();
-        ((UserTask) getModel().getRoot()).updateLineNumberRecursively();
+
+        // it's strange I'd expect live listener bassed solution
+        Iterator it = getModel().getTasks().iterator();
+        while (it.hasNext()) {
+            UserTask next = (UserTask) it.next();
+            next.updateLineNumberRecursively();
+        }
     }
     
     /** 
@@ -514,14 +520,14 @@ public class UserTaskView extends TaskListView implements TaskListener {
     protected void setModel(ObservableList list) {
         super.setModel(list);
         UserTaskList utl = (UserTaskList) this.getList();
-        utl.showAnnotations((UserTask)utl.getRoot());
+        utl.showAnnotations(utl.getTasks().iterator());
     }
     
     protected void hideList() {
         super.hideList();
         UserTaskList utl = (UserTaskList) this.getModel();
         if (utl != null)
-            utl.hideAnnotations((UserTask)utl.getRoot());
+            utl.hideAnnotations(utl.getTasks().iterator());
     }
 
     protected Component createCenterComponent() {
