@@ -33,4 +33,21 @@ Microsystems, Inc. All Rights Reserved.
       &includefiles_list;
     </folder>
   </folder>
+
+  <folder name="Templates">
+     <folder name="Mount">
+        <!-- <file name="Generic_VCS"> -->
+        <file name="org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings">
+          <![CDATA[
+          <!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+          <settings version="1.0">
+            <instanceof class="org.openide.filesystems.FileSystem"/>
+            <instance class="org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem"/>
+          </settings>
+          ]]>
+          <attr name="template" boolvalue="true"/>
+          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
+        </file>
+     </folder>
+   </folder>
 </filesystem>

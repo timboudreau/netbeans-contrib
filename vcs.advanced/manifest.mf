@@ -10,6 +10,3 @@ OpenIDE-Module-Module-Dependencies: org.netbeans.modules.vcscore/1
 OpenIDE-Module-Layer: org/netbeans/modules/vcs/advanced/config/mf-layer.xml
 OpenIDE-Module-Package-Dependencies: org.apache.regexp[RE]
 
-Name: org/netbeans/modules/vcs/advanced/CommandLineVcsFileSystem.class
-Display-Name: Generic VCS
-OpenIDE-Module-Class: Filesystem
