@@ -20,10 +20,12 @@ import org.netbeans.test.oo.gui.jelly.*;
 import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.TestOut;
 import org.netbeans.jemmy.util.PNGEncoder;
+import org.netbeans.jemmy.operators.*;
 import org.netbeans.jellytools.modules.vcsgeneric.wizard.*;
 import org.openide.util.Utilities;
 import org.netbeans.jellytools.*;
 import org.netbeans.jellytools.nodes.Node;
+import org.netbeans.jellytools.actions.UnmountFSAction;
 
 
 /** XTest / JUnit test class performing mounting check of VSS filesystem.
@@ -51,6 +53,8 @@ public class MountVSSFilesystem extends NbTestCase {
         TestSuite suite = new NbTestSuite();
         if (Utilities.isUnix()) return suite;
         suite.addTest(new MountVSSFilesystem("testVSSSettings"));
+        suite.addTest(new MountVSSFilesystem("testVSSConnection"));
+        suite.addTest(new MountVSSFilesystem("testUnmountVSS"));
         return suite;
     }
     
@@ -122,6 +126,41 @@ public class MountVSSFilesystem extends NbTestCase {
             wizard.btBrowse(VCSWizardProfile.INDEX_BT_VSS_SHELL);
         }
         wizard.cancel();
+        System.out.println(". done !");
+    }
+
+    /** Checks that it is possible to mount VSS filesystem.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testVSSConnection() throws Exception {
+        System.out.print(".. Testing VSS filesystem connectivity ..");
+        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+        VCSWizardProfile wizard = new VCSWizardProfile();
+        String profile = VCSWizardProfile.VSS_WIN_NT;
+        int os = Utilities.getOperatingSystem();
+        if ((os == Utilities.OS_WIN95) | (os == Utilities.OS_WIN98))
+            profile = VCSWizardProfile.VSS_WIN_95;
+        wizard.setProfile(profile);
+        new File(workingDirectory + File.separator + "Work").mkdirs();
+        wizard.setWorkingDirectory(workingDirectory + File.separator + "Work");
+        wizard.finish();
+        new JButtonOperator(new NbDialogOperator("Password:"), "OK").push();
+        Thread.currentThread().sleep(3000);
+        String filesystem = "VSS " + workingDirectory + File.separator + "Work";
+        assertNotNull("Error: Can't select filesystem " + filesystem, new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
+        System.out.println(". done !");
+    }
+
+    /** Checks that it is possible to unmount VSS filesystem.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testUnmountVSS() throws Exception {
+        System.out.print(".. Testing unmount VSS filesystem action ..");
+        String filesystem = "VSS " + workingDirectory + File.separator + "Work";
+        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        new UnmountFSAction().perform(filesystemNode);
+        Thread.currentThread().sleep(5000);
+        assertTrue("Error: Unable to unmount filesystem.", !filesystemNode.isPresent());
         System.out.println(". done !");
     }
 }
