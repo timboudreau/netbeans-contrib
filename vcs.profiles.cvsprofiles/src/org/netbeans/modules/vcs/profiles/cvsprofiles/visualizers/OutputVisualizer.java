@@ -259,7 +259,8 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     final class FinishListener implements TaskListener{
         public void taskFinished(Task task){            
             finishVisualizer = true;
-            setExitStatus(vce.getExitStatus());
+            UserCommandTask utask = (UserCommandTask) task;
+            setExitStatus(utask.getExitStatus());
         }
     }
     
