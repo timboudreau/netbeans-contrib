@@ -24,6 +24,7 @@ import org.openide.nodes.Node;
 import org.openide.cookies.EditorCookie;
 import org.openide.util.RequestProcessor;
 import org.openide.filesystems.FileObject;
+import org.openide.ErrorManager;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.Task;
@@ -42,6 +43,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.Logger;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Broker actively monitors environment and provides
@@ -506,41 +508,22 @@ err.log("Couldn't find current nodes...");
 
         if (ManagerSettings.getDefault().isScanOnShow()) {
             if (delayed) {
-                performRescanInRP(dao, ManagerSettings.getDefault().getShowScanDelay());
+                performRescanInRP(current, dao, ManagerSettings.getDefault().getShowScanDelay());
             } else {
-                performRescanInRP(dao, 0);
+                performRescanInRP(current, dao, 0);
             }
         }
     }
 
     private static  DataObject extractDataObject(TopComponent topComponent) {
-        Node[] nodes = topComponent.getActivatedNodes();
-
-        if ((nodes == null) || (nodes.length != 1)) {
-/*
-            if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
-                err.log(
-                  "Unexpected editor component activated nodes " + // NOI18N
-                  " contents: " + nodes); // NOI18N
-            }
-            */
+        DataObject dobj = (DataObject) topComponent.getLookup().lookup(DataObject.class);
+        if (dobj != null && dobj.isValid()) {
+            return dobj;
+        } else {
+//            System.err.println("[TODO] cannot get DO for " + topComponent);
+//            Thread.dumpStack();
             return null;
         }
-
-        Node node = nodes[0];
-
-        final DataObject dao = (DataObject) node.getCookie(DataObject.class);
-        //err.log("Considering data object " + dao);
-        if (dao == null) {
-            return null;
-        }
-
-        if (!dao.isValid()) {
-            //err.log("The data object is not valid!");
-            return null;
-        }
-
-        return dao;
     }
 
     /**
@@ -556,12 +539,13 @@ err.log("Couldn't find current nodes...");
      * Spawns <b>Suggestions Broker thread</b> that finishes actula work
      * asynchronously.
      *
+     * @param tc
      * @param dataobject The Data Object for the file being opened
      * @param delay postpone the action by delay miliseconds
      *
      * @return parametrized task that rescans given dataobject in delay miliseconds
      */
-    private RequestProcessor.Task performRescanInRP(final DataObject dataobject, int delay) {
+    private RequestProcessor.Task performRescanInRP(final TopComponent tc, final DataObject dataobject, int delay) {
 
         /* Scan requests are run in a separate "background" thread.
            However, what happens if the user switches to a different
@@ -605,6 +589,31 @@ err.log("Couldn't find current nodes...");
                 // code is fixing (modifing) document
                 if (wait) {
                     waitingEvent = true;
+                    return;
+                }
+
+                // reassure that Tc was not meanwhile closed. Both current file job
+                // and all opened files job monitors just files opened in editor pane
+
+                final boolean[] isOpened = new boolean[1];
+                try {
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        public void run() {
+                            isOpened[0] = tc.isOpened();   // must be called from AWT
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    ErrorManager err = ErrorManager.getDefault();
+                    err.annotate(e, "[TODO] ignoring rescan of " + tc.getDisplayName());  // NOI18N
+                    err.notify(e);
+                } catch (InvocationTargetException e) {
+                    ErrorManager err = ErrorManager.getDefault();
+                    err.annotate(e, "[TODO] ignoring rescan of " + tc.getDisplayName());  // NOI18N
+                    err.notify(e);
+                }
+
+                if (isOpened[0] == false) {
+                    System.err.println("[TODO] ignoring rescan request for " + tc.getDisplayName());
                     return;
                 }
 
@@ -782,7 +791,9 @@ err.log("Couldn't find current nodes...");
             LOGGER.fine("Scheduled rescan task delayed by " + scanDelay + " ms.");  // NOI18N
         }
 
-        scheduledRescan = performRescanInRP(dataobject, scanDelay);
+        // trap, randomly triggered by multiview
+        assert dataobject.equals(extractDataObject(current)) : "DO=" + dataobject + "  TC=" + current;
+        scheduledRescan = performRescanInRP(current, dataobject, scanDelay);
     }
 
     /** An event ocurred during quiet fix period. */
@@ -908,18 +919,27 @@ err.log("Couldn't find current nodes...");
 
     private void handleTopComponentClosed(TopComponent tc) {
 
+        //System.err.println("[TODO] closing: " + tc.getDisplayName());
+
         componentsChanged();
 
         DataObject dobj = extractDataObject(tc);
-        if (dobj == null) return;
+        if (dobj == null) {
+            //System.err.println("[TODO] has no DO: " + tc.getDisplayName());
+            return;
+        }
 
         List previous = (List) openedFilesSuggestionsMap.remove(dobj.getPrimaryFile());
         if (previous != null) {
+            //System.err.println("[TODO] removing TODOs: " + tc.getDisplayName() + " :" + previous);
             getAllOpenedSuggestionList().addRemove(null, previous, false, null, null);
+        } else {
+            //System.err.println("[TODO] has no TODOs: " + tc.getDisplayName());
         }
     }
 
     private void handleTopComponentOpened(TopComponent tc) {
+        //System.err.println("[TODO] opened: " + tc.getDisplayName());
         if (tc.isShowing()) {
             // currently selected one
             componentsChanged();
@@ -927,7 +947,7 @@ err.log("Couldn't find current nodes...");
             // it is not selected anymore, it was opened in burst
             DataObject dao = extractDataObject(tc);
             if (dao == null) return;
-            performRescanInRP(dao, ManagerSettings.getDefault().getShowScanDelay());
+            performRescanInRP(tc, dao, ManagerSettings.getDefault().getShowScanDelay());
         }
     }
 
@@ -1215,7 +1235,7 @@ err.log("Couldn't find current nodes...");
 
             // form files within MultiViewCloneableTopComponent contantly returns null
             // so I got suggestion to use instanceof CloneableEditorSupport.Pane workaround
-            //  if (tc != null && tc.getLookup().lookup(EditorCookie.class)  != null) {
+            // if (tc != null && tc.getLookup().lookup(EditorCookie.class)  != null) {
             if (tc instanceof CloneableEditorSupport.Pane) {
                 // Found the source editor...
 //                if (tc.isShowing()) {   // FIXME it returns false for components I can positivelly see
