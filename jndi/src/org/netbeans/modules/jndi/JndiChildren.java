@@ -48,6 +48,9 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
   /** The shadow key list for merginag and handling errors*/
   private ArrayList keys;
   
+  /** Wait node hoder*/
+  private WaitNode waitNode;
+  
   /** Constructor
    *  @param parentContext the initial context
    *  @param offset the relative offset of Node in context
@@ -62,8 +65,8 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
    */
   protected void addNotify(){
     //Construct WaitNode key
-    JndiKey waitKey = new JndiKey();
-    setKeys (new Object[]{waitKey});
+    this.waitNode = new WaitNode();
+    this.add( new Node[] { this.waitNode});
     prepareKeys();
   }
   
@@ -107,11 +110,6 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
     }
     if (! (key instanceof JndiKey)) {
       return null;
-    }
-    if (((JndiKey)key).wait){
-      // Temporary Wait Node
-      // This Node has no data part, has to be handled here
-      return new Node[]{new WaitNode()};
     }
     try{
       np =  ((JndiKey)key).name;
@@ -196,15 +194,13 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
   
   /** This is the main action called by Refreshd
    */
-  public void performAction() throws Exception{
+  public void performAction() throws Exception {
     NamingEnumeration ne = parentContext.list(offset);
     this.keys.clear();
     if (ne == null)
       return;
-    int i=0;
     while (ne.hasMore()){
       this.keys.add(new JndiKey((NameClassPair)ne.next()));
-      i++;
      }
   }
   
@@ -212,7 +208,8 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
   /** This action is called by Refreshd after performing main action
    */
   public void postAction() throws Exception{
-    JndiChildren.this.setKeys(this.keys);
+    this.setKeys(this.keys);
+    this.remove ( new Node[]{ this.waitNode});
   }
   
   /** public method that returns the node for which the Children is created
@@ -234,6 +231,7 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
 
 /*
  * <<Log>>
+ *  14   Jaga      1.11.2.0.1.03/29/00  Tomas Zezula    
  *  13   Gandalf-post-FCS1.11.2.0    2/24/00  Ian Formanek    Post FCS changes
  *  12   Gandalf   1.11        1/14/00  Tomas Zezula    
  *  11   Gandalf   1.10        12/17/99 Tomas Zezula    

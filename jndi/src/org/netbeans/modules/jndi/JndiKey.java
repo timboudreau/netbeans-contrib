@@ -25,17 +25,9 @@ public final class JndiKey extends Object {
   
   /* Failed this node while listing*/
   public boolean failed;
-  /* Wait Node */
-  public boolean wait;
   /* The name class pair*/
   public NameClassPair name;
 
-  /** Constructor used for Keys representing the WaitCursor
-   */
-  public JndiKey () {
-    this.wait = true;
-    this.failed =false;
-  }
   
   /** Constructor used for Keys representing remote objects
    *  @param NameClassPair name, name and class of remote object
@@ -43,7 +35,6 @@ public final class JndiKey extends Object {
   public JndiKey (NameClassPair name) {
     this.name = name;
     this.failed = false;
-    this.wait = false;
   }
   
   /** Constructor used for Keys representing remote objects
@@ -53,7 +44,6 @@ public final class JndiKey extends Object {
   public JndiKey (NameClassPair name, boolean failed){
     this.name = name;
     this.failed = failed;
-    this.wait = false;
   }
   
   /** Comparator
@@ -65,13 +55,7 @@ public final class JndiKey extends Object {
       return false;
     }
     JndiKey key = (JndiKey) obj;
-    if (key.wait == true && this.wait == true) 
-      return true; // both WaitNode
-    else if (key.wait == true) // Other WaitNode
-      return false;
-    else if (this.wait == true) // Me WaitNode
-      return false;
-    else if (!this.name.getName().equals(key.name.getName()) || !this.name.getClassName().equals(key.name.getClassName()))
+    if (!this.name.getName().equals(key.name.getName()) || !this.name.getClassName().equals(key.name.getClassName()))
       return false;
     else return true;
   }
@@ -80,16 +64,14 @@ public final class JndiKey extends Object {
    *  @return int hash code of object
    */
   public int hashCode(){
-    if (this.wait == true) return 0;
-    else return this.name.getName().hashCode();
+    return this.name.getName().hashCode();
   }
   
   /** Returns the name of key
    *  return String name
    */
   public String toString () {
-    if (this.wait == true) return "";
-    else return name.toString();
+    return name.toString();
   }
   
 }
