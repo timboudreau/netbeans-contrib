@@ -22,6 +22,7 @@ import java.beans.PropertyChangeEvent;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.*;
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -77,17 +78,17 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
     /* @return menu presenter.
     */
     public JMenuItem getMenuPresenter () {
-        return getPresenter(false, org.openide.util.Utilities.actionsGlobalContext ());
+        return getPresenter(true, org.openide.util.Utilities.actionsGlobalContext ());
     }
 
     /* @return popup presenter.
     */
     public JMenuItem getPopupPresenter () {
-        return getPresenter(true, org.openide.util.Utilities.actionsGlobalContext ());
+        return getPresenter(false, org.openide.util.Utilities.actionsGlobalContext ());
     }
     
     public JMenuItem getPresenter(boolean inMenu, Lookup lookup) {
-        return new MergedMenu(!inMenu, lookup);
+        return new MergedMenu(inMenu, lookup);
     }
     
     /* Getter for name
@@ -112,15 +113,15 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
         return new ContextAwareDelegateAction (this, actionContext);
     }
     
-    private static JMenuItem[] getGlobalMenu(boolean popup, Lookup actionContext) {
+    private static JMenuItem[] getGlobalMenu(boolean inMenu, Lookup actionContext) {
         VcsGlobalCommandsAction globalAction = (VcsGlobalCommandsAction) VcsGlobalCommandsAction.get(VcsGlobalCommandsAction.class);
-        JMenuItem[] globalMenu = globalAction.createMenuItems(globalAction.getActivatedFiles(), popup);
+        JMenuItem[] globalMenu = globalAction.createMenuItems(globalAction.getActivatedFiles(), inMenu);
         return globalMenu;
     }
     
-    private static JMenuItem[] getContextMenu(boolean popup, Lookup actionContext) {
+    private static JMenuItem[] getContextMenu(boolean inMenu, Lookup actionContext) {
         VcsFSCommandsAction contextAction = (VcsFSCommandsAction) VcsFSCommandsAction.get(VcsFSCommandsAction.class);
-        JMenuItem[] contextMenu = contextAction.createMenuItems(popup, actionContext);
+        JMenuItem[] contextMenu = contextAction.createMenuItems(inMenu, actionContext);
         return contextMenu;
     }
     
@@ -128,12 +129,12 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
         
         static final long serialVersionUID = 2650151487189209767L;
         
-        private boolean popup;
+        private boolean inMenu;
         private Lookup lookup;
         private boolean needsChange = true;
         
-        public MergedMenu(boolean popup, Lookup lookup) {
-            this.popup = popup;
+        public MergedMenu(boolean inMenu, Lookup lookup) {
+            this.inMenu = inMenu;
             this.lookup = lookup;
             Lookup.Result globalProvidersRes = Lookup.getDefault().lookup(new Lookup.Template(VcsCommandsProvider.class));
             Lookup.Result contextRes = lookup.lookup (new Lookup.Template (Node.class));
@@ -144,8 +145,8 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
         public void addNotify() {
             if (needsChange) {
                 needsChange = false;
-                JMenuItem[] globalMenu = getGlobalMenu(popup, lookup);
-                JMenuItem[] contextMenu = getContextMenu(popup, lookup);
+                JMenuItem[] globalMenu = getGlobalMenu(inMenu, lookup);
+                JMenuItem[] contextMenu = getContextMenu(inMenu, lookup);
                 setMenuItems(mergeMenu(globalMenu, contextMenu));
             }
             super.addNotify();
@@ -155,6 +156,7 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
         private JMenuItem[] mergeMenu(JMenuItem[] m1, JMenuItem[] m2) {
             for (int i = 0; i < m1.length; i++) {
                 if (!(m1[i] instanceof JMenu)) continue;
+                Icon icon = m1[i].getIcon();
                 String text1 = m1[i].getText();
                 int j;
                 for (j = 0; j < m2.length; j++) {
@@ -166,28 +168,24 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
                 }
                 if (j < m2.length) {
                     m1[i] = new MergedMenuItem((JMenu) m1[i], (JMenu) m2[j]);
+                    if (inMenu) m1[i].setIcon(icon);
                     JMenuItem[] m2n = new JMenuItem[m2.length - 1];
                     for (int k = 0; k < j; k++) m2n[k] = m2[k];
                     for (int k = j + 1; k < m2.length; k++) m2n[k-1] = m2[k];
                     m2 = m2n;
-                }
-            }
-            if (m2.length == 0) {
-                for (int i = 0; i < m1.length; i++) {
-                    if (!(m1[i] instanceof JMenu)) continue;
+                } else {
                     m1[i] = new MergedMenuItem((JMenu) m1[i], addContextPlaceHolder((JMenu) m1[i]));
+                    if (inMenu) m1[i].setIcon(icon);
                 }
-                return m1;
-            } else {
-                JMenuItem[] m = new JMenuItem[m1.length + m2.length];
-                for (int k = 0; k < m1.length; k++) {
-                    m[k] = m1[k];
-                }
-                for (int k = 0; k < m2.length; k++) {
-                    m[m1.length + k] = m2[k];
-                }
-                return m;
             }
+            JMenuItem[] m = new JMenuItem[m1.length + m2.length];
+            for (int k = 0; k < m1.length; k++) {
+                m[k] = m1[k];
+            }
+            for (int k = 0; k < m2.length; k++) {
+                m[m1.length + k] = m2[k];
+            }
+            return m;
         }
         
         private JMenu addContextPlaceHolder(JMenu m) {
