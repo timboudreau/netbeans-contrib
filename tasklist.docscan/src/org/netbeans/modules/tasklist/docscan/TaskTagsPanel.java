@@ -14,24 +14,24 @@
 package org.netbeans.modules.tasklist.docscan;
 
 import java.util.Arrays;
+import java.util.EventObject;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Component;
 import java.awt.Dimension;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JList;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.ListCellRenderer;
-import javax.swing.DefaultListModel;
+import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
+import javax.swing.event.CellEditorListener;
+import javax.swing.table.*;
 
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.awt.Mnemonics;
 import org.openide.util.NbBundle;
+import org.openide.NotifyDescriptor;
+import org.openide.DialogDisplayer;
 
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.Task;
@@ -49,10 +49,9 @@ import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
  * @author  Tor Norbye
  */
 public class TaskTagsPanel extends javax.swing.JPanel
-    implements EnhancedCustomPropertyEditor, ActionListener, 
-               ListSelectionListener, DocumentListener {
+        implements EnhancedCustomPropertyEditor, ActionListener {
 
-    private DefaultListModel model = null;
+    private DefaultTableModel model = null;
 
     /** Creates new form TaskTagsPanel */
     public TaskTagsPanel(TaskTags tags) {
@@ -61,9 +60,48 @@ public class TaskTagsPanel extends javax.swing.JPanel
         setPreferredSize(new Dimension(400, 200));
         this.tags = tags;
 
+        TaskTag[] tagy = tags.getTags();
+        model = new DefaultTableModel(new Object[0][0], new String[] {"Pattern", "Priority"}) {
+            Class[] types = new Class [] {
+                String.class, SuggestionPriority.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return columnIndex == 1;
+            }
+        };
+
+        for (int i = 0; i < tagy.length; i++) {
+            model.addRow(new Object[]{
+                tagy[i].getToken(),
+                tagy[i].getPriority()
+            });
+        }
+        patternsTable.setModel(model);
+
+        TableColumn sportColumn = patternsTable.getColumnModel().getColumn(1);
+        JComboBox combo = new JComboBox();
+        combo.addItem(SuggestionPriority.HIGH);
+        combo.addItem(SuggestionPriority.MEDIUM_HIGH);
+        combo.addItem(SuggestionPriority.MEDIUM);
+        combo.addItem(SuggestionPriority.MEDIUM_LOW);
+        combo.addItem(SuggestionPriority.LOW);
+        sportColumn.setCellEditor(new DefaultCellEditor(combo));
+
+        addButton.addActionListener(this);
+        changeButton.addActionListener(this);
+        deleteButton.addActionListener(this);
+
+
+/*
         ListCellRenderer priorityRenderer = new PriorityListCellRenderer();
-        ComboBoxModel prioritiesModel = 
-            new DefaultComboBoxModel(Task.getPriorityNames());
+        ComboBoxModel prioritiesModel =
+        new DefaultComboBoxModel(Task.getPriorityNames());
+
         prioCombo.setModel(prioritiesModel);
         prioCombo.setRenderer(priorityRenderer);
 
@@ -75,9 +113,6 @@ public class TaskTagsPanel extends javax.swing.JPanel
         }
         tokenList.setModel(model);
 
-        addButton.addActionListener(this);
-        changeButton.addActionListener(this);
-        deleteButton.addActionListener(this);
 
         tokenList.addListSelectionListener(this);
         tokenList.setSelectionInterval(0, 0);
@@ -85,10 +120,11 @@ public class TaskTagsPanel extends javax.swing.JPanel
         updateSensitivity();
         nameField.getDocument().addDocumentListener(this);
         prioCombo.addActionListener(this);
+*/
     }
 
     private TaskTags tags = null;
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -98,11 +134,8 @@ public class TaskTagsPanel extends javax.swing.JPanel
         java.awt.GridBagConstraints gridBagConstraints;
 
         tagLabel = new javax.swing.JLabel();
-        prioLabel = new javax.swing.JLabel();
-        nameLabel = new javax.swing.JLabel();
-        tokenList = new javax.swing.JList();
-        prioCombo = new javax.swing.JComboBox();
-        nameField = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        patternsTable = new javax.swing.JTable();
         addButton = new javax.swing.JButton();
         changeButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
@@ -114,53 +147,28 @@ public class TaskTagsPanel extends javax.swing.JPanel
         tagLabel.setText("Tag List:");
         */
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(tagLabel, gridBagConstraints);
 
-        /*
-        prioLabel.setText("Priority:");
-        */
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        add(prioLabel, gridBagConstraints);
-
-        /*
-        nameLabel.setText("Name:");
-        */
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
-        add(nameLabel, gridBagConstraints);
+        jScrollPane1.setViewportView(patternsTable);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridheight = 5;
+        gridBagConstraints.gridheight = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
-        add(tokenList, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 0.5;
-        add(prioCombo, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
-        add(nameField, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        add(jScrollPane1, gridBagConstraints);
 
         /*
         addButton.setText("Add");
         */
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         add(addButton, gridBagConstraints);
 
         /*
@@ -168,7 +176,9 @@ public class TaskTagsPanel extends javax.swing.JPanel
         */
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         add(changeButton, gridBagConstraints);
 
         /*
@@ -176,11 +186,13 @@ public class TaskTagsPanel extends javax.swing.JPanel
         */
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         add(deleteButton, gridBagConstraints);
 
     }//GEN-END:initComponents
-    
+
     /** Initialize accessibility settings on the panel */
     private void initA11y() {
         /*
@@ -194,51 +206,54 @@ public class TaskTagsPanel extends javax.swing.JPanel
         */
 
         Mnemonics.setLocalizedText(addButton, NbBundle.getMessage(
-                 TaskTagsPanel.class, "AddTag")); // NOI18N
+                TaskTagsPanel.class, "AddTag")); // NOI18N
         Mnemonics.setLocalizedText(changeButton, NbBundle.getMessage(
-                    TaskTagsPanel.class, "ChangeTag")); // NOI18N
+                TaskTagsPanel.class, "ChangeTag")); // NOI18N
         Mnemonics.setLocalizedText(deleteButton, NbBundle.getMessage(
-                    TaskTagsPanel.class, "DeleteTag")); // NOI18N
-        Mnemonics.setLocalizedText(nameLabel, NbBundle.getMessage(
-                 TaskTagsPanel.class, "TagName")); // NOI18N
-        Mnemonics.setLocalizedText(prioLabel, NbBundle.getMessage(
-                 TaskTagsPanel.class, "TagPrio")); // NOI18N
+                TaskTagsPanel.class, "DeleteTag")); // NOI18N
+//        Mnemonics.setLocalizedText(nameLabel, NbBundle.getMessage(
+//                 TaskTagsPanel.class, "TagName")); // NOI18N
+//        Mnemonics.setLocalizedText(prioLabel, NbBundle.getMessage(
+//                 TaskTagsPanel.class, "TagPrio")); // NOI18N
         Mnemonics.setLocalizedText(tagLabel, NbBundle.getMessage(
-                     TaskTagsPanel.class, "TagList")); // NOI18N
+                TaskTagsPanel.class, "TagList")); // NOI18N
 
-        prioLabel.setLabelFor(prioCombo);
-        tagLabel.setLabelFor(tokenList);
-        nameLabel.setLabelFor(nameField);
+//        prioLabel.setLabelFor(prioCombo);
+//        tagLabel.setLabelFor(tokenList);
+//        nameLabel.setLabelFor(nameField);
 
         this.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(TaskTagsPanel.class, "ACSD_Tags")); // NOI18N
-        prioCombo.getAccessibleContext().setAccessibleDescription(
-                NbBundle.getMessage(TaskTagsPanel.class, "ACSD_Prio")); // NOI18N
-        tokenList.getAccessibleContext().setAccessibleDescription(
-                NbBundle.getMessage(TaskTagsPanel.class, "ACSD_List")); // NOI18N
-        nameField.getAccessibleContext().setAccessibleDescription(
-                NbBundle.getMessage(TaskTagsPanel.class, "ACSD_Name")); // NOI18N
+//        prioCombo.getAccessibleContext().setAccessibleDescription(
+//                NbBundle.getMessage(TaskTagsPanel.class, "ACSD_Prio")); // NOI18N
+//        tokenList.getAccessibleContext().setAccessibleDescription(
+//                NbBundle.getMessage(TaskTagsPanel.class, "ACSD_List")); // NOI18N
+//        nameField.getAccessibleContext().setAccessibleDescription(
+//                NbBundle.getMessage(TaskTagsPanel.class, "ACSD_Name")); // NOI18N
         // Buttons too?
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
     private javax.swing.JButton changeButton;
     private javax.swing.JButton deleteButton;
-    private javax.swing.JTextField nameField;
-    private javax.swing.JLabel nameLabel;
-    private javax.swing.JComboBox prioCombo;
-    private javax.swing.JLabel prioLabel;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable patternsTable;
     private javax.swing.JLabel tagLabel;
-    private javax.swing.JList tokenList;
     // End of variables declaration//GEN-END:variables
-    
+
 
     // When used as a property customizer
     public Object getPropertyValue() throws IllegalStateException {
-        TaskTag[] ts = new TaskTag[model.getSize()];
-        for (int i = 0; i < model.getSize(); i++) {
-            TaskTag tag = (TaskTag)model.getElementAt(i);
+        return getEditedTags();
+    }
+
+    private TaskTags getEditedTags() {
+        TaskTag[] ts = new TaskTag[model.getRowCount()];
+        for (int i = 0; i < model.getRowCount(); i++) {
+            String token = (String) model.getValueAt(i, 0);
+            SuggestionPriority prio =  (SuggestionPriority) model.getValueAt(i,1);
+            TaskTag tag = new TaskTag(token, prio);
             ts[i] = tag;
         }
         tags = new TaskTags();
@@ -246,127 +261,34 @@ public class TaskTagsPanel extends javax.swing.JPanel
         return tags;
     }
 
-    class TaskTagRenderer extends DefaultListCellRenderer {
-        //private Icon taskIcon = null;
-        
-	public TaskTagRenderer() {
-            super();
-            //taskIcon = new ImageIcon(Task.class.getResource (
-            //  "/org/netbeans/modules/tasklist/core/task.gif")); // NOI18N
-            
-	}
-     
-	public Component getListCellRendererComponent(JList list, Object value,
-                                                      int index,
-                                                      boolean isSelected,
-                                                      boolean cellHasFocus) {
-            Component c = super.getListCellRendererComponent(list, value,
-                                                             index, isSelected,
-                                                             cellHasFocus);
-            if (value instanceof TaskTag) {
-                TaskTag tag = (TaskTag)value;
-                String desc = tag.getToken();
-                setText(desc);
-                //setIcon(taskIcon);
-            } else {
-                setText(value.toString());
-            }
-            return c;
-        }
-    }
-
     private void updateSensitivity() {
-        int[] selected = tokenList.getSelectedIndices();
+        int[] selected = patternsTable.getSelectedRows();
         int count = (selected != null) ? selected.length : 0;
-        deleteButton.setEnabled(count > 0);
-
-        // Change is enabled whenever the selected item is different
-        // from what is in the Name field
-        String token = getToken();
-        if (count == 1) {
-            TaskTag selectedTag = (TaskTag)model.getElementAt(selected[0]);
-            changeButton.setEnabled(!selectedTag.getToken().equals(token) ||
-                                 getPriority() != selectedTag.getPriority());
-        } else {
-            changeButton.setEnabled(false);
-        }
-
-        // Add is enabled whenever what is in the selected is different
-        // from all the items in the list
-        int n = model.getSize();
-        boolean found = false;
-        for (int i = 0; i < n; i++) {
-            TaskTag tag = (TaskTag)model.getElementAt(i);
-            if (tag.getToken().equals(token)) {
-                found = true;
-                break;
-            }
-        }
-        addButton.setEnabled(!found);
-    }
-
-    private SuggestionPriority getPriority() {
-        int p = prioCombo.getSelectedIndex() + 1;
-        SuggestionPriority priority = Task.getPriority(p);
-        return priority;
-    }
-
-    private String getToken() {
-        return nameField.getText().trim();
+        deleteButton.setEnabled(count == 1);
+        changeButton.setEnabled (count == 1);
+        addButton.setEnabled(true);
     }
 
     public void actionPerformed(ActionEvent actionEvent) {
         Object source = actionEvent.getSource();
-        if (source == prioCombo) {
-            updateSensitivity();
-        } else if (source == addButton) {
-            TaskTag tag = new TaskTag(getToken(), getPriority());
-            model.addElement(tag);
-            int at = model.getSize()-1;
-            tokenList.setSelectionInterval(at, at);
+        if (source == addButton) {
+            NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine("Pattern", "New Task Pattern");
+            DialogDisplayer.getDefault().notify(d);
+            String text = d.getInputText();
+            model.addRow(new Object[] {text, SuggestionPriority.MEDIUM});
         } else if (source == changeButton) {
-            TaskTag tag = new TaskTag(getToken(), getPriority());
-            int[] selected = tokenList.getSelectedIndices();
-            model.removeElementAt(selected[0]);
-            model.insertElementAt(tag, selected[0]);
-            tokenList.setSelectionInterval(selected[0], selected[0]);
+            int row = patternsTable.getSelectedRow();
+            String pattern = (String) model.getValueAt(row, 0);
+            NotifyDescriptor.InputLine d = new NotifyDescriptor.InputLine("Pattern", "Edit Task Pattern");
+            d.setInputText(pattern);
+            DialogDisplayer.getDefault().notify(d);
+            String text = d.getInputText();
+            model.setValueAt(text, row, 0);
         } else if (source == deleteButton) {
-            int[] selected = tokenList.getSelectedIndices();
-            Arrays.sort(selected);
-	    int min = 0;
-            if (selected.length == model.size()) {
-                min = 1;
-            }
-            for (int i = selected.length-1; i >= min; i--) {
-                model.removeElementAt(selected[i]);
-            }
-            tokenList.setSelectionInterval(0, 0);
+            int row = patternsTable.getSelectedRow();
+            model.removeRow(row);
         }
         updateSensitivity();
     }
 
-    public void valueChanged(javax.swing.event.ListSelectionEvent event) {
-        int[] selected = tokenList.getSelectedIndices();
-        if ((selected != null) && (selected.length == 1)) {
-            TaskTag tag = (TaskTag)tokenList.getModel().
-                getElementAt(selected[0]);
-            int p = tag.getPriority().intValue() - 1;
-            prioCombo.setSelectedIndex(p);
-            nameField.setText(tag.getToken());
-        } else {
-            nameField.setText("");
-            prioCombo.setSelectedIndex(2);
-        }
-        updateSensitivity();
-    }
-
-    public void changedUpdate(DocumentEvent e) {
-        updateSensitivity();
-    }
-    public void insertUpdate(DocumentEvent e) {
-        updateSensitivity();
-    }
-    public void removeUpdate(DocumentEvent e) {
-        updateSensitivity();
-    }
 }

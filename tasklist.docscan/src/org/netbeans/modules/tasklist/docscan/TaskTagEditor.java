@@ -39,71 +39,71 @@ implements ExPropertyEditor {
 
     /** sets new value */
     public void setAsText(String s) {
-        TaskTags tags = new TaskTags();
-        int i = 0;
-        int n = s.length();
-        ArrayList list = new ArrayList();
-        while (i < n) {
-            if (s.charAt(i++) != '[') {
-                return;
-            }
-            // Get token
-            StringBuffer token = new StringBuffer();
-            while (i < n) {
-                char c = s.charAt(i++);
-                boolean escaped = (c == '\\');
-                if (escaped) {
-                    if (i == n) {
-                        break;
-                    }
-                    c = s.charAt(i++);
-                }
-                if (!escaped && ((c == ',') || (c == ']'))) {
-                    break;
-                }
-                token.append(c);
-            }
-            StringBuffer priostr = new StringBuffer();
-            while (i < n) {
-                char c = s.charAt(i++);
-                boolean escaped = (c == '\\');
-                if (escaped) {
-                    if (i == n) {
-                        break;
-                    }
-                    c = s.charAt(i++);
-                }
-                if (!escaped && ((c == ',') || (c == ']'))) {
-                    break;
-                }
-                priostr.append(c);
-            }
-            String prioString = priostr.toString();
-            String[] prios = Task.getPriorityNames();
-            SuggestionPriority priority = SuggestionPriority.MEDIUM;
-            for (int j = 0; j < prios.length; j++) {
-                if (prios[j].equals(prioString)) {
-                    priority = Task.getPriority(j+1);
-                    break;
-                }
-            }
-            TaskTag tag = new TaskTag(token.toString(), priority);
-            list.add(tag);
-            if (i == n) {
-                break;
-            }
-            if (s.charAt(i) == ']') {
-                break;
-            }
-            if (s.charAt(i) == ',') {
-                i++;
-            } else {
-                break;
-            }
-        }
-        TaskTag[] tagArray = (TaskTag[])list.toArray(new TaskTag[list.size()]);
-        tags.setTags(tagArray);
-        setValue(tags);
+//        TaskTags tags = new TaskTags();
+//        int i = 0;
+//        int n = s.length();
+//        ArrayList list = new ArrayList();
+//        while (i < n) {
+//            if (s.charAt(i++) != '[') {
+//                return;
+//            }
+//            // Get token
+//            StringBuffer token = new StringBuffer();
+//            while (i < n) {
+//                char c = s.charAt(i++);
+//                boolean escaped = (c == '\\');
+//                if (escaped) {
+//                    if (i == n) {
+//                        break;
+//                    }
+//                    c = s.charAt(i++);
+//                }
+//                if (!escaped && ((c == ',') || (c == ']'))) {
+//                    break;
+//                }
+//                token.append(c);
+//            }
+//            StringBuffer priostr = new StringBuffer();
+//            while (i < n) {
+//                char c = s.charAt(i++);
+//                boolean escaped = (c == '\\');
+//                if (escaped) {
+//                    if (i == n) {
+//                        break;
+//                    }
+//                    c = s.charAt(i++);
+//                }
+//                if (!escaped && ((c == ',') || (c == ']'))) {
+//                    break;
+//                }
+//                priostr.append(c);
+//            }
+//            String prioString = priostr.toString();
+//            String[] prios = Task.getPriorityNames();
+//            SuggestionPriority priority = SuggestionPriority.MEDIUM;
+//            for (int j = 0; j < prios.length; j++) {
+//                if (prios[j].equals(prioString)) {
+//                    priority = Task.getPriority(j+1);
+//                    break;
+//                }
+//            }
+//            TaskTag tag = new TaskTag(token.toString(), priority);
+//            list.add(tag);
+//            if (i == n) {
+//                break;
+//            }
+//            if (s.charAt(i) == ']') {
+//                break;
+//            }
+//            if (s.charAt(i) == ',') {
+//                i++;
+//            } else {
+//                break;
+//            }
+//        }
+//        TaskTag[] tagArray = (TaskTag[])list.toArray(new TaskTag[list.size()]);
+//        tags.setTags(tagArray);
+//        setValue(tags);
     }
 
     public String getAsText() {
@@ -113,30 +113,31 @@ implements ExPropertyEditor {
         } else {
             StringBuffer sb = new StringBuffer(500);
             TaskTags tags = (TaskTags)val;
-            TaskTag[] tgs = tags.getTags();
-            String[] prios = Task.getPriorityNames();
-            for (int i = 0; i < tgs.length; i++) {
-                if (i > 0) {
-                    sb.append(',');
-                }
-                sb.append('[');
-
-                String s = tgs[i].getToken();
-                int n = s.length();
-                for (int j = 0; j < n; j++) {
-                    char c = s.charAt(j);
-                    // escape some metachars
-                    if ((c == ',') || (c == '\\') ||
-                        (c == '[') || (c == ']')) {
-                        sb.append('\\');
-                    }
-                    sb.append(c);
-                }
-                sb.append(',');
-                sb.append(prios[tgs[i].getPriority().intValue()-1]);
-                sb.append(']');
-            }
-            return sb.toString();
+            return tags.getScanRegexp().pattern();
+//            TaskTag[] tgs = tags.getTags();
+//            String[] prios = Task.getPriorityNames();
+//            for (int i = 0; i < tgs.length; i++) {
+//                if (i > 0) {
+//                    sb.append(',');
+//                }
+//                sb.append('[');
+//
+//                String s = tgs[i].getToken();
+//                int n = s.length();
+//                for (int j = 0; j < n; j++) {
+//                    char c = s.charAt(j);
+//                    // escape some metachars
+//                    if ((c == ',') || (c == '\\') ||
+//                        (c == '[') || (c == ']')) {
+//                        sb.append('\\');
+//                    }
+//                    sb.append(c);
+//                }
+//                sb.append(',');
+//                sb.append(prios[tgs[i].getPriority().intValue()-1]);
+//                sb.append(']');
+//            }
+//            return sb.toString();
         }
     }
 
