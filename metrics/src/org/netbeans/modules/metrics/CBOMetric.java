@@ -40,15 +40,8 @@ public class CBOMetric extends AbstractMetric {
     static final String shortDescription = 
 	MetricsNode.bundle.getString ("HINT_CBOMetric");
 
-    public CBOMetric(ClassMetrics classMetrics) {
+    protected CBOMetric(ClassMetrics classMetrics) {
         super(classMetrics);
-    }
-
-    /**
-     * Do not use this constructor!  It's only to be used by the Lookup
-     * service when dynamically loading metric classes.
-     */
-    public CBOMetric() {
     }
 
     public String getName() {
@@ -162,6 +155,20 @@ public class CBOMetric extends AbstractMetric {
 
     public boolean needsOtherClasses() {
         return true;
+    }
+
+    /**
+     * Actually a private class used by the MetricsLoader, but
+     * must be public since its instance is created by the XML
+     * filesystem.
+     */
+    public static class Factory implements MetricFactory {
+	public Metric createMetric(ClassMetrics cm) {
+	    return new CBOMetric(cm);
+	}
+	public Class getMetricClass() {
+	    return CBOMetric.class;
+	}
     }
 }
 

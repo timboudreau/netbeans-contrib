@@ -44,11 +44,8 @@ public abstract class AbstractMetric implements Metric {
     protected String details;
     private PropertyEditor viewer;
 
-    public AbstractMetric(ClassMetrics classMetrics) {
+    protected AbstractMetric(ClassMetrics classMetrics) {
         this.classMetrics = classMetrics;
-    }
-
-    public AbstractMetric() {
     }
 
     public String toString() {

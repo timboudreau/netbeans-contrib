@@ -37,15 +37,8 @@ public class MPCMetric extends AbstractMetric {
 	MetricsNode.bundle.getString ("HINT_MPCMetric");
 
     /** Creates new MPCMetric */
-    public MPCMetric(ClassMetrics classMetrics) {
+    protected MPCMetric(ClassMetrics classMetrics) {
         super(classMetrics);
-    }
-
-    /**
-     * Do not use this constructor!  It's only to be used by the Lookup
-     * service when dynamically loading metric classes.
-     */
-    public MPCMetric() {
     }
 
     public String getName() {
@@ -107,5 +100,19 @@ public class MPCMetric extends AbstractMetric {
 
     public Integer getMetricValue(MethodMetrics mm) throws NoSuchMetricException {
 	return new Integer(mm.getMessageSendCount());
+    }
+
+    /**
+     * Actually a private class used by the MetricsLoader, but
+     * must be public since its instance is created by the XML
+     * filesystem.
+     */
+    public static class Factory implements MetricFactory {
+	public Metric createMetric(ClassMetrics cm) {
+	    return new MPCMetric(cm);
+	}
+	public Class getMetricClass() {
+	    return MPCMetric.class;
+	}
     }
 }

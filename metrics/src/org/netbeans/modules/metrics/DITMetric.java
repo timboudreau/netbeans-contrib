@@ -45,15 +45,8 @@ public class DITMetric extends AbstractMetric {
     static final String shortDescription = 
 	MetricsNode.bundle.getString ("HINT_DITMetric");
 
-    public DITMetric(ClassMetrics classMetrics) {
+    protected DITMetric(ClassMetrics classMetrics) {
         super(classMetrics);
-    }
-
-    /**
-     * Do not use this constructor!  It's only to be used by the Lookup
-     * service when dynamically loading metric classes.
-     */
-    public DITMetric() {
     }
 
     public String getName() {
@@ -116,5 +109,19 @@ public class DITMetric extends AbstractMetric {
     
     public boolean needsOtherClasses() {
         return false;
+    }
+
+    /**
+     * Actually a private class used by the MetricsLoader, but
+     * must be public since its instance is created by the XML
+     * filesystem.
+     */
+    public static class Factory implements MetricFactory {
+	public Metric createMetric(ClassMetrics cm) {
+	    return new DITMetric(cm);
+	}
+	public Class getMetricClass() {
+	    return DITMetric.class;
+	}
     }
 }

@@ -54,15 +54,8 @@ public class WMCMetric extends AbstractMetric {
     static final String shortDescription = 
 	MetricsNode.bundle.getString ("HINT_WMCMetric");
 
-    public WMCMetric(ClassMetrics classMetrics) {
+    protected WMCMetric(ClassMetrics classMetrics) {
         super(classMetrics);
-    }
-
-    /**
-     * Do not use this constructor!  It's only to be used by the Lookup
-     * service when dynamically loading metric classes.
-     */
-    public WMCMetric() {
     }
 
     public String getName() {
@@ -138,5 +131,19 @@ public class WMCMetric extends AbstractMetric {
 
     public boolean isMethodMetric() {
 	return true;
+    }
+
+    /**
+     * Actually a private class used by the MetricsLoader, but
+     * must be public since its instance is created by the XML
+     * filesystem.
+     */
+    public static class Factory implements MetricFactory {
+	public Metric createMetric(ClassMetrics cm) {
+	    return new WMCMetric(cm);
+	}
+	public Class getMetricClass() {
+	    return WMCMetric.class;
+	}
     }
 }

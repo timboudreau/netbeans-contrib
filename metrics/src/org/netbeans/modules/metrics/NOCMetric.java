@@ -38,15 +38,8 @@ public class NOCMetric extends AbstractMetric {
 	MetricsNode.bundle.getString ("HINT_NOCMetric");
 
     /** Creates new NOCMetric */
-    public NOCMetric(ClassMetrics classMetrics) {
+    protected NOCMetric(ClassMetrics classMetrics) {
         super(classMetrics);
-    }
-
-    /**
-     * Do not use this constructor!  It's only to be used by the Lookup
-     * service when dynamically loading metric classes.
-     */
-    public NOCMetric() {
     }
 
     public String getName() {
@@ -84,5 +77,19 @@ public class NOCMetric extends AbstractMetric {
 
     public boolean needsOtherClasses() {
         return true;
+    }
+
+    /**
+     * Actually a private class used by the MetricsLoader, but
+     * must be public since its instance is created by the XML
+     * filesystem.
+     */
+    public static class Factory implements MetricFactory {
+	public Metric createMetric(ClassMetrics cm) {
+	    return new NOCMetric(cm);
+	}
+	public Class getMetricClass() {
+	    return NOCMetric.class;
+	}
     }
 }

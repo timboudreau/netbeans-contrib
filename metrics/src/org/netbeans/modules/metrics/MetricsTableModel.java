@@ -77,7 +77,7 @@ public class MetricsTableModel extends AbstractTableModel
         else
             return "MetricTableModel.getValueAt is broken";
     }
-    private static int maxMetrics = MetricsLoader.getNumberOfMetricClasses();
+    private static int maxMetrics = MetricsLoader.getNumberOfMetrics();
 
     // By default forward all events to all the listeners. 
     public void tableChanged(TableModelEvent e) {

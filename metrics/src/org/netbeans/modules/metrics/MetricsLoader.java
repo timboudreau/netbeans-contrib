@@ -41,40 +41,52 @@ public final class MetricsLoader {
 	// don't instantiate
     }
 
-    private static Class[] metricClasses;
     private static int maxMetrics;
+    private static MetricFactory[] metricFactories;
+    private static Class[] metricClasses;
 
     // Lookup installed metric classes.
     static {
-	Lookup.Template template = new Lookup.Template(Metric.class);
+	Lookup.Template template = new Lookup.Template(MetricFactory.class);
 	final Lookup.Result result = Lookup.getDefault().lookup(template);
 	result.addLookupListener(new LookupListener() {
 		public void resultChanged(LookupEvent e) {
-		    loadMetricClasses(result);
+		    loadMetricFactories(result);
 		}
 	    });
-	loadMetricClasses(result);
+	loadMetricFactories(result);
     }
 
-    private static void loadMetricClasses(Lookup.Result result) {
+    private static void loadMetricFactories(Lookup.Result result) {
 	synchronized (MetricsLoader.class) {
-	    Collection c = result.allInstances();
-	    maxMetrics = c.size();
-	    metricClasses = new Class[maxMetrics];
-	    int n = 0;
-	    for (Iterator i = c.iterator(); i.hasNext(); )
-		metricClasses[n++] = i.next().getClass();
+	    try {
+		Collection c = result.allInstances();
+		maxMetrics = c.size();
+		metricFactories = new MetricFactory[maxMetrics];
+		metricClasses = new Class[maxMetrics];
+		int n = 0;
+		for (Iterator i = c.iterator(); i.hasNext(); ) {
+		    metricFactories[n] = (MetricFactory)i.next();
+		    metricClasses[n] = metricFactories[n].getClass();
+		    n++;
+		}
+	    } catch (Exception e) {
+		String msg = 
+		    "metrics module exception loading factories: " + e;
+		ErrorManager.getDefault().log(ErrorManager.ERROR, msg);
+	    }
 	}
 
-String msg = "metrics module: " + maxMetrics + " metric(s) were loaded";
-org.openide.ErrorManager.getDefault().log(ErrorManager.ERROR, msg);
+	String msg = "metrics module: " + maxMetrics + 
+	    " metric(s) were loaded";
+	ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, msg);
     }
 
     public static Class[] getMetricClasses() {
 	return metricClasses;
     }
 
-    public static int getNumberOfMetricClasses() {
+    public static int getNumberOfMetrics() {
 	return maxMetrics;
     }
 
@@ -83,38 +95,13 @@ org.openide.ErrorManager.getDefault().log(ErrorManager.ERROR, msg);
      * client.  The returned set consists of one metric instance for
      * each installed Metric class, and is not in any specific order.
      *
-     * If the metrics set is to only be used for introspection (such
-     * as by the MetricsContextOption class, then use null for the
-     * ClassMetrics object as that will suppress classfile loading
-     * and node create.  NOTE:  this is dangerous for normal metric
-     * use, as metric objects will throw exceptions such as NPE if
-     * misused.  In other words, don't file any bugs against this
-     * performance hack, or it will be removed.
-     *
      * @param cm  the ClassMetrics object the created metrics will analyze.
      * @return  an array of Metric objects.
      */
     public static Metric[] createMetricsSet(ClassMetrics cm) {
-	
 	Metric[] metrics = new Metric[maxMetrics];
-	for (int i = 0; i < maxMetrics; i++) {
-	    Class cls = metricClasses[i];
-	    try {
-		Constructor c = cls.getConstructor(oneParamCls);
-		oneParam[0] = cm;
-		metrics[i] = (Metric)c.newInstance(oneParam);
-	    } catch (Exception e) {
-		ErrorManager err = ErrorManager.getDefault();
-		err.notify(
-		    ErrorManager.ERROR, 
-		    err.annotate(e, 
-				 "couldn't create metric: " + cls.getName()));
-	    }
-	}
+	for (int i = 0; i < maxMetrics; i++)
+	    metrics[i] = metricFactories[i].createMetric(cm);
 	return metrics;
     }
-    private static Class[] oneParamCls = new Class[] {
-	ClassMetrics.class
-    };
-    private static Object[] oneParam = new Object[1];
 }

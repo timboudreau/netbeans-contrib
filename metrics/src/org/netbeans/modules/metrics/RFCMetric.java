@@ -37,15 +37,8 @@ public class RFCMetric extends AbstractMetric {
 	MetricsNode.bundle.getString ("HINT_RFCMetric");
 
     /** Creates new RFCMetric */
-    public RFCMetric(ClassMetrics classMetrics) {
+    protected RFCMetric(ClassMetrics classMetrics) {
         super(classMetrics);
-    }
-
-    /**
-     * Do not use this constructor!  It's only to be used by the Lookup
-     * service when dynamically loading metric classes.
-     */
-    public RFCMetric() {
     }
 
     public String getName() {
@@ -120,5 +113,19 @@ public class RFCMetric extends AbstractMetric {
 
     public Integer getMetricValue(MethodMetrics mm) throws NoSuchMetricException {
 	return new Integer(mm.getMethodReferencesCount());
+    }
+
+    /**
+     * Actually a private class used by the MetricsLoader, but
+     * must be public since its instance is created by the XML
+     * filesystem.
+     */
+    public static class Factory implements MetricFactory {
+	public Metric createMetric(ClassMetrics cm) {
+	    return new RFCMetric(cm);
+	}
+	public Class getMetricClass() {
+	    return RFCMetric.class;
+	}
     }
 }

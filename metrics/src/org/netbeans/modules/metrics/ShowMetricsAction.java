@@ -69,7 +69,7 @@ public class ShowMetricsAction extends NodeAction {
     }
 
     protected String iconResource(){
-        return "/org/netbeans/modules/metrics/resources/barchart.gif"; //NOI18N
+        return "org/netbeans/modules/metrics/resources/barchart.gif"; //NOI18N
     }
 
     /**
