@@ -71,6 +71,7 @@ public class AddVcsGroupAction extends NodeAction implements Runnable {
                 lock = props.lock();
                 writer = new PrintWriter(props.getOutputStream(lock));
                 writer.println(VcsGroupNode.PROP_NAME + "=" + newName);//NOI18N
+                writer.close();
                 FileObject group = rootFolder.getPrimaryFile().createFolder(foldName);
             } catch (IOException exc) {
                 ErrorManager.getDefault().notify(exc);
