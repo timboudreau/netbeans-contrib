@@ -70,6 +70,8 @@ public class StructureToolbarAction extends    ToolbarCommandAction
                                                Presenter.Toolbar,
                                                HelpCtx.Provider {
     
+    private static final boolean debug = Boolean.getBoolean("netbeans.latex.toolbar.status.change");
+    
     protected CommandDescription findCorrespondingCommandDescription(CommandNode node) {
         if (node == null)
             return getNormal();
@@ -108,13 +110,19 @@ public class StructureToolbarAction extends    ToolbarCommandAction
     }
     
     public void statusChange(Node currentNode) {
-        System.err.println("statusChange");
+        if (debug)
+            System.err.println("statusChange");
+        
         CommandNode cn = findCorrespondingNode(currentNode);
         
-        System.err.println("cn = " + cn );
+        if (debug)
+            System.err.println("cn = " + cn );
+        
         CommandDescription cd = findCorrespondingCommandDescription(cn);
         
-        System.err.println("cd = " + cd );
+        if (debug)
+            System.err.println("cd = " + cd );
+        
         getCombo().setSelectedItem(cd);
     }
     

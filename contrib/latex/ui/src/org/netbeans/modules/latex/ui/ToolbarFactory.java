@@ -44,12 +44,16 @@ import org.openide.filesystems.Repository;
  */
 public class ToolbarFactory {
     
+    private static final boolean debug = Boolean.getBoolean("netbeans.latex.toolbar.creation");
+    
     /** Creates a new instance of ToolbarFactory */
     public ToolbarFactory() {
     }
     
     public static final Action getCommandAction(FileObject fo) {
-        System.err.println("getCommandAction start, fo=" + fo);
+        if (debug)
+            System.err.println("getCommandAction start, fo=" + fo);
+        
         Action action = new ToolbarCommandToggleAction((String) fo.getAttribute("actionIcon"), (String) fo.getAttribute("actionCommand"));//NOI18N
         
         action.putValue(Action.SHORT_DESCRIPTION, fo.getAttribute("actionTooltip"));//NOI18N
@@ -58,7 +62,9 @@ public class ToolbarFactory {
     }
 
     public static final Action getEnvironmentAction(FileObject fo) {
-        System.err.println("getEnvironmentAction start, fo=" + fo);
+        if (debug)
+            System.err.println("getEnvironmentAction start, fo=" + fo);
+        
         Action action = new ToolbarEnvironmentToggleAction((String) fo.getAttribute("actionIcon"), (String) fo.getAttribute("actionEnvironment"));//NOI18N
         
         action.putValue(Action.SHORT_DESCRIPTION, fo.getAttribute("actionTooltip"));//NOI18N

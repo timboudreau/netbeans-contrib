@@ -43,7 +43,7 @@ public class IconsStorageImpl extends IconsStorage {
     
     /** Creates a new instance of IconsStorageImpl */
     public IconsStorageImpl() {
-        Thread.dumpStack();
+//        Thread.dumpStack();
     }
 
     public Icon getIcon(String command) {
@@ -162,6 +162,10 @@ public class IconsStorageImpl extends IconsStorage {
             ErrorManager.getDefault().notify(e);
             return new String[0];
         }
+    }
+
+    public String getCathegoryDisplayName(String catName) {
+        return catName;
     }
 
 }

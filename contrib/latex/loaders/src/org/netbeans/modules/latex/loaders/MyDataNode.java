@@ -67,7 +67,7 @@ public class MyDataNode extends DataNode implements LaTeXSourceFactory.MainFileL
         LaTeXSourceFactory fact = (LaTeXSourceFactory) Lookup.getDefault().lookup(LaTeXSourceFactory.class);
         
         //TODO: the LaTeXSourceFactory in the lookup may change over time, so listen on the result!
-        fact.addPropertyChangeListener(factoryListener = LaTeXSourceFactory.weakMainFileListener(this, fact));
+        fact.addMainFileListener(factoryListener = LaTeXSourceFactory.weakMainFileListener(this, fact));
     }
     
     private LaTeXSourceFactory getFactory() {

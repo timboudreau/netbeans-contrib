@@ -42,6 +42,8 @@ public abstract class IconsStorage {
     
     public abstract Collection/*<String>*/ getCathegories();
     
+    public abstract String getCathegoryDisplayName(String catName);
+    
     public abstract Icon getIcon(String command);
     
     public abstract boolean getIconsInstalled();

@@ -40,7 +40,7 @@ public class LaTeXGUIProjectFactory implements ProjectFactory {
     
     /** Creates a new instance of LaTeXGUIProjectFactory */
     public LaTeXGUIProjectFactory() {
-        Thread.dumpStack();
+//        Thread.dumpStack();
 //        mainFile2Project = new WeakHashMap(); /*is weak correct?*/
     }
     

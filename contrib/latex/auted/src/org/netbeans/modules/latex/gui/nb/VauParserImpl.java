@@ -41,6 +41,7 @@ import org.netbeans.modules.latex.model.command.DefaultTraverseHandler;
 import org.netbeans.modules.latex.model.command.TextNode;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
+import org.openide.ErrorManager;
 
 /**
  *
@@ -391,6 +392,16 @@ public final class VauParserImpl {
                 errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
                 
                 return null;
+            }
+            
+            String position = command.getArgument(0).getFullText().toString().replaceFirst("\\[(.*)\\]", "$1");
+            
+            try {
+                double labelPosition = Double.parseDouble(position);
+                
+                node.setLabelPosition(labelPosition);
+            } catch (NumberFormatException e) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
             }
             
             node.setOrientation(isLeft ? EdgeNode.LEFT : EdgeNode.RIGHT);

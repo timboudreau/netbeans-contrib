@@ -33,11 +33,11 @@ public abstract class LaTeXSourceFactory {
         listeners = new ArrayList();
     }
     
-    public synchronized void addPropertyChangeListener(MainFileListener l) {
+    public synchronized void addMainFileListener(MainFileListener l) {
         listeners.add(l);
     }
 
-    public synchronized void removePropertyChangeListener(MainFileListener l) {
+    public synchronized void removeMainFileListener(MainFileListener l) {
         listeners.remove(l);
     }
     
