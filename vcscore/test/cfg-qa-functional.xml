@@ -14,6 +14,13 @@ Microsystems, Inc. All Rights Reserved.
 
 <mconfig name="qa-functional tests config">
 
+    <testbag testattribs="dummy" name="dummy">
+        <testset dir="qa-functional/src">
+            <patternset>
+            </patternset>
+        </testset>
+    </testbag>
+
     <resultsprocessor name="qa-functional" antfile="build.xml" target="test_report" default="true"/>
     <executor name="ide" antfile="build-qa-functional.xml" target="runidetest" default="true"/>
     <compiler name="qa-functional-compiler" antfile="build-qa-functional.xml" target="qa-functional-compiler" default="true" />
