@@ -7,7 +7,3 @@ OpenIDE-Module-IDE-Dependencies: IDE/1 > 2.5
 OpenIDE-Module-Module-Dependencies: org.openidex.util/2, org.netbeans.modules.editor/1 > 1.7
 OpenIDE-Module-Package-Dependencies: org.apache.regexp[RE]
 
-Name: org/netbeans/modules/vcscore/runtime/RuntimeMainNode.class
-OpenIDE-Module-Class: Node
-Type: Environment
-
