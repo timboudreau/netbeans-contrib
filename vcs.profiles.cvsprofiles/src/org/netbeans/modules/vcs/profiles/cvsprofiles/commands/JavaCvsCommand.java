@@ -48,7 +48,7 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
     
     private static final String WORK_DIR_OPTION = "dir="; // NOI18N
     
-    private VcsFileSystem fileSystem;
+    private CommandExecutionContext executionContext;
     
     private CommandOutputListener stdoutListener;
     private CommandOutputListener stderrListener;
@@ -64,8 +64,8 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
     public JavaCvsCommand() {
     }
     
-    public void setFileSystem(VcsFileSystem fileSystem) {
-        this.fileSystem = fileSystem;
+    public void setExecutionContext(CommandExecutionContext executionContext) {
+        this.executionContext = executionContext;
     }
     
     /** This method is used to execute the command.
@@ -168,7 +168,7 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
                 } catch (IOException ioex) {}
             }
         }
-        VariableValueAdjustment vva = fileSystem.getVarValueAdjustment();
+        VariableValueAdjustment vva = executionContext.getVarValueAdjustment();
         for (int i = 0; i < args.length; i++) {
             args[i] = vva.revertAdjustedVarValue(args[i]);
         }
