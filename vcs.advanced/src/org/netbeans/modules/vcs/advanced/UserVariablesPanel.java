@@ -161,7 +161,8 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
             } else {
                 if (name.indexOf(VcsFileSystem.VAR_ENVIRONMENT_PREFIX) == 0 ||
                     name.indexOf(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX) == 0 ||
-                    "MODULE".equals(name)) {
+                    "MODULE".equals(name) ||
+                    "PASSWORD".equals(name)) {
                     filteredVariables.add(var);
                     continue;
                 }
