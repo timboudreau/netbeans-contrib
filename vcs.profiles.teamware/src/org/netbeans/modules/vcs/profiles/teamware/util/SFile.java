@@ -115,15 +115,19 @@ public class SFile {
     }
     
     public synchronized void unedit() throws IOException {
-        File baseFile = new File(sFile.getParentFile().getParent(),
-            sFile.getName().substring(2));
+        String name = sFile.getName().substring(2);
         File pFile = new File(sFile.getParent(),
-            "p." + baseFile.getName());
+            "p." + name);
         if (!pFile.exists()) {
-            throw new IOException(baseFile.getName()
-                + " is not being edited");
+            throw new IOException(name + " is not being edited");
         }
         pFile.delete();
+        get();
+    }
+    
+    public synchronized void get() throws IOException {
+        File baseFile = new File(sFile.getParentFile().getParent(),
+            sFile.getName().substring(2));
         baseFile.delete();
         OutputStream baseFileOut = new FileOutputStream(baseFile);
         baseFileOut.write(getAsBytes(getRevisions().getActiveRevision() , true));
@@ -299,12 +303,8 @@ public class SFile {
         }
         writeSFile(sb);
         pFile.delete();
-        baseFile.delete();
-        OutputStream baseFileOut = new FileOutputStream(baseFile);
         revisionList = null;
-        baseFileOut.write(getAsBytes(getRevisions().getActiveRevision(), true));
-        baseFileOut.close();
-        baseFile.setReadOnly();
+        get();
     }
     
     public synchronized void create() throws IOException {
@@ -346,12 +346,7 @@ public class SFile {
         sb.append("\u0001E 1\n");
         
         writeSFile(sb);
-        baseFile.delete();
-        OutputStream baseFileOut = new FileOutputStream(baseFile);
-        revisionList = null;
-        baseFileOut.write(getAsBytes(getRevisions().getActiveRevision(), true));
-        baseFileOut.close();
-        baseFile.setReadOnly();
+        get();
     }
 
     public synchronized void fix() throws IOException {
@@ -845,6 +840,10 @@ public class SFile {
     }
         
     private String expandVariables(String line, SRevisionItem item) {
+        // variables are not expanded in binary files
+        if (isEncoded()) {
+            return line;
+        }
         int i = line.indexOf("%");
         while (i > -1) {
             if (i >= line.length() - 2) {
