@@ -685,7 +685,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             return initialIgnoreList;
         }
         
-        public ArrayList createIgnoreList(FileObject file, ArrayList parentIgnoreList) {
+        public ArrayList createIgnoreList(String fileName, ArrayList parentIgnoreList) {
             VcsCommand cmd = getCommand(CMD_CREATE_FOLDER_IGNORE_LIST);
             if (cmd == null) {
                 return parentIgnoreList;
@@ -695,7 +695,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             additionalVars.put(VAR_PARENT_IGNORE_LIST, VcsUtilities.arrayToQuotedStrings(parentIgnoreListItems));
             final ArrayList ignoreList = new ArrayList();
             Table files = new Table();
-            files.put(file.getPackageNameExt('/', '.'), file);
+            files.put(fileName, findResource(fileName));
             VcsCommandExecutor[] executors = VcsAction.doCommand(
                 files, cmd, additionalVars, CommandLineVcsFileSystem.this, null, null,
                 new CommandDataOutputListener() {

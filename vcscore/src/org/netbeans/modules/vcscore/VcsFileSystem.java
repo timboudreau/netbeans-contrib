@@ -79,7 +79,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public static interface IgnoreListSupport {
         
         public ArrayList createInitialIgnoreList ();
-        public ArrayList createIgnoreList (org.openide.filesystems.FileObject file, ArrayList parentIgnoreList);
+        public ArrayList createIgnoreList (String fileName, ArrayList parentIgnoreList);
     }
                                                                                                                                                            
                                                                               
@@ -983,7 +983,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         FileObject parent = fo.getParent();
         ArrayList ignorelist = null;
         if (parent == null)
-            ignorelist = ignSupport.createIgnoreList(fo, ignSupport.createInitialIgnoreList());
+            ignorelist = ignSupport.createIgnoreList(path, ignSupport.createInitialIgnoreList());
         else {
             CacheDir pd = cache.getDir(parent.getPackageNameExt('/','.'));
             if (parent.getParent() == null && pd != null && pd.getIgnoreList() == null) {
@@ -993,15 +993,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 ArrayList parentIgnoreList = pd.getIgnoreList();
                 if (parentIgnoreList == null) {
                     // Parent is a root of FS
-                    ignorelist = ignSupport.createIgnoreList(fo, ignSupport.createInitialIgnoreList());
+                    ignorelist = ignSupport.createIgnoreList(path, ignSupport.createInitialIgnoreList());
                 } else {
                     // Parent is a package in FS
-                    ignorelist = ignSupport.createIgnoreList(fo,parentIgnoreList);
+                    ignorelist = ignSupport.createIgnoreList(path, parentIgnoreList);
                 }
             }
             else {
                 // If called for root of file system
-                ignorelist = ignSupport.createIgnoreList(fo, ignSupport.createInitialIgnoreList());
+                ignorelist = ignSupport.createIgnoreList(path, ignSupport.createInitialIgnoreList());
             }
         }
         dir.setIgnoreList(ignorelist);
