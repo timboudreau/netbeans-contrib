@@ -31,8 +31,6 @@ import org.netbeans.modules.vcscore.commands.*;
 //-------------------------------------------
 public class CommandLineVcsDirReader extends ExecuteCommand {
 
-    private String path;
-
     private List rawData = new ArrayList();
     private boolean classRunning = false;
 
@@ -45,25 +43,6 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
         super(fileSystem, list, vars);
         //super("VCS-DirReader-"+((String)vars.get("DIR"))); // NOI18N
         this.listener = listener;
-        path = (String)vars.get("DIR"); // NOI18N
-        //System.out.println("CommandLineVcsDirReader(): DIR="+(String)vars.get("DIR")); // NOI18N
-        //dir = new VcsCacheDir();
-        path = path.replace (java.io.File.separatorChar, '/');
-        path = fileSystem.getFile(path).getAbsolutePath().replace(java.io.File.separatorChar, '/');
-        //System.out.println("CommandLineVcsDirReader(): path = "+path);
-        /*
-        dir = (VcsCacheDir) fileSystem.getCache().getDir(path);
-        if (dir == null) {
-            //dir = new VcsCacheDir(fileSystem.getCacheIdStr(), fileSystem.getFile(path));
-            dir = (VcsCacheDir) CacheHandler.getInstance().getCacheFile(
-                    fileSystem.getFile(path),
-                    CacheHandler.STRAT_TEMP_DISK, fileSystem.getCacheIdStr());
-        }
-         */
-        //dir.setPath (path);
-        //dir.setName (VcsUtilities.getFileNamePart (path));
-        //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
-        //this.exec = (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
     }
 
     /**
@@ -73,31 +52,6 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
     public VcsCommandVisualizer getVisualizer() {
         return null;
     }
-    
-    /**
-     * Get the set of files being processed by the command.
-     * @return the set of files of type <code>String</code> relative
-     * to the file system root.
-     *
-    public Collection getFiles() {
-        String path = (String) vars.get("DIR");
-        String file = (String) vars.get("FILE");
-        String fullPath = ((path.length() > 0) ? path.replace(File.separatorChar, '/') : "") + ((file == null) ? "" : "/" + file);
-        return Collections.singleton(fullPath);
-        //HashSet set = new HashSet(1);
-        //set.add(file);
-        //return set;
-    }
-     */
-    
-    /*
-     * Get the path of the processed files.
-     * The path is relative to file system root.
-     *
-    public String getPath() {
-        return (String) vars.get("DIR");
-    }
-     */
     
     //-------------------------------------------
     public List getRawData(){
