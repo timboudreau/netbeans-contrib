@@ -16,11 +16,13 @@ package org.netbeans.api.web.dd;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import org.netbeans.modules.web.dd.impl.WebAppProxy;
 import org.openide.filesystems.*;
 import org.xml.sax.*;
 import java.util.Map;
 import org.openide.util.NbBundle;
+import java.net.URL;
 
 /**
  * Provides access to Deployment Descriptor root ({@link org.netbeans.api.web.dd.WebApp} object)
@@ -31,11 +33,18 @@ import org.openide.util.NbBundle;
 public final class DDProvider {
     private static DDProvider ddProvider;
     private Map ddMap;
+    private Map baseBeanMap;
+    private Map errorMap;
+    private FCA fileChangeListener;
+
     private static final String EXCEPTION_PREFIX="version:"; //NOI18N
     
     /** Creates a new instance of WebModule */
     private DDProvider() {
-        ddMap=new java.util.WeakHashMap(5);
+        ddMap=new java.util.HashMap(5);
+        baseBeanMap=new java.util.HashMap(5);
+        errorMap=new java.util.HashMap(5);
+        fileChangeListener = new FCA ();
     }
     
     /**
@@ -47,6 +56,7 @@ public final class DDProvider {
         return ddProvider;
     }
     
+
     /**
      * Returns the root of deployment descriptor bean graph for given file object.
      * The method is useful for clints planning to read only the deployment descriptor
@@ -56,60 +66,26 @@ public final class DDProvider {
      */
     public WebApp getDDRoot(FileObject fo) throws java.io.IOException {
         
-        WebAppProxy webApp = (WebAppProxy)ddMap.get(fo);
+        WebAppProxy webApp = getFromCache (fo);
         if (webApp!=null) return webApp;
         
-        fo.addFileChangeListener(new FileChangeAdapter() {
-            public void fileChanged(FileEvent evt) {
-                FileObject fo=evt.getFile();
-                try {
-                    WebAppProxy webApp = (WebAppProxy)ddMap.get(fo);
-                    if (webApp!=null) {
-                        String version = null;
-                        try {
-                            version = getVersion(fo.getInputStream());
-                            // preparsing
-                            SAXParseException error = parse(fo);
-                            if (error!=null) {
-                                webApp.setError(error);
-                                webApp.setStatus(WebApp.STATE_INVALID_PARSABLE);
-                            } else {
-                                webApp.setError(null);
-                                webApp.setStatus(WebApp.STATE_VALID);
-                            }
-                            WebApp original = createWebApp(fo.getInputStream(), version);
-                            // replacing original file in proxy WebApp
-                            if (!version.equals(webApp.getVersion())) {
-                                webApp.setOriginal(original);
-                            } else {// the same version
-                                // replacing original file in proxy WebApp
-                                if (webApp.getOriginal()==null) {
-                                    webApp.setOriginal(original);
-                                } else {
-                                    webApp.getOriginal().merge(original,WebApp.MERGE_UPDATE);
-                                }
-                            }
-                        } catch (SAXException ex) {
-                            if (ex instanceof SAXParseException) {
-                                webApp.setError((SAXParseException)ex);
-                            } else if ( ex.getException() instanceof SAXParseException) {
-                                webApp.setError((SAXParseException)ex.getException());
-                            }
-                            webApp.setStatus(WebApp.STATE_INVALID_UNPARSABLE);
-                            webApp.setOriginal(null);
-                            webApp.setProxyVersion(version);
-                        }
-                    }
-                } catch (java.io.IOException ex){}
-            }
-        });
+
+        fo.addFileChangeListener(fileChangeListener);
         
         String version=null;
+        SAXParseException error = null;
         try {
-            version = getVersion(fo.getInputStream());
-            // preparsing
-            SAXParseException error = parse(fo);
-            WebApp original = createWebApp(fo.getInputStream(), version);
+            WebApp original = getOriginalFromCache (fo);
+            if (original == null) {
+                version = getVersion(fo.getInputStream());
+                // preparsing
+                error = parse(fo);
+                original = createWebApp(fo.getInputStream(), version);
+                baseBeanMap.put(fo.getURL(), new WeakReference (original));
+            } else {
+                version = original.getVersion ();
+                error = (SAXParseException) errorMap.get (fo.getURL ());
+            }
             webApp=new WebAppProxy(original,version);
             if (error!=null) {
                 webApp.setStatus(WebApp.STATE_INVALID_PARSABLE);
@@ -124,7 +100,7 @@ public final class DDProvider {
                 webApp.setError((SAXParseException)ex.getException());
             }
         }
-        ddMap.put(fo,webApp);
+        ddMap.put(fo.getURL(), new WeakReference (webApp));
         return webApp;
     }
 
@@ -139,7 +115,34 @@ public final class DDProvider {
     public WebApp getDDRootCopy(FileObject fo) throws java.io.IOException {
         return (WebApp)getDDRoot(fo).clone();
     }
+
+    private WebAppProxy getFromCache (FileObject fo) throws java.io.IOException {
+        WeakReference wr = (WeakReference) ddMap.get(fo.getURL ());
+        if (wr == null) {
+            return null;
+        }
+        WebAppProxy webApp = (WebAppProxy) wr.get ();
+        if (webApp == null) {
+            ddMap.remove (fo.getURL ());
+        }
+        return webApp;
+    }
     
+    private WebApp getOriginalFromCache (FileObject fo) throws java.io.IOException {
+        WeakReference wr = (WeakReference) baseBeanMap.get(fo.getURL ());
+        if (wr == null) {
+            return null;
+        }
+        WebApp webApp = (WebApp) wr.get ();
+        if (webApp == null) {
+            baseBeanMap.remove (fo.getURL ());
+            errorMap.remove (fo.getURL ());
+            if (ddMap.get (fo.getURL ()) == null) {
+            }
+        }
+        return webApp;
+    }
+
     /**
      * Returns the root of deployment descriptor bean graph for java.io.File object.
      *
@@ -150,9 +153,11 @@ public final class DDProvider {
         return createWebApp(new FileInputStream(f), getVersion(new FileInputStream(f)));
     }
     
-    // PENDING j2eeserver needs BaseBean - this is a temporary workaround to avoid dependency of web project on DD impl
-    /**  Convenient method for getting the BaseBean object from CommonDDBean object
-     * @deprecated DO NOT USE - TEMPORARY WORKAROUND !!!!
+    /**  Convenient method for getting the BaseBean object from CommonDDBean object.
+     * The j2eeserver module needs BaseBean to implement jsr88 API.
+     * This is a temporary workaround until the implementation of jsr88 moves into ddapi
+     * or the implementation in j2eeserver gets changed.
+     * @deprecated do not use - temporary workaround that exposes the schema2beans implementation
      */
     public org.netbeans.modules.schema2beans.BaseBean getBaseBean(org.netbeans.api.web.dd.common.CommonDDBean bean) {
         if (bean instanceof org.netbeans.modules.schema2beans.BaseBean) return (org.netbeans.modules.schema2beans.BaseBean)bean;
@@ -281,4 +286,64 @@ public final class DDProvider {
         return null;
     }
 
+    private class FCA extends FileChangeAdapter {
+            public void fileChanged(FileEvent evt) {
+                FileObject fo=evt.getFile();
+                try {
+                    WebAppProxy webApp = getFromCache (fo);
+                    WebApp orig = getOriginalFromCache (fo);
+                    if (webApp!=null) {
+                        String version = null;
+                        try {
+                            version = getVersion(fo.getInputStream());
+                            // preparsing
+                            SAXParseException error = parse(fo);
+                            if (error!=null) {
+                                webApp.setError(error);
+                                webApp.setStatus(WebApp.STATE_INVALID_PARSABLE);
+                            } else {
+                                webApp.setError(null);
+                                webApp.setStatus(WebApp.STATE_VALID);
+                            }
+                            WebApp original = createWebApp(fo.getInputStream(), version);
+                            baseBeanMap.put(fo.getURL(), new WeakReference (original));
+                            errorMap.put(fo.getURL(), webApp.getError ());
+                            // replacing original file in proxy WebApp
+                            if (!version.equals(webApp.getVersion())) {
+                                webApp.setOriginal(original);
+                            } else {// the same version
+                                // replacing original file in proxy WebApp
+                                if (webApp.getOriginal()==null) {
+                                    webApp.setOriginal(original);
+                                } else {
+                                    webApp.getOriginal().merge(original,WebApp.MERGE_UPDATE);
+                                }
+                            }
+                        } catch (SAXException ex) {
+                            if (ex instanceof SAXParseException) {
+                                webApp.setError((SAXParseException)ex);
+                            } else if ( ex.getException() instanceof SAXParseException) {
+                                webApp.setError((SAXParseException)ex.getException());
+                            }
+                            webApp.setStatus(WebApp.STATE_INVALID_UNPARSABLE);
+                            webApp.setOriginal(null);
+                            webApp.setProxyVersion(version);
+                        }
+                    } else if (orig != null) {
+                        String version = null;
+                        try {
+                            version = getVersion(fo.getInputStream());
+                            WebApp original = createWebApp(fo.getInputStream(), version);
+                            if (original.getClass().equals (orig.getClass())) {
+                                orig.merge(original,WebApp.MERGE_UPDATE);
+                            } else {
+                                baseBeanMap.put(fo.getURL(), new WeakReference (original));
+                            }
+                        } catch (SAXException ex) {
+                            baseBeanMap.remove(fo.getURL());
+                        }
+                    }
+                } catch (java.io.IOException ex){}
+            }
+        }
 }
