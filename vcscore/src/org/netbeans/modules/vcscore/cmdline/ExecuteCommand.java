@@ -616,28 +616,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         for (int i = 0; i < execs.length; i++) {
             String exec = execs[i];
             ExternalCommand ec = new ExternalCommand(exec);
-            this.externalCommand = ec;
-            //ec.setTimeout(cmd.getTimeout());
-            ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT),
-                        VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_INPUT_REPEAT));
-            ec.setEnv(executionContext.getEnvironmentVars());
-            //D.deb(cmd.getName()+".getInput()='"+cmd.getInput()+"'"); // NOI18N
-
+            setupExternalCommand(ec);
             StringBuffer[] globalDataOutput = addRegexListeners(ec, globalRegexs);
-
-            for (Iterator it = textOutputListeners.iterator(); it.hasNext(); ) {
-                ec.addTextOutputListener((TextOutputListener) it.next());
-            }
-            for (Iterator it = textErrorListeners.iterator(); it.hasNext(); ) {
-                ec.addTextErrorListener((TextOutputListener) it.next());
-            }
-
-            for (Iterator it = immediateOutputListeners.iterator(); it.hasNext(); ) {
-                ec.addImmediateTextOutputListener((TextOutputListener) it.next());
-            }
-            for (Iterator it = immediateErrorListeners.iterator(); it.hasNext(); ) {
-                ec.addImmediateTextErrorListener((TextOutputListener) it.next());
-            }
 
             //E.deb("ec="+ec); // NOI18N
             int status = ec.exec();
@@ -682,6 +662,68 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
 
         D.deb("run("+cmd.getName()+") finished"); // NOI18N
+    }
+    
+    /**
+     * Execute a command-line command.
+     */
+    protected void runCommand(StructuredExec exec) {
+        preferredExec = preferredExecExpanded = VcsUtilities.array2stringNl(ExternalCommand.parseParameters(exec));
+        StringBuffer[] globalDataOutputWhole = null;
+        Pattern[] globalRegexs = new Pattern[2];
+        ExternalCommand ec = new ExternalCommand(exec);
+        setupExternalCommand(ec);
+        StringBuffer[] globalDataOutput = addRegexListeners(ec, globalRegexs);
+
+        //E.deb("ec="+ec); // NOI18N
+        int status = ec.exec();
+        exitStatus = status;
+        if (globalDataOutput != null) {
+            if (globalDataOutput[0] != null) {
+                printGlobalDataOutput(globalDataOutput[0].toString(), globalRegexs[0]);
+            }
+            if (globalDataOutput[1] != null) {
+                printGlobalErrorDataOutput(globalDataOutput[1].toString(), globalRegexs[1]);
+            }
+        }
+        switch (exitStatus) {
+        case VcsCommandExecutor.SUCCEEDED:
+            commandFinished(preferredExecExpanded, true);
+            break;
+        case VcsCommandExecutor.INTERRUPTED:
+            //commandFinished(exec, false);
+            //break;
+            // Do the same as when the command fails.
+        case VcsCommandExecutor.FAILED:
+            commandFinished(preferredExecExpanded, false);
+            if (fileSystem != null) fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
+            break;
+        }
+
+        D.deb("run("+cmd.getName()+") finished"); // NOI18N
+    }
+    
+    private void setupExternalCommand(ExternalCommand ec) {
+        this.externalCommand = ec;
+        //ec.setTimeout(cmd.getTimeout());
+        ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT),
+                    VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_INPUT_REPEAT));
+        ec.setEnv(executionContext.getEnvironmentVars());
+        //D.deb(cmd.getName()+".getInput()='"+cmd.getInput()+"'"); // NOI18N
+
+        for (Iterator it = textOutputListeners.iterator(); it.hasNext(); ) {
+            ec.addTextOutputListener((TextOutputListener) it.next());
+        }
+        for (Iterator it = textErrorListeners.iterator(); it.hasNext(); ) {
+            ec.addTextErrorListener((TextOutputListener) it.next());
+        }
+
+        for (Iterator it = immediateOutputListeners.iterator(); it.hasNext(); ) {
+            ec.addImmediateTextOutputListener((TextOutputListener) it.next());
+        }
+        for (Iterator it = immediateErrorListeners.iterator(); it.hasNext(); ) {
+            ec.addImmediateTextErrorListener((TextOutputListener) it.next());
+        }
     }
     
     protected void printOutput(String line) {
@@ -832,7 +874,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     public void run() {
         //isRunning = true;
         //hasStarted = true;
-        String exec;
+        String exec = null;
+        String[] execs = null;
         int maxCmdLength = 0;
         String maxCmdLengthStr = (String) vars.get(Variables.MAX_CMD_LENGTH);
         if (maxCmdLengthStr != null) {
@@ -840,23 +883,27 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 maxCmdLength = Integer.parseInt(maxCmdLengthStr);
             } catch (NumberFormatException nfex) {}
         }
-        if (preferredExec != null) exec = preferredExec;
-        else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
-        //System.out.println("ExecuteCommand.run(): exec = "+exec+"\npreferredExec = "+preferredExec);
-        if (exec == null) return ; // Silently ignore null exec
-        String execOrig = exec;
-        exec = Variables.expand(vars, exec, false);
-        exec = exec.trim();
-        if (exec.trim().length() == 0) {
-            preferredExec = "";
-            return ; // Silently ignore empty exec
-        }
-        String[] execs;
-        //System.out.println("Exec length = "+exec.length()+", MAX is "+maxCmdLengthStr);
-        if (maxCmdLength > 0 && exec.length() > maxCmdLength) {
-            execs = splitExec(execOrig, maxCmdLength);
+        StructuredExec sexec = (StructuredExec) cmd.getProperty(VcsCommand.PROPERTY_EXEC_STRUCTURED);
+        if (sexec != null) {
+            sexec = sexec.getExpanded(vars, false);
         } else {
-            execs = new String[] { exec };
+            if (preferredExec != null) exec = preferredExec;
+            else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
+            //System.out.println("ExecuteCommand.run(): exec = "+exec+"\npreferredExec = "+preferredExec);
+            if (exec == null) return ; // Silently ignore null exec
+            String execOrig = exec;
+            exec = Variables.expand(vars, exec, false);
+            exec = exec.trim();
+            if (exec.trim().length() == 0) {
+                preferredExec = "";
+                return ; // Silently ignore empty exec
+            }
+            //System.out.println("Exec length = "+exec.length()+", MAX is "+maxCmdLengthStr);
+            if (maxCmdLength > 0 && exec.length() > maxCmdLength) {
+                execs = splitExec(execOrig, maxCmdLength);
+            } else {
+                execs = new String[] { exec };
+            }
         }
         if (doPostExecutionRefresh) {
             filesToRefresh = new ArrayList(getFiles()); // All files should be refreshed at the end.
@@ -866,9 +913,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         // Initialize refreshFilesBase and refreshFilesMustStartWith fields:
         createRefreshFilesBase();
         
-        String[] allArgs = VcsUtilities.getQuotedArguments(exec);
-        String first = allArgs[0];
-        //E.deb("first = "+first); // NOI18N
         boolean checkForModification = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)
                                        && (fileSystem != null);
         Collection processingFiles = null;
@@ -892,12 +936,18 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 }
                 VcsAction.assureFilesSaved(fileObjects);
             }
-            if (first != null && (first.toLowerCase().endsWith(".class"))) {// NOI18N
-                String[] args = new String[allArgs.length - 1];
-                System.arraycopy(allArgs, 1, args, 0, args.length);
-                runClass(exec, first.substring(0, first.length() - ".class".length()), args); // NOI18N
+            if (sexec != null) {
+                runCommand(sexec);
             } else {
-                runCommand(execs);
+                String[] allArgs = VcsUtilities.getQuotedArguments(exec);
+                String first = allArgs[0];
+                if (first != null && (first.toLowerCase().endsWith(".class"))) {// NOI18N
+                    String[] args = new String[allArgs.length - 1];
+                    System.arraycopy(allArgs, 1, args, 0, args.length);
+                    runClass(exec, first.substring(0, first.length() - ".class".length()), args); // NOI18N
+                } else {
+                    runCommand(execs);
+                }
             }
         } finally {
             if (checkForModification) {

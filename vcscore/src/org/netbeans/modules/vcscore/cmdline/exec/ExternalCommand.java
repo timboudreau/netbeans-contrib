@@ -44,6 +44,7 @@ public class ExternalCommand {
     //public static final int FAILED_ON_TIMEOUT=2;
 
     private String command = null;
+    private StructuredExec scommand = null;
     //private long timeoutMilis = 0;
     private int exitStatus = VcsCommandExecutor.SUCCEEDED;
     private String inputData = null;
@@ -91,11 +92,17 @@ public class ExternalCommand {
         setInput(input, false);
     }
 
-
+    public ExternalCommand(StructuredExec sexec) {
+        setCommand(sexec);
+    }
 
     //-------------------------------------------
     public void setCommand(String command) {
         this.command = command;
+    }
+
+    public void setCommand(StructuredExec scommand) {
+        this.scommand = scommand;
     }
 
 
@@ -267,6 +274,30 @@ public class ExternalCommand {
         return ret;
     }
     
+    public static String[] parseParameters(StructuredExec sexec) {
+        List cmdList = new ArrayList();
+        cmdList.add(sexec.getExecutable());
+        StructuredExec.Argument[] args = sexec.getArguments();
+        for (int i = 0; i < args.length; i++) {
+            String arg = args[i].getArgument().trim();
+            if (args[i].isLine()) {
+                int begin = 0;
+                int end = arg.indexOf(' ');
+                while (end > 0) {
+                    cmdList.add(arg.substring(begin, end));
+                    begin = end + 1;
+                    while (begin < arg.length() && Character.isWhitespace(arg.charAt(begin))) begin++;
+                    end = arg.indexOf(' ', begin);
+                }
+                end = arg.length();
+                if (begin < end) cmdList.add(arg.substring(begin, end));
+            } else {
+                cmdList.add(arg);
+            }
+        }
+        return (String[]) cmdList.toArray(new String[0]);
+    }
+    
     private static ArrayList outputGrabbers = new ArrayList();
     private static RequestProcessor outputRequestProcessor;
 
@@ -287,29 +318,27 @@ public class ExternalCommand {
         }
         try{
             //D.deb("Thread.currentThread()="+Thread.currentThread()); // NOI18N
-
-            String[] commandArr=parseParameters(command);
-            D.deb("commandArr="+VcsUtilities.arrayToString(commandArr)); // NOI18N
-            /*
-            if (commandArr.toLowerCase().endsWith(".class")) {
-              execClass(commandArr);
-        }
-            */
-	    
-            try{
-                if (envp == null) {
-                    proc = Runtime.getRuntime().exec(commandArr);
-                    //System.out.println("exec("+VcsUtilities.array2string(commandArr)+")");
+            String[] commandArr = null;
+            try {
+                if (scommand != null) {
+                    commandArr = parseParameters(scommand);
+                    proc = Runtime.getRuntime().exec(commandArr, envp, scommand.getWorking());
                 } else {
-                    proc = Runtime.getRuntime().exec(commandArr, envp);
-                    //System.out.println("exec("+VcsUtilities.array2string(commandArr)+", envp = "+envp+")");
+                    commandArr = parseParameters(command);
+                    //D.deb("commandArr="+VcsUtilities.arrayToString(commandArr)); // NOI18N
+                    if (envp == null) {
+                        proc = Runtime.getRuntime().exec(commandArr);
+                        //System.out.println("exec("+VcsUtilities.array2string(commandArr)+")");
+                    } else {
+                        proc = Runtime.getRuntime().exec(commandArr, envp);
+                        //System.out.println("exec("+VcsUtilities.array2string(commandArr)+", envp = "+envp+")");
+                    }
                 }
-            }
-            catch (IOException e){
+            } catch (IOException e){
                 //E.err("Runtime.exec failed."); // NOI18N
                 org.openide.ErrorManager.getDefault().notify(
                     org.openide.ErrorManager.getDefault().annotate(e,
-                    g("EXT_CMD_RuntimeExc", VcsUtilities.array2string(commandArr))));
+                        g("EXT_CMD_RuntimeExc", VcsUtilities.array2string(commandArr))));
                 stderrNextLine(g("EXT_CMD_RuntimeFailed", command)); // NOI18N
                 setExitStatus(VcsCommandExecutor.FAILED);
                 return getExitStatus();
