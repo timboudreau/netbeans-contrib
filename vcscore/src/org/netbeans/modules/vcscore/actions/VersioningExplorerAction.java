@@ -83,11 +83,7 @@ public class VersioningExplorerAction extends NodeAction {
         //System.out.println("SELECTED NODES = "+(new java.util.HashSet(java.util.Arrays.asList(explorer.getExplorerManager().getSelectedNodes()))));
         //explorer.setActivatedNodes(getVersioningNodes(filesByFS));
         selectVersioningFiles(explorer, filesByFS);
-        /*
-        try {
-            explorer.getExplorerManager().setSelectedNodes(getVersioningNodes(filesByFS));
-        } catch (java.beans.PropertyVetoException exc) {}
-         */
+        explorer.requestFocus();
     }
     
     private HashMap getFilesByFS(Node[] nodes) {
