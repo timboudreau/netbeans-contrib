@@ -61,7 +61,6 @@ public class JndiProvidersNode extends AbstractNode implements PropertyChangeLis
         this.getCookieSet().add(this);
         setName (JndiRootNode.getLocalizedString(JndiProvidersNode.DRIVERS));
         setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiProvidersNode.DRIVERS));
-        this.installJNDI ();
         this.readProperties ();
         this.installProperties();
     }
@@ -209,20 +208,6 @@ public class JndiProvidersNode extends AbstractNode implements PropertyChangeLis
 
     }
 
-
-    /** Installs property files to NB FileSystem*/
-    private void installJNDI(){
-        Repository repo = TopManager.getDefault().getRepository();
-        FileSystem fs = repo.getDefaultFileSystem();
-        FileObject fo = fs.getRoot();
-        try{
-            if (fo.getFileObject("JNDI")==null){
-                fo=fo.createFolder("JNDI");
-                org.openide.filesystems.FileUtil.extractJar( fo, getClass().getClassLoader().getResourceAsStream("org/netbeans/modules/jndi/templates/impls.jar"));
-            }
-        }catch(java.io.IOException ioe){}
-    }
-
     /** Reads the propeties of providers from files in JNDI directory*/
     private void readProperties(){
         Repository repo = TopManager.getDefault().getRepository();
@@ -240,7 +225,8 @@ public class JndiProvidersNode extends AbstractNode implements PropertyChangeLis
                     this.providers.put(p.getFactory(),p);
                     in.close();
                 }
-            }catch(java.io.IOException ioe){}
+            }catch(java.io.IOException ioe){
+            }
         }
     }
 

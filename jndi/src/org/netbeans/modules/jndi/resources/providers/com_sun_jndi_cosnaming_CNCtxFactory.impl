@@ -1,0 +1,7 @@
+# Cos Naming
+
+java.naming.factory.initial=com.sun.jndi.cosnaming.CNCtxFactory
+java.naming.provider.url=iiop://localhost:900
+java.naming.security.authentication=
+java.naming.security.principal=
+java.naming.security.credentials=

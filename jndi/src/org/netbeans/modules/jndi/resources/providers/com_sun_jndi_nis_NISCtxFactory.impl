@@ -1,0 +1,7 @@
+#FILE SYSTEM IMPL
+
+java.naming.factory.initial=com.sun.jndi.nis.NISCtxFactory
+java.naming.provider.url=nis://
+java.naming.security.authentication=
+java.naming.security.principal=
+java.naming.security.credentials=

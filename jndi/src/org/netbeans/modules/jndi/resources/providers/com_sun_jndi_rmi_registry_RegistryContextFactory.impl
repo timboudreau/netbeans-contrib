@@ -1,0 +1,7 @@
+#FILE SYSTEM IMPL
+
+java.naming.factory.initial=com.sun.jndi.rmi.registry.RegistryContextFactory
+java.naming.provider.url=rmi://localhost:1099
+java.naming.security.authentication=
+java.naming.security.principal=
+java.naming.security.credentials=
