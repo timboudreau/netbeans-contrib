@@ -15,5 +15,17 @@ Microsystems, Inc. All Rights Reserved.
 <project name="a11y" default="netbeans" basedir=".">
 
     <import file="../nbbuild/templates/projectized.xml"/>
+    
+    <property name="license.file" location="${nbext}/standard-nbm-license.txt"/>
+    <property name="homepage.base" value="netbeans.org"/>
+    <property name="dist.base" value="a11y.netbeans.org/nbms/v2.1"/>
+    
+    <target name="nbm" depends="netbeans">
+        <makenbm file="a11y.nbm" productdir="${netbeans.dest.dir}/${cluster.dir}"
+            module="${nb.modules.dir}/org-netbeans-modules-a11y.jar"
+            homepage="http://a11y.${homepage.base}" distribution="http://${dist.base}/a11y.nbm">
+         <license file="${license.file}"/>
+       </makenbm>
+</target>
 
 </project>
