@@ -346,7 +346,7 @@ public class CommandExecutorSupport extends Object {
             Object varName = cmd.getProperty(VcsCommand.PROPERTY_CHANGED_REVISION_VAR_NAME);
             if (varName != null) changedRevision = (String) vce.getVariables().get(varName);
         }
-        //System.out.println("checkRevisionChanges(): whatChanged = "+whatChanged);
+        //System.out.println("checkRevisionChanges(): whatChanged = "+whatChanged+", changeRevision = "+changedRevision);
         if (whatChanged != RevisionEvent.REVISION_NO_CHANGE) {
             String[] files = (String[]) vce.getFiles().toArray(new String[0]);
             for (int i = 0; i < files.length; i++) {
@@ -460,16 +460,26 @@ public class CommandExecutorSupport extends Object {
     private static boolean needPromptForPR(String name, String exec, Hashtable vars){
         //D.deb("needPromptFor('"+name+"','"+exec+"')"); // NOI18N
         boolean result=false;
-        String oldPassword=(String)vars.get("PASSWORD"); vars.put("PASSWORD",""); // NOI18N
-        String oldReason=(String)vars.get("REASON"); vars.put("REASON",""); // NOI18N
+        String oldPassword= (String) vars.get("PASSWORD");
+        vars.put("PASSWORD", ""); // NOI18N
+        String oldReason= (String) vars.get("REASON");
+        vars.put("REASON", ""); // NOI18N
 
         String test="variable_must_be_prompt_for"; // NOI18N
         vars.put(name,test);
         String s = Variables.expand(vars, exec, false);
         result = (s.indexOf(test) >= 0) ? true : false ;
 
-        if (oldPassword != null) { vars.put("PASSWORD", oldPassword); } // NOI18N
-        if (oldReason != null) { vars.put("REASON", oldReason); } // NOI18N
+        if (oldPassword != null) {
+            vars.put("PASSWORD", oldPassword); // NOI18N
+        } else {
+            vars.remove("PASSWORD");
+        }
+        if (oldReason != null) {
+            vars.put("REASON", oldReason); // NOI18N
+        } else {
+            vars.remove("REASON");
+        }
 
         return result ;
     }
@@ -552,11 +562,11 @@ public class CommandExecutorSupport extends Object {
             if (needPromptForPR("PASSWORD", exec, vars)) { // NOI18N
                 String password = fileSystem.getPassword();
                 if (password == null) {
-                    password = ""; // NOI18N
                     NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
                     if (NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault ().notify (nd))) {
                         password = nd.getInputText ();
                     } else {
+                        fileSystem.setPassword(null);
                         return false;
                     }
                     fileSystem.setPassword(password);
