@@ -320,7 +320,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private volatile transient CommandsPool commandsPool = null;
     private Integer numberOfFinishedCmdsToCollect = new Integer(RuntimeFolderNode.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
-    private int versioningFileSystemMessageLength = 20;
+    private int versioningFileSystemMessageLength = 50;
     private boolean versioningFileSystemShowMessage = true;
     private String versioningFileSystemShowGarbageFiles = "";
     private boolean versioningFileSystemShowLocalFiles = true;
