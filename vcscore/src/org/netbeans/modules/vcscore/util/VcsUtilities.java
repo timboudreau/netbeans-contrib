@@ -746,8 +746,7 @@ public class VcsUtilities {
      * Creates a temporary directory.
      */
     public static File createTMP() {
-        String TMP_ROOT=System.getProperty("netbeans.user")+File.separator+
-                 "system"+File.separator+"vcs"+File.separator+"tmp";
+        String TMP_ROOT=System.getProperty("java.io.tmpdir")+File.separator+"vcs";
         File tmpDir = new File(TMP_ROOT);
         if (!tmpDir.exists()) {
             tmpDir.mkdirs();
