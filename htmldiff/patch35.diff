@@ -156,14 +156,553 @@ diff -u -r1.3.6.1 Arch.dtd
  >
  
  <!ELEMENT hint %Flow; >
+Index: nbbuild/antsrc/org/netbeans/nbbuild/Arch-api-questions.xml
+===================================================================
+RCS file: /cvs/nbbuild/antsrc/org/netbeans/nbbuild/Arch-api-questions.xml,v
+retrieving revision 1.11.4.1
+diff -u -r1.11.4.1 Arch-api-questions.xml
+--- nbbuild/antsrc/org/netbeans/nbbuild/Arch-api-questions.xml	22 Apr 2003 14:35:28 -0000	1.11.4.1
++++ nbbuild/antsrc/org/netbeans/nbbuild/Arch-api-questions.xml	11 Nov 2003 14:35:00 -0000
+@@ -1,17 +1,36 @@
+ <?xml version="1.0" encoding="UTF-8"?>
++<!--
++                Sun Public License Notice
++
++The contents of this file are subject to the Sun Public License
++Version 1.0 (the "License"). You may not use this file except in
++compliance with the License. A copy of the License is available at
++http://www.sun.com/
++
++The Original Code is NetBeans. The Initial Developer of the Original
++Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
++Microsystems, Inc. All Rights Reserved.
++-->
+ 
+ <!--
+-    Document   : api-questions.xml
+-    Created on : November 4, 2002, 10:28 AM
+     Author     : Jaroslav Tulach
+     Description: Questions that should be answered in order to make better API
+-        
++
++    No PUBLIC or SYSTEM IDs defined currently.
+ -->
+ 
+ 
+-<api-questions version="1.12" date="$date: $" >
++<!--
++                        *** ATTENTION EDITORS ***
++Please increment the 'version' field of <api-questions> whenever you make a
++semantic change: adding a new question or significantly changing the meaning of
++an old one. Changing this field ensures that arch pages answering the old version
++print a warning during Javadoc generation. If you only change hints or make small
++edits in the text of a question, you need not change the version number.
++-->
++<api-questions version="1.23">
+     <category id="arch" name="General Information">
+-        <question id="arch-what">
++        <question id="arch-what" when="init" >
+             What is this project good for?
+             <hint>
+             Please provide here a few lines describing the project, 
+@@ -20,28 +39,67 @@
+             </hint>
+         </question>
+         
++        <question id="arch-overall" when="init">
++            Describe the overall architecture. 
++            <hint>
++            What will be API for 
++            <a href="http://openide.netbeans.org/tutorial/api-design.html#design.apiandspi">
++                clients and what support API</a>? 
++            What parts will be pluggable?
++            How will plug-ins be registered? Please use <code>&lt;api type="export"/&gt;</code>
++            to describe your general APIs.
++            If possible please provide 
++            simple diagrams. 
++            </hint>
++        </question>
++        
++        <question id="arch-usecases" when="init">
++            Describe the main <a href="http://openide.netbeans.org/tutorial/api-design.html#usecase">
++            use cases</a> of the new API. Who will use it at
++            what circumstances and what will be the typical code to write
++            to use the module.
++        </question>
++        
++        <question id="arch-time" when="init">
++            What are the time estimates of the work?
++            <hint>
++            Please express your estimates of how long the design, implementation,
++            stabilization are likely to last. How many people will be needed to
++            implement this and what is the expected milestone the work should be 
++            ready.
++            </hint>
++        </question>
++        
++        <question id="arch-quality" when="init">
++            How the quality of your code will be tested and 
++            how future regressions are going to be prevented?
++            <hint>
++            What kind of testing you want to use? What/how much area of functionality
++            should be covered by the tests? 
++            </hint>
++        </question>
+     </category>
+     <category id="dep" name="Project and platform dependencies">
+-        <question id="dep-nb">
+-            What other NetBeans projects does this one depend on?
++        <question id="dep-nb" when="init" >
++            What other NetBeans projects and modules does this one depend on?
+             <hint>
+             If you want, describe such projects as imported API using
+             the <code>&lt;api name="identification" type="import or export" category="stable" url="where is the description" /&gt;</code>
+             </hint>
+         </question>
+         
+-        <question id="dep-non-nb">
++        <question id="dep-non-nb" when="init" >
+             What other projects outside NetBeans does this one depend on?
+             
+             <hint>
+             Some non-NetBeans projects are packaged as NetBeans modules
+             (see <a href="http://libs.netbeans.org/">libraries</a>) and
+-            it is prefered to use this approach when more modules may
++            it is preferred to use this approach when more modules may
+             depend on such third-party library.
+             </hint>
+         </question>
+         
+-        <question id="dep-platform">
++        <question id="dep-platform" when="init" >
+             On which platforms does your module run? Does it run in the same
+             way on each?
+             <hint>
+@@ -50,7 +108,7 @@
+             </hint>
+         </question>
+         
+-        <question id="dep-jre">
++        <question id="dep-jre" when="final" >
+             Which version of JRE do you need (1.2, 1.3, 1.4, etc.)?
+             <hint>
+             It is expected that if your module runs on 1.x that it will run 
+@@ -59,14 +117,14 @@
+             </hint>
+         </question>
+ 
+-        <question id="dep-jrejdk">
++        <question id="dep-jrejdk" when="final" >
+             Do you require the JDK or is the JRE enough?
+         </question>
+                 
+     </category>
+ 
+     <category id="deploy" name="Deployment">
+-        <question id="deploy-jar">
++        <question id="deploy-jar" when="impl" >
+             Do you deploy just module JAR file(s) or other files as well?
+             <hint>
+             If your module consists of just one module JAR file, just confirm that.
+@@ -74,19 +132,19 @@
+             they refer to each other. 
+             If it consist of module JAR(s) and other files, please describe
+             what is their purpose, why other files are necessary. Please 
+-            make sure that installation/deinstallation leaves the system 
++            make sure that installation/uninstallation leaves the system 
+             in state as it was before installation.
+             </hint>
+         </question>
+     
+-        <question id="deploy-nbm">
++        <question id="deploy-nbm" when="impl" >
+             Can you deploy an NBM via the Update Center?
+             <hint>
+             If not why?
+             </hint>
+         </question>
+         
+-        <question id="deploy-shared">
++        <question id="deploy-shared" when="final" >
+             Do you need to be installed in the shared location only, or in the user directory only,
+             or can your module be installed anywhere?
+             <hint>
+@@ -96,7 +154,7 @@
+         </question>
+         
+         
+-        <question id="deploy-packages">
++        <question id="deploy-packages" when="init" >
+             Are packages of your module made inaccessible by not declaring them
+             public?
+             
+@@ -104,29 +162,41 @@
+             NetBeans module system allows restriction of access rights to
+             public classes of your module from other modules. This prevents
+             unwanted dependencies of others on your code and should be used
+-            whenever possible (<a href="http://www.netbeans.org/download/apis/org/openide/doc-files/upgrade.html#3.4-public-packages">
++            whenever possible (<a href="http://www.netbeans.org/download/javadoc/OpenAPIs/org/openide/doc-files/upgrade.html#3.4-public-packages">
+             public packages
+-            </a>). 
++            </a>). If you do not restrict access to your classes you are
++            making it too easy for other people to misuse your implementation
++            details, that is why you should have good reason for not 
++            restricting package access.
++            </hint>
++        </question>
++
++        <question id="deploy-dependencies" when="final" >
++            What do other modules need to do to declare a dependency on this one?
++            <hint>
++                Provide a sample of the actual lines you would add to a module manifest
++                to declare a dependency, for example using OpenIDE-Module-Module-Dependencies
++                or OpenIDE-Module-Requires. You may use the magic token @SPECIFICATION-VERSION@
++                to represent the current specification version of the module.
+             </hint>
+         </question>
+-        
+         
+     </category>
+     
+     <category id="compat" name="Compatibility with environment">
+-        <question id="compat-i18n">
++        <question id="compat-i18n" when="impl" >
+             Is your module correctly internationalized?
+             <hint>
+-            Correct internationalization means that it obeys instuctions 
++            Correct internationalization means that it obeys instructions 
+             at <a href="http://www.netbeans.org/download/dev/javadoc/OpenAPIs/org/openide/doc-files/i18n-branding.html">
+             NetBeans I18N pages</a>.
+             </hint>
+         </question>
+-        <question id="compat-standards">
++        <question id="compat-standards" when="init" >
+             Does the module implement or define any standards? Is the 
+             implementation exact or does it deviate somehow?
+         </question>
+-        <question id="compat-version">
++        <question id="compat-version" when="impl" >
+             Can your module coexist with earlier and future
+             versions of itself? Can you correctly read all old settings? Will future
+             versions be able to read your current settings? Can you read
+@@ -141,18 +211,18 @@
+     </category>
+     
+     <category id="resources" name="Access to resources">
+-        <question id="resources-file">
++        <question id="resources-file" when="final">
+             Does your module use <code>java.io.File</code> directly?
+             
+             <hint>
+             NetBeans provide a logical wrapper over plain files called 
+             <code>org.openide.filesystems.FileObject</code> that
+-            provides uniform access to such resources and is the prefered
++            provides uniform access to such resources and is the preferred
+             way that should be used. But of course there can be situations when
+             this is not suitable.
+             </hint>
+         </question>
+-        <question id="resources-layer">
++        <question id="resources-layer" when="final">
+             Does your module provide own layer? Does it create any files or
+             folders in it? What it is trying to communicate by that and with which 
+             components?
+@@ -166,18 +236,18 @@
+             </hint>
+         </question>
+         
+-        <question id="resources-read">
++        <question id="resources-read" when="final">
+             Does your module read any resources from layers? For what purpose?
+             
+             <hint>
+             As this is some kind of intermodule dependency, it is a kind of API.
+-            Please describe it and clasify according to 
++            Please describe it and classify according to 
+             <a href="http://openide.netbeans.org/tutorial/api-design.html#categories">
+             common stability categories</a>.
+             </hint>
+         </question>
+         
+-        <question id="resources-mask">
++        <question id="resources-mask" when="final">
+             Does your module mask/hide/override any resources provided by other modules in
+             their layers?
+             
+@@ -192,25 +262,25 @@
+ 
+     
+     <category id="lookup" name="Lookup of components">
+-        <question id="lookup-lookup">
++        <question id="lookup-lookup" when="init" >
+             Does your module use <code>org.openide.util.Lookup</code>
+             to find any components to communicate with? Which ones?
+             
+             <hint>
+             Please describe the interfaces you are searching for, where 
+             are defined, whether you are searching for just one or more of them,
+-            if the order is important, etc. Also clasify the stability of such
++            if the order is important, etc. Also classify the stability of such
+             API contract.
+             </hint>
+         </question>
+-        <question id="lookup-register">
++        <question id="lookup-register" when="final" >
+             Do you register anything into lookup for other code to find?
+             <hint>
+             Do you register using layer file or using <code>META-INF/services</code>?
+             Who is supposed to find your component?
+             </hint>
+         </question>
+-        <question id="lookup-remove">
++        <question id="lookup-remove" when="final" >
+             Do you remove entries of other modules from lookup?
+             <hint>
+             Why? Of course, that is possible, but it can be dangerous. Is the module
+@@ -220,59 +290,60 @@
+     </category>
+ 
+     
+-    <!-- clasification of interfaces -->
++    <!-- classification of interfaces -->
+     
+     <!-- package names -->
+     
+     
+     <category id="exec" name="Execution Environment">
+-        <question id="exec-property">
++        <question id="exec-property" when="impl" >
+             Is execution of your code influenced by any environment or
+             Java system (<code>System.getProperty</code>) property?
+             
+             <hint>
+-            If there is a property that can change the behaviour of your 
++            If there is a property that can change the behavior of your 
+             code, somebody will likely use it. You should describe what it does 
+-            and the stability category of this API. You may use
++            and the <a href="http://openide.netbeans.org/tutorial/api-design.html#life">stability category</a>
++            of this API. You may use
+             <pre>
+-                &lt;property name="id" category="private" &gt;
++                &lt;api type="export" group="property" name="id" category="private" url="http://..."&gt;
+                     description of the property, where it is used, what it influence, etc.
+-                &lt;/property&gt;            
++                &lt;/api&gt;            
+             </pre>
+             </hint>
+         </question>
+         
+-        <question id="exec-component">
++        <question id="exec-component" when="impl" >
+             Is execution of your code influenced by any (string) property
+             of any of your components?
+             
+             <hint>
+             Often <code>JComponent.getClientProperty</code>, <code>Action.getValue</code>
+             or <code>PropertyDescriptor.getValue</code>, etc. are used to influence
+-            a behaviour of some code. This of course forms an interface that should
++            a behavior of some code. This of course forms an interface that should
+             be documented. Also if one depends on some interface that an object
+             implements (<code>component instanceof Runnable</code>) that forms an
+             API as well.
+             </hint>
+         </question>
+ 
+-        <question id="exec-classloader">
++        <question id="exec-classloader" when="impl" >
+             Does your code create its own class loader(s)?
+             <hint>
+             A bit unusual. Please explain why and what for.
+             </hint>
+         </question>
+                 
+-        <question id="exec-reflection">
++        <question id="exec-reflection" when="impl" >
+             Does your code use Java Reflection to execute other code?
+             <hint>
+-            This usually indicates a missing or unsufficient API in the other
++            This usually indicates a missing or insufficient API in the other
+             part of the system. If the other side is not aware of your dependency
+             this contract can be easily broken.
+             </hint>
+         </question>
+         
+-        <question id="exec-privateaccess">
++        <question id="exec-privateaccess" when="final" >
+             Are you aware of any other parts of the system calling some of 
+             your methods by reflection?
+             <hint>
+@@ -281,7 +352,7 @@
+             </hint>
+         </question>
+         
+-        <question id="exec-process">
++        <question id="exec-process" when="impl" >
+             Do you execute an external process from your module? How do you ensure
+             that the result is the same on different platforms? Do you parse output?
+             Do you depend on result code?
+@@ -290,7 +361,7 @@
+             </hint>
+         </question>
+         
+-        <question id="exec-introspection">
++        <question id="exec-introspection" when="impl" >
+             Does your module use any kind of runtime type information (<code>instanceof</code>,
+             work with <code>java.lang.Class</code>, etc.)?
+             <hint>
+@@ -300,25 +371,44 @@
+             (Class.isInstance(...), Class.isAssignableFrom(...), etc.).
+             </hint>
+         </question>
++
++        <question id="exec-threading" when="impl">
++            What threading models, if any, does your module adhere to?
++            <hint>
++                If your module calls foreign APIs which have a specific threading model,
++                indicate how you comply with the requirements for multithreaded access
++                (synchronization, mutexes, etc.) applicable to those APIs.
++                If your module defines any APIs, or has complex internal structures
++                that might be used from multiple threads, declare how you protect
++                data against concurrent access, race conditions, deadlocks, etc.,
++                and whether such rules are enforced by runtime warnings, errors, assertions, etc.
++                Examples: a class might be non-thread-safe (like Java Collections); might
++                be fully thread-safe (internal locking); might require access through a mutex
++                (and may or may not automatically acquire that mutex on behalf of a client method);
++                might be able to run only in the event queue; etc.
++                Also describe when any events are fired: synchronously, asynchronously, etc.
++                Ideas: <a href="http://core.netbeans.org/proposals/threading/index.html#recommendations">Threading Recommendations</a> (in progress)
++            </hint>
++        </question>
+         
+     </category>
+     
+     <category id="format" name="Format of files and protocols">
+-        <question id="format-types">
++        <question id="format-types" when="impl" >
+             Which protocols and file formats (if any) does your module read or write on disk,
+             or transmit or receive over the network?
+         </question>
+         
+-        <question id="format-dnd">
++        <question id="format-dnd" when="impl" >
+             Which protocols (if any) does your code understand during Drag &amp; Drop?
+             <hint>
+             Often Node's deal with clipboard by usage of <code>Node.drag, Node.getDropType</code>. 
+-            Check your code for overriding these methods. Btw. if they are not overriden, they
++            Check your code for overriding these methods. Btw. if they are not overridden, they
+             by default delegate to <code>Node.clipboardCopy, Node.clipboardCut and Node.pasteTypes</code>.
+             </hint>
+         </question>
+         
+-        <question id="format-clipboard">
++        <question id="format-clipboard" when="impl" >
+             Which data flavors (if any) does your code read from or insert to
+             the clipboard (by access to clipboard on means calling methods on <code>java.awt.datatransfer.Transferable</code>?
+             
+@@ -332,54 +422,70 @@
+ 
+     
+     <category id="performance" name="Performance and Scalability">
+-        <question id="perf-startup">
++        <question id="perf-startup" when="final" >
+             Does your module run any code on startup?
+         </question>
+-        <question id="perf-exit">
++        <question id="perf-exit" when="final">
+             Does your module run any code on exit?
+         </question>
+-        <question id="perf-scale">
++        <question id="perf-scale" when="init">
+             Which external criteria influence the performance of your
+             program (size of file in editor, number of files in menu, 
+             in source directory, etc.) and how well your code scales?
+-            Please include some estimates.
++            <hint>
++            Please include some estimates, there are other more detailed 
++            questions to answer in later phases of implementation. 
++            </hint>
+         </question>
+-        <question id="perf-limit">
+-            Are there any hardcoded or practical limits in the number or size of
++        <question id="perf-limit" when="init">
++            Are there any hard-coded or practical limits in the number or size of
+             elements your code can handle?
+         </question>
+         <!-- multithreading -->
+     
+-        <question id="perf-mem">
++        <question id="perf-mem" when="final" >
+             How much memory does your component consume? Estimate
+             with a relation to the number of windows, etc.
+         </question>
+         
+-        <question id="perf-wakeup">
++        <question id="perf-wakeup" when="final">
+             Does any piece of your code wake up periodically and do something
+             even when the system is otherwise idle (no user interaction)?
+         </question>
+ 
+-        <question id="perf-progress">
++        <question id="perf-progress" when="final">
+             Does your module execute any long-running tasks?
+-            <hint>Typically they are tasks like connecting over
+-            network, computing huge amount of data, compilation.
+-            Such communication should be done asynchronously (for example
++            
++            <hint>Long running tasks should never block 
++            AWT thread as it badly hurts the UI
++            <a href="http://performance.netbeans.org/responsiveness/issues.html">
++            responsiveness</a>.
++            Tasks like connecting over
++            network, computing huge amount of data, compilation
++            be done asynchronously (for example
+             using <code>RequestProcessor</code>), definitively it should 
+             not block AWT thread.
+             </hint>
+         </question>
+ 
+-        <question id="perf-huge_dialogs">
++        <question id="perf-huge_dialogs" when="final">
+             Does your module contain any dialogs or wizards with a large number of
+             GUI controls such as combo boxes, lists, trees, or text areas?
+         </question>
+ 
+-        <question id="perf-menus">
++        <question id="perf-menus" when="final">
+             Does your module use dynamically updated context menus, or
+             context-sensitive actions with complicated enablement logic?
+         </question>
+         
++        <question  id="perf-spi" when="init">
++            How the performance of the plugged in code will be enforced?
++            <hint>
++            If you allow foreign code to be plugged into your own module, how
++            do you enforce, that it will behave correctly and fast and will not
++            negatively influence the performance of your own module?
++            </hint>
++        </question>
+     </category>
+     
+     
 Index: nbbuild/antsrc/org/netbeans/nbbuild/Arch.java
 ===================================================================
 RCS file: /cvs/nbbuild/antsrc/org/netbeans/nbbuild/Arch.java,v
 retrieving revision 1.15.2.1
 diff -u -r1.15.2.1 Arch.java
 --- nbbuild/antsrc/org/netbeans/nbbuild/Arch.java	22 Apr 2003 14:35:28 -0000	1.15.2.1
-+++ nbbuild/antsrc/org/netbeans/nbbuild/Arch.java	3 Nov 2003 15:22:11 -0000
-@@ -167,11 +167,7 @@
++++ nbbuild/antsrc/org/netbeans/nbbuild/Arch.java	6 Nov 2003 14:10:39 -0000
+@@ -71,6 +71,10 @@
+     public void setFooter(String s) {
+         footer = s;
+     }
++    private File xsl = null;
++    public void setXSL (File xsl) {
++        this.xsl = xsl;
++    }
+     
+     
+     /** Run the conversion */
+@@ -167,11 +171,7 @@
              
              if (!removeRevisionTags (answersVersion).equals (removeRevisionTags (questionsVersion))) {
                  String msg = questionsFile.getAbsolutePath() + ": answers were created for questions version \"" + answersVersion + "\" but current version of questions is \"" + questionsVersion + "\"";
@@ -176,6 +715,16 @@ diff -u -r1.15.2.1 Arch.java
              }
          }
          
+@@ -200,7 +200,8 @@
+         // apply the transform operation
+         try {
+             javax.xml.transform.stream.StreamSource ss;
+-            String file = getProject().getProperty ("arch.xsl");
++            String file = this.xsl != null ? this.xsl.toString() : getProject().getProperty ("arch.xsl");
++            
+             if (file != null) {
+                 log ("Using " + file + " as the XSL stylesheet");
+                 try {
 Index: nbbuild/javadoctools/export2html.xsl
 ===================================================================
 RCS file: nbbuild/javadoctools/export2html.xsl
@@ -583,7 +1132,7 @@ RCS file: /cvs/nbbuild/javadoctools/template.xml,v
 retrieving revision 1.2.2.1
 diff -u -r1.2.2.1 template.xml
 --- nbbuild/javadoctools/template.xml	4 Mar 2003 03:48:29 -0000	1.2.2.1
-+++ nbbuild/javadoctools/template.xml	5 Nov 2003 16:28:37 -0000
++++ nbbuild/javadoctools/template.xml	6 Nov 2003 14:10:39 -0000
 @@ -24,6 +24,7 @@
  ${javadoc.packages}   list of packages to build, e.g. "org.netbeans.api.foo,org.netbeans.spi.foo"
  ${javadoc.classpath}  classpath for source files (probably same as what you use for <javac>)
@@ -802,7 +1351,7 @@ diff -u -r1.2.2.1 template.xml
          </style>
      </target>
  
-@@ -143,27 +241,69 @@
+@@ -143,27 +241,68 @@
          <taskdef name="arch" classname="org.netbeans.nbbuild.Arch">
              <classpath>
                  <pathelement location="../nbantext.jar"/>
@@ -843,9 +1392,8 @@ diff -u -r1.2.2.1 template.xml
 +        </taskdef>
 +        <!-- Warn about incorrect question version, but do not make build fail: -->
 +        <property name="arch.warn" value="true"/>
-+        <property name="arch.xsl" location="exportInterfaces.xsl" />
 +        <property name="arch.target" value="${javadoc.name}" />
-+        <arch answers="${javadoc.arch}" output="${export.interfaces}/architecture-summary.html" stylesheet="prose.css"/>
++        <arch xsl="exportInterfaces.xsl" answers="${javadoc.arch}" output="${export.interfaces}/architecture-summary.html" stylesheet="prose.css"/>
 +        <move file="${export.interfaces}/architecture-summary.html" tofile="${export.interfaces}/${javadoc.name}" />
 +    </target>
 +    
@@ -877,7 +1425,7 @@ diff -u -r1.2.2.1 template.xml
              <replacefilter token="@FOOTER@" value="${javadoc.footer}"/>
          </replace>
          <replace dir="${javadoc.out.dir}" token="@TOP@" value="">
-@@ -193,9 +333,6 @@
+@@ -193,9 +332,6 @@
          <taskdef name="checklinks" classname="org.netbeans.nbbuild.CheckLinks">
              <classpath>
                  <pathelement location="../nbantext.jar"/>
@@ -1238,7 +1786,7 @@ RCS file: /cvs/openide/build.xml,v
 retrieving revision 1.137.2.1
 diff -u -r1.137.2.1 build.xml
 --- openide/build.xml	18 Aug 2003 14:02:23 -0000	1.137.2.1
-+++ openide/build.xml	3 Nov 2003 15:22:11 -0000
++++ openide/build.xml	11 Nov 2003 14:16:19 -0000
 @@ -589,8 +589,10 @@
  </echo>
    </target>
@@ -1252,7 +1800,7 @@ diff -u -r1.137.2.1 build.xml
      <taskdef name="checklinks" classname="org.netbeans.nbbuild.CheckLinks">
        <classpath>
          <pathelement location="../nbbuild/nbantext.jar"/>
-@@ -734,6 +736,36 @@
+@@ -734,6 +736,35 @@
      <zip zipfile="javadoc/OpenAPIs.zip" basedir="javadoc/OpenAPIs"/>
    </target>
  
@@ -1269,20 +1817,19 @@ diff -u -r1.137.2.1 build.xml
 +    
 +    <!-- Warn about incorrect question version, but do not make build fail: -->
 +    <property name="arch.warn" value="true"/>
-+    <property name="arch.xsl" location="../nbbuild/javadoctools/exportInterfaces.xsl" />
 +    <property name="arch.target" value="OpenAPIs/arch" />
-+    <arch answers="arch/arch-openide-modules.xml" output="${export.interfaces}/openide-modules.html" />
-+    <arch answers="arch/arch-openide-datasystems.xml" output="${export.interfaces}/openide-datasystems.html" />
-+    <arch answers="arch/arch-openide-dialogs.xml" output="${export.interfaces}/openide-dialogs.html" />
-+    <arch answers="arch/arch-openide-lookup.xml" output="${export.interfaces}/openide-lookup.html" />
-+    <arch answers="arch/arch-openide-filesystems.xml" output="${export.interfaces}/openide-filesystems.html" />
-+    <arch answers="arch/arch-openide-nodes.xml" output="${export.interfaces}/openide-nodes.html" />
-+    <arch answers="arch/arch-openide-explorer.xml" output="${export.interfaces}/openide-explorer.html" />
-+    <arch answers="arch/arch-openide-actions.xml" output="${export.interfaces}/openide-actions.html" />
-+    <arch answers="arch/arch-openide-windowsystem.xml" output="${export.interfaces}/openide-windowsystem.html" />
-+    <arch answers="arch/arch-openide-utilities.xml" output="${export.interfaces}/openide-utilities.html" />
-+    <arch answers="arch/arch-openide-editor.xml" output="${export.interfaces}/openide-editor.html" />
-+    <arch answers="arch/arch-openide-propertysheet.xml" output="${export.interfaces}/openide-propertysheet.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-modules.xml" output="${export.interfaces}/openide-modules.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-datasystems.xml" output="${export.interfaces}/openide-datasystems.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-dialogs.xml" output="${export.interfaces}/openide-dialogs.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-lookup.xml" output="${export.interfaces}/openide-lookup.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-filesystems.xml" output="${export.interfaces}/openide-filesystems.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-nodes.xml" output="${export.interfaces}/openide-nodes.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-explorer.xml" output="${export.interfaces}/openide-explorer.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-actions.xml" output="${export.interfaces}/openide-actions.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-windowsystem.xml" output="${export.interfaces}/openide-windowsystem.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-utilities.xml" output="${export.interfaces}/openide-utilities.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-editor.xml" output="${export.interfaces}/openide-editor.html" />
++    <arch xsl="../nbbuild/javadoctools/exportInterfaces.xsl" answers="arch/arch-openide-propertysheet.xml" output="${export.interfaces}/openide-propertysheet.html" />
 +    
 +  </target>
 +  

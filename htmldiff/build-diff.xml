@@ -64,6 +64,7 @@ Microsystems, Inc. All Rights Reserved.
                 debuggercore/oldapi,
                 editor" 
             />
+            <property name="arch.xsl" location="arch.xsl" />
         </ant>
     </target>
     
@@ -85,6 +86,7 @@ Microsystems, Inc. All Rights Reserved.
                 debuggercore/oldapi,
                 editor" 
             />
+            <property name="arch.xsl" location="arch.xsl" />
         </ant>
     </target>
     
@@ -126,5 +128,8 @@ Microsystems, Inc. All Rights Reserved.
     <target name="clean" >
         <delete dir="diff" />
         <delete file="list.html" />
+        <ant dir="${new-nb}/nbbuild" target="clean" />
+        <!-- do real clean due to patching -->
+        <ant dir="${old-nb}/nbbuild" target="real-clean" />
     </target>    
 </project>
