@@ -24,6 +24,7 @@ import org.netbeans.jemmy.TestOut;
 import org.netbeans.test.oo.gui.jelly.vcscore.*;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.wizard.*;
 import org.openide.util.Utilities;
+import org.netbeans.jellytools.MainWindowOperator;
 
 /** XTest / JUnit test class performing availability check of all basic features
  * of Generic VCS module.
@@ -58,6 +59,7 @@ public class Availability extends NbTestCase {
         suite.addTest(new Availability("testFindService"));
         suite.addTest(new Availability("testPopupMenu"));
         suite.addTest(new Availability("testRuntimeTab"));
+        suite.addTest(new Availability("testToolbar"));
         suite.addTest(new Availability("testUnmount"));
         return suite;
     }
@@ -204,6 +206,37 @@ public class Availability extends NbTestCase {
         if ( numberOfCommands != 1)
             throw new Exception("Error: Wrong number of kept commands. Currently: " + numberOfCommands);
         api.getFilesystemsTab();
+        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
+        MainFrame.getMainFrame().pushMenuNoBlock(UNMOUNT_MENU);
+        System.out.println(". done !");
+    }
+
+    /** Unmounts the filesystem mounted in testVersioningMenu test case.
+     * throws Exception Any unexpected exception thrown during test.
+     */
+    public void testToolbar() throws Exception {
+        System.out.print(".. Testing toolbar buttons ..");
+        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+        VCSWizardProfile profilePage = new VCSWizardProfile();
+        profilePage.setWorkingDirectory(workingDirectory);
+        String profile = Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN;
+        profilePage.setProfile(profile);
+        profilePage.next();
+        VCSWizardAdvanced advancedPage = new VCSWizardAdvanced();
+        advancedPage.editCommands();
+        CommandEditor commandEditor = new CommandEditor();
+        commandEditor.setProperty("Empty|Add", CommandEditor.TAB_EXPERT, "General Command Action Class Name", "org.netbeans.modules.vcscore.actions.AddCommandAction");
+        commandEditor.ok();
+        advancedPage.finish();
+        APIController.sleep(2000);
+        explorer.show();
+        String filesystem = "Empty " + workingDirectory;
+        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem + "|A_File"));
+        MainWindowOperator window = MainWindowOperator.getDefault();
+        window.pushToolbarPopupMenu("Versioning");
+        window.getToolbarButton(window.getToolbar("Versioning"), "VCS Add").push();
+        APIController.sleep(2000);
+        assertTrue("Unable to execute command through toolbar.", window.getStatusText().equals("Command Add finished."));
         System.out.println(". done !");
     }
 
