@@ -321,7 +321,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             VariableInputDescriptor.create(globalLabel, (VariableInputComponent[]) globalComponents.toArray(new VariableInputComponent[0]));
         if (globalLabel != null) {
             globalInputLabel.setText(globalLabel);
-            globalInputLabel.setVisible(true);
+            globalInputLabel.setVisible(expert);
         }
         if (labelOffset > 0) {
             javax.swing.JSeparator sep = new javax.swing.JSeparator();
@@ -333,6 +333,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints1.weightx = 1.0;
             variablePanel.add(sep, gridBagConstraints1);
+            sep.setVisible(expert);
         }
         initComponentsFromDescriptor(globalDescriptor, globalInputPanel);
         if (expert) globalInputPanel.setVisible(true);
