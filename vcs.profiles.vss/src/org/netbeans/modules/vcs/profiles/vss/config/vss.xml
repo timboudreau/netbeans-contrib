@@ -1213,8 +1213,8 @@ Microsystems, Inc. All Rights Reserved.
       
       <command name="REMOVE_CONFIRM">
 	<property name="exec">
-	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} ${RECURSIVE} -I-N ${IDENT} ${QPATHS} ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} ${RECURSIVE} -I-N ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
+	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} -I-N ${IDENT} ${QPATHS} ${NUR}</value>
+	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} -I-N ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
 	</property>
 	<property name="error.regex.global">
 	  <value>(^.*)\(Y/N\)N$</value>
@@ -1228,8 +1228,8 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="REMOVE_DO">
 	<property name="exec">
-	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} ${RECURSIVE} -I-Y ${IDENT} ${QPATHS} ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} ${RECURSIVE} -I-Y ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
+	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QPATHS} ${NUR}</value>
+	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
 	</property>
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
@@ -1244,7 +1244,6 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(COMMAND_VSS_REMOVE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_REMOVE_Label)))
-                 IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg(COMMAND_VSS_REMOVE_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_REMOVE_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(CMD_OPTIONS, ResourceMsg(COMMAND_VSS_REMOVE_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_REMOVE_Options_mnc)))
           </value>
 	</property>
@@ -1258,9 +1257,6 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>(.*$)</value>
 	</property>
 	<property name="onRoot">
-	  <value>true</value>
-	</property>
-	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
         <property name="refreshParentFolder">
@@ -1296,14 +1292,13 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_RECOVER_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} recover ${RECOVER_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QFILES} ${NUR}</value>
+	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} recover ${RECOVER_OPTIONS} ${OPTIONS} ${QFILES} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_RECOVER),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_RECOVER)))
-                 IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg(COMMAND_VSS_RECOVER_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_RECOVER_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(RECOVER_OPTIONS, ResourceMsg(COMMAND_VSS_RECOVER_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_RECOVER_Options_mnc)))
           </value>
 	</property>
@@ -1316,9 +1311,6 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
-	<property name="onNonRecursiveDir">
-	  <value>true</value>
-	</property>
 	<property name="checkForModifications">
 	  <value>true</value>
 	</property>
@@ -1328,8 +1320,8 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
-        <property name="refreshRecursivelyPatternUnmatched">
-          <value>-R-</value>
+        <property name="refreshRecursivelyPatternMatched">
+          <value>recover</value>
         </property>
         <property name="runOnMultipleFilesInFolder">
           <value>true</value>
