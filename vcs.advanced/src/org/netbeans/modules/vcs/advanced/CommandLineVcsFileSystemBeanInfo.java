@@ -26,7 +26,7 @@ import com.netbeans.developer.modules.vcs.util.*;
  */
 //-------------------------------------------
 public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
-  private static Debug E=new Debug("CommandLineVcsFileSystemBeanInfo", true);
+  private static Debug E=new Debug("CommandLineVcsFileSystemBeanInfo", true); // NOI18N
   private static Debug D=E;
 
   /** Array of property descriptors. */
@@ -43,37 +43,45 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
     PropertyDescriptor commands=null;
     PropertyDescriptor cacheId=null;
     PropertyDescriptor config=null;
+    PropertyDescriptor lock=null;    
+    PropertyDescriptor lockPrompt=null;    
     
 
     try {
       rootDirectory=new PropertyDescriptor
-	("rootDirectory", CommandLineVcsFileSystem.class, "getRootDirectory", "setRootDirectory");
+	("rootDirectory", CommandLineVcsFileSystem.class, "getRootDirectory", "setRootDirectory"); // NOI18N
       debug=new PropertyDescriptor
-	("debug",CommandLineVcsFileSystem.class,"getDebug","setDebug");
+	("debug",CommandLineVcsFileSystem.class,"getDebug","setDebug"); // NOI18N
       
       variables=new PropertyDescriptor
-	("variables",CommandLineVcsFileSystem.class,"getVariables","setVariables");
+	("variables",CommandLineVcsFileSystem.class,"getVariables","setVariables"); // NOI18N
       variables.setPropertyEditorClass
 	(com.netbeans.enterprise.modules.vcs.cmdline.UserVariablesEditor.class);
 
       commands=new PropertyDescriptor
-	("commands",CommandLineVcsFileSystem.class,"getCommands","setCommands");
+	("commands",CommandLineVcsFileSystem.class,"getCommands","setCommands"); // NOI18N
       commands.setPropertyEditorClass
 	(com.netbeans.enterprise.modules.vcs.cmdline.UserCommandsEditor.class);
       
       cacheId=new PropertyDescriptor
-	("cacheId",CommandLineVcsFileSystem.class,"getCacheId",null);
+	("cacheId",CommandLineVcsFileSystem.class,"getCacheId",null); // NOI18N
 
       config=new PropertyDescriptor
-	("config",CommandLineVcsFileSystem.class,"getConfig",null);
+	("config",CommandLineVcsFileSystem.class,"getConfig",null); // NOI18N
+
+      lock=new PropertyDescriptor
+	("lock",CommandLineVcsFileSystem.class,"isLockFilesOn","setLockFilesOn"); // NOI18N
+
+      lockPrompt=new PropertyDescriptor
+	("lockPrompt",CommandLineVcsFileSystem.class,"isPromptForLockOn","setPromptForLockOn"); // NOI18N
 
 
       desc = new PropertyDescriptor[] {
-	rootDirectory, debug, variables, commands, cacheId, config
+	rootDirectory, debug, variables, commands, cacheId, config, lock, lockPrompt
       };
 
       ResourceBundle bundle = NbBundle.getBundle
-	("com.netbeans.enterprise.modules.vcs.cmdline.Bundle");
+	("com.netbeans.enterprise.modules.vcs.cmdline.Bundle"); // NOI18N
       rootDirectory.setDisplayName      (bundle.getString("PROP_rootDirectory"));
       rootDirectory.setShortDescription (bundle.getString("HINT_rootDirectory"));
       debug.setDisplayName              (bundle.getString("PROP_debug"));
@@ -86,6 +94,10 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
       cacheId.setShortDescription       (bundle.getString("HINT_cacheId"));
       config.setDisplayName             (bundle.getString("PROP_config"));
       config.setShortDescription        (bundle.getString("HINT_config"));
+      lock.setDisplayName               (bundle.getString("PROP_lock"));
+      lock.setShortDescription          (bundle.getString("HINT_lock"));
+      lockPrompt.setDisplayName         (bundle.getString("PROP_lockPrompt"));
+      lockPrompt.setShortDescription    (bundle.getString("HINT_lockPrompt"));
 
     } catch (IntrospectionException ex) {
       ex.printStackTrace ();
@@ -95,7 +107,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
   /* Provides the VCSFileSystem's icon */
   public java.awt.Image getIcon(int type) {
     if (icon == null) {
-      icon = loadImage("/com/netbeans/enterprise/modules/vcs/cmdline/vcs2.gif");
+      icon = loadImage("/com/netbeans/enterprise/modules/vcs/cmdline/vcs2.gif"); // NOI18N
       icon32 = icon;
     }
     if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16))
@@ -113,7 +125,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 
   public BeanDescriptor getBeanDescriptor(){
-    D.deb("getBeanDescriptor()");
+    D.deb("getBeanDescriptor()"); // NOI18N
     return new BeanDescriptor(CommandLineVcsFileSystem.class, com.netbeans.enterprise.modules.vcs.cmdline.VcsCustomizer.class);
   }
   
@@ -121,6 +133,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  18   Gandalf   1.17        1/27/00  Martin Entlicher Locking property added.
 *  17   Gandalf   1.16        11/24/99 Martin Entlicher 
 *  16   Gandalf   1.15        10/25/99 Pavel Buzek     copyright
 *  15   Gandalf   1.14        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
