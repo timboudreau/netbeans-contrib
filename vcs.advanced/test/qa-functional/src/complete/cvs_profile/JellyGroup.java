@@ -229,8 +229,9 @@ public class JellyGroup extends JellyStub {
         new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP).properties ();
         PropertySheetOperator pso = new PropertySheetOperator (PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, TEST_GROUP);
         PropertySheetTabOperator pst = pso.getPropertySheetTabOperator("Properties");
-        new StringProperty(pst, "Description").setValue(GROUP_DESCRIPTION);
-        pso.close();
+        new StringProperty(pst, "Description").setStringValue(GROUP_DESCRIPTION);
+        Helper.sleep (2000); // stabilization
+        //pso.close();
         
         closeAllProperties();
         new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP).select (); // stabilization
@@ -240,7 +241,7 @@ public class JellyGroup extends JellyStub {
         pst = pso.getPropertySheetTabOperator("Properties");
         info.println ("Group Name: " + new StringProperty(pst, "Group Name").getStringValue());
         info.println ("Description: " + new StringProperty(pst, "Description").getStringValue());
-        pso.close();
+        //pso.close();
     }
     
     public void testCommitGroup () {
