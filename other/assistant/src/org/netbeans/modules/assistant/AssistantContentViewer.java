@@ -44,7 +44,7 @@ public class AssistantContentViewer extends TopComponent implements AssistantMod
         JScrollPane scroll = new JScrollPane(editor);
         setCloseOperation(TopComponent.CLOSE_EACH);
         add(scroll);
-        initAccessibility();        
+        initAccessibility();          
     }
     
     public static AssistantContentViewer createComp(){
@@ -53,7 +53,7 @@ public class AssistantContentViewer extends TopComponent implements AssistantMod
         }
         return component;
     }
-    
+        
     public void setPage(URL url){
         if(editor != null){
             try{

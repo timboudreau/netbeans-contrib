@@ -15,6 +15,8 @@
 package org.netbeans.modules.assistant;
 
 import org.openide.windows.*;
+import org.openide.text.EditorSupport.Editor;
+import org.openide.nodes.*;
 
 import org.netbeans.modules.assistant.event.*;
 import java.beans.*;
@@ -22,6 +24,8 @@ import java.util.*;
 import java.io.*;
 import javax.swing.event.*;
 import java.net.*;
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
 
 /*
  * DefaultAssistantModel.java
@@ -36,6 +40,7 @@ public class DefaultAssistantModel implements AssistantModel, PropertyChangeList
     private static AssistantModel model;
     private AssistantContentViewer contentViewer;
     private AssistantID currentID;
+    private TopComponent oldComp = null;
     
     /*
      * Registry contains all registered IDs - assistant contents
@@ -53,6 +58,8 @@ public class DefaultAssistantModel implements AssistantModel, PropertyChangeList
         if(ctx != null){
             registry.add(ctx);
         }
+        //need to change !!! 
+        //use AssistantModelListener on contentViewer instead
         contentViewer = AssistantContentViewer.createComp();
         TopComponent.getRegistry().addPropertyChangeListener(this);
     }
@@ -205,17 +212,62 @@ public class DefaultAssistantModel implements AssistantModel, PropertyChangeList
     public void propertyChange(PropertyChangeEvent evt) {
         TopComponent.Registry registry = (TopComponent.Registry)evt.getSource();
         TopComponent comp = registry.getActivated();
-        if(comp != null){
+        if(comp == null)
+            return;
+        if(comp == oldComp){
+            if(comp instanceof Editor){
+                Node[] nodes = comp.getActivatedNodes();
+                for(int i = 0; i < nodes.length; i++){
+                    Node.Cookie cookie = nodes[i].getCookie(org.openide.cookies.EditorCookie.class);
+                    JEditorPane[] pane = ((org.openide.cookies.EditorCookie)cookie).getOpenedPanes();
+                    for(int j = 0; j < pane.length; j++){
+                        //do this only once per component and don't forget to remove listeners
+                        //when comp.is closed
+                        //if there is the same keyword - don't do anything
+                        //decide if there was comp change or keyword change in the same comp
+                        pane[j].addCaretListener(new ModelKeywordLListener(pane[j]));
+                    }
+                }
+                Editor editor = (Editor)comp;
+                debug("editor support");
+                return;
+            }
+        }else{
+            oldComp = comp;
             String helpID = comp.getHelpCtx().getHelpID();
             if (setCurrentID(comp.getHelpCtx().getHelpID()+"_"+comp.getName()));
-            else setCurrentID(helpID);        
+            else setCurrentID(helpID);
             
             debug("id: "+comp.getHelpCtx().getHelpID());
             debug("name: "+comp.getName());
             //setCurrentID(comp.getHelpCtx().getHelpID());
         }
     }
-
+  
+    private class ModelKeywordLListener implements CaretListener{
+        private JTextComponent edit;
+        
+        public ModelKeywordLListener(JTextComponent edit){
+            this.edit = edit;
+        }
+            
+        public void caretUpdate(CaretEvent ce){
+            int offset = ce.getDot();
+            String word;
+            try{
+                word = org.netbeans.editor.Utilities.getWord(edit, offset);
+            }catch(javax.swing.text.BadLocationException e){
+                return;
+            }
+            if(org.netbeans.editor.ext.java.JavaTokenContext.getKeyword(word) != null){
+                //it is keyword
+                debug("keyword: "+word);
+                setCurrentID("keyword_"+word.trim());
+            }            
+        }        
+    }
+        
+        
     private static final boolean debug = false;
     private static void debug(String msg) {
 	if (debug) {

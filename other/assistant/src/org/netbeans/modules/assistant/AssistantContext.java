@@ -50,7 +50,7 @@ public class AssistantContext {
         try{
             parser.parse(new InputSource(new FileReader(xmlFile)));
         }catch(Exception e){
-            System.err.println("AssistantContext: "+e);
+            System.err.println("AssistantContext 1: "+e);
             //ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
         }
     }
@@ -63,7 +63,7 @@ public class AssistantContext {
         try{
             parser.parse(xmlURL);
         }catch(Exception e){
-            System.err.println("AssistantContext: "+e);
+            System.err.println("AssistantContext 2: "+e);
             //ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
         }
     }

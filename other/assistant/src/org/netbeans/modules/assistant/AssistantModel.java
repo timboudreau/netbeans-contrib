@@ -57,6 +57,10 @@ public interface AssistantModel {
     public void setCurrentURL(URL url);
     
     /**
+     *Returns the assistantModel
+    public static AssistantModel getModel();
+    
+    /**
      * Gets the current URL
      */
     public URL getCurrentURL();

@@ -12,9 +12,10 @@
     PUBLIC "-//Sun Microsystems Inc.//DTD Assistant Version 1.0//EN" "assistant-1_0.dtd">
 <assistant version="1.0">
     <id name="default_id">
-        <section name="IDE Navigator">
-            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">TestOne</item>
-            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">TestTwo</item>            
+        <section name="Getting Started">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">What it is Assistant</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">Customizing Assistant</item>            
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent3.html">Customizing IDE</item>            
         </section>
         <section name="Dynamic Helper">
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">Dynamic Help1</item>
@@ -22,8 +23,8 @@
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent3.html">Dynamic_Help3</item>
         </section>
         <section name="Description">
-            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html" type="text">This is short Description</item>
-            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html" type="text">of focused component</item> 
+            <item url="DefaultContent2.html" type="text">This is short Description</item>
+            <item url="DefaultContent2.html" type="text">of focused component</item> 
         </section>
     </id>
     <id name="org.openide.windows.TopComponent">
@@ -34,16 +35,20 @@
         <section name="Dynamic Helper">
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is TopComponent</item>
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to TopComponent</item>            
-        </section>        
+        </section>
+        <section name="Description">
+            <item url="DefaultContent2.html" type="text">TopComponent is base</item>
+            <item url="DefaultContent2.html" type="text">part of Window System</item> 
+        </section>       
     </id>    
     <id name="org.openide.loaders.DataFolder_Filesystems">
         <section name="IDE Navigator">
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">New File...</item>
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">New Filesystem...</item>
-            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Remove Filesystem...</item>                        
+						<item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">Remove Filesystem...</item>                        
         </section>
         <section name="Dynamic Helper">
-            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is Filesystem</item>
+								<item url="/org/netbeans/modules/assistant/pages/DefaultContent3.html">What is Filesystem</item>
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to work with Filesystem</item>            
         </section>        
     </id>
@@ -51,12 +56,16 @@
         <section name="IDE Navigator">
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">New Project...</item>
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Switch to Project..</item>
-            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Deafult Project...</item>                        
+						<item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">Deafult Project...</item>                        
         </section>
         <section name="Dynamic Helper">
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is Deafult Project</item>
-            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to work with Projects</item>            
-        </section>        
+						<item url="/org/netbeans/modules/assistant/pages/DefaultContent3.html">How to work with Projects</item>            
+        </section>
+        <section name="Description">
+            <item url="DefaultContent2.html" type="text">Project is base</item>
+            <item url="DefaultContent2.html" type="text">unit of structure</item> 
+        </section>         
     </id>
     <id name="org.openide.explorer.ExplorerPanel_Runtime">        
         <section name="Dynamic Helper">
@@ -72,7 +81,11 @@
         <section name="Dynamic Helper">
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is Editor for?</item>
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to Edit Sources</item>            
-        </section>        
+        </section>
+        <section name="Description">
+            <item url="DefaultContent2.html" type="text">Editor is main view</item>
+            <item url="DefaultContent2.html" type="text">to source code</item> 
+        </section>  
     </id>
     <id name="org.netbeans.modules.projects.ProjectDataObject">
         <section name="IDE Navigator">
@@ -94,4 +107,111 @@
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to work with tools</item>            
         </section>        
     </id>
+    <id name="keyword_public">        
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">public</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">Members visiblity</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Code Techniques</item>            
+        </section>        
+    </id>
+    <id name="keyword_private">        
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">private</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">Members visiblity</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Code Techniques</item>            
+        </section>        
+    </id>
+    <id name="keyword_protected">        
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">protected</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">Members visiblity</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Code Techniques</item>            
+        </section>        
+    </id>
+    <id name="keyword_static">        
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">static</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">Members visiblity</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Code Techniques</item>            
+        </section>        
+    </id>
+    <id name="keyword_package">        
+        <section name="IDE Navigator">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">New Package...</item>                                 
+        </section>
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">package</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">Packages in use</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Code Techniques</item>            
+        </section>        
+    </id>
+    <id name="keyword_import">        
+        <section name="IDE Navigator">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">Import Wizard...</item>                                 
+        </section>
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">import</item>          
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Code Techniques</item>            
+        </section>        
+    </id>
+    <id name="keyword_class">        
+        <section name="IDE Navigator">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">New Class...</item>                                 
+        </section>
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">class</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">Classes in use</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Code Techniques</item>            
+        </section>        
+    </id>
+    <id name="keyword_int">                
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">int</item>            
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Primitive Types</item>            
+        </section>  
+    </id> 
+    <id name="keyword_booleans">                
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">boolean</item>            
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Primitive Types</item>            
+        </section>  
+    </id>       
+    <id name="keyword_void">                
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">void</item>            
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Return values</item>            
+        </section>        
+        <section name="Description">
+            <item url="DefaultContent2.html" type="text">Use void whenever you dont</item>
+            <item url="DefaultContent2.html" type="text">need to return value</item>            
+        </section>
+    </id>
+    <id name="keyword_return">                
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">return</item>            
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Return values</item>            
+        </section>        
+        <section name="Description">
+            <item url="DefaultContent2.html" type="text">Use return whenever you </item>
+            <item url="DefaultContent2.html" type="text">need to return value</item>           
+        </section>
+    </id> 
+    <id name="keyword_extends">                
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">extends</item>            
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Inheritance</item>            
+        </section>  
+    </id>
+    <id name="keyword_this">                
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">this</item>            
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to use this and super</item>            
+        </section>  
+    </id>
+    <id name="keyword_null">                
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">null</item>            
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to use nullr</item>            
+        </section>  
+    </id>               
 </assistant>
