@@ -383,24 +383,26 @@ public class VariableInputDialog extends javax.swing.JPanel {
                                    int gridy, javax.swing.JPanel variablePanel, int leftInset) {
         String varLabel = component.getLabel();
         ArrayList componentList = new ArrayList();
-        javax.swing.JLabel label = new javax.swing.JLabel(varLabel);
+        if (varLabel != null && varLabel.length() > 0) {
+            javax.swing.JLabel label = new javax.swing.JLabel(varLabel);
+            java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
+            gridBagConstraints1.gridx = 0;
+            gridBagConstraints1.gridy = gridy;
+            gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints1.insets = new java.awt.Insets (0, leftInset, 8, 8);
+            variablePanel.add(label, gridBagConstraints1);
+            componentList.add(label);
+        }
         final javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
         String value = component.getValue();
         if (value != null) field.setText(value);
-        java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
         java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = gridy;
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints1.insets = new java.awt.Insets (0, leftInset, 8, 8);
         gridBagConstraints2.gridx = 1;
         gridBagConstraints2.gridy = gridy;
         gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints2.weightx = 1.0;
         gridBagConstraints2.insets = new java.awt.Insets (0, 0, 8, 0);
-        variablePanel.add(label, gridBagConstraints1);
         variablePanel.add(field, gridBagConstraints2);
-        componentList.add(label);
         componentList.add(field);
         VcsUtilities.removeEnterFromKeymap(field);
         String selector = component.getSelector();
@@ -595,6 +597,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
             }
         });
         awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { chbox });
+        final String[] varsEnabled = (String[]) component.getEnable().toArray(new String[0]);
+        final String[] varsDisabled = (String[]) component.getDisable().toArray(new String[0]);
+        chbox.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent ev) {
+                enableComponents(varsEnabled, chbox.isSelected());
+                enableComponents(varsDisabled, !chbox.isSelected());
+            }
+        });
         addActionToProcess(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 boolean selected = chbox.isSelected();
@@ -607,7 +617,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 } else {
                     component.setValue(selected ? Boolean.TRUE.toString() : "");
                 }
-                if (vars != null) vars.put(component.getVariable(), component.getValue());
+                if (vars != null) {
+                    if (chbox.isEnabled()) {
+                        vars.put(component.getVariable(), component.getValue());
+                    } else {
+                        vars.remove(component.getVariable());
+                    }
+                }
             }
         });
     }
@@ -643,11 +659,18 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //VcsUtilities.removeEnterFromKeymap(field);
         //fileNames.add(filePrompts.get(message));
         initArea(area, component.getValue());
+        awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { label, area });
         addActionToProcess(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 //component.setValue(chbox.isSelected() ? Boolean.TRUE.toString() : "");
                 writeFileContents(area, component.getValue(), promptAreaNum);
-                if (vars != null) vars.put(component.getVariable(), component.getValue());
+                if (vars != null) {
+                    if (area.isEnabled()) {
+                        vars.put(component.getVariable(), component.getValue());
+                    } else {
+                        vars.remove(component.getVariable());
+                    }
+                }
             }
         });
     }
@@ -693,6 +716,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private int addRadioButton(final VariableInputComponent component, int gridy,
                                 javax.swing.ButtonGroup group, javax.swing.JPanel variablePanel, int leftInset) {
         String label = component.getLabel();
+        boolean firstSubLabelEmpty = false; // If the first sublabel is empty, put the first sub component to the same gridy as the button
+        VariableInputComponent[] subComponents = component.subComponents();
+        if (subComponents.length > 0) {
+            String subLabel = subComponents[0].getLabel();
+            firstSubLabelEmpty = subLabel == null || subLabel.length() == 0;
+        }
         final javax.swing.JRadioButton button = new javax.swing.JRadioButton(label);
         group.add(button);
         java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
@@ -700,13 +729,19 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints1.gridy = gridy;
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints1.insets = new java.awt.Insets (0, leftInset, 4, 0);
-        gridBagConstraints1.gridwidth = 2;
+        gridBagConstraints1.gridwidth = (firstSubLabelEmpty) ? 1 : 2;
         variablePanel.add(button, gridBagConstraints1);
-        VariableInputComponent[] subComponents = component.subComponents();
         gridy++;
         ArrayList componentVarsList = new ArrayList();
         for (int i = 0; i < subComponents.length; i++) {
-            gridy = addComponent(subComponents[i], gridy, variablePanel, leftInset + DEFAULT_INDENT);
+            int inset;
+            if (i == 0 && firstSubLabelEmpty) {
+                gridy--;
+                inset = 8;
+            } else {
+                inset = leftInset + DEFAULT_INDENT;
+            }
+            gridy = addComponent(subComponents[i], gridy, variablePanel, inset);
             componentVarsList.add(subComponents[i].getVariable());
         }
         final String[] componentVars = (String[]) componentVarsList.toArray(new String[0]);
