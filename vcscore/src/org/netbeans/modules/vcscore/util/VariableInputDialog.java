@@ -37,6 +37,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
     //public static final String PROMPT_DATE_CVS = "_DATE_CVS";
     //public static final String PROMPT_DEFAULT_VALUE_SEPARATOR = "\"";
     
+    /**
+     * This property (which name has the variable name appended) is fired
+     * when a variable value has changed.
+     */
+    public static final String PROP_VAR_CHANGED = "varChanged"; // NOI18N
+    
     private static final int TEXTFIELD_COLUMNS = 20;
     private static final int TEXTAREA_COLUMNS = 40;
     private static final int TEXTAREA_ROWS = 6;
@@ -518,6 +524,68 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
     
     /**
+     * Use this method to supply new variable values to the components.
+     */
+    public void updateVariableValues(Hashtable vars) {
+        for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
+            String varName = (String) it.next();
+            String varValue = (String) vars.get(varName);
+            VariableInputComponent inComponent = (VariableInputComponent) componentsByVars.get(varName);
+            if (inComponent == null) continue;
+            else inComponent.setValue(varValue);
+            java.awt.Component[] components = (java.awt.Component[]) awtComponentsByVars.get(varName);
+            if (components != null) {
+                for (int i = 0; i < components.length; i++) {
+                    java.awt.Component component = components[i];
+                    if (component instanceof javax.swing.JTextField) {
+                        varValue = Variables.expand(vars, varValue, false);
+                        inComponent.setValue(varValue);
+                        ((javax.swing.JTextField) component).setText(varValue);
+                    } else if (component instanceof javax.swing.JCheckBox) {
+                        javax.swing.JCheckBox chbox = (javax.swing.JCheckBox) component;
+                        if (varValue == null) {
+                            varValue = inComponent.getDefaultValue();
+                        }
+                        if (varValue != null) {
+                            varValue = Variables.expand(vars, varValue, false);
+                            inComponent.setValue(varValue);
+                            String valueSelected = inComponent.getValueSelected();
+                            if (valueSelected != null) {
+                                chbox.setSelected(varValue.equals(valueSelected));
+                            } else {
+                                chbox.setSelected(Boolean.TRUE.toString().equalsIgnoreCase(varValue));
+                            }
+                        }
+                    } else if (component instanceof javax.swing.JRadioButton) {
+                        javax.swing.JRadioButton button = (javax.swing.JRadioButton) component;
+                        javax.swing.ButtonModel model = button.getModel();
+                        if (model instanceof javax.swing.DefaultButtonModel) {
+                            javax.swing.ButtonGroup group = ((javax.swing.DefaultButtonModel) model).getGroup();
+                            selectButton(varValue, inComponent.subComponents(), group);
+                        }
+                    } else if (component instanceof javax.swing.JComboBox) {
+                        javax.swing.JComboBox comboBox = (javax.swing.JComboBox) component;
+                        VariableInputComponent[] subComponents = inComponent.subComponents();
+                        int items = subComponents.length;
+                        String[] values = new String[items];
+                        for (int j = 0; j < items; j++) {
+                            values[j] = subComponents[j].getDefaultValue();
+                        }
+                        int j;
+                        if (varValue != null) {
+                            for (j = 0; j < items; j++) {
+                                if (varValue.equals(values[j])) break;
+                            }
+                            if (j >= items) j = 0;
+                        } else j = 0;
+                        comboBox.setSelectedIndex(j);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
      * Set the execution string.
      */
     public void setExec(String exec) {
@@ -691,17 +759,27 @@ public class VariableInputDialog extends javax.swing.JPanel {
         ) {
             selector = null;
         }
+        FocusListener l;
+        field.addFocusListener(l = new FocusListener() {
+            public void focusGained(FocusEvent fevt) {}
+            public void focusLost(FocusEvent fevt) {
+                Object oldValue = component.getValue();
+                component.setValue(field.getText());
+                firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), oldValue, component.getValue());
+            }
+        });
+        focusListenersToCallBeforeValidate.add(l);
         if (selector != null) {
             java.awt.Component awtComponent = null;
             if (VariableInputDescriptor.SELECTOR_DIR.equals(selector)) {
-                awtComponent = addBrowseDir(variablePanel, field, gridy);
+                awtComponent = addBrowseDir(variablePanel, field, gridy, l);
             } else if (VariableInputDescriptor.SELECTOR_FILE.equals(selector)) {
-                awtComponent = addBrowseFile(variablePanel, field, gridy);
+                awtComponent = addBrowseFile(variablePanel, field, gridy, l);
             } else if (VariableInputDescriptor.SELECTOR_DATE_CVS.equals(selector)) {
-                awtComponent = addDateCVS(variablePanel, field, gridy);
+                awtComponent = addDateCVS(variablePanel, field, gridy, l);
             } else if (selector.indexOf(VariableInputDescriptor.SELECTOR_CMD) == 0) {
                 awtComponent = addSelector(variablePanel, field, gridy,
-                                           selector.substring(VariableInputDescriptor.SELECTOR_CMD.length()));
+                                           selector.substring(VariableInputDescriptor.SELECTOR_CMD.length()), l);
             }
             if (awtComponent != null) componentList.add(awtComponent);
         }
@@ -724,17 +802,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
             public void caretPositionChanged(InputMethodEvent event) {
             }
             public void inputMethodTextChanged(InputMethodEvent event) {
+                Object oldValue = component.getValue();
                 component.setValue(field.getText());
+                firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), oldValue, component.getValue());
             }
         });
-        FocusListener l;
-        field.addFocusListener(l = new FocusListener() {
-            public void focusGained(FocusEvent fevt) {}
-            public void focusLost(FocusEvent fevt) {
-                component.setValue(field.getText());
-            }
-        });
-        focusListenersToCallBeforeValidate.add(l);
         addActionToProcess(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 component.setValue(field.getText());
@@ -754,7 +826,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         });
     }
     
-    private java.awt.Component addBrowseDir(final javax.swing.JPanel panel, final javax.swing.JTextField field, int y) {
+    private java.awt.Component addBrowseDir(final javax.swing.JPanel panel,
+                                            final javax.swing.JTextField field,
+                                            int y, final FocusListener l) {
         java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = y;
@@ -773,12 +847,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     return ;
                 }
                 field.setText(selected);
+                l.focusLost(null);
             }
         });
         return button;
     }
     
-    private java.awt.Component addBrowseFile(final javax.swing.JPanel panel, final javax.swing.JTextField field, int y) {
+    private java.awt.Component addBrowseFile(final javax.swing.JPanel panel,
+                                             final javax.swing.JTextField field,
+                                             int y, final FocusListener l) {
         java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = y;
@@ -797,18 +874,23 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     return ;
                 }
                 field.setText(selected);
+                l.focusLost(null);
             }
         });
         return button;
     }
     
-    private java.awt.Component addDateCVS(final javax.swing.JPanel panel, final javax.swing.JTextField field, int y) {
+    private java.awt.Component addDateCVS(final javax.swing.JPanel panel,
+                                          final javax.swing.JTextField field,
+                                          int y, final FocusListener l) {
         field.setToolTipText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.DateCVS"));
         return null;
     }
 
-    private java.awt.Component addSelector(final javax.swing.JPanel panel, final javax.swing.JTextField field, int y,
-                                           final String commandName) {
+    private java.awt.Component addSelector(final javax.swing.JPanel panel,
+                                           final javax.swing.JTextField field,
+                                           int y, final String commandName,
+                                           final FocusListener l) {
         java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = y;
@@ -824,6 +906,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         //System.out.println("selected = "+selected);
                         if (selected != null) {
                             field.setText(selected);
+                            l.focusLost(null);
                         }
                     }
                 });
@@ -905,6 +988,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 boolean selected = chbox.isSelected();
                 String valueSelected = component.getValueSelected();
                 String valueUnselected = component.getValueUnselected();
+                Object oldValue = component.getValue();
                 if (selected && valueSelected != null) {
                     component.setValue(valueSelected);
                 } else if (!selected && valueUnselected != null) {
@@ -912,9 +996,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 } else {
                     component.setValue(selected ? Boolean.TRUE.toString() : "");
                 }
+                firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), oldValue, component.getValue());
             }
         });
         awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { chbox });
+        componentsByVars.put(component.getVariable(), component);
         final String[] varsEnabled = (String[]) component.getEnable().toArray(new String[0]);
         final String[] varsDisabled = (String[]) component.getDisable().toArray(new String[0]);
         chbox.addChangeListener(new ChangeListener() {
@@ -1072,6 +1158,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             componentList.add(enum.nextElement());
         }
         awtComponentsByVars.put(component.getVariable(), componentList.toArray(new java.awt.Component[0]));
+        componentsByVars.put(component.getVariable(), component);
         String defValue;
         if (component.needsPreCommandPerform()) {
             defValue = component.getValue();
@@ -1161,7 +1248,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 if (button.isSelected()) {
+                    Object oldValue = superComponent.getValue();
                     superComponent.setValue(component.getValue());
+                    firePropertyChange(PROP_VAR_CHANGED + superComponent.getVariable(), oldValue, superComponent.getValue());
                     //System.out.println("component '"+superComponent.getLabel()+"' setValue("+component.getValue()+")");
                 }
             }
@@ -1226,6 +1315,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         variablePanel.add(comboBox, gridBagConstraints2);
         componentList.add(comboBox);
         awtComponentsByVars.put(component.getVariable(), componentList.toArray(new java.awt.Component[0]));
+        componentsByVars.put(component.getVariable(), component);
         String selected;
         if (component.needsPreCommandPerform()) {
             selected = component.getValue();
@@ -1248,6 +1338,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 int selected2 = comboBox.getSelectedIndex();
                 //System.out.println("Combo Action: selected = "+selected2+" = "+subComponents[selected2].getValue());
                 component.setValue(subComponents[selected2].getValue());
+                firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), null, component.getValue());
             }
         });
         comboBox.addItemListener(new ItemListener() {
@@ -1407,6 +1498,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
             varValues[i] = (varAskCheckBoxes[i].isSelected()) ? "true" : "";
         }
         return varValues;
+    }
+    
+    /**
+     * Getter for the variable input panel. Use this panel if you need
+     * to use the panel in your own frame.
+     * @return The panel with variable inpout components.
+     */
+    public javax.swing.JPanel getVariableInputPanel() {
+        return variablePanel;
     }
 
     /**
