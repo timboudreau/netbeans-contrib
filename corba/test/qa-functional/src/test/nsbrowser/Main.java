@@ -29,9 +29,9 @@ import org.netbeans.jellytools.properties.PropertySheetTabOperator;
 import org.netbeans.jellytools.properties.StringProperty;
 import org.netbeans.jemmy.EventTool;
 import org.netbeans.jemmy.JemmyException;
-import org.netbeans.jemmy.drivers.DriverManager;
-import org.netbeans.jemmy.drivers.TreeDriver;
-import org.netbeans.jemmy.drivers.trees.JTreeAPIDriver;
+//import org.netbeans.jemmy.drivers.DriverManager;
+//import org.netbeans.jemmy.drivers.TreeDriver;
+//import org.netbeans.jemmy.drivers.trees.JTreeAPIDriver;
 import org.netbeans.jemmy.operators.JButtonOperator;
 import org.netbeans.jemmy.operators.JDialogOperator;
 import org.netbeans.jemmy.operators.JTreeOperator;
@@ -188,11 +188,13 @@ public class Main extends JellyTestCase {
             assertTrue ("IOException", false);
         }
 
-        TreeDriver dm = DriverManager.getTreeDriver (JTreeOperator.class);
-        DriverManager.setTreeDriver(new JTreeAPIDriver ());
+//        TreeDriver dm = DriverManager.getTreeDriver (JTreeOperator.class);
+//        DriverManager.setTreeDriver(new JTreeAPIDriver ());
         new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName").refresh();
+        new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName|ServerName");
+        Helper.sleep (1000);
         new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName|ServerName").copyClientBindingCode ();
-        DriverManager.setTreeDriver (dm);
+//        DriverManager.setTreeDriver (dm);
 
         MainWindowOperator.getDefault().waitStatusText("Code was sucessfully generated into clipboard.");
         getRef ().println (Helper.getStringFromClipboard());
@@ -201,12 +203,16 @@ public class Main extends JellyTestCase {
     
     public void testNS_Second () {
         JHelper.closeAllProperties ();
-        TreeDriver dm = DriverManager.getTreeDriver (JTreeOperator.class);
-        DriverManager.setTreeDriver(new JTreeAPIDriver ());
+//        TreeDriver dm = DriverManager.getTreeDriver (JTreeOperator.class);
+//        DriverManager.setTreeDriver(new JTreeAPIDriver ());
         new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2").refresh ();
+        new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName");
+        Helper.sleep (1000);
         new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName").refresh ();
+        new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName|ServerName");
+        Helper.sleep (1000);
         new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName|ServerName").properties ();
-        DriverManager.setTreeDriver (dm);
+//        DriverManager.setTreeDriver (dm);
 
         PropertySheetOperator pso = new PropertySheetOperator (PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, "ServerName");
         PropertySheetTabOperator pst = pso.getPropertySheetTabOperator("Properties");
@@ -224,8 +230,13 @@ public class Main extends JellyTestCase {
         new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName|ServerName2");
         itemLocalTest_NSName_ServerName2 = true;
 
+//        TreeDriver dm = DriverManager.getTreeDriver (JTreeOperator.class);
+//        DriverManager.setTreeDriver(new JTreeAPIDriver ());
         new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName").refresh ();
+        new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName|ServerName2");
+        Helper.sleep (1000);
         new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName|ServerName2").copyClientBindingCode ();
+//        DriverManager.setTreeDriver (dm);
 
         MainWindowOperator.getDefault().waitStatusText("Code was sucessfully generated into clipboard.");
         getRef ().println (Helper.getStringFromClipboard());
@@ -233,33 +244,45 @@ public class Main extends JellyTestCase {
     }
     
     public void testNS_Unbind () {
-        TreeDriver dm = DriverManager.getTreeDriver (JTreeOperator.class);
-        DriverManager.setTreeDriver(new JTreeAPIDriver ());
+//        TreeDriver dm = DriverManager.getTreeDriver (JTreeOperator.class);
+//        DriverManager.setTreeDriver(new JTreeAPIDriver ());
         if (itemLocalTest_NSName_ServerName2) {
+            new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName|ServerName2");
+            Helper.sleep (1000);
             new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName|ServerName2").unbindObject();
             getLog ().println ("|LocalTest|NSName|ServerName2");
         }
         if (itemLocalTest_NSName2_NSNameSub2) {
+            new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2");
+            Helper.sleep (1000);
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2").unbindContext();
             getLog ().println ("|LocalTest|NSName2|NSNameSub2");
         }
         if (itemLocalTest_NSName2) {
+            new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2");
+            Helper.sleep (1000);
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2").unbindContext();
             getLog ().println ("|LocalTest|NSName2");
         }
         if (itemLocalTest_NSName) {
+            new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName");
+            Helper.sleep (1000);
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName").unbindContext();
             getLog ().println ("|LocalTest|NSName");
         }
         if (itemLocalTest2) {
+            new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest_2");
+            Helper.sleep (1000);
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest_2").unbindContext();
             getLog ().println ("|LocalTest_2");
         }
         if (itemLocalTest) {
+            new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest");
+            Helper.sleep (1000);
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest").unbindContext();
             getLog ().println ("|LocalTest");
         }
-        DriverManager.setTreeDriver (dm);
+//        DriverManager.setTreeDriver (dm);
     }
 
     public static void main(java.lang.String[] args) {
