@@ -30,7 +30,7 @@ public class PMDInstall extends ModuleInstall {
     }
     
     /** Unregisters RuleSetFactory. */
-    public void closed () {
+    public void uninstall () {
         pmd.config.ConfigUtils.removeRuleSetFactory (NbRuleSetFactory.getDefault ());
     }
 }
