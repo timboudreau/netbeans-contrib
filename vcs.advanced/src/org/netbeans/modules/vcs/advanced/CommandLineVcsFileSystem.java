@@ -90,6 +90,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * CREATE_FOLDER_IGNORE_LIST command.
      */
     public static final String VAR_PARENT_IGNORE_LIST = "PARENT_IGNORE_LIST"; // NOI18N
+
+    /**
+     * The name of a variable, which contains names of variables, whose values are compared.
+     * If the values are the same, among several filesystems, then their password are shared.
+     * Therefore when you have more than one filesystem mounted for the same project, you
+     * do not need to re-enter the password for each filesystem.
+     */
+    public static final String VAR_PASSWORD_SHARE = "PASSWORD_SHARE_WHEN_CONFIG_IS_SAME"; // NOI18N
     
     /**
      * This command is executed to get the initial ignore list.
@@ -132,6 +140,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private Set compatibleOSs = null;
     private Set uncompatibleOSs = null;
     private transient boolean doInitialCheckout = false; // whether to do an initial checkout after the FS is mounted
+    private transient PropertyChangeListener sharedPasswordChangeListener;
+    private Object sharedPasswordKey = null;
 
     static final long serialVersionUID =-1017235664394970926L;
     //-------------------------------------------
@@ -161,6 +171,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setIgnoreListSupport(new GenericIgnoreListSupport());
         setCreateBackupFiles(true);
         setFilterBackupFiles(true);
+        sharedPasswordChangeListener = new SharedPasswordListener();
+        SharedPasswords.getInstance().addPropertyChangeListener(
+            org.openide.util.WeakListener.propertyChange(sharedPasswordChangeListener,
+                                        SharedPasswords.getInstance()));
     }
     
     protected java.lang.ref.Reference createReference(final FileObject fo) {
@@ -515,6 +529,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
 
     public void propertyChange (PropertyChangeEvent evt) {
+        if (PROP_PASSWORD.equals(evt.getPropertyName())) {
+            if (sharedPasswordKey != null) {
+                SharedPasswords.getInstance().setPassword(sharedPasswordKey, getPassword());
+            }
+            return ;
+        }
         if (evt.getPropertyName() != FileSystem.PROP_VALID) return;
         if (isValid()) {
             D.deb("Filesystem added to the repository, setting refresh time to "+refreshTimeToSet); // NOI18N
@@ -732,6 +752,50 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setLocalFileFilterFromVars();
         setDocumentCleanupFromVars();
         setAdditionalParamsLabels();
+        Object newSharedPasswordKey = computeSharedPasswordKey();
+        if (sharedPasswordKey != null) {
+            if (newSharedPasswordKey != null) {
+                SharedPasswords.getInstance().changeKey(sharedPasswordKey,
+                                                        newSharedPasswordKey);
+            } else {
+                SharedPasswords.getInstance().setPassword(sharedPasswordKey, null);
+            }
+        } else {
+            if (newSharedPasswordKey != null) {
+                SharedPasswords passwords = SharedPasswords.getInstance();
+                String password = passwords.getPassword(newSharedPasswordKey);
+                if (password != null) {
+                    setPassword(password);
+                } else {
+                    passwords.setPassword(newSharedPasswordKey, getPassword());
+                }
+            }
+        }
+        sharedPasswordKey = newSharedPasswordKey;
+    }
+    
+    private Object computeSharedPasswordKey() {
+        VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(VAR_PASSWORD_SHARE);
+        if (var != null) {
+            String configVars = var.getValue();
+            if (configVars != null) {
+                String[] vars = VcsUtilities.getQuotedStrings(configVars);
+                String[] values = new String[vars.length];
+                for (int i = 0; i < vars.length; i++) {
+                    var = (VcsConfigVariable) variablesByName.get(vars[i]);
+                    if (var != null) {
+                        values[i] = var.getValue();
+                    } else {
+                        values[i] = null;
+                    }
+                }
+                return values;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     public FilenameFilter getLocalFileFilter() {
@@ -1045,6 +1109,79 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             return ignoreList;
         }
         
+    }
+    
+    private class SharedPasswordListener extends Object implements PropertyChangeListener {
+        
+        public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+            if (sharedPasswordKey != null && sharedPasswordKey.equals(propertyChangeEvent.getSource())) {
+                setPassword((String) propertyChangeEvent.getNewValue());
+            }
+        }
+        
+    }
+    
+    private final static class SharedPasswords extends Object {
+        
+        private HashMap passwords;
+        private HashSet listeners;
+        private static SharedPasswords instance;
+        
+        private SharedPasswords() {
+            passwords = new HashMap();
+            listeners = new HashSet();
+        }
+        
+        public static SharedPasswords getInstance() {
+            synchronized (SharedPasswords.class) {
+                if (instance == null) {
+                    instance = new SharedPasswords();
+                }
+            }
+            return instance;
+        }
+        
+        public synchronized void setPassword(Object key, String password) {
+            if (password == null) {
+                Object old = passwords.remove(key);
+                firePropertyChange(key, old, null);
+            } else {
+                passwords.put(key, password);
+                firePropertyChange(key, null, password);
+            }
+        }
+        
+        public synchronized String getPassword(Object key) {
+            return (String) passwords.get(key);
+        }
+        
+        public synchronized void changeKey(Object oldKey, Object newKey) {
+            Object value = passwords.remove(oldKey);
+            if (value != null) passwords.put(newKey, value);
+        }
+        
+        private void firePropertyChange(Object key, Object oldPass, Object newPass) {
+            PropertyChangeEvent event = new PropertyChangeEvent(key, "password", oldPass, newPass);
+            HashSet l;
+            synchronized (listeners) {
+                l = new HashSet(listeners);
+            }
+            for (Iterator it = l.iterator(); it.hasNext(); ) {
+                ((PropertyChangeListener) it.next()).propertyChange(event);
+            }
+        }
+        
+        public void addPropertyChangeListener(PropertyChangeListener l) {
+            synchronized (listeners) {
+                listeners.add(l);
+            }
+        }
+        
+        public void removePropertyChangeListener(PropertyChangeListener l) {
+            synchronized (listeners) {
+                listeners.remove(l);
+            }
+        }
     }
 
     private String clg(String s) {
