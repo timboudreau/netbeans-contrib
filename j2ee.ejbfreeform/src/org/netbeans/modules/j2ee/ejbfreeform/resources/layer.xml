@@ -17,7 +17,7 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="Templates">
         <folder name="Project">
             <folder name="J2EE">
-                <attr name="emptyEjbJar.xml/ejbfreeform.xml" boolvalue="true"/>
+                <attr name="importEjbJar.xml/ejbfreeform.xml" boolvalue="true"/>
                 <file name="ejbfreeform.xml">
                     <attr name="template" boolvalue="true"/>
                     <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.ejbfreeform.ui.NewEJBFreeformProjectWizardIterator"/>
