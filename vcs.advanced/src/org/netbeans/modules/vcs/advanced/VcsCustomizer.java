@@ -86,6 +86,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     
     private void initAccessibility()
     {
+        getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizerDialogA11yName"));  // NOI18N
+        getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizerDialogA11yDesc"));  // NOI18N
         configCombo.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.configComboBoxA11yName"));  // NOI18N
         jLabel2.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.jLabel2.textA11yDesc"));  // NOI18N
         rootDirTextField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.workingDirectoryTextField.textA11yName"));  // NOI18N
@@ -108,6 +110,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         currentOSLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.currentOSLabel.txtA11yDesc"));  // NOI18N
         userEnvLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.cmdButton.textA11yDesc"));  // NOI18N
         systemEnvLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.varButton.textA11yDesc"));  // NOI18N
+        jTabbedPane1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizerTabbedPaneA11yName"));  // NOI18N
+        jTabbedPane1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizerTabbedPaneA11yDesc"));  // NOI18N
     }
 
     /** This method is called from within the constructor to
