@@ -108,7 +108,7 @@ public class TreeTable extends JTable {
         
         addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent e) {
-                if (e.getPropertyName() == "rowMargin") {
+                if (e.getPropertyName() == "rowMargin") { // NOI18N
                     tree.intercellSpacing = getIntercellSpacing();
                 }
             }
@@ -163,6 +163,14 @@ public class TreeTable extends JTable {
     public void expandAll() {
         TreePath tp = new TreePath(tree.getModel().getRoot());
         expandAllUnder(tp);
+    }
+    
+    /**
+     * Collapses all nodes
+     */
+    public void collapseAll() {
+        TreePath root = new TreePath(tree.getModel().getRoot());
+        collapseAllUnder(root);
     }
     
     /**
@@ -227,6 +235,23 @@ public class TreeTable extends JTable {
     }
     
     /**
+     * Collapses all nodes under the specified path
+     *
+     * @param tp the path
+     */
+    public void collapseAllUnder(TreePath tp) {
+        if (!tree.hasBeenExpanded(tp))
+            return;
+        
+        Object last = tp.getLastPathComponent();
+        for (int i = 0; i < tree.getModel().getChildCount(last); i++) {
+            Object child = tree.getModel().getChild(last, i);
+            collapseAllUnder(tp.pathByAddingChild(child));
+        }
+        tree.collapsePath(tp);
+    }
+    
+    /**
      * Sets new sorting model
      *
      * @param sm new sorting model or null
@@ -234,7 +259,7 @@ public class TreeTable extends JTable {
     public void setSortingModel(SortingModel sm) {
         SortingModel old = this.sortingModel;
         this.sortingModel = sm;
-        firePropertyChange("sortingModel", old, sm);
+        firePropertyChange("sortingModel", old, sm); // NOI18N
     }
     
     /**
@@ -298,8 +323,8 @@ public class TreeTable extends JTable {
 	}
 	// Use the tree's default foreground and background colors in the
 	// table. 
-        LookAndFeel.installColorsAndFont(this, "Tree.background",
-                                         "Tree.foreground", "Tree.font");
+        LookAndFeel.installColorsAndFont(this, "Tree.background", // NOI18N
+                                         "Tree.foreground", "Tree.font"); // NOI18N
     }
 
     /* Workaround for BasicTableUI anomaly. Make sure the UI never tries to 
@@ -367,9 +392,9 @@ public class TreeTable extends JTable {
 		// null.
 		// dtcr.setBorderSelectionColor(null);
 		dtcr.setTextSelectionColor(UIManager.getColor
-					   ("Table.selectionForeground"));
+					   ("Table.selectionForeground")); // NOI18N
 		dtcr.setBackgroundSelectionColor(UIManager.getColor
-						("Table.selectionBackground"));
+						("Table.selectionBackground")); // NOI18N
 	    }
 	}
 
@@ -427,10 +452,10 @@ public class TreeTable extends JTable {
 						       boolean hasFocus,
 						       int row, int column) {
             if (hasFocus) {
-                border = UIManager.getBorder("Table.focusCellHighlightBorder");
+                border = UIManager.getBorder("Table.focusCellHighlightBorder"); // NOI18N
                 if (table.isCellEditable(row, column)) {
-                    super.setForeground( UIManager.getColor("Table.focusCellForeground") );
-                    super.setBackground( UIManager.getColor("Table.focusCellBackground") );
+                    super.setForeground( UIManager.getColor("Table.focusCellForeground") ); // NOI18N
+                    super.setBackground( UIManager.getColor("Table.focusCellBackground") ); // NOI18N
                 }
             } else {
                 border = null;

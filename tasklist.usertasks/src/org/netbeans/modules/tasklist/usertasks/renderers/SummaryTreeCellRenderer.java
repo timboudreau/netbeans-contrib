@@ -40,6 +40,17 @@ public class SummaryTreeCellRenderer extends DefaultTreeCellRenderer {
         Utilities.loadImage("org/netbeans/modules/tasklist/core/doneItem.gif"); // NOI18N
     private static final Image UNMATCHED =
         Utilities.loadImage("org/netbeans/modules/tasklist/core/unmatched.gif"); // NOI18N
+    
+    private static final Image STARTED_BADGE =
+        Utilities.loadImage("org/netbeans/modules/tasklist/usertasks/startedBadge.gif"); // NOI18N
+
+    private static final Image IMAGE_STARTED = 
+        Utilities.mergeImages(IMAGE, STARTED_BADGE, 8, 8);
+    private static final Image DONE_STARTED = 
+        Utilities.mergeImages(DONE, STARTED_BADGE, 8, 8);
+    private static final Image UNMATCHED_STARTED = 
+        Utilities.mergeImages(UNMATCHED, STARTED_BADGE, 8, 8);
+    
     private ImageIcon icon = new ImageIcon();
     
     public Component getTreeCellRendererComponent(JTree tree, Object value,
@@ -55,12 +66,21 @@ public class SummaryTreeCellRenderer extends DefaultTreeCellRenderer {
             UserTaskTreeTableNode utl = (UserTaskTreeTableNode) value;
             UserTask ut = utl.getUserTask();
             setText(ut.getSummary());
-            if (utl.isUnmatched())
-                icon.setImage(UNMATCHED);
-            else if (ut.isDone())
-                icon.setImage(DONE);
-            else
-                icon.setImage(IMAGE);
+            if (ut.isStarted()) {
+                if (utl.isUnmatched())
+                    icon.setImage(UNMATCHED_STARTED);
+                else if (ut.isDone())
+                    icon.setImage(DONE_STARTED);
+                else
+                    icon.setImage(IMAGE_STARTED);
+            } else {
+                if (utl.isUnmatched())
+                    icon.setImage(UNMATCHED);
+                else if (ut.isDone())
+                    icon.setImage(DONE);
+                else
+                    icon.setImage(IMAGE);
+            }
         }
         setIcon(icon);
         return this;

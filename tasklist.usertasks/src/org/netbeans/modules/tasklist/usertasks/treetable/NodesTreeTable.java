@@ -71,15 +71,16 @@ public abstract class NodesTreeTable extends TreeTable {
                 int row = rowAtPoint(e.getPoint());
                 int col = columnAtPoint(e.getPoint());
                 Action[] actions;
-                if (row < 0 || col < 0)
-                    return;
-                
-                setRowSelectionInterval(row, row);
-                Node n = createNode(getNodeForRow(row));
-                if (n == null)
-                    return;
-                
-                actions = n.getActions(false);
+                if (row < 0 || col < 0) {
+                    actions = getFreeSpaceActions();
+                } else {
+                    setRowSelectionInterval(row, row);
+                    Node n = createNode(getNodeForRow(row));
+                    if (n == null)
+                        return;
+
+                    actions = n.getActions(false);
+                }
                 JPopupMenu pm = Utilities.actionsToPopup(actions,
                     NodesTreeTable.this);
                 if(pm != null)
@@ -150,4 +151,13 @@ public abstract class NodesTreeTable extends TreeTable {
      * @return created Node or null if inappropriate
      */
     public abstract Node createNode(Object obj);
+    
+    /**
+     * Returns actions for the popup requested on the free space
+     *
+     * @return actions
+     */
+    public Action[] getFreeSpaceActions() {
+        return new Action[0];
+    }
 }

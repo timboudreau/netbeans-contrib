@@ -16,16 +16,16 @@
     </li>
     <li>Add Subtask.</li>
     <li>Enter a summary.</li>
-    <li>OK</li>
+    <li>OK.</li>
     <li>The new subtask should be selected.</li>
   </ol>
   <li>Select next task after cut.</li>
   <ol>
     <li>Open test2.ics.</li>
-    <li>Select "A"</li>
-    <li>Local Menu</li>
-    <li>Cut</li>
-    <li>C should be selected</li>
+    <li>Select "A".</li>
+    <li>Local Menu.</li>
+    <li>Cut.</li>
+    <li>C should be selected.</li>
   </ol>
   <li>Adding a task should not collapse the tree.</li>
   <ol>
@@ -38,20 +38,41 @@
   <ol>
     <li>Open test4.ics.</li>
     <li>Expand All.</li>
-    <li>Select "A"<br>
+    <li>Select "A".<br>
     </li>
     <li>Sort the tasks on summary.</li>
     <li>"A" should remain selected.</li>
   </ol>
   <li>Filtering should work</li>
   <ol>
-    <li>Open test5.ics</li>
-    <li>Set the following filter: "Done is true"</li>
-    <li>G, E, B should be visible</li>
-    <li>C, A, D should be grayed out</li>
-    <li>F, H should be filtered out</li>
+    <li>Open test5.ics.</li>
+    <li>Set the following filter: "Done is true".</li>
+    <li>G, E, B should be visible.</li>
+    <li>C, A, D should be grayed out.</li>
+    <li>F, H should be filtered out.</li>
+  </ol>
+  <li>Starting/stopping a task</li>
+  <ol>
+    <li>Open test6.ics</li>
+    <li>Start Colors/G</li>
+    <li>StartAction should be disabled.</li>
+    <li>StopAction should be enabled.</li>
+    <li>The icon for "G" should have a badge.</li>
+    <li>Stop "G"</li>
+    <li>StopAction should be disabled.</li>
+    <li>StartAction should be enabled.</li>
+    <li>The icon for "G" should not have a badge.</li>
+  </ol>
+  <li>Clear percent complete</li>
+  <ol>
+    <li>Open test7.ics.</li>
+    <li>"Clear Percent Complete" for "Test".</li>
+    <li>Confirmation dialog should appear.</li>
+    <li>All tasks under "Test" should have 0%.</li>
+    <li>"Clear Percent Complete" for "Colors".</li>
+    <li>R and B should have 0%, G - 25%<br>
+    </li>
   </ol>
 </ol>
-<br>
 </body>
 </html>

@@ -25,28 +25,19 @@ import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.actions.CookieAction;
 import org.openide.util.actions.NodeAction;
 
 /**
  * Stops a task
  */
-public class PauseAction extends NodeAction {
+public class PauseAction extends CookieAction {
     private static final long serialVersionUID = 1;
 
-    protected boolean enable(Node[] node) {
-        if (node.length != 1)
-            return false;
-        
-        if (!(node[0] instanceof UserTaskNode))
-            return false;
-        
-        UserTask ut = ((UserTaskNode) node[0]).getTask();
-        
-        return UserTaskList.getStarted() == ut;
-    }
-     
     protected void performAction(Node[] nodes) {
-        UserTaskList.getStarted().stop();
+        StopCookie c = (StopCookie) nodes[0].getCookie(StopCookie.class);
+        if (c != null)
+            c.stop();
     }
 
     public String getName() {
@@ -54,7 +45,7 @@ public class PauseAction extends NodeAction {
     }
     
     protected String iconResource() {
-        return null;
+        return "org/netbeans/modules/tasklist/usertasks/actions/pause.gif"; // NOI18N
     }
     
     public HelpCtx getHelpCtx() {
@@ -65,5 +56,13 @@ public class PauseAction extends NodeAction {
     
     protected boolean asynchronous() {
         return false;
+    }    
+
+    protected Class[] cookieClasses() {
+        return new Class[] {StopCookie.class};
+    }
+    
+    protected int mode() {
+        return CookieAction.MODE_EXACTLY_ONE;
     }    
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
 
@@ -23,10 +24,17 @@ import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.editors.PriorityTableCellRenderer;
+import org.netbeans.modules.tasklist.core.export.ExportAction;
+import org.netbeans.modules.tasklist.core.export.ImportAction;
 import org.netbeans.modules.tasklist.core.filter.Filter;
+import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
+import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
+import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.NewTaskListAction;
 import org.netbeans.modules.tasklist.usertasks.editors.CategoryTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PriorityTableCellEditor;
+import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.renderers.DateTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DurationTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.LineTableCellRenderer;
@@ -40,6 +48,7 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
 import org.netbeans.modules.tasklist.usertasks.treetable.BooleanTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.SortingHeaderRenderer;
+import org.openide.util.actions.SystemAction;
 
 /**
  * TT for user tasks
@@ -215,4 +224,19 @@ public class UserTasksTreeTable extends NodesTreeTable {
         }
         return new TreePath(n.getPathToRoot());
     }
+    
+    public javax.swing.Action[] getFreeSpaceActions() {
+        return new Action[] {
+            SystemAction.get(NewTaskAction.class),
+            SystemAction.get(NewTaskListAction.class),
+            null,
+            SystemAction.get(FilterUserTaskAction.class),
+            null,
+            SystemAction.get(ExpandAllUserTasksAction.class),
+            SystemAction.get(CollapseAllAction.class),
+            null,
+            SystemAction.get(ImportAction.class),
+            SystemAction.get(ExportAction.class),
+        };
+    }    
 }

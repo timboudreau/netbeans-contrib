@@ -70,6 +70,7 @@ import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.RemoveFilterUserTaskAction;
@@ -257,7 +258,8 @@ ExplorerManager.Provider, ExportImportProvider {
             SystemAction.get(GoToUserTaskAction.class),
             SystemAction.get(FilterUserTaskAction.class),
             SystemAction.get(RemoveFilterUserTaskAction.class),
-            SystemAction.get(StartTaskAction.class)
+            SystemAction.get(StartTaskAction.class),
+            SystemAction.get(PauseAction.class)
         };
     }
     
@@ -269,17 +271,6 @@ ExplorerManager.Provider, ExportImportProvider {
         final JScrollPane sp = new JScrollPane(tt,
             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        
-        sp.addMouseListener(new MouseUtils.PopupMouseAdapter() {
-            public void showPopup(MouseEvent e) {
-                Action[] actions = new Action[] {
-                    SystemAction.get(FilterUserTaskAction.class),
-                    SystemAction.get(ExportAction.class)
-                };
-                JPopupMenu pm = Utilities.actionsToPopup(actions, sp);
-                pm.show(sp, e.getX(), e.getY());
-            }
-        });
         
         ChooseColumnsPanel.installChooseColumnsButton(sp);
         return sp;
@@ -712,8 +703,18 @@ for (int i = 0; i < columns.length; i++) {
         tt.loadColumns(cc);
     }
     
+    /**
+     * Expands all nodes
+     */
     public void expandAll() {
         tt.expandAll();
+    }
+    
+    /**
+     * Collapses all nodes
+     */
+    public void collapseAll() {
+        tt.collapseAll();
     }
     
     /** 

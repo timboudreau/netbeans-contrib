@@ -89,8 +89,8 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
                 while (it.hasNext()) {
                     Object obj = it.next();
                     int index = getIndexOfObject(obj);
-                    assert index >= 0;
-                    newch[i++] = (AdvancedTreeTableNode) children[index];
+                    if (index >= 0)
+                        newch[i++] = (AdvancedTreeTableNode) children[index];
                 }
                 children = newch;
             }

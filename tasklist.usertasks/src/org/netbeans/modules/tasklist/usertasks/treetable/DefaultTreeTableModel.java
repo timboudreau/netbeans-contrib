@@ -79,7 +79,7 @@ TreeTableModel {
     }
     
     public boolean isCellEditable(Object node, int column) {
-        return column == 0;
+        return column == 0 || ((TreeTableNode) node).isCellEditable(column);
     }
     
     public void setValueAt(Object aValue, Object node, int column) {

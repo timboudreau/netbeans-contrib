@@ -35,6 +35,8 @@ import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ImportAction;
+import org.netbeans.modules.tasklist.usertasks.actions.ClearCompletedAction;
+import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
@@ -44,6 +46,7 @@ import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.StartCookie;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.StopCookie;
 import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
@@ -130,9 +133,9 @@ public final class UserTaskNode extends AbstractNode {
             SystemAction.get(NewTaskAction.class),
             SystemAction.get(NewTaskListAction.class),
             null,
+            SystemAction.get(StartTaskAction.class),
             SystemAction.get(PauseAction.class),
             null,
-            SystemAction.get(StartTaskAction.class),
             SystemAction.get(ShowTaskAction.class),
             SystemAction.get(GoToUserTaskAction.class),
             null,
@@ -141,12 +144,13 @@ public final class UserTaskNode extends AbstractNode {
             SystemAction.get(PasteAction.class),
             null,
             SystemAction.get(DeleteAction.class),
-
-            // "Global" actions (not node specific)
             null,
             SystemAction.get(FilterUserTaskAction.class),
             SystemAction.get(PurgeTasksAction.class),
+            SystemAction.get(ClearCompletedAction.class),
+            null,
             SystemAction.get(ExpandAllUserTasksAction.class),
+            SystemAction.get(CollapseAllAction.class),
             null,
             SystemAction.get(ImportAction.class),
             SystemAction.get(ExportAction.class),
@@ -169,7 +173,9 @@ public final class UserTaskNode extends AbstractNode {
                 null,
                 SystemAction.get(FilterUserTaskAction.class),
                 SystemAction.get(PurgeTasksAction.class),
+                null,
                 SystemAction.get(ExpandAllUserTasksAction.class),
+                SystemAction.get(CollapseAllAction.class),
                 null,
                 SystemAction.get(ImportAction.class),
                 SystemAction.get(ExportAction.class),
@@ -388,6 +394,12 @@ public final class UserTaskNode extends AbstractNode {
                 return null;
             } else {
                 return new StartCookie(uitem);
+            }
+        } else if (type == StopCookie.class) {
+            if (!uitem.isStarted()) {
+                return null;
+            } else {
+                return new StopCookie(uitem);
             }
         } else if (type == UserTask.class) {
             return item;
