@@ -134,7 +134,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   * @return help context
   */
   public HelpCtx getHelpCtx () {
-    return org.openide.util.HelpCtx.DEFAULT_HELP;
+    return new HelpCtx (ClassDataObject.class);
   }
 
   /** Getter for copy action.
@@ -463,6 +463,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  20   Gandalf   1.19        6/24/99  Jesse Glick     Gosh-honest HelpID's.
  *  19   Gandalf   1.18        6/22/99  Ian Formanek    employed DEFAULT_HELP
  *  18   Gandalf   1.17        6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
