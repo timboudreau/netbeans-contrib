@@ -50,19 +50,12 @@ public class VcsGroupSettings extends SystemOption {
     
     static final long serialVersionUID = -4620483329253274979L;
 
-    /** Holds value of property showLinks. */
-    private static boolean showLinks = false;
-    
-    /** Holds value of property autoAddition. */
-    private static int autoAddition = 0;
-
-    /** Holds value of property disableGroups. */
-    private boolean disableGroups = false;    
-    
-    public VcsGroupSettings() {
+    protected void initialize () {
+        super.initialize();
+        setAutoAddition(0);
+        setDisableGroups(false);
+        setShowLinks(false);
     }
-    
-
     /** human presentable name */
     public String displayName() {
         return NbBundle.getBundle(VcsGroupSettings.class).getString("CTL_VcsGroup_settings"); // NOI18N
@@ -79,55 +72,42 @@ public class VcsGroupSettings extends SystemOption {
      * @return Value of property showLinks.
      */
     public boolean isShowLinks() {
-        return this.showLinks;
+        return ((Boolean)getProperty(PROP_SHOW_LINKS)).booleanValue();
     }
     
     /** Setter for property showLinks.
      * @param showLinks New value of property showLinks.
      */
     public void setShowLinks(boolean show) {
-        if (this.showLinks != show) {
-            boolean old = showLinks;
-            this.showLinks = show;
-            firePropertyChange(PROP_SHOW_LINKS, new Boolean(old), new Boolean(showLinks));
-        }
-            
+        putProperty(PROP_SHOW_LINKS, new Boolean(show), true);
     }
     
     /** Getter for property autoAddition.
      * @return Value of property autoAddition.
      */
     public int getAutoAddition() {
-        return this.autoAddition;
+        return ((Integer)getProperty(PROP_AUTO_ADDITION)).intValue();
     }
     
     /** Setter for property autoAddition.
      * @param autoAddition New value of property autoAddition.
      */
     public void setAutoAddition(int autoAddition) {
-        if (autoAddition != this.autoAddition) {
-            int old = this.autoAddition;
-            this.autoAddition = autoAddition;
-            firePropertyChange(PROP_AUTO_ADDITION, new Integer(old), new Integer(autoAddition));
-        }
+        putProperty(PROP_AUTO_ADDITION, new Integer(autoAddition), true);
     }
     
     /** Getter for property disableGroups.
      * @return Value of property disableGroups.
      */
     public boolean isDisableGroups() {
-        return this.disableGroups;
+        return ((Boolean)getProperty(PROP_DISABLE_GROUPS)).booleanValue();;
     }
     
     /** Setter for property disableGroups.
      * @param disableGroups New value of property disableGroups.
      */
     public void setDisableGroups(boolean disableGroups) {
-        if (this.disableGroups != disableGroups) {
-            boolean old = this.disableGroups;
-            this.disableGroups = disableGroups;
-            firePropertyChange(PROP_DISABLE_GROUPS, new Boolean(old), new Boolean(disableGroups));
-        }
+        putProperty(PROP_DISABLE_GROUPS, new Boolean(disableGroups), true);
     }
     
 }

@@ -35,7 +35,7 @@ public class VcsGroupSettingsBeanInfo extends SimpleBeanInfo {
     //TODO new ICONS
     public Image getIcon(int type) {
         if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
-            return org.openide.util.Utilities.loadImage("/org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"); //NOI18N;
+            return org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"); //NOI18N;
         } else {
             return null;
         }
@@ -66,8 +66,7 @@ public class VcsGroupSettingsBeanInfo extends SimpleBeanInfo {
             return new PropertyDescriptor[] {autoAddition, showLinks, disableGroups }; 
             
         } catch (IntrospectionException ie) {
-            if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-                ie.printStackTrace ();
+            org.openide.TopManager.getDefault().getErrorManager().notify();
             return null;
         }
     }

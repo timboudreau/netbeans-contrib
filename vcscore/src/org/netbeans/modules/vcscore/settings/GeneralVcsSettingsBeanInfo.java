@@ -19,42 +19,13 @@ import org.openide.util.NbBundle;
 
 public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
 
-    private static PropertyDescriptor[] properties = null; //GEN-FIRST:Properties
+    private static final String iconNameC16 = "org/netbeans/modules/vcscore/settings/vcsSettings.gif";   // NOI18N
+    private static final String iconNameC32 = "org/netbeans/modules/vcscore/settings/vcsSettings32.gif"; // NOI18N
 
-    // Here you can add code for customizing the properties array.
+    private static int defaultPropertyIndex = -1; 
+    private static int defaultEventIndex = -1; 
 
-    //GEN-LAST:Properties
-
-    private static EventSetDescriptor[] eventSets = null; //GEN-FIRST:Events
-
-    // Here you can add code for customizing the event sets array.
-
-    //GEN-LAST:Events
-
-    private static MethodDescriptor[] methods = null; //GEN-FIRST:Methods
-
-    // Here you can add code for customizing the methods array.
-    
-    //GEN-LAST:Methods
-
-    private static java.awt.Image iconColor16 = null; //GEN-BEGIN:IconsDef
-    private static java.awt.Image iconColor32 = null;
-    private static java.awt.Image iconMono16 = null;
-    private static java.awt.Image iconMono32 = null; //GEN-END:IconsDef
-    private static String iconNameC16 = null; //GEN-BEGIN:Icons
-    private static String iconNameC32 = null;
-    private static String iconNameM16 = null;
-    private static String iconNameM32 = null; //GEN-END:Icons
-
-    static {
-        iconNameC16 = "/org/netbeans/modules/vcscore/settings/vcsSettings.gif";   // NOI18N
-        iconNameC32 = "/org/netbeans/modules/vcscore/settings/vcsSettings32.gif"; // NOI18N
-    }
-    
-    private static int defaultPropertyIndex = -1; //GEN-BEGIN:Idx
-    private static int defaultEventIndex = -1; //GEN-END:Idx
-
-
+    private static PropertyDescriptor[] properties = null;
     /**
      * Gets the bean's <code>PropertyDescriptor</code>s.
      * 
@@ -101,8 +72,7 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
                 properties[7].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"HINT_WizardShellCommandPath"));
                 properties[7].setHidden (true);
             } catch (java.beans.IntrospectionException intrexc) {
-                if (Boolean.getBoolean("netbeans.debug.exceptions")) // NOI18N
-                    intrexc.printStackTrace ();
+                org.openide.TopManager.getDefault().getErrorManager().notify();
             }
         }
         return properties;
@@ -116,7 +86,7 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
      * should be obtained by automatic analysis.
      */
     public EventSetDescriptor[] getEventSetDescriptors() {
-        return eventSets;
+        return null;
     }
 
     /**
@@ -127,7 +97,7 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
      * should be obtained by automatic analysis.
      */
     public MethodDescriptor[] getMethodDescriptors() {
-        return methods;
+        return null;
     }
 
     /**
@@ -142,16 +112,6 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
         return defaultPropertyIndex;
     }
 
-    /**
-     * A bean may have a "default" event that is the event that will
-     * mostly commonly be used by human's when using the bean. 
-     * @return Index of default event in the EventSetDescriptor array
-     *		returned by getEventSetDescriptors.
-     * <P>	Returns -1 if there is no default event.
-     */
-    public int getDefaultEventIndex() {
-        return defaultPropertyIndex;
-    }
 
     /**
      * This method returns an image object that can be used to
@@ -178,9 +138,7 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
         if (iconNameC16 == null) {
             return null;
         } else {
-            if (iconColor16 == null)
-                iconColor16 = loadImage(iconNameC16);
-            return iconColor16;
+            return org.openide.util.Utilities.loadImage(iconNameC16);
         }
     }
 

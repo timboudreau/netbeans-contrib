@@ -41,28 +41,28 @@ public class GeneralVcsSettings extends SystemOption {
     private static final String DEFAULT_CVS_EXEC = "cvs";   // NO I18N
     private static final String DEFAULT_SHELL_EXEC = "sh";  // NO I18N
 
-    private static boolean useGlobal = true;
-
-    private static boolean offLine = false;
-
-    private static int autoRefresh = AUTO_REFRESH_ON_DIR_OPEN;
-
-    private static boolean hideShadowFiles = false;
-    
     private static String wizardCvsCommandPath;
     
     private static String wizardShellCommandPath;
     
     private static java.util.LinkedList wizardDirectoryCache;
     
-    private static boolean autoDetect = true;
-
-    
     static final long serialVersionUID = -3279219340064367270L;
     
-    /** Creates new VcsSettings */
-    public GeneralVcsSettings() {
-    }
+    /** Initialize shared state.
+     * Should use {@link #putProperty} to set up variables.
+     * Subclasses should always call the super method.
+     * <p>This method need <em>not</em> be called explicitly; it will be called once
+     * the first time a given shared class is used (not for each instance!).
+     */
+    protected void initialize() {
+        super.initialize();
+        setAutoDetect(true);
+        setAutoRefresh(AUTO_REFRESH_ON_DIR_OPEN);
+        setHideShadowFiles(false);
+        setOffLine(false);
+        setUseGlobal(true);
+    }    
     
     /** Get human presentable name */
     public String displayName() {
@@ -72,64 +72,49 @@ public class GeneralVcsSettings extends SystemOption {
     /** Whether these settings overide the filesystem settings.
      */
     public boolean isUseGlobal() {
-        return useGlobal;
+        return ((Boolean)getProperty(PROP_USE_GLOBAL)).booleanValue();;
     }
 
     /** Set whether these settings overide the filesystem settings.
      */
     public void setUseGlobal(boolean global) {
-        if (useGlobal != global) {
-           useGlobal = global;
-           firePropertyChange(PROP_USE_GLOBAL, new Boolean(!global), new Boolean(global));
-        }
+        putProperty(PROP_USE_GLOBAL, new Boolean(global), true);
    }
     
     /** Getter for property offLine.
      * @return Value of property offLine.
      */
     public boolean isOffLine() {
-        return offLine;
+        return ((Boolean)getProperty(PROP_OFFLINE)).booleanValue();;
     }
     
     /** Setter for property offLine.
      * @param offLine New value of property offLine.
      */
     public void setOffLine(boolean newOffLine) {
-        if (offLine != newOffLine) {
-            boolean oldOffLine = offLine;
-            offLine = newOffLine;
-            firePropertyChange (PROP_OFFLINE, new Boolean (oldOffLine), new Boolean (offLine));
-        }
+        putProperty(PROP_OFFLINE, new Boolean(newOffLine), true);
     }
     
     /** Getter for property autoRefresh.
      * @return Value of property autoRefresh.
      */
     public int getAutoRefresh() {
-        return autoRefresh;
+        return ((Integer)getProperty(PROP_AUTO_REFRESH)).intValue();
     }
     
     /** Setter for property autoRefresh.
      * @param autoRefresh New value of property autoRefresh.
      */
     public void setAutoRefresh(int newAutoRefresh) {
-        if (autoRefresh != newAutoRefresh) {
-            int oldAutoRefresh = autoRefresh;
-            autoRefresh = newAutoRefresh;
-            firePropertyChange (PROP_AUTO_REFRESH, new Integer (oldAutoRefresh), new Integer (newAutoRefresh));
-        }
+        putProperty(PROP_AUTO_REFRESH, new Integer(newAutoRefresh), true);
     }
 
     public boolean isAutoDetect() {
-        return autoDetect;
+        return ((Boolean)getProperty(PROP_AUTO_DETECT)).booleanValue();
     }
     
     public void setAutoDetect(boolean newAutoDetect) {
-        if (autoDetect != newAutoDetect) {
-            boolean oldAutoDetect = autoDetect;
-            autoDetect = newAutoDetect;
-            firePropertyChange (PROP_AUTO_DETECT, new Boolean (oldAutoDetect), new Boolean (newAutoDetect));
-        }
+        putProperty(PROP_AUTO_DETECT, new Boolean(newAutoDetect), true);
     }
     
     public File getHome() {
@@ -175,11 +160,7 @@ public class GeneralVcsSettings extends SystemOption {
      * Usually these are Locally-Removed, Needs-Checkout files
      */
     public void setHideShadowFiles(boolean hide) {
-        if (hideShadowFiles != hide) {
-            boolean oldHide = hideShadowFiles;
-            hideShadowFiles = hide;
-            firePropertyChange (PROP_HIDE_SHADOW_FILES, new Boolean (oldHide), new Boolean (hideShadowFiles));
-        }
+        putProperty(PROP_HIDE_SHADOW_FILES, new Boolean(hide), true);
     }
 
     /**
@@ -188,7 +169,7 @@ public class GeneralVcsSettings extends SystemOption {
      * Usually these are Locally-Removed, Needs-Checkout files
      */
     public boolean isHideShadowFiles() {
-        return hideShadowFiles;
+        return ((Boolean)getProperty(PROP_HIDE_SHADOW_FILES)).booleanValue();
     }
     
 
@@ -224,4 +205,6 @@ public class GeneralVcsSettings extends SystemOption {
             wizardShellCommandPath = shellCommandPath;
     }
 
+
+    
 }
