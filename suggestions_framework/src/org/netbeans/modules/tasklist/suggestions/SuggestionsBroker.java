@@ -83,7 +83,6 @@ public final class SuggestionsBroker {
     public static SuggestionsBroker getDefault() {
         if (instance == null) {
             instance = new SuggestionsBroker();
-//            instance.startAllOpenedBroker();  // TODO debug only
         }
         return instance;
     }
@@ -604,9 +603,6 @@ err.log("Couldn't find current nodes...");
                     SuggestionList list = getSuggestionListImpl(); // XXX it expects that providers register results synchronously
                     List scannedSuggestions = list.getRoot().getSubtasks();
 
-                    List previous = (List) openedFilesSuggestionsMap.remove(lastOpenedFileObject);
-                    openedFilesSuggestionsMap.put(lastOpenedFileObject, scannedSuggestions);
-
                     // copy clones to private "allOpened" suggestions list
                     // (it must be cloned because tasklist membership is task property)
                     // TODO should task know about its suggestions list? I think it should not.
@@ -617,12 +613,10 @@ err.log("Couldn't find current nodes...");
                         clones.add(next.cloneTask());
                     }
 
-                    getAllOpenedSuggestionList().addRemove(null, previous, false, null, null);  //FIXME remove doe snot work
-                    getAllOpenedSuggestionList().addRemove(clones, null, false, null, null);
+                    List previous = (List) openedFilesSuggestionsMap.remove(lastOpenedFileObject);
+                    openedFilesSuggestionsMap.put(lastOpenedFileObject, clones);
 
-                    // TODO remove before enabling
-                    getAllOpenedSuggestionList().print();
-
+                    getAllOpenedSuggestionList().addRemove(clones, previous, false, null, null);
                 }
 
                 // enforce comparable requests, works only for single request source
@@ -802,24 +796,23 @@ err.log("Couldn't find current nodes...");
 
         TopComponent tc = null;
         if (allOpenedClientsCount > 0) {
-             tc = env.findActiveEditor();
+            tc = env.findActiveEditor();
             if (tc == null) {
                 lastOpenedFileObject = null;
+            } else {
+                DataObject dobj = extractDataObject(tc);
+                lastOpenedFileObject = (dobj != null) ? dobj.getPrimaryFile() : null;
             }
-            List previous = (List) openedFilesSuggestionsMap.remove(lastOpenedFileObject);
-            if (previous != null) {
-                getAllOpenedSuggestionList().addRemove(null, previous, false, null, null);
-            }
+
+// on CLOSED_EVENT
+//            List previous = (List) openedFilesSuggestionsMap.remove(lastOpenedFileObject);
+//            if (previous != null) {
+//                getAllOpenedSuggestionList().addRemove(null, previous, false, null, null);
+//            }
         }
 
         doRescanInAWT();
 
-        if (tc != null) {
-            DataObject dobj = extractDataObject(tc);
-            lastOpenedFileObject = (dobj != null) ? dobj.getPrimaryFile() : null;
-        } else {
-            lastOpenedFileObject = null;
-        }
     }
 
     /** It sends asynchronously to AWT thread. */
