@@ -21,7 +21,6 @@ import org.openide.filesystems.Repository;
 
 import java.lang.reflect.Modifier;
 import org.openide.util.WeakListener;
-import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
 
 import org.openide.nodes.Node.Cookie;
@@ -275,13 +274,6 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
         }   
     }
     
-    /** Help context for this object.
-    * @return help context
-    */
-    public HelpCtx getHelpCtx () {
-        return new HelpCtx (ClassDataObject.class);
-    }
-
     // DataObject implementation .............................................
 
     /** Getter for copy action.

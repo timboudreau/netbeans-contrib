@@ -93,7 +93,7 @@ public final class SerDataObject extends ClassDataObject {
         if (test != null)
             return test;
         else
-            return new HelpCtx (SerDataObject.class);
+            return super.getHelpCtx();
     }
 
     protected FileObject handleRename (String name) throws IOException {
