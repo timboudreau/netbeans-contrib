@@ -4,9 +4,10 @@ http://www.netbeans.org/dtds/suggestion-registry-1_0.dtd
 Document type declaration for Suggestion Manager Registry.
 -->
 
-<!ELEMENT typeregistry (disabled?,noconfirm?)>
+<!ELEMENT typeregistry (disabled?,noconfirm?,expanded?)>
 <!ELEMENT disabled (type?)>
 <!ELEMENT noconfirm (type?)>
+<!ELEMENT expanded (type?)>
 <!ELEMENT type EMPTY>
 <!ATTLIST type 
 	id CDATA #REQUIRED>

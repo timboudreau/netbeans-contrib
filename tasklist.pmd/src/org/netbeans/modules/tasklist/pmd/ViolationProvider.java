@@ -62,8 +62,7 @@ import org.netbeans.modules.tasklist.core.ConfPanel;
  */
 
 
-public class ViolationProvider extends SuggestionProvider
-    implements DocumentSuggestionProvider {
+public class ViolationProvider extends DocumentSuggestionProvider {
 
     final private static String TYPE = "pmd-violations"; // NOI18N
 
@@ -78,61 +77,23 @@ public class ViolationProvider extends SuggestionProvider
         return new String[] { TYPE };
     }
     
-    private boolean scanning = false;
-
     /**
-     * Start creating suggestions when you think of them.
-     * (This is typically called when the Suggestions window is shown,
-     * for example because the Suggestions window tab is moved to the front,
-     * or the user has moved to a workspace containing a Suggestions Window.)
-     */
-    public void notifyRun() {
-        super.notifyRun();
-        scanning = true;
-    }
-
-    /**
-     * (Temporarily) stop creating suggestions.
-     * (This is typically called when the Suggestions window is hidden,
-     * for example because a different tab is moved to the front or because
-     * the user has moved to another workspace.)
-     */
-    public void notifyStop() {
-        super.notifyStop();
-        scanning = false;
-    }
-
-    /**
-     * The given document has been edited, and a time interval (by default
-     * around 2 seconds I think) has passed without any further edits.
-     * Update your Suggestions as necessary. This may mean removing
-     * previously registered Suggestions, or editing existing ones,
-     * or adding new ones, depending on the current contents of the
-     * document.
+     * Rescan the given document for suggestions. Typically called
+     * when a document is shown or when a document is edited, but
+     * could also be called for example when the document is
+     * saved.
      * <p>
-     * @param document The document being edited
-     */
-    public void docEditedStable(Document document, DocumentEvent event,
-                                   DataObject dataobject) {
-        if (scanning) {
-            update(document, dataobject);
-        }
-    }
-
-    /**
-     * The given document has been "shown"; it is now visible.
+     * This method should register the suggestions with the
+     * suggestion manager.
      * <p>
-     * @param document The document being shown
+     * @param doc The document being scanned
+     * @param dobj The Data Object for the file being scanned
+     * @return list of tasks that result from the scan. May be null.
+     * <p>
+     * This method is called internally by the toolkit and should not be
+     * called directly by programs.
      */
-    public void docShown(Document document, DataObject dataobject) {
-        if ((document == null) || (dataobject == null)) {
-            return;
-        }
-        update(document, dataobject);
-    }
-
-    /** Update the manager with the current document contents */
-    private void update(Document doc, DataObject dobj) {
+    public void rescan(Document doc, DataObject dobj) {
         List newTasks = scan(doc, dobj);
         SuggestionManager manager = SuggestionManager.getDefault();
 
@@ -596,6 +557,10 @@ public class ViolationProvider extends SuggestionProvider
      */
     public void docHidden(Document document, DataObject dataobject) {
 	// Remove existing items
+    }
+
+
+     public void clear(Document document, DataObject dataobject) {
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
             manager.register(TYPE, null, showingTasks);
@@ -603,15 +568,6 @@ public class ViolationProvider extends SuggestionProvider
 	}     
     }
 
-
-    public void docClosed(Document document, DataObject dataobject) {
-    }
-    public void docOpened(Document document, DataObject dataobject) {
-    }
-    public void docEdited(Document document, DocumentEvent event,
-                             DataObject dataobject) {
-    }
-    
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;
 }

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -24,6 +24,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.ListModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JTextField;
 import org.netbeans.api.tasklist.SuggestionManager;
 import org.openide.util.NbBundle;
 
@@ -48,6 +49,15 @@ public class TypesCustomizer extends javax.swing.JPanel
         initComponents();
         populateLists();
         updateSensitivity();
+        
+        SuggestionManagerImpl manager = 
+            (SuggestionManagerImpl)SuggestionManager.getDefault();
+        docShownCB.setSelected(manager.isScanOnShow());
+        docEditedCB.setSelected(manager.isScanOnEdit());
+        docSavedCB.setSelected(manager.isScanOnSave());
+        showDelayTF.setText(getDelay(manager.getShowScanDelay()));
+        editDelayTF.setText(getDelay(manager.getEditScanDelay()));
+        saveDelayTF.setText(getDelay(manager.getSaveScanDelay()));        
     }
 
     private DefaultListModel enabledModel = null;
@@ -81,6 +91,8 @@ public class TypesCustomizer extends javax.swing.JPanel
         
         addActiveButton.addActionListener(this);
         removeActiveButton.addActionListener(this);
+        addAllButton.addActionListener(this);
+        removeAllButton.addActionListener(this);
         removeConfButton.addActionListener(this);
         addConfButton.addActionListener(this);
         enabledList.addListSelectionListener(this);
@@ -96,54 +108,71 @@ public class TypesCustomizer extends javax.swing.JPanel
     private void initComponents() {//GEN-BEGIN:initComponents
         java.awt.GridBagConstraints gridBagConstraints;
 
-        jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        activePanel = new javax.swing.JPanel();
+        activeLabel = new javax.swing.JLabel();
         enabledList = new javax.swing.JList();
-        jPanel2 = new javax.swing.JPanel();
+        moveButtonPanel = new javax.swing.JPanel();
         removeActiveButton = new javax.swing.JButton();
+        removeAllButton = new javax.swing.JButton();
         addActiveButton = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
+        addAllButton = new javax.swing.JButton();
+        disabledPanel = new javax.swing.JPanel();
+        disabledLabel = new javax.swing.JLabel();
         disabledList = new javax.swing.JList();
-        jPanel5 = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
+        confPanel = new javax.swing.JPanel();
+        confLabel = new javax.swing.JLabel();
         confirmationList = new javax.swing.JList();
-        jPanel4 = new javax.swing.JPanel();
+        confButtonPanel = new javax.swing.JPanel();
         addConfButton = new javax.swing.JButton();
         removeConfButton = new javax.swing.JButton();
+        updatePanel = new javax.swing.JPanel();
+        updateWhenLabel = new javax.swing.JLabel();
+        delayLabel = new javax.swing.JLabel();
+        docShownCB = new javax.swing.JCheckBox();
+        showDelayTF = new javax.swing.JTextField();
+        docEditedCB = new javax.swing.JCheckBox();
+        editDelayTF = new javax.swing.JTextField();
+        docSavedCB = new javax.swing.JCheckBox();
+        saveDelayTF = new javax.swing.JTextField();
 
         setLayout(new java.awt.GridBagLayout());
 
-        jPanel1.setLayout(new java.awt.BorderLayout(0, 6));
+        activePanel.setLayout(new java.awt.BorderLayout(0, 6));
 
-        jLabel1.setText(NbBundle.getMessage(TypesCustomizer.class, "ActiveTypes")); // NOI18N();
-        jPanel1.add(jLabel1, java.awt.BorderLayout.NORTH);
+        activeLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "ActiveTypes")); // NOI18N();
+        activePanel.add(activeLabel, java.awt.BorderLayout.NORTH);
 
-        jPanel1.add(enabledList, java.awt.BorderLayout.CENTER);
+        activePanel.add(enabledList, java.awt.BorderLayout.CENTER);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
-        add(jPanel1, gridBagConstraints);
+        add(activePanel, gridBagConstraints);
 
-        jPanel2.setLayout(new java.awt.GridLayout(2, 1, 0, 6));
+        moveButtonPanel.setLayout(new java.awt.GridLayout(4, 1, 0, 6));
 
-        removeActiveButton.setText(NbBundle.getMessage(TypesCustomizer.class, "RemoveType")); // NOI18N();
-        jPanel2.add(removeActiveButton);
+        removeActiveButton.setText(">");
+        moveButtonPanel.add(removeActiveButton);
 
-        addActiveButton.setText(NbBundle.getMessage(TypesCustomizer.class, "AddType")); // NOI18N();
-        jPanel2.add(addActiveButton);
+        removeAllButton.setText(NbBundle.getMessage(TypesCustomizer.class, "RemoveType")); // NOI18N();
+        moveButtonPanel.add(removeAllButton);
 
-        add(jPanel2, new java.awt.GridBagConstraints());
+        addActiveButton.setText("<");
+        moveButtonPanel.add(addActiveButton);
 
-        jPanel3.setLayout(new java.awt.BorderLayout(0, 6));
+        addAllButton.setText(NbBundle.getMessage(TypesCustomizer.class, "AddType")); // NOI18N();
+        moveButtonPanel.add(addAllButton);
 
-        jLabel2.setText(NbBundle.getMessage(TypesCustomizer.class, "DisabledTypes")); // NOI18N();
-        jPanel3.add(jLabel2, java.awt.BorderLayout.NORTH);
+        add(moveButtonPanel, new java.awt.GridBagConstraints());
 
-        jPanel3.add(disabledList, java.awt.BorderLayout.CENTER);
+        disabledPanel.setLayout(new java.awt.BorderLayout(0, 6));
+
+        disabledLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "DisabledTypes")); // NOI18N();
+        disabledPanel.add(disabledLabel, java.awt.BorderLayout.NORTH);
+
+        disabledPanel.add(disabledList, java.awt.BorderLayout.CENTER);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
@@ -151,50 +180,112 @@ public class TypesCustomizer extends javax.swing.JPanel
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
-        add(jPanel3, gridBagConstraints);
+        add(disabledPanel, gridBagConstraints);
 
-        jPanel5.setLayout(new java.awt.BorderLayout(0, 6));
+        confPanel.setLayout(new java.awt.BorderLayout(0, 6));
 
-        jLabel3.setText(NbBundle.getMessage(TypesCustomizer.class, "NoConfirmation")); // NOI18N();
-        jPanel5.add(jLabel3, java.awt.BorderLayout.NORTH);
+        confLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "NoConfirmation")); // NOI18N();
+        confPanel.add(confLabel, java.awt.BorderLayout.NORTH);
 
-        jPanel5.add(confirmationList, java.awt.BorderLayout.CENTER);
+        confPanel.add(confirmationList, java.awt.BorderLayout.CENTER);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
-        add(jPanel5, gridBagConstraints);
+        add(confPanel, gridBagConstraints);
 
-        jPanel4.setLayout(new java.awt.GridLayout(2, 1, 0, 6));
+        confButtonPanel.setLayout(new java.awt.GridLayout(2, 1, 0, 6));
 
         addConfButton.setText(NbBundle.getMessage(TypesCustomizer.class, "Add")); // NOI18N();
-        jPanel4.add(addConfButton);
+        confButtonPanel.add(addConfButton);
 
         removeConfButton.setText(NbBundle.getMessage(TypesCustomizer.class, "Remove")); // NOI18N();
-        jPanel4.add(removeConfButton);
+        confButtonPanel.add(removeConfButton);
 
-        add(jPanel4, new java.awt.GridBagConstraints());
+        add(confButtonPanel, new java.awt.GridBagConstraints());
+
+        updatePanel.setLayout(new java.awt.GridBagLayout());
+
+        updateWhenLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "UpdateWhen")); // NOI18N();
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        updatePanel.add(updateWhenLabel, gridBagConstraints);
+
+        delayLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "Delay")); // NOI18N();
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        updatePanel.add(delayLabel, gridBagConstraints);
+
+        docShownCB.setText(NbBundle.getMessage(TypesCustomizer.class, "DocShown")); // NOI18N();
+        docShownCB.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        updatePanel.add(docShownCB, gridBagConstraints);
+
+        showDelayTF.setColumns(4);
+        showDelayTF.setText("0.5");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        updatePanel.add(showDelayTF, gridBagConstraints);
+
+        docEditedCB.setText(NbBundle.getMessage(TypesCustomizer.class, "DocEdited")); // NOI18N();
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        updatePanel.add(docEditedCB, gridBagConstraints);
+
+        editDelayTF.setColumns(4);
+        editDelayTF.setText("1");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        updatePanel.add(editDelayTF, gridBagConstraints);
+
+        docSavedCB.setText(NbBundle.getMessage(TypesCustomizer.class, "DocSaved")); // NOI18N();
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        updatePanel.add(docSavedCB, gridBagConstraints);
+
+        saveDelayTF.setColumns(4);
+        saveDelayTF.setText("0.5");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        updatePanel.add(saveDelayTF, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
+        add(updatePanel, gridBagConstraints);
 
     }//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addConfButton;
+    private javax.swing.JLabel activeLabel;
+    private javax.swing.JCheckBox docEditedCB;
+    private javax.swing.JCheckBox docShownCB;
+    private javax.swing.JPanel confButtonPanel;
+    private javax.swing.JPanel disabledPanel;
     private javax.swing.JButton removeActiveButton;
+    private javax.swing.JCheckBox docSavedCB;
+    private javax.swing.JLabel updateWhenLabel;
+    private javax.swing.JTextField showDelayTF;
+    private javax.swing.JTextField editDelayTF;
+    private javax.swing.JPanel confPanel;
+    private javax.swing.JLabel disabledLabel;
     private javax.swing.JButton addActiveButton;
     private javax.swing.JButton removeConfButton;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel5;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel moveButtonPanel;
+    private javax.swing.JButton addAllButton;
     private javax.swing.JList enabledList;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel activePanel;
     private javax.swing.JList confirmationList;
+    private javax.swing.JLabel confLabel;
+    private javax.swing.JLabel delayLabel;
+    private javax.swing.JPanel updatePanel;
+    private javax.swing.JButton removeAllButton;
+    private javax.swing.JTextField saveDelayTF;
     private javax.swing.JList disabledList;
     // End of variables declaration//GEN-END:variables
     
@@ -235,7 +326,39 @@ public class TypesCustomizer extends javax.swing.JPanel
 
         SuggestionManagerImpl manager = 
             (SuggestionManagerImpl)SuggestionManager.getDefault();
+        boolean scanOnShow = docShownCB.isSelected();
+        manager.setScanOnShow(scanOnShow);
+        boolean scanOnEdit = docEditedCB.isSelected();
+        manager.setScanOnEdit(scanOnEdit);
+        boolean scanOnSave = docSavedCB.isSelected();
+        manager.setScanOnSave(scanOnSave);
+        int showDelay = getDelay(showDelayTF);
+        manager.setShowScanDelay(showDelay);
+        int editDelay = getDelay(editDelayTF);
+        manager.setEditScanDelay(editDelay);
+        int saveDelay = getDelay(saveDelayTF);
+        manager.setSaveScanDelay(saveDelay);
+
+        // Apply changes in the manager
         manager.editTypes(enabled, disabled, confirmation);
+    }
+   
+    private int getDelay(JTextField tf) {
+        String valStr = tf.getText().trim();
+        if (valStr.length() == 0) {
+            return -1; // will use default
+        }
+        //try {
+            float f = Float.parseFloat(valStr);
+        //} 
+        int delay = (int)(1000*f);
+        return delay;
+    }
+    
+    private String getDelay(int delay) {
+        float f = delay;
+        f /= 1000;
+        return Float.toString(f);
     }
     
     private void updateSensitivity() {
@@ -270,6 +393,12 @@ public class TypesCustomizer extends javax.swing.JPanel
                 enabledModel.addElement(disabledModel.getElementAt(selected[i]));
                 disabledModel.removeElementAt(selected[i]);
             }
+        } else if (ev.getSource() == addAllButton) {
+            // Undisable all
+            for (int i = disabledModel.getSize()-1; i >= 0; i--) {
+                enabledModel.addElement(disabledModel.getElementAt(i));
+                disabledModel.removeElementAt(i);
+            }
         } else if (ev.getSource() == removeActiveButton) {
             // Disable
             int[] selected = enabledList.getSelectedIndices();
@@ -277,6 +406,12 @@ public class TypesCustomizer extends javax.swing.JPanel
             for (int i = selected.length-1; i >= 0; i--) {
                 disabledModel.addElement(enabledModel.getElementAt(selected[i]));
                 enabledModel.removeElementAt(selected[i]);
+            }
+        } else if (ev.getSource() == removeAllButton) {
+            // Disable all
+            for (int i = enabledModel.getSize()-1; i >= 0; i--) {
+                disabledModel.addElement(enabledModel.getElementAt(i));
+                enabledModel.removeElementAt(i);
             }
         } else if (ev.getSource() == removeConfButton) {
             // Remove from no-confirmation
@@ -301,6 +436,11 @@ public class TypesCustomizer extends javax.swing.JPanel
         updateSensitivity();
         JList list = (JList)event.getSource();
         if (list.getSelectedIndex() != -1) {
+            if (list == enabledList) {
+                // XXX TODO : set selection here
+                // docEditedCB.setSelected(x);
+            }
+            
             if (list != enabledList) {
                 enabledList.clearSelection();
             }

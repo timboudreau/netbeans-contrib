@@ -91,26 +91,26 @@ public final class TLUtils {
             }
             
             for (int i = from; i < n; i++) {
-                sb.append(text.charAt(i));
+                appendHTMLChar(sb, text.charAt(i));
             }
             if (bold) {
                 sb.append("<b>"); // NOI18N
             }
             if (underlineBegin != -1) {
                 for (int i = 0; i < underlineBegin; i++) {
-                    sb.append(newSymbol.charAt(i));
+                    appendHTMLChar(sb, newSymbol.charAt(i));
                 }
                 sb.append("<u>"); // NOI18N
                 for (int i = underlineBegin; i < underlineEnd; i++) {
-                    sb.append(newSymbol.charAt(i));
+                    appendHTMLChar(sb, newSymbol.charAt(i));
                 }
                 sb.append("</u>"); // NOI18N
                 int nl = newSymbol.length();
                 for (int i = underlineEnd; i < nl; i++) {
-                    sb.append(newSymbol.charAt(i));
+                    appendHTMLChar(sb, newSymbol.charAt(i));
                 }
             } else {
-                sb.append(newSymbol);
+                appendHTMLString(sb, newSymbol);
             }
             if (bold) {
                 sb.append("</b>"); // NOI18N
@@ -119,11 +119,12 @@ public final class TLUtils {
             from = pos;
         }
         for (int i = from; i < texLen; i++) {
-            sb.append(text.charAt(i));
+            appendHTMLChar(sb, text.charAt(i));
         }
     }
 
-    /** Get a "window of text with the given line as the middle line.
+    /** Append a "window of text with the given line as the middle line.
+     * It will escape HTML characters.
      * @param line The line we want to obtain a window for.
      * @param currText If non null, use this line instead of the
      *     text on the current line.
@@ -143,7 +144,7 @@ public final class TLUtils {
 
             int lineno = line.getLineNumber();
             Line before = ls.getCurrent(lineno+offset);
-            sb.append(before.getText());
+            appendHTMLString(sb, before.getText());
         } catch (Exception e) {
             TopManager.getDefault().getErrorManager().
                 notify(ErrorManager.INFORMATIONAL, e);
@@ -185,6 +186,68 @@ public final class TLUtils {
         return i;
     }    
     
+    /** Append a character to a StringBuffer intended for HTML
+        display - it will escape <, >, etc. such that the char is
+        shown properly in HTML.
+    */
+    public static void appendHTMLChar(StringBuffer sb, char c) {
+        switch (c) {
+        case '<': sb.append("&lt;"); break; // NOI18N
+        case '>': sb.append("&gt;"); break; // NOI18N
+        case '&': sb.append("&amp;"); break; // NOI18N
+        case ' ': sb.append("&nbsp;"); break; // NOI18N
+        default: sb.append(c);
+        }
+    }
+
+    /** Append a string to a StringBuffer intended for HTML
+        display - it will escape <, >, etc. such that they are
+        shown properly in HTML.
+    */
+    public static void appendHTMLString(StringBuffer sb, String s) {
+        int n = s.length();
+        for (int i = 0; i < n; i++) {
+            appendHTMLChar(sb, s.charAt(i));
+        }
+    }
+
+    /** Append the given string to the given string buffer,
+     * underlining from a starting index to an ending index.
+     * Also escape HTML characters.
+     */
+    public static void appendAttributed(StringBuffer sb,
+                                        String text, 
+                                        int begin, 
+                                        int end,
+                                        boolean underline,
+                                        boolean bold) {
+        if (begin != -1) {
+            for (int i = 0; i < begin; i++) {
+                appendHTMLChar(sb, text.charAt(i));
+            }
+            if (underline) {
+                sb.append("<u>"); // NOI18N
+            }
+            if (bold) {
+                sb.append("<b>"); // NOI18N
+            }
+            for (int i = begin; i < end; i++) {
+                appendHTMLChar(sb, text.charAt(i));
+            }
+            if (underline) {
+                sb.append("</u>"); // NOI18N
+            }
+            if (bold) {
+                sb.append("</b>"); // NOI18N
+            }
+            int nl = text.length();
+            for (int i = end; i < nl; i++) {
+                appendHTMLChar(sb, text.charAt(i));
+            }
+        } else {
+            appendHTMLString(sb, text);
+        }
+    }
 
 }
 

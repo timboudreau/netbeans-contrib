@@ -7,13 +7,15 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.awt.Image;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -23,6 +25,7 @@ import java.beans.PropertyChangeListener;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskList;
 import java.io.File;
+import java.util.Arrays;
 import java.io.ByteArrayInputStream;
 import java.io.Writer;
 import java.io.FileWriter;
@@ -61,6 +64,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.openide.util.Lookup;
 import org.openide.TopManager;
 import org.openide.ErrorManager;
+import org.openide.util.WeakListener;
 
 import org.netbeans.api.tasklist.*;
 import org.netbeans.modules.tasklist.core.TaskNode;
@@ -735,6 +739,14 @@ final public class SuggestionManagerImpl extends SuggestionManager
         private Set noconfirm = null;
         private Set expanded = null;
 
+        private int showScanDelay = DEFAULT_SHOW_SCAN_DELAY;
+        private int editScanDelay = DEFAULT_EDIT_SCAN_DELAY;
+        private int saveScanDelay = DEFAULT_SAVE_SCAN_DELAY;
+
+        private boolean scanOnShow = DEFAULT_SCAN_ON_SHOW;
+        private boolean scanOnEdit = DEFAULT_SCAN_ON_EDIT;
+        private boolean scanOnSave = DEFAULT_SCAN_ON_SAVE;
+
         
         TypeXMLHandler() {
         }
@@ -781,8 +793,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     }
                     SuggestionType type = SuggestionTypes.getTypes().getType(id);
                     expanded.add(type);
-                //} else {
-                //System.out.println("PARSING ERROR: " + uri + ", " + localName + ", " + name + ", " + attrs);
+                } else {
+                    ErrorManager.getDefault().log(ErrorManager.WARNING, "SuggestionType Registry Parsing Error: " + name + ", " + attrs); // NOI18N
                 }
             } else if (name.equals("disabled")) { // NOI18N
                 parsingDisabled = true;
@@ -790,6 +802,30 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 parsingNoConfirm = true;
             } else if (name.equals("expanded")) { // NOI18N
                 parsingExpanded = true;
+            } else if (name.equals("scan-preference")) { // NOI18N
+                String event = (String)attrs.getValue("event"); // NOI18N
+                String enabled = (String)attrs.getValue("enabled"); // NOI18N
+                String delay = (String)attrs.getValue("delay"); // NOI18N
+                if ((event == null) || (enabled == null) || (delay == null)) {
+                    ErrorManager.getDefault().log(ErrorManager.WARNING, "Got scan-preference event="+event+", enabled="+enabled+", "+delay);
+                    return;
+                }
+                boolean on = "on".equals(enabled); // NOI18N
+                int interval = -1;
+                try {
+                    interval = Integer.parseInt(delay);
+                } catch (NumberFormatException e) { 
+                }
+                if ("show".equals(event)) { // NOI18N
+                    scanOnShow = on;
+                    showScanDelay = interval;
+                } else if ("save".equals(event)) { // NOI18N
+                    scanOnSave = on;
+                    saveScanDelay = interval;
+                } else if ("edit".equals(event)) { // NOI18N
+                    scanOnEdit = on;
+                    editScanDelay = interval;
+                }
             }
         }
             
@@ -804,6 +840,28 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
         }
         
+
+    
+        public int getShowScanDelay() {
+            return showScanDelay;
+        }
+        public int getEditScanDelay() {
+            return editScanDelay;
+        }
+        public int getSaveScanDelay() {
+            return saveScanDelay;
+        }
+        public boolean isScanOnShow() {
+            return scanOnShow;
+        }
+        public boolean isScanOnEdit() {
+            return scanOnEdit;
+        }
+        public boolean isScanOnSave() {
+            return scanOnSave;
+        }
+
+
         /** No validation - don't read the DTD. Assume importers won't
             require external entities. */
         public InputSource resolveEntity(String pubid, String sysid) {
@@ -837,6 +895,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     disabled = handler.getDisabled();
                     noconfirm = handler.getNoConfirm();
                     expandedTypes = handler.getExpanded();
+                    showScanDelay = handler.getShowScanDelay();
+                    editScanDelay = handler.getEditScanDelay();
+                    saveScanDelay = handler.getSaveScanDelay();
+                    scanOnShow = handler.isScanOnShow();
+                    scanOnEdit = handler.isScanOnEdit();
+                    scanOnSave = handler.isScanOnSave();
                     return true;
                 } catch (SAXException e) {
                     TopManager.getDefault().getErrorManager().notify(
@@ -946,6 +1010,33 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     }
                 }
             }
+
+            // Write out the scanning preferences (if different
+            // from the default)
+            if ((scanOnShow != DEFAULT_SCAN_ON_SHOW) ||
+                (showScanDelay != DEFAULT_SHOW_SCAN_DELAY)) {
+                writer.write("  <scan-preference event=\"show\" enabled=\""); // NOI18N
+                writer.write(scanOnShow ? "on" : "off"); // NOI18N
+                writer.write("\" delay=\""); // NOI18N
+                writer.write(Integer.toString(showScanDelay));
+                writer.write("\"/>\n"); // NOI18N
+            }   
+            if ((scanOnEdit != DEFAULT_SCAN_ON_EDIT) ||
+                (editScanDelay != DEFAULT_EDIT_SCAN_DELAY)) {
+                writer.write("  <scan-preference event=\"edit\" enabled=\""); // NOI18N
+                writer.write(scanOnEdit ? "on" : "off"); // NOI18N
+                writer.write("\" delay=\""); // NOI18N
+                writer.write(Integer.toString(editScanDelay));
+                writer.write("\"/>\n"); // NOI18N
+            }   
+            if ((scanOnSave != DEFAULT_SCAN_ON_SAVE) ||
+                (saveScanDelay != DEFAULT_SAVE_SCAN_DELAY)) {
+                writer.write("  <scan-preference event=\"save\" enabled=\""); // NOI18N
+                writer.write(scanOnSave ? "on" : "off"); // NOI18N
+                writer.write("\" delay=\""); // NOI18N
+                writer.write(Integer.toString(saveScanDelay));
+                writer.write("\"/>\n"); // NOI18N
+            }   
             
             writer.write("</typeregistry>\n"); // NOI18N
             writer.close();
@@ -1158,6 +1249,14 @@ final public class SuggestionManagerImpl extends SuggestionManager
         register(type, add, remove, getList(), !switchingFiles);
     }
 
+    /* XXX
+        This method fails for the case where you have a category
+        node, and you try to remove a single item. It removes
+        the category node because it simply looks at the size of
+        the add, not the size of the list AFTER the removes have 
+        been applied!
+     */
+
     public void register(String typeName, List addList, List removeList,
                          SuggestionList tasklist, boolean sizeKnown) {
         //System.err.println("register(" + typeName + ", " + addList +
@@ -1218,17 +1317,33 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
         */
 
-        // XXX This code is broken for "incremental" updates - if you
-        // add repeatedly, I won't move old ones into the category
-        // list....  
-        // Here's an idea - should I attempt to make a count of
-        // the number of tasks for each type, stored with my
-        // type hashmap? Then I can quickly find this scenario
-        // and move the types
-        
         SuggestionImpl category = tasklist.getCategoryTask(type, false);
-        if ((adds != null) && (adds.size() > MAX_INLINE) && 
-            (unfilteredType == null)) {
+
+        // XXX [PERFORMANCE] Later I can compute the type more quickly
+        // than this - instead of counting each time, keep a count,
+        // stored in a hashmap (I already have a type registry. Just watch
+        // out and remember that because of the Directory Scanning action,
+        // you can have multiple clients of the type registry.
+        int currnum = 0;
+        if (category != null) {
+            currnum = category.getSubtasks().size();
+        } else {
+            if (tasklist.getTasks() != null) {
+                Iterator it = tasklist.getTasks().iterator();
+                while (it.hasNext()) {
+                    SuggestionImpl s = (SuggestionImpl)it.next();
+                    if (s.getSType() == type) {
+                        currnum++;
+                    }
+                }
+            }
+        }
+        int addnum = (adds != null) ? adds.size() : 0;
+        int remnum = (removeList != null) ? removeList.size() : 0;
+        // Assume no stupidity like overlaps in tasks between the lists
+        int newSize = currnum + addnum - remnum;
+
+        if ((newSize > MAX_INLINE) && (unfilteredType == null)) {
             // TODO - show the first two "inlined" ? Or hide all below
             // the category node
 
@@ -1237,10 +1352,25 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 // remove the tasks from the top list
                 category = tasklist.getCategoryTask(type, true);
                 synchronized(this) {
+                    List leftover = null;
                     if (removeList != null) {
                         tasklist.addRemove(null, removeList, true, null);
+                        if (currnum-remnum > 0) {
+                            leftover = new ArrayList(currnum);
+                            leftover = category.getSubtasks();
+                            Iterator it = tasklist.getTasks().iterator();
+                            while (it.hasNext()) {
+                                SuggestionImpl s = (SuggestionImpl)it.next();
+                                if (s.getSType() == type) {
+                                    leftover.add(s);
+                                }
+                            }
+                        }
                     }
-                    tasklist.addRemove(adds, null, false, category);
+                    if ((leftover != null) && (leftover.size() > 0)) {
+                        tasklist.addRemove(leftover, null, true, category);
+                    }
+                    tasklist.addRemove(adds, null, true, category);
                 }
             } else {
                 // Updating tasks within the category node
@@ -1255,7 +1385,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
             
             updateCategoryCount(category, sizeKnown); // TODO: skip this when filtered
         } else {
-
             if (category == null) {
                 // Didn't have category nodes before and don't need to
                 // now either...
@@ -1264,8 +1393,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 // Had category nodes before but don't need them anymore...
                 // remove the tasks from the top list
                 synchronized(this) {
+                    List leftover = null;
                     if (removeList != null) {
                         tasklist.addRemove(null, removeList, false, category);
+                        leftover = category.getSubtasks();
+                    }
+                    if ((leftover != null) && (leftover.size() > 0)) {
+                        tasklist.addRemove(leftover, null, true, null);
                     }
                     if (adds != null) {
                         tasklist.addRemove(adds, null, true, null);
@@ -1274,7 +1408,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 tasklist.removeCategory(category, true);
             }
         }
-
     } 
     
     /** When true, we're in the process of switching files, so a register
@@ -1331,12 +1464,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
     /**
-     * The given document has been edited right now. <b>Don't</b>
-     * do heavy processing here, since this is invoked immediately
-     * as the user is typing. Use this method to invalidate pending
-     * document editing actions. Use {@link #docEditedStable} to
-     * start rescanning a document, since that method is called after
-     * a time interval after the last edit.
+     * The given document has been edited right now. This will start
+     * a timer for a rescan (for those types that are scanned after edits.)
      * <p>
      * @param document The document being edited
      * @param dataobject The Data Object for the file being opened
@@ -1344,6 +1473,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * This method is called internally by the toolkit and should not be
      * called directly by programs.
      */
+    /*
     public void docEdited(Document document, DocumentEvent event,
                                       DataObject dataobject) {
         List providers = getDocProviders();
@@ -1355,10 +1485,91 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
         }
     }
+    */
+
+    /** Set when the file has been saved before rescan is called */
+    private boolean haveSaved = false;
+    
+    /** Set when the file has been edited before rescan is called */
+    private boolean haveEdited = false;
+    
+    /** Return true iff the given provider should rescan when a file is shown */
+    private boolean scanOnShow(DocumentSuggestionProvider provider) {
+        // For now, just use "global" flag (shared for all providers)
+        return scanOnShow;
+        /*
+        SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
+        String typeNames[] = provider.getTypes();
+        for (int j = 0; j < typeNames.length; j++) {
+            SuggestionType type = suggestionTypes.getType(typeNames[j]);
+            if (type.scanOnShow()) {
+                return true;
+            }
+        }
+        return false;
+        */
+    }
+    /** Return true iff the given provider should rescan when a file is saved */
+    private boolean scanOnSave(DocumentSuggestionProvider provider) {
+        // For now, just use "global" flag (shared for all providers)
+        return scanOnSave;
+        /*
+        SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
+        String typeNames[] = provider.getTypes();
+        for (int j = 0; j < typeNames.length; j++) {
+            SuggestionType type = suggestionTypes.getType(typeNames[j]);
+            if (type.scanOnSave()) {
+                return true;
+            }
+        }
+        return false;
+        */
+    }
+    /** Return true iff the given provider should rescan when a file is edited */
+    private boolean scanOnEdit(DocumentSuggestionProvider provider) {
+        // For now, just use "global" flag (shared for all providers)
+        return scanOnEdit;
+        /*
+        SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
+        String typeNames[] = provider.getTypes();
+        for (int j = 0; j < typeNames.length; j++) {
+            SuggestionType type = suggestionTypes.getType(typeNames[j]);
+            if (type.scanOnEdit()) {
+                return true;
+            }
+        }
+        return false;
+        */
+    }
+    
+    /**
+     * The given document has been saved - and a short time period
+     * has passed.
+     * <p>
+     * @param document The document being saved.
+     * @param dataobject The Data Object for the file being saved
+     * <p>
+     * This method is called internally by the toolkit and should not be
+     * called directly by programs.
+     */
+    public void docSavedStable(Document document, DataObject dataobject) {
+        List providers = getDocProviders();
+        ListIterator it = providers.listIterator();
+        while (it.hasNext()) {
+            DocumentSuggestionProvider provider = 
+                (DocumentSuggestionProvider)it.next();
+            if ((unfiltered == null) || (provider == unfiltered)) {
+                //provider.docSaved(document, dataobject);
+                provider.rescan(document, dataobject);
+            }
+        }
+    }
 
     /**
-     * The given document has been edited, and a time interval (by default
-     * around 2 seconds I think) has passed without any further edits.
+     * The given document has been edited or saved, and a time interval
+     * (by default around 2 seconds I think) has passed without any
+     * further edits or saves.
+     * <p>
      * Update your Suggestions as necessary. This may mean removing
      * previously registered Suggestions, or editing existing ones,
      * or adding new ones, depending on the current contents of the
@@ -1370,17 +1581,21 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * This method is called internally by the toolkit and should not be
      * called directly by programs.
      */
-    public void docEditedStable(Document document,
-                                            DocumentEvent event,
-                                            DataObject dataobject) {
+    public void rescan(Document document,
+                       DataObject dataobject) {
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
             if ((unfiltered == null) || (provider == unfiltered)) {
-                provider.docEditedStable(document, event, dataobject);
+                if ((haveSaved && scanOnSave(provider))
+                      || (haveEdited && scanOnEdit(provider))) {
+                    provider.rescan(document, dataobject);
+                }
             }
         }
+        haveSaved = false;
+        haveEdited = false;
     }
     
     /**
@@ -1397,8 +1612,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
-            if ((unfiltered == null) || (provider == unfiltered)) {
+            if (((unfiltered == null) || (provider == unfiltered))
+                   && scanOnShow(provider)) {
                 provider.docShown(document, dataobject);
+                provider.rescan(document, dataobject);
             }
         }
     }
@@ -1419,6 +1636,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
             if ((unfiltered == null) || (provider == unfiltered)) {
+                provider.clear(document, dataobject);
                 provider.docHidden(document, dataobject);
             }
         }
@@ -1454,20 +1672,23 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 	
     public void insertUpdate(DocumentEvent e) {
-        docEdited(document, e, dataobject);
-	scheduleRescan(e, false);
+        //docEdited(document, e, dataobject);
+        haveEdited = true;
+	scheduleRescan(e, false, editScanDelay);
     }
 
     public void removeUpdate(DocumentEvent e) {
-        docEdited(document, e, dataobject);
-	scheduleRescan(e, false);
+        //docEdited(document, e, dataobject);
+        haveEdited = true;
+	scheduleRescan(e, false, editScanDelay);
     }
 
     /** Plan a rescan (meaning: start timer)
      * @param delay If true, don't create a rescan if one isn't already
      * pending, but if one is, delay it.
      * @param docEvent Document edit event. May be null. */
-    private void scheduleRescan(final DocumentEvent docEvent, boolean delay) {
+    private void scheduleRescan(final DocumentEvent docEvent, boolean delay,
+                                int scanDelay) {
         if (wait) {
             if (docEvent != null) {
                 // Caret updates shouldn't clear my docEvent
@@ -1475,7 +1696,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
             return;
         }
-        
+
+        // This is just a delayer (e.g. for caret motion) - if there isn't
+        // already a pending timeout, we're done. Caret motion shouldn't
+        // -cause- a rescan, but if one is already planned, we want to delay
+        // it.
         if (delay && (runTimer == null)) {
             return;
         }
@@ -1487,12 +1712,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	    runTimer = null;
 	}
 
-	runTimer = new Timer(scanDelay,
+        currDelay = scanDelay;
+	runTimer = new Timer(currDelay,
 		     new ActionListener() {
 			 public void actionPerformed(ActionEvent evt) {
                              runTimer = null;
                              if (!wait) {
-                                 docEditedStable(document, docEvent, dataobject);
+                                 rescan(document, dataobject);
                              }
 			 }
 		     });
@@ -1501,12 +1727,15 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	runTimer.start();
     }
 
+    /** Most recent delay */
+    private int currDelay = 500;
+
     private DocumentEvent waitEvent = null;
     private boolean wait = false;
     
     /** Tell the DocumentListener to wait updating itself indefinitely
      * (until it's told not to wait again). When it's told to stop waiting,
-     * itself, it will call docEditedStable if that was called and cancelled
+     * itself, it will call rescan if that was called and cancelled
      * at some point during the wait
      * <p>
      * Typically, you should NOT call this method. It's intended for use
@@ -1518,14 +1747,26 @@ final public class SuggestionManagerImpl extends SuggestionManager
         boolean wasWaiting = this.wait;
         this.wait = wait;
         if (!wait && wasWaiting && (waitEvent != null)) {
-            scheduleRescan(waitEvent, false);
+            scheduleRescan(waitEvent, false, currDelay);
         }
     }
     
+
+    /** Listener on <code>DataObject.Registry</code>. */
+    private static DORegistryListener rl;
+
     /** Start scanning for source items. */
     public void docStart() {
 	org.openide.windows.TopComponent.getRegistry().
 	    addPropertyChangeListener(this);
+
+        
+        // Start listening on DataObject.Registry
+        if (rl == null) {
+            rl = new DORegistryListener();
+            DataObject.getRegistry().addChangeListener((ChangeListener)(WeakListener.change(rl, DataObject.getRegistry())));
+        }
+
 	/* OLD:
 	org.openide.windows.TopComponent.getRegistry().
 	    addPropertyChangeListener(this);
@@ -1817,7 +2058,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
         // XXX Use scheduleRescan instead? (but then I have to call docShown instead of docEditedStable)
 	if (delayed) {
-	    runTimer = new Timer(scanDelay,
+	    runTimer = new Timer(showScanDelay,
 		     new ActionListener() {
 			 public void actionPerformed(ActionEvent evt) {
                              runTimer = null;
@@ -1937,6 +2178,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
     public void docStop() {
 	org.openide.windows.TopComponent.getRegistry().
 	    removePropertyChangeListener(this);
+
+        if (rl != null) {
+            DataObject.getRegistry().removeChangeListener(rl);
+            rl = null;
+        }
+
 	/*
 	org.openide.windows.TopComponent.getRegistry().
 	    removePropertyChangeListener(this);
@@ -1978,9 +2225,32 @@ final public class SuggestionManagerImpl extends SuggestionManager
         scan briefly selected files */
     private Timer runTimer; // make sure we get the right one
 
-    /** Cache for delay settings we want to use the timer for */
-    private int scanDelay = 1000;
+    /** Delay to wait after a file has been shown before we rescan */
+    private int showScanDelay = DEFAULT_SHOW_SCAN_DELAY;
 
+    /** Delay to wait after a file has been edited before we rescan */
+    private int editScanDelay = DEFAULT_EDIT_SCAN_DELAY;
+
+    /** Delay to wait after a file has been saved before we rescan */
+    private int saveScanDelay = DEFAULT_SAVE_SCAN_DELAY;
+
+    private final static int DEFAULT_SHOW_SCAN_DELAY = 500;
+    private final static int DEFAULT_EDIT_SCAN_DELAY = 1000;
+    private final static int DEFAULT_SAVE_SCAN_DELAY = 1000;
+
+    private final static boolean DEFAULT_SCAN_ON_SHOW = true;
+    private final static boolean DEFAULT_SCAN_ON_EDIT = true;
+    private final static boolean DEFAULT_SCAN_ON_SAVE = false;
+
+    /** Scan when a document is shown? */
+    private boolean scanOnShow = DEFAULT_SCAN_ON_SHOW;
+    
+    /** Scan when a document is edited? */
+    private boolean scanOnEdit = DEFAULT_SCAN_ON_EDIT;
+
+    /** Scan when a document is saved? */
+    private boolean scanOnSave = DEFAULT_SCAN_ON_SAVE;
+    
     /** Reacts to changes */
     public void propertyChange(PropertyChangeEvent ev) {
         String prop = ev.getPropertyName();
@@ -2039,11 +2309,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	if (WindowManager.PROP_CURRENT_WORKSPACE == ev.getPropertyName()) {
 	    Workspace oldWs = (Workspace)ev.getOldValue();
 	    Workspace newWs = (Workspace)ev.getNewValue();
-	    System.out.println("Current workspace changed: old " + oldWs + "; new " + newWs);
+	    S ystem.out.println("Current workspace changed: old " + oldWs + "; new " + newWs);
 	} else if (Workspace.PROP_MODES == ev.getPropertyName()) {
 	    Mode[] oldModes = (Mode[])ev.getOldValue();
 	    Mode[] newModes = (Mode[])ev.getNewValue();
-	    System.out.println("Mode set changed: old " + oldModes + "; new " + newModes);
+	    S ystem.out.println("Mode set changed: old " + oldModes + "; new " + newModes);
 	    // Check to see if the editor window has come or left
 	}
 	*/
@@ -2055,7 +2325,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
     /** Moving the cursor position should cause a delay in document scanning,
      * but not trigger a new update */
     public void caretUpdate(CaretEvent caretEvent) {
-	scheduleRescan(null, true);
+	scheduleRescan(null, true, currDelay);
         
          // Check to see if I have any existing errors on this line - and if so,
         // highlight them.
@@ -2133,6 +2403,142 @@ final public class SuggestionManagerImpl extends SuggestionManager
         // Flush changes to disk
         writeTypeRegistry();
     }
+
+    private boolean isModified = false;
+
+    /**
+     * Listener for DataObject.Registry changes.
+     *
+     * This class listens for modify-changes of dataobjects such that
+     * it can notify files of Save operations.
+     */
+    class DORegistryListener implements javax.swing.event.ChangeListener {
+        public void stateChanged(ChangeEvent e){
+            /* Not sure what the source is, but it isn't dataobject
+                 and the javadoc doesn't say anything specific, so
+                 I guess I can't rely on that as a filter
+            if (e.getSource() != dataobject) {
+                // If you reinstate this in some way, make sure it
+                // works for Save ALL as well!!!
+                return;
+            }
+            */
+            Set mods = DataObject.getRegistry().getModifiedSet();
+            boolean wasModified = isModified;
+            isModified = mods.contains(dataobject);
+            if (isModified != wasModified) {
+                if (!isModified) {
+                    haveSaved = true;
+                    scheduleRescan(null, false, saveScanDelay);
+                }
+            }
+        }
+    }
     
+    
+    /** Getter for property showScanDelay.
+     * @return Value of property showScanDelay.
+     *
+     */
+    public int getShowScanDelay() {
+        return showScanDelay;
+    }
+    
+    /** Setter for property showScanDelay.
+     * @param showScanDelay New value of property showScanDelay.
+     *
+     */
+    public void setShowScanDelay(int showScanDelay) {
+        if (showScanDelay <= 0) {
+            showScanDelay = 500;
+        }
+        this.showScanDelay = showScanDelay;
+    }
+    
+    /** Getter for property editScanDelay.
+     * @return Value of property editScanDelay.
+     *
+     */
+    public int getEditScanDelay() {
+        return editScanDelay;
+    }
+    
+    /** Setter for property editScanDelay.
+     * @param editScanDelay New value of property editScanDelay.
+     *
+     */
+    public void setEditScanDelay(int editScanDelay) {
+        if (editScanDelay <= 0) {
+            editScanDelay = 1000;
+        }
+        this.editScanDelay = editScanDelay;
+    }
+    
+    /** Getter for property saveScanDelay.
+     * @return Value of property saveScanDelay.
+     *
+     */
+    public int getSaveScanDelay() {
+        return saveScanDelay;
+    }
+    
+    /** Setter for property saveScanDelay.
+     * @param saveScanDelay New value of property saveScanDelay.
+     *
+     */
+    public void setSaveScanDelay(int saveScanDelay) {
+        if (saveScanDelay <= 0) {
+            saveScanDelay = 500;
+        }
+        this.saveScanDelay = saveScanDelay;
+    }
+    
+    /** Getter for property scanOnShow.
+     * @return Value of property scanOnShow.
+     *
+     */
+    public boolean isScanOnShow() {
+        return scanOnShow;
+    }
+    
+    /** Setter for property scanOnShow.
+     * @param scanOnShow New value of property scanOnShow.
+     *
+     */
+    public void setScanOnShow(boolean scanOnShow) {
+        this.scanOnShow = scanOnShow;
+    }
+    
+    /** Getter for property scanOnEdit.
+     * @return Value of property scanOnEdit.
+     *
+     */
+    public boolean isScanOnEdit() {
+        return scanOnEdit;
+    }
+    
+    /** Setter for property scanOnEdit.
+     * @param scanOnEdit New value of property scanOnEdit.
+     *
+     */
+    public void setScanOnEdit(boolean scanOnEdit) {
+        this.scanOnEdit = scanOnEdit;
+    }
+    
+    /** Getter for property scanOnSave.
+     * @return Value of property scanOnSave.
+     *
+     */
+    public boolean isScanOnSave() {
+        return scanOnSave;
+    }
+    
+    /** Setter for property scanOnSave.
+     * @param scanOnSave New value of property scanOnSave.
+     *
+     */
+    public void setScanOnSave(boolean scanOnSave) {
+        this.scanOnSave = scanOnSave;
+    }
     
 }

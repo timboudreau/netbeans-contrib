@@ -50,8 +50,7 @@ import org.openide.loaders.DataObject;
  */
 
 
-public class SourceTaskProvider extends SuggestionProvider
-    implements DocumentSuggestionProvider {
+public class SourceTaskProvider extends DocumentSuggestionProvider {
 
     final private static String TYPE = "nb-tasklist-scannedtask"; // NOI18N
     
@@ -66,33 +65,6 @@ public class SourceTaskProvider extends SuggestionProvider
         return new String[] { TYPE };
     }
     
-    private boolean scanning = false;
-    
-    /**
-     * Start creating suggestions when you think of them.
-     * (This is typically called when the Suggestions window is shown,
-     * for example because the Suggestions window tab is moved to the front,
-     * or the user has moved to a workspace containing a Suggestions Window.)
-     */
-    public void notifyRun() {
-        super.notifyRun();
-        scanning = true;
-    }
-
-    /**
-     * (Temporarily) stop creating suggestions.
-     * (This is typically called when the Suggestions window is hidden,
-     * for example because a different tab is moved to the front or because
-     * the user has moved to another workspace.)
-     */
-    public void notifyStop() {
-        super.notifyStop();
-        scanning = false;
-
-        // Nothing to do here -- docHidden takes care of everything
-    }
-
-    
     /** Scanner which reads through the current document and locates tasks */
     private SourceScanner scanner = null;
 
@@ -101,41 +73,36 @@ public class SourceTaskProvider extends SuggestionProvider
 
     
     /**
-     * The given document has been edited, and a time interval (by default
-     * around 2 seconds I think) has passed without any further edits.
-     * Update your Suggestions as necessary. This may mean removing
-     * previously registered Suggestions, or editing existing ones,
-     * or adding new ones, depending on the current contents of the
-     * document.
-     * <p>
-     * @param document The document being edited
-     */
-    public void docEditedStable(Document document, DocumentEvent event,
-                                   DataObject dataobject) {
-        //System.out.println("docEditedStable(" + document + ")");
-	if (scanning && scanner != null) {
-            update(document, dataobject);
-	}
-    }
-
-    /**
      * The given document has been "shown"; it is now visible.
      * <p>
      * @param document The document being shown
      */
     public void docShown(Document document, DataObject dataobject) {
-        //System.out.println("docShown(" + document + ")");
         skipCode = ((Settings)Settings.
                              findObject(Settings.class, true)).getSkipComments();
-        update(document, dataobject);
     }
 
     private boolean skipCode = ((Settings)Settings.
                              findObject(Settings.class, true)).getSkipComments();
 
     
-    /** Update the manager with the current document contents */
-    private void update(Document doc, DataObject dobj) {
+    /**
+     * Rescan the given document for suggestions. Typically called
+     * when a document is shown or when a document is edited, but
+     * could also be called for example when the document is
+     * saved.
+     * <p>
+     * This method should register the suggestions with the
+     * suggestion manager.
+     * <p>
+     * @param doc The document being scanned
+     * @param dobj The Data Object for the file being scanned
+     * @return list of tasks that result from the scan. May be null.
+     * <p>
+     * This method is called internally by the toolkit and should not be
+     * called directly by programs.
+     */
+    public void rescan(Document doc, DataObject dobj) {
         List newTasks = scan(doc, dobj);
         SuggestionManager manager = SuggestionManager.getDefault();
 
@@ -197,23 +164,15 @@ public class SourceTaskProvider extends SuggestionProvider
 	    scanner.stop();
 	    scanner = null;
         }        
+     }
 
+     public void clear(Document document, DataObject dataobject) {
 	// Remove existing items
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
             manager.register(TYPE, null, showingTasks);
 	    showingTasks = null;
 	}     
-    }
-
-    public void docClosed(Document document, DataObject dataobject) {
-    }
-
-    public void docOpened(Document document, DataObject dataobject) {
-    }
-
-    public void docEdited(Document document, DocumentEvent event,
-                             DataObject dataobject) {
     }
 
     /** The list of tasks we're currently showing in the tasklist */
