@@ -33,7 +33,6 @@ import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.AntProjectListener;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataFolder;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -129,12 +128,13 @@ public class EJBProjectNature implements ProjectNature {
     private static Lookup initLookup(Project project, AntProjectHelper projectHelper, PropertyEvaluator projectEvaluator, AuxiliaryConfiguration aux) {
         
         return Lookups.fixed(new Object[] {
+            new EJBFreeformProvider(project, projectHelper, projectEvaluator),
             new ProxyEjbJarImplementation(project, projectHelper, projectEvaluator),
             new EJBModules(project, projectHelper, projectEvaluator), // EJBModuleProvider, ClassPathProvider
         });
     }
     
-    private static final class ProxyEjbJarImplementation implements EjbJarImplementation {
+    public static final class ProxyEjbJarImplementation implements EjbJarImplementation {
         
         private Project project;
         private AntProjectHelper helper;
