@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: @tl.checkstype.spec@
+OpenIDE-Module-Specification-Version: @tl.checkstyle.spec@
 OpenIDE-Module: org.netbeans.modules.tasklist.checkstyle/2
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/checkstyle/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/checkstyle/mf-layer.xml
@@ -10,5 +10,5 @@ OpenIDE-Module-Module-Dependencies: org.openide.src > 1.0,
 OpenIDE-Module-Implementation-Version: @tl.checkstyle.impl@
 OpenIDE-Module-Build-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Public-Packages: -
-Class-Path: ext/checkstyle-all-3.1.jar
+Class-Path: ext/checkstyle-all-3.3.jar
 
