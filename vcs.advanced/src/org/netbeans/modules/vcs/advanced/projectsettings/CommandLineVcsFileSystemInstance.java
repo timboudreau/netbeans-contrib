@@ -36,6 +36,7 @@ import org.openide.TopManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
+import org.openide.filesystems.FileChangeListener;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
@@ -62,6 +63,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     public static final String PUBLIC_ID = "-//NetBeans//DTD VCS Advanced FSSettings 1.0//EN"; // NOI18N
     public static final String SYSTEM_ID = "http://www.netbeans.org/dtds/vcs-advanced-fssettings-1_0.dtd"; // NOI18N
 
+    /** FS settings FileObject paths and associated FS instances. */
     private static HashMap fsInstances = new HashMap();
     private static PropertyDescriptor[] fsProperties;
     private static HashMap fsPropertiesByName;
@@ -120,13 +122,15 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         this.doc = doc;
     }
 
-    public Object instanceCreate() throws java.io.IOException, ClassNotFoundException {
+    public synchronized Object instanceCreate() throws java.io.IOException, ClassNotFoundException {
+        //System.out.println("instanceCreate(), fo = "+fo);
         CommandLineVcsFileSystem fs = null;
         Reference fsRef = (Reference) fsInstances.get(fo.getPackageNameExt('/', '.'));
         if (fsRef != null) {
             fs = (CommandLineVcsFileSystem) fsRef.get();
             if (fs == null) fsInstances.remove(fo.getPackageNameExt('/', '.'));
         }
+        //System.out.println("  fs = "+fs);
         if (fs == null) {
             fs = new CommandLineVcsFileSystem();
             try {
@@ -137,6 +141,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             fsPropertyChangeListener = new FSPropertyChangeListener(fs, fo);
             fs.addPropertyChangeListener(WeakListener.propertyChange(fsPropertyChangeListener, fs));
             fsInstances.put(fo.getPackageNameExt('/', '.'), new WeakReference(fs));
+            fo.addFileChangeListener(new FOChangeListener());
         }
         return fs;
     }
@@ -146,7 +151,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     }
     
     public boolean instanceOf(Class clazz) {
-        return CommandLineVcsFileSystem.class.equals(clazz);
+        return (clazz.isAssignableFrom(CommandLineVcsFileSystem.class));
     }
     
     public String instanceName() {
@@ -361,6 +366,31 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         } else {
             return valueStr;
         }
+    }
+    
+    private static class FOChangeListener extends Object implements FileChangeListener {
+        
+        public void fileDeleted(org.openide.filesystems.FileEvent fileEvent) {
+            FileObject fo = fileEvent.getFile();
+            fsInstances.remove(fo.getPackageNameExt('/', '.'));
+            fo.removeFileChangeListener(this);
+        }
+        
+        public void fileFolderCreated(org.openide.filesystems.FileEvent fileEvent) {
+        }
+        
+        public void fileDataCreated(org.openide.filesystems.FileEvent fileEvent) {
+        }
+        
+        public void fileAttributeChanged(org.openide.filesystems.FileAttributeEvent fileAttributeEvent) {
+        }
+        
+        public void fileRenamed(org.openide.filesystems.FileRenameEvent fileRenameEvent) {
+        }
+        
+        public void fileChanged(org.openide.filesystems.FileEvent fileEvent) {
+        }
+        
     }
 
     private static class FSPropertyChangeListener extends Object implements PropertyChangeListener {
