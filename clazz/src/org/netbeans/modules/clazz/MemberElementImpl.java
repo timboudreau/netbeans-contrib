@@ -50,7 +50,11 @@ static final long serialVersionUID =-6841890195552268874L;
     if (data instanceof Class) {
       // Class doesn't implement Member interface...
       // and moreover we must throw away "interface" modifier if present
-      return ((Class)data).getModifiers() & (~Modifier.INTERFACE);
+      try {
+        return ((Class)data).getModifiers() & (~Modifier.INTERFACE);
+      } catch (Exception exc) {
+        return 0;
+      }
     }
     return ((Member)data).getModifiers();
   }
@@ -92,6 +96,7 @@ static final long serialVersionUID =-6841890195552268874L;
 
 /*
 * Log
+*  9    src-jtulach1.8         1/5/00   David Simonek   #2564
 *  8    src-jtulach1.7         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment
 *  7    src-jtulach1.6         8/9/99   Ian Formanek    Generated Serial Version 
