@@ -33,7 +33,7 @@ public class GeneralVcsSettingsNode extends AbstractNode {
 
     public GeneralVcsSettingsNode() {
         super (new Children.Array());
-        setIconBase("/org/netbeans/modules/vcscore/settings/vcsSettings"); //NOI18N
+        setIconBase("org/netbeans/modules/vcscore/settings/vcsSettings"); //NOI18N
         // Whatever is most relevant to a user:
         setDefaultAction (SystemAction.get (PropertiesAction.class));
         // Set FeatureDescriptor stuff:

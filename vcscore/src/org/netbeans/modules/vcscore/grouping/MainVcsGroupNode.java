@@ -48,7 +48,7 @@ public class MainVcsGroupNode extends AbstractNode   {
     
     public MainVcsGroupNode(MainVcsGroupChildren children) {
         super (children);
-        setIconBase("/org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon");//NOI18N
+        setIconBase("org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon");//NOI18N
         // Whatever is most relevant to a user:
         // Set FeatureDescriptor stuff:
         setName ("MainVcsGroupNode"); // or, super.setName if needed //NOI18N

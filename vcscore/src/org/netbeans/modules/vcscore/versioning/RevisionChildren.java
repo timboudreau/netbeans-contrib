@@ -126,7 +126,7 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
     protected Node createWaitingNode() {
         AbstractNode n = new AbstractNode(Children.LEAF);
         n.setName(NbBundle.getMessage(RevisionChildren.class, "WaitNodeTooltip"));
-        n.setIconBase("/org/netbeans/modules/vcscore/versioning/wait");
+        n.setIconBase("org/netbeans/modules/vcscore/versioning/wait");
         return n;
     }
     

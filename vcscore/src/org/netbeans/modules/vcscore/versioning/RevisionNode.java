@@ -42,10 +42,10 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  */
 public class RevisionNode extends AbstractNode implements /*OpenCookie, */PropertyChangeListener {
 
-    private static final String ICON_BRANCH = "/org/netbeans/modules/vcscore/revision/branchIcon";
-    //private static final String ICON_OPEN_BRANCH = "/org/openide/resources/defaultFolderOpen.gif";
-    private static final String ICON_REVISION = "/org/netbeans/modules/vcscore/revision/revisionIcon";
-    private static final String ICON_REVISION_CURRENT = "/org/netbeans/modules/vcscore/revision/revisionCurrentIcon";
+    private static final String ICON_BRANCH = "org/netbeans/modules/vcscore/revision/branchIcon";
+    //private static final String ICON_OPEN_BRANCH = "org/openide/resources/defaultFolderOpen.gif";
+    private static final String ICON_REVISION = "org/netbeans/modules/vcscore/revision/revisionIcon";
+    private static final String ICON_REVISION_CURRENT = "org/netbeans/modules/vcscore/revision/revisionCurrentIcon";
 
     private RevisionItem item = null;
     private RevisionList list = null;

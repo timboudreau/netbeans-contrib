@@ -61,9 +61,9 @@ public class AnnotPatternNode extends AbstractNode implements  java.io.Serializa
     
     private boolean root;
     private String type;
-    private static final String ICON_NODE = "/org/netbeans/modules/vcscore/annotation/annotationIcon";    
-    private static final String ICON_NODE_TRUE = "/org/netbeans/modules/vcscore/annotation/annotationIcon_true";        
-    private static final String ICON_NODE_FALSE = "/org/netbeans/modules/vcscore/annotation/annotationIcon_false";        
+    private static final String ICON_NODE = "org/netbeans/modules/vcscore/annotation/annotationIcon";    
+    private static final String ICON_NODE_TRUE = "org/netbeans/modules/vcscore/annotation/annotationIcon_true";        
+    private static final String ICON_NODE_FALSE = "org/netbeans/modules/vcscore/annotation/annotationIcon_false";        
     
     private static String TRUE;
     private static String FALSE;

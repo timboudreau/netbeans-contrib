@@ -42,7 +42,7 @@ public class VcsGroupNode extends AbstractNode {
     public VcsGroupNode(DataFolder dobj) {
         super (new VcsGroupChildren(dobj));
         groupDO = dobj;
-        setIconBase("/org/netbeans/modules/vcscore/grouping/VcsGroupNodeIcon"); //NOI18N
+        setIconBase("org/netbeans/modules/vcscore/grouping/VcsGroupNodeIcon"); //NOI18N
         // Whatever is most relevant to a user:
         // Set FeatureDescriptor stuff:
         groupName = groupDO.getName();

@@ -35,7 +35,7 @@ public class RuntimeMainNode extends AbstractNode {
         super(children);
         setName(VCS_RUNTIME_NODE_NAME);
         setDisplayName(g("CTL_VcsRuntime"));
-        setIconBase("/org/netbeans/modules/vcscore/runtime/commandIcon");
+        setIconBase("org/netbeans/modules/vcscore/runtime/commandIcon");
     }
     
     public RuntimeMainNode() {
