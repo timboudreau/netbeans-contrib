@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.profiles.pvcs.commands;
 
+import java.io.File;
 import java.util.Hashtable;
 
 import org.netbeans.modules.vcscore.VcsAction;
@@ -77,7 +78,17 @@ public class PvcsAutoFillConfig extends Object implements VcsAdditionalCommand,
                 vars.put("ROOTDIR", work);
             } catch (java.beans.PropertyVetoException pvex) {
             } catch (java.io.IOException ioex) {}
+            File workDir = new File(work);
+            if(workDir.exists()){                
+                File[] files = workDir.listFiles();
+                if((files.length) == 0){
+                    vars.put("DO_PVCS_CHECKOUT","true");    //NOI18N
+                }else
+                    vars.put("DO_PVCS_CHECKOUT","");        //NOI18N
+            }
+            
         }
+        
         return true;
     }
     
