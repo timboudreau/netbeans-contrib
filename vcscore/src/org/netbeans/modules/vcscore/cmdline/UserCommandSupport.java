@@ -1221,18 +1221,22 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 if (cDir != null) {
                     vars.put("CACHED_ATTR", cDir.getAttr());
                     vars.put("CACHED_SIZE", Integer.toString(cDir.getSize()));
+                    vars.put("CACHED_ISLOCAL", cDir.isLocal() ? "true" : "");
                 } else {
                     vars.remove("CACHED_ATTR");
                     vars.remove("CACHED_SIZE");
+                    vars.remove("CACHED_ISLOCAL");
                 }
             } else {
                 CacheFile cFile = cacheProvider.getFile(origFullName);
                 if (cFile != null) {
                     vars.put("CACHED_ATTR", cFile.getAttr());
                     vars.put("CACHED_SIZE", Integer.toString(cFile.getSize()));
+                    vars.put("CACHED_ISLOCAL", cFile.isLocal() ? "true" : "");
                 } else {
                     vars.remove("CACHED_ATTR");
                     vars.remove("CACHED_SIZE");
+                    vars.remove("CACHED_ISLOCAL");
                 }
             }
         }
