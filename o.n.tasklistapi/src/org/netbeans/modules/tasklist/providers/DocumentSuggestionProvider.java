@@ -30,11 +30,9 @@ import org.openide.loaders.DataObject;
  * the sense that they do not cause document edit notification.)
  *
  * <p>
- *
  * @author Tor Norbye
  * @author Petr Kuzel, SuggestionContext refactoring
  * @since 1.3  (well all signatures changed in this version)
- *
  * @todo Align synchronous scan() vs asynchronous rescan(..., request)
  *       and clear(..., request)
  */
