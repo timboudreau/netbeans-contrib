@@ -17,12 +17,15 @@ import java.io.File;
 import java.io.IOException;
 
 import java.util.StringTokenizer;
-
+import java.util.Vector;
 
 import org.openide.compiler.ExternalCompilerGroup;
-import org.openide.compiler.CompilerJob;
+import org.openide.compiler.*;
+import org.openide.cookies.CompilerCookie;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.*;
+import org.openide.loaders.*;
+
 
 import com.netbeans.enterprise.modules.corba.settings.*;
 import com.netbeans.developer.modules.loaders.java.JavaDataObject;
@@ -53,11 +56,30 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
    public static final boolean DEBUG = false;
 
 
+   protected Vector _files;
+
+
+   public IDLExternalCompilerGroup () {
+      if (DEBUG)
+	 System.out.println ("IDLExternalCompilerGroup (");
+      _files = new Vector ();
+   }
+
+
    protected Process createProcess (NbProcessDescriptor desc, String[] files, Object type) 
-   throws IOException {
+      throws IOException {
       FileObject fo = null;
 
-      //System.err.println("IDLExternalCompilerGroup: type = " + type);
+      if (DEBUG) {
+	 System.out.println("IDLExternalCompilerGroup: type = " + type);
+	 System.out.print ("files(" + files.length + "): "); 
+      }
+      _files.add (type);
+      for (int i=0; i<files.length; i++) {
+	 //_files.add (files[i]);
+	 if (DEBUG)
+	    System.out.print (files[i] + ", ");
+      }
 
       if (type instanceof FileObject) {
 	 fo = (FileObject) type;
@@ -76,6 +98,60 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
    *
    * @return true if successful, false otherwise
    */
+
+   public boolean start () {
+      try {
+	 if (super.start()) {
+	    if (DEBUG) {
+	       System.out.println ("zkompilovano - jedu javy");
+	       System.out.println ("files(" + _files.size () + "): ");
+	    }
+	    for (int i=0; i<_files.size (); i++) {
+	       if (DEBUG)
+		  System.out.println (((FileObject)_files.elementAt (i)).getName ());
+	       if (((FileObject)_files.elementAt (i)).getParent () != null)
+		  ((FileObject)_files.elementAt (i)).getParent ().refresh ();
+	       CompilerJob job = new CompilerJob (org.openide.compiler.Compiler.DEPTH_ZERO);
+	       IDLDataObject ido = null;
+	       try {
+		  ido = (IDLDataObject)DataObject.find ((FileObject)_files.elementAt (i));
+	       } catch (DataObjectNotFoundException e) {
+		  e.printStackTrace ();
+	       }
+	       Vector gens = ido.getGeneratedFileObjects ();
+	       for (int j=0; j<gens.size (); j++) {
+		  JavaDataObject.createCompilerForFileObject 
+		     (null, job, (FileObject)gens.elementAt (j), CompilerCookie.Compile.class);
+	       }
+	       if (DEBUG)
+		  System.out.println ("compile generated files for " 
+				      + ((FileObject)_files.elementAt (i)).getName ());
+	       job.start ().waitFinished ();
+	       /*
+		 try {
+		 job.waitFor ();
+		 } catch (Exception e) {
+		 e.printStackTrace ();
+		 }
+	       */
+	       if (DEBUG)
+		  System.out.println ("end of compilation");
+	    }
+	    
+	    /*
+	      vsechny IDL -  vsechny java
+	      CompilerJob job = new CompilerJob();
+	      JavaDataObject.createCompiler(null, job, fo, CompilerCookie.Compile);
+	    */
+	    return true;
+	 } else {
+	    return false;
+	 }
+      } catch (Exception e) {
+	 e.printStackTrace ();
+	 return false;
+      }
+   }
    
 
    /** 

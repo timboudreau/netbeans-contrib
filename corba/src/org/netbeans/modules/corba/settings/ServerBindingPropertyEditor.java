@@ -108,6 +108,7 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport
 
 /*
  * <<Log>>
+ *  10   Gandalf   1.9         8/3/99   Karel Gardas    
  *  9    Gandalf   1.8         7/10/99  Karel Gardas    
  *  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----

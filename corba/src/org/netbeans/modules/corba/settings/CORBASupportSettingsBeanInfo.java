@@ -77,13 +77,23 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 		new PropertyDescriptor ("_tie_param", CORBASupportSettings.class, 
 					"getTieParam", "setTieParam"),
 		new PropertyDescriptor ("_impl_prefix", CORBASupportSettings.class,
-					"getImplPrefix", "setImplPrefix"), 
+					"getImplBasePrefix", "setImplBasePrefix"), 
 		new PropertyDescriptor ("_impl_postfix", CORBASupportSettings.class,
-					"getImplPostfix", "setImplPostfix"),
+					"getImplBasePostfix", "setImplBasePostfix"),
 		new PropertyDescriptor ("_ext_class_prefix", CORBASupportSettings.class,
 					"getExtClassPrefix", "setExtClassPrefix"), 
 		new PropertyDescriptor ("_ext_class_postfix", CORBASupportSettings.class,
-					"getExtClassPostfix", "setExtClassPostfix") 
+					"getExtClassPostfix", "setExtClassPostfix"), 
+		new PropertyDescriptor ("_tie_prefix", CORBASupportSettings.class,
+					"getTiePrefix", "setTiePrefix"), 
+		new PropertyDescriptor ("_tie_postfix", CORBASupportSettings.class,
+					"getTiePostfix", "setTiePostfix"),
+		new PropertyDescriptor ("_impl_int_prefix", CORBASupportSettings.class,
+					"getImplIntPrefix", "setImplIntPrefix"), 
+		new PropertyDescriptor ("_impl_int_postfix", CORBASupportSettings.class,
+					"getImplIntPostfix", "setImplIntPostfix"), 
+ 		new PropertyDescriptor ("namingChildren", CORBASupportSettings.class,
+					"getNamingServiceChildren", "setNamingServiceChildren"), 
  
 		
 	    };
@@ -131,15 +141,23 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 	    desc[14].setExpert (true);
 	    desc[15].setDisplayName ("Tie parameter");
 	    desc[15].setExpert (true);
-	    desc[16].setDisplayName ("Implementation Prefix");
+	    desc[16].setDisplayName ("ImplBase Implementation Prefix");
 	    desc[16].setExpert (true);
-	    desc[17].setDisplayName ("Implementation Postfix");
+	    desc[17].setDisplayName ("ImplBase Implementation Postfix");
 	    desc[17].setExpert (true);
 	    desc[18].setDisplayName ("Extended Class Prefix");
 	    desc[18].setExpert (true);
 	    desc[19].setDisplayName ("Extended Class Postfix");
 	    desc[19].setExpert (true);
-
+	    desc[20].setDisplayName ("Tie Implementation Prefix");
+	    desc[20].setExpert (true);
+	    desc[21].setDisplayName ("Tie Implementation Postfix");
+	    desc[21].setExpert (true);
+	    desc[22].setDisplayName ("Implemented Interface Prefix");
+	    desc[22].setExpert (true);
+	    desc[23].setDisplayName ("Implemented Interface Postfix");
+	    desc[23].setExpert (true);
+	    desc[24].setHidden (true);  // children of persistent NamingService Browser
 	} catch (IntrospectionException ex) {
 	    //throw new InternalError ();
 	    ex.printStackTrace ();
@@ -175,6 +193,7 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 
 /*
  * <<Log>>
+ *  10   Gandalf   1.9         8/3/99   Karel Gardas    
  *  9    Gandalf   1.8         7/10/99  Karel Gardas    
  *  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----

@@ -13,6 +13,7 @@
 
 package com.netbeans.enterprise.modules.corba;
 
+
 import org.openide.compiler.Compiler;
 import org.openide.compiler.CompilerJob;
 import org.openide.compiler.ExternalCompiler;
@@ -57,7 +58,8 @@ public class IDLModule implements ModuleInstall {
 
    /** Module installed again. */
    public void restored() {
-        if (DEBUG) System.out.println ("CORBA Support Module restoring...");
+      if (DEBUG) System.out.println ("CORBA Support Module restoring...");
+      
       //System.out.println ("setting template map :))");
 
       Compiler.Manager.register (IDLDataObject.class, new Compiler.Manager () {
@@ -271,7 +273,8 @@ public class IDLModule implements ModuleInstall {
    public boolean closing () {
       return true; // agree to close
    }
-   
+
+
 // -----------------------------------------------------------------------------
 // Private methods
   
@@ -300,6 +303,7 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  14   Gandalf   1.13        8/3/99   Karel Gardas    
  *  13   Gandalf   1.12        6/10/99  Ian Formanek    Modified copying 
  *       templates and impls on install
  *  12   Gandalf   1.11        6/9/99   Ian Formanek    ---- Package Change To 

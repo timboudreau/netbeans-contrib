@@ -14,6 +14,7 @@
 package com.netbeans.enterprise.modules.corba.settings;
 
 import java.io.*;
+import org.omg.CORBA.*;
 
 import org.openide.options.SystemOption;
 //import org.openide.options.ContextSystemOption;
@@ -45,8 +46,10 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 				     "ERROR_EXPRESSION", "FILE_POSITION", "LINE_POSITION",
 				     "COLUMN_POSITION", "MESSAGE_POSITION", "TIE_PARAM",
 				     // added for implementation generator
-				     "IMPL_PREFIX", "IMPL_POSTFIX", "EXT_CLASS_PREFIX", 
-				     "EXT_CLASS_POSTFIX"};
+				     "IMPLBASE_IMPL_PREFIX", "IMPLBASE_IMPL_POSTFIX", 
+				     "EXT_CLASS_PREFIX", "EXT_CLASS_POSTFIX",
+				     "TIE_IMPL_PREFIX", "TIE_IMPL_POSTFIX",
+				     "IMPL_INT_PREFIX", "IMPL_INT_POSTFIX"};
 
    private String[] cbindings = {"NS", "IOR_FROM_FILE", "IOR_FROM_INPUT", "BINDER"};
 
@@ -109,6 +112,10 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
    public static String _impl_postfix;
    public static String _ext_class_prefix;
    public static String _ext_class_postfix;
+   public static String _tie_prefix;
+   public static String _tie_postfix;
+   public static String _impl_int_prefix;
+   public static String _impl_int_postfix;
    
    private boolean _is_tie;
 
@@ -117,6 +124,12 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
 
    String addition = "";
+
+
+   ORB _ORB;
+
+   public static Vector namingChildren;
+   
 
    //private boolean deserealization;
 
@@ -130,10 +143,13 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       //addOption (getCORBASupportAdvancedSettings ());
       if (DEBUG)
 	 System.out.println ("CORBASupportSettings () ...");
+
+      _ORB = ORB.init (new String[] {""}, null);
       //names = new Vector (5);
       props = new Vector (5);
       clientBindings = new Vector (5);
       serverBindings = new Vector (5);
+      namingChildren = new Vector ();
       //loadImpl ();
       addPropertyChangeListener (this); 
       //addOption (getCORBASupportAdvancedSettings ());
@@ -497,19 +513,19 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
    }
 
 
-   public void setImplPrefix (String s) {
+   public void setImplBasePrefix (String s) {
       _impl_prefix = s;
    }
 
-   public String getImplPrefix () {
+   public String getImplBasePrefix () {
       return _impl_prefix;
    }
 
-   public void setImplPostfix (String s) {
+   public void setImplBasePostfix (String s) {
       _impl_postfix = s;
    }
 
-   public String getImplPostfix () {
+   public String getImplBasePostfix () {
       return _impl_postfix;
    }
 
@@ -528,6 +544,39 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
    public String getExtClassPostfix () {
       return _ext_class_postfix;
+   }
+
+   public void setTiePrefix (String s) {
+      _tie_prefix = s;
+   }
+
+   public String getTiePrefix () {
+      return _tie_prefix;
+   }
+
+   public void setTiePostfix (String s) {
+      _tie_postfix = s;
+   }
+
+   public String getTiePostfix () {
+      return _tie_postfix;
+   }
+
+
+   public void setImplIntPrefix (String s) {
+      _impl_int_prefix = s;
+   }
+
+   public String getImplIntPrefix () {
+      return _impl_int_prefix;
+   }
+
+   public void setImplIntPostfix (String s) {
+      _impl_int_postfix = s;
+   }
+
+   public String getImplIntPostfix () {
+      return _impl_int_postfix;
    }
 
 
@@ -655,10 +704,16 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       String old_message = getMessagePosition ();
       
       // added for generator
-      String old_impl_prefix = getImplPrefix ();
-      String old_impl_postfix = getImplPostfix ();
+      String old_implbase_impl_prefix = getImplBasePrefix ();
+      String old_implbase_impl_postfix = getImplBasePostfix ();
       String old_ext_class_prefix = getExtClassPrefix ();
       String old_ext_class_postfix = getExtClassPostfix ();
+      String old_tie_prefix = getTiePrefix ();
+      String old_tie_postfix = getTiePostfix ();
+      String old_impl_int_prefix = getImplIntPrefix ();
+      String old_impl_int_postfix = getImplIntPostfix ();
+
+      
 
       String new_expression = "";
       String new_file = "";
@@ -670,10 +725,14 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       String new_tie = "";
 
       // added for generator
-      String new_impl_prefix;
-      String new_impl_postfix;
+      String new_implbase_prefix;
+      String new_implbase_postfix;
       String new_ext_class_prefix;
       String new_ext_class_postfix;
+      String new_tie_prefix;
+      String new_tie_postfix;
+      String new_impl_int_prefix;
+      String new_impl_int_postfix;
 
       NbProcessDescriptor old_idl = getIdl ();
       NbProcessDescriptor new_idl = null;
@@ -730,11 +789,22 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       new_delimiter = ((Properties)props.elementAt (index)).getProperty ("PACKAGE_DELIMITER");
 
       // added for generator
-      new_impl_prefix = ((Properties)props.elementAt (index)).getProperty ("IMPL_PREFIX");
-      new_impl_postfix = ((Properties)props.elementAt (index)).getProperty ("IMPL_POSTFIX");
-      new_ext_class_prefix = ((Properties)props.elementAt (index)).getProperty ("EXT_CLASS_PREFIX");
+      new_implbase_prefix = ((Properties)props.elementAt (index)).getProperty 
+	 ("IMPLBASE_IMPL_PREFIX");
+      new_implbase_postfix = ((Properties)props.elementAt (index)).getProperty 
+	 ("IMPLBASE_IMPL_POSTFIX");
+      new_ext_class_prefix = ((Properties)props.elementAt (index)).getProperty 
+	 ("EXT_CLASS_PREFIX");
       new_ext_class_postfix = ((Properties)props.elementAt (index)).getProperty 
 	 ("EXT_CLASS_POSTFIX");
+      new_tie_prefix = ((Properties)props.elementAt (index)).getProperty 
+	 ("TIE_IMPL_PREFIX");
+      new_tie_postfix = ((Properties)props.elementAt (index)).getProperty 
+	 ("TIE_IMPL_POSTFIX");
+      new_impl_int_prefix = ((Properties)props.elementAt (index)).getProperty 
+	 ("IMPL_INT_PREFIX");
+      new_impl_int_postfix = ((Properties)props.elementAt (index)).getProperty 
+	 ("IMPL_INT_POSTFIX");
 
       setTieParam (new_tie);
       setDirParam (new_dir);
@@ -748,11 +818,15 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       setPackageDelimiter (new_delimiter);
 
       // added for generator
-      setImplPrefix (new_impl_prefix);
-      setImplPostfix (new_impl_postfix);
+      setImplBasePrefix (new_implbase_prefix);
+      setImplBasePostfix (new_implbase_postfix);
       setExtClassPrefix (new_ext_class_prefix);
       setExtClassPostfix (new_ext_class_postfix);
-
+      setTiePrefix (new_tie_prefix);
+      setTiePostfix (new_tie_postfix);
+      setImplIntPrefix (new_impl_int_prefix);
+      setImplIntPostfix (new_impl_int_postfix);
+      
       if (DEBUG)
 	 System.out.println ("setAdvancedOptions () - end!");
 
@@ -965,6 +1039,22 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
    }
 
 
+   public ORB getORB () {
+      return _ORB;
+   }
+
+
+   public Vector getNamingServiceChildren () {
+      //System.out.println ("getNamingServiceChildren");
+      return namingChildren;
+   }
+
+   public void setNamingServiceChildren (Vector children) {
+      //System.out.println ("setNamingServiceChildren");
+      namingChildren = children;
+   }
+
+   
 }
 
 

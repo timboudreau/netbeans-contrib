@@ -161,6 +161,7 @@ public class CORBASupport {
 
 /*
  * <<Log>>
+ *  12   Gandalf   1.11        8/3/99   Karel Gardas    
  *  11   Gandalf   1.10        7/10/99  Karel Gardas    
  *  10   Gandalf   1.9         6/11/99  Jaroslav Tulach System.out commented
  *  9    Gandalf   1.8         6/9/99   Ian Formanek    ---- Package Change To 

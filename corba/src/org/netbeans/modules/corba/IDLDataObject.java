@@ -67,7 +67,7 @@ public class IDLDataObject extends MultiDataObject {
    private static final int STYLE_ALL = 3;
 
    private int status;
-   private Element src;
+   private IDLElement src;
 
    //private Vector idlConstructs;
    //private Vector idlInterfaces;
@@ -164,7 +164,7 @@ public class IDLDataObject extends MultiDataObject {
       return ec;
    }
 
-   private Vector getIdlConstructs (int style, Element src) {
+   private Vector getIdlConstructs (int style, IDLElement src) {
       Vector constructs = new Vector ();
       String name;
       Vector type_members;
@@ -180,7 +180,7 @@ public class IDLDataObject extends MultiDataObject {
 	       }
 	       else {
 		  // others
-		  constructs.addAll (getIdlConstructs (style, (Element)members.elementAt (i)));
+		  constructs.addAll (getIdlConstructs (style, (IDLElement)members.elementAt (i)));
 	       }
 	    }
 	 }
@@ -189,11 +189,11 @@ public class IDLDataObject extends MultiDataObject {
 	 if (style == STYLE_FIRST_LEVEL) {
 	    for (int i=0; i<members.size (); i++) {
 	       if (members.elementAt (i) instanceof TypeElement) {
-		  tmp_members = ((Element)members.elementAt (i)).getMembers ();
+		  tmp_members = ((IDLElement)members.elementAt (i)).getMembers ();
 		  for (int j=0; j<tmp_members.size (); j++) {
-		     if (((Element)members.elementAt (i)).getMember (j) instanceof Identifier)
+		     if (((IDLElement)members.elementAt (i)).getMember (j) instanceof Identifier)
 			// identifier
-			name = ((Element)members.elementAt (i)).getMember (j).getName ();
+			name = ((IDLElement)members.elementAt (i)).getMember (j).getName ();
 		     else
 			// constructed type => struct, union, enum
 			name = ((TypeElement)members.elementAt (i)).getMember (j).getName ();
@@ -201,7 +201,7 @@ public class IDLDataObject extends MultiDataObject {
 		  }
 	       }
 	       else {
-		  name = ((Element)members.elementAt (i)).getName ();
+		  name = ((IDLElement)members.elementAt (i)).getName ();
 		  constructs.addElement (name);
 	       }
 	    }
@@ -213,7 +213,7 @@ public class IDLDataObject extends MultiDataObject {
 						       (TypeElement)members.elementAt (i)));
 	       }
 	       else {
-		  name = ((Element)members.elementAt (i)).getName ();
+		  name = ((IDLElement)members.elementAt (i)).getName ();
 		  constructs.addElement (name);
 	       }
 	    }
@@ -314,9 +314,12 @@ public class IDLDataObject extends MultiDataObject {
 	 name = (String)ii.elementAt (i);
 	 if (name != null && (!name.equals (""))) {
 	    possible_names.put ("_" + name + "Stub", "");
-	    possible_names.put ("POA_" + name + "_tie", "");
-	    possible_names.put ("POA_" + name, "");
+	    //possible_names.put ("POA_" + name + "_tie", "");
+	    //possible_names.put ("POA_" + name, "");
+	    possible_names.put (name + "POA", "");
+	    possible_names.put (name + "POATie", "");
 	    possible_names.put (name + "Operations", "");
+	    possible_names.put ("_" + name + "ImplBase_tie", "");
 	    
 	    // for JavaORB
 	    possible_names.put ("StubFor" + name, "");
@@ -375,8 +378,13 @@ public class IDLDataObject extends MultiDataObject {
 
       //getIdlConstructs ();
       //getIdlInterfaces ();
+      /*
       possibleNames = createPossibleNames (getIdlConstructs (STYLE_NOTHING), 
 					   getIdlInterfaces (STYLE_NOTHING));
+      */
+      possibleNames = createPossibleNames (getIdlConstructs (STYLE_FIRST_LEVEL_WITH_NESTED_TYPES), 
+					   getIdlInterfaces (STYLE_ALL));
+
 
       FileObject tmp_file = null;
       FileLock lock = null;
@@ -425,7 +433,7 @@ public class IDLDataObject extends MultiDataObject {
 	 parser = new IDLParser (getPrimaryFile ().getInputStream ());
 	 if (DEBUG)
 	    System.out.println ("parsing of " + getPrimaryFile ().getName ());
-	 src = (Element)parser.Start ();
+	 src = (IDLElement)parser.Start ();
 	 if (idlNode != null)
 	    idlNode.setIconBase (IDLNode.IDL_ICON_BASE);
 	 status = STATUS_OK;
@@ -451,7 +459,7 @@ public class IDLDataObject extends MultiDataObject {
       }
    }
    
-   public Element getSources () {
+   public IDLElement getSources () {
       return src;
    }
    
@@ -471,10 +479,32 @@ public class IDLDataObject extends MultiDataObject {
       }
    }
 
+   public Hashtable getPossibleNames () {
+      return possibleNames;
+   }
+
+   public Vector getGeneratedFileObjects () {
+      Vector result = new Vector ();
+      Hashtable h = getPossibleNames ();
+      Enumeration enum = h.keys ();
+      FileObject folder = this.getPrimaryFile ().getParent ();
+      FileObject gen_file;
+      while (enum.hasMoreElements ()) {
+	 gen_file = folder.getFileObject ((String)enum.nextElement (), "java");
+	 if (DEBUG)
+	    if (gen_file != null)
+	       System.out.println ("add fo: " + gen_file.getName ());
+	 if (gen_file != null)
+	    result.add (gen_file);
+      }
+      return result;
+   }
+
 }
 
 /*
  * <<Log>>
+ *  13   Gandalf   1.12        8/3/99   Karel Gardas    
  *  12   Gandalf   1.11        7/10/99  Karel Gardas    
  *  11   Gandalf   1.10        6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
