@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="mdr/test-unit" basedir="." default="all">
+
+    <import file="../../../nbbuild/templates/xtest-unit.xml"/>
+
+    <path id="compiletest.classpath">
+        <pathelement location="${mdr.dir}/${nb.modules.dir}/ext/mdr.jar"/>
+        <pathelement location="${mdr.dir}/${nb.modules.dir}/ext/mof.jar"/>
+        <pathelement location="${mdr.dir}/${nb.modules.dir}/ext/jmi.jar"/>
+        <pathelement location="${mdr.dir}/${nb.modules.dir}/ext/jmiutils.jar"/>
+        <pathelement location="${mdr.dir}/${nb.modules.dir}/org-netbeans-api-mdr.jar"/>
+        <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+    </path>
+
+    <target name="unit-compiler">
+        <buildTests srcDir="unit/src" compileexcludes="**/data/**">
+            <classpath refid="compiletest.classpath"/>
+        </buildTests>
+    </target>
+
+</project>
