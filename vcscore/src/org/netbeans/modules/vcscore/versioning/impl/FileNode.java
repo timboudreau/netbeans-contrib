@@ -41,7 +41,7 @@ import java.beans.PropertyChangeEvent;
  * @author Petr Kuzel
  * @author Martin Entlicher
  */
-final class FileNode extends AbstractNode {
+final class FileNode extends AbstractNode implements RefreshRevisionsCookie {
 
     public static final String PROP_STATUS = "status";
     public static final String PROP_LOCKER = "locker";
@@ -80,6 +80,8 @@ final class FileNode extends AbstractNode {
         children.addNotificationListener(childrenNotificationListener);
         propListener = new PropertyListenerImpl();
         this.addPropertyChangeListener(propListener);
+
+        getCookieSet().add(this);
     }
 
     public Action[] getActions(boolean context) {
