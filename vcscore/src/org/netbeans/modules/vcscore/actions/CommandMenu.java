@@ -400,9 +400,10 @@ public class CommandMenu extends JMenuPlus {
             if(!expertMode && settings.isAdvancedNotification() && cmdSupports[0].hasExpertMode()){
                 if(showFirstTimerDialog(cmdDisplayName))
                     invokeCommand(cmdSupports, cmdName, changeExpertMode, expertMode);
-            }else
+            } else {
                 invokeCommand(cmdSupports, cmdName, changeExpertMode, expertMode);         
-            
+            }
+            org.netbeans.modules.vcscore.ui.fsmanager.VcsManager.addVersioningOpenerListener();
         }
         
         private void invokeCommand(final CommandSupport[] cmdSupports, final String cmdName, final boolean changeExpertMode, final boolean expertMode){

@@ -395,7 +395,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
     
     private static boolean versioningOpenerListenerAdded = false;
     
-    private static void addVersioningOpenerListener() {
+    public static void addVersioningOpenerListener() {
         if (!versioningOpenerListenerAdded) {
             VersioningRepository.getRepository().addRepositoryListener(new VersioningOpenerListener());
             versioningOpenerListenerAdded = true;
