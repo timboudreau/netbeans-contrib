@@ -583,7 +583,7 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         int rootPathLength = rootPath.length();
         while (keysIt.hasNext()) {
             String path = (String) keysIt.next();
-            if (path.length() <= rootPathLength) continue;
+            if (path.length() < rootPathLength) continue;
             VcsDirContainer filesByName = filesByNameCont.addSubdirRecursive(path);
             VcsDirContainer parent = filesByNameCont.getParent(path);
             if (filesByName != null) {
