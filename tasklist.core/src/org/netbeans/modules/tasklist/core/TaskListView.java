@@ -366,6 +366,10 @@ public abstract class TaskListView extends ExplorerPanel
             return tree;
         }
         
+        JTable getTable() {
+            return MyTreeTable.this.treeTable;
+        }
+        
         TableModel getModel() {
             // XXX it's private: return tableModel;
             return (TableModel)MyTreeTable.this.treeTable.getModel();
@@ -1497,6 +1501,8 @@ public abstract class TaskListView extends ExplorerPanel
     public void requestFocus() {
         super.requestFocus();
         if (treeTable != null) {
+            treeTable.getTable().requestFocus();
+        } else {
             treeTable.requestFocus();
         }
     }
