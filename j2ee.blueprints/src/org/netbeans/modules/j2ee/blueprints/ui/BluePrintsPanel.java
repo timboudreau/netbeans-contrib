@@ -344,7 +344,16 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     private boolean navigating = false;
     private int lastSelectedIndex = -1;
     private Timer scrollTimer = null;
-    
+
+    // Special constants that allow us to preselect a template in the new 
+    // project wizard
+    private static final String BUNDLE_PROPERTY_PREFIX = 
+        "Blueprints"; // NOI18N
+    private static final String PRESELECT_CATEGORY = 
+        "PRESELECT_CATEGORY"; // NOI18N
+    private static final String PRESELECT_TEMPLATE =
+        "PRESELECT_TEMPLATE"; // NOI18N
+
     public Category getSelectedCategory() {
         Object entry = entryCbx.getSelectedItem();
         if(!(entry instanceof Category)) {
@@ -651,8 +660,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     }
     
     private void installExample() {
-        String path = getExamplePath();
-        performAction(OPEN_SAMPLE_ACTION, path);
+        performAction(OPEN_SAMPLE_ACTION, "");
     }
     
     private String getExamplePath() {
@@ -716,6 +724,9 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         if (a == null) {
             return false;
         }
+        a.putValue(PRESELECT_CATEGORY, BUNDLE_PROPERTY_PREFIX + "/" // NOI18N
+            + getSelectedCategory().getId(0));
+        a.putValue(PRESELECT_TEMPLATE, getExamplePath());
         ActionEvent ae = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, 
             command);
         try {
