@@ -1893,36 +1893,40 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void autoFillVariables(String cmdName) {
         VcsCommand cmd = fileSystem.getCommand(cmdName);
         if (cmd == null) return ;
-        Hashtable vars = fileSystem.getVariablesAsHashtable();
-        VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
-        CommandsPool pool = fileSystem.getCommandsPool();
+        final Hashtable vars = fileSystem.getVariablesAsHashtable();
+        final VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+        final CommandsPool pool = fileSystem.getCommandsPool();
         pool.startExecutor(vce, fileSystem);
-        try {
-            pool.waitToFinish(vce);
-        } catch (InterruptedException iexc) {
-            return ;
-        }
-        int len = varTextFields.size();
-        for (int i = 0; i < len; i++) {
-            VcsConfigVariable var = (VcsConfigVariable) varVariables.get(i);
-            String value = (String) vars.get(var.getName());
-            if (value != null) {
-                JTextField field = (JTextField) varTextFields.get(i);
-                field.setText(value);
-                var.setValue(value);
+        RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                try {
+                    pool.waitToFinish(vce);
+                } catch (InterruptedException iexc) {
+                    return ;
+                }
+                int len = varTextFields.size();
+                for (int i = 0; i < len; i++) {
+                    VcsConfigVariable var = (VcsConfigVariable) varVariables.get(i);
+                    String value = (String) vars.get(var.getName());
+                    if (value != null) {
+                        JTextField field = (JTextField) varTextFields.get(i);
+                        field.setText(value);
+                        var.setValue(value);
+                    }
+                }
+                if (configInputPanel != null) {
+                    configInputPanel.updateVariableValues(vars);
+                    Vector variables = fileSystem.getVariables();
+                    for (Iterator it = variables.iterator(); it.hasNext(); ) {
+                        VcsConfigVariable var = (VcsConfigVariable) it.next();
+                        String value = (String) vars.get(var.getName());
+                        var.setValue(value);
+                    }
+                }
+                // enable fs to react on change in variables
+                fileSystem.setVariables(fileSystem.getVariables());
             }
-        }
-        if (configInputPanel != null) {
-            configInputPanel.updateVariableValues(vars);
-            Vector variables = fileSystem.getVariables();
-            for (Iterator it = variables.iterator(); it.hasNext(); ) {
-                VcsConfigVariable var = (VcsConfigVariable) it.next();
-                String value = (String) vars.get(var.getName());
-                var.setValue(value);
-            }
-        }
-        // enable fs to react on change in variables
-        fileSystem.setVariables(fileSystem.getVariables());
+        });
     }
 
     /**
