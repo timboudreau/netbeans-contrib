@@ -72,13 +72,13 @@ Microsystems, Inc. All Rights Reserved.
       <value>vcs.list.CvsListCommand.class</value>
     </variable>
     <!-- BUILT-IN is true by default -->
-    <variable name="BUILT-IN" basic="false">
+    <variable name="BUILT-IN" basic="true">
       <value>true</value>
     </variable>
     <variable name="SERVERTYPE_LOCAL" basic="false">
       <value>local</value>
     </variable>
-    <variable name="ENVIRONMENT_VAR_CVS_CLIENT_PORT" basic="false">
+    <variable name="ENVIRONMENT_VAR_CVS_CLIENT_PORT" basic="true">
       <value>2401</value>
     </variable>
     <variable name="CVSROOT" basic="false">
@@ -377,7 +377,7 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="LOGGED_IN_TEXT">
       <value>$[? USER_IS_LOGGED_IN] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(LOGGED_IN_TEXT_IS)] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(LOGGED_IN_TEXT_ISNOT)]</value>
     </variable>
-    <variable name="USER_IS_LOGGED_IN">
+    <variable name="USER_IS_LOGGED_IN" basic="true">
       <value></value>
     </variable>
     <variable name="AUTO_EXEC"> <!-- executed after filesystem instantiation if defined -->
