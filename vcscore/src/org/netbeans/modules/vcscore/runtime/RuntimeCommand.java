@@ -30,7 +30,7 @@ import org.openide.util.actions.SystemAction;
  * See VcsRuntimeCommand for default implementation.
  * @author  Milos Kleint
  */
-public abstract class RuntimeCommand {
+public abstract class RuntimeCommand implements Node.Cookie {
 
     /**
      * Constant that means a command was successfully exited.
