@@ -492,9 +492,8 @@ public class SFile {
                 "Algorithm exception; this operation would corrupt your SCCS data.\n\n"
                 + "\nYour data has been preserved. You should use the command line"
                 + " sccs on this file.\n\n"
-                + "Please report this bug;"
-                + " send an e-mail to daniel.blaukopf@sun.com, attaching the following"
-                + " test case:\n\n"
+                + "Please report this bug at http://www.netbeans.org/issues/enter_bug.cgi?component=vcsgeneric\n"
+                + "attaching the following test case:\n\n"
                 + createDelGetTestCase();
             throw new IOException(reportThis);
         }
