@@ -381,7 +381,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         fireVcsFileStatusChanged(new VcsFileStatusEvent(this, s));
     }
 
-    public void vcsStatusChanged (String name) {
+    private void vcsStatusChanged (String name) {
         FileObject fo = findExistingResource(name);
         if (fo == null) return;
         fireVcsFileStatusChanged (new VcsFileStatusEvent(this, Collections.singleton(fo)));
@@ -392,23 +392,27 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
      * The filesystem has to decide wheater it affects him (only in case when
      * there's not the 1-to-1 relationship between cache and fs.
      */
-    public void statusChanged(CacheHandlerEvent event) {
-        String root = fileSystem.getRootDirectory().getAbsolutePath();
-        String absPath = event.getCacheFile().getAbsolutePath();
+    public void statusChanged(final CacheHandlerEvent event) {
+        final String root = fileSystem.getRootDirectory().getAbsolutePath();
+        final String absPath = event.getCacheFile().getAbsolutePath();
         if (absPath.startsWith(root)) { // it belongs to this FS -> do something
             //D.deb("-------- it is in this filesystem");
-            String path;
-            if (root.length() == absPath.length()) {
-                path = "";
-            } else {
-                path = absPath.substring(root.length() + 1, absPath.length());
-            }
-            path = path.replace(java.io.File.separatorChar, '/');
-            if (event.getCacheFile() instanceof org.netbeans.modules.vcscore.cache.CacheDir) {
-                vcsStatusChanged(path, event.isRecursive());
-            } else {
-                vcsStatusChanged(path);
-            }
+            VcsFileSystem.getStatusChangeRequestProcessor().post(new Runnable() {
+                public void run() {
+                    String path;
+                    if (root.length() == absPath.length()) {
+                        path = "";
+                    } else {
+                        path = absPath.substring(root.length() + 1, absPath.length());
+                    }
+                    path = path.replace(java.io.File.separatorChar, '/');
+                    if (event.getCacheFile() instanceof org.netbeans.modules.vcscore.cache.CacheDir) {
+                        vcsStatusChanged(path, event.isRecursive());
+                    } else {
+                        vcsStatusChanged(path);
+                    }
+                }
+            });
         }
     }
     
