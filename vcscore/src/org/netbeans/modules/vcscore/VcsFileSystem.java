@@ -195,6 +195,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     public static final String VAR_STATUS_SCHEDULED_ADD = "STATUS_SCHEDULED_ADD";
     public static final String VAR_STATUS_SCHEDULED_REMOVE = "STATUS_SCHEDULED_REMOVE";
+    
+    /** The user name of current user, that locks files.
+     *  It's supposed that LOCK command will lock files with that user name.
+     *  If empty, System.getProperty("user.name") is used instead. */
+    public static final String VAR_LOCKER_USER_NAME = "LOCKER_USER_NAME"; // NOI18N
 
     protected static final int REFRESH_TIME = 0; // Disabled by default (see #28352).
     protected volatile int refreshTimeToSet = REFRESH_TIME;
@@ -4033,8 +4038,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     /**
      * Whether the LOCK command should be performed for this file. This method should
-     * check whether the file is already locked. The default implementation
-     * search for the locker status and compare with user.name property.
+     * check whether the file is already locked. <p>
+     * The default implementation search for the locker status and compare with
+     * the user name stored in {@link #VAR_LOCKER_USER_NAME} variable or user.name
+     * system property.
+     * The fact, that the locker property can contain more locker user names
+     * delimited by commas is taken into account.
      * @return true if the file is not locked yet and lock command should run.
      */
     protected boolean shouldLock(String name) {
@@ -4047,8 +4056,37 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (getCommand(VcsCommand.NAME_LOCK) == null) return false; // The LOCK command is not defined
         if (statusProvider != null) {
             String locker = statusProvider.getFileLocker(name);
-            if (locker != null && locker.equals(System.getProperty("user.name"))) {
-                return false;
+            String currentLocker = null;
+            VcsConfigVariable currentLockerVar = (VcsConfigVariable) variablesByName.get(VAR_LOCKER_USER_NAME);
+            if (currentLockerVar != null) {
+                currentLocker = currentLockerVar.getValue();
+                if (currentLocker != null && currentLocker.length() > 0) {
+                    currentLocker = Variables.expand(getVariablesAsHashtable(), currentLocker, false);
+                }
+            }
+            if (currentLocker == null || currentLocker.length() == 0) {
+                currentLocker = System.getProperty("user.name");
+            }
+            if (locker != null) {
+                int comma = locker.indexOf(',');
+                if (comma < 0) {
+                    if (locker.equals(currentLocker)) {
+                        return false;
+                    }
+                } else {
+                    int begin = 0;
+                    do {
+                        if (locker.substring(begin, comma).trim().equals(currentLocker)) {
+                            return false;
+                        }
+                        begin = comma + 1;
+                        if (begin > locker.length()) {
+                            break;
+                        }
+                        comma = locker.indexOf(',', begin);
+                        if (comma < 0) comma = locker.length();
+                    } while (true);
+                }
             }
         }
         return true;
