@@ -392,8 +392,8 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                 }
                 selectedMounts[i] = toWrite;
                 //txRelMount.setText(toWrite);
-                setRelMountText();
             }
+            setRelMountText();
         } else {
             txRelMount.setText("");  
         }
