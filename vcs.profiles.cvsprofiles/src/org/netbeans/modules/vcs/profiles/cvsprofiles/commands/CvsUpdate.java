@@ -33,8 +33,8 @@ import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 
-import vcs.list.CvsListCommand;
-import vcs.list.CvsListOffline;
+import org.netbeans.modules.vcs.profiles.cvsprofiles.list.CvsListCommand;
+import org.netbeans.modules.vcs.profiles.cvsprofiles.list.CvsListOffline;
 
 /**
  * This class assures the correct file status refresh after cvs update and cvs checkout commands.

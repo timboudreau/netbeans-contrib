@@ -57,12 +57,12 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
         } catch (java.net.UnknownHostException exc) {
             stderrNRListener.outputLine(
                 org.openide.util.NbBundle.getBundle(
-                    vcs.commands.passwd.CvsLoginDialog.class).getString("LoginDialog.unknownHost"));
+                    org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.CvsLoginDialog.class).getString("LoginDialog.unknownHost"));
             return false;
         } catch (java.io.IOException exc) {
             stderrNRListener.outputLine(
                 org.openide.util.NbBundle.getBundle(
-                    vcs.commands.passwd.CvsLoginDialog.class).getString("LoginDialog.connectionIOError"));
+                    org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.CvsLoginDialog.class).getString("LoginDialog.connectionIOError"));
             return false;
         } finally {
             if (!loggedIn) {
@@ -72,7 +72,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
         }
         stderrNRListener.outputLine(
             org.openide.util.NbBundle.getBundle(
-                vcs.commands.passwd.CvsLoginDialog.class).getString("LoginDialog.status.failed") + " "+ message);
+                org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.CvsLoginDialog.class).getString("LoginDialog.status.failed") + " "+ message);
         return loggedIn;
     }
 }
