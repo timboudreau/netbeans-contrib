@@ -22,6 +22,7 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileStatusEvent;
 import org.openide.filesystems.FileStatusListener;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.nodes.*;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
@@ -98,13 +99,16 @@ class FolderNode extends AbstractNode implements Node.Cookie {
         super(ch, new AbstractLookup(content));
 
         // setup lookup content
+        
+        final FileObject masterFile = FileUtil.toFileObject(FileUtil.toFile(file));
 
-        content.add(file);
+
+        content.add(masterFile);
         content.add(this);
         InstanceContent.Convertor lazyDataObject = new InstanceContent.Convertor() {
             public Object convert(Object obj) {
                 try {
-                    return DataObject.find(FolderNode.this.file);
+                    return DataObject.find(masterFile);
                 } catch (DataObjectNotFoundException e) {
                     // ignore, call super later on
                 }
@@ -136,9 +140,15 @@ class FolderNode extends AbstractNode implements Node.Cookie {
     }
 
     private void init(FileObject file) {
-        FileSystem fs = (FileSystem) file.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-        vcsFileStatusListener = new VCSFileStatusListener();
-        fs.addFileStatusListener((FileStatusListener) WeakListeners.create(FileStatusListener.class, vcsFileStatusListener, fs));
+        try {
+            FileSystem fs = (FileSystem) file.getFileSystem();
+            vcsFileStatusListener = new VCSFileStatusListener();
+            fs.addFileStatusListener((FileStatusListener) WeakListeners.create(FileStatusListener.class, vcsFileStatusListener, fs));
+        } catch (FileStateInvalidException exc) {
+            ErrorManager err = ErrorManager.getDefault();
+            err.notify(ErrorManager.INFORMATIONAL, exc);
+            return;
+        }
     }
 
     public String getName() {

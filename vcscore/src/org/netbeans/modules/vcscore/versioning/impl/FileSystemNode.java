@@ -59,8 +59,6 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
     }
     
     private static final Children getRootChildren(FileObject root) {
-        FileObject masterRoot = FileUtil.toFileObject(FileUtil.toFile(root));
-        if (masterRoot != null) root = masterRoot;
         // TODO I'm hiding here a bug in FS, it wrongly works over deleted roots and shows random files!
         // visible after deserialization of old setting that used already deleted folders
         if (FileUtil.toFile(root).exists()) {
