@@ -251,7 +251,6 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         examplePnl.setBackground(new java.awt.Color(255, 255, 255));
         launchExampleText.setEditable(false);
         launchExampleText.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("launchExampleText"));
-        launchExampleText.setEnabled(false);
         launchExampleText.setMargin(new java.awt.Insets(12, 12, 12, 12));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
