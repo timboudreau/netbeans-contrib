@@ -257,7 +257,7 @@ public class TaskList implements ObservableList {
 
     /** Fire TaskListener.structureChanged */
     protected void fireStructureChanged(Task task) {
-        TaskListener[] taskListeners;
+        TaskListener[] taskListeners; // some listeners are self deregistering on this event causing index exception
         synchronized (listeners) {
             taskListeners = new TaskListener[listeners.size()];
             taskListeners = (TaskListener[]) listeners.toArray(taskListeners);
@@ -269,13 +269,15 @@ public class TaskList implements ObservableList {
 
     /** Fire TaskListener.removedTask */
     protected void fireRemoved(Task pt, Task task) {
+        TaskListener[] taskListeners;  // some listeners are self deregistering on this event causing index exception
         synchronized (listeners) {
-            int n = listeners.size();
-            for (int i = 0; i < n; i++) {
-                TaskListener tl = (TaskListener) listeners.get(i);
-                tl.removedTask(pt, task);
-            }
+            taskListeners = new TaskListener[listeners.size()];
+            taskListeners = (TaskListener[]) listeners.toArray(taskListeners);
         }
+        for (int i = 0; i < taskListeners.length; i++) {
+            taskListeners[i].removedTask(pt, task);
+        }
+
     }
 
     /** 
