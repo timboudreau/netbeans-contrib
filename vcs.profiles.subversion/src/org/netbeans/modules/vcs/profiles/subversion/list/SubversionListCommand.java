@@ -101,25 +101,6 @@ public class SubversionListCommand extends AbstractListCommand {
         if (elements.length <= 9) {
             return; // Too short output
         }
-        if ((elements[0].indexOf("?") != -1 || elements[0].indexOf("I") != -1) && elements[6].trim().equals("")){
-            /*
-             Fixes the elements parsed by the regular expression that couldn't account for a special case:
-             NOTE: It may be possible to create a regular expression that accounts for this but I'm not sure how.
-             
-             Example output from svn status -v  -N --no-ignore
-             line 1>I                                       aaaa.txt
-             line 2>?                                       bbbb.txt
-             line 3>               40       40 author       test.txt
-             
-             Regular expression results
-             line 1 [I, , , , , , , ,aaaa.,xt] (incorrectly matches part of filename for author)
-             line 2 [?, , , , , , , ,bbbb.,xt] (incorrectly matches part of filename for author)
-             line 3 [ , , , , , ,40,40,author,test.txt] (correct)
-             */
-            
-            elements[9] = elements[8] + elements[9]; //concat the filename
-            elements[8] = ""; //empty the author
-        }
         File file = new File(dir, elements[9]);
         if (file.isDirectory()) {
             elements[9] += "/"; // NOI18N
