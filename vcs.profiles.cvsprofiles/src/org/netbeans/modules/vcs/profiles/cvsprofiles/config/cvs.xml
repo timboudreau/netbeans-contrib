@@ -18,7 +18,7 @@ Microsystems, Inc. All Rights Reserved.
   <label>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_Label)</label>
   
   <os>
-    <compatible>"Unix", "Windows", "OpenVMS"</compatible>
+    <compatible>"Unix", "Windows", "OpenVMS", "OS/2"</compatible>
   </os>
   
   <condition var="IS_WINDOWS">
@@ -178,6 +178,7 @@ Microsystems, Inc. All Rights Reserved.
     </variable>
     <variable name="WORKDIR" basic="false">
       <value if="IS_WINDOWS">${ROOTDIR}${PS}${MODULE}${PS}${DIR}${PS}.</value>
+      <value if="IS_OS2">${ROOTDIR}${PS}${MODULE}${PS}${DIR}${PS}.</value>
       <value>${ROOTDIR}${PS}${MODULE}${PS}${DIR}</value>
     </variable>
     <variable name="MODDIR" basic="false">
