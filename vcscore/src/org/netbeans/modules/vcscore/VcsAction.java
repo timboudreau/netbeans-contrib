@@ -37,7 +37,6 @@ import org.netbeans.modules.vcscore.commands.*;
 /**
  * The system action of the VcsFileSystem.
  * @author  Pavel Buzek, Martin Entlicher
- * @version 1.0
  */
 public class VcsAction extends NodeAction implements ActionListener {
     private Debug E=new Debug("VcsAction", true); // NOI18N
@@ -205,6 +204,61 @@ public class VcsAction extends NodeAction implements ActionListener {
     public static VcsCommandExecutor doCommand(Table files, VcsCommand cmd, Hashtable additionalVars, VcsFileSystem fileSystem) {
         //System.out.println("doCommand("+files+", "+cmd+")");
         boolean[] askForEachFile = null;
+        String quoting = null;
+        if (files.size() > 1) {
+            askForEachFile = new boolean[1];
+            askForEachFile[0] = true;
+            quoting = fileSystem.getQuoting();
+        }
+        int preprocessStatus;
+        boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
+        CommandsPool pool = fileSystem.getCommandsPool();
+        VcsCommandExecutor vce;
+        Hashtable vars = fileSystem.getVariablesAsHashtable();
+        if (additionalVars != null) vars.putAll(additionalVars);
+        do {
+            setVariables(files, vars, quoting);
+            vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+            preprocessStatus = pool.preprocessCommand(vce, vars, askForEachFile);
+            if (CommandsPool.PREPROCESS_CANCELLED == preprocessStatus) {
+                vce = null;
+                break;
+            }
+            pool.startExecutor(vce);
+            if (!cmdCanRunOnMultipleFiles) {
+                // When the executor can not run on more than one file, it has to be processed one by one.
+                preprocessStatus = CommandsPool.PREPROCESS_NEXT_FILE;
+            }
+            if (files.size() == 1) preprocessStatus = CommandsPool.PREPROCESS_DONE;
+            if (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus) {
+                files.remove(files.keys().nextElement()); // remove the processed file
+                synchronized (vars) {
+                    if (askForEachFile != null && askForEachFile[0] == true) {
+                        vars = new Hashtable(fileSystem.getVariablesAsHashtable());
+                        if (additionalVars != null) vars.putAll(additionalVars);
+                    } else {
+                        vars = new Hashtable(vars);
+                    }
+                }
+                if (files.size() == 1 && askForEachFile != null) {
+                    askForEachFile = null; // Do not show the check box for the last file.
+                }
+            }
+        } while (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus);
+        return vce;
+    }
+    
+    /**
+     * Do a command on a set of files.
+     * @param files the table of pairs of files and file objects, to perform the command on
+     * @param cmd the command to perform
+     * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
+     * @param fileSystem the VCS file system
+     * @return the command executor of the last executed command.
+     *
+    public static VcsCommandExecutor doCommand_OLD(Table files, VcsCommand cmd, Hashtable additionalVars, VcsFileSystem fileSystem) {
+        //System.out.println("doCommand("+files+", "+cmd+")");
+        boolean[] askForEachFile = null;
         if (files.size() > 1) {
             askForEachFile = new boolean[1];
             askForEachFile[0] = true;
@@ -228,13 +282,13 @@ public class VcsAction extends NodeAction implements ActionListener {
                     // ignoring the interruption -- continuing for next command
                 }
             }
-             */
-            fileSystem.getCommandsPool().waitToRun(cmd, fullName);
+             *
+            fileSystem.getCommandsPool().waitToRun(cmd, Collections.singletonList(fullName));
             if (additionalVars != null) vars.putAll(additionalVars);
             ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
             if (ec == null) return null; // No executor for this command.
             fileSystem.getCommandsPool().add(ec);
-            String exec = VcsAction.prepareCommandToExecute(fileSystem, ec, cmd, vars, /*additionalVars, */fullName, (FileObject) files.get(fullName), askForEachFile);
+            String exec = VcsAction.prepareCommandToExecute(fileSystem, ec, cmd, vars, /*additionalVars, *fullName, (FileObject) files.get(fullName), askForEachFile);
             if (exec == null) return null; // The whole command is canceled
             if (exec.length() == 0) continue; // The command is canceled for this file
             //OutputContainer container = new OutputContainer(cmd);
@@ -256,6 +310,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
         return ec;
     }
+     */
     
     /**
      * Do a command on a set of files.
@@ -398,7 +453,8 @@ public class VcsAction extends NodeAction implements ActionListener {
             if (cmd.getDisplayName() == null
                 || onDir && !VcsCommandIO.getBooleanPropertyAssumeTrue(cmd, VcsCommand.PROPERTY_ON_DIR)
                 || onFile && !VcsCommandIO.getBooleanPropertyAssumeTrue(cmd, VcsCommand.PROPERTY_ON_FILE)
-                || onRoot && !VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_ON_ROOT)) {
+                || onRoot && !VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_ON_ROOT)
+                || VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_HIDDEN)) {
 
                 continue;
             }
@@ -467,16 +523,69 @@ public class VcsAction extends NodeAction implements ActionListener {
     public boolean enable(Node[] nodes) {
         return (nodes.length > 0);
     }
+    
+    /** Add files specific variables.
+     * The following variables are added:
+     * <br>PATH - the full path to the first file from the filesystem root
+     * <br>DIR - the directory of the first file from the filesystem root
+     * <br>FILE - the first file
+     * <br>MIMETYPE - the MIME type of the first file
+     * <br>
+     * <br>When more then one file is to be processed, following additional variables are defined:
+     * <br>FILES - all files delimeted by the system file separator
+     * <br>PATHS - full paths to all files delimeted by two system file separators
+     * <br>QPATHS - full paths to all files quoted by filesystem quotation string and delimeted by spaces
+     *
+     * @param files the table of files
+     * @param vars the table of variables to extend
+     * @param quoting the quotation string used when more than one file is to be processed
+     */
+    protected static void setVariables(Table files, Hashtable vars, String quoting) {
+        // At first, find the first file and set the variables
+        String fullName = (String) files.keys().nextElement();
+        FileObject fo = (FileObject) files.get(fullName);
+        String path = VcsUtilities.getDirNamePart(fullName);
+        String file = VcsUtilities.getFileNamePart(fullName);
+        path = path.replace('/', java.io.File.separatorChar);
+        fullName = fullName.replace('/', java.io.File.separatorChar);
+        vars.put("PATH", fullName); // NOI18N
+        vars.put("DIR", path); // NOI18N
+        if (path.length() == 0 && file.length() > 0 && file.charAt(0) == '/') file = file.substring (1, file.length ());
+        vars.put("FILE", file); // NOI18N
+        vars.put("MIMETYPE", fo.getMIMEType());
+        // Second, set the multifiles variables
+        if (files.size() > 1) {
+            StringBuffer qpaths = new StringBuffer();
+            StringBuffer paths = new StringBuffer();
+            StringBuffer vfiles = new StringBuffer();
+            for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
+                fullName = (String) enum.nextElement();
+                file = VcsUtilities.getFileNamePart(fullName);
+                fullName = fullName.replace('/', java.io.File.separatorChar);
+                vfiles.append(file);
+                vfiles.append(java.io.File.separator);
+                paths.append(fullName);
+                paths.append(java.io.File.separator+java.io.File.separator);
+                qpaths.append(quoting);
+                qpaths.append(fullName);
+                qpaths.append(quoting);
+                qpaths.append(" ");
+            }
+            vars.put("FILES", vfiles.delete(vfiles.length() - 1, vfiles.length()).toString());
+            vars.put("PATHS", paths.delete(paths.length() - 2, paths.length()).toString());
+            vars.put("QPATHS", qpaths.toString().trim());
+        }
+    }
 
-    /**
+    /*
      * Perform some initial steps before the command can be executed.
      * @return the exec String to run the command on success,
      *         null when execution of this and all associated commands should be cancelled,
      *         an empty String when this command should be skipped, but successive commands
      *         should be run.
-     */
+     *
     public static String prepareCommandToExecute(VcsFileSystem fileSystem, VcsCommandExecutor ec, VcsCommand cmd,
-                                                 Hashtable vars, /*Hashtable additionalVars, */
+                                                 Hashtable vars, /*Hashtable additionalVars, *
                                                  String fullName, FileObject fo, boolean[] askForEachFile) {
         String path=""; // NOI18N
         String file=""; // NOI18N
@@ -508,7 +617,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 vars.put(key, additionalVars.get(key));
             }
         }
-         */
+         *
         //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
         
         Object confObj = cmd.getProperty(VcsCommand.PROPERTY_CONFIRMATION_MSG);
@@ -538,6 +647,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         fileSystem.setNumDoAutoRefresh(fileSystem.getNumDoAutoRefresh(path) + 1, path);
         return exec;
     }
+     */
     
     protected void performCommand(final String cmdName, final Node[] nodes) {
         //System.out.println("performCommand("+cmdName+") on "+nodes.length+" nodes.");
@@ -632,17 +742,3 @@ public class VcsAction extends NodeAction implements ActionListener {
     }
 
 }
-
-/*
- * $Log: 
- *  6    Gandalf-post-FCS1.3.2.1     04/04/00 Martin Entlicher Command run in their
- *       own thread.
- *  5    Gandalf-post-FCS1.3.2.0     03/23/00 Martin Entlicher addImportantFiles()
- *       and isOnRoot() added, some methods moved from CvsAction.
- *  4    Gandalf   1.3         02/10/00 Martin Entlicher 
- *  3    Gandalf   1.2         10/25/99 Pavel Buzek     copyright and log
- *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  1    Gandalf   1.0         09/30/99 Pavel Buzek     
- * $
- */
