@@ -1370,6 +1370,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private Vector varButtons = new Vector();
     private Vector varVariables = new Vector ();
     private VariableInputDialog[] configInputPanels = null;
+    private Object configInputPanelsLock = new Object();
     private JPanel[] additionalConfigPanels = null;
     private CommandLineVcsFileSystem fileSystem = null;
     private PropertyChangeSupport changeSupport = null;
@@ -1424,7 +1425,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
      * @deprecated It's only for a temporary use by the wizard.
      */
     public int getNumConfigPanels() {
-        return (configInputPanels == null) ? 1 : configInputPanels.length;
+        synchronized (configInputPanelsLock) {
+            return (configInputPanels == null) ? 1 : configInputPanels.length;
+        }
     }
     
     /**
@@ -1434,7 +1437,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if (index == 0) {
             return NbBundle.getMessage(VcsCustomizer.class, "DLG_Tab_Configuration");
         } else {
-            return configInputPanels[index].getInputDescriptor().getLabel();
+            synchronized (configInputPanelsLock) {
+                return configInputPanels[index].getInputDescriptor().getLabel();
+            }
         }
     }
     
@@ -1760,12 +1765,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             varTextFields.remove (0);
             varButtons.remove(0);
         }
-        if (configInputPanels != null) {
-            propsPanel.remove(configInputPanels[0].getVariableInputPanel());
-            for (int i = 1; i < configInputPanels.length; i++) {
-                jTabbedPane1.removeTabAt(i);
+        synchronized (configInputPanelsLock) {
+            if (configInputPanels != null) {
+                propsPanel.remove(configInputPanels[0].getVariableInputPanel());
+                for (int i = 1; i < configInputPanels.length; i++) {
+                    jTabbedPane1.removeTabAt(i);
+                }
+                configInputPanels = null;
             }
-            configInputPanels = null;
         }
         additionalConfigPanels = null;
         for (int i = envTableModel.getRowCount(); i > 0; ) {
@@ -1787,55 +1794,57 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         VariableInputDescriptor[] configInputDescriptors = findConfigInputDescriptors(fsVars);
         if (configInputDescriptors != null) {
             //Hashtable dlgVars = new Hashtable(fsVars);
-            configInputPanels = new VariableInputDialog[configInputDescriptors.length];
-            if (configInputDescriptors.length > 1) {
-                additionalConfigPanels = new JPanel[configInputDescriptors.length - 1];
-            }
-            for (int i = 0; i < configInputDescriptors.length; i++) {
-                Hashtable dialogVars = new Hashtable(fsVars);
-                VariableInputDialog dlg = new VariableInputDialog(new String[] { "" }, configInputDescriptors[i], false, dialogVars);
-                dlg.setExecutionContext(fileSystem, dialogVars);
-                dlg.setGlobalInput(null);
-                dlg.showPromptEach(false);
-                java.awt.GridBagConstraints gridBagConstraints;
-                gridBagConstraints = new java.awt.GridBagConstraints();
-                if (i == 0) {
-                    gridBagConstraints.gridx = 0;
-                    gridBagConstraints.gridy = 4;
-                    gridBagConstraints.gridwidth = 3;
-                    gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
-                    //gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-                    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-                    gridBagConstraints.weightx = 1;
-                    gridBagConstraints.weighty = 1;
-                    propsPanel.add(dlg.getVariableInputPanel(), gridBagConstraints);
-                } else {
-                    gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
-                    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-                    gridBagConstraints.weightx = 1;
-                    gridBagConstraints.weighty = 1;
-                    JPanel panel = new JPanel(new java.awt.GridBagLayout());
-                    panel.add(dlg.getVariableInputPanel(), gridBagConstraints);
-                    jTabbedPane1.insertTab(configInputDescriptors[i].getLabel(), null, panel, null, i);
-                    additionalConfigPanels[i - 1] = panel;
+            synchronized (configInputPanelsLock) {
+                configInputPanels = new VariableInputDialog[configInputDescriptors.length];
+                if (configInputDescriptors.length > 1) {
+                    additionalConfigPanels = new JPanel[configInputDescriptors.length - 1];
                 }
-                configInputPanels[i] = dlg;
-                dlg.addPropertyChangeListener(new PropertyChangeListener() {
-                    public void propertyChange(PropertyChangeEvent evt) {
-                        String name = evt.getPropertyName();
-                        if (name.equals(VariableInputDialog.PROP_VARIABLES_CHANGED)) {
-                            Collection changedProps = (Collection) evt.getNewValue();
-                            variablesChanged(changedProps, fsVars);
-                            return ;
-                        }
-                        // If propagation ID is defined, the var value should not be reset.
-                        if (evt.getPropagationId() != null) return ;
-                        if (name.startsWith(VariableInputDialog.PROP_VAR_CHANGED)) {
-                            String varName = name.substring(VariableInputDialog.PROP_VAR_CHANGED.length());
-                            variableChanged(varName, (String) evt.getOldValue(), (String) evt.getNewValue(), fsVars);
-                        }
+                for (int i = 0; i < configInputDescriptors.length; i++) {
+                    Hashtable dialogVars = new Hashtable(fsVars);
+                    VariableInputDialog dlg = new VariableInputDialog(new String[] { "" }, configInputDescriptors[i], false, dialogVars);
+                    dlg.setExecutionContext(fileSystem, dialogVars);
+                    dlg.setGlobalInput(null);
+                    dlg.showPromptEach(false);
+                    java.awt.GridBagConstraints gridBagConstraints;
+                    gridBagConstraints = new java.awt.GridBagConstraints();
+                    if (i == 0) {
+                        gridBagConstraints.gridx = 0;
+                        gridBagConstraints.gridy = 4;
+                        gridBagConstraints.gridwidth = 3;
+                        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+                        //gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+                        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+                        gridBagConstraints.weightx = 1;
+                        gridBagConstraints.weighty = 1;
+                        propsPanel.add(dlg.getVariableInputPanel(), gridBagConstraints);
+                    } else {
+                        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
+                        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+                        gridBagConstraints.weightx = 1;
+                        gridBagConstraints.weighty = 1;
+                        JPanel panel = new JPanel(new java.awt.GridBagLayout());
+                        panel.add(dlg.getVariableInputPanel(), gridBagConstraints);
+                        jTabbedPane1.insertTab(configInputDescriptors[i].getLabel(), null, panel, null, i);
+                        additionalConfigPanels[i - 1] = panel;
                     }
-                });
+                    configInputPanels[i] = dlg;
+                    dlg.addPropertyChangeListener(new PropertyChangeListener() {
+                        public void propertyChange(PropertyChangeEvent evt) {
+                            String name = evt.getPropertyName();
+                            if (name.equals(VariableInputDialog.PROP_VARIABLES_CHANGED)) {
+                                Collection changedProps = (Collection) evt.getNewValue();
+                                variablesChanged(changedProps, fsVars);
+                                return ;
+                            }
+                            // If propagation ID is defined, the var value should not be reset.
+                            if (evt.getPropagationId() != null) return ;
+                            if (name.startsWith(VariableInputDialog.PROP_VAR_CHANGED)) {
+                                String varName = name.substring(VariableInputDialog.PROP_VAR_CHANGED.length());
+                                variableChanged(varName, (String) evt.getOldValue(), (String) evt.getNewValue(), fsVars);
+                            }
+                        }
+                    });
+                }
             }
         }
         jLabel2.setVisible(configInputDescriptors == null);
@@ -1972,10 +1981,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 VcsUtilities.centerWindow(window);
             }
         }
-        if (configInputPanels != null) {
-            Hashtable dialogVars = new Hashtable(fsVars);
-            for (int i = 0; i < configInputPanels.length; i++) {
-                configInputPanels[i].updateVariableValues(dialogVars);
+        synchronized (configInputPanelsLock) {
+            if (configInputPanels != null) {
+                Hashtable dialogVars = new Hashtable(fsVars);
+                for (int i = 0; i < configInputPanels.length; i++) {
+                    configInputPanels[i].updateVariableValues(dialogVars);
+                }
             }
         }
         if (doAutoFillVars) {
@@ -2192,44 +2203,46 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 }
             }
             Vector variables = fileSystem.getVariables();
-            if (configInputPanels != null) {
-                for (Iterator it = adjustedNames.iterator(); it.hasNext(); ) {
-                    String name = (String) it.next();
-                    String value = (String) vars.get(name);
-                    if (value != null) {
-                        value = varAdjust.revertAdjustedVarValue(value);
-                        vars.put(name, value);
+            synchronized (configInputPanelsLock) {
+                if (configInputPanels != null) {
+                    for (Iterator it = adjustedNames.iterator(); it.hasNext(); ) {
+                        String name = (String) it.next();
+                        String value = (String) vars.get(name);
+                        if (value != null) {
+                            value = varAdjust.revertAdjustedVarValue(value);
+                            vars.put(name, value);
+                        }
                     }
-                }
-                for (int i = 0; i < configInputPanels.length; i++) {
-                    configInputPanels[i].updateVariableValues(vars);
-                }
-                for (Iterator it = variables.iterator(); it.hasNext(); ) {
-                    VcsConfigVariable var = (VcsConfigVariable) it.next();
-                    String name = var.getName();
-                    String value = (String) vars.get(name);
-                    if (value != null && !value.equals(varsOrig.get(name))) {
-                        String oldValue = var.getValue();
-                        if (oldValue != null) {
-                            if (oldValue.indexOf("${") >= 0 || oldValue.indexOf("$[?") >= 0) {
-                                continue; // Skip expandable values, they must not be reset
+                    for (int i = 0; i < configInputPanels.length; i++) {
+                        configInputPanels[i].updateVariableValues(vars);
+                    }
+                    for (Iterator it = variables.iterator(); it.hasNext(); ) {
+                        VcsConfigVariable var = (VcsConfigVariable) it.next();
+                        String name = var.getName();
+                        String value = (String) vars.get(name);
+                        if (value != null && !value.equals(varsOrig.get(name))) {
+                            String oldValue = var.getValue();
+                            if (oldValue != null) {
+                                if (oldValue.indexOf("${") >= 0 || oldValue.indexOf("$[?") >= 0) {
+                                    continue; // Skip expandable values, they must not be reset
+                                }
+                            }
+                            var.setValue(value);
+                        }
+                    }
+                    /*
+                    if (varsOrig != null) {
+                        for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
+                            String name = (String) it.next();
+                            if (!varsOrig.containsKey(name)) {
+                                VcsConfigVariable var = new VcsConfigVariable(name, null, (String) vars.get(name), false, false, false, null);
+                                variables.add(var);
+                                System.out.println("  Adding variable \""+name+"\" = '"+vars.get(name)+"' to fileSystem.");
                             }
                         }
-                        var.setValue(value);
                     }
+                     */
                 }
-                /*
-                if (varsOrig != null) {
-                    for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
-                        String name = (String) it.next();
-                        if (!varsOrig.containsKey(name)) {
-                            VcsConfigVariable var = new VcsConfigVariable(name, null, (String) vars.get(name), false, false, false, null);
-                            variables.add(var);
-                            System.out.println("  Adding variable \""+name+"\" = '"+vars.get(name)+"' to fileSystem.");
-                        }
-                    }
-                }
-                 */
             }
             // enable fs to react on change in variables
             fileSystem.setVariables(variables);
