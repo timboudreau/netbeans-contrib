@@ -1871,6 +1871,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             changeRootDir(newValue);
             fsVars.put("MODULE", relMountTextField.getText());
         } else if ("MODULE".equals(varName)) {
+            try {
+                fileSystem.setRelativeMountPoint(newValue);
+            } catch (PropertyVetoException pvex) {
+            } catch (IOException ioex) {}
             relMountTextField.setText(newValue);
             rootDirChanged();
         } else {
