@@ -1,0 +1,13 @@
+interface A {
+    void opA ();
+};
+
+module B {
+    interface C {
+        void opC ();
+    };
+};
+
+valuetype D {
+    void opD ();
+};

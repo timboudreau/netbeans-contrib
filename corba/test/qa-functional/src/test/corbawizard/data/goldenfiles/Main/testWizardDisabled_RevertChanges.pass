@@ -1,0 +1,18 @@
+-- ORB Settings
+ORB: true
+Bind: true
+--
+IDLFileName: data.corbawizard.Wizard
+Path: |data|corbawizard|Wizard
+Impl:     false
+Tie:      false
+Server:   false
+Client:   false
+CallBack: false
+-- ORB Settings
+ORB: true
+Bind: true
+--
+Client: A
+CallBack: A
+File: 

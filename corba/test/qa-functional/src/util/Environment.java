@@ -16,6 +16,7 @@ package util;
 import java.io.File;
 import java.util.Enumeration;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
+import org.netbeans.modules.corba.settings.ORBSettingsBundle;
 import org.openide.TopManager;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileObject;
@@ -76,6 +77,11 @@ public class Environment {
                     unmountJarsDir(jarsdirs[a]);
         }
         
+        public void setNSBinding () {
+            css.getActiveSetting ().setServerBindingFromString (ORBSettingsBundle.SERVER_NS);
+            css.getActiveSetting ().setClientBindingFromString (ORBSettingsBundle.CLIENT_NS);
+        }
+
     }
     
     public static class Open1xORB extends ORB {
@@ -131,9 +137,11 @@ public class Environment {
         return null;
     }
     
-    public static void loadORBEnvironment (String shortcut) {
+    public static ORB loadORBEnvironment (String shortcut) {
         unloadAllORBEnvironment ();
-        findORBByDisplayName (shortcut).load ();
+        ORB o = findORBByDisplayName (shortcut);
+        o.load ();
+        return o;
     }
     
     public static String mountDir(String name) {

@@ -1,0 +1,30 @@
+IDLFileName: data.corbawizard.Wizard
+Path: |data|corbawizard|Wizard
+-- Source
+Back:   false
+Next:   true
+Finish: false
+Cancel: true
+--
+IDLFileName: 
+Path: 
+-- Source
+Back:   false
+Next:   false
+Finish: false
+Cancel: true
+--
+IDLFileName: data.corbawizard.Wizard
+Path: |data|corbawizard|Wizard
+-- Source
+Back:   false
+Next:   true
+Finish: false
+Cancel: true
+--
+-- Application Components
+Back:   true
+Next:   false
+Finish: false
+Cancel: true
+--

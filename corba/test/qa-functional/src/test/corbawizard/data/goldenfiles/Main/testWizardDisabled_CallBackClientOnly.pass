@@ -1,0 +1,23 @@
+-- Application Components
+Back:   true
+Next:   true
+Finish: false
+Cancel: true
+--
+-- ORB Settings
+ORB: true
+Bind: true
+--
+-- Root Interface(s)
+A
+B::C
+--
+A
+B::C
+--
+-- Root Interface(s)
+Back:   true
+Next:   true
+Finish: false
+Cancel: true
+--

@@ -1,0 +1,54 @@
+-- Application Components
+Back:   true
+Next:   true
+Finish: false
+Cancel: true
+--
+-- ORB Settings
+ORB: true
+Bind: true
+--
+-- Binding Details
+Back:   true
+Next:   false
+Finish: false
+Cancel: true
+--
+-- ORB Settings
+ORB: true
+Bind: true
+--
+-- Binding Details
+Back:   true
+Next:   false
+Finish: false
+Cancel: true
+--
+-- Binding Details
+Back:   true
+Next:   true
+Finish: false
+Cancel: true
+--
+-- Finish
+Back:   true
+Next:   false
+Finish: true
+Cancel: true
+--
+-- ORB Settings
+ORB: true
+Bind: true
+--
+-- Binding Details
+Back:   true
+Next:   true
+Finish: false
+Cancel: true
+--
+-- Finish
+Back:   true
+Next:   false
+Finish: true
+Cancel: true
+--

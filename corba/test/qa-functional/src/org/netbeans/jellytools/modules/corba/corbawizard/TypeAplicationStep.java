@@ -28,11 +28,13 @@ import org.netbeans.jemmy.operators.*;
  */
 public class TypeAplicationStep extends WizardOperator {
 
+    public static final String STEP_NAME = "Application Components";
+    
     /** Creates new TypeAplicationStep that can handle it.
      */
     public TypeAplicationStep() {
         super("CORBA Wizard");
-        stepsWaitSelectedValue ("Application Components");
+        stepsWaitSelectedValue (STEP_NAME);
     }
 
     private JCheckBoxOperator _cbCreateImplementation;

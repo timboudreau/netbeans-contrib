@@ -27,12 +27,14 @@ import org.netbeans.jemmy.operators.*;
  * @version 1.0
  */
 public class ORBSettingsStep extends WizardOperator {
+    
+    public static final String STEP_NAME = "ORB Settings";
 
     /** Creates new ORBSettingsStep that can handle it.
      */
     public ORBSettingsStep() {
         super("CORBA Wizard");
-        stepsWaitSelectedValue ("ORB Settings");
+        stepsWaitSelectedValue (STEP_NAME);
     }
 
     private JLabelOperator _lblChooseORBImplementation;

@@ -1,0 +1,22 @@
+-- Application Components
+Back:   true
+Next:   true
+Finish: false
+Cancel: true
+--
+-- ORB Settings
+ORB: true
+Bind: false
+--
+-- ORB Settings
+Back:   true
+Next:   true
+Finish: false
+Cancel: true
+--
+-- Finish
+Back:   true
+Next:   false
+Finish: true
+Cancel: true
+--
