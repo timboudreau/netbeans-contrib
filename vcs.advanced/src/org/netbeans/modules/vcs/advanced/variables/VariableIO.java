@@ -99,10 +99,7 @@ public class VariableIO extends Object {
         for(int i = 0; i < list.size(); i++) {
             FileObject fo = (FileObject) list.get(i);
             String ext = fo.getExt();
-            if (!ext.equalsIgnoreCase(CONFIG_FILE_EXT)
-                && !ext.equalsIgnoreCase(VariableIOCompat.CONFIG_FILE_EXT)
-                || isTemporaryConfig(fo.getName())
-                || isResourceBundle(fo)) {
+            if (!isConfigFile(fo)) {
                 list.remove(i);
                 i--;
             }
@@ -111,6 +108,12 @@ public class VariableIO extends Object {
         ArrayList res = getLocalizedConfigurations(ch);
         hideOlderConfs(res);
         return res;
+    }
+    
+    public static boolean isConfigFile(FileObject fo) {
+        String ext = fo.getExt();
+        return (ext.equalsIgnoreCase(CONFIG_FILE_EXT) || ext.equalsIgnoreCase(VariableIOCompat.CONFIG_FILE_EXT))
+               && !isTemporaryConfig(fo.getName()) && !isResourceBundle(fo);
     }
     
     /**

@@ -660,7 +660,9 @@ public final class ProfilesFactory extends Object {
          */
         public void fileDataCreated(FileEvent fileEvent) {
             FileObject newData = fileEvent.getFile();
-            if (newData.getSize() == 0L) return ; // Ignore an empty file
+            if (newData.getSize() == 0L || !VariableIO.isConfigFile(newData)) return ; // Ignore an empty file
+            List currentLocales = VariableIO.getLocalizedConfigurations(new FileObject[] { newData });
+            if (!currentLocales.contains(newData)) return ; // Ignore other locales
             String name = newData.getNameExt();
             String[] labelAndOSs = VariableIO.getConfigurationLabelAndOS(profileRoot, name);
             if (labelAndOSs == null) {
