@@ -224,4 +224,6 @@ public class SaveToFilePanel extends javax.swing.JPanel {
     /** Holds value of property setCurrentPanel. */
     private int currentPanel;    
 
+    private static final long serialVersionUID = -1047633353725226509L;
+    
 }

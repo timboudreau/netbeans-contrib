@@ -66,6 +66,8 @@ public class VerifyGroupPanel extends javax.swing.JPanel {
     private javax.swing.JTabbedPane tblResults;
     // End of variables declaration//GEN-END:variables
 
+    private static final long serialVersionUID = -8256202642460496022L;    
+
     
     public void addPanel(JPanel panel, String title) {
         tblResults.add(title, panel);

@@ -193,6 +193,8 @@ public class NotChangedFilesPanel extends javax.swing.JPanel {
     private javax.swing.JTable tblNotChangedFiles;
     // End of variables declaration//GEN-END:variables
 
+    private static final long serialVersionUID = 6175263517053478465L;    
+
     
     /** 
      * returns the selected fileobjects. if the action should not be performed, returns null

@@ -107,6 +107,8 @@ public class AddToGroupDialog extends javax.swing.JPanel {
     private javax.swing.JCheckBox cbDontShow;
     // End of variables declaration//GEN-END:variables
 
+    private static final long serialVersionUID = -7640736488251060985L;    
+
     public static void openChooseDialog(DataObject dataObject) {
         final AddToGroupDialog dialog = new AddToGroupDialog();
         dialog.setDataObject(dataObject);

@@ -208,6 +208,8 @@ public class ToUpdateFilesPanel extends javax.swing.JPanel {
     private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
 
+    private static final long serialVersionUID = 6797797120171553014L;    
+
     /** 
      * returns the selected fileobjects. if the action should not be performed, returns null
      * if the rbFsRoos is selected by the user, then it returns filesystems root fileobjects..

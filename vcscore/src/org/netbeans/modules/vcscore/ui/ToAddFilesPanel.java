@@ -185,6 +185,8 @@ public class ToAddFilesPanel extends javax.swing.JPanel {
     private javax.swing.JTable tblToBeAddedFiles;
     // End of variables declaration//GEN-END:variables
 
+    private static final long serialVersionUID = -6548817009138402660L;    
+
     /** 
      * returns the selected fileobjects. if the action should not be performed, returns null
      */

@@ -263,6 +263,8 @@ public class AnnotatePanel extends javax.swing.JPanel {
     private javax.swing.JTable tblAnnotat;
     // End of variables declaration//GEN-END:variables
 
+    private static final long serialVersionUID = -2618655204542546204L;    
+
   private void createColumnModel() {
       TableColumnModel model = new DefaultTableColumnModel();
       // linenum
@@ -479,6 +481,8 @@ public class AnnotatePanel extends javax.swing.JPanel {
        // a workaround because of bugparade issue : 4336152
         private java.awt.Color almostWhite = new java.awt.Color(254,254,254);  
        
+        private static final long serialVersionUID = -8634243127049172822L;
+        
         public ColoringUpdateRenderer() {
             super();
 //            setOpaque(true);

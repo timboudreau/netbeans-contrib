@@ -143,6 +143,8 @@ public class AnnotPatternCustomEditor extends javax.swing.JPanel implements Expl
     private javax.swing.JButton btnApply;
     // End of variables declaration//GEN-END:variables
 
+    private static final long serialVersionUID = -7082330953630397064L;    
+
     
 
     public AnnotPatternNode expand(HashMap map, String cmd) {
