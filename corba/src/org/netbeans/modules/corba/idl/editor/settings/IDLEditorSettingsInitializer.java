@@ -135,9 +135,7 @@ public class IDLEditorSettingsInitializer extends Settings.AbstractInitializer {
 
                     case IDLTokenContext.KEYWORDS_ID:
                         return new Coloring(boldFont, Coloring.FONT_MODE_APPLY_STYLE,
-                                                  Color.blue, Coloring.COLOR_MODE_DEFAULT,
-                                                  null, Coloring.COLOR_MODE_DEFAULT
-                                                 );
+                                                  Color.blue, null);
 
                     case IDLTokenContext.IDENTIFIER_ID:
                         return new Coloring(null, null, null);
@@ -147,15 +145,11 @@ public class IDLEditorSettingsInitializer extends Settings.AbstractInitializer {
 
                     case IDLTokenContext.LINE_COMMENT_ID:
                         return new Coloring(italicFont, Coloring.FONT_MODE_APPLY_STYLE,
-                                                  Color.gray, Coloring.COLOR_MODE_DEFAULT,
-                                                  null, Coloring.COLOR_MODE_DEFAULT
-                                                 );
+                                                  Color.gray, null);
 
                     case IDLTokenContext.BLOCK_COMMENT_ID:
                         return new Coloring(italicFont, Coloring.FONT_MODE_APPLY_STYLE,
-                                                  Color.gray, Coloring.COLOR_MODE_DEFAULT,
-                                                  null, Coloring.COLOR_MODE_DEFAULT
-                                                 );
+                                                  Color.gray, null);
 
                     case IDLTokenContext.CHAR_LITERAL_ID:
                         return new Coloring(null, Color.green.darker(), null);
