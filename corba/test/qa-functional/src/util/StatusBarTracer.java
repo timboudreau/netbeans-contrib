@@ -54,13 +54,21 @@ public class StatusBarTracer implements PropertyChangeListener {
     }
     
     public String waitText (int iter, String text, boolean exact) {
+        return waitText (iter, text, exact, false);
+    }
+
+    public String waitText (int iter, String text, boolean exact, boolean ends) {
         for (; iter > 0; iter --) {
             synchronized (this) {
                 for (int a = 0; a < array.size (); a ++) {
                     String str = (String) array.get (a);
-                    if ((exact  &&  str.equals (text))  ||  (!exact  &&  str.indexOf(text) >= 0))
+//                    System.out.println ("Status: \"" + str + "\"");
+                    if ((exact  &&  str.equals (text))  ||  (!exact  &&  ((ends  &&  str.endsWith(text))  ||  (!ends  &&  str.indexOf(text) >= 0)))) {
+//                        System.out.println ("Yes");
                         return str;
+                    }
                 }
+//                System.out.println ("No");
             }
             Helper.sleep (1000);
         }
@@ -75,14 +83,26 @@ public class StatusBarTracer implements PropertyChangeListener {
         return removeText (60, text, exact);
     }
     
+    public String removeText (String text, boolean exact, boolean ends) {
+        return removeText (60, text, exact, ends);
+    }
+    
     public String removeText (int iter, String text, boolean exact) {
+        return removeText (iter, text, exact, false);
+    }
+    
+    public String removeText (int iter, String text, boolean exact, boolean ends) {
         for (; iter > 0; iter --) {
             synchronized (this) {
                 while (array.size () > 0) {
                     String str = (String) array.remove (0);
-                    if ((exact  &&  str.equals (text))  ||  (!exact  &&  str.indexOf(text) >= 0))
+//                    System.out.println ("Status: \"" + str + "\"");
+                    if ((exact  &&  str.equals (text))  ||  (!exact  &&  ((ends  &&  str.endsWith(text))  ||  (!ends  &&  str.indexOf(text) >= 0)))) {
+//                        System.out.println ("Yes");
                         return str;
+                    }
                 }
+//                System.out.println ("No");
             }
             Helper.sleep (1000);
         }
