@@ -30,6 +30,9 @@ public class PathComparator implements TableInfoComparator {
     }
     
     public String getDisplayValue(Object obj, Object rowObject) {
+        if (obj == null) {
+            return "";
+        }
         File file = (File)obj;
         String path = file.getAbsolutePath().substring(localPath.length());
         if (path.length() == 0) {
@@ -46,6 +49,9 @@ public class PathComparator implements TableInfoComparator {
     }
     
     public int compare(java.lang.Object obj, java.lang.Object obj1) {
+        if (obj == null || obj1 == null) {
+            return 0;
+        }
         String str1 = obj.toString();
         String str2 = obj1.toString();
         return str1.compareTo(str2);

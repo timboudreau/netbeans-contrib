@@ -28,6 +28,9 @@ public class FileComparator implements TableInfoComparator {
     }
     
     public String getDisplayValue(Object obj, Object rowObject) {
+        if (obj == null) {
+            return "";
+        }
         File file = (File)obj;
         /*
         String path = file.getAbsolutePath().substring(localPath.length());
@@ -40,6 +43,9 @@ public class FileComparator implements TableInfoComparator {
     }
     
     public int compare(java.lang.Object obj, java.lang.Object obj1) {
+        if (obj == null || obj1 == null) {
+            return 0;
+        }
         File file1 = (File)obj;
         File file2 = (File)obj1;
         
