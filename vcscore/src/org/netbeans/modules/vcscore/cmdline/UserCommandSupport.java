@@ -706,7 +706,14 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         java.io.InputStream in = null;
         java.io.OutputStream out = null;
         try {
-            file2 = File.createTempFile(file.getName(), null, parent);
+            String name = file.getName();
+            int dotpos = name.lastIndexOf('.');
+            if (dotpos > 0) {
+                name = name.substring(0, dotpos);
+            }
+            if (name.length() > 10) name = name.substring(0, 10); // To prevent from too long names (see issue #40269).
+            file2 = File.createTempFile(name, null, parent);
+            file2.deleteOnExit();
             in = new java.io.BufferedInputStream(new java.io.FileInputStream(file));
             out = new java.io.BufferedOutputStream(new java.io.FileOutputStream(file2));
             FileUtil.copy(in, out);
