@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
     <property name="homepage.base" value="netbeans.org"/>
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
-    <property file="../properties"/>
+    <property file="../version.properties"/>
   
     <target name="compile">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
@@ -95,4 +95,8 @@ Microsystems, Inc. All Rights Reserved.
     <target name="javahelp">
     </target>
 
+    <!-- This target will only work *inside* the IDE! -->
+    <target name= "test" depends="jars" description="Test the module inside the running IDE." >
+       <nbinstaller action="reinstall" module="netbeans/modules/eager/tasklist-editor.jar"/>
+    </target>
 </project>
