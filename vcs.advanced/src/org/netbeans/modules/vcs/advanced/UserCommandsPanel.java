@@ -148,19 +148,23 @@ public class UserCommandsPanel extends JPanel
     setBorder(new TitledBorder("Commands"));
 
     c.fill = GridBagConstraints.BOTH;
-    c.weightx = 0.9;
+    c.weightx = 1.0;
     c.weighty = 1.0;
     JScrollPane listScrollPane=createList();
     gb.setConstraints(listScrollPane,c);
     add(listScrollPane);    
 
+    c = new GridBagConstraints();
     JPanel commandPanel=createCommands();
-    c.fill = GridBagConstraints.BOTH;
-    c.weightx = 0.1;
-    c.weighty = 1.0;
+    //c.fill = GridBagConstraints.BOTH;
+    //c.weightx = 0.1;
+    //c.weighty = 1.0;
 
     gb.setConstraints(commandPanel,c);
     add(commandPanel);
+    Dimension preferred = listScrollPane.getPreferredSize();
+    preferred.setSize((int) (Toolkit.getDefaultToolkit().getScreenSize().width*0.8), preferred.height);
+    listScrollPane.setPreferredSize(preferred);
   }
 
   //-------------------------------------------
@@ -437,6 +441,7 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  18   Jaga      1.16.1.0    3/9/00   Martin Entlicher Fix of long panel width.
  *  17   Gandalf   1.16        1/27/00  Martin Entlicher NOI18N
  *  16   Gandalf   1.15        11/30/99 Martin Entlicher 
  *  15   Gandalf   1.14        11/27/99 Patrik Knakal   

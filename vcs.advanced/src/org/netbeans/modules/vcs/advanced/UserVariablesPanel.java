@@ -33,7 +33,7 @@ import com.netbeans.developer.modules.vcs.*;
  */
 //-------------------------------------------
 public class UserVariablesPanel extends JPanel implements EnhancedCustomPropertyEditor{
-  private Debug E=new Debug("UserVariablesPanel", false); // NOI18N
+  private Debug E=new Debug("UserVariablesPanel", true); // NOI18N
   //private Debug D=E;
 
   private JList list=null;
@@ -51,8 +51,9 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
     initComponents();
     initListeners();
     deselectAll();
+    //setPreferredSize(screenSize);
   }
-  
+      
   //-------------------------------------------
   private JButton createButton(String name){
     JButton button = new JButton(name);
@@ -107,19 +108,23 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
     setBorder(new TitledBorder("Variables"));
 
     c.fill = GridBagConstraints.BOTH;
-    c.weightx = 0.9;
+    c.weightx = 1.0;
     c.weighty = 1.0;
     JScrollPane listScrollPane=createList();
     gb.setConstraints(listScrollPane,c);
     add(listScrollPane);    
 
+    c = new GridBagConstraints();
     JPanel commandPanel=createCommands();
-    c.fill = GridBagConstraints.BOTH;
-    c.weightx = 0.1;
-    c.weighty = 1.0;
+    //c.fill = GridBagConstraints.BOTH;
+    //c.weightx = 0.1;
+    //c.weighty = 1.0;
 
     gb.setConstraints(commandPanel,c);
     add(commandPanel);
+    Dimension preferred = listScrollPane.getPreferredSize();
+    preferred.setSize((int) (Toolkit.getDefaultToolkit().getScreenSize().width*0.8), preferred.height);
+    listScrollPane.setPreferredSize(preferred);
   }
 
   //-------------------------------------------
@@ -284,6 +289,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 
 /*
  * <<Log>>
+ *  5    Jaga      1.2.1.1     3/9/00   Martin Entlicher Fix of long panel width.
  *  4    Jaga      1.2.1.0     3/7/00   Martin Entlicher 
  *  3    Gandalf   1.2         1/27/00  Martin Entlicher NOI18N
  *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
