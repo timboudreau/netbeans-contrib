@@ -81,6 +81,12 @@ public class CommandExecutorSupport extends Object {
         if (!fileSystem.promptForVariables(exec, vars, cmd, askForEachFile)) {
             return CommandsPool.PREPROCESS_CANCELLED; // The command is cancelled for that file
         }
+        // Have to remove multifile variables if has to execute on only one file:
+        if (askForEachFile != null && askForEachFile[0]) {
+            vars.put("PATHS", "");
+            vars.put("QPATHS", "");
+            vars.put("FILES", "");
+        }
         // IV. Perform the default variable expansion
         exec = Variables.expand(vars, exec, true);
         //vce.updateExec(exec);
