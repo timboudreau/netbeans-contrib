@@ -62,8 +62,7 @@ public class J2eeSampleProjectIterator implements TemplateWizard.Iterator {
     
     public void initialize (org.openide.loaders.TemplateWizard templateWizard) {
         this.wiz = templateWizard;
-        String name = "bpsample-" + 
-            templateWizard.getTemplate().getNodeDelegate().getName();
+        String name = templateWizard.getTemplate().getNodeDelegate().getName();
         if (name != null) {
             name = name.replaceAll(" ", ""); //NOI18N
         }

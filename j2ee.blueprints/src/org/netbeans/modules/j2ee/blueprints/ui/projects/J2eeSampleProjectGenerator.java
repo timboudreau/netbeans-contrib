@@ -43,7 +43,8 @@ public class J2eeSampleProjectGenerator {
     private J2eeSampleProjectGenerator() {}
 
     public static final String PROJECT_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/web-project/3";    //NOI18N
-    public static final String EAR_NAMESPACE = "http://www.netbeans.org/ns/j2ee-earproject/1";
+    public static final String PROJECT_CONFIGURATION_NS_FREE = "http://www.netbeans.org/ns/freeform-project/1";
+    public static final String EJBJAR_NAMESPACE = "http://www.netbeans.org/ns/j2ee-ejbjarproject/2";
     public static final String SUN_WEB_XMLLOC = "web/WEB-INF/sun-web.xml";
 
     public static FileObject createProjectFromTemplate(final FileObject template, File projectLocation, final String name) throws IOException {
@@ -63,12 +64,16 @@ public class J2eeSampleProjectGenerator {
             try {
                 prjLoc = FileUtil.toFileObject(projectLocation);
                 
+                NodeList nlist = null;
                 //update project.xml
                 File projXml = FileUtil.toFile(prjLoc.getFileObject(AntProjectHelper.PROJECT_XML_PATH));
                 Document doc = XMLUtil.parse(new InputSource(projXml.toURI().toString()), false, true, null, null);
-                NodeList nlist = doc.getElementsByTagNameNS(PROJECT_CONFIGURATION_NAMESPACE, "name");      //NOI18N
-                if (nlist==null){
-                    nlist = doc.getElementsByTagNameNS(EAR_NAMESPACE, "name");      //NOI18N
+                nlist = doc.getElementsByTagNameNS(PROJECT_CONFIGURATION_NAMESPACE, "name");      //NOI18N
+                // if web is not found, try ejb
+                // need to check the length too as it gets a node list contains no "name"
+                // with this name space.
+                if (nlist==null || nlist.getLength()==0){
+                    nlist = doc.getElementsByTagNameNS(EJBJAR_NAMESPACE, "name");      //NOI18N
                     
                 }
                 if (nlist != null) {

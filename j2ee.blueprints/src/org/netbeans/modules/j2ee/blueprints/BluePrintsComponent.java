@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.j2ee.blueprints;
 
+import java.lang.ref.WeakReference;
 import org.openide.util.NbBundle;
 import org.openide.*;
 import org.openide.windows.*;
@@ -30,7 +31,10 @@ import org.openide.ErrorManager;
  */
 class BluePrintsComponent extends TopComponent{
     static final long serialVersionUID=6021472310161712674L;
-    private static BluePrintsComponent component = null;
+    
+    private static WeakReference/*<BluePrintsComponent>*/ component = 
+            new WeakReference(null); 
+        
     private JComponent panel;
 
     private boolean initialized = false;
@@ -43,7 +47,7 @@ class BluePrintsComponent extends TopComponent{
     }
     
     protected String preferredID(){
-        return "BluePrintsComponent";    //NOI18N
+        return "BluePrints";    //NOI18N
     }
     
     /**
@@ -72,11 +76,13 @@ class BluePrintsComponent extends TopComponent{
      * from window system. "BluePrints" is name of settings file defined in module layer.
      */
     public static BluePrintsComponent findComp() {
-        if (component == null) {
+        BluePrintsComponent wc = (BluePrintsComponent)component.get();
+        if (wc == null) {
             TopComponent tc = WindowManager.getDefault().findTopComponent("BluePrints"); // NOI18N
             if (tc != null) {
                 if (tc instanceof BluePrintsComponent) {
-                    component = (BluePrintsComponent) tc;
+                    wc = (BluePrintsComponent)tc;
+                    component = new WeakReference(wc);
                 } else {
                     //Incorrect settings file?
                     IllegalStateException exc = new IllegalStateException
@@ -85,24 +91,27 @@ class BluePrintsComponent extends TopComponent{
                     + " Returned:" + tc.getClass().getName()); // NOI18N
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, exc);
                     //Fallback to accessor reserved for window system.
-                    BluePrintsComponent.createComp();
+                    wc = BluePrintsComponent.createComp();
                 }
             } else {
                 //BluePrintsComponent cannot be deserialized
                 //Fallback to accessor reserved for window system.
-                BluePrintsComponent.createComp();
+                wc = BluePrintsComponent.createComp();
             }
         }
-        return component;
+        return wc;
     }
     
     /* Singleton accessor reserved for window system ONLY. Used by window system to create
      * BluePrintsComponent instance from settings file when method is given. Use <code>findComp</code>
      * to get correctly deserialized instance of BluePrintsComponent. */
     public static BluePrintsComponent createComp() {
-        if(component == null)
-            component = new BluePrintsComponent();
-        return component;
+        BluePrintsComponent wc = (BluePrintsComponent)component.get();
+        if(wc == null) {
+            wc = new BluePrintsComponent();
+            component = new WeakReference(wc);
+        }
+        return wc;
     }
     
     /** Overriden to explicitely set persistence type of BluePrintsComponent
@@ -112,7 +121,7 @@ class BluePrintsComponent extends TopComponent{
     }
     
     static void clearRef(){
-        component = null;
+        component.clear();
     }
     
     private void initAccessibility(){

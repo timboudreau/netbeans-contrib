@@ -95,7 +95,6 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         sunLogoLbl = new javax.swing.JLabel();
         titleSubPnl = new javax.swing.JPanel();
         titleLbl = new AntialiasedJLabel();
-        titleSubLbl = new AntialiasedJLabel();
         toolbarPanel = new javax.swing.JPanel();
         backBtn = new javax.swing.JButton();
         forwardBtn = new javax.swing.JButton();
@@ -105,6 +104,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         solutionPnl = new SolutionTab(this);
         designPnl = new DesignTab(this);
         examplePnl = new ExampleTab(this);
+        homePnl = new HomeTab(this);
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -121,27 +121,22 @@ public class BluePrintsPanel extends javax.swing.JPanel {
 
         titleSubPnl.setLayout(new java.awt.GridBagLayout());
 
+        titleSubPnl.setMaximumSize(new java.awt.Dimension(527, 43));
+        titleSubPnl.setMinimumSize(new java.awt.Dimension(527, 43));
+        titleSubPnl.setPreferredSize(new java.awt.Dimension(527, 43));
         titleLbl.setBackground(new java.awt.Color(251, 226, 73));
         titleLbl.setFont(new java.awt.Font("Dialog", 1, 24));
         titleLbl.setForeground(new java.awt.Color(89, 79, 191));
         titleLbl.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("NB_title"));
         titleLbl.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(1, 12, 1, 1)));
+        titleLbl.setMaximumSize(new java.awt.Dimension(527, 43));
         titleLbl.setOpaque(true);
+        titleLbl.setPreferredSize(new java.awt.Dimension(527, 43));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         titleSubPnl.add(titleLbl, gridBagConstraints);
-
-        titleSubLbl.setBackground(new java.awt.Color(251, 226, 73));
-        titleSubLbl.setForeground(new java.awt.Color(89, 79, 191));
-        titleSubLbl.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("NB_subtitle"));
-        titleSubLbl.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(1, 12, 1, 1)));
-        titleSubLbl.setOpaque(true);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        titleSubPnl.add(titleSubLbl, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -214,6 +209,8 @@ public class BluePrintsPanel extends javax.swing.JPanel {
 
         tabbedPnl.addTab(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("examplePnl"), examplePnl);
 
+        tabbedPnl.addTab(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("homePnl"), homePnl);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -252,13 +249,13 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     private javax.swing.JComboBox entryCbx;
     private javax.swing.JPanel examplePnl;
     private javax.swing.JButton forwardBtn;
+    private javax.swing.JPanel homePnl;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JPanel solutionPnl;
     private javax.swing.JLabel sunLogoLbl;
     private javax.swing.JTabbedPane tabbedPnl;
     private javax.swing.JLabel titleLbl;
     private javax.swing.JPanel titlePanel;
-    private javax.swing.JLabel titleSubLbl;
     private javax.swing.JPanel titleSubPnl;
     private javax.swing.JPanel toolbarPanel;
     // End of variables declaration//GEN-END:variables
@@ -278,6 +275,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     public static final String TAB_SOLUTION = "solutionPnl"; // NOI18N
     public static final String TAB_DESIGN   = "designPnl";   // NOI18N
     public static final String TAB_EXAMPLE  = "examplePnl";  // NOI18N
+    public static final String TAB_HOME  = "homePnl";  // NOI18N
     public final HashMap TABS = new HashMap();
     
     private SolutionsCatalog solutionsCatalog = SolutionsCatalog.getInstance();
@@ -320,6 +318,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         TABS.put(TAB_SOLUTION, solutionPnl);
         TABS.put(TAB_DESIGN, designPnl);
         TABS.put(TAB_EXAMPLE, examplePnl);
+        TABS.put(TAB_HOME, homePnl);
         tabbedPnl.removeAll();
     }
     
@@ -459,6 +458,12 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         forwardBtn.setEnabled(!history.isForwardStackEmpty());
     }
     
+    private void showHome() {
+        tabbedPnl.removeAll();
+        tabbedPnl.addTab(bundle.getString(TAB_HOME),
+                (Component)TABS.get(TAB_HOME));
+    }
+    
     private void updateTabs() {
         Category category = getSelectedCategory();
         Solution solution = getSelectedArticle();
@@ -466,9 +471,13 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         // Ensure the category panel is visible when no solution is selected
         // and the other panels are visible when an solution is selected.
         if(solution == null) {
-            tabbedPnl.removeAll();
-            tabbedPnl.addTab(bundle.getString(TAB_CATEGORY), 
-                (Component)TABS.get(TAB_CATEGORY)); 
+            if(category.getId().equals("HOME")) {
+                showHome();
+            } else {
+                tabbedPnl.removeAll();
+                tabbedPnl.addTab(bundle.getString(TAB_CATEGORY), 
+                        (Component)TABS.get(TAB_CATEGORY)); 
+            }
         }
         else {
             tabbedPnl.removeAll();
@@ -484,6 +493,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         updateSolutionTab();
         updateDesignTab();
         updateExampleTab();
+        updateHomeTab();
     }
     
     private void selectTab(String tab) {
@@ -496,6 +506,10 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     
     private void updateSolutionTab() {
         ((BluePrintsTabPanel)solutionPnl).updateTab();
+    }
+    
+    private void updateHomeTab() {
+        ((BluePrintsTabPanel)homePnl).updateTab();
     }
     
     private void updateDesignTab() {
@@ -535,21 +549,28 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         public EntryComboBoxModel() {
             this.bpcatalog = solutionsCatalog.getBpcatalogXml();
             Category[] categories = bpcatalog.getCategory();
+            // hack to add HOME page
+            Category homeCategory = new Category();
+            homeCategory.setId("HOME");
+            homeCategory.setDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("homeCatDesc"));
+            homeCategory.setCategoryName(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("homeCatName"));
+            entries.add(homeCategory);
             for(int categoryNum = 0; categoryNum < categories.length; 
                 categoryNum++) 
             {
                 Category category = categories[categoryNum];
-                // Add category
-                entries.add(category);
-                
-                // Add all solutions under this category
-                Solution[] solutions = bpcatalog.getSolution();
-                for(int solutionNum = 0; solutionNum < solutions.length; 
-                    solutionNum++) 
-                {
-                    Solution solution = solutions[solutionNum];
-                    if(solution.getCategoryId().equals(category.getId())) {
-                        entries.add(solution);
+                // Add category if it's ready for the release
+                if (category.getInnetbeans().equals("true")) {
+                    entries.add(category);
+                    // Add all solutions under this category
+                    Solution[] solutions = bpcatalog.getSolution();
+                    for(int solutionNum = 0; solutionNum < solutions.length; 
+                    solutionNum++) {
+                        Solution solution = solutions[solutionNum];
+                        if(solution.getCategoryId().equals(category.getId()) &&
+                                solution.getInnetbeans().equals("true")) {
+                            entries.add(solution);
+                        }
                     }
                 }
             }

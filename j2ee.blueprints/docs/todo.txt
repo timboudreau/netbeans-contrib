@@ -1,46 +1,19 @@
-Scattered notes from Mark Roth on what remains to be done in this module.
-
 [ ] Finish converting module to read new bpcatalog.xml instead of demo.xml
-    [ ] DOCTYPE was removed from bpcatalog.xml.  See if I can get 
-        it working after adding it back in.
-[ ] About / Info tab that shows usingTxt and usingTxt1 from bundle.properties
-    Also points to web site, etc.
-[ ] deploy and test all included apps on 4.1
-    [.] clientside-state is not picking up base64.lib even if I move 
-        it to WEB-INF/lib 
-        (disabled this example for now)
-    [ ] non-web apps
-[.] Fix Lukas' bug list
-    [.] /docoriented
-        - i can't run this example due to errors when opening project:
-          - cannot find Web Pages folder "<some_path>". Set "web.docbase.dir" property in project.properties file to point to correct folder.
-          - description of next exception is really interesting: "A java.lang.NullPointerException exception has occurred. However, the system should continue working without further problems. Click Details for the stack trace."
-        (disabled for now)
-    [.] /clientside-state
-        - additional library (base64) is not automatically on the classpath
-        - the rest of this app is OK.
-        Greg stated that app bundles base64 jars into the Web-INF/lib of that war file, which is portable solution and should be supported by NB, so no changes needed to application example code.
-        STATUS: seems like an NB problem or integration problem? 
-        (disabled for now)
-[ ] Script for our workspace
-    [ ] Cases where WAR name does not equal directory name, like 
-        clientside-validators
-    [ ] Check that it works with non-webapps
-        [ ] add code for JMS resource, EJB resource, etc.
-    [ ] Handle solutions that contain no examples, e.g. standalone-client
-    [ ] ws-context directory
-[ ] want at least one example with an EJB
-[ ] Printable page - Use print cookie that enables print action in NBs? This 
-    is the NB way.
-[ ] Sort articles alphabetically
-[ ] Install Example button is a bit misleading.  Rename to something like
-    "New Project From This Template".
+   [ ] DOCTYPE was removed from bpcatalog.xml.  See if I can get
+       it working after adding it back in.
 
-Later:
+[.] /clientside-state application
+       - additional library (base64) is not automatically on the classpath
+       - the rest of this app is OK.
+       Greg stated that app bundles base64 jars into the Web-INF/lib of that war file, which is portable solution and should be supported by NB, so no changes needed to application example code.
+       STATUS: seems like an NB problem or integration problem?
+       (disabled for now)
+[ ] Script for our workspace
+   [ ] Cases where WAR name does not equal directory name, like
+       clientside-validators
+   [ ] Check that it works with non-webapps
+       [ ] add code for JMS resource, EJB resource, etc.
+   [ ] Handle solutions that contain no examples, e.g. standalone-client
 [ ] Bookmarks
-[ ] I18N "bpsample-" prefix
-[ ] Discussion/Q&A: add a button to button panel to discuss this example. 
-    Can we make this discussion button Should we have this discussion in NB 
-    community or on java.net?
-[ ] If each time user clicks on an entry they get this dialog box, it could 
-    be frustrating.  Can we jump to the already open project?
+[ ] If each time user clicks on an entry they get this dialog box, it could
+   be frustrating.  Can we jump to the already open project? 
