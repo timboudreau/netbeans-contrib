@@ -99,6 +99,8 @@ public class CommandNode extends AbstractNode {
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS, Boolean.TYPE);
         expert_propertyClassTypes.put(UserCommand.PROPERTY_DATA_REGEX, String.class);
         expert_propertyClassTypes.put(UserCommand.PROPERTY_ERROR_REGEX, String.class);
+        expert_propertyClassTypes.put(UserCommand.PROPERTY_DATA_REGEX_GLOBAL, String.class);
+        expert_propertyClassTypes.put(UserCommand.PROPERTY_ERROR_REGEX_GLOBAL, String.class);
         expert_propertyClassTypes.put(UserCommand.PROPERTY_INPUT, String.class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_NUM_REVISIONS, Integer.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_CHANGED_REVISION_VAR_NAME, String.class);
