@@ -7,31 +7,35 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.jemmysupport;
 
-/*
- * I18NSupport.java
- *
- * Created on February 11, 2003, 1:42 PM
- */
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.StringTokenizer;
 import org.netbeans.jemmy.JemmyException;
-import org.openide.execution.NbClassLoader;
-import org.openide.filesystems.Repository;
 import org.openide.util.NbBundle;
 
 /**
+ * Utilize bundle support implemented in IDE. When IDE is started with options
+ * -nosplash -J-Dorg.openide.util.NbBundle.DEBUG=true all string from bundles
+ * are signed with bundle number and line number in the bundle. If you type
+ * those numbers (e.g. 13:34) in the search text field of the resource bundle 
+ * lookup panel then you get immediatelly precise result.
  *
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
+ * @author Jiri.Skrivanek@sun.com
  */
 public class I18NSupport {
     
@@ -143,7 +147,7 @@ public class I18NSupport {
     
     private void getBundles() {
         try {
-            loader=new NbClassLoader(Repository.getDefault().toArray());
+            loader= Utils.getSystemClassLoader();
             Field f=Class.forName("org.openide.util.NbBundle$DebugLoader").getDeclaredField("knownIDs");
             f.setAccessible(true);
             HashMap map=(HashMap)f.get(null);
