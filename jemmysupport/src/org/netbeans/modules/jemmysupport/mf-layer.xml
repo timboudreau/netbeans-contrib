@@ -48,7 +48,6 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
                 <file name="org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.instance"/>
-                <file name="org-netbeans-modules-jemmysupport-runinternally-StopInternalAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-runinternally-RunGUIBrowserAction.instance"/>
         </folder>
     </folder>
