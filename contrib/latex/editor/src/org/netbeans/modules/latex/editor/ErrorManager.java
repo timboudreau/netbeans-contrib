@@ -45,6 +45,7 @@ public abstract class ErrorManager {
     public abstract Throwable annotate(Throwable t, String annotation);
     public abstract Throwable annotate(Throwable t, Throwable th);
     public abstract void notify(Throwable t);
+    public abstract void notifyInformational(Throwable t);
     
     private static class SAErrorManager extends ErrorManager {
         
@@ -71,6 +72,10 @@ public abstract class ErrorManager {
             
             return t;
         }
+
+        public void notifyInformational(Throwable t) {
+            notify(t);
+        }
         
     }
     
@@ -86,6 +91,10 @@ public abstract class ErrorManager {
         
         public Throwable annotate(Throwable t, Throwable th) {
             return org.openide.ErrorManager.getDefault().annotate(t, th);
+        }
+
+        public void notifyInformational(Throwable t) {
+            org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, t);
         }
         
     }

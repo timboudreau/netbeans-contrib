@@ -121,7 +121,9 @@ public class LabelDelegatedParser extends DelegatedParser {
                 ArgumentNode anode = (ArgumentNode) node;
                 
                 if (anode.getArgument().hasAttribute("#caption")) {
-                    captions.pop();
+                    if (captions.size() > 0)
+                        captions.pop();
+                    
                     captions.push(anode.getText().toString());
                     return null;
                 }

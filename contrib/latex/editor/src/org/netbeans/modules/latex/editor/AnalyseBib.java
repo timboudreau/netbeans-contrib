@@ -7,37 +7,25 @@
  *
  * The Original Code is the LaTeX module.
  * The Initial Developer of the Original Code is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.editor;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.swing.text.Document;
-
-import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
-
-import org.netbeans.api.lexer.Token;
+import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
+import org.netbeans.modules.latex.model.bibtex.Entry;
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DefaultTraverseHandler;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.lexer.editorbridge.TokenRootElement;
+
 
 /**
  *
@@ -80,100 +68,31 @@ public class AnalyseBib {
     }
     
     private List getReferences(Object file, String  bibFileName) throws IOException {
-        //SA part:
-        if (file instanceof File) {
-            File source = (File) file;
+        Object      bibFile = org.netbeans.modules.latex.model.Utilities.getDefault().getRelativeFileName(file, bibFileName);
         
-            File bibFile = new File(source.getParentFile(), bibFileName + ".bib");
-            InputStream bibStream = new BufferedInputStream(new FileInputStream(bibFile));
-            
-            return getReferences(bibStream);
+        if (bibFile == null) {
+            bibFile = org.netbeans.modules.latex.model.Utilities.getDefault().getRelativeFileName(file, bibFileName + ".bib");
         }
         
-        //NB part:
-        try {
-            InputStream bibStream = getBibInputStreamNB(file, bibFileName);
+        if (bibFile == null)
+            throw new IllegalArgumentException("BiBTeX file " + bibFileName + " for main source file " + file + " not found.");
+        
+        BiBTeXModel model   = BiBTeXModel.getModel(bibFile);
+        List        result  = new ArrayList();
+        
+        for (Iterator i = model.getEntries().iterator(); i.hasNext(); ) {
+            Entry e = (Entry) i.next();
             
-            return getReferences(bibStream);
-        } catch (ClassCastException e) {
-            //Ignore....
-        }
-        
-        throw new IllegalArgumentException("Unsupported file type. Content class: " + file.getClass());
-    }
-    
-    private InputStream getBibInputStreamNB(Object sourceFO, String bibFileName) throws IOException {
-        DataObject source = DataObject.find((FileObject) sourceFO);
-        DataFolder parent = source.getFolder();
-        
-        if (parent == null)
-            throw new IllegalArgumentException("The datasource does not have parent!");
-        
-        Enumeration children = parent.children();
-        
-        while (children.hasMoreElements()) {
-            DataObject child = (DataObject) children.nextElement();
-            FileObject primary = child.getPrimaryFile();
-            
-            if (bibFileName.equals(primary.getName()) && "bib".equals(primary.getExt())) {
-                return primary.getInputStream();
-            }
-        }
+            if (e instanceof PublicationEntry) {
+                PublicationEntry pEntry = (PublicationEntry) e;
                 
-        IllegalArgumentException toThrow = new IllegalArgumentException("The BiB file " + bibFileName + " cannot be found.");
-        
-        org.openide.ErrorManager.getDefault().annotate(toThrow, org.openide.ErrorManager.WARNING, toThrow.getMessage(), toThrow.getLocalizedMessage(), null, null);
-        
-        throw toThrow;
-    }
-    
-    private List getReferences(InputStream ins) throws IOException {
-        return parseBib(ins);
-    }
-    
-    private static String readFile(InputStream ins) throws IOException {
-        int read;
-        StringBuffer result = new StringBuffer();
-        
-        while ((read = ins.read()) != (-1)) {
-            result.append((char) read);
-        }
-        
-        ins.close();
-        return result.toString();
-    }
-    
-    /**
-     * @param args the command line arguments
-     */
-    private static List parseBib(InputStream ins) throws IOException {
-        if (debug)
-            System.err.println("parsing bibTeX file");
-        
-//        Pattern pattern = Pattern.compile("[^@]*@(\\p{Alpha}+)[{(][^)}]*[)}]");
-        Pattern pattern = Pattern.compile("[^@]*@(\\p{Alpha}+)\\s*[{(]\\s*(\\w*)(([^\")}]*(\"[^\"]*\")?)*)[)}]");
-        Matcher matcher = pattern.matcher(readFile(ins));
-        ArrayList result = new ArrayList();
-        
-        while (matcher.find()) {
-            String kind = matcher.group(1);
-            
-            if (!"string".equalsIgnoreCase(kind) && !"preamble".equalsIgnoreCase(kind)) {
-                String code = matcher.group(2);
-                String name = "NOT-FOUND";
-                Matcher inner = Pattern.compile("\\s*title\\s*=\\s*\"([^\"]*)\"", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(matcher.group(3));
-                
-                if (inner.find()) {
-                    name = inner.group(1);
-                }
-                
-                result.add(new BibRecord(code, name));
+                result.add(new BibRecord(pEntry.getTag(), pEntry.getTitle()));
             }
         }
         
         return result;
     }
-
+    
     public final List getAllBibReferences(final LaTeXSource source) {
               LaTeXSource.Lock lock   = null;
         final List             result = new ArrayList();
@@ -192,11 +111,9 @@ public class AnalyseBib {
                         try {
                             result.addAll(getDefault().getReferences(file, bibFileName));
                         } catch (IOException e) {
-                            IllegalArgumentException iae = new IllegalArgumentException(e.getMessage());
-                            
-                            org.openide.ErrorManager.getDefault().annotate(e, iae);
-                            
-                            throw iae;
+                            ErrorManager.getDefault().notifyInformational(e);
+                        } catch (IllegalArgumentException e) {
+                            ErrorManager.getDefault().notifyInformational(e);
                         }
                     }
                     
@@ -211,15 +128,4 @@ public class AnalyseBib {
         return result;
     }
 
-    public static final void main(String[] args) throws Exception {
-        List list = AnalyseBib.getDefault().getReferences(new FileInputStream("/tmp/bibdatabase.bib"));
-        Iterator iter = list.iterator();
-        
-        while (iter.hasNext()) {
-            BibRecord record = (BibRecord) iter.next();
-            
-            System.err.println(record.getRef() + "=" + record.getTitle());
-        }
-        
-    }
 }
