@@ -422,6 +422,14 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         return exitStatus;
     }
 
+    /**
+     * Add a file reader listener, that gets the updated attributes of the
+     * processed file(s). This method is empty since this command
+     * reads the content of the whole directory.
+     */
+    public void addFileReaderListener(FileReaderListener l) {
+    }
+
     String g(String s) {
         return NbBundle.getBundle
                ("org.netbeans.modules.vcscore.cmdline.Bundle").getString (s);
