@@ -17,6 +17,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/>
+  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
 
   <target name="compile">
     <javac srcdir="src" destdir="src">
@@ -38,11 +39,16 @@ Microsystems, Inc. All Rights Reserved.
     <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="netbeans/modules/rmi.jar"
+    <locjar jarfile="netbeans/modules/rmi.jar"
          manifest="manifest-subst.mf"
          basedir="src"
 	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
-	 compress="false"/>    
+	 compress="false">
+      <locale name="ja"/>
+      <branding name="f4j"/>
+      <branding name="f4j_ce"/>
+      <branding name="f4j_ie"/>	 
+    </locjar>
   </target>
 
   <target name="netbeans" depends="jars"/>
@@ -52,11 +58,11 @@ Microsystems, Inc. All Rights Reserved.
     <makenbm file="rmi.nbm"
              topdir="."
 	     manifest="manifest-subst.mf"
-	     homepage="http://applet.netbeans.org/"
-	     distribution="http://www.netbeans.org/download/nbms/40/applet.nbm">
-      <license file="../nbbuild/standard-nbm-license.txt"/>
+	     homepage="http://"
+	     distribution="http://">
+      <license file=""/>
       <description>
-        Corba ...
+        RMI ...
       </description>
       <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
     </makenbm>
