@@ -15,6 +15,7 @@ package org.netbeans.lib.graphlayout;
 
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.util.Iterator;
 
 /**
@@ -32,9 +33,24 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
         Color.CYAN, Color.YELLOW, Color.BLUE, Color.RED, Color.MAGENTA, Color.ORANGE, Color.BLACK
     };
     private int zoom = 100;
+    
+    private java.awt.Shape edge;
 
     Renderer (Graph g) {
         this.graph = g;
+        
+        // shape of the edge
+        java.awt.Polygon p = new java.awt.Polygon ();
+        p.addPoint (0, 0);
+        p.addPoint (-5, 20);
+        p.addPoint (-1, 20);
+        p.addPoint (-2, 100);
+        p.addPoint (2, 100);
+        p.addPoint (1, 20);
+        p.addPoint (5, 20);
+        p.addPoint (0, 0);
+        edge = p;
+        
         addMouseListener(this);
         setPreferredSize (new java.awt.Dimension (600, 600));
         g.initialize (getPreferredSize ());
@@ -80,20 +96,50 @@ implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener, jav
     }
     
     protected void paintComponent (java.awt.Graphics g) {
+        java.awt.Graphics2D g2d = (java.awt.Graphics2D)g;
+        
         java.awt.Dimension d = computeSize ();
         setSize (d);
         for (Iterator it = graph.edges.iterator (); it.hasNext (); ) {
             Edge e = (Edge)it.next ();
-            int x1 = e.getVertex1 ().getX ();
-            int y1 = e.getVertex1 ().getY ();
-            int x2 = e.getVertex2 ().getX ();
-            int y2 = e.getVertex2 ().getY ();
+            int x1 = zoom (e.getVertex1 ().getX ());
+            int y1 = zoom (e.getVertex1 ().getY ());
+            int x2 = zoom (e.getVertex2 ().getX ());
+            int y2 = zoom (e.getVertex2 ().getY ());
             Color c = Color.red.brighter ();
             for (int i = e.strength; i > 0; i--) {
                 c = c.darker ();
             }
             g.setColor (c) ;
-            g.drawLine (zoom (x1), zoom (y1), zoom (x2), zoom (y2));
+            
+            int dx = x1 - x2;
+            int dy = y1 - y2;
+            if (!e.getVertex1 ().isFixed () && !e.getVertex2 ().isFixed ()) {
+                g2d.drawLine (x1, y1, x2, y2);
+                continue;
+            }
+            
+            AffineTransform af = new AffineTransform ();
+            af.translate (x2, y2);
+            if (dx == 0) {
+                // no rotation, just resize
+                af.scale (1, dy / 100.0);
+            } else if (dy == 0) {
+                af.rotate (Math.PI / 2);
+                af.scale (dx / 100.0, 1);
+            } else {
+                double len = Math.sqrt (dx * dx + dy * dy);
+                double theta = Math.atan (((double)dx) / ((double)-dy));
+                
+                if (dy < 0) {
+                    theta = theta + Math.PI;
+                }
+                
+                af.rotate (theta);
+                af.scale (1.0, len / 100.0);
+            }
+            
+            g2d.fill (af.createTransformedShape (this.edge));
         }
         
         java.awt.FontMetrics fm = g.getFontMetrics ();
