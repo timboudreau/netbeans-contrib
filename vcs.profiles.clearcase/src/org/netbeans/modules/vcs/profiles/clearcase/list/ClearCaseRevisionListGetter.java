@@ -197,9 +197,14 @@ public class ClearCaseRevisionListGetter implements VcsAdditionalCommand
             return result;
         }
         
-        protected int cmpRev(String revision)
+        protected int compareTo(RevisionItem item)
         {
-            return revision.compareTo(this.getRevision());
+            return this.getRevision().compareTo(item.getRevision());
+        }
+        
+        public boolean isDirectSubItemOf(RevisionItem item) {
+            if (item == null) return true;
+            else return false;
         }
         
         public RevisionItem addRevision(String revision)
