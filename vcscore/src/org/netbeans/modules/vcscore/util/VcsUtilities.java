@@ -12,15 +12,22 @@
  */
 
 package org.netbeans.modules.vcscore.util;
-import java.io.*;
-import java.util.*;
-import java.beans.*;
-import java.text.*;
-import java.awt.*;
 
+import java.awt.*;
+import java.beans.*;
+import java.io.*;
+import java.text.*;
+import java.util.*;
+
+import org.openide.execution.NbClassLoader;
+import org.openide.filesystems.FileAttributeEvent;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.io.NbObjectInputStream;
@@ -43,6 +50,9 @@ public class VcsUtilities {
 
     private static HashMap systemEnvVariables = null;
     private static final Object systemEnvVariablesLock = new Object();
+    
+    private static ClassLoader sfsClassLoader = null;
+    private static boolean sfsCLReset = false;
 
 
     //-------------------------------------------
@@ -402,6 +412,30 @@ public class VcsUtilities {
 	else if (set != null) return false;
 	return true;
     }
+    
+    /**
+     * Get the class loader, that loads classes from SystemFileSystem.
+     */
+    public static synchronized ClassLoader getSFSClassLoader() {
+        if (sfsClassLoader == null) {
+            sfsCLReset = false;
+            FileSystem sfs = Repository.getDefault().getDefaultFileSystem();
+            sfsClassLoader = new NbClassLoader(new FileSystem[] { sfs });
+            sfs.addFileChangeListener(new FileChangeListener () {
+                public void fileFolderCreated(FileEvent fev) {}
+                public void fileDataCreated(FileEvent fev) { sfsCLReset = true; }
+                public void fileChanged(FileEvent fev) { sfsCLReset = true; }
+                public void fileDeleted(FileEvent fev) { sfsCLReset = true; }
+                public void fileRenamed(FileRenameEvent frev) { sfsCLReset = true; }
+                public void fileAttributeChanged(FileAttributeEvent faev) {}
+            });
+        }
+        if (sfsCLReset) {
+            sfsClassLoader = new NbClassLoader(new FileSystem[] { Repository.getDefault().getDefaultFileSystem() });
+            sfsCLReset = false;
+        }
+        return sfsClassLoader;
+    }
 
     /** Get a string from a resource bundle. An arbitrary resource bundle can be
      * specified to get an arbitrary key from.
@@ -441,14 +475,16 @@ public class VcsUtilities {
     }
     
     private static String getBundleString(String bundle, String key) {
-        Class clazz;
-        try {
-            String className = bundle;
-            if (className.endsWith(".class")) className = className.substring(0, className.length() - ".class".length());
+        Class clazz = null;
+        if (bundle.endsWith(".class")) {
+            try {
+            String className = bundle.substring(0, bundle.length() - ".class".length());
+            //if (className.endsWith(".class")) className = className.substring(0, className.length() - ".class".length());
             clazz = Class.forName(className, false, org.openide.TopManager.getDefault().systemClassLoader());
-        } catch (ClassNotFoundException exc) {
-            clazz = null;
-            //exc.printStackTrace();
+            } catch (ClassNotFoundException exc) {
+                clazz = null;
+                //exc.printStackTrace();
+            }
         }
         String[] keyWithArgs = VcsUtilities.getQuotedStrings(key);
         String[] args = null;
@@ -463,7 +499,7 @@ public class VcsUtilities {
             if (clazz != null) {
                 bundleStr = org.openide.util.NbBundle.getBundle(clazz).getString(key);
             } else {
-                bundleStr = org.openide.util.NbBundle.getBundle(bundle, java.util.Locale.getDefault(), org.openide.TopManager.getDefault().currentClassLoader()).getString(key);
+                bundleStr = org.openide.util.NbBundle.getBundle(bundle, java.util.Locale.getDefault(), getSFSClassLoader()).getString(key);
                 //bundleStr = org.openide.util.NbBundle.getBundle(bundle, java.util.Locale.getDefault(), getBundleClassLoader()).getString(key);
             }
             if (args != null) {
