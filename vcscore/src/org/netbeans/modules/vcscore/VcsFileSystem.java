@@ -2031,6 +2031,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         updateEnvironmentVars();
         varValueAdjustment.setAdjust(getVariablesAsHashtable());
 
+        if (variables.equals(old)) old = null; // To fire the event even when the variables were changed in this vector.
         firePropertyChange(PROP_VARIABLES, old, variables);
         //try {
         setAdjustedSystemName(computeSystemName(rootFile));

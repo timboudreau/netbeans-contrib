@@ -31,6 +31,8 @@ public class VariableInputValidator extends Object {
     public static final String VALIDATOR_NON_EMPTY = VALIDATOR + "NON_EMPTY";
     public static final String VALIDATOR_REGEXP_MATCH = VALIDATOR + "REGEXP_MATCH(";
     public static final String VALIDATOR_REGEXP_UNMATCH = VALIDATOR + "REGEXP_UNMATCH(";
+    public static final String VALIDATOR_FILE = VALIDATOR + "FILE";
+    public static final String VALIDATOR_FOLDER = VALIDATOR + "FOLDER";
 
     private boolean valid;
     private String message = null;
@@ -48,6 +50,10 @@ public class VariableInputValidator extends Object {
                 validateRegExpMatch(component, validator, true);
             } else if (validator.startsWith(VALIDATOR_REGEXP_UNMATCH)) {
                 validateRegExpMatch(component, validator, false);
+            } else if (VALIDATOR_FILE.equals(validator)) {
+                validateFile(component);
+            } else if (VALIDATOR_FOLDER.equals(validator)) {
+                validateFolder(component);
             } else {
                 valid = false;
                 message = g("VariableInputValidator.BadValidator", validator);
@@ -60,6 +66,28 @@ public class VariableInputValidator extends Object {
         if (value == null || value.length() == 0) {
             valid = false;
             message = g("VariableInputValidator.NotEmpty", component.getLabel());
+            variable = component.getVariable();
+        } else {
+            valid = true;
+        }
+    }
+    
+    private void validateFile(VariableInputComponent component) {
+        java.io.File file = new java.io.File(component.getValue());
+        if (file.isAbsolute() && !file.exists()) {
+            valid = false;
+            message = g("VariableInputValidator.FileDoesNotExist", component.getLabel(), file.getAbsolutePath());
+            variable = component.getVariable();
+        } else {
+            valid = true;
+        }
+    }
+    
+    private void validateFolder(VariableInputComponent component) {
+        java.io.File file = new java.io.File(component.getValue());
+        if (file.isAbsolute() && !file.isDirectory()) {
+            valid = false;
+            message = g("VariableInputValidator.FolderDoesNotExist", component.getLabel(), file.getAbsolutePath());
             variable = component.getVariable();
         } else {
             valid = true;
@@ -101,11 +129,19 @@ public class VariableInputValidator extends Object {
             return false;
         }
     }
+    
+    protected void setValid(boolean valid) {
+        this.valid = valid;
+    }
 
     /** Tells whether the validation was successfull.
      */
     public boolean isValid() {
         return valid;
+    }
+    
+    protected void setMessage(String message) {
+        this.message = message;
     }
     
     /**
@@ -114,6 +150,10 @@ public class VariableInputValidator extends Object {
      */
     public String getMessage() {
         return message;
+    }
+    
+    protected void setVariable(String variable) {
+        this.variable = variable;
     }
     
     /**
