@@ -2667,7 +2667,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         
         public void propertyChange(PropertyChangeEvent evt) {
             String propName = evt.getPropertyName();
-            if (propName.startsWith(PROP_VAR_CHANGED)) {
+            if (propName.startsWith(PROP_VAR_CHANGED) && evt.getPropagationId() == null) {
                 propName = propName.substring(PROP_VAR_CHANGED.length());
                 String value = (String) evt.getNewValue();
                 if (value == null) {
@@ -2725,19 +2725,19 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         String varName = evt2.getPropertyName().substring(PROP_VAR_CHANGED.length());
                         String varValue = (String) evt2.getNewValue();
                         if (varValue == null) return ;
-                        varChanged(varName, varValue);
+                        varChanged(varName, varValue, evt2.getPropagationId());
                     }
                 } else {
                     String varName = propName.substring(PROP_VAR_CHANGED.length());
                     String varValue = (String) evt.getNewValue();
                     if (varValue == null) return ;
-                    varChanged(varName, varValue);
+                    varChanged(varName, varValue, evt.getPropagationId());
                 }
             }
         }
         
-        private void varChanged(String varName, String varValue) {
-            vars.put(varName, varValue);
+        private void varChanged(String varName, String varValue, Object propagationId) {
+            if (propagationId == null) vars.put(varName, varValue);
             String textExpanded = Variables.expand(vars, text, false);
             try {
                 setTextMethod.invoke(textComponent, new Object[] { textExpanded });
@@ -2890,10 +2890,36 @@ public class VariableInputDialog extends javax.swing.JPanel {
         /** autofill tasks must not introduce new variables. */
         private boolean fillOnlyDefinedInvariant(Hashtable varsAfterChange) {
             Set allowedVaribleNames = componentsByVars.keySet();
-            Set testedVariableNames = varsAfterChange.keySet();
+            Set testedVariableNames = new HashSet(varsAfterChange.keySet());
             testedVariableNames.removeAll(allowedVaribleNames);
             violation = testedVariableNames;
+            if (!violation.isEmpty()) {
+                removeVariablesUsedInExpressions(violation, componentsByVars.values());
+            }
             return violation.isEmpty();
+        }
+        
+        /** Removes the variables that are used in expandable values of other variables. */
+        private void removeVariablesUsedInExpressions(Set vars, Collection components) {
+            Map testMap = new HashMap(VariableInputDialog.this.vars);
+            for (Iterator it = new HashSet(vars).iterator(); it.hasNext(); ) {
+                String varName = (String) it.next();
+                for (Iterator cv = components.iterator(); cv.hasNext(); ) {
+                    VariableInputComponent c = (VariableInputComponent) cv.next();
+                    if (c.isExpandableDefaultValue()) {
+                        testMap.put(varName, ""); // NOI18N
+                        String expr1 = Variables.expand(testMap, c.getDefaultValue(), false);
+                        testMap.put(varName, "XXX"); // NOI18N
+                        String expr2 = Variables.expand(testMap, c.getDefaultValue(), false);
+                        if (!expr1.equals(expr2)) {
+                            // The varName is used in def. value
+                            vars.remove(varName);
+                            break;
+                        }
+                    }
+                }
+                testMap.remove(varName);
+            }
         }
     }
    
