@@ -261,27 +261,12 @@ public class DDApiTest extends NbTestCase {
     
     public void test_Result() {
         System.out.println("Comparing result with golden file");
-        /*
-        try {
-            FileLock lock = fo.lock();
-            OutputStream os = fo.getOutputStream(lock);
-            webApp.write(os);
-            os.close();
-            lock.releaseLock();
-        } catch (IOException ex) {
-            throw new AssertionFailedErrorException("Writing data Failed ",ex);
-        }
-        */
+
         String testDataDirS = System.getProperty("test.data.dir");     
         java.io.File pass = new File(System.getProperty("test.data.dir")+"/web.pass");
-
         File test = FileUtil.toFile(fo);
+        
         assertFile("Result different than golden file", pass, test, test.getParentFile());
-        try {
-        fo.delete();
-        } catch (IOException ex){
-            ex.printStackTrace();
-        }
         
     }
     
@@ -298,8 +283,6 @@ public class DDApiTest extends NbTestCase {
         if (fo==null) {
             File dataDir = new File(System.getProperty("test.data.dir"));
             FileObject dataFolder = FileUtil.toFileObject(dataDir);
-            FileObject orgFo = dataFolder.getFileObject("web_org","xml");
-            FileUtil.copyFile(orgFo,dataFolder,"web","xml");
             fo = dataFolder.getFileObject("web","xml");
         };
         assertTrue("FileObject web.xml not found",null != fo);
