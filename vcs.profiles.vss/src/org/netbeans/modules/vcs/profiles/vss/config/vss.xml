@@ -1210,6 +1210,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
+        <property name="concurrentExec">
+          <value>-1</value> <!-- INERT -->
+        </property>
       </command>
       
       <command name="REMOVE_CONFIRM">
