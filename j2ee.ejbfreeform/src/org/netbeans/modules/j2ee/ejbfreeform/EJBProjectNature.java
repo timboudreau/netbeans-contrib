@@ -34,6 +34,7 @@ import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.AntProjectListener;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.ui.PrivilegedTemplates;
+import org.netbeans.spi.project.ui.RecommendedTemplates;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
@@ -214,7 +215,7 @@ public class EJBProjectNature implements ProjectNature {
         
     }
 
-    private static final class PrivilegedTemplatesImpl implements PrivilegedTemplates {
+    private static final class PrivilegedTemplatesImpl implements PrivilegedTemplates, RecommendedTemplates {
         
         private static final String[] PRIVILEGED_NAMES = new String[] {
             "Templates/J2EE/Session", // NOI18N
@@ -227,9 +228,27 @@ public class EJBProjectNature implements ProjectNature {
             "Templates/Classes/Class.java" // NOI18N
         };
         
+        private static final String[] RECOMENDED_TYPES = new String[] {
+            "java-classes",         // NOI18N
+            "ejb-types",            // NOI18N
+            "java-beans",           // NOI18N
+            "oasis-XML-catalogs",   // NOI18N
+            "XML",                  // NOI18N
+            "ant-script",           // NOI18N
+            "ant-task",             // NOI18N
+            "junit",                // NOI18N
+            "simple-files"          // NOI18N
+        };
+        
         public String[] getPrivilegedTemplates() {
             return PRIVILEGED_NAMES;
         }
+
+        public String[] getRecommendedTypes() {
+            return RECOMENDED_TYPES;
+        }
+        
+        
         
     }
     
