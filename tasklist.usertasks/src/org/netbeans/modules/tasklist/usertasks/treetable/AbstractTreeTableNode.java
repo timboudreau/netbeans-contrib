@@ -116,4 +116,22 @@ public abstract class AbstractTreeTableNode implements TreeTableNode {
         }
         return (TreeTableNode[]) path.toArray(new TreeTableNode[path.size()]);
     }
+    
+    /**
+     * Finds the next node that should be selected after this node was
+     * deleted
+     *
+     * @return node to select or null
+     */
+    public TreeTableNode findNextNodeAfterDelete() {
+        if (getParent() == null)
+            return null;
+        if (getParent().getChildCount() == 1)
+            return (TreeTableNode) getParent();
+        int index = getParent().getIndex(this);
+        if (index == getParent().getChildCount() - 1)
+            return (TreeTableNode) getParent().getChildAt(index - 1);
+        else
+            return (TreeTableNode) getParent().getChildAt(index + 1);
+    }
 }

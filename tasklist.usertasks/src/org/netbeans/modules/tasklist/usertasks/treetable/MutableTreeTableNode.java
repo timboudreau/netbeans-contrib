@@ -17,8 +17,6 @@ import javax.swing.tree.MutableTreeNode;
 
 /**
  * A Mutable node for a TreeTable
- *
- * @author Tim Lebedkov
  */
 public interface MutableTreeTableNode extends MutableTreeNode, TreeTableNode {
     /**

@@ -161,6 +161,16 @@ public class TreeTable extends JTable {
     }
     
     /**
+     * Returns the row corresponding to the specified path
+     *
+     * @param path path to a node
+     * @return corresponding row in the table
+     */
+    public int getRowForPath(TreePath path) {
+        return tree.getRowForPath(path);
+    }
+    
+    /**
      * Overridden to message super and forward the method to the tree.
      * Since the tree is not actually in the component hieachy it will
      * never receive this unless we forward it in this manner.

@@ -26,8 +26,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Action;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
@@ -152,6 +155,16 @@ public class UserTaskView extends TaskListView implements TaskListener {
         while (it.hasNext()) {
             UserTask next = (UserTask) it.next();
             next.updateLineNumberRecursively();
+        }
+
+        if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
+            InputMap keys = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+            if (keys != null) {
+                KeyStroke[] ks = keys.keys();
+                for (int i = 0; i < ks.length; i++) {
+                    UTUtils.LOGGER.fine(ks[i] + " " + keys.get(ks[i]));
+                }
+            }
         }
     }
     

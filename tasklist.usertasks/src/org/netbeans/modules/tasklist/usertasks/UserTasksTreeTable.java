@@ -51,7 +51,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
                 getUserTaskList();
             UserTaskTreeTableNode node = (UserTaskTreeTableNode) obj;
             UserTask ut = node.getUserTask();
-            return new UserTaskNode(ut, utl);
+            return new UserTaskNode(node, ut, utl);
         }
     }
 

@@ -65,7 +65,23 @@ public class TreeTableModelAdapter extends AbstractTableModel {
         // the event before us.
         treeTableModel.addTreeModelListener(new TreeModelListener() {
             public void treeNodesChanged(TreeModelEvent e) {
-                delayedFireTableDataChanged();
+                TreePath tp = e.getTreePath();
+                if (TreeTableModelAdapter.this.tree.isExpanded(tp)) {
+                    int firstRow = Integer.MAX_VALUE;
+                    int lastRow = Integer.MIN_VALUE;
+                    int[] childIndices = e.getChildIndices();
+                    Object last = tp.getLastPathComponent();
+                    for (int i = 0; i < childIndices.length; i++) {
+                        TreePath childPath = tp.pathByAddingChild(
+                            TreeTableModelAdapter.this.treeTableModel.getChild(last, childIndices[i]));
+                        int row = TreeTableModelAdapter.this.tree.getRowForPath(childPath);
+                        if (row < firstRow) 
+                            firstRow = row;
+                        if (row > lastRow)    
+                            lastRow = row;
+                    }
+                    delayedRowsUpdated(firstRow, lastRow);
+                }
             }
             
             public void treeNodesInserted(TreeModelEvent e) {
@@ -129,6 +145,18 @@ public class TreeTableModelAdapter extends AbstractTableModel {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 fireTableDataChanged();
+            }
+        });
+    }
+
+    /**
+     * Invokes fireTableRowsUpdated after all the pending events have been
+     * processed. SwingUtilities.invokeLater is used to handle this.
+     */
+    protected void delayedRowsUpdated(final int firstRow, final int lastRow) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                fireTableRowsUpdated(firstRow, lastRow);
             }
         });
     }

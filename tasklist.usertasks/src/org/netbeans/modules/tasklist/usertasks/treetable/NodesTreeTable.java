@@ -104,12 +104,6 @@ public abstract class NodesTreeTable extends TreeTable {
                         nodes = new Node[0];
                 }
                 
-                if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
-                    UTUtils.LOGGER.fine(em.getRootContext() + ""); // NOI18N
-                    UTUtils.LOGGER.fine(nodes.length == 0 ?
-                        "null" : nodes[0].toString()); // NOI18N
-                }
-                
                 try {
                     if (nodes.length > 0)
                         em.setRootContext(nodes[0]);
