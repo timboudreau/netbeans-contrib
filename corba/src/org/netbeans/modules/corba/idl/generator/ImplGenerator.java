@@ -4367,8 +4367,12 @@ public class ImplGenerator implements PropertyChangeListener {
 	    if (DEBUG_EXCEPT)
 		__ex.printStackTrace ();
         } catch (OperationAlreadyDefinedException opDef) {
-            opDef.printStackTrace();
-            TopManager.getDefault().notify ( new NotifyDescriptor.Message (MessageFormat.format(NbBundle.getBundle(ImplGenerator.class).getString("TXT_OperationDefined"),new Object[]{opDef.getSymbolName()}),NotifyDescriptor.ERROR_MESSAGE));
+            if (!_M_run_testsuite) {
+                TopManager.getDefault().notify ( new NotifyDescriptor.Message (MessageFormat.format(NbBundle.getBundle(ImplGenerator.class).getString("TXT_OperationDefined"),new Object[]{opDef.getSymbolName()}),NotifyDescriptor.ERROR_MESSAGE));
+            }
+            else {
+               opDef.printStackTrace();
+            }
 	} catch (AlreadyDefinedSymbolException __ex) {
 	    if (!_M_run_testsuite) {
 		java.lang.Object[] __arr = new Object[] {__ex.getSymbolName ()};
