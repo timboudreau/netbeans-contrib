@@ -86,9 +86,11 @@ public class ConditionedStructuredExecPanel extends StructuredExecPanel {
         java.awt.GridBagConstraints gridBagConstraints;
         
         jPanel1 = new javax.swing.JPanel();
+        jPanel1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.Condition"));
+        jPanel1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACSD_ConditionedStringPanel.Condition"));
         conditionLabel = new javax.swing.JLabel();
         conditionComboBox = new javax.swing.JComboBox();
-        addButton = new javax.swing.JButton();
+        addButton = new javax.swing.JButton();        
         editButton = new javax.swing.JButton();
         removeButton = new javax.swing.JButton();
 
@@ -97,12 +99,19 @@ public class ConditionedStructuredExecPanel extends StructuredExecPanel {
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
         conditionLabel.setText(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.Condition"));
+        conditionLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACSD_ConditionedStringPanel.Condition"));
+        conditionLabel.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACS_ConditionedStringPanel.Condition"));
+        conditionLabel.setLabelFor(conditionComboBox);
+        conditionLabel.setDisplayedMnemonic(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACS_ConditionedStringPanel.Condition_mnc").charAt(0));
+        
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         jPanel1.add(conditionLabel, gridBagConstraints);
 
         conditionComboBox.addActionListener(formListener);
+        conditionComboBox.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACS_ConditionedStringPanel.ConditionCombo"));
+        conditionComboBox.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACSD_ConditionedStringPanel.ConditionCombo"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -112,6 +121,9 @@ public class ConditionedStructuredExecPanel extends StructuredExecPanel {
 
         addButton.setText(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.addButton"));
         addButton.addActionListener(formListener);
+        addButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.addButton"));
+        addButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACSD_ConditionedStringPanel.addButton"));
+        addButton.setMnemonic(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACS_ConditionedStringPanel.addButton_mnc").charAt(0));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
@@ -119,14 +131,18 @@ public class ConditionedStructuredExecPanel extends StructuredExecPanel {
 
         editButton.setText(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.editButton"));
         editButton.addActionListener(formListener);
-
+        editButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.editButton"));
+        editButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACSD_ConditionedStringPanel.editButton"));
+        editButton.setMnemonic(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACS_ConditionedStringPanel.editButton_mnc").charAt(0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         jPanel1.add(editButton, gridBagConstraints);
 
         removeButton.setText(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.removeButton"));
         removeButton.addActionListener(formListener);
-
+        removeButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.removeButton"));
+        removeButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACSD_ConditionedStringPanel.removeButton"));
+        removeButton.setMnemonic(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ACS_ConditionedStringPanel.removeButton_mnc").charAt(0));
         jPanel1.add(removeButton, new java.awt.GridBagConstraints());
 
         gridBagConstraints = new java.awt.GridBagConstraints();

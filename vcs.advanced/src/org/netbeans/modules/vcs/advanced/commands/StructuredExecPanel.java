@@ -36,6 +36,7 @@ import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.util.ChooseDirDialog;
 import org.netbeans.modules.vcscore.util.ChooseFileDialog;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -101,6 +102,9 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
 
         setLayout(new java.awt.GridBagLayout());
 
+        getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel"));
+        getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel"));
+        stringRadioButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.stringRadioButton_mnc").charAt(0));
         stringRadioButton.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.ExecString"));
         stringRadioButton.addActionListener(formListener);
 
@@ -109,6 +113,7 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 11);
         add(stringRadioButton, gridBagConstraints);
+        stringRadioButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.StringRadioButton"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
@@ -116,6 +121,8 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 6);
         add(stringTextField, gridBagConstraints);
+        stringTextField.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.stringField"));
+        stringTextField.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.stringField"));
 
         stringEditButton.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.ExecString.EditButton"));
         stringEditButton.addActionListener(formListener);
@@ -124,7 +131,10 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 11);
         add(stringEditButton, gridBagConstraints);
+        stringEditButton.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.stringButton"));
+        stringEditButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.stringButton"));
 
+        structuredRadioButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.structuredRadioButton").charAt(0));
         structuredRadioButton.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.ExecStructured"));
         structuredRadioButton.addActionListener(formListener);
 
@@ -133,9 +143,12 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 11);
         add(structuredRadioButton, gridBagConstraints);
+        structuredRadioButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructureExecPanel.structuredExecRadioButton"));
 
         structuredPanel.setLayout(new java.awt.GridBagLayout());
 
+        workLabel.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.workLabel").charAt(0));
+        workLabel.setLabelFor(workTextField);
         workLabel.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.ExecStructured.Working"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -143,15 +156,19 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 6);
         structuredPanel.add(workLabel, gridBagConstraints);
+        workLabel.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.wrokLabel"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 12);
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 12);
         structuredPanel.add(workTextField, gridBagConstraints);
+        workTextField.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.workTextField"));
+        workTextField.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.workTextField"));
 
+        workButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.workButton_mnc").charAt(0));
         workButton.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.Browse"));
         workButton.addActionListener(formListener);
 
@@ -161,7 +178,10 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 0);
         structuredPanel.add(workButton, gridBagConstraints);
+        workButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.workButton"));
 
+        execLabel.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.execLabel").charAt(0));
+        execLabel.setLabelFor(execTextField);
         execLabel.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.ExecStructured.Executable"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -169,15 +189,19 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         structuredPanel.add(execLabel, gridBagConstraints);
+        execLabel.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.execLabel"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
         structuredPanel.add(execTextField, gridBagConstraints);
+        execTextField.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.execTextField"));
+        execTextField.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.execTextField"));
 
+        execButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.execButton_mnc").charAt(0));
         execButton.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.Browse"));
         execButton.addActionListener(formListener);
 
@@ -186,9 +210,12 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         structuredPanel.add(execButton, gridBagConstraints);
+        execButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.workButton"));
 
         jScrollPane1.setPreferredSize(new java.awt.Dimension(400, 200));
         jScrollPane1.setViewportView(argTable);
+        argTable.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.argTable"));
+        argTable.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.argTable"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -202,6 +229,7 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
 
         buttonsPanel.setLayout(new java.awt.GridBagLayout());
 
+        addButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.addButton_mnc").charAt(0));
         addButton.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.AddArg"));
         addButton.addActionListener(formListener);
 
@@ -209,7 +237,9 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 0);
         buttonsPanel.add(addButton, gridBagConstraints);
+        addButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.addButton"));
 
+        editButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.editButton_mnc").charAt(0));
         editButton.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.EditArg"));
         editButton.addActionListener(formListener);
 
@@ -218,7 +248,9 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 0);
         buttonsPanel.add(editButton, gridBagConstraints);
+        editButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.editButton"));
 
+        removeButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACS_StructuredExecPanel.removeButton_nmc").charAt(0));
         removeButton.setText(org.openide.util.NbBundle.getMessage(StructuredExecPanel.class, "StructuredExecPanel.RemoveArg"));
         removeButton.addActionListener(formListener);
 
@@ -227,6 +259,7 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
         buttonsPanel.add(removeButton, gridBagConstraints);
+        removeButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/commands/Bundle").getString("ACSD_StructuredExecPanel.removeButton"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -250,8 +283,14 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
 
     private class FormListener implements java.awt.event.ActionListener {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            if (evt.getSource() == stringEditButton) {
+            if (evt.getSource() == stringRadioButton) {
+                StructuredExecPanel.this.stringRadioButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == stringEditButton) {
                 StructuredExecPanel.this.stringEditButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == structuredRadioButton) {
+                StructuredExecPanel.this.structuredRadioButtonActionPerformed(evt);
             }
             else if (evt.getSource() == workButton) {
                 StructuredExecPanel.this.workButtonActionPerformed(evt);
@@ -267,12 +306,6 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
             }
             else if (evt.getSource() == removeButton) {
                 StructuredExecPanel.this.removeButtonActionPerformed(evt);
-            }
-            else if (evt.getSource() == stringRadioButton) {
-                StructuredExecPanel.this.stringRadioButtonActionPerformed(evt);
-            }
-            else if (evt.getSource() == structuredRadioButton) {
-                StructuredExecPanel.this.structuredRadioButtonActionPerformed(evt);
             }
         }
     }//GEN-END:initComponents
