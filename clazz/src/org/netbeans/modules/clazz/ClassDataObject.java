@@ -35,6 +35,10 @@ import org.openide.loaders.InstanceSupport;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiFileLoader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.InputStream;
+import java.io.ObjectStreamClass;
+import java.io.BufferedInputStream;
 import org.openide.src.nodes.ElementNodeFactory;
 import org.openide.src.nodes.SourceElementFilter;
 import org.openide.src.nodes.SourceChildren;
@@ -54,6 +58,7 @@ import java.util.List;
 import org.openide.cookies.SourceCookie;
 import org.openide.cookies.ElementCookie;
 import org.openide.cookies.InstanceCookie;
+import org.openide.ErrorManager;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -481,7 +486,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
             p.removeFactory(factory);
     }
 
-    protected final class ClazzInstanceSupport extends org.openide.loaders.InstanceSupport.Origin {
+    protected final class ClazzInstanceSupport extends InstanceSupport.Origin {
 
         /** the class is bean */
         private Boolean bean;
@@ -654,5 +659,51 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
         private boolean isSerialized () {
             return instanceOrigin().getExt().equals("ser"); // NOI18N
         }
+
+        public Object instanceCreate() throws java.io.IOException, ClassNotFoundException {
+            try {
+                if (isSerialized()) {
+                    // create from ser file
+                    BufferedInputStream bis = new BufferedInputStream(instanceOrigin().getInputStream(), 1024);
+                    CMObjectInputStream cis = new CMObjectInputStream(bis,createClassLoader());
+                    Object o = null;
+                    try {
+                        o = cis.readObject();
+                    } finally {
+                        cis.close();
+                    }
+                    return o;
+                } else {
+                    return super.instanceCreate();
+                }
+            } catch (IOException ex) {
+                // [PENDING] annotate with localized message
+                ErrorManager.getDefault().annotate(ex, instanceName());
+                throw ex;
+            } catch (ClassNotFoundException ex) {
+                throw ex;
+            } catch (Exception e) {
+                // turn other throwables into class not found ex.
+                throw new ClassNotFoundException(e.toString(), e);
+            } catch (LinkageError e) {
+                throw new ClassNotFoundException(e.toString(), e);
+                
+            }
+        }
+        
+        private final class CMObjectInputStream extends ObjectInputStream {
+            
+            private ClassLoader loader;
+            
+            protected CMObjectInputStream(InputStream s, ClassLoader cl) throws IOException {
+                super(s);
+                loader=cl;
+            }
+            
+            protected Class resolveClass(ObjectStreamClass s) throws IOException, ClassNotFoundException {
+                return Class.forName(s.getName(), false, loader);
+            }
+            
+        }        
     }
 }
