@@ -82,8 +82,8 @@ implements DebuggerCookie {
 
   transient protected ExecSupport execSupport;
 
-  /** Are cookies initialized already? Synchronization helper */
-  transient private boolean cookiesInitialized;
+  /** Cookie initializing Task */
+  transient private Task cookieInit;
 
   // constructors ...................................................................................
 
@@ -98,59 +98,45 @@ implements DebuggerCookie {
     MultiDataObject.Entry pe = getPrimaryEntry();
     instanceSupport = new InstanceSupport.Origin(pe);
     execSupport = new ExecSupport(pe);
-    // asociate cookies (can be slow, do it in non AWT thread)
-    RequestProcessor.postRequest(
+    // asociate cookies (can be slow, do it in separate task)
+    cookieInit = new Task(
       new Runnable () {
         public void run () {
           doInitCookies();
         }
       }
     );
+    RequestProcessor.postRequest(cookieInit);
   }
 
   /** Actually performs the work of assigning cookies */
-  private synchronized void doInitCookies () {
+  private void doInitCookies () {
     boolean isExecutable = false;
     try {
       instanceSupport.instanceClass();
       isExecutable = instanceSupport.isExecutable();
     } catch (IOException ex) {
-      System.out.println ("Chytam IOExc....");
       return;
     } catch (ClassNotFoundException ex) {
-      System.out.println ("Chytam ClassNFExc...");
       return;
     }
     CookieSet cs = getCookieSet();
     cs.add(instanceSupport);
     if (isExecutable)
       cs.add(execSupport);
-    cookiesInitialized = true;
-    notify();
   }
 
   /** Overrides superclass getCookie.<P>
   * Blocks until cookie initialization is finished.
   */
   public Node.Cookie getCookie (Class type) {
-    // block if cookies not initialized yet
-    synchronized (this) {
-      while (!cookiesInitialized) {
-        try {
-          wait();
-        } catch (InterruptedException ex) {
-          // someone interrupted, ignore...
-        }
-      }
-    }
+    cookieInit.waitFinished();
     return super.getCookie(type);
   }
-
 
   private void readObject (java.io.ObjectInputStream is)
   throws java.io.IOException, ClassNotFoundException {
     is.defaultReadObject();
-    cookiesInitialized = false;
     initCookies();
   }
 
@@ -466,6 +452,8 @@ implements DebuggerCookie {
 
 /*
  * Log
+ *  7    Gandalf   1.6         1/26/99  David Simonek   util.Task used for 
+ *       synchronization
  *  6    Gandalf   1.5         1/22/99  David Simonek   synchronization problems
  *       concerning getCookie repaired
  *  5    Gandalf   1.4         1/20/99  David Simonek   rework of class DO
