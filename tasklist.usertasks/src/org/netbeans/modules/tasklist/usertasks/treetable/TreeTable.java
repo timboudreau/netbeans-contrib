@@ -142,9 +142,11 @@ public class TreeTable extends JTable {
                 getTreeTableModel().sort(getSortingModel());
                 
                 // expand again folders
-                while (en.hasMoreElements()) {
-                    TreePath tp = (TreePath) en.nextElement();
-                    tree.expandPath(tp);
+                if (en != null) { // #49217
+                    while (en.hasMoreElements()) {
+                        TreePath tp = (TreePath) en.nextElement();
+                        tree.expandPath(tp);
+                    }
                 }
                 
                 for (int i = 0; i < selPaths.length; i++) {
