@@ -37,7 +37,6 @@ import org.openide.ErrorManager;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
@@ -159,7 +158,7 @@ public class UserCommandIO extends Object {
     /**
      * Read the commands definitions from the document and create the tree of commands.
      */
-    public static ConditionedCommands readCommands(Document doc, VcsFileSystem fileSystem) throws DOMException {
+    public static ConditionedCommands readCommands(Document doc, CommandExecutionContext fileSystem) throws DOMException {
         Element rootElem = doc.getDocumentElement();
         if (!VariableIO.CONFIG_ROOT_ELEM.equals(rootElem.getNodeName())) return null;
         NodeList labelList = rootElem.getElementsByTagName(VariableIO.LABEL_TAG);
@@ -197,7 +196,7 @@ public class UserCommandIO extends Object {
     }
     
     public static ConditionedCommands readCommands(Node labelNode, NodeList commandsList,
-                                                     CommandExecutionContext execContext) throws DOMException {
+                                                   CommandExecutionContext execContext) throws DOMException {
         CommandsTree rootCommandNode = null;
         String label = "";
         if (labelNode != null) {

@@ -148,9 +148,15 @@ public final class ProfilesFactory extends Object {
     }
     
     private Set parseOSs(String oss) {
-        HashSet set = new HashSet();
+        Set set;
         if (oss.length() > 0) {
-            set.addAll(Arrays.asList(VcsUtilities.getQuotedStrings(oss)));
+            set = new HashSet();
+            String[] strs = VcsUtilities.getQuotedStrings(oss);
+            for (int i = 0; i < strs.length; i++) {
+                set.add(strs[i]);
+            }
+        } else {
+            set = Collections.EMPTY_SET;
         }
         return set;
     }
