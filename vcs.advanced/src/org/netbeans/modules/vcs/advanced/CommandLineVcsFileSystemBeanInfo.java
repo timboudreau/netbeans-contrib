@@ -55,6 +55,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor filterBackupFiles = null;
         PropertyDescriptor rememberPassword = null;
         PropertyDescriptor shortStatuses = null;
+        PropertyDescriptor refreshTime = null;
 
         try {
             rootDirectory=new PropertyDescriptor
@@ -117,6 +118,9 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             rememberPassword.setExpert(true);
             shortStatuses = new PropertyDescriptor
                                 (CommandLineVcsFileSystem.PROP_SHORT_FILE_STATUSES, CommandLineVcsFileSystem.class, "isShortFileStatuses", "setShortFileStatuses"); // NOI18N
+            refreshTime = new PropertyDescriptor
+                                ("refreshTime", CommandLineVcsFileSystem.class, "getCustomRefreshTime", "setCustomRefreshTime"); // NOI18N
+            refreshTime.setExpert(true);
 
 
             desc = new PropertyDescriptor[] {
@@ -124,7 +128,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                        acceptUserParams, runRefreshCommand, processAllFiles,
                        annotationPattern, autoRefresh, notification, hideShadowFiles,
                        ignoredGarbageFiles, createBackupFiles, filterBackupFiles,
-                       rememberPassword, shortStatuses
+                       rememberPassword, shortStatuses, refreshTime
                    };
 
             ResourceBundle bundle = NbBundle.getBundle (CommandLineVcsFileSystemBeanInfo.class);
@@ -170,6 +174,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             rememberPassword.setShortDescription(bundle.getString("HINT_rememberPassword"));
             shortStatuses.setDisplayName      (bundle.getString("PROP_shortFileStatuses"));
             shortStatuses.setShortDescription (bundle.getString("HINT_shortFileStatuses"));
+            refreshTime.setDisplayName        (bundle.getString("PROP_refreshTime"));
+            refreshTime.setShortDescription   (bundle.getString("HINT_refreshTime"));
 
         } catch (IntrospectionException ex) {
             org.openide.TopManager.getDefault().notifyException(ex);
