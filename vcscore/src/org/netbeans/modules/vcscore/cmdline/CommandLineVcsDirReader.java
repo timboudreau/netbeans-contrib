@@ -348,7 +348,8 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
             ExecuteCommand.setAdditionalParams(listCommand, fileSystem);
             vars.put("DATAREGEX", (String) list.getProperty(UserCommand.PROPERTY_DATA_REGEX)); // NOI18N
             vars.put("ERRORREGEX", (String) list.getProperty(UserCommand.PROPERTY_ERROR_REGEX)); // NOI18N
-            vars.put("INPUT", (String) list.getProperty(UserCommand.PROPERTY_INPUT)); // NOI18N
+            String input = (String) list.getProperty(UserCommand.PROPERTY_INPUT);
+            if (input != null) vars.put("INPUT", input); // NOI18N
             //vars.put("TIMEOUT", new Long(list.getTimeout())); // NOI18N
             TopManager.getDefault().setStatusText(g("MSG_Command_name_running", list.getName()));
             shouldFail = !listCommand.list(vars, args, filesByName,

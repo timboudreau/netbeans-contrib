@@ -250,7 +250,8 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
             ExecuteCommand.setAdditionalParams(listCommand, fileSystem);
             vars.put("DATAREGEX", (String) listSub.getProperty(UserCommand.PROPERTY_DATA_REGEX)); // NOI18N
             vars.put("ERRORREGEX", (String) listSub.getProperty(UserCommand.PROPERTY_ERROR_REGEX)); // NOI18N
-            vars.put("INPUT", (String) listSub.getProperty(UserCommand.PROPERTY_INPUT)); // NOI18N
+            String input = (String) listSub.getProperty(UserCommand.PROPERTY_INPUT);
+            if (input != null) vars.put("INPUT", input); // NOI18N
             //vars.put("TIMEOUT", new Long(listSub.getTimeout())); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", listSub.getName()));
             shouldFail = !listCommand.listRecursively(vars, args, filesByName,
