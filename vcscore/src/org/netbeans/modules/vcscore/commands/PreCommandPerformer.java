@@ -68,25 +68,38 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
         this.vars = vars;
     }
 
+    /**
+     * Execute all commands and insert their output to the exec string.
+     * @return the exec string with commands output.
+     */
     public String process(String exec) {
         //String exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec == null) return null;
         //UserCommand[] preCommands = cmd.getPreCommands();
         ArrayList commands = findPreCommands(exec);
-        exec = processPreCommands((String[]) new TreeSet(commands).toArray(new String[0]), exec);
-        /*
-        if (preCommands.length > 0) {
-            if (VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_PRECOMMANDS_EXECUTE)) {
-                exec = processPreCommands(preCommands);
-            } else {
-                exec = putEmptyOutput(preCommands);
-            }
-        } else {
-            exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
-        }
-        D.deb("process(): return exec = "+exec);
-         */
+        String[] commandNames = (String[]) new TreeSet(commands).toArray(new String[0]);
+        processPreCommands(commandNames);
+        exec = insertPreCommandsOutput(exec, commandNames);
         return exec;
+    }
+    
+    /**
+     * Execute all commands and insert their output to the provided strings.
+     * @return the array of strings of the same size as the original array,
+     * with commands output filled to individual strings. The original array
+     * is not changed.
+     */
+    public String[] process(String[] execs) {
+        if (execs == null) return null;
+        String[] processed = new String[execs.length];
+        String concatenation = VcsUtilities.array2string(execs);
+        ArrayList commands = findPreCommands(concatenation);
+        String[] commandNames = (String[]) new TreeSet(commands).toArray(new String[0]);
+        processPreCommands(commandNames);
+        for (int i = 0; i < execs.length; i++) {
+            processed[i] = insertPreCommandsOutput(execs[i], commandNames);
+        }
+        return processed;
     }
     
     /** @return the list of commands to run for the output */
@@ -125,7 +138,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     }
      */
     
-    private String processPreCommands(String[] preCommands, String exec) {
+    private void processPreCommands(String[] preCommands) {
         preCommandOutput = new Vector[preCommands.length];
         preCommandError = new Vector[preCommands.length];
         CommandsPool pool = fileSystem.getCommandsPool();
@@ -149,7 +162,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             pool.waitToFinish(vce);
             runningExecutors.remove(0);
         }
-        return insertPreCommandsOutput(exec, preCommands);
+        //return insertPreCommandsOutput(exec, preCommands);
     }
 
     /*
