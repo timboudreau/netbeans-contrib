@@ -88,9 +88,9 @@ public final class TaskTag implements Externalizable {
         // TODO - this should really be a static factory in SuggestionPriority!
         switch (prioNum) {
         case 1: priority = SuggestionPriority.HIGH; break;
-        case 2: priority = SuggestionPriority.MEDIUM; break;
+        case 2: priority = SuggestionPriority.MEDIUM_HIGH; break;
         case 3: priority = SuggestionPriority.MEDIUM; break;
-        case 4: priority = SuggestionPriority.MEDIUM; break;
+        case 4: priority = SuggestionPriority.MEDIUM_LOW; break;
         case 5: priority = SuggestionPriority.LOW; break;
         default: priority = SuggestionPriority.MEDIUM; break;
         }
