@@ -613,6 +613,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
+        <property name="changingNumRevisions">
+          <value>true</value>
+        </property>
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
         </property>
