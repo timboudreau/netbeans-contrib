@@ -29,142 +29,79 @@ import org.openide.filesystems.FileUtil;
 */
 public class CORBASupport {
 
-   public static final boolean DEBUG = false;
+  public static final boolean DEBUG = false;
 
-   /** bundle to obtain text information from */
-   public static ResourceBundle bundle = NbBundle.getBundle(CORBASupport.class);
+  /** bundle to obtain text information from */
+  public static ResourceBundle bundle = NbBundle.getBundle(CORBASupport.class);
    
-   public static final String NOT_SETUPED = CORBASupport.bundle.getString
-      ("CTL_NotSetuped");
+  public static final String NOT_SETUPED = CORBASupport.bundle.getString
+    ("CTL_NotSetuped");
    
-   /*
-     public static final String ORBIX = CORBASupport.bundle.getString ("CTL_Orbix");
-     
-     public static final String VISIBROKER = CORBASupport.bundle.getString ("CTL_Visibroker");
-     
-     public static final String ORBACUS = CORBASupport.bundle.getString ("CTL_Orbacus");
-     
-     public static final String JAVAORB = CORBASupport.bundle.getString ("CTL_JavaORB");
-   */
+  public static final String INHER = CORBASupport.bundle.getString ("CTL_Inher");
 
-    public static final String INHER = CORBASupport.bundle.getString ("CTL_Inher");
+  public static final String TIE = CORBASupport.bundle.getString ("CTL_Tie");
 
-    public static final String TIE = CORBASupport.bundle.getString ("CTL_Tie");
-
-    public static final String SERVER_NS = CORBASupport.bundle.getString 
-       ("CTL_SERVER_NS");
+  public static final String SERVER_NS = CORBASupport.bundle.getString 
+    ("CTL_SERVER_NS");
   
-    public static final String SERVER_IOR_TO_FILE = CORBASupport.bundle.getString 
-       ("CTL_SERVER_IOR_TO_FILE");
+  public static final String SERVER_IOR_TO_FILE = CORBASupport.bundle.getString 
+    ("CTL_SERVER_IOR_TO_FILE");
 
-    public static final String SERVER_IOR_TO_OUTPUT = CORBASupport.bundle.getString 
-       ("CTL_SERVER_IOR_TO_OUTPUT");
+  public static final String SERVER_IOR_TO_OUTPUT = CORBASupport.bundle.getString 
+    ("CTL_SERVER_IOR_TO_OUTPUT");
 
-    public static final String SERVER_BINDER = CORBASupport.bundle.getString 
-       ("CTL_SERVER_BINDER");
+  public static final String SERVER_BINDER = CORBASupport.bundle.getString 
+    ("CTL_SERVER_BINDER");
 
-    public static final String CLIENT_NS = CORBASupport.bundle.getString 
-       ("CTL_CLIENT_NS");
+  public static final String CLIENT_NS = CORBASupport.bundle.getString 
+    ("CTL_CLIENT_NS");
 
-    public static final String CLIENT_IOR_FROM_FILE = CORBASupport.bundle.getString 
-       ("CTL_CLIENT_IOR_FROM_FILE");
+  public static final String CLIENT_IOR_FROM_FILE = CORBASupport.bundle.getString 
+    ("CTL_CLIENT_IOR_FROM_FILE");
 
-    public static final String CLIENT_IOR_FROM_INPUT = CORBASupport.bundle.getString 
-       ("CTL_CLIENT_IOR_FROM_INPUT");
+  public static final String CLIENT_IOR_FROM_INPUT = CORBASupport.bundle.getString 
+    ("CTL_CLIENT_IOR_FROM_INPUT");
 
-   public static final String CLIENT_BINDER = CORBASupport.bundle.getString 
-      ("CTL_CLIENT_BINDER");
+  public static final String CLIENT_BINDER = CORBASupport.bundle.getString 
+    ("CTL_CLIENT_BINDER");
+
+  public static final String SYNCHRO_DISABLE = CORBASupport.bundle.getString
+    ("CTL_SYNCHRO_DISABLE");
    
+  public static final String SYNCHRO_ON_UPDATE = CORBASupport.bundle.getString
+    ("CTL_SYNCHRO_ON_UPDATE");
+   
+  public static final String SYNCHRO_ON_SAVE = CORBASupport.bundle.getString
+    ("CTL_SYNCHRO_ON_SAVE");
+   
+  public static final String GEN_NOTHING = CORBASupport.bundle.getString
+    ("CTL_GEN_NOTHING");
 
-    /*
-    public static final String ORBIX_IMPORT = CORBASupport.bundle.getString 
-	("CTL_ORBIX_IMPORT");
-    public static final String ORBIX_PROPS_SETTINGS = CORBASupport.bundle.getString 
-	("CTL_ORBIX_SETTINGS_ORB_PROPERTIES");
-    //public static final String ORBIX_INIT = CORBASupport.bundle.getString ("CTL_ORBIX_ORB_INIT");
+  public static final String GEN_EXCEPTION = CORBASupport.bundle.getString
+    ("CTL_GEN_EXCEPTION");
 
-    public static final String ORBIX_DIR_PARAM = CORBASupport.bundle.getString 
-	("CTL_ORBIX_DIR_PARAM");
-    public static final String ORBIX_PACKAGE_PARAM = CORBASupport.bundle.getString
-	("CTL_ORBIX_PACKAGE_PARAM");
-    public static final String ORBIX_COMPILER = CORBASupport.bundle.getString
-	("CTL_ORBIX_COMPILER");
-    //public static final String ORBIX_PACKAGE_DELIMITER = CORBASupport.bundle.getString
-    //	("CTL_ORBIX_PACKAGE_DELIMITER");
+  public static final String GEN_RETURN_NULL = CORBASupport.bundle.getString
+    ("CTL_GEN_RETURN_NULL");
 
-    public static final String VISIBROKER_IMPORT = CORBASupport.bundle.getString 
-	("CTL_VISIBROKER_IMPORT");
-    public static final String VISIBROKER_PROPS_SETTINGS = CORBASupport.bundle.getString 
-	("CTL_VISIBROKER_SETTINGS_ORB_PROPERTIES");
-    //public static final String VISIBROKER_INIT = CORBASupport.bundle.getString 
-    //	("CTL_VISIBROKER_ORB_INIT");
-
-    public static final String VISIBROKER_DIR_PARAM = CORBASupport.bundle.getString 
-	("CTL_VISIBROKER_DIR_PARAM");
-    public static final String VISIBROKER_PACKAGE_PARAM = CORBASupport.bundle.getString 
-	("CTL_VISIBROKER_PACKAGE_PARAM");
-    public static final String VISIBROKER_COMPILER = CORBASupport.bundle.getString 
-	("CTL_VISIBROKER_COMPILER");
-
-    public static final String ORBACUS_IMPORT = CORBASupport.bundle.getString 
-	("CTL_ORBACUS_IMPORT");
-    public static final String ORBACUS_PROPS_SETTINGS = CORBASupport.bundle.getString 
-	("CTL_ORBACUS_SETTINGS_ORB_PROPERTIES");
-    //public static final String ORBACUS_INIT = CORBASupport.bundle.getString ("CTL_ORBACUS_ORB_INIT");
-    public static final String ORBACUS_DIR_PARAM = CORBASupport.bundle.getString 
-	("CTL_ORBACUS_DIR_PARAM");
-    public static final String ORBACUS_PACKAGE_PARAM = CORBASupport.bundle.getString 
-	("CTL_ORBACUS_PACKAGE_PARAM");
-    public static final String ORBACUS_COMPILER = CORBASupport.bundle.getString 
-	("CTL_ORBACUS_COMPILER");
-    //public static final String ORBACUS_PACKAGE_DELIMITER = CORBASupport.bundle.getString
-    //	("CTL_ORBACUS_PACKAGE_DELIMITER");
-    public static final String ORBACUS_ERROR_EXPRESSION = CORBASupport.bundle.getString
-	("CTL_ORBACUS_ERROR_EXPRESSION");
-    public static final String ORBACUS_FILE_POSITION = CORBASupport.bundle.getString
-	("CTL_ORBACUS_FILE_POSITION");
-    public static final String ORBACUS_LINE_POSITION = CORBASupport.bundle.getString
-	("CTL_ORBACUS_LINE_POSITION");
-    public static final String ORBACUS_COLUMN_POSITION = CORBASupport.bundle.getString
-	("CTL_ORBACUS_COLUMN_POSITION");
-    public static final String ORBACUS_MESSAGE_POSITION = CORBASupport.bundle.getString
-	("CTL_ORBACUS_MESSAGE_POSITION");
+  /** constant for idl extension */
+  private static final String IDL_EXT = "idl";
     
-    
-    public static final String JAVAORB_IMPORT = CORBASupport.bundle.getString 
-	("CTL_JAVAORB_IMPORT");
-    public static final String JAVAORB_PROPS_SETTINGS = CORBASupport.bundle.getString 
-	("CTL_JAVAORB_SETTINGS_ORB_PROPERTIES");
-    //public static final String JAVAORB_INIT = CORBASupport.bundle.getString ("CTL_JAVAORB_ORB_INIT");
-    public static final String JAVAORB_DIR_PARAM = CORBASupport.bundle.getString 
-	("CTL_JAVAORB_DIR_PARAM");
-    public static final String JAVAORB_PACKAGE_PARAM = CORBASupport.bundle.getString 
-	("CTL_JAVAORB_PACKAGE_PARAM");
-    public static final String JAVAORB_COMPILER = CORBASupport.bundle.getString 
-	("CTL_JAVAORB_COMPILER");
-    //public static final String JAVAORB_PACKAGE_DELIMITER = CORBASupport.bundle.getString
-    //	("CTL_JAVAORB_PACKAGE_DELIMITER");
-    
-    */
+  /** constant for java extension */
+  private static final String JAVA_EXT = "java";
 
-    /** constant for idl extension */
-    private static final String IDL_EXT = "idl";
-    
-    /** constant for java extension */
-    private static final String JAVA_EXT = "java";
-
-    /**
-     * no-arg constructor
-     */
-    CORBASupport() {
-       if (DEBUG)
-	  System.out.println ("CORBASupport");
-    }
+  /**
+   * no-arg constructor
+   */
+  CORBASupport() {
+    if (DEBUG)
+      System.out.println ("CORBASupport");
+  }
 
 }
 
 /*
  * <<Log>>
+ *  16   Gandalf   1.15        11/4/99  Karel Gardas    update from CVS
  *  15   Gandalf   1.14        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  14   Gandalf   1.13        10/1/99  Karel Gardas    updates from CVS

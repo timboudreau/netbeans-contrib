@@ -294,6 +294,7 @@ public class IDLModule extends ModuleInstall {
 
 /*
  * <<Log>>
+ *  21   Gandalf   1.20        11/4/99  Karel Gardas    update from CVS
  *  20   Gandalf   1.19        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  19   Gandalf   1.18        10/5/99  Karel Gardas    

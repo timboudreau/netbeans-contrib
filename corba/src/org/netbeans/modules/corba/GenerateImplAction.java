@@ -26,6 +26,16 @@ import org.openide.nodes.Node;
 
 public class GenerateImplAction extends CookieAction {
 
+  //private String name = NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
+  private String generate = NbBundle.getBundle (CORBASupport.class).getString 
+    ("ACT_GENERATE");
+  private String update_and_generate = NbBundle.getBundle (CORBASupport.class).getString 
+    ("ACT_UPDATE_AND_GENERATE");
+  private String update = NbBundle.getBundle (CORBASupport.class).getString 
+    ("ACT_UPDATE");
+  
+  private String name;
+
   /** @return set of needed cookies */
   protected Class[] cookieClasses () {
     return new Class[] { IDLNodeCookie.class };
@@ -46,7 +56,9 @@ public class GenerateImplAction extends CookieAction {
   * @return the name of the action
   */
   public String getName() {
-    return NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
+    //return NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
+    //System.out.println ("getName () -> " + name);
+    return name;
   }
 
   /** Help context where to find more about the action.
@@ -61,6 +73,24 @@ public class GenerateImplAction extends CookieAction {
   */
   protected String iconResource () {
     return "/org/openide/resources/actions/empty.gif"; // no icon
+  }
+
+  
+  protected boolean enable (Node[] activatedNodes) {
+    //name = "Update Implementations";
+    try {
+      IDLDataObject ido = (IDLDataObject)activatedNodes[0].getCookie (IDLDataObject.class);
+      if (ido.hasGeneratedImplementation () == 0)
+	name = generate;
+      if (ido.hasGeneratedImplementation () == 1)
+	name = update_and_generate;
+      if (ido.hasGeneratedImplementation () == 2)
+	name = update;
+    } catch (Exception ex) {
+      //ex.printStackTrace ();
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -79,6 +109,7 @@ public class GenerateImplAction extends CookieAction {
 
 /*
  * <<Log>>
+ *  10   Gandalf   1.9         11/4/99  Karel Gardas    update from CVS
  *  9    Gandalf   1.8         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  8    Gandalf   1.7         10/1/99  Karel Gardas    updates from CVS

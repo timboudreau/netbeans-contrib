@@ -58,7 +58,7 @@ public class IDLDataObject extends MultiDataObject {
 
   //public static final boolean DEBUG = true;
   private static final boolean DEBUG = false;
- 
+
   private static final int STATUS_OK = 0;
   private static final int STATUS_ERROR = 1;
 
@@ -97,25 +97,27 @@ public class IDLDataObject extends MultiDataObject {
     // added for implementation generator
     cookies.add (new IDLNodeCookie () {
       public void GenerateImpl (IDLDataObject ido) {
-	CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
-	  (CORBASupportSettings.class, true);
-	if (css.getOrb () == null) {
-	  new NotSetuped ();
-	  return;
-	}
-
-	if (DEBUG)
-	  System.out.println ("generating of idl implemenations...");
-	generator = new ImplGenerator (ido);
-	generator.setSources (getSources ());
-	// genearte method can return JavaDataObject in near future to Open generated file
-	// in editor
-	generator.generate ();
+	ido.generateImplementation ();
 	/*
 	  CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
 	  (CORBASupportSettings.class, true);
-	  css.loadImpl ();
-	  css.setJavaTemplateTable ();
+	  if (css.getOrb () == null) {
+	  new NotSetuped ();
+	  return;
+	  }
+	  
+	  if (DEBUG)
+	  System.out.println ("generating of idl implemenations...");
+	  generator = new ImplGenerator (ido);
+	  generator.setSources (getSources ());
+	  // genearte method can return JavaDataObject in near future to Open generated file
+	  // in editor
+	  generator.generate ();
+	  
+	  //CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+	  //(CORBASupportSettings.class, true);
+	  //css.loadImpl ();
+	  //css.setJavaTemplateTable ();
 	*/
       }
     });
@@ -283,21 +285,29 @@ public class IDLDataObject extends MultiDataObject {
 
   private Vector getIdlInterfaces (int style) {
     if (DEBUG)
-      System.out.println ("IDLDataObject.getIdlInterfaces ()...");
+      System.out.println ("IDLDataObject.getIdlInterfaces (" + style + ");");
+    // wrapper
+    return getIdlInterfaces (src, style);
+  }
+
+  private Vector getIdlInterfaces (IDLElement element, int style) {
+    if (DEBUG)
+      System.out.println ("IDLDataObject.getIdlInterfaces (" + element + ", " + style + ");");
     Vector idl_interfaces = new Vector ();
     String name;
     Vector type_members;
     Vector tmp_members;
     if (style == STYLE_NOTHING) {
+      return idl_interfaces;
     }
-    else {
-      if (src != null) {
+    if (style == STYLE_FIRST_LEVEL) {
+      if (element != null) {
 	//tmp_members = src.getMembers ();
 	if (DEBUG)
-	  System.out.println ("src: " + src.getMembers ());
-	for (int i=0; i<src.getMembers ().size (); i++) {
-	  if (src.getMember (i) instanceof InterfaceElement) {
-	    name = src.getMember (i).getName ();
+	  System.out.println ("element: " + element.getMembers ());
+	for (int i=0; i<element.getMembers ().size (); i++) {
+	  if (element.getMember (i) instanceof InterfaceElement) {
+	    name = element.getMember (i).getName ();
 	    idl_interfaces.addElement (name);
 	  }
 	}
@@ -307,6 +317,30 @@ public class IDLDataObject extends MultiDataObject {
 	}
       }
     }
+    if (style == STYLE_ALL) {
+      if (element != null) {
+	//tmp_members = element.getMembers ();
+	if (DEBUG)
+	  System.out.println ("element: " + element.getMembers ());
+	for (int i=0; i<element.getMembers ().size (); i++) {
+	  if (element.getMember (i) instanceof InterfaceElement) {
+	    name = element.getMember (i).getName ();
+	    idl_interfaces.addElement (name);
+	  }
+	  if (element.getMember (i) instanceof ModuleElement) {
+	    Vector nested = getIdlInterfaces ((IDLElement)element.getMember (i), STYLE_ALL);
+	    if (nested != null)
+	      idl_interfaces.addAll (nested);
+	  }
+
+	}
+	if (DEBUG) {
+	  for (int i=0; i<idl_interfaces.size (); i++)
+	    System.out.println ("interface: " + (String)idl_interfaces.elementAt (i));
+	}
+      }
+    }
+    
     return idl_interfaces;
   }
 
@@ -330,7 +364,7 @@ public class IDLDataObject extends MultiDataObject {
       name = (String)ii.elementAt (i);
       if (name != null && (!name.equals (""))) {
 	//
-	// now I coment *tie* names which classes are necesary to instantiate in server
+	// now I comment *tie* names which classes are necesary to instantiate in server
 	// and it's better when user can see it in explorer
 	//
 	possible_names.put ("_" + name + "Stub", "");
@@ -380,7 +414,61 @@ public class IDLDataObject extends MultiDataObject {
       return false;
     }
   }
-	 
+
+  public Vector getImplementationNames () {
+    Vector retval = new Vector ();
+    String impl_prefix = null;
+    String impl_postfix = null;
+    CORBASupportSettings css = (CORBASupportSettings)CORBASupportSettings.findObject 
+      (CORBASupportSettings.class, true);
+    if (!css.isTie ()) {
+      // inheritance based skeletons
+      impl_prefix = css.getImplBasePrefix ();
+      impl_postfix = css.getImplBasePostfix ();
+    }
+    else {
+      // tie based skeletons
+      impl_prefix = css.getTiePrefix ();
+      impl_postfix = css.getTiePostfix ();
+    }
+    Vector int_names = getIdlInterfaces (STYLE_ALL);
+    for (int i=0; i<int_names.size (); i++) {
+      retval.add (impl_prefix + (String)int_names.elementAt (i) + impl_postfix);
+    }
+    return retval;
+  }
+
+  
+  public int hasGeneratedImplementation () {
+    if (DEBUG)
+      System.out.println ("hasGeneratedImplementation ()");
+    int retval = 0;
+    Vector names = getImplementationNames ();
+    if (DEBUG)
+      System.out.println ("names: " + names + " of size: " + names.size ());
+    FileObject ifo_folder = getPrimaryFile ().getParent ();
+    for (int i=0; i<names.size (); i++) {
+      if (ifo_folder.getFileObject ((String)names.elementAt (i), "java") != null) {
+	//System.out.println ("find file: " + ifo_folder.getFileObject 
+	//		    ((String)names.elementAt (i), "java"));
+	if (retval == 0 && i == 0) {
+	  retval = 2;
+	  continue;
+	}
+	if (retval == 0) {
+	  retval = 1;
+	  continue;
+	}
+      }
+      else {
+	if (retval != 0)
+	  retval = 1;
+      }
+    }
+    //System.out.println ("-> " + retval);
+    return retval;
+  }
+
   public void update () {
     if (DEBUG)
       System.out.println ("IDLDataObject.update ()...");
@@ -405,7 +493,7 @@ public class IDLDataObject extends MultiDataObject {
       getIdlInterfaces (STYLE_NOTHING));
     */
     possibleNames = createPossibleNames (getIdlConstructs (STYLE_FIRST_LEVEL_WITH_NESTED_TYPES), 
-					 getIdlInterfaces (STYLE_ALL));
+					 getIdlInterfaces (STYLE_FIRST_LEVEL));
 
 
     FileObject tmp_file = null;
@@ -493,6 +581,10 @@ public class IDLDataObject extends MultiDataObject {
       //IDLDataObject.this.startParsing ();
       IDLDataObject.this.update ();
       IDLDataObject.this.idlNode.update ();
+      CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+	(CORBASupportSettings.class, true);
+      if (css.getSynchro () == CORBASupport.SYNCHRO_ON_SAVE) 
+	IDLDataObject.this.generateImplementation ();
     }
       
     public void fileRenamed (FileRenameEvent e) {
@@ -522,10 +614,29 @@ public class IDLDataObject extends MultiDataObject {
     return result;
   }
 
+
+  public void generateImplementation () {
+    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+      (CORBASupportSettings.class, true);
+    if (css.getOrb () == null) {
+      new NotSetuped ();
+      return;
+    }
+
+    if (DEBUG)
+      System.out.println ("generating of idl implemenations...");
+    generator = new ImplGenerator (this);
+    generator.setSources (getSources ());
+    // genearte method can return JavaDataObject in near future to Open generated file
+    // in editor
+    generator.generate ();
+  }
+
 }
 
 /*
  * <<Log>>
+ *  18   Gandalf   1.17        11/4/99  Karel Gardas    update from CVS
  *  17   Gandalf   1.16        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  16   Gandalf   1.15        10/5/99  Karel Gardas    update from CVS
