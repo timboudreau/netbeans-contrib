@@ -31,12 +31,6 @@ import org.openide.filesystems.FileSystem;
 import org.openide.TopManager;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.XMLDataObject;
-//import org.openidex.util.Utilities2;
-import org.openide.src.nodes.FilterFactory;
-
-import org.netbeans.modules.java.settings.JavaSettings;
-
-import org.netbeans.modules.corba.poasupport.POAExplorerFactory;
 
 
 /**
@@ -51,8 +45,6 @@ public class IDLModule extends ModuleInstall {
     private static final boolean DEBUG = false;
     //private static final boolean DEBUG = true;
 
-    private transient FilterFactory factory = null;
-
     private static final String PUBLIC_ID = "-//Forte for Java//DTD ORBSettings 1.0//EN"; // NOI18N
     private static final String PATH = "org/netbeans/modules/corba/resources/impls/ORBSettings.dtd"; // NOI18N
 
@@ -61,15 +53,7 @@ public class IDLModule extends ModuleInstall {
     }
     /** Module installed for the first time. */
     public void installed() {
-        if (DEBUG)
-            System.out.println ("CORBA Support Module installing..."); // NOI18N
-//        copyImpls ();       Removed by XML Transparent FS
-//        copyTemplates ();   Removed by XML Transparent FS
-//        createAction();     Removed by XML Transparent FS
-
         this.restored ();
-        if (DEBUG)
-            System.out.println ("CORBA Support Module installed :)"); // NOI18N
     }
 
 
@@ -78,11 +62,6 @@ public class IDLModule extends ModuleInstall {
         if (DEBUG)
             System.out.println ("CORBA Support Module restoring..."); // NOI18N
         if (DEBUG)
-            System.out.println ("restoring editor support ..."); // NOI18N
-        invokeDynamic( "org.netbeans.modules.java.JavaDataObject", // NOI18N
-                       "addExplorerFilterFactory", // NOI18N
-                       factory = new POAExplorerFactory() );
-        if (DEBUG)
             System.out.println ("CORBA Support Module restored..."); // NOI18N
     }
     
@@ -90,10 +69,6 @@ public class IDLModule extends ModuleInstall {
      *  Removes CorbaWizardAction
      */
     public void uninstalled () {
-        //removeAction();
-        invokeDynamic( "org.netbeans.modules.java.JavaDataObject", // NOI18N
-                       "removeExplorerFilterFactory", // NOI18N
-                       factory );
     }
 
     private String getClasspath(String[] classpathItems) {
@@ -104,80 +79,6 @@ public class IDLModule extends ModuleInstall {
         return null;
     }
 
-
-    // -----------------------------------------------------------------------------
-    // Private methods
-    /*
-    private void copyTemplates () {
-        try {
-            org.openide.filesystems.FileUtil.extractJar (
-                org.openide.TopManager.getDefault ().getPlaces ().folders().templates ().getPrimaryFile (),
-                getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/templates.jar") // NOI18N
-            );
-        } catch (java.io.IOException e) {
-            org.openide.TopManager.getDefault ().notifyException (e);
-        }
-    }
-
-    private void copyImpls () {
-        try {
-            org.openide.filesystems.FileUtil.extractJar (
-                org.openide.TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot (),
-                getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/impls.jar") // NOI18N
-            );
-        } catch (java.io.IOException e) {
-            org.openide.TopManager.getDefault ().notifyException (e);
-        }
-    }
-    
-    
-    private void createAction () {
-        try {
-            DataFolder toolsFolder = DataFolder.create (TopManager.getDefault().getPlaces().folders().menus(), "Tools"); // NOI18N
-            if (toolsFolder != null) {
-                Utilities2.createAction(org.netbeans.modules.corba.wizard.CorbaWizardAction.class, toolsFolder, "ToolsAction", true, true, false, false); // NOI18N
-            }
-        } catch (Exception ex) {
-            if (Boolean.getBoolean ("netbeans.debug.exceptions")) ex.printStackTrace (); // NOI18N
-        }
-    }
-    */    
-    /*
-      private void removeAction () {
-      try {
-      DataFolder toolsFolder = DataFolder.create(TopManager.getDefault().getPlaces().folders().menus(),"Tools"); // NOI18N
-      if (toolsFolder != null) {
-      Utilities2.removeAction (org.netbeans.modules.corba.wizard.CorbaWizardAction.class, toolsFolder);
-      }
-      }catch (Exception e) {
-      if (Boolean.getBoolean ("netbeans.debug.exceptions"))  // NOI18N
-      e.printStackTrace();
-      }
-      }
-    */
-    private void invokeDynamic( String className, String methodName, FilterFactory factory ) {
-
-        try {
-            Class dataObject = TopManager.getDefault().systemClassLoader().loadClass( className );
-
-            if ( dataObject == null )
-                return;
-
-            Method method = dataObject.getDeclaredMethod( methodName, new Class[] { FilterFactory.class }  );
-            if ( method == null )
-                return;
-
-            method.invoke( null, new Object[] { factory } );
-        }
-        catch ( java.lang.ClassNotFoundException e ) {
-        }
-        catch ( java.lang.NoSuchMethodException e ) {
-        }
-        catch ( java.lang.IllegalAccessException e ) {
-        }
-        catch ( java.lang.reflect.InvocationTargetException e ) {
-        }
-    }
 }
 
 /*

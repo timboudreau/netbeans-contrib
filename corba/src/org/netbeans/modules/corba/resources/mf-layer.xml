@@ -65,6 +65,13 @@ Microsystems, Inc. All Rights Reserved.
       </folder>
     </folder>
   </folder>
+  <folder name="NodeFactories">
+    <folder name="java">
+      <folder name="explorer">
+        <file name="org-netbeans-modules-corba-poasupport-POAExplorerFactory.instance"/>
+      </folder>
+    </folder>
+  </folder> 
   <folder name="CORBA">
 <!--
     <file name="j2ee-orb.properties" url="impls/j2ee-orb.properties">
