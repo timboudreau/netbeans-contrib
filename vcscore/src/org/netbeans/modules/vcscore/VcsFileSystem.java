@@ -3520,23 +3520,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public java.util.Date lastModified(String name) {
         File file = getFile(name);
         if (!file.exists()) {
-            if (cache != null) {
-                CacheFile cFile = cache.getDir(name);
-                if (cFile == null) cFile = cache.getFile(name);
-                if (cFile != null) {
-                    String date = cFile.getDate();
-                    String time = cFile.getTime();
-                    if (date != null && date.length() > 0
-                        && time != null && time.length() > 0) {
-                            Date pdate = null;
-                            try {
-                                pdate = java.text.DateFormat.getInstance().parse(date + " " + time);
-                            } catch (java.text.ParseException pexc) {}
-                            if (pdate != null) return pdate;
-                    }
-                }
-            }
-            return new Date(System.currentTimeMillis());
+            // forget about the date in cache, we have to return zero date for non-existing files because of issue #49284
+            return new Date(0L);
         } else {
             return new Date (file.lastModified ());
         }
