@@ -67,6 +67,11 @@ public class VssRevisionListGetter extends Object implements VcsAdditionalComman
         revisionItems = new ArrayList();
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(logCmd, vars);
         vce.addDataOutputListener(this);
+        vce.addErrorOutputListener(new CommandOutputListener() {
+            public void outputLine(String line) {
+                stderrNRListener.outputLine(line);
+            }
+        });
         fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
         try {
             fileSystem.getCommandsPool().waitToFinish(vce);

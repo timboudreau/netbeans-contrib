@@ -43,7 +43,7 @@ import org.netbeans.modules.vcs.profiles.vss.commands.GetInitializationVariable;
  * List command for VSS.
  * @author  Martin Entlicher
  */
-public class VssListCommand extends AbstractListCommand {
+public class VssListCommand extends AbstractListCommand implements CommandOutputListener {
 
     static final String PROJECT_BEGIN_ENG = "$/"; // NOI18N
     static final String PROJECT_BEGIN_LOC = org.openide.util.NbBundle.getBundle(VssListCommand.class).getString("VSS_ProjectBegin");
@@ -148,6 +148,7 @@ public class VssListCommand extends AbstractListCommand {
                     }
                 });
             }
+            ec.addErrorOutputListener(this);
             fileSystem.getCommandsPool().preprocessCommand(ec, vars, fileSystem);
             fileSystem.getCommandsPool().startExecutor(ec);
             try {
@@ -329,6 +330,7 @@ public class VssListCommand extends AbstractListCommand {
                     }
                 }
             });
+            vce.addErrorOutputListener(this);
             fileSystem.getCommandsPool().preprocessCommand(vce, cmdVars, fileSystem);
             fileSystem.getCommandsPool().startExecutor(vce);
             try {
@@ -398,6 +400,7 @@ public class VssListCommand extends AbstractListCommand {
                         }
                     }
                 });
+                vce.addErrorOutputListener(this);
                 fileSystem.getCommandsPool().preprocessCommand(vce, varsCmd, fileSystem);
                 fileSystem.getCommandsPool().startExecutor(vce);
                 try {
@@ -633,6 +636,13 @@ public class VssListCommand extends AbstractListCommand {
             }
             lastFileName += line;
         }
+    }
+    
+    /**
+     * Propagate the error output.
+     */
+    public void outputLine(String line) {
+        stderrNRListener.outputLine(line);
     }
     
 }
