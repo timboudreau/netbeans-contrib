@@ -151,8 +151,8 @@ public class BundleLookupPanel extends TopComponent  {
                     TableColumnModel columnModel = tableView.getColumnModel();
                     int viewColumn = columnModel.getColumnIndexAtX(e.getX()); 
                     int column = tableView.convertColumnIndexToModel(viewColumn); 
-                    if (e.getButton()==e.BUTTON1 && e.getClickCount()==1 && column != -1) {
-                        sort(column, (e.getModifiers()&e.SHIFT_MASK)==0); 
+                    if (e.getClickCount()==1 && column != -1) {
+                        sort(column, (e.getModifiers()&(e.SHIFT_MASK|e.BUTTON3_MASK))==0); 
                     }
                 }
             };
