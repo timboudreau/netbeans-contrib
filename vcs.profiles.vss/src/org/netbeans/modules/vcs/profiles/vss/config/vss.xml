@@ -396,49 +396,34 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_COMMIT)</value>
         </property>
       </command>
-      <command name="CHECKOUT_TEST">
+      <command name="CHECKOUT_CONFIRM">
         <property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-N ${IDENT} ${QFILE} ${NUR}</value>
+          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} $[? TEST_CONFIRMATION] [-I-N] [-I-Y] ${IDENT} ${QFILE} ${NUR}</value>
+        </property>
+	<property name="error.regex.global">
+	  <value>(^.*)\(Y/N\)N$</value>
+	</property>
+      </command>
+      <command name="CHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT_Mnemonic)</value>
+        </property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
         </property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_VSS_CHECKOUT)))
                  PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_CHECKOUT_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_CHECKOUT_Options_mnc)))
           </value>
 	</property>
-	<property name="error.regex.global">
-	  <value>(^.*)\(Y/N\)N$</value>
-	</property>
-        <property name="ignoreFail">
-  	  <value>true</value>
-        </property>
-        <property name="concurrentExec">
-          <value>16</value> <!-- EXEC_SERIAL_ALL -->
-        </property>
-      </command>
-      <command name="CHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT)">
-        <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT_Mnemonic)</value>
-        </property>
-	<property name="exec">
-	  <value>$[? CONFIRMATION_MSG] [${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}] [$[? CONFIRMATION_SUCCESS] [cmd /X /C "echo >nul"] [${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}]]</value>
-	</property>
-	<property name="supportsAdvancedMode">
-	  <value>true</value>
-        </property>
-        <property name="confirmationMsg">
-          <value>{INSERT_ERROR_OF_CHECKOUT_TEST(0)}</value>
+        <property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t CHECKOUT_CONFIRM</value>
         </property>
 	<property name="onDir">
 	  <value>false</value>
 	</property>
 	<property name="onRoot">
 	  <value>false</value>
-	</property>
-	<property name="data.regex">
-	  <value>(.*$)</value>
-	</property>
-	<property name="error.regex">
-	  <value>(.*$)</value>
 	</property>
 	<property name="checkForModifications">
 	  <value>true</value>
@@ -447,7 +432,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
         <property name="concurrentExec">
-          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+          <value>-1</value>
         </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.UpdateCommandAction</value>
@@ -526,47 +511,34 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_UPDATE)</value>
         </property>
       </command>
-      <command name="UNCHECKOUT_TEST">
+      <command name="UNCHECKOUT_CONFIRM">
         <property name="exec">
-          <value>${RUN_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} -I-N ${IDENT} ${QFILE} ${NUR}</value>
+          <value>${RUN_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} $[? TEST_CONFIRMATION] [-I-N] [-I-Y] ${IDENT} ${QFILE} ${NUR}</value>
+        </property>
+	<property name="error.regex.global">
+	  <value>(^.*)\(Y/N\)N$</value>
+	</property>
+      </command>
+      <command name="UNCHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UNCHECKOUT)">
+        <property name="labelMnemonic">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UNCHECKOUT_Mnemonic)</value>
+        </property>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
         </property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_UNCHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_COMMAND_VSS_UNCHECKOUT_Label)))
                  PROMPT_FOR_EXPERT(CMD_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_UNCHECKOUT_Options), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_UNCHECKOUT_Options_mnc)))
           </value>
 	</property>
-	<property name="error.regex.global">
-	  <value>(^.*)\(Y/N\)N$</value>
-	</property>
-        <property name="ignoreFail">
-  	  <value>true</value>
-        </property>
-        <property name="concurrentExec">
-          <value>16</value> <!-- EXEC_SERIAL_ALL -->
-        </property>
-      </command>
-      <command name="UNCHECKOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UNCHECKOUT)">
-        <property name="labelMnemonic">
-          <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UNCHECKOUT_Mnemonic)</value>
-        </property>
-	<property name="exec">
-	  <value>$[? CONFIRMATION_MSG] [${RUN_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}] [$[? CONFIRMATION_SUCCESS] [cmd /X /C "echo >nul"] [${RUN_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}]]</value>
-	  <value if="IS_WIN9X">$[? CONFIRMATION_MSG] [${RUN_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}] [$[? CONFIRMATION_SUCCESS] [${SHELL} -c "echo >/dev/null"] [${RUN_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}]]</value>
-	</property>
-        <property name="confirmationMsg">
-          <value>{INSERT_ERROR_OF_UNCHECKOUT_TEST(0)}</value>
+        <property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t UNCHECKOUT_CONFIRM</value>
         </property>
 	<property name="onDir">
 	  <value>false</value>
 	</property>
 	<property name="onRoot">
 	  <value>false</value>
-	</property>
-	<property name="data.regex">
-	  <value>(.*$)</value>
-	</property>
-	<property name="error.regex">
-	  <value>(.*$)</value>
 	</property>
 	<property name="checkForModifications">
 	  <value>true</value>
@@ -575,7 +547,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
         <property name="concurrentExec">
-          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+          <value>-1</value>
         </property>
       </command>
       <command name="UNCHECKOUTR_TEST">
@@ -843,22 +815,26 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_ADD)</value>
         </property>
       </command>
-      <command name="REMOVE_TEST">
+      <command name="REMOVE_CONFIRM">
 	<property name="exec">
 	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} -I-N ${IDENT} ${QPATHS} ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} -I-N ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
-	</property>
-        <property name="inputDescriptor">
-          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_REMOVE_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_COMMAND_VSS_REMOVE_Label)))
-                 PROMPT_FOR_EXPERT(CMD_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_REMOVE_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_REMOVE_Options_mnc)))
-          </value>
+	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} -I-N ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
 	</property>
 	<property name="error.regex.global">
 	  <value>(^.*)\(Y/N\)N$</value>
 	</property>
         <property name="ignoreFail">
-  	  <value>true</value>
+          <value>true</value>
         </property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+      </command>
+      <command name="REMOVE_DO">
+	<property name="exec">
+	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QPATHS} ${NUR}</value>
+	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
+	</property>
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
@@ -867,13 +843,17 @@ Microsystems, Inc. All Rights Reserved.
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_REMOVE_Mnemonic)</value>
         </property>
-	<property name="exec">
-	  <value>$[? CONFIRMATION_MSG] [${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QPATHS} ${NUR}] [$[? CONFIRMATION_SUCCESS] [] [${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QPATHS} ${NUR}]]</value>
-	  <value if="IS_WIN9X">$[? CONFIRMATION_MSG] [${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}] [$[? CONFIRMATION_SUCCESS] [] [${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}]]</value>
-	</property>
-        <property name="confirmationMsg">
-          <value>{INSERT_ERROR_OF_REMOVE_TEST(0)}</value>
+	<property name="supportsAdvancedMode">
+	  <value>true</value>
         </property>
+        <property name="inputDescriptor">
+          <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_REMOVE_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_COMMAND_VSS_REMOVE_Label)))
+                 PROMPT_FOR_EXPERT(CMD_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_REMOVE_Options), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_REMOVE_Options_mnc)))
+          </value>
+	</property>
+	<property name="exec">
+	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t REMOVE_CONFIRM REMOVE_DO</value>
+	</property>
 	<property name="data.regex">
 	  <value>(.*$)</value>
 	</property>
@@ -896,7 +876,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>$[? MULTIPLE_FILES] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_REMOVEs_Fail, ${NUM_FILES})] [getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(NOTIFICATION_VSS_REMOVE_Fail, ${FILE})]</value>
         </property>
         <property name="concurrentExec">
-          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+          <value>-1</value>
         </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.RemoveCommandAction</value>
