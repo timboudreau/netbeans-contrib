@@ -38,7 +38,7 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="compiletime/corbanscs.jar"/>
 	<pathelement location="compiletime/sun-tools.jar"/>
 	<pathelement location="compiletime/ibm-tools.jar"/>
-	<pathelement location="release/lib/ext/corbaext.jar"/>
+	<pathelement location="release/lib/ext/openorb-1.0.2.jar"/>
 	<pathelement location="release/lib/ext/idlcompilers.jar"/>
         <!-- XXX illegal dependency on core: -->
 	<pathelement location="${nbroot}/core/netbeans/lib/core.jar"/>
