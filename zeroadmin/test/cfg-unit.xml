@@ -28,6 +28,15 @@ Microsystems, Inc. All Rights Reserved.
         <testset dir="unit/src">
             <patternset>
                 <include name="**/*Test.class"/>
+                <exclude name="org/netbeans/modules/zeroadmin/RemoteStorageTest.class"/>
+            </patternset>
+        </testset>
+    </testbag>
+
+    <testbag testattribs="stable" executor="ide" name="testbag_3" resultsprocessor="unit">
+        <testset dir="unit/src">
+            <patternset>
+                <include name="org/netbeans/modules/zeroadmin/RemoteStorageTest.class"/>
             </patternset>
         </testset>
     </testbag>

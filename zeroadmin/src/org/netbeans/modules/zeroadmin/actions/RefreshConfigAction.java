@@ -35,6 +35,13 @@ public class RefreshConfigAction extends CallableSystemAction {
         if (z == null || z.writableLayer == null) {
             throw new IllegalStateException("ZeroAdminProjectManager not initialized");
         }
+        try {
+            // force the core to save pending stuff:
+            org.netbeans.core.windows.PersistenceManager.getDefault ().writeXMLWaiting ();
+            org.netbeans.core.projects.XMLSettingsHandler.saveOptions();
+        } catch (IOException ioe) {
+            ErrorManager.getDefault().notify(ioe);
+        }
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
