@@ -217,6 +217,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 provider.notifyPrepare();
             }
             prepared = true;
+
+            // The window system doesn't generate TopComponent.componentShowing
+            // when the view is opened (or, it may generate it before the
+            // componentOpened call). This will be a no-op in that case,
+            // since running=true will already be the case.
+            notifyViewShowing();
         }
     }
 
@@ -1985,7 +1991,23 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	workspace.addPropertyChangeListener(this);
 	*/
 	
-	findCurrentFile(false);
+        if (pendingScan) {
+            return;
+        }
+        pendingScan = true;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                // docStop() might have happened
+                // in the mean time - make sure we don't do a
+                // findCurrentFile(true) when we're not supposed to
+                // be processing views
+                if (running) {
+                    findCurrentFile(false);
+                }
+                pendingScan = false;
+            }
+        });
+
     }
 
     /** The topcomponent we're currently tracking as the showing
@@ -2326,8 +2348,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 // be processing views
                 if (running) {
                     findCurrentFile(true);
-                    pendingScan = false;
                 }
+                pendingScan = false;
             }
         });
     }

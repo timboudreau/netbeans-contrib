@@ -1192,6 +1192,9 @@ public abstract class TaskListView extends ExplorerPanel
         return nodes;
     }
 
+    private Class nextActionClz = null;
+    private Class prevActionClz = null;
+    
     /** 
      * Assign the Next/Previous build actions to point to the
      * task window 
@@ -1204,9 +1207,6 @@ public abstract class TaskListView extends ExplorerPanel
         // In other words, the next action button shouldn't light
         // up when there are no tasks to move to.
 
-        Class nextActionClz = null;
-        Class prevActionClz = null;
-        
         // Make F12 jump to next task
         if (nextActionClz == null) {
             if (lookupAttempted) {
