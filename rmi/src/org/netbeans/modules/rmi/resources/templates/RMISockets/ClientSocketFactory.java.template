@@ -1,0 +1,39 @@
+/*
+ * __NAME__.java
+ *
+ * Created on __DATE__, __TIME__
+ */
+
+package Templates.RMISockets;
+
+/**
+ *
+ * @author  __USER__ 
+ * @version 
+ */
+public class ClientSocketFactory implements java.rmi.server.RMIClientSocketFactory, java.io.Serializable {
+
+    /** Creates new __NAME__ */
+    public ClientSocketFactory() {
+        super();
+    }
+
+    /** Create a client socket connected to the specified host and port.
+     * @param host - the host name
+     * @param port - the port number
+     * @return a socket connected to the specified host and port.
+     * @exception IOException if an I/O error occurs during socket creation.
+     */
+    public java.net.Socket createSocket(java.lang.String host, int port)
+    throws java.io.IOException {
+        return new __NAME$ClientSocketFactory$Socket$java.net.Socket__(host, port);
+    }
+
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    public int hashCode() {
+        return super.hashCode();
+    }
+}

@@ -1,0 +1,5 @@
+Templates/RMISockets/InputStream.java
+Templates/RMISockets/OutputStream.java
+Templates/RMISockets/ServerSocketFactory.java
+Templates/RMISockets/ServerSocket.java
+Templates/RMISockets/Socket.java

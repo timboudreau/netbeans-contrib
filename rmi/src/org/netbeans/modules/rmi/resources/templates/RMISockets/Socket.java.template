@@ -1,0 +1,52 @@
+/*
+ * __NAME__.java
+ *
+ * Created on __DATE__, __TIME__
+ */
+
+package Templates.RMISockets;
+
+/**
+ *
+ * @author __USER__
+ * @version 
+ */
+
+public class Socket extends java.net.Socket {
+
+    private java.io.InputStream in;
+    private java.io.OutputStream out;
+
+    /** Creates new __NAME__ */
+    public Socket() {
+        super();
+    }
+
+    /** Creates new CustomSocket */
+    public Socket(String host,int port) throws java.net.UnknownHostException, java.io.IOException {
+        super(host, port);
+    }
+
+    public java.io.InputStream getInputStream() throws java.io.IOException {
+        if (in == null) {
+            java.io.BufferedInputStream buffered = new java.io.BufferedInputStream(super.getInputStream());
+            in = new __NAME$Socket$InputStream$java.io.FilterInputStream__(buffered);
+        }
+        return in;
+    }
+
+    public java.io.OutputStream getOutputStream() throws java.io.IOException {
+        if (out == null) {
+            java.io.BufferedOutputStream buffered = new java.io.BufferedOutputStream(super.getOutputStream());
+            out = new __NAME$Socket$OutputStream$java.io.FilterOutputStream__(buffered);
+        }
+        return out;
+    }
+
+    public synchronized void close() throws java.io.IOException {
+        java.io.OutputStream out = getOutputStream();
+        out.flush();
+        super.close();
+    }
+
+}

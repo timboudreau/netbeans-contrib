@@ -1,0 +1,40 @@
+/*
+ * __NAME__.java
+ *
+ * Created on __DATE__, __TIME__
+ */
+
+package Templates.RMISockets;
+
+/**
+ *
+ * @author  __USER__
+ * @version 
+ */
+
+public class ServerSocket extends java.net.ServerSocket {
+
+    /** Creates new __NAME__ */
+    public ServerSocket(int port) throws java.io.IOException {
+        super(port);
+    }
+
+    /** Creates new __NAME__ */
+    public ServerSocket(int port,int backlog) throws java.io.IOException {
+        super(port, backlog);
+    }
+
+    /** Creates new __NAME__ */
+    public ServerSocket(int port,int backlog,java.net.InetAddress bindAddr) throws java.io.IOException {
+        super(port, backlog, bindAddr);
+    }
+
+    public java.net.Socket accept() throws java.io.IOException {
+        java.net.Socket socket = new __NAME$ServerSocket$Socket$java.net.Socket__();
+        implAccept(socket);
+        return socket;
+    }
+
+}
+
+

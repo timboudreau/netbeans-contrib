@@ -1,0 +1,32 @@
+/*
+ * __NAME__.java
+ *
+ * Created on __DATE__, __TIME__
+ */
+
+package Templates.RMISockets;
+
+/**
+ *
+ * @author __USER__
+ * @version 
+ */
+public class InputStream extends java.io.FilterInputStream {
+
+    /** Creates new __NAME__ */
+    public InputStream(java.io.InputStream in) {
+        super(in);
+    }
+
+    public int read() throws java.io.IOException {
+        return in.read();
+    }
+
+    public int read(byte[] b) throws java.io.IOException {
+        return in.read(b);
+    }
+
+    public int read(byte[] b, int off, int len) throws java.io.IOException {
+        return in.read(b, off, len);
+    }
+}
