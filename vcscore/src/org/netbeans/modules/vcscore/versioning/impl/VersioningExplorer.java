@@ -120,7 +120,14 @@ public class VersioningExplorer {
     }
     
     private void initComponents() {
-        panel.add(new BeanTreeView());
+        BeanTreeView VersioningBTV = new BeanTreeView();
+        VersioningBTV.getAccessibleContext().setAccessibleName(
+            org.openide.util.NbBundle.getMessage(VersioningExplorer.class, "ACSN_versioningSystemName.BTV"));
+        VersioningBTV.getAccessibleContext().setAccessibleDescription(
+            org.openide.util.NbBundle.getMessage(VersioningExplorer.class, "ACSD_versioningSystemName.BTV"));
+        panel.add(VersioningBTV);
+        panel.getAccessibleContext().setAccessibleDescription(
+            org.openide.util.NbBundle.getMessage(VersioningExplorer.class, "ACSD_versioningSystemName.dialog"));
     }
     
     public static class Panel extends ExplorerPanel {
