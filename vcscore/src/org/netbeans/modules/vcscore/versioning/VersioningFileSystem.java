@@ -192,7 +192,7 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
      * @param name the full file name
      */
     public void statusChanged (String name) {
-        FileObject fo = findResource(name);
+        FileObject fo = findExistingResource(name);
         //System.out.println("findResource("+name+") = "+fo);
         if (fo == null) return;
         fireFileStatusChanged (new FileStatusEvent(this, fo, true, true));

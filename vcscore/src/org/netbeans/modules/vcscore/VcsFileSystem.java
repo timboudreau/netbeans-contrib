@@ -2983,11 +2983,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 //            D.deb("statusChanged() root =" + root);
 //            D.deb("statusChanged() path =" + path);
             path = path.replace(File.separatorChar, '/');
-            //if (event.getCacheFile() instanceof org.netbeans.modules.vcscore.cache.CacheDir) {
-                //statusChanged(path, event.isRecursive()); -- do not refresh the add directory!
-            //} else {
-                statusChanged(path);
-            //}
+            statusChanged(path);
         }
     }
     
