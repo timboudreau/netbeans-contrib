@@ -69,6 +69,12 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
     private String workingFullPath;
     
     /**
+     * The relative path of the command's working directory to the root of the
+     * filesystem.
+     */
+    private String relativeWorking;
+    
+    /**
      * The original file revisions before the update is executed.
      */
     //private Map fileRevisions;
@@ -112,7 +118,6 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
                         CommandOutputListener stderrListener,
                         final CommandDataOutputListener stdoutDataListener, String dataRegex,
                         final CommandDataOutputListener stderrDataListener, String errorRegex) {
-        
         if (args.length < 2 || "-n".equals(args[0]) && args.length < 3) {
             stderrListener.outputLine("The current command's working dir and cvs update OR cvs checkout commands are expected as arguments.\n"+ // NOI18N
                                       "Possibly -n might be passed as the first argument not to do any subsequent refresh."); // NOI18N
@@ -124,7 +129,7 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
             System.arraycopy(args, 1, args1, 0, args1.length);
             args = args1;
         }
-        Collection processingFiles = ExecuteCommand.createProcessingFiles(fileSystem, vars);
+        final Collection processingFiles = ExecuteCommand.createProcessingFiles(fileSystem, vars);
         fsRootDir = fileSystem.getRootDirectory().getAbsolutePath();
         //collectRevisions(processingFiles, fsRootDir);
         Map foldersByProcessingFiles = null;
@@ -136,6 +141,8 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         workingFullPath = rootDir; //(rootDir.length() > 0) ?
                             //(fsRootDir + "/" + rootDir).replace('/', File.separatorChar) :
                             //fsRootDir.replace('/', File.separatorChar);
+        relativeWorking = (String) vars.get("COMMON_PARENT"); // NOI18N
+        if (relativeWorking == null) relativeWorking = ""; // NOI18N
         final List filesBuff = new ArrayList();
         final List filesStatusBuff = new ArrayList();
         final ArrayList foldersBuff = new ArrayList();
@@ -169,8 +176,10 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
                     if (!folder.equals(lastFileFolder[0])) {
                         if (lastFileFolder[0] != null) {
                             sendUpdatedFiles((rootDir + File.separator + lastFileFolder[0]).
-                                              replace('/', File.separatorChar), filesBuff,
-                                             filesStatusBuff, stdoutDataListener);
+                                              replace('/', File.separatorChar),
+                                             lastFileFolder[0], filesBuff,
+                                             filesStatusBuff, stdoutDataListener,
+                                             processingFiles);
                             filesBuff.clear();
                             filesStatusBuff.clear();
                         }
@@ -222,8 +231,9 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         if (doRefresh) {
             if (lastFileFolder[0] != null) {
                 sendUpdatedFiles((rootDir + File.separator + lastFileFolder[0]).
-                                  replace('/', File.separatorChar), filesBuff,
-                                 filesStatusBuff, stdoutDataListener);
+                                  replace('/', File.separatorChar),
+                                 lastFileFolder[0], filesBuff, filesStatusBuff,
+                                 stdoutDataListener, processingFiles);
                 filesBuff.clear();
                 filesStatusBuff.clear();
             }
@@ -331,9 +341,16 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         return folders;
     }
     
-    private void sendUpdatedFiles(String folderName, List files, List states,
-                                  CommandDataOutputListener stdoutDataListener) {
-        //System.out.println("sendUpdatedFiles("+folderName+", "+files+", "+states+")");
+    private void sendUpdatedFiles(String folderName, String relativeFolderName,
+                                  List files, List states,
+                                  CommandDataOutputListener stdoutDataListener,
+                                  Collection processingFiles) {
+        if (relativeFolderName.length() == 0) {
+            relativeFolderName = relativeWorking;
+        } else if (relativeWorking.length() != 0) {
+            relativeFolderName = relativeWorking + '/' + relativeFolderName;
+        }
+        //System.out.println("sendUpdatedFiles("+folderName+", "+relativeFolderName+", "+files+", "+states+")");
         int i = 0;
         File folder = new File(folderName);
         HashSet filesInFolder = (HashSet) refreshedFilesByFolders.get(folder);
@@ -360,12 +377,27 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
             String[] entryElements = CvsListOffline.parseEntry(entry);
             sendFileRefresh(file, (String) states.get(i), entryElements, stdoutDataListener);
         }
-        for (Iterator entryIt = entriesMap.keySet().iterator(); entryIt.hasNext(); ) {
-            String fileName = (String) entryIt.next();
-            if (filesInFolder.contains(fileName)) continue;
-            File file = new File(folder, fileName);
-            String entry = (String) entriesMap.get(fileName);
-            sendFileRefresh(file, null, CvsListOffline.parseEntry(entry), stdoutDataListener);
+        // We can update the rest of the files only when the processing files
+        // contains the whole folder.
+        boolean updateFolder = processingFiles.contains(relativeFolderName);
+        if (!updateFolder) {
+            for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
+                String pFile = (String) it.next();
+                if (relativeFolderName.indexOf(pFile) == 0 && relativeFolderName.charAt(pFile.length()) == '/') {
+                    // We'return updating a parent of this folder
+                    updateFolder = true;
+                    break;
+                }
+            }
+        }
+        if (updateFolder) {
+            for (Iterator entryIt = entriesMap.keySet().iterator(); entryIt.hasNext(); ) {
+                String fileName = (String) entryIt.next();
+                if (filesInFolder.contains(fileName)) continue;
+                File file = new File(folder, fileName);
+                String entry = (String) entriesMap.get(fileName);
+                sendFileRefresh(file, null, CvsListOffline.parseEntry(entry), stdoutDataListener);
+            }
         }
     }
     
@@ -428,12 +460,10 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         for (Iterator it = folders.iterator(); it.hasNext(); ) {
             File folder = new File((String) it.next());
             sendFolderRefresh(folder, stdoutDataListener);
-            File parent = folder.getParentFile();
-            if (parent == null) continue;
-            Set refreshedFiles = (Set) refreshedFilesByFolders.get(parent);
+            Set refreshedFiles = (Set) refreshedFilesByFolders.get(folder);
             if (refreshedFiles == null) {
                 refreshedFiles = new HashSet();
-                refreshedFilesByFolders.put(parent, refreshedFiles);
+                refreshedFilesByFolders.put(folder, refreshedFiles);
                 Map entriesMap = (Map) cachedEntries.get(folder);
                 if (entriesMap == null) {
                     File entriesFile = new File(folder, CVS_ENTRIES);
