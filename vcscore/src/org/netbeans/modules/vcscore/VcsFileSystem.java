@@ -3894,17 +3894,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return !getFile (name).canWrite ();
     }
 
-    /** Get the MIME type of the file.
-     * Uses {@link FileUtil#getMIMEType}.
-     *
-     * @param name the file to test
-     * @return the MIME type textual representation, e.g. <code>"text/plain"</code>
-     */
     public String mimeType (String name) {
         D.deb("mimeType('"+name+"')"); // NOI18N
-        FileObject fo = findResource(name);
-        String mimeType = (fo != null) ? FileUtil.getMIMEType(fo) : "content/unknown"; // NOI18N
-        return mimeType;
+        // Mentioned in #42965: do not return non-null without a good reason.
+        return null;
     }
 
     /** Get the size of a file.
