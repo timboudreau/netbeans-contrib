@@ -88,6 +88,15 @@ public class TypeElement extends IDLElement {
         }
     }
 
+
+    public String toString () {
+	try {
+	    return super.toString () + ": type = " + this.getType ().toString ();
+	} catch (Exception __ex) {
+	    return super.toString () + ": type = null";
+	}
+    }
+
 }
 
 

@@ -243,6 +243,11 @@ public class IDLElement extends SimpleNode
         return new IDLElement (p, id);
     }
 
+    public String toString() {
+	return IDLParserTreeConstants.jjtNodeName[id] + ":" + this.getName ();
+    }
+
+
 }
 
 /*

@@ -87,6 +87,7 @@ import org.netbeans.modules.corba.idl.src.Identifier;
 import org.netbeans.modules.corba.idl.src.TypeElement;
 import org.netbeans.modules.corba.idl.src.InterfaceElement;
 import org.netbeans.modules.corba.idl.src.ModuleElement;
+import org.netbeans.modules.corba.idl.src.ValueBoxElement;
 import org.netbeans.modules.corba.idl.src.ParseException;
 import org.netbeans.modules.corba.idl.src.TokenMgrError;
 
@@ -447,6 +448,24 @@ public class IDLDataObject extends MultiDataObject
 			    (this.getIdlConstructs 
 			     (STYLE_ALL, (TypeElement)__members.elementAt (__i)));
                     }
+		    else if (__members.elementAt (__i) instanceof ValueBoxElement) {
+		        ValueBoxElement __box = (ValueBoxElement)__members.elementAt (__i);
+			//System.out.println ("found value box element");
+			__constructs.add (__box.getName ());
+			if (__box.getMembers ().size () > 1) {
+			    IDLElement __tmp = __box.getMember (1);
+			    //__tmp.dump ("|");
+			    if (ImplGenerator.is_constructed_type (__tmp)) {
+				//System.out.println ("which is constructed type");
+				__constructs.add (__tmp.getName ());
+			    }
+			}
+			/*
+			  else {
+			  System.out.println ("no inner type found");
+			  }
+			*/
+		    }
                     else {
                         __name = ((IDLElement)__members.elementAt (__i)).getName ();
                         __constructs.add (__name);
@@ -855,7 +874,7 @@ public class IDLDataObject extends MultiDataObject
 	this.firePropertyChange ("_M_status", null, null); // NOI18N
         _S_request_processor.post (new Runnable () {
 		public void run () {
-		    parse ();
+		    IDLDataObject.this.parse ();
 		}
 	    }, 0, Thread.MIN_PRIORITY);
         //if (src != null)
@@ -879,6 +898,10 @@ public class IDLDataObject extends MultiDataObject
         try {
 	    __stream = this.getPrimaryFile ().getInputStream ();
             IDLParser __parser = new IDLParser (getPrimaryFile ().getInputStream ());
+	    if (this.isTemplate ()) {
+		//System.out.println ("file: " + this.getPrimaryFile () + " is template.");
+		__parser.setTemplate (true);
+	    }
             //if (DEBUG)
 	    if (DEBUG)
 		System.out.println ("parsing of " + getPrimaryFile ().getName ()); // NOI18N

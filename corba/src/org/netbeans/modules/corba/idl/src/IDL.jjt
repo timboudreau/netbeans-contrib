@@ -39,6 +39,8 @@ public class IDLParser {
 
   public static Map _S_keyword_map;
 
+  private boolean _M_is_template = false;
+
   static {
     // I use this map for checking if some identifier don't clash with IDL keyword
     // => so I put all keyword lowercase.
@@ -91,7 +93,18 @@ public class IDLParser {
     _S_keyword_map.put ("wchar", null);
     _S_keyword_map.put ("wstring", null);
   }
-  
+
+
+  public void setTemplate (boolean __value) {
+    _M_is_template = __value;
+  }  
+
+   
+  public boolean isTemplate () {
+    return _M_is_template;
+  }
+
+
   public static void main (String args[]) {
     IDLParser parser = null;
     if (args.length == 0) {
@@ -102,6 +115,7 @@ public class IDLParser {
       try {
 	long __start = System.currentTimeMillis ();
         parser = new IDLParser(new java.io.FileInputStream(args[0]));	
+	//parser.setTemplate (true);
 	SimpleNode sn = parser.Start ();
 	sn.dump ("|");
 	long __end = System.currentTimeMillis ();
@@ -1288,22 +1302,28 @@ void member() #MemberElement :
 IDLType union_type() #UnionTypeElement :
 {}
 { 
-  { String name; Identifier id; Vector vect = new Vector (); IDLType type;}
-  "union" id = identifier() 
+  { 
+      String __name;
+      Identifier __id;
+      Vector __vect = new Vector ();
+      IDLType __type;
+      IDLType __switch_type;
+  }
+  "union" __id = identifier() 
    { 
-      name = id.getName (); 
-      type = new IDLType (IDLType.UNION, "union");
-      jjtThis.setName (name);
-      jjtThis.setType (type);
-      jjtThis.setLine (id.getLine ());
-      jjtThis.setColumn (id.getColumn ());
+      __name = __id.getName (); 
+      __type = new IDLType (IDLType.UNION, "union");
+      jjtThis.setName (__name);
+      jjtThis.setType (__type);
+      jjtThis.setLine (__id.getLine ());
+      jjtThis.setColumn (__id.getColumn ());
    } 
 
-  "switch" "(" type = switch_type_spec() ")" 
-  { jjtThis.setSwitchType (type.name);}
+  "switch" "(" __switch_type = switch_type_spec() ")" 
+  { jjtThis.setSwitchType (__switch_type.getName ());}
 
   "{" switch_body() "}"
-  { return type;}
+  { return __type;}
 }
 
 
@@ -1750,11 +1770,41 @@ IDLType value_base_type() :
 Identifier identifier() #Identifier :
 {
    Token t;
+   boolean __underscore = false;
 }
 {
-  t=<ID>
-/*  -- run well but very bad idea to setLine on Identifier except on IDL Construct (Element) */
-  {
+    /*
+      (
+      LOOKAHEAD ( { !this.isTemplate () } ) t=<ID> { System.out.println ("match ID:" + t.image); }
+      |
+      LOOKAHEAD ( { this.isTemplate () } )  t=<TEMPLATE_ID> { System.out.println ("match TEMPLATE_ID:" + t.image); }
+      )
+    */
+    /*
+      [ LOOKAHEAD ( "_", { this.isTemplate () && getToken(0).kind == UNDERSCORE 
+      && getToken(1).kind == UNDERSCORE } )
+      <UNDERSCORE:"_"> { __underscore = true; } ]
+    */
+    /*
+      [ LOOKAHEAD ("_", { this.isTemplate ()}) { __underscore = true; } ]
+    */
+    /*
+      ( ([ "_" { __underscore = true; } ], t=<ID> )
+    */
+    
+    t=<ID>
+
+  {      
+      if (!this.isTemplate () && t.image.charAt (0) == '_' && t.image.charAt (1) == '_') {
+	  // we have identifier started with '__' and this file isn't template file
+	  throw new ParseException ("Wrong identifier started with '__'");
+      }
+      /*
+	String __id = "";
+	if (__underscore)
+	__id += "_";
+	__id += t.image;
+      */
       String __id = t.image;
       if (_S_keyword_map.containsKey (__id.toLowerCase ())) {
 	  // this identifier colide with some IDL keyword
@@ -1763,9 +1813,12 @@ Identifier identifier() #Identifier :
 	  throw __ex;
       }
 
-      jjtThis.setName (t.image); 
+      jjtThis.setName (__id); 
       jjtThis.setLine (t.beginLine);
+      //if (!__underscore)
       jjtThis.setColumn (t.beginColumn - 1);
+      //else
+      //jjtThis.setColumn (t.beginColumn - 2);
       //jjtThis.setColumn (t.endColumn);
       return jjtThis;
   }
@@ -1864,8 +1917,14 @@ String fixed_pt_literal() :
 TOKEN :
 {
   <  ID : ( (["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])* )
-	 |  ( "_" ["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])* ) ) 
+    |  ( "_" ["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])* ) 
+    |  ("__" ["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])* ) )
   >
+	 /*
+	   | <  TEMPLATE_ID : ( (["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])* )
+	   |  ( "_"  ["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])* )
+	   |  ( "__" ["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])* ) ) >
+	 */
 | <  OCTALINT : "0" (["0"-"7"])* (["u","U","l","L"])? >
 | <  DECIMALINT : ["1"-"9"] (["0"-"9"])* (["u","U","l","L"])? >
 | <  HEXADECIMALINT : ("0x"|"0X") (["0"-"9","a"-"f","A"-"F"])+ (["u","U","l","L"])? >
