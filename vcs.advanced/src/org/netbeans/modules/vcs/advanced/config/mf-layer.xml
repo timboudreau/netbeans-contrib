@@ -59,12 +59,7 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
   </folder>
   
-  <folder name="Shortcuts">
-      <file name="C-9.instance">
-          <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.grouping.VcsGroupMenuAction" />
-      </file>
-  </folder>
-
+ 
   <folder name="Toolbars">
      <folder name="Versioning">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle"/>
