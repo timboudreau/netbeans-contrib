@@ -295,7 +295,7 @@ public class SharableImport implements VcsAdditionalCommand {
         //System.out.println("runCommand("+file+", "+path+", "+ignoredNames+")");
         
         VcsDescribedCommand cmd = (VcsDescribedCommand) cmdSupp.createCommand();
-        cmd.setAdditionalVariables(vars);
+        cmd.setAdditionalVariables(new HashMap(vars));
         cmd.addTextErrorListener(new TextErrorListener() {
             public void outputLine(String line) {
                 stderrListener.outputLine(line);
@@ -364,7 +364,14 @@ public class SharableImport implements VcsAdditionalCommand {
         //System.out.println("Processing files = "+processingFiles);
         boolean status = runOnSharableFolders(cmdSupp, vars, processingFiles, nonSharableFiles);
         if (nonSharableFiles.size() > 0) {
-            vars.put(VAR_NON_SHARABLE_FILES, VcsUtilities.arrayToQuotedStrings((String[]) nonSharableFiles.toArray(new String[0])));
+            String[] nonSharableFilesArray = (String[]) nonSharableFiles.toArray(new String[0]);
+            if (fileSystem == null) {
+                String root = (String) vars.get("ROOTDIR");
+                for (int i = 0; i < nonSharableFilesArray.length; i++) {
+                    nonSharableFilesArray[i] = nonSharableFilesArray[i].substring(root.length() + 1);
+                }
+            }
+            vars.put(VAR_NON_SHARABLE_FILES, VcsUtilities.arrayToQuotedStrings(nonSharableFilesArray));
         }
         return status;
     }

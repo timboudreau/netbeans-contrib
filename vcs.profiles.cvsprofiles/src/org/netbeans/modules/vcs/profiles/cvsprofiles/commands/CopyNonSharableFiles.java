@@ -52,16 +52,28 @@ public class CopyNonSharableFiles extends Object implements VcsAdditionalCommand
         this.execContext = execContext;
     }
     
-    private boolean copyFromOrig(String root, String file, CommandSupport cmdSupp) {
+    private boolean copyFromOrig(String root, String file, CommandSupport cmdSupp, String origFolder) {
         Command cmd = cmdSupp.createCommand();
         File dest = new File(root);
-        File src = new File(dest.getParentFile(), dest.getName()+"_orig"); // NOI18N
-        int folderIndex = file.lastIndexOf('/');
-        if (folderIndex > 0) {
-            String folder = file.substring(0, folderIndex);
-            file = file.substring(folderIndex + 1);
-            src = new File(src, folder);
-            dest = new File(dest, folder);
+        File src;
+        if (origFolder == null) {
+            src = new File(dest.getParentFile(), dest.getName()+"_orig"); // NOI18N
+            int folderIndex = file.lastIndexOf('/');
+            if (folderIndex > 0) {
+                String folder = file.substring(0, folderIndex);
+                file = file.substring(folderIndex + 1);
+                src = new File(src, folder);
+                dest = new File(dest, folder);
+            }
+        } else {
+            src = new File(origFolder);
+            int folderIndex = file.lastIndexOf('/');
+            if (folderIndex > 0) {
+                String folder = file.substring(0, folderIndex);
+                file = file.substring(folderIndex + 1);
+                src = new File(src, folder);
+                dest = new File(dest, folder);
+            }
         }
         Map additionalVars = new HashMap();
         additionalVars.put("FILE_TO_COPY", file);
@@ -96,6 +108,10 @@ public class CopyNonSharableFiles extends Object implements VcsAdditionalCommand
         } else {
             relativePath = "";
             root = (String) vars.get("ROOTDIR");
+            String reposDir = (String) vars.get("REPOS_DIR");
+            if (!".".equals(reposDir)) {
+                root += File.separator + reposDir;
+            }
         }
         if (args.length < 1) {
             stderrListener.outputLine("Expecting a command name as an argument.");
@@ -112,8 +128,9 @@ public class CopyNonSharableFiles extends Object implements VcsAdditionalCommand
         boolean stat = true;
         int relativeLength = relativePath.length();
         if (relativeLength > 0) relativeLength++; // Separator
+        String origFolder = (String) vars.get("IMPORTED_ORIG_FOLDER"); // Might not be defined
         for (int i = 0; i < nonSharableFiles.length; i++) {
-            stat = copyFromOrig(root, nonSharableFiles[i].substring(relativeLength), cmdSupp);
+            stat = copyFromOrig(root, nonSharableFiles[i].substring(relativeLength), cmdSupp, origFolder);
             if (!stat) break;
         }
         return stat;
