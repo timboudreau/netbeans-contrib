@@ -60,7 +60,7 @@ public class CommandLineVcsFileSystem extends CvsFileSystem {
     return CONFIG_ROOT;
   }
   
-  public void readConfiguration () {
+  private void readConfiguration () {
     D.deb ("readConfiguration ()");
     CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
       "system"+File.separator+"vcs"+File.separator+"config";
@@ -72,6 +72,7 @@ public class CommandLineVcsFileSystem extends CvsFileSystem {
 
 /*
  * <<Log>>
+ *  45   Gandalf   1.44        10/10/99 Pavel Buzek     
  *  44   Gandalf   1.43        10/9/99  Pavel Buzek     
  *  43   Gandalf   1.42        10/9/99  Pavel Buzek     
  *  42   Gandalf   1.41        10/5/99  Pavel Buzek     
