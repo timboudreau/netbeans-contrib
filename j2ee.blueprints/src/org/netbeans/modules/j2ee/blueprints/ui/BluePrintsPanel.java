@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.ResourceBundle;
 import javax.swing.ComboBoxModel;
@@ -38,6 +39,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLEditorKit;
 import org.netbeans.modules.j2ee.blueprints.catalog.SolutionsCatalog;
@@ -61,10 +63,10 @@ import javax.swing.Action;
  * The user can browse categories and articles, design documents and
  * launch a wizard to create new projects from a template.
  *
- * @author Richard Gregor
- * @author Ludo
- * @author Yutaka Yoshida
  * @author Mark Roth
+ * @author Yutaka Yoshida
+ * @author Ludo
+ * @author Richard Gregor
  */
 public class BluePrintsPanel extends javax.swing.JPanel {
     private static final String UI_RESOURCES_URL = 
@@ -89,7 +91,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     public BluePrintsPanel() {
         initComponents();
         tabbedPnl.removeAll();
-        initComboBoxes();
+        initComboBox();
     }
     
     /** This method is called from within the constructor to
@@ -109,8 +111,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         toolbarPanel = new javax.swing.JPanel();
         backBtn = new javax.swing.JButton();
         forwardBtn = new javax.swing.JButton();
-        categoryCbx = new javax.swing.JComboBox();
-        articleCbx = new javax.swing.JComboBox();
+        entryCbx = new javax.swing.JComboBox();
         tabbedPnl = new javax.swing.JTabbedPane();
         categoryScroll = new javax.swing.JScrollPane();
         categoryText = new javax.swing.JTextPane();
@@ -171,36 +172,39 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 7, 12);
         add(titlePanel, gridBagConstraints);
 
-        toolbarPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+        toolbarPanel.setLayout(new java.awt.GridBagLayout());
 
         toolbarPanel.setOpaque(false);
         backBtn.setFont(new java.awt.Font("Dialog", 0, 12));
         backBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/j2ee/blueprints/ui/resources/back.gif")));
         backBtn.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("backBtn"));
-        toolbarPanel.add(backBtn);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        toolbarPanel.add(backBtn, gridBagConstraints);
 
         forwardBtn.setFont(new java.awt.Font("Dialog", 0, 12));
         forwardBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/j2ee/blueprints/ui/resources/forward.gif")));
         forwardBtn.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("forwardBtn"));
-        toolbarPanel.add(forwardBtn);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        toolbarPanel.add(forwardBtn, gridBagConstraints);
 
-        categoryCbx.setFont(new java.awt.Font("Dialog", 0, 12));
-        categoryCbx.addItemListener(new java.awt.event.ItemListener() {
+        entryCbx.setFont(new java.awt.Font("Dialog", 0, 12));
+        entryCbx.setMaximumRowCount(16);
+        entryCbx.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                categoryCbxItemStateChanged(evt);
+                entryCbxItemStateChanged(evt);
             }
         });
 
-        toolbarPanel.add(categoryCbx);
-
-        articleCbx.setFont(new java.awt.Font("Dialog", 0, 12));
-        articleCbx.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                articleCbxItemStateChanged(evt);
-            }
-        });
-
-        toolbarPanel.add(articleCbx);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        toolbarPanel.add(entryCbx, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
@@ -260,26 +264,21 @@ public class BluePrintsPanel extends javax.swing.JPanel {
 
     }//GEN-END:initComponents
 
+    private void entryCbxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_entryCbxItemStateChanged
+        selectNewEntry();
+    }//GEN-LAST:event_entryCbxItemStateChanged
+
     private void installBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_installBtnActionPerformed
         installExample();
     }//GEN-LAST:event_installBtnActionPerformed
-
-    private void articleCbxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_articleCbxItemStateChanged
-        selectNewArticle();
-    }//GEN-LAST:event_articleCbxItemStateChanged
-
-    private void categoryCbxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_categoryCbxItemStateChanged
-        selectNewCategory();
-    }//GEN-LAST:event_categoryCbxItemStateChanged
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox articleCbx;
     private javax.swing.JButton backBtn;
-    private javax.swing.JComboBox categoryCbx;
     private javax.swing.JScrollPane categoryScroll;
     private javax.swing.JTextPane categoryText;
     private javax.swing.JPanel designBrowser;
+    private javax.swing.JComboBox entryCbx;
     private javax.swing.JPanel examplePnl;
     private javax.swing.JButton forwardBtn;
     private javax.swing.JButton installBtn;
@@ -296,30 +295,32 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
     
     public Category getSelectedCategory() {
-        return (Category)categoryCbx.getSelectedItem();
+        Object entry = entryCbx.getSelectedItem();
+        if(!(entry instanceof Category)) {
+            // Scan up the list until we hit a category
+            int index = entryCbx.getSelectedIndex();
+            do {
+                index--;
+                entry = entryCbx.getItemAt(index);
+            } while((index > 0) && !(entry instanceof Category));
+        }
+        return (Category)entry;
     }
     
     public Example getSelectedArticle() {
-        return (Example)articleCbx.getSelectedItem();
+        Object entry = entryCbx.getSelectedItem();
+        return (entry instanceof Example) ? (Example)entry : null;
     }
     
-    private void initComboBoxes() {
+    private void initComboBox() {
         // Set up combo boxes:
-        categoryCbx.setRenderer(new CategoryListCellRenderer());
-        articleCbx.setRenderer(new ArticleListCellRenderer());
-        categoryCbx.setModel(new CategoryComboBoxModel());
-        categoryCbx.setSelectedIndex(0);
+        entryCbx.setRenderer(new EntryListCellRenderer());
+        entryCbx.setModel(new EntryComboBoxModel());
+        entryCbx.setSelectedIndex(0);
         updateTabs();
     }
     
-    private void selectNewCategory() {
-        Category category = getSelectedCategory();
-        articleCbx.setModel(new ArticleComboBoxModel(category));
-        articleCbx.setSelectedIndex(-1);
-        updateTabs();
-    }
-    
-    private void selectNewArticle() {
+    private void selectNewEntry() {
         updateTabs();
     }
     
@@ -478,40 +479,57 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     }
     
     /**
-     * Backing model for the category drop-down.
+     * Backing model for the entry drop-down.
      * Gets its data from demo.xml.
      */
-    private class CategoryComboBoxModel 
+    private class EntryComboBoxModel
         extends DefaultComboBoxModel
     {
         private Demo demo;
+        private ArrayList entries = new ArrayList();
         
-        public CategoryComboBoxModel() {
+        public EntryComboBoxModel() {
             this.demo = solutionsCatalog.getDemoXml();
+            Category[] categories = demo.getCategory();
+            for(int categoryNum = 0; categoryNum < categories.length; 
+                categoryNum++) 
+            {
+                entries.add(categories[categoryNum]);
+                Example[] examples = categories[categoryNum].getExample();
+                for(int exampleNum = 0; exampleNum < examples.length; 
+                    exampleNum++) 
+                {
+                    entries.add(examples[exampleNum]);
+                }
+            }
         }
         
         public int getSize() {
-            return demo.getCategory().length;
+            return entries.size();
         }
         
         public Object getElementAt(int index) {
-            return demo.getCategory(index);
+            return entries.get(index);
         }
     }
     
     /**
-     * Cell renderer for the category drop-down
+     * Cell renderer for the entry drop-down
      *
      * Adds an icon and changes the text of the cell to match the name of
-     * the category.
+     * the category or article.
      */
-    private static class CategoryListCellRenderer 
+    private static class EntryListCellRenderer 
         extends DefaultListCellRenderer
     {
-        private ImageIcon icon;
+        private ImageIcon categoryIcon;
+        private ImageIcon articleIcon;
 
-        public CategoryListCellRenderer() {
-            this.icon = new ImageIcon(getClass().getResource(ICON_CATEGORY));
+        public EntryListCellRenderer() {
+            this.categoryIcon = new ImageIcon(getClass().getResource(
+                ICON_CATEGORY));
+            this.articleIcon = new ImageIcon(getClass().getResource(
+                ICON_ARTICLE));
         }
 
         public Component getListCellRendererComponent(JList list,
@@ -520,89 +538,21 @@ public class BluePrintsPanel extends javax.swing.JPanel {
             Component result = super.getListCellRendererComponent(list, value,
                 index, isSelected, cellHasFocus);
             JLabel label = (JLabel)result;
-            label.setIcon(icon);
-            Category category = (Category)value;
-            if(category != null) {
+            if(value instanceof Category) {
+                Category category = (Category)value;
+                label.setIcon(categoryIcon);
                 label.setText(category.getName(0));
             }
-            else {
-                label.setText(bundle.getString("chooseCategory")); // NOI18N
-            }
-            return result;
-        }
-    }
-    
-    /**
-     * Backing model for the article drop-down.
-     * Gets its data from demo.xml.
-     */
-    private class ArticleComboBoxModel 
-        extends DefaultComboBoxModel
-    {
-        private Category category;
-        
-        public ArticleComboBoxModel(Category category) {
-            this.category = category;
-        }
-        
-        public int getSize() {
-            return category.getExample().length;
-        }
-        
-        public Object getElementAt(int index) {
-            return category.getExample(index);
-        }
-    }
-    
-    /**
-     * Cell renderer for the article drop-down
-     *
-     * Adds an icon and changes the text of the cell to match the name of
-     * the article.
-     */
-    private static class ArticleListCellRenderer 
-        extends DefaultListCellRenderer
-    {
-        private ImageIcon icon;
-
-        public ArticleListCellRenderer() {
-            this.icon = new ImageIcon(getClass().getResource(ICON_ARTICLE));
-        }
-
-        public Component getListCellRendererComponent(JList list,
-            Object value, int index, boolean isSelected, boolean cellHasFocus)
-        {
-            Component result = super.getListCellRendererComponent(list, value,
-                index, isSelected, cellHasFocus);
-            JLabel label = (JLabel)result;
-            label.setIcon(icon);
-            Example example = (Example)value;
-            if(example != null) {
+            else if(value instanceof Example) {
+                Example example = (Example)value;
+                label.setIcon(articleIcon);
                 label.setText(example.getName(0));
-            }
-            else {
-                label.setText(bundle.getString("chooseArticle")); // NOI18N
+                // Tab the articles so they look like they're in the category
+                label.setBorder(new EmptyBorder(0, 19, 0, 0));
             }
             return result;
         }
     }
-    
-    class GlobalListener implements ActionListener {
-        public void actionPerformed(ActionEvent e){            
-            Object obj = e.getSource();
-//            if(obj == debuggingBtn){
-//                showURL("DEBUGGING_PAGE");
-//                URL u = getUrlFromFile(NbBundle.getMessage(getClass(),"DEBUGGING_PAGE"));
-//                displayer.showURL(u);
-//                return;
-//            }
-            //if(obj == usingBtn){
-            //    showURL("J2EE_PAGE");
-            //    return;
-            //}
-        }
-    }
-
 }
 
 
