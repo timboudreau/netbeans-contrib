@@ -3,7 +3,6 @@ OpenIDE-Module-Name: JNDI
 OpenIDE-Module-Specification-Version: 1.0
 OpenIDE-Module-Implementation-Version: 1.0
 OpenIDE-Module-Update-Location: http://update.netbeans.com/eap/developer30/updateInfoEAP.xml
-Class-Path: ext/jndi.jar ext/fscontext.jar ext/providerutil.jar ext/rmiregistry.jar
 
 Name: com/netbeans/enterprise/modules/jndi/JndiRootNode.class
 OpenIDE-Module-Class: Node
