@@ -157,8 +157,12 @@ public class CommandOutputTopComponent extends TopComponent {
         JMenuItem discardTab = new JMenuItem(); //NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N        
         discardAction = new AbstractAction(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab")) { //NOI18N
             public void actionPerformed(java.awt.event.ActionEvent event) {
-                if(tabPane.getSelectedIndex() > -1)
-                    discard(tabPane.getSelectedComponent());
+                if (tabPane == null || tabPane.getTabCount() < 2) {
+                    discardAll();
+                } else {
+                    if(tabPane.getSelectedIndex() > -1)
+                        discard(tabPane.getSelectedComponent());
+                }
             }
         };        
         discardTab.setAction(discardAction);
@@ -304,27 +308,32 @@ public class CommandOutputTopComponent extends TopComponent {
             errorOutput = null;
         }
         if (tabPane.getTabCount() == 0){
-            close();
             showEmptyStatus();
+            close();
         }
     }
     
-    public synchronized void discardAll(){
-        tabPane.removeAll();        
+    public synchronized void discardAll() {
+        if (tabPane != null) {
+            tabPane.removeAll();
+        }
         errorOutput = null;
         showEmptyStatus();
         close();
     }
     
-    private void showEmptyStatus(){ 
+    private void showEmptyStatus() {
+        assert javax.swing.SwingUtilities.isEventDispatchThread(): "Bad thread to update UI: "+Thread.currentThread();
         tabPaneRemoved = true;
-        try{
-            remove(tabPane); 
-            tabPane = null;
-        }catch(NullPointerException e){
-           //ignore -  it's here only for case the tabPane isn't in container,
-           // it's more convenient than search through container's components 
-        }              
+        if (tabPane != null) {
+            try {
+                remove(tabPane);
+                tabPane = null;
+            } catch(NullPointerException e) {
+               //ignore -  it's here only for case the tabPane isn't in container,
+               // it's more convenient than search through container's components 
+            }
+        }
         add(emptyLabel);
     }
     
