@@ -116,7 +116,7 @@ class ClassJavaDocImpl extends Object implements JavaDoc {
         */
         public JavaDocTag.SerialField[] getSerialFieldTags() {
             return SERIALFIELD_TAGS_EMPTY;
-        };
+        }
     }
 
     /** The JavaDoc of a method. Adds two special tags: @para tag and @throws tag.
@@ -127,13 +127,13 @@ class ClassJavaDocImpl extends Object implements JavaDoc {
         */
         public JavaDocTag.Param[] getParamTags() {
             return PARAM_TAGS_EMPTY;
-        };
+        }
 
         /** Gets throws tags.
         */
         public JavaDocTag.Throws[] getThrowsTags() {
             return THROWS_TAGS_EMPTY;
-        };
+        }
     }
 }
 /*

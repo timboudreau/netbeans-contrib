@@ -46,6 +46,7 @@ import org.openide.src.nodes.SourceElementFilter;
 import org.openide.util.HelpCtx;
 import org.openide.util.WeakListener;
 import org.openide.loaders.DataObjectExistsException;
+import org.netbeans.modules.classfile.ClassFile;
 
 
 /** This DataObject loads sourceless classes and provides a common framework
@@ -219,18 +220,17 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
      * cannot be loaded. In such case, it records the error trace into
      * {@link #classLoadingError} variable.
      */
-    protected Class getMainClass() {
-        Class mainClass = null;
+    protected ClassFile getMainClass() {
+        ClassFile mainClass = null; //can I cache it?
         Throwable t = this.classLoadingError;
         try {
+            mainClass = new ClassFile(getPrimaryEntry().getFile().getInputStream());            
             // try to load the class.
-            mainClass = createInstanceSupport().instanceClass();
+            //mainClass = createInstanceSupport().instanceClass();
             classLoadingError = null;
         } catch (RuntimeException ex) {
             classLoadingError = ex;
         } catch (IOException ex) {
-            classLoadingError = ex;
-        } catch (ClassNotFoundException ex) {
             classLoadingError = ex;
         }
         firePropertyChange(PROP_CLASS_LOADING_ERROR, t, classLoadingError);
@@ -258,7 +258,7 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
         sourceElementFilter.setAllClasses (true);
         sourceChildren.setFilter (sourceElementFilter);
 
-        Class ourClass = getMainClass();
+        ClassFile ourClass = getMainClass();
         if (ourClass == null)
             return null;
         sourceChildren.setElement (

@@ -24,6 +24,8 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.MultiDataObject;
 import org.openide.src.*;
 
+import org.netbeans.modules.classfile.ClassFile;
+
 /** The implementation of source element for class objects.
 * This class is final only for performance reasons,
 * can be happily unfinaled if desired.
@@ -51,20 +53,20 @@ public final class SourceElementImpl extends MemberElementImpl
     static final long serialVersionUID =-4870331896218546842L;
 
     /** Creates object with asociated class and no class data object */
-    public SourceElementImpl (Class data) {
+    public SourceElementImpl (ClassFile data) {
         this(data, null);
     }
 
     /** Creates object with asociated class and with asociated
     * class data object which created this source element (can be null).
     */
-    public SourceElementImpl (Class data, ClassDataObject cdo) {
+    public SourceElementImpl (ClassFile data, ClassDataObject cdo) {
         super(data);
         this.cdo = cdo;
     }
     
-    public void setClassObject(Class data) {
-        Class oldData = (Class)this.data;
+    public void setClassObject(ClassFile data) {
+        ClassFile oldData = (ClassFile)this.data;
         int oldStatus;
         int newStatus;
 
@@ -95,10 +97,7 @@ public final class SourceElementImpl extends MemberElementImpl
             return null;
         
         if (packg == null) {
-            Package pac = ((Class)data).getPackage();
-            if (pac != null) {
-                packg = Identifier.create(pac.getName());
-            }
+            packg = Identifier.create(((ClassFile)data).getPackage());
         }
         return packg;
     }
@@ -175,7 +174,7 @@ public final class SourceElementImpl extends MemberElementImpl
             if (data == null)
                 return null;
             result = new ClassElement(
-                         new ClassElementImpl((Class)data), (SourceElement)element);
+                     new ClassElementImpl((ClassFile)data), (SourceElement)element);
             topClass = new SoftReference(result);
         }
         return result;

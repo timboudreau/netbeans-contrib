@@ -13,9 +13,6 @@
 
 package org.netbeans.modules.clazz;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Member;
-
 import org.openide.src.*;
 
 /** Implementation of method element for class objects.
@@ -31,15 +28,15 @@ final class MethodElementImpl extends ConstructorElementImpl
     /** Default constructor, asociates with given
     * java reflection Method element.
     */
-    public MethodElementImpl(final Method data) {
-        super(data);
+    public MethodElementImpl(final org.netbeans.modules.classfile.Method data) {
+        super(data, null);
     }
 
     /** @return returns teh Type representing return type of this method.
     */
     public Type getReturn () {
         if (returnType == null)
-            returnType = Type.createFromClass(((Method)data).getReturnType());
+            returnType = Util.getReturnType(((org.netbeans.modules.classfile.Method)data).getDescriptor());
         return returnType;
     }
 
