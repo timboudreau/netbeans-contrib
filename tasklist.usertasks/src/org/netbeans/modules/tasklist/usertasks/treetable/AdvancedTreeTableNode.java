@@ -68,7 +68,7 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     }
 
     /**
-     * Sets new comparator or null
+     * Sets new comparator or null. This comparator will compare child nodes.
      *
      * @param comparator new comparator
      */
@@ -78,7 +78,27 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
         
         this.comparator = comparator;
         
-        refreshChildren();
+        if (this.children != null) {
+            if (this.comparator != null) {
+                Arrays.sort(children, this.comparator);
+            } else {
+                AdvancedTreeTableNode[] newch = 
+                    new AdvancedTreeTableNode[children.length];
+                Iterator it = this.getChildrenObjectsIterator();
+                int i = 0;
+                while (it.hasNext()) {
+                    Object obj = it.next();
+                    int index = getIndexOfObject(obj);
+                    assert index >= 0;
+                    newch[i++] = (AdvancedTreeTableNode) children[index];
+                }
+                children = newch;
+            }
+            model.fireTreeStructureChanged(model, getPathToRoot());
+            for (int i = 0; i < children.length; i++) {
+                ((AdvancedTreeTableNode) children[i]).setComparator(comparator);
+            }
+        }
     }
     
     /**
@@ -207,6 +227,34 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
                 model.fireTreeNodesRemoved(model, 
                     getPathToRoot(), 
                     new int[] {ind}, new Object[] {rem});
+            }
+        }
+    }
+    
+    /**
+     * Fires the appropriate events if a child object was added
+     *
+     * @param obj new child nodes objects
+     */
+    protected void fireChildObjectAdded(Object obj) {
+        if (children != null) {
+            if (getComparator() != null) {
+                AdvancedTreeTableNode cn = createChildNode(obj);
+                int index = Arrays.binarySearch(children, cn, getComparator());
+                assert index < 0;
+                
+                index = -(index + 1);
+                AdvancedTreeTableNode[] newch = 
+                    new AdvancedTreeTableNode[children.length + 1];
+                System.arraycopy(children, 0, newch, 0, index);
+                newch[index] = cn;
+                System.arraycopy(children, index, newch, index + 1, 
+                    children.length - index);
+                this.children = newch;
+                model.fireTreeNodesInserted(model, getPathToRoot(), 
+                    new int[] {index}, new Object[] {cn});
+            } else {
+                refreshChildren();
             }
         }
     }

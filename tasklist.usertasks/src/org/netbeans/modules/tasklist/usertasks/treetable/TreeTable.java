@@ -24,6 +24,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Enumeration;
 import java.util.EventObject;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
@@ -35,6 +36,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
@@ -124,6 +127,22 @@ public class TreeTable extends JTable {
         imp2.put(KeyStroke.getKeyStroke("COPY"), "none"); // NOI18N
         imp2.put(KeyStroke.getKeyStroke("PASTE"), "none"); // NOI18N
         imp2.put(KeyStroke.getKeyStroke("CUT"), "none"); // NOI18N
+        
+        // copied from TTV
+        getSortingModel().addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                Enumeration en = tree.getExpandedDescendants( 
+                    new TreePath(getTreeTableModel().getRoot()));
+                    
+                getTreeTableModel().sort(getSortingModel());
+                
+                // expand again folders
+                while (en.hasMoreElements()) {
+                    TreePath tp = (TreePath) en.nextElement();
+                    tree.expandPath(tp);
+                }
+            }
+        });
     }
 
     /**

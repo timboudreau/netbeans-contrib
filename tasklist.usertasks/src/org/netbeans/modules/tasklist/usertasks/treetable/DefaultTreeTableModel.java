@@ -141,4 +141,7 @@ TreeTableModel {
     int[] childIndices, Object[] children) {
         super.fireTreeStructureChanged(source, path, childIndices, children);
     }    
+    
+    public void sort(SortingModel sm) {
+    }    
 }
