@@ -679,6 +679,7 @@ public final class ProfilesFactory extends Object {
                     return ;
                 }
                 ProfileContentHandler handler = new ProfileContentHandler(os, conditions, variables, commands, globalCommands, null);
+                handler.setSourceName(profileName);
                 //System.out.println("VariableIO.getConfigurationLabel("+config+")");
                 try {
                     XMLReader reader = XMLUtil.createXMLReader();

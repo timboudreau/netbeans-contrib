@@ -15,10 +15,12 @@ package org.netbeans.modules.vcs.advanced;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
 
@@ -38,6 +40,8 @@ import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.ErrorManager;
+import org.openide.util.NbBundle;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -125,6 +129,8 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
     /** Whether to validate XML files. Safer, but slows down. */
     private static final boolean VALIDATE_XML = false;
     
+    private String sourceName;
+    
     private boolean getOS, getConditions, getVariables, getCommands, getGlobalCommands;
     private boolean haveOS, haveConditions, haveSomeConditions, haveVariables, haveCommands, haveGlobalCommands;
     private boolean readingRB, readingLabel, readingOSCompat, readingOSUncompat, readingCondition, readingCommands, readingGlobalCommands;
@@ -157,6 +163,7 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
     private String uncompatibleOSs;
     private List conditions;
     private List variables;
+    private Set unconditionedVariableNames;         // Just to catch multiple variable declarations
     private Map conditionsByVariables;
     private Map varsByConditions;
     private CommandExecutionContext execContext;
@@ -182,6 +189,7 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
         }
         if (getVariables) {
             this.variables = new ArrayList();
+            this.unconditionedVariableNames = new HashSet();
             conditionsByVariables = new TreeMap();
             varsByConditions = new HashMap();
         }
@@ -192,6 +200,13 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
             commandsTree = new CommandsTree(new UserCommandSupport(rootCmd, execContext));
             ccb = new ConditionedCommandsBuilder(commandsTree);
         }
+    }
+    
+    /**
+     * Set the name of the XML source. This name is used in error reports.
+     */
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
     
     public void startDocument() throws SAXException {
@@ -730,6 +745,16 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
                 conditions[conditions.length - 1] = cond;
             } else {
                 variables.add(var);
+                if (unconditionedVariableNames.contains(var.getName())) {
+                    ErrorManager.getDefault().notify(ErrorManager.USER,
+                            ErrorManager.getDefault().annotate(
+                            new IllegalStateException("Variable '"+var.getName()+"' is defined multiple times in "+sourceName+"."),
+                            NbBundle.getMessage(ProfileContentHandler.class, "ErrorVarDefinedMultipleTimes", var.getName(), sourceName)));
+                    // Put it to the log in case the dialog is dismissed.
+                    ErrorManager.getDefault().log(ErrorManager.ERROR, NbBundle.getMessage(ProfileContentHandler.class, "ErrorVarDefinedMultipleTimes", var.getName()));
+                } else {
+                    unconditionedVariableNames.add(var.getName());
+                }
                 conditions = null;
             }
         }
@@ -799,6 +824,15 @@ public class ProfileContentHandler extends Object implements ContentHandler, Ent
             }
         }
         if (lastValuesByConditions == null) {
+            Object lastValue = readingCommand.getProperty(lastReadingProperty);
+            if (lastValue != null) {
+                ErrorManager.getDefault().notify(ErrorManager.USER,
+                            ErrorManager.getDefault().annotate(
+                            new IllegalStateException("Property '"+lastReadingProperty+"' of command '"+readingCommand.getName()+"' is defined multiple times in '"+sourceName+"'. Last value was '"+lastValue+"', new value is set: '"+value+"'."),
+                            NbBundle.getMessage(ProfileContentHandler.class, "ErrorPropertyDefinedMultipleTimes", new Object[] { lastReadingProperty, readingCommand.getName(), sourceName, lastValue, value })));
+                // Put it to the log in case the dialog is dismissed.
+                ErrorManager.getDefault().log(ErrorManager.ERROR, NbBundle.getMessage(ProfileContentHandler.class, "ErrorPropertyDefinedMultipleTimes", new Object[] { lastReadingProperty, readingCommand.getName(), sourceName, lastValue, value }));
+            }
             readingCommand.setProperty(lastReadingProperty, value);
         } else {
             if (lastPropertyCondition != null) {
