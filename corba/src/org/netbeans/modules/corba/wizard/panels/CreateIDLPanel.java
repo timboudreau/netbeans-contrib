@@ -236,7 +236,7 @@ public class CreateIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
         gridBagConstraints.weighty = 1.0;
         add(jPanel2, gridBagConstraints);
 
-        jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/Bundle").getString("TXT_IDLFileContent"));
+        jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_IDLFileContent"));
         jLabel1.setLabelFor(tree);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
