@@ -98,6 +98,7 @@ public class AddToGroupAction extends NodeAction {
         DataFolder folder = MainVcsGroupNode.getMainVcsGroupFolder();
         FileObject foFolder = folder.getPrimaryFile();
         Enumeration children = foFolder.getData(false);
+        boolean hasAny = false;
         while (children.hasMoreElements()) {
             FileObject fo = (FileObject)children.nextElement();
             if (fo.getExt().equals(VcsGroupNode.PROPFILE_EXT)) {
@@ -107,6 +108,7 @@ public class AddToGroupAction extends NodeAction {
                     String dispName = bundle.getString(VcsGroupNode.PROP_NAME);
                     FileObject f = foFolder.getFileObject(fo.getName());
                     if (f != null && f.isFolder()) {
+                        hasAny = true;
                         menu.add(createItem(fo.getName(), dispName));
                     }
                 } catch (Exception exc) {
@@ -114,6 +116,9 @@ public class AddToGroupAction extends NodeAction {
                     System.out.println("add to group exc=" + exc.getClass());
                 }
             }
+        }
+        if (!hasAny) {
+            menu.add(createItem("default", MainVcsGroupNode.getMainVcsGroupNodeInstance().getDefaultGroupInstance().getDisplayName()));
         }
         JMenuItem[] menus = new JMenuItem[1];
         menus[0] = menu;
