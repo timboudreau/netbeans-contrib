@@ -79,7 +79,7 @@ class ClassDataNode extends DataNode implements Runnable {
   /** @param obj is a ClassDataObject that is to be represented
   */
   ClassDataNode(final ClassDataObject obj) {
-    super(obj, new SourceChildren(DefaultFactory.READ_ONLY));
+    super(obj, new SourceChildren(ClassElementNodeFactory.getInstance()));
     this.obj = obj;
     initialize();
   }
@@ -118,6 +118,11 @@ class ClassDataNode extends DataNode implements Runnable {
 
   boolean getExecution () {
     return ((ClassDataObject) getDataObject()).getExecution ();
+  }
+
+  /** Class cannot be renamed. */
+  public boolean canRename () {
+    return false;
   }
 
   /** Creates property set for this node */
@@ -297,6 +302,7 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  17   Gandalf   1.16        3/26/99  David Simonek   
  *  16   Gandalf   1.15        3/26/99  Ian Formanek    Fixed use of obsoleted 
  *       NbBundle.getBundle (this)
  *  15   Gandalf   1.14        3/22/99  Ian Formanek    Icons location fixed
