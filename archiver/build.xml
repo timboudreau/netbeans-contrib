@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
                 <pathelement location="../../openide/openide-13javac-workaround.jar"/>
                 <pathelement location="../../openide/netbeans/lib/openide.jar"/>
                 <pathelement location="../../openide/loaders/netbeans/lib/openide-loaders.jar"/>
-                <pathelement location="../../openide/io/netbeans/modules/autoload/openide-io.jar"/>
+                <pathelement location="../../openide/io/netbeans/modules/org-openide-io.jar"/>
                 <pathelement location="../../java/api/netbeans/modules/autoload/java-api.jar"/>
             </classpath>
         </javac>

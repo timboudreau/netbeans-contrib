@@ -169,7 +169,7 @@ Microsystems, Inc. All Rights Reserved.
 	         If you need e.g. your tested module, write this:
 	           <pathelement location="${netbeans.home}/modules/somemodule.jar"/>
  	      -->
-            <pathelement location="${netbeans.home}/modules/clazz.jar"/>
+            <pathelement location="${netbeans.home}/modules/org-netbeans-modules-clazz.jar"/>
             <pathelement location="${netbeans.home}/lib/openide.jar"/>
             <pathelement location="${netbeans.home}/lib/openide-loaders.jar"/>
             <pathelement location="${netbeans.home}/modules/org-openide-src.jar"/>

@@ -37,8 +37,8 @@ Microsystems, Inc. All Rights Reserved.
         <fileset dir="${nbroot1}/openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-	<pathelement location="${nbroot1}/openidex/netbeans/modules/autoload/openidex.jar"/>
-	<pathelement location="${nbroot1}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
+	<pathelement location="${nbroot1}/openidex/netbeans/modules/org-openidex-util.jar"/>
+	<pathelement location="${nbroot1}/vcscore/netbeans/modules/org-netbeans-modules-vcscore.jar"/>
 	<pathelement location="${nbroot1}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
       </classpath>
     </javac>

@@ -26,8 +26,8 @@ Microsystems, Inc. All Rights Reserved.
       <pathelement location="${nb_all}/openide-13javac-workaround.jar"/>
       <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
       <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
-      <pathelement location="${openidex.dir}/${nb.modules/autoload.dir}/openidex.jar"/>
-      <pathelement location="${vcscore.dir}/${nb.modules/autoload.dir}/vcscore.jar"/>
+      <pathelement location="${openidex.dir}/${nb.modules.dir}/org-openidex-util.jar"/>
+      <pathelement location="${vcscore.dir}/${nb.modules.dir}/org-netbeans-modules-vcscore.jar"/>
       <pathelement location="${vcsgeneric.dir}/${nb.modules.dir}/vcsgen.jar"/>
       <pathelement location="${diff.dir}/${nb.modules.dir}/diff.jar"/>
       <pathelement location="${javacvs/libmodule.dir}/${nb.modules/autoload.dir}/cvslib.jar"/>

@@ -39,7 +39,7 @@ Microsystems, Inc. All Rights Reserved.
                 <!-- tasklist api -->
                 <pathelement path="../api/src"/>
                 <!-- html -->
-                <pathelement path="../../html/netbeans/modules/html.jar"/>
+                <pathelement path="../../html/netbeans/modules/org-netbeans-modules-html.jar"/>
                 <!-- diff -->
                 <pathelement path="../../diff/netbeans/modules/diff.jar"/>
                 <!-- Tidy library -->

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.apisupport.project</type>
+    <name>org.netbeans.modules.vcscore</name>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/1">
+            <path>vcscore</path>
+            <module-dependencies>
+                <dependency>
+                    <code-name-base>org.openide</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>4.20</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.execution</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.2</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.io</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.loaders</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>4.11</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openidex.util</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>2-3</release-version>
+                    </run-dependency>
+                </dependency>
+            </module-dependencies>
+            <public-packages>
+                <package>org.netbeans.api.vcs</package>
+                <package>org.netbeans.api.vcs.commands</package>
+                <package>org.netbeans.spi.vcs</package>
+                <package>org.netbeans.spi.vcs.commands</package>
+                <!-- XXX used by vcsgeneric; should be handled differently, please ask DevRev: -->
+                <package>org.netbeans.modules.vcscore</package>
+                <package>org.netbeans.modules.vcscore.actions</package>
+                <package>org.netbeans.modules.vcscore.annotation</package>
+                <package>org.netbeans.modules.vcscore.cache</package>
+                <package>org.netbeans.modules.vcscore.caching</package>
+                <package>org.netbeans.modules.vcscore.cmdline.exec</package>
+                <package>org.netbeans.modules.vcscore.cmdline.exec.StructuredExec</package>
+                <package>org.netbeans.modules.vcscore.cmdline</package>
+                <package>org.netbeans.modules.vcscore.commands</package>
+                <package>org.netbeans.modules.vcscore.grouping</package>
+                <package>org.netbeans.modules.vcscore.runtime</package>
+                <package>org.netbeans.modules.vcscore.settings</package>
+                <package>org.netbeans.modules.vcscore.ui</package>
+                <package>org.netbeans.modules.vcscore.util</package>
+                <package>org.netbeans.modules.vcscore.util.table</package>
+                <!-- XXX also used by some profiles: -->
+                <package>org.netbeans.modules.vcscore.versioning.impl</package>
+                <package>org.netbeans.modules.vcscore.versioning</package>
+            </public-packages>
+            <javadoc/>
+        </data>
+    </configuration>
+</project>

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='ISO-8859-1' ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
                 Sun Public License Notice
 
@@ -8,90 +8,12 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<!-- Special targets: vcs-apis -->
-
 <project name="vcscore" default="netbeans" basedir=".">
-  <import file="../nbbuild/default.xml"/> 
 
-  <target name="init" depends="default.init">
-    <patternset id="vcscore.files">
-      <include name="${nb.modules/autoload.dir}/vcscore.jar"/>
-    </patternset>
-    <path id="cp">
-      <pathelement location="${openidex.dir}/${nb.modules/autoload.dir}/openidex.jar"/>
-      <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
-      <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
-      <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
-      <pathelement location="${openide/io.dir}/${nb.modules/autoload.dir}/openide-io.jar"/>
-      <pathelement location="${openide/execution.dir}/${nb.modules.dir}/org-openide-execution.jar"/>
-    </path>
-  </target>
-
-  <target name="compile" depends="init">
-    <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
-      <classpath refid="cp"/>
-    </javac>
-  </target>
-
-  <target name="jars" depends="compile">
-    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload.dir}"/>
-    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
-    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload.dir}/vcscore.jar"
-         manifest="manifest-subst.mf"
-         basedir="src"
-	 excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
-	 compress="false"/>
-  </target>
-
-  <target name="netbeans" depends="jars">
-    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules/autoload.dir}/vcscore.jar">
-       <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
-         <patternset refID="vcscore.files"/>
-       </fileset>
-    </genlist>
-  </target>
-
-  <target name="nbm" depends="netbeans">
-    <makenbm file="vcscore.nbm"
-             productdir="${netbeans.dest.dir}/${cluster.dir}"
-             module="${nb.modules/autoload.dir}/vcscore.jar"
-	     homepage="http://vcscore.${homepage.base}/"
-	     distribution="http://${dist.base}/vcscore.nbm">
-      <license file="${license.file}"/>
-      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-    </makenbm>
-  </target>
-
-  <target name="javadoc" depends="init" description="Build Javadoc.">
-    <ant dir="${nbroot}/nbbuild/javadoctools" antfile="template.xml" target="javadoc">
-      <property name="javadoc.base" location="."/>
-      <property name="javadoc.name" value="VCSAPI"/>
-      <property name="javadoc.title" value="VCS API"/>
-      <property name="javadoc.packages" value="org.netbeans.api.vcs,org.netbeans.api.vcs.commands,org.netbeans.spi.vcs,org.netbeans.spi.vcs.commands"/>
-      <property name="javadoc.classpath" refid="cp"/>
-      <property name="javadoc.apichanges" location="api/doc/changes/apichanges.xml"/>
-      <property name="javadoc.arch" location="arch/arch-vcscore.xml"/>
-      <property name="javadoc.manifest" location="manifest.mf"/>
-    </ant>
-  </target>
-
-  <target name="clean" depends="init" description="Clean build products.">
-    <delete>
-      <fileset dir="src">
-        <include name="**/*.class"/>
-      </fileset>
-      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
-        <patternset refID="vcscore.files"/>
-      </fileset>
-    </delete>
-    <delete file="manifest-subst.mf"/>
-    <delete file="vcscore.nbm"/>
-    <delete dir="javadoc"/>
-  </target>
+    <import file="../nbbuild/templates/projectized.xml"/>
 
 </project>

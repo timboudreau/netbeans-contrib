@@ -2,11 +2,8 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.group/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/group/resources/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.1
-OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Layer: org/netbeans/modules/group/resources/mf-layer.xml
-OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.17
 OpenIDE-Module-Provides: dataloader.group
-OpenIDE-Module-Public-Packages: -
 
 Name: org/netbeans/modules/group/GroupShadowLoader.class
 OpenIDE-Module-Class: Loader

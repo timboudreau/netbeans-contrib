@@ -156,7 +156,7 @@ Microsystems, Inc. All Rights Reserved.
             </fileset>
             <!-- XXX -->
             <pathelement location="../../openide/loaders/netbeans/lib/openide-loaders.jar"/>
-            <pathelement location="../../openide/io/netbeans/modules/autoload/openide-io.jar"/>
+            <pathelement location="../../openide/io/netbeans/modules/org-openide-io.jar"/>
 
             <pathelement path="${junit.path}"/>
             <pathelement path="${xerces.path}"/>

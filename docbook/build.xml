@@ -55,7 +55,7 @@ Microsystems, Inc. All Rights Reserved.
             <classpath>
                 <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
                 <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-                <pathelement location="${nbroot}/openide/io/netbeans/modules/autoload/openide-io.jar"/>
+                <pathelement location="${nbroot}/openide/io/netbeans/modules/org-openide-io.jar"/>
                 <pathelement location="${nbroot}/xml/catalog/netbeans/modules/xml-catalog.jar"/>
             </classpath>
         </javac>
