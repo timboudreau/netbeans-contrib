@@ -88,7 +88,7 @@ public class AnnotPatternCustomEditor extends javax.swing.JPanel implements Expl
         jPanel1.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
 
-        btnDefaultValue.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/caching/Bundle").getString("AnnotPatterCustomEditor.btnDefaultValue"));
+        btnDefaultValue.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/annotation/Bundle").getString("AnnotPatterCustomEditor.btnDefaultValue"));
         btnDefaultValue.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDefaultValueActionPerformed(evt);
@@ -100,7 +100,7 @@ public class AnnotPatternCustomEditor extends javax.swing.JPanel implements Expl
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         jPanel1.add(btnDefaultValue, gridBagConstraints1);
 
-        btnApply.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/caching/Bundle").getString("AnnotPatternCustomEditor.bntApply"));
+        btnApply.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/annotation/Bundle").getString("AnnotPatternCustomEditor.bntApply"));
         btnApply.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnApplyActionPerformed(evt);

@@ -18,7 +18,7 @@
         <Component class="javax.swing.JButton" name="btnDefaultValue">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/vcscore/caching/Bundle.properties" key="AnnotPatterCustomEditor.btnDefaultValue" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcscore/annotation/Bundle.properties" key="AnnotPatterCustomEditor.btnDefaultValue" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
 
@@ -34,7 +34,7 @@
         <Component class="javax.swing.JButton" name="btnApply">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/vcscore/caching/Bundle.properties" key="AnnotPatternCustomEditor.bntApply" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/vcscore/annotation/Bundle.properties" key="AnnotPatternCustomEditor.bntApply" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
 
