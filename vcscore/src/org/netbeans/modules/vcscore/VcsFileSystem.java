@@ -4206,12 +4206,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private void addCommandsToHashTable(CommandsTree root) {
         CommandsTree[] children = root.children();
-        for (int i = 0; i < children.length; i++) {
-            CommandSupport cmdSupp = children[i].getCommandSupport();
-            if (cmdSupp != null) {
-                commandsByName.put(cmdSupp.getName(), cmdSupp);
+        synchronized (commandsByName) {
+            for (int i = 0; i < children.length; i++) {
+                CommandSupport cmdSupp = children[i].getCommandSupport();
+                if (cmdSupp != null) {
+                    commandsByName.put(cmdSupp.getName(), cmdSupp);
+                }
+                if (children[i].hasChildren()) addCommandsToHashTable(children[i]);
             }
-            if (children[i].hasChildren()) addCommandsToHashTable(children[i]);
         }
     }
 
@@ -4316,28 +4318,34 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (commands == null) return new String[0];
             setCommands (commands);
         }
-        return (String[]) commandsByName.keySet().toArray(new String[commandsByName.size()]);
+        synchronized (commandsByName) {
+            return (String[]) commandsByName.keySet().toArray(new String[commandsByName.size()]);
+        }
     }
 
     private void addCmdActionsToSupporter() {
-        for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
-            CommandSupport cmdSupport = (CommandSupport) it.next();
-            if (cmdSupport instanceof ActionCommandSupport) {
-                Class actionClass = ((ActionCommandSupport) cmdSupport).getActionClass();
-                if (actionClass != null) {
-                    actionSupporter.addSupportForAction(actionClass, cmdSupport);
+        synchronized (commandsByName) {
+            for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
+                CommandSupport cmdSupport = (CommandSupport) it.next();
+                if (cmdSupport instanceof ActionCommandSupport) {
+                    Class actionClass = ((ActionCommandSupport) cmdSupport).getActionClass();
+                    if (actionClass != null) {
+                        actionSupporter.addSupportForAction(actionClass, cmdSupport);
+                    }
                 }
             }
         }
     }
 
     private void removeCmdActionsFromSupporter() {
-        for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
-            CommandSupport cmdSupport = (CommandSupport) it.next();
-            if (cmdSupport instanceof ActionCommandSupport) {
-                Class actionClass = ((ActionCommandSupport) cmdSupport).getActionClass();
-                if (actionClass != null) {
-                    actionSupporter.removeSupportForAction(actionClass);
+        synchronized (commandsByName) {
+            for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
+                CommandSupport cmdSupport = (CommandSupport) it.next();
+                if (cmdSupport instanceof ActionCommandSupport) {
+                    Class actionClass = ((ActionCommandSupport) cmdSupport).getActionClass();
+                    if (actionClass != null) {
+                        actionSupporter.removeSupportForAction(actionClass);
+                    }
                 }
             }
         }
