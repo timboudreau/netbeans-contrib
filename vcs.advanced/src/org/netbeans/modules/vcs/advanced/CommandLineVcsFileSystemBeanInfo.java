@@ -43,8 +43,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor commands=null;
         PropertyDescriptor cacheId=null;
         PropertyDescriptor config=null;
-        PropertyDescriptor lock=null;
-        PropertyDescriptor lockPrompt=null;
+        //PropertyDescriptor lock=null;
+        //PropertyDescriptor lockPrompt=null;
         PropertyDescriptor acceptUserParams = null;
         PropertyDescriptor runRefreshCommand = null;
         PropertyDescriptor processAllFiles = null;
@@ -52,6 +52,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor autoRefresh = null;
         PropertyDescriptor notification = null;
         PropertyDescriptor hideShadowFiles = null;
+        PropertyDescriptor ignoredGarbageFiles = null;
 
         try {
             rootDirectory=new PropertyDescriptor
@@ -75,7 +76,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
             config=new PropertyDescriptor
                    ("config", CommandLineVcsFileSystem.class, "getConfig", null); // NOI18N
-
+            /*
             lock=new PropertyDescriptor
                  (VcsFileSystem.PROP_CALL_LOCK, CommandLineVcsFileSystem.class, "isLockFilesOn", "setLockFilesOn"); // NOI18N
             lock.setExpert(true);
@@ -83,6 +84,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             lockPrompt=new PropertyDescriptor
                        (VcsFileSystem.PROP_CALL_LOCK_PROMPT, CommandLineVcsFileSystem.class, "isPromptForLockOn", "setPromptForLockOn"); // NOI18N
             lockPrompt.setExpert(true);
+             */
             acceptUserParams = new PropertyDescriptor
                                (VcsFileSystem.PROP_EXPERT_MODE, CommandLineVcsFileSystem.class, "isExpertMode", "setExpertMode"); // NOI18N
             runRefreshCommand = new PropertyDescriptor
@@ -99,12 +101,15 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             hideShadowFiles = new PropertyDescriptor
                                (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, CommandLineVcsFileSystem.class, "isHideShadowFiles", "setHideShadowFiles"); // NOI18N
             hideShadowFiles.setExpert(true);
+            ignoredGarbageFiles = new PropertyDescriptor
+                                (VcsFileSystem.PROP_IGNORED_GARBAGE_FILES, CommandLineVcsFileSystem.class, "getIgnoredGarbageFiles", "setIgnoredGarbageFiles"); // NOI18N
+            ignoredGarbageFiles.setExpert(true);
 
 
             desc = new PropertyDescriptor[] {
                        rootDirectory, debug, variables, commands, cacheId, config,
-                       lock, lockPrompt, acceptUserParams, runRefreshCommand, processAllFiles,
-                       annotationPattern, autoRefresh, notification, hideShadowFiles
+                       acceptUserParams, runRefreshCommand, processAllFiles,
+                       annotationPattern, autoRefresh, notification, hideShadowFiles, ignoredGarbageFiles
                    };
 
             ResourceBundle bundle = NbBundle.getBundle (CommandLineVcsFileSystemBeanInfo.class);
@@ -122,10 +127,10 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             cacheId.setShortDescription       (bundle.getString("HINT_cacheId"));
             config.setDisplayName             (bundle.getString("PROP_config"));
             config.setShortDescription        (bundle.getString("HINT_config"));
-            lock.setDisplayName               (bundle.getString("PROP_lock"));
-            lock.setShortDescription          (bundle.getString("HINT_lock"));
-            lockPrompt.setDisplayName         (bundle.getString("PROP_lockPrompt"));
-            lockPrompt.setShortDescription    (bundle.getString("HINT_lockPrompt"));
+            //lock.setDisplayName               (bundle.getString("PROP_lock"));
+            //lock.setShortDescription          (bundle.getString("HINT_lock"));
+            //lockPrompt.setDisplayName         (bundle.getString("PROP_lockPrompt"));
+            //lockPrompt.setShortDescription    (bundle.getString("HINT_lockPrompt"));
             acceptUserParams.setDisplayName   (bundle.getString("PROP_acceptUserParams"));
             acceptUserParams.setShortDescription(bundle.getString("HINT_acceptUserParams"));
             runRefreshCommand.setDisplayName  (bundleSettings.getString("PROP_offline"));
@@ -140,6 +145,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             notification.setShortDescription  (bundle.getString("HINT_commandNotification"));
             hideShadowFiles.setDisplayName    (bundleSettings.getString("PROP_hideShadowFiles"));
             hideShadowFiles.setShortDescription(bundleSettings.getString("HINT_hideShadowFiles"));
+            ignoredGarbageFiles.setDisplayName(bundle.getString("PROP_ignoredGarbageFiles"));
+            ignoredGarbageFiles.setShortDescription(bundle.getString("HINT_ignoredGarbageFiles"));
 
         } catch (IntrospectionException ex) {
             ex.printStackTrace ();
