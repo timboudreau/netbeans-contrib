@@ -103,7 +103,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="clearcase-profile.nbm"
              productdir="${netbeans.dest.dir}/${cluster.dir}"
-             module="netbeans/modules/clearcase-profile.jar"
+             module="${nb.modules.dir}/clearcase-profile.jar"
 	     homepage="http://vcsgeneric.${homepage.base}/"
 	     distribution="http://${dist.base}/clearcase-profile.nbm">
       <license file="${license.file1}"/>
@@ -118,15 +118,12 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*.jar"/>
         <include name="org/netbeans/modules/vcs/profiles/clearcase/layer-include*.xml"/>
       </fileset>
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="vcsgeneric/profiles/clearcase.files"/>
+      </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="clearcase-profile.nbm"/>
-    <delete dir="netbeans"/>
-    <delete dir="Info"/>
-  </target>
-
-  <target depends="jars" name="install">
-   <nbinstaller action="reinstall" module="netbeans/modules/clearcase-profile.jar"/>
   </target>
 
 </project>
