@@ -108,6 +108,8 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport
 
 /*
  * <<Log>>
+ *  5    Gandalf   1.4         5/22/99  Karel Gardas    fixed for reading 
+ *       configuration from implementations files
  *  4    Gandalf   1.3         5/15/99  Karel Gardas    
  *  3    Gandalf   1.2         5/8/99   Karel Gardas    
  *  2    Gandalf   1.1         4/24/99  Karel Gardas    
