@@ -105,7 +105,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           AbstractFileSystem.List, AbstractFileSystem.Info,
                                                                           AbstractFileSystem.Change, FileSystem.Status,
                                                                           CommandExecutionContext, CacheHandlerListener,
-                                                                          FileObjectExistence, VcsOISActivator, Serializable {
+                                                                          FileObjectExistence, VcsOISActivator, Serializable,
+                                                                          FileSystem.HtmlStatus {
 
     public static interface IgnoreListSupport {
 
@@ -2591,6 +2592,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         } else {
             result = displayName;
         }
+        return result;
+    }
+
+    public String annotateNameHtml (String name, java.util.Set files) {
+        String result = annotateName (name, files);
+        result = Utilities.replaceString(result, name,
+            name + "<font color='!controlShadow'>") + "</font>"; //NOI18N
         return result;
     }
 
