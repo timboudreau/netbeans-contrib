@@ -455,7 +455,11 @@ public class TaskList { // XXX remove the publicness
         return null;
     }
 
-    /** Return the list of tasks in this tasklist */
+    /** 
+     * Return the list of tasks in this tasklist 
+     *
+     * @return subtasks of the root or null
+     */
     public List getTasks() {
         return getRoot().getSubtasks();
     }

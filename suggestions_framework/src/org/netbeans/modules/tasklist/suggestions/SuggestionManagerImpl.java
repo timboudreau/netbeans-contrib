@@ -625,8 +625,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
         } else {
             tasklist.clearCategoryTasks();
             List oldList = tasklist.getTasks();
-            List suggestions = new ArrayList(oldList.size());
-            suggestions.addAll(oldList);
+            List suggestions = new ArrayList();
+            if (oldList != null)
+                suggestions.addAll(oldList);
             tasklist.clear();
             Iterator it = suggestions.iterator();
             List group = null;
