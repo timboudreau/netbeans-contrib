@@ -197,6 +197,7 @@ public final class TLUtils {
         case '>': sb.append("&gt;"); break; // NOI18N
         case '&': sb.append("&amp;"); break; // NOI18N
         case ' ': sb.append("&nbsp;"); break; // NOI18N
+        case '\n': sb.append("<br>"); break; // NOI18N
         default: sb.append(c);
         }
     }

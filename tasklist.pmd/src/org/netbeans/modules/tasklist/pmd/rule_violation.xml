@@ -18,4 +18,9 @@ Microsystems, Inc. All Rights Reserved.
     description_key="HINT_violationtype"
     localizing_bundle="org.netbeans.modules.tasklist.pmd.Bundle"
     icon="nbresloc:org/netbeans/modules/tasklist/pmd/pmd.gif"
-/>
+>
+   <actions>
+       <action class="org.netbeans.modules.tasklist.pmd.EditRulesAction"/>
+   </actions>
+</type>
+

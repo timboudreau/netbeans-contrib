@@ -65,6 +65,10 @@ public class ViolationProvider extends DocumentSuggestionProvider {
 
     final private static String TYPE = "pmd-violations"; // NOI18N
 
+    public ViolationProvider() {
+        instance = this;
+    }
+    
     /**
      * Return the typenames of the suggestions that this provider
      * will create.
@@ -93,6 +97,8 @@ public class ViolationProvider extends DocumentSuggestionProvider {
      * called directly by programs.
      */
     public void rescan(Document doc, DataObject dobj) {
+        dataobject = dobj;
+        document = doc;
         List newTasks = scan(doc, dobj);
         SuggestionManager manager = SuggestionManager.getDefault();
 
@@ -101,6 +107,12 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         }
         manager.register(TYPE, newTasks, showingTasks);
         showingTasks = newTasks;
+    }
+
+    /** Package private rescan: called when you've changed the
+        rulesets for example. */
+    void rescan() {
+        rescan(document, dataobject);
     }
     
     /** The actual workhorse of this class - scan a document for rule violations */
@@ -465,6 +477,16 @@ public class ViolationProvider extends DocumentSuggestionProvider {
 	}     
     }
 
+    static ViolationProvider getDefault() {
+        return instance;
+    }
+
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;
+
+    private DataObject dataobject = null;
+    private Document document = null;
+
+    /** Default instance of this provider */
+    static private ViolationProvider instance = null;
 }

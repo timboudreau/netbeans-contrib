@@ -14,6 +14,8 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
@@ -31,6 +33,7 @@ import org.openide.nodes.Sheet.Set;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import java.awt.datatransfer.Transferable;
+import org.openide.text.Line;
 
 
 /**
@@ -103,43 +106,34 @@ class SuggestionNode extends TaskNode {
                 null
             };
         } else {
-
-            // TODO Add Delete action here as well
-            
-            if (item.getAction() == null) {
-                return new SystemAction[] {
-                    //SystemAction.get(GoToTaskAction.class),
-                    SystemAction.get(ShowSuggestionAction.class),
-                    null,
-                    SystemAction.get(ShowCategoryAction.class),
-                    SystemAction.get(FilterAction.class),
-                    null,
-                    SystemAction.get(DisableAction.class),
-                    SystemAction.get(EditTypesAction.class),
-                    //SystemAction.get(EnableAction.class),
-                    null,
-                    SystemAction.get(ExportAction.class),
-                    null,
-                    SystemAction.get(PropertiesAction.class),
-                };
-            } else {
-                return new SystemAction[] {
-                    SystemAction.get(FixAction.class),
-                    //SystemAction.get(GoToTaskAction.class),
-                    SystemAction.get(ShowSuggestionAction.class),
-                    null,
-                    SystemAction.get(ShowCategoryAction.class),
-                    SystemAction.get(FilterAction.class),
-                    null,
-                    SystemAction.get(DisableAction.class),
-                    SystemAction.get(EditTypesAction.class),
-                    //SystemAction.get(EnableAction.class),
-                    null,
-                    SystemAction.get(ExportAction.class),
-                    null,
-                    SystemAction.get(PropertiesAction.class),
-                };
+            ArrayList actions = new ArrayList(20);
+            if (item.getAction() != null) {
+                actions.add(SystemAction.get(FixAction.class));
             }
+            //actions.add(SystemAction.get(GoToTaskAction.class);
+            actions.add(SystemAction.get(ShowSuggestionAction.class));
+            List typeActions = 
+                ((SuggestionImpl)item).getSType().getActions();
+            if ((typeActions != null) && (typeActions.size() > 0)) {
+                actions.add(null);
+                Iterator it = typeActions.iterator();
+                while (it.hasNext()) {
+                    actions.add(it.next());
+                }
+            }
+            actions.add(null);
+            actions.add(SystemAction.get(ShowCategoryAction.class));
+            actions.add(SystemAction.get(FilterAction.class));
+            actions.add(null);
+            actions.add(SystemAction.get(DisableAction.class));
+            actions.add(SystemAction.get(EditTypesAction.class));
+            //actions.add(SystemAction.get(EnableAction.class));
+            actions.add(null);
+            actions.add(SystemAction.get(ExportAction.class));
+            actions.add(null);
+            actions.add(SystemAction.get(PropertiesAction.class));
+            return (SystemAction[])actions.toArray(
+                 new SystemAction[actions.size()]);
         }
     }
 
@@ -226,5 +220,24 @@ class SuggestionNode extends TaskNode {
     /** Don't allow pastes */
     protected void createPasteTypes(Transferable t, List s) {
     }
+
+
+    /** Get a cookie. Call super first, but if null, also 
+     * check the data object associated with the line number
+     * if any.
+     * @todo Should this be done in TaskNode (for all tasklist
+     * tasks) or just here?
+     */
+     public Node.Cookie getCookie(Class cl) {
+         Node.Cookie c = super.getCookie(cl);
+         if (c != null) {
+             return c;
+         }
+         Line l = item.getLine();
+         if (l != null) {
+             return l.getDataObject().getCookie(cl);
+         }
+         return null;
+     }
 }
 

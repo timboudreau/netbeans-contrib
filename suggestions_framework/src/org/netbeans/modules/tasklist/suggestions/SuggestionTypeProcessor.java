@@ -22,13 +22,22 @@ import org.xml.sax.HandlerBase;
 import org.xml.sax.InputSource;
 import org.xml.sax.Parser;
 import org.xml.sax.SAXException;
+import org.openide.util.actions.SystemAction;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.net.URL;
 import javax.xml.parsers.SAXParserFactory;
 import org.openide.TopManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.loaders.XMLDataObject;
-
+import org.xml.sax.helpers.DefaultHandler;
+import org.openide.xml.XMLUtil;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 
 /** Processor of the Suggestion Type XML file.
@@ -48,6 +57,9 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
     static final String ATTR_TYPE_LOCALIZING_BUNDLE = "localizing_bundle"; // NOI18N
     static final String ATTR_TYPE_DESCRIPTION_KEY = "description_key"; // NOI18N
     static final String ATTR_TYPE_ICON = "icon"; // NOI18N
+    static final String TAG_TYPE_ACTIONS = "actions"; // NOI18N
+    static final String TAG_TYPE_ACTION = "action"; // NOI18N
+    static final String ATTR_ACTION_CLASS = "class"; // NOI18N
 
     /** XML data object. */
     private XMLDataObject xmlDataObject;
@@ -102,22 +114,15 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
 
     private synchronized SuggestionType parse() {
         if (suggestionType == null) {
-            Handler h = new Handler();
-
             try {
-		Parser xp;
-                SAXParserFactory factory = SAXParserFactory.newInstance ();
-                factory.setValidating (false);
-                factory.setNamespaceAware(false);
-                xp = factory.newSAXParser ().getParser ();
-                xp.setEntityResolver(h);
-                xp.setDocumentHandler(h);
-                xp.setErrorHandler(h);
-                xp.parse(new InputSource(xmlDataObject.getPrimaryFile().getInputStream()));
-                //st.putProp(SuggestionType.PROP_FILE, xmlDataObject.getPrimaryFile());
-                //suggestionType = st;
-                suggestionType = h.getSuggestionType();
-                //suggestionType.setFile(xmlDataObject.getPrimaryFile()); // XXX Needed?
+                    XMLReader reader = XMLUtil.createXMLReader(false);
+                    
+                    TypeHandler handler = new TypeHandler();
+                    reader.setContentHandler(handler);
+                    reader.setErrorHandler(handler);
+                    reader.setEntityResolver(handler);
+                    reader.parse(new InputSource(xmlDataObject.getPrimaryFile().getInputStream()));
+                    suggestionType = handler.getSuggestionType();
             } catch (Exception e) { 
                 TopManager.getDefault().getErrorManager().notify(e);
             }
@@ -126,30 +131,37 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
         return suggestionType;
     }
     
-    private static class Handler extends HandlerBase {
-        private SuggestionType suggestionType = null;
+    private static class TypeHandler extends DefaultHandler {
+        private SuggestionType type = null;
+        
+        String id = null;
+        List actions = null;
+        String localizer = null;
+        String key = null;
+        URL icon = null;
         
         SuggestionType getSuggestionType() {
-            return suggestionType;
+            return type;
         }
 
-        public void startElement(String name, AttributeList amap) throws SAXException {
-            if (!TAG_TYPE.equals(name)) {
-                throw new SAXException("malformed SuggestionType xml file"); // NOI18N
-            }
+        public void startElement(String uri, String localName,
+                                 String name, Attributes attrs) 
+            throws SAXException {
+            if (TAG_TYPE.equals(name)) {
             // basic properties
-            String id = amap.getValue(ATTR_TYPE_NAME);
+            id = attrs.getValue(ATTR_TYPE_NAME);
+            actions = null;
             
             // localization stuff
-            String localizer = amap.getValue(ATTR_TYPE_LOCALIZING_BUNDLE);
-            String key = amap.getValue(ATTR_TYPE_DESCRIPTION_KEY);
+            localizer = attrs.getValue(ATTR_TYPE_LOCALIZING_BUNDLE);
+            key = attrs.getValue(ATTR_TYPE_DESCRIPTION_KEY);
             
             // icon
-            URL icon = null;
-            String uri = amap.getValue(ATTR_TYPE_ICON);
-            if (uri != null) {
+            icon = null;
+            String ur = attrs.getValue(ATTR_TYPE_ICON);
+            if (ur != null) {
                 try {
-                    icon = new URL(uri);
+                    icon = new URL(ur);
                 } catch (MalformedURLException ex) {
                     SAXException saxe = new SAXException(ex);
                     TopManager.getDefault().getErrorManager().
@@ -157,9 +169,47 @@ public final class SuggestionTypeProcessor implements InstanceCookie, Processor 
                     throw saxe;
                 }
             }
-
-            suggestionType = new SuggestionType(id, localizer, key, icon);
+            } else if (TAG_TYPE_ACTIONS.equals(name)) {
+                // Ignore
+            } else if (TAG_TYPE_ACTION.equals(name)) {
+                String cln = attrs.getValue(ATTR_ACTION_CLASS);
+                if (cln == null) {
+                    return;
+                }
+                try {
+                    Class c = Class.forName(cln, true,
+                                     TopManager.getDefault().systemClassLoader());
+                    if (c != null) {
+                        SystemAction a = SystemAction.get(c);
+                        if (a != null) {
+                            if (actions == null) {
+                                actions = new ArrayList();
+                            }
+                            actions.add(a);
+                        }
+                    }
+                } catch (Exception e) {
+                    TopManager.getDefault().getErrorManager().notify(e);
+                }
+            } else {
+                throw new SAXException("malformed SuggestionType xml file"); // NOI18N
+            }
         }
+
+        public void endElement(String uri, String localName, String name) throws SAXException {
+            if (TAG_TYPE_ACTION.equals(name)) {
+                // Ignore
+            } else if (TAG_TYPE_ACTIONS.equals(name)) {
+                // Ignore
+            } else if (TAG_TYPE.equals(name)) {
+                if (id != null) {
+                    type = new SuggestionType(id, localizer, 
+                                              key, icon, 
+                                              actions);
+                }
+            }
+        }
+
 
         public InputSource resolveEntity(java.lang.String pid,
                                          java.lang.String sid) throws SAXException {

@@ -18,6 +18,7 @@ import java.awt.Toolkit;
 import java.net.URL;
 import java.util.ResourceBundle;
 import org.openide.util.NbBundle;
+import java.util.List;
 
 /**
  * This class represents a SuggestionType. This concept is described
@@ -34,11 +35,17 @@ final public class SuggestionType {
      * @param bundle The file where the localized name for the type is found
      * @param key The key which holds the localized name in the bundle file
      * @param icon A url to the icon to be used by default for these suggestions */
-    SuggestionType(String name, String bundle, String key, URL icon) {
+    SuggestionType(String name, String bundle, String key, URL icon, 
+                   List actions) {
         this.name = name;
         this.bundle = bundle;
         this.key = key;
         this.icon = icon;
+        this.actions = actions;
+    }
+
+    List getActions() {
+        return actions;
     }
 
     /** @return The name which identifies this Suggestion Type */
@@ -128,4 +135,5 @@ final public class SuggestionType {
     private URL icon;
     private Image img = null;
     private String localizedName = null;
+    private List actions;
 }
