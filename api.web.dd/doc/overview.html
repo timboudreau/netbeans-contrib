@@ -137,12 +137,12 @@ Example :  The {@link org.netbeans.api.web.dd.WebApp}, {@link org.netbeans.api.w
 Package: <b>{@link org.netbeans.api.web.dd}</b>
 <p>
 Provides the access to the deployment descriptor root - {@link org.netbeans.api.web.dd.WebApp} - object.
-The {@link org.netbeans.api.web.dd.DDProvider} class is a singleton and caches the WebApp objects in IDE.
-There is only single method : <br>
+The {@link org.netbeans.api.web.dd.DDProvider} class is a singleton and caches the WebApp objects in IDE.<br>
+There are following methods for accessing {@link org.netbeans.api.web.dd.WebApp} object in DDProvider : <br>
 <ul>
-<li>{@link org.netbeans.api.web.dd.WebApp} getDDRoot ({@link org.openide.filesystems.FileObject} fo) throws {@link java.io.IOException}, {@link org.xml.sax.SAXException};</li>
-</ul><br>
-that returns the WebApp object for a FileObject.
+<li>{@link org.netbeans.api.web.dd.DDProvider#getDDRoot(org.openide.filesystems.FileObject)};</li>
+<li>{@link org.netbeans.api.web.dd.DDProvider#getDDRoot(java.io.File)};</li>
+</ul>
 </p>
 
 <h3>6. Deployment descriptor modification.</h3>
