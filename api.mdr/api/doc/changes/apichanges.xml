@@ -82,6 +82,19 @@ is the proper place.
 <!-- ACTUAL CHANGES BEGIN HERE: -->
 
   <changes>
+      <change>
+          <api name="xmi"/>
+          <summary>Deprecated API removed.</summary>
+          <version major="0" minor="986"/>
+          <date day="2" month="5" year="2004"/>
+          <author login="mmatula"/>
+          <compatibility modification="yes" />
+          <description>Deprecated API classes (org.netbeans.api.mdr.XMIReader and org.netbeans.api.mdr.XMIWriter) removed.
+          </description>
+          <class package="org.netbeans.api.mdr" name="XMIReader"/>
+          <class package="org.netbeans.api.mdr" name="XMIWriter"/>
+          <issue number="41562"/>
+      </change>
     <change>
         <api name="facility"/>
         <summary>Added MDRManager.shutdownAll and MDRepository.shutdown methods.</summary>
