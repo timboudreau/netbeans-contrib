@@ -38,6 +38,7 @@ import org.netbeans.modules.vcscore.caching.VcsCacheFile;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.commands.*;
+import org.netbeans.modules.vcscore.grouping.VcsGroupNode;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 
 /**
@@ -781,9 +782,23 @@ public class VcsAction extends NodeAction implements ActionListener {
             } else {
                 Node[] nodes = getActivatedNodes();
                 for (int i = 0; i < nodes.length; i++) {
-                    DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-                    if (dd == null) continue;
-                    Set files = dd.files();
+                    Set files;
+                    if (nodes[i] instanceof VcsGroupNode) {
+                        VcsGroupNode grNode = (VcsGroupNode) nodes[i];
+                        Enumeration children = nodes[i].getChildren().nodes();
+                        files = new HashSet();
+                        while (children.hasMoreElements()) {
+                            Node nd = (Node) children.nextElement();
+                            DataObject dd = (DataObject) nd.getCookie(DataObject.class);
+                            if (dd == null) continue;
+                            files.addAll(dd.files());
+                        }
+                        if (files.size() == 0) continue;
+                    } else {
+                        DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
+                        if (dd == null) continue;
+                        files = dd.files();
+                    }
                     for (Iterator it = files.iterator(); it.hasNext(); ) {
                         FileObject fo = (FileObject) it.next();
                         String path = fo.getPackageNameExt('/', '.');
@@ -1238,7 +1253,18 @@ public class VcsAction extends NodeAction implements ActionListener {
      * Perform the specified VCS command on a collection of FileObjects.
      * Can handle also LIST and LIST_SUB commands.
      */
-    public static void performVcsCommand(VcsCommand cmd, VcsFileSystem fileSystem, Collection fileObjects, boolean isExpert) {
+    public static void performVcsCommand(VcsCommand cmd, VcsFileSystem fileSystem,
+                                         Collection fileObjects, boolean isExpert) {
+        performVcsCommand(cmd, fileSystem, fileObjects, isExpert, null);
+    }
+
+    /**
+     * Perform the specified VCS command on a collection of FileObjects.
+     * Can handle also LIST and LIST_SUB commands.
+     */
+    public static void performVcsCommand(VcsCommand cmd, VcsFileSystem fileSystem,
+                                         Collection fileObjects, boolean isExpert,
+                                         Hashtable additionalVars) {
         boolean processAll = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_PROCESS_ALL_FILES) || fileSystem.isProcessUnimportantFiles();
         Table files = new Table();
         //boolean refreshDone = false;
@@ -1269,12 +1295,11 @@ public class VcsAction extends NodeAction implements ActionListener {
                 }
             }
         } else if (files.size() > 0) {
-            Hashtable map = null;
             if (isExpert && !fileSystem.isExpertMode()) {
-                map = new Hashtable();
-                map.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE);
+                if (additionalVars == null) additionalVars = new Hashtable();
+                additionalVars.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE);
             }
-            doCommand(files, cmd, map, fileSystem);
+            doCommand(files, cmd, additionalVars, fileSystem);
         }
     }
             
@@ -1293,13 +1318,25 @@ public class VcsAction extends NodeAction implements ActionListener {
             performVcsCommand(cmd, fileSystem, selectedFileObjects, CTRL_Down);
         } else {
             ArrayList fileObjects = new ArrayList();
+            Hashtable additionalVars = new Hashtable();
             for(int i = 0; i < nodes.length; i++) {
                 //D.deb("nodes["+i+"]="+nodes[i]); // NOI18N
-                DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-                if (dd != null) fileObjects.addAll(dd.files());
-                else continue;
+                if (nodes[i] instanceof VcsGroupNode) {
+                    VcsGroupNode grNode = (VcsGroupNode) nodes[i];
+                    additionalVars.put(Variables.GROUP_NAME, grNode.getDisplayName());
+                    additionalVars.put(Variables.GROUP_DESCRIPTION, grNode.getShortDescription());
+                    Enumeration children = nodes[i].getChildren().nodes();
+                    while (children.hasMoreElements()) {
+                        Node nd = (Node) children.nextElement();
+                        DataObject dd = (DataObject) nd.getCookie(DataObject.class);
+                        if (dd != null) fileObjects.addAll(dd.files());
+                    }
+                } else {
+                    DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
+                    if (dd != null) fileObjects.addAll(dd.files());
+                }
             }
-            performVcsCommand(cmd, fileSystem, selectedFileObjects, CTRL_Down);
+            performVcsCommand(cmd, fileSystem, fileObjects, CTRL_Down, additionalVars);
         }
         //String mimeType = null;
         //String path = "";
