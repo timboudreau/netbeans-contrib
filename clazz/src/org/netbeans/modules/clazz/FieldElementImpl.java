@@ -13,7 +13,9 @@
 
 package org.netbeans.modules.clazz;
 
+import org.netbeans.api.mdr.MDRepository;
 import org.netbeans.jmi.javamodel.Field;
+import org.netbeans.modules.javacore.internalapi.JavaMetamodel;
 import org.openide.src.*;
 
 /** The implementation of the field element for class objects.
@@ -48,10 +50,21 @@ final class FieldElementImpl extends MemberElementImpl
     * @return the type
     */
     public Type getType () {
-        if (type == null) 
-            type = Util.createType(getField().getType());
-            //XXX
-            //type = Type.createFromClass(((org.netbeans.modules.classfile.Field)data).getType());            
+        if (type == null) {
+            MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+            repo.beginTrans(false);
+            try {
+                if (!isValid()) {
+                    type = org.openide.src.Type.VOID;
+                } else {
+                    type = Util.createType(getField().getType());
+                }
+                //XXX
+                //type = Type.createFromClass(((org.netbeans.modules.classfile.Field)data).getType());
+            } finally {
+                repo.endTrans();
+            }
+        }
         return type;
     }
 

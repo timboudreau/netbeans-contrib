@@ -16,11 +16,15 @@ package org.netbeans.modules.clazz;
 import java.lang.ref.SoftReference;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import javax.swing.SwingUtilities;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.mdr.MDRepository;
 import org.netbeans.jmi.javamodel.JavaClass;
 import org.netbeans.jmi.javamodel.JavaPackage;
+import org.netbeans.jmi.javamodel.NamedElement;
 import org.netbeans.jmi.javamodel.Resource;
-import org.netbeans.modules.classfile.ClassFile;
 import org.netbeans.modules.javacore.internalapi.JavaMetamodel;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -37,7 +41,7 @@ import org.openide.util.TaskListener;
 * @author Dafe Simonek, Jan Jancura
 */
 final class SourceElementImpl extends MemberElementImpl
-    implements SourceElement.Impl, ElementProperties, Node.Cookie, TaskListener {
+    implements SourceElement.Impl, ElementProperties, TaskListener {
 
     private static final Map EMPTY_MAP = Collections.unmodifiableMap(new HashMap(0));
     
@@ -62,10 +66,16 @@ final class SourceElementImpl extends MemberElementImpl
     
     private transient boolean attached;
     
+    private boolean isEmpty = false;
+    
+    private ClassPath classPath = null;
+    
     static final long serialVersionUID =-4870331896218546842L;
     
     SourceElementImpl (ClassDataObject cdo) {
         this((Resource)null, cdo);
+        FileObject fo = cdo.getPrimaryFile();
+        classPath = ClassPath.getClassPath(fo, ClassPath.EXECUTE); // hard reference to class path prevents unmounting of related extent
     }
         
     /** Creates object with asociated class and with asociated
@@ -76,6 +86,46 @@ final class SourceElementImpl extends MemberElementImpl
         this.cdo = cdo;
     }
         
+    public void refreshData() {
+        boolean fireChange = false;
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            // System.out.println("refreshing ...");
+            Object oldData = data;
+            
+            FileObject fo = cdo.getPrimaryFile();
+            data = JavaMetamodel.getManager().getResource(fo);
+            
+            // System.out.println("  " + (data != null ? "" + ((Resource)data).isValid() : "null") + "  eq: " + (oldData == data));
+            
+            if (data != null && ((Resource) data).isValid()) {
+                // check features validity
+//                for (Iterator iter = ((Resource) data).getClassifiers().iterator(); iter.hasNext();) {
+//                    NamedElement cm = (NamedElement) iter.next();
+//                    System.out.println("  " + cm.getClass().getName() + " " + cm.isValid());
+//                }
+                
+                topClass = null;
+                allClasses = null;
+                fireChange = true;
+                
+                ClassElement cls = getClassElement();
+                ClassElementImpl impl = (ClassElementImpl) cls.getCookie(org.openide.src.Element.Impl.class);
+                // System.out.println("cls impl: " + (impl != null));
+                if (impl != null) {
+                    impl.refreshData();
+                }
+            }
+        } finally {
+            repo.endTrans();
+        }
+        if (fireChange) {
+            firePropertyChange(PROP_CLASSES, null, null);
+            firePropertyChange(PROP_ALL_CLASSES, null, null);
+        }
+    }
+    
     public void setResource(Resource data) {
         int oldStatus;
         int newStatus;
@@ -109,14 +159,20 @@ final class SourceElementImpl extends MemberElementImpl
     /** @return The package of class which we are representing.
     */
     public Identifier getPackage () {
-        if (getResource() == null)
-            return null;
-        if (packg != null)
-            return packg;
-        JavaPackage p = (JavaPackage) getResource().refImmediateComposite();
-        if (p == null)
-            return null;
-        return packg = Identifier.create(p.getName());
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if ((getResource() == null) || !isValid())
+                return null;
+            if (packg != null)
+                return packg;
+            JavaPackage p = (JavaPackage) getResource().refImmediateComposite();
+            if (p == null)
+                return null;
+            return packg = Identifier.create(p.getName());
+        } finally {
+            repo.endTrans();
+        }
     }
 
     /** @return always returns empty array
@@ -177,6 +233,9 @@ final class SourceElementImpl extends MemberElementImpl
     * and all its innerclasses and innerinterfaces.
     */
     public ClassElement[] getAllClasses () {
+        if (isEmpty) {
+            return new ClassElement[0];
+        }
         return (ClassElement[])getAllClassesMap ().values().toArray (new ClassElement[0]);
     }
 
@@ -224,7 +283,6 @@ final class SourceElementImpl extends MemberElementImpl
     void checkData() {
         if (data == null) {
             FileObject fo=cdo.getPrimaryFile();
-
             data=JavaMetamodel.getManager().getResource(fo);
         }
     }
@@ -247,16 +305,27 @@ final class SourceElementImpl extends MemberElementImpl
     * Care must be taken, 'cause we are playing with soft reference.
     */
     private ClassElement getClassElement () {
-        ClassElement result =
-            (topClass == null) ? null : (ClassElement)topClass.get();
+        if (isEmpty) {
+            return null;
+        }
+        ClassElement result = (topClass == null) ? null : (ClassElement)topClass.get();
         if (result == null) {
-            if (getResource() == null)
-                return null;
-            JavaClass[] c = (JavaClass[])getResource().getClassifiers().toArray(new JavaClass[0]);
-            if (c.length != 1)
-                return null;
-            result = new ClassElement(new ClassElementImpl(c[0]), (SourceElement)element);
-            topClass = new SoftReference(result);
+            MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+            repo.beginTrans(false);
+            try {
+                if (!isValid()) {
+                    return null;
+                }
+                if (getResource() == null)
+                    return null;
+                JavaClass[] c = (JavaClass[])getResource().getClassifiers().toArray(new JavaClass[0]);
+                if (c.length != 1)
+                    return null;
+                result = new ClassElement(new ClassElementImpl(c[0]), (SourceElement)element);
+                topClass = new SoftReference(result);
+            } finally {
+                repo.endTrans();
+            }
         }
         return result;
     }
@@ -340,7 +409,7 @@ final class SourceElementImpl extends MemberElementImpl
         if (type.equals(DataObject.class) || type.equals(MultiDataObject.class) ||
                 ClassDataObject.class.isAssignableFrom(type)) {
             return cdo;
-        } else if (type == SourceElement.Impl.class) {
+        } else if (type == SourceElement.Impl.class || type == Element.Impl.class) {
             return this;
         }
         return null;

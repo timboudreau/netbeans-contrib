@@ -13,11 +13,12 @@
 
 package org.netbeans.modules.clazz;
 
+import org.netbeans.api.mdr.MDRepository;
 import org.netbeans.jmi.javamodel.CallableFeature;
 import org.openide.src.*;
-import org.netbeans.jmi.javamodel.Constructor;
 import org.netbeans.jmi.javamodel.JavaClass;
 import org.netbeans.jmi.javamodel.Parameter;
+import org.netbeans.modules.javacore.internalapi.JavaMetamodel;
 
 /** Implementation of the constructor element for class objects.
 * It's simple bridge to the java reflection Constructor, delegates
@@ -49,13 +50,23 @@ class ConstructorElementImpl extends MemberElementImpl
     */
     public MethodParameter[] getParameters () {
         if (parameters == null) {
-            Parameter[] pars = (Parameter[])getBehavioral().getParameters().toArray(new Parameter[0]);
-            MethodParameter[] mp = new MethodParameter[pars.length];
-            for (int i = 0; i < pars.length; i++) {
-                Parameter p=pars[i];
-                mp[i] = new MethodParameter(p.getName(), Util.createType(p.getType()), p.isFinal());
+            MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+            repo.beginTrans(false);
+            try {
+                if (!isValid()) {
+                    parameters = new MethodParameter[0];
+                } else {
+                    Parameter[] pars = (Parameter[])getBehavioral().getParameters().toArray(new Parameter[0]);
+                    MethodParameter[] mp = new MethodParameter[pars.length];
+                    for (int i = 0; i < pars.length; i++) {
+                        Parameter p=pars[i];
+                        mp[i] = new MethodParameter(p.getName(), Util.createType(p.getType()), p.isFinal());
+                    }
+                    parameters = mp;
+                }
+            } finally {
+                repo.endTrans();
             }
-            parameters = mp;
         }
         return parameters;
     }
@@ -63,8 +74,17 @@ class ConstructorElementImpl extends MemberElementImpl
     protected Identifier createName(Object data) {
 	if (this instanceof MethodElementImpl) {
 	    return super.createName(data);
-	}    
-        return Identifier.create(((JavaClass)(getBehavioral().getDeclaringClass())).getName());
+	}
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if (!isValid()) {
+                return Identifier.create(""); // NOI18N
+            }
+            return Identifier.create(((JavaClass)(getBehavioral().getDeclaringClass())).getSimpleName());
+        } finally {
+            repo.endTrans();
+        }
     }
 
     /** Unsupported, throws SourceException
@@ -76,15 +96,24 @@ class ConstructorElementImpl extends MemberElementImpl
     /** @return the array of the exceptions throwed by the method.
     */
     public Identifier[] getExceptions () {
-        if (exceptions == null) {
-            JavaClass[] reflEx = (JavaClass[])getBehavioral().getExceptions().toArray(new JavaClass[0]);
-            exceptions = new Identifier[reflEx.length];
-            // build our exception types
-            for (int i = 0; i < reflEx.length; i++) {
-                exceptions[i] = Identifier.create(Util.createClassName(reflEx[i].getName()));
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if (!isValid()) {
+                return new Identifier[0];
             }
+            if (exceptions == null) {
+                JavaClass[] reflEx = (JavaClass[])getBehavioral().getExceptions().toArray(new JavaClass[0]);
+                exceptions = new Identifier[reflEx.length];
+                // build our exception types
+                for (int i = 0; i < reflEx.length; i++) {
+                    exceptions[i] = Identifier.create(Util.createClassName(reflEx[i].getName()));
+                }
+            }
+            return exceptions;
+        } finally {
+            repo.endTrans();
         }
-        return exceptions;
     }
 
     /** Unsupported, throws SourceException

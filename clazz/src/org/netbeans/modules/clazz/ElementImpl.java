@@ -33,7 +33,7 @@ import org.openide.util.NbBundle;
 */
 public abstract class ElementImpl extends Object implements Element.Impl, Externalizable {
 
-    /** The element we aare asociated to. We provide an implementation
+    /** The element we are asociated to. We provide an implementation
     * to that element */
     protected Element element;
     

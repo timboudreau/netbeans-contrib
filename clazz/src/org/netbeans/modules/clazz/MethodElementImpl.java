@@ -13,8 +13,10 @@
 
 package org.netbeans.modules.clazz;
 
+import org.netbeans.api.mdr.MDRepository;
 import org.openide.src.*;
 import org.netbeans.jmi.javamodel.Method;
+import org.netbeans.modules.javacore.internalapi.JavaMetamodel;
 
 /** Implementation of method element for class objects.
 *
@@ -38,8 +40,19 @@ final class MethodElementImpl extends ConstructorElementImpl
     /** @return returns teh Type representing return type of this method.
     */
     public Type getReturn () {
-        if (returnType == null)
-            returnType = Util.createType(getMethod().getType());
+        if (returnType == null) {
+            MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+            repo.beginTrans(false);
+            try {
+                if (!isValid()) {
+                    returnType = org.openide.src.Type.VOID;
+                } else {
+                    returnType = Util.createType(getMethod().getType());
+                }
+            } finally {
+                repo.endTrans();
+            }
+        }
         return returnType;
     }
 

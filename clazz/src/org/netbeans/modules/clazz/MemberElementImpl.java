@@ -16,9 +16,6 @@ package org.netbeans.modules.clazz;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
-import org.netbeans.jmi.javamodel.Element;
-import org.openide.nodes.CookieSet;
 
 import org.openide.src.MemberElement;
 import org.openide.src.SourceException;
@@ -26,18 +23,19 @@ import org.openide.src.Identifier;
 import org.openide.src.ClassElement;
 import org.openide.src.SourceElement;
 import org.openide.nodes.Node;
-import org.netbeans.modules.classfile.ClassFile;
-import org.netbeans.modules.classfile.Access;
 import org.openide.util.Task;
 
 import javax.jmi.reflect.RefObject;
+import org.netbeans.api.mdr.MDRepository;
 import org.netbeans.jmi.javamodel.Feature;
+import org.netbeans.modules.javacore.internalapi.JavaMetamodel;
+import org.openide.util.RequestProcessor;
 
 /** Implementation of the MemberElement.Impl for the class objects.
 *
 * @author Dafe Simonek
 */
-public abstract class MemberElementImpl extends ElementImpl implements MemberElement.Impl {
+public abstract class MemberElementImpl extends ElementImpl implements MemberElement.Impl, Node.Cookie {
     /** Asociated java reflection data */
     protected Object data;
     /** Cached name identifier */
@@ -59,8 +57,17 @@ public abstract class MemberElementImpl extends ElementImpl implements MemberEle
     /** @return Modifiers for this element.
     */
     public int getModifiers () {
-        Feature f = getClassFeature();
-        return f.getModifiers();
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if (!isValid()) {
+                return 0;
+            }
+            Feature f = getClassFeature();
+            return f.getModifiers();
+        } finally {
+            repo.endTrans();
+        }
     }
 
     /** Unsupported. Throws SourceException
@@ -80,8 +87,17 @@ public abstract class MemberElementImpl extends ElementImpl implements MemberEle
     }
     
     protected Identifier createName(Object data) {
-	String name = getClassFeature().getName();
-	return Identifier.create(name);
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if (!isValid()) {
+                return Identifier.create(""); // NOI18N
+            }
+            String name = getClassFeature().getName();
+            return Identifier.create(name);
+        } finally {
+            repo.endTrans();
+        }
     }
 
     /** Unsupported. Throws SourceException.
@@ -94,6 +110,8 @@ public abstract class MemberElementImpl extends ElementImpl implements MemberEle
     * if it's possible.
     */
     public Node.Cookie getCookie (Class type) {
+        if (type == org.openide.src.Element.Impl.class)
+            return this;
         ClassElement ce = ((MemberElement)element).getDeclaringClass();
         if ((ce == null) && (element instanceof ClassElement)) {
             ce = (ClassElement)element;
@@ -124,6 +142,43 @@ public abstract class MemberElementImpl extends ElementImpl implements MemberEle
     public RefObject getRefObject() {
         if (data instanceof RefObject)
             return (RefObject)data;
+        return null;
+    }
+    
+    public boolean isValid() {
+        if (data instanceof org.netbeans.jmi.javamodel.Element) {
+            boolean valid = ((org.netbeans.jmi.javamodel.Element) data).isValid();
+            if (!valid) {
+                final SourceElementImpl source = (SourceElementImpl)getCookie(SourceElement.Impl.class);
+                // final ElementImpl declClass = getDeclaringElement();
+                // System.out.println("not valid: " + getClass().getName() + " " + (source != null));
+                
+                if (source != null) {
+                    RequestProcessor.getDefault().post(new Runnable() {
+                        public void run() {
+                            // if (declClass instanceof ClassElementImpl)
+                            //    ((ClassElementImpl)declClass).refreshData();
+                            source.refreshData();
+                        }
+                    });
+                }
+            }
+            return valid;
+        }
+        return false;
+    }
+    
+    public ElementImpl getDeclaringElement() {
+        if ((element == null) || !(element instanceof MemberElement))
+            return null;
+        ClassElement declClass = ((MemberElement)element).getDeclaringClass();
+        if (declClass != null)
+            return (ElementImpl) declClass.getCookie(org.openide.src.Element.Impl.class);
+        if (element instanceof ClassElement) {
+            SourceElement source = ((ClassElement) element).getSource();
+            if (source != null)
+                return (ElementImpl) source.getCookie(org.openide.src.Element.Impl.class);
+        }
         return null;
     }
     

@@ -13,22 +13,20 @@
 
 package org.netbeans.modules.clazz;
 
-import org.openide.ErrorManager;
-import org.openide.util.Lookup;
-import org.openide.loaders.DataObject;
 import org.netbeans.modules.classfile.ClassFile;
 import org.netbeans.modules.classfile.InnerClass;
-import org.openide.filesystems.FileObject;
 import org.openide.src.*;
-import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.*;
+import org.netbeans.api.mdr.MDRepository;
 import org.netbeans.jmi.javamodel.Constructor;
 import org.netbeans.jmi.javamodel.Feature;
 import org.netbeans.jmi.javamodel.Field;
 import org.netbeans.jmi.javamodel.JavaClass;
 import org.netbeans.jmi.javamodel.Method;
 import org.netbeans.jmi.javamodel.NamedElement;
+import org.netbeans.modules.javacore.internalapi.JavaMetamodel;
+import org.openide.util.RequestProcessor;
 
 /** The implementation of the class element for
 * class objects. Presents data about the class -
@@ -36,7 +34,7 @@ import org.netbeans.jmi.javamodel.NamedElement;
 *
 * @author Dafe Simonek
 */
-public final class ClassElementImpl extends MemberElementImpl implements ClassElement.Impl {
+public final class ClassElementImpl extends MemberElementImpl implements ClassElement.Impl, ElementProperties {
     /** Empty array of initializers - constant to return from getInitializers() */
     private static final InitializerElement[] EMPTY_INITIALIZERS =
         new InitializerElement[0];
@@ -90,30 +88,48 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     }
 
     public Identifier getSuperclass() {
-        if (superClass == null) {
-            JavaClass c = getClazz();
-            JavaClass tid = c.getSuperClass();
-            if (tid == null)
-                superClass = NO_SUPERCLASS;
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if (!isValid()) {
+                return Identifier.create(""); // NOI18N
+            }
+            if (superClass == null) {
+                JavaClass c = getClazz();
+                JavaClass tid = c.getSuperClass();
+                if (tid == null)
+                    superClass = NO_SUPERCLASS;
+                else
+                    superClass = Identifier.create(Util.createClassName(tid.getName()));
+            }
+            if (superClass == NO_SUPERCLASS)
+                return null;
             else
-                superClass = Identifier.create(Util.createClassName(tid.getName()));
+                return superClass;
+        } finally {
+            repo.endTrans();
         }
-        if (superClass == NO_SUPERCLASS)
-            return null;
-        else
-            return superClass;
     }
     
     protected Identifier createName(Object data) {
-        String fqn=getClazz().getName();
-        String simpleName;
-        int lastDot=fqn.lastIndexOf('.');
-        
-        if (lastDot!=-1)
-            simpleName=fqn.substring(lastDot+1);
-        else
-            simpleName=fqn;
-        return Identifier.create(fqn, simpleName);
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if (!isValid()) {
+                return Identifier.create(""); // NOI18N
+            }
+            String fqn=getClazz().getName();
+            String simpleName;
+            int lastDot=fqn.lastIndexOf('.');
+
+            if (lastDot!=-1)
+                simpleName=fqn.substring(lastDot+1);
+            else
+                simpleName=fqn;
+            return Identifier.create(fqn, simpleName);
+        } finally {
+            repo.endTrans();
+        }
     }
 
     /** Not supported. Throws Source Exception */
@@ -122,7 +138,16 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     }
 
     public boolean isClassOrInterface() {
-        return !getClazz().isInterface();
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if (!isValid()) {
+                return true;
+            }
+            return !getClazz().isInterface();
+        } finally {
+            repo.endTrans();
+        }
     }
 
     /** Not supported. Throws SourceException.
@@ -289,10 +314,20 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     */
     public Identifier[] getInterfaces () {
         if (interfaces == null) {
-            JavaClass[] reflIntfs = (JavaClass[])getClazz().getInterfaces().toArray(new JavaClass[0]);
-            interfaces = new Identifier[reflIntfs.length];
-            for (int i = 0; i < reflIntfs.length; i++) {
-                interfaces[i] = Identifier.create(Util.createClassName(reflIntfs[i].getName()));
+            MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+            repo.beginTrans(false);
+            try {
+                if (!isValid()) {
+                    interfaces = new Identifier[0];
+                } else {
+                    JavaClass[] reflIntfs = (JavaClass[])getClazz().getInterfaces().toArray(new JavaClass[0]);
+                    interfaces = new Identifier[reflIntfs.length];
+                    for (int i = 0; i < reflIntfs.length; i++) {
+                        interfaces[i] = Identifier.create(Util.createClassName(reflIntfs[i].getName()));
+                    }
+                }
+            } finally {
+                repo.endTrans();
             }
         }
         return interfaces;
@@ -308,44 +343,62 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
 
     /** Creates map for fields consisting of identifier - field entries */
     private Map createFieldsMap () {
-        Feature[] reflFields = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
-        Map result = new HashMap(reflFields.length);
-        for (int i = 0; i < reflFields.length; i++) {
-            Feature f=reflFields[i];
-            
-            if (f instanceof Field) {
-                Field field=(Field)f;
-                // filter out methods added by compiler
-                if (!addedByCompiler(field)) {
-                    FieldElement curFE = new FieldElement(new FieldElementImpl(field),
-                                             (ClassElement)element);
-                    result.put(curFE.getName(), curFE);
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if (!isValid()) {
+                return Collections.EMPTY_MAP;
+            }
+            Feature[] reflFields = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
+            Map result = new HashMap(reflFields.length);
+            for (int i = 0; i < reflFields.length; i++) {
+                Feature f=reflFields[i];
+
+                if (f instanceof Field) {
+                    Field field=(Field)f;
+                    // filter out methods added by compiler
+                    if (!addedByCompiler(field)) {
+                        FieldElement curFE = new FieldElement(new FieldElementImpl(field),
+                                                 (ClassElement)element);
+                        result.put(curFE.getName(), curFE);
+                    }
                 }
             }
+            return result;
+        } finally {
+            repo.endTrans();
         }
-        return result;
     }
 
     /** Creates map for inner classes of this class,
     * consisting of identifier - class element entries */
     private Map createInnersMap () {
-        Feature[] reflInners = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
-
-        // create map
-        ClassElement curCE = null;
-        Map result = new HashMap(reflInners.length);
-        for (int i = 0; i < reflInners.length; i++) {
-            Feature f=reflInners[i];
-            
-            if (f instanceof JavaClass) {
-                JavaClass jcls=(JavaClass)f;
-                String iname = jcls.getName();
-                curCE = new ClassElement(new ClassElementImpl(jcls),
-                                         (ClassElement)element);
-                result.put(iname, curCE);
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if (!isValid()) {
+                return Collections.EMPTY_MAP;
             }
+            Feature[] reflInners = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
+
+            // create map
+            ClassElement curCE = null;
+            Map result = new HashMap(reflInners.length);
+            for (int i = 0; i < reflInners.length; i++) {
+                Feature f=reflInners[i];
+
+                if (f instanceof JavaClass) {
+                    JavaClass jcls=(JavaClass)f;
+                    String iname = jcls.getName();
+                    curCE = new ClassElement(new ClassElementImpl(jcls),
+                                             (ClassElement)element);
+                    result.put(iname, curCE);
+                }
+            }
+            return result;
+        } finally {
+            repo.endTrans();
         }
-        return result;
     }
 
     SourceElementImpl findSourceImpl() {
@@ -355,47 +408,82 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     /** Creates map for constructors of this class,
     * consisting of constructor key - constructor element entries */
     private Map createConstructorsMap () {
-        Feature[] reflCons = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
-        Map result = new HashMap(reflCons.length);
-
-        for (int i = 0; i < reflCons.length; i++) {
-            Feature f=reflCons[i];
-            
-            if (f instanceof Constructor) {
-                ConstructorElement curCE = new ConstructorElement(new ConstructorElementImpl((Constructor)f),
-                                               (ClassElement)element);
-                result.put(new ConstructorElement.Key(curCE), curCE);
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if (!isValid()) {
+                return Collections.EMPTY_MAP;
             }
+            Feature[] reflCons = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
+            Map result = new HashMap(reflCons.length);
+
+            for (int i = 0; i < reflCons.length; i++) {
+                Feature f=reflCons[i];
+
+                if (f instanceof Constructor) {
+                    ConstructorElement curCE = new ConstructorElement(new ConstructorElementImpl((Constructor)f),
+                                                   (ClassElement)element);
+                    result.put(new ConstructorElement.Key(curCE), curCE);
+                }
+            }
+            return result;
+        } finally {
+            repo.endTrans();
         }
-        return result;
     }
 
     /** Creates map for methods of this class,
     * consisting of method key - method element entries */
     private Map createMethodsMap () {
-        Feature[] reflMethods = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
-        Map result = new HashMap(reflMethods.length);
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            if (!isValid()) {
+                return Collections.EMPTY_MAP;
+            }
+            Feature[] reflMethods = (Feature[])getClazz().getFeatures().toArray(new Feature[0]);
+            Map result = new HashMap(reflMethods.length);
 
-        for (int i = 0; i < reflMethods.length; i++) {
-            Feature f=reflMethods[i];
-            
-            if (f instanceof Method) {                
-                // filter out methods added by compiler
-                Method m = (Method)f;
-                if (!addedByCompiler(m)) {
-                    MethodElement curME = new MethodElement(new MethodElementImpl(m),
-                                              (ClassElement)element);
-                    result.put(new MethodElement.Key(curME, true), curME);
+            for (int i = 0; i < reflMethods.length; i++) {
+                Feature f=reflMethods[i];
+
+                if (f instanceof Method) {                
+                    // filter out methods added by compiler
+                    Method m = (Method)f;
+                    if (!addedByCompiler(m)) {
+                        MethodElement curME = new MethodElement(new MethodElementImpl(m),
+                                                  (ClassElement)element);
+                        result.put(new MethodElement.Key(curME, true), curME);
+                    }
                 }
             }
+            return result;
+        } finally {
+            repo.endTrans();
         }
-        return result;
     }
 
     public Object readResolve() {
         return new ClassElement(this, (SourceElement)null);
     }
 
+    public void refreshData() {
+        // System.out.println("refreshing class ...");
+        fields = null;
+        inners = null;
+        constructors = null;
+        methods = null;
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                firePropertyChange(PROP_MEMBERS, null, null);
+                firePropertyChange(PROP_METHODS, null, null);
+                firePropertyChange(PROP_FIELDS, null, null);
+                firePropertyChange(PROP_CONSTRUCTORS, null, null);
+                firePropertyChange(PROP_CLASSES, null, null);
+            }
+        });
+    }
+    
     /** @return true if given member was generated automatically by compiler,
     * false otherwise. Decision is made by inspecting the name of the member.
     */
