@@ -63,10 +63,10 @@ public class StorageTest extends MDRTestCase {
         Storage storage;
         try {
             // btree storage, singlevalued index
-            System.out.println();
-            System.out.println("*************************************************");
-            System.out.println("btree storage, singlevalued index");
-            System.out.println("-------------------------------------------------");
+            getLog().println();
+            getLog().println("*************************************************");
+            getLog().println("btree storage, singlevalued index");
+            getLog().println("-------------------------------------------------");
             factory = new BtreeFactory();
             storage = factory.createStorage(new HashMap());
             storage.create (true, new Resolver());
@@ -74,10 +74,10 @@ public class StorageTest extends MDRTestCase {
             doSingleTest(storage, "btree");
             
             // memory storage, singlevalued index
-            System.out.println();
-            System.out.println("*************************************************");
-            System.out.println("memory storage, singlevalued index");
-            System.out.println("-------------------------------------------------");
+            getLog().println();
+            getLog().println("*************************************************");
+            getLog().println("memory storage, singlevalued index");
+            getLog().println("-------------------------------------------------");
             factory = new StorageFactoryImpl ();
             storage = factory.createStorage(new HashMap());
             storage.create (true, new Resolver());
@@ -85,10 +85,10 @@ public class StorageTest extends MDRTestCase {
             doSingleTest(storage, "memory");
             
             // btree storage, multivalued index
-            System.out.println();
-            System.out.println("*************************************************");
-            System.out.println("btree storage, multivalued test");
-            System.out.println("-------------------------------------------------");
+            getLog().println();
+            getLog().println("*************************************************");
+            getLog().println("btree storage, multivalued test");
+            getLog().println("-------------------------------------------------");
             factory = new BtreeFactory();
             storage = factory.createStorage(new HashMap());
             storage.create (true, new Resolver());
@@ -97,10 +97,10 @@ public class StorageTest extends MDRTestCase {
             
             /*
             // memory storage, multivalued index
-            System.out.println();
-            System.out.println("*************************************************");
-            System.out.println("memory storage, multivalued test");
-            System.out.println("-------------------------------------------------");
+            getLog().println();
+            getLog().println("*************************************************");
+            getLog().println("memory storage, multivalued test");
+            getLog().println("-------------------------------------------------");
             factory = new StorageFactoryImpl ();
             storage = factory.createStorage(new HashMap());
             storage.create (true, new Resolver());
@@ -140,7 +140,7 @@ public class StorageTest extends MDRTestCase {
         }
         
         totalTime += System.currentTimeMillis() - time;
-        System.out.println("initial insertions time: " + totalTime);        
+        getLog().println("initial insertions time: " + totalTime);        
         if (index instanceof Btree) {
             TreeMetrics m = ((Btree) index).computeMetrics();
             m.print();
@@ -168,10 +168,10 @@ public class StorageTest extends MDRTestCase {
         storage.close();
         
         totalTime += System.currentTimeMillis() - time;
-        System.out.println();
-        System.out.println(info + ", test time: " + totalTime);
-        System.out.println("#insertions: " + insertions);
-        System.out.println("#deletions: " + deletions);
+        getLog().println();
+        getLog().println(info + ", test time: " + totalTime);
+        getLog().println("#insertions: " + insertions);
+        getLog().println("#deletions: " + deletions);
     }
     
     public void doMultiTest(Storage storage, String info) throws StorageException {
@@ -219,10 +219,10 @@ public class StorageTest extends MDRTestCase {
         storage.close();
         
         totalTime += System.currentTimeMillis() - time;
-        System.out.println();
-        System.out.println(info + ", test time: " + totalTime);
-        System.out.println("#insertions: " + insertions);
-        System.out.println("#deletions: " + deletions);
+        getLog().println();
+        getLog().println(info + ", test time: " + totalTime);
+        getLog().println("#insertions: " + insertions);
+        getLog().println("#deletions: " + deletions);
     }
 
     /*
@@ -268,8 +268,8 @@ public class StorageTest extends MDRTestCase {
         storage.close();
         
         totalTime += System.currentTimeMillis() - time;
-        System.out.println();
-        System.out.println(info + ", test time: " + totalTime);
+        getLog().println();
+        getLog().println(info + ", test time: " + totalTime);
     }
     
     public void doTest2(Storage storage, String info) throws StorageException {
@@ -304,7 +304,7 @@ public class StorageTest extends MDRTestCase {
             }
         }
         storage.close();
-        System.out.println(info + ", test time: " + (System.currentTimeMillis() - time));
+        getLog().println(info + ", test time: " + (System.currentTimeMillis() - time));
     }
      */
     
@@ -338,7 +338,7 @@ public class StorageTest extends MDRTestCase {
     private class Resolver implements ObjectResolver {
         
         public Object resolve(String storageID, Object key) {
-            System.out.println("resolve object called");
+            getLog().println("resolve object called");
             return new Object();
         }
         
