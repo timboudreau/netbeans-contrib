@@ -26,6 +26,8 @@ import org.openide.util.NbBundle;
 
 public class AddVariableAction extends NodeAction {
     
+    private static final long serialVersionUID = -7194584692531227095L;
+    
     public AddVariableAction() {
     }
     

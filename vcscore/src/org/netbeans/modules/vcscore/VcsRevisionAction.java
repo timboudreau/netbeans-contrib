@@ -48,6 +48,8 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
     protected WeakReference fileObject = new WeakReference(null);
     protected Collection selectedRevisionItems = null;
 
+    private static final long serialVersionUID = 8803248742536265293L;
+    
     //private VcsFileSystem fileSystem = null;
     //private FileObject fo = null;
     

@@ -43,6 +43,8 @@ public class VerifyGroupAction extends GeneralCommandAction {
     
     private transient VcsGroupNode[] groupNodes;
     
+    private static final long serialVersionUID = -7382933854093593819L;
+    
     public VerifyGroupAction() {
         this.delegateToAbstractAction(false);
     }

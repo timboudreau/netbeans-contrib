@@ -24,6 +24,8 @@ import org.openide.util.NbBundle;
 
 public class AddTextAction extends NodeAction {
     
+    private static final long serialVersionUID = 1269035889550615963L;
+    
     public AddTextAction() {
     }
     

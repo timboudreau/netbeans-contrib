@@ -310,6 +310,8 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         
         private HashMap files = new HashMap();
         
+        private static final long serialVersionUID = 7177122547454760079L;
+        
         public void deleteAttributes(String name) {
             files.remove(name);
         }
@@ -350,6 +352,8 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
     
     public class VersioningFSChange extends Object implements AbstractFileSystem.Change {
 
+        private static final long serialVersionUID = -4757075426649682071L;
+        
         public void delete(String name) throws java.io.IOException {
             FileObject fo = fileSystem.findResource(name);
             if (fo != null) {
@@ -411,6 +415,8 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
     }
     
     public class DefVersioningList extends Object implements AbstractFileSystem.List {
+        
+        private static final long serialVersionUID = 567851736120604546L;
         
         public java.lang.String[] children(java.lang.String str) {
             FileObject fo = fileSystem.findResource(str);

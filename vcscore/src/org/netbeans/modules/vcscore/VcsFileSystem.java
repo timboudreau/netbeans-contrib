@@ -3439,6 +3439,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private class VcsList implements AbstractFileSystem.List {
         
+        private static final long serialVersionUID = 9164232967348550668L;
+        
         public String[] children(String name) {
             return list.children(name);
         }

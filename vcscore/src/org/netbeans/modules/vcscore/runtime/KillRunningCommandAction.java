@@ -29,6 +29,8 @@ public class KillRunningCommandAction extends NodeAction {
     private static final Object instanceLock = new Object();
     private static KillRunningCommandAction instance = null;
     
+    private static final long serialVersionUID = 6386534364548632176L;
+    
     /** Creates new KillRunningCommandAction */
     private KillRunningCommandAction() {
     }

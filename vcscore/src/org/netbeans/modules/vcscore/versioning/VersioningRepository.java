@@ -35,6 +35,8 @@ public final class VersioningRepository extends Object implements java.io.Serial
 
     private transient EventListenerList listenerList = new EventListenerList();
 
+    private static final long serialVersionUID = 8047724018983158285L;
+    
     /** Creates new VersioningRepository */
     private VersioningRepository() {
         verSystems = new ArrayList();

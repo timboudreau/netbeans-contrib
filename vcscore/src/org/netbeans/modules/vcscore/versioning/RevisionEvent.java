@@ -30,6 +30,8 @@ public class RevisionEvent extends ChangeEvent {
     private String changedRevision = null;
     private int revisionChangeID = REVISION_NO_CHANGE;
     
+    private static final long serialVersionUID = 2954900165229291293L;
+    
     public RevisionEvent() {
         super(null);
     }

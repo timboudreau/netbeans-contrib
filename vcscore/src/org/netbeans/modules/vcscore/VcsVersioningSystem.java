@@ -398,6 +398,8 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     
     private class VersioningList extends Object implements AbstractFileSystem.List {
         
+        private static final long serialVersionUID = 107435350712853937L;
+        
         public String[] children(String name) {
             String[] vcsFiles = null;
             String[] files = null;
@@ -436,6 +438,8 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
 
     
     private class VersioningVersions extends Object implements VersioningFileSystem.Versions {
+        
+        private static final long serialVersionUID = -8842749866809190554L;
         
         public VersioningVersions() {
             fileSystem.addRevisionListener(new RevisionListener() {

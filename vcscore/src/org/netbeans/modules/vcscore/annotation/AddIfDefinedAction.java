@@ -25,6 +25,8 @@ import org.openide.awt.*;
 
 public class AddIfDefinedAction extends NodeAction {
     
+    private static final long serialVersionUID = -4147641295096858568L;
+    
     public AddIfDefinedAction() {
     }
     

@@ -30,6 +30,8 @@ public class CommandOutputViewAction extends NodeAction {
     private static final Object instanceLock = new Object();
     private static CommandOutputViewAction instance = null;
     
+    private static final long serialVersionUID = 5124642672039783672L;
+    
     /** Creates new CommandOutputViewAction */
     private CommandOutputViewAction() {
     }

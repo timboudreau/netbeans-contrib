@@ -41,6 +41,8 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     private CommandsPool pool = null;
     private CommandKillListener killListener = null;
     
+    private static final long serialVersionUID = -8901790341334731237L;
+    
     /** Creates new CommandOutputVisualizer */
     public CommandOutputVisualizer(VcsCommandExecutor vce) {
         this.vce = vce;

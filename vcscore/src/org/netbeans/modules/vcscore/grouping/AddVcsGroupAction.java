@@ -28,6 +28,8 @@ import java.io.*;
  */
 public class AddVcsGroupAction extends NodeAction {
 
+    private static final long serialVersionUID = -3385132838696775732L;
+    
     protected void performAction (Node[] nodes) {
         // do work based on the current node selection, e.g.:
         NotifyDescriptor.InputLine line = new NotifyDescriptor.InputLine( 

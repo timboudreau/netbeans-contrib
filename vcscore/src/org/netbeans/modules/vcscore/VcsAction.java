@@ -68,6 +68,8 @@ public class VcsAction extends NodeAction implements ActionListener {
     boolean CTRL_Down = false;
     private String advancedOptionsSign;
     
+    private static final long serialVersionUID = -4196511763565479366L;
+    
     public VcsAction() {
         advancedOptionsSign = org.openide.util.NbBundle.getMessage(VcsAction.class, "CTL_AdvancedOptionsSign");
     }

@@ -298,6 +298,8 @@ public class VcsGroupNode extends AbstractNode {
     
     private static class ShadowOnlyDataFilter implements DataFilter {
         
+        private static final long serialVersionUID = 6549358585875198736L;
+        
         public boolean acceptDataObject(org.openide.loaders.DataObject dataObject) {
             if (dataObject instanceof DataShadow) {
                 return true;

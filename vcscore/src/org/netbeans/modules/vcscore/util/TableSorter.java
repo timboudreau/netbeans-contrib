@@ -49,6 +49,8 @@ public class TableSorter extends TableMap {
     boolean         ascending = true;
     int             compares;
 
+    private static final long serialVersionUID = 6824746536363157563L;
+    
     /** Creates new TableSorter */
     public TableSorter() {
         indexes = new int[0]; // for consistency

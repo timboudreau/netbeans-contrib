@@ -46,8 +46,10 @@ import java.awt.event.ActionEvent;
 * @author Milos Kleint
 */
 public class VcsGroupMenuAction extends CallableSystemAction  {
-        private transient String MODE_NAME = "VcsGroupsMode";//NOI18N
-
+    private transient String MODE_NAME = "VcsGroupsMode";//NOI18N
+        
+    private static final long serialVersionUID = 38657723580032415L;
+    
     /** Creates new CvsMenuAction */
     public VcsGroupMenuAction() {
 //        System.out.println("Creating CvsMenu action..."); //NOI18N
@@ -143,6 +145,8 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
     
 
     public static class GroupExplorerPanel extends ExplorerPanel {
+        
+        private static final long serialVersionUID = 7160066451512137154L;
         
         public void open() {
             if (!isOpened()) {

@@ -23,6 +23,8 @@ import org.openide.util.actions.CookieAction;
  */
 public class RefreshRevisionsAction extends CookieAction {
 
+    private static final long serialVersionUID = 4288687339093602713L;
+    
     public String getName() {
         return org.openide.util.NbBundle.getMessage(RefreshRevisionsAction.class, "RefreshRevisionsAction_Name");
     }

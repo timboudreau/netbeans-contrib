@@ -38,6 +38,8 @@ import org.openide.filesystems.*;
  */
 public class RemoveVcsGroupAction extends NodeAction {
 
+    private static final long serialVersionUID = 2854875989517967757L;
+    
     protected void performAction (Node[] nodes) {
         // do work based on the current node selection, e.g.:
         // ...

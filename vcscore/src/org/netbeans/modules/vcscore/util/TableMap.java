@@ -30,6 +30,8 @@ public class TableMap extends AbstractTableModel
                       implements TableModelListener {
     protected TableModel model; 
 
+    private static final long serialVersionUID = 764201097633884793L;
+    
     public TableModel getModel() {
         return model;
     }

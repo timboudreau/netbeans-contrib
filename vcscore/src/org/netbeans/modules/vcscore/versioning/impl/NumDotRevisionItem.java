@@ -25,6 +25,8 @@ public class NumDotRevisionItem extends RevisionItem {
 
     private NumDotRevisionItem next;
 
+    private static final long serialVersionUID = 7946273312693547993L;
+    
     /** Creates new RevisionItem */
     public NumDotRevisionItem(String revision) {
         super(revision);

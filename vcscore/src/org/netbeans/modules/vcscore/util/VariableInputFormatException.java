@@ -21,6 +21,8 @@ public class VariableInputFormatException extends IllegalArgumentException {
 
     private String message;
     
+    private static final long serialVersionUID = 1730864462584417989L;
+    
     /** Creates new VariableInputFormatException */
     public VariableInputFormatException(String message) {
         super();

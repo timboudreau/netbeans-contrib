@@ -69,6 +69,7 @@ public class AnnotPatternNode extends AbstractNode implements  java.io.Serializa
     private static String FALSE;
     private static String IF_DEFINED;
     
+    private static final long serialVersionUID = 1717999205778940893L;    
     
     public AnnotPatternNode(Children children) {
         super(children);
