@@ -804,9 +804,12 @@ err.log("Couldn't find current nodes...");
             LOGGER.fine("Scheduled rescan task delayed by " + scanDelay + " ms.");  // NOI18N
         }
 
-        // trap, randomly triggered by multiview
-        assert currentDO.equals(extractDataObject(currentTC)) : "DO=" + currentDO + "  TC=" + currentTC;
-        scheduledRescan = performRescanInRP(currentTC, currentDO, scanDelay);
+        // will need current TC
+        if (prepareCurrent()) {
+            // trap, randomly triggered by multiview
+            assert currentDO.equals(extractDataObject(currentTC)) : "DO=" + currentDO + "  TC=" + currentTC;
+            scheduledRescan = performRescanInRP(currentTC, currentDO, scanDelay);
+        }
     }
 
     /** An event ocurred during quiet fix period. */
