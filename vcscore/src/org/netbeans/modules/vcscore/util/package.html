@@ -93,6 +93,20 @@ context.
 <p>RECURSIVE shoud be shared between modes regardless it's visibility.
 It's the same situation as with Update's PRUNE_EMPTY and CREATE_DIRS.
 
+<h3>Defaults Scope Point of View</h3>
+
+Currently defaults are stored on per profile basics.
+Cleanly not all variables are suitable for per profile
+reusing. As an example Update's TAG can be taken. It's
+workdir specifics and it does not make sence to store it.
+Moreover in CVS case it's defined by directory context
+so it should be unspecified until user realy wants to
+switch to another branch.
+<p>
+<small>Roughly spoken for CVS the whole defaults
+propably degrade to equivalent of what is typically
+stored in <tt>$HOME/.cvsrc</tt>.</small>
+
 <h3>Defaults Support Summary</h3>
 
 Values must be loaded on visibility basics. No invisible
@@ -102,6 +116,10 @@ that old defaults are merged with existing defaults to avoid
 loosing defaults for variables defined in other mode. Ideally
 there should be variable convertors between modes but
 merging is permit-able behavior.
+<p>
+Scope point of view probably reduces stored variables
+even further, storing and reloading globally just variables
+listed in a predefined list.
 
 <p>
 As of Jan 21 2005 the visibility is ignored and merging is not 

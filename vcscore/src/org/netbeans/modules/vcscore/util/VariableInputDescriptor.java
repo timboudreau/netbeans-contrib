@@ -684,6 +684,8 @@ public class VariableInputDescriptor extends Object {
             fillMapFromCurrentValues(defaults, comp);
         }
 
+        if (defaults.size() == 0) return;  // do not create empty files
+
         try {
             writeDefaultsToDisk(defaults, commandName, commandProvider);
         } catch (IOException ex) {
