@@ -279,6 +279,37 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         return VcsCommandIO.getIntegerPropertyAssumeZero(cmd.getVcsCommand(), VcsCommand.PROPERTY_EXEC_PRIORITY);
     }
     
+    public FileObject[] getFiles() {
+        FileObject[] files = cmd.getFiles();
+        //System.out.println("UserCommandTask("+getName()+").getFiles() files = "+((files == null) ? null : java.util.Arrays.asList(files)));
+        if (files == null) {
+            if (executor != null) {
+                VcsFileSystem fileSystem = null;
+                CommandExecutionContext executionContext = cmdSupport.getExecutionContext();
+                if (executionContext instanceof VcsFileSystem) {
+                    fileSystem = (VcsFileSystem) executionContext;
+                }
+                if (fileSystem != null) {
+                    Collection fileNames = ExecuteCommand.createProcessingFiles(executionContext, executor.getVariables());
+                    Collection fileObjs = new ArrayList();
+                    for (Iterator it = fileNames.iterator(); it.hasNext(); ) {
+                        String fileName = (String) it.next();
+                        if (".".equals(fileName)) fileName = ""; // NOI18N
+                        FileObject fo = fileSystem.findFileObject(fileName);
+                        if (fo != null) {
+                            fileObjs.add(fo);
+                        }
+                    }
+                    if (fileObjs.size() > 0) {
+                        files = (FileObject[]) fileObjs.toArray(new FileObject[0]);
+                    }
+                }
+            }
+        }
+        //System.out.println("  return "+((files == null) ? null : java.util.Arrays.asList(files)));
+        return files;
+    }
+    
     /** Get variables that are used for the task execution.
      * @return the map of variable names and values.
      *
