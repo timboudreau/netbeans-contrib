@@ -34,21 +34,21 @@ public class NavigationServiceImpl extends NavigationService implements Property
      * Stores all NavigationEvents in this service.
      * PENDING: the lists should have limited lenght (memory leak)
      */
-    private HashMap navigationEvents;
+    private Map navigationEvents;
     
     /**
      * Maps TopComponent --> NavigationEvent 
      * Keeps track of current navigation event for the TopComponent.
      */
-    private HashMap currentNavigationState;
+    private Map currentNavigationState;
     
     /**
      * Default constructor adds itself as a listener to
      * the TopComponent.Registry.
      */
     public NavigationServiceImpl() {
-        navigationEvents = new HashMap();
-        currentNavigationState = new HashMap();
+        navigationEvents = new WeakHashMap();
+        currentNavigationState = new WeakHashMap();
         WindowManager.getDefault().getRegistry().addPropertyChangeListener(this);
     }
     
@@ -70,7 +70,7 @@ public class NavigationServiceImpl extends NavigationService implements Property
         TopComponent tc = ev.getTopComponent();
         List list = (List)navigationEvents.get(tc);
         if (list == null) {
-            list = new ArrayList();
+            list = new LimitedSizeList(80, 120);
             navigationEvents.put(tc, list);
         }
         currentNavigationState.put(tc, ev);
@@ -174,6 +174,43 @@ public class NavigationServiceImpl extends NavigationService implements Property
         if (TopComponent.Registry.PROP_ACTIVATED.equals(evt.getPropertyName())) {
             TopComponent tc = WindowManager.getDefault().getRegistry().getActivated();
             firePropertyChange(NAVIGATION_PROPERTY, null, null);
+        }
+    }
+    
+    /**
+     * Simple subclass of ArrayList that should not grow higher
+     * than a certain limit. If this limit is exceeded the size
+     * is adjusted to lower bound. NOTE: only the method add(Object)
+     * is adapted for such behaviour.
+     */
+    private static class LimitedSizeList extends ArrayList {
+        /** The size of the list is adjusted to this number */
+        private int low;
+        /** IF the size is greater than this the list is trimmed. */
+        private int high;
+        
+        /**
+         * Parameters to the constructor set the limit on the size
+         * @param low lower bound on the size when adjusting the size
+         * @param high upper bound on the size
+         */
+        public LimitedSizeList(int low, int high) {
+            if (low > high) {
+                throw new IllegalArgumentException("Bad arguments low == " + low + " high == " + high); // NOI18N
+            }
+            this.low = low;
+            this.high = high;
+        }
+        
+        /**
+         * Before calling the super.add the size is adjusted
+         * according to high and low limits.
+         */
+        public boolean add(Object toAdd) {
+            if (size() > high) {
+                removeRange(0, high - low);
+            }
+            return super.add(toAdd);
         }
     }
 }
