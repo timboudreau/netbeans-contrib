@@ -79,6 +79,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     public static final String PROPERTY_FILES_CHANGED = "filesChanged"; // NOI18N
     
     private static final int ANALYZER_SCHEDULE_TIME = 200;
+    private static final RequestProcessor analyzerRequestProcessor = new RequestProcessor("VCS Object Integrity Analyzer", 1);
     
     private transient FileSystem fileSystem;
     private transient FileSystemCache cache;
@@ -131,7 +132,8 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         this.fsRootPath = fsRootPath;
         this.foImportantness = foImportantness;
         this.objectsToAnalyze = new HashSet();
-        this.analyzerTask = RequestProcessor.getDefault().post(this, ANALYZER_SCHEDULE_TIME, Thread.MIN_PRIORITY);
+        this.analyzerTask = analyzerRequestProcessor.post(this, ANALYZER_SCHEDULE_TIME, Thread.MIN_PRIORITY);
+        //analyzerTask.setPriority(Thread.MIN_PRIORITY);
         DataLoaderPool pool = (DataLoaderPool) Lookup.getDefault().lookup(DataLoaderPool.class);
         operationListener = (OperationListener) WeakListener.create(OperationListener.class, this, pool);
         pool.addOperationListener(operationListener);
@@ -231,41 +233,40 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             String primaryFilePath = primary.getPath();
             //System.out.println("VOIS.run(): have primary: "+primaryFilePath);
             dobj.addPropertyChangeListener(doFileChangeListener);
+            Set filesToAdd = new HashSet();
+            Set filesToRemove = new HashSet();
+            Set fileSet = dobj.files();
+            fileSet.remove(primary);
+            for (Iterator fileIt = fileSet.iterator(); fileIt.hasNext(); ) {
+                FileObject fo = (FileObject) fileIt.next();
+                String filePath = fo.getPath();
+                fs = (FileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
+                if (fo.isFolder() || !fileSystem.equals(fs) || !foImportantness.isImportant(filePath)) {
+                    filesToRemove.add(filePath);
+                    continue;
+                }
+                File file = FileUtil.toFile(fo);
+                CacheFile cFile = cache.getCacheFile(file, CacheHandler.STRAT_DISK, null);
+                //System.out.println("   VOIS.run(): secondary '"+fo+"', cache = "+cFile);
+                if (cFile == null || cFile.isLocal()) {
+                    filesToAdd.add(filePath);
+                } else {
+                    filesToRemove.add(filePath);
+                }
+            }
             boolean changed;
             synchronized (objectsWithLocalFiles) {
                 Set localSec = (Set) objectsWithLocalFiles.get(primaryFilePath);
                 if (localSec == null) {
                     localSec = new HashSet();
                 }
-                Set fileSet = dobj.files();
-                fileSet.remove(primary);
-                for (Iterator fileIt = fileSet.iterator(); fileIt.hasNext(); ) {
-                    FileObject fo = (FileObject) fileIt.next();
-                    String filePath = fo.getPath();
-                    String primaryForThis = (String) filesMap.get(filePath);
-                    if (primaryForThis != null && !primaryFilePath.equals(primaryForThis)) {
-                        filesMap.remove(filePath);
-                    }
-                    fs = (FileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-                    if (fo.isFolder() || !fileSystem.equals(fs) ||
-                        !foImportantness.isImportant(filePath)) {
-                        
-                        filesMap.remove(filePath);
-                        localSec.remove(filePath);
-                        continue;
-                    }
-                    File file = FileUtil.toFile(fo);
-                    CacheFile cFile = cache.getCacheFile(file, CacheHandler.STRAT_DISK, null);
-                    //System.out.println("   VOIS.run(): secondary '"+fo+"', cache = "+cFile);
-                    if (cFile == null || cFile.isLocal()) {
-                        localSec.add(filePath);
-                        filesMap.put(filePath, primaryFilePath);
-                        //System.out.println("   VOIS.run(): ADD secondary: "+filePath);
-                    } else {
-                        filesMap.remove(filePath);
-                        localSec.remove(filePath);
-                    }
+                localSec.addAll(filesToAdd);
+                for (Iterator fileIt = filesToAdd.iterator(); fileIt.hasNext(); ) {
+                    String secFile = (String) fileIt.next();
+                    filesMap.put(secFile, primaryFilePath);
                 }
+                localSec.removeAll(filesToRemove);
+                filesMap.keySet().removeAll(filesToRemove);
                 if (localSec.size() > 0) {
                     objectsWithLocalFiles.put(primaryFilePath, localSec);
                     changed = true;
@@ -273,8 +274,8 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                     Object removedObj = objectsWithLocalFiles.remove(primaryFilePath);
                     changed = removedObj != null;
                 }
-                if (changed) firePropertyChange();
             }
+            if (changed) firePropertyChange();
         }
     }
     
