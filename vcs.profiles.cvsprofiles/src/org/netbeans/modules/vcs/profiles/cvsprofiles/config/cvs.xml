@@ -3298,10 +3298,10 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_IMPORTED">
 	<property name="exec">
-          <value>$[? BUILT-IN-GLB][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${CHECKOUT_ROOTDIR}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
-                                  [$[? IS_WINNT][${RUN} cd /D ${CHECKOUT_ROOTDIR} &amp;&amp; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
-                                  [$[? IS_WIN9X][${RUN} cd ${CHECKOUT_ROOTDIR}; ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
-                                  [${RUN} cd ${CHECKOUT_ROOTDIR}; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]]]
+          <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${CHECKOUT_ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
+                                  [$[? IS_WINNT][${RUN} cd /D ${CHECKOUT_ROOTDIR} &amp;&amp; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
+                                  [$[? IS_WIN9X][${RUN} cd ${CHECKOUT_ROOTDIR}; ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
+                                  [${RUN} cd ${CHECKOUT_ROOTDIR}; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]]]
           </value>
         </property>
         <property name="preCommands">
