@@ -14,6 +14,13 @@
 package org.netbeans.modules.vcscore.ui;
 
 /**
+ * Panel that can display the output of cvs annotate command or similar equivalent in other
+ * vcs. How to use:
+ * <p>
+ * 1. Create the panel + add it into your window/panel.
+ * 2.  define how to extract the data. Is done by calling add*ColumnDefinition()  methods.
+ * 3.  add data addLine(Object) .. the Object needs to be of the class defined by the add*columnDefinition methods..
+ * 4. display the panel.
  *
  * @author  mkleint
  */
@@ -77,7 +84,10 @@ public class AnnotatePanel extends javax.swing.JPanel {
         String equals = NbBundle.getBundle(AnnotatePanel.class).getString("AnnotatePanel.equals");
         cbRevisionRange.setModel(new DefaultComboBoxModel(new Object[] {equals, bigger, smaller}));
     }
-    
+  
+    /**
+     * Sets the name (absolute path?) to the file being desplayed.
+     */
     public void setFileName(String name) {
         txWorkFile.setText(name);
     }
@@ -369,7 +379,7 @@ public class AnnotatePanel extends javax.swing.JPanel {
   }
   
   /**
-   *
+   * Refreshes the desplay in the table. (performs a sort by the current criteria)
    */
   
   public void doRepaintAndSort() {
@@ -455,6 +465,10 @@ public class AnnotatePanel extends javax.swing.JPanel {
       }
       return false;
   }
+  
+  /**
+   * Utility method for fine-tuning of the table display.
+   */
   
   public JTable getTableComponent() {
       return tblAnnotat;
