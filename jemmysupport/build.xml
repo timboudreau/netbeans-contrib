@@ -49,6 +49,9 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="jars" depends="compile">
     <mkdir dir="netbeans/modules"/>
+    <tstamp>
+        <format property="buildnumber" pattern="yyyyMMddhhmm"/>
+    </tstamp>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     <locjar jarfile="netbeans/modules/jemmysupport.jar"
