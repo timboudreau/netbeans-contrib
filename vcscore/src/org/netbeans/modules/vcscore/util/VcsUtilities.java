@@ -80,7 +80,7 @@ public class VcsUtilities {
             }
         }
         sb.append("]"); // NOI18N
-        return new String(sb);
+        return sb.toString();
     }
 
     //-----------------------------------
@@ -90,7 +90,20 @@ public class VcsUtilities {
             for(int i=0;i<sa.length;i++){
                 sb.append(sa[i]+" "); // NOI18N
             }
-        return new String(sb);
+        return sb.toString();
+    }
+    
+    /**
+     * Converts the array of strings into a string containing the elements separated by new line.
+     */
+    public static String array2stringNl(String[] sa) {
+        StringBuffer sb = new StringBuffer();
+        if (sa != null) {
+            for (int i = 0; i < sa.length; i++) {
+                sb.append(sa[i] + "\n");
+            }
+        }
+        return sb.toString();
     }
 
     //-------------------------------------------
