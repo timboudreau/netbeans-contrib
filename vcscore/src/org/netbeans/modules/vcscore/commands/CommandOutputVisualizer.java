@@ -79,6 +79,15 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         }
     }
     
+    public CommandOutputVisualizer(java.awt.event.ActionListener killListener, String execString, String name) {
+        this();
+        this.killListener = killListener;
+        outputPanel.addKillActionListener(this.killListener);
+        outputPanel.setExec(execString);
+        setName(java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
+                new Object[] { name }));
+    }
+    
     protected CommandOutputPanel createOutputPanel() {
         return new CommandOutputPanel();
     }
