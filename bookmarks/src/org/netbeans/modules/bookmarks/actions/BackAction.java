@@ -12,12 +12,11 @@
  */
 package org.netbeans.modules.bookmarks.actions;
 
-import java.beans.*;
-
 import javax.swing.Action;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.event.*;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -33,7 +32,7 @@ import org.netbeans.api.bookmarks.*;
  * the NavigationService.
  * @author David Strupl
  */
-public class BackAction extends AbstractAction implements PropertyChangeListener, HelpCtx.Provider {
+public class BackAction extends AbstractAction implements ChangeListener, HelpCtx.Provider {
     
     /**
      * Keep a reference to the NavigationService singleton.
@@ -44,8 +43,8 @@ public class BackAction extends AbstractAction implements PropertyChangeListener
     public BackAction() {
         putValue(Action.NAME, getName());
         putValue(Action.SMALL_ICON, getIcon());
-        navigationService.addPropertyChangeListener(
-            WeakListener.propertyChange(this, navigationService));
+        navigationService.addChangeListener(
+            WeakListener.change(this, navigationService));
         setEnabled(navigationService.canNavigateBackward());
     }
     
@@ -88,7 +87,7 @@ public class BackAction extends AbstractAction implements PropertyChangeListener
      * to the NavigationService. If the NavigationService is
      * changed we enable/disable this action.
      */
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void stateChanged(ChangeEvent evt) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 setEnabled(navigationService.canNavigateBackward());

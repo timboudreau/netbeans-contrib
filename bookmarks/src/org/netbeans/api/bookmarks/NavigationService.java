@@ -15,7 +15,7 @@ package org.netbeans.api.bookmarks;
 import org.openide.windows.TopComponent;
 import org.openide.util.Lookup;
 
-import java.beans.*;
+import javax.swing.event.*;
 
 /**
  * This is the main API class for the backward/forward navigation feature. 
@@ -32,17 +32,15 @@ import java.beans.*;
 public abstract class NavigationService {
 
     /**
-     * Name of the property controlling enabled/disabled state
-     * of the forward/backward navigatoin. A property change event
-     * with this name is fired always when the state of the
-     * forward/backward buttons is changed.
+     * We register the change listeners in this list.
      */
-    public static final String NAVIGATION_PROPERTY = "navigation";
+    private EventListenerList listenerList = new EventListenerList();
     
-    /**
-     * We register the property change listeners in this support.
+    /** 
+     * Cache for the event - the event is the same every time,
+     * no need to create it more times than once.
      */
-    private PropertyChangeSupport pcs;
+    private ChangeEvent changeEvent = null;
     
     /**
      * This is the preferred way to access the singleton instance of
@@ -61,33 +59,44 @@ public abstract class NavigationService {
      * please check the method getDefault().
      */
     protected NavigationService() {
-        pcs = new PropertyChangeSupport(this);
     }
     
     // ---------------------------------------------------
     
     /**
-     * BookmarkService is propety change event source. You can register
+     * BookmarkService is change event source. You can register
      * your listener using this method.
      */
-    public final void addPropertyChangeListener(PropertyChangeListener pcl) {
-        pcs.addPropertyChangeListener(pcl);
+    public final void addChangeListener(ChangeListener cl) {
+        listenerList.add(ChangeListener.class, cl);
     }
     
     /**
-     * BookmarkService is propety change event source. You can deregister
+     * BookmarkService is change event source. You can deregister
      * your listener using this method.
      */
-    public final void removePropertyChangeListener(PropertyChangeListener pcl) {
-        pcs.removePropertyChangeListener(pcl);
+    public final void removeChangeListener(ChangeListener cl) {
+        listenerList.remove(ChangeListener.class, cl);
     }
     
     /**
      * This method is usefull only by subclasses of this class. It fires the
-     * event to all listeners registered using addPropertyChangeListener method.
+     * event to all listeners registered using addChangeListener method.
      */
-    protected final void firePropertyChange(String propName, Object oldValue, Object newValue) {
-        pcs.firePropertyChange(propName, oldValue, newValue);
+    protected final void fireChangeEvent() {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i]==ChangeListener.class) {
+                // Lazily create the event:
+                if (changeEvent == null) {
+                    changeEvent = new ChangeEvent(this);
+                }
+                ((ChangeListener)listeners[i+1]).stateChanged(changeEvent);
+            }
+        }
     }
     
     /**

@@ -75,7 +75,7 @@ public class NavigationServiceImpl extends NavigationService implements Property
         }
         currentNavigationState.put(tc, ev);
         list.add(ev);
-        firePropertyChange(NAVIGATION_PROPERTY, null, null);
+        fireChangeEvent();
     }
     
     /**
@@ -98,7 +98,7 @@ public class NavigationServiceImpl extends NavigationService implements Property
         NavigationEvent ev = (NavigationEvent)list.get(index+1);
         currentNavigationState.put(tc, ev);
         ev.restoreState();
-        firePropertyChange(NAVIGATION_PROPERTY, null, null);
+        fireChangeEvent();
     }
     
     /**
@@ -121,7 +121,7 @@ public class NavigationServiceImpl extends NavigationService implements Property
         NavigationEvent ev = (NavigationEvent)list.get(index-1);
         currentNavigationState.put(tc, ev);
         ev.restoreState();
-        firePropertyChange(NAVIGATION_PROPERTY, null, null);
+        fireChangeEvent();
     }
     
     /**
@@ -173,7 +173,7 @@ public class NavigationServiceImpl extends NavigationService implements Property
         }
         if (TopComponent.Registry.PROP_ACTIVATED.equals(evt.getPropertyName())) {
             TopComponent tc = WindowManager.getDefault().getRegistry().getActivated();
-            firePropertyChange(NAVIGATION_PROPERTY, null, null);
+            fireChangeEvent();
         }
     }
     

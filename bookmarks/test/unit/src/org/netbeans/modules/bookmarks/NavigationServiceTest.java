@@ -15,7 +15,7 @@ package org.netbeans.modules.bookmarks;
 
 import javax.naming.*;
 import javax.swing.*;
-import java.beans.*;
+import javax.swing.event.*;
 
 import junit.textui.TestRunner;
 
@@ -55,11 +55,11 @@ public class NavigationServiceTest extends NbTestCase {
      *     <LI> checks whether property change event was fired
      * </OL>
      */
-    public void testFiresPropertyChange() throws Exception {
+    public void testFiresChangeEvent() throws Exception {
         final boolean []fired = new boolean[1];
         NavigationService ns = NavigationService.getDefault();
-        ns.addPropertyChangeListener(new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent pce) {
+        ns.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent ce) {
                 fired[0] = true;
             }
         });

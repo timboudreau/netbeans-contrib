@@ -12,12 +12,11 @@
  */
 package org.netbeans.modules.bookmarks.actions;
 
-import java.beans.*;
-
 import javax.swing.Action;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.event.*;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -33,7 +32,7 @@ import org.netbeans.api.bookmarks.*;
  * the NavigationService.
  * @author David Strupl
  */
-public class ForwardAction extends AbstractAction implements PropertyChangeListener, HelpCtx.Provider {
+public class ForwardAction extends AbstractAction implements ChangeListener, HelpCtx.Provider {
     
     /**
      * Keep a reference to the NavigationService singleton.
@@ -45,8 +44,8 @@ public class ForwardAction extends AbstractAction implements PropertyChangeListe
     public ForwardAction() {
         putValue(Action.NAME, getName());
         putValue(Action.SMALL_ICON, getIcon());
-        navigationService.addPropertyChangeListener(
-            WeakListener.propertyChange(this, navigationService));
+        navigationService.addChangeListener(
+            WeakListener.change(this, navigationService));
         setEnabled(navigationService.canNavigateForward());
     }
     
@@ -89,7 +88,7 @@ public class ForwardAction extends AbstractAction implements PropertyChangeListe
      * to the NavigationService. If the NavigationService is
      * changed we enable/disable this action.
      */
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void stateChanged(ChangeEvent evt) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 setEnabled(navigationService.canNavigateForward());
