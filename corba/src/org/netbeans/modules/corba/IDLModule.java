@@ -169,7 +169,7 @@ public class IDLModule extends ModuleInstall {
         try {
             DataFolder toolsFolder = DataFolder.create (TopManager.getDefault().getPlaces().folders().menus(), "Tools"); // NOI18N
             if (toolsFolder != null) {
-                Utilities2.createAction(org.netbeans.modules.corba.wizard.CorbaWizardAction.class, toolsFolder, "UnmountFSAction", true, true, false, false); // NOI18N
+                Utilities2.createAction(org.netbeans.modules.corba.wizard.CorbaWizardAction.class, toolsFolder, "ToolsAction", true, true, false, false); // NOI18N
             }
         } catch (Exception ex) {
             if (Boolean.getBoolean ("netbeans.debug.exceptions")) ex.printStackTrace (); // NOI18N
