@@ -58,6 +58,7 @@ import org.openide.nodes.CookieSet;
 
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.DataObjectExistsException;
+import org.openide.loaders.DataFolder;
 
 import org.openide.compiler.Compiler;
 import org.openide.compiler.CompilerJob;
@@ -130,6 +131,9 @@ public class IDLDataObject extends MultiDataObject {
 
     private boolean _M_generation = false;
 
+    //private FolderListener _M_folder_listener;
+    //private FileObject _M_parent_folder;
+
     public IDLDataObject (final FileObject obj, final MultiFileLoader loader)
     throws DataObjectExistsException {
         super(obj, loader);
@@ -174,10 +178,12 @@ public class IDLDataObject extends MultiDataObject {
 
         FileUtil.setMIMEType ("idl", "text/x-idl");
         FileObject __pfile = this.getPrimaryFile();
-	//FileObject __pparent = __pfile.getParent ();
+	//_M_parent_folder = __pfile.getParent ();
 	__pfile.addFileChangeListener (new FileListener ());
-	//if (__pparent != null)
-	//__pparent.addFileChangeListener (new FolderListener ());
+	//if (_M_parent_folder != null) {
+	//    _M_folder_listener = new FolderListener ();
+	//    _M_parent_folder.addFileChangeListener (_M_folder_listener);
+	//}
         /*
           startParsing ();
           getIdlConstructs ();
@@ -847,7 +853,19 @@ public class IDLDataObject extends MultiDataObject {
 	}
 
     }
-
+    /*
+      class FolderListener extends FileChangeAdapter {
+      public void fileDeleted (FileEvent __event) {
+      //if (DEBUG)
+      System.out.println ("fileDeleted listened: " + __event 
+      + ":" + __event.getFile ());
+      if (__event.getFile ().equals (IDLDataObject.this.getPrimaryFile ())) {
+      // after `cut' or `delete'
+      System.out.println ("// after `cut' or `delete'");
+      }
+      }
+      }
+    */
 
     public Hashtable getPossibleNames () {
         return _M_possible_names;
@@ -916,6 +934,32 @@ public class IDLDataObject extends MultiDataObject {
 	return _M_orb_for_compilation;
     }
    
+    
+    protected FileObject handleMove (DataFolder __dfolder) throws IOException {
+	if (DEBUG)
+	    System.out.println ("IDLDataObject::handleMove (" + __dfolder + ");");
+	FileObject __result = super.handleMove (__dfolder);
+	//FileObject __pfile = this.getPrimaryFile ();
+	//System.out.println ("new pfile: " + __pfile);
+	//System.out.println ("__result: " + __result);
+	//__pfile.addFileChangeListener (new FileListener ());
+	__result.addFileChangeListener (new FileListener ());
+	return __result;
+    }
+
+    public Set files () {
+	IDLDataLoader __loader = (IDLDataLoader)this.getMultiFileLoader ();
+	if (!__loader.getHide ()) {
+	    // don't hide files => we must throw away all secondary entries
+	    Iterator __iterator = this.secondaryEntries ().iterator ();
+	    while (__iterator.hasNext ()) {
+		Entry __en = (MultiDataObject.Entry)__iterator.next ();
+		this.removeSecondaryEntry (__en);
+	    }
+	}
+	Set __result = super.files ();
+	return __result;
+    }
 
 }
 
