@@ -1627,6 +1627,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return actionSupporter;
     }
     
+    protected VcsAttributes getVcsAttributes() {
+        return (VcsAttributes) attr;
+    }
+    
     private static final long serialVersionUID =8108342718973310275L;
 
     /**

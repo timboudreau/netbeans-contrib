@@ -484,10 +484,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         public Object readAttribute(String name, String attrName) {
             Object value = super.readAttribute(name, attrName);
             if (value == null) {
-                FileObject fo = fileSystem.findResource(name);
-                if (fo != null) {
-                    value = fo.getAttribute(attrName);
-                }
+                value = fileSystem.getVcsAttributes().readAttribute(name, attrName);
             }
             return value;
         }
