@@ -121,8 +121,11 @@ public class VcsSettingsChildren extends Children.Keys implements PropertyChange
     
     private static class ProfileBeanNode extends BeanNode {
         
-        public ProfileBeanNode(Object bean) throws IntrospectionException {
-            super(bean);
+        private Profile profile;
+        
+        public ProfileBeanNode(Profile profile) throws IntrospectionException {
+            super(profile);
+            this.profile = profile;
         }
         
         protected SystemAction[] createActions () {
@@ -133,6 +136,11 @@ public class VcsSettingsChildren extends Children.Keys implements PropertyChange
             };
         }
         
+        public void destroy() throws java.io.IOException {
+            ProfilesFactory.getDefault().removeProfile(profile.getName());
+            super.destroy();
+        }
+
     }
     
 }

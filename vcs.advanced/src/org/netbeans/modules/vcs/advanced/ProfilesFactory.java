@@ -222,6 +222,7 @@ public final class ProfilesFactory extends Object {
         } else {
             throw new FileNotFoundException(profileName);
         }
+        firePropertyChange(PROP_PROFILE_REMOVED, profileName, null);
     }
     
     /**
@@ -240,6 +241,7 @@ public final class ProfilesFactory extends Object {
         uncompatibleOSsByName.put(name, uncompatibleOSs);
         Profile profile = new ProfilesFactory.ProfileImpl(profileFile, variables, commands);
         profilesByName.put(name, new WeakReference(profile));
+        firePropertyChange(PROP_PROFILE_ADDED, null, name);
         return profile;
     }
     
