@@ -827,9 +827,6 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>10</value> <!-- EXEC_SERIAL_ON_PACKAGE + EXEC_SERIAL_OF_COMMAND -->
         </property>
-        <property name="mergeOutputStreams">
-          <value>true</value>
-        </property>
       </command>
       <command name="COMMIT_TEMPLATE_GETTER" unless="IS_BUILT-IN_AND_WIN9X">
 	<property name="exec">
