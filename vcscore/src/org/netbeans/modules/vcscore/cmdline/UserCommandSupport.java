@@ -19,6 +19,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,6 +90,11 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  */
 public class UserCommandSupport extends CommandSupport implements java.security.PrivilegedAction,
                                                                   ActionCommandSupport {
+    /**
+     * The list of variables, that contains file paths which will be clonned
+     * when a next command is created.
+     */
+    public static final String VAR_ARGUMENT_FILES_TO_CLONE = "ARGUMENT_FILES_TO_CLONE"; // NOI18N
     
     private static final String PROPERTY_PARSED_ATTR_NAMES = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesNamesParsed"; // NOI18N
     private static final String PROPERTY_PARSED_ATTR_NEMPTY_VARS = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesNotEmptyVars"; // NOI18N
@@ -667,12 +673,58 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      */
     private VcsDescribedCommand createNextCommand(Table files, VcsDescribedCommand oldCommand) {
         VcsDescribedCommand command = (VcsDescribedCommand) oldCommand.clone();//createCommand();
+        command.setAdditionalVariables(cloneFileArgs(command.getAdditionalVariables()));
         setCommandFilesFromTable(command, files, fileSystem);
         command.setExpertMode(oldCommand.isExpertMode());
         command.setGUIMode(oldCommand.isGUIMode());
         //command.setAdditionalVariables(null); // re-set the map of additional variables
         oldCommand.setNextCommand(command);
         return command;
+    }
+    
+    /**
+     * Clone the file arguments for the next command, so that the same file is not reused.
+     * Separate file argument is necessary for individual commands.
+     */
+    private static Map cloneFileArgs(Map vars) {
+        String filesToCloneStr = (String) vars.get(VAR_ARGUMENT_FILES_TO_CLONE);
+        if (filesToCloneStr == null) return vars;
+        String[] filesToClone = VcsUtilities.getQuotedStrings(filesToCloneStr);
+        for (int i = 0; i < filesToClone.length; i++) {
+            String filePath = (String) vars.get(filesToClone[i]);
+            if (filePath != null) {
+                vars.put(filesToClone[i], cloneFile(filePath));
+            }
+        }
+        return vars;
+    }
+    
+    private static String cloneFile(String filePath) {
+        File file = new File(filePath);
+        File parent = file.getParentFile();
+        File file2;
+        java.io.InputStream in = null;
+        java.io.OutputStream out = null;
+        try {
+            file2 = File.createTempFile(file.getName(), null, parent);
+            in = new java.io.BufferedInputStream(new java.io.FileInputStream(file));
+            out = new java.io.BufferedOutputStream(new java.io.FileOutputStream(file2));
+            FileUtil.copy(in, out);
+        } catch (java.io.IOException ioex) {
+            file2 = file; // We did not succeed, leave the original file there.
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (java.io.IOException ioex) {}
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (java.io.IOException ioex) {}
+            }
+        }
+        return file2.getAbsolutePath();
     }
     
     /** Return the table of file names relative to filesystem and associated
