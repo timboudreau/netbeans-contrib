@@ -1357,6 +1357,10 @@ Microsystems, Inc. All Rights Reserved.
   </commands>
 
   <globalCommands>
+    <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_Mnemonic)</value>
+      </property>
       <command name="CREATE_PROJECT_DATABASE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GLOBAL_PVCS_CREATE_PROJECT_DATABASE)">
         <run>
           <executable value="${PCLI_CMD}"/>
@@ -1421,6 +1425,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>$ ^</value>
 	</property>
       </command>
+    </command>
   </globalCommands>
   
 </configuration>

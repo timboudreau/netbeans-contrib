@@ -1364,6 +1364,10 @@ Microsystems, Inc. All Rights Reserved.
   </commands>
   
   <globalCommands>
+    <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS)">
+      <property name="labelMnemonic">
+        <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_Mnemonic)</value>
+      </property>
       <command name="GET_CONFIRM">
         <property name="exec">
           <value>${RUNPATH_NMK} ${QUOTE}${VSSCMD}${QUOTE} get ${RECURSIVE} ${RW_MODE} ${GET_OPTIONS} -I-N ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
@@ -1439,6 +1443,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>-1</value>
         </property>
       </command>
+    </command>
   </globalCommands>
   
 </configuration>

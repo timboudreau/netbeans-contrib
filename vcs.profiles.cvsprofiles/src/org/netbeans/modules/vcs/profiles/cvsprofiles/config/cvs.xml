@@ -2785,12 +2785,10 @@ Microsystems, Inc. All Rights Reserved.
   </commands>
   
   <globalCommands>
-    <!--
     <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS)">
       <property name="labelMnemonic">
         <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_Mnemonic)</value>
       </property>
-      -->
       <command name="INIT" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_GLOBAL_INIT)">
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_INIT_Mnemonic)</value>
@@ -2986,7 +2984,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>$[? DO_CHECKOUT] [CHECKOUT][]</value>
         </property>
       </command>
-    <!-- </command> -->
+    </command>
   </globalCommands>
   
 </configuration>

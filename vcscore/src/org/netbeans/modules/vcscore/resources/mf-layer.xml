@@ -20,6 +20,7 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="Versioning">
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
       <file name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance" />
+      <!--
       <attr name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance/GlobalCommands" boolvalue="true"/>
       <folder name="GlobalCommands">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
@@ -28,6 +29,9 @@ Microsystems, Inc. All Rights Reserved.
       </folder>
       <attr name="GlobalCommands/org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" boolvalue="true"/>
       <file name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" /> 
+      -->
+      <file name="org-netbeans-modules-vcscore-actions-VcsAllCommandsAction.instance" />
+      <attr name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance/org-netbeans-modules-vcscore-actions-VcsAllCommandsAction.instance" boolvalue="true"/>
     </folder>
     <folder name="Window">
         <attr name="Debug/Versioning" boolvalue="true"/>
