@@ -70,10 +70,11 @@ import org.openide.util.actions.CallbackSystemAction;
 
 /**
  * View showing the task list items
- * @author Tor Norbye, Tim Lebedkov, Trond Norbye
+ * @author Tor Norbye, Trond Norbye
  */
 public abstract class TaskListView extends TopComponent
-        implements TaskListener, ExplorerManager.Provider, Lookup.Provider, TaskSelector {
+    implements TaskListener, ExplorerManager.Provider, 
+    Lookup.Provider, TaskSelector {
 
     private static final long serialVersionUID = 1;
 
@@ -133,7 +134,7 @@ public abstract class TaskListView extends TopComponent
 
     transient protected String category = null;
 
-    private transient ObservableList tasklist = null;
+    protected transient ObservableList tasklist = null;
 
     transient protected FilterRepository filters = null;
     transient protected Filter activeFilter = null;

@@ -79,13 +79,15 @@ public class UserTaskView extends TaskListView implements TaskListener {
         this(UserTaskList.getDefault(), true);
     }
 
-    /** Construct a new UserTaskView showing a given list. Most work
-	is deferred to componentOpened. NOTE: this is only for use by
-	the window system when deserializing windows. Client code
-	should not call it.  I can't make it protected because then
-	the window system wouldn't be able to get to this. But the
-	code relies on readExternal getting called after this
-	constructor to finalize construction of the window.*/
+    /** 
+     * Construct a new UserTaskView showing a given list. Most work
+     * is deferred to componentOpened. NOTE: this is only for use by
+     * the window system when deserializing windows. Client code
+     * should not call it. I can't make it protected because then
+     * the window system wouldn't be able to get to this. But the
+     * code relies on readExternal getting called after this
+     * constructor to finalize construction of the window.
+     */
     public UserTaskView(UserTaskList list, boolean isDefault) {
 	super(UserTaskList.USER_CATEGORY,
               isDefault ?
@@ -142,25 +144,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
         return sp;
     }
     
-    /** Overrides superclass method. Gets actions for this top component. */
-    /*
-    public SystemAction[] getSystemActions() {
-        SystemAction[] todoActions = new SystemAction[] {
-            null,
-            SystemAction.get(PasteAction.class),
-            null,
-            SystemAction.get(FilterAction.class),
-            SystemAction.get(PurgeTasksAction.class),
-            SystemAction.get(ExpandAllAction.class),
-            null,
-            SystemAction.get(ImportAction.class),
-            SystemAction.get(ExportAction.class)
-        };
-        SystemAction[] sa = super.getSystemActions ();
-        return SystemAction.linkActions (sa, todoActions);
-    }
-    */
-    
     public void componentActivated() {
         super.componentActivated();
 
@@ -211,23 +194,26 @@ public class UserTaskView extends TaskListView implements TaskListener {
         
     }
 
-    /** Write out relevant settings in the window (visible
+    /** 
+     * Write out relevant settings in the window (visible
      * columns, sorting order, etc.) such that they can
      * be reconstructed the next time the IDE is started.
      * @todo Use a more robust serialization format (not int uid based)
+     *
      * @param objectOutput Object stream to write to
-     * @throws IOException  */    
+     * @throws IOException  
+     */    
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
 	if (!persistent) {
-	    System.out.println("INTERNAL ERROR: THIS WINDOW SHOULD NOT HAVE BEEN PERSISTED!");
+	    System.out.println(
+                "INTERNAL ERROR: THIS WINDOW SHOULD NOT HAVE BEEN PERSISTED!");
 	    return;
 	}
 
         super.writeExternal(objectOutput);
 
         UserTaskList tl = (UserTaskList)getList();
-        tl.save(); // Only does something if the todolist has changed...
-        
+        tl.save(); // Only does something if the todolist has changed...        
         
         // Here I should record a few things; in particular, sorting order, view
         // preferences, etc.
@@ -484,8 +470,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
         return defview != null;
     }
     
-    /** Return the currently active user task view, or the default
-        one if none are active */
+    /** 
+     * Return the currently active user task view, or the default
+     * one if none are active 
+     */
     public static TaskListView getCurrent() {
 	// Try to figure out which view is current. If none is found to
 	// be visible, guess one.
@@ -547,7 +535,9 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     protected void setModel(ObservableList list) {
-        super.setModel(list);
+        hideList();
+        tasklist = list;
+        getModel().addTaskListener(this);
         UserTaskList utl = (UserTaskList) this.getList();
         utl.showAnnotations(utl.getTasks().iterator());
     }

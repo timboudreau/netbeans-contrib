@@ -35,8 +35,8 @@ import org.openide.util.actions.SystemAction;
 
 
 /**
- *  Recognizes TaskList files such as iCalendar files that the user
- *  can browse, open etc.
+ * Recognizes TaskList files such as iCalendar files that the user
+ * can browse, open etc.
  *
  * @author Tor Norbye, Trond Norbye
  */
@@ -78,7 +78,6 @@ public final class TaskListLoader extends UniFileLoader {
 	};
     }
 
-
     /**
      *  Return the SystemAction[]s array. Create it and store it if needed.
      *
@@ -96,7 +95,6 @@ public final class TaskListLoader extends UniFileLoader {
 	}
 	return standardActions;
     }
-
 
     /** set the default display name */
     protected String defaultDisplayName() {

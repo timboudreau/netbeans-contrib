@@ -14,12 +14,13 @@
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
 /**
- * todo comment
- * @author  tim
+ * Filter
  */
 public interface FilterIntf {
     /**
-     * todo comment
+     * Filtering
+     *
+     * @return true if the node is accepted
      */
     public boolean accept(Object obj);
 }
