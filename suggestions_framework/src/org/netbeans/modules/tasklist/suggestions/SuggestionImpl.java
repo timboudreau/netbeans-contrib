@@ -77,13 +77,41 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         }
     }
 
+    /**
+     * Class used to represent location with correctly defined order
+     * and to string.
+     */
+    public static class Location implements Comparable {
+      public String filename;
+      public int line;
+
+      public Location(String filename, int line) {
+	this.filename = filename;
+	this.line = line;
+      }
+
+      public int compareTo(Object o) {
+	Location rhs = (Location)o;
+	int c1 = this.filename.compareTo(rhs.filename);
+	if (c1 != 0) return c1;
+	else return (this.line < rhs.line)? -1 : ((this.line == rhs.line)?0:1);
+      }
+
+      public String toString() {
+	return filename + ":" + line;
+      }
+    }
+	
+      
+  
+
     /** @return path/file:line location or null. */
-    public String getLocation() {
+    public Location getLocation() {
         Line l = getLine();
         if (l != null) {
             DataObject dobj = (DataObject) l.getLookup().lookup(DataObject.class);;
             if (dobj != null) {
-                return dobj.getPrimaryFile().getPath() + ":" + (l.getLineNumber()+1); 
+                return new Location(dobj.getPrimaryFile().getPath(),l.getLineNumber()); 
             }
         }
         return null;
