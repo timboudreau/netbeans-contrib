@@ -983,22 +983,37 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Find out what to ask the user for before running the command.
      * @param exec The command to exec
      * @param vars The variables to use
-     * @return The array of questions for the user, one for each variable
+     * @return The table of questions for the user as keys and prompt type as values
      */
-    private String[] needAskFor(String exec, Hashtable vars) {
-        Vector results = new Vector();
-        String search = /*"${"+*/ASK_FOR+"("; // to be able to put this to conditional expression
+    private Table needAskFor(String exec, Hashtable vars) {
+        Table results = new Table();
+        HashSet labels = new HashSet();
+        String search = /*"${"+*/ASK_FOR; //+"("; // to be able to put this to conditional expression
         int pos = 0;
         int index;
         while((index = exec.indexOf(search, pos)) >= 0) {
             index += search.length();
+            int parIndex = exec.indexOf("(", index);
+            if (parIndex < 0) break;
+            String promptType = exec.substring(index, parIndex);
+            index = parIndex + 1;
             int index2 = exec.indexOf(")", index);
             if (index2 < 0) break;
             String str = exec.substring(index, index2);
-            results.addElement(str);
+            if (!labels.contains(str)) { // Do not add one label more than ones.
+                labels.add(str);
+                results.put(str, promptType);
+            }
             pos = index2;
         }
+        /*
+        // Assure, that the items are unique. I don't wanna use set 'cause don't wanna alter the order.
+        for (int i = 0; i < results.size(); i++) {
+            if (results.indexOf(results.get(i)) < i) results.remove(i);
+        }
         return (String[]) results.toArray(new String[0]);
+         */
+        return results;
     }
 
     /**
@@ -1191,17 +1206,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             }
             exec = Variables.expandKnownOnly(vars, exec);
-            String[] ask = needAskFor(exec, vars);
+            Table ask = needAskFor(exec, vars);
             Hashtable varNames = new Hashtable(); // Variable names of prompt for file variables with message names
             Hashtable promptFile = needPrompForFileContent(exec, vars, varNames);
             Hashtable userParamsVarNames = new Hashtable(); // Variable names of prompt for additional parameters
             Hashtable userParamsIndexes = new Hashtable();
             Table userParamsPromptLabels = needPromptForUserParams(exec, vars, userParamsVarNames, userParamsIndexes, cmd);
             createTempPromptFiles(promptFile);
-            if (prompt != null && prompt.size() > 0 || ask != null && ask.length > 0 ||
+            if (prompt != null && prompt.size() > 0 || ask != null && ask.size() > 0 ||
                 promptFile.size() > 0 || userParamsPromptLabels.size() > 0) {
                 VariableInputDialog dlg = new VariableInputDialog(new java.awt.Frame(), true, file);
                 dlg.setVCSFileSystem(this, vars);
+                dlg.setCommandDisplayName(cmd.getDisplayName());
                 dlg.setFilePromptLabels(promptFile);
                 dlg.setVarPromptLabels(prompt);
                 dlg.setVarAskLabels(ask);
@@ -1223,8 +1239,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         vars.put(PROMPT_FOR+prompt.get(label)+"("+label+")", VcsUtilities.msg2CmdlineStr(values[i], isUseUnixShell()));
                     }
                     values = dlg.getVarAskValues();
-                    for(int i = 0; i < ask.length; i++) {
-                        vars.put(ASK_FOR+"("+ask[i]+")", values[i]);
+                    Enumeration askLabels = ask.keys();
+                    for(int i = 0; askLabels.hasMoreElements(); i++) {
+                        String label = (String) askLabels.nextElement();
+                        vars.put(ASK_FOR+ask.get(label)+"("+label+")", values[i]);
                     }
                     for (Enumeration enum = varNames.keys(); enum.hasMoreElements(); ) {
                         String varName = (String) enum.nextElement();

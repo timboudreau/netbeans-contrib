@@ -439,10 +439,21 @@ public class VariableInputDialog extends javax.swing.JDialog {
     /**
      * Create variable labels and check boxes.
      */
-    public void setVarAskLabels(String[] varLabels) {
+    public void setVarAskLabels(Table varLabels) {
         Vector chboxes = new Vector();
-        for(int i = 0; i < varLabels.length; i++) {
-            javax.swing.JCheckBox chbox = new javax.swing.JCheckBox(" "+varLabels[i]);
+        int i = 0;
+        for(Enumeration enum = varLabels.keys(); enum.hasMoreElements(); i++) {
+        //for(int i = 0; i < varLabels.length; i++) {
+            String label = (String) enum.nextElement();
+            javax.swing.JCheckBox chbox = new javax.swing.JCheckBox(" "+label);
+            String askType = (String) varLabels.get(label);
+            if (askType.startsWith(PROMPT_DEFAULT_VALUE_SEPARATOR)) {
+                int index = askType.indexOf(PROMPT_DEFAULT_VALUE_SEPARATOR, 1);
+                if (index > 0) {
+                    String defaultValue = askType.substring(PROMPT_DEFAULT_VALUE_SEPARATOR.length(), index);
+                    chbox.setSelected(Boolean.TRUE.toString().equalsIgnoreCase(defaultValue));
+                }
+            }
             java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
             gridBagConstraints1.gridx = 0;
             gridBagConstraints1.gridy = i + labelOffset;
@@ -451,7 +462,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
             variablePanel.add(chbox, gridBagConstraints1);
             chboxes.addElement(chbox);
         }
-        labelOffset += varLabels.length;
+        labelOffset += varLabels.size();
         pack();
         this.varAskCheckBoxes = (javax.swing.JCheckBox[]) chboxes.toArray(new javax.swing.JCheckBox[0]);
     }
