@@ -33,7 +33,7 @@ public class VcsDirContainer extends Object {
     private Object element = null;
 
     private String path = ""; // NOI18N
-    private String name = "";
+    private String name = ""; // NOI18N
 
     /** Creates new empty VcsDirContainer */
     public VcsDirContainer() {
@@ -157,7 +157,7 @@ public class VcsDirContainer extends Object {
         if (this.path.length() > 0) {
             index = path.indexOf(this.path);
             if (index < 0) {
-                D.deb("addSubdirRecursive("+path+"): indexOf("+this.path+") = "+index+" => RETURN null !!!");
+                D.deb("addSubdirRecursive("+path+"): indexOf("+this.path+") = "+index+" => RETURN null !!!"); // NOI18N
                 return null;
             }
             index += this.path.length() + 1; // have to cross the path delimeter
@@ -170,12 +170,12 @@ public class VcsDirContainer extends Object {
         if (index2 < index) return this;
         String next = path.substring(index, index2);
         //D.deb("next = "+next);
-        String subPath = (this.path.length() > 0) ? this.path+"/"+next : next;
+        String subPath = (this.path.length() > 0) ? this.path+"/"+next : next; // NOI18N
         VcsDirContainer subdir = this.getDirContainer(next);
         if (subdir == null) {
-            D.deb("addSubdirRecursive("+path+"): creating subdir "+subPath+" under "+this.path);
+            D.deb("addSubdirRecursive("+path+"): creating subdir "+subPath+" under "+this.path); // NOI18N
             subdir = this.addSubdir(subPath);
-        } else D.deb("addSubdirRecursive("+path+"): exist subdir "+subPath+" under "+this.path);
+        } else D.deb("addSubdirRecursive("+path+"): exist subdir "+subPath+" under "+this.path); // NOI18N
         return subdir.addSubdirRecursive(path);
     }
     //public Vector getSubdirs() {
@@ -219,14 +219,14 @@ public class VcsDirContainer extends Object {
      * return the container of the given path or null when not found
      */
     public VcsDirContainer getContainerWithPath(String path) {
-        D.deb("getContainerWithPath("+path+")");
+        D.deb("getContainerWithPath("+path+")"); // NOI18N
         VcsDirContainer container = this;
         if (path.length() == 0) return container;
         String rootPath = container.getPath();
         //D.deb("parentPath = "+parentPath+", rootPath = "+rootPath);
         if (rootPath.length() > 0 && path.indexOf(rootPath) < 0) return null;
         if (path.length() > 0 && path.equals(rootPath)) return this;
-        D.deb("getContainerWithPath: rootPath = '"+rootPath+"'");
+        D.deb("getContainerWithPath: rootPath = '"+rootPath+"'"); // NOI18N
         int index = rootPath.length();
         if (index > 0) index++; // we have to cross the file separator
         int indexSep = path.indexOf('/', index);
@@ -242,7 +242,7 @@ public class VcsDirContainer extends Object {
                 if (indexSep < 0) indexSep = path.length();
             }
         }
-        D.deb("getContainerWithPath("+path+") returning "+((container == null) ? null : container.getPath()));
+        D.deb("getContainerWithPath("+path+") returning "+((container == null) ? null : container.getPath())); // NOI18N
         return container;
     }
 
@@ -257,7 +257,7 @@ public class VcsDirContainer extends Object {
         //D.deb("getParent("+path+")");
         String parentPath = VcsUtilities.getDirNamePart(path);
         VcsDirContainer container = getContainerWithPath(parentPath);
-        D.deb("getParent("+path+") returning "+((container == null) ? null : container.getPath()));
+        D.deb("getParent("+path+") returning "+((container == null) ? null : container.getPath())); // NOI18N
         return container;
         /*
         String rootPath = container.getPath();

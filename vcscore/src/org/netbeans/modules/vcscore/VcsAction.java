@@ -48,9 +48,9 @@ public class VcsAction extends NodeAction implements ActionListener {
     private Debug E=new Debug("VcsAction", true); // NOI18N
     private Debug D=E;
 
-    private static final String PROPERTY_PARSED_ATTR_NAMES = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesNamesParsed";
-    private static final String PROPERTY_PARSED_ATTR_NEMPTY_VARS = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesNotEmptyVars";
-    private static final String PROPERTY_PARSED_ATTR_VALUES_VARS = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesValuesVars";
+    private static final String PROPERTY_PARSED_ATTR_NAMES = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesNamesParsed"; // NOI18N
+    private static final String PROPERTY_PARSED_ATTR_NEMPTY_VARS = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesNotEmptyVars"; // NOI18N
+    private static final String PROPERTY_PARSED_ATTR_VALUES_VARS = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesValuesVars"; // NOI18N
     
     /**
      * Whether to remove disabled commands from the popup menu.
@@ -143,7 +143,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         if (labels.length > 0) {
             if (NotifyDescriptor.Confirmation.YES_OPTION.equals (
                             TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (
-                                                             fileSystem.getBundleProperty("MSG_KILL_ALL_CMDS", VcsUtilities.arrayToString(labels)), NotifyDescriptor.Confirmation.YES_NO_OPTION)))) {
+                                                             fileSystem.getBundleProperty("MSG_KILL_ALL_CMDS", VcsUtilities.arrayToString(labels)), NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
                 cmdPool.killAll();
             }
         }
@@ -309,7 +309,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         ArrayList executors = new ArrayList();
         boolean[] askForEachFile = null;
         //String quoting = fileSystem.getQuoting();
-        String quoting = "${QUOTE}";
+        String quoting = "${QUOTE}"; // NOI18N
         int preprocessStatus;
         boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
         boolean cmdCanRunOnMultipleFilesInFolder = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER);
@@ -429,13 +429,13 @@ public class VcsAction extends NodeAction implements ActionListener {
             restrictedFiles.put(name, fo);
         }
         Hashtable vars = (Hashtable) varsRef[0];
-        vars.put("PROCESSING_BINARY_FILES", isBinary ? Boolean.TRUE.toString() : "");
+        vars.put("PROCESSING_BINARY_FILES", isBinary ? Boolean.TRUE.toString() : ""); // NOI18N
         return restrictedFiles;
     }
     
     private static boolean isFOBinary(FileObject fo) {
         String mimeType = fo.getMIMEType();
-        return !mimeType.startsWith("text") && !"content/unknown".equals(mimeType);
+        return !mimeType.startsWith("text") && !"content/unknown".equals(mimeType); // NOI18N
     }
     
     /**
@@ -490,12 +490,12 @@ public class VcsAction extends NodeAction implements ActionListener {
             String file = (String) keys.nextElement();
             singleFolderTable.put(file, files.get(file));
             //String folder = file.getPackageName('/');
-            String folder = "";
+            String folder = ""; // NOI18N
             int index = file.lastIndexOf('/');
             if (index >= 0) folder = file.substring(0, index);
             while (keys.hasMoreElements()) {
                 file = (String) keys.nextElement();
-                String testFolder = "";
+                String testFolder = ""; // NOI18N
                 index = file.lastIndexOf('/');
                 if (index >= 0) testFolder = file.substring(0, index);
                 if (folder.equals(testFolder)) {
@@ -1038,16 +1038,16 @@ public class VcsAction extends NodeAction implements ActionListener {
         boolean isFileFolder = (fo != null && fo.isFolder());
         String path = VcsUtilities.getDirNamePart(fullName);
         String file = VcsUtilities.getFileNamePart(fullName);
-        String separator = (String) vars.get("PS");
+        String separator = (String) vars.get("PS"); // NOI18N
         char separatorChar = (separator != null && separator.length() == 1) ? separator.charAt(0) : java.io.File.separatorChar;
         path = path.replace('/', separatorChar);
         fullName = fullName.replace('/', separatorChar);
         file = valueAdjustment.adjustVarValue(file);
         path = valueAdjustment.adjustVarValue(path);
         fullName = valueAdjustment.adjustVarValue(fullName);
-        if (fullName.length() == 0) fullName = ".";
-        String module = (String) vars.get("MODULE");
-        if (module == null) module = "";
+        if (fullName.length() == 0) fullName = "."; // NOI18N
+        String module = (String) vars.get("MODULE"); // NOI18N
+        if (module == null) module = ""; // NOI18N
         if (module.length() > 0) module += separator;
         vars.put("PATH", fullName); // NOI18N
         vars.put("QPATH", (fullName.length() > 0) ? quoting+fullName+quoting : fullName); // NOI18N
@@ -1056,14 +1056,14 @@ public class VcsAction extends NodeAction implements ActionListener {
         vars.put("FILE", file); // NOI18N
         vars.put("QFILE", quoting+file+quoting); // NOI18N
         if (fo != null) {
-            vars.put("MIMETYPE", fo.getMIMEType());
+            vars.put("MIMETYPE", fo.getMIMEType()); // NOI18N
         } else {
             int extIndex = file.lastIndexOf('.');
-            String ext = (extIndex >= 0 && extIndex < file.length() - 1) ? file.substring(extIndex + 1) : "";
+            String ext = (extIndex >= 0 && extIndex < file.length() - 1) ? file.substring(extIndex + 1) : ""; // NOI18N
             String mime = FileUtil.getMIMEType(ext);
-            if (mime != null) vars.put("MIMETYPE", mime);
+            if (mime != null) vars.put("MIMETYPE", mime); // NOI18N
         }
-        vars.put("FILE_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// the FILE is a folder
+        vars.put("FILE_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// the FILE is a folder // NOI18N
         // Second, set the multifiles variables
         StringBuffer qpaths = new StringBuffer();
         StringBuffer paths = new StringBuffer();
@@ -1074,7 +1074,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
             fullName = (String) enum.nextElement();
             fo = (FileObject) files.get(fullName);
-            if (fullName.length() == 0) fullName = ".";
+            if (fullName.length() == 0) fullName = "."; // NOI18N
             isFileFolder |= (fo != null && fo.isFolder());
             file = VcsUtilities.getFileNamePart(fullName);
             fullName = fullName.replace('/', separatorChar);
@@ -1085,29 +1085,29 @@ public class VcsAction extends NodeAction implements ActionListener {
             qfiles.append(quoting);
             qfiles.append(file);
             qfiles.append(quoting);
-            qfiles.append(" ");
+            qfiles.append(" "); // NOI18N
             paths.append(fullName);
-            paths.append(""+separatorChar+separatorChar);
+            paths.append(""+separatorChar+separatorChar); // NOI18N
             qpaths.append(quoting);
             qpaths.append(fullName);
             qpaths.append(quoting);
-            qpaths.append(" ");
+            qpaths.append(" "); // NOI18N
             mpaths.append(module + fullName);
-            mpaths.append(" ");
+            mpaths.append(" "); // NOI18N
             qmpaths.append(quoting);
             qmpaths.append(module + fullName);
             qmpaths.append(quoting);
-            qmpaths.append(" ");
+            qmpaths.append(" "); // NOI18N
         }
-        vars.put("FILES", vfiles.delete(vfiles.length() - 1, vfiles.length()).toString());
-        vars.put("QFILES", qfiles.toString().trim());
-        vars.put("PATHS", paths.delete(paths.length() - 2, paths.length()).toString());
-        vars.put("QPATHS", qpaths.toString().trim());
-        vars.put("MPATHS", mpaths.toString().trim());
-        vars.put("QMPATHS", qmpaths.toString().trim());
-        vars.put("NUM_FILES", ""+files.size());
-        vars.put("MULTIPLE_FILES", (files.size() > 1) ? Boolean.TRUE.toString() : "");
-        vars.put("FILES_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// among FILES there is a folder
+        vars.put("FILES", vfiles.delete(vfiles.length() - 1, vfiles.length()).toString()); // NOI18N
+        vars.put("QFILES", qfiles.toString().trim()); // NOI18N
+        vars.put("PATHS", paths.delete(paths.length() - 2, paths.length()).toString()); // NOI18N
+        vars.put("QPATHS", qpaths.toString().trim()); // NOI18N
+        vars.put("MPATHS", mpaths.toString().trim()); // NOI18N
+        vars.put("QMPATHS", qmpaths.toString().trim()); // NOI18N
+        vars.put("NUM_FILES", ""+files.size()); // NOI18N
+        vars.put("MULTIPLE_FILES", (files.size() > 1) ? Boolean.TRUE.toString() : ""); // NOI18N
+        vars.put("FILES_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// among FILES there is a folder // NOI18N
     }
     
     /**
@@ -1150,7 +1150,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         Table result = new Table();
         Object[] attrs = getAttributes(result, files, attrNames);
         for (int i = 0; i < attrs.length; i++) {
-            vars.put(attrNonNullVars.get(attrNames[i]), (attrs[i] != null) ? Boolean.TRUE.toString() : "");
+            vars.put(attrNonNullVars.get(attrNames[i]), (attrs[i] != null) ? Boolean.TRUE.toString() : ""); // NOI18N
             if (attrs[i] != null) vars.put(attrValueVars.get(attrNames[i]), attrs[i].toString());
             else vars.remove(attrValueVars.get(attrNames[i]));
         }
@@ -1326,21 +1326,21 @@ public class VcsAction extends NodeAction implements ActionListener {
                 }
             };
         }
-        new Thread(cpr, "Vcs Commands Performing Thread").start();
+        new Thread(cpr, "Vcs Commands Performing Thread").start(); // NOI18N
     }
 
     private class CtrlMenuKeyListener implements javax.swing.event.MenuKeyListener {
         public void menuKeyTyped(javax.swing.event.MenuKeyEvent p1) {
         }
         public void menuKeyPressed(javax.swing.event.MenuKeyEvent p1) {
-            boolean newCTRL_Down = "Ctrl".equals(p1.getKeyText(p1.getKeyCode())) || p1.isControlDown();
+            boolean newCTRL_Down = "Ctrl".equals(p1.getKeyText(p1.getKeyCode())) || p1.isControlDown(); // NOI18N
 //            System.out.println("key pressed=" + newCTRL_Down);
 //            System.out.println("is down=" + p1.isControlDown());
             changeCtrlSigns(newCTRL_Down);
             CTRL_Down = newCTRL_Down;
         }
         public void menuKeyReleased(javax.swing.event.MenuKeyEvent p1) {
-            boolean newCTRL_Down = "Ctrl".equals(p1.getKeyText(p1.getKeyCode())) || !p1.isControlDown();
+            boolean newCTRL_Down = "Ctrl".equals(p1.getKeyText(p1.getKeyCode())) || !p1.isControlDown(); // NOI18N
 //            System.out.println("key Released=" + newCTRL_Down);
 //            System.out.println("keykode=" + p1.getKeyText(p1.getKeyCode()));
             changeCtrlSigns(!newCTRL_Down);
