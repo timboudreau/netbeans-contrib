@@ -35,7 +35,7 @@ import com.netbeans.developer.modules.vcs.cmdline.*;
 public class UserCommandsPanel extends JPanel 
   implements EnhancedCustomPropertyEditor {
 
-  private Debug E=new Debug("UserCommandsPanel", true);
+  private Debug E=new Debug("UserCommandsPanel", true); // NOI18N
   private Debug D=E;
 
   private JList list=null;
@@ -59,7 +59,7 @@ public class UserCommandsPanel extends JPanel
     this.editor = editor;
     Vector oldCommands=(Vector)editor.getValue();
     commands=deepCopy(oldCommands, refCommands);
-    D.deb("UserCommandsPanel() commands = "+commands);
+    D.deb("UserCommandsPanel() commands = "+commands); // NOI18N
     initComponents();
     initListeners();
     deselectAll();
@@ -99,7 +99,7 @@ public class UserCommandsPanel extends JPanel
     int len=commands.size();
     for(int i=0;i<len;i++){
       UserCommand uc=(UserCommand)commands.elementAt(i);
-      if (uc == null) listModel.addElement(g("CTL_COMMAND_SEPARATOR"));
+      if (uc == null) listModel.addElement(g("CTL_COMMAND_SEPARATOR")); // NOI18N
       else listModel.addElement(uc.toString());
     }
     JScrollPane listScrollPane = new JScrollPane(list);
@@ -108,17 +108,17 @@ public class UserCommandsPanel extends JPanel
 
   //-------------------------------------------
   private JPanel createCommands(){
-    addButton=createButton(g("CTL_Add"));
+    addButton=createButton(g("CTL_Add")); // NOI18N
     addButton.setMnemonic(KeyEvent.VK_D);
-    addSeparatorButton=createButton(g("CTL_Add_Separator"));
+    addSeparatorButton=createButton(g("CTL_Add_Separator")); // NOI18N
     addSeparatorButton.setMnemonic(KeyEvent.VK_S);
-    editButton=createButton(g("CTL_Edit"));
+    editButton=createButton(g("CTL_Edit")); // NOI18N
     editButton.setMnemonic(KeyEvent.VK_T);
-    removeButton=createButton(g("CTL_Remove"));
+    removeButton=createButton(g("CTL_Remove")); // NOI18N
     removeButton.setMnemonic(KeyEvent.VK_M);
-    moveUpButton=createButton(g("CTL_MoveUp"));
+    moveUpButton=createButton(g("CTL_MoveUp")); // NOI18N
     //moveUpButton.setMnemonic(KeyEvent.VK_KP_UP);
-    moveDownButton=createButton(g("CTL_MoveDown"));
+    moveDownButton=createButton(g("CTL_MoveDown")); // NOI18N
     //moveDownButton.setMnemonic(KeyEvent.VK_KP_DOWN);
 
     GridLayout panel2Layout=new GridLayout(6,1);
@@ -168,7 +168,7 @@ public class UserCommandsPanel extends JPanel
 
     list.addListSelectionListener(new ListSelectionListener(){
       public void valueChanged(ListSelectionEvent e){
-	//D.deb("valueChanged "+e);
+	//D.deb("valueChanged "+e); // NOI18N
 	updateButtons();
       }
     });
@@ -184,7 +184,7 @@ public class UserCommandsPanel extends JPanel
     
     list.addKeyListener(new KeyAdapter() {
       public void keyPressed(KeyEvent e){
-	//D.deb("keyPressed() e="+e);
+	//D.deb("keyPressed() e="+e); // NOI18N
 	int keyCode=e.getKeyCode();
 	switch( keyCode ){
 	case KeyEvent.VK_INSERT:
@@ -198,7 +198,7 @@ public class UserCommandsPanel extends JPanel
 	  editCommand();
 	  break;
 	default:
-	  //D.deb("ignored keyCode="+keyCode);
+	  //D.deb("ignored keyCode="+keyCode); // NOI18N
 	}
 	updateButtons();
       }
@@ -270,7 +270,7 @@ public class UserCommandsPanel extends JPanel
 
   //-------------------------------------------
   private void editCommand(){
-    //D.deb("editCommand()");
+    //D.deb("editCommand()"); // NOI18N
     int index=list.getSelectedIndex();
     if( index<0 ){
       return ;
@@ -319,7 +319,7 @@ public class UserCommandsPanel extends JPanel
       index = listModel.getSize() - 1;
     }
     UserCommand.shiftCommands(commands, index+1, 1);
-    listModel.insertElementAt(g("CTL_COMMAND_SEPARATOR"), index+1);
+    listModel.insertElementAt(g("CTL_COMMAND_SEPARATOR"), index+1); // NOI18N
     commands.insertElementAt(null, index+1);
     list.requestFocus();
     updateButtons();
@@ -384,12 +384,12 @@ public class UserCommandsPanel extends JPanel
     if (uc1 == null && uc2 == null) return;
     if (uc1 == null) {
       uc2.setOrder(uc2.getOrder() - 1);
-      listModel.setElementAt(g("CTL_COMMAND_SEPARATOR"), index2);
+      listModel.setElementAt(g("CTL_COMMAND_SEPARATOR"), index2); // NOI18N
       listModel.setElementAt(uc2.toString(), index1);
     } else if (uc2 == null) {
       uc1.setOrder(uc1.getOrder() + 1);
       listModel.setElementAt(uc1.toString(), index2);
-      listModel.setElementAt(g("CTL_COMMAND_SEPARATOR"), index1);
+      listModel.setElementAt(g("CTL_COMMAND_SEPARATOR"), index1); // NOI18N
     } else {
       int order1 = uc1.getOrder();
       int order2 = uc2.getOrder();
@@ -437,6 +437,7 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  17   Gandalf   1.16        1/27/00  Martin Entlicher NOI18N
  *  16   Gandalf   1.15        11/30/99 Martin Entlicher 
  *  15   Gandalf   1.14        11/27/99 Patrik Knakal   
  *  14   Gandalf   1.13        10/25/99 Pavel Buzek     copyright

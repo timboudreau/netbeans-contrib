@@ -33,7 +33,7 @@ import com.netbeans.developer.modules.vcs.*;
  */
 //-------------------------------------------
 public class UserVariablesPanel extends JPanel implements EnhancedCustomPropertyEditor{
-  private Debug E=new Debug("UserVariablesPanel", false);
+  private Debug E=new Debug("UserVariablesPanel", false); // NOI18N
   //private Debug D=E;
 
   private JList list=null;
@@ -76,11 +76,11 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 
   //-------------------------------------------
   private JPanel createCommands(){
-    editButton=createButton(g("CTL_Edit"));
+    editButton=createButton(g("CTL_Edit")); // NOI18N
     editButton.setMnemonic(KeyEvent.VK_E);
-    addButton=createButton(g("CTL_Add"));
+    addButton=createButton(g("CTL_Add")); // NOI18N
     addButton.setMnemonic(KeyEvent.VK_A);    
-    removeButton=createButton(g("CTL_Remove"));
+    removeButton=createButton(g("CTL_Remove")); // NOI18N
     removeButton.setMnemonic(KeyEvent.VK_R);
 
     GridLayout panel2Layout=new GridLayout(5,1);
@@ -127,7 +127,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 
     list.addListSelectionListener(new ListSelectionListener(){
       public void valueChanged(ListSelectionEvent e){
-	//D.deb("valueChanged "+e);	
+	//D.deb("valueChanged "+e); // NOI18N
 	updateButtons();
       }
     });
@@ -143,7 +143,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
     
     list.addKeyListener(new KeyAdapter() {
       public void keyPressed(KeyEvent e){
-	//D.deb("keyPressed() e="+e);
+	//D.deb("keyPressed() e="+e); // NOI18N
 	int keyCode=e.getKeyCode();
 	switch( keyCode ){
 	case KeyEvent.VK_INSERT:
@@ -157,7 +157,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 	  editVariable();
 	  break;
 	default:
-	  //D.deb("ignored keyCode="+keyCode);
+	  //D.deb("ignored keyCode="+keyCode); // NOI18N
 	}
 	updateButtons();
       }
@@ -206,7 +206,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 
   //-------------------------------------------
   private void editVariable(){
-    //D.deb("editVariable()");
+    //D.deb("editVariable()"); // NOI18N
     int index=list.getSelectedIndex();
     if( index<0 ){
       return ;
@@ -228,7 +228,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 
   //-------------------------------------------
   private void addVariable(){
-    VcsConfigVariable var = new VcsConfigVariable ("", "", "", false, false, false);
+    VcsConfigVariable var = new VcsConfigVariable ("", "", "", false, false, false); // NOI18N
     EditUserVariable ev=new EditUserVariable(new Frame(), var);
     ev.setLocationRelativeTo(list);
     ev.show();
@@ -284,6 +284,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         1/27/00  Martin Entlicher NOI18N
  *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
  *  1    Gandalf   1.0         11/24/99 Martin Entlicher 
  * $

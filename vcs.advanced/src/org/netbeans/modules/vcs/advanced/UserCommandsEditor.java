@@ -25,7 +25,7 @@ import com.netbeans.developer.modules.vcs.cmdline.*;
  */
 //-------------------------------------------
 public class UserCommandsEditor implements PropertyEditor {
-  private Debug E=new Debug("UserCommandsEditor", false);
+  private Debug E=new Debug("UserCommandsEditor", false); // NOI18N
   private Debug D=E;
 
   private Vector commands=new Vector(10);
@@ -41,12 +41,12 @@ public class UserCommandsEditor implements PropertyEditor {
   //-------------------------------------------
   public String getAsText(){
     // null if the value can't be expressed as an editable string...
-    return ""+commands;
+    return ""+commands; // NOI18N
   }
 
   //-------------------------------------------
   public void setAsText(String text) {
-    //D.deb("setAsText("+text+") ignored");
+    //D.deb("setAsText("+text+") ignored"); // NOI18N
   }
   
   //-------------------------------------------
@@ -67,7 +67,7 @@ public class UserCommandsEditor implements PropertyEditor {
 
   //-------------------------------------------
   public String getJavaInitializationString() {
-    return "";
+    return ""; // NOI18N
   }
     
   //-------------------------------------------
@@ -78,7 +78,7 @@ public class UserCommandsEditor implements PropertyEditor {
   //-------------------------------------------
   public void setValue(Object value) {
     if( !(value instanceof Vector) ){
-      E.err("Vector expected instead of "+value);
+      E.err("Vector expected instead of "+value); // NOI18N
       throw new IllegalArgumentException("Vector expected instead of "+value);
     }
     // make local copy of value - deep copy using clone
@@ -89,7 +89,7 @@ public class UserCommandsEditor implements PropertyEditor {
       commands.add (cmd.clone ());
     }
     
-    changeSupport.firePropertyChange("",null,null);
+    changeSupport.firePropertyChange("",null,null); // NOI18N
   }
 
   //-------------------------------------------
@@ -116,6 +116,7 @@ public class UserCommandsEditor implements PropertyEditor {
 
 /*
  * <<Log>>
+ *  13   Gandalf   1.12        1/27/00  Martin Entlicher NOI18N
  *  12   Gandalf   1.11        10/25/99 Pavel Buzek     copyright
  *  11   Gandalf   1.10        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment

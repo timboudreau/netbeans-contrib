@@ -34,7 +34,7 @@ import com.netbeans.developer.modules.vcs.*;
  */
 
 public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
-  private Debug E=new Debug("VcsCustomizer", true);
+  private Debug E=new Debug("VcsCustomizer", true); // NOI18N
   private Debug D = E;
 
   static final long serialVersionUID =-8801742771957370172L;
@@ -96,7 +96,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
       gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
       propsPanel.add (jLabel2, gridBagConstraints2);
   
-      rootDirTextField.setText (".");
+      rootDirTextField.setText ("."); // NOI18N
       rootDirTextField.setNextFocusableComponent (browseButton);
       rootDirTextField.addActionListener (new java.awt.event.ActionListener () {
         public void actionPerformed (java.awt.event.ActionEvent evt) {
@@ -145,7 +145,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
       gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
       propsPanel.add (jLabel4, gridBagConstraints2);
   
-      refreshTextField.setText ("0");
+      refreshTextField.setText ("0"); // NOI18N
       refreshTextField.addActionListener (new java.awt.event.ActionListener () {
         public void actionPerformed (java.awt.event.ActionEvent evt) {
           refreshTextFieldActionPerformed (evt);
@@ -262,7 +262,7 @@ private void browseButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN
     chooseDir.show();
     String selected=chooseDir.getSelectedDir();
     if( selected==null ){
-      //D.deb("no directory selected");
+      //D.deb("no directory selected"); // NOI18N
       return ;
     }
     rootDirTextField.setText(selected);
@@ -299,7 +299,7 @@ private void removeConfigButtonActionPerformed (java.awt.event.ActionEvent evt) 
     String label = (String) configCombo.getSelectedItem ();
     NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation ("Are you sure you want to delete configuration: " + label, NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
     if(NotifyDescriptor.Confirmation.CANCEL_OPTION.equals (TopManager.getDefault ().notify (nd))) return;
-    File f = new File (fileSystem.getConfigRoot()+File.separator + configNamesByLabel.get (label) + ".properties"); 
+    File f = new File (fileSystem.getConfigRoot()+File.separator + configNamesByLabel.get (label) + ".properties"); // NOI18N
     if(f.isFile () && f.canWrite ()) {
       f.delete ();
       // set config to fileSystem, it will be rereaded after refresh in updateConfigurations ()
@@ -318,16 +318,16 @@ private void saveAsButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN
     chooseFile.show();
     String selected=chooseFile.getSelectedFile ();
     if(selected==null) return;
-    if(!selected.endsWith(".properties")) {
-      selected += ".properties";
+    if(!selected.endsWith(".properties")) { // NOI18N
+      selected += ".properties"; // NOI18N
     }
     File f = new File (selected); 
     if( selected==null ){
-      //D.deb("no directory selected");
+      //D.deb("no directory selected"); // NOI18N
       return ;
     }
     String label = selected;
-    label = f.getName ().substring (0, f.getName ().length() - ".properties".length());
+    label = f.getName ().substring (0, f.getName ().length() - ".properties".length()); // NOI18N
     Vector variables=fileSystem.getVariables ();
     Object advanced=fileSystem.getAdvancedConfig ();
     VcsConfigVariable.writeConfiguration (selected, label, variables, advanced, fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ()); 
@@ -343,7 +343,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     case ItemEvent.SELECTED:
       String selectedLabel=(String)evt.getItem();
       E.deb ("config state changed to:"+selectedLabel);
-      if(selectedLabel.equalsIgnoreCase("empty")) {
+      if(selectedLabel.equalsIgnoreCase("empty")) { // NOI18N
         removeConfigButton.setEnabled (false);
         saveAsButton.setNextFocusableComponent (propsPanel);
       } else {
@@ -353,23 +353,23 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       int selectedIndex=configCombo.getSelectedIndex();
 
       if( oldIndex==selectedIndex ){
-	//D.deb("nothing has changed oldIndex==selectedIndex=="+oldIndex);
+	//D.deb("nothing has changed oldIndex==selectedIndex=="+oldIndex); // NOI18N
 	return ;
       }
 
-      String msg=g("MSG_Do_you_really_want_to_discard_current_commands",selectedLabel);
+      String msg=g("MSG_Do_you_really_want_to_discard_current_commands",selectedLabel); // NOI18N
       NotifyDescriptor nd = new NotifyDescriptor.Confirmation (msg, NotifyDescriptor.YES_NO_OPTION );
       if (!promptForConfigComboChange || TopManager.getDefault().notify( nd ).equals( NotifyDescriptor.YES_OPTION ) ) {
-	//D.deb("yes");
+	//D.deb("yes"); // NOI18N
         // just do not display prompt for the first change if config was not edited
         promptForConfigComboChange = true;
 	loadConfig(selectedLabel);
 	oldIndex=selectedIndex;
       }
       else{
-	//D.deb("no");
+	//D.deb("no"); // NOI18N
 	String oldLabel=(String)configCombo.getItemAt(oldIndex);
-	//D.deb("oldLabel="+oldLabel+", oldIndex="+oldIndex);
+	//D.deb("oldLabel="+oldLabel+", oldIndex="+oldIndex); // NOI18N
 	loadConfig(oldLabel);
 	configCombo.setSelectedIndex(oldIndex);
       }
@@ -436,14 +436,14 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
   //-------------------------------------------
   public void addPropertyChangeListener(PropertyChangeListener l) {
-    //D.deb("addPropertyChangeListener()");
+    //D.deb("addPropertyChangeListener()"); // NOI18N
     changeSupport.addPropertyChangeListener(l);
   }
 
 
   //-------------------------------------------
   public void removePropertyChangeListener(PropertyChangeListener l) {
-    //D.deb("removePropertyChangeListener()");
+    //D.deb("removePropertyChangeListener()"); // NOI18N
     changeSupport.removePropertyChangeListener(l);
   }
 
@@ -536,7 +536,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
         propsPanel.add (tf, gridBagConstraints1);
         varVariables.add (var);
         String varLabel = var.getLabel ().trim ();
-        if(!varLabel.endsWith (":")) varLabel += ":";
+        if(!varLabel.endsWith (":")) varLabel += ":"; // NOI18N
         lb.setText (varLabel);
         tf.setText (var.getValue ());
         if (var.isLocalFile ()) {
@@ -572,7 +572,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     }
     if(var!=null){
       var.setValue (tf.getText ().trim());
-      if (var.getName().equals("MODULE")) {
+      if (var.getName().equals("MODULE")) { // NOI18N
         /*
         String value = var.getValue();
         if (value.length() > 0 && !value.endsWith(File.separator)) value = value.concat(File.separator);
@@ -582,7 +582,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       }
       // enable fs to react on change in variables
       fileSystem.setVariables(fileSystem.getVariables());
-      D.deb("variableChanged(): filesystemVariables = "+fileSystem.getVariables());
+      D.deb("variableChanged(): filesystemVariables = "+fileSystem.getVariables()); // NOI18N
     } else {
       E.deb ("Error setting variable:"+tf.getText ());
     }
@@ -593,9 +593,9 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
   */
   //-------------------------------------------
   private void updateConfigurations(){
-    D.deb("configRoot = "+fileSystem.getConfigRoot());
+    D.deb("configRoot = "+fileSystem.getConfigRoot()); // NOI18N
     Vector configNames=VcsConfigVariable.readConfigurations(fileSystem.getConfigRoot());
-    D.deb("configNames="+configNames);
+    D.deb("configNames="+configNames); // NOI18N
 
     if( configCombo.getItemCount()>0 ){ // necessary on Linux 
       configCombo.removeAllItems();
@@ -613,7 +613,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       String name=(String)configNames.elementAt(i);
 
       Properties props= VcsConfigVariable.readPredefinedProperties
-	( fileSystem.getConfigRoot()+File.separator+name+".properties");
+	( fileSystem.getConfigRoot()+File.separator+name+".properties"); // NOI18N
 
       String label=props.getProperty("label", g("CTL_No_label_configured"));
       configLabels.addElement(label);
@@ -642,11 +642,11 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
   //-------------------------------------------
   public void setObject(Object bean){
-    //D.deb("setObject("+bean+")");
+    //D.deb("setObject("+bean+")"); // NOI18N
     fileSystem=(VcsFileSystem)bean;
 
     rootDirTextField.setText (VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), getModuleValue ()));
-    refreshTextField.setText (""+fileSystem.getCustomRefreshTime ());
+    refreshTextField.setText (""+fileSystem.getCustomRefreshTime ()); // NOI18N
     updateConfigurations();
     initAdditionalComponents ();
 /*
@@ -681,7 +681,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     Vector variables = fileSystem.getVariables();
     for(int i = 0; i < variables.size(); i++) {
       VcsConfigVariable var = (VcsConfigVariable) variables.get(i);
-      if (var.getName().equals("MODULE")) return var.getValue();
+      if (var.getName().equals("MODULE")) return var.getValue(); // NOI18N
     }
     return null;
   }
@@ -690,12 +690,12 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     // root dir set by hand
     String selected= rootDirTextField.getText ();
     if( selected==null ){
-      //D.deb("no directory selected");
+      //D.deb("no directory selected"); // NOI18N
       return ;
     }
     String module = getModuleValue();
     if (module != null && module.length() > 0) selected += File.separator + module;
-    D.deb("rootDirChanged(): module = "+module+", selected = "+selected);
+    D.deb("rootDirChanged(): module = "+module+", selected = "+selected); // NOI18N
     File dir=new File(selected);
     if( !dir.isDirectory() ){
       E.err("not directory "+dir);
@@ -717,7 +717,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     }
     catch (PropertyVetoException veto){
       fileSystem.debug(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD"));
-      //E.err(veto,"setRootDirectory() failed");
+      //E.err(veto,"setRootDirectory() failed"); // NOI18N
     }
     catch (IOException e){
       E.err(e,"setRootDirectory() failed");
@@ -737,13 +737,13 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
   private void refreshChanged () {
     try {
       int time = Integer.parseInt(refreshTextField.getText());
-      if (time < 0) throw new NumberFormatException(""+time);
+      if (time < 0) throw new NumberFormatException(""+time); // NOI18N
       fileSystem.setCustomRefreshTime (time);
       E.deb("refresh time set to:" + time);
     } catch (NumberFormatException e) {
       final String msg = e.getMessage();
       E.deb(e.getMessage());    
-      refreshTextField.setText (""+fileSystem.getCustomRefreshTime ());
+      refreshTextField.setText (""+fileSystem.getCustomRefreshTime ()); // NOI18N
       javax.swing.SwingUtilities.invokeLater(new Runnable () {
         public void run () {
           TopManager.getDefault ().notify (new NotifyDescriptor.Message("'"+msg+"': Non-negative integer value is expected."));
@@ -767,11 +767,11 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       chooseFile.show();
       String selected=chooseFile.getSelectedFile();
       if( selected==null ){
-        //D.deb("no directory selected");
+        //D.deb("no directory selected"); // NOI18N
         return ;
       }
       tf.setText(selected);    
-      variableChanged(new java.awt.event.ActionEvent(tf, 0, ""));
+      variableChanged(new java.awt.event.ActionEvent(tf, 0, "")); // NOI18N
     }
   }
 
@@ -790,11 +790,11 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       chooseDir.show();
       String selected=chooseDir.getSelectedDir();
       if( selected==null ){
-        //D.deb("no directory selected");
+        //D.deb("no directory selected"); // NOI18N
         return ;
       }
       tf.setText(selected);
-      variableChanged(new java.awt.event.ActionEvent(tf, 0, ""));
+      variableChanged(new java.awt.event.ActionEvent(tf, 0, "")); // NOI18N
     }
   }
 
@@ -818,6 +818,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  9    Gandalf   1.8         1/27/00  Martin Entlicher NOI18N
 *  8    Gandalf   1.7         1/26/00  Martin Entlicher Check whether the module 
 *       directory exists  
 *  7    Gandalf   1.6         1/3/00   Martin Entlicher 

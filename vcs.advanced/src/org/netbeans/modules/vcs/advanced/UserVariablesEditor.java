@@ -25,7 +25,7 @@ import com.netbeans.developer.modules.vcs.util.*;
  */
 //-------------------------------------------
 public class UserVariablesEditor implements PropertyEditor {
-  private Debug E=new Debug("UserVariablesEditor", false);
+  private Debug E=new Debug("UserVariablesEditor", true); // NOI18N
   private Debug D=E;
 
   private PropertyChangeSupport changeSupport=null;
@@ -40,12 +40,12 @@ public class UserVariablesEditor implements PropertyEditor {
   //-------------------------------------------
   public String getAsText(){
     // null if the value can't be expressed as an editable string...
-    return ""+variables;
+    return ""+variables; // NOI18N
   }
 
   //-------------------------------------------
   public void setAsText(String text) {
-    //D.deb("setAsText("+text+") ignored");
+    //D.deb("setAsText("+text+") ignored"); // NOI18N
   }
   
   //-------------------------------------------
@@ -66,11 +66,12 @@ public class UserVariablesEditor implements PropertyEditor {
 
   //-------------------------------------------
   public String getJavaInitializationString() {
-    return "";
+    return ""; // NOI18N
   }
     
   //-------------------------------------------
   public Object getValue(){
+    D.deb("\ngetValue() = "+variables); // NOI18N
     return variables ;
   }
 
@@ -89,7 +90,8 @@ public class UserVariablesEditor implements PropertyEditor {
       VcsConfigVariable var = (VcsConfigVariable)vect.get (i);
       variables.add (var.clone ());
     }
-    changeSupport.firePropertyChange("",null,null);
+    D.deb("\nsetValue() = "+variables); // NOI18N
+    changeSupport.firePropertyChange("",null,null); // NOI18N
   }
 
   //-------------------------------------------
@@ -116,6 +118,7 @@ public class UserVariablesEditor implements PropertyEditor {
 
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         1/27/00  Martin Entlicher NOI18N
  *  1    Gandalf   1.0         11/24/99 Martin Entlicher 
  * $
  */

@@ -40,14 +40,14 @@ import com.netbeans.developer.modules.vcs.util.Debug;
  */
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends VcsFileSystem implements java.beans.PropertyChangeListener {
-  private Debug D = new Debug ("CommandLineVcsFileSystem", true);
-  private /*static transient*/ String CONFIG_ROOT="vcs/config";
+  private Debug D = new Debug ("CommandLineVcsFileSystem", true); // NOI18N
+  private /*static transient*/ String CONFIG_ROOT="vcs/config"; // NOI18N
   private transient Hashtable commandsByName=null;
  
   static final long serialVersionUID =-1017235664394970926L;
   //-------------------------------------------
   public CommandLineVcsFileSystem () {
-    //D.deb("CommandLineVcsFileSystem()");
+    //D.deb("CommandLineVcsFileSystem()"); // NOI18N
     super ();
     readConfiguration ();
     addPropertyChangeListener(this);
@@ -67,21 +67,21 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
   }
 
   protected void readConfiguration () {
-    D.deb ("readConfiguration ()");
+    D.deb ("readConfiguration ()"); // NOI18N
     CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
-      "system"+File.separator+"vcs"+File.separator+"config";
-    Properties props=VcsConfigVariable.readPredefinedProperties(CONFIG_ROOT+File.separator+"empty.properties");
+      "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
+    Properties props=VcsConfigVariable.readPredefinedProperties(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
     setVariables (VcsConfigVariable.readVariables(props));
-    D.deb("setVariables DONE.");
+    D.deb("setVariables DONE."); // NOI18N
     setAdvancedConfig (getVcsFactory ().getVcsAdvancedCustomizer().readConfig (props));
   }  
 
   public void propertyChange (PropertyChangeEvent evt) {
     if (isValid()) {
-      D.deb("Filesystem added to the repository, setting refresh time to "+refreshTimeToSet);
+      D.deb("Filesystem added to the repository, setting refresh time to "+refreshTimeToSet); // NOI18N
       setRefreshTime(refreshTimeToSet);
     } else {
-      D.deb("Filesystem is not valid any more, setting refresh time to 0");
+      D.deb("Filesystem is not valid any more, setting refresh time to 0"); // NOI18N
       setRefreshTime(0);
     }
   }
@@ -96,6 +96,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
 
 /*
  * <<Log>>
+ *  54   Gandalf   1.53        1/27/00  Martin Entlicher NOI18N
  *  53   Gandalf   1.52        1/3/00   Martin Entlicher 
  *  52   Gandalf   1.51        12/28/99 Martin Entlicher Yury changes.
  *  51   Gandalf   1.50        12/21/99 Martin Entlicher Refresh time set after 
