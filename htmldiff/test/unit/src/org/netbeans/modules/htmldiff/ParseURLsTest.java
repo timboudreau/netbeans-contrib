@@ -109,6 +109,20 @@ public final class ParseURLsTest extends NbTestCase {
         assertEquals ("The right", "file:/home/other.html", res[0].toExternalForm());
     }
     
+    public void testTwoURLsInTheSameFile () throws Exception {
+        String vzor = "Ahoj <a href=\"other.html\">spaces</a> and another <a href=\"other.html\">new spaces</a>?";
+        
+        Reader r1 = new StringReader (vzor);
+        
+        URL base = new URL ("file:/home/test.html");
+        
+        URL[] res = ParseURLs.parse (r1, base);
+        
+        assertNotNull (res);
+        assertEquals ("Two url", 2, res.length);
+        assertEquals ("The right", "file:/home/other.html", res[0].toExternalForm());
+        assertEquals ("Both are the same", res[0], res[1]);
+    }
     
     public void testBrokenURL () throws Exception {
         String vzor = "Ahoj <a href=\"other.html\">spaces</a> <a href=\"unknownprotocol://ble\">Ble</a>?";
