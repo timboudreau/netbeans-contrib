@@ -41,7 +41,13 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
      */    
     public static void showDialog(){
         if (dialog==null) {
-            dialog = org.openide.TopManager.getDefault().createDialog(new org.openide.DialogDescriptor(new ComponentGeneratorPanel(), NbBundle.getMessage(ComponentGeneratorPanel.class, "Title"), false, new Object[0], null, org.openide.DialogDescriptor.BOTTOM_ALIGN, null, null)); // NOI18N
+            final ComponentGeneratorPanel panel = new ComponentGeneratorPanel();
+            dialog = org.openide.TopManager.getDefault().createDialog(new org.openide.DialogDescriptor(panel, NbBundle.getMessage(ComponentGeneratorPanel.class, "Title"), false, new Object[0], null, org.openide.DialogDescriptor.BOTTOM_ALIGN, null, null)); // NOI18N
+            dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                public void windowClosing(java.awt.event.WindowEvent evt) {
+                    panel.closeButtonActionPerformed(null);
+                }
+            });
         }
         dialog.show();
     }

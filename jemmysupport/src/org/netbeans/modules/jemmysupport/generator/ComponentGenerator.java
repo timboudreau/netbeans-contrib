@@ -705,7 +705,6 @@ public class ComponentGenerator {
     
     
     ComponentRecord addComponent(ComponentOperator componentOperator, ContainerOperator containerOperator, ComponentRecord parentComponent ) {
-        if (componentOperator instanceof TabOperator) ((TabOperator)componentOperator).selectTab();
         String className = componentOperator.getClass().getName();
         OperatorRecord operatorRecord = (OperatorRecord) operators.get( className.substring(className.lastIndexOf('.')+1,className.length()) );
         if ( null==operatorRecord ) return null;
@@ -771,6 +770,7 @@ public class ComponentGenerator {
         while (queue.size()>0) {
             component = (ComponentOperator)queue.remove(queue.size()-1);
             parent = (ComponentRecord)parentQueue.remove(parentQueue.size()-1);
+            if (component instanceof TabOperator) ((TabOperator)component).selectTab();
             if (component.isShowing()) {
                 record = addComponent(component, container, parent);
                 if (record!=null && (record.getComponentOperator() instanceof JTabbedPaneOperator)) {
@@ -781,7 +781,6 @@ public class ComponentGenerator {
                     }
                 } else if ((record==null || record.getRecursion()) && (component instanceof ContainerOperator)) {
                     if (record==null) record = parent;
-                    component.makeComponentVisible();
                     comps = ((ContainerOperator)component).getComponents();
                     for (i=comps.length-1; i>=0; i--) {
                         queue.add(Operator.createOperator(comps[i]));
