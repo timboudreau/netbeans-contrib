@@ -111,6 +111,10 @@ public final class VariableInputDescriptorCompat extends Object {
             num++;
             //pos = index2;
         }
+        if (exec.toString().indexOf("${REASON}") > 0) {
+            inputDescriptor.append(VariableInputDescriptor.INPUT_STR_PROMPT_FIELD + "(REASON, \"Reason:\") ");
+            num++;
+        }
         return num;
     }
 
