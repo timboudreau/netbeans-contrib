@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -53,6 +53,7 @@ import org.netbeans.spi.vcs.VcsCommandsProvider;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.actions.CommandMenu;
+import org.netbeans.modules.vcscore.actions.ContextAwareDelegateAction;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
@@ -61,12 +62,15 @@ import org.netbeans.modules.vcscore.objectintegrity.VcsObjectIntegritySupport;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.WeakList;
 import org.openide.filesystems.FileSystem;
+import org.openide.util.Lookup;
+import org.openide.util.LookupListener;
 
 /**
  * The system action with VCS commands, that are provided by the FileSystem.
  * @author Martin Entlicher
  */
-public class VcsFSCommandsAction extends NodeAction implements ActionListener {
+public class VcsFSCommandsAction extends NodeAction implements ActionListener,
+                                 ContextAwareDelegateAction.Delegatable {
     
     protected Collection selectedFileObjects = null;
     //protected CommandsTree actionCommandsTree = null;
@@ -86,10 +90,10 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
     /**
      * @return a map of array of FileObjects and their messages if any.
      */
-    private Map getSelectedFileObjectsFromActiveNodes() {
+    private Map getSelectedFileObjectsFromActiveNodes (Lookup lookup) {
         Map filesWithMessages = new Table();
         ArrayList files = new ArrayList();
-        Node[] nodes = getActivatedNodes();
+        Node[] nodes = (Node[])lookup.lookup (new Lookup.Template (Node.class)).allInstances().toArray (new Node[0]);
         for (int i = 0; i < nodes.length; i++) {
             GroupCookie gc = (GroupCookie) nodes[i].getCookie(GroupCookie.class);
             if (gc != null) {
@@ -181,7 +185,7 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
      * Test whether the action should be enabled based on the currently activated nodes.
      * @return true for non-empty set of nodes.
      */
-    protected boolean enable(Node[] nodes) {
+    public boolean enable(Node[] nodes) {
         //System.out.println("VcsFSCommandsAction.enable("+nodes.length+")");
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i].getCookie(GroupCookie.class) != null) {
@@ -206,19 +210,19 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
      * Get a menu item that can present this action in a <code>JMenu</code>.
      */
     public JMenuItem getMenuPresenter() {
-        return getPresenter(true);
+        return getPresenter(true, org.openide.util.Utilities.actionsGlobalContext ());
     }
     
     /**
      * Get a menu item that can present this action in a <code>JPopupMenu</code>.
      */
     public JMenuItem getPopupPresenter() {
-        return getPresenter(false);
+        return getPresenter(false, org.openide.util.Utilities.actionsGlobalContext());
     }
     
-    private JMenuItem getPresenter(boolean inMenu) {
+    public JMenuItem getPresenter(boolean inMenu, Lookup lookup) {
         JInlineMenu menu = new JInlineMenu();
-        JMenuItem[] items = createMenuItems(inMenu);
+        JMenuItem[] items = createMenuItems(inMenu, lookup);
         if (items.length == 0) return menu;
         menu.setMenuItems(items);
         if (inMenu && menu != null) {
@@ -227,8 +231,8 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
         return menu;
     }
     
-    public JMenuItem[] createMenuItems(boolean inMenu) {
-        Map filesWithMessages = getSelectedFileObjectsFromActiveNodes();
+    public JMenuItem[] createMenuItems(boolean inMenu, Lookup lookup) {
+        Map filesWithMessages = getSelectedFileObjectsFromActiveNodes (lookup);
         //System.out.println("VcsFSCommandsAction.getPresenter(): selected filesWithMessages: "+filesWithMessages);
         switchableList = new ArrayList();
         ArrayList menuItems = new ArrayList();
@@ -477,6 +481,10 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
      */
     public HelpCtx getHelpCtx() {
         return new HelpCtx(VcsFSCommandsAction.class);
+    }
+    
+    public javax.swing.Action createContextAwareInstance(Lookup actionContext) {
+        return new ContextAwareDelegateAction (this, actionContext);
     }
     
     private static final class MergedCommandSupport extends CommandSupport {

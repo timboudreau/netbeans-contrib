@@ -42,6 +42,7 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.BeanNode;
+import org.openide.util.ContextAwareAction;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
@@ -62,46 +63,47 @@ import org.openide.windows.WindowManager;
  * @author  Martin Entlicher
  */
 public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu, Presenter.Popup,
-                                                                  LookupListener, PropertyChangeListener{
+                                                                  ContextAwareAction,
+                                                                  ContextAwareDelegateAction.Delegatable {
 
     static final long serialVersionUID = -2345126396734900262L;
 
-    private Reference mergedMenuReference;
-    private boolean mergedMenuWasInMenu;
+    private LookupListener lastProvidersLookupListener;
     
-    private boolean globalListenerAdded;
-    private boolean contextListenerAdded;
-    
+    public boolean enable(Node[] nodes) {
+        return true;
+    }
+
     /* @return menu presenter.
     */
     public JMenuItem getMenuPresenter () {
-        return createMergedMenu(false);
+        return getPresenter(false, org.openide.util.Utilities.actionsGlobalContext ());
     }
 
     /* @return popup presenter.
     */
     public JMenuItem getPopupPresenter () {
-        return createMergedMenu(true);
+        return getPresenter(true, org.openide.util.Utilities.actionsGlobalContext ());
     }
     
-    private JMenuItem createMergedMenu(boolean popup) {
-        MergedMenu mergedMenu = (mergedMenuReference != null) ? (MergedMenu) mergedMenuReference.get() : null;
-        if (mergedMenu == null) {
-            if (!globalListenerAdded) {
-                Lookup.Result globalProvidersRes = Lookup.getDefault().lookup(new Lookup.Template(VcsCommandsProvider.class));
-                LookupListener providersLookupListener = (LookupListener) WeakListener.create(LookupListener.class, this, globalProvidersRes);
-                globalListenerAdded = true;
-            }
-            if (!contextListenerAdded) {
-                Registry r = WindowManager.getDefault().getRegistry ();
-                r.addPropertyChangeListener(WeakListeners.propertyChange(this, r));
-            }
-            JMenuItem[] globalMenu = getGlobalMenu(popup);
-            JMenuItem[] contextMenu = getContextMenu(popup);
-            mergedMenu = new MergedMenu(globalMenu, contextMenu);
-            mergedMenuReference = new WeakReference(mergedMenu);
-            mergedMenuWasInMenu = popup;
+    public JMenuItem getPresenter(boolean inMenu, Lookup lookup) {
+        return createMergedMenu(!inMenu, lookup);
+    }
+    
+    private JMenuItem createMergedMenu(boolean popup, Lookup lookup) {
+        JMenuItem[] globalMenu = getGlobalMenu(popup, lookup);
+        JMenuItem[] contextMenu = getContextMenu(popup, lookup);
+        MergedMenu mergedMenu = new MergedMenu(globalMenu, contextMenu);
+        Lookup.Result globalProvidersRes = Lookup.getDefault().lookup(new Lookup.Template(VcsCommandsProvider.class));
+        Lookup.Result contextRes = lookup.lookup (new Lookup.Template (Node.class));
+        if (lastProvidersLookupListener != null) {
+            globalProvidersRes.removeLookupListener(lastProvidersLookupListener);
+            contextRes.removeLookupListener(lastProvidersLookupListener);
         }
+        LookupListener providersLookupListener = new GlobalProvidersLookupListener(lookup, new WeakReference(mergedMenu), popup);
+        lastProvidersLookupListener = providersLookupListener;
+        globalProvidersRes.addLookupListener(providersLookupListener);
+        contextRes.addLookupListener(providersLookupListener);
         return mergedMenu;
     }
 
@@ -123,36 +125,41 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
     */
     public void actionPerformed (java.awt.event.ActionEvent e) {}
 
-    private static JMenuItem[] getGlobalMenu(boolean popup) {
+    public javax.swing.Action createContextAwareInstance(Lookup actionContext) {
+        return new ContextAwareDelegateAction (this, actionContext);
+    }
+    
+    private static JMenuItem[] getGlobalMenu(boolean popup, Lookup actionContext) {
         VcsGlobalCommandsAction globalAction = (VcsGlobalCommandsAction) VcsGlobalCommandsAction.get(VcsGlobalCommandsAction.class);
         JMenuItem[] globalMenu = globalAction.createMenuItems(globalAction.getActivatedFiles(), popup);
         return globalMenu;
     }
     
-    private static JMenuItem[] getContextMenu(boolean popup) {
+    private static JMenuItem[] getContextMenu(boolean popup, Lookup actionContext) {
         VcsFSCommandsAction contextAction = (VcsFSCommandsAction) VcsFSCommandsAction.get(VcsFSCommandsAction.class);
-        JMenuItem[] contextMenu = contextAction.createMenuItems(popup);
+        JMenuItem[] contextMenu = contextAction.createMenuItems(popup, actionContext);
         return contextMenu;
     }
     
-    public void propertyChange(PropertyChangeEvent evt) {
-        String name = evt.getPropertyName ();
-        if (name == null ||
-            name.equals (SystemAction.PROP_ENABLED) ||
-            name.equals (Registry.PROP_ACTIVATED_NODES)) {
-            // change items
-            MergedMenu mergedMenu = (mergedMenuReference != null) ? (MergedMenu) mergedMenuReference.get() : null;
+    private class GlobalProvidersLookupListener extends Object implements LookupListener {
+        
+        private Lookup lookup;
+        private Reference mergedMenuRef;
+        private boolean popup;
+        
+        public GlobalProvidersLookupListener(Lookup lookup, Reference mergedMenuRef, boolean popup) {
+            this.lookup = lookup;
+            this.mergedMenuRef = mergedMenuRef;
+            this.popup = popup;
+        }
+        
+        public void resultChanged(LookupEvent ev) {
+            MergedMenu mergedMenu = (mergedMenuRef != null) ? (MergedMenu) mergedMenuRef.get() : null;
             if (mergedMenu != null) {
-                mergedMenu.update(getGlobalMenu(mergedMenuWasInMenu), getContextMenu(mergedMenuWasInMenu));
+                mergedMenu.update(getGlobalMenu(!popup, lookup), getContextMenu(!popup, lookup));
             }
         }
-    }
     
-    public void resultChanged(LookupEvent ev) {
-        MergedMenu mergedMenu = (mergedMenuReference != null) ? (MergedMenu) mergedMenuReference.get() : null;
-        if (mergedMenu != null) {
-            mergedMenu.update(getGlobalMenu(mergedMenuWasInMenu), getContextMenu(mergedMenuWasInMenu));
-        }
     }
     
     private class MergedMenu extends JInlineMenu {

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -34,6 +34,8 @@ import org.netbeans.modules.vcscore.util.OrderedSet;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
+import org.openide.util.ContextAwareAction;
+import org.openide.util.Lookup;
 import org.openide.windows.WindowManager;
 
 //import org.netbeans.modules.vcscore.cmdline.*;
@@ -44,7 +46,9 @@ import org.openide.windows.WindowManager;
  *
  * @author  Martin Entlicher
  */
-public class VSRevisionAction extends SystemAction implements Presenter.Menu, Presenter.Popup {
+public class VSRevisionAction extends SystemAction implements Presenter.Menu, Presenter.Popup,
+                                                              ContextAwareAction,
+                                                              ContextAwareDelegateAction.Delegatable {
 
     private static final JMenuItem[] NONE = new JMenuItem[] {};
 
@@ -66,23 +70,30 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
         //D.deb("getHelpCtx()"); // NOI18N
         return null;
     }
+    
+    public boolean enable(Node[] nodes) {
+        return true;
+    }
 
     /**
      * Get a menu item that can present this action in a <code>JMenu</code>.
      */
     public JMenuItem getMenuPresenter() {
-        return new Menu(false);
+        return getPresenter(true, org.openide.util.Utilities.actionsGlobalContext ());
     }
     
     /**
      * Get a menu item that can present this action in a <code>JPopupMenu</code>.
      */
     public JMenuItem getPopupPresenter() {
-        return new Menu(true);
+        return getPresenter(false, org.openide.util.Utilities.actionsGlobalContext());
     }
     
-    private static JMenuItem[] createMenu(boolean popUp) {
-        Node[] nodes = WindowManager.getDefault().getRegistry ().getActivatedNodes ();
+    public JMenuItem getPresenter(boolean inMenu, Lookup lookup) {
+        return new Menu(!inMenu, lookup);
+    }
+    
+    private static JMenuItem[] createMenu(boolean popUp, Node[] nodes) {
         HashMap rListMap = new HashMap();
         if (nodes != null) {
             for (int i = 0; i < nodes.length; i++) {
@@ -162,6 +173,10 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
     */
     public void actionPerformed (java.awt.event.ActionEvent e) {}
 
+    public javax.swing.Action createContextAwareInstance(Lookup actionContext) {
+        return new ContextAwareDelegateAction (this, actionContext);
+    }
+    
     /** Presenter for this action.
     */
     private class Menu extends JInlineMenu {
@@ -171,15 +186,18 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
         private JMenuItem[] last = NONE;
         /** own property change listner */
         private PropL propL = new PropL ();
+        private Lookup lookup;
 
         static final long serialVersionUID =2650151487189209766L;
 
         /** Creates new instance for menu/popup presenter.
         * @param popup true if this should represent popup
         */
-        Menu (boolean popup) {
+        Menu (boolean popup, Lookup lookup) {
             this.popup = popup;
-            changeMenuItems (createMenu (popup));
+            this.lookup = lookup;
+            Node[] nodes = (Node[])lookup.lookup (new Lookup.Template (Node.class)).allInstances().toArray (new Node[0]);
+            changeMenuItems (createMenu (popup, nodes));
 
             Registry r = WindowManager.getDefault().getRegistry ();
 
@@ -222,7 +240,8 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
 
         public void addNotify() {
             if (needsChange) {
-                changeMenuItems (createMenu (popup));
+                Node[] nodes = (Node[])lookup.lookup (new Lookup.Template (Node.class)).allInstances().toArray (new Node[0]);
+                changeMenuItems (createMenu (popup, nodes));
                 needsChange = false;
             }
             super.addNotify();
