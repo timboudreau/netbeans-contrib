@@ -730,7 +730,7 @@ public abstract class GenericStub extends JellyTestCase {
         if (expected != null) {
             String str = new JLabelOperator (dia).getText ();
             getLog ().println ("assertQuestionYesDialog: " + str);
-            assertEquals("Invalid information dialog message", str, expected);
+            assertEquals("Invalid question dialog message", expected, str);
         }
         dia.yes ();
         dia.waitClosed();
@@ -741,7 +741,7 @@ public abstract class GenericStub extends JellyTestCase {
         if (expected != null) {
             String str = new JLabelOperator (dia).getText ();
             getLog ().println ("assertQuestionNoDialog: " + str);
-            assertEquals("Invalid information dialog message", str, expected);
+            assertEquals("Invalid question dialog message", expected, str);
         }
         dia.no ();
         dia.waitClosed();
@@ -752,7 +752,7 @@ public abstract class GenericStub extends JellyTestCase {
         if (expected != null) {
             String str = new JLabelOperator (dia).getText ();
             getLog ().println ("assertInformationDialog: " + str);
-            assertEquals("Invalid information dialog message", str, expected);
+            assertEquals("Invalid information dialog message", expected, str);
         }
         dia.ok ();
         dia.waitClosed();
@@ -763,7 +763,7 @@ public abstract class GenericStub extends JellyTestCase {
         if (expected != null) {
             String str = new JLabelOperator (dia).getText ();
             getLog ().println ("assertConfirmObjectDeletionYes: " + str);
-            assertEquals("Invalid confirm dialog message", str, expected);
+            assertEquals("Invalid confirm dialog message", expected, str);
         }
         dia.yes ();
         dia.waitClosed ();
@@ -774,7 +774,7 @@ public abstract class GenericStub extends JellyTestCase {
         if (expected != null) {
             String str = new JLabelOperator (dia).getText ();
             getLog ().println ("assertConfirmObjectDeletionNo: " + str);
-            assertEquals("Invalid confirm dialog message", str, expected);
+            assertEquals("Invalid confirm dialog message", expected, str);
         }
         dia.no ();
         dia.waitClosed ();
