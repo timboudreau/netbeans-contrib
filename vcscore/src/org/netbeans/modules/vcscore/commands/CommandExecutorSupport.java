@@ -227,6 +227,13 @@ public class CommandExecutorSupport extends Object {
      * Performs an automatic refresh after the command finishes.
      */
     public static void doRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
+        doRefresh(fileSystem, vce, false);
+    }
+    
+    /**
+     * Performs an automatic refresh after the command finishes.
+     */
+    public static void doRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce, boolean foldersOnly) {
         VcsCommand cmd = vce.getCommand();
         //String dir = vce.getPath();
         //String file = "";
@@ -235,7 +242,7 @@ public class CommandExecutorSupport extends Object {
             String fullPath = (String) it.next();
             String dir = VcsUtilities.getDirNamePart(fullPath);
             String file = VcsUtilities.getFileNamePart(fullPath);
-            doRefresh(fileSystem, vce.getExec(), cmd, dir, file);
+            doRefresh(fileSystem, vce.getExec(), cmd, dir, file, foldersOnly);
         }
     }
     
@@ -271,7 +278,8 @@ public class CommandExecutorSupport extends Object {
         }
     }
     
-    private static void doRefresh(VcsFileSystem fileSystem, String exec, VcsCommand cmd, String dir, String file) {
+    private static void doRefresh(VcsFileSystem fileSystem, String exec, VcsCommand cmd,
+                                  String dir, String file, boolean foldersOnly) {
         FileCacheProvider cache = fileSystem.getCacheProvider();
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         if (statusProvider == null) return; // No refresh without a status provider
@@ -289,7 +297,9 @@ public class CommandExecutorSupport extends Object {
             boolean rec = (exec != null && (cache == null || !cache.isFile(refreshPathFile))
                 && (patternMatch != null && patternMatch.length() > 0 && exec.indexOf(patternMatch) >= 0
                     || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0));
-            doRefresh(fileSystem, refreshPath, rec);
+            if (!foldersOnly || cache.isDir(refreshPath)) {
+                doRefresh(fileSystem, refreshPath, rec);
+            }
             /*
                 VcsCommand listSub = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY);
                 Object execList = (listSub != null) ? listSub.getProperty(VcsCommand.PROPERTY_EXEC) : null;

@@ -129,6 +129,12 @@ public interface VcsCommand extends VcsCommandCookie {
      * Pattern that when not matched from the exec string, the refresh is performed recursively.
      */
     public static final String PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED = "refreshRecursivelyPatternUnmatched";
+    /*
+     * An integer property. If a command fails and some refresh is scheduled after finish of this command,
+     * the value of this property will be inspected to find whether the refresh command should be performed.
+     * The value of this property can be one of REFRESH_ON_FAIL_FALSE, REFRESH_ON_FAIL_TRUE, REFRESH_ON_FAIL_TRUE_ON_FOLDERS.
+     */
+    public static final String PROPERTY_REFRESH_ON_FAIL = "refreshOnFail";
     
     /**
      * If non empty, the user will be asked to confirm this message prior to command execution.
@@ -254,6 +260,20 @@ public interface VcsCommand extends VcsCommandCookie {
      * command is already running.
      */
     public static final int EXEC_SERIAL_ALL = -1;
+    
+    /** When this constant is the value of PROPERTY_REFRESH_ON_FAIL command property,
+     * the refresh command will be performed after the command fails.
+     */
+    public static final Integer REFRESH_ON_FAIL_FALSE = new Integer(0);
+    /** When this constant is the value of PROPERTY_REFRESH_ON_FAIL command property,
+     * the refresh command will be always performed even when the command fails.
+     */
+    public static final Integer REFRESH_ON_FAIL_TRUE = new Integer(1);
+    /** When this constant is the value of PROPERTY_REFRESH_ON_FAIL command property,
+     * the refresh command will be performed after the command fails only when
+     * the command acts on a folder.
+     */
+    public static final Integer REFRESH_ON_FAIL_TRUE_ON_FOLDERS = new Integer(2);
     
     /**
      * Get the name of the command.

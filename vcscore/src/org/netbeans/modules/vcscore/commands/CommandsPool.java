@@ -329,9 +329,21 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 break;
             case VcsCommandExecutor.FAILED:
                 message = g("MSG_Command_name_failed", name);
+                Object refresh = cmd.getProperty(VcsCommand.PROPERTY_REFRESH_ON_FAIL);
+                if (VcsCommand.REFRESH_ON_FAIL_TRUE.equals(refresh)) {
+                    CommandExecutorSupport.doRefresh(fileSystem, vce);
+                } else if (VcsCommand.REFRESH_ON_FAIL_TRUE_ON_FOLDERS.equals(refresh)) {
+                    CommandExecutorSupport.doRefresh(fileSystem, vce, true);
+                }
                 break;
             case VcsCommandExecutor.INTERRUPTED:
                 message = g("MSG_Command_name_interrupted", name);
+                refresh = cmd.getProperty(VcsCommand.PROPERTY_REFRESH_ON_FAIL);
+                if (VcsCommand.REFRESH_ON_FAIL_TRUE.equals(refresh)) {
+                    CommandExecutorSupport.doRefresh(fileSystem, vce);
+                } else if (VcsCommand.REFRESH_ON_FAIL_TRUE_ON_FOLDERS.equals(refresh)) {
+                    CommandExecutorSupport.doRefresh(fileSystem, vce, true);
+                }
                 break;
         }
         TopManager.getDefault().setStatusText(message);
