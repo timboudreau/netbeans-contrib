@@ -35,7 +35,7 @@ as follows:
    <p>
  <li> Create a new {@link org.netbeans.api.tasklist.Suggestion}:
    <pre>
-      Suggestion s = manager.createSuggestion(suggestionTypeId,
+      Suggestion suggestion = manager.createSuggestion(suggestionTypeId,
                                     "my suggestion description",
           new SuggestionPerformer() {
             public void perform(Suggestion s) {

@@ -78,6 +78,17 @@ user can also filter the Suggestions View to show only suggestions
 of a particular type. See the Suggestion API for more information
 on how to register Suggestion Types.
 <p>
+To use the TaskList APIs, you should add a dependency on the
+tasklist-api module in your manifest.mf file:
+<pre>
+OpenIDE-Module-Module-Dependencies: org.netbeans.api.tasklist/1 &gt; 1.0
+</pre>
+If you want your module to -require- that the Suggestions window
+module is available, you can also add this:
+<pre>
+OpenIDE-Module-Requires: org.netbeans.api.tasklist.SuggestionManager
+</pre>
+<p>
 Proceed to either the API or SPI packages to get more information
 on how to add Suggestions to the Suggestions Window.
 
