@@ -80,6 +80,7 @@ public class LoginPanel extends javax.swing.JPanel {
         passwordField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_passwordFieldA11yName"));  // NOI18N
         passwordField.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialog.passwordLabel.textA11yDesc"));  // NOI18N
         statusLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialog.statusA11yDesc"));  // NOI18N
+        passwordLabel.setLabelFor(passwordField);
     }
     
     
