@@ -48,6 +48,7 @@ Microsystems, Inc. All Rights Reserved.
         </fileset>
 	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
+        <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
         <pathelement location="${binroot}/core/release/lib/ext/xerces.jar"/>
       </classpath>
     </javac>
