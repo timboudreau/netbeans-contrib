@@ -22,6 +22,14 @@ Microsystems, Inc. All Rights Reserved.
 		</testset>
 	</testbag>
 
+	<testbag testattribs="stable,full,poasearch" executor="ide" name="testbag_POASearch" resultsprocessor="qa-functional">
+		<testset dir="qa-functional/src">
+			<patternset>
+				<include name="test/poasearch/Main.class"/>
+			</patternset>
+		</testset>
+	</testbag>
+
 	<testbag testattribs="stable,full,a11y" executor="ide" name="testbag_A11Y" resultsprocessor="qa-functional">
 		<testset dir="qa-functional/src">
 			<patternset>
