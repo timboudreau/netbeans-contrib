@@ -723,7 +723,7 @@ public class VcsAction extends NodeAction implements ActionListener {
     }
     
     protected void performCommand(final String cmdName, final Node[] nodes) {
-        System.out.println("performCommand("+cmdName+")");// on "+nodes.length+" nodes.");
+        //System.out.println("performCommand("+cmdName+")");// on "+nodes.length+" nodes.");
         /* should not be used any more:
         if (cmdName.equals("KILL_ALL_CMDS")) {
             killAllCommands();
