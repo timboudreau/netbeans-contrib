@@ -97,14 +97,22 @@ public class JellyBranch extends JellyTestCase {
     PrintStream info;
     static History history;
 
-    public static void closeAllProperties() {
+    public static void closeAllWindows(String titlepart) {
         for (;;) {
-            NbFrameOperator fr = NbFrameOperator.find("Propert", 0);
+            NbFrameOperator fr = NbFrameOperator.find(titlepart, 0);
             if (fr == null)
                 break;
             fr.close();
             Helper.sleep(1000);
         }
+    }
+
+    public static void closeAllProperties() {
+        closeAllWindows ("Propert");
+    }
+    
+    public static void closeAllVersionings() {
+        closeAllWindows ("Versioning");
     }
     
     public void waitStatus(String status, String node) {
@@ -381,6 +389,7 @@ public class JellyBranch extends JellyTestCase {
     }
 
     public void testVersioning () {
+        closeAllVersionings ();
         new CVSFileNode (exp.repositoryTab().tree (), nRoot).versioningExplorer();
         VersioningFrameOperator vfo = new VersioningFrameOperator ();
         new CVSVersioningFileNode (vfo.treeVersioningTreeView (), nFile).refreshRevisions();
@@ -438,6 +447,7 @@ public class JellyBranch extends JellyTestCase {
         new CVSFileNode (exp.repositoryTab().tree (), nDirectory).cVSRefresh ();
         assertTrue ("Refresh folder command failed", history.waitCommand("Refresh", hDirectory));
 
+        closeAllVersionings ();
         new CVSFileNode (exp.repositoryTab().tree (), nFile).versioningExplorer();
         VersioningFrameOperator vfo = new VersioningFrameOperator ();
         new CVSVersioningFileNode (vfo.treeVersioningTreeView(), nDirectory).cVSRefresh();

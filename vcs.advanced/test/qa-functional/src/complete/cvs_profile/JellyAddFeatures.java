@@ -502,6 +502,7 @@ public class JellyAddFeatures extends JellyStub {
     }
     
     public void testCompressionLevel () {
+        closeAllVCSWindows();
         Field f;
         try {
             f = VcsRuntimeCommand.class.getDeclaredField("executor");
