@@ -23,7 +23,9 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="../utilities/netbeans/modules/utilities.jar"/>
         <pathelement location="../editor/netbeans/modules/ext/nb-editor.jar"/>
         <pathelement location="../openidex/netbeans/lib/ext/openidex.jar"/>
-        <pathelement location="../openide/netbeans/lib/openide.jar"/>
+        <fileset dir="../openide/netbeans/lib">
+          <include name="openide*.jar" />
+        </fileset>
         <pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
       </classpath>
     </javac>
