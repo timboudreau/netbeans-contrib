@@ -100,7 +100,7 @@ public class VariableInputDescriptor extends Object {
             int inputId = getInputId(inputStr);
             String inputArg = inputItems.substring(begin + 1, end);
             String[] inputArgs = VcsUtilities.getQuotedStrings(inputArg);
-            System.out.println("parseItems: "+inputStr+": "+inputArg);
+            //System.out.println("parseItems: "+inputStr+": "+inputArg);
             if (inputId == INPUT_LABEL && inputArgs.length > 0) {
                 descriptor.label = VcsUtilities.getBundleString(inputArgs[0]);
             } else {
@@ -285,18 +285,18 @@ public class VariableInputDescriptor extends Object {
         }
          */
         String input = inputArg;//inputBuff.toString();
-        System.out.println("getSelectedArgs: '"+input+"'");
+        //System.out.println("getSelectedArgs: '"+input+"'");
         int index = 0;
         ArrayList selectArgsList = new ArrayList();
         do {
             while (index < input.length() && input.charAt(index) != INPUT_SELECT_STR_ARG_OPEN) index++;
-            System.out.println("index = "+index);
+            //System.out.println("index = "+index);
             if (index >= input.length()) break;
             int end = VcsUtilities.getPairIndex(input, index + 1, INPUT_SELECT_STR_ARG_OPEN, INPUT_SELECT_STR_ARG_CLOSE);
-            System.out.println("end = "+end);
+            //System.out.println("end = "+end);
             if (end < 0) break;
             String selectArg = input.substring(index + 1, end);
-            System.out.println("selectArg = "+selectArg);
+            //System.out.println("selectArg = "+selectArg);
             //String[] selectArgs = VcsUtilities.getQuotedStrings(selectArg);
             //List selectList = Arrays.asList(selectArgs);
             //selectList.add(0, varName);
