@@ -20,14 +20,12 @@ package org.netbeans.modules.povproject.wizard;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.*;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -35,29 +33,24 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.netbeans.api.project.ProjectManager;
-import org.netbeans.modules.povproject.PovProject;
 import org.netbeans.modules.povproject.PovProjectFactory;
 import org.netbeans.modules.project.uiapi.ProjectChooserFactory;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
 import org.openide.WizardDescriptor.Panel;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.loaders.TemplateWizard;
 import org.openide.util.HelpCtx;
-import org.openide.util.Mutex;
 import org.openide.util.NbBundle;
 
 /**
@@ -256,10 +249,16 @@ public class NewProjectIterator implements TemplateWizard.Iterator{
                  mainFile = new JTextField ("Scene");
                  mainLbl.setLabelFor (mainFile);
                  resultName.setLabelFor (createIn);
+                 
+                 //Note that this could be a JLabel, but to actually make the
+                 //component accessible, we need a component you can select
+                 //text in
+                 
                  createIn = new JTextField (findProjectCreationDir().getPath() + 
                          File.separator + field.getText());
                  
                  createIn.setEditable(false);
+                 createIn.setBackground (UIManager.getColor("control"));
                  createIn.setBorder (BorderFactory.createEmptyBorder());
                  createIn.addFocusListener(new FocusAdapter() {
                      public void focusGained (FocusEvent evt) {

@@ -39,8 +39,8 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
-import org.openide.util.SharedClassObject;
 import org.openide.util.Utilities;
+import org.openide.util.actions.SystemAction;
 
 
 /**
@@ -56,26 +56,14 @@ public class PovRayDataNode extends DataNode {
     
     public Action[] getActions(boolean context) {
         Action[] result = new Action[] {
-            (Action) SharedClassObject.findObject(EditAction.class),
+            SystemAction.get (EditAction.class),
             new ViewImageAction((PovRayDataObject) getDataObject()),
-            (Action) SharedClassObject.findObject(CutAction.class),
-            (Action) SharedClassObject.findObject(CopyAction.class),
-            (Action) SharedClassObject.findObject(RenameAction.class),
-            (Action) SharedClassObject.findObject(DeleteAction.class),
+            SystemAction.get (CutAction.class),
+            SystemAction.get (CopyAction.class),
+            SystemAction.get (RenameAction.class),
+            SystemAction.get (DeleteAction.class),
             new SetMainFileAction((PovRayDataObject) getDataObject()),
         };
-        if (result[0] == null) {
-            result[0] = new EditAction ();
-        }
-        if (result[2] == null) {
-            result[2] = new CutAction();
-        }
-        if (result[3] == null) {
-            result[3] = new CopyAction();
-        }
-        if (result[4] == null) {
-            result[4] = new RenameAction();
-        }
         return result;
     }
     
@@ -97,14 +85,12 @@ public class PovRayDataNode extends DataNode {
     
     private boolean isMainFile() {
         FileObject file = getDataObject().getPrimaryFile();
-        if (file.isValid()) {
-            Project project = FileOwnerQuery.getOwner(file);
-            if (project != null) {
-                MainFileProvider provider = (MainFileProvider) project.getLookup().lookup(MainFileProvider.class);
-                if (provider != null && provider.getMainFile() != null && provider.getMainFile().equals(file)) {
-                    System.err.println("IsMainFile is true" );
-                    return true;
-                }
+        Project project = FileOwnerQuery.getOwner(file);
+        if (project != null) {
+            MainFileProvider provider = (MainFileProvider) project.getLookup().lookup(MainFileProvider.class);
+            if (provider != null && provider.getMainFile() != null && provider.getMainFile().equals(file)) {
+                System.err.println("IsMainFile is true" );
+                return true;
             }
         }
         return false;
@@ -118,45 +104,51 @@ public class PovRayDataNode extends DataNode {
         }
     }
     
-    private class NotifyMainChangedCookie implements Node.Cookie {
-        public void notifyChanged (boolean isMain) {
-            fireDisplayNameChange ("<b>" + getDisplayName() + "</b>", getDisplayName());
-        }
-    }
-    
     private final class SetMainFileAction extends AbstractAction {
         private final PovRayDataObject obj;
+        
         public SetMainFileAction (PovRayDataObject obj) {
             this.obj = obj;
-            putValue (Action.NAME, NbBundle.getMessage(PovRayDataNode.class, "ACTION_SetMainFile"));
+            
+            //Set a display name
+            putValue (Action.NAME, NbBundle.getMessage(PovRayDataNode.class, 
+                "ACTION_SetMainFile"));
         }
         
         public void actionPerformed (ActionEvent ae) {
             Project project = FileOwnerQuery.getOwner(obj.getPrimaryFile());
-            if (project != null) { //If so, we're in the favorites tab or something
-                MainFileProvider provider = (MainFileProvider) project.getLookup().lookup(MainFileProvider.class);
-                if (provider != null) { //If so we're in something like a java project
-                    FileObject oldMain = provider.getMainFile();
-                    provider.setMainFile(obj.getPrimaryFile());
-                    fireDisplayNameChange(getDisplayName(), getHtmlDisplayName());
-                    if (oldMain != null && oldMain.isValid()) {
-                        try {
-                            NotifyMainChangedCookie cookie = (NotifyMainChangedCookie) 
-                                DataObject.find(oldMain).getNodeDelegate().getCookie(NotifyMainChangedCookie.class);
-                            if (cookie != null) {
-                                cookie.notifyChanged(false);
-                            }
-                        } catch (DataObjectNotFoundException donfe) {
-                            ErrorManager.getDefault().notify (donfe);
-                        }
+            MainFileProvider provider = (MainFileProvider) 
+                project.getLookup().lookup(MainFileProvider.class);
+
+            FileObject oldMain = provider.getMainFile();
+            provider.setMainFile(obj.getPrimaryFile());
+            fireDisplayNameChange(getDisplayName(), getHtmlDisplayName());
+            if (oldMain != null && oldMain.isValid()) {
+                try {
+                    Node oldMainFilesNode = DataObject.find(oldMain).getNodeDelegate();
+                    
+                    NotifyMainChangedCookie notifier = (NotifyMainChangedCookie) 
+                        oldMainFilesNode.getCookie(NotifyMainChangedCookie.class);
+
+                    if (notifier != null) {
+                        //Just makes the node fire a display name change
+                        notifier.notifyNoLongerMain();
                     }
+
+                } catch (DataObjectNotFoundException donfe) { //Should never happen
+                    ErrorManager.getDefault().notify (donfe);
                 }
             }
             System.err.println("setMainFile to " + obj.getPrimaryFile().getPath());
         }
         
         public boolean isEnabled () {
-            return !isMainFile();
+            FileObject file = getDataObject().getPrimaryFile();
+            Project project = FileOwnerQuery.getOwner(file);
+            
+            return project != null && 
+                   project.getLookup().lookup(MainFileProvider.class) != null 
+                   && !isMainFile();
         }
     }
     
@@ -167,26 +159,36 @@ public class PovRayDataNode extends DataNode {
             this.obj = obj;
             putValue (Action.NAME, NbBundle.getMessage (PovRayDataNode.class, "ACTION_ViewImage"));
         }
-
-        public void actionPerformed (ActionEvent ae) {
-            Project project = FileOwnerQuery.getOwner(obj.getPrimaryFile());
-            if (project != null) {
-                ViewService view = (ViewService) project.getLookup().lookup(ViewService.class);
-                if (view != null) {
-                    view.view(obj.getPrimaryFile());
-                }
-            }
-        }
         
+        /**
+         * Disables the action if it doesn't belong to a project, or if it
+         * belongs to a non PovProject project
+         */
         public boolean isEnabled() {
             Project project = FileOwnerQuery.getOwner(obj.getPrimaryFile());
-            if (project != null) {
+            if (project != null) { //otherwise, some loose .pov file in Favorites, etc.
                 ViewService view = (ViewService) project.getLookup().lookup(ViewService.class);
-                if (view != null) {
+                if (view != null) { //It's not a PovProject, maybe a .pov file in a Java project 
                     return true;
                 }
             }
             return false;
         }
+        
+        public void actionPerformed (ActionEvent ae) {
+            Project project = FileOwnerQuery.getOwner(obj.getPrimaryFile());
+            ViewService view = (ViewService) project.getLookup().lookup(ViewService.class);
+            
+            view.view(obj.getPrimaryFile());
+        }
     }
+    
+
+    private class NotifyMainChangedCookie implements Node.Cookie {
+        public void notifyNoLongerMain () {
+            fireDisplayNameChange ("<b>" + getDisplayName() + "</b>", 
+                getDisplayName());
+        }
+    }
+    
 }

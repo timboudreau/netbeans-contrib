@@ -34,7 +34,6 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.prefs.Preferences;
-import javax.swing.Action;
 import javax.swing.JFileChooser;
 import org.netbeans.api.povproject.MainFileProvider;
 import org.netbeans.api.povproject.RendererService;
@@ -44,6 +43,8 @@ import org.openide.NotifyDescriptor;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
+import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.NbBundle;
@@ -64,35 +65,14 @@ import org.openide.windows.WindowManager;
  * @author Timothy Boudreau
  */
 final class RendererServiceImpl implements RendererService {
+    private PovProject project;
+    private static File povray = null;
+    private static File include = null;
     
     /** Preferences key for the povray executable */
     private static final String KEY_POVRAY_EXEC = "povray";
     /** Preferences key for the povray standard includes dir */
     private static final String KEY_POVRAY_INCLUDES = "include";
-    /** Prefix prepended to project properties that are renderer-specific */
-    private static final String PROJECT_RENDERER_KEY_PREFIX = "renderer.";
-    
-    /** Basic setting keys to use in abscense of customized povray settings */
-    private static final String[] stdSettings = new String[] {
-        "W", //output width 
-        "H", //output height
-        "Q", //quality
-        "FN", //output format - use PNG since ImageIO understands it
-        "A", //antialiasing
-    };
-    
-    /** Basic setting values to use in absence of customized povray settings */
-    private static final String[] stdValues = new String[] {
-        "640",  //width
-        "480", //height
-        "7", //quality
-        "8", //PNG output quality
-        "0.0", //antialiasing
-    };
-    
-    private PovProject project;
-    private static File povray = null;
-    private static File include = null;
     
     /**
      * Set of all currently executing rendering processes in the system.
@@ -105,7 +85,6 @@ final class RendererServiceImpl implements RendererService {
         this.project = project;
     }
 
-    //TODO - Some means of project-specific renderer settings
     //TODO - Cancel render action provided to IOProvider.getIO() for the output toolbar
     
 
@@ -132,7 +111,7 @@ final class RendererServiceImpl implements RendererService {
     public File render(final File scene, Properties renderSettings) {
         assert scene.exists() : "Scene file " + scene + " doesn't exist";
         if (renderSettings == null) {
-            renderSettings = getGlobalRenderProperties();
+            renderSettings = getRendererSettings(getPreferredConfigurationName());
         }
         
         //Find the exe, prompting the user if need be
@@ -346,6 +325,9 @@ final class RendererServiceImpl implements RendererService {
                 par.refresh();
                 
                 FileObject fob = FileUtil.toFileObject (new File(imagesFile));
+                if (fob == null) {
+                    return; //Error - nothing was rendered
+                }
                 fob.getParent().refresh();
 
                 //Find the DataObject for the file (actually supplied by the
@@ -481,40 +463,144 @@ final class RendererServiceImpl implements RendererService {
         }
     }
     
-    /**
-     * Get a Properties object with the default settings overridden by any
-     * settings that the user has set up.
-     */
-    public Properties getProjectRenderProperties() {
-        Properties p = getGlobalRenderProperties();
-        Properties projProps = (Properties) project.getLookup().lookup(Properties.class);
-        for (Iterator i = projProps.keySet().iterator(); i.hasNext();) {
-            String key = (String) i.next();
-            if (key.startsWith(PROJECT_RENDERER_KEY_PREFIX)) {
-                key = key.substring(PROJECT_RENDERER_KEY_PREFIX.length());
-            } else {
-                key = null;
-            }
-            if (key != null) {
-                p.setProperty(key, projProps.getProperty(key));
-            }
-        }
-        return p;
-    }
+    private static final String SETTINGS_DIR = "Povray/RendererSettings";
     
     /**
-     * Get a Properties object with the settings used by default.
+     * Returns <i>display names</i> of available renderer settings.
      */
-    public Properties getGlobalRenderProperties() {
-        Preferences prefs = Preferences.userNodeForPackage(RendererServiceImpl.class);
-        Properties props = new Properties();
-        assert stdSettings.length == stdValues.length;
-        for (int i=0; i < stdSettings.length; i++) {
-            String key = stdSettings[i];
-            String val = prefs.get("renderer." + key, stdValues[i]);
-            props.setProperty(key, val);
+    public String[] getAvailableRendererSettings() {
+        //Why are we using DataSystems here?  Because the DataObject's getName()
+        //method will actually return the localized name from 
+        //org.netbeans.modules.povproject.resources.Bundle.properties rather
+        //than the file name.
+        
+        //Get the settings folder defined in our layer file
+        FileObject file = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(SETTINGS_DIR);
+        
+        //Get the DataFolder corresponding to it
+        DataFolder fld = null;
+        try {
+            fld = (DataFolder) DataObject.find (file).getCookie(DataFolder.class);
+        } catch (DataObjectNotFoundException donfe) {
+            ErrorManager.getDefault().notify(donfe);
+            return new String[] {PRODUCTION_SETTINGS_NAME};
         }
-        return props;
+        
+        //Iterate all its child files and build a list of file names
+        DataObject[] propsFiles = fld.getChildren();
+        String[] result = new String[propsFiles.length + 1];
+        for (int i=0; i < propsFiles.length; i++) {
+            result[i] = propsFiles[i].getName();
+        }
+        result[0] = PRODUCTION_SETTINGS_NAME;
+        return result;
+    }
+    
+    public String getPreferredConfigurationName() {
+        return preferredSettings == null ? getAvailableRendererSettings()[3] : preferredSettings; //XXX
+    }    
+    
+    private static String PRODUCTION_SETTINGS_NAME =
+        NbBundle.getMessage (RendererServiceImpl.class, "NAME_Production").intern();
+    
+    private String preferredSettings = null;
+    
+    /**
+     * Get a specific Properties instance that corresponds with a display name.
+     * @param name - localized name, as returned by getAvailableRendererSettings().
+     *  Implementation detail:  If null, will return the last known preferred
+     *  settings, or if no preferred settings known, some set of known settings
+     */
+    public Properties getRendererSettings (String name) {
+        boolean isProductionSettings = name != null && PRODUCTION_SETTINGS_NAME.equals(name);
+        if (name != null) {
+            preferredSettings = name;
+        }
+        
+        //Get the settings folder from the system filesystem as a DataFolder
+        //so we can match against localized names for the files
+        FileObject file = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(SETTINGS_DIR);
+        DataFolder fld = null;
+        try {
+            fld = (DataFolder) DataObject.find (file).getCookie(DataFolder.class);
+        } catch (DataObjectNotFoundException donfe) {
+            ErrorManager.getDefault().notify(donfe);
+            throw new NullPointerException ("Non-existent renderer settings" +
+                    " requested: " + name);
+        }
+        
+        if (isProductionSettings) {
+            //If the user selected "production" settings, it will be the 
+            //merge of 1024x768 with any settings overridden in project.properties
+            FileObject base = file.getFileObject("1024x768hq.properties"); //NOI18N
+            try {
+                name = DataObject.find (base).getName();
+            } catch (DataObjectNotFoundException donfe) {
+                ErrorManager.getDefault().notify(donfe);
+            }
+        }
+        
+        
+        //Get a list of all the files in this directory
+        DataObject[] propsFiles = fld.getChildren();
+        DataObject dob = null;
+        for (int i=0; i < propsFiles.length; i++) {
+            if (name == null || propsFiles[i].getName().equals(name)) {
+                dob = propsFiles[i];
+                break;
+            }
+        }
+        
+        if (dob == null) {
+            //Could conceivably be null after changing locale.  Pick 
+            //something rather than throwing an NPE
+            dob = propsFiles[0];
+        }
+        
+        if (dob != null) {
+            InputStream is = null;
+        
+            try {
+                is = dob.getPrimaryFile().getInputStream();
+            } catch (IOException ioe) {
+                ErrorManager.getDefault().notify(ioe);
+                throw new NullPointerException ("Non-existent renderer" +
+                        " properties requested: " + name);
+            }
+            Properties result = new Properties();
+            try {
+                result.load(is);
+            } catch (IOException ioe) {
+                
+                //Annotate the exception with a localized message for the user
+                ErrorManager.getDefault().annotate(ioe, NbBundle.getMessage(
+                        RendererServiceImpl.class, "MSG_BadPropsFile", 
+                        dob.getPrimaryFile().getPath()));
+                
+                //Notify the user
+                ErrorManager.getDefault().notify (ErrorManager.USER, ioe);
+                return null;
+            }
+            
+            if (isProductionSettings) {
+                //Merge in any properties defined on the project that
+                //override the default 1024x768hq production values
+                Properties projectProperties = (Properties) project.getLookup().lookup(Properties.class);
+                for (Iterator i=projectProperties.keySet().iterator(); i.hasNext();) {
+                    String key = (String) i.next();
+                    if (key.startsWith(PROJECT_RENDERER_KEY_PREFIX)) {
+                        //Remove the leading "renderer."
+                        String resultKey = key.substring(PROJECT_RENDERER_KEY_PREFIX.length());
+                        
+                        result.setProperty (resultKey, 
+                            projectProperties.getProperty(key));
+                    }
+                }
+            }
+            
+            return result;
+        }
+        return null;
     }
 
     /**

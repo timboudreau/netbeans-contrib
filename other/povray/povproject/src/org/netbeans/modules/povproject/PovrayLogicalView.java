@@ -19,20 +19,31 @@
 package org.netbeans.modules.povproject;
 
 import java.awt.Image;
-import java.util.Arrays;
-import org.netbeans.api.project.Project;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import org.netbeans.api.povproject.MainFileProvider;
+import org.netbeans.api.povproject.RendererService;
+import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataFolder;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
+import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.actions.Presenter;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 
@@ -80,9 +91,9 @@ class PovrayLogicalView implements LogicalViewProvider {
         }
     }
 
-    
+    /** This is the node you actually see in the project tab for the project */
     private static final class ScenesNode extends FilterNode {
-        final PovProject proj;
+        final PovProject project;
         public ScenesNode (Node node, PovProject project) throws DataObjectNotFoundException {
             super (node, new FilterNode.Children (node),
                     //The projects system wants the project in the Node's lookup.
@@ -90,7 +101,7 @@ class PovrayLogicalView implements LogicalViewProvider {
                     //Make a merge of both
                     new ProxyLookup (new Lookup[] { Lookups.singleton(project), 
                     node.getLookup() }));
-            this.proj = project;
+            this.project = project;
         }
         
         public Image getIcon(int type) {
@@ -102,8 +113,61 @@ class PovrayLogicalView implements LogicalViewProvider {
         }      
         
         public String getDisplayName() {
-            return proj.getProjectDirectory().getName();
+            return project.getProjectDirectory().getName();
+        }
+        
+        public Action[] getActions(boolean context) {
+            Action[] orig = super.getActions (context);
+            Action[] result = new Action[orig.length+1];
+            System.arraycopy(orig, 0, result, 1, orig.length);
+            result[0] = new RenderAction(project);
+            return result;
         }
     }
     
+    private static final class RenderAction extends AbstractAction implements Presenter.Popup {
+        private final PovProject project;
+        
+        public RenderAction (PovProject project) {
+            this.project = project;
+            putValue (Action.NAME, NbBundle.getMessage(PovrayLogicalView.class,
+                    "LBL_RenderProject"));
+        }
+        
+        public JMenuItem getPopupPresenter() {
+            JMenu result = new JMenu (this);
+            RendererService service = (RendererService) project.getLookup().lookup (RendererService.class);
+            String[] settings = service.getAvailableRendererSettings();
+            String preferred = service.getPreferredConfigurationName();
+            for (int i=0; i < settings.length; i++) {
+                JCheckBoxMenuItem item = new JCheckBoxMenuItem (this);
+                item.setText (settings[i]);
+                if (preferred.equals(settings[i])) {
+                    item.setSelected (true);
+                }
+                result.add (item);
+            }
+            return result;
+        }
+        
+        public void actionPerformed (ActionEvent ae) {
+            JMenuItem item = (JMenuItem) ae.getSource();
+            RendererService service = (RendererService) project.getLookup().lookup (RendererService.class);
+            MainFileProvider provider = (MainFileProvider) project.getLookup().lookup (MainFileProvider.class);
+            
+            String target = ae.getSource() == this ? service.getAvailableRendererSettings() [0] : item.getText();
+            File scene = FileUtil.toFile (provider.getMainFile());
+            service.render(scene, service.getRendererSettings(target));
+        }
+        
+        public boolean isEnabled() {
+            //Just lookup whether Build is enabled - if it isn't, we don't have
+            //a main file set, so we shouldn't be enabled either
+            ActionProvider actions = 
+                (ActionProvider) project.getLookup().lookup (ActionProvider.class);
+            
+            return actions.isActionEnabled(
+                    ActionProvider.COMMAND_BUILD,  project.getLookup());
+        }
+    }
 }

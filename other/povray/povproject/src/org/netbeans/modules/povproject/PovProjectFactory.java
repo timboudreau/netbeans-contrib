@@ -162,10 +162,10 @@ public class PovProjectFactory implements ProjectFactory {
     
  
     /** Path to the sample template in the system filesystem (see layer.xml) */
-    private static final String SAMPLE_PROJECT_TEMPLATE = "PovrayHiddenTemplates/NetBeansLogo.pov";
+    private static final String SAMPLE_PROJECT_TEMPLATE = "Povray/NetBeansLogo.pov";
     
     /** Path to the empty template in the system filesystem (see layer.xml) */
-    private static final String EMPTY_POVRAY_TEMPLATE = "PovrayHiddenTemplates/Empty.pov";
+    private static final String EMPTY_POVRAY_TEMPLATE = "Povray/Empty.pov";
 
     /** Name of the template itself (see layer.xml) - really we just use this as a marker
      * to decide which of the two possible templates to instantiate in any new project */

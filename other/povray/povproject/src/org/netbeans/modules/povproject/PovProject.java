@@ -132,10 +132,6 @@ public final class PovProject implements Project {
         return result;
     }
     
-    public String toString() {
-        return "PovProject in " + projectDir.getPath();
-    }
-    
     /** Implementation of project system's ProjectInformation class */
     private final class Info implements ProjectInformation {
         public Icon getIcon() {
@@ -151,11 +147,11 @@ public final class PovProject implements Project {
         }
         
         public void addPropertyChangeListener (PropertyChangeListener pcl) {
-            //do nothing
+            //do nothing, won't change
         }
         
         public void removePropertyChangeListener (PropertyChangeListener pcl) {
-            //do nothing
+            //do nothing, won't change
         }
         
         public Project getProject() {
@@ -202,29 +198,24 @@ public final class PovProject implements Project {
     private final class ActionProviderImpl implements ActionProvider {
         public String[] getSupportedActions() {
             return new String[] {
-                COMMAND_BUILD, COMMAND_CLEAN, COMMAND_REBUILD
+                COMMAND_BUILD, COMMAND_CLEAN, COMMAND_REBUILD,
             };
         }
 
         public void invokeAction(String command, Lookup context) throws IllegalArgumentException {
-            System.err.println("Action invoked: " + command + " on " + context);
             if (ActionProvider.COMMAND_BUILD.equals(command)) {
-                //Find the main file and render it
-                MainFileProvider provider = (MainFileProvider) getLookup().lookup(MainFileProvider.class);
-                FileObject main = provider.getMainFile();
-                if (main != null) {
-                    renderer.render();
-                } else {
-                    System.err.println("Main file is null");
-                    Toolkit.getDefaultToolkit().beep();
-                }
+
+                renderer.render();
+                
             } else if (ActionProvider.COMMAND_CLEAN.equals(command)) {
                 FileObject images = getProjectDirectory().getFileObject (IMAGES_DIR);
                 if (images != null) {
                     try {
                         images.delete();
                     } catch (IOException ioe) {
-                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
+                        ErrorManager.getDefault().notify(
+                                ErrorManager.INFORMATIONAL, ioe);
+                        
                         Toolkit.getDefaultToolkit().beep();
                     }
                 }
@@ -237,8 +228,11 @@ public final class PovProject implements Project {
         public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
             if (COMMAND_BUILD.equals(command)) {
                 return mainFile.getMainFile() != null;
+            } else if (COMMAND_CLEAN.equals(command)) {
+                return getProjectDirectory().getFileObject (IMAGES_DIR) != null;
+
             }
-            return true; //XXX
+            return true;
         }
     }
         

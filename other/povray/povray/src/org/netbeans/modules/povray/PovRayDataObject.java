@@ -45,6 +45,7 @@ import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.Node;
 import org.openide.text.CloneableEditorSupport;
+import org.openide.text.DataEditorSupport;
 import org.openide.util.HelpCtx;
 import org.openide.windows.CloneableOpenSupport;
 
@@ -60,7 +61,7 @@ public class PovRayDataObject extends MultiDataObject {
         super(file, ldr);
     }
     
-    private WeakReference supp = null;
+    private WeakReference editorSupport = null;
     
     public Node.Cookie getCookie(Class clazz) {
         if (clazz == LineCookie.class || clazz == EditCookie.class || clazz == EditorCookie.class) {
@@ -72,21 +73,19 @@ public class PovRayDataObject extends MultiDataObject {
     
     private PovEditorSupport getEditorSupport(boolean create) {
         PovEditorSupport result = null;
-        if (supp != null) {
-            result = (PovEditorSupport) supp.get();
+        if (editorSupport != null) {
+            result = (PovEditorSupport) editorSupport.get();
         }
         
         if (result == null && create) {
-            EditorEnv env = new EditorEnv();
-            result = new PovEditorSupport (this, env);
-            supp = new WeakReference (result);
+            result = new PovEditorSupport (new EditorEnv());
+            editorSupport = new WeakReference (result);
         }
         return result;
     }
     
     public Node createNodeDelegate() {
         DataNode node = new PovRayDataNode(this);
-        System.err.println("Created a povray node delegate");
         return node;
     }
     
@@ -136,6 +135,20 @@ public class PovRayDataObject extends MultiDataObject {
         }
         return result;
     }
+    
+    public class PovEditorSupport extends DataEditorSupport implements EditCookie, EditorCookie, LineCookie {
+        private final PovRayDataObject.EditorEnv env;
+        
+        /** Creates a new instance of PovEditorSupport */
+        public PovEditorSupport(EditorEnv env) {
+            super (PovRayDataObject.this, env);
+            this.env = env;
+        }
+
+        public PovRayDataObject.EditorEnv getEnv() {
+            return env;
+        }  
+    }    
     
     class EditorEnv implements CloneableEditorSupport.Env {
         public InputStream inputStream () throws IOException {
@@ -229,6 +242,5 @@ public class PovRayDataObject extends MultiDataObject {
                 fire (PROP_VALID, Boolean.TRUE, Boolean.FALSE);
             }
         }
-
     }
 }

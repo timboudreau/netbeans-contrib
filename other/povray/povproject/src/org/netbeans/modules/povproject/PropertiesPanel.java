@@ -17,8 +17,10 @@
  */
 
 package org.netbeans.modules.povproject;
-
+import java.awt.Component;
 import java.util.Properties;
+import javax.swing.DefaultComboBoxModel;
+import org.netbeans.api.povproject.RendererService;
 import org.openide.util.NbBundle;
 
 /**
@@ -26,17 +28,77 @@ import org.openide.util.NbBundle;
  * @author  Timothy Boudreau
  */
 public class PropertiesPanel extends javax.swing.JPanel {
-    private String lastGoodResolution = "640x480";
-    private Properties defaults = null;
+    private PovProject project = null;
     /** Creates new form PropertiesPanel */
-    private PropertiesPanel() {
+    PropertiesPanel(PovProject project) {
         initComponents();
+        initialize (project);
     }
     
-    public PropertiesPanel (Properties defaults) {
-        this();
-        this.defaults = defaults;
+    private void initialize (PovProject project) {
+        this.project = project;
+        RendererService rs = (RendererService) project.getLookup().lookup (RendererService.class);
+        String[] names = rs.getAvailableRendererSettings();
+        renderAt.setModel (new DefaultComboBoxModel (names));
+        String current = rs.getPreferredConfigurationName();
+        if (names[0].equals(current)) {
+            setControlsEnabled (true);
+        } else {
+            setControlsEnabled (false);
+        }
+        initializeFrom (rs.getRendererSettings(current));
+    } 
+    
+    private void setControlsEnabled (boolean val) {
+        Component[] c = getComponents();
+        for (int i=0; i < c.length; i++) {
+            if (c[i] != renderAt && c[i] != renderAtLbl) {
+                c[i].setEnabled (val);
+            }
+        }
+        prodRendLbl.setEnabled (val);
     }
+    
+    private Properties currSettings = null;
+    private void initializeFrom (Properties settings) {
+        currSettings = settings;
+        String qual = settings.getProperty ("Q");
+        if ("R".equals(quality)) {
+            quality.setValue (10);
+        } else {
+            try {
+                quality.setValue (Integer.parseInt(qual));
+            } catch (NumberFormatException nfe) {
+                //XXX
+            }
+        }
+        qualValue.setText (qual);
+        String width = settings.getProperty ("W");
+        String height = settings.getProperty ("H");
+        String resolution = width + "x" + height;
+        this.resolution.setSelectedItem (resolution);
+        boolean antialias = !"0.0".equals(settings.getProperty ("A"));
+        this.antialias.setSelected (antialias);
+        String jitter = settings.getProperty ("J");
+        this.jitterBox.setSelected (!"0.0".equals(jitter));
+    }
+    
+    public boolean isChanged() {
+        Properties props = new Properties (currSettings);
+        
+        
+        return props.equals(currSettings);
+    }
+    /*
+    public void storeToProject() {
+        
+    }
+    
+    public Properties getCurrentProperties() {
+        
+    }
+     */
+    
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -51,45 +113,52 @@ public class PropertiesPanel extends javax.swing.JPanel {
         resolution = new javax.swing.JComboBox();
         quallabel = new javax.swing.JLabel();
         antialias = new javax.swing.JCheckBox();
-        reflection = new javax.swing.JCheckBox();
         quality = new javax.swing.JSlider();
         qualValue = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        prodRendLbl = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        renderAtLbl = new javax.swing.JLabel();
+        renderAt = new javax.swing.JComboBox();
+        jitterBox = new javax.swing.JCheckBox();
 
         setLayout(new java.awt.GridBagLayout());
 
         reslabel.setLabelFor(resolution);
         reslabel.setText(NbBundle.getMessage(PropertiesPanel.class,"LBL_Resolution"));
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 5);
         add(reslabel, gridBagConstraints);
 
         resolution.setEditable(true);
         resolution.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1024x768", "640x480", "320x200", "160x100" }));
-        resolution.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                change(evt);
+        resolution.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                checkResolutionValue(evt);
             }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 30;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 12);
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 12);
         add(resolution, gridBagConstraints);
 
         quallabel.setLabelFor(quality);
         quallabel.setText(NbBundle.getMessage(PropertiesPanel.class,"LBL_Quality"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 5);
         add(quallabel, gridBagConstraints);
 
@@ -102,28 +171,12 @@ public class PropertiesPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 12, 5);
         add(antialias, gridBagConstraints);
-
-        reflection.setText(NbBundle.getMessage(PropertiesPanel.class,"KEY_Reflection"));
-        reflection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                change(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 12, 12);
-        add(reflection, gridBagConstraints);
 
         quality.setMaximum(9);
         quality.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -134,47 +187,135 @@ public class PropertiesPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
         add(quality, gridBagConstraints);
 
+        qualValue.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        qualValue.setLabelFor(quality);
         qualValue.setText("0");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 12);
         add(qualValue, gridBagConstraints);
 
-        jButton1.setText(NbBundle.getMessage(PropertiesPanel.class,"KEY_Reset"));
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
+        prodRendLbl.setText(NbBundle.getMessage(PropertiesPanel.class, "LBL_Production"));
+        prodRendLbl.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(6, 0, 9, 5)));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(prodRendLbl, gridBagConstraints);
+
+        jPanel2.setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(7, 0, 0, 0)), new javax.swing.border.CompoundBorder(new javax.swing.border.MatteBorder(new java.awt.Insets(1, 0, 0, 0), javax.swing.UIManager.getDefaults().getColor("controlShadow")), new javax.swing.border.MatteBorder(new java.awt.Insets(1, 0, 0, 0), javax.swing.UIManager.getDefaults().getColor("controlHighlight")))), null));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(jPanel2, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
+        add(jPanel1, gridBagConstraints);
+
+        renderAtLbl.setLabelFor(renderAt);
+        renderAtLbl.setText(NbBundle.getMessage(PropertiesPanel.class, "LBL_RenderWith"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 16, 5);
+        add(renderAtLbl, gridBagConstraints);
+
+        renderAt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                renderAtActionPerformed(evt);
             }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 12, 5);
-        add(jButton1, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 16, 12);
+        add(renderAt, gridBagConstraints);
+
+        jitterBox.setText(NbBundle.getMessage(PropertiesPanel.class, "KEY_Jitter"));
+        jitterBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                change(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 12, 5);
+        add(jitterBox, gridBagConstraints);
 
     }
     // </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        reset();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void renderAtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_renderAtActionPerformed
+        RendererService rs = (RendererService) project.getLookup().lookup (RendererService.class);
+        String settings = (String) renderAt.getSelectedItem();
+        String[] names = rs.getAvailableRendererSettings();
+        if (names[0].equals(settings)) {
+            setControlsEnabled (true);
+        } else {
+            setControlsEnabled (false);
+        }
+        initializeFrom (rs.getRendererSettings(settings));
+        
+    }//GEN-LAST:event_renderAtActionPerformed
 
+    private void checkResolutionValue(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_checkResolutionValue
+        try {
+            int w = getResolutionValue (true);
+            int h = getResolutionValue (false);
+            lastGoodResolution = (String) resolution.getSelectedItem();
+        } catch (NumberFormatException nfe) {
+            nfe.printStackTrace(); //XXX
+            resolution.setSelectedItem (lastGoodResolution);
+        }
+    }//GEN-LAST:event_checkResolutionValue
+
+    private int getResolutionValue (boolean width) throws NumberFormatException {
+        String res = (String) resolution.getSelectedItem();
+        int xIndex = res.indexOf ("x");
+        if (xIndex == -1) {
+            xIndex = res.indexOf ("X");
+        }
+        if (xIndex == -1 && xIndex != res.length()-1) {
+            throw new NumberFormatException ("No x");
+        } else {
+            String w = res.substring (0, xIndex);
+            String h = res.substring (xIndex + 1);
+            if (width) {
+                return Integer.parseInt (w);
+            } else {
+                return Integer.parseInt(h);
+            }
+        }                
+    }
+    
     private void qualityStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_qualityStateChanged
         change (null);
     }//GEN-LAST:event_qualityStateChanged
 
     private boolean changing = false;
+    private String lastGoodResolution = "640x480";
     
     private void change(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_change
         if (changing) {
@@ -185,49 +326,26 @@ public class PropertiesPanel extends javax.swing.JPanel {
             int qual = quality.getValue();
             
             qualValue.setText (Integer.toString(qual));
-            String res = (String) resolution.getSelectedItem();
-            int xIndex = res.indexOf ("x");
-            if (xIndex == -1) {
-                xIndex = res.indexOf ("X");
-            }
-            if (xIndex == -1) {
-                resolution.setSelectedItem (lastGoodResolution);
-            } else {
-                lastGoodResolution = res;
-            }
-            
-            
-            
+            checkResolutionValue (null);
         } finally {
             changing = false;
         }
         
     }//GEN-LAST:event_change
-    
-    private void reset() {
-        StringBuffer sb = new StringBuffer();
-        sb.append (defaults.get("renderer.W"));
-        sb.append ("x");
-        sb.append (defaults.get("renderer.H"));
-        resolution.setSelectedItem (sb.toString().intern());
-        
-        String aa = (defaults.getProperty("A"));
-        if (aa != null && !"0.0".equals(aa)) {
-            antialias.setSelected(true);
-        }
-        
-        
-        
-    }
+
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox antialias;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JCheckBox jitterBox;
+    private javax.swing.JLabel prodRendLbl;
     private javax.swing.JLabel qualValue;
     private javax.swing.JSlider quality;
     private javax.swing.JLabel quallabel;
-    private javax.swing.JCheckBox reflection;
+    private javax.swing.JComboBox renderAt;
+    private javax.swing.JLabel renderAtLbl;
     private javax.swing.JLabel reslabel;
     private javax.swing.JComboBox resolution;
     // End of variables declaration//GEN-END:variables
