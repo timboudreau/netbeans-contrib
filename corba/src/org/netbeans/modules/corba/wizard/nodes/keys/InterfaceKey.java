@@ -20,24 +20,24 @@ package org.netbeans.modules.corba.wizard.nodes.keys;
  */
 public class InterfaceKey extends NamedKey {
 
-  private String baseInterfaces;
+    private String baseInterfaces;
   
-  /** Creates new InterfaceKey
-   *  @param int kind 
-   *  @param String name
-   *  @param String[] baseInterfaces, not null 
-   */
-  public InterfaceKey(int kind, String name, String baseInterfaces) {
-    super (kind, name);
-    this.baseInterfaces = baseInterfaces;
-  }
+    /** Creates new InterfaceKey
+     *  @param int kind 
+     *  @param String name
+     *  @param String[] baseInterfaces, not null 
+     */
+    public InterfaceKey(int kind, String name, String baseInterfaces) {
+        super (kind, name);
+        this.baseInterfaces = baseInterfaces;
+    }
   
-  public String getbaseInterfaces () {
-    return this.baseInterfaces;
-  }
+    public String getbaseInterfaces () {
+        return this.baseInterfaces;
+    }
   
-  public String toString () {
-    return "InterfaceKey:" + name;  // No I18N
-  }
+    public String toString () {
+        return "InterfaceKey:" + name;  // No I18N
+    }
   
 }

@@ -25,36 +25,36 @@ import org.netbeans.modules.corba.wizard.nodes.utils.ConstantCreator;
  */
 public class CreateConstantAction extends ExtNodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if (enable (nodes)) {
-      ((ConstantCreator)nodes[0].getCookie(ConstantCreator.class)).createConstant();
+    protected void performAction (Node[] nodes) {
+        if (enable (nodes)) {
+            ((ConstantCreator)nodes[0].getCookie(ConstantCreator.class)).createConstant();
+        }
     }
-  }
   
-  protected boolean enable (Node[] nodes) {
-    return nodes.length == 1 && nodes[0].getCookie(ConstantCreator.class) instanceof ConstantCreator;
-  }
+    protected boolean enable (Node[] nodes) {
+        return nodes.length == 1 && nodes[0].getCookie(ConstantCreator.class) instanceof ConstantCreator;
+    }
 
-  public String getName () {
-    return "Create Constant";
-  }
+    public String getName () {
+        return "Create Constant";
+    }
 
-  protected String iconResource () {
-    return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateConstant");
-  }
+    protected String iconResource () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateConstant");
+    }
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-    // If you will provide context help then use:
-    // return new HelpCtx (CreateConstantAction.class);
-  }
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+        // If you will provide context help then use:
+        // return new HelpCtx (CreateConstantAction.class);
+    }
 
-  /** Perform extra initialization of this action's singleton.
-  * PLEASE do not use constructors for this purpose!
-  protected void initialize () {
-    super.initialize ();
-    putProperty ("someProp", value);
-  }
-  */
+    /** Perform extra initialization of this action's singleton.
+     * PLEASE do not use constructors for this purpose!
+     protected void initialize () {
+     super.initialize ();
+     putProperty ("someProp", value);
+     }
+    */
   
 }

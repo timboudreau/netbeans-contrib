@@ -19,5 +19,5 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @version 
  */
 public interface StructMemberCreator {
-  public void createStructMember (); 
+    public void createStructMember (); 
 }

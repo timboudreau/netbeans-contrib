@@ -19,5 +19,5 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @version 
  */
 public interface EnumCreator {
-  public abstract void createEnum ();
+    public abstract void createEnum ();
 }

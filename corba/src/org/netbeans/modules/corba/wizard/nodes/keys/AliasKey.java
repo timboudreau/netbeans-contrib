@@ -20,26 +20,26 @@ package org.netbeans.modules.corba.wizard.nodes.keys;
  */
 public class AliasKey extends NamedKey {
 
-  private String type;
-  private String length;
+    private String type;
+    private String length;
   
-  /** Creates new AliasKey */
-  public AliasKey (int kind, String name, String type, String length) {
-    super (kind, name);
-    this.type = type;
-    this.length = length;
-  }
+    /** Creates new AliasKey */
+    public AliasKey (int kind, String name, String type, String length) {
+        super (kind, name);
+        this.type = type;
+        this.length = length;
+    }
   
-  public String getType () {
-    return this.type;
-  }
+    public String getType () {
+        return this.type;
+    }
   
-  public String getLength () {
-    return this.length;
-  }
+    public String getLength () {
+        return this.length;
+    }
   
-  public String toString () {
-    return "AliasKey: "+name;  //No I18N
-  }
+    public String toString () {
+        return "AliasKey: "+name;  //No I18N
+    }
   
 }

@@ -25,22 +25,22 @@ import org.netbeans.modules.corba.wizard.nodes.utils.ExceptionCreator;
  */
 public class CreateExceptionAction extends ExtNodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if (enable (nodes)) {
-      ((ExceptionCreator)nodes[0].getCookie(ExceptionCreator.class)).createException ();
+    protected void performAction (Node[] nodes) {
+        if (enable (nodes)) {
+            ((ExceptionCreator)nodes[0].getCookie(ExceptionCreator.class)).createException ();
+        }
     }
-  }
   
-  protected boolean enable (Node[] nodes) {
-    return nodes.length == 1 && nodes[0] instanceof ExceptionCreator;
-  }
+    protected boolean enable (Node[] nodes) {
+        return nodes.length == 1 && nodes[0] instanceof ExceptionCreator;
+    }
 
-  public String getName () {
-    return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateException");
-  }
+    public String getName () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateException");
+    }
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-  }
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
 
 }

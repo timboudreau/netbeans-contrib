@@ -26,15 +26,15 @@ import org.netbeans.modules.corba.wizard.nodes.keys.NamedKey;
  */
 public abstract class AbstractMutableLeafNode extends AbstractMutableIDLNode {
 
-  /** Creates new AbstractMutableLeafNode */
-  public AbstractMutableLeafNode (NamedKey key) {
-    super (Children.LEAF, key);
-  }
+    /** Creates new AbstractMutableLeafNode */
+    public AbstractMutableLeafNode (NamedKey key) {
+        super (Children.LEAF, key);
+    }
   
   
-  public SystemAction[] createActions () {
-    return new SystemAction[] { SystemAction.get(DestroyAction.class),
-                                 SystemAction.get(RenameAction.class)
-    };
-  }
+    public SystemAction[] createActions () {
+        return new SystemAction[] { SystemAction.get(DestroyAction.class),
+                                    SystemAction.get(RenameAction.class)
+        };
+    }
 }

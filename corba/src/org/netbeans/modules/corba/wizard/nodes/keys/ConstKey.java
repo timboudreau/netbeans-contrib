@@ -20,21 +20,21 @@ package org.netbeans.modules.corba.wizard.nodes.keys;
  */
 public class ConstKey extends AliasKey {
   
-  private String value;
+    private String value;
 
-  /** Creates new ConstKey */
-  public ConstKey (int kind, String name, String type, String value) {
-    super (kind,name,type,null);
-    this.value = value;
-  }
+    /** Creates new ConstKey */
+    public ConstKey (int kind, String name, String type, String value) {
+        super (kind,name,type,null);
+        this.value = value;
+    }
   
-  public String getValue () {
-    return this.value;
-  }
+    public String getValue () {
+        return this.value;
+    }
   
   
-  public String toString () {
-    return "ConstKey: " + name;
-  }
+    public String toString () {
+        return "ConstKey: " + name;
+    }
   
 }

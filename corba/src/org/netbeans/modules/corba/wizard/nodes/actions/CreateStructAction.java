@@ -25,22 +25,22 @@ import org.netbeans.modules.corba.wizard.nodes.utils.StructCreator;
  */
 public class CreateStructAction extends ExtNodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if (enable (nodes)) {
-      ((StructCreator)nodes[0].getCookie(StructCreator.class)).createStruct();
+    protected void performAction (Node[] nodes) {
+        if (enable (nodes)) {
+            ((StructCreator)nodes[0].getCookie(StructCreator.class)).createStruct();
+        }
     }
-  }
   
-  protected boolean enable (Node[] nodes) {
-    return nodes.length == 1 && nodes[0] instanceof StructCreator;
-  }
+    protected boolean enable (Node[] nodes) {
+        return nodes.length == 1 && nodes[0] instanceof StructCreator;
+    }
 
-  public String getName () {
-    return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateStruct");
-  }
+    public String getName () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateStruct");
+    }
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-  }
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
   
 }

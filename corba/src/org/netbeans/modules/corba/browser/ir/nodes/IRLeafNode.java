@@ -30,7 +30,7 @@ public abstract class IRLeafNode extends IRAbstractNode {
         return new SystemAction[] {SystemAction.get(org.netbeans.modules.corba.browser.ir.actions.GenerateCodeAction.class),
                                    null,
                                    SystemAction.get(org.openide.actions.PropertiesAction.class)
-                                  };
+        };
     }
 
 

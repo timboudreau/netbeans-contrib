@@ -23,20 +23,20 @@ import org.netbeans.modules.corba.wizard.CorbaWizardAction;
  */
 public class IdlFileFilter extends FileFilter {
 
-  /** Creates new IdlFileFilter */
-  public IdlFileFilter() {
-  }
+    /** Creates new IdlFileFilter */
+    public IdlFileFilter() {
+    }
   
-  public boolean accept (File file) {
-    if (file.isDirectory())
-      return true;
-    if (!file.canRead())
-      return false;
-    return file.getName().endsWith(".idl");
-  }
+    public boolean accept (File file) {
+        if (file.isDirectory())
+            return true;
+        if (!file.canRead())
+            return false;
+        return file.getName().endsWith(".idl");
+    }
   
-  public String getDescription () {
-    return CorbaWizardAction.getLocalizedString("TXT_IdlFile");
-  }
+    public String getDescription () {
+        return CorbaWizardAction.getLocalizedString("TXT_IdlFile");
+    }
   
 }

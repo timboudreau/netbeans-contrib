@@ -25,22 +25,22 @@ import org.netbeans.modules.corba.wizard.nodes.utils.OperationCreator;
  */
 public class CreateOperationAction extends ExtNodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if ( enable (nodes)) {
-      ((OperationCreator)nodes[0].getCookie (OperationCreator.class)).createOperation ();
+    protected void performAction (Node[] nodes) {
+        if ( enable (nodes)) {
+            ((OperationCreator)nodes[0].getCookie (OperationCreator.class)).createOperation ();
+        }
     }
-  }
   
-  protected boolean enable (Node[] nodes) {
-    return nodes.length == 1 && nodes[0].getCookie (OperationCreator.class) != null;
-  }
+    protected boolean enable (Node[] nodes) {
+        return nodes.length == 1 && nodes[0].getCookie (OperationCreator.class) != null;
+    }
 
-  public String getName () {
-   return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateOperation");
-  }
+    public String getName () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateOperation");
+    }
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-  }
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
   
 }

@@ -25,22 +25,22 @@ import org.netbeans.modules.corba.wizard.nodes.utils.UnionCreator;
  */
 public class CreateUnionAction extends ExtNodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if (enable (nodes)) {
-      ((UnionCreator)nodes[0].getCookie(UnionCreator.class)).createUnion();
+    protected void performAction (Node[] nodes) {
+        if (enable (nodes)) {
+            ((UnionCreator)nodes[0].getCookie(UnionCreator.class)).createUnion();
+        }
     }
-  }
   
-  protected boolean enable (Node[] nodes) {
-    return nodes.length == 1 && nodes[0].getCookie (UnionCreator.class) != null;
-  }
+    protected boolean enable (Node[] nodes) {
+        return nodes.length == 1 && nodes[0].getCookie (UnionCreator.class) != null;
+    }
 
-  public String getName () {
-    return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateUnion");
-  }
+    public String getName () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateUnion");
+    }
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-  }
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
   
 }

@@ -20,20 +20,20 @@ package org.netbeans.modules.corba.wizard.nodes.keys;
  */
 public class EnumKey extends NamedKey {
   
-  private String values;
+    private String values;
 
-  /** Creates new EnumKey */
-  public EnumKey (int type, String name, String values) {
-    super (type, name);
-    this.values = values;
-  }
+    /** Creates new EnumKey */
+    public EnumKey (int type, String name, String values) {
+        super (type, name);
+        this.values = values;
+    }
   
-  public String getValues () {
-    return this.values;
-  }
+    public String getValues () {
+        return this.values;
+    }
   
-  public String toString () {
-    return "EnumKey: "+ name; // No I18N
-  }
+    public String toString () {
+        return "EnumKey: "+ name; // No I18N
+    }
   
 }

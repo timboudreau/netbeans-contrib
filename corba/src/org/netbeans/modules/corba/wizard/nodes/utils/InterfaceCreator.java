@@ -19,5 +19,5 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @version 
  */
 public interface InterfaceCreator {
-  public void createInterface ();
+    public void createInterface ();
 }

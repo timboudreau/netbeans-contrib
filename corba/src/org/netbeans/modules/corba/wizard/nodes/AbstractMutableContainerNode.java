@@ -21,11 +21,11 @@ import org.netbeans.modules.corba.wizard.nodes.keys.NamedKey;
  */
 public abstract class AbstractMutableContainerNode extends AbstractMutableIDLNode {
 
-  protected Dialog dialog;
+    protected Dialog dialog;
   
-  /** Creates new AbstractMutableContainerNode */
-  public AbstractMutableContainerNode (NamedKey key) {
-    super ( new MutableChildren (), key);
-  }
+    /** Creates new AbstractMutableContainerNode */
+    public AbstractMutableContainerNode (NamedKey key) {
+        super ( new MutableChildren (), key);
+    }
   
 }

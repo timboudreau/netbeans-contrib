@@ -24,75 +24,102 @@ import org.netbeans.modules.corba.settings.CORBASupportSettings;
  */
 public class CorbaWizardData extends Object {
 
-  public static final int CLIENT=8;   // Generate Client
-  public static final int SERVER=4;   // Generate Server
-  public static final int IMPL=2;     // Generate Implementation
-  public static final int IDL=1;
+    public static final int CLIENT=8;   // Generate Client
+    public static final int SERVER=4;   // Generate Server
+    public static final int IMPL=2;     // Generate Implementation
+    public static final int IDL=1;
   
-  private CORBASupportSettings ccs;
-  private int generate;
-  private String impl;
-  private String bindMethod;
-  private Object idlSource;
-  private DataFolder destinationPackage;
-  private String name;
+    private CORBASupportSettings ccs;
+    private int generate;
+    private String impl;
+    private String bindMethod;
+    private Object idlSource;
+    private DataFolder destinationPackage;
+    private String name;
+    private String defaultOrb;
+    private String defaultClientBinding;
+    private String defaultServerBinding;
 
-  /** Creates new CorbaWizardData */
-  public CorbaWizardData() {
-    this.ccs = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
-  }
+    /** Creates new CorbaWizardData */
+    public CorbaWizardData() {
+        this.ccs = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
+    }
   
   
-  public CORBASupportSettings getSettings() {
-    return ccs;
-  }
+    public CORBASupportSettings getSettings() {
+        return ccs;
+    }
   
-  public void setCORBAImpl (String impl) {
-    this.impl = impl;
-  }
+    public void setCORBAImpl (String impl) {
+        this.impl = impl;
+    }
   
-  public void setBindMethod (String bindMethod) {
-    this.bindMethod = bindMethod;
-  }
+    public void setBindMethod (String bindMethod) {
+        this.bindMethod = bindMethod;
+    }
   
-  public void setGenerate (int mask) {
-    this.generate = mask;
-  }
+    public void setGenerate (int mask) {
+        this.generate = mask;
+    }
   
-  public void setSource (Object source) {
-    this.idlSource = source;
-  }
+    public void setSource (Object source) {
+        this.idlSource = source;
+    }
   
-  public String getCORBAImpl() {
-    return this.impl;
-  }
+    public String getCORBAImpl() {
+        return this.impl;
+    }
 
-  public String getName () {
-    return this.name;
-  }
+    public String getName () {
+        return this.name;
+    }
   
-  public String getBindMethod () {
-    return this.bindMethod;
-  }
+    public String getBindMethod () {
+        return this.bindMethod;
+    }
   
-  public int getGenerate(){
-    return this.generate;
-  }
+    public int getGenerate(){
+        return this.generate;
+    }
   
-  public Object getSource () {
-    return this.idlSource;
-  }
+    public Object getSource () {
+        return this.idlSource;
+    }
   
-  public void setDestinationPackage (DataFolder object) {
-    this.destinationPackage = object;
-  }
+    public void setDestinationPackage (DataFolder object) {
+        this.destinationPackage = object;
+    }
   
-  public DataFolder getDestinationPackage () {
-    return this.destinationPackage;
-  }
+    public DataFolder getDestinationPackage () {
+        return this.destinationPackage;
+    }
 
-  public void setName (String name) {
-    this.name = name;
-  }
+    public void setName (String name) {
+        this.name = name;
+    }
+    
+    public void setDefaultOrbValue (String orb){
+        this.defaultOrb = orb;
+    }
+    
+    public void setDefaultServerBindingValue (String value) {
+        this.defaultServerBinding = value;
+    }
+    
+    public void setDefaultClientBindingValue (String value) {
+        this.defaultClientBinding = value;
+    }
+    
+    public String getDefaultOrbValue () {
+        return this.defaultOrb;
+    }
+    
+    public String getDefaultServerBindingValue () {
+        return this.defaultServerBinding;
+    }
+    
+    public String getDefaultClientBindingValue () {
+        return this.defaultClientBinding;
+    }
   
 }

@@ -22,26 +22,26 @@ import org.netbeans.modules.corba.wizard.nodes.keys.*;
  */
 public class ExceptionNode extends SENode {
   
-  private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/exception";
+    private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/exception";
 
-  /** Creates new ExceptionNode */
-  public ExceptionNode(NamedKey key) {
-    super (key);
-    this.setName ( key.getName());
-    this.setIconBase (ICON_BASE);
-  }
-  
-  public String generateSelf (int indent) {
-    String code = new String ();
-    String fill = new String ();
-    for (int i=0; i < indent; i++) 
-      fill = fill + "    "; // No I18N
-    code = fill + "exception " + this.getName () + " {\n"; // No I18N
-    Node[] nodes = this.getChildren().getNodes();
-    for (int i=0; i < nodes.length; i++) {
-      code = code + ((AbstractMutableIDLNode)nodes[i]).generateSelf (indent + 1);
+    /** Creates new ExceptionNode */
+    public ExceptionNode(NamedKey key) {
+        super (key);
+        this.setName ( key.getName());
+        this.setIconBase (ICON_BASE);
     }
-    code = code + fill + "};\n"; // No I18n
-    return code;
-  }
+  
+    public String generateSelf (int indent) {
+        String code = new String ();
+        String fill = new String ();
+        for (int i=0; i < indent; i++) 
+            fill = fill + "    "; // No I18N
+        code = fill + "exception " + this.getName () + " {\n"; // No I18N
+        Node[] nodes = this.getChildren().getNodes();
+        for (int i=0; i < nodes.length; i++) {
+            code = code + ((AbstractMutableIDLNode)nodes[i]).generateSelf (indent + 1);
+        }
+        code = code + fill + "};\n"; // No I18n
+        return code;
+    }
 }

@@ -33,7 +33,7 @@ import org.netbeans.modules.corba.settings.*;
 public class IRRootNode extends AbstractNode implements Node.Cookie {
 
     static final String ICON_BASE_ROOT
-    = "org/netbeans/modules/corba/browser/ir/resources/ir-root";
+        = "org/netbeans/modules/corba/browser/ir/resources/ir-root";
 
     public static final boolean DEBUG = false;
     //public static final boolean DEBUG = true;
@@ -76,8 +76,8 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
         ((IRRootNodeChildren)getChildren ()).setRootNode (this);
 
         systemActions = new SystemAction[] {
-                            SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.AddRepository.class)
-                        };
+            SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.AddRepository.class)
+        };
     }
 
 
@@ -119,7 +119,7 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
 
 
     public void restoreRepository (String name, String url, String ior)
-    throws java.net.MalformedURLException,
+        throws java.net.MalformedURLException,
         java.io.IOException {
 
         org.omg.CORBA.Container rep = null;
@@ -169,7 +169,7 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
 
 
     public void addRepository (String name, String url, String ior)
-    throws java.net.MalformedURLException,
+        throws java.net.MalformedURLException,
         java.io.IOException {
 
         org.omg.CORBA.Container rep = null;
@@ -246,7 +246,7 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
     
     private void lazyInit () {
         css = (CORBASupportSettings) CORBASupportSettings.findObject
-              (CORBASupportSettings.class, true);
+            (CORBASupportSettings.class, true);
         orb = css.getORB ();
     }
 

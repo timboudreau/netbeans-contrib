@@ -19,6 +19,6 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @version 
  */
 public interface UnionDefaultCreator {
-  public void createUnionDefault ();
-  public boolean canAdd ();
+    public void createUnionDefault ();
+    public boolean canAdd ();
 }

@@ -20,40 +20,40 @@ package org.netbeans.modules.corba.wizard.nodes.keys;
  */
 public class OperationKey extends NamedKey {
 
-  private String ret;
-  private String params;
-  private String except;
-  private String ctx;
-  private boolean oneway;
+    private String ret;
+    private String params;
+    private String except;
+    private String ctx;
+    private boolean oneway;
   
-  /** Creates new OperationKey */
-  public OperationKey (int kind, String name, String ret, String params, String except, String ctx, boolean oneway) {
-    super (kind, name);
-    this.ret = ret;
-    this.params = params;
-    this.except = except;
-    this.ctx = ctx;
-    this.oneway = oneway;
-  }
+    /** Creates new OperationKey */
+    public OperationKey (int kind, String name, String ret, String params, String except, String ctx, boolean oneway) {
+        super (kind, name);
+        this.ret = ret;
+        this.params = params;
+        this.except = except;
+        this.ctx = ctx;
+        this.oneway = oneway;
+    }
   
-  public String getReturnType () {
-    return this.ret;
-  }
+    public String getReturnType () {
+        return this.ret;
+    }
   
-  public String getParameters () {
-    return this.params;
-  }
+    public String getParameters () {
+        return this.params;
+    }
   
-  public String getExceptions () {
-    return this.except;
-  }
+    public String getExceptions () {
+        return this.except;
+    }
   
-  public String getContext () {
-    return this.ctx;
-  }
+    public String getContext () {
+        return this.ctx;
+    }
   
-  public boolean isOneway () {
-    return this.oneway;
-  }
+    public boolean isOneway () {
+        return this.oneway;
+    }
   
 }

@@ -25,23 +25,23 @@ import org.netbeans.modules.corba.wizard.nodes.utils.InterfaceCreator;
  */
 public class CreateInterfaceAction extends ExtNodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if (enable (nodes)) {
-      ((InterfaceCreator)nodes[0].getCookie(InterfaceCreator.class)).createInterface();
+    protected void performAction (Node[] nodes) {
+        if (enable (nodes)) {
+            ((InterfaceCreator)nodes[0].getCookie(InterfaceCreator.class)).createInterface();
+        }
     }
-  }
   
-  protected boolean enable (Node[] nodes) {
-    return nodes.length == 1 && nodes[0].getCookie (InterfaceCreator.class) != null;
-  }
+    protected boolean enable (Node[] nodes) {
+        return nodes.length == 1 && nodes[0].getCookie (InterfaceCreator.class) != null;
+    }
 
-  public String getName () {
-    return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateInterface");
-  }
+    public String getName () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateInterface");
+    }
 
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-  }
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
   
 }

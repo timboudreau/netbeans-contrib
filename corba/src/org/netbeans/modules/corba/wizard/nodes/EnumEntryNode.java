@@ -23,22 +23,22 @@ import org.netbeans.modules.corba.wizard.nodes.actions.*;
  */
 public class EnumEntryNode extends AbstractMutableLeafNode {
 
-  private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/attribute";
+    private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/attribute";
   
-  /** Creates new EnumEntryNode */
-  public EnumEntryNode(NamedKey key) {
-    super (key);
-    this.setName (key.getName());
-    this.setIconBase (ICON_BASE);
-  }
+    /** Creates new EnumEntryNode */
+    public EnumEntryNode(NamedKey key) {
+        super (key);
+        this.setName (key.getName());
+        this.setIconBase (ICON_BASE);
+    }
   
-  public SystemAction[] createActions () {
-    return new SystemAction[] { SystemAction.get (DestroyAction.class),
-      SystemAction.get (RenameAction.class)};
-  }
+    public SystemAction[] createActions () {
+        return new SystemAction[] { SystemAction.get (DestroyAction.class),
+                                    SystemAction.get (RenameAction.class)};
+    }
   
-  public String generateSelf ( int indent) {
-    return this.getName ();
-  }
+    public String generateSelf ( int indent) {
+        return this.getName ();
+    }
   
 }

@@ -30,57 +30,57 @@ import org.netbeans.modules.corba.wizard.nodes.keys.*;
  */
 public class IdlFileNode extends FMNode implements Node.Cookie {
 
-  private static final String ICON_BASE = "org/netbeans/modules/corba/settings/idl";
+    private static final String ICON_BASE = "org/netbeans/modules/corba/settings/idl";
   
-  /** Creates new IdlFileNode */
-  public IdlFileNode () {
-    super (null);
-    this.getCookieSet().add (this);
-    this.setName ("Idl Node");
-    this.setIconBase(ICON_BASE);
-  }
-  
-  public IdlFileNode(String name) {
-    super (null);
-    this.getCookieSet().add (this);
-    this.setName (name);
-    this.setIconBase(ICON_BASE);
-  }
-  
-  
-  public SystemAction[] createActions () {
-    return new SystemAction[] {
-      SystemAction.get (CreateAliasAction.class),
-      SystemAction.get (CreateConstantAction.class),
-      SystemAction.get (CreateEnumAction.class),
-      SystemAction.get (CreateExceptionAction.class),
-      SystemAction.get (CreateInterfaceAction.class),
-      SystemAction.get (CreateModuleAction.class),
-      SystemAction.get (CreateStructAction.class),
-      SystemAction.get (CreateUnionAction.class)
-     };
-  }
-  
-  public String generateSelf (int indent) {
-    String code = new String();
-    Node[] nodes = this.getChildren().getNodes();
-    for (int i=0; i<nodes.length; i++) {
-      code = code + ((AbstractMutableIDLNode)nodes[i]).generateSelf (0);
-      code = code + "\n";
+    /** Creates new IdlFileNode */
+    public IdlFileNode () {
+        super (null);
+        this.getCookieSet().add (this);
+        this.setName ("Idl Node");
+        this.setIconBase(ICON_BASE);
     }
-    return code;
-  }
   
-  public void generate (PrintWriter out) throws IOException {
-    out.println (generateSelf (0));
-  }
+    public IdlFileNode(String name) {
+        super (null);
+        this.getCookieSet().add (this);
+        this.setName (name);
+        this.setIconBase(ICON_BASE);
+    }
   
-  public boolean canDestroy () {
-    return false;
-  }
   
-  public boolean canRename () {
-    return false;
-  }
+    public SystemAction[] createActions () {
+        return new SystemAction[] {
+            SystemAction.get (CreateAliasAction.class),
+            SystemAction.get (CreateConstantAction.class),
+            SystemAction.get (CreateEnumAction.class),
+            SystemAction.get (CreateExceptionAction.class),
+            SystemAction.get (CreateInterfaceAction.class),
+            SystemAction.get (CreateModuleAction.class),
+            SystemAction.get (CreateStructAction.class),
+            SystemAction.get (CreateUnionAction.class)
+        };
+    }
+  
+    public String generateSelf (int indent) {
+        String code = new String();
+        Node[] nodes = this.getChildren().getNodes();
+        for (int i=0; i<nodes.length; i++) {
+            code = code + ((AbstractMutableIDLNode)nodes[i]).generateSelf (0);
+            code = code + "\n";
+        }
+        return code;
+    }
+  
+    public void generate (PrintWriter out) throws IOException {
+        out.println (generateSelf (0));
+    }
+  
+    public boolean canDestroy () {
+        return false;
+    }
+  
+    public boolean canRename () {
+        return false;
+    }
   
 }

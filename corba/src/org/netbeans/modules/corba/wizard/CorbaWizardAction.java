@@ -25,35 +25,35 @@ import java.util.ResourceBundle;
  */
 public class CorbaWizardAction extends CallableSystemAction {
   
-  public static final String ICON = "/org/netbeans/modules/corba/wizard/resources/CorbaWizard.gif";
-  private static ResourceBundle bundle = null;
+    public static final String ICON = "/org/netbeans/modules/corba/wizard/resources/CorbaWizard.gif";
+    private static ResourceBundle bundle = null;
   
 
-  /** Creates new CorbaWizardAction */
-  public CorbaWizardAction() {
-  }
+    /** Creates new CorbaWizardAction */
+    public CorbaWizardAction() {
+    }
   
-  public String getName () {
-    return getLocalizedString("CLT_CorbaWizardAction");
-  }
+    public String getName () {
+        return getLocalizedString("CLT_CorbaWizardAction");
+    }
   
-  /** No help jet */
-  public HelpCtx getHelpCtx(){
-    return HelpCtx.DEFAULT_HELP;
-  }
+    /** No help jet */
+    public HelpCtx getHelpCtx(){
+        return HelpCtx.DEFAULT_HELP;
+    }
   
-  public void performAction () {
-    new CorbaWizard().run();
-  }
+    public void performAction () {
+        new CorbaWizard().run();
+    }
   
-  protected String iconResource () {
-    return ICON;
-  }
+    protected String iconResource () {
+        return ICON;
+    }
   
-  public static String getLocalizedString (String text){
-    if (bundle == null)
-      bundle = NbBundle.getBundle(CorbaWizardAction.class);
-    return bundle.getString(text);
-  }
+    public static String getLocalizedString (String text){
+        if (bundle == null)
+            bundle = NbBundle.getBundle(CorbaWizardAction.class);
+        return bundle.getString(text);
+    }
   
 }

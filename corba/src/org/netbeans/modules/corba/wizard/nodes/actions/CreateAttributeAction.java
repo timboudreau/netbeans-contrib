@@ -25,22 +25,22 @@ import org.netbeans.modules.corba.wizard.nodes.utils.*;
  */
 public class CreateAttributeAction extends ExtNodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if (enable (nodes)) {
-      ((AttributeCreator)nodes[0].getCookie(AttributeCreator.class)).createAttribute ();
+    protected void performAction (Node[] nodes) {
+        if (enable (nodes)) {
+            ((AttributeCreator)nodes[0].getCookie(AttributeCreator.class)).createAttribute ();
+        }
     }
-  }
   
-  protected boolean enable (Node[] nodes) {
-    return nodes.length == 1 && nodes[0].getCookie (AttributeCreator.class) != null;
-  }
+    protected boolean enable (Node[] nodes) {
+        return nodes.length == 1 && nodes[0].getCookie (AttributeCreator.class) != null;
+    }
 
-  public String getName () {
-    return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateAttribute");
-  }
+    public String getName () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateAttribute");
+    }
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-  }
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
   
 }

@@ -66,18 +66,18 @@ public class IRRootNodeChildren extends Children.Keys {
           (((Repository)repositories.elementAt (i)).getName (), 
           ((Repository)repositories.elementAt (i)).getRepository ()));
           }
-        *
-        /*
-          try {
-          ORB orb = getContextNode ().getORB ();
-          if (DEBUG) 
-          System.out.println ("createKeys ();");
-          if (!getContextNode ().loaded ()) {
-          getContextNode ().restore ();
-          }
-          setKeys (getContextNode ().getContexts ());
-          return;
-          }
+          *
+          /*
+            try {
+            ORB orb = getContextNode ().getORB ();
+            if (DEBUG) 
+            System.out.println ("createKeys ();");
+            if (!getContextNode ().loaded ()) {
+            getContextNode ().restore ();
+            }
+            setKeys (getContextNode ().getContexts ());
+            return;
+            }
         */
         setKeys (repositories);
     }

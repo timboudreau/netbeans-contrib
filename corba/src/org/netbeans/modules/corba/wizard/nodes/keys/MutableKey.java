@@ -20,33 +20,33 @@ package org.netbeans.modules.corba.wizard.nodes.keys;
  */
 public class MutableKey extends Object {
   
-  public final static int MODULE    = 1;
-  public final static int INTERFACE = 2;
-  public final static int OPERATION = 3;
-  public final static int ATTRIBUTE = 4;
-  public final static int CONSTANT  = 5;
-  public final static int ALIAS     = 6;
-  public final static int EXCEPTION = 7;
-  public final static int STRUCT    = 8;
-  public final static int UNION     = 9;
-  public final static int ENUM      = 10;
-  public final static int UNION_MBR = 11;
-  public final static int STRUCT_MBR = 12;
-  public final static int ENUM_MBR = 13;
+    public final static int MODULE    = 1;
+    public final static int INTERFACE = 2;
+    public final static int OPERATION = 3;
+    public final static int ATTRIBUTE = 4;
+    public final static int CONSTANT  = 5;
+    public final static int ALIAS     = 6;
+    public final static int EXCEPTION = 7;
+    public final static int STRUCT    = 8;
+    public final static int UNION     = 9;
+    public final static int ENUM      = 10;
+    public final static int UNION_MBR = 11;
+    public final static int STRUCT_MBR = 12;
+    public final static int ENUM_MBR = 13;
 
-  private int kind;  
+    private int kind;  
   
-  /** Creates new MutableKey */
-  public MutableKey (int kind) {
-    this.kind = kind;
-  }
+    /** Creates new MutableKey */
+    public MutableKey (int kind) {
+        this.kind = kind;
+    }
   
-  public int kind () {
-    return this.kind;
-  }
+    public int kind () {
+        return this.kind;
+    }
   
-  public String toString () {
-    return "org.netbeans.modules.corba.wizard.nodes.keys.MutableKey:"+kind;  // No I18N
-  }
+    public String toString () {
+        return "org.netbeans.modules.corba.wizard.nodes.keys.MutableKey:"+kind;  // No I18N
+    }
   
 }

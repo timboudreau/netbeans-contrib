@@ -28,36 +28,36 @@ import org.netbeans.modules.corba.wizard.nodes.gui.*;
  */
 public class StructMemberNode extends AbstractMutableLeafNode  {
 
-  private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/declarator";
+    private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/declarator";
   
-  /** Creates new StructMemberNode */
-  public StructMemberNode (NamedKey key) {
-    super (key);
-    this.setName (key.getName ());
-    this.setIconBase (ICON_BASE);
-  }
-  
-  public SystemAction[] createActions () {
-    return new SystemAction [] {
-                  SystemAction.get (DestroyAction.class),
-                  SystemAction.get (RenameAction.class)
-    };
-  }
-  
-  public String generateSelf (int indent) {
-    String code = new String ();
-    for (int i =0; i< indent; i++) {
-      code =code + "    ";  //No I18N
+    /** Creates new StructMemberNode */
+    public StructMemberNode (NamedKey key) {
+        super (key);
+        this.setName (key.getName ());
+        this.setIconBase (ICON_BASE);
     }
-    AliasKey key = (AliasKey) this.key;
-    code = code + key.getType () + " "; // No I18N
-    code = code + this.getName ();
-    if (key.getLength ().length () > 0) {
-      StringTokenizer tk = new StringTokenizer (key.getLength(),",");
-      code = code + " [" + tk.nextToken() +"]";
+  
+    public SystemAction[] createActions () {
+        return new SystemAction [] {
+            SystemAction.get (DestroyAction.class),
+            SystemAction.get (RenameAction.class)
+        };
     }
-    code = code + ";\n"; // No I18N
-    return code;
-  }
+  
+    public String generateSelf (int indent) {
+        String code = new String ();
+        for (int i =0; i< indent; i++) {
+            code =code + "    ";  //No I18N
+        }
+        AliasKey key = (AliasKey) this.key;
+        code = code + key.getType () + " "; // No I18N
+        code = code + this.getName ();
+        if (key.getLength ().length () > 0) {
+            StringTokenizer tk = new StringTokenizer (key.getLength(),",");
+            code = code + " [" + tk.nextToken() +"]";
+        }
+        code = code + ";\n"; // No I18N
+        return code;
+    }
   
 }

@@ -27,45 +27,45 @@ import org.netbeans.modules.corba.wizard.nodes.actions.*;
  */
 public class ModuleNode extends FMNode {
 
-  private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/module";
+    private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/module";
   
-  /** Creates new ModuleNode */
-  public ModuleNode (NamedKey key) {
-    super (key);
-    this.getCookieSet().add(this);
-    this.setName (key.getName());
-    this.setIconBase (ICON_BASE);
-  }
-  
-  public SystemAction[] createActions () {
-    return new SystemAction[] {
-      SystemAction.get (CreateAliasAction.class),
-      SystemAction.get (CreateConstantAction.class),
-      SystemAction.get (CreateEnumAction.class),
-      SystemAction.get (CreateExceptionAction.class),
-      SystemAction.get (CreateInterfaceAction.class),
-      SystemAction.get (CreateModuleAction.class),
-      SystemAction.get (CreateStructAction.class),
-      SystemAction.get (CreateUnionAction.class),
-      null,
-      SystemAction.get (DestroyAction.class),
-      SystemAction.get (RenameAction.class)
-    };
-  }
-  
-  public String generateSelf (int indent) {
-    String code = new String ();
-    String fill = new String ();
-    for (int i=0; i< indent; i++)
-      fill = fill + "    ";
-    code = fill + "module " + this.getName () +" {\n";  // No I18N
-    Node[] nodes = this.getChildren().getNodes ();
-    for (int i=0; i<nodes.length; i++) {
-      code = code + ((AbstractMutableIDLNode)nodes[i]).generateSelf (indent + 1);
-      code = code + "\n";
+    /** Creates new ModuleNode */
+    public ModuleNode (NamedKey key) {
+        super (key);
+        this.getCookieSet().add(this);
+        this.setName (key.getName());
+        this.setIconBase (ICON_BASE);
     }
-    code = code + fill + "};\n";
-    return code;
-  }
+  
+    public SystemAction[] createActions () {
+        return new SystemAction[] {
+            SystemAction.get (CreateAliasAction.class),
+            SystemAction.get (CreateConstantAction.class),
+            SystemAction.get (CreateEnumAction.class),
+            SystemAction.get (CreateExceptionAction.class),
+            SystemAction.get (CreateInterfaceAction.class),
+            SystemAction.get (CreateModuleAction.class),
+            SystemAction.get (CreateStructAction.class),
+            SystemAction.get (CreateUnionAction.class),
+            null,
+            SystemAction.get (DestroyAction.class),
+            SystemAction.get (RenameAction.class)
+        };
+    }
+  
+    public String generateSelf (int indent) {
+        String code = new String ();
+        String fill = new String ();
+        for (int i=0; i< indent; i++)
+            fill = fill + "    ";
+        code = fill + "module " + this.getName () +" {\n";  // No I18N
+        Node[] nodes = this.getChildren().getNodes ();
+        for (int i=0; i<nodes.length; i++) {
+            code = code + ((AbstractMutableIDLNode)nodes[i]).generateSelf (indent + 1);
+            code = code + "\n";
+        }
+        code = code + fill + "};\n";
+        return code;
+    }
   
 }

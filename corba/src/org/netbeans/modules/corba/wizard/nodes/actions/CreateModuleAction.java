@@ -24,30 +24,30 @@ import org.netbeans.modules.corba.wizard.nodes.utils.ModuleCreator;
  */
 public class CreateModuleAction extends ExtNodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if (enable (nodes)){ 
-      ((ModuleCreator)nodes[0].getCookie(ModuleCreator.class)).createModule ();
+    protected void performAction (Node[] nodes) {
+        if (enable (nodes)){ 
+            ((ModuleCreator)nodes[0].getCookie(ModuleCreator.class)).createModule ();
+        }
     }
-  }
   
-  protected boolean enable (Node[] nodes) {
-    if (nodes.length != 1){
-      return false;
+    protected boolean enable (Node[] nodes) {
+        if (nodes.length != 1){
+            return false;
+        }
+        if (nodes[0].getCookie (ModuleCreator.class) != null ){
+            return true;
+        }
+        else{
+            Object n = nodes[0].getCookie(ModuleCreator.class);
+            return false;
+        }
     }
-    if (nodes[0].getCookie (ModuleCreator.class) != null ){
-      return true;
-    }
-    else{
-      Object n = nodes[0].getCookie(ModuleCreator.class);
-      return false;
-    }
-  }
 
-  public String getName () {
-    return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateModule");
-  }
+    public String getName () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateModule");
+    }
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-  }  
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }  
 }

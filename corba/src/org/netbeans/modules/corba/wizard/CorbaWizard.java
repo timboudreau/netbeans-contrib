@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import org.netbeans.modules.corba.IDLDataObject;
 import org.netbeans.modules.corba.IDLNodeCookie;
+import org.netbeans.modules.corba.settings.CORBASupportSettings;
 
 /** 
  *
@@ -49,297 +50,307 @@ import org.netbeans.modules.corba.IDLNodeCookie;
  */
 public class CorbaWizard extends Object implements PropertyChangeListener, WizardDescriptor.Iterator {
   
-  private static final int panelsCount = 5;
- // private static final boolean DEBUG = true;
-  private static final boolean DEBUG = false;
+    private static final int panelsCount = 5;
+    // private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
   
-  private int index;
-  private CorbaWizardData data;
-  private Dialog dialog;
-  private boolean locked;
-  private PackagePanel packagePanel = new PackagePanel ();
-  private StartPanel startPanel = new StartPanel ();
-  private ORBPanel orbPanel = new ORBPanel ();
-  private IDLPanel idlPanel = new IDLPanel ();
-  private IDLWizardPanel idlWizardPanel = new IDLWizardPanel ();
-  private FinishPanel finishPanel = new FinishPanel ();
-  private ArrayList listeners = new ArrayList ();
+    private int index;
+    private CorbaWizardData data;
+    private Dialog dialog;
+    private boolean locked;
+    private PackagePanel packagePanel = new PackagePanel ();
+    private StartPanel startPanel = new StartPanel ();
+    private ORBPanel orbPanel = new ORBPanel ();
+    private IDLPanel idlPanel = new IDLPanel ();
+    private IDLWizardPanel idlWizardPanel = new IDLWizardPanel ();
+    private FinishPanel finishPanel = new FinishPanel ();
+    private ArrayList listeners = new ArrayList ();
   
-  private class WizardGenerator extends Thread {
+    private class WizardGenerator extends Thread {
       
-      public WizardGenerator () {
-      }
+        public WizardGenerator () {
+        }
 
-      public void run () {
+        public void run () {
 
-        BufferedReader in = null;
-        PrintWriter out = null;
-        FileLock lock = null;
-        String line = null;
+            BufferedReader in = null;
+            PrintWriter out = null;
+            FileLock lock = null;
+            String line = null;
 
-        CorbaWizard.this.dialog.setVisible (false);
-        CorbaWizard.this.dialog.dispose();
-        try {
-          DataFolder pkg = CorbaWizard.this.data.getDestinationPackage ();
-          Object idlSource = CorbaWizard.this.data.getSource ();
-          int mode = CorbaWizard.this.data.getGenerate ();
+            CorbaWizard.this.dialog.setVisible (false);
+            CorbaWizard.this.dialog.dispose();
+            try {
+                DataFolder pkg = CorbaWizard.this.data.getDestinationPackage ();
+                Object idlSource = CorbaWizard.this.data.getSource ();
+                int mode = CorbaWizard.this.data.getGenerate ();
 
-          // Create file to hold data
-          String name = CorbaWizard.this.data.getName();
+                // Create file to hold data
+                String name = CorbaWizard.this.data.getName();
           
-          FileObject destination = pkg.getPrimaryFile().createData (name,"idl");  // No I18N
-          lock = destination.lock();
-          out = new PrintWriter ( new OutputStreamWriter ( destination.getOutputStream (lock)));
+                FileObject destination = pkg.getPrimaryFile().createData (name,"idl");  // No I18N
+                lock = destination.lock();
+                out = new PrintWriter ( new OutputStreamWriter ( destination.getOutputStream (lock)));
 
-          if ((mode & CorbaWizardData.IDL) == CorbaWizardData.IDL) {
-            TopManager.getDefault().setStatusText(CorbaWizardAction.getLocalizedString("MSG_CreatingIDL"));
-            if (idlSource instanceof org.netbeans.modules.corba.wizard.nodes.IdlFileNode) {
-              try {
-                ((org.netbeans.modules.corba.wizard.nodes.IdlFileNode)idlSource).generate (out);
-              }finally {
-                  if (out != null)
-                       out.close();
-                  if (lock != null) 
-                    lock.releaseLock ();      
-              }
-            }
-          }
-          else {
-            TopManager.getDefault().setStatusText(CorbaWizardAction.getLocalizedString("MSG_ImportingIDL"));
-            if (idlSource instanceof File) {
-                try {
-                  in = new BufferedReader ( new FileReader ( (File) idlSource));
-                  while ((line = in.readLine()) != null) {
-                    out.println (line);
-                  }
-                }finally {
-                   if (in != null)
-                      try { in.close();} catch (IOException ioe2){}
-                   if (out != null)
-                       out.close();
-                   if (lock != null) 
-                       lock.releaseLock ();      
-                 }
-            }
-            else if (idlSource instanceof Node[]) {
-                Node[] nodes = (Node[]) idlSource;
-                try {
-                for (int i=0; i< nodes.length; i++) {
-                  if (nodes[i] instanceof org.netbeans.modules.corba.browser.ir.util.Generatable)
-                    ((org.netbeans.modules.corba.browser.ir.util.Generatable)nodes[i]).generateCode (out);
+                if ((mode & CorbaWizardData.IDL) == CorbaWizardData.IDL) {
+                    TopManager.getDefault().setStatusText(CorbaWizardAction.getLocalizedString("MSG_CreatingIDL"));
+                    if (idlSource instanceof org.netbeans.modules.corba.wizard.nodes.IdlFileNode) {
+                        try {
+                            ((org.netbeans.modules.corba.wizard.nodes.IdlFileNode)idlSource).generate (out);
+                        }finally {
+                            if (out != null)
+                                out.close();
+                            if (lock != null) 
+                                lock.releaseLock ();      
+                        }
+                    }
                 }
-                }finally {
-                  if (out != null)
-                       out.close();
-                  if (lock != null) 
-                    lock.releaseLock ();      
+                else {
+                    TopManager.getDefault().setStatusText(CorbaWizardAction.getLocalizedString("MSG_ImportingIDL"));
+                    if (idlSource instanceof File) {
+                        try {
+                            in = new BufferedReader ( new FileReader ( (File) idlSource));
+                            while ((line = in.readLine()) != null) {
+                                out.println (line);
+                            }
+                        }finally {
+                            if (in != null)
+                                try { in.close();} catch (IOException ioe2){}
+                            if (out != null)
+                                out.close();
+                            if (lock != null) 
+                                lock.releaseLock ();      
+                        }
+                    }
+                    else if (idlSource instanceof Node[]) {
+                        Node[] nodes = (Node[]) idlSource;
+                        try {
+                            for (int i=0; i< nodes.length; i++) {
+                                if (nodes[i] instanceof org.netbeans.modules.corba.browser.ir.util.Generatable)
+                                    ((org.netbeans.modules.corba.browser.ir.util.Generatable)nodes[i]).generateCode (out);
+                            }
+                        }finally {
+                            if (out != null)
+                                out.close();
+                            if (lock != null) 
+                                lock.releaseLock ();      
+                        }
+                    }
+                }
+                DataObject idlDataObject = DataObject.find (destination);
+                EditorCookie editorCookie = (EditorCookie) idlDataObject.getCookie (EditorCookie.class);
+                editorCookie.open();
+                if ((mode & CorbaWizardData.IMPL) == CorbaWizardData.IMPL) {
+                    TopManager.getDefault().setStatusText (CorbaWizardAction.getLocalizedString("MSG_CreatingImpl"));
+                    IDLDataObject dataObject = (IDLDataObject) DataObject.find (destination);
+                    IDLNodeCookie idlCookie = (IDLNodeCookie) dataObject.getCookie (IDLNodeCookie.class);
+                    idlCookie.GenerateImpl (dataObject);
+                }
+                if ((mode & CorbaWizardData.CLIENT) == CorbaWizardData.CLIENT) {
+                    TopManager.getDefault().setStatusText (CorbaWizardAction.getLocalizedString("MSG_CreatingClient"));
+                    DataFolder templates = TopManager.getDefault().getPlaces().folders().templates();
+                    DataObject template = findDataObject (templates,"CORBA/ClientMain");    // No I18N
+                    DataObject client = template.createFromTemplate (pkg,name+"Client");
+                    OpenCookie openCookie = (OpenCookie) client.getCookie (OpenCookie.class);
+                    if (openCookie != null)
+                        openCookie.open();
+                }
+
+                if ((mode & CorbaWizardData.SERVER) == CorbaWizardData.SERVER) {
+                    TopManager.getDefault().setStatusText (CorbaWizardAction.getLocalizedString("MSG_CreatingServer"));
+                    DataFolder templates = TopManager.getDefault().getPlaces().folders().templates();
+                    DataObject template = findDataObject (templates,"CORBA/ServerMain");    // No I18N
+                    DataObject server = template.createFromTemplate (pkg,name+"Server");
+                    OpenCookie openCookie = (OpenCookie) server.getCookie (OpenCookie.class);
+                    if (openCookie != null)
+                        openCookie.open();
+                } 
+            }catch (IOException ioe) {
+                // Handle Error Here
+                ioe.printStackTrace ();
+            } 
+        }
+
+        /** Finds the DataObject given by name in the hierarchy
+         *  @param DataFolder folder, the root folder
+         *  @param String name, name of DataObject, '/' as separator
+         *  @return DataObject if exists, null otherwise
+         */
+        private DataObject findDataObject (DataFolder folder, String name) {
+            if (name.length() == 0)
+                return null;
+            return findDataObject (folder, new StringTokenizer (name, "/"));
+        }
+
+        private DataObject findDataObject (DataFolder folder, StringTokenizer tk) {
+            String nameComponent = tk.nextToken();
+            DataObject[] list = folder.getChildren();
+            for (int i=0; i< list.length; i++) {
+                if (list[i].getName().equals(nameComponent)){
+                    if (!tk.hasMoreTokens())
+                        return list[i];
+                    else if (list[i] instanceof DataFolder) 
+                        return findDataObject ((DataFolder)list[i], tk);
+                    else 
+                        return null;
                 }
             }
-          }
-          DataObject idlDataObject = DataObject.find (destination);
-          EditorCookie editorCookie = (EditorCookie) idlDataObject.getCookie (EditorCookie.class);
-          editorCookie.open();
-          if ((mode & CorbaWizardData.IMPL) == CorbaWizardData.IMPL) {
-            TopManager.getDefault().setStatusText (CorbaWizardAction.getLocalizedString("MSG_CreatingImpl"));
-            IDLDataObject dataObject = (IDLDataObject) DataObject.find (destination);
-            IDLNodeCookie idlCookie = (IDLNodeCookie) dataObject.getCookie (IDLNodeCookie.class);
-            idlCookie.GenerateImpl (dataObject);
-          }
-          if ((mode & CorbaWizardData.CLIENT) == CorbaWizardData.CLIENT) {
-            TopManager.getDefault().setStatusText (CorbaWizardAction.getLocalizedString("MSG_CreatingClient"));
-            DataFolder templates = TopManager.getDefault().getPlaces().folders().templates();
-            DataObject template = findDataObject (templates,"CORBA/ClientMain");    // No I18N
-            DataObject client = template.createFromTemplate (pkg,name+"Client");
-            OpenCookie openCookie = (OpenCookie) client.getCookie (OpenCookie.class);
-            if (openCookie != null)
-              openCookie.open();
-          }
-
-          if ((mode & CorbaWizardData.SERVER) == CorbaWizardData.SERVER) {
-            TopManager.getDefault().setStatusText (CorbaWizardAction.getLocalizedString("MSG_CreatingServer"));
-            DataFolder templates = TopManager.getDefault().getPlaces().folders().templates();
-            DataObject template = findDataObject (templates,"CORBA/ServerMain");    // No I18N
-            DataObject server = template.createFromTemplate (pkg,name+"Server");
-            OpenCookie openCookie = (OpenCookie) server.getCookie (OpenCookie.class);
-            if (openCookie != null)
-              openCookie.open();
-          } 
-        }catch (IOException ioe) {
-          // Handle Error Here
-          ioe.printStackTrace ();
-        } 
-      }
-
-      /** Finds the DataObject given by name in the hierarchy
-       *  @param DataFolder folder, the root folder
-       *  @param String name, name of DataObject, '/' as separator
-       *  @return DataObject if exists, null otherwise
-       */
-      private DataObject findDataObject (DataFolder folder, String name) {
-        if (name.length() == 0)
-          return null;
-        return findDataObject (folder, new StringTokenizer (name, "/"));
-      }
-
-      private DataObject findDataObject (DataFolder folder, StringTokenizer tk) {
-        String nameComponent = tk.nextToken();
-        DataObject[] list = folder.getChildren();
-        for (int i=0; i< list.length; i++) {
-          if (list[i].getName().equals(nameComponent)){
-            if (!tk.hasMoreTokens())
-              return list[i];
-            else if (list[i] instanceof DataFolder) 
-              return findDataObject ((DataFolder)list[i], tk);
-            else 
-              return null;
-          }
+            return null;
         }
-        return null;
-      }
-  }
+    }
 
-  /** Creates new CorbaWizard */
-  public CorbaWizard() {
-    this.index = 0;
-    this.data = new CorbaWizardData ();
-  }
+    /** Creates new CorbaWizard */
+    public CorbaWizard() {
+        this.index = 0;
+        this.data = new CorbaWizardData ();
+    }
   
   
-  /** Returns current panel
-   *  @return WizardDescriptor.Panel
-   */
-  public WizardDescriptor.Panel current() {
-    switch (this.index) {
-      case 0:
-        return packagePanel;
-      case 1:
-        return startPanel;
-      case 2:
-        return orbPanel;
-      case 3:
-        if ((this.data.getGenerate() & CorbaWizardData.IDL) == CorbaWizardData.IDL) { 
-          return idlWizardPanel;
+    /** Returns current panel
+     *  @return WizardDescriptor.Panel
+     */
+    public WizardDescriptor.Panel current() {
+        switch (this.index) {
+        case 0:
+            return packagePanel;
+        case 1:
+            return startPanel;
+        case 2:
+            return orbPanel;
+        case 3:
+            if ((this.data.getGenerate() & CorbaWizardData.IDL) == CorbaWizardData.IDL) { 
+                return idlWizardPanel;
+            }
+            else {
+                return idlPanel;
+            }
+        case 4:
+            return finishPanel;
+        default:
+            return null;
         }
-        else {
-          return idlPanel;
+    }
+  
+    /** Can the iterater return next panel
+     *  @return boolean 
+     */
+    public boolean hasNext() {
+        return (index < (panelsCount -1) );
+    }
+  
+    /** Can the iterator return previous panel
+     *  @return boolean
+     */
+    public boolean hasPrevious () {
+        return index > 0;
+    }
+  
+    /** Returns total count of panels
+     *  @return int count
+     */
+    private int totalCount () {
+        return panelsCount;
+    }
+  
+    /** Return index of current panel
+     *  @return int current index
+     */
+    private int currentIndex () {
+        return index;
+    }
+  
+    /** Returns the name of Wizard
+     *  @return String wizard name
+     */
+    public String name () {
+        return Integer.toString(index+1)+"/"+Integer.toString(panelsCount); // No I18N
+    }
+  
+    /** Returns the next panel
+     *  @return WizardDescriptor.Panel 
+     */
+    public synchronized void nextPanel () {
+        if (index < panelsCount)
+            this.index++;
+    }
+  
+    /** Returns the previous panel
+     *  @return WizardDescriptor.Panel
+     */
+    public synchronized void  previousPanel () {
+        if (index > 0)
+            this.index--;
+    }
+  
+    /** Starts the wizard
+     *  @see CorbaWizardAction
+     */
+    public void run () {
+        if (DEBUG)
+            System.out.println("Starting CORBA Wizard...");
+        WizardDescriptor descriptor = new WizardDescriptor (CorbaWizard.this, data);
+        descriptor.setClosingOptions (new Object[] {DialogDescriptor.CANCEL_OPTION});
+        descriptor.setTitleFormat(new java.text.MessageFormat ("CORBA Wizard[{1}]"));
+        descriptor.addPropertyChangeListener (CorbaWizard.this);
+        dialog = TopManager.getDefault().createDialog (descriptor);
+        dialog.show();
+        if (descriptor.getValue() == WizardDescriptor.FINISH_OPTION){
         }
-      case 4:
-        return finishPanel;
-      default:
-        return null;
     }
-  }
   
-  /** Can the iterater return next panel
-   *  @return boolean 
-   */
-  public boolean hasNext() {
-    return (index < (panelsCount -1) );
-  }
-  
-  /** Can the iterator return previous panel
-   *  @return boolean
-   */
-  public boolean hasPrevious () {
-    return index > 0;
-  }
-  
-  /** Returns total count of panels
-   *  @return int count
-   */
-  private int totalCount () {
-    return panelsCount;
-  }
-  
-  /** Return index of current panel
-   *  @return int current index
-   */
-  private int currentIndex () {
-    return index;
-  }
-  
-  /** Returns the name of Wizard
-   *  @return String wizard name
-   */
-  public String name () {
-    return Integer.toString(index+1)+"/"+Integer.toString(panelsCount); // No I18N
-  }
-  
-  /** Returns the next panel
-   *  @return WizardDescriptor.Panel 
-   */
-  public synchronized void nextPanel () {
-    if (index < panelsCount)
-      this.index++;
-  }
-  
-  /** Returns the previous panel
-   *  @return WizardDescriptor.Panel
-   */
-  public synchronized void  previousPanel () {
-    if (index > 0)
-      this.index--;
-  }
-  
-  /** Starts the wizard
-   *  @see CorbaWizardAction
-   */
-  public void run () {
-    if (DEBUG)
-      System.out.println("Starting CORBA Wizard...");
-    WizardDescriptor descriptor = new WizardDescriptor (CorbaWizard.this, data);
-    descriptor.setClosingOptions (new Object[] {DialogDescriptor.CANCEL_OPTION});
-    descriptor.setTitleFormat(new java.text.MessageFormat ("CORBA Wizard[{1}]"));
-    descriptor.addPropertyChangeListener (CorbaWizard.this);
-    dialog = TopManager.getDefault().createDialog (descriptor);
-    dialog.show();
-    if (descriptor.getValue() == WizardDescriptor.FINISH_OPTION){
+    /** Adds ChangeListener
+     *  @param ChangeListener listener
+     */
+    public synchronized void addChangeListener (ChangeListener listener){
+        if (DEBUG)
+            System.out.println("addChangeListener added");
+        this.listeners.add (listener);
     }
-  }
   
-  /** Adds ChangeListener
-   *  @param ChangeListener listener
-   */
-  public synchronized void addChangeListener (ChangeListener listener){
-    if (DEBUG)
-        System.out.println("addChangeListener added");
-    this.listeners.add (listener);
-  }
-  
-  /** Removes ChangeListener
-   * @param ChangeListener listener
-   */
-  public synchronized void removeChangeListener (ChangeListener listener){
-    this.listeners.remove (listener);
-  }
-  
-  /** Callback for CorbaWizardDescriptor
-   *  @param PropertyChangeListener event
-   */
-  public void propertyChange(final PropertyChangeEvent event) {
-    if (event.getPropertyName().equals(DialogDescriptor.PROP_VALUE)){
-      Object option = event.getNewValue();
-      if (option == WizardDescriptor.FINISH_OPTION) {
-        WizardGenerator wg = this.new WizardGenerator ();
-        wg.start ();
-      }
-      else if (option == WizardDescriptor.CANCEL_OPTION) {
-        dialog.setVisible(false);
-        dialog.dispose ();
-      }
+    /** Removes ChangeListener
+     * @param ChangeListener listener
+     */
+    public synchronized void removeChangeListener (ChangeListener listener){
+        this.listeners.remove (listener);
     }
-  }
+  
+    /** Callback for CorbaWizardDescriptor
+     *  @param PropertyChangeListener event
+     */
+    public void propertyChange(final PropertyChangeEvent event) {
+        if (event.getPropertyName().equals(DialogDescriptor.PROP_VALUE)){
+            CORBASupportSettings css = this.data.getSettings();
+            if (css != null) {
+                if (this.data.getDefaultServerBindingValue() != null)
+                    css.getActiveSetting().setServerBindingFromString(this.data.getDefaultServerBindingValue());
+                if (this.data.getDefaultClientBindingValue() != null)
+                    css.getActiveSetting().setClientBindingFromString (this.data.getDefaultClientBindingValue());
+                if (this.data.getDefaultOrbValue() != null)
+                    css.setOrb(this.data.getDefaultOrbValue());
+            }
+            
+            Object option = event.getNewValue();
+            if (option == WizardDescriptor.FINISH_OPTION) {
+                WizardGenerator wg = this.new WizardGenerator ();
+                wg.start ();
+            }
+            else if (option == WizardDescriptor.CANCEL_OPTION) {
+                dialog.setVisible(false);
+                dialog.dispose ();
+            }
+        }
+    }
 
 
-  protected void fireEvent () {
-    ArrayList list;
-    synchronized (this) {
-        list = (ArrayList) this.listeners.clone();
+    protected void fireEvent () {
+        ArrayList list;
+        synchronized (this) {
+            list = (ArrayList) this.listeners.clone();
+        }
+        ChangeEvent event = new ChangeEvent (this);
+        for (int i=0; i<list.size(); i++)
+            ((ChangeListener)list.get (i)).stateChanged (event);
     }
-    ChangeEvent event = new ChangeEvent (this);
-    for (int i=0; i<list.size(); i++)
-        ((ChangeListener)list.get (i)).stateChanged (event);
-  }
 
   
   

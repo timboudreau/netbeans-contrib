@@ -19,5 +19,5 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @version 
  */
 public interface AttributeCreator {
-  public void createAttribute ();
+    public void createAttribute ();
 }

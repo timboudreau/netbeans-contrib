@@ -25,23 +25,23 @@ import org.netbeans.modules.corba.wizard.nodes.utils.EnumCreator;
  */
 public class CreateEnumAction extends ExtNodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if (enable (nodes)) {
-      ((EnumCreator) nodes[0].getCookie (EnumCreator.class)).createEnum ();
+    protected void performAction (Node[] nodes) {
+        if (enable (nodes)) {
+            ((EnumCreator) nodes[0].getCookie (EnumCreator.class)).createEnum ();
+        }
     }
-  }
   
-  protected boolean enable (Node[] nodes) {
-    return nodes.length == 1 && nodes[0].getCookie (EnumCreator.class) != null;
-  }
+    protected boolean enable (Node[] nodes) {
+        return nodes.length == 1 && nodes[0].getCookie (EnumCreator.class) != null;
+    }
 
-  public String getName () {
-    return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateEnum");
-  }
+    public String getName () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateEnum");
+    }
 
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-  }
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
   
 }

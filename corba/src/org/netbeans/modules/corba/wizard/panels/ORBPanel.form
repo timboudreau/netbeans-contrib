@@ -52,10 +52,6 @@
           </Constraints>
         </Component>
         <Component class="javax.swing.JComboBox" name="orbs">
-
-          <Events>
-            <EventHandler event="actionPerformed" handler="orbChanged"/>
-          </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
               <GridBagConstraints anchor="18" fill="2" gridHeight="1" gridWidth="0" gridX="1" gridY="0" insetsBottom="8" insetsLeft="4" insetsRight="8" insetsTop="8" ipadX="0" ipadY="0" weightX="1.0" weightY="1.0"/>
@@ -63,10 +59,6 @@
           </Constraints>
         </Component>
         <Component class="javax.swing.JComboBox" name="bindings">
-
-          <Events>
-            <EventHandler event="actionPerformed" handler="bindingChanged"/>
-          </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
               <GridBagConstraints anchor="18" fill="2" gridHeight="1" gridWidth="0" gridX="1" gridY="1" insetsBottom="8" insetsLeft="4" insetsRight="8" insetsTop="8" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>

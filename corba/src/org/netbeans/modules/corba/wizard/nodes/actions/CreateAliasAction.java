@@ -25,23 +25,23 @@ import org.netbeans.modules.corba.wizard.nodes.utils.AliasCreator;
  */
 public class CreateAliasAction extends ExtNodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if (enable (nodes)) {
-      ((AliasCreator) nodes[0].getCookie(AliasCreator.class)).createAlias ();
+    protected void performAction (Node[] nodes) {
+        if (enable (nodes)) {
+            ((AliasCreator) nodes[0].getCookie(AliasCreator.class)).createAlias ();
+        }
     }
-  }
   
-  protected boolean enable (Node[] nodes) {
-    return nodes.length == 1 && nodes[0].getCookie (AliasCreator.class) != null;
-  }
+    protected boolean enable (Node[] nodes) {
+        return nodes.length == 1 && nodes[0].getCookie (AliasCreator.class) != null;
+    }
 
-  public String getName () {
-    return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateAlias");
-  }
+    public String getName () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateAlias");
+    }
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-  }
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
 
   
 }

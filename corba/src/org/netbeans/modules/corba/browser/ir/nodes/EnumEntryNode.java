@@ -26,51 +26,51 @@ import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
  */
 public class EnumEntryNode extends IRLeafNode {
 
-  private String name;
-  private static final String ENUM_ENTRY_ICON_BASE =
-   "org/netbeans/modules/corba/idl/node/declarator";
+    private String name;
+    private static final String ENUM_ENTRY_ICON_BASE =
+        "org/netbeans/modules/corba/idl/node/declarator";
   
-  /** Creates new EnumEntryNode */
-  public EnumEntryNode(String name) {
-    super();
-    this.name = name;
-    this.setIconBase(ENUM_ENTRY_ICON_BASE);
-  }
+    /** Creates new EnumEntryNode */
+    public EnumEntryNode(String name) {
+        super();
+        this.name = name;
+        this.setIconBase(ENUM_ENTRY_ICON_BASE);
+    }
   
   
-  public final String getName(){
-    return this.getDisplayName();
-  }
+    public final String getName(){
+        return this.getDisplayName();
+    }
   
-  public final String getDisplayName(){
-    return this.name;
-  }
+    public final String getDisplayName(){
+        return this.name;
+    }
   
-  public Sheet createSheet (){
-    Sheet s = Sheet.createDefault();
-    Sheet.Set ss = s.get(Sheet.PROPERTIES);
-    ss.put ( new PropertySupport.ReadOnly(Util.getLocalizedString("TITLE_Name"),String.class,Util.getLocalizedString("TITLE_Name"),Util.getLocalizedString("TIP_EnumEntryName")){
-      public java.lang.Object getValue(){
-        return name;
-      }
-    });
-    return s;
-  }
+    public Sheet createSheet (){
+        Sheet s = Sheet.createDefault();
+        Sheet.Set ss = s.get(Sheet.PROPERTIES);
+        ss.put ( new PropertySupport.ReadOnly(Util.getLocalizedString("TITLE_Name"),String.class,Util.getLocalizedString("TITLE_Name"),Util.getLocalizedString("TIP_EnumEntryName")){
+                public java.lang.Object getValue(){
+                    return name;
+                }
+            });
+        return s;
+    }
   
-  public String getRepositoryId () {
-    return Util.getLocalizedString("MSG_EnumEntry");
-  }
+    public String getRepositoryId () {
+        return Util.getLocalizedString("MSG_EnumEntry");
+    }
   
-  /** This node does not support generation of content
-   */
-  public GenerateSupport createGenerator(){
-    return null;
-  }
+    /** This node does not support generation of content
+     */
+    public GenerateSupport createGenerator(){
+        return null;
+    }
   
-  /** This node does not support generation of content
-   */
-  public static GenerateSupport createGeneratorFor (Contained type){
-    return null;
-  }
+    /** This node does not support generation of content
+     */
+    public static GenerateSupport createGeneratorFor (Contained type){
+        return null;
+    }
   
 }

@@ -25,22 +25,22 @@ import org.netbeans.modules.corba.wizard.nodes.utils.EnumEntryCreator;
  */
 public class CreateEnumEntryAction extends ExtNodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if ( enable ( nodes)) {
-      ((EnumEntryCreator) nodes[0].getCookie (EnumEntryCreator.class)).createEnumEntry ();
+    protected void performAction (Node[] nodes) {
+        if ( enable ( nodes)) {
+            ((EnumEntryCreator) nodes[0].getCookie (EnumEntryCreator.class)).createEnumEntry ();
+        }
     }
-  }
   
-  protected boolean enable (Node[] nodes) {
-    return nodes.length == 1 && nodes[0].getCookie (EnumEntryCreator.class) != null;
-  }
+    protected boolean enable (Node[] nodes) {
+        return nodes.length == 1 && nodes[0].getCookie (EnumEntryCreator.class) != null;
+    }
 
-  public String getName () {
-    return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateMember");
-  }
+    public String getName () {
+        return java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/actions/Bundle").getString("TXT_CreateMember");
+    }
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-  }
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
   
 }

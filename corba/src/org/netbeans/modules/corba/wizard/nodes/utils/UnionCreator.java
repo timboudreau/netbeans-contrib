@@ -19,5 +19,5 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @version 
  */
 public interface UnionCreator {
-  public void createUnion ();
+    public void createUnion ();
 }

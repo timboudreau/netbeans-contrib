@@ -29,8 +29,8 @@ public class ExPanel extends JPanel {
 
     /** Creates new ExPanel */
     public ExPanel() {
-       super ();
-       this.listeners = new PropertyChangeSupport(this);
+        super ();
+        this.listeners = new PropertyChangeSupport(this);
     }
     
     

@@ -20,22 +20,22 @@ package org.netbeans.modules.corba.wizard.nodes.keys;
  */
 public class AttributeKey extends NamedKey {
 
-  private boolean readonly;
-  private String type;
+    private boolean readonly;
+    private String type;
   
-  /** Creates new AttributeKey */
-  public AttributeKey (int kind, String name, String type, boolean readonly) {
-    super (kind, name);
-    this.type = type;
-    this.readonly = readonly;
-  }
+    /** Creates new AttributeKey */
+    public AttributeKey (int kind, String name, String type, boolean readonly) {
+        super (kind, name);
+        this.type = type;
+        this.readonly = readonly;
+    }
   
-  public String getType () {
-    return this.type;
-  }
+    public String getType () {
+        return this.type;
+    }
   
-  public boolean isReadOnly () {
-    return this.readonly;
-  }
+    public boolean isReadOnly () {
+        return this.readonly;
+    }
   
 }

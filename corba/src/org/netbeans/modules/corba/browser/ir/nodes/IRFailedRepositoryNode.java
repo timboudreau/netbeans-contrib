@@ -25,29 +25,29 @@ import org.netbeans.modules.corba.browser.ir.Util;
  */
 public class IRFailedRepositoryNode extends IRLeafNode implements Removable, Node.Cookie {
 
-  private static final String FAILED_ICON_BASE =
-   "org/netbeans/modules/corba/browser/ir/resources/failedrep";
+    private static final String FAILED_ICON_BASE =
+        "org/netbeans/modules/corba/browser/ir/resources/failedrep";
   
-  /** Creates new IRFailedNode */
-  public IRFailedRepositoryNode(String name) {
-    super();
-    this.getCookieSet().add(this);
-    setName(name);
-    setIconBase(FAILED_ICON_BASE);
-  }
+    /** Creates new IRFailedNode */
+    public IRFailedRepositoryNode(String name) {
+        super();
+        this.getCookieSet().add(this);
+        setName(name);
+        setIconBase(FAILED_ICON_BASE);
+    }
   
-  public SystemAction[] createActions(){
-    return new SystemAction[] {
-      SystemAction.get(org.netbeans.modules.corba.browser.ir.actions.RemoveRepository.class)
-    };
-  }
+    public SystemAction[] createActions(){
+        return new SystemAction[] {
+            SystemAction.get(org.netbeans.modules.corba.browser.ir.actions.RemoveRepository.class)
+        };
+    }
   
-  public String getRepositoryId () {
-    return Util.getLocalizedString("MSG_Invalid");
-  }
+    public String getRepositoryId () {
+        return Util.getLocalizedString("MSG_Invalid");
+    }
   
-  public GenerateSupport createGenerator(){
-    return null;
-  }
+    public GenerateSupport createGenerator(){
+        return null;
+    }
   
 }

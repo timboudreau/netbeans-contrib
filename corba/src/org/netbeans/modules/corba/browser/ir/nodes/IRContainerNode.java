@@ -54,40 +54,40 @@ public abstract class IRContainerNode extends IRAbstractNode implements Node.Coo
     }
 
     public void generateCode (PrintWriter out) throws IOException {
-      String hierarchy = this.generateHierarchy ();
-      out.println (hierarchy);
+        String hierarchy = this.generateHierarchy ();
+        out.println (hierarchy);
     }
 
     public SystemAction[] createActions (){
         return new SystemAction[] {
-                   SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.GenerateCodeAction.class),
-                   null,
-                   SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.RefreshAction.class),
-                   null,
-                   SystemAction.get (org.openide.actions.PropertiesAction.class)
-               };
+            SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.GenerateCodeAction.class),
+            null,
+            SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.RefreshAction.class),
+            null,
+            SystemAction.get (org.openide.actions.PropertiesAction.class)
+        };
     }
 
     private String generateHierarchy () {
-      Node node = this.getParentNode();
-      String code ="";
+        Node node = this.getParentNode();
+        String code ="";
 
-      // Generate the start of namespace
-      ArrayList stack = new ArrayList();
-      while ( node instanceof IRContainerNode){
-        stack.add(((GenerateSupportFactory)node).createGenerator());
-        node = node.getParentNode();
-      }
-      int size = stack.size();
-      for (int i = size -1 ; i>=0; i--)
-        code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1));
+        // Generate the start of namespace
+        ArrayList stack = new ArrayList();
+        while ( node instanceof IRContainerNode){
+            stack.add(((GenerateSupportFactory)node).createGenerator());
+            node = node.getParentNode();
+        }
+        int size = stack.size();
+        for (int i = size -1 ; i>=0; i--)
+            code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1));
 
-      // Generate element itself
-      code = code + this.createGenerator().generateSelf(size);
-      //Generate tail of namespace
-      for (int i = 0; i< stack.size(); i++)
-        code = code + ((GenerateSupport)stack.get(i)).generateTail((size -i));
-      return code;
+        // Generate element itself
+        code = code + this.createGenerator().generateSelf(size);
+        //Generate tail of namespace
+        for (int i = 0; i< stack.size(); i++)
+            code = code + ((GenerateSupport)stack.get(i)).generateTail((size -i));
+        return code;
     }
 
 }

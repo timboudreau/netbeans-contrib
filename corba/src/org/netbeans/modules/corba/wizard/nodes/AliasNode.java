@@ -22,30 +22,30 @@ import org.netbeans.modules.corba.wizard.nodes.keys.*;
  */
 public class AliasNode extends AbstractMutableLeafNode {
 
-  private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/type";
+    private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/type";
   
-  /** Creates new AliasNode */
-  public AliasNode (NamedKey key) {
-      super (key);
-      this.setName(key.getName());
-      this.setIconBase (ICON_BASE);
-  }
-  
-  public String generateSelf (int indent) {
-    String code = new String ();
-    for (int i=0; i<indent; i++)
-      code = code + "    "; // No I18N
-    AliasKey key = (AliasKey) this.key;
-    code = code + "typedef " + key.getType () +" ";
-    code = code + this.getName() + " ";
-    if (key.getLength().length () > 0) {
-      StringTokenizer tk = new StringTokenizer (key.getLength(),",");
-      while (tk.hasMoreTokens ()) {
-        code = code +"["+ tk.nextToken () +"] ";
-      }
+    /** Creates new AliasNode */
+    public AliasNode (NamedKey key) {
+        super (key);
+        this.setName(key.getName());
+        this.setIconBase (ICON_BASE);
     }
-    code = code +";\n";
-    return code;
-  }
+  
+    public String generateSelf (int indent) {
+        String code = new String ();
+        for (int i=0; i<indent; i++)
+            code = code + "    "; // No I18N
+        AliasKey key = (AliasKey) this.key;
+        code = code + "typedef " + key.getType () +" ";
+        code = code + this.getName() + " ";
+        if (key.getLength().length () > 0) {
+            StringTokenizer tk = new StringTokenizer (key.getLength(),",");
+            while (tk.hasMoreTokens ()) {
+                code = code +"["+ tk.nextToken () +"] ";
+            }
+        }
+        code = code +";\n";
+        return code;
+    }
   
 }

@@ -20,26 +20,26 @@ package org.netbeans.modules.corba.wizard.nodes.keys;
  */
 public class UnionMemberKey extends AliasKey {
 
-  private String label;
-  private boolean defaultValue;
+    private String label;
+    private boolean defaultValue;
   
-  /** Creates new UnionMemberKey */
-  public UnionMemberKey(int kind, String name, String type, String length, String label) {
-    super (kind, name, type, length);
-    if (label != null) {
-      this.label = label;
-      this.defaultValue = false;
+    /** Creates new UnionMemberKey */
+    public UnionMemberKey(int kind, String name, String type, String length, String label) {
+        super (kind, name, type, length);
+        if (label != null) {
+            this.label = label;
+            this.defaultValue = false;
+        }
+        else
+            this.defaultValue = true;
     }
-    else
-      this.defaultValue = true;
-  }
   
-  public String getLabel () {
-    return this.label;
-  }
+    public String getLabel () {
+        return this.label;
+    }
 
-  public boolean isDefaultValue () {
-    return this.defaultValue;
-  }
+    public boolean isDefaultValue () {
+        return this.defaultValue;
+    }
   
 }

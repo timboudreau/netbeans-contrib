@@ -21,25 +21,25 @@ import org.netbeans.modules.corba.wizard.nodes.keys.*;
  */
 public class ConstantNode extends AbstractMutableLeafNode {
 
-  private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/const";
+    private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/const";
   
-  /** Creates new CreateConstantAction */
-  public ConstantNode (NamedKey key) {
-    super (key);
-    this.setName (key.getName ());
-    this.setIconBase (ICON_BASE);
-  }
+    /** Creates new CreateConstantAction */
+    public ConstantNode (NamedKey key) {
+        super (key);
+        this.setName (key.getName ());
+        this.setIconBase (ICON_BASE);
+    }
   
   
   
-  public String generateSelf (int indent){
-    String code = new String ();
-    String fill = new String ();
-    for (int i=0; i<indent; i++)
-      fill = fill + "    "; // No I18N
-    ConstKey key = (ConstKey) this.key;
-    code = fill + "const "+ key.getType () + " "+ this.getName()+ " = "+key.getValue()+";\n"; // No I18N
-    return code;
-  }
+    public String generateSelf (int indent){
+        String code = new String ();
+        String fill = new String ();
+        for (int i=0; i<indent; i++)
+            fill = fill + "    "; // No I18N
+        ConstKey key = (ConstKey) this.key;
+        code = fill + "const "+ key.getType () + " "+ this.getName()+ " = "+key.getValue()+";\n"; // No I18N
+        return code;
+    }
   
 }

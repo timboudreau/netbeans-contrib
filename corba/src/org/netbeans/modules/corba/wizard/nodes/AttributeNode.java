@@ -25,36 +25,36 @@ import org.netbeans.modules.corba.wizard.nodes.keys.*;
  */
 public class AttributeNode extends AbstractMutableLeafNode implements Node.Cookie{
 
-  private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/attribute";
+    private static final String ICON_BASE = "org/netbeans/modules/corba/idl/node/attribute";
   
-  /** Creates new AttributeNode */
-  public AttributeNode (NamedKey key) {
-    super (key);
-    this.getCookieSet().add(this);
-    this.setName (key.getName ());
-    this.setIconBase (ICON_BASE);
-  }
-  
-  public SystemAction[] createActions () {
-    return new SystemAction [] {
-      SystemAction.get (DestroyAction.class),
-      SystemAction.get (RenameAction.class)
-    };
-  }
-  
-  public String generateSelf (int indent) {
-    String code = new String ();
-    String fill = new String ();
-    for (int i=0; i<indent; i++)
-      fill = fill + "    "; // No I18N
-    AttributeKey key = (AttributeKey) this.key;
-    if (key.isReadOnly ()) {
-      code = fill + "readonly ";  // No I18N
+    /** Creates new AttributeNode */
+    public AttributeNode (NamedKey key) {
+        super (key);
+        this.getCookieSet().add(this);
+        this.setName (key.getName ());
+        this.setIconBase (ICON_BASE);
     }
-    else {
-      code = fill;
+  
+    public SystemAction[] createActions () {
+        return new SystemAction [] {
+            SystemAction.get (DestroyAction.class),
+            SystemAction.get (RenameAction.class)
+        };
     }
-    code = code + "attribute " + key.getType() + " "+this.getName () +";\n"; // No I18N
-    return code;
-  }
+  
+    public String generateSelf (int indent) {
+        String code = new String ();
+        String fill = new String ();
+        for (int i=0; i<indent; i++)
+            fill = fill + "    "; // No I18N
+        AttributeKey key = (AttributeKey) this.key;
+        if (key.isReadOnly ()) {
+            code = fill + "readonly ";  // No I18N
+        }
+        else {
+            code = fill;
+        }
+        code = code + "attribute " + key.getType() + " "+this.getName () +";\n"; // No I18N
+        return code;
+    }
 }

@@ -20,20 +20,20 @@ package org.netbeans.modules.corba.wizard.nodes.keys;
  */
 public class NamedKey extends MutableKey {
   
-  protected String name;
+    protected String name;
 
-  /** Creates new NamedKey */
-  public NamedKey(int kind, String name) {
-    super (kind);
-    this.name = name;
-  }
+    /** Creates new NamedKey */
+    public NamedKey(int kind, String name) {
+        super (kind);
+        this.name = name;
+    }
   
-  public String getName () {
-    return this.name;
-  }
+    public String getName () {
+        return this.name;
+    }
   
-  public String toString () {
-    return "NamedKey: " + name; // No I18N
-  }
+    public String toString () {
+        return "NamedKey: " + name; // No I18N
+    }
   
 }

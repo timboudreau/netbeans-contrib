@@ -19,5 +19,5 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @version 
  */
 public interface ModuleCreator {
-   public abstract void createModule();
+    public abstract void createModule();
 }

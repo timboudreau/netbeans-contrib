@@ -19,5 +19,5 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @version 
  */
 public interface ConstantCreator {
-  public abstract void createConstant ();
+    public abstract void createConstant ();
 }

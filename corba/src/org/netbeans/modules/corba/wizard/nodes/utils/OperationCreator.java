@@ -19,5 +19,5 @@ package org.netbeans.modules.corba.wizard.nodes.utils;
  * @version 
  */
 public interface OperationCreator {
-  public void createOperation ();
+    public void createOperation ();
 }
