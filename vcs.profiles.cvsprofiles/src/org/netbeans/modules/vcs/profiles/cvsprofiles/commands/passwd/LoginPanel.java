@@ -41,6 +41,7 @@ public class LoginPanel extends javax.swing.JPanel {
     private static ArrayList lastSuccessfullLoggings = new ArrayList();
     
     private String connectStr = "";
+    private int port = 0;
     private PasswdEntry entry = null;
     private boolean loggedIn = false;
     private boolean offline = false;
@@ -149,7 +150,11 @@ public class LoginPanel extends javax.swing.JPanel {
     
     public void setConnectString(String connectStr) {
         this.connectStr = connectStr;
-    }    
+    }
+    
+    public void setPort(int port) {
+        this.port = port;
+    }
 
     public void setPserverName(String pserverName) {
         loginLabel.setText(java.text.MessageFormat.format(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.loginLabel.text"), new Object[] { pserverName }));        
@@ -200,8 +205,8 @@ public class LoginPanel extends javax.swing.JPanel {
                         pasFile.loadPassFile();
                         password = new String(passwordField.getPassword());
                         //entry = new PasswdEntry();
-                        pasFile.remove(connectStr);
-                        pasFile.add(connectStr, password); //CVSPasswd.scramble(password));
+                        pasFile.remove(connectStr, port);
+                        pasFile.add(connectStr, port, password); //CVSPasswd.scramble(password));
                         pasFile.savePassFile();
                         //boolean setRight = entry.setEntry(connectStr + " " + CVSPasswd.scramble(password));
                         //if (!setRight) {D("wrongly set entry.");}
@@ -232,8 +237,8 @@ public class LoginPanel extends javax.swing.JPanel {
             CVSPasswd pasFile = new CVSPasswd((String)null);
             pasFile.loadPassFile();
             password = new String(passwordField.getPassword());
-            pasFile.remove(connectStr);
-            pasFile.add(connectStr, password);
+            pasFile.remove(connectStr, port);
+            pasFile.add(connectStr, port, password);
             loggedIn = CVSPasswd.checkLogin(fileSystem, message);
         } catch (java.net.UnknownHostException exc) {
             setStatus(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.unknownHost"));

@@ -61,6 +61,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
 
         String connectStr = (String) vars.get("CONNECT_STR");
         String password = (String) vars.get("PASSWORD");
+        String portStr = (String) vars.get("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
         boolean gui = false;
         int argIndex = 0;
         if (args.length > argIndex) {
@@ -104,21 +105,28 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
         vars.clear(); // Not to unnecessarily update too many variables.
         vars.put("LOGGED_IN_TEXT", loggedInText);
         //System.out.println("CvsLoginCheck: putting LOGGED_IN_TEXT = '"+loggedInText+"'");
+        int port = 0;
+        if (portStr != null) {
+            try {
+                port = Integer.parseInt(portStr);
+            } catch (NumberFormatException nfex) {}
+        }
         try {
+            pasFile.loadPassFile();
+            pasFile.remove(connectStr, port);
             if (builtIn) {
                 PasswdEntry entry = new PasswdEntry();
                 String scrambledPassword = StandardScrambler.getInstance().scramble(password);
                 entry.setEntry(connectStr+" "+scrambledPassword);
+                if (port > 0) entry.getCVSRoot().setPort(port);
                 loggedIn = pasFile.checkServer(entry);
                 if (loggedIn) {
-                    pasFile.add(connectStr, password);
+                    pasFile.add(connectStr, port, password);
                     pasFile.savePassFile();
                 }
             } else {
-                pasFile.loadPassFile();
-                pasFile.remove(connectStr);
                 //System.out.println("Adding '"+connectStr+"' with password '"+password+"' into "+pasFile.getHome()+"/.cvspass");
-                pasFile.add(connectStr, password);
+                pasFile.add(connectStr, port, password);
                 pasFile.savePassFile();
                 loggedIn = CVSPasswd.checkLogin(fileSystem, message);
             }
@@ -138,6 +146,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
             vars.put(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_UPDATE_CHANGED_FROM_SELECTOR, "true");
             return false;
         } catch (java.io.IOException exc) {
+            org.openide.ErrorManager.getDefault().notify(exc);
             if (loginPanel != null) {
                 /*
                 DialogDisplayer.getDefault().notify(
@@ -154,7 +163,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
             return false;
         } finally {
             if (!loggedIn && !builtIn) {
-                pasFile.remove(connectStr);
+                pasFile.remove(connectStr, port);
                 pasFile.savePassFile();
             }
         }

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -21,9 +21,12 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd;
 import java.io.*;
 import java.net.*;
 import java.beans.PropertyVetoException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Iterator;
+import java.util.List;
+import org.netbeans.lib.cvsclient.CVSRoot;
 
 import org.openide.filesystems.*;
 import org.openide.*;
@@ -40,7 +43,6 @@ import org.openide.ErrorManager;
  * and the .cvspass file stuff. It finds, reads and writes to the file. If the configuration is not found in the file,
  * it can connect to the server and check it. Then adds the item to the .cvspass file
  */
-
 public class CVSPasswd extends Object {
     private Debug E=new Debug("CVSPasswd", true); // NOI18N
     private Debug D=E;
@@ -58,27 +60,20 @@ public class CVSPasswd extends Object {
     private static final String BEGIN_AUTH_REQUEST = "BEGIN AUTH REQUEST";
     private static final String END_AUTH_REQUEST = "END AUTH REQUEST";
     private static final String AUTH_SUCCESSFULL = "I LOVE YOU\n";
-    private static final int CVS_PORT = 2401;
-    PrintWriter bf;
+    
+    public static final int STANDARD_PSERVER_PORT = 2401;
                                                                                                                                                                   
     /** The standard name of the file, where CVS stores passwords and cvs root directories
      * (for pserver type of connection only)
- */
+     */
     public static final String STD_FILE = ".cvspass";
     private LinkedList entries = new LinkedList();
-    private PasswdEntry lastEntry;
-    private volatile String homeDir = System.getProperty("user.home");
+    /** The list of unrecognized lines, which are written back when .cvspass file is saved */
+    private List unrecognizedLines = new ArrayList();
     
     private File passFile = null;
-    /** Creates new CVSPasswd */
-
-    /*
-    private CVSPasswd(File fil) {
-      passFile = fil;
-      loadPassFile();
-    } 
-     */   
     
+    /** Creates new CVSPasswd */
     public CVSPasswd(String dir, String fileName) {
       String sep = File.separator;  
       if (File.separatorChar == '\\') {
@@ -137,28 +132,34 @@ public class CVSPasswd extends Object {
      */ 
     
     public boolean loadPassFile() {
-        //System.out.println("loadPassFile("+passFile+")");
-      entries = new LinkedList();  
+      //System.out.println("loadPassFile("+passFile+")");
+      entries = new LinkedList();
+      unrecognizedLines = new ArrayList();
+      BufferedReader bf = null;
       try {
-        BufferedReader bf = new BufferedReader(new FileReader(passFile.getAbsolutePath()));
+        bf = new BufferedReader(new FileReader(passFile.getAbsolutePath()));
         String line;
         do {
           line = bf.readLine();
           if (line != null) {
             PasswdEntry entr = new PasswdEntry();
             boolean ok = entr.setEntry(line);
-            if (!ok) {  //TODO - corrupted line prolly ignore (should write back or skip?)
-              D.deb("Line corrupted.");
+            if (!ok) {
+              D.deb("Line corrupted: '"+line+"'");
+              unrecognizedLines.add(line);
               continue;
+            } else {
+              entries.add(entr);
             }
-            entries.add(entr);
           }  
         } while (line != null); 
         bf.close();
       } catch (IOException exc) {
          D.deb(".cvspass reading error");
          if (bf != null) {
-              bf.close(); 
+             try {
+                bf.close();
+             } catch (IOException ioex) {}
          }    
          return false;
       }
@@ -169,14 +170,18 @@ public class CVSPasswd extends Object {
      */
     public boolean savePassFile() {
         //System.out.println("savePassFile("+passFile+")");
+      PrintWriter bf = null;
       try {
 //        if (!passFile.canWrite()) return false;
         bf = new PrintWriter(new BufferedWriter(new FileWriter(passFile.getAbsolutePath(), false)));
-        ListIterator it = entries.listIterator();
-        while (it.hasNext()) {
-          PasswdEntry ent = (PasswdEntry)it.next();
-          bf.println(ent.getEntry(true));
-        } 
+        ListIterator lit = entries.listIterator();
+        while (lit.hasNext()) {
+          PasswdEntry ent = (PasswdEntry) lit.next();
+          bf.println(ent.getEntry());
+        }
+        for (Iterator it = unrecognizedLines.iterator(); it.hasNext(); ) {
+            bf.println((String) it.next());
+        }
         bf.close();
         
       } catch (IOException exc) {
@@ -196,15 +201,17 @@ public class CVSPasswd extends Object {
 
     /** Adds a new entry into the dtabase. Will be written to the file after savePassFile is run.
      * @param entry - entry supplied by the Customizer
+     * @param port - a port number. If non-zero, it will be added into the entry.
      * @param passwd unscrambled password for the account
      * @return the added PasswdEntry. if not added, then null.
      */
-    public PasswdEntry add(String entry, String passwd) {
+    public PasswdEntry add(String entry, int port, String passwd) {
       PasswdEntry psw = new PasswdEntry();
       String scrambled = StandardScrambler.getInstance().scramble(passwd);
       //String scrambled = scramble(passwd);
       boolean ok = psw.setEntry(entry + " " + scrambled);
       if (ok) {
+        if (port != 0) psw.getCVSRoot().setPort(port);
         entries.add(psw); 
         return psw;
       }
@@ -214,34 +221,52 @@ public class CVSPasswd extends Object {
     /**
      * Remove the entry from the current set of entries.
      */
-    public void remove(String entry) {
-        Iterator it = entries.iterator();
-        while (it.hasNext()) {
-           PasswdEntry ent = (PasswdEntry) it.next();
-           if (entry.equals(ent.getEntry(false))) {
-               it.remove();
-           }
+    public void remove(String entry, int port) {
+        PasswdEntry ent = find(entry, port);
+        if (ent != null) {
+            entries.remove(ent);
         }
     }
     
+    /*
     public PasswdEntry add(String type, String user, String server, String root, String passwd) {
       String ent = ":" + type + ":" + user + "@" + server + ":" + root;
       return add(ent, passwd); 
     }
+     */
     
    
 /** Looks for the  current setting (:pserver:username@server:/rootdir) in the database.
  * @return the found PasswdEntry, or if not found null.
  * @param current The current cvs root directory
  */
-    public PasswdEntry find(String current) {
+    public PasswdEntry find(String current, int port) {
+      CVSRoot currentRootWithPort = CVSRoot.parse(current);
+      if (port > 0) currentRootWithPort.setPort(port);
+      if (currentRootWithPort.getPort() == 0) currentRootWithPort.setPort(STANDARD_PSERVER_PORT);
+      //CVSRoot currentRootWithPort;
+      CVSRoot currentRootWithoutPort; // We'll also check entry that does not have the port associated
+      if (currentRootWithPort.getPort() == STANDARD_PSERVER_PORT) {
+          currentRootWithoutPort = CVSRoot.parse(current);
+          currentRootWithoutPort.setPort(0);
+      } else {
+          currentRootWithoutPort = null;
+      }
       ListIterator it = entries.listIterator();
       PasswdEntry ent = null; 
       String toReturn = null;
       while (it.hasNext()) {
-        ent = (PasswdEntry)it.next();
-        if (ent.matchToCurrent(current)) {
-          return ent;
+        ent = (PasswdEntry) it.next();
+        CVSRoot cvsroot = ent.getCVSRoot();
+        int compat = cvsroot.getCompatibilityLevel(currentRootWithPort);
+        if (compat == 0 || compat == 1) {
+            return ent;
+        }
+        if (currentRootWithoutPort != null) {
+            compat = cvsroot.getCompatibilityLevel(currentRootWithoutPort);
+            if (compat == 0 || compat == 1) {
+                return ent;
+            }
         }
       }
       return null;
@@ -341,8 +366,13 @@ public class CVSPasswd extends Object {
         InputStream inStream = null;
         Socket socket;
         boolean ok = false;
+        CVSRoot cvsroot = toCheck.getCVSRoot();
+        int port = cvsroot.getPort();
+        if (port == 0) {
+            port = STANDARD_PSERVER_PORT;
+        }
         //try { 
-            socket = new Socket(toCheck.getServer(), CVS_PORT);
+            socket = new Socket(cvsroot.getHostName(), port);
             /*
         } catch (UnknownHostException e) {
             javax.swing.SwingUtilities.invokeLater(new Runnable () {

@@ -50,7 +50,15 @@ public class CvsLogin implements VcsAdditionalCommand {
         LoginPanel login = new LoginPanel();
         login.setPserverName(serverName);
         String connectStr = ":pserver:" + userName + "@" + serverName + ":" + cvsRoot;
-        login.setConnectString(connectStr); 
+        String portStr = (String) vars.get("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
+        int port = 0;
+        if (portStr != null) {
+            try {
+                port = Integer.parseInt(portStr);
+            } catch (NumberFormatException nfex) {}
+        }
+        login.setConnectString(connectStr);
+        login.setPort(port);
         Dialog logDialog = login.createDialog(fileSystem);
         logDialog.show();
         

@@ -21,7 +21,6 @@ import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.cmdline.*;
 
-import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.CvsLoginDialog;
 import org.netbeans.modules.vcscore.Variables;
 
 /**
@@ -46,10 +45,17 @@ public class CvsLogout implements VcsAdditionalCommand {
          String userName = (String) vars.get("CVS_USERNAME");                           //NOI18N
          String cvsRoot = (String) vars.get("CVS_REPOSITORY");                          //NOI18N
          String connectStr=":pserver:" + userName + "@" + serverName + ":" + cvsRoot;   //NOI18N
+         String portStr = (String) vars.get("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
+         int port = 0;
+         if (portStr != null) {
+             try {
+                 port = Integer.parseInt(portStr);
+             } catch (NumberFormatException nfex) {}
+         }
          try{
              CVSPasswd pasFile = new CVSPasswd((String)null);
              pasFile.loadPassFile();
-             pasFile.remove(connectStr);
+             pasFile.remove(connectStr, port);
              pasFile.savePassFile();
              vars.put("USER_IS_LOGGED_IN", "");                                         //NOI18N
          }catch(Exception e){
