@@ -12,6 +12,7 @@
  */
 package org.netbeans.modules.bookmarks;
 
+import java.beans.PropertyChangeListener;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -215,5 +216,18 @@ public class BookmarkImpl implements Bookmark {
     private void writeProperties(java.util.Properties p) {
         p.setProperty(PROP_TC_NAME, tcFileName);
         p.setProperty(PROP_NAME, name);
+    }
+    
+    /**
+     * XMLPropertiesConvertor expect this class to be source of
+     * property change events.
+     */
+    public void addPropertyChangeListener(PropertyChangeListener pcl) {
+    }
+    /**
+     * XMLPropertiesConvertor expect this class to be source of
+     * property change events.
+     */
+    public void removePropertyChangeListener(PropertyChangeListener pcl) {
     }
 }
