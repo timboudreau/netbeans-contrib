@@ -17,14 +17,19 @@ import java.beans.PropertyChangeListener;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.Repository;
 
 import java.lang.reflect.Modifier;
 import org.openide.util.WeakListener;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 
 import org.openide.nodes.Node.Cookie;
 import org.openide.nodes.CookieSet.Factory;
 import org.netbeans.modules.classfile.ClassFile;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.InstanceSupport;
 import org.openide.loaders.DataObjectExistsException;
@@ -348,70 +353,130 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
 
     // =============== The mechanism for regeisteing node factories ==============
 
-    private static ArrayList explorerFactories = new ArrayList();
-    private static ArrayList browserFactories = new ArrayList();
-
-    static {
-        explorerFactories.add( new ClassElementNodeFactory() );
-
-        ClassElementNodeFactory cef = new ClassElementNodeFactory();
-        cef.setGenerateForTree (true);
-
-        browserFactories.add( cef ) ;
-    }
-
-    /** 
-     * Adds another FilterFactory at the top of the current explorer factory chain.
-     * The passed factory will be the first one contacted when a node for explorer
-     * view will need to be created.
-     * @param factory the factory to add
-     */
-    public static void addExplorerFilterFactory( FilterFactory factory ) {
-        addFactory( explorerFactories, factory );
-    }
+    // =============== The mechanism for regeisteing node factories ==============
+    
+    private static NodeFactoryPool explorerFactories;
+    private static NodeFactoryPool browserFactories;
+    private static ElementNodeFactory basicBrowser;
+    private static ElementNodeFactory basicExplorer;
 
     /**
-     * Remove the specified factory from the factory chain
-     * @param factory the factory to remove
+     * DO NOT USE THIS METHOD!!! <P>
+     * This method is intended to be called only during initialization of java
+     * module-provided node factories from the installation layer. It won't
+     * be maintained for compatibility reasons.
      */
-    public static void removeExplorerFilterFactory( FilterFactory factory ) {
-        removeFactory( explorerFactories, factory );
+    synchronized static ElementNodeFactory createBasicExplorerFactory() {
+        if (basicExplorer == null) {
+            basicExplorer = new ClassElementNodeFactory();
+        }
+        return basicExplorer;
+    }
+    
+    /**
+     * DO NOT USE THIS METHOD!!! <P>
+     * This method is intended to be called only during initialization of java
+     * module-provided node factories from the installation layer. It won't
+     * be maintained for compatibility reasons.
+     */
+    synchronized static ElementNodeFactory createBasicBrowserFactory() {
+        if (basicBrowser == null) {
+            basicBrowser = new ClassElementNodeFactory();
+            ((ClassElementNodeFactory)basicBrowser).setGenerateForTree (true);
+        }
+        return basicBrowser;
     }
 
     public static ElementNodeFactory getExplorerFactory() {
-        return (ElementNodeFactory)explorerFactories.get( explorerFactories.size() - 1);
+        NodeFactoryPool pool = createExplorerFactory();
+        ElementNodeFactory f = null;
+        
+        if (pool != null)
+            f = pool.getHead();
+        if (f == null)
+            f = createBasicExplorerFactory();
+        return f;
     }
-
-    public static void addBrowserFilterFactory( FilterFactory factory ) {
-        addFactory( browserFactories, factory );
-    }
-
-    public static void removeBrowserFilterFactory( FilterFactory factory ) {
-        removeFactory( browserFactories, factory );
-    }
-
+    
     public static ElementNodeFactory getBrowserFactory() {
-        return (ElementNodeFactory)browserFactories.get( browserFactories.size() - 1 );
+        NodeFactoryPool pool = createBrowserFactory();
+        ElementNodeFactory f = null;
+        
+        if (pool != null)
+            f = pool.getHead();
+        if (f == null)
+            f = createBasicBrowserFactory();
+        return f;
     }
 
-    private static synchronized void addFactory( List factories, FilterFactory factory ) {
-        factory.attachTo( (ElementNodeFactory)factories.get( factories.size() - 1 ) );
-        factories.add( factory );
-    }
-
-    private static synchronized void removeFactory( List factories, FilterFactory factory ) {
-        int index = factories.indexOf( factory );
-
-        if ( index <= 0 )
-            return;
-        else if ( index == factories.size() - 1 )
-            factories.remove( index );
-        else {
-            ((FilterFactory)factories.get( index + 1 )).attachTo( (ElementNodeFactory)factories.get( index - 1 ) );
-            factories.remove( index );
+    static NodeFactoryPool createFactoryPool(String folderName, ElementNodeFactory def) {
+        FileObject f = ((Repository)Lookup.getDefault().lookup(Repository.class)).findResource(folderName);
+        try {
+            DataFolder folder = (DataFolder)DataObject.find(f).getCookie(DataFolder.class);
+            return new NodeFactoryPool(folder, def);
+        } catch (DataObjectNotFoundException ex) {
+            return null;
         }
     }
     
+    synchronized static NodeFactoryPool createBrowserFactory() {
+        if (browserFactories != null)
+            return browserFactories;
+        browserFactories = createFactoryPool("/NodeFactories/clazz/objectbrowser", createBasicBrowserFactory());
+        return browserFactories;
+    }
+    
+    synchronized static NodeFactoryPool createExplorerFactory() {
+        if (explorerFactories != null)
+            return explorerFactories;
+        explorerFactories = createFactoryPool("/NodeFactories/clazz/explorer", createBasicExplorerFactory());
+        return explorerFactories;
+    }
+
+    /**
+     * @deprecated use installation layer for registering a factory for the the whole
+     * time a module is installed. Note: This feature will be dropped in the next
+     * release.
+     */
+    public static void addExplorerFilterFactory( FilterFactory factory ) {
+        NodeFactoryPool p = createExplorerFactory();
+        if (p != null)
+            p.addFactory(factory);
+    }
+
+    /**
+     * @deprecated use installation layer for registering a factory for the the whole
+     * time a module is installed. Note: This feature will be dropped in the next
+     * release.
+     */
+    public static void removeExplorerFilterFactory( FilterFactory factory ) {
+        NodeFactoryPool p = createExplorerFactory();
+        if (p != null)
+            p.removeFactory(factory);
+    }
+
+    /**
+     * @deprecated use installation layer for registering a factory for the the whole
+     * time a module is installed. Note: This feature will be dropped in the next
+     * release.
+     */
+    public static void addBrowserFilterFactory(FilterFactory factory) {
+        NodeFactoryPool p = createBrowserFactory();
+        if (p != null)
+            p.addFactory(factory);
+    }
+
+    /**
+     * @deprecated use installation layer for registering a factory for the the whole
+     * time a module is installed. Note: This feature will be dropped in the next
+     * release.
+     */
+    public static void removeBrowserFilterFactory( FilterFactory factory ) {
+        NodeFactoryPool p = createBrowserFactory();
+        if (p != null)
+            p.removeFactory(factory);
+    }
+
     protected final class ClazzInstanceSupport extends org.openide.loaders.InstanceSupport.Origin {
 
         /** the class is bean */
