@@ -586,6 +586,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             Hashtable vars = variablesByName;
             String root = this.getFSRoot();
             VcsConfigVariable mod = (VcsConfigVariable) vars.get("MODULE");
+            if (mod != null && module.equals(mod.getValue())) return ;
             if (mod == null) {
                 mod = new VcsConfigVariable("MODULE", "", module, false, false, false, null);
                 variables.add(mod);
@@ -601,19 +602,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             } catch (IOException io) {
                 mod.setValue(oldModule);
                 throw io;
-            /*
-            E.err(io,"setRootDirectory() failed"); // NOI18N
-            final String badDir = root.toString();
-            javax.swing.SwingUtilities.invokeLater(new Runnable () {
-                                                       public void run () {
-                                                           if (isRootNotSetDlg) {
-                                                               isRootNotSetDlg = false;
-                                                               TopManager.getDefault ().notify (new NotifyDescriptor.Message(MessageFormat.format (org.openide.util.NbBundle.getBundle(CvsCustomizer.class).getString("CvsCustomizer.cannotSetDirectory"), new Object[] { badDir } )));
-                                                               isRootNotSetDlg = true;
-                                                           }
-                                                       }
-                                                   });
-            */
             }
         }
          
@@ -1826,6 +1814,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         String module = (String) vars.get("MODULE"); // NOI18N
         if (module == null) module = ""; // NOI18N
         File root = new File(r, module);
+        if (rootFile.equals(root)) return ;
         String name = computeSystemName (root);
         /* Ignoring other filesystems' names => it is possible to mount VCS filesystem with the same name.
         Enumeration en = TopManager.getDefault ().getRepository ().fileSystems ();
