@@ -52,7 +52,7 @@ Microsystems, Inc. All Rights Reserved.
             <classpath>
                 <path refid="cp"/>                
                 <!-- java src model -->
-                <pathelement path="../../java/srcmodel/netbeans/modules/autoload/java-src-model.jar"/>
+                <pathelement path="../../java/srcmodel/netbeans/modules/org-openide-src.jar"/>
                 <!-- pmd -->
                 <path refid="pmd.cp"/>
             </classpath>

@@ -32,9 +32,9 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${editor.dir}/${nb.modules.dir}/editor.jar"/>
 
         <!-- Projects dependency -->
-        <pathelement location="${java/api.dir}/${nb.modules/autoload.dir}/java-api.jar"/>
-        <pathelement location="${projects/projectapi.dir}/${nb.modules/autoload.dir}/org-netbeans-modules-projectapi.jar"/>
-        <pathelement location="${projects/projectuiapi.dir}/${nb.modules/autoload.dir}/org-netbeans-modules-projectuiapi.jar"/>
+        <pathelement location="${java/api.dir}/${nb.modules.dir}/org-netbeans-api-java.jar"/>
+        <pathelement location="${projects/projectapi.dir}/${nb.modules.dir}/org-netbeans-modules-projectapi.jar"/>
+        <pathelement location="${projects/projectuiapi.dir}/${nb.modules.dir}/org-netbeans-modules-projectuiapi.jar"/>
       </path>
     </target>
   

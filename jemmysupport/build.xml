@@ -39,7 +39,7 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="../openide/openide-13javac-workaround.jar"/>
         <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar" />
         <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar" />
-        <pathelement location="${openide/execution.dir}/${nb.modules/autoload.dir}/openide-execution.jar" />
+        <pathelement location="${openide/execution.dir}/${nb.modules.dir}/org-openide-execution.jar" />
         <pathelement location="${core.dir}/${nb.lib.dir}/core.jar" />
         <pathelement location="${diff.dir}/${nb.modules.dir}/diff.jar" />
         <!-- Hopefully set up by nbbuild/build.xml: -->

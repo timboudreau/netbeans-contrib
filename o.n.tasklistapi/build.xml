@@ -25,7 +25,7 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
         <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
-        <pathelement location="${java.dir}/${nb.modules.dir}/java.jar"/>  <!-- Hard compile-time, soft run-time dependency -->
+        <pathelement location="${java.dir}/${nb.modules.dir}/org-netbeans-modules-java.jar"/>  <!-- Hard compile-time, soft run-time dependency -->
       </path>
     </target>
   
