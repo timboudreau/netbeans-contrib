@@ -21,6 +21,7 @@ import java.io.Writer;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.event.EventListenerList;
 import org.netbeans.modules.tasklist.client.Suggestion;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.openide.ErrorManager;
@@ -31,7 +32,6 @@ import org.openide.nodes.Node.Cookie;
  * Class which represents a task in the tasklist.
  *
  * @author Tor Norbye
- * @author Tim Lebedkov
  */
 public class Task extends Suggestion implements Cloneable, Cookie {
     private static final Logger LOGGER = TLUtils.getLogger(Task.class);
@@ -49,7 +49,8 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
     /** Set&lt;TaskListener> */
-    private Set listeners = new HashSet(2);
+    private EventListenerList listeners = new EventListenerList();
+    // TODO: old code private Set listeners = new HashSet(2);
 
     private boolean visitable;
 
@@ -168,26 +169,33 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     }
 
     public void addTaskListener(TaskListener l) {
-        listeners.add(l);
+        if (LOGGER.isLoggable(Level.FINE))
+            Thread.dumpStack();
+        listeners.add(TaskListener.class, l);
     }
 
     public void removeTaskListener(TaskListener l) {
-        listeners.remove(l);
+        if (LOGGER.isLoggable(Level.FINE))
+            Thread.dumpStack();
+        listeners.remove(TaskListener.class, l);
     }
 
     protected final void fireStructureChanged() {
-        if (!silentUpdate) {
-            Iterator it = listeners.iterator();
-            while (it.hasNext()) {
-                TaskListener listener = (TaskListener) it.next();
-                listener.structureChanged(this);
+        if (silentUpdate)
+            return;
+        
+        // Guaranteed to return a non-null array
+        Object[] l = listeners.getListenerList();
+        for (int i = l.length - 2; i >= 0; i -= 2) {
+            if (l[i] == TaskListener.class) {
+                ((TaskListener) l[i+1]).structureChanged(this);
             }
+        }
 //            if (getList() instanceof TaskList) {
 //                ((TaskList) getList()).fireStructureChanged(this);
 //            }
-            if (this instanceof TaskListener) {
-                ((TaskListener) this).structureChanged(this);
-            }
+        if (this instanceof TaskListener) {
+            ((TaskListener) this).structureChanged(this);
         }
     }
 
@@ -197,18 +205,18 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      * @param t task that was added
      */
     protected final void fireAddedTask(Task t) {
-        if (!silentUpdate) {
-            Iterator it = listeners.iterator();
-            while (it.hasNext()) {
-                TaskListener listener = (TaskListener) it.next();
-                listener.addedTask(t);
+        if (silentUpdate)
+            return;
+        
+        // Guaranteed to return a non-null array
+        Object[] l = listeners.getListenerList();
+        for (int i = l.length - 2; i >= 0; i -= 2) {
+            if (l[i] == TaskListener.class) {
+                ((TaskListener) l[i+1]).addedTask(t);
             }
-//            if (getList() instanceof TaskList) {
-//                ((TaskList) getList()).fireAdded(t);
-//            }
-            if (this instanceof TaskListener) {
-                ((TaskListener) this).addedTask(t);
-            }
+        }
+        if (this instanceof TaskListener) {
+            ((TaskListener) this).addedTask(t);
         }
     }
 
@@ -219,18 +227,21 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      * @param t task that was removed
      */
     protected final void fireRemovedTask(Task t) {
-        if (!silentUpdate) {
-            Iterator it = listeners.iterator();
-            while (it.hasNext()) {
-                TaskListener listener = (TaskListener) it.next();
-                listener.removedTask(this, t);
+        if (silentUpdate)
+            return;
+        
+        // Guaranteed to return a non-null array
+        Object[] l = listeners.getListenerList();
+        for (int i = l.length - 2; i >= 0; i -= 2) {
+            if (l[i] == TaskListener.class) {
+                ((TaskListener) l[i+1]).removedTask(this, t);
             }
+        }
 //            if (getList() instanceof TaskList) {
 //                ((TaskList) getList()).fireRemoved(this, t);
 //            }
-            if (this instanceof TaskListener) {
-                ((TaskListener) this).removedTask(this, t);
-            }
+        if (this instanceof TaskListener) {
+            ((TaskListener) this).removedTask(this, t);
         }
     }
     

@@ -69,7 +69,7 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
      */
     public void setFilter(FilterIntf filter) {
         this.filter = filter;
-        refreshChildren();
+        this.children = null;
     }
     
     /**

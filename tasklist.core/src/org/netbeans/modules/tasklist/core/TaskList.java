@@ -28,7 +28,6 @@ import org.openide.util.NbBundle;
  * It dispatches membership events.
  *
  * @author Tor Norbye
- * @author Tim Lebedkov
  */
 public class TaskList implements ObservableList, TaskListener {
 
@@ -460,5 +459,12 @@ public class TaskList implements ObservableList, TaskListener {
         fireStructureChanged(t);
     }
 
-
+    /**
+     * Is this task list empty?
+     *
+     * @return true if this task list has no tasks
+     */
+    public boolean isEmpty() {
+        return tasks.size() == 0;
+    }
 }

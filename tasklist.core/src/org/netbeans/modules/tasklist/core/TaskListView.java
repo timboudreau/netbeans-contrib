@@ -438,6 +438,7 @@ public abstract class TaskListView extends TopComponent
      * of getting opened.
      */
     protected void componentOpened() {
+        LOGGER.fine("");
         // Register listeningViews, such as the editor support bridge module
         // TODO: Listeners from Lookup will not be collected
         // registerListeners();
@@ -453,8 +454,6 @@ public abstract class TaskListView extends TopComponent
 
         setLayout(new BorderLayout());
 
-        loadColumnsConfiguration();
-        
         centerPanel = new JPanel();
         centerPanel.setLayout(new BorderLayout());
         centerCmp = createCenterComponent();
@@ -462,6 +461,8 @@ public abstract class TaskListView extends TopComponent
         centerPanel.add(centerCmp, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
+        loadColumnsConfiguration();
+        
         JPanel toolbars = new JPanel();
         toolbars.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
 

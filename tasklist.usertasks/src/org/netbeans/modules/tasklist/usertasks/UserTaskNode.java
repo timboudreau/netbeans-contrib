@@ -42,6 +42,7 @@ import org.openide.actions.PasteAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.HelpCtx;
@@ -60,12 +61,19 @@ final class UserTaskNode extends AbstractNode {
     }
 
     private UserTask item;
+    private UserTaskList utl;
     
     /**
-     * TODO comment
+     * Constructor
+     *
+     * @param item an user task that will be represented by this node.
+     * @param utl user task list that this task belongs to. Should be != null
+     * for root tasks
      */
-    UserTaskNode(UserTask item) {
+    UserTaskNode(UserTask item, UserTaskList utl) {
         super(Children.LEAF);
+        assert item != null;
+        this.utl = utl;
         this.item = item;
         //init();
     } 
@@ -354,16 +362,45 @@ final class UserTaskNode extends AbstractNode {
     }
 
     public org.openide.nodes.Node.Cookie getCookie(Class type) {
-	    UserTask uitem = (UserTask) item;
+        UserTask uitem = (UserTask) item;
         if (type == StartCookie.class) {
             if (uitem.isStarted() || uitem.isSpentTimeComputed()) {
                 return null;
             } else {
                 return new StartCookie(uitem);
             }
+        } else if (type == Task.class) {
+            return item;
         } else {
             return super.getCookie(type);
         }
+    }
+    
+    public void setName(String nue) {
+        super.setName(nue);
+        if (!nue.equals(item.getSummary())) {
+            item.setSummary(nue);
+        }
+    }
+    
+    public Transferable clipboardCopy() throws IOException {
+        return new ExTransferable.Single(TaskTransfer.TODO_FLAVOR) {
+            protected Object getData() {
+                return item.clone();
+            }
+        };
+    }
+    
+    public Transferable clipboardCut() throws IOException {
+        destroy();
+        return clipboardCopy();
+    }
+
+    public void destroy() throws IOException {
+        if (item.getParent() != null)
+            item.getParent().removeSubtask(item);
+        else
+            utl.removeTask(item);
     }
     
     /**

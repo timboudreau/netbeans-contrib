@@ -107,7 +107,10 @@ public class TreeTableModelAdapter extends AbstractTableModel {
     }
     
     public Object getValueAt(int row, int column) {
-        return treeTableModel.getValueAt(nodeForRow(row), column);
+        Object node = nodeForRow(row);
+        if (node == null)
+            return null;
+        return treeTableModel.getValueAt(node, column);
     }
     
     public boolean isCellEditable(int row, int column) {
