@@ -59,8 +59,8 @@ public class Availability extends NbTestCase {
         suite.addTest(new Availability("testFindService"));
         suite.addTest(new Availability("testPopupMenu"));
         suite.addTest(new Availability("testRuntimeTab"));
-        suite.addTest(new Availability("testToolbar"));
         suite.addTest(new Availability("testUnmount"));
+        suite.addTest(new Availability("testToolbar"));
         return suite;
     }
     
@@ -205,13 +205,21 @@ public class Availability extends NbTestCase {
         int numberOfCommands = commandsHistory.countCommands(filesystem);
         if ( numberOfCommands != 1)
             throw new Exception("Error: Wrong number of kept commands. Currently: " + numberOfCommands);
-        api.getFilesystemsTab();
+        System.out.println(". done !");
+    }
+
+    /** Unmounts the filesystem mounted in testVersioningMenu test case.
+     * throws Exception Any unexpected exception thrown during test.
+     */
+    public void testUnmount() throws Exception {
+        System.out.print(".. Testing unmount action ..");
+        String filesystem = "Empty " + workingDirectory;
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
         MainFrame.getMainFrame().pushMenuNoBlock(UNMOUNT_MENU);
         System.out.println(". done !");
     }
 
-    /** Unmounts the filesystem mounted in testVersioningMenu test case.
+    /** Tries to invoke an action through versioning toolbar.
      * throws Exception Any unexpected exception thrown during test.
      */
     public void testToolbar() throws Exception {
@@ -225,7 +233,11 @@ public class Availability extends NbTestCase {
         VCSWizardAdvanced advancedPage = new VCSWizardAdvanced();
         advancedPage.editCommands();
         CommandEditor commandEditor = new CommandEditor();
-        commandEditor.setProperty("Empty|Add", CommandEditor.TAB_EXPERT, "General Command Action Class Name", "org.netbeans.modules.vcscore.actions.AddCommandAction");
+        commandEditor.selectCommand("Empty|Add");
+        org.netbeans.jellytools.NbDialogOperator dialog = new org.netbeans.jellytools.NbDialogOperator("Command Editor");
+        org.netbeans.jellytools.properties.PropertySheetOperator sheet = new org.netbeans.jellytools.properties.PropertySheetOperator(dialog);
+        org.netbeans.jellytools.properties.StringProperty property = new org.netbeans.jellytools.properties.StringProperty(sheet.getPropertySheetTabOperator("Expert"), "General Command Action Class Name");
+        property.setStringValue("org.netbeans.modules.vcscore.actions.AddCommandAction");
         commandEditor.ok();
         advancedPage.finish();
         APIController.sleep(2000);
@@ -237,15 +249,6 @@ public class Availability extends NbTestCase {
         window.getToolbarButton(window.getToolbar("Versioning"), "VCS Add").push();
         APIController.sleep(2000);
         assertTrue("Unable to execute command through toolbar.", window.getStatusText().equals("Command Add finished."));
-        System.out.println(". done !");
-    }
-
-    /** Unmounts the filesystem mounted in testVersioningMenu test case.
-     * throws Exception Any unexpected exception thrown during test.
-     */
-    public void testUnmount() throws Exception {
-        System.out.print(".. Testing unmount action ..");
-        String filesystem = "Empty " + workingDirectory;
         assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem));
         MainFrame.getMainFrame().pushMenuNoBlock(UNMOUNT_MENU);
         System.out.println(". done !");
