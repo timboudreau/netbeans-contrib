@@ -789,8 +789,15 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         String[] allArgs = VcsUtilities.getQuotedArguments(exec);
         String first = allArgs[0];
         //E.deb("first = "+first); // NOI18N
-        boolean disableRefresh = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS);
-        if (disableRefresh) fileSystem.disableRefresh();
+        boolean checkForModification = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS);
+        Collection processingFiles = null;
+        if (checkForModification) {
+            processingFiles = getFiles();
+            fileSystem.disableRefresh();
+            for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
+                fileSystem.lockFilesToBeModified((String) it.next(), true);
+            }
+        }
         try {
             if (first != null && (first.toLowerCase().endsWith(".class"))) {// NOI18N
                 String[] args = new String[allArgs.length - 1];
@@ -800,7 +807,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 runCommand(execs);
             }
         } finally {
-            if (disableRefresh) fileSystem.enableRefresh();
+            if (checkForModification) {
+                fileSystem.enableRefresh();
+                for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
+                    fileSystem.unlockFilesToBeModified((String) it.next(), true);
+                }
+            }
             String tempFilePath = (String) vars.get(Variables.TEMPORARY_FILE);
             if (tempFilePath != null) new File(tempFilePath).delete();
         }

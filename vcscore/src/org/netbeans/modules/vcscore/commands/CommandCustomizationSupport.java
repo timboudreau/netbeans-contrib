@@ -545,7 +545,6 @@ public class CommandCustomizationSupport extends Object {
             }
         }
     }
-     */
     
     private static void checkForModifications(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
         if (VcsCommandIO.getBooleanProperty(vce.getCommand(), VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)) {
@@ -556,10 +555,11 @@ public class CommandCustomizationSupport extends Object {
                 /*
                 org.openide.filesystems.FileObject fo = fileSystem.findResource(path);
                 System.out.println("fo("+path+") = "+fo);
-                 */
+                 *//*
             }
         }
     }
+     */
 
     
     /**

@@ -381,6 +381,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private String missingFolderStatus = null;
     private Collection notMissingableFileStatuses = Collections.EMPTY_SET;
     private Collection notMissingableFolderStatuses = Collections.EMPTY_SET;
+    
+    private Map lockedFilesToBeModified;
 
     private Boolean createRuntimeCommands = Boolean.TRUE;
 
@@ -1509,6 +1511,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * of this class is created and after deserialization. Subclasses should call super.init().
      */
     protected void init() {
+        lockedFilesToBeModified = new HashMap();
         displayName = computeDisplayName();
         D.deb ("init()"); // NOI18N
         localFilenameFilter = new LocalFilenameFilter();
@@ -3390,6 +3393,62 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //
 
     /**
+     * Lock the files so that they can not be modified in the IDE.
+     * This is necessary for commands, that make changes to the processed files.
+     * It's crutial, that the file does not get modified twice - externally via
+     * the update command and internally (e.g. through the Editor).
+     * One <b>MUST</b> call {@link #unlockFilesToBeModified} after the command
+     * finish.
+     * @param path The path of the file to be locked or directory in which all
+     *             files will be locked.
+     * @param recursively Whether the files in directories should be locked recursively.
+     */
+    public void lockFilesToBeModified(String path, boolean recursively) {
+        synchronized (lockedFilesToBeModified) {
+            // Multiple locks are not considered. It's locked just once.
+            lockedFilesToBeModified.put(path, recursively ? Boolean.TRUE : Boolean.FALSE);
+        }
+    }
+    
+    /**
+     * Unlock the files that were previously locked by {@link #lockFilesToBeModified}
+     * method. It's necessary to call this method with appropriate arguments after
+     * the command finish so that the user can edit the files.
+     */
+    public void unlockFilesToBeModified(String path, boolean recursively) {
+        synchronized (lockedFilesToBeModified) {
+            lockedFilesToBeModified.remove(path);
+        }
+    }
+    
+    /** Check whether the provided name is locked for modification.
+     * If yes, IOException is thrown. */
+    private void checkModificationLock(final String name) throws IOException {
+        boolean isLocked;
+        synchronized (lockedFilesToBeModified) {
+            isLocked = lockedFilesToBeModified.get(name) != null;
+            if (!isLocked) {
+                for (Iterator it = lockedFilesToBeModified.keySet().iterator(); it.hasNext(); ) {
+                    String path = (String) it.next();
+                    if (name.startsWith(path) && name.charAt(path.length()) == '/') {
+                        boolean recursively = ((Boolean) lockedFilesToBeModified.get(path)).booleanValue();
+                        // either we lock it recursively or there are no more path separators '/':
+                        isLocked = (recursively || name.indexOf('/', path.length() + 1) < 0);
+                    }
+                }
+            }
+        }
+        if (isLocked) {
+            throw new IOException("File "+name+" can be altered by a running VCS command, it's modification in the IDE is remporarily disabled.") { //NOI18N
+                // It's necessary to define localized message separately, so that it's written to the Status bar !!!!!! See issue #9069.
+                public String getLocalizedMessage() {
+                    return NbBundle.getMessage (VcsFileSystem.class, "EXC_file_is_being_modified", name);
+                }
+            };
+        }
+    }
+
+    /**
      * Should be called when the modification in a file or folder is expected
      * and its content should be refreshed.
      */
@@ -3984,6 +4043,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void lock (String name_) throws IOException {
         //System.out.println("lock("+name_+")");
         if (!isImportant(name_)) return; // ignore locking of unimportant files
+        checkModificationLock(name_);
         final String name = name_;
         //final VcsFileSystem current = this;
         final File file = getFile (name);
