@@ -60,7 +60,7 @@ class ConstructorElementImpl extends MemberElementImpl
         curPar = reflPars[i];
         // create method parameter
         parameters[i] = new MethodParameter(
-          curPar.getName(), Type.createFromClass(curPar),
+          "", Type.createFromClass(curPar),
           (curPar.getModifiers() & Modifier.FINAL) == 0
         );
       }
@@ -78,8 +78,12 @@ class ConstructorElementImpl extends MemberElementImpl
   */
   public Type[] getExceptions () {
     if (exceptions == null) {
+      Class[] reflEx = null;
       // obtain via reflection
-      Class[] reflEx = ((Constructor)data).getExceptionTypes();
+      if (data instanceof Method)
+        reflEx = ((Method)data).getExceptionTypes();
+      else
+        reflEx = ((Constructor)data).getExceptionTypes();
       exceptions = new Type[reflEx.length];
       // build our exception types
       for (int i = 0; i < reflEx.length; i++) {
@@ -101,10 +105,10 @@ class ConstructorElementImpl extends MemberElementImpl
     throw new SourceException();
   }
 
-  /** Unsupported, throws UnsupportedOperationException
+  /** Unsupported, always return empty string.
   */
   public String getBody () {
-    throw new UnsupportedOperationException();
+    return "";
   }
 
   /** PENDING - ???
@@ -117,6 +121,7 @@ class ConstructorElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  3    src-jtulach1.2         2/10/99  David Simonek   
 *  2    src-jtulach1.1         2/3/99   David Simonek   
 *  1    src-jtulach1.0         1/22/99  David Simonek   
 * $
