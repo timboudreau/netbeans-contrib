@@ -32,7 +32,9 @@ import org.openide.NotifyDescriptor;
 import org.openide.awt.Actions;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
+import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 import org.openide.windows.Workspace;
 
 import org.netbeans.api.vcs.commands.CommandTask;
@@ -45,7 +47,6 @@ import org.netbeans.modules.vcscore.commands.VcsDescribedTask;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
-import org.openide.windows.WindowManager;
 
 /**
  * The default visualizer of command output.
@@ -74,38 +75,53 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     
     public abstract Map getOutputPanels();
     
+    protected String getMode() {
+        return "editor";
+    }
+    
     public void open(Wrapper w) {
-        outputMap = getOutputPanels();        
-        if(outputMap == null)
-            return;
-        Iterator it = outputMap.keySet().iterator();
         if (w != null) {
+            // This will probably not ever happen.
+            // w != null is currently used only for EDIT and LOCK commands.
+            outputMap = getOutputPanels();
+            if (outputMap == null)
+                return;
+            Iterator it = outputMap.keySet().iterator();
             if (outputMap.size() == 1) {
-                String fileName = (String) it.next(); 
+                String fileName = (String) it.next();
                 JComponent component = (JComponent) outputMap.get(fileName);
                 component.putClientProperty("wrapper-title", fileName+"["+commandName+"]");
                 w.wrap(component, true, true);
             } else {
                 JTabbedPane tabbs = new JTabbedPane();
                 while(it.hasNext()){
-                    String fileName = (String)it.next();             
+                    String fileName = (String)it.next();
                     JComponent component = (JComponent)outputMap.get(fileName);
                     tabbs.add(fileName+"["+commandName+"]", component);
                 }
                 w.wrap(tabbs, true, true);
             }
         } else {
-            while(it.hasNext()){
-                String fileName = (String)it.next();             
-                JComponent component = (JComponent)outputMap.get(fileName);
-                OutputTopComponent out = new OutputVisualizer.OutputTopComponent();
-                out.setOutputPanel(component);
-                out.setFileName(fileName);
-                out.open(WindowManager.getDefault().getCurrentWorkspace());                      
-            }
+            open();
         }
         opened = true;
-    }    
+    }
+    
+    public void open() {
+        outputMap = getOutputPanels();
+        if (outputMap == null)
+            return;
+        Iterator it = outputMap.keySet().iterator();
+        while (it.hasNext()) {
+            String fileName = (String)it.next();
+            JComponent component = (JComponent)outputMap.get(fileName);
+            OutputTopComponent out = new OutputVisualizer.OutputTopComponent();
+            out.setOutputPanel(component);
+            out.setFileName(fileName);
+            out.open(WindowManager.getDefault().getCurrentWorkspace());
+        }
+        opened = true;
+    }
     
     
     public void setVcsTask(VcsDescribedTask task) {
@@ -274,6 +290,12 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
             if (exit != 0)
                 return;
             this.initComponents();
+            Mode mode = WindowManager.getDefault().findMode(this);
+            if (mode == null) {
+                mode = WindowManager.getDefault().findMode(getMode()); // NOI18N
+                if (mode != null)
+                    mode.dockInto(this);
+            }
             super.open(workspace);
             super.requestActive();
         }
