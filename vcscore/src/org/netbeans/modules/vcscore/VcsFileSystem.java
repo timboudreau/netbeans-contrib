@@ -3616,13 +3616,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private void runDeleteFilesCommand(java.util.List filesList, CommandSupport cmd) {
         ArrayList files = new ArrayList();
+        ArrayList diskFiles = new ArrayList();
         //Table files = new Table();
         for (Iterator it = filesList.iterator(); it.hasNext(); ) {
             String name = (String) it.next();
-            files.add(findResource(name));
+            FileObject fo = findResource(name);
+            if (fo != null) {
+                files.add(fo);
+            } else {
+                diskFiles.add(getFile(name));
+            }
         }
         Command command = cmd.createCommand();
         command.setFiles((FileObject[]) files.toArray(new FileObject[files.size()]));
+        if (command instanceof VcsDescribedCommand) {
+            ((VcsDescribedCommand) command).setDiskFiles((File[]) diskFiles.toArray(new File[diskFiles.size()]));
+        }
         command.setGUIMode(false);
         command.execute();
         //VcsAction.doCommand(files, cmd, null, this);
