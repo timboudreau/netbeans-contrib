@@ -31,7 +31,6 @@ import org.openide.src.*;
 import org.openide.src.nodes.SourceChildren;
 import org.openide.src.nodes.DefaultFactory;
 import org.openide.cookies.SourceCookie;
-import org.openide.loaders.ExecSupport;
 import org.openide.ErrorManager;
 
 /** Represents ClassDataObject. Common base for CompiledDataNode (.class)
