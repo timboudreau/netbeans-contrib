@@ -30,11 +30,18 @@ public class NotFoundPanel extends JPanel {
      *  @param String provider, the provider class
      */
     public NotFoundPanel(String provider) {
-        JLabel label;
-        JTextArea comments;
+        String errMsg = JndiRootNode.getLocalizedString("EXC_ClassNotFound");
+        String errTip = JndiRootNode.getLocalizedString ("TIP_Installation");
+        JLabel label = new JLabel(errMsg);
+        JTextArea comments = new JTextArea(errTip,2,66);
+        comments.setLineWrap(true);
+        comments.setWrapStyleWord(true);
+        comments.setEnabled(false);
+        comments.setBackground(label.getBackground());
+        javax.accessibility.AccessibleContext ac = this.getAccessibleContext();
+        ac.setAccessibleName (errMsg+errTip);
         GridBagConstraints c;
         this.setLayout( new GridBagLayout());
-        label = new JLabel(JndiRootNode.getLocalizedString("EXC_ClassNotFound"));
         c  = new GridBagConstraints();
         c.gridx = 0;
         c.gridy = 0;
@@ -47,11 +54,6 @@ public class NotFoundPanel extends JPanel {
         c.weighty = 0.0;
         ((GridBagLayout)this.getLayout()).setConstraints(label,c);
         this.add(label);
-        comments = new JTextArea(JndiRootNode.getLocalizedString("TIP_Installation"),2,66);
-        comments.setLineWrap(true);
-        comments.setWrapStyleWord(true);
-        comments.setEnabled(false);
-        comments.setBackground(label.getBackground());
         c = new GridBagConstraints();
         c.gridx = 0;
         c.gridy = 1;

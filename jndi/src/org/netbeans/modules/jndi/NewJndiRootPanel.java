@@ -75,6 +75,7 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
             className = (String) enum.nextElement ();
             this.factory.addItem (className);
         }
+        this.label.requestFocus();
     }
 
     /** Accessor for Factory
@@ -91,6 +92,14 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
         return this.label.getText();
     }
 
+    public boolean requestDefaultFocus () {
+        this.label.requestFocus();
+        return true;
+    }
+    
+    public void requestFocus () {
+        this.label.requestFocus();
+    }
 
 
     /** Synchronization of Factory and Protocol
@@ -118,7 +127,9 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
     /** Creates a part of GUI, called grom createGUI */
     JPanel createSubGUI(){
         this.label = new JTextField();
+        this.label.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString("AD_Label"));
         this.factory = new JComboBox();
+        this.factory.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString ("AD_Factory"));
         this.factory.setEditable(true);
         this.factory.setSize(this.label.getSize());
         this.factory.addItemListener(this);
@@ -132,6 +143,8 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
         GridBagConstraints gridBagConstraints;
 
         JLabel label = new JLabel (JndiRootNode.getLocalizedString("TXT_ContextLabel"));
+        label.setLabelFor (this.label);
+        label.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_ContextLabel_MNEM").charAt(0));
         gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -140,6 +153,8 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         p.add (label, gridBagConstraints);
         label = new JLabel (JndiRootNode.getLocalizedString("TXT_Factory"));
+        label.setLabelFor (this.factory);
+        label.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_Factory_MNEM").charAt(0));
         gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -148,6 +163,8 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         p.add (label, gridBagConstraints);
         label = new JLabel (JndiRootNode.getLocalizedString("TXT_InitialContext"));
+        label.setLabelFor (this.context);
+        label.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_InitialContext_MNEM").charAt(0));
         gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -156,6 +173,8 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         p.add (label, gridBagConstraints);
         label = new JLabel (JndiRootNode.getLocalizedString("TXT_Root"));
+        label.setLabelFor (this.root);
+        label.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_Root_MNEM").charAt(0));
         gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -164,6 +183,8 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         p.add (label, gridBagConstraints);
         label = new JLabel (JndiRootNode.getLocalizedString("TXT_Auth"));
+        label.setLabelFor (this.authentification);
+        label.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_Auth_MNEM").charAt(0));
         gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -172,6 +193,8 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         p.add (label, gridBagConstraints);
         label = new JLabel (JndiRootNode.getLocalizedString("TXT_Principal"));
+        label.setLabelFor (this.principal);
+        label.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_Principal_MNEM").charAt(0));
         gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
@@ -180,6 +203,8 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         p.add (label, gridBagConstraints);
         label = new JLabel (JndiRootNode.getLocalizedString("TXT_Credentials"));
+        label.setLabelFor (this.credentials);
+        label.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_Credentials_MNEM").charAt(0));
         gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;

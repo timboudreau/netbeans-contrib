@@ -30,11 +30,29 @@ final class NewPropertyPanel extends GridBagPanel {
      */
     public NewPropertyPanel() {
         name = new JTextField(20);
+        name.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString ("AD_PropertyName"));
         value= new JTextField(20);
-        add(new JLabel(NbBundle.getBundle(NewPropertyPanel.class).getString("TXT_PropertyName")),1,1,1,1,8,8,8,8);
+        value.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString("AD_PropertyValue"));
+        JLabel label = new JLabel(NbBundle.getBundle(NewPropertyPanel.class).getString("TXT_PropertyName"));
+        label.setLabelFor (name);
+        label.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_PropertyName_MNEM").charAt(0));
+        add(label,1,1,1,1,8,8,8,8);
         add(this.name,2,1,2,1,8,0,8,8);
-        add(new JLabel(NbBundle.getBundle(NewPropertyPanel.class).getString("TXT_PropertyValue")),1,2,1,1,0,8,8,8);
+        label = new JLabel(NbBundle.getBundle(NewPropertyPanel.class).getString("TXT_PropertyValue"));
+        label.setLabelFor (value);
+        label.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_PropertyValue_MNEM").charAt(0));
+        add(label,1,2,1,1,0,8,8,8);
         add(this.value,2,2,2,1,0,0,8,8);
+        this.name.requestFocus ();
+    }
+    
+    public boolean requestDefaultFocus () {
+        this.name.requestFocus ();
+        return true;
+    }
+    
+    public void requestFocus () {
+        this.name.requestFocus();
     }
 
     /** Accessor for name of property

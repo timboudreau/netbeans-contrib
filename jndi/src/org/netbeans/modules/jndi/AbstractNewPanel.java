@@ -206,6 +206,16 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
     final void createGUI(){
         this.setLayout ( new GridBagLayout());
         JPanel p = createSubGUI();
+        this.properties = new SimpleListModel();
+        this.list = new JList();
+        this.list.addListSelectionListener(this);
+        this.list.setModel(this.properties);
+        this.list.setVisibleRowCount(8);
+        this.list.setPrototypeCellValue("123456789012345678901234567890123456");
+        JLabel label1 = new JLabel(JndiRootNode.getLocalizedString("TXT_OtherProps"));
+        label1.setLabelFor (this.list);
+        label1.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_OtherProps_MNEM").charAt (0));
+        
         GridBagConstraints gridBagConstraints = new GridBagConstraints ();
         gridBagConstraints.gridwidth = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -216,13 +226,9 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
-        add (new JLabel(JndiRootNode.getLocalizedString("TXT_OtherProps")), gridBagConstraints);
-        this.properties = new SimpleListModel();
-        this.list = new JList();
-        this.list.addListSelectionListener(this);
-        this.list.setModel(this.properties);
-        this.list.setVisibleRowCount(8);
-        this.list.setPrototypeCellValue("123456789012345678901234567890123456");
+        add (label1, gridBagConstraints);
+        
+        
         gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -232,31 +238,37 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 0.5;
         add (new JScrollPane(this.list), gridBagConstraints);
+        
         p = new javax.swing.JPanel();
         p.setLayout(new GridBagLayout());
         this.addButton = new JButton(JndiRootNode.getLocalizedString("TXT_Add"));
         this.addButton.setActionCommand("ADD");
         this.addButton.addActionListener(this);
+        this.addButton.setMnemonic (JndiRootNode.getLocalizedString("TXT_Add_MNEM").charAt(0));
         gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets (0, 0, 8, 0);
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
         p.add (this.addButton, gridBagConstraints);
+        
         this.changeButton = new JButton(JndiRootNode.getLocalizedString("TXT_Change"));
         this.changeButton.setEnabled(false);
         this.changeButton.setActionCommand("CHANGE");
         this.changeButton.addActionListener(this);
+        this.changeButton.setMnemonic (JndiRootNode.getLocalizedString ("TXT_Change_MNEM").charAt (0));
         gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets (0, 0, 8, 0);
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
         p.add (this.changeButton, gridBagConstraints);
+        
         this.removeButton = new JButton(JndiRootNode.getLocalizedString("TXT_Rem"));
         this.removeButton.setEnabled(false);
         this.removeButton.setActionCommand("DEL");
         this.removeButton.addActionListener(this);
+        this.removeButton.setMnemonic (JndiRootNode.getLocalizedString ("TXT_Rem_MNEM").charAt(0));
         gridBagConstraints = new java.awt.GridBagConstraints ();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -269,6 +281,7 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
         gridBagConstraints.insets = new java.awt.Insets (8, 8, 8, 8);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
         add (p, gridBagConstraints);
+        
         p = createNotesPanel();
         if (p != null){
             gridBagConstraints = new java.awt.GridBagConstraints();
@@ -283,6 +296,16 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
             gridBagConstraints.weighty = 0.0;
             add (p, gridBagConstraints);
         }
+        
+        this.list.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString("AD_OtherProps"));
+        this.context.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_Context"));
+        this.authentification.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_Authentification"));
+        this.root.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_Root"));
+        this.principal.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_Principal"));
+        this.credentials.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_Credentials"));
+        this.removeButton.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_RemoveButton"));
+        this.changeButton.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_ChangeButton"));
+        this.addButton.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_AddButton"));
     }
 
 

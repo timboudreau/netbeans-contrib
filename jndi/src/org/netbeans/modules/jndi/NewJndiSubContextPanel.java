@@ -33,7 +33,11 @@ final class NewJndiSubContextPanel extends JPanel {
      */
     public NewJndiSubContextPanel() {
         this.setLayout(new GridBagLayout());
+        this.name = new JTextField(25);
+        this.name.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AC_SubContextName"));
         JLabel label = new JLabel (NbBundle.getBundle(NewJndiSubContextPanel.class).getString("TXT_SubContextName"));
+        label.setLabelFor (this.name);
+        label.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_SubContextName_MNEM").charAt(0));
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
         c.gridy = 0;
@@ -44,7 +48,7 @@ final class NewJndiSubContextPanel extends JPanel {
         c.insets = new Insets (12,12,12,6);
         ((GridBagLayout)this.getLayout()).setConstraints (label,c);
         this.add (label);
-        this.name = new JTextField(25);
+        
         c = new GridBagConstraints();
         c.gridx = 1;
         c.gridy = 0;
@@ -55,6 +59,16 @@ final class NewJndiSubContextPanel extends JPanel {
         c.insets = new Insets (12,6,12,12);
         ((GridBagLayout)this.getLayout()).setConstraints (this.name,c);
         this.add (name);
+        this.name.requestFocus();
+    }
+    
+    public boolean requestDefaultFocus () {
+        this.name.requestFocus();
+        return true;
+    }
+    
+    public void requestFocus () {
+        this.name.requestFocus();
     }
 
     /** Accessor for directory name
