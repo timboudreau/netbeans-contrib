@@ -44,7 +44,8 @@ public class PriorityListCellRenderer extends DefaultListCellRenderer {
             list, value, index, isSelected, cellHasFocus);
         if (index >= 0) {
             setText(TAGS[index]);
-            setForeground(COLORS[index]);
+            if (!isSelected)
+                setForeground(COLORS[index]);
         } else {
             setText((String) value);
         }
