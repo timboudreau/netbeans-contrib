@@ -1,0 +1,106 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="lastupdated" content="29aug2000">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+   <title>Debugging CORBA Programs</title>
+<!--       
+ *        Copyright (C) 2000  Sun Microsystems, Inc
+ *                    All rights reserved.
+ *          Notice of copyright on this source code 
+ *          product does not indicate publication. 
+ * 
+ * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
+ * the U.S. Government is subject to restrictions as set forth 
+ * in subparagraph (c)(1)(ii) of the Rights in Technical Data
+ * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
+ * and FAR 52.227-19 (c) (June 1988).
+ *
+ *    Sun Microsystems, Inc., 901 San Antonio Road,
+ *    Palo Alto, California 94303 U.S.A.
+ *
+-->
+</head>
+<body bgcolor="#FFFFFF">
+
+<h2>
+Debugging CORBA Programs</h2>
+You can use the IDE's debugger with your CORBA client and server programs.
+There are few things you must consider:
+<ul>
+<li>
+You must debug client and server programs separately; you cannot start
+the debugger on the client side and trace the remote method call into the
+server. ( What you should do is start the debugger on the server side and
+then run the client; the debugger will show the server executing in response
+to the request.)</li>
+
+<li>
+You cannot use the Forte for Java debugger for processes that are started
+outside of the IDE. In particular,&nbsp; you cannot debug CORBA server
+processes that are started from an implementation repository.</li>
+
+<li>
+If you want to debug a server-side program that is already running, you
+need to unbind it from the naming service before restarting it. (If you
+don't, you will get an exception when the binding code executes.)</li>
+
+<ul>
+<li>
+If you have the naming service attached in the Naming Service Browser (on
+the Runtime tab of Explorer), right click on the node for the server, choose
+Unbind from the context menu.</li>
+
+<li>
+If it is not attached, you will need too kill and restart tnameserv:</li>
+
+<br>Either using shell utilities (ps and kill) or your operating system's
+task manager, kill tnameserv's process.
+<br>Restart it using the same arguments as before (tnameserv -ORBInitialPort
+1050).</ul>
+
+<li>
+If you only want to debug the client side, it is not necessary to restart
+the naming service and rebind the implementation instance.</li>
+</ul>
+
+<h3>
+Setting Breakpoints</h3>
+Use the standard IDE procedures for setting breakpoints. For example, to
+set a breakpoint in the Hello World example's implementation class:
+<ol>
+<li>
+Go to the HelloImpl class in the editor. Locate the line containing the
+for() loop in the code which you entered earlier.</li>
+
+<li>
+Place the text caret on this line, and press CTRL-F8 to set a breakpoint
+on this line.</li>
+
+<li>
+Select the HelloServer class in the Explorer, and press F5 to start the
+server in the debugger.</li>
+</ol>
+Execute the client as you did before. Server-side execution will pause
+at your breakpoint. Just as when debugging other Java objects, you can
+freely make use of tracing, watch variables, and other debugging techniques.
+<br>Note: If you are running the IDE on HotSpot you must disable HotSpot
+before restarting the client.
+<br>
+<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+</body>
+</html>

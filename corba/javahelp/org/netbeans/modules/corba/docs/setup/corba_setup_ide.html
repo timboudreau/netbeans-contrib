@@ -1,0 +1,100 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="lastupdated" content="29aug2000">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+   <title>Specifying the ORB You are Using</title>
+<!--       
+ *        Copyright (C) 2000  Sun Microsystems, Inc
+ *                    All rights reserved.
+ *          Notice of copyright on this source code 
+ *          product does not indicate publication. 
+ * 
+ * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
+ * the U.S. Government is subject to restrictions as set forth 
+ * in subparagraph (c)(1)(ii) of the Rights in Technical Data
+ * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
+ * and FAR 52.227-19 (c) (June 1988).
+ *
+ *    Sun Microsystems, Inc., 901 San Antonio Road,
+ *    Palo Alto, California 94303 U.S.A.
+ *
+-->
+</head>
+<body bgcolor="#FFFFFF">
+
+<h2>
+Specifying the ORB You Are Using</h2>
+For the CORBA module to generate stub and skeleton files that will work
+with a particular ORB product, you need to set properties identify that
+ORB product:
+<ol>
+<li>
+Open the Project Settings dialog by choosing Project > Settings from the
+main menu.</li>
+
+<li>
+Locate the CORBA Settings node and click on it. The CORBA settings appear
+on the right half of the dialog.</li>
+
+<li>
+Make sure that the ORB Version property is set to the ORB you will be using.</li>
+
+<li>
+Leave the Project Settings window open and click on the CORBA Settings
+node to display its sub-nodes.</li>
+
+<li>
+Click on the sub-node for the ORB you are using; the properties for that
+ORB appear on the right half of the dialog.</li>
+
+<li>
+When you develop CORBA programs, the IDL compiler generates "stub," "skeleton,"
+and other supporting files and puts them in the package with the file you
+actually write. You do not reference these files directly in code you write,
+so by default they are hidden. If you want to see them, set the Hide Generated
+Files property to false.</li>
+
+<li>
+Make sure the other properties, such as the Generated Skeletons property,
+are set to values that are appropriate for your project.</li>
+
+<li>
+If you are going to specify the external IDL compiler executable as a property:</li>
+
+<ul>
+<li>
+Click on the Expert tab.</li>
+
+<li>
+Click on External IDL Compiler, then click on the "..." symbol.</li>
+
+<li>
+Type in full path to the IDL compiler.</li>
+</ul>
+</ol>
+Note that these settings apply to the current development project. Different
+projects can be configured differently.
+<p>For more information, see:
+<ul>
+<li>
+<a href="../settings/corba_settings.html">CORBA Project Settings</a></li>
+</ul>
+
+<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="lastupdated" content="29aug2000">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+   <title>Generating Server-side Files</title>
+<!--       
+ *        Copyright (C) 2000  Sun Microsystems, Inc
+ *                    All rights reserved.
+ *          Notice of copyright on this source code 
+ *          product does not indicate publication. 
+ * 
+ * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
+ * the U.S. Government is subject to restrictions as set forth 
+ * in subparagraph (c)(1)(ii) of the Rights in Technical Data
+ * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
+ * and FAR 52.227-19 (c) (June 1988).
+ *
+ *    Sun Microsystems, Inc., 901 San Antonio Road,
+ *    Palo Alto, California 94303 U.S.A.
+ *
+-->
+</head>
+<body bgcolor="#FFFFFF">
+
+<h2>
+Generating Server-side Files</h2>
+You can generate server-side files with either the CORBA wizard or the
+CORBA templates. Before generating any code, make sure the IDE is set up
+for the ORB product you want your CORBA programs to work with.
+<p><b>Using the CORBA Wizard:</b>
+<ol>
+<li>
+From the main window, choose Tools&nbsp;<img SRC="arrow.gif" height=13 width=6>
+CORBA Wizard to open the first page of the CORBA Wizard.</li>
+
+<li>
+On this page, you:</li>
+
+<ul>
+<li>
+Type in the name of the IDL file on which your server program will be based.
+This can be either an existing file or a new file (which you create on
+page three of the wizard).</li>
+
+<li>
+Select the package in which you want the wizard to put the files it generates.</li>
+</ul>
+
+<li>
+On the second page of the wizard, indicate which files the wizard should
+generate:</li>
+
+<ul>
+<li>
+If you are writing a server based on existing IDL interface, check the
+Create Server and Create Implementation boxes.</li>
+
+<li>
+If you are writing both the IDL interface and the server program, check
+the Create IDL,</li>
+
+<br>Create Server and Create Implementation boxes.
+<li>
+If you are writing the IDL interface, and a server program that uses it,
+and a client program, check the Create IDL, Create Server, Create Implementation,
+and Create Client boxes.</li>
+</ul>
+
+<li>
+On the third page of the wizard, choose the settings that describe the
+implementation that you want to generate.</li>
+
+<li>
+The appearance of the wizard's fourth page depends on whether you are using
+existing IDL or writing new IDL (whether you checked the Create IDL box):</li>
+
+<ul>
+<li>
+If you are using existing IDL, the wizard will let you identify the IDL.
+If the IDL is in a file, use the file browser to specify the file. If the
+IDL is in an interface repository, browse the CORBA Interface Repository
+node and select the correct interface. (To do this, you must have already
+started the CORBA vendor's interface repository and started up the CORBA
+Module's Interface Repository Browser.)</li>
+
+<li>
+If you are writing new IDL, the wizard has buttons that add IDL with the
+correct syntax.</li>
+</ul>
+
+<li>
+On the fifth page of the wizard, review the description of the actions
+the wizard will take, then click the Finish button to begin code generation.</li>
+
+<br>The CORBA Module generates a local copy of the IDL you specified and
+java source files named <tt>&lt;IDL_interface_name>Server</tt>. For example,
+if you specified <tt>hello.idl</tt>, the wizard will create a local copy
+of <tt>hello.idl</tt> and two .java files named <tt>helloServer.java</tt>
+and <tt>helloImpl.java</tt>.</ol>
+<b>Using the CORBA Templates:</b>
+<ol>
+<li>
+From the main window, choose File&nbsp;<img SRC="arrow.gif" height=13 width=6>
+New to open the Template Chooser.</li>
+
+<li>
+From the CORBA template category, select the <tt>ServerMain</tt> template.</li>
+
+<li>
+Use the fields on the right side of the Template Chooser to specify both
+a name for your server file and the package in which it should be generated.</li>
+
+<li>
+Click the Finish button.</li>
+
+<li>
+The CORBA module creates a CORBA server source file, named <tt>&lt;Name_You_Specified>.java</tt>.</li>
+
+<li>
+In addition to generating server program source code with the template,
+you need to copy the IDL on which your server is based to the server program's
+package.</li>
+</ol>
+For more information, see:
+<ul>
+<li>
+<a href="../irbrowser/corba_irbrowser.html">The Interface Repository Browser</a></li>
+
+<li>
+<a href="../completing/corba_completing.html">Completing Generated CORBA
+Files</a></li>
+</ul>
+
+<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="lastupdated" content="29aug2000">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+   <title>The Files You Need for Java-language CORBA Programs</title>
+<!--       
+ *        Copyright (C) 2000  Sun Microsystems, Inc
+ *                    All rights reserved.
+ *          Notice of copyright on this source code 
+ *          product does not indicate publication. 
+ * 
+ * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
+ * the U.S. Government is subject to restrictions as set forth 
+ * in subparagraph (c)(1)(ii) of the Rights in Technical Data
+ * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
+ * and FAR 52.227-19 (c) (June 1988).
+ *
+ *    Sun Microsystems, Inc., 901 San Antonio Road,
+ *    Palo Alto, California 94303 U.S.A.
+ *
+-->
+</head>
+<body bgcolor="#FFFFFF">
+
+<h2>
+&nbsp;Files Required for Java-language CORBA Programs</h2>
+The CORBA module has a CORBA wizard and several CORBA templates. You can
+use either tool to generate Java source files (.java files) for the different
+parts of CORBA programs. The type of program you are writing determines
+which files you need.
+<h4>
+<b>IDL Files</b></h4>
+You always need an IDL file, which defines the interface of a CORBA server.
+The CORBA module lets you use an existing IDL file or write your own.
+<ul>
+<li>
+If you are writing a client program that will use CORBA technology to access
+a CORBA server that someone else has already developed and deployed, you
+begin with a copy of the IDL used by the server developer.</li>
+
+<li>
+If you are developing a complete CORBA application, you probably begin
+by writing your own IDL.</li>
+</ul>
+The CORBA template mechanism creates a blank IDL file that you complete
+in the IDE's editing window. The CORBA wizard provides more support for
+writing IDL; it has buttons that add IDL elements in correct IDL syntax.
+<h4>
+<b>Client-side Files</b></h4>
+The files you need for a client-side program are:
+<ul>
+<li>
+A client class</li>
+
+<br>This class has a <tt>main()</tt> method that obtains an IOR for a CORBA
+server. You can generate a client class with either the CORBA templates
+or the CORBA wizard. After generating a client class, you need to add code
+that uses the IOR to invoke server methods and handles return values.
+<li>
+The stub classes</li>
+
+<br>These classes are generated when you compile the IDL file.</ul>
+If you are writing a client program to access an existing CORBA server,
+you need a copy of the IDL file that the server developer wrote.
+<h4>
+<b>Server-side Files</b></h4>
+The files you need for a server-side program are:
+<ul>
+<li>
+An implementation class.</li>
+
+<br>This class contains the business logic that can be executed by clients.
+It is called the implementation class because it contains implementations
+of the methods declared in the IDL interface. You can generate an implementation
+class with either the CORBA templates or the CORBA wizard. After generating
+it, you need to add code that implements the business logic.
+<li>
+A server class.</li>
+
+<br>This class has a <tt>main()</tt> method that instantiates the implementation
+class (creates the servant instance), registers the servant instance with
+the ORB, and makes the servant instance's IOR available to clients. Either
+the CORBA templates or the CORBA wizard can generate a server class for
+you. After generating a server class, you need to complete the code that
+makes the servant's IOR available to clients.
+<li>
+The skeleton classes.</li>
+
+<br>These classes are generated when you compile the IDL file.</ul>
+If you are using the CORBA Wizard to generate your server files, the wizard
+will help you write the IDL file as part of the complete process. If you
+are using the CORBA templates, you should generate and complete your IDL
+file before generating the other server-side files.
+<br>
+<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<!DOCTYPE toc
+
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 1.0//EN"
+
+         "http://java.sun.com/products/javahelp/toc_1_0.dtd">
+
+<toc version="1.0">
+
+<!-- last updated 17oct2000 -->
+
+<tocitem text="The CORBA Module" target="corba_intro">
+
+<tocitem text="Concepts" target="concepts_intro">
+
+	<tocitem text="CORBA Basics" target="concepts_basics" />
+	<tocitem text="Files for a CORBA Program" target="concepts_files" />
+	<tocitem text="CORBA Module Procedures" target="concepts_procs" />
+	
+</tocitem>
+
+<tocitem text="CORBA Module Setup" target="setup_intro">
+       <tocitem text="Supported ORB Products" target="setup_supportedorbs" />
+       <tocitem text="Specifying the ORB You Are Using" target="setup_specifyingorb" />
+       <tocitem text="IDL Compiler Setup" target="setup_idlcompiler" />
+       <tocitem text="Accessing the ORB Runtime" target="setup_accessruntime" />
+       <tocitem text="Setting Up the Naming Service Browser" target="setup_nsbrowser" />
+       <tocitem text="Setting Up the Interface Repository Browser" target="setup_irbrowser" />
+</tocitem>
+
+
+<tocitem text="Generating Program Files" target="generating_intro">
+       <tocitem text="Generating Client-side Files" target="generating_client" />
+       <tocitem text="Generating Server-side Files" target="generating_server" />
+</tocitem>
+
+<tocitem text="Completing Generated Files" target="completing_intro">
+	<tocitem text="Completing Client-side Files" target="completing_client" />
+	<tocitem text="Completing Server-side Files" target="completing_server" />
+</tocitem>
+
+<tocitem text="The Naming Service Browser" target="nsbrowser_intro">
+        <tocitem text="Starting the Naming Service Browser" target="nsbrowser_connecting" />
+	<tocitem text="Using the Naming Service Browser" target="nsbrowser_binding" />
+</tocitem>
+
+<tocitem text="The Interface Repository Browser" target="irbrowser_intro">
+	<tocitem text="Connecting to an Interface Repository" target="irbrowser_connecting" />
+	<tocitem text="Using an Interface from the Repository" target="irbrowser_using" />	
+</tocitem>
+
+<tocitem text="Debugging CORBA Programs" target="debugger_intro">
+</tocitem>
+
+<tocitem text="CORBA Project Settings" target="settings_intro">
+	<tocitem text="CORBA Node Settings" target="settings_corbanode" />
+	<tocitem text="ORB Product Subnode Settings" target="settings_orbnamenode" />	
+</tocitem>
+
+
+</tocitem>
+</toc>

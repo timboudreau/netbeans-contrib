@@ -1,0 +1,58 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="lastupdated" content="29aug2000">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+   <title>Setting up the IDL Compiler</title>
+<!--       
+ *        Copyright (C) 2000  Sun Microsystems, Inc
+ *                    All rights reserved.
+ *          Notice of copyright on this source code 
+ *          product does not indicate publication. 
+ * 
+ * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
+ * the U.S. Government is subject to restrictions as set forth 
+ * in subparagraph (c)(1)(ii) of the Rights in Technical Data
+ * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
+ * and FAR 52.227-19 (c) (June 1988).
+ *
+ *    Sun Microsystems, Inc., 901 San Antonio Road,
+ *    Palo Alto, California 94303 U.S.A.
+ *
+-->
+</head>
+<body bgcolor="#FFFFFF">
+<h2> Setting up the IDL Compiler</h2><P>To generate stub and skeleton files, you 
+need to compile your IDL source file with an IDL compiler. Each ORB vendor supplies 
+an IDL compiler that will generate stubs and skeletons that are compatible with 
+its ORB runtime.</P><P> Set up the IDE as described below to cause a compile command 
+issued on an IDL file (or on a package containing an IDL file) to execute the 
+correct IDL compiler:</P><P>The ORB vendor's documentation should identify the 
+IDL compiler executable. There are two ways to set your environment up so that 
+you can execute the IDL compiler from inside the IDE: </P><ul> <li> Add the directory 
+containing the IDL compiler executable to your operating system's PATH variable.<P>&nbsp; 
+</P></li><li> Specify the full path to IDL compiler in the IDE's CORBA properties. 
+<P>(See the instructions for <a href="corba_setup_ide.html">setting the IDE's 
+CORBA properties</a>.)</P></li></ul><P>After you have set up your environment, 
+issuing compile commands on files with the .idl extension will execute the appropriate 
+IDL compiler. <BR></P><TABLE WIDTH="550" BORDER="0" CELLPADDING="2"><TR VALIGN="TOP"><TD><IMG SRC="../images/tip.gif" WIDTH="12" HEIGHT="12"></TD><TD>If 
+you are using the JDK 1.2 ORB, you must download the IDL compiler <CODE>idltojava</CODE> 
+from <CODE>http://developer.java.sun.com/developer/earlyAccess/jdk12/idltojava.html</CODE> 
+and install it. The download includes documentation for installation and usage. 
+</TD></TR></TABLE><HR><font size=-2><a href="../credits.html">Legal Notices</a></font> 
+</body>
+</html>

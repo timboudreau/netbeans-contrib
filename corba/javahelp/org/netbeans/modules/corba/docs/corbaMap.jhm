@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!DOCTYPE map
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+         "http://java.sun.com/products/javahelp/map_1_0.dtd">
+
+<map version="1.0">
+
+<!-- last updated 26oct2000 -->
+
+	<mapID target="credits" url="credits.html" />
+
+	<mapID target="corba_intro" url="corba_intro.html" />
+
+	<mapID target="concepts_intro" url="concepts/corba_concepts.html" />
+	<mapID target="concepts_basics" url="concepts/corba_concepts_basics.html" />
+	<mapID target="concepts_files" url="concepts/corba_concepts_files.html" />
+	<mapID target="concepts_procs" url="concepts/corba_concepts_procs.html" />	
+
+	<mapID target="setup_intro" url="setup/corba_setup.html" />	
+	<mapID target="setup_supportedorbs" url="setup/corba_setup_supportedorbs.html" />
+	<mapID target="setup_specifyingorb" url="setup/corba_setup_ide.html" />		
+	<mapID target="setup_idlcompiler" url="setup/corba_setup_idl.html" />	
+	<mapID target="setup_accessruntime" url="setup/corba_setup_runtime.html" />	
+	<mapID target="setup_nsbrowser" url="setup/corba_setup_nsbrowser.html" />	
+	<mapID target="setup_irbrowser" url="setup/corba_setup_irbrowser.html" />	
+	<mapID target="setup_properties" url="setup/corba_setup_settings.html" />	
+
+	<mapID target="generating_intro" url="generating/corba_generating.html" />	
+	<mapID target="generating_client" url="generating/corba_generating_client.html" />	
+	<mapID target="generating_server" url="generating/corba_generating_server.html" />	
+
+	<mapID target="completing_intro" url="completing/corba_completing.html" />	
+	<mapID target="completing_client" url="completing/corba_completing_client.html" />	
+	<mapID target="completing_server" url="completing/corba_completing_server.html" />	
+
+	<mapID target="nsbrowser_intro" url="nsbrowser/corba_nsbrowser.html" />	
+	<mapID target="nsbrowser_connecting" url="nsbrowser/corba_nsbrowser_connecting.html" />	
+	<mapID target="nsbrowser_binding" url="nsbrowser/corba_nsbrowser_binding.html" />	
+	<mapID target="nsbrowser_properties" url="nsbrowser/corba_nsbrowser_properties.html" />	
+
+	<mapID target="irbrowser_intro" url="irbrowser/corba_irbrowser.html" />	
+	<mapID target="irbrowser_connecting" url="irbrowser/corba_irbrowser_connecting.html" />	
+	<mapID target="irbrowser_using" url="irbrowser/corba_irbrowser_using.html" />	
+	<mapID target="irbrowser_properties" url="irbrowser/corba_irbrowser_properties.html" />	
+
+	<mapID target="debugger_intro" url="debugging/corba_debugging.html" />	
+
+	<mapID target="settings_intro" url="settings/corba_settings.html" />
+	<mapID target="settings_corbanode" url="settings/corba_settings_corbanode.html" />	
+	<mapID target="settings_orbnamenode" url="settings/corba_settings_orbnodes.html" />	
+	
+</map>
