@@ -1,9 +1,8 @@
 Scattered notes from Mark Roth on what remains to be done in this module.
 
-feature freeze: dec 8, 2004
-another feature freeze for 4.1 in 3rd week of jan
-branch for ea 2 won't be done before jan 5
-
+[ ] Finish converting module to read new bpcatalog.xml instead of demo.xml
+    [ ] DOCTYPE was removed from bpcatalog.xml.  See if I can get 
+        it working after adding it back in.
 [ ] About / Info tab that shows usingTxt and usingTxt1 from bundle.properties
     Also points to web site, etc.
 [ ] deploy and test all included apps on 4.1
