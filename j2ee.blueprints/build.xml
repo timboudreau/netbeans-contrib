@@ -29,15 +29,15 @@ Microsystems, Inc. All Rights Reserved.
         </taskdef>
     </target>
     
-    <!-- Generate schema2beans parser for demo.xml -->
+    <!-- Generate schema2beans parser for bpcatalog.xml -->
     <target name="dd2beansgen" depends="s2binit">
         <mkdir dir="${build.classes.dir}"/>
         <property name="bpcatalog_resource_root" location="${build.classes.dir}/org/netbeans/modules/j2ee/blueprints"/>
-        <echo message="Generating parser for demo.xml" />
+        <echo message="Generating parser for bpcatalog.xml" />
         <mkdir dir="build/gensrc" />
-	<schema2beans schema="${bpcatalog_resource_root}/demo.dtd"
-	  package="org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser"
-          docRoot="demo"
+	<schema2beans schema="${bpcatalog_resource_root}/bpcatalog.dtd"
+	  package="org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser"
+          docRoot="bpcatalog"
           outputType="javabeans"
 	  validate="true"
 	  attrProp="true"
