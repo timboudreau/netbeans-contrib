@@ -198,10 +198,11 @@ final class JndiDataType extends NewType {
                                      }; // Runnable Outher
                           new Thread (controller).start();
                           }
+                          else if (event.getSource () == cancelButton) {
+                              dlg.setVisible (false);
+                              dlg.dispose();
+                          }
                       }});
-            descriptor.setClosingOptions (new Object[] {
-                                              DialogDescriptor.CANCEL_OPTION
-                                          });
             dlg = TopManager.getDefault().createDialog(descriptor);
             dlg.setVisible(true);
         } else if (node instanceof JndiNode) {
