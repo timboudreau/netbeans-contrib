@@ -334,6 +334,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     /** regexp matcher for ignoredFiles, null if not needed */
     private transient RE ignoredGarbageRE = null;
+    private Boolean createBackupFiles = null;
+    private Boolean filterBackupFiles = null;
 
     private transient VersioningFileSystem versioningSystem = null;
     
@@ -518,6 +520,30 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             }
         });
+    }
+    
+    protected boolean isCreateBackupFilesSet() {
+        return createBackupFiles != null;
+    }
+    
+    public boolean isCreateBackupFiles() {
+        return createBackupFiles != null && createBackupFiles.booleanValue();
+    }
+    
+    public void setCreateBackupFiles(boolean createBackupFiles) {
+        this.createBackupFiles = new Boolean(createBackupFiles);
+    }
+    
+    protected boolean isFilterBackupFilesSet() {
+        return filterBackupFiles != null;
+    }
+    
+    public boolean isFilterBackupFiles() {
+        return filterBackupFiles != null && filterBackupFiles.booleanValue();
+    }
+    
+    public void setFilterBackupFiles(boolean filterBackupFiles) {
+        this.filterBackupFiles = new Boolean(filterBackupFiles);
     }
     
     public void setOffLine(boolean offLine) {
@@ -2320,7 +2346,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (versioningSystem != null) addVersioningFolderListener(name);
         
         for (int i = 0; i < files.length; i++) {
-            if (ignoredGarbageRE != null && ignoredGarbageRE.match (files[i])) {
+            if (isFilterBackupFiles() && files[i].endsWith(getBackupExtension()) ||
+                ignoredGarbageRE != null && ignoredGarbageRE.match (files[i])) {
+                
                 files[i] = null;
             }
         }
@@ -2830,6 +2858,25 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             fileChanged(name);
         }
     }
+    
+    protected String getBackupExtension() {
+        return "~";
+    }
+    
+    protected void createBackupFile(String name) throws java.io.IOException {
+        if (!isImportant(name) || name.endsWith(getBackupExtension())) return ;
+        InputStream in = inputStream(name);
+        try {
+            OutputStream out = outputStream (name + getBackupExtension());
+            try {
+                FileUtil.copy(in, out);
+            } finally {
+                out.close();
+            }
+        } finally {
+            in.close();
+        }
+    }
 
     /** Get output stream to a file.
      * @param name the file to test
@@ -2838,6 +2885,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public OutputStream outputStream (String name) throws java.io.IOException {
         D.deb("outputStream("+name+")"); // NOI18N
+        if (isCreateBackupFiles()) {
+            createBackupFile(name);
+        }
         FileOutputStream output = new FileOutputStreamPlus (getFile (name), name);
         return output;
     }
