@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+
+<!-- Refer to the API Support documentation for hints on what this means. -->
+<!-- The Modules API has a full description on how to use layers. -->
+
+<filesystem>
+    <!-- To install an action: --> 
+    <folder name="Menu">
+        <folder name="Tools">            
+            <file name="org-netbeans-modules-helpbuilder-HelpBuilderWizardAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-helpbuilder-HelpBuilderWizardAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-helpbuilder-HelpBuilderWizardAction.instance"/>
+        </folder>
+    </folder>
+   
+</filesystem>
+
+
