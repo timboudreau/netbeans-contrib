@@ -1438,8 +1438,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     //System.out.println("Combo Action: selected = "+selected2+" = "+subComponents[selected2].getValue());
                     currentValue = subComponents[selected2].getValue();
                 }
-                component.setValue(currentValue);
-                firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), null, currentValue);
+                if (currentValue != null) {
+                    component.setValue(currentValue);
+                    firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), null, currentValue);
+                }
             }
         });
         comboBox.addItemListener(new ItemListener() {
