@@ -67,7 +67,7 @@ Microsystems, Inc. All Rights Reserved.
         <makenbm file="../tasklist-usertasks.nbm"
                  topdir="."
                  module="netbeans/modules/tasklist-usertasks.jar"
-                 homepage="http://tasklist.${homepage.base}/"
+                 homepage="http://tasklist.${homepage.base}/updates/tasklist-usertasks.html"
                  distribution="http://${dist.base}/tasklist-usertasks.nbm"
                  needsrestart="false">
             <license file="${license.file}"/>
@@ -75,7 +75,11 @@ Microsystems, Inc. All Rights Reserved.
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
     </target>
-  
+ 
+    <target name="changelog">
+        <style in="module-updates.xml" out="../www/updates/tasklist-usertasks.html" style="../www/updates/updates.xsl"/>
+    </target>
+ 
     <target name="clean">
         <delete>
             <fileset dir="src">
