@@ -31,6 +31,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.modules.vcscore.commands.CommandOutputCollector;
 import org.netbeans.modules.vcscore.commands.CommandOutputTopComponent;
 import org.netbeans.modules.vcscore.commands.RegexErrorListener;
@@ -357,10 +358,13 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){                    
                 btnStop.setEnabled(false);
-                if(exit == 0)
+                if (exit == CommandTask.STATUS_SUCCEEDED) {
                     lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFinished"));
-                else
-                    lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFailed"));                 
+                } else if (exit == CommandTask.STATUS_INTERRUPTED) {
+                    lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusInterrupted"));
+                } else {
+                    lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFailed"));
+                }
                 progress.setIndeterminate(false);
                 progress.setValue(100);
                 progress.setVisible(false);
