@@ -77,7 +77,7 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
     /* @return menu presenter.
     */
     public JMenuItem getMenuPresenter () {
-        return getPresenter(true, org.openide.util.Utilities.actionsGlobalContext ());
+        return getPresenter(false, org.openide.util.Utilities.actionsGlobalContext ());
     }
 
     /* @return popup presenter.
