@@ -677,8 +677,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         }
 
         private void heyDoRefreshFolderRecursive(FileObject fo) {
-            fo.refresh();
-            Enumeration enum = fo.getFolders(true);
+            Enumeration enum = existingFileObjects(fo);
             while(enum.hasMoreElements()) {
                 ((FileObject) enum.nextElement()).refresh();
             }
