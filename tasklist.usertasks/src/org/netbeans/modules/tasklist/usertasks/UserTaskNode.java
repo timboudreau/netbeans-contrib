@@ -129,7 +129,8 @@ class UserTaskNode extends TaskNode {
                 SystemAction.get(PasteAction.class),
                 // "Global" actions (not node specific)
                 null,
-                SystemAction.get(ImportAction.class)
+                SystemAction.get(ImportAction.class),
+                SystemAction.get(ExportAction.class)
             };
         } else {
             return new SystemAction[] {
