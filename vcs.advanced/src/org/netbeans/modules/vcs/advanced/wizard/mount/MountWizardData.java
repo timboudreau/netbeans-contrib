@@ -52,6 +52,7 @@ public class MountWizardData {
             this.customizer = new VcsCustomizer();
             customizer.setResetEqualFSVars(true);
             customizer.setUseWizardDescriptors(true);
+            customizer.setRapidVariablesAssignment(true);
             customizer.setObject(fileSystem);
         } else throw new IllegalArgumentException("Bad instance "+instance);
     }

@@ -22,6 +22,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.text.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.JTextComponent;
 
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -113,8 +116,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     private String noProfileSelectedLabel;
     
     private boolean useWizardDescriptors;
+    private boolean rapidVariablesAssignment;
     
     private transient ConditionedVariablesUpdater cVarsUpdater;
+    private transient JTextComponent fieldBeingRapidlyAssigned;
+    private transient Object fieldBeingRapidlyAssignedLock = new Object();
     
     private transient VariableInputDescriptor[] configInputDescriptors;
     private transient VariableInputComponent rootDirInputComponent;
@@ -167,6 +173,19 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     
     public void setUseWizardDescriptors(boolean useWizardDescriptors) {
         this.useWizardDescriptors = useWizardDescriptors;
+    }
+    
+    /**
+     * If true, assign the variable values as soon as possible,
+     * even before the user has finished explicitely the input (by focus lost, etc.).
+     * Currently this makes any difference only for textfields, which listen on key typed
+     * events and update the variables immediately.
+     */
+    public void setRapidVariablesAssignment(boolean rapidVariablesAssignment) {
+        this.rapidVariablesAssignment = rapidVariablesAssignment;
+        if (rapidVariablesAssignment) {
+            rootDirTextField.getDocument().addDocumentListener(new RapidDocumentChangeListener(rootDirTextField));
+        }
     }
 
     /** This method is called from within the constructor to
@@ -940,6 +959,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
     private void rootDirTextFieldFocusLost (java.awt.event.FocusEvent evt) {//GEN-FIRST:event_rootDirTextFieldFocusLost
         // Add your handling code here:
+        if (rapidVariablesAssignment) {
+            synchronized (fieldBeingRapidlyAssignedLock) {
+                if (fieldBeingRapidlyAssigned == evt.getSource()) {
+                    fieldBeingRapidlyAssigned = null;
+                }
+            }
+        }
         rootDirChanged ();
     }//GEN-LAST:event_rootDirTextFieldFocusLost
 
@@ -1017,6 +1043,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
     private void rootDirTextFieldActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rootDirTextFieldActionPerformed
         // Add your handling code here:
+        if (rapidVariablesAssignment) {
+            synchronized (fieldBeingRapidlyAssignedLock) {
+                if (fieldBeingRapidlyAssigned == evt.getSource()) {
+                    fieldBeingRapidlyAssigned = null;
+                }
+            }
+        }
         rootDirChanged ();
     }//GEN-LAST:event_rootDirTextFieldActionPerformed
 
@@ -1594,7 +1627,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 }
                 for (int i = 0; i < configInputDescriptors.length; i++) {
                     Hashtable dialogVars = new Hashtable(fsVars);
-                    VariableInputDialog dlg = new VariableInputDialog(new String[] { "" }, configInputDescriptors[i], false, dialogVars);
+                    VariableInputDialog dlg = new VariableInputDialog(new String[] { "" }, configInputDescriptors[i], false, dialogVars, rapidVariablesAssignment);
                     dlg.setExecutionContext(fileSystem, dialogVars);
                     dlg.setGlobalInput(null);
                     dlg.showPromptEach(false);
@@ -1666,16 +1699,33 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 propsPanel.add (lb, gridBagConstraints1);
                 tf.addActionListener (new java.awt.event.ActionListener () {
                                           public void actionPerformed (java.awt.event.ActionEvent evt) {
+                                              if (rapidVariablesAssignment) {
+                                                  synchronized (fieldBeingRapidlyAssignedLock) {
+                                                      if (fieldBeingRapidlyAssigned == evt.getSource()) {
+                                                          fieldBeingRapidlyAssigned = null;
+                                                      }
+                                                  }
+                                              }
                                               variableChanged (evt);
                                           }
                                       }
                                      );
                 tf.addFocusListener (new java.awt.event.FocusAdapter () {
                                          public void focusLost (java.awt.event.FocusEvent evt) {
+                                             if (rapidVariablesAssignment) {
+                                                 synchronized (fieldBeingRapidlyAssignedLock) {
+                                                     if (fieldBeingRapidlyAssigned == evt.getSource()) {
+                                                         fieldBeingRapidlyAssigned = null;
+                                                     }
+                                                 }
+                                             }
                                              variableChanged (evt);
                                          }
                                      }
                                     );
+                if (rapidVariablesAssignment) {
+                    tf.getDocument().addDocumentListener(new RapidDocumentChangeListener(tf));
+                }
 
                 gridBagConstraints1.gridx = 1;
                 gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -2634,6 +2684,62 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         }
     }
 
+    // Can not be inside RapidDocumentChangeListener, where it belongs
+    private static RequestProcessor rapidRequestProcessor;
+    
+    private class RapidDocumentChangeListener extends Object implements DocumentListener, Runnable {
+        
+        private static final int SCHEDULE_TIME = 100;
+        
+        private RequestProcessor.Task task;
+        private JTextComponent text;
+        
+        public RapidDocumentChangeListener(JTextComponent text) {
+            this.text = text;
+            synchronized (RapidDocumentChangeListener.class) {
+                if (rapidRequestProcessor == null) {
+                    rapidRequestProcessor = new RequestProcessor();
+                }
+            }
+        }
+        
+        public void changedUpdate(DocumentEvent e) {
+            changed(e);
+        }
+        
+        public void insertUpdate(DocumentEvent e) {
+            changed(e);
+        }
+        
+        public void removeUpdate(DocumentEvent e) {
+            changed(e);
+        }
+
+        private void changed(DocumentEvent e) {
+            synchronized (fieldBeingRapidlyAssignedLock) {
+                fieldBeingRapidlyAssigned = text;
+            }
+            if (task != null) {
+                task.schedule(SCHEDULE_TIME);
+            } else {
+                task = rapidRequestProcessor.post(this, SCHEDULE_TIME);
+            }
+        }
+        
+        public void run() {
+            synchronized (fieldBeingRapidlyAssignedLock) {
+                if (fieldBeingRapidlyAssigned != text) { // Someone else is involved
+                    return ;
+                }
+            }
+            if (rootDirTextField == text) {
+                rootDirChanged();
+            } else {
+                variableChanged(new java.awt.event.TextEvent(text, java.awt.event.TextEvent.TEXT_VALUE_CHANGED));
+            }
+        }
+    }
+    
     //-------------------------------------------
     String g(String s) {
         return NbBundle.getBundle

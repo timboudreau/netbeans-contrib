@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.advanced.wizard.mount;
 
+import javax.swing.SwingUtilities;
 import org.openide.loaders.TemplateWizard;
 
 /**
@@ -65,14 +66,18 @@ public abstract class AbstractWizardPanel implements org.openide.WizardDescripto
     protected abstract void readWizardSettings (MountWizardData data);
     
     public void fireChange () {
-        javax.swing.event.ChangeEvent event = new javax.swing.event.ChangeEvent (this);
-        java.util.Iterator iterator;
+        final javax.swing.event.ChangeEvent event = new javax.swing.event.ChangeEvent (this);
+        final java.util.Iterator iterator;
         synchronized (this) {
             iterator = ((java.util.ArrayList)listeners_.clone()).iterator();
         }
-        while (iterator.hasNext ()) {
-            ((javax.swing.event.ChangeListener)iterator.next()).stateChanged (event);
-        }
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                while (iterator.hasNext ()) {
+                    ((javax.swing.event.ChangeListener)iterator.next()).stateChanged (event);
+                }
+            }
+        });
     }
  
     
