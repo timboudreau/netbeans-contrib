@@ -120,7 +120,7 @@ public class SharableImport implements VcsAdditionalCommand {
             }
             int sharability = SharabilityQuery.getSharability(file);
             //System.out.println("  runOnSharableFolders(): name '"+name+"' sharability = "+sharability);
-            if (sharability == SharabilityQuery.SHARABLE) {
+            if (sharability == SharabilityQuery.SHARABLE || file.isFile() && sharability == SharabilityQuery.UNKNOWN) {
                 //if (file.isDirectory()) {
                 CommandTask task = runCommand(cmdSupp, vars, file, name); // the selected file must be a directory
                 try {
@@ -131,7 +131,7 @@ public class SharableImport implements VcsAdditionalCommand {
                 if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
                     return false;
                 }
-            } else if (sharability == SharabilityQuery.MIXED || sharability == SharabilityQuery.UNKNOWN) {
+            } else if (sharability == SharabilityQuery.MIXED || file.isDirectory() && sharability == SharabilityQuery.UNKNOWN) {
                 boolean status = runOnMixedFolders(cmdSupp, vars, file, name, nonSharableFiles);
                 if (!status) return false;
             } else {
@@ -157,17 +157,18 @@ public class SharableImport implements VcsAdditionalCommand {
         }
         for (int i = 0; i < children.length; i++) {
             String fileName = children[i].getName();
+            boolean isDirectory = children[i].isDirectory();
             int sharability = SharabilityQuery.getSharability(children[i]);
-            if (sharability == SharabilityQuery.SHARABLE) {
-                if (children[i].isDirectory()) {
+            if (sharability == SharabilityQuery.SHARABLE || !isDirectory && sharability == SharabilityQuery.UNKNOWN) {
+                if (isDirectory) {
                     sharableFolders.add(fileName);
                 } else {
                     sharableFileNames.add(fileName);
                 }
-            } else if (sharability == SharabilityQuery.MIXED || sharability == SharabilityQuery.UNKNOWN) {
+            } else if (sharability == SharabilityQuery.MIXED || isDirectory && sharability == SharabilityQuery.UNKNOWN) {
                 mixedFolders.add(fileName);
             } else {
-                if (children[i].isFile()) {
+                if (!isDirectory) {
                     unsharableFileNames.add(fileName);
                 } else {
                     unsharableFolders.add(fileName);
