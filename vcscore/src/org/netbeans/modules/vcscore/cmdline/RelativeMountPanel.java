@@ -528,6 +528,14 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
         }
         
     }
+
+    public void addTreeSelectionListener (javax.swing.event.TreeSelectionListener listener) {
+    	trRelMount.addTreeSelectionListener (listener);
+    }
+
+    public void removeTreeSelectionListener (javax.swing.event.TreeSelectionListener listener) {
+    	trRelMount.removeTreeSelectionListener (listener);
+    }
     
     /*
     class MyFile extends java.io.File {
