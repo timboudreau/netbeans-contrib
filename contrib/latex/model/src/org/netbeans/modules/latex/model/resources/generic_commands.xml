@@ -16,6 +16,9 @@ Microsystems, Inc. All Rights Reserved.
 <command name="\}">
 </command>
 
+<command name="\\">
+</command>
+
 <command name="\index">
   <argument type="mandatory">
     <attribute name="#text" value="true" />
@@ -615,4 +618,70 @@ Microsystems, Inc. All Rights Reserved.
     <attribute name="#code" value="true" />
   </argument>
 
+</command>
+
+<command name="\setlength">
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+</command>
+
+<command name="\addtolength">
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+</command>
+
+<command name="\voffset">
+</command>
+
+<command name="\hoffset">
+</command>
+
+<command name="\evensidemargin">
+</command>
+
+<command name="\topmargin">
+</command>
+
+<command name="\oddsidemargin">
+</command>
+
+<command name="\headheight">
+</command>
+
+<command name="\headsep">
+</command>
+
+<command name="\textheight">
+</command>
+
+<command name="\textwidth">
+</command>
+
+<command name="\marginparsep">
+</command>
+
+<command name="\marginparwidth">
+</command>
+
+<command name="\footskip">
+</command>
+
+<command name="\paperwidth">
+</command>
+
+<command name="\paperheight">
 </command>
