@@ -156,7 +156,12 @@ public class VcsMountFromTemplateAction extends NodeAction {
             wizard.setTargetName(null);
 
             // instantiates
-            wizard.instantiate ();
+            DataObject[] children = getVCSFolder().getChildren();
+            if (children.length == 1) {
+                wizard.instantiate (children[0]);
+            } else {
+                wizard.instantiate ();
+            }
         } catch (IOException e) {
             ErrorManager em = ErrorManager.getDefault();
             Throwable e1 = em.annotate(e, "Creating from template did not succeed."); // NOI18N
