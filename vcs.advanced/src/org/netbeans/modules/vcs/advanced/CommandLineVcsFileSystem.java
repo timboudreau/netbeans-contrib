@@ -1532,7 +1532,20 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 CommandsTree commands = ccommands.getCommands(getVariablesAsHashtable());
                 setCommands(copySharedCommands(commands));
             } else if (Profile.PROP_VARIABLES.equals(evt.getPropertyName())) {
-                //setVariables(profile.getVariables())); TODO - copy only *some*
+                // add accessory variables from the profile to basic variables from this FS
+                Vector fsVars = getVariables();
+                ConditionedVariables profileCondVars = profile.getVariables();
+                Collection profileVars = profileCondVars.getVariables(getVariablesAsHashtable());
+                Vector newVars = new Vector(fsVars.size());
+                for (Iterator it = fsVars.iterator(); it.hasNext(); ) {
+                    VcsConfigVariable var = (VcsConfigVariable) it.next();
+                    if (var.isBasic()) newVars.add(var);
+                }
+                for (Iterator it = profileVars.iterator(); it.hasNext(); ) {
+                    VcsConfigVariable var = (VcsConfigVariable) it.next();
+                    if (!var.isBasic()) newVars.add(var);
+                }
+                setVariables(newVars);
             }
         }
         
