@@ -16,6 +16,7 @@ package org.netbeans.modules.vcs.advanced;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.text.MessageFormat;
 
@@ -27,6 +28,10 @@ import org.openide.explorer.*;
 import org.openide.explorer.propertysheet.*;
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
+import org.openide.util.LookupListener;
+import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.ProxyLookup;
 
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
@@ -45,7 +50,7 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 //-------------------------------------------
 public class UserCommandsPanel extends JPanel
     implements CommandChangeListener, EnhancedCustomPropertyEditor,
-                ExplorerManager.Provider {
+                ExplorerManager.Provider, Lookup.Provider {
 
     private Debug E=new Debug("UserCommandsPanel", true); // NOI18N
     private Debug D=E;
@@ -57,6 +62,13 @@ public class UserCommandsPanel extends JPanel
     private CommandNode commandsNode = null;
     
     private ExplorerManager manager = null;
+    
+    /** a lock for operations in default impl of getLookup */
+    private static Object LOCK_LOOKUP = new Object ();
+    /** reference to Lookup with default implementation for the 
+     * component  */
+    private java.lang.ref.Reference lookupRef = new WeakReference(null);
+
     
     private transient VcsFileSystem fileSystem;
 
@@ -192,14 +204,25 @@ public class UserCommandsPanel extends JPanel
     }
     
     public ExplorerManager getExplorerManager() {
-        if (manager == null) {
-            synchronized(this) {
-                if (manager == null) {
-                    manager = new ExplorerManager();
-                }
+        synchronized(this) {
+            if (manager == null) {
+                manager = new ExplorerManager();
             }
         }
         return manager;
+    }
+
+    /** Implements <code>Lookup.Provider</code> interface. */
+    public Lookup getLookup() {
+        synchronized(LOCK_LOOKUP) {
+            Lookup lookup = (Lookup)lookupRef.get();
+            if(lookup == null) {
+                lookup = new ExplorerManagerLookup(getExplorerManager());
+                lookupRef = new WeakReference(lookup);
+            }
+                    
+            return lookup;
+        }
     }
     
     //-------------------------------------------
@@ -213,5 +236,107 @@ public class UserCommandsPanel extends JPanel
         return NbBundle.getMessage(UserCommandsPanel.class, s);
     }
 
+    /** Lookup which provides selected nodes from specified explorer manager. */
+    private static class ExplorerManagerLookup extends ProxyLookup 
+    implements java.beans.PropertyChangeListener, InstanceContent.Convertor, LookupListener {
+        /** ExplorerManager to work with */
+        private ExplorerManager em;
+        /** lookup listener that is attached to all subnodes */
+        private LookupListener listener;
+        /** is the listener attached or not yet */
+        private boolean attached;
 
+        /** Creates the lookup. */
+        public ExplorerManagerLookup(ExplorerManager em) {
+            super ();
+
+            this.em = em;
+            
+            updateLookups ();
+            em.addPropertyChangeListener(
+                org.openide.util.WeakListener.propertyChange(this, em)
+            );
+
+            listener = (LookupListener)org.openide.util.WeakListener.create(
+                LookupListener.class, this, null);
+        }
+
+        private static Lookup[] EMPTY_ARRAY = new Lookup[0];
+        /** Extracts activated nodes from a top component and
+         * returns their lookups.
+         */
+        private void updateLookups () {
+            Node[] arr = em.getSelectedNodes();
+            if (arr == null) {
+                setLookups (EMPTY_ARRAY);
+                return;
+            }
+
+            Lookup[] lookups = new Lookup[arr.length + 1];
+
+            for (int i = 0; i < arr.length; i++) {
+                lookups[i] = arr[i].getLookup ();
+            }
+            lookups[arr.length] = org.openide.util.lookup.Lookups.fixed (arr, this);
+
+            attached = false;
+            setLookups (lookups);
+        }
+
+        /** Updates the lookup if necessary */
+        public void propertyChange(java.beans.PropertyChangeEvent ev) {
+            if(ExplorerManager.PROP_SELECTED_NODES == ev.getPropertyName()) {
+                updateLookups ();
+            }
+        }    
+
+
+        /** Change in one of the lookups we delegate to */
+        public void resultChanged(org.openide.util.LookupEvent ev) {
+            updateLookups ();
+        }
+
+        protected synchronized void beforeLookup (Template t) {
+            if (!attached && Node.class.isAssignableFrom(t.getType ())) {
+                Lookup[] arr = getLookups();
+                for (int i = 0; i < arr.length - 1; i++) {
+                    Lookup.Result res = arr[i].lookup (t);
+                    res.addLookupListener(listener);
+                }
+
+                attached = true;
+            }
+        }
+        
+        // 
+        // InstanceContent.Convertor implementation
+        // 
+        /** Create something only if the Node does not provide itself 
+         * from its lookup */
+        public Object convert(Object obj) {
+            Lookup[] arr = getLookups ();
+            for (int i = 0; i < arr.length - 1; i++) {
+                if (arr[i].lookup (Node.class) == obj) {
+                    return null;
+                }
+            }
+
+            return obj;
+        }
+
+        public String displayName(Object obj) {
+            return ((Node)obj).getDisplayName();
+        }
+
+        public String id(Object obj) {
+            return ((Node)obj).getName ();
+        }
+
+        public Class type(Object obj) {
+            return convert (obj) == null ? Object.class : obj.getClass ();
+        }
+
+    } // End of class ExplorerManagerLookup.
+
+    
 }
