@@ -19,7 +19,7 @@ import java.awt.datatransfer.Transferable;
 import java.beans.BeanInfo;
 import java.io.IOException;
 
-import com.netbeans.ide.util.datatransfer.TransferableOwner;
+import com.netbeans.ide.util.datatransfer.ExTransferable;
 
 /** Exetends ClassDataNode, overrides one method
 * This class is final only for performance reasons,
@@ -76,6 +76,8 @@ final class SerDataNode extends ClassDataNode {
 
 /*
  * Log
+ *  4    src-jtulach1.3         2/25/99  Jaroslav Tulach Change of clipboard 
+ *       management  
  *  3    src-jtulach1.2         1/20/99  David Simonek   icon managing repaired
  *  2    src-jtulach1.1         1/19/99  David Simonek   
  *  1    src-jtulach1.0         1/15/99  David Simonek   

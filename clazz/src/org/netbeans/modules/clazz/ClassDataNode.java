@@ -24,7 +24,7 @@ import javax.swing.SwingUtilities;
 import com.netbeans.ide.nodes.*;
 import com.netbeans.ide.TopManager;
 import com.netbeans.ide.loaders.DataNode;
-import com.netbeans.ide.util.datatransfer.TransferableOwner;
+import com.netbeans.ide.util.datatransfer.ExTransferable;
 import com.netbeans.ide.util.RequestProcessor;
 import com.netbeans.ide.util.NbBundle;
 import com.netbeans.ide.src.*;
@@ -333,6 +333,8 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  11   Gandalf   1.10        2/25/99  Jaroslav Tulach Change of clipboard 
+ *       management  
  *  10   Gandalf   1.9         2/15/99  David Simonek   
  *  9    Gandalf   1.8         2/9/99   David Simonek   
  *  8    Gandalf   1.7         2/9/99   David Simonek   little fixes - init in 

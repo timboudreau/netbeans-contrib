@@ -14,7 +14,6 @@
 package com.netbeans.developer.modules.loaders.clazz;
 
 import com.netbeans.ide.filesystems.*;
-import com.netbeans.ide.util.datatransfer.TransferableOwner;
 import com.netbeans.ide.loaders.DataObjectExistsException;
 import com.netbeans.ide.loaders.MultiFileLoader;
 import com.netbeans.ide.nodes.Node;
@@ -58,6 +57,8 @@ public final class SerDataObject extends ClassDataObject {
 
 /*
  * Log
+ *  3    src-jtulach1.2         2/25/99  Jaroslav Tulach Change of clipboard 
+ *       management  
  *  2    src-jtulach1.1         2/1/99   David Simonek   
  *  1    src-jtulach1.0         1/15/99  David Simonek   
  * $
