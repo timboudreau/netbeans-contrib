@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.event.MenuKeyListener;
 
 import org.openide.awt.Actions;
 import org.openide.awt.JMenuPlus;
@@ -332,6 +333,22 @@ public class CommandMenu extends JMenuPlus {
         return item;
     }
     
+    private static void undoAdvanceSign(JMenuItem item) {
+        MenuKeyListener[] keyListeners = item.getMenuKeyListeners();
+        for (int i = 0; i < keyListeners.length; i++) {
+            if (keyListeners[i] instanceof CtrlMenuKeyListener) {
+                ((CtrlMenuKeyListener) keyListeners[i]).deselectMenu();
+            }
+        }
+        java.awt.Component parent = item.getParent();
+        if (parent instanceof JPopupMenu) {
+            parent = ((JPopupMenu) parent).getInvoker();
+        }
+        if (parent instanceof JMenuItem) {
+            undoAdvanceSign((JMenuItem) parent);
+        }
+    }
+    
     private static class CommandActionListener extends Object implements ActionListener {
         
         private boolean[] CTRL_Down;
@@ -348,6 +365,10 @@ public class CommandMenu extends JMenuPlus {
         /** Invoked when an action occurs.
          */
         public void actionPerformed(ActionEvent e) {
+            final boolean changeExpertMode = CTRL_Down[0];
+            final boolean expertMode = CTRL_Down[0] ^ CTRL_Down[1];
+            Object source = e.getSource();
+            if (source instanceof JMenuItem) undoAdvanceSign((JMenuItem) source);
             final String cmdName = e.getActionCommand();
             final CommandSupport[] cmdSupports;
             if (actionCommandMap != null) {
@@ -391,7 +412,7 @@ public class CommandMenu extends JMenuPlus {
                                 ((MessagingCommand) cmd).setMessage(message);
                             }
                             cmd.setGUIMode(true);
-                            if (CTRL_Down[0]) cmd.setExpertMode(CTRL_Down[0] ^ CTRL_Down[1]);
+                            if (changeExpertMode) cmd.setExpertMode(expertMode);
                             CommandTask task = VcsFSCommandsAction.executeCommand(cmd, files);
                             if (task != null) {
                                 try {
@@ -469,13 +490,11 @@ public class CommandMenu extends JMenuPlus {
             }
         }
     
-    }
+        public void deselectMenu() {
+            changeCtrlSigns(false);
+            CTRL_Down[0] = false;
+        }
 
-    /*
-    private void deselectedMenu() {
-        changeCtrlSigns(false);
-        CTRL_Down = false;
     }
-     */  
 
 }

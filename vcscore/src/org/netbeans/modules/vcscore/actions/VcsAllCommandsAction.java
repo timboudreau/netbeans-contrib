@@ -241,10 +241,27 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
         
         private void addElements(JMenu m) {
             Component[] cs = m.getPopupMenu().getComponents();
+            boolean menuKeyListenersTransfered = false;
             for (int i = 0; i < cs.length; i++) {
                 Component c = cs[i];
-                c.getParent().remove(c);
+                Component parent = c.getParent();
+                ((java.awt.Container) parent).remove(c);
                 add(c);
+                if (!menuKeyListenersTransfered) {
+                    if (parent instanceof javax.swing.JPopupMenu) {
+                        parent = ((javax.swing.JPopupMenu) parent).getInvoker();
+                    }
+                    if (parent instanceof JMenuItem) {
+                        JMenuItem parentMenu = (JMenuItem) parent;
+                        javax.swing.event.MenuKeyListener[] keyListeners = parentMenu.getMenuKeyListeners();
+                        for (int k = 0; k < keyListeners.length; k++) {
+                            if (!keyListeners[k].getClass().getName().startsWith("org.netbeans")) continue;
+                            addMenuKeyListener(keyListeners[k]);
+                            //System.out.println("  Transfering key listener: "+keyListeners[k]);
+                        }
+                        menuKeyListenersTransfered = true;
+                    }
+                }
             }
         }
     }
