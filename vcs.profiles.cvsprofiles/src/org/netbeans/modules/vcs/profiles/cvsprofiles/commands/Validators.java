@@ -54,8 +54,12 @@ public final class Validators {
                                 guessedVersion = line.substring(indexCVS + 4);
                             }
                         }
+                        if (line.indexOf("1.10") != -1) foundVersion = true; // NOI18N
                         if (line.indexOf("1.11") != -1) foundVersion = true; // NOI18N
                         if (line.indexOf("1.12") != -1) foundVersion = true; // NOI18N
+                        // CVSNT client
+                        int indexCVSNT = line.indexOf("CVSNT"); // NOI18N
+                        if (indexCVSNT > 0 && line.indexOf("2.") != -1) foundVersion = true; // NOI18N
                     }
                     if (!foundCVS) {
                         ret = getString("not_cvs", path);
