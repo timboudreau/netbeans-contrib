@@ -27,6 +27,8 @@ import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
 import org.openide.util.HelpCtx;
 import org.openide.util.lookup.Lookups;
+import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.actions.NodeAction;
 
@@ -77,6 +79,8 @@ class FolderNode extends AbstractNode implements Node.Cookie {
     /** The file or folder */
     private final FileObject file;
 
+    private final InstanceContent content;
+
     // XXX probably undeclatred dependency, copied from loaders.FolderNode
     static final String FOLDER_ICON_BASE =
         "org/openide/loaders/defaultFolder"; // NOI18N
@@ -88,11 +92,50 @@ class FolderNode extends AbstractNode implements Node.Cookie {
     }
     
     FolderNode(Children ch, FileObject file) {
-        super(ch, Lookups.singleton(file));
+        this(ch, file, new InstanceContent());
+    }
+
+    private FolderNode(Children ch, FileObject file, InstanceContent content) {
+        super(ch, new AbstractLookup(content));
+
+        // setup lookup content
+
+        content.add(file);
+        content.add(this);
+        InstanceContent.Convertor lazyDataObject = new InstanceContent.Convertor() {
+            public Object convert(Object obj) {
+                try {
+                    return DataObject.find(FolderNode.this.file);
+                } catch (DataObjectNotFoundException e) {
+                    // ignore, call super later on
+                }
+                return null;
+            }
+            public Class type(Object obj) {
+                return (Class) obj;
+            }
+            public String id(Object obj) {
+                return "";
+            }
+            public String displayName(Object obj) {
+                return "";
+            }
+        };
+
+        content.add(DataObject.class, lazyDataObject);
+        if (file.isFolder()) {
+            content.add(DataFolder.class, lazyDataObject);
+        }
         this.file = file;
+        this.content = content;
         init(file);
     }
-    
+
+    /** Allows sobclasses to customize lookup content. */
+    protected final InstanceContent getLookupContent() {
+        return content;
+    }
+
     private void init(FileObject file) {
         try {
             FileSystem fs = file.getFileSystem();
@@ -103,23 +146,6 @@ class FolderNode extends AbstractNode implements Node.Cookie {
             err.notify(ErrorManager.INFORMATIONAL, exc);
             return;
         }
-    }
-
-    public Cookie getCookie(Class type) {
-        // mimics DataNode because some actions heavily depends on DataObject cookie existence
-        if (type.isAssignableFrom(DataObject.class) || file.isFolder() && type.isAssignableFrom(DataFolder.class)) {
-            try {
-                return DataObject.find(file);
-            } catch (DataObjectNotFoundException e) {
-                // ignore, call super later on
-            }
-        }
-
-        if (type == FolderNode.class) { // DebugAction requires it
-            return this;
-        }
-
-        return super.getCookie(type);
     }
 
     public String getName() {

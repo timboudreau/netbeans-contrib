@@ -50,11 +50,6 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
         this.addPropertyChangeListener(propListener);
     }
 
-    public Cookie getCookie(Class type) {
-        if (type.isAssignableFrom(RefreshRevisionsCookie.class)) return this;
-        return super.getCookie(type);
-    }
-
     public Action[] getActions(boolean context) {
         return new SystemAction[]{
             //SystemAction.get(DebugAction.class),
