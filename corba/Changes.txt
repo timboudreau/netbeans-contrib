@@ -19,6 +19,23 @@ Aug/31 USER CHANGE: Correctly provides FileSystemAction on its data objects
 
 -- Release --------------------------------------
 
+  Released version:          AutoUpdate
+  Released build number:     385
+  Release type:              EAP module update
+  StarTeam Label:            Gandalf-Build385
+  Label Date:                3.9.1999 1:28:03
+  Release Date:              3.9.1999
+  
+  Specification-Version:     0.9.1
+  Implementation-Version:    0.9.1
+
+  Details: SW is the same as in 0.9
+           documentation updated only
+
+-------------------------------------------------
+
+-- Release --------------------------------------
+
   Released version:          Beta 4 Public
   Released build number:     382
   Release type:              Public Entry, EAP Pro/Enterprise modules
