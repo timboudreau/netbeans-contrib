@@ -42,8 +42,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
     //private static final boolean DYNLOAD = true;
     private static final boolean DYNLOAD = false;
 
-    private static final boolean PRODUCTION = true;
-    //private static final boolean PRODUCTION = false;
+    //private static final boolean PRODUCTION = true;
+    private static final boolean PRODUCTION = false;
 
     static final long serialVersionUID = -2809668725556980488L;
 
@@ -182,7 +182,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
         // test for default settings
         //setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
-        if (DYNLOAD) {
+        if (DYNLOAD || !PRODUCTION) {
             loadImpl ();
             setOrb ("ORBacus for Java 3.1.x");
             setClientBinding (CORBASupport.CLIENT_IOR_FROM_FILE);
