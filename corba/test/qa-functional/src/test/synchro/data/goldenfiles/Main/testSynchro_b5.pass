@@ -194,8 +194,8 @@ public class EImpl extends data.synchro.b5.EPOA {
         
         _M_variable_of_type_D = new data.synchro.b5.DImpl();
         // set parents for IDL:D:1.0
-        _M_variable_of_type_D._set_parent_of_type_B(_M_variable_of_type_B);
         _M_variable_of_type_D._set_parent_of_type_A(_M_variable_of_type_A);
+        _M_variable_of_type_D._set_parent_of_type_B(_M_variable_of_type_B);
         _M_variable_of_type_D._set_parent_of_type_C(_M_variable_of_type_C);
         
     }
@@ -438,8 +438,8 @@ public class EImpl extends data.synchro.b5.EPOA {
         
         _M_variable_of_type_D = new data.synchro.b5.DImpl();
         // set parents for IDL:D:1.0
-        _M_variable_of_type_D._set_parent_of_type_B(_M_variable_of_type_B);
         _M_variable_of_type_D._set_parent_of_type_A(_M_variable_of_type_A);
+        _M_variable_of_type_D._set_parent_of_type_B(_M_variable_of_type_B);
         _M_variable_of_type_D._set_parent_of_type_C(_M_variable_of_type_C);
         
     }
