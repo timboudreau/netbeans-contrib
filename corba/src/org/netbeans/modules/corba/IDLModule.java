@@ -294,6 +294,7 @@ public class IDLModule extends ModuleInstall {
 
 /*
  * <<Log>>
+ *  19   Gandalf   1.18        10/5/99  Karel Gardas    
  *  18   Gandalf   1.17        10/1/99  Petr Hrebejk    org.openide.modules.ModuleInstall
  *        changed to class + some methods added
  *  17   Gandalf   1.16        10/1/99  Karel Gardas    updates from CVS

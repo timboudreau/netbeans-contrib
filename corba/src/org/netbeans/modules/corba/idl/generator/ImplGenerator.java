@@ -151,7 +151,7 @@ public class ImplGenerator {
     if (java_type.equals ("byte"))
       return Type.BYTE;
     if (java_type.equals ("String"))
-      return Type.createClass (org.openide.src.Identifier.create ("String"));
+      return Type.createClass (org.openide.src.Identifier.create ("java.lang.String", "String"));
     if (java_type.equals ("short"))
       return Type.SHORT;
     if (java_type.equals ("int"))
@@ -182,7 +182,8 @@ public class ImplGenerator {
       return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.CharHolder"));
     if (type.equals (Type.CHAR))
       return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.ByteHolder"));
-    if (type.equals (Type.createClass (org.openide.src.Identifier.create("String"))))
+    if (type.equals (Type.createClass (org.openide.src.Identifier.create("java.lang.String",
+									 "String"))))
       return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.StringHolder"));
     if (type.equals (Type.SHORT))
       return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.ShortHolder"));
@@ -625,13 +626,142 @@ public class ImplGenerator {
     }
   }
 
+  /*
+    public Type hasTemplateParent (IDLType type, int mode, String _package, IDLElement from) {
+    
+    if (from == null)
+    return null;
+    
+    if (DEBUG)
+    System.out.println ("ImplGenerator::hasTemplateParent (" + type.getName () + ", " + mode 
+    + ", " + from + ");");
+    Vector mm = from.getMembers ();
+    boolean is_in = false;
+    TypeElement type_element = null;
+    Type java_type = null;
+
+    if (isAbsoluteScopeType (type)) {
+    // is absolute scoped name
+    IDLType tmp_type = createChildFromType (type);
+    return hasTemplateParent (tmp_type, mode, _package,
+    findTopLevelModuleForType (type, from));
+    }
+    if (isScopeType (type)) {
+    // is scoped name
+    if (DEBUG) {
+    System.out.println (type.getType ());
+    System.out.println (type.getName ().substring (type.getName ().lastIndexOf ("::") + 2, 
+    type.getName ().length ()));
+    System.out.println (type.ofType ());
+    System.out.println (type.ofDimension ());
+    }
+
+    IDLType tmp_type = createChildFromType (type);
+    return hasTemplateParent (tmp_type, mode, _package,
+    findModuleForScopeType (type, from));
+
+    }
+
+    TypeElement el_for_type;
+
+
+    if (type.getType () == IDLType.SEQUENCE) {
+    if (DEBUG)
+    System.out.println ("has simple parent??");
+    if ((java_type = hasSimpleParent (type.ofType (), from)) != null) {
+    if (DEBUG)
+    System.out.println ("yes");
+    if (mode == Parameter.IN)
+    return java_type; 
+    else
+    return JavaTypeToHolder (java_type);
+    }
+    else {
+    IDLElement tmp_element = findElementByName (type.ofType ().getName (), from);
+    if (tmp_element instanceof TypeElement)
+    el_for_type = (TypeElement)tmp_element;
+    else
+    return null;
+    }
+    }
+    else {
+    if (DEBUG)
+    System.out.println ("has simple parent??");
+    if (hasSimpleParent (type, from) != null) {
+    if (DEBUG)
+    System.out.println ("yes");
+    return hasSimpleParent (type, from); 
+    }
+    else
+    el_for_type = (TypeElement)findElementByName (type.getName (), from);
+    }
+    if (el_for_type == null) {
+    if (DEBUG)
+    System.out.println ("can't find type!!!");
+    //return null;
+    //Thread.dumpStack ();
+    }
+    if (DEBUG) {
+    if (el_for_type != null)
+    System.out.println (el_for_type.getType ().toString ());
+    }
+ 
+    if (el_for_type.getType ().getType () == IDLType.SEQUENCE) {
+    if (el_for_type.getType ().getType () == IDLType.SEQUENCE) {
+    if (mode == Parameter.IN)
+    return Type.createArray (hasTemplateParent (el_for_type.getType (),
+    mode, _package, from));
+    else
+    return hasTemplateParent (el_for_type.getType (), mode, _package, from);
+    }
+    else {
+    if (mode == Parameter.IN) {
+    if ((java_type = type2java (el_for_type.getType ().ofType ())) != null) {
+    // haha
+    if (DEBUG)
+    System.out.println ("return array of type");
+    return Type.createArray (java_type);
+    }
+    if ((java_type = hasSimpleParent (el_for_type.getType ().ofType (), from)) != null) {
+    // haha
+    if (DEBUG)
+    System.out.println ("return array of type2");
+    return Type.createArray (java_type);
+    }
+    }
+    else {
+    if (DEBUG)
+    System.out.println ("return simple type");
+      
+    IDLElement element_for_type = findElementByName (type.getName (), from);
+    if (DEBUG)
+    System.out.println ("element_for_type: " + element_for_type.getName () + " : " 
+    + element_for_type);
+    String full_name = _package + "." + ctype2package (element_for_type);
+    full_name = full_name + "Holder";
+    return Type.createClass (org.openide.src.Identifier.create (full_name));
+    }
+    }
+    }
+    
+    
+    
+    if (el_for_type.getType ().getType () == IDLType.STRING) {
+    return null;
+    } 
+    
+    return null;
+    }
+  */
+
+
   public Type hasTemplateParent (IDLType type, int mode, String _package, IDLElement from) {
 
     if (from == null)
       return null;
 
     if (DEBUG)
-      System.out.println ("ImplGenerator::hasTemplateParent (" + type.getName () 
+      System.out.println ("ImplGenerator::hasTemplateParent (" + type.getName () + ", " + mode 
 			  + ", " + from + ");");
     Vector mm = from.getMembers ();
     boolean is_in = false;
@@ -653,187 +783,164 @@ public class ImplGenerator {
 	System.out.println (type.ofType ());
 	System.out.println (type.ofDimension ());
       }
+
       IDLType tmp_type = createChildFromType (type);
       return hasTemplateParent (tmp_type, mode, _package,
 				findModuleForScopeType (type, from));
 
-      //if (type.getType () == IDLType.SEQUENCE) {
-      /*
-	return hasTemplateParent 
-	(new IDLType (type.getType (),
-	type.getName ().substring (type.getName ().lastIndexOf ("::") + 2, 
-	type.getName ().length ()),
-	type.ofType (),
-	type.ofDimension ()),
-	mode,
-	_package,
-	findModuleForScopeType (type.ofType () != null ? type.ofType () 
-	: type, from));
-      */
-	//}
-	//else {
-	//return null;
-	//}
     }
 
-    TypeElement el_for_type;
-    if (type.getType () == IDLType.SEQUENCE) {
+    /*
+      if ((java_type = hasSimpleParent (type, from)) != null) {
       if (DEBUG)
-	System.out.println ("has simple parent??");
-      if (hasSimpleParent (type.ofType (), from) != null) {
+      System.out.println (type + "has simple parent");
+      return java_type;
+      }
+    */
+
+    TypeElement el_for_type;
+    
+    if (type.getType () == IDLType.SEQUENCE) {
+      if (mode == Parameter.IN) {
+	// variable of this type is "in"
 	if (DEBUG)
-	  System.out.println ("yes");
-	return hasSimpleParent (type.ofType (), from); 
+	  System.out.println ("\"IN\"");
+	if (DEBUG)
+	  System.out.println ("has simple parent??");
+	if ((java_type = hasSimpleParent (type.ofType (), from)) != null) {
+	  return java_type;
+	}
       }
       else {
-	IDLElement tmp_element = findElementByName (type.ofType ().getName (), from);
-	if (tmp_element instanceof TypeElement)
-	  el_for_type = (TypeElement)tmp_element;
-	else
-	  return null;
+	// variable of this type is "inout" or "out"
+	if (DEBUG)
+	  System.out.println ("\"INOUT\" || \"OUT\"");
+	return null;
       }
     }
     else {
-      if (DEBUG)
-	System.out.println ("has simple parent??");
-      if (hasSimpleParent (type, from) != null) {
-	if (DEBUG)
-	  System.out.println ("yes");
-	return hasSimpleParent (type, from); 
-      }
-      else
-	el_for_type = (TypeElement)findElementByName (type.getName (), from);
-    }
-    if (el_for_type == null) {
-      if (DEBUG)
-	System.out.println ("can't find type!!!");
-      //return null;
-      //Thread.dumpStack ();
-    }
-    if (DEBUG) {
-      if (el_for_type != null)
-	System.out.println (el_for_type.getType ().toString ());
-    }
- 
-    if (el_for_type.getType ().getType () == IDLType.SEQUENCE) {
-      if (el_for_type.getType ().getType () == IDLType.SEQUENCE) {
-	return Type.createArray (hasTemplateParent (el_for_type.getType (),
-						    mode, _package, from));
+      // we have DeclaratorElement of some type e.g. sequence<long> seqlong;
+      // so we have seqlong now
+      if (mode == Parameter.IN) {
+	if ((java_type = hasSimpleParent (type, from)) != null) {
+	  if (DEBUG)
+	    System.out.println (type + "has simple parent");
+	  return java_type;
+	}
+	  
+	IDLElement tmp_element  = findElementByName (type.getName (), from);
+	if (tmp_element instanceof TypeElement) {
+	  if (((TypeElement)tmp_element).getType ().ofType () != null) {
+	    return Type.createArray 
+	      (hasTemplateParent (((TypeElement)tmp_element).getType ().ofType (), 
+				  mode, _package, from));
+	  }
+	  else {
+	    return Type.createClass (org.openide.src.Identifier.create (type.getName ()));
+	  }	  
+	}
+	if (tmp_element instanceof InterfaceElement) {
+	  return Type.createClass (org.openide.src.Identifier.create (type.getName ()));
+	}
       }
       else {
-	if (mode == Parameter.IN) {
-	  if ((java_type = type2java (el_for_type.getType ().ofType ())) != null) {
-	    // haha
-	    if (DEBUG)
-	      System.out.println ("return array of type");
-	    return Type.createArray (java_type);
-	  }
-	  if ((java_type = hasSimpleParent (el_for_type.getType ().ofType (), from)) != null) {
-	    // haha
-	    if (DEBUG)
-	      System.out.println ("return array of type2");
-	    return Type.createArray (java_type);
-	  }
-	}
-	else {
-	  if (DEBUG)
-	    System.out.println ("return simple type");
-	  
-	  IDLElement element_for_type = findElementByName (type.getName (), from);
-	  if (DEBUG)
-	    System.out.println ("element_for_type: " + element_for_type.getName () + " : " 
-				+ element_for_type);
-	  String full_name = _package + "." + ctype2package (element_for_type);
-	  full_name = full_name + "Holder";
-	  return Type.createClass (org.openide.src.Identifier.create (full_name));
-	}
+	IDLElement tmp_element = (TypeElement)findElementByName (type.getName (), from);
+	if (DEBUG)
+	  System.out.println ("tmp_element: " + tmp_element.getName () + " : " + tmp_element);
+	String full_name = _package + "." + ctype2package (tmp_element);
+	full_name = full_name + "Holder";
+	return Type.createClass (org.openide.src.Identifier.create (full_name));
+	
       }
     }
 
-    
-    if (el_for_type.getType ().getType () == IDLType.STRING) {
-      return null;
-    } 
 
     /*
-      for (int i=0; i<mm.size (); i++) {
-      if (from.getMember (i) instanceof TypeElement) {
-      if (from.getMember (i).getMember (0) instanceof DeclaratorElement) {
-      //
-      // first member is DeclaratorElement e.g.  typedef long x;
-	  //
-	  if (DEBUG)
-	    System.out.println ("first declarator element");
-	  if (((TypeElement)from.getMember (i).getMember (0)).getName ().equals 
-	      (type.getName ())) {
-	    String name = ((TypeElement)from.getMember (i).getMember (0)).getType ().getName ();
-	    type_element = (TypeElement)from.getMember (i).getMember (0);
-	    if (type.getType () == IDLType.SEQUENCE) {
-	      if ((java_type = hasSimpleParent (type.ofType (), from)) != null) {
-		// haha
-		if (DEBUG)
-		  System.out.println ("return array of type");
-		return Type.createArray (java_type);
-	      }
-	      return type2java (type.ofType (), mode, "", (InterfaceElement)from);
-	    }
-
-	    if (type.getType () == IDLType.STRING) {
-	      return null;
-	    } 
-	  }
-	}
-	if (from.getMember (i).getMembers ().size () > 1 
-	    && from.getMember (i).getMember (from.getMember (i).getMembers ().size () - 1) 
-	    instanceof DeclaratorElement) {
-	  //
-	  // last member is DeclaratorElement e.g.  typedef haha x; or typedef mx::haha x;
-	  //                                     or typedef ::m1::m2::haha x; 
-	  //
-	  int last = from.getMember (i).getMembers ().size () - 1;
-	  if (DEBUG) {
-	    System.out.println ("last declarator element");
-	    System.out.println 
-	      ("name: " + ((TypeElement)from.getMember (i).getMember (last)).getName ());
-	    System.out.println
-	      ("type: " + ((TypeElement)from.getMember (i).getMember (last)).getType ());
-	  }
-	  if (((TypeElement)from.getMember (i).getMember (last)).getName ()
-	      .equals (type)) {
-	    String name = ((TypeElement)from.getMember (i).getMember (last)).getType ().getName ();
-	    if (DEBUG)
-	      System.out.println ("name: " + name + " is type: " + type);
-	    if (isAbsoluteScopeType (type)) {
-	      // is absolute scope type
-	      return hasTemplateParent 
-		(new IDLType (type.getType (),
-			      name.substring (name.lastIndexOf ("::") + 2, name.length ())),
-		 mode,
-		 _package,
-		 findTopLevelModuleForType (name, from));
-	    }
-	    if (isScopeType (type)) {
-	      // is scope type
-	      return hasTemplateParent 
-		(new IDLType (type.getType (),
-			      name.substring (name.lastIndexOf ("::") + 2, name.length ())),
-		 mode,
-		 _package,
-		 findModuleForScopeType (name, from));
-	    }
-	    
-	    //if (type2java (type) != null)
-	    //  return type2java (type);
-	    //else 
-	    //  return hasTemplateParent (type, from);
-	    
-	  }
-	}
+      if (type.getType () == IDLType.SEQUENCE) {
+      if (DEBUG)
+      System.out.println ("has simple parent??");
+      if ((java_type = hasSimpleParent (type.ofType (), from)) != null) {
+      if (DEBUG)
+      System.out.println ("yes");
+      if (mode == Parameter.IN)
+      return java_type; 
+      else
+      return JavaTypeToHolder (java_type);
       }
-    }
+      else {
+      IDLElement tmp_element = findElementByName (type.ofType ().getName (), from);
+      if (tmp_element instanceof TypeElement)
+      el_for_type = (TypeElement)tmp_element;
+      else
+      return null;
+      }
+      }
+      else {
+      if (DEBUG)
+      System.out.println ("has simple parent??");
+      if (hasSimpleParent (type, from) != null) {
+      if (DEBUG)
+      System.out.println ("yes");
+      return hasSimpleParent (type, from); 
+      }
+      else
+      el_for_type = (TypeElement)findElementByName (type.getName (), from);
+      }
+      if (el_for_type == null) {
+      if (DEBUG)
+      System.out.println ("can't find type!!!");
+      //return null;
+      //Thread.dumpStack ();
+      }
+      if (DEBUG) {
+      if (el_for_type != null)
+      System.out.println (el_for_type.getType ().toString ());
+      }
+      
+      if (el_for_type.getType ().getType () == IDLType.SEQUENCE) {
+      if (el_for_type.getType ().getType () == IDLType.SEQUENCE) {
+      if (mode == Parameter.IN)
+      return Type.createArray (hasTemplateParent (el_for_type.getType (),
+      mode, _package, from));
+      else
+      return hasTemplateParent (el_for_type.getType (), mode, _package, from);
+      }
+      else {
+      if (mode == Parameter.IN) {
+      if ((java_type = type2java (el_for_type.getType ().ofType ())) != null) {
+      // haha
+      if (DEBUG)
+      System.out.println ("return array of type");
+      return Type.createArray (java_type);
+      }
+      if ((java_type = hasSimpleParent (el_for_type.getType ().ofType (), from)) != null) {
+      // haha
+      if (DEBUG)
+      System.out.println ("return array of type2");
+      return Type.createArray (java_type);
+      }
+      }
+      else {
+      if (DEBUG)
+      System.out.println ("return simple type");
+      
+      IDLElement element_for_type = findElementByName (type.getName (), from);
+      if (DEBUG)
+      System.out.println ("element_for_type: " + element_for_type.getName () + " : " 
+      + element_for_type);
+      String full_name = _package + "." + ctype2package (element_for_type);
+      full_name = full_name + "Holder";
+      return Type.createClass (org.openide.src.Identifier.create (full_name));
+      }
+      }
+      }
+      
+      
+      if (el_for_type.getType ().getType () == IDLType.STRING) {
+      return null;
+      } 
     */
-    //if (from.getParent () != null)
-      //return hasTemplateParent (type, from.getParent ());
+
     return null;
   }
 
@@ -1148,7 +1255,8 @@ public class ImplGenerator {
       if (mode == Parameter.IN) {
 	// is array ???
 	IDLElement tmp_type2 = findElementInElement (idl_type.getName (), _interface);
-	System.out.println (tmp_type2);
+	if (DEBUG)
+	  System.out.println (tmp_type2);
 	return type;
       }
       else {
@@ -1159,16 +1267,22 @@ public class ImplGenerator {
     if (DEBUG)
       System.out.println ("-- is type with simple parent? NOOOO");
 
-    if (mode == Parameter.IN) {
-      if (DEBUG)
-	System.out.println ("-- is type with template parent?");
-      if ((type = hasTemplateParent (idl_type, mode, _package, _interface)) != null) {
-	// idl_type is template type
+    if (DEBUG)
+      System.out.println ("-- is type with template parent?");
+    if ((type = hasTemplateParent (idl_type, mode, _package, _interface)) != null) {
+      // idl_type is template type
+      return type;
+      /*
+	if (mode == Parameter.IN) {
 	return type;
-      }
-      if (DEBUG)
-	System.out.println ("-- is type with template parent? NOOOO");
+	}
+	else {
+	return JavaTypeToHolder (type);
+	}
+      */
     }
+    if (DEBUG)
+      System.out.println ("-- is type with template parent? NOOOO");
 
     if (DEBUG)
       System.out.println ("cons: " + ctype2package (findElementByName (idl_type.getName (),
@@ -1366,8 +1480,8 @@ public class ImplGenerator {
       geter.setModifiers (Modifier.PUBLIC);
       geter.setReturn (attr_type);
       geter.setBody ("\n  return null;\n");
-      if (!existMethodInClass (clazz, geter))
-	clazz.addMethod (geter);
+      //if (!existMethodInClass (clazz, geter))
+      clazz.addMethod (geter); // now addMethod throws SourceExcetion
     } catch (SourceException e) {
       e.printStackTrace ();
     }
@@ -1381,8 +1495,8 @@ public class ImplGenerator {
 	seter.setBody ("\n");
 	seter.setParameters (new MethodParameter[] { 
 	  new MethodParameter ("value", attr_type, false) });
-	if (!existMethodInClass (clazz, seter))
-	  clazz.addMethod (seter);
+	//if (!existMethodInClass (clazz, seter))
+	clazz.addMethod (seter); // now addMethod throws SourceExcetion
       } catch (SourceException e) {
 	e.printStackTrace ();
       }
@@ -1438,8 +1552,8 @@ public class ImplGenerator {
       if (oper.getReturn () != Type.VOID)
 	oper.setBody ("\n  return null;\n");
 
-      if (!existMethodInClass (clazz, oper)) 
-	clazz.addMethod (oper);
+      //if (!existMethodInClass (clazz, oper)) 
+      clazz.addMethod (oper); // now addMethod throws SourceExcetion
     } catch (SourceException e) {
       e.printStackTrace ();
     }

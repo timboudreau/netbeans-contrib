@@ -13,6 +13,8 @@
 
 package com.netbeans.enterprise.modules.corba.idl.node;
 
+import java.util.Vector;
+
 import org.openide.nodes.*;
 
 import com.netbeans.enterprise.modules.corba.idl.src.*;
@@ -24,64 +26,69 @@ import com.netbeans.enterprise.modules.corba.idl.src.*;
  */
 public class IDLDeclaratorNode extends AbstractNode {
 
-   DeclaratorElement _declarator;
-   String name;
+  DeclaratorElement _declarator;
+  String name;
 
-   private static final String DECLARATOR_ICON_BASE =
-      "com/netbeans/enterprise/modules/corba/idl/node/declarator";
+  private static final String DECLARATOR_ICON_BASE =
+    "com/netbeans/enterprise/modules/corba/idl/node/declarator";
 
-   public IDLDeclaratorNode (DeclaratorElement value) {
-      //super (new IDLDocumentChildren ((SimpleNode)value));
-      super (Children.LEAF);
-      setIconBase (DECLARATOR_ICON_BASE);
-      _declarator = value;
-      if (_declarator != null) {
-	 /*
-	   for (int i=0; i<_declarator.getDeclarators ().size (); i++)  {
-	   if (_declarator.getDeclarator (i) instanceof Identifier) {
-	   name = ((Identifier)_declarator.getDeclarator (i)).getName ();
-	   System.out.println ("found name: " + name + " at " + i + " position");
-	   }
-	   }
-	   }
-	 */
-	 name = _declarator.getName ();
+  public IDLDeclaratorNode (DeclaratorElement value) {
+    //super (new IDLDocumentChildren ((SimpleNode)value));
+    super (Children.LEAF);
+    setIconBase (DECLARATOR_ICON_BASE);
+    _declarator = value;
+    if (_declarator != null) {
+      /*
+	for (int i=0; i<_declarator.getDeclarators ().size (); i++)  {
+	if (_declarator.getDeclarator (i) instanceof Identifier) {
+	name = ((Identifier)_declarator.getDeclarator (i)).getName ();
+	System.out.println ("found name: " + name + " at " + i + " position");
+	}
+	}
+	}
+      */
+      name = _declarator.getName ();
+    }
+    else 
+      name = "NoName :)";
+  }
+
+  public String getDisplayName () {
+    return name;
+  }
+
+  public String getName () {
+    return "declarator";
+  }
+
+
+  protected Sheet createSheet () {
+    Sheet s = Sheet.createDefault ();
+    Sheet.Set ss = s.get (Sheet.PROPERTIES);
+    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of declarator") {
+      public Object getValue () {
+	return _declarator.getName ();
       }
-      else 
-      	 name = "NoName :)";
-   }
+    });
+    ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of declarator") {
+      public Object getValue () {
+	return _declarator.getType ().getName ();
+      }
+    });
+    ss.put (new PropertySupport.ReadOnly ("dimension", String.class, "dimension", 
+					  "dimension of declarator") {
+      public Object getValue () {
+	String retval = "";
+	Vector dim = _declarator.getDimension ();
+	for (int i=0; i<dim.size (); i++) {
+	  retval = retval + "[" + ((Integer)dim.elementAt (i)).toString () + "]";
+	}
+	return retval;
+      }
+    });
 
-   public String getDisplayName () {
-      return name;
-   }
-
-   public String getName () {
-      return "declarator";
-   }
-
-
-   protected Sheet createSheet () {
-      Sheet s = Sheet.createDefault ();
-      Sheet.Set ss = s.get (Sheet.PROPERTIES);
-      ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of declarator") {
-	 public Object getValue () {
-	    return _declarator.getName ();
-	 }
-      });
-      ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of declarator") {
-	 public Object getValue () {
-	    return _declarator.getType ().getName ();
-	 }
-      });
-      ss.put (new PropertySupport.ReadOnly ("dimension", String.class, "dimension", 
-					    "dimension of declarator") {
-	 public Object getValue () {
-	    return _declarator.getDimension ();
-	 }
-      });
-
-      return s;
-   }
+    return s;
+  }
 	    
 
 }
@@ -90,3 +97,5 @@ public class IDLDeclaratorNode extends AbstractNode {
  * $Log
  * $
  */
+
+

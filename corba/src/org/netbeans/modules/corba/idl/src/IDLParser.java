@@ -1337,7 +1337,7 @@ void declarator() :
   jjtree.openNodeScope(jjtn000);
     try {
       if (jj_2_2(2)) {
-    String dim;
+    Vector dim;
         dim = complex_declarator();
                                jjtree.closeNodeScope(jjtn000, true);
                                jjtc000 = false;
@@ -1397,8 +1397,8 @@ void complex_declarator() :
   array_declarator()
 }
 */
-  final public String complex_declarator() throws ParseException {
-    String dim;
+  final public Vector complex_declarator() throws ParseException {
+    Vector dim;
     dim = array_declarator();
     {if (true) return dim;}
     throw new Error("Missing return statement in function");
@@ -2111,7 +2111,7 @@ void sequence_type() :
       val = -1;
     }
 
-    {if (true) return new IDLType (IDLType.SEQUENCE, retval, type, val);}
+    {if (true) return new IDLType (IDLType.SEQUENCE, retval, type, null);}
     throw new Error("Missing return statement in function");
   }
 
@@ -2142,10 +2142,10 @@ void string_type() :
     }
     //if (!tmp.equals (""))
     try {
-      {if (true) return new IDLType (IDLType.STRING, name, null, (new Integer (tmp)).intValue ());}
+      {if (true) return new IDLType (IDLType.STRING, name, null, null);}
     } catch (java.lang.NumberFormatException e) {
     //else
-      {if (true) return new IDLType (IDLType.STRING, name, null, -1);}
+      {if (true) return new IDLType (IDLType.STRING, name, null, null);}
     }
     throw new Error("Missing return statement in function");
   }
@@ -2158,13 +2158,13 @@ void array_declarator() :
   identifier() ( fixed_array_size() )+
 }
 */
-  final public String array_declarator() throws ParseException {
-    String tmp, dim = "";
+  final public Vector array_declarator() throws ParseException {
+    String tmp; Vector dim = new Vector ();
     identifier();
     label_17:
     while (true) {
       tmp = fixed_array_size();
-                                            dim += tmp;
+                                            dim.add (new Integer (tmp.substring (1, tmp.length () - 1)));
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case 55:
         ;

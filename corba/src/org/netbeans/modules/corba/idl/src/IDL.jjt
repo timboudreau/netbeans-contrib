@@ -824,7 +824,7 @@ void declarator() #DeclaratorElement:
 {}
 {
   LOOKAHEAD(2)
-  { String dim;}
+  { Vector dim;}
   dim = complex_declarator() { jjtThis.setDimension (dim);}
 |
   simple_declarator()
@@ -854,10 +854,10 @@ void complex_declarator() :
   array_declarator()
 }
 */
-String complex_declarator() :
+Vector complex_declarator() :
 {}
 {
-  { String dim;}
+  { Vector dim;}
   dim = array_declarator()
   { return dim;}
 }
@@ -1366,7 +1366,7 @@ IDLType sequence_type() :
       val = -1;
     }
 
-    return new IDLType (IDLType.SEQUENCE, retval, type, val);
+    return new IDLType (IDLType.SEQUENCE, retval, type, null);
   }
 }
 
@@ -1389,10 +1389,10 @@ IDLType string_type() :
   { 
     //if (!tmp.equals (""))
     try {
-      return new IDLType (IDLType.STRING, name, null, (new Integer (tmp)).intValue ());
+      return new IDLType (IDLType.STRING, name, null, null);
     } catch (java.lang.NumberFormatException e) {
     //else
-      return new IDLType (IDLType.STRING, name, null, -1);
+      return new IDLType (IDLType.STRING, name, null, null);
     }
   }
 }
@@ -1405,11 +1405,11 @@ void array_declarator() :
   identifier() ( fixed_array_size() )+
 }
 */
-String array_declarator() :
+Vector array_declarator() :
 {}
 {
-  { String tmp, dim = "";}
-  identifier() ( tmp = fixed_array_size() { dim += tmp;} )+
+  { String tmp; Vector dim = new Vector ();}
+  identifier() ( tmp = fixed_array_size() { dim.add (new Integer (tmp.substring (1, tmp.length () - 1)));} )+
   { return dim;}
 }
 

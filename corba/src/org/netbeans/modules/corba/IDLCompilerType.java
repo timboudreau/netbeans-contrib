@@ -23,8 +23,8 @@ import org.openide.compiler.CompilerJob;
 */           
 public class IDLCompilerType extends CompilerType {
 
-  public static final boolean DEBUG = true;
-  //private static final boolean DEBUG = false;
+  //public static final boolean DEBUG = true;
+  private static final boolean DEBUG = false;
 
   /** Prepare a data object for compilation.
   * Implementations should create an instance of a
@@ -48,6 +48,7 @@ public class IDLCompilerType extends CompilerType {
 
 /*
 * <<Log>>
+*  2    Gandalf   1.1         10/5/99  Karel Gardas    
 *  1    Gandalf   1.0         10/5/99  Karel Gardas    initial revision
 * $
 */

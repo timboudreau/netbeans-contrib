@@ -13,6 +13,7 @@
 
 package com.netbeans.enterprise.modules.corba.idl.src;
 
+import java.util.Vector;
 
 import com.netbeans.*;
 
@@ -28,7 +29,7 @@ public class IDLType {
   // for sequences and strings 
   public IDLType of_type;
   public String of_name;
-  public int dim;
+  public Vector dim;
 
   public static final int VOID = 0;
   public static final int BOOLEAN = 1;
@@ -75,18 +76,21 @@ public class IDLType {
   public static final int OBJECT = 2000;
 
   public IDLType () {
+    dim = new Vector ();
   }
 
   public IDLType (String _name) {
     name = _name;
+    dim = new Vector ();
   }
 
   public IDLType (int _type, String _name) {
     type = _type;
     name = _name;
+    dim = new Vector ();
   }
 
-  public IDLType (int _type, String _name, IDLType _of_type, int _dim) {
+  public IDLType (int _type, String _name, IDLType _of_type, Vector _dim) {
     type = _type;
     name = _name;
     of_type = _of_type;
@@ -105,8 +109,12 @@ public class IDLType {
     return of_type;
   }
 
-  public int ofDimension () {
+  public Vector ofDimension () {
     return dim;
+  }
+
+  public void setDimension (Vector val) {
+    dim = val;
   }
 
   public String toString () {

@@ -13,40 +13,51 @@
 
 package com.netbeans.enterprise.modules.corba.idl.src;
 
+import java.util.Vector;
+
 public class DeclaratorElement extends TypeElement {
 
-   private String dim;
+  private Vector dim;
 
-   public DeclaratorElement (int id) {
-      super(id);
-      dim = new String ("");
-   }
+  public DeclaratorElement (int id) {
+    super(id);
+    dim = new Vector ();
+  }
 
-   public DeclaratorElement (IDLParser p, int id) {
-      super(p, id);
-      dim = new String ("");
-   }
+  public DeclaratorElement (IDLParser p, int id) {
+    super(p, id);
+    dim = new Vector ();
+  }
 
-   public void setDimension (String s) {
-      dim = s;
-   }
+  public void setDimension (Vector s) {
+    dim = s;
+  }
 
-   public String getDimension () {
-      return dim;
-   }
+  public Vector getDimension () {
+    return dim;
+  }
 
-   /*
-   public void setType (String s) {
-      System.out.println (getType () + " -> " + s);
-      super.setType (s);
-      Thread.dumpStack ();
-   }
-   */
+  /*
+    public void setType (String s) {
+    System.out.println (getType () + " -> " + s);
+    super.setType (s);
+    Thread.dumpStack ();
+    }
+  */
 
-   public void jjtClose () {
-      super.jjtClose ();
-      //System.out.println ("DeclaratorElement.jjtClose ();");
-      setName (((Identifier)getMember (0)).getName ());
-   }
+  public IDLType getType () {
+    if (!super.getType ().ofDimension ().equals (getDimension ())) {
+      //System.out.println ("setting right dimension for IDLType");
+      super.getType ().setDimension (getDimension ());
+    }
+    return super.getType ();
+  }
+
+  public void jjtClose () {
+    super.jjtClose ();
+    //System.out.println ("DeclaratorElement.jjtClose ();");
+    setName (((Identifier)getMember (0)).getName ());
+    //getType ().setDimension (getDimension ());
+  }
 }
 
