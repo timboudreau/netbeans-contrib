@@ -277,6 +277,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
         int preprocessStatus;
         boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
+        boolean cmdCanRunOnMultipleFilesInFolder = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER);
         CommandsPool pool = fileSystem.getCommandsPool();
         VcsCommandExecutor vce;
         Hashtable vars = fileSystem.getVariablesAsHashtable();
@@ -290,16 +291,36 @@ public class VcsAction extends NodeAction implements ActionListener {
                 vce = null;
                 break;
             }
-            if (!cmdCanRunOnMultipleFiles) {
+            if (!cmdCanRunOnMultipleFiles && !cmdCanRunOnMultipleFilesInFolder) {
                 // When the executor can not run on more than one file, it has to be processed one by one.
                 preprocessStatus = CommandsPool.PREPROCESS_NEXT_FILE;
             }
             if (files.size() == 1) preprocessStatus = CommandsPool.PREPROCESS_DONE;
+            Table singleFolderTable = null;
             if (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus) {
                 Table singleFileTable = new Table();
                 Object singleFile = files.keys().nextElement();
                 singleFileTable.put(singleFile, files.get(singleFile));
                 setVariables(singleFileTable, vars, quoting);
+            } else if (cmdCanRunOnMultipleFilesInFolder) {
+                singleFolderTable = new Table();
+                Enumeration keys = files.keys();
+                String file = (String) keys.nextElement();
+                singleFolderTable.put(file, files.get(file));
+                //String folder = file.getPackageName('/');
+                String folder = "";
+                int index = file.lastIndexOf('/');
+                if (index >= 0) folder = file.substring(0, index);
+                while (keys.hasMoreElements()) {
+                    file = (String) keys.nextElement();
+                    String testFolder = "";
+                    index = file.lastIndexOf('/');
+                    if (index >= 0) testFolder = file.substring(0, index);
+                    if (folder.equals(testFolder)) {
+                        singleFolderTable.put(file, files.get(file));
+                    }
+                }
+                setVariables(singleFolderTable, vars, quoting);
             }
             executors.add(vce);
             if (stdoutListener != null) vce.addOutputListener(stdoutListener);
@@ -319,6 +340,24 @@ public class VcsAction extends NodeAction implements ActionListener {
                 }
                 if (files.size() == 1 && askForEachFile != null && askForEachFile[0] == true) {
                     askForEachFile = null; // Do not show the check box for the last file.
+                }
+            } else if (cmdCanRunOnMultipleFilesInFolder) {
+                for (Enumeration keys = singleFolderTable.keys(); keys.hasMoreElements(); ) {
+                    files.remove(keys.nextElement());
+                }
+                synchronized (vars) {
+                    if (askForEachFile != null && askForEachFile[0] == true) {
+                        vars = new Hashtable(fileSystem.getVariablesAsHashtable());
+                        if (additionalVars != null) vars.putAll(additionalVars);
+                    } else {
+                        vars = new Hashtable(vars);
+                    }
+                }
+                if (files.size() == 1 && askForEachFile != null && askForEachFile[0] == true) {
+                    askForEachFile = null; // Do not show the check box for the last file.
+                }
+                if (files.size() > 0) {
+                    preprocessStatus = CommandsPool.PREPROCESS_NEXT_FILE;
                 }
             }
         } while (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus);
@@ -728,6 +767,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         StringBuffer qpaths = new StringBuffer();
         StringBuffer paths = new StringBuffer();
         StringBuffer vfiles = new StringBuffer();
+        StringBuffer qfiles = new StringBuffer();
         for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
             fullName = (String) enum.nextElement();
             fo = (FileObject) files.get(fullName);
@@ -737,6 +777,10 @@ public class VcsAction extends NodeAction implements ActionListener {
             fullName = fullName.replace('/', java.io.File.separatorChar);
             vfiles.append(file);
             vfiles.append(java.io.File.separator);
+            qfiles.append(quoting);
+            qfiles.append(file);
+            qfiles.append(quoting);
+            qfiles.append(" ");
             paths.append(fullName);
             paths.append(java.io.File.separator+java.io.File.separator);
             qpaths.append(quoting);
@@ -745,6 +789,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             qpaths.append(" ");
         }
         vars.put("FILES", vfiles.delete(vfiles.length() - 1, vfiles.length()).toString());
+        vars.put("QFILES", qfiles.toString().trim());
         vars.put("PATHS", paths.delete(paths.length() - 2, paths.length()).toString());
         vars.put("QPATHS", qpaths.toString().trim());
         vars.put("NUM_FILES", ""+files.size());
