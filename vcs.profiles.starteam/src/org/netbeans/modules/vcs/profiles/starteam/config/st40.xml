@@ -57,15 +57,8 @@ Microsystems, Inc. All Rights Reserved.
         <variable basic="true" executable="false" label="Project Directory" localDir="false" localFile="false" name="PROJECT" order="-1">
             <value></value>
         </variable>
-        <variable basic="false" name="CPS">
-            <value>${classpath.separator}</value>
-        </variable>
         <variable basic="false" name="PROJECT_DIR">
             <value>$[? DIR] [$[? MODULE] [${PROJECT}/${MODULE}/${DIR}] [${PROJECT}/${DIR}]] [$[? MODULE] [${PROJECT}/${MODULE}] [${PROJECT}]]</value>
-        </variable>
-        <variable basic="false" name="CP">
-            <value>${netbeans.home}/lib/ext/regexp.jar${CPS}${netbeans.home}/modules/vcsgen.jar</value>
-            <value if="IS_WINDOWS">${netbeans.home}\lib\ext\regexp.jar${CPS}${netbeans.home}\modules\vcsgen.jar</value>
         </variable>
         <variable basic="false" name="CD">
             <value>cd</value>
