@@ -25,12 +25,10 @@ import java.util.Map;
 import javax.swing.JComponent;
 
 /**
- * Provides information about a simple wizard.  Simply pass the title,
- * an array of panel IDs and localized descriptions of those IDs to the
- * constructor, and implement <code>createPanel()</code> and <code>finish()</code>
- * as desired.  Panels should call <code>setProblem()</code> and <code>setCanFinish()</code>
- * as needed, and put any relevant user-entered information into the 
- * settings map passed to <code>createPanel()</code> as need-be.
+ * Provides information about a simple wizard.  Wraps a 
+ * WizardPanelProvider and provides a connection to the instance of
+ * SimpleWizard created for it, acting as the WizardController for
+ * calls to WizardPanelProvider.createPanel().
  */
 final class SimpleWizardInfo implements WizardController {
     private WeakReference wizard = null;
@@ -53,9 +51,6 @@ final class SimpleWizardInfo implements WizardController {
      * and descriptions.
      */
     protected SimpleWizardInfo (String title, String[] steps, String[] descriptions, WizardPanelProvider provider) {
-        if (title == null) {
-            throw new NullPointerException ("Null title");
-        }
         if (steps == null) {
             throw new NullPointerException ("Null steps");
         }
@@ -102,7 +97,6 @@ final class SimpleWizardInfo implements WizardController {
      *   the wizard
      * @return A JComponent
      */
-//    protected abstract JComponent createPanel (String id, Map settings);
     protected JComponent createPanel (String id, Map settings) {
         return provider.createPanel(this, id, settings);
     }
@@ -155,13 +149,8 @@ final class SimpleWizardInfo implements WizardController {
     public final void setProblem (String value) {
         String old = problem;
         this.problem = value;
-//        if ((((old == null) != (problem == null)) || 
-//            (old != null && ! old.equals(problem)) && 
-//            (!UNINIT.equals(old) && value != null)) || (old == null && value == null)) {
-
-            fire();
-            knownCanProceed[index()] = problem == null ? Boolean.TRUE : Boolean.FALSE;
-//        }
+        fire();
+        knownCanProceed[index()] = problem == null ? Boolean.TRUE : Boolean.FALSE;
     }
 
     private boolean canFinish = false;

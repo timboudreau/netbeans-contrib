@@ -23,7 +23,7 @@ import java.util.Map;
 import javax.swing.JComponent;
 
 /**
- * <b>Note:</b>It is quite rare to need to directly use this class.
+ * <b>Note:</b>It is quite rare to need to directly implement this interface.
  * If you want to create a Wizard with a fixed set of steps, implement
  * {@link org.netbeans.spi.wizard.WizardPanelProvider WizardPanelProvider}
  * and call {@link org.netbeans.spi.wizard.WizardPanelProvider#createWizard 
@@ -43,7 +43,8 @@ import javax.swing.JComponent;
  * <p>
  * The one case in which it may be necessary to implement this interface 
  * directly is if you have a Wizard that for some reason needs to disable
- * the <code>Prev</code> button.  For all other cases, consider using one of
+ * the <code>Prev</code> button (this is not a good idea from a usability
+ * standpoint).  For all other cases, consider using one of
  * <code>WizardPanelProvider</code> or <code>WizardBranchController</code> - 
  * they are much simpler to work with.
  * <hr>

@@ -57,6 +57,4 @@ public interface WizardController {
      * and it should try to find the next sub-wizard to continue.
      */
     void setCanFinish (boolean value);
-
-    
 }

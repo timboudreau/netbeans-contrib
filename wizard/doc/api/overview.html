@@ -70,7 +70,9 @@
 
     public FoodPanelProvider() {
         super ("Choose Your Dinner", 
+            <font color="gray">//below are unique IDs for steps in this Wizard</font>
             new String[] { "vegetarian", "mealChoice" }, 
+            <font color="gray">//Should really be localized - human-readable descriptions for the steps</font>
             new String[] { "Food preferences", "Meal Choice" });
     }
 
@@ -155,7 +157,7 @@
         }
         
         private FoodPanelProvider foodInfo = null;
-        private FoodPanelProvider getFoodInfo() {
+        private FoodPanelProvider getFoodPanels() {
             if (foodInfo == null) {
                 foodInfo = new FoodPanelProvider();
             }
@@ -163,7 +165,7 @@
         }
         
         private ColorPanelProvider colorInfo = null;
-        private ColorPanelProvider getColorInfo() {
+        private ColorPanelProvider getColorPanels() {
             if (colorInfo == null) {
                 colorInfo = new ColorPanelProvider();
             }
@@ -176,9 +178,9 @@
             if (which == null) {
                 return null;
             } else if (VALUE_FOOD.equals(which)) {
-                return getFoodInfo();
+                return getFoodPanels();
             } else if (VALUE_COLOR.equals(which)) {
-                return getColorInfo();
+                return getColorPanels();
             } else {
                 throw new IllegalArgumentException (which);
             }

@@ -27,12 +27,15 @@ import javax.swing.JComponent;
 import org.netbeans.spi.wizard.Wizard.WizardListener;
 
 /**
- * A Wizard with indeterminate branches - override <code>createSecondary()</code>
- * or <code>getSecondaryInfo()</code> to create the sub-wizard which handles
- * the final steps of the wizard.
+ * A Wizard with indeterminate branches.  The actual branch decision-making
+ * is done by the WizardBranchController passed to the constructor.
  * <p>
- * Wizards with arbitrary numbers of branches can be created by overriding
- * <code>createSecondary()</code> to create another <code>BranchingWizard</code>.
+ * Wizards with arbitrary numbers of branches can be handled by a 
+ * WizardBranchController by returning wizards created by 
+ * another WizardBranchController's <code>createWizard()</code> method.
+ * <p>
+ * One important point: There should be no duplicate IDs between steps of 
+ * this wizard.
  *
  * @author Tim Boudreau
  */

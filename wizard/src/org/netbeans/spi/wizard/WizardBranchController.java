@@ -28,6 +28,11 @@ import java.util.Map;
  * if there are no subsequent branch points and the continuation is a 
  * simple wizard.
  * <p>
+ * The basic idea is to supply a base wizard for the initial steps, stopping
+ * at the branch point.  The panel for the branch point should put enough
+ * information into the settings map that the WizardBranchController can 
+ * decide what to return as the remaining steps of the wizard.
+ * <p>
  * The result is a <code>Wizard</code> which embeds sub-wizards; when the 
  * <code>PanelProvider</code> passed to the constructor runs out of steps,
  * the master <code>Wizard</code> will try to find a sub-<code>Wizard</code>
@@ -98,9 +103,9 @@ public abstract class WizardBranchController {
     }
 
     /**
-     * Override this method to return a SimpleWizardInfo representing the 
-     * steps from here to the final step of the wizard, varying the return
-     * type based on the contents of the map and the step in question.
+     * Override this method to return a <code>WizardPanelProvider</code> representing the 
+     * steps from here to the final step of the wizard, varying the returned
+     * object based on the contents of the map and the step in question.
      * The default implementation of this method throws an <code>Error</code> - 
      * either override this method, or override <code>getWizardForStep()</code>
      * (in which case this method will not be called).
