@@ -34,7 +34,7 @@ Microsystems, Inc. All Rights Reserved.
 
         <!-- CCDB -->
         <pathelement location="${editor.dir}/${nb.modules.dir}/ext/nb-editor.jar"/>
-        <pathelement location="${editor.dir}/${nb.modules.dir}/editor.jar"/>
+        <pathelement location="${editor.dir}/${nb.modules.dir}/org-netbeans-modules-editor.jar"/>
 
         <!-- java friend -->
         <pathelement location="${java/api.dir}/${nb.modules.dir}/org-netbeans-api-java.jar"/>
