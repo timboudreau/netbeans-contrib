@@ -68,9 +68,7 @@ public class RegularDevelopment extends NbTestCase {
     public static junit.framework.Test suite() {
         TestSuite suite = new NbTestSuite();
         if (Utilities.isUnix()) return suite;
-        try { workingDirectory = new RegularDevelopment("testCheckoutFile").getWorkDir().getAbsolutePath(); }
-        catch (IOException e) {}
-        String zipFile = workingDirectory.substring(0, workingDirectory.indexOf("complete")) + "vss.zip";
+        String zipFile = "C:\\Program Files\\Microsoft Visual Studio\\vss.zip";
         if (!new File(zipFile).exists()) return suite; // This test suite can't run where zip with empty VSS repository is not prepared.
         suite.addTest(new RegularDevelopment("testCheckoutFile"));
         suite.addTest(new RegularDevelopment("testModifyFile"));
@@ -270,7 +268,8 @@ public class RegularDevelopment extends NbTestCase {
         JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
         getLatestVersionCommand.checkMakeTheLocalCopyWritable(true);
         getLatestVersionCommand.ok();
-        new DeleteAction().perform(C_FileNode);
+        filesystemNode.select();
+        new Action("Edit|Delete", null).performMenu(C_FileNode);
         new NbDialogOperator("Confirm Object Deletion").yes();
         new Action(VERSIONING_MENU + "|" + REFRESH, REFRESH).perform(testNode);
         MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");

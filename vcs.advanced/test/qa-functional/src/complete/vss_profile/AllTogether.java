@@ -36,10 +36,7 @@ public class AllTogether extends NbTestCase {
     public static junit.framework.Test suite() {
         TestSuite suite = new NbTestSuite();
         if (Utilities.isUnix()) return suite;
-        String workingDirectory = "";
-        try { workingDirectory = new AllTogether("").getWorkDir().getAbsolutePath(); }
-        catch (java.io.IOException e) {}
-        String zipFile = workingDirectory.substring(0, workingDirectory.indexOf("complete")) + "vss.zip";
+        String zipFile = "C:\\Program Files\\Microsoft Visual Studio\\vss.zip";
         if (!new java.io.File(zipFile).exists()) return suite; // This test suite can't run where zip with empty VSS repository is not prepared.
         suite.addTestSuite(RepositoryCreation.class);
         suite.addTestSuite(RegularDevelopment.class);

@@ -65,9 +65,7 @@ public class AdditionalCommands extends NbTestCase {
     public static junit.framework.Test suite() {
         TestSuite suite = new NbTestSuite();
         if (Utilities.isUnix()) return suite;
-        try { workingDirectory = new AdditionalCommands("testRemoveFile").getWorkDir().getAbsolutePath(); }
-        catch (IOException e) {}
-        String zipFile = workingDirectory.substring(0, workingDirectory.indexOf("complete")) + "vss.zip";
+        String zipFile = "C:\\Program Files\\Microsoft Visual Studio\\vss.zip";
         if (!new File(zipFile).exists()) return suite; // This test suite can't run where zip with empty VSS repository is not prepared.
         suite.addTest(new AdditionalCommands("testRemoveFile"));
         suite.addTest(new AdditionalCommands("testRecoverFile"));

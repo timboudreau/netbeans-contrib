@@ -58,9 +58,7 @@ public class RepositoryCreation extends NbTestCase {
     public static junit.framework.Test suite() {
         TestSuite suite = new NbTestSuite();
         if (Utilities.isUnix()) return suite;
-        try { workingDirectory = new RepositoryCreation("testCreateProjects").getWorkDir().getAbsolutePath(); }
-        catch (IOException e) {}
-        String zipFile = workingDirectory.substring(0, workingDirectory.indexOf("complete")) + "vss.zip";
+        String zipFile = "C:\\Program Files\\Microsoft Visual Studio\\vss.zip";
         if (!new File(zipFile).exists()) return suite; // This test suite can't run where zip with empty VSS repository is not prepared.
         suite.addTest(new RepositoryCreation("testCreateProjects"));
         suite.addTest(new RepositoryCreation("testAddSingleFile"));
@@ -84,10 +82,10 @@ public class RepositoryCreation extends NbTestCase {
     /** Method responsible for VSS repository creation physically on disc.
      */
     private void createVSSRepository() throws Exception {
-        String zipFile = workingDirectory.substring(0, workingDirectory.indexOf("complete")) + "vss.zip";
+        String zipFile = "\"C:\\Program Files\\Microsoft Visual Studio\\vss.zip\"";
         String destinationDirectory = workingDirectory + File.separator + "Repo";
         String command = "unzip " + zipFile + " -d " + destinationDirectory;
-        new ExternalCommand(command).exec();
+        if (new ExternalCommand(command).exec() != 0) captureScreen("Error: Can't unzip VSS repository.");
     }
 
     /** Creates new file or directory at given place.
