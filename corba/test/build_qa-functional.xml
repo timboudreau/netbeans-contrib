@@ -12,7 +12,7 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<project name="JNDI" basedir="." default="all">
+<project name="CORBA" basedir="." default="all">
 
     <property name="nb.repository" location="../.."/>
     <property name="extra.repository" location="../../../nbextra"/>
