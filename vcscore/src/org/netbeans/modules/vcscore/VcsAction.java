@@ -1046,7 +1046,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         if (fullName.length() == 0) fullName = "."; // NOI18N
         String module = (String) vars.get("MODULE"); // NOI18N
         if (module == null) module = ""; // NOI18N
-        if (module.length() > 0) module += separator;
+        if (module.length() > 0) module += separatorChar;
         vars.put("PATH", fullName); // NOI18N
         vars.put("QPATH", (fullName.length() > 0) ? quoting+fullName+quoting : fullName); // NOI18N
         vars.put("DIR", path); // NOI18N
