@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -78,12 +78,20 @@ public class RunInternallyAction extends NodeAction {
         }
     }
     
-    /** action is enabled when a main class is selected
+    /** action is enabled when a main class is selected and it is a class
+     * in regular java project.
      * @param node selected nodes
      * @return true if a main class is selected
      */
     public boolean enable(Node[] node) {
-        return getSelectedMainClass(Utilities.actionsGlobalContext()) != null;
+        Lookup context = Utilities.actionsGlobalContext();
+        if(getSelectedMainClass(context) != null) {
+            DataObject dObj = getSelectedDataObject(context);
+            FileObject fObj = dObj.getPrimaryFile();
+            FileBuiltQuery.Status status = FileBuiltQuery.getStatus(fObj);
+            return status != null;
+        }
+        return false;
     }
     
     /** method returning name of the action
