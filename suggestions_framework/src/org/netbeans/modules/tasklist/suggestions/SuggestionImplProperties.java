@@ -13,14 +13,13 @@
 
 package org.netbeans.modules.tasklist.suggestions;
 
-
-import org.netbeans.modules.tasklist.client.SuggestionProperty;
 import org.netbeans.modules.tasklist.core.TaskProperties;
-import org.netbeans.modules.tasklist.client.Suggestion;
+import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
 
 
 /**
- * Suggestion impl introduces line-number, file-name and location.
+ * 
+import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;ocation.
  * This class is coupled to SuggestionImpl, but defined outside just
  * for code readability.
  */

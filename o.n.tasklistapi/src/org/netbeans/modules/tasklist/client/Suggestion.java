@@ -18,6 +18,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 import org.openide.text.Line;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 
 /**
  * A suggestion is an item in the Suggestions Viev. It has an associated

@@ -13,27 +13,18 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import java.util.Date;
-import org.netbeans.modules.tasklist.client.Suggestion;
-import org.netbeans.modules.tasklist.core.filter.BooleanFilterCondition;
-import org.netbeans.modules.tasklist.core.filter.DateFilterCondition;
 import org.netbeans.modules.tasklist.core.filter.Filter;
-import org.netbeans.modules.tasklist.core.filter.IntegerFilterCondition;
 import org.netbeans.modules.tasklist.core.filter.PriorityCondition;
 import org.netbeans.modules.tasklist.core.filter.StringFilterCondition;
-import org.netbeans.modules.tasklist.suggestions.SuggestionFilter;
-import org.netbeans.modules.tasklist.suggestions.SuggestionImpl;
-import org.openide.util.NbBundle;
 import org.netbeans.modules.tasklist.core.filter.FilterConvertor;
-import org.netbeans.modules.tasklist.client.SuggestionProperty;
 import org.netbeans.modules.tasklist.core.filter.AppliedFilterCondition;
-import org.netbeans.modules.tasklist.suggestions.SuggestionImplProperties;
+
+import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
 
 
 
 /**
  * Filter for user tasks
- * @author Tim Lebedkov
  */
 final class SourceTasksFilter extends Filter {
   

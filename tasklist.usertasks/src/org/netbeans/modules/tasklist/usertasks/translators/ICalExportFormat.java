@@ -28,7 +28,6 @@ import java.util.SimpleTimeZone;
 
 import javax.swing.filechooser.FileSystemView;
 
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
@@ -229,9 +228,9 @@ public class ICalExportFormat implements ExportImportFormat {
         }
 
         // Priority
-        if (task.getPriority() != SuggestionPriority.MEDIUM) {
+        if (task.getPriority() != UserTask.MEDIUM) {
             writer.write("PRIORITY:"); // NOI18N
-            writer.write(Integer.toString(task.getPriority().intValue()));
+            writer.write(Integer.toString(task.getPriority()));
             writer.write("\r\n"); // NOI18N
         }
 

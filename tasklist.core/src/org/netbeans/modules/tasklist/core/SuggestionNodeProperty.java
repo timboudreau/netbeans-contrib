@@ -15,7 +15,7 @@ package org.netbeans.modules.tasklist.core;
 import org.openide.nodes.Node;
 import org.openide.nodes.PropertySupport;
 import org.netbeans.modules.tasklist.client.Suggestion;
-import org.netbeans.modules.tasklist.client.SuggestionProperty;
+import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
 import org.openide.ErrorManager;
 import java.beans.PropertyEditor;
 

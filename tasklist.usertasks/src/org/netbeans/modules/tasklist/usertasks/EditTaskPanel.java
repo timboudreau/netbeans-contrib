@@ -36,7 +36,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.dependencies.DependenciesPanel;
 import org.openide.DialogDescriptor;
@@ -115,7 +114,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     
     private SimpleDateFormat format;
     private ComboBoxModel prioritiesModel = 
-        new DefaultComboBoxModel(SuggestionPriority.getPriorityNames());
+        new DefaultComboBoxModel(UserTask.getPriorityNames());
     private ListCellRenderer priorityRenderer = new PriorityListCellRenderer();
     private DurationPanel durationPanel = new DurationPanel();
     private DependenciesPanel dp;
@@ -182,7 +181,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         if (item.getSummary() != null) {
             descriptionTextField.setText(item.getSummary());
         }
-        int p = item.getPriority().intValue() - 1;
+        int p = item.getPriority() - 1;
         priorityComboBox.setSelectedIndex(p);
         if (item.getLine() != null) {
             URL url = item.getUrl();
@@ -248,7 +247,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             task.setCategory(""); // NOI18N
         else
             task.setCategory(categoryCombo.getSelectedItem().toString().trim());
-        task.setPriority(SuggestionPriority.getPriority(priorityComboBox.getSelectedIndex() + 1));
+        task.setPriority(priorityComboBox.getSelectedIndex() + 1);
         if (fileCheckBox.isSelected()) {
             try {
                 URL url = new URL(fileTextField.getText().trim());

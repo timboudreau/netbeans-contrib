@@ -16,6 +16,7 @@ package org.netbeans.modules.tasklist.client;
 import org.openide.text.Line;
 
 import java.awt.*;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 
 /**
  * Agent allows provider to update suggestion.

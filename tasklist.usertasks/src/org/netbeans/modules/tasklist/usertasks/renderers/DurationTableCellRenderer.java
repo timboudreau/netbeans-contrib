@@ -1,6 +1,7 @@
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.text.MessageFormat;
@@ -22,11 +23,26 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
         new MessageFormat(NbBundle.getMessage(DurationTableCellRenderer.class, 
             "ShortEffortFormat")); // NOI18N
     private UserTask.Duration duration;
+    private Font boldFont, normalFont;
     
     /**
      * Creates a new instance of DurationTableCellRenderer
      */
     public DurationTableCellRenderer() {
+        normalFont = this.getFont();
+        boldFont = normalFont.deriveFont(Font.BOLD);
+    }
+    
+    /**
+     * Sets whether the text should be bold
+     *
+     * @param bold true = bold
+     */
+    public void setBold(boolean bold) {
+        if (bold)
+            setFont(normalFont);
+        else
+            setFont(boldFont);
     }
     
     public Component getTableCellRendererComponent(javax.swing.JTable table, 
@@ -38,7 +54,7 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
             duration = null;
         else
             duration = UserTask.splitDuration(((Integer) value).intValue(),
-                Settings.getDefault().getHoursPerDay());
+                Settings.getDefault().getHoursPerDay(), Settings.getDefault().getDaysPerWeek());
         return this;
     }
     
@@ -47,6 +63,7 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
             return "";
         
         String s = EFFORT_FORMAT.format(new Object[] {
+            new Integer(duration.weeks),
             new Integer(duration.days), 
             new Integer(duration.hours), 
             new Integer(duration.minutes)
@@ -58,6 +75,7 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
         if (w >= fm.stringWidth(s))
             return s;
         return SHORT_EFFORT_FORMAT.format(new Object[] {
+            new Integer(duration.weeks),
             new Integer(duration.days), 
             new Integer(duration.hours), 
             new Integer(duration.minutes)

@@ -16,14 +16,13 @@ package org.netbeans.modules.tasklist.core;
 import org.openide.nodes.PropertySupport;
 
 import java.beans.PropertyEditor;
-import org.netbeans.modules.tasklist.client.SuggestionProperty;
+import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
 
 /** 
  * Class holding column properties.
  * See debuggercore's TreeTableExplorerViewSupport.java 
  *
  * @author Tor Norbye
- * @author Tim Lebedkov
  */    
 public class ColumnProperty extends PropertySupport.ReadOnly {
     /** Id of the column. Used such that with deserialization,

@@ -28,7 +28,6 @@ import java.util.List;
 import javax.swing.Action;
 import javax.swing.tree.TreePath;
 
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
@@ -216,7 +215,7 @@ public final class UserTaskNode extends AbstractNode {
             p.setShortDescription(NbBundle.getMessage(TaskNode.class, "DescriptionHint")); // NOI18N
             ss.put(p);            
             
-            p = new PropertySupport.Reflection(item, SuggestionPriority.class, "getPriority", "setPriority"); // NOI18N
+            p = new PropertySupport.Reflection(item, Integer.TYPE, "getPriority", "setPriority"); // NOI18N
             p.setName(UserTask.PROP_PRIORITY);
             p.setPropertyEditorClass(PriorityPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_priorityProperty")); // NOI18N

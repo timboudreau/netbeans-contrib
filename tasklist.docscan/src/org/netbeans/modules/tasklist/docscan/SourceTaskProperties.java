@@ -13,10 +13,9 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import org.netbeans.modules.tasklist.core.TaskProperties;
-import org.netbeans.modules.tasklist.client.SuggestionProperty;
+import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
 import org.netbeans.modules.tasklist.suggestions.SuggestionImplProperties;
-import org.netbeans.modules.tasklist.client.Suggestion;
+
 
 /**
  * Although Task doesn't introduce any new properties, I include this

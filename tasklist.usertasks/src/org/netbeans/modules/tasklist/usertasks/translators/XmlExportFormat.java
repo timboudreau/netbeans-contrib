@@ -179,7 +179,7 @@ public class XmlExportFormat implements ExportImportFormat {
         el.appendChild(node);
         
         node.setAttribute("priority", // NOI18N
-            PRIORITIES[task.getPriority().intValue() - 1]);
+            PRIORITIES[task.getPriority() - 1]);
         
         if (task.getCategory().length() != 0) {
             node.setAttribute("category", // NOI18N

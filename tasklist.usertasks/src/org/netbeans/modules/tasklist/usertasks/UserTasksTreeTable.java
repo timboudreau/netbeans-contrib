@@ -13,11 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -30,9 +26,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
 
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
-import org.netbeans.modules.tasklist.core.editors.PriorityTableCellRenderer;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ImportAction;
 import org.netbeans.modules.tasklist.core.filter.Filter;
@@ -48,6 +42,7 @@ import org.netbeans.modules.tasklist.usertasks.renderers.DateTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DurationTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.LineTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.PercentsTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.renderers.PriorityTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.SummaryTreeCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.BooleanTableCellRenderer;
@@ -75,7 +70,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
     public UserTasksTreeTable(ExplorerManager em, UserTaskList utl,
     Filter filter) {
         super(em, new DefaultTreeTableModel(
-            new DefaultMutableTreeTableNode(), new String[] {""}));
+            new DefaultMutableTreeTableNode(), new String[] {""})); // NOI18N
         setTreeTableModel(
             new UserTasksTreeTableModel(utl, getSortingModel(), filter));
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -87,7 +82,6 @@ public class UserTasksTreeTable extends NodesTreeTable {
         getTree().setToggleClickCount(3);
         
         setAutoCreateColumnsFromModel(false);
-        setDefaultEditor(SuggestionPriority.class, new PriorityTableCellEditor());
         
         if (UTUtils.LOGGER.isLoggable(Level.FINER)) {
             getSelectionModel().addListSelectionListener(
@@ -233,6 +227,10 @@ public class UserTasksTreeTable extends NodesTreeTable {
             setCellEditor(new PercentsTableCellEditor());
         tcm.getColumn(UserTaskTreeTableNode.CATEGORY).
             setCellEditor(new CategoryTableCellEditor());
+        tcm.getColumn(UserTaskTreeTableNode.PRIORITY).setCellEditor(
+            new PriorityTableCellEditor());
+        tcm.getColumn(UserTaskTreeTableNode.PRIORITY).setCellRenderer(
+            new PriorityTableCellRenderer());
     }
 
     /**

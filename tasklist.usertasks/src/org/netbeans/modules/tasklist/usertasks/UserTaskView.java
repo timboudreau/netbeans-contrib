@@ -114,7 +114,8 @@ ExplorerManager.Provider, ExportImportProvider {
         Settings.getDefault().addPropertyChangeListener(
             new PropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent e) {
-                    if (e.getPropertyName() != Settings.PROP_HOURS_PER_DAY)
+                    if (e.getPropertyName() != Settings.PROP_HOURS_PER_DAY ||
+                        e.getPropertyName() != Settings.PROP_DAYS_PER_WEEK)
                         return;
                     
                     synchronized(UserTaskView.class) {

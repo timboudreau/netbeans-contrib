@@ -34,7 +34,6 @@ import java.util.TimeZone;
 
 import javax.swing.filechooser.FileSystemView;
 
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.OpenFilePanel;
@@ -499,7 +498,7 @@ public class ICalImportFormat implements ExportImportFormat {
             } else if (name.equals("PRIORITY")) { // NOI18N
                 try {
                     int prio = Integer.parseInt(value);
-                    task.setPriority(SuggestionPriority.getPriority(prio));
+                    task.setPriority(prio);
                 } catch (NumberFormatException e) {
                     ErrorManager.getDefault().notify(e);
                 }
