@@ -42,11 +42,21 @@ public class RestoreColoring extends ModuleInstall {
          "org.netbeans.modules.corba.idl.editor.coloring.IDLKit",
          /* "org.netbeans.modules.corba.idl.editor.coloring.IDLKit", */
          this.getClass().getClassLoader());
-        AllOptions all_options = (AllOptions)AllOptions.findObject (AllOptions.class, true);
+    }
+    
+    public void installed () {
+	super.installed();
+	AllOptions all_options = (AllOptions)AllOptions.findObject (AllOptions.class, true);
         all_options.addOption (new IDLOptions());
         //PrintSettings print_settings = (PrintSettings)PrintSettings.findObject
         //  (PrintSettings.class, true);
         //print_settings.addOption (new IDLPrintOptions());
+    }
+    
+    public void uninstalled () {
+	super.uninstalled ();
+	AllOptions all_options = (AllOptions) AllOptions.findObject (AllOptions.class,true);
+	all_options.removeOption (new IDLOptions());
     }
 }
 /*
