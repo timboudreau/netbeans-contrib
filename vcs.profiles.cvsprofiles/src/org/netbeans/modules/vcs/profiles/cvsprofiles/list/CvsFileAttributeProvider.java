@@ -268,12 +268,25 @@ public final class CvsFileAttributeProvider implements FileAttributeProvider {
                 if (entry == null) continue;
                 ret.add(entry);
             }
+        } catch (FileNotFoundException fnfExc) {
+            return null;
+        } catch (IOException ioExc) {
+            return null;
+        } finally {
+            try {
+                if (reader != null) reader.close();
+            } catch (IOException exc) {
+                // already closed
+            }
+        }
 
+        try {
             File folder = entries.getParentFile();
             if (folder != null) {
                 File log = new File(folder, ENTRIES_LOG);
                 if (log.exists() && log.canRead()) {
                     reader = new BufferedReader(new FileReader(log));
+                    String line;
                     while ((line = reader.readLine()) != null) {
                         if (line.startsWith("A ")) {  // NOI18N
                             String s = line.substring(2);
