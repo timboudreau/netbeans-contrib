@@ -501,6 +501,7 @@ for more information.<p>List of the main features:</p>
     <li>Ouptut of VCS commands into temporary files to keep low memory requirements</li>
     <li>Temporary files with user messages for VCS commands, that take messages
         from files.</li>
+    <li>property files under SFS/vcs/defaults keeping user dafaults</li>
     </ul>
 </answer>
 

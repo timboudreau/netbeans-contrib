@@ -654,7 +654,7 @@ public class VariableInputDescriptor extends Object {
      * @param commandProvider identifies provider
      */
     public final void loadDefaults(String commandName, String commandProvider) {  // XXX it's called twice
-        Map map = new HashMap();
+        Properties map = new Properties();
         try {
             loadDefaultsFromDisk(map, commandName, commandProvider);
         } catch (IOException ex) {
@@ -663,9 +663,10 @@ public class VariableInputDescriptor extends Object {
         }
 
         VariableInputComponent[] comps = components();
+        Set parentVariables = new HashSet();
         for (int i = 0; i < comps.length; i++) {
             VariableInputComponent comp = comps[i];
-            fillCurrentValuesFromMap(map, comp);
+            fillCurrentValuesFromMap(map, comp, parentVariables);
         }
     }
 
@@ -676,7 +677,7 @@ public class VariableInputDescriptor extends Object {
      * @param commandProvider identifies provider
      */
     public final void storeDefaults(String commandName, String commandProvider) {  // XXX it's called twice
-        Map defaults = new HashMap();
+        Properties defaults = new Properties();
         VariableInputComponent[] comps = components();
         for (int i = 0; i < comps.length; i++) {
             VariableInputComponent comp = comps[i];
@@ -714,32 +715,40 @@ public class VariableInputDescriptor extends Object {
      * Traverses components hiearchy and sets map values
      * into associated (by variable name) component values.
      */
-    private void fillCurrentValuesFromMap(Map map, VariableInputComponent vic) {
+    private void fillCurrentValuesFromMap(Map map, VariableInputComponent vic, Set parentVariables) {
+
+        String name = vic.getVariable();
+        if (name != null) {
+            // do not set variable value if it was already set for parent
+            if (parentVariables.contains(name) == false) {
+                parentVariables.add(name);
+                if (vic.needsPreCommandPerform() == false) {
+                    String value = (String) map.get(name);
+                    if (value != null) {
+                        vic.setValue(value);
+                    }
+                }
+            }
+        }
+
         VariableInputComponent[] subs = vic.subComponents();
         for (int i = 0; i < subs.length; i++) {
             VariableInputComponent component = subs[i];
-            fillCurrentValuesFromMap(map, component);   // RECURSION
+            fillCurrentValuesFromMap(map, component, parentVariables);   // RECURSION
         }
-
-        String name = vic.getVariable();
-        if (name == null) return;
-        if (vic.needsPreCommandPerform()) return;
-        String value = (String) map.get(name);
-        if (value == null) return;
-        vic.setValue(value);
     }
 
     /**
      * Writes given map to user dir located settings. Reverse opration to
      * {@link #loadDefaultsFromDisk}.
      */
-    private void writeDefaultsToDisk(Map defaults, String command, String provider) throws IOException {
+    private void writeDefaultsToDisk(Properties defaults, String command, String provider) throws IOException {
         FileObject fo = locateSettingsFile(command, provider, true);
         FileLock lock = fo.lock();
         try {
             OutputStream out = fo.getOutputStream(lock);
             try {
-                storeMapToStream(defaults, out);
+                defaults.store(out, "Defaults for: " + command + " provided by: " + provider);
             } finally {
                 try {
                     out.close();
@@ -752,12 +761,12 @@ public class VariableInputDescriptor extends Object {
         }
     }
 
-    private void loadDefaultsFromDisk(Map map, String command, String provider) throws IOException {
+    private void loadDefaultsFromDisk(Properties map, String command, String provider) throws IOException {
         FileObject fo = locateSettingsFile(command, provider, false);
         if (fo == null) return;
         InputStream in = fo.getInputStream();
         try {
-            loadMapFromStream(map, in);
+            map.load(in);
         } finally {
             try {
                 in.close();
@@ -785,27 +794,27 @@ public class VariableInputDescriptor extends Object {
 //            }
 //        }
         FileObject config = fo; // SFS root is userdir/config!!!
-        FileObject vcs = config.getFileObject("vcs");
+        FileObject vcs = config.getFileObject("vcs"); // NOI18N
         if (vcs == null) {
             if (createIfDoesNotExist) {
-                vcs = config.createFolder("vcs");
+                vcs = config.createFolder("vcs"); // NOI18N
             } else {
                 return null;
             }
         }
-        FileObject defaults = vcs.getFileObject("defaults");
+        FileObject defaults = vcs.getFileObject("defaults"); // NOI18N
         if (defaults == null) {
             if (createIfDoesNotExist) {
-                defaults = vcs.createFolder("defaults");
+                defaults = vcs.createFolder("defaults"); // NOI18N
             } else {
                 return null;
             }
         }
 
-        FileObject index = defaults.getFileObject("index.map");
+        FileObject index = defaults.getFileObject("command_index.properties"); // NOI18N
         if (index == null && createIfDoesNotExist) {
             if (createIfDoesNotExist) {
-                index = defaults.createData("index.map");
+                index = defaults.createData("command_index.properties"); // NOI18N
             } else {
                 return null;
             }
@@ -813,19 +822,19 @@ public class VariableInputDescriptor extends Object {
 
         InputStream in = index.getInputStream();
         try {
-            Map indexMap = new HashMap();
-            loadMapFromStream(indexMap, in);
+            Properties indexMap = new Properties();
+            indexMap.load(in);
             in.close();
-            String defaultsName = (String) indexMap.get("" + provider + "/" + command);
+            String defaultsName = indexMap.getProperty("" + provider + "/" + command); // NOI18N
             if (defaultsName == null) {
                 if (createIfDoesNotExist) {
-                    defaultsName = FileUtil.findFreeFileName(defaults, "command", "map") + ".map";
+                    defaultsName = FileUtil.findFreeFileName(defaults, "command", "properties") + ".properties"; // NOI18N
                     indexMap.put("" + provider + "/" + command, defaultsName);
                     FileLock lock = index.lock();
                     try {
                         OutputStream out = index.getOutputStream(lock);
                         try {
-                            storeMapToStream(indexMap, out);
+                            indexMap.store(out, "Maps $providername/$commandname => user defaults file name.");  // NOI18N
                         } finally {
                             try {
                                 out.close();
@@ -855,43 +864,6 @@ public class VariableInputDescriptor extends Object {
                 // already closed
             }
         }
-    }
-
-    // XXX I have not found writeable API for resource bundles, hence binary format
-
-    private void loadMapFromStream(Map map, InputStream in) throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(in);
-        DataInputStream is = new DataInputStream(bis);
-        try {
-            int version = is.readInt();
-            assert version == 1;
-        } catch (EOFException eof) {
-            // empty file
-            return;
-        }
-        int entries = is.readInt();
-        for (int i = 0; i<entries; i++) {
-            String key = is.readUTF();
-            String val = is.readUTF();
-            map.put(key, val);
-        }
-    }
-
-    private void storeMapToStream(Map map, OutputStream out) throws IOException {
-        BufferedOutputStream bos = new BufferedOutputStream(out);
-        DataOutputStream os = new DataOutputStream(bos);
-        int entries = map.size();
-        os.writeInt(1);  // version
-        os.writeInt(entries);
-        Iterator it = map.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry next = (Map.Entry) it.next();
-            String key = (String) next.getKey();
-            String val = (String) next.getValue();
-            os.writeUTF(key);
-            os.writeUTF(val);
-        }
-        os.flush();
     }
 
 }
