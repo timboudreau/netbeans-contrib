@@ -204,6 +204,9 @@ public final class IntegritySupportMaintainer extends Object
             File folder = FileUtil.toFile(rootFO);
             if (folder != null) {
                 File dbFile = new File(folder, DB_FILE_NAME);
+                if (!dbFile.exists()) {
+                    dbFile = new File(folder, DB_FILE_NAME+"~");
+                }
                 if (dbFile.exists() && dbFile.canRead()) {
                     ObjectInputStream oin = null;
                     Object vois = null;
