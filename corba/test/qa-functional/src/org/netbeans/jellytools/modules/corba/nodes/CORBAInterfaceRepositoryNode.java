@@ -22,8 +22,10 @@ import org.netbeans.jemmy.operators.JTreeOperator;
 
 public class CORBAInterfaceRepositoryNode extends Node {
     
+    public static final String NAME = "CORBA Interface Repository";
+    
     public CORBAInterfaceRepositoryNode(JTreeOperator tree) {
-       super(tree, "CORBA Interface Repository");
+       super(tree, NAME);
     }
 
     static final AddInterfaceRepositoryAction addInterfaceRepositoryAction = new AddInterfaceRepositoryAction();

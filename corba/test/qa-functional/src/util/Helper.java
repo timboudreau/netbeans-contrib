@@ -26,6 +26,8 @@ import org.openide.nodes.Node;
 import org.openide.util.datatransfer.ExClipboard;
 
 public class Helper {
+
+    public static final String PLEASE_WAIT = "Please Wait...";
     
     public static String filter (ArrayList filter, String str) {
         if (filter != null) {
@@ -58,6 +60,52 @@ public class Helper {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    public static boolean isPleaseWait (Node[] nodes) {
+        if (nodes.length != 1)
+            return false;
+        for (int a = 0; a < nodes.length; a ++)
+            if (PLEASE_WAIT.equals (nodes[a].getName ()))
+                return true;
+        return false;
+    }
+
+    public static Node[] waitSubNodes (Node node) {
+        Node[] nodes = null;
+        int a = 0;
+        do {
+            nodes = node.getChildren ().getNodes (true);
+            if (++ a >= 60)
+                return null;
+            sleep (1000);
+        } while (isPleaseWait (nodes));
+        return nodes;
+    }
+    
+    public static Node getSubNode (Node[] nodes, String name) {
+        for (int a = 0; a < nodes.length; a ++)
+            if (name.equals (nodes[a].getName()))
+                return nodes[a];
+        return null;
+    }
+    
+    public static Node waitSubNode (Node node, String name) {
+        return getSubNode (waitSubNodes(node), name);
+    }
+	
+    public static Node[] filterNodes (Node[] nodes) {
+		if (nodes == null)
+			return null;
+        ArrayList al = new ArrayList ();
+		int count = 0;
+		for (int a = 0; a < nodes.length; a ++) {
+			if (!PLEASE_WAIT.equals (nodes[a].getName ())) {
+				al.add (nodes[a]);
+				count ++;
+			}
+		}
+		return (Node[]) al.toArray (new Node[count]);
     }
     
 /*

@@ -84,6 +84,7 @@ Microsystems, Inc. All Rights Reserved.
 		<testset dir="qa-functional/src">
 			<patternset>
 				<include name="test/ircopycode/Main.class"/>
+				<include name="test/irnodes/Main.class"/>
 			</patternset>
 		</testset>
 	</testbag>
