@@ -460,7 +460,9 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
             } else if (statuses[2].equals("0")) { // Zero revision
                 statuses[1] = "Locally Added";
             } else {
-                statuses[1] = CvsListOffline.getStatusFromTime(entryElements[2], file);
+                statuses[1] = "Up-to-date";//CvsListOffline.getStatusFromTime(entryElements[2], file);
+                // The file must be up-to-date when it was not mentioned by the update command!
+                // See issue #29885 to see why we can not rely on time comparisons.
             }
         }
         stdoutDataListener.outputData(statuses);
