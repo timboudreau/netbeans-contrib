@@ -20,6 +20,7 @@ import java.beans.BeanInfo;
 import java.io.IOException;
 
 import org.openide.TopManager;
+import org.openide.ErrorManager;
 import org.openide.util.datatransfer.ExTransferable;
 
 /** Exetends ClassDataNode, overrides one method
@@ -64,11 +65,19 @@ final class SerDataNode extends ClassDataNode {
                 setIconBase(SER_BASE);
             }
         } catch (IOException ex) {
-            TopManager.getDefault ().notifyException (ex);
+            // log exception only and set error tooltip
+            TopManager.getDefault().getErrorManager().notify(
+                ErrorManager.INFORMATIONAL, ex
+            );
             setIconBase(SER_ERROR_BASE);
+            setErrorToolTip(ex);
         } catch (ClassNotFoundException ex) {
-            TopManager.getDefault ().notifyException (ex);
+            // log exception only and set error tooltip
+            TopManager.getDefault().getErrorManager().notify(
+                ErrorManager.INFORMATIONAL, ex
+            );
             setIconBase(SER_ERROR_BASE);
+            setErrorToolTip(ex);
         }
         iconResolved = true;
     }

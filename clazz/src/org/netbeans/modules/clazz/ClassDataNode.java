@@ -19,6 +19,8 @@ import java.lang.reflect.*;
 import java.util.Vector;
 import java.util.ResourceBundle;
 import java.io.*;
+import java.text.MessageFormat;
+
 import javax.swing.SwingUtilities;
 
 import org.openide.nodes.*;
@@ -27,11 +29,13 @@ import org.openide.loaders.DataNode;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 import org.openide.src.*;
 import org.openide.src.nodes.SourceChildren;
 import org.openide.src.nodes.DefaultFactory;
 import org.openide.cookies.SourceCookie;
 import org.openide.loaders.ExecSupport;
+import org.openide.ErrorManager;
 
 /** Represents ClassDataObject
 *
@@ -67,12 +71,12 @@ class ClassDataNode extends DataNode implements Runnable {
     * by this class, or all items (incl. inherited)
     */
     private boolean showDeclaredOnly = true;  // [PENDING - get default value from somewhere ?]
-
     /** ClassDataObject that is represented */
     protected ClassDataObject obj;
-
     /** The flag indicating whether right icon has been already found */
     transient boolean iconResolved = false;
+    /** Holds error message shown in node tooltip */
+    transient String errorMsg;
 
     // -----------------------------------------------------------------------
     // constructor
@@ -258,12 +262,38 @@ class ClassDataNode extends DataNode implements Runnable {
                 else
                     setIconBase(CLASS_BASE);
         } catch (IOException ex) {
+            // log exception only and set error tooltip
+            TopManager.getDefault().getErrorManager().notify(
+                ErrorManager.INFORMATIONAL, ex
+            );
             setIconBase(ERROR_BASE);
+            setErrorToolTip(ex);
         } catch (ClassNotFoundException ex) {
+            // log exception only and set error tooltip
+            TopManager.getDefault().getErrorManager().notify(
+                ErrorManager.INFORMATIONAL, ex
+            );
             setIconBase(ERROR_BASE);
+            setErrorToolTip(ex);
         }
         iconResolved = true;
     }
+
+    
+    /** Sets error tooltip based on given exception message.
+    * @param exc Exception which describes the failure.
+    */
+    protected void setErrorToolTip (Exception exc) {
+        // avoid multiple performing
+        if (errorMsg == null) {
+            errorMsg = MessageFormat.format(
+                NbBundle.getBundle(ClassDataNode.class).getString("FMT_ErrorHint"),
+                new Object[] { Utilities.getShortClassName(exc.getClass()) }
+            );
+            setShortDescription(errorMsg);
+        }
+    }
+
 }
 
 /*
