@@ -231,7 +231,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	if (DEBUG)
 	    System.out.println ("getOrb () -> " + _M_orb_name);
 	if (_M_orb_name == null)
-	    _M_orb_name = "";
+	    this.setORBTag (getORBTag());
         return _M_orb_name;
     }
 
@@ -906,8 +906,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
 	//if (DEBUG)
 	//System.out.println ("cache wasn't successfull"); // NOI18N
-
 	java.lang.Object[] __settings = this.getBeans ();
+
 	for (int __i = 0; __i < __settings.length; __i++) {
 	    ORBSettings __setting = (ORBSettings)__settings[__i];
 	    String __tag = __setting.getORBTag ();
@@ -929,7 +929,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	//try {
 	//boolean DEBUG=true;
 	// Precondition
-	if (__value == null) {
+	if (__value == null || __value.equals("")) {	// No I18N
 	    TopManager tm = TopManager.getDefault();
 	    if (tm != null) {
 	    	ErrorManager errManager = tm.getErrorManager();
@@ -951,7 +951,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	this.firePropertyChange ("_M_orb_tag", __old, _M_orb_tag); // NOI18N
 	this.cacheThrow ();
 
-	String __orb_name = this.getOrb ();
+	String __orb_name =_M_orb_name==null?"":_M_orb_name;
 	__orb_name = this.removeUnsupportedPostfix (__orb_name);
 	/*
 	  if (__orb_name.endsWith (ORBSettingsBundle.CTL_UNSUPPORTED))
