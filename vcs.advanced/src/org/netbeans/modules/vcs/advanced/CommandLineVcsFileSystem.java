@@ -46,6 +46,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     
     public static final String VAR_LOCAL_FILES_FILTERED_OUT = "LOCAL_FILES_FILTERED_OUT";
     public static final String VAR_LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE = "LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE";
+    public static final String VAR_POSSIBLE_FILE_STATUSES = "POSSIBLE_FILE_STATUSES";
+    public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED = "POSSIBLE_FILE_STATUSES_LOCALIZED";
+    public static final String VAR_NOT_MODIFIABLE_FILE_STATUSES = "NOT_MODIFIABLE_FILE_STATUSES";
+    public static final String VAR_ICONS_FOR_FILE_STATUSES = "ICONS_FOR_FILE_STATUSES";
     
     private static final boolean DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE = true;
     
@@ -64,6 +68,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private String configFileName = null;
     private transient Hashtable commandsByName=null;
     private HashMap additionalPossibleFileStatusesMap = null;
+    private HashMap additionalStatusIconMap = null;
     private Vector localFilesFilteredOut = null;
     private boolean localFileFilterCaseSensitive = DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE;
     private Vector docCleanupRemoveItems = null;
@@ -293,13 +298,17 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
     
-    private void setPossibleFileStatusesFromVars() {
-        VcsConfigVariable varStatuses = (VcsConfigVariable) variablesByName.get ("POSSIBLE_FILE_STATUSES"); // NOI18N
-        VcsConfigVariable varStatusesLclz = (VcsConfigVariable) variablesByName.get ("POSSIBLE_FILE_STATUSES_LOCALIZED"); // NOI18N
+    private void setPossibleFileStatusesAndIconsFromVars() {
+        VcsConfigVariable varStatuses = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES);
+        VcsConfigVariable varStatusesLclz = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES_LOCALIZED);
+        VcsConfigVariable varIcons = (VcsConfigVariable) variablesByName.get (VAR_ICONS_FOR_FILE_STATUSES);
         if (additionalPossibleFileStatusesMap != null) VcsUtilities.removeKeys(possibleFileStatusesMap, additionalPossibleFileStatusesMap);
+        if (additionalStatusIconMap != null) VcsUtilities.removeKeys(statusIconMap, additionalStatusIconMap);
         additionalPossibleFileStatusesMap = null;
+        additionalStatusIconMap = null;
         if (varStatuses != null) {
             additionalPossibleFileStatusesMap = new HashMap();
+            additionalStatusIconMap = new HashMap();
             String[] possStatuses = VcsUtilities.getQuotedStrings(varStatuses.getValue());
             String[] possStatusesLclz = null;
             if (varStatusesLclz != null) possStatusesLclz = VcsUtilities.getQuotedStrings(varStatusesLclz.getValue());
@@ -313,11 +322,33 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 additionalPossibleFileStatusesMap.put(possStatuses[i], possStatuses[i]);
             }
             possibleFileStatusesMap.putAll(additionalPossibleFileStatusesMap);
+            String[] iconResources = null;
+            if (varIcons != null) iconResources = VcsUtilities.getQuotedStrings(varIcons.getValue());
+            if (iconResources != null) {
+                FileSystem defaultFS = TopManager.getDefault().getRepository().getDefaultFileSystem();
+                for (i = 0; i < possStatuses.length && i < iconResources.length; i++) {
+                    if (iconResources[i].length() == 0) continue;
+                    FileObject resourceFile = defaultFS.findResource(iconResources[i]);
+                    if (resourceFile == null) {
+                        TopManager.getDefault().notify(new NotifyDescriptor.Message(
+                            NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_CanNotFindIconResource", iconResources[i])));
+                        continue;
+                    }
+                    try {
+                        additionalStatusIconMap.put(possStatuses[i], new javax.swing.ImageIcon(resourceFile.getURL()).getImage());
+                    } catch (FileStateInvalidException exc) {
+                        TopManager.getDefault().notify(new NotifyDescriptor.Message(
+                            NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_InvalidFileIconResource", iconResources[i])));
+                        continue;
+                    }
+                }
+                statusIconMap.putAll(additionalStatusIconMap);
+            }
         }
     }
     
     private void setNotModifiableStatusesFromVars() {
-        VcsConfigVariable var = (VcsConfigVariable) variablesByName.get("NOT_MODIFIABLE_FILE_STATUSES");
+        VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(VAR_NOT_MODIFIABLE_FILE_STATUSES);
         if (var != null) {
             String[] statuses = VcsUtilities.getQuotedStrings(var.getValue());
             setNotModifiableStatuses(new ArrayList(Arrays.asList(statuses))); // using Arraylist to be Serializable
@@ -325,8 +356,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
     
     private void setLocalFileFilterFromVars() {
-        VcsConfigVariable varLocalFilter = (VcsConfigVariable) variablesByName.get("LOCAL_FILES_FILTERED_OUT");
-        VcsConfigVariable varLocalFilterCS = (VcsConfigVariable) variablesByName.get("LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE");
+        VcsConfigVariable varLocalFilter = (VcsConfigVariable) variablesByName.get(VAR_LOCAL_FILES_FILTERED_OUT);
+        VcsConfigVariable varLocalFilterCS = (VcsConfigVariable) variablesByName.get(VAR_LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE);
         if (varLocalFilter != null) {
             if (varLocalFilterCS != null) {
                 localFileFilterCaseSensitive = varLocalFilterCS.getValue().equalsIgnoreCase("true");
@@ -375,7 +406,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      */
     public void setVariables(Vector variables){
         super.setVariables(variables);
-        setPossibleFileStatusesFromVars();
+        setPossibleFileStatusesAndIconsFromVars();
         setNotModifiableStatusesFromVars();
         setLocalFileFilterFromVars();
         setDocumentCleanupFromVars();
