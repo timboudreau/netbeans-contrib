@@ -413,6 +413,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     /** The InputOutput used for display of VCS commands output */
     private transient InputOutput cmdIO = null;
+    
+    /** The display name of the filesystem */
+    private transient String displayName;
 
 
     public boolean isLockFilesOn () {
@@ -1495,6 +1498,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * of this class is created and after deserialization. Subclasses should call super.init().
      */
     protected void init() {
+        displayName = computeDisplayName();
         D.deb ("init()"); // NOI18N
         localFilenameFilter = new LocalFilenameFilter();
         if (tempFiles == null) tempFiles = new Vector();
@@ -2071,6 +2075,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //try {
         setAdjustedSystemName(computeSystemName(rootFile));
         //} catch (PropertyVetoException exc) {}
+        displayName = computeDisplayName();
     }
 
     public static String substractRootDir(String rDir, String module) {
@@ -2722,12 +2727,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
          */
         return getVcsFactory ().getActions(fos);
     }
-
-    /**
-     * Get a human presentable name of the file system
-     */
-    public String getDisplayName() {
-        //System.out.print("VcsFileSystem.getDisplayName(): commandsRoot = "+commandsRoot);
+    
+    protected String computeDisplayName() {
+        //System.out.print("VcsFileSystem.computeDisplayName(): commandsRoot = "+commandsRoot);
         Hashtable vars = getVariablesAsHashtable();
         String displayNameAnnotation = (String) vars.get(VAR_FS_DISPLAY_NAME_ANNOTATION);
         if (displayNameAnnotation != null) {
@@ -2753,6 +2755,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         //System.out.println(g("LAB_FileSystemValid", rootFile.toString ()));
         return g("LAB_FileSystemValid", rootFile.toString ()); // NOI18N
+    }
+
+    /**
+     * Get a human presentable name of the file system
+     */
+    public final String getDisplayName() {
+        //System.out.print("VcsFileSystem.getDisplayName(): commandsRoot = "+commandsRoot);
+        return displayName;
     }
 
     /**
@@ -2854,6 +2864,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             attr = a;
             list = a;
         }
+        displayName = computeDisplayName();
         firePropertyChange(PROP_DISPLAY_NAME, null, null);
         firePropertyChange(PROP_ROOT, null, refreshRoot ());
     }
