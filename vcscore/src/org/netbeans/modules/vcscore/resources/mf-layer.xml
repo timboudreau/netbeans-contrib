@@ -19,8 +19,8 @@ Microsystems, Inc. All Rights Reserved.
     <attr name="Versioning/Tools" boolvalue="true"/>
     <folder name="Versioning">
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
-      <file name="org-netbeans-modules-vcscore-actions-VcsMountFromTemplateAction.instance" />
-      <attr name="org-netbeans-modules-vcscore-actions-VcsMountFromTemplateAction.instance/GlobalCommands" boolvalue="true"/>
+      <file name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance" />
+      <attr name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance/GlobalCommands" boolvalue="true"/>
       <folder name="GlobalCommands">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
         <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/runtime/commandIcon.gif" />
@@ -101,6 +101,10 @@ Microsystems, Inc. All Rights Reserved.
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle" />
             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/settings/vcsSettings.gif" />
             <attr name="SystemFileSystem.layer" stringvalue="project" />
+        </file>
+        <file name="VcsFSProvider.instance">
+            <attr name="instanceCreate" newvalue="org.netbeans.modules.vcscore.registry.VcsFSProvider" />
+            <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.registry.VcsFSProvider" />
         </file>
         <folder name="VersionControl">
             <file name="org-netbeans-modules-vcscore-grouping-VcsGroupSettings.settings" url="VcsGroupSettings.settings">

@@ -28,10 +28,12 @@ import org.openide.util.NbBundle;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.registry.FSRegistry;
+import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
-import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
+import org.netbeans.modules.vcs.advanced.recognizer.CommandLineVcsFileSystemInfo;
 
 /**
  * The wizard iterator to mount the Generic VCS file system.
@@ -101,61 +103,10 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     }
     
     public java.util.Set instantiate(org.openide.loaders.TemplateWizard templateWizard) throws java.io.IOException {
-        CommandLineVcsFileSystem fs = data.getFileSystem();
-        String multipleMountPointsStr = (String) fs.getVariablesAsHashtable().get("MULTIPLE_RELATIVE_MOUNT_POINTS");
-        //System.out.println("  multipleMountPointsStr = '"+multipleMountPointsStr+"'");
-        String[] multipleMountPoints = null;
-        if (multipleMountPointsStr != null) {
-            multipleMountPoints = VcsUtilities.getQuotedStrings(multipleMountPointsStr);
-            fs.setVariables(removeVar("MULTIPLE_RELATIVE_MOUNT_POINTS", fs.getVariables()));
-        }
-        String config = fs.getConfigFileName();
-        GeneralVcsSettings gvs = (GeneralVcsSettings) GeneralVcsSettings.findObject(GeneralVcsSettings.class, true);
-        gvs.setDefaultProfile(config);
-        if (multipleMountPoints == null || multipleMountPoints.length <= 1) {
-            org.openide.loaders.DataObject dobj = fs.createInstanceDataObject(templateWizard.getTargetFolder());
-            //org.openide.loaders.DataObject dobj = templateWizard.getTemplate();
-            //dobj = dobj.createFromTemplate(templateWizard.getTargetFolder());
-            return Collections.singleton(dobj);
-        } else {
-            Set dobjs = new LinkedHashSet();
-            dobjs.add(fs.createInstanceDataObject(templateWizard.getTargetFolder()));
-            java.io.File root = new java.io.File(VcsFileSystem.substractRootDir(fs.getRootDirectory().getAbsolutePath(), fs.getRelativeMountPoint()));
-            //System.out.println("  root = '"+root+"'");
-            for (int i = 1; i < multipleMountPoints.length; i++) {
-                CommandLineVcsFileSystem fs1 = new CommandLineVcsFileSystem();
-                fs1.readConfiguration(config);
-                fs1.setConfigFileName(config);
-                try {
-                    fs1.setRootDirectory(root);
-                } catch (PropertyVetoException pvex) {
-                    ErrorManager.getDefault().notify(pvex);
-                } catch (IOException ioex) {
-                    ErrorManager.getDefault().notify(ioex);
-                }
-                fs1.setVariables(deepClone(fs.getVariables()));
-                try {
-                    fs1.setRelativeMountPoint(multipleMountPoints[i]);
-                } catch (PropertyVetoException pvex) {
-                    ErrorManager.getDefault().notify(pvex);
-                } catch (IOException ioex) {
-                    ErrorManager.getDefault().notify(ioex);
-                }
-                //System.out.println("  rmnt set: root = '"+fs1.getRootDirectory()+"', rel mount = '"+fs1.getRelativeMountPoint()+"'");
-                dobjs.add(fs1.createInstanceDataObject(templateWizard.getTargetFolder()));
-            }
-            return dobjs;
-        }
-    }
-    
-    private static Vector deepClone(Vector v) {
-        int n = v.size();
-        Vector v1 = new Vector(n);
-        for (int i = 0; i < n; i++) {
-            VcsConfigVariable var = (VcsConfigVariable) v.get(i);
-            v1.add(var.clone());
-        }
-        return v1;
+        CommandLineVcsFileSystemInfo info = new CommandLineVcsFileSystemInfo(data.getFileSystem());
+        FSRegistry registry = FSRegistry.getDefault();               
+        registry.register(info);        
+        return Collections.EMPTY_SET;
     }
     
     public void previousPanel() {
