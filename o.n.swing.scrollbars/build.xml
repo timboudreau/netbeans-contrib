@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<project name="core/swing/tabcontrol" default="netbeans" basedir=".">
+
+    <import file="../../../nbbuild/templates/projectized.xml"/>
+
+    <target name="demo-init" depends="build-init">
+        <path id="demo.cp">
+            <path refid="cp"/>
+            <pathelement location="${netbeans.dest.dir}/${cluster.dir}/${module.jar}"/>
+        </path>
+        <path id="demo.run.cp">
+            <path refid="demo.cp"/>
+            <pathelement location="build/democlasses"/>
+            <pathelement location="${core/swing/plaf.dir}/${nb.lib.dir}/org-netbeans-swing-plaf.jar"/>
+        </path>
+    </target>
+
+    <target name="compile-demo" depends="demo-init,jar">
+        <mkdir dir="build/democlasses"/>
+        <javac srcdir="demosrc" destdir="build/democlasses" debug="true" source="1.4" deprecation="false" includeantruntime="false">
+            <classpath refid="demo.cp"/>
+        </javac>
+    </target>
+    
+    <target name="demo" depends="compile-demo" description="Run a demo">
+        <echo message="Demo args: ${application.args}"/>
+        <java fork="true" classname="org.netbeans.swing.tabcontrol.demo.TestFrame" args="${application.args}">
+            <classpath refid="demo.run.cp"/>
+        </java>
+    </target>
+    
+    <target name="chiclet" depends="compile-demo" description="Run a demo">
+        <echo message="Demo args: ${application.args}"/>
+        <java fork="true" classname="org.netbeans.swing.tabcontrol.plaf.ChicletDemo" args="${application.args}">
+            <classpath refid="demo.run.cp"/>
+        </java>
+    </target>
+    
+</project>
