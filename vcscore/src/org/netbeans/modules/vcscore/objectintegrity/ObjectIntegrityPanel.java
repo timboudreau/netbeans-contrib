@@ -148,7 +148,8 @@ public class ObjectIntegrityPanel extends javax.swing.JPanel {
         int n = model.getRowCount();
         for (int i = 0; i < n; i++) {
             // Slow, but is there anything better???
-            model.setValueAt(Boolean.FALSE, i, 0);
+            filesTable.getCellEditor(i, 0).stopCellEditing();
+            filesTable.setValueAt(Boolean.FALSE, i, 0);
         }
     }//GEN-LAST:event_deselectAllButtonActionPerformed
 
@@ -158,7 +159,8 @@ public class ObjectIntegrityPanel extends javax.swing.JPanel {
         int n = model.getRowCount();
         for (int i = 0; i < n; i++) {
             // Slow, but is there anything better???
-            model.setValueAt(Boolean.TRUE, i, 0);
+            filesTable.getCellEditor(i, 0).stopCellEditing();
+            filesTable.setValueAt(Boolean.TRUE, i, 0);
         }
     }//GEN-LAST:event_selectAllButtonActionPerformed
     
