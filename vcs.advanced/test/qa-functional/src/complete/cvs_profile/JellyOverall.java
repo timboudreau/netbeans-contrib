@@ -274,7 +274,7 @@ public class JellyOverall extends JellyTestCase {
         co.setModuleS(hRoot);
         co.checkPruneEmptyFolders(false);
         co.oK();
-        history.waitCommand("Check Out", hRoot);
+        assertTrue("Check Out command failed", history.waitCommand("Check Out", hRoot));
 
         // for assurance only
         VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("CHECKOUT_COMMAND");

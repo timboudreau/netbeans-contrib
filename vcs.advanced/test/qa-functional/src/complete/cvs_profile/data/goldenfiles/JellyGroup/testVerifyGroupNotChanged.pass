@@ -1,8 +1,8 @@
 Height: 2
 Width: 3
-[0,0] text2
+[0,0] text1
 [0,1] initdir
 [0,2] <FS>
-[1,0] text1
+[1,0] text2
 [1,1] initdir
 [1,2] <FS>
