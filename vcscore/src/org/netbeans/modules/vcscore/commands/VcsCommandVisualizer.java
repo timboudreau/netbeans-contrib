@@ -21,7 +21,7 @@ import org.openide.windows.TopComponent;
  *
  * @author  Martin Entlicher
  */
-public abstract class VcsCommandVisualizer extends TopComponent implements CommandOutputListener, CommandDataOutputListener {
+public abstract class VcsCommandVisualizer extends TopComponent {
     
     /**
      * This method is called when the command finishes.
@@ -35,6 +35,27 @@ public abstract class VcsCommandVisualizer extends TopComponent implements Comma
      *         false -- this component will be opened just before the command is started.
      */
     public abstract boolean openAfterCommandFinish();
+    
+    /**
+     * Receive a line of standard output.
+     *
+    public abstract void stdOutputLine(String line);
+    
+    /**
+     * Receive a line of error output.
+     *
+    public abstract void errOutputLine(String line);
+
+    /**
+     * Receive the data output.
+     *
+    public abstract void stdOutputData(String[] data);
+    
+    /**
+     * Receive the error data output.
+     *
+    public abstract void errOutputData(String[] data);
+     */
 
 }
 
