@@ -101,6 +101,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     private RuntimeFolderNode runtimeNode;
     private PropertyChangeListener runtimeNodePropertyChange;
+    private FSDisplayPropertyChangeListener fsDisplayPropertyChange;
 
     private boolean execStarterLoopStarted = false;
     private boolean execStarterLoopRunning = true;
@@ -120,21 +121,21 @@ public class CommandsPool extends Object /*implements CommandListener */{
         outputVisualizers = new Hashtable();
         group = new ThreadGroup("VCS Commands Group");
         this.fileSystem = new WeakReference(fileSystem);
+        runtimeNodePropertyChange = new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT.equals(evt.getPropertyName())) {
+                    collectFinishedCmdsNum = ((Integer) evt.getNewValue()).intValue();
+                }
+            }
+        };
         if (createRuntimeCommands) {
             runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
             runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
-            runtimeNodePropertyChange = new PropertyChangeListener() {
-                public void propertyChange(PropertyChangeEvent evt) {
-                    if (RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT.equals(evt.getPropertyName())) {
-                        collectFinishedCmdsNum = ((Integer) evt.getNewValue()).intValue();
-                    }
-                }
-            };
             runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
         } else {
             runtimeNode = null;
         }
-        FSDisplayPropertyChangeListener fsDisplayPropertyChange = new FSDisplayPropertyChangeListener();
+        fsDisplayPropertyChange = new FSDisplayPropertyChangeListener();
         fileSystem.addPropertyChangeListener(WeakListener.propertyChange(fsDisplayPropertyChange, fileSystem));
         /*
         org.openide.filesystems.Repository repo = TopManager.getDefault().getRepository();
