@@ -381,6 +381,8 @@ public class JellyGroup extends JellyTestCase {
         Helper.waitNoNode (vgf.treeVCSGroupsTreeView(), "<Default Group>", tText1);
         
         closeAllProperties();
+        new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP).select (); // stabilization
+        Helper.sleep (2000); // stabilization
         new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP).properties ();
         PropertySheetOperator pso = new PropertySheetOperator (PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, TEST_GROUP);
         PropertySheetTabOperator pst = pso.getPropertySheetTabOperator("Properties");
@@ -411,6 +413,8 @@ public class JellyGroup extends JellyTestCase {
         assertTrue("Refresh directory command failed", history.waitCommand("Refresh", hInitDir));
         waitStatus (vgf.treeVCSGroupsTreeView (), "Locally Modified; 1.1", TEST_GROUP + "|" + tText1, true);
         waitStatus (vgf.treeVCSGroupsTreeView (), "Locally Modified; 1.1", TEST_GROUP + "|" + tText2, true);
+        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP).select (); // stabilization
+	Helper.sleep (2000); // stabilization
         new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP).cVSCommit ();
         CVSCommitFileAdvDialog co = new CVSCommitFileAdvDialog ();
         StringTokenizer st = new StringTokenizer (co.txtEnterReason().getText (), "\n");
@@ -479,6 +483,8 @@ public class JellyGroup extends JellyTestCase {
         new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText2);
         waitStatus (vgf.treeVCSGroupsTreeView(), "Needs Update; 1.2", TEST_GROUP + "|" + tText2, true);
         
+        new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP).select (); // stabilization
+        Helper.sleep (2000); // stabilization
         new Action (null,"Verify").performPopup (new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP));
         GroupVerificationOperator gvo = new GroupVerificationOperator ();
         //Helper.sleep (2000);
@@ -500,6 +506,8 @@ public class JellyGroup extends JellyTestCase {
         new VCSGroupsAction ().perform ();
         VCSGroupsFrameOperator vgf = new VCSGroupsFrameOperator ();
 
+        new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP).select (); // stabilization
+        Helper.sleep (2000); // stabilization
         new Action (null,"Verify").performPopup (new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP));
         GroupVerificationOperator gvo = new GroupVerificationOperator ();
         //Helper.sleep (2000);
