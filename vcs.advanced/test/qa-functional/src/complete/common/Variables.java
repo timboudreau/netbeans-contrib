@@ -53,36 +53,10 @@ public class Variables extends JellyTestCase {
         junit.textui.TestRunner.run(suite());
     }
     
-    /** Method called before each testcase. Sets default timeouts, redirects system
-     * output and maps main components.
+    /** Method called before each testcase to redirect system output.
      */
     protected void setUp() throws Exception {
-        String workingDir = getWorkDirPath();
-        new java.io.File(workingDir).mkdirs();
-        java.io.File outputFile = new java.io.File(workingDir + "/output.txt");
-        outputFile.createNewFile();
-        java.io.File errorFile = new java.io.File(workingDir + "/error.txt");
-        errorFile.createNewFile();
-        java.io.PrintWriter outputWriter = new java.io.PrintWriter(new java.io.FileWriter(outputFile));
-        java.io.PrintWriter errorWriter = new java.io.PrintWriter(new java.io.FileWriter(errorFile));
-        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
-    }
-    
-    /** Method will create a file and capture the screen together with saving the exception.
-     */
-    private void captureScreen(Exception exc) throws Exception {
-        java.io.File dumpFile = new java.io.File("dump.png");
-        try {
-            dumpFile = new java.io.File(getWorkDirPath() + "/dump.png");
-            java.io.File excFile = new java.io.File(getWorkDirPath() + "/exception.txt");
-            dumpFile.getParentFile().mkdirs();
-            dumpFile.createNewFile();
-            java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter(excFile));
-            exc.printStackTrace(writer);
-            writer.flush();
-            writer.close();
-        } catch(java.io.IOException e) {}
-        org.netbeans.jemmy.util.PNGEncoder.captureScreen(dumpFile.getAbsolutePath());
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(org.netbeans.jemmy.TestOut.getNullOutput());
     }
     
     /** Checks that variable editor can be invoked and contains all of its components.
@@ -108,7 +82,6 @@ public class Variables extends JellyTestCase {
             wizardAdvanced.cancel();
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen(e);
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VariableEditor().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -145,8 +118,13 @@ public class Variables extends JellyTestCase {
             variableEditor.createVariable("Accessory", "INPUT_DESCRIPTOR");
             node = new Node(accessoryNode, "INPUT_DESCRIPTOR");
             node.select();
-            variableEditor.setVariableProperty("Accessory", "INPUT_DESCRIPTOR", "Name", "CONFIG_INPUT_DESCRIPTOR");
-            variableEditor.setVariableProperty("Accessory", "CONFIG_INPUT_DESCRIPTOR", "Value", "ASK_FOR(NAME, \"Married ?\")");
+            PropertySheetOperator sheet = new PropertySheetOperator(variableEditor);
+            Property property = new Property(sheet, "Name");
+            property.setValue("CONFIG_INPUT_DESCRIPTOR");
+            node = new Node(accessoryNode, "CONFIG_INPUT_DESCRIPTOR");
+            node.select();
+            property = new Property(sheet, "Value");
+            property.setValue("ASK_FOR(NAME, \"Married ?\")");
             Node basicNode = new Node(variableEditor.treeVariables(), "Basic");
             if (basicNode.getChildren().length != 0) throw new Exception("Error: CONFIG_INPUT_DESCRIPTOR doesn't collapse basic variables.");
             variableEditor.ok();
@@ -155,7 +133,6 @@ public class Variables extends JellyTestCase {
             wizardProfile.cancel();
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen(e);
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VariableEditor().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -187,8 +164,7 @@ public class Variables extends JellyTestCase {
             "Order", "Value", "Variable Selector", "Variable Is a Local File", "Variable Is a Local Folder"};
             int count = properties.length;
             PropertySheetOperator sheet = new PropertySheetOperator(variableEditor);
-            PropertySheetTabOperator sheetTab = sheet.getPropertySheetTabOperator("Properties");
-            for (int i=0; i<count; i++) new Property(sheetTab, properties[i]).startEditing();
+            for (int i=0; i<count; i++) new Property(sheet, properties[i]).setDefaultValue();
             new DeleteAction().perform(node);
             NbDialogOperator question = new NbDialogOperator("Confirm Object Deletion");
             new org.netbeans.jemmy.operators.JLabelOperator(question, "Are you sure you want to delete TOWN?");
@@ -198,7 +174,6 @@ public class Variables extends JellyTestCase {
             wizardAdvanced.cancel();
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen(e);
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VariableEditor().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -224,10 +199,16 @@ public class Variables extends JellyTestCase {
             VariableEditor variableEditor = new VariableEditor();
             variableEditor.createVariable("Basic", "VAR");
             new Node(variableEditor.treeVariables(), "Basic|VAR").select();
-            variableEditor.setVariableProperty("Basic", "VAR", "Name", "SLOT");
-            variableEditor.setVariableProperty("Basic", "VAR", "Label", "What is this ?");
-            variableEditor.setVariableProperty("Basic", "What is this ?", "Value", "Empty slot");
-            variableEditor.setVariableProperty("Basic", "What is this ?", "Variable Is a Local File", true);
+            PropertySheetOperator sheet = new PropertySheetOperator(variableEditor);
+            Property property = new Property(sheet, "Name");
+            property.setValue("SLOT");
+            property = new Property(sheet, "Label");
+            property.setValue("What is this ?");
+            new Node(variableEditor.treeVariables(), "Basic|What is this ?").select();
+            property = new Property(sheet, "Value");
+            property.setValue("Empty slot");
+            property = new Property(sheet, "Variable Is a Local File");
+            property.setValue("true");
             variableEditor.ok();
             wizardAdvanced.back();
             new org.netbeans.jemmy.operators.JLabelOperator(wizardProfile, "What is this ?:");
@@ -240,7 +221,9 @@ public class Variables extends JellyTestCase {
             variableEditor.createVariable("Basic", "VAR");
             Node varNode = new Node(variableEditor.treeVariables(), "Basic|VAR");
             varNode.select();
-            variableEditor.setVariableProperty("Basic", "VAR", "Variable Is a Local Folder", true);
+            sheet = new PropertySheetOperator(variableEditor);
+            property = new Property(sheet, "Variable Is a Local Folder");
+            property.setValue("true");
             new Action(null, "Move Up").perform(varNode);
             variableEditor.ok();
             wizardAdvanced.back();
@@ -249,7 +232,6 @@ public class Variables extends JellyTestCase {
             wizardProfile.cancel();
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen(e);
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VariableEditor().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}

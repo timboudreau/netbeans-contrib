@@ -40,7 +40,9 @@ public class Profiles extends JellyTestCase {
     public static junit.framework.Test suite() {
         junit.framework.TestSuite suite = new org.netbeans.junit.NbTestSuite();
         suite.addTest(new Profiles("testProfileCreation"));
+        // Dependency on previous test case.
         suite.addTest(new Profiles("testProfileUsage"));
+        // Dependency on previous test case.
         suite.addTest(new Profiles("testProfileDeletion"));
         return suite;
     }
@@ -56,32 +58,7 @@ public class Profiles extends JellyTestCase {
      * output and maps main components.
      */
     protected void setUp() throws Exception {
-        String workingDir = getWorkDirPath();
-        new java.io.File(workingDir).mkdirs();
-        java.io.File outputFile = new java.io.File(workingDir + "/output.txt");
-        outputFile.createNewFile();
-        java.io.File errorFile = new java.io.File(workingDir + "/error.txt");
-        errorFile.createNewFile();
-        java.io.PrintWriter outputWriter = new java.io.PrintWriter(new java.io.FileWriter(outputFile));
-        java.io.PrintWriter errorWriter = new java.io.PrintWriter(new java.io.FileWriter(errorFile));
-        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
-    }
-    
-    /** Method will create a file and capture the screen together with saving the exception.
-     */
-    private void captureScreen(Exception exc) throws Exception {
-        java.io.File dumpFile = new java.io.File("dump.png");
-        try {
-            dumpFile = new java.io.File(getWorkDirPath() + "/dump.png");
-            java.io.File excFile = new java.io.File(getWorkDirPath() + "/exception.txt");
-            dumpFile.getParentFile().mkdirs();
-            dumpFile.createNewFile();
-            java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter(excFile));
-            exc.printStackTrace(writer);
-            writer.flush();
-            writer.close();
-        } catch(java.io.IOException e) {}
-        org.netbeans.jemmy.util.PNGEncoder.captureScreen(dumpFile.getAbsolutePath());
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(org.netbeans.jemmy.TestOut.getNullOutput());
     }
     
     /** Checks that it is possible to create new profile in Generic VCS wizard.
@@ -119,7 +96,6 @@ public class Profiles extends JellyTestCase {
             wizardProfile.cancel();
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen(e);
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -155,7 +131,6 @@ public class Profiles extends JellyTestCase {
             wizardAdvanced.cancel();
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen(e);
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -193,7 +168,6 @@ public class Profiles extends JellyTestCase {
             wizardProfile.cancel();
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen(e);
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
