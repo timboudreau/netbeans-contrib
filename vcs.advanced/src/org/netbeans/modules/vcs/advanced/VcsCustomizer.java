@@ -1646,7 +1646,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                     }
                     for (int i = 0; i < configInputDescriptors.length; i++) {
                         Hashtable dialogVars = new Hashtable(fsVars);
-                        VariableInputDialog dlg = new VariableInputDialog(new String[] { "" }, configInputDescriptors[i], false, dialogVars, rapidVariablesAssignment, true);
+                        VariableInputDialog dlg = new VariableInputDialog(null, configInputDescriptors[i], false, dialogVars, rapidVariablesAssignment, true);
                         dlg.setExecutionContext(fileSystem, dialogVars);
                         dlg.setGlobalInput(null);
                         dlg.showPromptEach(false);

@@ -156,6 +156,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private boolean dynamicVarChanges = false;
     
     static final long serialVersionUID = 8363935602008486018L;
+
+    /** Command or null. */
     private VcsDescribedCommand command;
 
     /** Creates new form VariableInputDialog. This JPanel should be used
