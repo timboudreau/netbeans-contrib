@@ -5,4 +5,5 @@ OpenIDE-Module-Install: org/netbeans/modules/corba/idl/editor/settings/RestoreCo
 OpenIDE-Module-Specification-Version: 1.1
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.editor/1 > 1.6
-
+OpenIDE-Module-Short-Description: Provides syntax coloring for CORBA IDL.
+OpenIDE-Module-Long-Description: The IDL Syntax Coloring module provides syntax coloring when editing CORBA IDL specifications. The currently supported IDL version is 2.3.
