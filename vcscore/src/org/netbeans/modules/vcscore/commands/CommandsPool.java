@@ -215,10 +215,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (fileSystem != null) {
             fileSystem.debug(g("MSG_Command_preprocessing", name, exec));
         }
+        ArrayList listenersToNotify;
         synchronized (commandListeners) {
-            for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
-                ((CommandListener) it.next()).commandPreprocessing(vce);
-            }
+            listenersToNotify = new ArrayList(commandListeners);
+        }
+        for(Iterator it = listenersToNotify.iterator(); it.hasNext(); ) {
+            ((CommandListener) it.next()).commandPreprocessing(vce);
         }
         int preprocessStatus = CommandExecutorSupport.preprocessCommand(fileSystem, vce, vars, askForEachFile);
         if (PREPROCESS_CANCELLED == preprocessStatus) {

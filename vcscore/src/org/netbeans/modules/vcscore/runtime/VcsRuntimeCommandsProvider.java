@@ -18,6 +18,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -89,16 +90,23 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
         return (RuntimeCommand[]) commands.toArray(new RuntimeCommand[commands.size()]);
     }
     
-    public synchronized boolean cutCommandsToMaxToKeep() {
+    public boolean cutCommandsToMaxToKeep() {
         boolean cutted = false;
-        int current = commands.size();
-        while (current > numOfCommandsToKeep && finishedCommands.size() > 0) {
-            RuntimeCommand cmd = (RuntimeCommand) finishedCommands.remove(0);
-            commands.remove(cmd);
-            VcsCommandExecutor vce = (VcsCommandExecutor) finishedExecutorsForCommands.remove(cmd);
+        ArrayList finishedToRemove = new ArrayList();
+        synchronized (this) {
+            int current = commands.size();
+            while (current > numOfCommandsToKeep && finishedCommands.size() > 0) {
+                RuntimeCommand cmd = (RuntimeCommand) finishedCommands.remove(0);
+                commands.remove(cmd);
+                VcsCommandExecutor vce = (VcsCommandExecutor) finishedExecutorsForCommands.remove(cmd);
+                finishedToRemove.add(vce);
+                current--;
+                cutted = true;
+            }
+        }
+        for (Iterator it = finishedToRemove.iterator(); it.hasNext(); ) {
+            VcsCommandExecutor vce = (VcsCommandExecutor) it.next();
             cpool.removeFinishedCommand(vce);
-            current--;
-            cutted = true;
         }
         return cutted;
     }
