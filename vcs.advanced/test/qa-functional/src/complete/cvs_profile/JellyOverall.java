@@ -361,8 +361,8 @@ public class JellyOverall extends JellyTestCase {
             throw new AssertionFailedErrorException("IOException while setting test case up", e);
         }
         
-        new CVSFileNode(exp.repositoryTab().tree(), nDirectory).cVSRefresh();
-        assertTrue("Refresh folder command failed", history.waitCommand("Refresh", hDirectory));
+        new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefresh();
+        assertTrue("Refresh folder command failed", history.waitCommand("Refresh", hRoot));
         new CVSFileNode(exp.repositoryTab().tree(), nDirectory);
         new CVSFileNode(exp.repositoryTab().tree(), nSubDir);
         new CVSFileNode(exp.repositoryTab().tree(), nFile);
