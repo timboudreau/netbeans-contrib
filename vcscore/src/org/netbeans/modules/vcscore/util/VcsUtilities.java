@@ -783,9 +783,7 @@ public class VcsUtilities {
         if (originals == null || originals.length == 0) {
             return originals;
         }
-        FileObject[] toReturn = new FileObject[originals.length];
         for (int i = 0; i < originals.length; i++) {
-            toReturn[i] = originals[i];
             FileObject fo = originals[i];
             FileSystem fs = (FileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
             if (fs != null) {
@@ -795,7 +793,7 @@ public class VcsUtilities {
                         String nativePath = (String) fo.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
                         fo = fs.findResource(nativePath);
                         if (fo != null) {
-                            toReturn[i] = fo;
+                            originals[i] = fo;
                         }
                     }
                 } catch (FileStateInvalidException exc) {
@@ -806,7 +804,7 @@ public class VcsUtilities {
                 continue;
             }
         }
-        return toReturn;
+        return originals;
     }
     
     /**
