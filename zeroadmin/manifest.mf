@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Layer: org/netbeans/modules/zeroadmin/resources/layer.xml
+OpenIDE-Module-Install: org/netbeans/modules/zeroadmin/ZeroAdminModule.class
+OpenIDE-Module-Specification-Version: 0.1
+OpenIDE-Module-Public-Packages: org.netbeans.modules.zeroadmin.**
+Created-By: Nokia
+OpenIDE-Module: org.netbeans.modules.zeroadmin/1
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.42
+OpenIDE-Module-Name: zeroadmin
+OpenIDE-Module-Display-Category: Infrastructure
+OpenIDE-Module-Package-Dependencies: [org.apache.xml.serialize.EncodingInfo]
+OpenIDE-Module-Module-Dependencies: org.netbeans.core/1 > 1.9
+

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="all" name="zeroadmin">
+
+    <target depends="all" name="netbeans"/>
+
+    <property name="nb_all" value="../.."/>
+
+    <property name="nbm_alias" value="nb_ide"/>
+    <property name="homepage.base" value="netbeans.org"/>
+    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
+    <property location="${nb_all}/nbbuild/standard-nbm-license.txt" name="license.file"/>
+
+    <taskdef classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="makenbm"/>
+    <taskdef classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar" name="genlist"/>
+    <taskdef classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar" name="locjar"/>
+
+    <target name="compile">
+        <javac destdir="src" srcdir="src">
+            <classpath>
+                <!-- Whatever you need, based on your dependencies. -->
+                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+                <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
+                <pathelement location="${nb_all}/core/netbeans/lib/core.jar"/>
+                <pathelement location="${j2ee.home}/lib/j2ee.jar"/>
+                <fileset dir="${nb_all}/core/external">
+                    <include name="xml-apis*.jar"/>
+                    <include name="xerces*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <target depends="compile" name="ejbs">
+        <exec dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/packager" failonerror="true">
+            <arg value="-ejbJar"/>
+            <arg value="src"/>
+            <arg value="org/netbeans/modules/zeroadmin/ConfigStorage.class:org/netbeans/modules/zeroadmin/ConfigStorageBean.class:org/netbeans/modules/zeroadmin/ConfigStorageHome.class"/>
+            <arg value="ConfigStorage.xml"/>
+            <arg value="c.jar"/>
+        </exec>
+        <exec dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/packager" failonerror="true">
+            <arg value="-enterpriseArchive"/>
+            <arg path="c.jar"/>
+            <arg value="ConfigStorage"/>
+            <arg path="c.ear"/>
+        </exec>
+        <exec dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/packager" failonerror="true">
+            <arg value="-setRuntime"/>
+            <arg path="c.ear"/>
+            <arg path="sun-j2ee-ri.xml"/>
+            <arg value="-o"/>
+            <arg value="c1.ear"/>
+        </exec>
+        <exec dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/deploytool" failonerror="true">
+            <arg line="-deploy c1.ear localhost cs.jar"/>
+        </exec>
+        <unjar dest="src" src="cs.jar"/>
+    </target>
+
+    <target depends="compile, ejbs" name="jars">
+        <mkdir dir="netbeans/lib/ext"/>
+	<copy file="${j2ee.home}/lib/j2ee.jar" todir="netbeans/lib/ext"/>
+        <mkdir dir="netbeans/modules"/>
+        <jar compress="false" jarfile="netbeans/modules/zeroadmin.jar" manifest="manifest.mf">
+            <fileset dir="src">
+                <exclude name="**/*.java"/>
+                <exclude name="**/*.form"/>
+                <exclude name="**/.nbattrs"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target depends="jars" description="Build the module." name="all"/>
+
+    <target depends="all" description="Prepare the module for distribution via Auto Update." name="nbm">
+        <makenbm distribution="http://www.nokia.com/" file="zeroadmin.nbm" homepage="http://www.nokia.com/" module="netbeans/modules/zeroadmin.jar" topdir=".">
+<!--            <license file="/SOMEWHERE/SOME/LICENSE/TEXT.txt"/> -->
+            <!-- signature element permitted also if you have the secret key for lib/ide.ks -->
+            <!-- otherwise users will be warned that your NBM is unsigned, and will have to accept it -->
+            <signature alias="${nbm_alias}" keystore="${keystore}" storepass="${storepass}"/>
+        </makenbm>
+    </target>
+
+    <target description="Clean all build products." name="clean">
+        <delete>
+            <fileset dir="src">
+                <include name="**/*.class"/>
+            </fileset>
+        </delete>
+        <delete dir="netbeans"/>
+        <delete dir="Info"/>
+        <delete file="zeroadmin.nbm"/>
+        <delete dir="reload"/>
+        <delete file="c.jar"/>
+        <delete file="c.ear"/>
+        <delete file="c1.ear"/>
+        <delete file="cs.jar"/>
+    </target>
+
+</project>

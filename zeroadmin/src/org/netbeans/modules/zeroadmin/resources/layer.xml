@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Menu">
+        
+        <folder name="Tools">
+            
+            <file name="org-netbeans-modules-zeroadmin-actions-ResetConfigAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.zeroadmin.actions.ResetConfigAction"/>
+            </file>
+            <file name="org-netbeans-modules-zeroadmin-actions-SaveOperatorConfigAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.zeroadmin.actions.SaveOperatorConfigAction"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>
