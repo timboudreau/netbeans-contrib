@@ -94,6 +94,10 @@ public final class VersioningRepository extends Object implements java.io.Serial
         return vfsl;
     }
     
+    public final synchronized VersioningSystem getSystem(String systemName) {
+        return (VersioningSystem) names.get(systemName);
+    }
+    
     public void addRepositoryListener(VersioningRepositoryListener listener) {
         synchronized (listenerList) {
             listenerList.add(VersioningRepositoryListener.class, listener);

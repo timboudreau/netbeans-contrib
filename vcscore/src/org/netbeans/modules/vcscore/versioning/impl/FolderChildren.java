@@ -33,7 +33,13 @@ final class FolderChildren extends Children.Keys {
 
     protected Node[] createNodes(Object key) {
         VcsFileObject fo = (VcsFileObject) key;
-        return new Node[] { fo.getNodeDelegate().cloneNode() };
+        Node clone;
+        if (fo instanceof AbstractVcsFolder) {
+            clone = ((AbstractVcsFolder) fo).createClonedNodeDelegate();
+        } else {
+            clone = fo.getNodeDelegate().cloneNode();
+        }
+        return new Node[] { clone };
     }
     
     /** Initializes the children.
