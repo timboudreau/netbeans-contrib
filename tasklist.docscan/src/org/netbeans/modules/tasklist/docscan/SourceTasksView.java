@@ -206,6 +206,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         );
     }
 
+    protected void componentClosed() {
+        super.componentClosed();
+        interrupt = true;  // stop the background process
+    }
+
     private ColumnProperty createLineColumn(boolean visible, int width) {
         return new ColumnProperty(
                 LINE_COLUMN_UID, // UID -- never change (part of serialization
