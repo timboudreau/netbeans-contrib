@@ -52,9 +52,6 @@ import org.netbeans.modules.tasklist.core.TLUtils;
  *  Potentially easy: UnusedModifier.
  * Other candidates: StringToString, StringInstantiation, ...
  * MustUseBraces?
- * SimplyBooleanReturnsRule - is this for new Boolean ?
- * @todo Include javadoc sections in method and variable removals
- *   (be sure to show it in the preview dialog as well)
  * <p>
  * @author Tor Norbye
  */
@@ -135,8 +132,10 @@ public class ViolationProvider extends DocumentSuggestionProvider {
             // I suspect PMD wasn't written with the intent of it being run
             // on incomplete or invalid classes. So we just swallow the
             // exceptions here
+            ; // Avoid PMD warning about empty catch block - this is intentional
         } catch (Error e) {
             // Ditto. It throws some non-exceptions like TokenMgrError
+            ; // Avoid PMD warning about empty catch block - this is intentional
         }
         Iterator iterator = ctx.getReport().iterator();
 
@@ -222,7 +221,6 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                            violation.getDescription(),
                         action,
                         this);
-                    // XXX Is there a priority for each rule?
 
                     // Make sure PMD's rule range is still the same
                     // as ours. If not, we've gotta scale it

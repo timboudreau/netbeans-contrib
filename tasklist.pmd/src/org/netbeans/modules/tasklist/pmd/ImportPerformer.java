@@ -7,42 +7,25 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.pmd;
 
-import net.sourceforge.pmd.PMD;
-import net.sourceforge.pmd.Report;
-import net.sourceforge.pmd.Rule;
-import net.sourceforge.pmd.RuleContext;
-import net.sourceforge.pmd.RuleSet;
 import net.sourceforge.pmd.RuleViolation;
 import pmd.*;
-import pmd.config.ConfigUtils;
-import pmd.config.PMDOptionsSettings;
 import org.netbeans.api.tasklist.*;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Iterator;
 import javax.swing.text.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.List;
-import org.openide.cookies.SourceCookie;
-import org.openide.cookies.EditorCookie;
 import org.openide.explorer.view.*;
 import org.openide.nodes.*;
-import org.openide.ErrorManager;
-import org.openide.cookies.LineCookie;
 import org.openide.loaders.DataObject;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.ConfPanel;
@@ -96,7 +79,6 @@ public class ImportPerformer implements SuggestionPerformer {
                                 "ImportConfirmationAfter"); // NOI18N
 
             Line l = line;
-            String text = l.getText();
             sb.append("<html>"); // NOI18N
             TLUtils.appendSurroundingLine(sb, l, -1);
             sb.append("<br><b>"); // NOI18N
@@ -135,7 +117,6 @@ public class ImportPerformer implements SuggestionPerformer {
             }
 
             Line l = line;
-            String text = l.getText();
             sb.append("<html>"); // NOI18N
             TLUtils.appendSurroundingLine(sb, l, -1);
             sb.append("<br>");

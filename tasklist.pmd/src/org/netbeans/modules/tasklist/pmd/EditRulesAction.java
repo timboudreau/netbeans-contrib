@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -15,19 +15,13 @@ package org.netbeans.modules.tasklist.pmd;
 
 import java.awt.Component;
 import java.awt.Dialog;
-import java.util.List;
-import java.util.ArrayList;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.awt.Actions;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
-import org.openide.util.actions.CallableSystemAction;
 
 import org.openide.explorer.propertysheet.*;
 import org.netbeans.api.tasklist.*;
