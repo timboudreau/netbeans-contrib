@@ -444,7 +444,7 @@ public abstract class TaskListView extends ExplorerPanel
         //tasklist.getRoot();
         rootNode = createRootNode();
 
-        if (filter != null) {
+        if (filter.hasConstraints()) {
             // Create filtered view of the tasklist
             TaskNode.FilteredChildren children = 
                 new TaskNode.FilteredChildren(this, rootNode, filter);
@@ -1137,8 +1137,9 @@ public abstract class TaskListView extends ExplorerPanel
      * no filter (e.g. all tasks are shown unconditionally).
      */
     public Filter getFilter() {
-        if (filter == null)
+        if (filter == null) {
             filter = new Filter(null, true, new ArrayList(), false);
+        }
         return filter;
     }
     
@@ -1152,7 +1153,7 @@ public abstract class TaskListView extends ExplorerPanel
             getExplorerManager().setSelectedNodes(new Node[0]);
         } catch (PropertyVetoException e) {
         }
-        if (showStatusBar && (filter != null)) {
+        if (showStatusBar && filter.hasConstraints()) {
             setRoot();
             setNorthComponentVisible(true);
             updateFilterCount();
