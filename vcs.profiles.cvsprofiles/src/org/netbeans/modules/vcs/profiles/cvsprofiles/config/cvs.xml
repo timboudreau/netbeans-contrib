@@ -813,7 +813,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="COMMIT_CMD">
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} commit ${FORCE} ${RUN_MODULE_PROGRAM}  ${RECURSIVE} $[? BRANCH] [-r ${BRANCH}] [] -F ${QUOTE}${TEMPLATE_FILE}${QUOTE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} commit ${FORCE} ${RUN_MODULE_PROGRAM}  ${RECURSIVE} $[? BRANCH] [-r ${BRANCH}] [] $[? TEMPLATE_FILE] [-F ${QUOTE}${TEMPLATE_FILE}${QUOTE}] [-m ${QUOTE}${message}${QUOTE}] $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
 	<property name="checkForModifications">
 	  <value>true</value>
