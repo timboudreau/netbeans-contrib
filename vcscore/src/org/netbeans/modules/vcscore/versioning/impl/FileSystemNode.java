@@ -260,8 +260,6 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
             org.openide.filesystems.FileSystem.PROP_DISPLAY_NAME.equals(ev.getPropertyName())) {
             initDisplayName ();
         }
-        // XXX why forwarding
-        firePropertyChange(ev.getPropertyName(), ev.getOldValue(), ev.getNewValue());
     }
 
     /** @return wrapped filesystem */
