@@ -1,0 +1,16 @@
+corba/src/org/netbeans/modules/corba/Bundle.properties
+corba/src/org/netbeans/modules/corba/browser/ir/Bundle.properties
+corba/src/org/netbeans/modules/corba/browser/ns/Bundle.properties
+corba/src/org/netbeans/modules/corba/idl/editor/settings/Bundle.properties
+corba/src/org/netbeans/modules/corba/idl/node/Bundle.properties
+corba/src/org/netbeans/modules/corba/settings/Bundle.properties
+corba/src/org/netbeans/modules/corba/wizard/Bundle.properties
+corba/src/org/netbeans/modules/corba/wizard/nodes/Bundle.properties
+corba/src/org/netbeans/modules/corba/wizard/nodes/actions/Bundle.properties
+corba/src/org/netbeans/modules/corba/wizard/nodes/gui/Bundle.properties
+corba/src/org/netbeans/modules/corba/wizard/panels/Bundle.properties
+corba/src/org/netbeans/modules/corba/resources/ClientMain.html
+corba/src/org/netbeans/modules/corba/resources/CORBA.html
+corba/src/org/netbeans/modules/corba/resources/ServerMain.html
+corba/src/org/netbeans/modules/corba/resources/Empty.html
+corba/src/org/netbeans/modules/corba/resources/Simple.html

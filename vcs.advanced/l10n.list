@@ -1,0 +1,9 @@
+vcsgeneric/src/org/netbeans/modules/vcs/advanced/Bundle.properties
+vcsgeneric/tojar/org/netbeans/modules/vcs/advanced/config/vcs.jar/vcs/commands/Bundle.properties
+vcsgeneric/tojar/org/netbeans/modules/vcs/advanced/config/vcs.jar/vcs/config/cvsunix.properties
+vcsgeneric/tojar/org/netbeans/modules/vcs/advanced/config/vcs.jar/vcs/config/cvsCygWIN.properties
+vcsgeneric/tojar/org/netbeans/modules/vcs/advanced/config/vcs.jar/vcs/config/cvswin.properties
+vcsgeneric/tojar/org/netbeans/modules/vcs/advanced/config/vcs.jar/vcs/config/empty.properties
+vcsgeneric/tojar/org/netbeans/modules/vcs/advanced/config/vcs.jar/vcs/config/pvcsunix.properties
+vcsgeneric/tojar/org/netbeans/modules/vcs/advanced/config/vcs.jar/vcs/config/pvcswin.properties
+vcsgeneric/tojar/org/netbeans/modules/vcs/advanced/config/vcs.jar/vcs/config/vsswin.properties
