@@ -33,9 +33,8 @@ public interface Bookmark extends Presenter.Menu, Presenter.Toolbar {
     public String getName();
     
     /**
-     * Main action method called when the user selects the bookmark. The
-     * default implementation tries to open the top component returned
-     * from getTopComponent().<p> This method is called after the user
+     * Main action method called when the user selects the bookmark.
+     * This method is called after the user
      * selects the bookmark from the menu or toolbar. So calling this method
      * is contained in the default implementation of the menu and toolbar
      * presenters for the bookmark.
