@@ -25,6 +25,10 @@ import java.util.Iterator;
 import java.util.HashMap;
 
 /** Action sensitive to the node selection that does something useful.
+ *  Keeps a list of vcs supported activated nodes. (splits the nodes to fileobjects)
+ *  Vcs Enabled fileobjects are recognized by the fileobject attribute named
+ *  "VcsActionAttributeCookie", which value should be an instance of the CommandActionSupporter class.
+ *
  *
  * @author  Milos Kleint
  */
@@ -102,7 +106,7 @@ public class AbstractCommandAction extends NodeAction {
         if (actionSet != null) {
             Iterator it = actionSet.iterator();
             while (it.hasNext()) {
-                GeneralCommandAction act = (GeneralCommandAction)it.next();
+                org.openide.util.actions.SystemAction act = (org.openide.util.actions.SystemAction)it.next();
                 act.isEnabled();
             }
         }
@@ -133,7 +137,7 @@ public class AbstractCommandAction extends NodeAction {
     }
 
     public String getName () {
-        return NbBundle.getMessage(GeneralCommandAction.class, "LBL_Action");
+        return NbBundle.getMessage(AbstractCommandAction.class, "LBL_Action");
     }
     
 
@@ -141,14 +145,23 @@ public class AbstractCommandAction extends NodeAction {
         return null;
     }
 
-    public void removeDependantAction(GeneralCommandAction action) {
+    /**
+     * Every action that wants to use the AbstractCommandaction as proxy, should call 
+     * this method in removeNotify() instead of the the default behaviour.
+     */
+
+    public void removeDependantAction(org.openide.util.actions.SystemAction action) {
         if (actionSet == null) {
             actionSet = new HashSet();
         }
         actionSet.remove(action);
     }
-
-    public void addDependantAction(GeneralCommandAction action) {
+ 
+    /**
+     * Every action that wants to use the AbstractCommandaction as proxy, should call 
+     * this method in addNotify() instead of the the default behaviour.
+     */
+    public void addDependantAction(org.openide.util.actions.SystemAction action) {
         if (actionSet == null) {
             actionSet = new HashSet();
         }

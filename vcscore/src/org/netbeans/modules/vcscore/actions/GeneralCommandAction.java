@@ -62,6 +62,11 @@ public class GeneralCommandAction extends NodeAction {
         }
     }
     
+    /**
+     * This method doesn't extract the fileobjects from the activated nodes itself, but rather
+     * consults the AbstractCommandAction to get a list of supporters.
+     * On this list then performs the action.
+     */
     protected void performAction (Node[] nodes) {
         if (nodes == null || nodes.length == 0) return;
         AbstractCommandAction genAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
@@ -77,6 +82,14 @@ public class GeneralCommandAction extends NodeAction {
         }
     }
 
+    /**
+     * This method doesn't extract the fileobjects from the activated nodes itself, but rather
+     * consults the AbstractCommandAction to get a list of supporters.
+     * On each supporter then checks if if it enables the action.
+     * All supporters need to come to a concensus in order for the action to be enabled.
+     * *experimental* annotates the toolbar tooltip according to the supporter's requests.
+     */
+    
     protected boolean enable (Node[] nodes) {
         toolBarNamesSet = new HashSet();
         menuNamesSet = new HashSet();
@@ -209,15 +222,5 @@ public class GeneralCommandAction extends NodeAction {
         abstractAction.removeDependantAction(this);
     }
 
-    /**
-    public void readExternal(java.io.ObjectInput objectInput) throws java.io.IOException, java.lang.ClassNotFoundException {
-        super.readExternal(objectInput);
-        if (abstractAction == null) {
-            System.out.println("recreating action - read external");
-            abstractAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
-            abstractAction.reinitialize();
-        }
-    }  
-     */  
     
 }
