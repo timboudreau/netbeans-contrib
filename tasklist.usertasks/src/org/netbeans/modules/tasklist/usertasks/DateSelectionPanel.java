@@ -304,7 +304,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
 
         private Object            columnNames[];
         private GregorianCalendar calendar, today;
-        private Object            days[][];
+        private Integer           days[][];
         
         /**
          * Create a new table model
@@ -327,7 +327,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
             // Reset the calendar since I might have changed the current month
             calendar.setTime(new Date());
             
-            days = new Object[6][7];
+            days = new Integer[6][7];
         }
         
         /**
@@ -389,23 +389,10 @@ public class DateSelectionPanel extends javax.swing.JPanel
                 renderer.setToday(null);
             }
                                     
-            int start = 0;
+            int start = calendar.get(calendar.DAY_OF_WEEK) - calendar.getFirstDayOfWeek();
             
-            switch (calendar.get(calendar.DAY_OF_WEEK)) {
-                case Calendar.SATURDAY : ++start;
-                case Calendar.FRIDAY   : ++start;
-                case Calendar.THURSDAY : ++start;
-                case Calendar.WEDNESDAY: ++start;
-                case Calendar.TUESDAY  : ++start;
-                default:
-                    // Empty
-            }
-            
-            // Ok.. If sunday is the first day of the week I must add 1
-            if (calendar.getFirstDayOfWeek() == calendar.SUNDAY) {
-                ++start;
-            } else if (calendar.get(calendar.DAY_OF_WEEK) == calendar.SUNDAY) {
-                ++start;
+            if (start < 0) {
+                start += 7;
             }
             
             // Reset the data:
@@ -568,4 +555,36 @@ public class DateSelectionPanel extends javax.swing.JPanel
 //            }
 //        });
 //    }
+    
+    public static void test() throws Exception {
+        javax.swing.JFrame frm = new javax.swing.JFrame();
+        
+        DateSelectionPanel panel = new DateSelectionPanel();
+        
+        frm.getContentPane().add(panel);
+        frm.pack();
+        frm.setVisible(true);
+        frm.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                System.exit(0);
+            }
+        });
+        
+        Calendar c = new GregorianCalendar();
+        
+        for (int cntr = 1900; cntr < 3000; cntr++) {
+            c.set(Calendar.YEAR, cntr);
+            for (int cntrX = c.getActualMinimum(Calendar.MONTH); cntrX < c.getActualMaximum(Calendar.MONTH); cntrX++) {
+                panel.tablemodel.setYear(cntr);
+                panel.tablemodel.setMonth(cntrX);
+                
+                c.set(Calendar.MONTH, cntrX);
+                c.set(Calendar.DAY_OF_MONTH, panel.tablemodel.days[1][0].intValue());
+                
+                if (c.get(Calendar.DAY_OF_WEEK) != c.getFirstDayOfWeek()) {
+                    System.err.println("The assignment of day of week is incorrect for year: " + c.get(Calendar.YEAR) + " and month: " + c.get(Calendar.MONTH));
+                }
+            }
+        }
+    }
 }
