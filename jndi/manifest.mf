@@ -1,9 +1,9 @@
-NetBeans-Module: com.netbeans.enterprise.modules.jndi/1
-NetBeans-Module-Name: JNDI
-NetBeans-Module-Specification-Version: 1.0
-NetBeans-Module-Implementation-Version: 1.0
+OpenIDE-Module: com.netbeans.enterprise.modules.jndi/1
+OpenIDE-Module-Name: JNDI
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Implementation-Version: 1.0
 Class-Path: ext/jndi.jar ext/fscontext.jar ext/providerutil.jar ext/rmiregistry.jar
 
 Name: com/netbeans/enterprise/modules/jndi/JndiRootNode.class
-NetBeans-Module-Class: Node
+OpenIDE-Module-Class: Node
 Type: Environment

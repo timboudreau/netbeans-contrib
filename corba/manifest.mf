@@ -1,14 +1,14 @@
-NetBeans-Module: com.netbeans.enterprise.modules.corba/1
-NetBeans-Module-Name: CORBA Support
-NetBeans-Module-Install: com/netbeans/enterprise/modules/corba/IDLModule.class
-NetBeans-Module-Module-Dependencies: com.netbeans.developer.modules.loaders.java/1
-NetBeans-Module-Specification-Version: 0.8
-NetBeans-Module-Implementation-Version: 0.8
+OpenIDE-Module: com.netbeans.enterprise.modules.corba/1
+OpenIDE-Module-Name: CORBA Support
+OpenIDE-Module-Install: com/netbeans/enterprise/modules/corba/IDLModule.class
+OpenIDE-Module-Module-Dependencies: com.netbeans.developer.modules.loaders.java/1
+OpenIDE-Module-Specification-Version: 0.8
+OpenIDE-Module-Implementation-Version: 0.8
 
 Name: com/netbeans/enterprise/modules/corba/IDLDataLoader.class
-NetBeans-Module-Class: Loader
+OpenIDE-Module-Class: Loader
 Install-Before: com.netbeans.developer.modules.loaders.java.JavaDataObject
 
 Name: com/netbeans/enterprise/modules/corba/settings/CORBASupportSettings.class
-NetBeans-Module-Class: Option
+OpenIDE-Module-Class: Option
 

@@ -1,22 +1,22 @@
-NetBeans-Module: com.netbeans.enterprise.modules.rmi/1
-NetBeans-Module-Name: RMI Support
-NetBeans-Module-Install: com/netbeans/enterprise/modules/rmi/RMIModule.class
-NetBeans-Module-Module-Dependencies: com.netbeans.developer.modules.loaders.java/1, com.netbeans.developer.modules.httpserver/1
-NetBeans-Module-Specification-Version: 0.8
-NetBeans-Module-Implementation-Version: 0.8
+OpenIDE-Module: com.netbeans.enterprise.modules.rmi/1
+OpenIDE-Module-Name: RMI Support
+OpenIDE-Module-Install: com/netbeans/enterprise/modules/rmi/RMIModule.class
+OpenIDE-Module-Module-Dependencies: com.netbeans.developer.modules.loaders.java/1, com.netbeans.developer.modules.httpserver/1
+OpenIDE-Module-Specification-Version: 0.8
+OpenIDE-Module-Implementation-Version: 0.8
 
 Name: com/netbeans/enterprise/modules/rmi/RMIDataLoader.class
-NetBeans-Module-Class: Loader
+OpenIDE-Module-Class: Loader
 Install-Before: com.netbeans.developer.modules.loaders.java.JavaDataObject
 
 Name: com/netbeans/enterprise/modules/rmi/settings/RMISettings.class
-NetBeans-Module-Class: Option
+OpenIDE-Module-Class: Option
 
 Name: com/netbeans/enterprise/modules/rmi/settings/CompilerSettings.class
-NetBeans-Module-Class: Option
+OpenIDE-Module-Class: Option
 
 Name: com/netbeans/enterprise/modules/rmi/RMIRegistryNode.class
-Netbeans-Module-Class: Node
+OpenIDE-Module-Class: Node
 
 Name: com/netbeans/enterprise/modules/rmi/RMIExecutor.class
-Netbeans-Module-Class: Executor
+OpenIDE-Module-Class: Executor

@@ -1,11 +1,11 @@
-NetBeans-Module: com.netbeans.enterprise.modules.vcs.cmdline/1
-NetBeans-Module-Name: Generic Command Line VCS
-NetBeans-Module-Install: com/netbeans/enterprise/modules/vcs/cmdline/CommandLineVcsModule.class
-NetBeans-Module-Specification-Version: 1.0
-NetBeans-Module-Implementation-Version: 1.0
+OpenIDE-Module: com.netbeans.enterprise.modules.vcs.cmdline/1
+OpenIDE-Module-Name: Generic Command Line VCS
+OpenIDE-Module-Install: com/netbeans/enterprise/modules/vcs/cmdline/CommandLineVcsModule.class
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Implementation-Version: 1.0
 Class-Path: ext/regexp.jar
 
 Name: com/netbeans/enterprise/modules/vcs/cmdline/CommandLineVcsFileSystem.class
-NetBeans-Module-Class: Filesystem
+OpenIDE-Module-Class: Filesystem
 Display-Name: Generic Version Control System
 
