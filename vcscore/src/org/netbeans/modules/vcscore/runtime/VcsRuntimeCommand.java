@@ -157,7 +157,10 @@ public class VcsRuntimeCommand extends RuntimeCommand {
         pool.kill(executor);
         state = STATE_KILLED_BUT_RUNNING;
         // to refresh the state we have to set it to the node.
-        RuntimeSupport.getInstance().findRuntimeNode(this).setState(state);
+        RuntimeCommandNode node = RuntimeSupport.getInstance().findRuntimeNode(this);
+        if (node != null) {
+            node.setState(state);
+        }
     }
     
     public int getState() {
