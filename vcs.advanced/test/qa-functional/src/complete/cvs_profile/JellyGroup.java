@@ -65,9 +65,7 @@ import util.Helper;
 import util.History;
 import util.StatusBarTracer;
 
-public class JellyGroup extends JellyTestCase {
-    
-    public static final boolean DEBUG = false;
+public class JellyGroup extends JellyStub {
     
     public static final String TEST_GROUP = "TestGroup";
     public static final String GROUP_DESCRIPTION = "Description of TestGroup";
@@ -95,174 +93,26 @@ public class JellyGroup extends JellyTestCase {
         junit.textui.TestRunner.run(suite());
     }
     
-    ExplorerOperator exp;
-    StatusBarTracer sbt;
-    static String serverDirectory;
     static String clientDirectory;
-    static String hRoot = ".", nRoot;
+    static History history;
+    static String nRoot;
     static String tInitDir = "initdir", hInitDir = tInitDir, fInitDir, nInitDir;
     static String tText1 = "text1", hText1 = hInitDir + "/" + tText1, fText1, nText1;
     static String tText2 = "text2", hText2 = hInitDir + "/" + tText2, fText2, nText2;
     static String tText3 = "text3", hText3 = hInitDir + "/" + tText3, fText3, nText3;
     
     static boolean text1InDefaultGroup = false;
-    
-    PrintStream out;
-    PrintStream info;
-    static History history;
 
-    public static void closeAllProperties() {
-        for (;;) {
-            NbFrameOperator fr = NbFrameOperator.find("Propert", 0);
-            if (fr == null)
-                break;
-            fr.close();
-            Helper.sleep(1000);
-        }
-    }
-    
-    public void waitStatus(String status, String node) {
-        assertTrue ("waitStatus(status,node) precondition failed", status == null  ||  status.indexOf(';') < 0);
-        waitStatus(status, node, false);
-    }
-    
-    public void waitStatus(String status, String node, boolean withversion) {
-        waitStatus (exp.repositoryTab ().tree (), status, node, withversion);
-    }
-    
-    public void waitStatus(JTreeOperator tree, String status, String node, boolean withversion) {
-        String ano = null;
-        for (int a = 0; a < 15; a ++) {
-            Helper.sleep(1000);
-            Node n = new Node(tree, node);
-            ano = n.getText();
-            int i = ano.indexOf('[');
-            if (i < 0) {
-                if (status == null)
-                    return;
-                continue;
-            }
-            ano = ano.substring(i + 1);
-            i = ano.lastIndexOf(']');
-            if (i < 0)
-                continue;
-            ano = ano.substring(0, i);
-            if (!withversion) {
-                i = ano.indexOf(';');
-                if (i >= 0)
-                    ano = ano.substring(0, i);
-            }
-            if (ano.equals(status))
-                return;
-        }
-        assertTrue("CVS File Status is not reached: Expected: " + status + " Got: " + ano, false);
-    }
-    
-    public void waitVersion(String version, String node) {
-        String ano = null;
-        for (int a = 0; a < 15; a ++) {
-            Helper.sleep(1000);
-            Node n = new Node(exp.repositoryTab().tree(), node);
-            ano = n.getText();
-            int i = ano.indexOf('(');
-            if (i < 0) {
-                if (version == null)
-                    return;
-                continue;
-            }
-            ano = ano.substring(i + 1);
-            i = ano.lastIndexOf(')');
-            if (i < 0)
-                continue;
-            ano = ano.substring(0, i);
-            if (ano.equals(version))
-                return;
-        }
-        assertTrue("CVS File Version is not reached: Expected: " + version + " Got: " + ano, false);
-    }
-    
-    boolean equalPaths (String p1, String p2) {
-        p1 = p1.replace ('\\', '/');
-        p2 = p2.replace ('\\', '/');
-        return p1.equalsIgnoreCase(p2);
-    }
-    
-    protected void setUp() throws Exception {
-        exp = new ExplorerOperator();
-        sbt = new StatusBarTracer();
-        out = getRef();
-        info = getLog();
+    protected void prepareServer (String dir) {
+        new File(dir + "/" + tInitDir).mkdirs();
     }
     
     public void testWorkDir() {
-        String workroot;
-        try {
-            workroot = getWorkDirPath();
-        } catch (IOException e) {
-            throw new AssertionFailedErrorException("IOException while getWorkDirPath()", e);
-        }
-        serverDirectory = workroot + "/server";
-        clientDirectory = workroot + "/client";
-        if (Utilities.isUnix ()) {
-            serverDirectory = serverDirectory.replace ('\\', '/');
-            clientDirectory = clientDirectory.replace ('\\', '/');
-        } else {
-            serverDirectory = serverDirectory.replace ('/', '\\');
-            clientDirectory = clientDirectory.replace ('/', '\\');
-        }
+        JellyStub.Configuration conf = super.configureWorkDir ();
         
-        new File(serverDirectory).mkdirs();
-        new File(clientDirectory).mkdirs();
-        new File(serverDirectory + "/" + tInitDir).mkdirs();
-        
-        info.println("Server: " + serverDirectory);
-        info.println("Client: " + clientDirectory);
-        
-        if (!DEBUG) {
-            // mount
-            new VCSGenericMountAction().perform();
-            VCSWizardProfile wizard = new VCSWizardProfile();
-            wizard.verify("");
-            wizard.setWorkingDirectory(clientDirectory);
-            String profile = Utilities.isUnix() ? VCSWizardProfile.CVS_UNIX : VCSWizardProfile.CVS_WIN_NT;
-            sbt.start();
-            wizard.setProfile(profile);
-            sbt.removeText("Command AUTO_FILL_CONFIG finished.");
-            sbt.stop();
-            wizard.setCVSServerType("local");
-            wizard.setCVSServerName("");
-            wizard.setCVSUserName("");
-            wizard.setCVSRepository(serverDirectory);
-            wizard.next();
-            VCSWizardAdvanced wizard2 = new VCSWizardAdvanced();
-            wizard2.checkAdvancedMode(true);
-            wizard2.finish();
-            Helper.sleep(5000);
-        }
-        
-        nRoot = "CVS " + clientDirectory;
-        boolean found = false;
-        info.println("Searching for CVS filesystem: " + nRoot);
-        for (int a = 0; a < 10; a ++) {
-            Enumeration e = TopManager.getDefault().getRepository().getFileSystems();
-            while (e.hasMoreElements()) {
-                FileSystem f = (FileSystem) e.nextElement();
-                info.println("Is it: " + f.getDisplayName());
-                if (equalPaths (f.getDisplayName(), nRoot)) {
-                    info.println("Yes");
-                    nRoot = f.getDisplayName();
-                    info.println("Working Directory nRoot: " + nRoot);
-                    history = new History(f);
-                    found = true;
-                    break;
-                }
-            }
-            if (found == true)
-                break;
-            Helper.sleep(1000);
-        }
-        assertTrue("Filesystem not found: Filesystem: " + nRoot, found);
-        new CVSFileNode(exp.repositoryTab().tree(), nRoot);
+        nRoot = conf.nRoot;
+        clientDirectory = conf.clientDirectory;
+        history = conf.history;
         
         fInitDir = clientDirectory + "/" + tInitDir;
         nInitDir = nRoot + "|" + tInitDir;
@@ -276,32 +126,7 @@ public class JellyGroup extends JellyTestCase {
         fText3 = fInitDir + "/" + tText3;
         nText3 = nInitDir + "|" + tText3;
         
-        if (!DEBUG) {
-            closeAllProperties();
-            FilesystemHistoryNode cvshistorynode = new FilesystemHistoryNode(exp.runtimeTab().tree(), nRoot);
-            cvshistorynode.properties();
-            PropertySheetOperator pso = new PropertySheetOperator(PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, nRoot);
-            PropertySheetTabOperator pst = pso.getPropertySheetTabOperator("Properties");
-            new StringProperty(pst, "Number of Finished Commands To Keep").setValue("200");
-            pso.close();
-        
-            // init
-            new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSInit();
-            history.waitCommand("Init", ".");
-
-            // checkout
-            new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSCheckOut();
-            CVSCheckoutFolderAdvDialog co = new CVSCheckoutFolderAdvDialog();
-            co.setModuleS(hRoot);
-            co.checkPruneEmptyFolders(false);
-            co.oK();
-            assertTrue("Check Out command failed", history.waitCommand("Check Out", hRoot));
-
-            // workaround - probably jelly issue - if not used, popup menu does not work in versioning frame
-            VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("CHECKOUT_COMMAND");
-            voo.close(); 
-            voo.waitClosed();
-
+        if (!JellyStub.DEBUG) {
             // add
             try {
                 new File(fText1).createNewFile();
