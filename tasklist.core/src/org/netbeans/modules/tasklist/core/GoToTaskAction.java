@@ -20,19 +20,26 @@ import org.openide.util.actions.NodeAction;
 import java.awt.*;
 
 
-/** Go to the source code / associated file for a particular
- * task
- * @author Tor Norbye */
+/**
+ * Go to the source code / associated file for a particular
+ * task.
+ *
+ * @author Tor Norbye
+ */
 public class GoToTaskAction extends NodeAction {
-    
+
+    protected boolean asynchronous() {
+        return false;
+    }
+
     /** Do the actual jump to source
      * @param nodes Nodes, where the selected node should be a task
      * node. */    
     protected void performAction(Node[] nodes) {
-        Task item =
-            (Task)TaskNode.getTask(nodes[0]); // safe - see enable check
         TaskListView tlv = TaskListView.getCurrent();
         if (tlv != null) {
+            Task item = TaskNode.getTask(nodes[0]); // safe - see enable check
+            assert item != null;
             tlv.showTask(item, null);
         } else {
             //XXX System.out.println("No current view!");
@@ -43,7 +50,7 @@ public class GoToTaskAction extends NodeAction {
     /** Enable the task iff you've selected exactly one node,
      * and that node is a tasknode. */    
     protected boolean enable(Node[] nodes) {
-        if ((nodes == null) || (nodes.length == 0)) {
+        if ((nodes == null) || (nodes.length != 1)) {
             return false;
         }
         Task item = TaskNode.getTask(nodes[0]);

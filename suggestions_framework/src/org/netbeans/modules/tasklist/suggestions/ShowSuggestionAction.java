@@ -29,37 +29,7 @@ import org.openide.text.Line;
  *
  * @author Tor Norbye
  */
-public class ShowSuggestionAction extends NodeAction {
-
-    protected boolean asynchronous() {
-        return false;
-    }
-
-    /** Do the actual jump to source
-     * @param nodes Nodes, where the selected node should be a task
-     * node. */    
-    protected void performAction(Node[] nodes) {
-        Task item = TaskNode.getTask(nodes[0]); // safe - see enable check
-        TaskList list = item.getList();
-        TaskListView v = list.getView();
-        v.showTask(item, new SuggestionAnno(item));
-    }
-
-    /**
-     * Enable the task iff you've selected exactly one node,
-     * and that node is a tasknode.
-     */
-    protected boolean enable(Node[] nodes) {
-        if ((nodes == null) || (nodes.length != 1)) {
-            return false;
-        }
-        Task item = TaskNode.getTask(nodes[0]);
-        if (item == null) {
-            return false;
-        }
-        return (item.getLine() != null);
-    }
-
+public class ShowSuggestionAction extends GoToTaskAction {
 
     public String getName() {
         return NbBundle.getMessage(ShowSuggestionAction.class, "LBL_Goto"); // NOI18N

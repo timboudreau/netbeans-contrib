@@ -263,6 +263,10 @@ public abstract class TaskListView extends TopComponent
     /** Show the given task. "Showing" means getting the editor to
      * show the associated file position, and open up an area in the
      * tasklist view where the details of the task can be fully read.
+     *
+     * @param item selected task (or null for hiding last)
+     * @param annotation annotation to use or null for
+     *        default view provided annotation.
      */
     public void showTask(Task item, TaskAnnotation annotation) {
         hideTask();
@@ -277,7 +281,7 @@ public abstract class TaskListView extends TopComponent
                 if (annotation != null) {
                     taskMarker = annotation;
                 } else {
-                    taskMarker = new TaskAnnotation(item);
+                    taskMarker = getAnnotation(item);
                 }
             } else {
                 taskMarker.detach();
@@ -1418,12 +1422,6 @@ for (int i = 0; i < columns.length; i++) {
      * @return created annotation or null
      */
     protected TaskAnnotation getAnnotation(Task task) {
-        // Make sure the editor is here and providing the annotation type
-        FileObject f = Repository.getDefault().getDefaultFileSystem().
-                findResource("Editors/AnnotationTypes/TaskAnnotation.xml"); // NOI18N
-        if (f == null) {
-            return null;
-        }
         return new TaskAnnotation(task);
     }
 
