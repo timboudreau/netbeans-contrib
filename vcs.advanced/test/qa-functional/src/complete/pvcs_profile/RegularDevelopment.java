@@ -132,7 +132,9 @@ public class RegularDevelopment extends NbTestCase {
         workingDirectory = workingPath.substring(0, workingPath.indexOf("RegularDevelopment")) + "RepositoryCreation" + File.separator + "testCreateDatabase";
         String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
-        Node A_FileNode = new Node( filesystemNode, "A_File [Current]");
+        Node A_FileNode = null;
+        try { A_FileNode = new Node( filesystemNode, "A_File [Current]"); }
+        catch (TimeoutExpiredException e) { captureScreen("Error: Can't find A_File [Current] node."); }
         filesystemNode.select();
         new ComboBoxProperty(new PropertySheetOperator(), "Advanced Options").setValue("False");
         new Action(VERSIONING_MENU + "|" + GET, GET).perform(A_FileNode);
@@ -299,7 +301,6 @@ public class RegularDevelopment extends NbTestCase {
         JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
         getCommand.ok();
         Thread.sleep(10000);
-        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
         C_FileNode = new Node( testNode, "C_File [Current]");
         File C_File = new File(workingDirectory + File.separator + "Work" + File.separator + "test" + File.separator + "C_File.java");
         if (C_File.canWrite()) captureScreen("Error: C_File.java remained read-write after check out.");
