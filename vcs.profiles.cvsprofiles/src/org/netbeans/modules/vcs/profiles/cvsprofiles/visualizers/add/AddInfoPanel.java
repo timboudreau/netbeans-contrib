@@ -98,7 +98,7 @@ public class AddInfoPanel extends AbstractOutputPanel{
     }
     
     protected boolean isStdOutput() {
-        return (tblAdded.getModel().getRowCount() == 0);
+        return (tblAdded.getModel().getRowCount() > 0);
     }
     
 

@@ -99,7 +99,7 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
     }
     
     protected boolean isStdOutput() {
-        return (tblUpdates.getModel().getRowCount() == 0);
+        return (tblUpdates.getModel().getRowCount() > 0);
     }
     
 
