@@ -27,10 +27,8 @@ import org.openide.ErrorManager;
 import org.openide.explorer.view.*;
 
 
-import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.text.Line;
-import org.openide.TopManager;
 
 import org.netbeans.modules.html.*;
 
@@ -47,7 +45,7 @@ import org.netbeans.modules.tasklist.core.TLUtils;
  * @author Tor Norbye
  */
 public class TidySuggester extends DocumentSuggestionProvider 
-    implements Report.ErrorReporter  {
+    implements ErrorReporter  {
 
     final private static String TYPE = "nb-html-errors"; // NOI18N
 
@@ -159,21 +157,22 @@ public class TidySuggester extends DocumentSuggestionProvider
             }
             
             if (tidy == null) {
-                tidy = new TidyRunner();
+                tidy = new Tidy();
             }
-            Configuration config = tidy.getConfiguration();
-            config.XmlTags = isXML;
+            tidy.setOnlyErrors(true);
+            tidy.setShowWarnings(true);
+            tidy.setQuiet(true);
+            tidy.setXmlTags(isXML);
 
-            try {
-                tidy.parse(input, System.out, this, false);
-            } catch (FileNotFoundException fnfe) {
-                ErrorManager.getDefault().notify(fnfe);
-            } catch (IOException ioe) {
-                ErrorManager.getDefault().notify(ioe);
-            }
+            PrintWriter output = new ReportWriter(this);
+            tidy.setErrout(output);
+            // Where do I direct its output? If it really obeys
+            // setQuiet(true) it shouldn't matter...
+            tidy.parse(input, System.err);
         }
         return parseTasks;
     }
+
     /**
       * Remove items added by {@link rescan}.
      * <p>
@@ -204,8 +203,10 @@ public class TidySuggester extends DocumentSuggestionProvider
                                                 message,
                                                 null,
                                                 this);
-        Line l = TLUtils.getLineByNumber(parseObject, line);
-        s.setLine(l);
+        if (line != -1) {
+            Line l = TLUtils.getLineByNumber(parseObject, line);
+            s.setLine(l);
+        }
         s.setPriority(SuggestionPriority.NORMAL);
         if (parseTasks == null) {
             parseTasks = new ArrayList(30);
@@ -215,5 +216,5 @@ public class TidySuggester extends DocumentSuggestionProvider
 
     private DataObject dataobject = null;
     private Document document = null;
-    private TidyRunner tidy = null;
+    private Tidy tidy = null;
 }

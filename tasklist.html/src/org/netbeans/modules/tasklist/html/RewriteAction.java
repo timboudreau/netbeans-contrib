@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -15,10 +15,6 @@ package org.netbeans.modules.tasklist.html;
 
 import java.awt.Component;
 import java.awt.Dialog;
-import java.util.List;
-import java.util.ArrayList;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import org.openide.text.Line;
 import org.openide.loaders.DataObject;
 import java.io.*;
@@ -28,12 +24,10 @@ import javax.swing.text.*;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.awt.Actions;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
-import org.openide.util.actions.CallableSystemAction;
 
 import org.netbeans.modules.html.*;
 import org.netbeans.api.diff.*;
@@ -46,12 +40,14 @@ import org.w3c.tidy.*;
 /**
  * Rewrite the document
  * <p>
+ * @todo Use a single button OK panel, not an OK/Cancel
+ * dialog for the preview dialog
  *
  * @author Tor Norbye
  */
 
 public class RewriteAction extends NodeAction 
-     implements Report.ErrorReporter  {
+     implements ErrorReporter  {
 
     public void reportError(int line, int col, boolean error, String message) {
         //System.err.println("reportError(" + line + ", " + col + ", " + error + ", " + message + ")");
@@ -72,7 +68,7 @@ public class RewriteAction extends NodeAction
         return true;
     }
 
-    private TidyRunner tidy = null;
+    private Tidy tidy = null;
 
     protected void performAction(Node[] node) {
         // Figure out which data object the node is associated
@@ -82,7 +78,6 @@ public class RewriteAction extends NodeAction
                // for example category nodes don't have Line objects)
                // (e.g. the suggestion manager would associate the
                // data object with the node)
-        SuggestionManager manager =  SuggestionManager.getDefault();
         Suggestion item = (Suggestion)TaskNode.getTask(node[0]);
         Line l = item.getLine();
         Document doc = TLUtils.getDocument(l);
@@ -106,19 +101,24 @@ public class RewriteAction extends NodeAction
 
         // Set configuration settings
         if (tidy == null) {
-            tidy = new TidyRunner();
+            tidy = new Tidy();
         }
-        Configuration config = tidy.getConfiguration();
-        config.XmlTags = isXML;
+        tidy.setOnlyErrors(false);
+        tidy.setShowWarnings(false);
+        tidy.setQuiet(true);
+        
+        tidy.setXmlTags(isXML);
 
         RewritePanel panel = new RewritePanel(this, doc, dobj);
-        panel.setXHTML(config.xHTML);
-        panel.setWrapCol(config.wraplen);
-        panel.setOmit(config.HideEndTags);
-        panel.setUpper(config.UpperCaseTags);
-        panel.setIndent(config.IndentContent);
-        panel.setReplace(config.MakeClean);
-        panel.setXML(config.XmlTags);
+        panel.setXHTML(tidy.getXHTML());
+
+        panel.setWrapCol(tidy.getWraplen());
+        panel.setOmit(tidy.getHideEndTags());
+        panel.setUpper(tidy.getUpperCaseTags());
+        panel.setIndent(tidy.getIndentContent());
+        panel.setReplace(tidy.getMakeClean());
+        panel.setXML(tidy.getXmlTags());
+
         DialogDescriptor d = new DialogDescriptor(panel,
                     NbBundle.getMessage(RewriteAction.class,
                     "TITLE_rewrite")); // NOI18N
@@ -132,13 +132,13 @@ public class RewriteAction extends NodeAction
             return;
         }
 
-        config.xHTML = panel.getXHTML();
-        config.MakeClean = panel.getReplace();
-        config.IndentContent = panel.getIndent();
-        config.SmartIndent = panel.getIndent();
-        config.UpperCaseTags = panel.getUpper();
-        config.HideEndTags = panel.getOmit();
-        config.wraplen = panel.getWrapCol();
+        tidy.setXHTML(panel.getXHTML());
+        tidy.setMakeClean(panel.getReplace());
+        tidy.setIndentContent(panel.getIndent());
+        tidy.setSmartIndent(panel.getIndent());
+        tidy.setUpperCaseTags(panel.getUpper());
+        tidy.setHideEndTags(panel.getOmit());
+        tidy.setWraplen(panel.getWrapCol());
 
         String rewritten = rewrite(doc);
 
@@ -171,26 +171,18 @@ public class RewriteAction extends NodeAction
         }
         StringBuffer sb = new StringBuffer(doc.getLength()+500);
         OutputStream output = new StringBufferOutputStream(sb);
-            
-        try {
-            tidy.parse(input, output, this, true);
-        } catch (FileNotFoundException fnfe) {
-            ErrorManager.getDefault().notify(fnfe);
-        } catch (IOException ioe) {
-            ErrorManager.getDefault().notify(ioe);
-        }
+        tidy.parse(input, output);
         return sb.toString();
     }
 
     void preview(RewritePanel panel, Document doc, DataObject dobj) {
-        Configuration config = tidy.getConfiguration();
-        config.xHTML = panel.getXHTML();
-        config.MakeClean = panel.getReplace();
-        config.IndentContent = panel.getIndent();
-        config.SmartIndent = panel.getIndent();
-        config.UpperCaseTags = panel.getUpper();
-        config.HideEndTags = panel.getOmit();
-        config.wraplen = panel.getWrapCol();
+        tidy.setXHTML(panel.getXHTML());
+        tidy.setMakeClean(panel.getReplace());
+        tidy.setIndentContent(panel.getIndent());
+        tidy.setSmartIndent(panel.getIndent());
+        tidy.setUpperCaseTags(panel.getUpper());
+        tidy.setHideEndTags(panel.getOmit());
+        tidy.setWraplen(panel.getWrapCol());
 
         String before;
         try {
