@@ -286,7 +286,7 @@ public class JellyGroup extends CVSStub {
         );
         assertConfirmObjectDeletionYes (null);
         
-        Text3.cvsGroupNode (TEST_GROUP);
+        Text2.cvsGroupNode (TEST_GROUP);
         waitNodeStatus (vgf.treeVCSGroupsTreeView(), TEST_GROUP + "|" + Text2.name (), "Needs Update", false);
         
         new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP).select (); // stabilization
