@@ -62,7 +62,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     return CONFIG_ROOT;
   }
   
-  private void readConfiguration () {
+  public void setConfigRoot(String s) {
+    CONFIG_ROOT = s;
+  }
+
+  protected void readConfiguration () {
     D.deb ("readConfiguration ()");
     CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
       "system"+File.separator+"vcs"+File.separator+"config";
@@ -92,6 +96,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
 
 /*
  * <<Log>>
+ *  52   Gandalf   1.51        12/28/99 Martin Entlicher Yury changes.
  *  51   Gandalf   1.50        12/21/99 Martin Entlicher Refresh time set after 
  *       mounting into the Repository.
  *  50   Gandalf   1.49        11/30/99 Martin Entlicher 
