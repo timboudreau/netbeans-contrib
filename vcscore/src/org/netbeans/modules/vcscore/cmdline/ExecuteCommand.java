@@ -799,6 +799,18 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
         }
         try {
+            if (checkForModification) {
+                // It's crucial to once more save any possibly modified objects
+                // after we have locked them.
+                List fileObjects = new ArrayList(processingFiles.size());
+                for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
+                    FileObject fo = fileSystem.findResource((String) it.next());
+                    if (fo != null) {
+                        fileObjects.add(fo);
+                    }
+                }
+                VcsAction.assureFilesSaved(fileObjects);
+            }
             if (first != null && (first.toLowerCase().endsWith(".class"))) {// NOI18N
                 String[] args = new String[allArgs.length - 1];
                 System.arraycopy(allArgs, 1, args, 0, args.length);

@@ -692,6 +692,8 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
      * @param fos the collection of FileObjects
      */
     public static void assureFilesSaved(Collection fos) {
+        DataObject[] modified = DataObject.getRegistry().getModified();
+        if (modified.length == 0) return ;
         Collection folders = new LinkedList();
         boolean wasSaved = false;
         for (Iterator it = fos.iterator(); it.hasNext(); ) {
@@ -719,7 +721,10 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
             }
         }
         if (!folders.isEmpty()) {
-            DataObject[] modified = DataObject.getRegistry().getModified();
+            if (wasSaved) {
+                // Somethig was saved, need to get the list of modified objects again.
+                modified = DataObject.getRegistry().getModified();
+            }
             for (int i = 0; i < modified.length; i++) {
                 DataObject dobj = modified[i];
                 SaveCookie sc = (SaveCookie) dobj.getCookie(SaveCookie.class);

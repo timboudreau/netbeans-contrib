@@ -3439,9 +3439,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         if (isLocked) {
-            IOException exc = new IOException("File "+name+" can be altered by a running VCS command, it's modification in the IDE is remporarily disabled."); //NOI18N
-            // It's necessary to define localized message separately, so that it's written to the Status bar !!!!!! See issue #9069.
-            throw (IOException) ErrorManager.getDefault().annotate(exc, NbBundle.getMessage (VcsFileSystem.class, "EXC_file_is_being_modified", name));
+            IOException exc = new IOException("File "+name+" can be altered by a running VCS command, it's modification in the IDE is remporarily disabled.") {
+                // It's necessary to define localized message separately, so that it's written to the Status bar !!!!!! See issue #9069.
+                public String getLocalizedMessage() {
+                    return NbBundle.getMessage (VcsFileSystem.class, "EXC_file_is_being_modified", name);
+                }
+            };
+            //exc = (IOException) ErrorManager.getDefault().annotate(exc, NbBundle.getMessage (VcsFileSystem.class, "EXC_file_is_being_modified", name));
+            throw exc;
         }
     }
 
