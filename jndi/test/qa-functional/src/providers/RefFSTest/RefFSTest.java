@@ -61,10 +61,9 @@ public class RefFSTest extends org.netbeans.junit.NbTestCase {
     public void printClipboardToRef () {
         try {
             String str = getStringFromClipboard();
-            str = replaceAll(str, "c:\\\\", "");
-            str = replaceAll(str, "\\", "/");
-//            str = replaceAll(str, "\"temp\"", "\"tmp\"");
-            str = replaceAll(str, getWorkDirPath(), "");
+            str = replaceAll(str, "\\\\", "/");
+            str = replaceAll(str, replaceAll (getWorkDirPath(), "\\", "/"), "");
+            str = replaceAll(str, "file:///", "file://");
             ref.println(str);
         } catch (IOException e) {
             ref.println("Clipboard error!");
