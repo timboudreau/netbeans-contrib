@@ -41,6 +41,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.SimpleBeanInfo;
 import javax.swing.JComponent;
+import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -313,6 +314,16 @@ public class ComponentGenerator {
             if (s.endsWith(", ")) return s.substring(0, s.length()-2);
             return s;
         }
+
+        public String getVisualizer() {
+            ComponentRecord cr=_parent;
+            while (cr!=null) {
+                if (cr._componentOperator instanceof TabOperator)
+                    return "        "+cr.getUniqueName()+"();\n";
+                cr=cr._parent;
+            }
+            return "";
+        }
         
         /** returns formated component code with given index, formating means replacing keywords with real values
          * @param i index into component's code set
@@ -423,6 +434,7 @@ public class ComponentGenerator {
             replace(sb, "__BIGLABEL__", toBigJavaID(internalLabel));
             replace(sb, "__PARENTGETTER__", getParentGetter());
             replace(sb, "__CONSTRUCTORARGS__", getConstructorArgs());
+            replace(sb, "__VISUALIZER__", getVisualizer());
             return sb.toString();
         }
         
@@ -665,7 +677,10 @@ public class ComponentGenerator {
         return (String[])a.toArray(new String[a.size()]);
     }
     
-    ComponentRecord addComponent( ComponentOperator componentOperator, ContainerOperator containerOperator, ComponentRecord parentComponent ) {
+    
+    
+    ComponentRecord addComponent(ComponentOperator componentOperator, ContainerOperator containerOperator, ComponentRecord parentComponent ) {
+        if (componentOperator instanceof TabOperator) ((TabOperator)componentOperator).selectTab();
         String className = componentOperator.getClass().getName();
         OperatorRecord operatorRecord = (OperatorRecord) operators.get( className.substring(className.lastIndexOf('.')+1,className.length()) );
         if ( null==operatorRecord ) return null;
@@ -729,14 +744,21 @@ public class ComponentGenerator {
         ComponentRecord record, parent;
         int i;
         while (queue.size()>0) {
-            component = (ComponentOperator)queue.remove(0);
-            parent = (ComponentRecord)parentQueue.remove(0);
+            component = (ComponentOperator)queue.remove(queue.size()-1);
+            parent = (ComponentRecord)parentQueue.remove(parentQueue.size()-1);
             if (component.isShowing()) {
                 record = addComponent(component, container, parent);
-                if ((record==null || record.getRecursion()) && (component instanceof ContainerOperator)) {
+                if (record!=null && (record.getComponentOperator() instanceof JTabbedPaneOperator)) {
+                    JTabbedPaneOperator tabp=(JTabbedPaneOperator)record.getComponentOperator();
+                    for (i=tabp.getTabCount()-1; i>=0; i--) {
+                        queue.add(queue.size(), new TabOperator(tabp, i));
+                        parentQueue.add(parentQueue.size(), record);
+                    }
+                } else if ((record==null || record.getRecursion()) && (component instanceof ContainerOperator)) {
                     if (record==null) record = parent;
+                    component.makeComponentVisible();
                     comps = ((ContainerOperator)component).getComponents();
-                    for (i=0; i<comps.length; i++) {
+                    for (i=comps.length-1; i>=0; i--) {
                         queue.add(Operator.createOperator(comps[i]));
                         parentQueue.add(record);
                     }
@@ -744,6 +766,29 @@ public class ComponentGenerator {
             }
         }
     }   
+    
+    private static class TabOperator extends ContainerOperator {
+        JTabbedPaneOperator tabPane;
+        int index;
+        public TabOperator(JTabbedPaneOperator tabPane, int index) {
+            super((Container)tabPane.getSource());
+            this.tabPane=tabPane;
+            this.index=index;
+        }
+        public TabOperator(ContainerOperator container, String identification, int index) {
+            super((Container)container.getSource());
+        }
+        public String getTabName() {
+            return tabPane.getTitleAt(index);
+        }
+        public Component[] getComponents() {
+            selectTab();
+            return tabPane.getComponents();
+        }
+        public void selectTab() {
+            tabPane.selectPage(index);
+        }            
+    }
     
     /** returns components code with given index merged from all subcomponents
      * @param i index into component code set
