@@ -61,8 +61,11 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="BUILT-IN" basic="false">
       <value></value>
     </variable>
+    <variable name="SERVERTYPE_LOCAL" basic="false">
+      <value>local</value>
+    </variable>
     <variable name="CVSROOT" basic="false">
-      <value>$[? SERVERTYPE] [:${SERVERTYPE}:][]$[? CVS_USERNAME] [${CVS_USERNAME}@] []$[? CVS_SERVER] [${CVS_SERVER}:] []${CVS_REPOSITORY}</value>
+      <value>$[? SERVERTYPE] [$[? SERVERTYPE - SERVERTYPE_LOCAL] [:${SERVERTYPE}:$[? CVS_USERNAME] [${CVS_USERNAME}@] []$[? CVS_SERVER] [${CVS_SERVER}:] []] []][]${CVS_REPOSITORY}</value>
     </variable>
     <variable name="CD" basic="false">
       <value if="IS_WINDOWS" unless="IS_WIN9X">cd /D</value>
