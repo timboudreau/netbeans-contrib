@@ -619,6 +619,9 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
         }
     }
 
+    // TODO eliminate this method and let SuggestionBroker use explict (unshared) list
+    // it's OK as sharing can be achieved by  providers that can cache results.
+    // List membership is lightweight structure that can be duplicated
     private SuggestionList getListByRequest(Object request) {
 
         SuggestionsBroker broker = SuggestionsBroker.getDefault();
