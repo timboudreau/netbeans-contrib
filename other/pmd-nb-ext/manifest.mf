@@ -1,6 +1,6 @@
 OpenIDE-Module: org.netbeans.modules.pmd.ext/1
-OpenIDE-Module-Specification-Version: 1.4
+OpenIDE-Module-Specification-Version: 1.5
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/pmd/Bundle.properties
 OpenIDE-Module-Install: org/netbeans/modules/pmd/PMDInstall.class
 OpenIDE-Module-Module-Dependencies: pmd > 0.90
-
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.17
