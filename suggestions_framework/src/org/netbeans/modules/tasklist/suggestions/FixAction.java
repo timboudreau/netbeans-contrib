@@ -101,7 +101,7 @@ public class FixAction extends NodeAction {
             
             boolean doConfirm = manager.isConfirm(item.getSType());
             Object confirmation = null;
-            if (doConfirm && !skipConfirm) {
+            if (doConfirm && !skipConfirm && performer.hasConfirmation()) {
                 confirmation = performer.getConfirmation(item);
             }
             if (confirmation != null) {
