@@ -164,6 +164,7 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
          */
         public void commandDone(VcsCommandExecutor vce) {
             VcsFileSystem fs = cpool.getFileSystemForExecutor(vce);
+            if (fs == null) return ; // The command probably does not exist any more
             if (VcsRuntimeCommandsProvider.this.fs == fs ||
                 VcsRuntimeCommandsProvider.this.equals(RuntimeCommandsProvider.findProvider(fs))) {
                 
