@@ -72,7 +72,23 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
      */    
     public AutoMountProvider initialize (MountSupport mSupport) {
         this.mountSupport = mSupport;
-        return this;
+        mountRegistered(FSRegistry.getDefault().getRegistered());
+        //return this;  TODO Return this to activate the auto-recognition
+        return null;
+    }
+    
+    private void mountRegistered(FSInfo[] infos) {
+        for (int i = 0; i < infos.length; i++) {
+            FSInfo fsInfo = infos[i];
+            FileSystem fs = fsInfo.getFileSystem();
+            try {
+                mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fs);
+                fsInfo.addPropertyChangeListener(VcsFSProvider.this);
+                mountedFSNotify(fs);
+            } catch (IOException ioex) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
+            }
+        }
     }
     
     /**

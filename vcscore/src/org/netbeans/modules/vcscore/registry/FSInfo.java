@@ -64,6 +64,13 @@ public interface FSInfo extends Serializable {
      */
     public FileSystem getFileSystem();
     
+    /**
+     * Destroy this filesystem info. This method is called when it's known
+     * that the FSInfo is no longer needed and will be discarded.
+     * This method should cleanup the filesystem, if necessary.
+     */
+    public void destroy();
+    
     public void addPropertyChangeListener(PropertyChangeListener l);
     
     public void removePropertyChangeListener(PropertyChangeListener l);

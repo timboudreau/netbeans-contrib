@@ -85,6 +85,7 @@ public class FSRegistry {
         }
         RecognizedFS.getDefault().removeRecognized(fsInfo);
         fireFSInfoChanged(fsInfo, false, propagationId);
+        fsInfo.destroy();
     }
     
     /**
