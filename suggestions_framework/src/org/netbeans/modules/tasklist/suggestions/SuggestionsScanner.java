@@ -324,6 +324,8 @@ public final class SuggestionsScanner implements Cancellable {
     /**
      * Scan content of selected top component and return results
      * as list instead of direct registering with manager.
+     *
+     * @return list (possibly empty)
      */
     final synchronized List scanTopComponent(TopComponent topComponent) {
         List ret = Collections.EMPTY_LIST;

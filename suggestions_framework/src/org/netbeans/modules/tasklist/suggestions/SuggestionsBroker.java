@@ -150,14 +150,16 @@ public final class SuggestionsBroker {
 
             TopComponent[] documents = SuggestionsScanner.openedTopComponents();
             SuggestionsScanner scanner = SuggestionsScanner.getDefault();
+            List allSuggestions = new LinkedList();
             for (int i = 0; i<documents.length; i++) {
                 DataObject dobj = extractDataObject(documents[i]);
                 if (dobj == null) continue;
                 FileObject fileObject = dobj.getPrimaryFile();
                 List suggestions = scanner.scanTopComponent(documents[i]);
                 openedFilesSuggestionsMap.put(fileObject, suggestions);
-                getAllOpenedSuggestionList().addRemove(suggestions, null, true, null, null);
+                allSuggestions.addAll(suggestions);
             }
+            getAllOpenedSuggestionList().addRemove(allSuggestions, null, true, null, null);
         }
         return new AllOpenedJob();
     }
