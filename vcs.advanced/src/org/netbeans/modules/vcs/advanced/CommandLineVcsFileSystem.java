@@ -72,6 +72,7 @@ public class CommandLineVcsFileSystem extends CvsFileSystem {
 
 /*
  * <<Log>>
+ *  47   Gandalf   1.46        10/25/99 Pavel Buzek     copyright
  *  46   Gandalf   1.45        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  45   Gandalf   1.44        10/10/99 Pavel Buzek     
@@ -124,6 +125,4 @@ public class CommandLineVcsFileSystem extends CvsFileSystem {
  *  1    Gandalf   1.0         4/15/99  Michal Fadljevic 
  * $
  */
-
-
 

@@ -300,6 +300,7 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  14   Gandalf   1.13        10/25/99 Pavel Buzek     copyright
  *  13   Gandalf   1.12        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  12   Gandalf   1.11        10/7/99  Pavel Buzek     

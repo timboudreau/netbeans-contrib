@@ -116,6 +116,7 @@ public class UserCommandsEditor implements PropertyEditor {
 
 /*
  * <<Log>>
+ *  12   Gandalf   1.11        10/25/99 Pavel Buzek     copyright
  *  11   Gandalf   1.10        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  10   Gandalf   1.9         9/30/99  Pavel Buzek     
