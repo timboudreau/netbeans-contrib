@@ -54,7 +54,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
                 return isEnabled;
             }
             
-            public Object invoke (Object obj, java.lang.reflect.Method method) {
+            public Object invoke (Object obj, java.lang.reflect.Method method, Object[] args) {
                 this.cnt++;
                 this.representedObject = obj;
                 this.method = method;
