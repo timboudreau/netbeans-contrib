@@ -180,18 +180,6 @@ public class JellyGroup extends JellyStub {
         closeAllVCSWindows(); // stabilization
         new VCSGroupsAction ().perform (); // stabilization
         vgf = new VCSGroupsFrameOperator (); // stabilization
-        addVCSGroup(vgf, "GroupToRemove");
-        new Node (vgf.treeVCSGroupsTreeView (), "GroupToRemove");
-
-        closeAllVCSWindows(); // stabilization
-        new VCSGroupsAction ().perform (); // stabilization
-        vgf = new VCSGroupsFrameOperator (); // stabilization
-        vgf.removeVCSGroup("GroupToRemove");
-        Helper.waitNoNode(vgf.treeVCSGroupsTreeView (), "", "GroupToRemove");
-
-        closeAllVCSWindows(); // stabilization
-        new VCSGroupsAction ().perform (); // stabilization
-        vgf = new VCSGroupsFrameOperator (); // stabilization
         addVCSGroup(vgf, "GroupToRename");
         new Node (vgf.treeVCSGroupsTreeView (), "GroupToRename");
 
@@ -201,6 +189,18 @@ public class JellyGroup extends JellyStub {
         vgf.renameVCSGroup("GroupToRename", "RenamedGroup");
         Helper.waitNoNode (vgf.treeVCSGroupsTreeView (), "", "GroupToRename");
         new Node (vgf.treeVCSGroupsTreeView (), "RenamedGroup");
+
+        closeAllVCSWindows(); // stabilization
+        new VCSGroupsAction ().perform (); // stabilization
+        vgf = new VCSGroupsFrameOperator (); // stabilization
+        addVCSGroup(vgf, "GroupToRemove");
+        new Node (vgf.treeVCSGroupsTreeView (), "GroupToRemove");
+
+        closeAllVCSWindows(); // stabilization
+        new VCSGroupsAction ().perform (); // stabilization
+        vgf = new VCSGroupsFrameOperator (); // stabilization
+        vgf.removeVCSGroup("GroupToRemove");
+        Helper.waitNoNode(vgf.treeVCSGroupsTreeView (), "", "GroupToRemove");
     }
 
     public void testAddToGroup () {
