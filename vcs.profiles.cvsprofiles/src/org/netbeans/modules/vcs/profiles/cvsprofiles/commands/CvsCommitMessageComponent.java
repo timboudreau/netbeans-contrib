@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.Hashtable;
 import java.io.*;
+import java.util.Map;
 
 /**
  * Implements VID.JCOMPONENT for commit message featuring
@@ -205,6 +206,13 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
         return NbBundle.getMessage(CvsCommitMessageComponent.class, key);
     }
 
+    public void updatedVars(Map variables) {
+        String message = (String) variables.get("message");
+        if (message != null) {
+            textArea.setText(message);
+        }
+    }
+    
     /** Asynchronously loads template from the server. */
     private class TemplateFetcher implements Runnable {
 

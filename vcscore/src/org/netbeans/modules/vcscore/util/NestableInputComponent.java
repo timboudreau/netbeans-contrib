@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore.util;
 
+import java.util.Map;
+
 /**
  * Defines contract that all embedded JCOMPONENTS must
  * implement. IT can be attached to multiple variables.
@@ -37,6 +39,12 @@ public interface NestableInputComponent {
      * @param variable name of variable in question
      */
     public String getValue(String variable);
+    
+    /**
+     * Called with the updated map of variables.
+     * @param variables The map of variable values by their names
+     */
+    public void updatedVars(Map variables);
 
     /**
      * Tests current value validity and for valid

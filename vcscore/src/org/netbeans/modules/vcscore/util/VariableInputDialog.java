@@ -127,6 +127,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private HashMap disabledComponents = new HashMap();
     /** The set of components, that were enabled or disabled since this field is initialized. */
     private Set lastEnabledComponents;
+    /** <code>null</code> or set of instances of NestableInputComponent that are nested in this dialog. */
+    private Set nestedComponents = null;
     private boolean propertyChangeFiringAllowed = true;
     private java.awt.Component firstFocusedComponent;
     /**
@@ -844,6 +846,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
         boolean hasDefaults = hasDefaults();
         asDefaultButton.setEnabled(hasDefaults);
         getDefaultButton.setEnabled(hasDefaults);
+        if (nestedComponents != null) {
+            for (Iterator it = nestedComponents.iterator(); it.hasNext(); ) {
+                NestableInputComponent nest = (NestableInputComponent) it.next();
+                nest.updatedVars(vars);
+            }
+        }
     }
 
     CommandExecutionContext getCommandExecutionContext() {
@@ -1046,6 +1054,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
         }
         if (propertyChangeEvents.size() > 0) {
             firePropertyChange(PROP_VARIABLES_CHANGED, null, propertyChangeEvents);
+        }
+        if (nestedComponents != null) {
+            for (Iterator it = nestedComponents.iterator(); it.hasNext(); ) {
+                NestableInputComponent nest = (NestableInputComponent) it.next();
+                nest.updatedVars(vars);
+            }
         }
     }
     
@@ -2365,6 +2379,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
         inputPanel.add(eggAsComponent, gridBagConstraints1);
         awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { eggAsComponent });
         componentsByVars.put(component.getVariable(), component);
+        if (nestedComponents == null) {
+            nestedComponents = new HashSet();
+        }
+        nestedComponents.add(embed);
 
         // OK button handler
         addActionToProcess(new ActionListener() {
