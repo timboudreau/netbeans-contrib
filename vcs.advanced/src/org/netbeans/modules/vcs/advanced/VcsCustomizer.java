@@ -923,18 +923,23 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if (selected == null) return;
         String configLabel = chooseFile.getSelectedConfigLabel();
         FileObject file = dir.getFileObject(selected, VariableIO.CONFIG_FILE_EXT);
+        boolean configExists = false;
         if (file == null) {
             try {
                 file = dir.createData(selected, VariableIO.CONFIG_FILE_EXT);
             } catch(IOException e) {
-                E.err("Can not create file '"+selected+"'");
+                TopManager.getDefault().notify(new NotifyDescriptor.Message(g("MSG_CanNotCreateFile", selected+"."+VariableIO.CONFIG_FILE_EXT)));
+                //E.err("Can not create file '"+selected+"'");
                 return;
             }
         } else {
             if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
-                TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (g("DLG_OverwriteSettings", file.getName()), NotifyDescriptor.Confirmation.YES_NO_OPTION)))) {
-                    return;
+                TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (g("DLG_OverwriteSettings", file.getName()),
+                                                 NotifyDescriptor.Confirmation.YES_NO_OPTION)))
+            ) {
+                return;
             }
+            configExists = true;
         }
         org.w3c.dom.Document doc = null;
         /*
@@ -951,7 +956,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         doc = org.openide.xml.XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, null, null);
         Vector variables = fileSystem.getVariables ();
         Node commands = fileSystem.getCommands();
-        if (configLabel == null) configLabel = selected;
+        if (configLabel == null || configLabel.length() == 0) configLabel = selected;
         //String label = selected;
         if (doc != null) {
             FileLock lock = null;
@@ -968,14 +973,21 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             } finally {
                 if (lock != null) lock.releaseLock();
             }
+            cache.put(configLabel, doc);
         } else {
             //VariableIOCompat.write (file, label, variables, advanced, fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ());
         }
-        promptForConfigComboChange = false;
         fileSystem.setConfig (configLabel);
         fileSystem.setConfigFileName(file.getNameExt());
-        updateConfigurations ();
-        promptForConfigComboChange = true;
+        if (!configExists) {
+            promptForConfigComboChange = false;
+            updateConfigurations ();
+            javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    promptForConfigComboChange = true;
+                }
+            });
+        }
         /*
           ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(fileSystem.getConfigRoot()), true);
           VcsUtilities.centerWindow (chooseFile);
@@ -1541,7 +1553,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
         if (configCombo.getItemCount() > 0)
             configCombo.setSelectedIndex( newIndex );
-        promptForConfigComboChange = false;
+        //System.out.println("updateConfigurations() finished, promptForConfigComboChange = "+promptForConfigComboChange);
+        //promptForConfigComboChange = false;
     }
     
     private void updateVariables (String label) {
