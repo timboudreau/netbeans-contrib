@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package org.netbeans.modules.tasklist.core;
+package org.netbeans.modules.tasklist.core; 
 
 
 import java.awt.BorderLayout;
@@ -38,6 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -129,8 +130,6 @@ public abstract class TaskListView extends ExplorerPanel
     
     public TaskListView(String category, String title, Image icon,
 			boolean persistent, TaskList tasklist) {
-	super();
-
         this.category = category;
 	setName(title);
 	this.persistent = persistent;
@@ -139,8 +138,6 @@ public abstract class TaskListView extends ExplorerPanel
             tasklist.setView(this);
         }
 	
-        //deletePerformer = new DeleteActionPerformer(this.getExplorerManager());
-        
 	setIcon(icon);
 
 	if (persistent) {
@@ -158,8 +155,10 @@ public abstract class TaskListView extends ExplorerPanel
 	}
     }
 
-    // override default ExplorerPanel behaviour.
-    // It was set by explorer manager with setName to "Explorer[<root name>]"
+    /**
+     * Override default ExplorerPanel behaviour.
+     * It was set by explorer manager with setName to "Explorer[<root name>]"
+     */
     protected void updateTitle() {
     }
     
@@ -193,14 +192,14 @@ public abstract class TaskListView extends ExplorerPanel
                 taskMarker = null;
             }
         }
-
     }
 
-    /** Called to indicate that a particular task should be hidden.
-	This typically means that the task was deleted so it should
-	no longer have any visual cues. The task referred to is the
-	most recent task passed to showTask.
-    */
+    /** 
+     * Called to indicate that a particular task should be hidden.
+     * This typically means that the task was deleted so it should
+     * no longer have any visual cues. The task referred to is the
+     * most recent task passed to showTask.
+     */
     public void hideTask() {
         if (taskMarker != null) {
             taskMarker.detach();
@@ -257,6 +256,10 @@ public abstract class TaskListView extends ExplorerPanel
 	}
 	initialized = true;
 	
+        FindAction find = (FindAction) FindAction.get(FindAction.class);
+        FilterAction filter = (FilterAction) FilterAction.get(FilterAction.class);
+        getActionMap().put(find.getActionMapKey(), filter);
+        
         setLayout(new BorderLayout());
         treeTable = new MyTreeTable();
         //treeTable.setProperties(createColumns());
@@ -301,7 +304,7 @@ public abstract class TaskListView extends ExplorerPanel
 	// Populate the view
 	showList();
 
-        installJumpActions(true);
+        installJumpActions();
     }
 
 
@@ -315,7 +318,7 @@ public abstract class TaskListView extends ExplorerPanel
             removedTask(unshowItem);
         }
         
-	// Unregister listeners
+	// Unregister listeners 
         unregisterListeners();
     }
 
@@ -404,7 +407,6 @@ public abstract class TaskListView extends ExplorerPanel
     // Workaround - is this no longer necessary?
     protected static class MyTreeTable extends TreeTableView {
         MyTreeTable() {
-            super();
             JTable table = MyTreeTable.this.treeTable;
             table.setShowHorizontalLines(true);
             table.setShowVerticalLines(false);
@@ -538,7 +540,6 @@ public abstract class TaskListView extends ExplorerPanel
 	int ver = objectInput.read();
         //assert ver <= 3 : "serialization version incorrect; should be 1, 2 or 3";
 
-
 	// Read in the UID of the currently selected task, or null if none
 	String selUID = (String)objectInput.readObject();
 	 // Unused: Not yet implemented
@@ -639,8 +640,6 @@ public abstract class TaskListView extends ExplorerPanel
 	    }
 	    views.put(category, this);
 	}
-        
-        //deletePerformer = new DeleteActionPerformer(this.getExplorerManager());
     }
 
     /** Write out relevant settings in the window (visible
@@ -840,7 +839,8 @@ public abstract class TaskListView extends ExplorerPanel
     
     /** Expand nodes and select the particular todo item, IF the todolist
      *  view is showing
-     * @param item The item to be shown */
+     * @param item The item to be shown 
+     */
     public void select(final Task item) {
         // Expand nodes to show the given item
 
@@ -979,7 +979,7 @@ public abstract class TaskListView extends ExplorerPanel
         }
 	open(workspace);
 	requestVisible();
-        requestFocus();
+        requestFocus(); 
     }
 
     
@@ -1201,29 +1201,10 @@ public abstract class TaskListView extends ExplorerPanel
     
     public void componentActivated() {
         super.componentActivated();
-        FindAction find = (FindAction)FindAction.get(FindAction.class);
-        FilterAction filter = (FilterAction)FilterAction.get(FilterAction.class);
-        find.setActionPerformer(filter);
-        
-        /*
-        DeleteAction delete = (DeleteAction) DeleteAction.get(DeleteAction.class);
-        delete.setActionPerformer(deletePerformer);
-
-        */
-
-        installJumpActions(true);
     } 
     
     public void componentDectivated() {
         super.componentDeactivated();
-        
-        FindAction find = (FindAction)FindAction.get(FindAction.class);
-        find.setActionPerformer(null);
-
-        /*
-        DeleteAction delete = (DeleteAction) DeleteAction.get(DeleteAction.class);
-        delete.setActionPerformer(null);
-        */
     }
     
     private JPanel filterPanel = null;
@@ -1316,14 +1297,19 @@ public abstract class TaskListView extends ExplorerPanel
         return nodes;
     }
 
-    /** Assign the Next/Previous build actions to point to the
-     * task window */
-    void installJumpActions(boolean install) {
+    /** 
+     * Assign the Next/Previous build actions to point to the
+     * task window 
+     */
+    private void installJumpActions() {
         // TODO - only install if the list is non empty (and call
         // this method from SMI when the list becomes non-empty)
         // In other words, the next action button shouldn't light
         // up when there are no tasks to move to.
 
+        Class nextActionClz = null;
+        Class prevActionClz = null;
+        
         // Make F12 jump to next task
         if (nextActionClz == null) {
             if (lookupAttempted) {
@@ -1347,37 +1333,23 @@ public abstract class TaskListView extends ExplorerPanel
             (CallbackSystemAction)SystemAction.get(nextActionClz);
         CallbackSystemAction previousAction = 
             (CallbackSystemAction)SystemAction.get(prevActionClz);
-        if (install) {
-            nextAction.setActionPerformer(jumpPerformer);
-            previousAction.setActionPerformer(jumpPerformer);        
-        } else {
-            nextAction.setActionPerformer(null);
-            previousAction.setActionPerformer(null);        
-        }
+        getActionMap().put(nextAction.getActionMapKey(), 
+            new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    nextTask();
+                }
+            }
+        );
+        getActionMap().put(previousAction.getActionMapKey(), 
+            new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    prevTask();
+                }
+            }
+        );
     }
 
-    private JumpActionPerformer jumpPerformer = new JumpActionPerformer();
-    private Class nextActionClz = null;
-    private Class prevActionClz = null;
     private boolean lookupAttempted = false;
-
-    final class JumpActionPerformer implements ActionPerformer {
-
-        /** Performer for actions */
-        public void performAction(final SystemAction action) {            
-            invokeLater(new Runnable() {
-		    public void run() {
-                        if (nextActionClz.isInstance(action)) {
-			    // Traditionally bound to F12
-                            nextTask();
-			} else if (prevActionClz.isInstance(action)) {
-                            prevTask();
-			}
-                        // updateNextPrevActions();
-		    }
-		});
-        }
-    }
 
     private static void invokeLater(Runnable runnable) {
 	if (SwingUtilities.isEventDispatchThread()) {
@@ -1461,7 +1433,11 @@ public abstract class TaskListView extends ExplorerPanel
         }
     }
 
-    /** Return an editor annotation to use to show the given task */
+    /** 
+     * Return an editor annotation to use to show the given task 
+     *
+     * @return created annotation or null
+     */
     protected TaskAnnotation getAnnotation(Task task) {
         // Make sure the editor is here and providing the annotation type
         FileObject f = Repository.getDefault().getDefaultFileSystem().
@@ -1473,9 +1449,11 @@ public abstract class TaskListView extends ExplorerPanel
     }
 
 
-    /** @return The currently selected task in the view,
-      or if none, the first task (or null, if there are
-      no tasks */
+    /** 
+     * @return The currently selected task in the view,
+     * or if none, the first task (or null, if there are
+     * no tasks 
+     */
     private Task getCurrentTask() {
         Node[] node = getExplorerManager().getSelectedNodes();
         if ((node != null) && (node.length > 0)) {
@@ -1501,11 +1479,9 @@ public abstract class TaskListView extends ExplorerPanel
         //    installJumpActions(false);
     }
 
-    protected void componentShowning() {
+    protected void componentShowing() {
         // Listen for node activation
         getExplorerManager().addPropertyChangeListener(this);	    
-        
-        installJumpActions(true);
     }
 
     public void propertyChange(PropertyChangeEvent ev) {

@@ -21,11 +21,13 @@ import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import javax.swing.text.*;
 
-/** Various utility methods shared by the various tasklist related modules
+/** 
+ * Various utility methods shared by the various tasklist related modules
  *
  ** TODO - use this method everywhere!!!
  *
- * @author Tor Norbye */
+ * @author Tor Norbye 
+ */
 public final class TLUtils {
 
     /** Return the Line object for a particular line in a file
