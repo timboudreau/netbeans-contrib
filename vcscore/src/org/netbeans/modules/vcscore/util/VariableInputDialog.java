@@ -125,6 +125,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     private HashMap awtComponentsByVars = new HashMap();
     private HashMap componentsByVars = new HashMap();
+    private HashMap awtSelectorsByConditions = new HashMap();
     /** The map of disabled components as keys and a set of variables
      *  that disabled them as values. */
     private HashMap disabledComponents = new HashMap();
@@ -150,6 +151,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private boolean rapidVariablesAssignment = false;
     private VariableInputComponent componentBeingRapidlyAssigned = null;
     private Object componentBeingRapidlyAssignedLock = new Object();
+    
+    private boolean dynamicVarChanges = false;
     
     static final long serialVersionUID = 8363935602008486018L;
     
@@ -188,11 +191,33 @@ public class VariableInputDialog extends javax.swing.JPanel {
      */
     public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor,
                                boolean expert, Hashtable vars, boolean rapidVariablesAssignment) {
+        this(files, inputDescriptor, expert, vars, rapidVariablesAssignment, false);
+    }
+    
+    /** Creates new form VariableInputDialog. This JPanel should be used
+     * with DialogDescriptor to get the whole dialog.
+     * @param files the files to get the input for
+     * @param inputDescriptor the input descriptor
+     * @param expert the expert mode
+     * @param vars the filesystem variables
+     * @param rapidVariablesAssignment If true, assign the variable values as soon as possible,
+     *        even before the user has finished explicitely the input (by focus lost, etc.).
+     *        Currently this makes any difference only for textfields, which listen on key typed
+     *        events and update the variables immediately.
+     * @param dynamicVarChanges Whether the variables might be updated via {@link #updateVariableValues}
+     *        method. The components will count with the possibility that the variable values
+     *        can change and therefore a more "interactive" mode will be set.
+     *
+     */
+    public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor,
+                               boolean expert, Hashtable vars, boolean rapidVariablesAssignment,
+                               boolean dynamicVarChanges) {
         this.rapidVariablesAssignment = rapidVariablesAssignment;
         initComponents();
         this.inputDescriptor = inputDescriptor;
         this.expert = expert;
         this.vars = vars;
+        this.dynamicVarChanges = dynamicVarChanges;
         if(inputDescriptor != null)
             setAutoFillVars(inputDescriptor.getAutoFillVars());
         firstFocusedComponent = initComponentsFromDescriptor(inputDescriptor, variablePanel);
@@ -722,8 +747,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     /**
      * Use this method to supply new variable values to the components.
+     * If you gonna call this method, you should create this object via
+     * the constructor with "dynamicVarChanges" field, where you should
+     * pass "true". Otherwise some components might not be updated correctly.
      */
     public void updateVariableValues(Hashtable vars) {
+        if (!dynamicVarChanges) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,
+                new IllegalStateException("updateVariableValues() called in non-dynamic mode. Read Javadoc for more details on how to fix this.")); // NOI18N
+        }
         updateVariableValues(vars, true);
     }
     
@@ -861,6 +893,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     }
                 }
             }
+        }
+        for (Iterator it = awtSelectorsByConditions.keySet().iterator(); it.hasNext(); ) {
+            String[] selectorVarConditions = (String[]) it.next();
+            java.awt.Component selectorComponent = (Component) awtSelectorsByConditions.get(selectorVarConditions);
+            selectorComponent.setEnabled(VariableInputComponent.isVarConditionMatch(selectorVarConditions, vars));
         }
         if (resetVars) this.vars = vars;
         for (Iterator it = eventsToAdjust.iterator(); it.hasNext(); ) {
@@ -1135,7 +1172,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         if (!password) VcsUtilities.removeEnterFromKeymap(field);
         String selector = component.getSelector();
         //System.out.println("Match selector '"+selector+"': ("+component.getSelectorVarConditions()[0]+", "+component.getSelectorVarConditions()[1]+")"+VariableInputComponent.isVarConditionMatch(component.getSelectorVarConditions(), vars));
-        if (selector != null &&
+        if (selector != null && !dynamicVarChanges &&
             !VariableInputComponent.isVarConditionMatch(component.getSelectorVarConditions(), vars)
         ) {
             selector = null;
@@ -1180,7 +1217,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
                                            selector.substring(VariableInputDescriptor.SELECTOR_CMD.length()), l,
                                            component.getVariable());
             }
-            if (awtComponent != null) componentList.add(awtComponent);
+            if (awtComponent != null) {
+                if (dynamicVarChanges) {
+                    awtSelectorsByConditions.put(component.getSelectorVarConditions(), awtComponent);
+                }
+                componentList.add(awtComponent);
+            }
         }
         awtComponentsByVars.put(component.getVariable(), componentList.toArray(new java.awt.Component[0]));
         componentsByVars.put(component.getVariable(), component);

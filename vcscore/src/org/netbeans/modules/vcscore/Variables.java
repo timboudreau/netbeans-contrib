@@ -14,7 +14,12 @@
 package org.netbeans.modules.vcscore;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 import org.openide.ErrorManager;
 
@@ -200,11 +205,11 @@ public class Variables {
     /** Expand all occurences of <code>${<variable name>}</code> repeatetively.
      * Expand also conditionals like <code>$[? <variable name>] [<when var is non-empty>]
      * [<when var is empty>]<code>.
-     * @param tab Hashtable holding (String)VARIABLE, (String)VALUE pairs
+     * @param tab a map holding (String)VARIABLE, (String)VALUE pairs
      * @param cmd Command with <code>${VAR}</code> sequences
      * @return String with all variables expanded
      */
-    public static String expand(Hashtable tab, String cmd, boolean warnUndefVars) {
+    public static String expand(Map tab, String cmd, boolean warnUndefVars) {
         StringBuffer result = new StringBuffer();
         int begin = 0;
         int end;
@@ -266,7 +271,7 @@ public class Variables {
         return result.toString();
     }
     
-    public static String expandVariable(Hashtable tab, String name, boolean warnUndefVars) {
+    public static String expandVariable(Map tab, String name, boolean warnUndefVars) {
         String value = (String) tab.get(name);
         char replC1 = (char) -1;
         char replC2 = (char) -1;
@@ -322,7 +327,7 @@ public class Variables {
         else return value1.substring(0, index);
     }
     
-    private static String expandConditional(Hashtable tab, String cmd, boolean warnUndefVars,
+    private static String expandConditional(Map tab, String cmd, boolean warnUndefVars,
                                            int[] expandEnd) {
         expandEnd[0] = -1;
         if (!cmd.startsWith("$[?")) return null;
@@ -389,7 +394,7 @@ public class Variables {
      * @param cmd Command with <code>${VAR}</code> sequences
      * @return String with variables expanded
      */
-    public static String expandFast(Hashtable tab, String cmd, boolean warnUndefVars) {
+    public static String expandFast(Map tab, String cmd, boolean warnUndefVars) {
         String cmd_cond = ""; // NOI18N
         //this.warnUndefVars = warnUndefVars;
         boolean expanded = false;
@@ -398,7 +403,7 @@ public class Variables {
         return VcsUtilities.replaceBackslashDollars( cmd );
     }
 
-    public static String expandConditional (Hashtable tab, String cmd, boolean warnUndefVars) {
+    public static String expandConditional (Map tab, String cmd, boolean warnUndefVars) {
         int index = 0;
         int size = cmd.length();
         int begin = 0;
@@ -521,7 +526,7 @@ public class Variables {
      * @param cmd Command in which ${VAR} sequences
      * @return String with all variables expanded
      */
-    public static String expandOnce(Hashtable tab, String cmd, boolean warnUndefVars) {
+    public static String expandOnce(Map tab, String cmd, boolean warnUndefVars) {
         int index=0;
         int size=cmd.length();
         int begin=0,end=0,nextBegin=0;
@@ -576,7 +581,7 @@ public class Variables {
      * @param cmd Command in which ${VAR} sequences
      * @return String with all known variables expanded
      */
-    public static String expandKnownOnly(Hashtable tab, String cmd) {
+    public static String expandKnownOnly(Map tab, String cmd) {
         int index=0;
         int size=cmd.length();
         int begin=0,end=0,nextBegin=0;
@@ -627,7 +632,7 @@ public class Variables {
      * @param tab The table holding (String)VARIABLE=(String)VALUE pairs
      * @param name The variable name or expression to evaluate
      */
-    private static String getReplaceVarValue(Hashtable tab, String name) {
+    private static String getReplaceVarValue(Map tab, String name) {
         if (name == null) return null;
         String value = (String) tab.get(name);
         if (value == null) {
@@ -649,7 +654,7 @@ public class Variables {
      * @param tab The table holding (String)VARIABLE=(String)VALUE pairs
      * @param name The variable name or expression to evaluate
      */
-    private static String getVarValue(Hashtable tab, String name) {
+    private static String getVarValue(Map tab, String name) {
         int substr;
         int begin = 0;
         String value = getReplaceVarValue(tab, name);

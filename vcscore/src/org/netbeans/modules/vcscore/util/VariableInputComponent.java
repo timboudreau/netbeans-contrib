@@ -16,6 +16,8 @@ package org.netbeans.modules.vcscore.util;
 import java.awt.Dimension;
 import java.util.*;
 
+import org.netbeans.modules.vcscore.Variables;
+
 /**
  * The representation of component for variable input.
  * @author  Martin Entlicher
@@ -89,10 +91,12 @@ public class VariableInputComponent extends Object {
         if (vars == null) return true;
         if (varConditions[0] != null) {
             String var = (String) vars.get(varConditions[0]);
+            if (var != null) var = Variables.expand(vars, var, false);
             is &= (var == null || var.length() == 0);
         }
         if (varConditions[1] != null) {
             String var = (String) vars.get(varConditions[1]);
+            if (var != null) var = Variables.expand(vars, var, false);
             is &= (var != null && var.length() > 0);
         }
         return is;

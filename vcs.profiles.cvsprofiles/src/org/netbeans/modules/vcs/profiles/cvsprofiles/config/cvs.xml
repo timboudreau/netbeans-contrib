@@ -239,12 +239,18 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="PSERVER_VALUE" basic="false">
       <value>pserver</value>
     </variable>
+    <variable name="LOCAL_VALUE" basic="false">
+      <value>local</value>
+    </variable>
     <variable name="REVISION_OPERATION_IDENT" basic="false">
       <value>R</value>
     </variable>
     <variable name="1" basic="false">
       <value>1</value>
-    </variable>    
+    </variable>
+    <variable name="IS_LOCAL_METHOD" basic="false">
+      <value>$[? SERVERTYPE-LOCAL_VALUE] [] [true]</value>
+    </variable>
     <variable name="GLOBAL_INPUT_DESCRIPTOR" basic="false">
       <value>LABEL(ResourceMsg(CVS_OPTIONS_GLOBAL_Label),
                 ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_Label)))
@@ -303,7 +309,7 @@ Microsystems, Inc. All Rights Reserved.
                         ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_User);;MNEMONIC_ResourceMsg(VAR_User_Mnemonic)))
              PROMPT_FOR(CVS_REPOSITORY, "ResourceMsg(VAR_Repository):", "",
                         ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_Repository);;MNEMONIC_ResourceMsg(VAR_Repository_Mnemonic)),
-                        SELECTOR_DIR)
+                        IF_VAR_NON_EMPTY"IS_LOCAL_METHOD"_SELECTOR_DIR)
              SELECT_RADIO(BUILT-IN, "", "", ["ResourceMsg(VAR_BuiltIn_true)", "true", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_true);;MNEMONIC_ResourceMsg(VAR_BuiltIn_true_Mnemonic))"],
                                             ["ResourceMsg(VAR_BuiltIn_false)", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_false);;MNEMONIC_ResourceMsg(VAR_BuiltIn_false_Mnemonic))",
                  PROMPT_FOR(CVS_EXE, "ResourceMsg(VAR_EXE):", "",
@@ -338,7 +344,7 @@ Microsystems, Inc. All Rights Reserved.
                         ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_User);;MNEMONIC_ResourceMsg(VAR_User_Mnemonic)))
              PROMPT_FOR(CVS_REPOSITORY, "ResourceMsg(VAR_Repository):", "",
                         ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_Repository);;MNEMONIC_ResourceMsg(VAR_Repository_Mnemonic)),
-                        VALIDATOR_NON_EMPTY, SELECTOR_DIR)
+                        VALIDATOR_NON_EMPTY, IF_VAR_NON_EMPTY"IS_LOCAL_METHOD"_SELECTOR_DIR)
              SELECT_RADIO(BUILT-IN, "", "", ["ResourceMsg(VAR_BuiltIn_true)", "true", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_true);;MNEMONIC_ResourceMsg(VAR_Wiz_BuiltIn_true_Mnemonic))"],
                                             ["ResourceMsg(VAR_BuiltIn_false)", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_false);;MNEMONIC_ResourceMsg(VAR_BuiltIn_false_Mnemonic))",
                  PROMPT_FOR(CVS_EXE, "ResourceMsg(VAR_EXE):", "",
