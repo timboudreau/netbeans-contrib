@@ -473,7 +473,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
 
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         in.defaultReadObject();
-        loadCurrentConfig();
+        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                loadCurrentConfig();
+            }
+        });
     }
     
     private void writeObject(ObjectOutputStream out) throws IOException {
