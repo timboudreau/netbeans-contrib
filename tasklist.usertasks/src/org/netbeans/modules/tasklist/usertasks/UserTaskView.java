@@ -101,6 +101,12 @@ public class UserTaskView extends TaskListView implements TaskListener {
         return SystemAction.linkActions (sa, todoActions);
     }
     
+    public void componentActivated() {
+        super.componentActivated();
+        UserTaskList utl = (UserTaskList) this.tasklist;
+        ((UserTask) utl.getRoot()).updateLineNumberRecursively();        
+    }
+    
     /** Read in a serialized version of the tasklist
      * and reads in sorting preferences etc. such that
      * we use the same preferences now.
