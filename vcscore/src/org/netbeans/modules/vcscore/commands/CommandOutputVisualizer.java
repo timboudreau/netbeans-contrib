@@ -62,10 +62,12 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
     private static final long serialVersionUID = -8901790341334731237L;
     
     public CommandOutputVisualizer() {
-        outputPanel = createOutputPanel();
-        putClientProperty("PersistenceType", "Never");
-
+        outputPanel = createOutputPanel();      
         initComponents();
+    }
+    
+    public int getPersistenceType() {
+        return TopComponent.PERSISTENCE_NEVER;
     }
     
     public CommandOutputVisualizer(java.awt.event.ActionListener killListener, String execString, String name) {
