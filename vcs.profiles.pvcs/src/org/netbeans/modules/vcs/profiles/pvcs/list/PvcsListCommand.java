@@ -18,9 +18,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-//import java.util.*;
-//import java.beans.*;
-//import java.text.*;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.util.*;
@@ -48,18 +45,6 @@ public class PvcsListCommand extends AbstractListCommand {
     private Map archivesByNames;
     private Map workFilesByNames;
     
-    //private String rootDir=null;
-    //private String pvcsRoot=null;
-    
-    /*
-    //private String configFile=null;
-    //private String cmd=null;
-    private StringBuffer dataBuffer=new StringBuffer(4096);
-    //private static final String[] archiveFiles = {"*-arc","*.??v"};
-    private static final String workFile = "Workfile:";
-    private static final String locks = "Locks:";
-    private static final String locksSeparator = " : ";
-     */
     private static final String ENTITY_TYPE = "EntityType="; // NOI18N
     private static final String ENTITY_PROJECT = "Project"; // NOI18N
     private static final String ENTITY_VERSIONED_FILE = "VersionedFile"; // NOI18N
@@ -120,7 +105,7 @@ public class PvcsListCommand extends AbstractListCommand {
 
 
     /**
-     * List files of StarTeam Repository.
+     * List files of PVCS project.
      * @param vars Variables used by the command
      * @param args Command-line arguments
      * filesByName listing of files with statuses
@@ -161,8 +146,6 @@ public class PvcsListCommand extends AbstractListCommand {
         } catch (InterruptedException iexc) {
             return false;
         }
-        //fillHashtable(filesByName);
-        //addDirs(filesByName);
         if (fileStatuses != null) filesByName.put(fileStatuses[0], fileStatuses);
         findFilesStatus(filesByName, diffCmd, vars);
         if (stdoutListener != null) {
@@ -173,65 +156,12 @@ public class PvcsListCommand extends AbstractListCommand {
         return filesByName.size() > 0 || !shouldFail;
     }
 
-    /*
-    private void fillHashtable(Hashtable filesByName) {
-        String data=new String(dataBuffer);
-        int pos=0;
-        int index=0;
-        while((index = data.indexOf(workFile, pos)) >= 0) {
-            index += workFile.length();
-            int nextIndex = data.indexOf('\n', index);
-            if (nextIndex < 0) nextIndex = data.length();
-            String name = data.substring(index, nextIndex).trim();
-            index = data.indexOf(locks, nextIndex);
-            if (index < 0) break;
-            index += locks.length();
-            nextIndex = data.indexOf('\n', index);
-            if (nextIndex < 0) nextIndex = data.length();
-            String lock = data.substring(index, nextIndex).trim();
-            int revIndex = lock.indexOf(locksSeparator);
-            String revision = "";
-            if (revIndex > 0) {
-                revision = lock.substring(revIndex + locksSeparator.length());
-                lock = lock.substring(0, revIndex);
-            }
-            String[] fileStatuses = new String[4];
-            fileStatuses[0] = name;
-            fileStatuses[1] = missingStatus;
-            fileStatuses[2] = lock;
-            fileStatuses[3] = revision;
-            filesByName.put(name, fileStatuses);
-            pos = nextIndex;
-        }
-    }
-     */
-
     //-------------------------------------------
     /**
      * Add directories from archive with status "Missing" and check for files and directories
      * in the working directory, if they are present, change the status to "Current".
      */
     private void addDirs(Hashtable filesByName) {
-        /*
-        File d = new File(pvcsRoot);
-        File[] files = d.listFiles();
-        if (files != null) {
-            for(int i=0;i<files.length;i++){
-                String[] fileStatuses = new String[4];
-                fileStatuses[1] = missingStatus;
-                fileStatuses[2] = "";
-                fileStatuses[3] = "";
-                File file=files[i];
-                if (file.isDirectory()) {
-                    String fileName = file.getName()+"/"; // NOI18N
-                    if(filesByName.get(fileName) == null) {
-                        fileStatuses[0] = fileName;
-                        filesByName.put(fileName, fileStatuses);
-                    }
-                }
-            }
-        }
-         */
         File d = new File(dir);
         File[] files = d.listFiles();
         if (files != null) {
@@ -277,7 +207,6 @@ public class PvcsListCommand extends AbstractListCommand {
     /** Called with the line of LIST command output */
     public void outputData(String[] elements) {
         D.deb("match("+elements[0]+")"); // NOI18N
-        System.out.println("match("+elements[0]+")");
         if (elements[0] != null) {
             if (pathToSkip.equals(elements[0])) skipNextName = true;
             if (elements[0].startsWith(ENTITY_TYPE)) {
@@ -327,7 +256,6 @@ public class PvcsListCommand extends AbstractListCommand {
                 fileStatuses[4] = (String) archivesByNames.get(fileStatuses[0]);
             }
         }
-        //dataBuffer.append(elements[0]+"\n");
     }
 
 }
