@@ -360,21 +360,51 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="DO_CHECKOUT" basic="false">
       <value></value>
     </variable>  
+    <variable name="INITIAL_CO_MODULE" basic="false">
+      <value>.</value>
+    </variable>  
+    <variable name="INITIAL_CO_TAG" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_DATE" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_FORCE_HEAD_MATCH" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_PRUNE_EMPTY" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_RUN_MODULE_PROGRAM" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_RCS_KFLAG" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_DIRECTORY" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_DO_NOT_SHORTEN" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_RECURSIVE" basic="false">
+      <value></value>
+    </variable>  
     <variable name="WIZARD_INPUT_DESCRIPTOR1" basic="false">      
       <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Label)))
                  HELP_ID(vcsgeneric.profile.cvs.checkout)
                  
-                 SELECT_RADIO(CO_ALL, "", ".", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_All)", ".", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_All);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_All_Mnemonic))"],
+                 SELECT_RADIO(INITIAL_CO_MODULE, "", ".", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_All)", ".", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_All);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_All_Mnemonic))"],
                                             ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Module)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Module);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Module_mnc))",PROMPT_FOR(CO_MODULE, "", ${MPATHS_\/},SELECTOR_CMD_SELECTOR_MODULES)])
-                 PROMPT_FOR(TAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Tag), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Tag);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Tag_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
-                 PROMPT_FOR(DATE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Date), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Date);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Date_mnc)) ,SELECTOR_DATE_CVS)
-                 ASK_FOR(FORCE_HEAD_MATCH, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Force_Head_Match), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Force_Head_Match);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Force_Head_Match_mnc)) ,"-f", "")
-                 ASK_FOR(PRUNE_EMPTY, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Prune_Empty), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Prune_Empty);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Prune_Empty_mnc)), "-P", "")
-                 ASK_FOR(RUN_MODULE_PROGRAM, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Run_Module_Program), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Run_Module_Program);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_Run_Module_Program_mnc)), "", "-n")
-                 SELECT_COMBO(RCS_KFLAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Keyword_Substitution_mnc)), ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_None)", ""], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
-                 PROMPT_FOR(DIRECTORY, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Directory), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Directory);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Directory_Adv_mnc)) ,SELECTOR_DIR)
-                 ASK_FOR(DO_NOT_SHORTEN, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Do_Not_Shorten_Paths), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Do_Not_Shorten_Paths);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Do_Not_Shorten_Paths_mnc)),"-N", "")                 
-                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Recursive_mnc)) ,"-R", "-l")
+                 PROMPT_FOR(INITIAL_CO_TAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Tag), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Tag);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Tag_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
+                 PROMPT_FOR(INITIAL_CO_DATE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Date), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Date);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Date_mnc)) ,SELECTOR_DATE_CVS)
+                 ASK_FOR(INITIAL_CO_FORCE_HEAD_MATCH, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Force_Head_Match), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Force_Head_Match);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Force_Head_Match_mnc)) ,"-f", "")
+                 ASK_FOR(INITIAL_CO_PRUNE_EMPTY, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Prune_Empty), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Prune_Empty);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Prune_Empty_mnc)), "-P", "")
+                 ASK_FOR(INITIAL_CO_RUN_MODULE_PROGRAM, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Run_Module_Program), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Run_Module_Program);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_Run_Module_Program_mnc)), "", "-n")
+                 SELECT_COMBO(INITIAL_CO_RCS_KFLAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Keyword_Substitution_mnc)), ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_None)", ""], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
+                 PROMPT_FOR(INITIAL_CO_DIRECTORY, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Directory), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Directory);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Directory_Adv_mnc)) ,SELECTOR_DIR)
+                 ASK_FOR(INITIAL_CO_DO_NOT_SHORTEN, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Do_Not_Shorten_Paths), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Do_Not_Shorten_Paths);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Do_Not_Shorten_Paths_mnc)),"-N", "")                 
+                 IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR(INITIAL_CO_RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Recursive_mnc)) ,"-R", "-l")
         </value>
     </variable>
     <variable name="LOGGED_IN_TEXT">
@@ -384,7 +414,7 @@ Microsystems, Inc. All Rights Reserved.
       <value></value>
     </variable>
     <variable name="AUTO_EXEC"> <!-- executed after filesystem instantiation if defined -->
-      <value>$[? DO_CHECKOUT][CHECKOUT][]</value>
+      <value>$[? DO_CHECKOUT][INITIAL_CHECKOUT][]</value>
     </variable>
   </variables>
   <commands>
@@ -1571,7 +1601,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_COMMAND">
 	<property name="exec">
-	  <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}</value>          
+	  <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}</value>
 	</property>
 	<property name="display">
 	  <value>true</value>
@@ -1621,6 +1651,76 @@ Microsystems, Inc. All Rights Reserved.
                  ASK_FOR_EXPERT(DO_NOT_SHORTEN, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Do_Not_Shorten_Paths), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Do_Not_Shorten_Paths);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Do_Not_Shorten_Paths_mnc)),"-N", "")
                  IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Recursive_mnc)) ,"-R", "-l")
           </value>
+	</property>
+	<property name="data.fileName.index">
+	  <value>0</value>
+	</property>
+	<property name="data.status.index">
+	  <value>1</value>
+	</property>
+        <property name="data.revision.index">
+	  <value>2</value>
+	</property>
+	<property name="data.time.index">
+	  <value>3</value>
+	</property>
+	<property name="data.date.index">
+	  <value>4</value>
+	</property>
+        <property name="data.sticky.index">
+	  <value>5</value>
+	</property>
+	<property name="data.size.index">
+	  <value>-1</value>
+	</property>
+	<property name="data.locker.index">
+	  <value>6</value>
+	</property>
+        <property name="data.removedFileName.index">
+          <value>7</value>
+        </property>
+        <property name="refreshFileRelativePath">
+          <value></value>
+        </property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+	<property name="checkForModifications">
+	  <value>true</value>
+	</property>
+        <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>-1</value>
+        </property>
+      </command>
+      <command name="INITIAL_CHECKOUT_COMMAND">
+	<property name="exec">
+	  <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${INITIAL_CO_FORCE_HEAD_MATCH} ${INITIAL_CO_DO_NOT_SHORTEN} ${INITIAL_CO_RCS_KFLAG} ${INITIAL_CO_RUN_MODULE_PROGRAM} $[? INITIAL_CO_DIRECTORY] [-d ${INITIAL_CO_DIRECTORY}] [] $[? INITIAL_CO_TAG] [-r ${INITIAL_CO_TAG}] [] $[? INITIAL_CO_DATE] [-D ${QUOTE}${INITIAL_CO_DATE}${QUOTE}] [] ${INITIAL_CO_PRUNE_EMPTY}  ${INITIAL_CO_RECURSIVE} ${INITIAL_CO_MODULE} ${NUR}</value>
+	</property>
+	<property name="display">
+	  <value>true</value>
+	</property>
+	<property name="data.regex">
+	  <value>^([UPARMC]) (.*$)|^(.*) (already contains the differences)(.*)$</value>
+	</property>
+	<property name="error.regex">
+	  <value>^.* warning: (.*) (is not \(any longer\).*)$|^.*: (.*) (is no longer.*)$|^.*: Updating (.*)$</value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+        <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>
+        <property name="visualizer">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.CvsUpdateVisualizer</value>
+        </property>
+      </command>
+      <command name="INITIAL_CHECKOUT">
+	<property name="exec">
+	  <value>vcs.commands.CvsUpdate.class $[? DISK_CHANGE] [-n ] []ROOTDIR INITIAL_CHECKOUT_COMMAND</value>          
 	</property>
 	<property name="data.fileName.index">
 	  <value>0</value>
