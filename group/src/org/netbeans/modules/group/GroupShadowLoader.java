@@ -29,18 +29,28 @@ import org.openide.util.NbBundle;
  */
 public class GroupShadowLoader extends DataLoader {
 
-    /** Generated serial veriosn UID. */
+    /** generated serial version UID */
     static final long serialVersionUID =-2768192459953761627L;
 
-    /** Constants. */
+    /**
+     * extension of files representing groups.
+     * This extension is initially the only item in the list of recognized
+     * extensions.
+     *
+     * @see  #setExtensions
+     */
     public static final String GS_EXTENSION = "group"; // NOI18N
     
-    /** List of extensions. */
+    /**
+     * list of extensions of group shadow files
+     *
+     * @see  #setExtensions
+     */
     private ExtensionList extensions;
 
     
-    /** Creates loader. */
-    public GroupShadowLoader () {
+    /** Creates a new loader. */
+    public GroupShadowLoader() {
         super("org.netbeans.modules.group.GroupShadow"); // NOI18N
         
         extensions = new ExtensionList();
@@ -48,12 +58,13 @@ public class GroupShadowLoader extends DataLoader {
     }
     
     
-    /** Gets default display name. Overrides superclass method. */
+    /** */
     protected String defaultDisplayName() {
-        return NbBundle.getMessage(GroupShadowLoader.class, "PROP_GroupShadowName");
+        return NbBundle.getMessage(GroupShadowLoader.class,
+                                   "PROP_GroupShadowName");             //NOI18N
     }
     
-    /** Gets default system actions. Overrides superclass method. */
+    /** */
     protected SystemAction[] defaultActions() {
         return new SystemAction[] {
             SystemAction.get(OpenLocalExplorerAction.class),
@@ -80,23 +91,39 @@ public class GroupShadowLoader extends DataLoader {
     }
 
     
-    /** Finds appropriate data object for given file object. Overrides superclass method. 
-     * If the extension is registered then gets <code>GroupShadow</code>. */
-    protected DataObject handleFindDataObject (
-        FileObject fo, DataLoader.RecognizedFiles recognized
-    ) throws java.io.IOException {
+    /**
+     * @return  {@link GroupShadow} for the given <code>FileObject</code>;
+     *          or <code>null</code> if the <code>FileObject</code>
+     *          does not have the expected extension
+     * @see  #GS_EXTENSION
+     */
+    protected DataObject handleFindDataObject(
+            FileObject fo,
+            DataLoader.RecognizedFiles recognized) throws java.io.IOException {
         if (getExtensions().isRegistered(fo)) {
             return new GroupShadow(fo, this);
         }
         return null;
     }
 
-    /** Getter for <code>extensions</code> property. */
+    /**
+     * Returns a list of extensions of group shadow files.
+     * Files having an extension among the specified extensions are
+     * recognized as files representing group shadow files.
+     *
+     * @return  list of extensions of group shadow files
+     */
     public ExtensionList getExtensions() {
         return extensions;
     }
 
-    /** Setter for <code>extensions</code> property. */
+    /**
+     * Sets a list of extensions of group shadow files.
+     * Files having an extension among the specified extensions will then be
+     * recognized as files representing group shadow files.
+     *
+     * @param  extensions  new list of extensions
+     */
     public void setExtensions(ExtensionList extensions) {
         this.extensions = extensions;
     }
