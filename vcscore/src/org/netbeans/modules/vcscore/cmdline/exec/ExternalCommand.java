@@ -403,10 +403,6 @@ public class ExternalCommand implements TextInput {
                                     : VcsCommandExecutor.FAILED);
         }
         catch(InterruptedException e){
-            D.deb("Ring from the WatchDog."); // NOI18N
-            String[] commandArr=parseParameters(command);
-            D.deb("commandArr="+VcsUtilities.arrayToString(commandArr)); // NOI18N
-            //e.printStackTrace();
             proc.destroy();
             setExitStatus(VcsCommandExecutor.INTERRUPTED);
         } finally {
