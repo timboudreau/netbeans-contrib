@@ -15,15 +15,16 @@ package org.netbeans.modules.tasklist.docscan;
 
 import java.util.*;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.io.IOException;
 import javax.swing.*;
 
 import org.openide.util.actions.CallableSystemAction;
-import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.openide.util.RequestProcessor;
+import org.openide.util.*;
 import org.openide.loaders.DataObject;
 import org.openide.ErrorManager;
+import org.openide.nodes.Node;
+import org.openide.cookies.InstanceCookie;
 import org.openide.windows.Mode;
 import org.openide.windows.WindowManager;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -116,10 +117,31 @@ public class SourceTasksAction extends CallableSystemAction {
     }
 
     static void scanProjectSuggestions(final SuggestionList list, final ScanProgressMonitor view) {
-        // FIXME access project root
+        List project = new ArrayList(23);
+        int allFolders = -1;
+
+        if ("project".equals(System.getProperty("todos.project", "repository"))) {
+            allFolders = project(project);
+        }
+
+        if (allFolders == -1) {
+            project.clear();
+            allFolders = repository(project);
+        }
+
+        DataObject.Container projectFolders[] = new DataObject.Container[project.size()];
+        project.toArray(projectFolders);
+
+        final int estimatedFolders = allFolders + 1;
+        view.estimate(estimatedFolders);
+        SuggestionsScanner.getDefault().scan(projectFolders, list, view);
+
+    }
+
+    static int repository(List folders) {
         Repository repository = Repository.getDefault();
         Enumeration en = repository.fileSystems();
-        List project = new ArrayList(23);
+
         int allFolders = 0;
         while (en.hasMoreElements()) {
             FileSystem next = (FileSystem) en.nextElement();
@@ -131,7 +153,7 @@ public class SourceTasksAction extends CallableSystemAction {
                 try {
                     DataObject dobj = DataObject.find(fo);
                     if (dobj instanceof DataObject.Container) {
-                        project.add(dobj);
+                        folders.add(dobj);
                         allFolders += countFolders(fo);
                     }
                 } catch (DataObjectNotFoundException e) {
@@ -139,13 +161,51 @@ public class SourceTasksAction extends CallableSystemAction {
                 }
             }
         }
-        DataObject.Container projectFolders[] = new DataObject.Container[project.size()];
-        project.toArray(projectFolders);
+        return allFolders;
+    }
 
-        final int estimatedFolders = allFolders + 1;
-        view.estimate(estimatedFolders);
-        SuggestionsScanner.getDefault().scan(projectFolders, list, view);
-
+    static int project(List folders) {
+        // HACK XXX ProjectCookie is deprecated without replacement
+        // access it's registration file directly
+        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
+        FileObject registration = fs.findResource("Services/Hidden/org-netbeans-modules-projects-ProjectCookieImpl.instance");
+        if (registration == null) {
+            // it's not installed or some incomaptible version
+            return -1;
+        } else {
+            try {
+                int allFolders = -1;
+                DataObject dobj = DataObject.find(registration);
+                InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
+                Object obj = ic.instanceCreate();
+                Method method = obj.getClass().getMethod("projectDesktop", new Class[0]);
+                Node node = (Node) method.invoke(obj, new Object[0]);
+                DataObject prjDO = (DataObject) node.getCookie(DataObject.class);
+                if (prjDO instanceof DataObject.Container) {
+                    allFolders = 0;
+                    DataObject[] kids = ((DataObject.Container)prjDO).getChildren();
+                    for (int i=0; i<kids.length; i++) {
+                        if (kids[i] instanceof DataObject.Container) {
+                            folders.add(kids[i]);
+                            allFolders += countFolders(kids[i].getPrimaryFile());
+                        }
+                    }
+                }
+                return allFolders;
+            } catch (DataObjectNotFoundException e) {
+                return -1;
+            } catch (IOException e) {
+                return -1;
+            } catch (ClassNotFoundException e) {
+                return -1;
+            } catch (NoSuchMethodException e) {
+                return -1;
+            } catch (IllegalAccessException e) {
+                return -1;
+            } catch (InvocationTargetException e) {
+                return -1;
+            }
+        }
     }
 
     private static int countFolders(FileObject projectFolder) {
