@@ -1,4 +1,4 @@
-corba/src/org/netbeans/modules/corba/Bundle.properties	1.27
+corba/src/org/netbeans/modules/corba/Bundle.properties	1.28
 corba/src/org/netbeans/modules/corba/browser/ir/Bundle.properties	1.9
 corba/src/org/netbeans/modules/corba/browser/ns/Bundle.properties	1.9
 corba/src/org/netbeans/modules/corba/idl/editor/settings/Bundle.properties	1.2
@@ -6,7 +6,7 @@ corba/src/org/netbeans/modules/corba/idl/node/Bundle.properties	1.2
 corba/src/org/netbeans/modules/corba/ioranalyzer/Bundle.properties	1.5
 corba/src/org/netbeans/modules/corba/poasupport/Bundle.properties	1.3
 corba/src/org/netbeans/modules/corba/resources/impls/Bundle.properties	1.3
-corba/src/org/netbeans/modules/corba/settings/Bundle.properties	1.7
+corba/src/org/netbeans/modules/corba/settings/Bundle.properties	1.8
 corba/src/org/netbeans/modules/corba/wizard/Bundle.properties	1.6
 corba/src/org/netbeans/modules/corba/wizard/nodes/Bundle.properties	1.3
 corba/src/org/netbeans/modules/corba/wizard/nodes/actions/Bundle.properties	1.3
@@ -23,7 +23,7 @@ corba/src/org/netbeans/modules/corba/resources/Empty.html	1.5
 corba/src/org/netbeans/modules/corba/resources/Simple.html	1.4
 corba/javahelp/org/netbeans/modules/corba/docs/corba-idx.xml	1.4
 corba/javahelp/org/netbeans/modules/corba/docs/corba-toc.xml	1.5
-corba/javahelp/org/netbeans/modules/corba/docs/corba.hs	1.2
+corba/javahelp/org/netbeans/modules/corba/docs/corba.hs	1.3
 corba/javahelp/org/netbeans/modules/corba/docs/corbaMap.jhm	1.4
 corba/javahelp/org/netbeans/modules/corba/docs/corba_intro.html	1.5
 corba/javahelp/org/netbeans/modules/corba/docs/credits.html	1.3
