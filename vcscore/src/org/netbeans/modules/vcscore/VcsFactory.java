@@ -14,6 +14,7 @@
 package org.netbeans.modules.vcscore;
 
 import java.util.Hashtable;
+import java.util.Collection;
 
 import org.openide.util.actions.SystemAction;
 
@@ -45,20 +46,29 @@ public interface VcsFactory {
      */
     public VcsCommandExecutor getVcsDirReaderRecursive (DirReaderListener listener, String path);
     
-    /**
-     * Get the VCS action on the VCS filesystem. Used only in case when <code>getVcsActions</code> return null.
+    /*
+     * Get the VCS action for a collection of <code>FileObject</code>s.
+     * If the collection is null, it should get the <code>FileObject</code>s from
+     * currently selected nodes.
+     * @param fos the collection of <code>FileObject</code>s or null.
+     *
+    public VcsAction getVcsAction (Collection fos); 
      */
-    public VcsAction getVcsAction (); 
     
-    /**
+    /*
      * Get the VCS action on the VCS filesystem for a specified <code>FileObject</code>.
-     */
+     *
     public VcsAction getVcsAction (org.openide.filesystems.FileObject fo); 
+     */
     
     /**
-     * Get the VCS actions on the VCS filesystem. When null is returned, <code>getVcsAction</code> is used.
+     * Get the array of VCS actions for a collection of <code>FileObject</code>s.
+     * If the collection is null, it should get the <code>FileObject</code>s from
+     * currently selected nodes.
+     * @param fos the collection of <code>FileObject</code>s or null.
      */
-    public SystemAction[] getActions (); // MK for VcsFileSystem.getActions to return more actions.
+    public SystemAction[] getActions (Collection fos);
+    
     /**
      * Get the command executor for the command.
      * @param command the command to get the executor for

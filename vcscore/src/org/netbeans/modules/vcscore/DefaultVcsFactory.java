@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore;
 
 import java.util.Hashtable;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.openide.util.actions.SystemAction;
 import org.openide.nodes.Node;
@@ -114,27 +115,36 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
         }
     }
     
-    /**
+    /*
      * Get the VCS action.
      * @return instance of <code>VcsAction</code>
-     */
+     *
     public VcsAction getVcsAction() {
         return new VcsAction (fileSystem);
     }
+     */
     
-    /**
-     * Get the VCS action for a specified <code>FileObject</code>.
+    /*
+     * Get the VCS action for a collection of <code>FileObject</code>s.
+     * If the collection is null, it gets the <code>FileObject</code>s from
+     * currently selected nodes.
+     * @param fos the collection of <code>FileObject</code>s or null.
      * @return instance of <code>VcsAction</code>
-     */
-    public VcsAction getVcsAction(org.openide.filesystems.FileObject fo) {
-        return new VcsAction (fileSystem, fo);
+     *
+    public VcsAction getVcsAction(Collection fos) {
+        return new VcsAction (fileSystem, fos);
     }
+     */
     
     /**
-     * Get the VCS actions.
-     * @return null by default
+     * Get the array of VCS actions for a collection of <code>FileObject</code>s.
+     * If the collection is null, it gets the <code>FileObject</code>s from
+     * currently selected nodes.
+     * @param fos the collection of <code>FileObject</code>s or null.
+     * @return the array of instances of <code>VcsAction</code>s, one for each
+     *         child of the root command node.
      */
-    public SystemAction[] getActions() {
+    public SystemAction[] getActions(Collection fos) {
         //return new SystemAction[] { getVcsAction() };
         ArrayList actions = new ArrayList();
         Node commands = fileSystem.getCommands();
@@ -143,7 +153,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
             VcsCommand cmd = (VcsCommand) commandRoots[i].getCookie(VcsCommand.class);
             if (cmd != null &&
                 VcsCommandIO.getIntegerPropertyAssumeZero(cmd, VcsCommand.PROPERTY_NUM_REVISIONS) == 0) {
-                    actions.add(new VcsAction(fileSystem, i));
+                    actions.add(new VcsAction(fileSystem, fos, i));
             }
         }
         if (actions.size() == 0) return null;

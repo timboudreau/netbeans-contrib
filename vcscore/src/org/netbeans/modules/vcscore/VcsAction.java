@@ -43,30 +43,34 @@ public class VcsAction extends NodeAction implements ActionListener {
     private Debug D=E;
 
     protected VcsFileSystem fileSystem = null;
-    protected FileObject selectedFileObject = null;
+    protected Collection selectedFileObjects = null;
     
     private int actionCommandSubtree; // the command subtree to construct actions from
 
     public VcsAction(VcsFileSystem fileSystem) {
-        this(fileSystem, 0);
+        this(fileSystem, null, 0);
     }
 
     public VcsAction(VcsFileSystem fileSystem, int commandSubtree) {
-        this(fileSystem, null);
+        this(fileSystem, null, commandSubtree);
+    }
+
+    public VcsAction(VcsFileSystem fileSystem, Collection fos) {
+        this(fileSystem, fos, 0);
+    }
+
+    public VcsAction(VcsFileSystem fileSystem, Collection fos, int commandSubtree) {
+        setFileSystem(fileSystem);
+        setSelectedFileObjects(fos);
         actionCommandSubtree = commandSubtree;
     }
-
-    public VcsAction(VcsFileSystem fileSystem, FileObject fo) {
-        setFileSystem(fileSystem);
-        setSelectedFileObject(fo);
-    }
-
+    
     public void setFileSystem(VcsFileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
     
-    protected void setSelectedFileObject(FileObject fo) {
-        this.selectedFileObject = fo;
+    protected void setSelectedFileObjects(Collection fos) {
+        this.selectedFileObjects = fos;
     }
 
     /*
@@ -166,18 +170,18 @@ public class VcsAction extends NodeAction implements ActionListener {
      * Lock files in VCS.
      * @param files the table pairs of file name and associated <code>FileObject</code>
      */
-    public void doLock(Table files) {
+    public static void doLock(Table files, VcsFileSystem fileSystem) {
         VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_LOCK);
-        if (cmd != null) doCommand(files, cmd);
+        if (cmd != null) doCommand(files, cmd, null, fileSystem);
     }
     
     /**
      * Unlock files in VCS.
      * @param files the table pairs of file name and associated <code>FileObject</code>
      */
-    public void doUnlock(Table files) {
+    public static void doUnlock(Table files, VcsFileSystem fileSystem) {
         VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_UNLOCK);
-        if (cmd != null) doCommand(files, cmd);
+        if (cmd != null) doCommand(files, cmd, null, fileSystem);
     }
     
     /**
@@ -185,10 +189,10 @@ public class VcsAction extends NodeAction implements ActionListener {
      * Note that this method has to block until the command is finished.
      * @param files the table pairs of file name and associated <code>FileObject</code>
      */
-    public void doEdit(Table files) {
+    public static void doEdit(Table files, VcsFileSystem fileSystem) {
         VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_EDIT);
         if (cmd != null) {
-            doCommand(files, cmd);
+            doCommand(files, cmd, null, fileSystem);
             //fileSystem.getCommandsPool().waitToFinish(cmd, files.keySet());
         }
     }
@@ -328,7 +332,13 @@ public class VcsAction extends NodeAction implements ActionListener {
      *         <code>false</code> otherwise.
      */
     protected boolean isOnDirectory() {
-        if (selectedFileObject != null) return selectedFileObject.isFolder();
+        if (selectedFileObjects != null) {
+            for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
+                FileObject fo = (FileObject) it.next();
+                if (fo.isFolder()) return true;
+            }
+            return false;
+        }
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
             DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
@@ -343,7 +353,13 @@ public class VcsAction extends NodeAction implements ActionListener {
      *         <code>false</code> otherwise.
      */
     protected boolean isOnFile() {
-        if (selectedFileObject != null) return !selectedFileObject.isFolder();
+        if (selectedFileObjects != null) {
+            for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
+                FileObject fo = (FileObject) it.next();
+                if (!fo.isFolder()) return true;
+            }
+            return false;
+        }
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
             DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
@@ -358,7 +374,13 @@ public class VcsAction extends NodeAction implements ActionListener {
      *         <code>false</code> otherwise.
      */
     protected boolean isOnRoot() {
-        if (selectedFileObject != null) return false;
+        if (selectedFileObjects != null) {
+            for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
+                FileObject fo = (FileObject) it.next();
+                if (fo.getPackageNameExt('/', '.').length() == 0) return true;
+            }
+            return false;
+        }
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
             DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
@@ -375,8 +397,8 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param dd the data object from which the files are read.
      * @param res the <code>Table</code> of path and FileObject pairs which are important.
      */
-    protected void addImportantFiles(DataObject dd, Table res) {
-        addImportantFiles(dd, res, false);
+    protected void addImportantFiles(Collection fos, Table res) {
+        addImportantFiles(fos, res, false);
     }
 
     /**
@@ -385,9 +407,8 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param res the <code>Table</code> of path and FileObject pairs.
      * @param all whether to add unimportant files as well
      */
-    protected void addImportantFiles(DataObject dd, Table res, boolean all){
-        Set ddFiles = dd.files();
-        for(Iterator it = ddFiles.iterator(); it.hasNext(); ) {
+    protected void addImportantFiles(Collection fos, Table res, boolean all){
+        for(Iterator it = fos.iterator(); it.hasNext(); ) {
             FileObject ff = (FileObject) it.next();
             try {
                 if (ff.getFileSystem() != fileSystem)
@@ -660,11 +681,13 @@ public class VcsAction extends NodeAction implements ActionListener {
         boolean processAll = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_PROCESS_ALL_FILES) || fileSystem.isProcessUnimportantFiles();
         Table files = new Table();
         //String mimeType = null;
-        String path = "";
+        //String path = "";
         boolean refreshDone = false;
-        if (selectedFileObject != null) {
-            files.put(selectedFileObject.getPackageNameExt('/','.'), selectedFileObject);
+        if (selectedFileObjects != null) {
+            addImportantFiles(selectedFileObjects, files, processAll);
+            //files.put(selectedFileObject.getPackageNameExt('/','.'), selectedFileObject);
             //mimeType = selectedFileObject.getMIMEType();
+            /*
             if (cmdName.equals(VcsCommand.NAME_REFRESH)) {
                 path = selectedFileObject.getPackageName('/');//getNodePath(nodes[i]);
                 doList(path);
@@ -674,12 +697,37 @@ public class VcsAction extends NodeAction implements ActionListener {
                 doListSub(path);
                 refreshDone = true;
             }
+             */
         } else {
             for(int i = 0; i < nodes.length; i++) {
                 //D.deb("nodes["+i+"]="+nodes[i]); // NOI18N
                 DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-                if (dd != null) addImportantFiles(dd, files, processAll);
+                if (dd != null) addImportantFiles(dd.files(), files, processAll);
                 else continue;
+            }
+        }
+        if (cmdName.equals(VcsCommand.NAME_REFRESH)) {
+            ArrayList paths = new ArrayList();
+            for (Iterator it = files.values().iterator(); it.hasNext(); ) {
+                FileObject fo = (FileObject) it.next();
+                String path = fo.getPackageName('/');
+                if (!paths.contains(path)) {
+                    doList(path);
+                    paths.add(path);
+                }
+            }
+        } else if (cmdName.equals(VcsCommand.NAME_REFRESH_RECURSIVELY)) {
+            ArrayList paths = new ArrayList();
+            for (Iterator it = files.values().iterator(); it.hasNext(); ) {
+                FileObject fo = (FileObject) it.next();
+                String path = fo.getPackageName('/');
+                if (!paths.contains(path)) {
+                    doListSub(path);
+                    paths.add(path);
+                }
+            }
+        }
+        /*
                 //FileObject ff = dd.getPrimaryFile();
                 //mimeType = ff.getMIMEType();
                 //ec = (EditorCookie) nodes[i].getCookie(EditorCookie.class);
@@ -693,6 +741,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                     refreshDone = true;
                 }
             }
+         */
             //D.deb("files="+files); // NOI18N
             /*
             if (nodes.length < 1) {
@@ -700,7 +749,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 return ;
             }
              */
-        }
+        //}
 
         //D.deb("path='"+path+"'"); // NOI18N
 
@@ -708,7 +757,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         //D.deb("I have MIME = "+mimeType); // NOI18N
 
         //System.out.println("refreshDone = "+refreshDone+", files.size() = "+files.size());
-        if (!refreshDone && files.size() > 0) {
+        else if (/*!refreshDone &&*/ files.size() > 0) {
             doCommand (files, cmd);
         }
     }
@@ -724,7 +773,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         final String cmdName = e.getActionCommand();
         //D.deb("cmd="+cmd); // NOI18N
         Runnable cpr;
-        if (selectedFileObject != null) {
+        if (selectedFileObjects != null) {
             cpr = new Runnable() {
                 public void run() {
                     performCommand(cmdName, null);

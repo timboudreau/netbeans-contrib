@@ -74,6 +74,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public static final String  VAR_QUOTING = "QUOTING"; // NOI18N
     private static final String DEFAULT_QUOTING_VALUE = "\\\\\""; // NOI18N
 
+    private static final String DEFAULT_CACHE_ID = "VCS_Cache"; // NOI18N
     /**
      * The name of the variable for which we get user input.
      */
@@ -126,6 +127,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //private Object advanced = null; // Not used any more, use commandsRoot instead
     private transient Node commandsRoot = null;
 
+    private String cacheID = null;
     protected transient FileCacheProvider cache = null;
     protected transient FileStatusProvider statusProvider = null;
     private int[] multiFilesAnnotationTypes = null;
@@ -540,7 +542,30 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Get the full file path where cache information should be stored.
      */
     public abstract String getCacheFileName(String path);
+    
+    /**
+     * Initialize the identification of cache used.
+     * The default implementation returns a unique string each time it is called.
+     * @return the cache identification string
+     */
+    public String initCacheIdStr() {
+        return DEFAULT_CACHE_ID + new Object().hashCode();
+    }
 
+    /**
+     * Get the cache identification.
+     */
+    public String getCacheIdStr() {
+        if (cacheID == null) {
+            synchronized (this) {
+                if (cacheID == null) {
+                    cacheID = initCacheIdStr();
+                }
+            }
+        }
+        return cacheID;
+    }
+    
     /**
      * Gets the default factory {@link DefaultVcsFactory}. Subclasses may override this to return different instance of {@link VcsFactory}.
      */
@@ -580,8 +605,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //cache = new VcsFSCache(this/*, createNewCacheDir ()*/);
         cache = getVcsFactory().getFileCacheProvider();
         statusProvider = getVcsFactory().getFileStatusProvider();
-        if (possibleFileStatusesMap == null && statusProvider != null) {
-            possibleFileStatusesMap = statusProvider.getPossibleFileStatusesTable();
+        if (possibleFileStatusesMap == null) {
+            if (statusProvider != null) {
+                possibleFileStatusesMap = statusProvider.getPossibleFileStatusesTable();
+            } else {
+                possibleFileStatusesMap = new HashMap();
+            }
         }
         errorDialog = new ErrorCommandDialog(null, new JFrame(), false);
         try {
@@ -1408,30 +1437,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return result;
     }
 
-
-    //-------------------------------------------
+    /**
+     * Get the VCS actions.
+     * @return the actions retrieved from <code>VcsFactory.getActions(null)</code>
+     */
     public SystemAction[] getActions() {
-    // MK rewriten to return more than one action from vcs factory.
-        //D.deb("getActions()"); // NOI18N
-        SystemAction[] actions = getVcsFactory ().getActions();
-        if (actions == null) {
-            action = getVcsFactory ().getVcsAction();
-            actions = new SystemAction[] { action };
-        } else {
-            if (action == null) {  // MK - backward compatibility
-                action = (VcsAction) actions[0];
-            }
-        }
-        return actions;
+        return getVcsFactory ().getActions(null);
     }
 
     /**
-     * Get actions on a given FileObject.
+     * Get the VCS actions on a collection of <code>FileObject</code>s.
+     * @param fos the collection of <code>FileObject</code>s to act on.
+     * @return the actions retrieved from <code>VcsFactory.getActions(fos)</code>
      */
-    public SystemAction[] getActions(FileObject fo) {
-        action = getVcsFactory ().getVcsAction(fo);
-        SystemAction[] actions = new SystemAction[] { action };
-        return actions;
+    public SystemAction[] getActions(Collection fos) {
+        return getVcsFactory ().getActions(fos);
     }
 
     /*
@@ -1980,7 +2000,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
                     Table files = new Table();
                     files.put(name, findResource(name));
-                    getVcsFactory ().getVcsAction ().doEdit (files);
+                    VcsAction.doEdit (files, this);
                 }
             }
         }
@@ -2020,7 +2040,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                    if (!isPromptForLockOn () || getPromptForLockResult()) {
                                        Table files = new Table();
                                        files.put(name, findResource(name));
-                                       getVcsFactory ().getVcsAction ().doLock (files);
+                                       VcsAction.doLock (files, VcsFileSystem.this);
                                    }
                                }
                            }
@@ -2040,7 +2060,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
                 Table files = new Table();
                 files.put(name, findResource(name));
-                getVcsFactory ().getVcsAction ().doUnlock (files);
+                VcsAction.doUnlock (files, this);
             }
         }
     }
@@ -2062,10 +2082,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 }
     */
 
-    /**
+    /*
      * Get the cache identification.
      */
-    public abstract String getCacheIdStr();
+    //public abstract String getCacheIdStr();
     
 //-------------------- methods from CacheHandlerListener------------------------
     public void cacheAdded(CacheHandlerEvent event) {
