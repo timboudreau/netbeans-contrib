@@ -168,11 +168,18 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         FileObject fo = findResource(path);
         if (fo == null) return;
         //D.deb("I have root = "+fo.getName()); // NOI18N
+        //Enumeration enum = existingFileObjects(fo);
+        //D.deb("I have root = "+fo.getName()); // NOI18N
         Enumeration enum = fo.getChildren(recursively);
         HashSet hs = new HashSet();
         while(enum.hasMoreElements()) {
             fo = (FileObject) enum.nextElement();
             hs.add(fo);
+            /*
+            FileObject chfo = (FileObject) enum.nextElement();
+            if (!fo.equals(chfo.getParent()) && !recursively) break;
+            hs.add(chfo);
+             */
             //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
         }
         Set s = Collections.synchronizedSet(hs);
@@ -210,7 +217,17 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
      *   <CODE>null</CODE> if the file was not created yet.
      */
     public FileObject findExistingResource (String name) {
-        return findResource(name); // TODO
+        Enumeration enum = existingFileObjects(getRoot());
+        FileObject fo = null;
+        while (enum.hasMoreElements()) {
+            FileObject obj = (FileObject) enum.nextElement();
+            if (name.equals(obj.getPackageNameExt('/', '.'))) {
+                fo = obj;
+                break;
+            }
+        }
+        return fo;
+        //return findResource(name); // TODO
     }
     //public void markImportant(String name, boolean is);
     

@@ -764,7 +764,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param name the full file name
      */
     public void statusChanged (String name) {
-        FileObject fo = findResource(name);
+        FileObject fo = findExistingResource(name);
         //System.out.println("findResource("+name+") = "+fo);
         if (fo == null) return;
         fireFileStatusChanged (new FileStatusEvent(this, fo, true, true));
@@ -782,6 +782,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //statusChanged(fo.getParent().getPackageNameExt('/', '.'), false);
         //System.out.println("fo = "+fo+" and parent = "+fo.getParent()+" refreshed.");
         if (versioningSystem != null) versioningSystem.statusChanged(name);
+    }
+    
+    protected FileObject findExistingResource(String name) {
+        Enumeration enum = existingFileObjects(getRoot());
+        FileObject fo = null;
+        while (enum.hasMoreElements()) {
+            FileObject obj = (FileObject) enum.nextElement();
+            if (name.equals(obj.getPackageNameExt('/', '.'))) {
+                fo = obj;
+                break;
+            }
+        }
+        return fo;
     }
     
     /**
@@ -2976,11 +2989,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 //            D.deb("statusChanged() root =" + root);
 //            D.deb("statusChanged() path =" + path);
             path = path.replace(File.separatorChar, '/');
-            if (event.getCacheFile() instanceof org.netbeans.modules.vcscore.cache.CacheDir) {
+            //if (event.getCacheFile() instanceof org.netbeans.modules.vcscore.cache.CacheDir) {
                 //statusChanged(path, event.isRecursive()); -- do not refresh the add directory!
-            } else {
+            //} else {
                 statusChanged(path);
-            }
+            //}
         }
     }
     
