@@ -1,11 +1,11 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -94,7 +94,7 @@ import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 
 /** Generic VCS filesystem.
- * 
+ *
  * @author Michal Fadljevic, Martin Entlicher
  */
 //-------------------------------------------
@@ -104,17 +104,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           AbstractFileSystem.Change, FileSystem.Status,
                                                                           CacheHandlerListener, FileObjectImportantness,
                                                                           VcsOISActivator, Serializable {
-                                                                              
+
     public static interface IgnoreListSupport {
-        
+
         public ArrayList createInitialIgnoreList ();
         public ArrayList createIgnoreList (String fileName, ArrayList parentIgnoreList);
     }
-                                                                                                                                                           
-                                                                              
+
+
     private Debug E=new Debug("VcsFileSystem", false); // NOI18N
     private Debug D=E;
-    
+
     private static final int BADGE_ICON_SHIFT_X = 16;
     private static final int BADGE_ICON_SHIFT_Y = 8;
 
@@ -145,7 +145,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public static final String PROP_VCS_REFRESH_TIME = "vcsRefreshTime"; // NOI18N
     protected static final String PROP_USE_UNIX_SHELL = "useUnixShell"; // NOI18N
     protected static final String PROP_NOT_MODIFIABLE_STATUSES = "notModifiableStatuses"; // NOI18N
-    
+
     public static final String VAR_TRUE = "true"; // NOI18N
     public static final String VAR_FALSE = "false"; // NOI18N
 
@@ -159,12 +159,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * is on, this variable is non empty.
      */
     public static final String VAR_EXPERT_MODE = "EXPERT_MODE"; // NOI18N
-    
+
     /**
      * If Expert mode is off.. this variable carries information that CTrl was pressed down when
      * displaying the Vcsaction = user requested to have the advanced options displayed..
      */
-    
+
     public static final String VAR_CTRL_DOWN_IN_ACTION = "CTRL_DOWN_IN_ACTION";
     /**
      * This variable can contain the display name, which is prepended to the
@@ -192,7 +192,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * removed from the list of environment variables. It's value is ignored.
      */
     public static final String VAR_ENVIRONMENT_REMOVE_PREFIX = "ENVIRONMENT_REMOVE_VAR_";
-    
+
     public static final String VAR_STATUS_SCHEDULED_ADD = "STATUS_SCHEDULED_ADD";
     public static final String VAR_STATUS_SCHEDULED_REMOVE = "STATUS_SCHEDULED_REMOVE";
 
@@ -251,7 +251,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient String[] environmentVars = null;
 
     private String password = null;
-    
+
     private boolean rememberPassword = false;
 
     /** Advanced confgiguration.
@@ -264,7 +264,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private String cacheID = null;
     protected transient FileCacheProvider cache = null;
     protected transient FileStatusProvider statusProvider = null;
-    
+
     private int[] multiFilesAnnotationTypes = null;
     private String annotationPattern = null;
 
@@ -283,7 +283,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      *
     protected HashMap possibleFileStatusesMap = null;
      */
-    
+
     /** Original file status infos provided by file status provider, that should
      * be retained. */
     private transient Set origPossibleFileStatusInfos = null;
@@ -293,14 +293,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient Map possibleFileStatusInfoMap = null;
     /** The lock for synchronized access to structures holding possible file status information. */
     private transient Object possibleFileStatusesLock = new Object();
-    
+
     /**
      * The table used to get the icon badge on the objects' data node.
      * The table contains the original statuses (obtained from the VCS tool)
      * as keys and the icons of type <code>Image</code> as values.
      */
     //protected transient HashMap statusIconMap = null;
-    
+
     /**
      * The default icon badge, that is used when no icon can be obtained from {@link statusIconMap}.
      */
@@ -309,7 +309,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected boolean ready=false;
     private boolean askIfDownloadRecursively = true;
     private volatile Hashtable numDoAutoRefreshes = new Hashtable();
-    
+
     protected transient boolean deserialized; // Whether this class was created by deserialization
 
     /**
@@ -320,7 +320,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private boolean promptForVarsForEachFile = false;
 
     private Vector tempFiles = new Vector();
-    
+
     /**
      * Additional user parameters to the command. These are global parameters to all commands.
      * Parameters local to each command are stored in UserCommand.userParams.
@@ -335,18 +335,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Labels to local additional user parameters.
      */
     private volatile String[] userLocalParamsLabels = null;
-    
+
     private volatile boolean acceptUserParams = false;
-    
+
     /** The expert mode. When true, the user might be prompted for other options.
      */
     private boolean expertMode = false;
-    
+
     /**
      * Whether to run command when doing refresh of folders. Recommended to turn this property off when working off-line.
      */
     //private boolean doCommandRefresh = true;
-    
+
     // CommandsPool reference kept for compatibility only.
     private volatile transient CommandsPool commandsPool = null;
     private Integer numberOfFinishedCmdsToCollect = new Integer(RuntimeFolderNode.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
@@ -356,7 +356,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private boolean versioningFileSystemShowLocalFiles = true;
     private boolean versioningFileSystemShowUnimportantFiles = false;
     private boolean versioningFileSystemShowDeadFiles = false;
-    
+
     private transient ArrayList revisionListeners;
 
     /** The offline mode.
@@ -366,13 +366,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private volatile boolean offLine; // is set in the constructor
     private volatile int autoRefresh; // is set in the constructor
     private volatile boolean hideShadowFiles; // is set in the constructor
-    
+
     private transient PropertyChangeListener settingsChangeListener = null;
-    
+
     private transient RepositoryListener addRemoveFSListener;
-    
+
     private VariableValueAdjustment varValueAdjustment;
-    
+
     private volatile boolean commandNotification = true;
 
     private Collection notModifiableStatuses = Collections.EMPTY_SET;
@@ -380,34 +380,34 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private String missingFolderStatus = null;
     private Collection notMissingableFileStatuses = Collections.EMPTY_SET;
     private Collection notMissingableFolderStatuses = Collections.EMPTY_SET;
-    
+
     private Boolean createRuntimeCommands = Boolean.TRUE;
-    
+
     private Boolean createVersioningSystem = Boolean.FALSE;
-    
+
     private transient VcsActionSupporter actionSupporter = null;
-    
+
     private transient IgnoreListSupport ignoreListSupport = null;
-    
+
     private transient Set unimportantFiles;
-    
+
     private transient IntegritySupportMaintainer integritySupportMaintainer = null;
-    
+
     /** regexp of ignorable children */
     private String ignoredGarbageFiles = ""; // NOI18N
-    
+
     /** regexp matcher for ignoredFiles, null if not needed */
     private transient RE ignoredGarbageRE = null;
     private Boolean createBackupFiles = null;
     private Boolean filterBackupFiles = null;
 
     private transient VersioningFileSystem versioningSystem = null;
-    
+
     private transient AbstractFileSystem.List vcsList = null;
-    
+
     /** The refresh request instead of the standard refreshing. */
     private transient VcsRefreshRequest refresher = new VcsRefreshRequest (this, 0, this);
-    
+
     /** The InputOutput used for display of VCS commands output */
     private transient InputOutput cmdIO = null;
 
@@ -482,7 +482,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
     public boolean isUseUnixShell () { return useUnixShell; }
-    
+
     public boolean isEnabledLockFiles() {
         return (getCommandSupport(VcsCommand.NAME_LOCK) != null);
     }
@@ -498,11 +498,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             firePropertyChange(PROP_USE_UNIX_SHELL, !unixShell ? Boolean.TRUE : Boolean.FALSE, unixShell ? Boolean.TRUE : Boolean.FALSE);
         }
     }
-    
+
     public void setAcceptUserParams(boolean acceptUserParams) {
         this.acceptUserParams = acceptUserParams;
     }
-    
+
     public boolean isAcceptUserParams() {
         return acceptUserParams;
     }
@@ -510,28 +510,28 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setUserLocalParamsLabels(String[] labels) {
         userLocalParamsLabels = labels;
     }
-    
+
     public String[] getUserLocalParamsLabels() {
         return userLocalParamsLabels;
     }
-    
+
     public void setUserParamsLabels(String[] labels) {
         userParamsLabels = labels;
         userParams = new String[labels.length];
     }
-    
+
     public String[] getUserParamsLabels() {
         return userParamsLabels;
     }
-    
+
     public void setUserParams(String[] userParams) {
         this.userParams = userParams;
     }
-    
+
     public String[] getUserParams() {
         return userParams;
     }
-    
+
     public void setExpertMode(boolean expertMode) {
         if (expertMode != this.expertMode) {
             this.expertMode = expertMode;
@@ -542,22 +542,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             firePropertyChange(PROP_EXPERT_MODE, !expertMode ? Boolean.TRUE : Boolean.FALSE, expertMode ? Boolean.TRUE : Boolean.FALSE);
         }
     }
-    
+
     public boolean isExpertMode() {
         return expertMode;
     }
-    
+
     public void setCommandNotification(boolean commandNotification) {
         if (commandNotification != this.commandNotification) {
             this.commandNotification = commandNotification;
             firePropertyChange(PROP_COMMAND_NOTIFICATION, !commandNotification ? Boolean.TRUE : Boolean.FALSE, commandNotification ? Boolean.TRUE : Boolean.FALSE);
         }
     }
-    
+
     public boolean isCommandNotification() {
         return commandNotification;
     }
-    
+
     /**
      * Set whether to prompt the user for variables for each selected file. Set the
      * initial default value in the VariableInputDialog.
@@ -568,7 +568,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             firePropertyChange(PROP_PROMPT_FOR_VARS_FOR_EACH_FILE, !promptForVarsForEachFile ? Boolean.TRUE : Boolean.FALSE, promptForVarsForEachFile ? Boolean.TRUE : Boolean.FALSE);
         }
     }
-    
+
     /**
      * Whether to prompt the user for variables for each selected file. This value
      * will be the default value in the VariableInputDialog and changing the value
@@ -585,7 +585,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public CommandsPool getCommandsPool() {
         return commandsPool;
     }
-    
+
     public void setProcessUnimportantFiles(boolean processUnimportantFiles) {
         boolean fire = false;
         Boolean old = null;
@@ -600,17 +600,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             firePropertyChange(PROP_PROCESS_UNIMPORTANT_FILES, old, this.processUnimportantFiles);
         }
     }
-    
+
     public boolean isProcessUnimportantFiles() {
         synchronized (processUnimportantFiles) {
             return processUnimportantFiles.booleanValue();
         }
     }
-    
+
     public String getIgnoredGarbageFiles () {
         return ignoredGarbageFiles;
     }
-    
+
     public synchronized void setIgnoredGarbageFiles (String nue) throws IllegalArgumentException {
         if (! nue.equals (ignoredGarbageFiles)) {
             if (nue.length () > 0) {
@@ -629,11 +629,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             refreshExistingFolders();
         }
     }
-    
+
     protected void refreshExistingFolders() {
         refreshExistingFolders(null);
     }
-    
+
     protected void refreshExistingFolders(final String name) {
         org.openide.util.RequestProcessor.postRequest(new Runnable() {
             public void run() {
@@ -654,44 +654,44 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         });
     }
-    
+
     protected boolean isCreateBackupFilesSet() {
         return createBackupFiles != null;
     }
-    
+
     public boolean isCreateBackupFiles() {
         return createBackupFiles != null && createBackupFiles.booleanValue();
     }
-    
+
     public void setCreateBackupFiles(boolean createBackupFiles) {
         if (this.createBackupFiles == null || createBackupFiles != this.createBackupFiles.booleanValue()) {
             this.createBackupFiles = createBackupFiles ? Boolean.TRUE : Boolean.FALSE;
             firePropertyChange(PROP_CREATE_BACKUP_FILES, null, this.createBackupFiles);
         }
     }
-    
+
     protected boolean isFilterBackupFilesSet() {
         return filterBackupFiles != null;
     }
-    
+
     public boolean isFilterBackupFiles() {
         return filterBackupFiles != null && filterBackupFiles.booleanValue();
     }
-    
+
     public void setFilterBackupFiles(boolean filterBackupFiles) {
         if (this.filterBackupFiles == null || filterBackupFiles != this.filterBackupFiles.booleanValue()) {
             this.filterBackupFiles = filterBackupFiles ? Boolean.TRUE : Boolean.FALSE;
             firePropertyChange(PROP_FILTER_BACKUP_FILES, null, this.filterBackupFiles);
         }
     }
-    
+
     public void setOffLine(boolean offLine) {
         if (offLine != this.offLine) {
             this.offLine = offLine;
             firePropertyChange (GeneralVcsSettings.PROP_OFFLINE, !offLine ? Boolean.TRUE : Boolean.FALSE, offLine ? Boolean.TRUE : Boolean.FALSE);
         }
     }
-    
+
     public boolean isOffLine() {
         return offLine;
     }
@@ -700,7 +700,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public int getAutoRefresh() {
         return autoRefresh;
     }
-    
+
     /** Set the mode of auto refresh. */
     public void setAutoRefresh(int newAuto) {
         if (newAuto != autoRefresh) {
@@ -709,12 +709,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             firePropertyChange (GeneralVcsSettings.PROP_AUTO_REFRESH, new Integer(oldAuto), new Integer(autoRefresh));
         }
     }
-    
+
     /** Whether to hide files, which does not exist locally. */
     public boolean isHideShadowFiles() {
         return hideShadowFiles;
     }
-    
+
     /** Set whether to hide files, which does not exist locally. */
     public void setHideShadowFiles(boolean hideShadowFiles) {
         if (hideShadowFiles != this.hideShadowFiles) {
@@ -722,7 +722,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             firePropertyChange (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, !hideShadowFiles ? Boolean.TRUE : Boolean.FALSE, hideShadowFiles ? Boolean.TRUE : Boolean.FALSE);
         }
     }
-    
+
     public boolean isShowDeadFiles() {
         VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(Variables.SHOW_DEAD_FILES);
         if (var == null) {
@@ -731,7 +731,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return (var.getValue().trim().length() > 0);
         }
     }
-    
+
     public void setShowDeadFiles(boolean showDeadFiles) {
         VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(Variables.SHOW_DEAD_FILES);
         if (var == null) {
@@ -746,18 +746,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             var.setValue(showDeadFiles ? "true" : "");
         }
     }
-    
+
     public int getNumberOfFinishedCmdsToCollect() {
         //System.out.println("VcsFileSystem.getNumberOfFinishedCmdsToCollect() = "+numberOfFinishedCmdsToCollect.intValue());
         return numberOfFinishedCmdsToCollect.intValue();
     }
-    
+
     public void setNumberOfFinishedCmdsToCollect(int numberOfFinishedCmdsToCollect) {
         this.numberOfFinishedCmdsToCollect = new Integer(numberOfFinishedCmdsToCollect);
         //System.out.println("VcsFileSystem.setNumberOfFinishedCmdsToCollect("+numberOfFinishedCmdsToCollect+")");
         firePropertyChange(org.netbeans.modules.vcscore.runtime.RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT, null, null);
     }
-    
+
     public int getVFSMessageLength() {
         return versioningFileSystemMessageLength;
     }
@@ -793,14 +793,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (newVal == null) newVal = "";
         versioningFileSystemShowGarbageFiles = newVal;
     }
-    
+
     public boolean getVFSShowDeadFiles() {
         return versioningFileSystemShowDeadFiles;
     }
     public void setVFSShowDeadFiles(boolean newVal) {
         versioningFileSystemShowDeadFiles = newVal;
     }
-    
+
     private void copyFromVersioningFs() {
         if (versioningSystem != null && versioningSystem instanceof VcsVersioningSystem) {
             VcsVersioningSystem versFs = (VcsVersioningSystem)versioningSystem;
@@ -812,23 +812,23 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             setVFSShowDeadFiles(versFs.isShowDeadFiles());
         }
     }
-    
-    
+
+
     /**
      * this method is invoked by reflection from the Versioning filesystem to enable saving of it's changed properties..
      * these should be mirrored in the filesystem so that they get saved..
-     */ 
+     */
     public void saveVersioningFileSystemProperties(String propName, Object newValue) {
         copyFromVersioningFs();
         firePropertyChange(propName, null, newValue);
     }
-    
-    
+
+
     public void addRevisionListener(RevisionListener listener) {
         if (revisionListeners == null) revisionListeners = new ArrayList();
         revisionListeners.add(listener);
     }
-    
+
     public boolean removeRevisionListener(RevisionListener listener) {
         if (revisionListeners == null) return false;
         return revisionListeners.remove(listener);
@@ -841,28 +841,28 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             ((RevisionListener) it.next()).stateChanged(event);
         }
     }
-    
+
     protected void setNotModifiableStatuses(Collection notModifiableStatuses) {
         this.notModifiableStatuses = notModifiableStatuses;
         firePropertyChange(PROP_NOT_MODIFIABLE_STATUSES, null, notModifiableStatuses);
     }
-    
+
     protected void setMissingFileStatus(String missingFileStatus) {
         this.missingFileStatus = missingFileStatus;
     }
-    
+
     protected void setMissingFolderStatus(String missingFolderStatus) {
         this.missingFolderStatus = missingFolderStatus;
     }
-    
+
     protected void setNotMissingableFileStatuses(Collection notMissingableFileStatuses) {
         this.notMissingableFileStatuses = notMissingableFileStatuses;
     }
-    
+
     protected void setNotMissingableFolderStatuses(Collection notMissingableFolderStatuses) {
         this.notMissingableFolderStatuses = notMissingableFolderStatuses;
     }
-    
+
     /**
      * Get whether to perform the auto-refresh in the given directory path.
      * @param path The given directory path
@@ -920,7 +920,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             numDoAutoRefreshes.remove(path);
         }
     }
-    
+
     /** Set the number of milliseconds between automatic refreshes of the
      * directory structure. Replaces the functionality of setRefreshTime.
      * You should not use setRefreshTime() in subclasses of VcsFileSystem at all!
@@ -931,7 +931,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected final void setVcsRefreshTime(int ms) {
         setVcsRefreshTime(ms, true);
     }
-    
+
     private final void setVcsRefreshTime(int ms, boolean fireChange) {
         int oldMS = getVcsRefreshTime();
         refreshTimeToSet = ms;
@@ -939,7 +939,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         refresher.setRefreshTime(Boolean.getBoolean("netbeans.debug.heap") ? 0 : ms); // NOI18N
         if (fireChange) firePropertyChange(PROP_VCS_REFRESH_TIME, null, null);
     }
-    
+
     /** Get the number of milliseconds between automatic refreshes of the
      * directory structure. Replaces the functionality of getRefreshTime.
      * You should not use getRefreshTime() in subclasses of VcsFileSystem at all!
@@ -956,28 +956,28 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public Enumeration getExistingFolders() {
         return this.existingFileObjects(getRoot());
     }
-    
+
     /**
      * Do the refresh of a folder.
      */
     public void doVirtualsRefresh(FileObject fo) {
         fo.refresh();
     }
-    
-    /** Return the working directory of the file system. 
+
+    /** Return the working directory of the file system.
      *  To that, relative mountpoints are added later to enable compilation etc.
      */
     public String getFSRoot() {
       return VcsFileSystem.substractRootDir(getRootDirectory().toString(), getRelativeMountPoint());
     }
 
-        
+
     public String getRelativeMountPoint() {
       VcsConfigVariable module = (VcsConfigVariable) variablesByName.get("MODULE");
       if (module == null) return "";
       return module.getValue();
-    }    
-    
+    }
+
     public void setRelativeMountPoint(final String module) throws PropertyVetoException, IOException {
         runAtomicAction(new FileSystem.AtomicAction() {
             public void run() throws IOException {
@@ -1006,9 +1006,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             }
         });
-    }    
-    
-        
+    }
+
+
     /*
      * Mark the file as being unimportant.
      * @param name the file name
@@ -1021,7 +1021,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             unimportantFiles.add(name);
         }
     }
-    
+
     /*
      * Mark the file as being important or unimportant.
      * @param name the file name
@@ -1054,7 +1054,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
-    
+
     public boolean isImportant(String name) {
         Reference ref = findReference(name);
         if (ref != null && ref instanceof CacheReference) {
@@ -1063,10 +1063,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return !unimportantFiles.contains(name);
         }
     }
-    
+
     private static RequestProcessor statusRequestProcessor;
     private static final Object STATUS_REQUEST_PROCESSOR_LOCK = new Object();
-    
+
     /**
      * Get a special request processor, that is used to refresh the file status.
      * This is necessary to prevent some kind of deadlocks, that can occure
@@ -1116,10 +1116,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         });
         if (versioningSystem != null) versioningSystem.statusChanged(path, recursively);
     }
-    
+
     private transient StatusChangeUpdater statusUpdateRunnable;
     private transient RequestProcessor.Task statusUpdateTask;
-    
+
     /**
      * Perform refresh of status information of a file
      * @param name the full file name
@@ -1135,7 +1135,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         statusUpdateTask.schedule(200);
         if (versioningSystem != null) versioningSystem.statusChanged(name);
     }
-    
+
     /**
      * Find the existing resources on this file system.
      * This method is not much efficient, because it collects all existing
@@ -1158,7 +1158,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return fos;
     }
-    
+
     /**
      * Find the existing resource on this file system.
      * This method is not much efficient, because it collects all existing
@@ -1176,7 +1176,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return fo;
     }
-    
+
     /**
      * Check the scheduled states for the set of file objects.
      * Files scheduled for ADD are controlled by this method. When they change their
@@ -1215,7 +1215,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
              */
         }
     }
-    
+
     /**
      * Remove a file from the list of scheduled files.
      * @param fo the scheduled file object
@@ -1241,7 +1241,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             } catch (IOException exc) {}
         }
     }
-    
+
     /**
      * Remove a file from the list of scheduled files.
      * @param scheduledFile the scheduled file name
@@ -1261,7 +1261,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             } catch (IOException exc) {}
         }
     }
-    
+
     public void disableRefresh() {
         synchronized (this) {
             refreshTimeToSet = getVcsRefreshTime();
@@ -1269,14 +1269,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             //setVcsRefreshTime(0, false);
         }
     }
-    
+
     public void enableRefresh() {
         synchronized (this) {
             if (refresher != null) refresher.setRefreshTime(Boolean.getBoolean("netbeans.debug.heap") ? 0 : refreshTimeToSet); // NOI18N
             //setVcsRefreshTime(refreshTimeToSet, false);
         }
     }
-    
+
     public void setRefreshTimeToSet() {
         setVcsRefreshTime(refreshTimeToSet);
     }
@@ -1300,16 +1300,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return refreshTimeToSet;
         }
     }
-    
+
     public void setZeroRefreshTime() {
         setVcsRefreshTime(0);
     }
-    
+
     protected InputOutput getCommandsIO () {
-        if (cmdIO == null) {            
+        if (cmdIO == null) {
             cmdIO = org.openide.windows.IOProvider.getDefault().getIO(
                         NbBundle.getMessage(VcsFileSystem.class, "LBL_VCS_Output"),
-                        false);            
+                        false);
             cmdIO.setErrSeparated(false);
         }
         return cmdIO;
@@ -1384,14 +1384,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
        }
        return null;
     }
-    
+
     /**
      * Get the provider of the cache.
      */
     public FileCacheProvider getCacheProvider() {
         return cache;
     }
-    
+
     /**
      * Get the provider of file status attributes.
      */
@@ -1403,13 +1403,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setCache(FileCacheProvider cache) {
         this.cache = cache;
     }
-    
+
     /**
      * Get the full file path where cache information should be stored.
      * @return the cache file path or null, if no disk cache should be used for this path
      */
     public abstract String getCacheFileName(String path);
-    
+
     /**
      * Initialize the identification of cache used.
      * The default implementation returns a unique string each time it is called.
@@ -1431,11 +1431,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return cacheID;
     }
-    
+
     public VcsCommandsProvider getCommandsProvider() {
         return commandsProvider;
     }
-    
+
     /**
      * Gets the default factory {@link DefaultVcsFactory}. Subclasses may override this to return different instance of {@link VcsFactory}.
      */
@@ -1543,7 +1543,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             integritySupportMaintainer = new IntegritySupportMaintainer(this, this);
         }
     }
-    
+
     public void activate(VcsObjectIntegritySupport objectIntegritySupport) {
         FileSystemCache fsCache = CacheHandler.getInstance().getCache(getCacheIdStr());
         if (fsCache != null) {
@@ -1559,15 +1559,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         addRemoveFSListener = new VcsFileSystem.FSRepositoryListener();
         Repository.getDefault().addRepositoryListener(WeakListener.repository(addRemoveFSListener, this));
     }
-    
+
     protected AbstractFileSystem.List getVcsList() {
         return vcsList;
     }
-    
+
     protected AbstractFileSystem.Info getVcsInfo() {
         return info;
     }
-    
+
     private void assignVersioningProperties(VcsVersioningSystem vers) {
         vers.setShowDeadFiles(versioningFileSystemShowDeadFiles);
         vers.setIgnoredGarbageFiles(versioningFileSystemShowGarbageFiles);
@@ -1576,7 +1576,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         vers.setShowUnimportantFiles(versioningFileSystemShowUnimportantFiles);
         vers.setMessageLength(versioningFileSystemMessageLength);
     }
-    
+
     /**
      * Notifies this file system that it has been added to the repository.
      * Since we can not rely on the addNotify() method (see issue #30763),
@@ -1614,7 +1614,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         enableRefresh();
     }
-    
+
     /**
      * Notifies this file system that it has been removed from the repository.
      * Since we can not rely on the removeNotify() method (see issue #30763),
@@ -1651,7 +1651,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             });
         }
     }
-    
+
     protected void setCreateRuntimeCommands(boolean createRuntimeCommands) {
         if (this.createRuntimeCommands == null || createRuntimeCommands != this.createRuntimeCommands.booleanValue()) {
             this.createRuntimeCommands = createRuntimeCommands ? Boolean.TRUE : Boolean.FALSE;
@@ -1662,34 +1662,34 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             firePropertyChange(PROP_CREATE_RUNTIME_COMMANDS, null, this.createRuntimeCommands);
         }
     }
-    
+
     public boolean isCreateRuntimeCommands() {
         return createRuntimeCommands.booleanValue();
     }
-    
+
     protected void setCreateVersioningSystem(boolean createVersioningSystem) {
         if (this.createVersioningSystem == null || createVersioningSystem != this.createVersioningSystem.booleanValue()) {
             this.createVersioningSystem = createVersioningSystem ? Boolean.TRUE : Boolean.FALSE;
             firePropertyChange(PROP_CREATE_VERSIONING_EXPLORER, null, this.createVersioningSystem);
         }
     }
-    
+
     protected boolean isCreateVersioningSystem() {
         return createVersioningSystem.booleanValue();
     }
-    
+
     public VersioningFileSystem getVersioningFileSystem() {
         return versioningSystem;
     }
-    
+
     protected VcsActionSupporter getVcsActionSupporter() {
         return actionSupporter;
     }
-    
+
     protected VcsAttributes getVcsAttributes() {
         return (VcsAttributes) attr;
     }
-    
+
     private static final long serialVersionUID =8108342718973310275L;
 
     /**
@@ -1732,7 +1732,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //D.deb("getPossibleFileStatuses() return = "+VcsUtilities.array2string(statuses));
         return statuses;
     }
-    
+
     /**
      * Get the map of possible pairs of status name and corresponding FileStatusInfo object.
      */
@@ -1752,7 +1752,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return statusesTable;
     }
      */
-    
+
     /**
      * Get the set of all possible FileStatusInfo objects.
      */
@@ -1765,7 +1765,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
-    
+
     /**
      * Set a set of all possible FileStatusInfo objects.
      */
@@ -1796,13 +1796,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             possibleFileStatusInfoMap = Collections.unmodifiableMap(possibleFileStatusInfoMap);
         }
     }
-    
+
     //-------------------------------------------
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         // cache is transient
         //System.out.println("VcsFileSystem.readObject() ...");
         //try {
             //ObjectInputStream din = (ObjectInputStream) in;
+        this.nonLocals = new HashSet ();
         deserialized = true;
         possibleFileStatusesLock = new Object();
         boolean localFilesOn = in.readBoolean ();
@@ -1849,7 +1850,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private void writeObject(ObjectOutputStream out) throws IOException {
         //D.deb("writeObject() - saving bean"); // NOI18N
         // cache is transient
-        
+
         out.writeBoolean (true/*cache.isLocalFilesAdd ()*/); // for compatibility
         String myPassword = password;
         if (!rememberPassword) password = null;
@@ -1908,7 +1909,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 	}
 	addEnvironmentVar (key, value);
     }
-    
+
     private void updateEnvironmentVars() {
         Map systemEnv = VcsUtilities.getSystemEnvVars();
         Map env = VcsUtilities.addEnvVars(systemEnv, getVariablesAsHashtable(),
@@ -1927,7 +1928,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public VariableValueAdjustment getVarValueAdjustment() {
         return varValueAdjustment;
     }
-    
+
     /** Notify the filesystem, that an variable has changed and should be saved.
      * @param name the name of a changed variables. If <code>null</code> we suppose,
      *        that all variables changed. */
@@ -2012,7 +2013,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         synchronized (this) {
             this.variables = variables;
         }
-        
+
         VcsConfigVariable mod = (VcsConfigVariable) variablesByName.get("MODULE");
         HashMap newVarsByName = new HashMap();
         for (int i = 0, n = variables.size (); i < n; i++) {
@@ -2114,7 +2115,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setPassword(String password){
         if (this.password == null && password != null ||
             this.password != null && !this.password.equals(password)) {
-            
+
             this.password = password;
             firePropertyChange(PROP_PASSWORD, null, password);
         }
@@ -2124,14 +2125,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public String getPassword(){
         return password;
     }
-    
+
     public void setRememberPassword(boolean remember) {
         if (this.rememberPassword != remember) {
             this.rememberPassword = remember;
             firePropertyChange(PROP_REMEMBER_PASSWORD, !remember ? Boolean.TRUE : Boolean.FALSE, remember ? Boolean.TRUE : Boolean.FALSE);
         }
     }
-    
+
     public boolean isRememberPassword() {
         return rememberPassword;
     }
@@ -2224,21 +2225,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                    });
         }
     }
-    
+
     public String getAnnotationPattern() {
         return annotationPattern;
     }
-    
+
     public void setAnnotationPattern(String annotationPattern) {
         String old = this.annotationPattern;
         this.annotationPattern = annotationPattern;
         firePropertyChange(PROP_ANNOTATION_PATTERN, old, this.annotationPattern);
     }
-    
+
     public int[] getMultiFileAnnotationTypes() {
         return multiFilesAnnotationTypes;
     }
-    
+
     public void setMultiFileAnnotationTypes(int[] multiFileAnnotationTypes) {
         if (multiFilesAnnotationTypes.length != RefreshCommandSupport.NUM_ELEMENTS) {
             throw new IllegalArgumentException("Wrong length of the array ("+multiFileAnnotationTypes.length+" != "+RefreshCommandSupport.NUM_ELEMENTS+")");
@@ -2283,7 +2284,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                            multiFilesAnnotationTypes);
         } else return "";
     }
-    
+
     /**
      * Get states of all important files inside the DataObject. To get the status,
      * wait for the status reader command if necessary.
@@ -2313,7 +2314,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         } else return new String[0];
     }
-    
+
     /** Get the "real" status of a file. If necessary wait for the status to be
      * retrieved from the VCS */
     private String getRealStatus(String fullName) {
@@ -2364,7 +2365,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return status;
     }
-    
+
     /** find a cache dir, that currently does not exist, but can be obtained
      * after it's parents are loaded */
     private CacheDir findLoadedCacheDir(String name) {
@@ -2396,7 +2397,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return dir;
     }
-    
+
     /** Converts a FileObject from a different file system (usually
      * a multifilesystem which I'm a part of) to a FileObject from my (this)
      * filesystem. */
@@ -2431,7 +2432,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         } else locker = "";
         return locker;
     }
-    
+
     /**
      * Get the annotate icon for a single file. It does not have to be represented by a FileObject.
      */
@@ -2559,7 +2560,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //}
         return annotateName(fo.getName(), dobj.files());
     }
-    
+
     /** Annotate the set of files with additional version control attributes.
      * @param name the original annotation
      * @param files the files to annotate
@@ -2624,7 +2625,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 isFromThisFs = true;
             }
             //System.out.println(" isFromThisFs = "+isFromThisFs);
-            if (isFromThisFs) {            
+            if (isFromThisFs) {
                 String fullName = ff.getPackageNameExt('/','.');
                 //System.out.println(" fullName = "+fullName+", isImportant = "+isImportant(fullName));
                 if (processAll || isImportant(fullName)) {
@@ -2793,7 +2794,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             last_rootFile = new File(getFSRoot());
             ready=true ;
 
-            //HACK 
+            //HACK
       //      this.cache.refreshDir(this.getRelativeMountPoint());
 
             if (cache != null) {
@@ -2804,7 +2805,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         firePropertyChange(PROP_DISPLAY_NAME, null, null);
         firePropertyChange(PROP_ROOT, null, refreshRoot ());
     }
-    
+
     /** Modified to never throw PropertyVetoException by the name adjustment. */
     public void setAdjustedSystemName(String name) {
         int seed = 0;
@@ -2943,7 +2944,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         String files[] = dir.list(getLocalFileFilter());
         return files;
     }
-    
+
     /**
      * The file scheduled for remove is on the disk.
      * If it does not contain VcsAttributes.VCS_SCHEDULING_REMOVE,
@@ -2997,21 +2998,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return mergedFiles;     // merged files are local + cached virtual = rerged - local
     }
-    
+
     private void markAsMissingFiles(String name, String[] local, String[] cached) {
         java.util.List locals = Arrays.asList(local);
         //if (name.length() > 0) name += "/";
         ArrayList files = new ArrayList();
         if (missingFileStatus != null && missingFileStatus.equals(missingFolderStatus) &&
             notMissingableFileStatuses.equals(notMissingableFolderStatuses)) {
-            
+
             for (int i = 0; i < cached.length; i++) {
                 if (!locals.contains(cached[i])) files.add(cached[i]);//statusProvider.setFileMissing(name + cached[i]);
             }
             if (files.size() > 0) {
                 cache.setExistingFileStatus(name, (String[]) files.toArray(new String[0]),
                                             missingFileStatus, notMissingableFileStatuses, true);
-            }                        
+            }
         } else {
             ArrayList folders = new ArrayList();
             String name1 = (name.length() > 0) ? name + "/" : name;
@@ -3031,7 +3032,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
-    
+
     private transient boolean isRootReferenced = false;
 
     /* Get children files inside a folder
@@ -3048,7 +3049,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             //System.out.println("children: not ready !!"); // NOI18N
             return new String[0];
         }
-        
+
         if (!isRootReferenced) {
             if (cache != null) {
                 cache.createReference(getRoot());
@@ -3096,17 +3097,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("children = "+files);
         //System.out.println("  children = "+VcsUtilities.arrayToString(files));
         if (versioningSystem != null) addVersioningFolderListener(name);
-        
+
         for (int i = 0; i < files.length; i++) {
             if (isFilterBackupFiles() && files[i].endsWith(getBackupExtension()) ||
                 ignoredGarbageRE != null && ignoredGarbageRE.match (files[i])) {
-                
+
                 files[i] = null;
             }
         }
         return files;
     }
-    
+
     boolean areOnlyHiddenFiles(String[] files) {
         ArrayList fileList = new ArrayList(Arrays.asList(files));
         fileList.remove(".nbattrs"); // NOI18N
@@ -3117,7 +3118,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return fileList.size() == 0;
     }
-    
+
     String[] filterDeadFilesOut(String name, String[] vcsFiles) {
         if (vcsFiles == null) return null;
         FileStatusProvider statusProvider = getStatusProvider();
@@ -3137,10 +3138,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return (String[]) files.toArray(new String[0]);
     }
-    
+
     private transient WeakHashMap versioningFolderListeners;
     private static final Object versioningFolderListenersLock = new Object();
-    
+
     private void addVersioningFolderListener(String name) {
         //System.out.println("addVersioningFolderListener("+name+")");
         FileObject fo = findResource(name);
@@ -3161,9 +3162,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
-    
+
     private transient Vector scheduledFilesToBeProcessed;
-    
+
     /**
      * The scheduling action is started for a file.
      * Mark this file as being processed by a scheduling action.
@@ -3174,7 +3175,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         scheduledFilesToBeProcessed.add(name);
     }
-    
+
     /**
      * The scheduling action is done for a file.
      * Remove this file from the list of files being processed by a scheduling action.
@@ -3185,7 +3186,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         scheduledFilesToBeProcessed.remove(name);
     }
-    
+
     /** test, whether the scheduling action was done */
     private boolean isSchedulingDone(String name) {
         return scheduledFilesToBeProcessed == null || !scheduledFilesToBeProcessed.contains(name);
@@ -3248,7 +3249,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return (String[]) filtered.toArray(new String[0]);
     }
-    
+
     /**
      * Remove scheduling attributes for files scheduled for ADD, but not present any more.
      * @param packageName the name of the package
@@ -3283,7 +3284,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
-    
+
     /**
      * Clean the array of sets of scheduled file names.
      * If any set in this array becomes empty, substitute it by <code>null</code>,
@@ -3310,7 +3311,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //
     // Change
     //
-    
+
     /**
      * Should be called when the modification in a file or folder is expected
      * and its content should be refreshed.
@@ -3425,7 +3426,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             refresher.addPrefferedFolder(parent);
         }
     }
-    
+
     /** Rename a file.
      * @param oldName old name of the file
      * @param newName new name of the file
@@ -3469,7 +3470,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             };
         }
     }
-    
+
     protected boolean deleteFile(final File file, String name) throws IOException {
         if (!file.exists()) return true; // non existing file is successfully deleted
         if (!file.canWrite()/* || !file.canRead()*/) {
@@ -3515,7 +3516,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         callDeleteCommand(name, wasDir);
         return success;
     }
-    
+
     /**
      * When a file or folder was deleted, a command DELETE_FILE
      * or DELETE_DIR is called. Subclasses can do their own actions here.
@@ -3543,7 +3544,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient ArrayList deleteFileCommandQueue = new ArrayList();
     private transient ArrayList deleteFolderCommandQueue = new ArrayList();
     private transient Thread deleteCommandThread = null;
-    
+
     private void addDeleteCommand(String name, boolean isDir) {
         synchronized (deleteFileCommandQueue) {
             if (isDir) {
@@ -3558,7 +3559,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
-    
+
     private Thread createDeleteCommandThread() {
         return new Thread(new Runnable() {
             public void run() {
@@ -3598,7 +3599,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }, "VCS Delete file/dir command");
     }
-    
+
     private void runDeleteFilesCommand(java.util.List filesList, CommandSupport cmd) {
         ArrayList files = new ArrayList();
         ArrayList diskFiles = new ArrayList();
@@ -3621,7 +3622,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         command.execute();
         //VcsAction.doCommand(files, cmd, null, this);
     }
-    
+
     //-------------------------------------------
     //
     // Info
@@ -3750,7 +3751,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     if (!grSettings.isDisableGroups()) {
                         if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_TO_DEFAULT
                         || grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_ASK) {
-                            
+
                             FileObject fo = findResource(name);
                             if (fo != null) {
                                 try {
@@ -3797,11 +3798,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
-    
+
     protected String getBackupExtension() {
         return "~"; // NOI18N
     }
-    
+
     private static boolean isIDESettingsFile(String name) {
         name = name.replace(java.io.File.separatorChar, '/');
         return name.equals(".nbattrs") ||               // NOI18N
@@ -3809,11 +3810,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                name.equals("filesystem.attributes") ||  // NOI18N
                name.endsWith("/filesystem.attributes"); // NOI18N
     }
-    
+
     protected void createBackupFile(String name) throws java.io.IOException {
         if (name.endsWith(getBackupExtension()) || isIDESettingsFile(name) ||
             !getFile(name).exists() || !isImportant(name)) {
-            
+
             return ;
         }
         InputStream in = inputStream(name);
@@ -3852,7 +3853,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         this.promptForLockResult = promptForLockResult;
     }
      */
-    
+
     /**
      * Whether the LOCK command should be performed for this file. This method should
      * check whether the file is already locked. The default implementation
@@ -3875,7 +3876,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return true;
     }
-    
+
     /** Table of files to be locked (java.io.File) and the array of LOCK command executors */
     private Map lockCommandExecutors = new HashMap();
     /** Table of files to be edited (java.io.File) and the array of EDIT command executors */
@@ -4064,7 +4065,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             file.setImportant(false);
 }
     */
-    
+
 //-------------------- methods from CacheHandlerListener------------------------
     public void cacheAdded(CacheHandlerEvent event) {
 //        D.deb("cacheAdded called for:" + event.getCvsCacheFile().getName());
@@ -4090,7 +4091,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             statusChanged(path);
         }
     }
-    
+
     public void cacheRemoved(CacheHandlerEvent event) {
 //        D.deb("cacheRemoved called for:" + event.getCvsCacheFile().getName());
         String root = getRootDirectory().getAbsolutePath();
@@ -4117,7 +4118,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
-    
+
     public void statusChanged(CacheHandlerEvent event) {
         //D.deb("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         //D.deb("statusChanged called for:" + event.getCacheFile().getAbsolutePath());
@@ -4168,7 +4169,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (children[i].hasChildren()) addCommandsToHashTable(children[i]);
         }
     }
-    
+
     /**
      * For compatibility reasons only.
      * This method is to be used when deserialization from NetBeans 3.1 and older is performed.
@@ -4244,7 +4245,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return null;
         }
     }
-    
+
     /**
      * Get a command support by it's name.
      * @param name the name of the command to get
@@ -4259,7 +4260,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return (CommandSupport) commandsByName.get(name);
     }
-    
+
     /**
      * Get the list of all command names.
      * @return The list of all command names.
@@ -4272,7 +4273,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return (String[]) commandsByName.keySet().toArray(new String[commandsByName.size()]);
     }
-    
+
     private void addCmdActionsToSupporter() {
         for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
             CommandSupport cmdSupport = (CommandSupport) it.next();
@@ -4284,7 +4285,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
-    
+
     private void removeCmdActionsFromSupporter() {
         for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
             CommandSupport cmdSupport = (CommandSupport) it.next();
@@ -4300,7 +4301,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public FilenameFilter getLocalFileFilter() {
         return null;
     }
-    
+
     /**
      * This method is called from AbstractFileObject.isVirtual. Tests if file
      * really exists or is missing. Some operation on it may be restricted if returns true.
@@ -4311,7 +4312,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         File file = getFile(name);
         return !file.exists();
     }
-    
+
     /**
      * Perform the check of whether the file is or is not still virtual. This
      * method is called on every file status change with the set of potentially
@@ -4341,7 +4342,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    
+
     private void settingsChanged(String propName, Object oldVal, Object newVal) {
         GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
         if (GeneralVcsSettings.PROP_USE_GLOBAL.equals(propName)) {
@@ -4364,15 +4365,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
-    
+
     private class FSPropertyChangeListener implements PropertyChangeListener {
-        
+
         private String oldFsSystemName;
-        
+
         public FSPropertyChangeListener() {
             oldFsSystemName = VcsFileSystem.this.getSystemName();
         }
-        
+
         public void propertyChange(final PropertyChangeEvent event) {
             String propName = event.getPropertyName();
             Object oldValue = event.getOldValue();
@@ -4388,32 +4389,32 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
-    
+
     private class SettingsPropertyChangeListener implements PropertyChangeListener {
         public void propertyChange(final PropertyChangeEvent event) {
             settingsChanged(event.getPropertyName(), event.getOldValue(), event.getNewValue());
         }
     }
-    
+
     private class VcsList implements AbstractFileSystem.List {
-        
+
         private static final long serialVersionUID = 9164232967348550668L;
-        
+
         public String[] children(String name) {
             return list.children(name);
         }
-        
+
     }
 
     private class VersioningFolderChangeListener extends Object implements FileChangeListener {
-        
+
         /** the folder name */
         private String name;
-        
+
         public VersioningFolderChangeListener(String name) {
             this.name = name;
         }
-        
+
         /** Fired when a file attribute is changed. */
         public void fileAttributeChanged(org.openide.filesystems.FileAttributeEvent fe) {
         }
@@ -4442,7 +4443,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         public void fileRenamed(org.openide.filesystems.FileRenameEvent fe) {
             refreshVersioning();
         }
-        
+
         private void refreshVersioning() {
             getStatusChangeRequestProcessor().post(new Runnable() {
                 public void run() {
@@ -4456,7 +4457,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             });
         }
     }
-    
+
     /**
      * The listener on Repository to be informed when this filesystem was mounted
      * and unmounted. addNotify() and removeNotify() are not reliable methods.
@@ -4464,38 +4465,38 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * a multifilesystem.
      */
     private class FSRepositoryListener extends Object implements RepositoryListener {
-        
+
         public void fileSystemAdded(RepositoryEvent repositoryEvent) {
             if (VcsFileSystem.this.equals(repositoryEvent.getFileSystem())) {
                 notifyFSAdded();
             }
         }
-        
+
         public void fileSystemPoolReordered(RepositoryReorderedEvent repositoryReorderedEvent) {
         }
-        
+
         public void fileSystemRemoved(RepositoryEvent repositoryEvent) {
             if (VcsFileSystem.this.equals(repositoryEvent.getFileSystem())) {
                 notifyFSRemoved();
             }
         }
-        
+
     }
-    
+
     /**
      * A runnable class, that fires the status change for the collected files.
      */
     private class StatusChangeUpdater extends Object implements Runnable {
-        
+
         private java.util.Set namesToUpdate = new HashSet();
-        
+
         public StatusChangeUpdater() {
         }
-        
+
         public synchronized void addNameToUpdate(String name) {
             namesToUpdate.add(name);
         }
-        
+
         /**
          * Run the status update process.
          */
@@ -4512,9 +4513,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             checkScheduledStates(fos);
             checkVirtualFiles(fos);
         }
-        
+
     }
-    
+
     public String getBundleProperty(String s) {
         return g(s);
     }
@@ -4522,11 +4523,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public String getBundleProperty(String s, Object obj) {
         return g(s, obj);
     }
-    
+
     public IgnoreListSupport getIgnoreListSupport () {
         return this.ignoreListSupport;
     }
-    
+
     public void setIgnoreListSupport (IgnoreListSupport support) {
         this.ignoreListSupport = support;
     }
@@ -4545,7 +4546,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected String g(String s, Object obj1, Object obj2, Object obj3) {
         return MessageFormat.format (g(s), new Object[] { obj1, obj2, obj3 });
     }
-    
+
     private void D(String debug) {
         //System.out.println("VcsFileSystem(): "+debug);
     }
