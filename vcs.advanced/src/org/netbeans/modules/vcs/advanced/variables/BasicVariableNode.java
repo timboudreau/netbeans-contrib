@@ -31,7 +31,8 @@ import org.openide.util.actions.ActionPerformer;
 import org.openide.util.datatransfer.NewType;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
-import org.openide.DialogDisplayer;
+import org.netbeans.modules.vcs.advanced.conditioned.ConditionedString;
+import org.netbeans.modules.vcs.advanced.conditioned.IfUnlessCondition;
 
 /**
  *

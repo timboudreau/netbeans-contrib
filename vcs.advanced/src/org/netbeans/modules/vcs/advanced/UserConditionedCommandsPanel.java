@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -38,6 +38,9 @@ import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.*;
+import org.netbeans.modules.vcs.advanced.variables.Condition;
+
 /** User commands panel.
  * 
  * @author Martin Entlicher
@@ -45,14 +48,12 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 //-------------------------------------------
 public class UserConditionedCommandsPanel extends JPanel implements CommandChangeListener, EnhancedCustomPropertyEditor, ExplorerManager.Provider {
 
-    private Debug E=new Debug("UserConditionedCommandsPanel", true); // NOI18N
-    private Debug D=E;
-
     private UserConditionedCommandsEditor editor;
 
     //private Vector commands=null;
     //private CommandList commandList = null;
     private CommandNode commandsNode = null;
+    private ConditionedCommands ccommands = null;
     
     private ExplorerManager manager = null;
     
@@ -68,7 +69,8 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
      */
     public UserConditionedCommandsPanel(UserConditionedCommandsEditor editor) {
         this.editor = editor;
-        CommandsTree commands = ((ConditionedCommands) editor.getValue()).getCommands();
+        ccommands = (ConditionedCommands) editor.getValue();
+        CommandsTree commands = ccommands.getCommands();
         CommandSupport supp = commands.getCommandSupport();
         UserCommand oldcmd = null;
         if (supp != null && supp instanceof UserCommandSupport) {
@@ -81,7 +83,13 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
             newcmd = new UserCommand();
             newcmd.copyFrom(oldcmd);
         }
-        commandsNode = createCommandNodes(commands, newcmd);
+        /* The first command can not be conditioned
+        ConditionedCommand ccommand = null;
+        if (supp != null) {
+            ccommand = ccommands.getConditionedCommand(supp.getName());
+        }
+         */
+        commandsNode = createCommandNodes(commands, newcmd, null, null);
         initComponents();
         getExplorerManager().setRootContext(commandsNode/*createNodes()*/);
         ExplorerActions actions = new ExplorerActions();
@@ -109,10 +117,12 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
         editor.setValue(getPropertyValue());
     }
     
-    private CommandNode createCommandNodes(CommandsTree oldCommands, UserCommand cmd) {
+    private CommandNode createCommandNodes(CommandsTree oldCommands, UserCommand cmd,
+                                           Condition c, ConditionedPropertiesCommand cpc) {
         Children newChildren = new Index.ArrayChildren();
         
-        CommandNode newCommands = new CommandNode(newChildren, cmd);
+        CommandNode newCommands = new CommandNode(newChildren, cmd, c, cpc);
+        //CommandsTree oldCommands = ccommands.getCommands();
         CommandsTree[] oldNodes = oldCommands.children();
         for(int i = 0; i < oldNodes.length; i++) {
             CommandSupport supp = oldNodes[i].getCommandSupport();
@@ -121,13 +131,37 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
                 newcmd = new UserCommand();
                 newcmd.copyFrom(((UserCommandSupport) supp).getVcsCommand());
             }
-            CommandNode newNode;
-            if (!oldNodes[i].hasChildren()) {
-                newNode = new CommandNode(Children.LEAF, newcmd);
-            } else {
-                newNode = createCommandNodes(oldNodes[i], newcmd);
+            ConditionedCommand ccommand = null;
+            if (supp != null) {
+                ccommand = ccommands.getConditionedCommand(supp.getName());
+                if (ccommand == null) {
+                    ccommand = new ConditionedCommand(supp.getName());
+                    ccommand.addCommand(new ConditionedPropertiesCommand((UserCommandSupport) supp), null);
+                }
             }
-            newChildren.add(new Node[] { newNode });
+            Node[] newNodes;
+            if (!oldNodes[i].hasChildren()) {
+                if (ccommand != null) {
+                    Condition[] conditions = ccommand.getConditions();
+                    newNodes = new CommandNode[conditions.length];
+                    for (int j = 0; j < conditions.length; j++) {
+                        newNodes[j] = new CommandNode(Children.LEAF, newcmd, conditions[j], ccommand.getCommandFor(conditions[j]));
+                    }
+                } else {
+                    newNodes = new CommandNode[] { new CommandNode(Children.LEAF, newcmd) };
+                }
+            } else {
+                if (ccommand != null) {
+                    Condition[] conditions = ccommand.getConditions();
+                    newNodes = new CommandNode[conditions.length];
+                    for (int j = 0; j < conditions.length; j++) {
+                        newNodes[j] = createCommandNodes(oldNodes[i], newcmd, conditions[j], ccommand.getCommandFor(conditions[j]));
+                    }
+                } else {
+                    newNodes = new CommandNode[] { createCommandNodes(oldNodes[i], newcmd, null, null) };
+                }
+            }
+            newChildren.add(newNodes);
         }
         return newCommands;
     }
@@ -203,10 +237,13 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
     
     //-------------------------------------------
     public Object getPropertyValue() {
+        return ccommands;
+        /*
         // TODO edit conditioned commands also
         return new ConditionedCommandsBuilder(
             createCommands(commandsNode, (UserCommand) commandsNode.getCommand(), executionContext)
             ).getConditionedCommands();
+         */
     }
 
 

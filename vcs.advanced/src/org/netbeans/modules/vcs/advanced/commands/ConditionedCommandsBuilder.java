@@ -189,11 +189,11 @@ public final class ConditionedCommandsBuilder {
         private Condition[] conditions;
         private ConditionedPropertiesCommand[] commands;
         
-        ConditionedCommand(String name) {
+        public ConditionedCommand(String name) {
             this.name = name;
         }
         
-        void addCommand(ConditionedPropertiesCommand cmd, Condition c) {
+        public void addCommand(ConditionedPropertiesCommand cmd, Condition c) {
             conditions = addCondition(c, conditions);
             commands = addCommand(cmd, commands);
         }
@@ -261,7 +261,7 @@ public final class ConditionedCommandsBuilder {
         private final UserCommandSupport cmd;
         private ConditionedProperty[] conditionedProperties;
         
-        ConditionedPropertiesCommand(UserCommandSupport cmd) {
+        public ConditionedPropertiesCommand(UserCommandSupport cmd) {
             this.cmd = cmd;
         }
         
@@ -323,7 +323,7 @@ public final class ConditionedCommandsBuilder {
      * This class represents a command's property, that is dependent on some
      * conditions.
      */
-    static final class ConditionedProperty extends Object {
+    public static final class ConditionedProperty extends Object {
         
         private final String name;
         private final Condition c;

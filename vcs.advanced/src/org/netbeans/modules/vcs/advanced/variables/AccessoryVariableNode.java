@@ -38,7 +38,8 @@ import org.netbeans.modules.vcscore.VcsConfigVariable;
 
 import org.netbeans.modules.vcs.advanced.VcsCustomizer;
 import org.netbeans.modules.vcs.advanced.UserVariablesPanel;
-import org.openide.DialogDisplayer;
+import org.netbeans.modules.vcs.advanced.conditioned.ConditionedString;
+import org.netbeans.modules.vcs.advanced.conditioned.IfUnlessCondition;
 
 /**
  *

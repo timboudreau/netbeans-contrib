@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -15,11 +15,13 @@ package org.netbeans.modules.vcs.advanced.commands;
 
 import java.awt.Image;
 import java.awt.datatransfer.*;
+import java.beans.PropertyEditor;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -40,6 +42,13 @@ import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.util.Table;
 
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedPropertiesCommand;
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedProperty;
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedCommand;
+import org.netbeans.modules.vcs.advanced.conditioned.ConditionedObject;
+import org.netbeans.modules.vcs.advanced.conditioned.IfUnlessCondition;
+import org.netbeans.modules.vcs.advanced.variables.Condition;
+
 /**
  * The Node representation of a VCS command.
  *
@@ -54,6 +63,9 @@ public class CommandNode extends AbstractNode {
     private static final String DEFAULT_HIDDEN_COMMAND_BADGE = "org/netbeans/modules/vcs/advanced/commands/commandsHiddenBadgeIcon.gif"; // NOI18N
 
     private VcsCommand cmd = null;
+    private IfUnlessCondition mainCondition = null;
+    private ConditionedPropertiesCommand cpcommand = null;
+    private Map cproperties = null;
     private ResourceBundle resourceBundle = null;
     private CommandsIndex index = null;
     
@@ -155,8 +167,29 @@ public class CommandNode extends AbstractNode {
 
     /** Creates new CommandNode */
     public CommandNode(Children children, VcsCommand cmd) {
+        this(children, cmd, null, null);
+    }
+    
+    /** Creates new CommandNode */
+    public CommandNode(Children children, VcsCommand cmd, Condition condition, ConditionedPropertiesCommand cpcommand) {
         super(children);
         this.cmd = cmd;
+        this.cpcommand = cpcommand;
+        if (condition != null || cpcommand != null) {
+            mainCondition = new IfUnlessCondition(condition);
+            if (cmd != null) {
+                mainCondition.setConditionName(cmd.getName());
+            }
+        }
+        if (cpcommand != null) {
+            ConditionedProperty[] properties = cpcommand.getConditionedProperties();
+            cproperties = new HashMap();
+            if (properties != null) {
+                for (int i = 0; i < properties.length; i++) {
+                    cproperties.put(properties[i].getName(), properties[i]);
+                }
+            }
+        }
         init();
     }
     
@@ -406,16 +439,16 @@ public class CommandNode extends AbstractNode {
         Sheet.Set set = sheet.get(Sheet.PROPERTIES);
         if (cmd == null) set.put(new PropertySupport.Name(this));
         else {
-            createStandardProperties(cmd, set);
+            createStandardProperties(set);
             if (!isFolderCommand(cmd)) {
-                sheet.put(createExpertProperties(cmd));
-                sheet.put(createListProperties(cmd));
+                sheet.put(createExpertProperties());
+                sheet.put(createListProperties());
             }
         }
         return sheet;
     }
     
-    private void createStandardProperties(final VcsCommand cmd, final Sheet.Set set) {
+    private void createStandardProperties(final Sheet.Set set) {
         if (cmd == null) {
             set.put(new PropertySupport.ReadOnly("label", String.class, g("CTL_Label"), g("HINT_Label")) {
                         public Object getValue() {
@@ -463,10 +496,30 @@ public class CommandNode extends AbstractNode {
                         //cmd.fireChanged();
                     }
                 });
+        if (mainCondition != null) {
+            set.put(new PropertySupport.ReadWrite("if", String.class, g("CTL_DefIf"), g("HINT_DefIf")) {
+                public Object getValue() {
+                    return mainCondition.getIf();
+                }
+                
+                public void setValue(Object value) {
+                    mainCondition.setIf((String) value);
+                }
+            });
+            set.put(new PropertySupport.ReadWrite("unless", String.class, g("CTL_DefIfNot"), g("HINT_DefIfNot")) {
+                public Object getValue() {
+                    return mainCondition.getUnless();
+                }
+                
+                public void setValue(Object value) {
+                    mainCondition.setUnless((String) value);
+                }
+            });
+        }
         if (isFolderCommand(cmd)) {
-            addProperties(set, cmd, folder_std_propertyClassTypes, null);
+            addProperties(set, folder_std_propertyClassTypes, null);
         } else {
-            addProperties(set, cmd, stdandard_propertyClassTypes, null);
+            addProperties(set, stdandard_propertyClassTypes, null);
             //if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
             //    VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName())) {
 
@@ -475,13 +528,13 @@ public class CommandNode extends AbstractNode {
         }
     }
     
-    private Sheet.Set createExpertProperties(final VcsCommand cmd) {
+    private Sheet.Set createExpertProperties() {
         Sheet.Set set = Sheet.createExpertSet();
-        addProperties(set, cmd, expert_propertyClassTypes, null);
+        addProperties(set, expert_propertyClassTypes, null);
         return set;
     }
     
-    private Sheet.Set createListProperties(final VcsCommand cmd) {
+    private Sheet.Set createListProperties() {
         Sheet.Set set = new Sheet.Set();//Sheet.createExpertSet();
         set.setName("list");
         set.setDisplayName(g("CTL_ListProperties"));
@@ -492,12 +545,12 @@ public class CommandNode extends AbstractNode {
         } else {
             listTypes = list_propertyClassTypes;
         }
-        addProperties(set, cmd, listTypes, new Integer(-1));
+        addProperties(set, listTypes, new Integer(-1));
         return set;
     }
     
-    private void addProperties(final Sheet.Set set, final VcsCommand cmd,
-                               final Map propertyClassTypes, final Object defaultValue) {
+    private void addProperties(final Sheet.Set set, final Map propertyClassTypes,
+                               final Object defaultValue) {
         
         for (Iterator it = propertyClassTypes.keySet().iterator(); it.hasNext(); ) {
             String propertyName = (String) it.next();
@@ -516,9 +569,10 @@ public class CommandNode extends AbstractNode {
             } catch (MissingResourceException exc) {
                 tooltip = "";
             }
-            Class valueClass = (Class) propertyClassTypes.get(propertyName);
+            final Class valueClass = (Class) propertyClassTypes.get(propertyName);
             if (valueClass == null) continue;
-            set.put(new PropertySupport.ReadWrite(
+            if (cpcommand == null) {
+                set.put(new PropertySupport.ReadWrite(
                         propertyName, valueClass,
                         label, tooltip
                     ) {
@@ -572,7 +626,53 @@ public class CommandNode extends AbstractNode {
                             }
                         }
                 });
+            } else {
+                //final PropertyEditor conditionedPropertyEditor = ConditionedObject.getConditionedPropertyEditor(valueClass);
+                set.put(new PropertySupport.ReadWrite(
+                        propertyName, ConditionedObject.class,
+                        label, tooltip
+                    ) {
+                        public Object getValue() {
+                            String propertyName = getName();
+                            ConditionedProperty cproperty = (ConditionedProperty) cproperties.get(propertyName);
+                            ConditionedObject co;
+                            if (cproperty != null) {
+                                co = ConditionedObject.createConditionedObject(propertyName, cproperty.getValuesByConditions(), valueClass);
+                            } else {
+                                Map valuesByConditions = new HashMap();
+                                valuesByConditions.put(null, getPropertyValue(propertyName, cmd.getProperty(propertyName), valueClass, defaultValue));
+                                co = ConditionedObject.createConditionedObject(propertyName, valuesByConditions, valueClass);
+                            }
+                            return co;
+                        }
+                        public void setValue(Object value) {
+                            ConditionedObject co = (ConditionedObject) value;
+                            String propertyName = co.getName();
+                            ConditionedProperty cproperty = (ConditionedProperty) cproperties.get(propertyName);
+                        }
+                        
+                        public PropertyEditor getPropertyEditor() {
+                            return ConditionedObject.getConditionedPropertyEditor(valueClass);
+                        }
+                });
+            }
         }
+    }
+    
+    private static Object getPropertyValue(String name, Object value, Class valueType, Object defaultValue) {
+        if (value == null) {
+            value = VcsCommandIO.getDefaultPropertyValue(name);
+        }
+        if (value == null) {
+            if (Boolean.TYPE.equals(valueType)) {
+                value = Boolean.FALSE;
+            } else if (Integer.TYPE.equals(valueType) &&
+                       defaultValue != null &&
+                       Integer.class.equals(defaultValue.getClass())) {
+                value = defaultValue;
+            }
+        }
+        return value;
     }
 
     protected SystemAction [] createActions() {

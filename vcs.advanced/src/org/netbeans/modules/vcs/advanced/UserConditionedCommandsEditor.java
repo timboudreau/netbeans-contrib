@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -31,12 +31,11 @@ import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder;
  */
 //-------------------------------------------
 public class UserConditionedCommandsEditor implements PropertyEditor {
-    private Debug E=new Debug("UserConditionedCommandsEditor", false); // NOI18N
-    private Debug D=E;
-
+    
     //private Vector commands=new Vector(10);
     //private Node commands = null;
-    private CommandsTree commands = null;
+    //private CommandsTree commands = null;
+    private ConditionedCommands ccommands = null;
 
     private PropertyChangeSupport changeSupport=null;
 
@@ -49,7 +48,7 @@ public class UserConditionedCommandsEditor implements PropertyEditor {
     //-------------------------------------------
     public String getAsText(){
         // null if the value can't be expressed as an editable string...
-        return ""+commands; // NOI18N
+        return ccommands.toString(); // NOI18N
     }
 
     //-------------------------------------------
@@ -80,18 +79,16 @@ public class UserConditionedCommandsEditor implements PropertyEditor {
 
     //-------------------------------------------
     public Object getValue() {
-        // TODO provide the conditioned commands as well
-        return new ConditionedCommandsBuilder(commands).getConditionedCommands();
+        return ccommands;
+        //return new ConditionedCommandsBuilder(commands).getConditionedCommands();
     }
 
     //-------------------------------------------
     public void setValue(Object value) {
         if (!(value instanceof ConditionedCommands)) {
-            E.err("ConditionedCommands expected instead of "+value); // NOI18N
             throw new IllegalArgumentException("ConditionedCommands expected instead of "+value);
         }
-        // TODO edit the conditioned commands as well
-        commands = ((ConditionedCommands) value).getCommands();
+        ccommands = (ConditionedCommands) value;
         /*
         // make local copy of value - deep copy using clone
         commands = new Vector();
