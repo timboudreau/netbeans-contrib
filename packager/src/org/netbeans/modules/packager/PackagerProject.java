@@ -201,7 +201,7 @@ public class PackagerProject implements Project {
     
     public void setPackagedProjects (final Project[] projects) {
         final ReferenceHelper refHelper = getReferenceHelper();
-        Set current = subprojects.getSubProjects();
+        Set current = subprojects.getSubprojects();
         
         final HashSet subs = new HashSet (Arrays.asList(projects));
         if (current.equals(subs)) {

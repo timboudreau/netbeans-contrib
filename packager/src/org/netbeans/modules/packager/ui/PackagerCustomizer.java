@@ -64,7 +64,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
     public PackagerCustomizer(PackagerProject project) {
         this();
         SubprojectProvider prov = (SubprojectProvider) project.getLookup().lookup (SubprojectProvider.class);
-        Set subs = prov.getSubProjects();
+        Set subs = prov.getSubprojects();
         for (Iterator i=subs.iterator(); i.hasNext();) {
             ((ProjectListModel) included.getModel()).add((Project) i.next());
         }

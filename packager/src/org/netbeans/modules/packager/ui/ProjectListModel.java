@@ -103,7 +103,7 @@ public class ProjectListModel implements ListModel {
     private void installDeps (Project p, List data) {
         SubprojectProvider prov = (SubprojectProvider) p.getLookup().lookup(SubprojectProvider.class);
         if (prov != null) {
-            Set s = prov.getSubProjects();
+            Set s = prov.getSubprojects();
             if (!s.isEmpty()) {
                 for (Iterator i=s.iterator(); i.hasNext();) {
                     Project sub = (Project) i.next();
