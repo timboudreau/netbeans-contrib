@@ -13,17 +13,27 @@
 
 package org.netbeans.modules.vcs.profiles.vss.commands;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
+import org.netbeans.modules.vcscore.commands.CommandProcessor;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
+import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
+import org.netbeans.spi.vcs.commands.CommandSupport;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileObject;
+import org.openide.util.NbBundle;
 
 /**
  * Confirmation command is used for commands, that need a "test" command
@@ -40,6 +50,11 @@ import org.openide.NotifyDescriptor;
  *                 standard data output that is used by default)</li>
  * <li><b>-t</b> - in case that the test command does not provide any output,
  *                 do not run the real command</li>
+ * <li><b>-m[EOM]</b> - handle multiple messages for multiple files.
+ *                      EOM - optional "End Of Message".
+ *                      The messages have to contain the appropriate file so that
+ *                      the real commmand can run on the specfic files.
+ *                      This options implies -t option as well.</li>
  * </ul>
  * <p>
  * When only one command name is provided:<br>
@@ -62,12 +77,15 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
     
     public static final String GRAB_ERROR_OUTPUT = "-e"; // NOI18N
     public static final String TEST_ONLY_WHEN_NO_OUTPUT = "-t"; // NOI18N
+    public static final String MULTI_FILES = "-m"; // NOI18N
     public static final String VAR_TEST_CONFIRMATION = "TEST_CONFIRMATION"; // NOI18N
     
     private VcsFileSystem fileSystem;
-    boolean errorOutput;
-    boolean testOnly;
-    boolean defineTestVar;
+    private boolean errorOutput;
+    private boolean testOnly;
+    private boolean multiFiles;
+    private boolean defineTestVar;
+    private String rootDir;
     
     /** Creates a new instance of ConfirmationCommand */
     public ConfirmationCommand() {
@@ -100,11 +118,15 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             stderrNRListener.outputLine("Expecting a command as an argument.\n"+      // NOI18N
                 "ConfirmationCommand [-e] [-t] <command name> [<command name>]\n"+    // NOI18N
                 "-e to grab error data output instead of standard data output,\n"+    // NOI18N
+                "-m[EOM] to handle command that acts on multiple files, EOM - optional End Of Message,\n"+    // NOI18N
                 "-t not to run the real command if test does not produce output.\n"); // NOI18N
             return true;
         }
         errorOutput = false;
         testOnly = false;
+        multiFiles = false;
+        String endOfMessage = null;
+        rootDir = fileSystem.getRootDirectory().getAbsolutePath();
         boolean moreOptions;
         do {
             moreOptions = false;
@@ -114,6 +136,12 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             } else if (TEST_ONLY_WHEN_NO_OUTPUT.equals(args[0])) {
                 moreOptions = true;
                 testOnly = true;
+            } else if (args[0].startsWith(MULTI_FILES)) {
+                moreOptions = true;
+                multiFiles = true;
+                if (args[0].length() > MULTI_FILES.length()) {
+                    endOfMessage = args[0].substring(MULTI_FILES.length());
+                }
             }
             if (moreOptions) {
                 String[] newArgs = new String[args.length - 1];
@@ -126,25 +154,43 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         String realCommandName = (args.length > 1) ? args[1] : args[0];
         VcsCommand testCommand = fileSystem.getCommand(testCommandName);
         VcsCommand realCommand = fileSystem.getCommand(realCommandName);
-        //System.out.println("ConfirmationCommand: errorOutput = "+errorOutput+", testOnly = "+testOnly+", testCommandName = "+testCommandName+", realCommandName = "+realCommandName);
+        //System.out.println("ConfirmationCommand: errorOutput = "+errorOutput+", testOnly = "+testOnly+", multiFiles = "+multiFiles+", EOM = "+endOfMessage+", testCommandName = "+testCommandName+", realCommandName = "+realCommandName);
         
         Hashtable testVars = new Hashtable(vars);
         if (defineTestVar) {
             testVars.put(VAR_TEST_CONFIRMATION, "true"); // NOI18N
         }
-        String message;
-        try {
-            message = runTestCommand(testCommand, testVars);
-        } catch (InterruptedException iexc) {
-            return false;
-        }
-        if (message == null) {
-            return false;
-        }
-        boolean confirmed = confirm(message);
+        boolean confirmed;
         boolean success = true;
-        if (confirmed && (!testOnly || message.length() > 0)) {
-            success = runRealCommand(realCommand, new Hashtable(vars));
+        if (multiFiles) {
+            String[] messages;
+            try {
+                messages = runTestMultiCommand(testCommand, testVars, endOfMessage);
+            } catch (InterruptedException iexc) {
+                return false;
+            }
+            if (messages == null) {
+                return false;
+            }
+            messages = confirm(messages, rootDir);
+            confirmed = messages != null;
+            if (confirmed && (!testOnly || messages.length > 0)) {
+                success = runRealMultiCommand(realCommand, new Hashtable(vars), messages);
+            }
+        } else {
+            String message;
+            try {
+                message = runTestCommand(testCommand, testVars);
+            } catch (InterruptedException iexc) {
+                return false;
+            }
+            if (message == null) {
+                return false;
+            }
+            confirmed = confirm(message);
+            if (confirmed && (!testOnly || message.length() > 0)) {
+                success = runRealCommand(realCommand, new Hashtable(vars));
+            }
         }
         if (!confirmed) {
             // Disable the command notifications when the command is not confirmed:
@@ -186,6 +232,47 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         return messageBuff.toString();
     }
     
+    /**
+     * @return null when command failed, the output messages otherwise.
+     */
+    private String[] runTestMultiCommand(VcsCommand cmd, Hashtable vars, final String eom) throws InterruptedException {
+        VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+        final List messages = new ArrayList();
+        final StringBuffer messageBuff = new StringBuffer();
+        CommandDataOutputListener dataOutputListener = new CommandDataOutputListener() {
+            public void outputData(String[] elements) {
+                if (elements != null && elements.length > 0) {
+                    messageBuff.append(elements[0]);
+                    if (eom == null || elements[0].endsWith(eom)) {
+                        if (eom != null) {
+                            messageBuff.delete(messageBuff.length() - eom.length(),  messageBuff.length());
+                        }
+                        messages.add(messageBuff.toString());
+                        messageBuff.delete(0, messageBuff.length());
+                    }
+                }
+            }
+        };
+        if (errorOutput) {
+            vce.addDataErrorOutputListener(dataOutputListener);
+        } else {
+            vce.addDataOutputListener(dataOutputListener);
+        }
+        fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
+        try {
+            fileSystem.getCommandsPool().waitToFinish(vce);
+        } catch (InterruptedException iexc) {
+            fileSystem.getCommandsPool().kill(vce);
+            throw iexc;
+        }
+        if (vce.getExitStatus() != VcsCommandExecutor.SUCCEEDED &&
+            !VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
+            //E.err("exec failed "+ec.getExitStatus()); // NOI18N
+            return null;
+        }
+        return (String[]) messages.toArray(new String[0]);
+    }
+    
     private boolean runRealCommand(VcsCommand cmd, Hashtable vars) {
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
@@ -199,6 +286,68 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
                VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL);
     }
     
+    private boolean runRealMultiCommand(VcsCommand cmd, Hashtable vars, String[] messages) {
+        CommandSupport cmdSupp = fileSystem.getCommandSupport(cmd.getName());
+        Command command = cmdSupp.createCommand();
+        ((VcsDescribedCommand) command).setAdditionalVariables(vars);
+        boolean haveFiles = setFiles(command, messages);
+        if (!haveFiles) return true;
+        CommandTask task = command.execute();
+        try {
+            CommandProcessor.getInstance().waitToFinish(task);
+        } catch (InterruptedException iexc) {
+            CommandProcessor.getInstance().kill(task);
+            return false;
+        }
+        return (task.getExitStatus() == CommandTask.STATUS_SUCCEEDED) ||
+               VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL);
+    }
+    
+    private boolean setFiles(Command command, String[] messages) {
+        List fileObjects = new ArrayList();
+        List files = new ArrayList();
+        int rdl = rootDir.length();
+        for (int i = 0; i < messages.length; i++) {
+            int begin = messages[i].indexOf(rootDir);
+            if (begin >= 0) {
+                String file = retrieveFile(messages[i].substring(begin));
+                String path = file.substring(rdl).replace(File.separatorChar, '/');
+                while (path.startsWith("/")) path = path.substring(1);
+                FileObject fo = fileSystem.findResource(path);
+                if (fo != null) {
+                    fileObjects.add(fo);
+                } else {
+                    files.add(new File(file));
+                }
+            }
+        }
+        if (fileObjects.size() > 0) {
+            command.setFiles((FileObject[]) fileObjects.toArray(new FileObject[0]));
+        }
+        if (files.size() > 0) {
+            ((VcsDescribedCommand) command).setDiskFiles((File[]) files.toArray(new File[0]));
+        }
+        return (fileObjects.size() > 0 || files.size() > 0);
+    }
+    
+    private static String retrieveFile(String message) {
+        int l = message.length();
+        int end = message.indexOf(' ');
+        if (end < 0) end = l;
+        String file = message.substring(0, end);
+        while (end < l && !(new File(file).exists())) {
+            end = message.indexOf(' ', end + 1);
+            if (end < 0) end = l;
+            file = message.substring(0, end);
+        }
+        if (end >= l && !(new File(file).exists())) {
+            end = message.indexOf(' ');
+            if (end < 0) end = l;
+            file = message.substring(0, end);
+        }
+        return file;
+    }
+    
     private static boolean confirm(String message) {
         if (message.length() == 0) return true;
         if (!NotifyDescriptor.Confirmation.YES_OPTION.equals (
@@ -207,6 +356,78 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             return false;
         }
         return true;
+    }
+    
+    private static String[] confirm(String[] messages, String rootDir) {
+        if (messages.length == 0) return messages;
+        List confirmedMessages = new ArrayList();
+        List confirmedPatters = new ArrayList();
+        List deniedPatters = new ArrayList();
+        Object yesAllOption = NbBundle.getMessage(ConfirmationCommand.class, "CTL_YesAll");
+        Object noAllOption = NbBundle.getMessage(ConfirmationCommand.class, "CTL_NoAll");
+        for (int i = 0; i < messages.length; i++) {
+            if (checkPatterns(confirmedPatters, messages[i])) {
+                confirmedMessages.add(messages[i]);
+                continue;
+            }
+            if (checkPatterns(deniedPatters, messages[i])) {
+                continue;
+            }
+            NotifyDescriptor confirmation = new NotifyDescriptor(messages[i],
+                NbBundle.getMessage(ConfirmationCommand.class, "TTL_Confirmation"),
+                NotifyDescriptor.YES_NO_CANCEL_OPTION,
+                NotifyDescriptor.QUESTION_MESSAGE,
+                new Object[] { NotifyDescriptor.YES_OPTION, yesAllOption,
+                               NotifyDescriptor.NO_OPTION, noAllOption,
+                               NotifyDescriptor.CANCEL_OPTION },
+                NotifyDescriptor.YES_OPTION);
+            Object result = DialogDisplayer.getDefault().notify(confirmation);
+            if (NotifyDescriptor.YES_OPTION.equals(result)) {
+                confirmedMessages.add(messages[i]);
+            } else if (yesAllOption.equals(result)) {
+                confirmedMessages.add(messages[i]);
+                addPattern(confirmedPatters, messages[i], rootDir);
+            } else if (NotifyDescriptor.NO_OPTION.equals(result)) {
+                continue;
+            } else if (noAllOption.equals(result)) {
+                addPattern(deniedPatters, messages[i], rootDir);
+            } else {
+                // canceled
+                return null;
+            }
+        }
+        return (String[]) confirmedMessages.toArray(new String[0]);
+    }
+    
+    /**
+     * Add a pattern, that will match the provided message type.
+     */
+    private static void addPattern(List patterns, String message, String rootDir) {
+        int begin = message.indexOf(rootDir);
+        String[] pattern = new String[2];
+        if (begin >= 0) {
+            String file = retrieveFile(message.substring(begin));
+            pattern[0] = message.substring(0, begin);
+            pattern[1] = message.substring(begin + file.length());
+        } else {
+            pattern[0] = message;
+            pattern[1] = "";
+        }
+        patterns.add(pattern);
+    }
+    
+    /**
+     * Check whether the message match at least one of the patterns.
+     */
+    private static boolean checkPatterns(List patterns, String message) {
+        int n = patterns.size();
+        for (int i = 0; i < n; i++) {
+            String[] pattern = (String[]) patterns.get(i);
+            if (message.startsWith(pattern[0]) && message.endsWith(pattern[1])) {
+                return true;
+            }
+        }
+        return false;
     }
     
 }
