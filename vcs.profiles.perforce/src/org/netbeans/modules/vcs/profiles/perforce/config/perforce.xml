@@ -1,0 +1,343 @@
+<?xml version="1.0"?>
+<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN' 'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd'>
+<!--
+                Sun Public License Notice
+ 
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the Perforce module.
+The Initial Developer of the Original Code is David Rees.
+Portions created by David Rees are Copyright (C) 2004.
+All Rights Reserved.
+
+Contributor(s): David Rees, Chris Hogue, Axel Wienberg, David Holscher,
+Danno Ferrin, Torgeir Veimo. 
+-->
+
+<configuration>
+    <label>Perforce</label>
+    
+    <condition var="IS_WINDOWS">
+        <var name="os.name" valueContainsIgnoreCase="WINDOWS"/>
+    </condition>
+    
+    <variables>
+        <variable basic="true" executable="false" label="P4 Executable (with Global Options)" localDir="false" localFile="false" name="P4GLOBAL" order="-1">
+            <value>p4 -u P4USER -c P4CLIENT -p P4PORT -P P4PASSWD</value>
+        </variable>
+        <variable basic="false" name="OSSHELL">
+            <value if="IS_WINDOWS">cmd /c</value>
+            <value>/bin/sh -c</value>
+        </variable>
+        <variable basic="false" name="CLIENT_FILE_PATH">
+            <value>${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []</value>
+        </variable>
+        <variable basic="false" name="OSSHELLCDP">
+            <value if="IS_WINDOWS">${OSSHELL} "${CD} ${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []&amp;&amp;</value>
+            <value>${OSSHELL} "${CD} ${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] [];</value>
+        </variable>
+        <variable basic="false" name="QUOTE">
+            <value>\&quot;</value>
+        </variable>
+        <variable basic="false" name="POSSIBLE_FILE_STATUSES">
+            <value>&quot;have&quot;, &quot;missing&quot;, &quot;edit&quot;, &quot;add&quot;, &quot;delete&quot;, &quot;integrate&quot;, &quot;branch&quot;, &quot;edit,*locked*&quot;, &quot;edit,unresolved&quot;</value>
+        </variable>
+        <variable basic="false" name="POSSIBLE_FILE_STATUSES_LOCALIZED">
+            <value>&quot;have&quot;, &quot;missing&quot;, &quot;edit&quot;, &quot;add&quot;, &quot;delete&quot;, &quot;integrate&quot;, &quot;branch&quot;, &quot;edit,*locked*&quot;, &quot;edit,unresolved&quot;</value>
+        </variable>
+        <variable basic="false" name="NOT_MODIFIABLE_FILE_STATUSES">
+            <value>&quot;add&quot;, &quot;branch&quot;, &quot;integrate&quot;, &quot;have&quot;</value>
+        </variable>
+        <variable basic="false" name="CD">
+            <value if="IS_WINDOWS">cd /D</value>
+            <value>cd</value>
+        </variable>
+        <variable basic="false" name="MODULE">
+            <value></value>
+        </variable>
+    </variables>
+    <commands>
+        <command displayName="Perforce" name="ROOT">
+            <command displayName="DIRLIST-INTERNALONLY" name="DIRLIST">
+                <property name="exec">
+	            <value if="IS_WINDOWS">${OSSHELL} &quot;${P4GLOBAL} dirs ${ROOTDIR}${PS}$[? MODULE] [${MODULE}${PS}] []$[? DIR] [${DIR}${PS}] []*&quot;</value>
+	            <value>${OSSHELL} &quot;${P4GLOBAL} dirs ${ROOTDIR}${PS}$[? MODULE] [${MODULE}${PS}] []$[? DIR] [${DIR}${PS}] []\*&quot;</value>
+                </property>
+                <property name="hidden">
+               	    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+            </command>
+            <command displayName="Refresh" name="LIST">
+                <property name="data.size.index">
+                    <value>-1</value>
+                </property>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.perforce.list.P4ListCommand.class LIST_CMD</value>
+                </property>
+                <property name="error.regex">
+                    <value>^(.*$)</value>
+                </property>
+                <property name="data.date.index">
+                    <value>-1</value>
+                </property>
+                <property name="data.attr.index">
+                    <value>3</value>
+                </property>
+                <property name="data.revision.index">
+                    <value>2</value>
+                </property>
+                <property name="data.regex">
+                    <value>^(\.\.\.) ([a-zA-Z]+) (.*)$</value>
+                </property>
+                <property name="data.fileName.index">
+                    <value>0</value>
+                </property>
+                <property name="data.status.index">
+                    <value>1</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+	    </command>
+            <command name="LIST_CMD">
+                <property name="exec">
+                    <value>${OSSHELL} &quot;${P4GLOBAL} fstat ${ROOTDIR}${PS}$[? MODULE] [${MODULE}${PS}] []$[? DIR] [${DIR}${PS}] []%1&quot;</value>
+                </property>
+                <property name="data.regex">
+                    <value>^(\.\.\.) ([a-zA-Z]+) (.*)$</value>
+                </property>
+	    </command>
+            <command displayName="Refresh Recursively" name="LIST_SUB">
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+            </command>
+            <separator/>
+            <command displayName="Sync" name="SYNC">
+                <property name="changingNumRevisions">
+                    <value>false</value>
+                </property>
+                <property name="exec">
+                    <value>${OSSHELL} &quot;${P4GLOBAL} sync ${CLIENT_FILE_PATH}&quot;</value>
+                </property>
+                <property name="onFile">
+                    <value>true</value>
+                </property>
+                <property name="changingRevision">
+                    <value>true</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>true</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Sync Recursively" name="SYNC_SUB">
+                <property name="changingNumRevisions">
+                    <value>true</value>
+                </property>
+                <property name="exec">
+                    <value>${OSSHELL} &quot;${P4GLOBAL} sync ${CLIENT_FILE_PATH}${PS}...&quot;</value>
+                </property>
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+                <property name="changingRevision">
+                    <value>false</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>true</value>
+                </property>
+                <property name="refreshRecursivelyPatternUnmatched">
+                    <value>File(s) up-to-date.</value>
+                </property>
+                <property name="onDir">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Edit" name="EDIT">
+                <property name="exec">
+                    <value>${OSSHELL} &quot;${P4GLOBAL} edit ${CLIENT_FILE_PATH}&quot;</value>
+                </property>
+                <property name="error.regex">
+                    <value>^(.*)$</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>false</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>Local</value>
+                </property>
+            </command>
+            <command displayName="Revert" name="REVERT">
+                <property name="exec">
+                    <value>${OSSHELL} &quot;${P4GLOBAL} revert ${CLIENT_FILE_PATH}&quot;</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="error.regex">
+                    <value>^(.*)$</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>true</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>Local, missing, have</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="confirmationMsg">
+                    <value>Do you really want to revert this file?</value>
+                </property>
+            </command>
+            <separator/>
+            <command displayName="Lock" name="LOCK">
+                <property name="exec">
+                    <value>${OSSHELL} &quot;${P4GLOBAL} lock ${CLIENT_FILE_PATH}&quot;</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>Local, missing, have</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Unlock" name="UNLOCK">
+                <property name="exec">
+                    <value>${OSSHELL} &quot;${P4GLOBAL} unlock ${CLIENT_FILE_PATH}&quot;</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>Local, missing, have, edit, &quot;edit,unresolved&quot;</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+            </command>
+            <separator/>
+            <command displayName="Add" name="ADD">
+                <property name="exec">
+                    <value>${OSSHELL} &quot;${P4GLOBAL} add ${CLIENT_FILE_PATH}&quot;</value>
+                </property>
+                <property name="changingRevision">
+                    <value>true</value>
+                </property>
+                <property name="error.regex">
+                    <value>^(.*)$</value>
+                </property>
+                <property name="data.regex">
+                    <value>^(.*)$</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>missing, have, edit, integrate, branch, add, &quot;edit,*locked*&quot;, &quot;edit,unresolved&quot;</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+            </command>
+            <command name="CHANGE_GETTER">
+                <property name="exec">
+                    <value>${OSSHELLCDP} ${P4GLOBAL} change -o&quot;</value>
+                </property>
+                <property name="data.regex">
+                    <value>^(.*)$</value>
+                </property>
+            </command>
+            <command displayName="Submit" name="SUBMIT">
+                <property name="exec">
+                    <value>${OSSHELLCDP} ${P4GLOBAL} submit -i &lt; ${CHANGELIST_FILE} &quot;</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(Submit,ACCESSIBILITY(DESCRIPTION_Dialog for Perforce submit command))
+                           PROMPT_FOR_FILE(CHANGELIST_FILE, "Change List:", "{FILE_OUTPUT_OF_CHANGE_GETTER(0)}", 25, 40)
+                    </value>
+                </property>
+                <property name="changingRevision">
+                    <value>true</value>
+                </property>
+                <property name="error.regex">
+                    <value>^(.*)$</value>
+                </property>
+                <property name="data.regex">
+                    <value>^(.*)$</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>missing, &quot;edit,unresolved&quot;</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+            </command>
+            <command displayName="Delete" name="DELETE">
+                <property name="exec">
+                    <value>${OSSHELL} &quot;${P4GLOBAL} delete ${CLIENT_FILE_PATH}&quot;</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="confirmationMsg">
+                    <value>Do you really want to delete this file?</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                 <property name="disabledOnStatus">
+                    <value>Local</value>
+                </property>
+            </command>
+        </command>
+    </commands>
+</configuration>
