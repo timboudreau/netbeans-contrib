@@ -111,7 +111,7 @@ public class SuggestionList extends TaskList {
      * @deprecated use Task.addSubtask(Task subtask, Task after) instead
      */
     private void addCategory(Task task, Task after) {
-        if (task.getParent() == null) {
+        if (task.getParent() == null) {  //XXX null more often than before
             appendTask(task);
         } else {
             Task parent = task.getParent();
@@ -127,7 +127,7 @@ public class SuggestionList extends TaskList {
      * @param append If true, append the item to the list, otherwise prepend
      * @deprecated use Task.addSubtask(Task subtask, boolean append) instead
      */
-    private void addCategory(Task task, boolean append) {
+    private void addCategory(Task task, boolean append) { //XXX null more often than before
         if (task.getParent() == null) {
             appendTask(task);
         } else {

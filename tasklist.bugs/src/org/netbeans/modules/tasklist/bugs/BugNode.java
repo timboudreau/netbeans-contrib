@@ -31,6 +31,8 @@ import org.openide.nodes.Sheet.Set;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 
+import javax.swing.*;
+
 
 class BugNode extends TaskNode {
     
@@ -76,36 +78,36 @@ class BugNode extends TaskNode {
 	// XXX look up and locate actions
 
 
-        if (item.getParent() == null) {
-            // Create actions shown on an empty tasklist (e.g. only root
-            // is there)
-            return new SystemAction[] {
-                SystemAction.get(NewQueryAction.class)
-//                null,
-//                SystemAction.get(RefreshAction.class)
-            };
-        } else {
+        return new SystemAction[] {
+            SystemAction.get(NewQueryAction.class),
+            null,
+            SystemAction.get(ViewBugAction.class),
+            null,
+            SystemAction.get(RefreshAction.class),
+            null,
+            SystemAction.get(FilterAction.class),
+            null,
+            /*
+              SystemAction.get(CutAction.class),
+              SystemAction.get(CopyAction.class),
+              SystemAction.get(PasteAction.class),
+              null,
+              SystemAction.get(DeleteAction.class),
+              null,
+            */
+            SystemAction.get(ExportAction.class),
+            null,
+            SystemAction.get(PropertiesAction.class),
+        };
+    }
+
+    public Action[] getActions(boolean empty) {
+        if (empty) {
             return new SystemAction[] {
                 SystemAction.get(NewQueryAction.class),
-                null,
-                SystemAction.get(ViewBugAction.class),
-                null,
-                SystemAction.get(RefreshAction.class),
-                null,
-                SystemAction.get(FilterAction.class),
-                null,
-                /*
-                  SystemAction.get(CutAction.class),
-                  SystemAction.get(CopyAction.class),
-                  SystemAction.get(PasteAction.class),
-                  null,
-                  SystemAction.get(DeleteAction.class),
-                  null,
-                */
-                SystemAction.get(ExportAction.class),
-                null,
-                SystemAction.get(PropertiesAction.class),
             };
+        } else {
+            return super.getActions(false);
         }
     }
 

@@ -13,36 +13,34 @@
 
 package org.netbeans.modules.tasklist.suggestions;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Collections;
-
 import org.netbeans.modules.tasklist.client.Suggestion;
-
-import org.netbeans.modules.tasklist.core.*;
-import org.openide.ErrorManager;
-import org.openide.actions.PropertiesAction;
-import org.openide.nodes.Node;
-import org.openide.nodes.Sheet;
-import org.openide.nodes.Node.Property;
-import org.openide.nodes.PropertySupport;
-import org.openide.nodes.PropertySupport.Reflection;
-import org.openide.nodes.Sheet.Set;
-import org.openide.util.NbBundle;
-import org.openide.util.actions.SystemAction;
-import java.awt.datatransfer.Transferable;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
+import org.netbeans.modules.tasklist.core.Task;
+import org.netbeans.modules.tasklist.core.TaskListView;
+import org.netbeans.modules.tasklist.core.TaskNode;
+import org.netbeans.modules.tasklist.core.editors.LocationPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
-import org.netbeans.modules.tasklist.core.editors.LocationPropertyEditor;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.openide.text.Line;
+import org.openide.ErrorManager;
+import org.openide.actions.PropertiesAction;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.Node;
+import org.openide.nodes.PropertySupport;
+import org.openide.nodes.PropertySupport.Reflection;
+import org.openide.nodes.Sheet;
+import org.openide.nodes.Sheet.Set;
 import org.openide.text.DataEditorSupport;
+import org.openide.text.Line;
+import org.openide.util.NbBundle;
+import org.openide.util.actions.SystemAction;
 
 import javax.swing.*;
+import java.awt.datatransfer.Transferable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -99,32 +97,23 @@ public class SuggestionNode extends TaskNode {
     }
     
     protected SystemAction[] createActions() {
-        if (item.getParent() == null) {
-            // Create actions shown on an empty tasklist (e.g. only root
-            // is there)
-            return new SystemAction[] {
-                SystemAction.get(ShowCategoryAction.class),
-                SystemAction.get(FilterAction.class),
-                SystemAction.get(EditTypesAction.class)
-            };
-        } else {
-            ArrayList actions = new ArrayList(20);
-            if (item.getAction() != null) {
-                actions.add(SystemAction.get(FixAction.class));
+        ArrayList actions = new ArrayList(20);
+        if (item.getAction() != null) {
+            actions.add(SystemAction.get(FixAction.class));
+        }
+        //actions.add(SystemAction.get(GoToTaskAction.class);
+        actions.add(SystemAction.get(ShowSuggestionAction.class));
+        List typeActions =
+            ((SuggestionImpl)item).getSType().getActions();
+        if ((typeActions != null) && (typeActions.size() > 0)) {
+            actions.add(null);
+            Iterator it = typeActions.iterator();
+            while (it.hasNext()) {
+                actions.add(it.next());
             }
-            //actions.add(SystemAction.get(GoToTaskAction.class);
-            actions.add(SystemAction.get(ShowSuggestionAction.class));
-            List typeActions = 
-                ((SuggestionImpl)item).getSType().getActions();
-            if ((typeActions != null) && (typeActions.size() > 0)) {
-                actions.add(null);
-                Iterator it = typeActions.iterator();
-                while (it.hasNext()) {
-                    actions.add(it.next());
-                }
-            }
+        }
 
-            // "Global" (not node specific) actions moved to toolbar
+        // "Global" (not node specific) actions moved to toolbar
 //            actions.add(null);
 //            actions.add(SystemAction.get(ShowCategoryAction.class));
 //            actions.add(SystemAction.get(EditTypesAction.class));
@@ -135,17 +124,29 @@ public class SuggestionNode extends TaskNode {
 //            actions.add(null);
 //            actions.add(SystemAction.get(ExportAction.class));
 
-            // Property: node specific, but by convention last in menu
-            // #38642 do not show for TODOs, its confusing XXX
-            if ("nb-tasklist-scannedtask".equals(item.getType()) == false ) { // NOI18N
-                actions.add(null);
-                actions.add(SystemAction.get(PropertiesAction.class));
-            }
+        // Property: node specific, but by convention last in menu
+        // #38642 do not show for TODOs, its confusing XXX
+        if ("nb-tasklist-scannedtask".equals(item.getType()) == false ) { // NOI18N
+            actions.add(null);
+            actions.add(SystemAction.get(PropertiesAction.class));
+        }
 
-            return (SystemAction[])actions.toArray(
-                 new SystemAction[actions.size()]);
+        return (SystemAction[])actions.toArray(
+             new SystemAction[actions.size()]);
+    }
+
+    public Action[] getActions(boolean empty) {
+        if (empty) {
+            return new SystemAction[] {
+                SystemAction.get(ShowCategoryAction.class),
+                SystemAction.get(FilterAction.class),
+                SystemAction.get(EditTypesAction.class)
+            };
+        } else {
+            return super.getActions(false);
         }
     }
+
 
     /**
      * Returns parent view.
@@ -160,7 +161,7 @@ public class SuggestionNode extends TaskNode {
     /** Creates properties.
      */
     protected Sheet createSheet() {
-        Sheet s = Sheet.createDefault();        
+        Sheet s = Sheet.createDefault();
         Set ss = s.get(Sheet.PROPERTIES);
         
         try {
@@ -242,8 +243,7 @@ public class SuggestionNode extends TaskNode {
     * @return <code>true</code>
     */
     public boolean canCopy () {
-        // Can't copy the root node:
-        return (item.getParent() != null);
+        return true;
     }
 
     /** Can this node be cut?

@@ -13,47 +13,19 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyEditorManager;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.Action;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.GoToTaskAction;
-import org.netbeans.modules.tasklist.core.ExpandAllAction;
-import org.netbeans.modules.tasklist.core.ExportAction;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.netbeans.modules.tasklist.core.GoToTaskAction;
-import org.netbeans.modules.tasklist.core.ImportAction;
-import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.modules.tasklist.core.TaskTransfer;
+import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
-import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
+import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
 import org.openide.ErrorManager;
-import org.openide.actions.CopyAction;
-import org.openide.actions.CutAction;
-import org.openide.actions.DeleteAction;
-import org.openide.actions.PasteAction;
-import org.openide.actions.PropertiesAction;
+import org.openide.actions.*;
 import org.openide.nodes.Node;
-import org.openide.nodes.Sheet;
-
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.PropertySupport.Reflection;
+import org.openide.nodes.Sheet;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -61,6 +33,20 @@ import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.MultiTransferObject;
 import org.openide.util.datatransfer.PasteType;
+
+import javax.swing.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyEditorManager;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 class UserTaskNode extends TaskNode {
@@ -149,9 +135,39 @@ class UserTaskNode extends TaskNode {
     }
     
     protected SystemAction[] createActions() {
-        if (item.getParent() == null) {
-            // Create actions shown on an empty tasklist (e.g. only root
-            // is there)
+        return new SystemAction[] {
+            SystemAction.get(NewTaskAction.class),
+            SystemAction.get(NewTaskListAction.class),
+            null,
+            SystemAction.get(PauseAction.class),
+            null,
+            SystemAction.get(StartTaskAction.class),
+            SystemAction.get(ShowTaskAction.class),
+            SystemAction.get(GoToTaskAction.class),
+            null,
+            SystemAction.get(CutAction.class),
+            SystemAction.get(CopyAction.class),
+            SystemAction.get(PasteAction.class),
+            null,
+            SystemAction.get(DeleteAction.class),
+
+            // "Global" actions (not node specific)
+            null,
+            SystemAction.get(FilterAction.class),
+            SystemAction.get(PurgeTasksAction.class),
+            SystemAction.get(ExpandAllAction.class),
+            null,
+            SystemAction.get(ImportAction.class),
+            SystemAction.get(ExportAction.class),
+
+            // Property: node specific, but by convention last in menu
+            null,
+            SystemAction.get(PropertiesAction.class)
+        };
+    }
+
+    public Action[] getActions(boolean empty) {
+        if (empty) {
             return new SystemAction[] {
                 SystemAction.get(NewTaskAction.class),
                 SystemAction.get(NewTaskListAction.class),
@@ -168,44 +184,15 @@ class UserTaskNode extends TaskNode {
                 SystemAction.get(ExportAction.class),
             };
         } else {
-            return new SystemAction[] {
-                SystemAction.get(NewTaskAction.class),
-                SystemAction.get(NewTaskListAction.class),
-                null,
-                SystemAction.get(PauseAction.class),
-                null,
-                SystemAction.get(StartTaskAction.class),
-                SystemAction.get(ShowTaskAction.class),
-                SystemAction.get(GoToTaskAction.class),
-                null,
-                SystemAction.get(CutAction.class),
-                SystemAction.get(CopyAction.class),
-                SystemAction.get(PasteAction.class),
-                null,
-                SystemAction.get(DeleteAction.class),
-
-                // "Global" actions (not node specific)
-                null,
-                SystemAction.get(FilterAction.class),
-                SystemAction.get(PurgeTasksAction.class),
-                SystemAction.get(ExpandAllAction.class),
-                null,
-                SystemAction.get(ImportAction.class),
-                SystemAction.get(ExportAction.class),
-
-                // Property: node specific, but by convention last in menu
-                null,
-                SystemAction.get(PropertiesAction.class)
-            };
+            return super.getActions(false);
         }
     }
+
 
     protected Sheet createSheet() {
         Sheet s = Sheet.createDefault();
         Set ss = s.get(Sheet.PROPERTIES);
-        if (item.getParent() == null)
-            return s;
-        
+
         try {
             PropertySupport.Reflection p;
             p = new Reflection(item, String.class, "getSummary", "setSummary"); // NOI18N
@@ -333,35 +320,29 @@ class UserTaskNode extends TaskNode {
     }
 
     public boolean canDestroy() {
-        // Can't destroy the root node:
-        return (item.getParent() != null);
+        return true;
     }
 
     /** Can this node be copied?
     * @return <code>true</code>
     */
     public boolean canCopy () {
-        // Can't copy the root node:
-        return (item.getParent() != null);
+        return true;
     }
 
     /** Can this node be cut?
     * @return <code>false</code>
     */
     public boolean canCut () {
-        // Can't cut the root node:
-        return (item.getParent() != null);
+        return true;
     }    
     
     public javax.swing.Action getPreferredAction() {
-        if (item.getParent() == null)
-            return SystemAction.get(NewTaskAction.class);
-        else
-            return SystemAction.get(ShowTaskAction.class);
+        return SystemAction.get(ShowTaskAction.class);
     }
     
     public boolean canRename() {
-        return (item.getParent() != null);
+        return true;
     }
     
     protected void createPasteTypes(java.awt.datatransfer.Transferable t, List s) {
@@ -404,13 +385,13 @@ class UserTaskNode extends TaskNode {
     }
 
     public org.openide.nodes.Node.Cookie getCookie(Class type) {
-	UserTask uitem = (UserTask) item;
+	    UserTask uitem = (UserTask) item;
         if (type == StartCookie.class) {
-            if (uitem.isStarted() || uitem.getParent() == null ||
-            uitem.isSpentTimeComputed())
+            if (uitem.isStarted() || uitem.isSpentTimeComputed()) {
                 return null;
-            else
+            } else {
                 return new StartCookie(uitem);
+            }
         } else {
             return super.getCookie(type);
         }
