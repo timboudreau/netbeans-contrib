@@ -477,7 +477,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKOUT_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N CHECKOUTR_CONFIRM CHECKOUT_FILES_CONFIRMED</value>
+	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N CHECKOUTR_CONFIRM CHECKOUT_FILES_CONFIRMED ${RECURSIVE}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -500,8 +500,8 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
-        <property name="refreshRecursivelyPatternMatched">
-          <value>-R</value>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value>-R-</value>
         </property>
         <property name="refreshOnFail">
           <value>1</value>
@@ -588,14 +588,14 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UNCHECKOUT_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N UNCHECKOUTR_CONFIRM UNCHECKOUT_FILES_CONFIRMED</value>
+	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N UNCHECKOUTR_CONFIRM UNCHECKOUT_FILES_CONFIRMED ${RECURSIVELY}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
         </property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_UNCHECKOUTR_Label), ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACSD_COMMAND_VSS_UNCHECKOUTR_Label)))
-                 ASK_FOR(RECURSIVELY, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_UNCHECKOUTR_Recursively), "false",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_UNCHECKOUTR_Recursively_mnc)) ,"-R", "-R-")
+                 ASK_FOR(RECURSIVELY, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_UNCHECKOUTR_Recursively), "true",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_UNCHECKOUTR_Recursively_mnc)) ,"-R", "-R-")
                  PROMPT_FOR_EXPERT(CMD_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_UNCHECKOUT_Options), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_UNCHECKOUT_Options_mnc)))
           </value>
 	</property>
@@ -611,8 +611,8 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
-        <property name="refreshRecursivelyPatternMatched">
-          <value>-R</value>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value>-R-</value>
         </property>
         <property name="refreshOnFail">
           <value>1</value>
@@ -731,7 +731,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GET_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N GETR_CONFIRM GET_FILES_CONFIRMED</value>
+	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N GETR_CONFIRM GET_FILES_CONFIRMED ${RECURSIVE}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -761,8 +761,8 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
-        <property name="refreshRecursivelyPatternMatched">
-          <value>-R</value>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value>-R-</value>
         </property>
         <property name="refreshOnFail">
           <value>1</value>
