@@ -1111,7 +1111,24 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 if (Utilities.isUnix())
                     rootDirFile = new File(System.getProperty("user.home"));
                 else if (Utilities.isWindows())
-                    rootDirFile = FileSystemView.getFileSystemView().getRoots()[0].listFiles()[0];
+                {
+                    FileSystemView fsView = FileSystemView.getFileSystemView();
+                    File[] desktopFiles = fsView.getRoots()[0].listFiles();
+                    for (int i = 0; i < desktopFiles.length; i++)
+                        if (fsView.isComputerNode(desktopFiles[i]))
+                        {
+                            File[] files = desktopFiles[i].listFiles();
+                            for (int j = 0; j < files.length; j++)
+                            {
+                                if (fsView.isDrive(files[j]) && fsView.isFloppyDrive(files[j]) == false)
+                                {
+                                    rootDirFile = files[j];
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                }
             }
             catch (Exception ex)
             {
