@@ -228,12 +228,96 @@ public class FixAction extends NodeAction {
                 fixingStarted = true;
                 manager.setFixing(true);
             }
+            SuggestionList sList = (SuggestionList)item.getList();
+            if (item.isZombie()) {
+                // It looks like this item has already been removed. This
+                // is due to a race condition, where you double click on
+                // a task (to fix it) just as the list is getting rescanned,
+                // so the task you selected gets removed and is gone by
+                // time time the user reaches the confirmation dialog and
+                // selects OK.
+
+                // In this case, try to identify a "replacement" suggestion:
+                // the same suggestion in the newly updated list.
+                // And how do we know if two tasks are identical?
+                // They should
+                //  - have the same stype
+                //  - have the same description
+                //  - have the same line? (well, the task may have moved.
+                //          This one is tricky because on the other hand,
+                //          it's not uncommon to have the same task listed
+                //          repeatedly just varying in line numbers
+                //          (e.g. the AvoidDuplicateLiterals rule violation)
+                //          so it seems like a good criterion to be sure.
+                //          The best solution might be to count the number
+                //          of matches and if just one, but with a different
+                //          line number, use it.
+                //   - have the same priority
+                // We don't scan for the following since it's unlikely that
+                // the the above will match and not the following
+                // (and searching for icon equality for example
+                // is a bit harder.)
+                //   - have the same icon
+                //   - have the same details
+                //
+                int matches = 0;
+                Iterator it = sList.getTasks().iterator();
+                SuggestionImpl match = null;
+                boolean exact = false;
+                while (it.hasNext()) {
+                    SuggestionImpl sm = (SuggestionImpl)it.next();
+                    if (sm.hasSubtasks()) {
+                        // It's a category node
+                        Iterator it2 = sm.getSubtasks().iterator();
+                        while (it2.hasNext()) {
+                            SuggestionImpl sm2 = (SuggestionImpl)it2.next();
+                            if ((item.getSType() == sm2.getSType()) &&
+                                item.getSummary().equals(sm2.getSummary()) &&
+                                (item.getPriority() == sm2.getPriority()) &&
+                                (item.getPriority() == sm2.getPriority())) {
+                                match = sm2;
+                                matches++;
+                                if (item.getLine().equals(sm2.getLine())) {
+                                    exact = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (exact) {
+                            break;
+                        }
+                    } else {
+                        if ((item.getSType() == sm.getSType()) &&
+                            item.getSummary().equals(sm.getSummary()) &&
+                            (item.getPriority() == sm.getPriority()) &&
+                            (item.getPriority() == sm.getPriority())) {
+                            match = sm;
+                            matches++;
+                            if (item.getLine().equals(sm.getLine())) {
+                                exact = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if ((match != null) && (exact || (matches == 1))) {
+                    //System.err.println("Replaced task " + item + " with task " + match + " (they are equal=" + (item == match));
+                    item = match;
+                } else {
+                    // We haven't found a match. It's probably best to
+                    // stick with the old item, since the Action will
+                    // probably still work (even though the item won't
+                    // get removed from the list by the register call
+                    // below.
+                    
+                    //System.err.println("No match.  matches=" + matches + "  match=" + match + "  exact=" + exact + "    item=" + item);
+                }
+            }
             performer.perform(item);
             
             // Remove suggestion when we've performed it
             List itemList = new ArrayList(1);
             itemList.add(item);
-            SuggestionList sList = (SuggestionList)item.getList();
             manager.register(item.getSType().getName(), null, itemList,
                              sList, null, true);
         }

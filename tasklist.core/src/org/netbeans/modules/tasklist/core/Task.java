@@ -131,6 +131,11 @@ public class Task extends Suggestion implements Cloneable {
     /** If this item has subtasks, they are stored in this list */
     protected LinkedList subtasks = null;
 
+    /** When true, this item has been removed from a list.
+        The old list reference is still kept around so that
+        we can use it to search for a reincarnation of the task. */
+    protected boolean zombie = false;
+    
     public Task() { // TODO consider using a factory instead
         super(null, null, null);
         parent = null;
@@ -508,7 +513,10 @@ public class Task extends Suggestion implements Cloneable {
     /** Remove a particular subtask
      * @param subtask The subtask to be removed */    
     public void removeSubtask(Task subtask) {
-	subtask.list = null;
+	//subtask.list = null;
+        // We need the list reference later, when looking for a reincarnation
+        // of the task. So instead use the zombie field to mark deleted items.
+        subtask.zombie = true;
         if (subtasks == null) {
             return;
         }
@@ -561,6 +569,16 @@ public class Task extends Suggestion implements Cloneable {
         // }
     }
 
+    /**
+     * Indicate if this item is a "zombie" (e.g. it has been removed
+     * from a tasklist. The list it was removed from is still pointed to
+     * by the list field. See the Suggestion module's FixAction for an
+     * example of why this is useful.
+     */
+    public boolean isZombie() {
+        return zombie;
+    }
+    
     /** Write a TodoItem to a text stream. NOT DONE.
      * @param item The task to write out
      * @param w The writer to write the string to
@@ -705,6 +723,7 @@ public class Task extends Suggestion implements Cloneable {
     protected void copyFrom(Task from) {
         list = from.list;
         visitable = from.visitable;
+        zombie = from.zombie;
 
         // Copy fields from the parent implementation
         super.setSummary(from.getSummary());
@@ -744,3 +763,4 @@ public class Task extends Suggestion implements Cloneable {
         }
     }
 }
+

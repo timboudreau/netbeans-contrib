@@ -115,13 +115,12 @@ public class SuggestionNode extends TaskNode {
                     actions.add(it.next());
                 }
             }
-            actions.add(null);
-            actions.add(SystemAction.get(DisableAction.class));
 
             // "Global" (not node specific) actions
             actions.add(null);
             actions.add(SystemAction.get(ShowCategoryAction.class));
             actions.add(SystemAction.get(EditTypesAction.class));
+            actions.add(SystemAction.get(DisableAction.class));
             actions.add(SystemAction.get(OptionsAction.class));
             actions.add(null);
             actions.add(SystemAction.get(FilterAction.class));

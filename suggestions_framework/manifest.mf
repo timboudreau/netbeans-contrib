@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 1.5
+OpenIDE-Module-Specification-Version: 1.6
 OpenIDE-Module: org.netbeans.modules.tasklist.suggestions/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/suggestions/Bundle.properties
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.42
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/suggestions/mf-layer.xml
 OpenIDE-Module-Provides: org.netbeans.api.tasklist.SuggestionManager
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/1 > 1.5, org.netbeans.api.tasklist/1 > 1.1
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/1 > 1.7, org.netbeans.api.tasklist/1 > 1.1
 
 Name: org/netbeans/modules/tasklist/suggestions/ScanSuggestionsAction.class
 OpenIDE-Module-Class: Action
