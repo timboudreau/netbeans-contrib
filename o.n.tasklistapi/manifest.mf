@@ -5,4 +5,5 @@ OpenIDE-Module-Implementation-Version: tasklist-barracuda
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.11
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/client/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/apihole/tasklist/mf-layer.xml
+OpenIDE-Module-Public-Packages: -
 X-OpenIDE-Module-Public-Packages: org.netbeans.api.tasklist.*,org.netbeans.spi.tasklist.*
