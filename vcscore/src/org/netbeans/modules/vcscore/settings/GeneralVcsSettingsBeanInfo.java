@@ -78,7 +78,8 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
                     new PropertyDescriptor (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, GeneralVcsSettings.class), // [4]            
                     new PropertyDescriptor (GeneralVcsSettings.PROP_LAST_DIRECTORIES, GeneralVcsSettings.class), // [5]
                     new PropertyDescriptor (GeneralVcsSettings.PROP_CVS_COMMAND_PATH, GeneralVcsSettings.class), // [6]
-                    new PropertyDescriptor (GeneralVcsSettings.PROP_SH_COMMAND_PATH, GeneralVcsSettings.class) // [7]
+                    new PropertyDescriptor (GeneralVcsSettings.PROP_SH_COMMAND_PATH, GeneralVcsSettings.class),  // [7]
+                    new PropertyDescriptor (GeneralVcsSettings.PROP_AUTO_DETECT, GeneralVcsSettings.class) // [7]
                 };
                 properties[0].setDisplayName(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("PROP_useGlobal"));
                 properties[0].setShortDescription(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("HINT_useGlobal"));
@@ -100,6 +101,8 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
                 properties[7].setDisplayName (NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"PROP_WizardShellCommandPath"));
                 properties[7].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"HINT_WizardShellCommandPath"));
                 properties[7].setHidden (true);
+                properties[8].setDisplayName (NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"PROP_AutoDetect"));
+                properties[8].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"HINT_AutoDetect"));
             } catch (java.beans.IntrospectionException intrexc) {
                 if (Boolean.getBoolean("netbeans.debug.exceptions")) // NOI18N
                     intrexc.printStackTrace ();

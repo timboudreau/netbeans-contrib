@@ -13,7 +13,7 @@
 
 package org.netbeans.modules.vcscore.settings;
 
-import org.openide.options.ContextSystemOption;
+import org.openide.options.SystemOption;
 import org.openide.util.NbBundle;
 import java.io.File;
 
@@ -21,7 +21,7 @@ import java.io.File;
  * The settings for all VCS filesystems.
  * @author  Milos Kleint, Martin Entlicher
  */
-public class GeneralVcsSettings extends ContextSystemOption {
+public class GeneralVcsSettings extends SystemOption {
     public static final String PROP_USE_GLOBAL         = "useGlobal"; // NOI18N
     public static final String PROP_OFFLINE            = "offLine"; // NOI18N
     public static final String PROP_AUTO_REFRESH       = "autoRefresh"; // NOI18N
@@ -30,6 +30,7 @@ public class GeneralVcsSettings extends ContextSystemOption {
     public static final String PROP_LAST_DIRECTORIES   = "wizardDirectoryCache"; //NOI18N
     public static final String PROP_CVS_COMMAND_PATH   = "wizardCvsCommandPath"; //NOI18N
     public static final String PROP_SH_COMMAND_PATH    = "wizardShellCommandPath"; //NOI18N
+    public static final String PROP_AUTO_DETECT        = "autoDetect";
     
     public static final int AUTO_REFRESH_NO_REFRESH = 0;
     public static final int AUTO_REFRESH_ON_DIR_OPEN = 1;
@@ -53,6 +54,8 @@ public class GeneralVcsSettings extends ContextSystemOption {
     private static String wizardShellCommandPath;
     
     private static java.util.LinkedList wizardDirectoryCache;
+    
+    private static boolean autoDetect = true;
 
     
     static final long serialVersionUID = -3279219340064367270L;
@@ -114,6 +117,18 @@ public class GeneralVcsSettings extends ContextSystemOption {
             int oldAutoRefresh = autoRefresh;
             autoRefresh = newAutoRefresh;
             firePropertyChange (PROP_AUTO_REFRESH, new Integer (oldAutoRefresh), new Integer (newAutoRefresh));
+        }
+    }
+
+    public boolean isAutoDetect() {
+        return autoDetect;
+    }
+    
+    public void setAutoDetect(boolean newAutoDetect) {
+        if (autoDetect != newAutoDetect) {
+            boolean oldAutoDetect = autoDetect;
+            autoDetect = newAutoDetect;
+            firePropertyChange (PROP_AUTO_DETECT, new Boolean (oldAutoDetect), new Boolean (newAutoDetect));
         }
     }
     
