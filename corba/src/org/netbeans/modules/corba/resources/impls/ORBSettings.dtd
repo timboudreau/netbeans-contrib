@@ -358,3 +358,43 @@
   <!ATTLIST get-poa-manager
     value CDATA #IMPLIED
   >
+
+  <!ELEMENT default-default-servant-var-name EMPTY>
+  <!ATTLIST default-default-servant-var-name
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT default-poa-activator-var-name EMPTY>
+  <!ATTLIST default-poa-activator-var-name
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT default-poa-name EMPTY>
+  <!ATTLIST default-poa-name
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT default-poa-var-name EMPTY>
+  <!ATTLIST default-poa-var-name
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT default-servant-id EMPTY>
+  <!ATTLIST default-servant-id
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT default-servant-id-var-name EMPTY>
+  <!ATTLIST default-servant-id-var-name
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT default-servant-var-name EMPTY>
+  <!ATTLIST default-servant-var-name
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT default-servant-manager-var-name EMPTY>
+  <!ATTLIST default-servant-manager-var-name
+    value CDATA #IMPLIED
+  >
