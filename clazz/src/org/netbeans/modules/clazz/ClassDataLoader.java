@@ -44,27 +44,29 @@ public final class ClassDataLoader extends MultiFileLoader {
     public ClassDataLoader () {
         super (ClassDataObject.class);
     }
-
-    protected void initialize () {
-        setDisplayName(NbBundle.getBundle(ClassDataLoader.class).
-                       getString("PROP_ClassLoader_Name"));
-        setActions (new SystemAction [] {
-                        SystemAction.get(CustomizeBeanAction.class),
-                        SystemAction.get(FileSystemAction.class),
-                        null,
-                        SystemAction.get(ExecuteAction.class),
-                        null,
-                        SystemAction.get(CutAction.class),
-                        SystemAction.get(CopyAction.class),
-                        SystemAction.get(PasteAction.class),
-                        null,
-                        SystemAction.get(DeleteAction.class),
-                        null,
-                        SystemAction.get(SaveAsTemplateAction.class),
-                        null,
-                        SystemAction.get(ToolsAction.class),
-                        SystemAction.get(PropertiesAction.class),
-                    });
+    
+    protected String defaultDisplayName() {
+        return Util.getString("PROP_ClassLoader_Name");
+    }
+    
+    protected synchronized SystemAction[] defaultActions() {
+        return new SystemAction [] {
+            SystemAction.get(CustomizeBeanAction.class),
+            SystemAction.get(FileSystemAction.class),
+            null,
+            SystemAction.get(ExecuteAction.class),
+            null,
+            SystemAction.get(CutAction.class),
+            SystemAction.get(CopyAction.class),
+            SystemAction.get(PasteAction.class),
+            null,
+            SystemAction.get(DeleteAction.class),
+            null,
+            SystemAction.get(SaveAsTemplateAction.class),
+            null,
+            SystemAction.get(ToolsAction.class),
+            SystemAction.get(PropertiesAction.class),
+        };
     }
 
     /** For a given file finds a primary file.
@@ -166,32 +168,3 @@ public final class ClassDataLoader extends MultiFileLoader {
 
 }
 
-/*
- * Log
- *  13   Gandalf   1.12        1/13/00  David Simonek   i18n
- *  12   Gandalf   1.11        11/27/99 Patrik Knakal   
- *  11   Gandalf   1.10        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  10   Gandalf   1.9         10/1/99  Jaroslav Tulach Loaders extends 
- *       SharedClassObject
- *  9    Gandalf   1.8         8/31/99  Ian Formanek    Correctly provides 
- *       FileSystemAction on its data objects
- *  8    Gandalf   1.7         6/9/99   Ian Formanek    ToolsAction
- *  7    Gandalf   1.6         6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  6    Gandalf   1.5         3/26/99  Ian Formanek    Fixed use of obsoleted 
- *       NbBundle.getBundle (this)
- *  5    Gandalf   1.4         3/14/99  Jaroslav Tulach Change of 
- *       MultiDataObject.Entry.
- *  4    Gandalf   1.3         2/16/99  David Simonek   
- *  3    Gandalf   1.2         1/19/99  David Simonek   
- *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
- *       datasystem package
- *  1    Gandalf   1.0         1/5/99   Ian Formanek    
- * $
- * Beta Change History:
- *  0    Tuborg    0.20        --/--/98 Jan Formanek    SWITCHED TO NODES
- *  0    Tuborg    0.23        --/--/98 Jan Jancura     Bugxix
- *  0    Tuborg    0.24        --/--/98 Jan Formanek    reflecting changes in DataSystem
- *  0    Tuborg    0.25        --/--/98 Jan Jancura     Error data object removed.
- */
