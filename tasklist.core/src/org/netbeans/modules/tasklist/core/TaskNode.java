@@ -427,6 +427,9 @@ public class TaskNode extends AbstractNode {
         }
 
         public void structureChanged(Task t) {
+            // todo remove
+            Thread.dumpStack();
+            
             if (t == item) {
                 // Special case -- we've made a leaf into one containing children!
                 Children c = getChildren();

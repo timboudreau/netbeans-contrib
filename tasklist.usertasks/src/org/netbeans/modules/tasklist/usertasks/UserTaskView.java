@@ -44,7 +44,6 @@ import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.WindowManager;
-import org.openide.windows.Workspace;
 
 
 
@@ -370,14 +369,13 @@ public class UserTaskView extends TaskListView implements TaskListener {
 	if (defview == null) {
 	    defview = new UserTaskView();
 	
-	    Workspace workspace = WindowManager.getDefault().
-		getCurrentWorkspace();
-	    Mode mode  = workspace.findMode("output"); // NOI18N
+	    WindowManager wm = WindowManager.getDefault();
+	    Mode mode  = wm.findMode("output"); // NOI18N
 	    if (mode != null) {
 		mode.dockInto(defview);
 	    }
 
-	    defview.open(workspace);
+	    defview.open();
 	    defview.requestVisible(); // requestFocus???
 	}
 	return defview;

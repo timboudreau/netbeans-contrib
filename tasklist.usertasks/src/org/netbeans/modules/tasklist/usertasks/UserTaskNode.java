@@ -16,6 +16,7 @@ package org.netbeans.modules.tasklist.usertasks;
 import java.beans.PropertyEditorManager;
 import java.util.Date;
 import java.util.List;
+import javax.swing.Action;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
@@ -76,17 +77,11 @@ class UserTaskNode extends TaskNode {
     // Leaf
     UserTaskNode(UserTask item) {
         super(item);
-        init();
     } 
 
     // Non-leaf/parent
     UserTaskNode(UserTask item, List subtasks) {
         super(item, subtasks);
-        init();
-    }
-
-    private void init() {
-        setDefaultAction(SystemAction.get(ShowTaskAction.class));
     }
 
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):
@@ -123,6 +118,7 @@ class UserTaskNode extends TaskNode {
             // is there)
             return new SystemAction[] {
                 SystemAction.get(NewTaskAction.class),
+                SystemAction.get(NewSubtaskAction.class),
                 SystemAction.get(NewTaskListAction.class),
                 null,
                 SystemAction.get(PasteAction.class),
@@ -134,6 +130,7 @@ class UserTaskNode extends TaskNode {
         } else {
             return new SystemAction[] {
                 SystemAction.get(NewTaskAction.class),
+                SystemAction.get(NewSubtaskAction.class),
                 SystemAction.get(NewTaskListAction.class),
                 null,
                 SystemAction.get(ShowTaskAction.class),
@@ -300,5 +297,9 @@ class UserTaskNode extends TaskNode {
         // Can't cut the root node:
         return (item.getParent() != null);
     }    
+    
+    public javax.swing.Action getPreferredAction() {
+        return (Action) SystemAction.get(ShowTaskAction.class);
+    }
 }
 

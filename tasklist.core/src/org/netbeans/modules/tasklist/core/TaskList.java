@@ -32,11 +32,19 @@ import org.openide.util.NbBundle;
  * @author Tor Norbye
  * @author Tim Lebedkov
  */
-public class TaskList implements ObservableList { // XXX remove the publicness.
+public class TaskList implements ObservableList, TaskListener { // XXX remove the publicness.
 
     // List category
     public final static String USER_CATEGORY = "usertasks"; // NOI18N
 
+    protected Task root = null;
+    
+    protected ArrayList listeners = null;
+    
+    /** Has the options set changed such that we need to save */
+    protected boolean needSave = false;
+    protected boolean dontSave = false;
+    
     /**
      * Creates a new instance of TaskList.
      * {@link #getRoot} must be overriden properly.
@@ -50,10 +58,6 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         root.setList(this);
     }
 
-    /** Has the options set changed such that we need to save */
-    protected boolean needSave = false;
-    protected boolean dontSave = false;
-
     protected void setNeedSave(boolean b) {
         needSave = b;
     }
@@ -62,9 +66,11 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         dontSave = b;
     }
 
-    protected List list = null;
-    protected Task root = null;
-
+    /**
+     * Returns the root task of the task list
+     *
+     * @return root task
+     */
     public Task getRoot() {
         if (root == null) {
             // Just use the name "Description" since for some reason,
@@ -138,8 +144,11 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         setSilentUpdate(false, true, modified);
     }
 
-    /** Add a task to the task list.
-     * @param task The task to be added. */
+    /** 
+     * Add a task to the task list.
+     * @param task The task to be added. 
+     * @deprecated use getRoot().addSubtask(task) instead
+     */
     public void add(Task task) {
         add(task, false, true);
     }
@@ -148,6 +157,7 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
      * @param task The task to be added.
      * @param append If true, append the item to the list, otherwise prepend
      * @param show If true, show the task in the list
+     * @deprecated use Task.addSubtask(Task subtask, boolean append) instead
      */
     public void add(Task task, boolean append, boolean show) {
         if (root == null) {
@@ -181,6 +191,7 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
      * this subtask directly AFTER the specified
      * task)
      * @param show If true, show the task in the list
+     * @deprecated use Task.addSubtask(Task subtask, Task after) instead
      */
     public void add(Task task, Task after, boolean show) {
         if (root == null) {
@@ -206,8 +217,11 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
     }
 
 
-    /** Remove a task from the list.
-     * @param task The task to be removed. */
+    /** 
+     * Remove a task from the list.
+     * @param task The task to be removed. 
+     * @deprecated use Task.remove() instead
+     */
     public void remove(Task task) {
         Task pt = task.getParent();
         if (task.getParent() != null) {
@@ -224,8 +238,10 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         save();
     }
 
-    /** Notify the task list that some aspect of it has been changed, so
-     * it should save itself soon. Eventually calls save */
+    /** 
+     * Notify the task list that some aspect of it has been changed, so
+     * it should save itself soon. Eventually calls save 
+     */
     public void markChanged() {
         // For now, save right away....
         // TODO - make a timer here, for example 10 seconds, such that
@@ -243,10 +259,10 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
      * Mark this list as changed.
      *
      * @param task a task that was changed.
+     * @deprecated use changedTask(Task)
      */
     void markChanged(Task task) {
-        markChanged();
-        notifyChanged(task);
+        changedTask(task);
     }
 
     /** Write tasks out to disk */
@@ -287,8 +303,6 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         }
     }
 
-    protected ArrayList listeners = null;
-
     public void addListener(TaskListener listener) {
         if (listeners == null) {
             listeners = new ArrayList(4);
@@ -303,8 +317,6 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         listeners.remove(listener);
     }
 
-    // XXX it should be on task itself,
-    // it has nothing to do with the list membership
     public void notifyChanged(Task task) {
         if (listeners != null) {
             int n = listeners.size();
@@ -325,6 +337,9 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         }
     }
 
+    /**
+     * @deprecated splitting model from the view
+     */
     public void notifySelected(Task task) {
         if (listeners != null) {
             int n = listeners.size();
@@ -335,6 +350,9 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         }
     }
 
+    /**
+     * @deprecated splitting model from the view
+     */
     public void notifyWarped(Task task) {
         if (listeners != null) {
             int n = listeners.size();
@@ -365,7 +383,11 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
         }
     }
 
-    /** Return a count of the number of tasks in this list. */
+    /** 
+     * Return a count of the number of tasks in this list. 
+     *
+     * @deprecated use getRoot().getSubtaskCountRecursively() instead
+     */
     public int size() {
         return root.getSubtaskCountRecursively();
     }
@@ -412,18 +434,18 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
     }
     // */
 
-    /** Remove all the tasks in this tasklist */
+    /** 
+     * Remove all the tasks in this tasklist 
+     */
     public void clear() {
-        if (root != null) {
-            root.clear();
-            notifyStructureChanged(root);
-        }
+        getRoot().clear();
     }
 
     /**
      * Return the list of tasks in this tasklist
      *
-     * @return subtasks of the root or null
+     * @return subtasks of the root
+     * @deprecated use getRoot().getSubtasks() instead
      */
     public List getTasks() {
         return getRoot().getSubtasks();
@@ -442,14 +464,18 @@ public class TaskList implements ObservableList { // XXX remove the publicness.
     }
 
     public void addedTask(Task task) {
+        notifyAdded(task);
     }
     
     public void removedTask(Task pt, Task task) {
+        notifyRemoved(pt, task);
     }
 
     public void changedTask(Task task) {
+        notifyChanged(task);
     }
 
     public void structureChanged(Task task) {
+        notifyStructureChanged(task);
     }
 }

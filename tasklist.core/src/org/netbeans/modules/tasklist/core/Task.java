@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -234,20 +235,15 @@ public class Task extends Suggestion implements Cloneable {
     protected void updatedValues() {
         if (!silentUpdate) {
             supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
-            //XXX distributed via above channel
-//            if (list != null) {
-//                list.markChanged(this);
-//            }
+            if (getList() instanceof TaskList) {
+                ((TaskList) getList()).changedTask(this);
+            }
         }
     }
 
     protected void updatedStructure() {
         if (!silentUpdate) {
             getList().notifyStructureChanged(this);
-            //XXX why?
-//            if (list != null) {
-//                list.markChanged(this);
-//            }
         }
     }
 
@@ -270,50 +266,66 @@ public class Task extends Suggestion implements Cloneable {
         }
     }
 
-    /** Listen to changes in bean properties.
-     * @param l listener to be notified of changes */
+    /** 
+     * Listen to changes in bean properties.
+     * @param l listener to be notified of changes 
+     */
     public void addPropertyChangeListener(PropertyChangeListener l) {
         supp.removePropertyChangeListener(l);
         supp.addPropertyChangeListener(l);
     }
     
-    /** Stop listening to changes in bean properties.
-     * @param l listener who will no longer be notified of changes */
+    /** 
+     * Stop listening to changes in bean properties.
+     *
+     * @param l listener who will no longer be notified of changes 
+     */
     public void removePropertyChangeListener(PropertyChangeListener l) {
         supp.removePropertyChangeListener(l);
     }
 
-    // XXX why? We have TaskList class to model list
-    // one could then easily remove add/removeSubtask
-    // methods
-    public LinkedList getSubtasks() {
-        return subtasks;
+    /**
+     * Returns subtasks of this task 
+     *
+     * @return children
+     */
+    public List getSubtasks() {
+        if (subtasks == null)
+            return Collections.EMPTY_LIST;
+        else
+            return subtasks;
     }
 
-    /** This method is here only for the benefit of the XMLEncoder,
+    /** 
+     * This method is here only for the benefit of the XMLEncoder,
      * such that task trees can be persisted. Do not use it directly;
      * use addSubtask instead.
      */
     public void setSubtasks(LinkedList subtasks) {
         this.subtasks = subtasks;
     }
-    
 
-    /** Add subtask to this task. The task will be prepended
+    /** 
+     * Add subtask to this task. The task will be prepended
      * to the task list.
+     *
      * @param subtask task to be added as a subtask, to the front
-     * of the list. */    
+     * of the list. 
+     */    
     public void addSubtask(Task subtask) {
         addSubtask(subtask, false);
     }
     
-    /** Add subtask in a particular place in the parent's
+    /** 
+     * Add subtask in a particular place in the parent's
      * subtask list
+     *
      * @param subtask The subtask to be added
      * @param after The task which will be immediately before
      * the new subtask after the addition (e.g. add
      * this subtask directly AFTER the specified
-     * task) */    
+     * task) 
+     */    
     public void addSubtask(Task subtask, Task after) {
         subtask.parent = this;
         if (subtasks == null) {
@@ -360,9 +372,10 @@ public class Task extends Suggestion implements Cloneable {
         updatedStructure();
     }
     
-   /** Add a subtask to this task.
+   /** 
+    * Add a subtask to this task.
     * @param append When true, add to the end of the list of subtasks instead
-    *  of the beginning.
+    * of the beginning.
     */
     public void addSubtask(Task subtask, boolean append) {
     	subtask.list = list;
@@ -535,6 +548,15 @@ public class Task extends Suggestion implements Cloneable {
     }
     */    
 
+    /**
+     * Removes this task from the task list
+     */
+    public void remove() {
+        assert parent != null : "parent == null";
+        
+        getParent().removeSubtask(this);
+    }
+    
     /** Remove a particular subtask
      * @param subtask The subtask to be removed */    
     public void removeSubtask(Task subtask) {

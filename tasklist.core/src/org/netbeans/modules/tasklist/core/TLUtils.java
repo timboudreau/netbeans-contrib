@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.core;
 
+import java.io.File;
 import javax.swing.text.*;
 
 import java.net.URL;
@@ -20,6 +21,7 @@ import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Iterator;
 import java.util.ListIterator;
+import javax.swing.JEditorPane;
 
 import org.openide.cookies.LineCookie;
 import org.openide.loaders.DataObject;
@@ -28,8 +30,15 @@ import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.URLMapper;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.text.CloneableEditor;
+import org.openide.text.CloneableEditorSupport;
+import org.openide.text.NbDocument;
+import org.openide.windows.Mode;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /** 
  * Various utility methods shared by the various tasklist related modules
@@ -553,4 +562,87 @@ public final class TLUtils {
         return null;
     }
 
+    /**
+     * Utility method which attempts to find the activated nodes
+     *	for the currently showing topcomponent in the editor window.
+     *
+     * @return editor nodes or null
+     */
+    public static Node[] getEditorNodes() {
+        // First try to get the editor window itself; if you right click
+        // on a node in the Todo Window, that node becomes the activated
+        // node (which is good - it makes the properties window show the
+        // todo item's properties, etc.) but that means that we can't
+        // find the editor position via the normal means.
+        // So, we go hunting for the topmosteditor tab, and when we find it,
+        // ask for its nodes.
+        Node[] nodes = null;
+        WindowManager wm = WindowManager.getDefault();
+        
+        // HACK ALERT !!! HACK ALERT!!! HACK ALERT!!!
+        // Look for the source editor window, and then go through its
+        // top components, pick the one that is showing - that's the
+        // front one!
+        Mode mode  = wm.findMode(CloneableEditorSupport.EDITOR_MODE);
+        if (mode == null) {
+            return null;
+        }
+        TopComponent [] tcs = mode.getTopComponents();
+        for (int j = 0; j < tcs.length; j++) {
+            TopComponent tc = tcs[j];
+            if (tc instanceof CloneableEditor) {
+                // Found the source editor...
+                if (tcs[j].isShowing()) {
+                    nodes = tcs[j].getActivatedNodes();
+                    break;
+                }
+            }
+        }
+        return nodes;
+    }
+
+    /**
+     * Finds cursor position.
+     *
+     * @param nodes nodes to search. May be null
+     * @return Object[2]:
+     *     [0] - File name as String
+     *     [1] - line number as Integer
+     * Returns null if nothing found.
+     */
+    public static Object[] findCursorPosition(Node[] nodes) {
+        if (nodes == null) {
+            return null;
+        }
+        
+        String filename = null;
+        int line = 1;
+        
+        for (int i = 0; i < nodes.length; i++) {
+            DataObject dao = (DataObject)nodes[i].getCookie(DataObject.class);
+            if (dao != null) {
+                FileObject fo = dao.getPrimaryFile();
+                File file = FileUtil.toFile(fo);
+                if (file == null) {
+                    return null;
+                }
+                filename = file.getPath();
+                EditorCookie ec = (EditorCookie)nodes[i].getCookie(EditorCookie.class);
+                if (ec != null) {
+                    JEditorPane[] editorPanes = ec.getOpenedPanes();
+                    if ((editorPanes != null) && (editorPanes.length > 0)) {
+                        line = NbDocument.findLineNumber(
+                        ec.getDocument(),
+                        editorPanes[0].getCaret().getDot()) + 1;
+                    }
+                }
+                break;
+            }
+        }
+        
+        if (filename == null)
+            return null;
+        
+        return new Object[] {filename, new Integer(line)};
+    }
 }

@@ -44,7 +44,6 @@ import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
 import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.ExplorerPanel;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -65,7 +64,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private SimpleDateFormat format;
     private ComboBoxModel prioritiesModel = 
         new DefaultComboBoxModel(Task.getPriorityNames());
-    private ComboBoxModel subtaskModel = null;
     private ListCellRenderer priorityRenderer = new PriorityListCellRenderer();
     
     private static boolean appendDefault = Settings.getDefault().getAppend();
@@ -74,7 +72,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         @param parent A possible suggestion for a parent 
         @param item Item to edit. If null, create new.
      */
-    EditTaskPanel(UserTaskList tlv, UserTask parent, UserTask item, boolean editing) {
+    EditTaskPanel(UserTaskList tlv, UserTask item, boolean editing) {
         // Create a new item with the given suggested parent
         this.parent = parent;
         initComponents();
@@ -97,13 +95,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
         parents.addElement(NbBundle.getMessage(EditTaskPanel.class,
                                                "NoSubtasks")); // NOI18N
         tlv.addAllTasks(parents);
-        subtaskModel = new DefaultComboBoxModel(parents);
-        subtaskCombo.setModel(subtaskModel);
-        subtaskCombo.setRenderer(new TaskCellRenderer());
-        
-        if (parent != null) {
-            subtaskCombo.setSelectedItem(parent);
-        }
         
         if (item != null) {
             if (item.getSummary() != null) {
@@ -129,7 +120,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
         
         addSourceButton.addActionListener(this);
         
-        descriptionTextField.requestDefaultFocus();
         descriptionTextField.requestFocus();
 
         if (editing) {
@@ -161,8 +151,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
         detailsLabel = new javax.swing.JLabel();
         detailsScrollPane = new javax.swing.JScrollPane();
         detailsTextArea = new javax.swing.JTextArea();
-        subtaskCheckBox = new javax.swing.JCheckBox();
-        subtaskCombo = new javax.swing.JComboBox();
         prioLabel = new javax.swing.JLabel();
         priorityComboBox = new javax.swing.JComboBox();
         opt1Label = new javax.swing.JLabel();
@@ -220,19 +208,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(detailsScrollPane, gridBagConstraints);
 
-    subtaskCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "IsSubtaskOf")); // NOI18N);
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(subtaskCheckBox, gridBagConstraints);
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
-    add(subtaskCombo, gridBagConstraints);
-
     prioLabel.setLabelFor(priorityComboBox);
     /*
     prioLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "PriorityLabel")); // NOI18N);
@@ -246,7 +221,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     priorityComboBox.setRenderer(priorityRenderer);
     priorityComboBox.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            EditTaskPanel.this.priorityComboBoxActionPerformed(evt);
+            priorityComboBoxActionPerformed(evt);
         }
     });
 
@@ -290,7 +265,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     */
     fileCheckBox.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
-            EditTaskPanel.this.fileCheckBoxItemStateChanged(evt);
+            fileCheckBoxItemStateChanged(evt);
         }
     });
 
@@ -332,7 +307,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     */
     dueCheckBox.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
-            EditTaskPanel.this.dueCheckBoxItemStateChanged(evt);
+            dueCheckBoxItemStateChanged(evt);
         }
     });
 
@@ -354,7 +329,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     dueDateBrowseButton.setEnabled(false);
     dueDateBrowseButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            EditTaskPanel.this.dueDateBrowseButtonActionPerformed(evt);
+            dueDateBrowseButtonActionPerformed(evt);
         }
     });
 
@@ -421,8 +396,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
                  EditTaskPanel.class, "Brief_Description")); // NOI18N
         Mnemonics.setLocalizedText(detailsLabel, NbBundle.getMessage(
                     EditTaskPanel.class, "DetailsLabel")); // NOI18N
-        Mnemonics.setLocalizedText(subtaskCheckBox, NbBundle.getMessage(
-                    EditTaskPanel.class, "IsSubtaskOf")); // NOI18N
         Mnemonics.setLocalizedText(prioLabel, NbBundle.getMessage(
                  EditTaskPanel.class, "PriorityLabel")); // NOI18N
         Mnemonics.setLocalizedText(fileCheckBox, NbBundle.getMessage(
@@ -450,8 +423,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_Brief_Description")); // NOI18N
         detailsTextArea.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_Details")); // NOI18N
-        subtaskCombo.getAccessibleContext().setAccessibleDescription(
-                NbBundle.getMessage(EditTaskPanel.class, "ACSD_Subtasks")); // NOI18N
         priorityComboBox.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_Priority")); // NOI18N
         categoryCombo.getAccessibleContext().setAccessibleDescription(
@@ -464,7 +435,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
         // so we have to label the associated component ourselves
         fileTextField.getAccessibleContext().setAccessibleName(fileCheckBox.getText());
         dueDateTextField.getAccessibleContext().setAccessibleName(dueCheckBox.getText());
-        subtaskCombo.getAccessibleContext().setAccessibleName(subtaskCheckBox.getText());
 
         lineTextField.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_Line")); // NOI18N
@@ -538,31 +508,29 @@ class EditTaskPanel extends JPanel implements ActionListener {
     
     // TODO prioGroup is unused; get rid of it 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel categoryLabel;
-    private javax.swing.JCheckBox fileCheckBox;
+    private javax.swing.ButtonGroup addButtonGroup;
     private javax.swing.JLabel addLabel;
+    private javax.swing.JButton addSourceButton;
+    private javax.swing.JRadioButton beginningToggle;
+    private javax.swing.JComboBox categoryCombo;
+    private javax.swing.JLabel categoryLabel;
+    private javax.swing.JLabel descLabel;
+    private javax.swing.JTextField descriptionTextField;
+    private javax.swing.JLabel detailsLabel;
     private javax.swing.JScrollPane detailsScrollPane;
+    private javax.swing.JTextArea detailsTextArea;
+    private javax.swing.JCheckBox dueCheckBox;
     private javax.swing.JButton dueDateBrowseButton;
     private javax.swing.JTextField dueDateTextField;
-    private javax.swing.JComboBox priorityComboBox;
-    private javax.swing.JTextArea detailsTextArea;
-    private javax.swing.JTextField fileTextField;
-    private javax.swing.JCheckBox dueCheckBox;
-    private javax.swing.JComboBox categoryCombo;
-    private javax.swing.JLabel detailsLabel;
-    private javax.swing.JLabel lineLabel;
-    private javax.swing.JLabel opt1Label;
-    private javax.swing.JCheckBox subtaskCheckBox;
-    private javax.swing.JLabel descLabel;
-    private javax.swing.ButtonGroup addButtonGroup;
-    private javax.swing.JComboBox subtaskCombo;
-    private javax.swing.JRadioButton beginningToggle;
     private javax.swing.JRadioButton endToggle;
+    private javax.swing.JCheckBox fileCheckBox;
+    private javax.swing.JTextField fileTextField;
+    private javax.swing.JLabel lineLabel;
     private javax.swing.JTextField lineTextField;
-    private javax.swing.JTextField descriptionTextField;
+    private javax.swing.JLabel opt1Label;
     private javax.swing.JLabel opt2Label;
-    private javax.swing.JButton addSourceButton;
     private javax.swing.JLabel prioLabel;
+    private javax.swing.JComboBox priorityComboBox;
     // End of variables declaration//GEN-END:variables
     
     String getSummary() {
@@ -574,10 +542,10 @@ class EditTaskPanel extends JPanel implements ActionListener {
     }
     
     String getCategory() {
-        if (categoryCombo.getSelectedItem() == null) {
-            return null;
-        }
-        return categoryCombo.getSelectedItem().toString().trim();
+        if (categoryCombo.getSelectedItem() == null)
+            return "";
+        else
+            return categoryCombo.getSelectedItem().toString().trim();
     }
     
     int getPrio() {
@@ -590,10 +558,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
     
     void setAssociatedFilePos(boolean set) {
         fileCheckBox.setSelected(set);
-    }
-
-    void setAssociatedParent(boolean p) {
-        subtaskCheckBox.setSelected(p);
     }
 
     String getFilename() {
@@ -670,18 +634,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
         return appendDefault;
     }
 
-    Task getParentItem() {
-        if (!subtaskCheckBox.isSelected()) {
-            return null;
-        }
-        Object selected = subtaskCombo.getSelectedItem();
-        if (selected instanceof UserTask) {
-            return (UserTask)selected;
-        } else { // selected string "None"
-            return null;
-        }
-    }
-    
     public void actionPerformed(ActionEvent actionEvent) {
         Object source = actionEvent.getSource();
         if (source == addSourceButton) {

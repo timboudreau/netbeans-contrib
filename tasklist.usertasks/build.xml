@@ -13,6 +13,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="tasklist/usertasks" default="netbeans" basedir=".">
+    <property file="build.ant.properties"/>
 
     <property name="nb_all" value="../.."/>
 
