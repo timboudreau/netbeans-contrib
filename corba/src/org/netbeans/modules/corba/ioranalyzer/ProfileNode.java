@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * ProfileNode.java
+ *
+ * Created on November 7, 2000, 1:58 PM
+ */
+
 package org.netbeans.modules.corba.ioranalyzer;
 
 import org.openide.*;

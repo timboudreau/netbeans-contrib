@@ -11,6 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * __NAME__.java  --  client side implementation 
+ *
+ * Created on __DATE__, __TIME__ for __ORB_NAME__
+ * with __CLIENT_BINDING__ binding.
+ */
+
 package Templates.CORBA;
 
 __CLIENT_IMPORT__

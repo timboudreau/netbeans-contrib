@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * ValueChildren.java
+ *
+ * Created on August 28, 2000, 7:40 PM
+ */
+
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;

@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * SunWrapper.java
+ * Sun JDK 1.2 Wrapper
+ * Created on November 6, 2000, 3:42 PM
+ */
+
 package org.netbeans.modules.corba.browser.ns.wrapper;
 
 /**

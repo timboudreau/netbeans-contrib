@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * IRNativeNode.java
+ *
+ * Created on August 21, 2000, 8:26 PM
+ */
+
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import java.io.IOException;

@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * IRUnionMemberNode.java
+ *
+ * Created on September 18, 2000, 6:33 PM
+ */
+
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;

@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * ValueBoxDefNode.java
+ *
+ * Created on August 21, 2000, 10:47 PM
+ */
+
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import java.io.IOException;

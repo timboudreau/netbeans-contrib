@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * IRValueDefNode.java
+ *
+ * Created on August 22, 2000, 7:38 PM
+ */
+
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;

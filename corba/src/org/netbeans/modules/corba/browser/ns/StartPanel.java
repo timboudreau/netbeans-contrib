@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * StartPanel.java
+ *
+ * Created on 12. øíjen 2000, 9:52
+ */
+
 package org.netbeans.modules.corba.browser.ns;
 
 /**

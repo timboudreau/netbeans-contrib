@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * IRContainerNode.java
+ *
+ * Created on February 23, 2000, 11:35 AM
+ */
+
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import java.io.PrintWriter;

@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * ProfileKey.java
+ *
+ * Created on November 7, 2000, 2:35 PM
+ */
+
 package org.netbeans.modules.corba.ioranalyzer;
 
 /**

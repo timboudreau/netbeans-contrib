@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * WaitNode.java
+ *
+ * Created on September 25, 2000, 11:07 PM
+ */
+
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.openide.nodes.*;

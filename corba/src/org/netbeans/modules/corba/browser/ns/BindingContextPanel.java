@@ -11,6 +11,20 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+
+ * BindingContextPanel.java
+
+ *
+
+ * Created on July 22, 1999, 9:31 PM
+
+ */
+
+
+
+
+
 package org.netbeans.modules.corba.browser.ns;
 
 import org.openide.util.NbBundle;

@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * IRInitializerNode.java
+ *
+ * Created on August 28, 2000, 9:37 PM
+ */
+
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;

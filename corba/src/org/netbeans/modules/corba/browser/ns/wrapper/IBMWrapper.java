@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * IBMWrapper.java
+ *
+ * Created on 12. øíjen 2000, 10:39
+ */
+
 package org.netbeans.modules.corba.browser.ns.wrapper;
 
 import java.util.Properties;

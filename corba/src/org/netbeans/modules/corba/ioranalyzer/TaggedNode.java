@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * TaggedNode.java
+ *
+ * Created on November 7, 2000, 3:54 PM
+ */
+
 package org.netbeans.modules.corba.ioranalyzer;
 
 import org.openide.*;

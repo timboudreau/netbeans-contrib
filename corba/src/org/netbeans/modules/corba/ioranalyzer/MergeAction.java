@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * MergeAction.java
+ *
+ * Created on November 8, 2000, 4:39 PM
+ */
+
 package org.netbeans.modules.corba.ioranalyzer;
 
 import java.awt.event.ActionEvent;

@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * AsyncTarget.java
+ *
+ * Created on September 25, 2000, 9:54 PM
+ */
+
 package org.netbeans.modules.corba.browser.ir.util;
 
 /**

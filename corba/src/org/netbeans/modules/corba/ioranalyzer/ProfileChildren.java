@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * ProfileChildren.java
+ *
+ * Created on 13. øíjen 2000, 10:07
+ */
+
 package org.netbeans.modules.corba.ioranalyzer;
 
 import java.io.*;

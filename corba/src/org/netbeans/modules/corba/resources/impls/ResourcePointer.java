@@ -11,7 +11,6 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-
 package org.netbeans.modules.corba.resources.impls;
 
 public class ResourcePointer {}

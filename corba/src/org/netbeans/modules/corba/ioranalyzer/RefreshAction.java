@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * RefreshAction.java
+ *
+ * Created on November 13, 2000, 12:21 PM
+ */
+
 package org.netbeans.modules.corba.ioranalyzer;
 
 import org.openide.*;

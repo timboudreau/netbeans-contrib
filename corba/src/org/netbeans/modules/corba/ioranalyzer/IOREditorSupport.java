@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * IOREditorSupport.java
+ *
+ * Created on November 13, 2000, 5:42 PM
+ */
+
 package org.netbeans.modules.corba.ioranalyzer;
 
 import org.openide.*;

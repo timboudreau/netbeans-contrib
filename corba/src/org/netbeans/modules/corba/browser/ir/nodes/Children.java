@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * Children.java
+ *
+ * Created on September 5, 2000, 5:06 PM
+ */
+
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.openide.nodes.*;

@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * FileName.java
+ *
+ * Created on November 8, 2000, 5:30 PM
+ */
+
 package org.netbeans.modules.corba.ioranalyzer;
 
 import org.openide.*;

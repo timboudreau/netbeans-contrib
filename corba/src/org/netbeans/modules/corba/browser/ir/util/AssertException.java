@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * AssertException.java
+ *
+ * Created on December 13, 2000, 10:31 AM
+ */
+
 package org.netbeans.modules.corba.browser.ir.util;
 
 /**

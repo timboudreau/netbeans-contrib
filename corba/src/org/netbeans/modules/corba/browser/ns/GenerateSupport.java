@@ -11,6 +11,11 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * GenerateSupport.java
+ * Created on May 17, 2000, 2:34 PM
+ */
+
 package org.netbeans.modules.corba.browser.ns;
 
 /**

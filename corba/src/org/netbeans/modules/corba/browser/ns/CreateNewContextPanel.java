@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * CreateNewContextPanel.java
+ *
+ * Created on July 27, 1999, 4:16 PM
+ */
+
 package org.netbeans.modules.corba.browser.ns;
 
 import org.openide.util.NbBundle;

@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * IRUnionMemberKey.java
+ *
+ * Created on September 19, 2000, 9:50 AM
+ */
+
 package org.netbeans.modules.corba.browser.ir.nodes.keys;
 
 import org.omg.CORBA.UnionMember;

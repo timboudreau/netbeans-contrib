@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * Sun13Wrapper.java
+ * Sun JDK 1.3 Wrapper 
+ * Created on November 6, 2000, 4:17 PM
+ */
+
 package org.netbeans.modules.corba.browser.ns.wrapper;
 import com.sun.corba.se.internal.iiop.ORB;
 import com.sun.corba.se.internal.CosNaming.*;

@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * AbstractWrapper.java
+ *
+ * Created on 12. øíjen 2000, 10:30
+ */
+
 package org.netbeans.modules.corba.browser.ns.wrapper;
 
 /**

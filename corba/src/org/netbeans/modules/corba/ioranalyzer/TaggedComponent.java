@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * TaggedComponent.java
+ *
+ * Created on November 6, 2000, 3:33 PM
+ */
+
 package org.netbeans.modules.corba.ioranalyzer;
 
 /**

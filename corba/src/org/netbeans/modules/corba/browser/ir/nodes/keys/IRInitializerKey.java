@@ -11,6 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * IRInitializerKey.java
+ *
+ * Created on August 28, 2000, 8:01 PM
+ */
+
 package org.netbeans.modules.corba.browser.ir.nodes.keys;
 
 import org.omg.CORBA.*;
