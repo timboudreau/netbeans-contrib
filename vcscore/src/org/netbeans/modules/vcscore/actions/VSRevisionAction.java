@@ -111,7 +111,7 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
                 /* At present not allowed to construct actions for selected nodes on more filesystems - its safe behaviour
                  * If this restriction will be considered as right solution, then code of this method can be simplified
                  */
-            if (rListMap.size() == 0 || rListMap.size() > 1) return createMenu(org.openide.util.Enumerations.EMPTY, popUp);
+            if (rListMap.size() == 0 || rListMap.size() > 1) return createMenu(org.openide.util.Enumerations.empty(), popUp);
             
             Iterator entrySetIt = rListMap.entrySet().iterator();
             LinkedList result = new LinkedList ();
