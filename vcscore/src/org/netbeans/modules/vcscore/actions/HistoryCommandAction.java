@@ -22,6 +22,8 @@ import org.openide.util.HelpCtx;
 public class HistoryCommandAction extends GeneralCommandAction {
 
     static final long serialVersionUID = -8807636211584106801L;
+
+    private String name = null;
     
     /** Creates new UpdateCommandAction */
     public HistoryCommandAction() {
@@ -39,7 +41,10 @@ public class HistoryCommandAction extends GeneralCommandAction {
     }
     
     public String getName() {
-        return NbBundle.getMessage(GeneralCommandAction.class, "LBL_HistoryAction");
+        if (name == null) {
+            name = NbBundle.getBundle(HistoryCommandAction.class).getString("LBL_HistoryAction");
+        }
+        return name;       
     }
     
 }

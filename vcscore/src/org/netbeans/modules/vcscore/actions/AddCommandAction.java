@@ -23,6 +23,7 @@ public class AddCommandAction extends GeneralCommandAction {
 
     static final long serialVersionUID = 1087196686139045083L;
     
+    private String name = null;
     /** Creates new UpdateCommandAction */
     public AddCommandAction() {
     }
@@ -39,7 +40,10 @@ public class AddCommandAction extends GeneralCommandAction {
     }
     
     public String getName() {
-        return NbBundle.getMessage(GeneralCommandAction.class, "LBL_AddAction");
+        if (name == null) {
+            name = NbBundle.getBundle(AddCommandAction.class).getString("LBL_AddAction");
+        }
+        return name;
     }
     
 }

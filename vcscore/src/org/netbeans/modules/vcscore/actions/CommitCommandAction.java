@@ -23,6 +23,8 @@ import org.openide.util.SharedClassObject;
 public class CommitCommandAction extends GeneralCommandAction {
 
     static final long serialVersionUID = -3844403657398382692L;
+
+    private String name = null;
     
     /** Creates new CommitCommandAction */
     public CommitCommandAction() {
@@ -39,7 +41,10 @@ public class CommitCommandAction extends GeneralCommandAction {
     }
     
     public String getName() {
-        return NbBundle.getMessage(GeneralCommandAction.class, "LBL_CommitAction");
+        if (name == null) {
+            name = NbBundle.getBundle(CommitCommandAction.class).getString("LBL_CommitAction");
+        }
+        return name;        
     }
     
     

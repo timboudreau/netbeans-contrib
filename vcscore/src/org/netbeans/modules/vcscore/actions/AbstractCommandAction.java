@@ -69,9 +69,10 @@ public class AbstractCommandAction extends NodeAction {
     protected void initialize() {
         super.initialize();
 //        System.out.println("Abstract initialized");
-        if (getClass().equals(AbstractCommandAction.class)) {
+/*        if (getClass().equals(AbstractCommandAction.class)) {
             addNotify();
         }
+ */
     }
     
     public void uninstall() {
@@ -250,6 +251,10 @@ public class AbstractCommandAction extends NodeAction {
             actionSet = new HashSet();
         }
         actionSet.remove(action);
+        if (actionSet.size() == 0) {
+//            System.out.println("removing abstract action.");
+            removeNotify();
+        }
     }
  
     /**
@@ -261,11 +266,15 @@ public class AbstractCommandAction extends NodeAction {
         if (actionSet == null) {
             actionSet = new HashSet();
         }
+        if (actionSet.size() == 0) {
+//            System.out.println("adding abstract action..");
+            addNotify();
+        }
         actionSet.add(action);
     }
     
     public void reinitialize() {
-        addNotify();
+//        addNotify();
     }
     
 }

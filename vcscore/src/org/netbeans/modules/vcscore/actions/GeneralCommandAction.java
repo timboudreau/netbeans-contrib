@@ -53,15 +53,18 @@ public class GeneralCommandAction extends AbstractCommandAction {
     private Set toolBarNamesSet;
     private Set popupNamesSet;
     
+    private boolean wasReset;
+    
     static final long serialVersionUID = 5771601379701397185L;    
     
     public static AbstractCommandAction abstractAction;
     
     protected GeneralCommandAction() {
-        if (abstractAction == null) {
+/*        if (abstractAction == null) {
             abstractAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
             abstractAction.reinitialize();
         }
+ */
     }
     
     
@@ -115,10 +118,13 @@ public class GeneralCommandAction extends AbstractCommandAction {
         popupNamesSet = new HashSet();
         
         if (nodes == null || nodes.length == 0) {
-            resetDisplayNames();
+            if (!wasReset) {
+                resetDisplayNames();
+            }
+            wasReset = true;
             return false;
         }
-        HashMap suppMap;
+        HashMap suppMap = null;
         if (delegate) {
 //            System.out.println("en -delegated" + this.getClass().getName());
             AbstractCommandAction genAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
@@ -129,7 +135,10 @@ public class GeneralCommandAction extends AbstractCommandAction {
             suppMap = this.getSupporterMap();
         }
         if (suppMap == null) { 
-            resetDisplayNames();
+            if (!wasReset) {
+                resetDisplayNames();
+            }
+            wasReset = true;
             return false;
         }
         Iterator it = suppMap.keySet().iterator();
@@ -144,6 +153,7 @@ public class GeneralCommandAction extends AbstractCommandAction {
                 addDisplayName(support.getToolBarDisplayName(this));
             }
         }
+        wasReset = false;
         resetDisplayNames();
         return enabled;
     }
@@ -185,7 +195,10 @@ public class GeneralCommandAction extends AbstractCommandAction {
  */
         
         if (toolBarPresent != null && toolBarPresent instanceof javax.swing.JComponent) {
-            ((javax.swing.JComponent)toolBarPresent).setToolTipText(toolBarName);
+            String oldBar = ((javax.swing.JComponent)toolBarPresent).getToolTipText();
+            if (oldBar == null || (!oldBar.equals(toolBarName))) {
+                ((javax.swing.JComponent)toolBarPresent).setToolTipText(toolBarName);
+            }
         }
     }
     
@@ -244,6 +257,7 @@ public class GeneralCommandAction extends AbstractCommandAction {
         if (delegate) {
             if (abstractAction == null) {
                 abstractAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
+                abstractAction.reinitialize();
             }
             abstractAction.addDependantAction(this);
         } else {

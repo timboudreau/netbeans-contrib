@@ -23,6 +23,8 @@ import org.openide.util.HelpCtx;
 public class DiffCommandAction extends GeneralCommandAction {
 
     private static final long serialVersionUID = 2426678150445617555L;    
+ 
+    private String name = null;
     
     /** Creates new DiffCommandAction */
     public DiffCommandAction() {
@@ -40,7 +42,10 @@ public class DiffCommandAction extends GeneralCommandAction {
     }
     
     public String getName() {
-        return NbBundle.getMessage(DiffCommandAction.class, "LBL_DiffAction");
+        if (name == null) {
+            name = NbBundle.getBundle(DiffCommandAction.class).getString("LBL_DiffAction");
+        }
+        return name;        
     }
     
 }
