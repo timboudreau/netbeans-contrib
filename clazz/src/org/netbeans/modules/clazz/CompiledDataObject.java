@@ -34,7 +34,6 @@ import org.openide.util.*;
 import org.openide.cookies.*;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
-import org.openide.execution.Executor;
 import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.nodes.Node;
 import org.openide.nodes.AbstractNode;
@@ -68,9 +67,6 @@ public class CompiledDataObject extends ClassDataObject {
 
     // variables ...................................................................................
 
-    /** Support for executing the class */
-    transient protected ExecSupport execSupport;
-
     // constructors ...................................................................................
 
     /** Constructs a new ClassDataObject */
@@ -86,17 +82,6 @@ public class CompiledDataObject extends ClassDataObject {
         CookieSet cs = getCookieSet();
         // only JavaBeans should offer `Customize Bean' action
         cs.add(InstanceCookie.Origin.class, this);
-        cs.add(ExecSupport.class, this);
-    }
-    
-    protected ExecSupport createExecSupport() {
-        if (execSupport != null)
-            return execSupport;
-        synchronized (this) {
-            if (execSupport == null)
-                execSupport = new ExecSupport(getPrimaryEntry());
-        }
-        return execSupport;
     }
     
     protected Node.Cookie createBeanInstanceSupport() {
@@ -108,9 +93,7 @@ public class CompiledDataObject extends ClassDataObject {
     }
     
     public Node.Cookie createCookie(Class c) {
-        if (ExecCookie.class.isAssignableFrom(c)) {
-            return createExecSupport();
-        } else if (InstanceCookie.class.isAssignableFrom(c)) {
+        if (InstanceCookie.class.isAssignableFrom(c)) {
 	    return createBeanInstanceSupport();
 	}
         return super.createCookie(c);
@@ -175,31 +158,5 @@ public class CompiledDataObject extends ClassDataObject {
         return destName;
     }
 
-    // innerclasses .......................................................
-    
-    private static class ExecSupport extends org.openide.loaders.ExecSupport {
-        ExecSupport(MultiDataObject.Entry en) {
-            super(en);
-        }
-        
-        /**
-         * Iterates through Execution service type, looking for some exec
-         * service from the java module.
-         */
-        protected Executor defaultExecutor() {
-            Lookup.Result servs = Lookup.getDefault().lookup(new Lookup.Template(Executor.class));
-            Iterator servsIt = servs.allInstances().iterator();
-
-            while (servsIt.hasNext()) {
-                Object o = servsIt.next();
-                if (o.getClass().getName().startsWith(
-                    "org.netbeans.modules.java.JavaProcessExecutor" // NOI18N
-                    )) {
-                    return (Executor)o;
-                }
-            }
-            return super.defaultExecutor();
-        }
-    }
 }
 

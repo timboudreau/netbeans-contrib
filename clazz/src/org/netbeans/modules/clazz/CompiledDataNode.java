@@ -16,11 +16,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.io.*;
 import java.util.*;
 
-import org.openide.loaders.ExecSupport;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.NbBundle;
 import org.openide.filesystems.FileObject;
+import org.netbeans.api.java.classpath.ClassPath;
 
 /**
  * This class overrides a few methods from ClassDataNode presenting the contents
@@ -77,15 +77,6 @@ public class CompiledDataNode extends ClassDataNode {
                        return getCompiledDataObject().isExecutable() ? Boolean.TRUE : Boolean.FALSE;
                    }
                });
-        ExecSupport es = (ExecSupport)getCookie(ExecSupport.class);
-        if (es != null) {
-            Sheet.Set exps = new Sheet.Set();
-            exps.setName(EXECUTION_SET_NAME);
-            exps.setDisplayName(bundle.getString ("PROP_executionSetName"));
-            exps.setShortDescription(bundle.getString ("HINT_executionSetName"));
-            es.addProperties (exps);
-            s.put(exps);
-        }
         return s;
     }
 
@@ -97,8 +88,11 @@ public class CompiledDataNode extends ClassDataNode {
     protected void resolveIcons () {
         CompiledDataObject dataObj = getCompiledDataObject();
         FileObject fo=dataObj.getPrimaryFile();
-
-        if (!(dataObj.getClassName().equals(fo.getPackageName('.')))) {
+        ClassPath libs = ClassPath.getClassPath (fo, ClassPath.COMPILE);
+        ClassPath source = ClassPath.getClassPath (fo, ClassPath.SOURCE);
+        ClassPath exec = ClassPath.getClassPath (fo, ClassPath.EXECUTE);
+        if ((libs == null || !libs.contains(fo)) && (source == null || !source.contains(fo))
+            && (exec == null || !exec.contains(fo))) {
             setIconBase(ERROR_BASE);
         } else if (dataObj.isJavaBean ()) {
             if (dataObj.isExecutable ())

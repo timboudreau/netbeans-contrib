@@ -397,7 +397,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     }
 
     static NodeFactoryPool createFactoryPool(String folderName, ElementNodeFactory def) {
-        FileObject f = Repository.getDefault().findResource(folderName);
+        FileObject f = Repository.getDefault().getDefaultFileSystem().findResource(folderName);
 	if (f == null)
     	    return null;
         try {
@@ -491,9 +491,11 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
         
         /** 
          * Creates class loader that permits <<ALL FILES>> and all properties to be read,
-         * and is based on currentClassLoader().
+         * and is based on a reference file.
          */
-        protected ClassLoader createClassLoader() {
+        protected ClassLoader createClassLoader(FileObject ref) {
+            throw new AssertionError("XXX needs to be rewritten!");
+            /*
             java.security.Permissions perms = new java.security.Permissions();
             perms.add(new java.io.FilePermission("<<ALL FILES>>", "read")); // NOI18N
             perms.add(new java.util.PropertyPermission("*", "read")); // NOI18N
@@ -502,6 +504,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
             org.openide.execution.NbClassLoader loader = new org.openide.execution.NbClassLoader();
             loader.setDefaultPermissions(perms);
             return loader;
+             */
         }
         
         /** Is this a JavaBean?
@@ -609,9 +612,10 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
                     else
                         id = (Identifier)l.removeFirst();
                 }
-                ce = ClassElement.forName(id.getFullName());
+                ce = ClassElement.forName(id.getFullName(), ClassDataObject.this.getPrimaryFile());
                 while (ce == null && !l.isEmpty()) 
-                    ce = ClassElement.forName(((Identifier)l.removeFirst()).getFullName());
+                    ce = ClassElement.forName(((Identifier)l.removeFirst()).getFullName(),
+                            ClassDataObject.this.getPrimaryFile());
             } while (ce != null);
             return false;
         }
@@ -642,7 +646,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
                 if (isSerialized()) {
                     // create from ser file
                     BufferedInputStream bis = new BufferedInputStream(instanceOrigin().getInputStream(), 1024);
-                    CMObjectInputStream cis = new CMObjectInputStream(bis,createClassLoader());
+                    CMObjectInputStream cis = new CMObjectInputStream(bis,createClassLoader(instanceOrigin()));
                     Object o = null;
                     try {
                         o = cis.readObject();

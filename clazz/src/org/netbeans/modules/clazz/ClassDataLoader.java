@@ -58,8 +58,6 @@ public final class ClassDataLoader extends MultiFileLoader {
             SystemAction.get(CustomizeBeanAction.class),
             SystemAction.get(FileSystemAction.class),
             null,
-            SystemAction.get(ExecuteAction.class),
-            null,
             SystemAction.get(CutAction.class),
             SystemAction.get(CopyAction.class),
             SystemAction.get(PasteAction.class),
