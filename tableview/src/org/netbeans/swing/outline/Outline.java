@@ -56,12 +56,112 @@ import javax.swing.tree.TreePath;
  * <li>Implement RowModel.  RowModel is a subset of TableModel - it is passed
  * the value in column 0 of the Outline and a column index, and returns the 
  * value in the column in question.</li>
- * <li>
+ * <li>Pass the TreeModel and the RowModel to <code>DefaultOutlineModel.createModel()</code>
  * </ol>
+ * This will generate an instance of DefaultOutlineModel which will use the
+ * TreeModel for the rows/tree column content, and use the RowModel to provide
+ * the additional table columns.
+ * <p>
+ * It is also useful to provide an implementation of <code>RenderDataProvider</code>
+ * to supply icons and affect text display of cells - this covers most of the 
+ * needs for which it is necessary to write a custom cell renderer in JTable/JTree.
+ * <p>
+ * <b>Example usage:</b><br>
+ * Assume FileTreeModel is a model which, given a root directory, will 
+ * expose the files and folders underneath it.  We will implement a 
+ * RowModel to expose the file size and date, and a RenderDataProvider which
+ * will use a gray color for uneditable files and expose the full file path as
+ * a tooltip.  Assume the class this is implemented in is a 
+ * JPanel subclass or other Swing container.
+ * <br>
+ * XXX todo: clean up formatting & edit for style
+ * <pre>
+ * public void initComponents() {
+ *   setLayout (new BorderLayout());
+ *   TreeModel treeMdl = new FileTreeModel (someDirectory);
+ *
+ *   OutlineModel mdl = DefaultOutlineModel.createOutlineModel(treeMdl, 
+ *       new FileRowModel(), true);
+ *   outline = new Outline();
+ *   outline.setRenderDataProvider(new FileDataProvider()); 
+ *   outline.setRootVisible (true);
+ *   outline.setModel (mdl);
+ *   add (outline, BorderLayout.CENTER);
+ * }
+ *  private class FileRowModel implements RowModel {
+ *     public Class getColumnClass(int column) {
+ *          switch (column) {
+ *              case 0 : return Date.class;
+ *              case 1 : return Long.class;
+ *              default : assert false;
+ *          }
+ *          return null;
+ *      }
+ *      
+ *      public int getColumnCount() {
+ *          return 2;
+ *      }
+ *      
+ *      public String getColumnName(int column) {
+ *          return column == 0 ? "Date" : "Size";
+ *      }
+ *      
+ *      public Object getValueFor(Object node, int column) {
+ *          File f = (File) node;
+ *          switch (column) {
+ *              case 0 : return new Date (f.lastModified());
+ *              case 1 : return new Long (f.length());
+ *              default : assert false;
+ *          }
+ *          return null;
+ *      }
+ *      
+ *      public boolean isCellEditable(Object node, int column) {
+ *          return false;
+ *      }
+ *      
+ *      public void setValueFor(Object node, int column, Object value) {
+ *          //do nothing, nothing is editable
+ *      }
+ *  }
+ *  
+ *  private class FileDataProvider implements RenderDataProvider {
+ *      public java.awt.Color getBackground(Object o) {
+ *          return null;
+ *      }
+ *      
+ *      public String getDisplayName(Object o) {
+ *          return ((File) o).getName();
+ *      }
+ *      
+ *      public java.awt.Color getForeground(Object o) {
+ *          File f = (File) o;
+ *          if (!f.isDirectory() && !f.canWrite()) {
+ *              return UIManager.getColor ("controlShadow");
+ *          }
+ *          return null;
+ *      }
+ *      
+ *      public javax.swing.Icon getIcon(Object o) {
+ *          return null;
+ *      }
+ *      
+ *      public String getTooltipText(Object o) {
+ *          return ((File) o).getAbsolutePath();
+ *      }
+ *      
+ *      public boolean isHtmlDisplayName(Object o) {
+ *          return false;
+ *      }
+ *   }
+ * </pre>
  *
  * @author  Tim Boudreau
  */
 public final class Outline extends JTable {
+    //XXX plenty of methods missing here - add/remove tree expansion listeners,
+    //better path info/queries, etc.
+    
     private boolean initialized = false;
     private Boolean cachedRootVisible = null;
     private RenderDataProvider renderDataProvider = null;
@@ -109,7 +209,7 @@ public final class Outline extends JTable {
         if (provider != renderDataProvider) {
             RenderDataProvider old = renderDataProvider;
             renderDataProvider = provider;
-            firePropertyChange ("renderDataProvider", old, provider);
+            firePropertyChange ("renderDataProvider", old, provider); //NOI18N
         }
     }
     

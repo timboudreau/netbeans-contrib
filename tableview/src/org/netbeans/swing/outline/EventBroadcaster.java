@@ -106,7 +106,7 @@ final class EventBroadcaster implements TableModelListener, TreeModelListener, E
      * This value is guaranteed to be true for the first of a group of
      * related events, and false if tested in response to the final event.
      */
-    public boolean areMoreEventsComing() {
+    public boolean areMoreEventsPending() {
         return inMultiEvent;
     }
     

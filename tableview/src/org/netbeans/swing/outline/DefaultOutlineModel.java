@@ -58,6 +58,11 @@ import javax.swing.tree.VariableHeightLayoutCache;
  * the first indicating that row 9 was removed, and the second indicating that
  * rows 3 and 4 were removed.
  * <p>
+ * Clients which need to know whether the TableModelEvent they have just 
+ * received is one of a group (perhaps they update some data structure, and
+ * should not do so until the table's state is fully synchronized with that
+ * of the tree model) may call <code>areMoreEventsPending()</code>.
+ * <p>
  * In the case of TreeModelEvents which add items to an unexpanded tree node,
  * a simple value change TableModelEvent will be fired for the row in question
  * on the tree column index.
@@ -148,6 +153,10 @@ public class DefaultOutlineModel implements OutlineModel {
     
     public final AbstractLayoutCache getLayout() {
         return layout;
+    }
+    
+    public boolean areMoreEventsPending() {
+        return broadcaster.areMoreEventsPending();
     }
     
     /** Accessor for EventBroadcaster */
