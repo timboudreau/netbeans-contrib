@@ -13,7 +13,7 @@
 
 package org.netbeans.modules.tasklist.checkstyle;
 
-import java.io.Reader;
+import java.io.*;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,10 +25,13 @@ import javax.swing.*;
 import java.util.List;
 import java.util.Properties;
 import java.io.File;
+import java.io.IOException;
+
 import org.openide.cookies.SourceCookie;
 import org.openide.explorer.view.*;
 import org.openide.nodes.*;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileObject;
 import org.openide.ErrorManager;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -128,42 +131,83 @@ public class ViolationProvider extends DocumentSuggestionProvider
         //String name = cookie.getSource().getClasses()[0].getName().getFullName();
         */
         
-        // YUCK! This is a hack! It will operate on the saved file,
-        // not the buffer contents! However, checkstyle doesn't seem to
-        // have an API where I can pass in a string reader - it wants to
-        // read the files directly! XXX
-        File file = FileUtil.toFile(env.getFileObject());
+        // Checkstyle doesn't seem to have an API where I can pass in
+        // a string reader - it wants to read the files directly!
+        FileObject fo = env.getFileObject();
+        DataObject dobj = null;
+        try {
+            dobj = DataObject.find(fo);
+        } catch (DataObjectNotFoundException e) {
+            ErrorManager.getDefault().notify(e);
+        }
+        File file = (dobj != null && dobj.isModified() == false) ? FileUtil.toFile(fo) : null;
+
         if (file != null) {
             try {
-                // TODO: this should only be done once, not for each scan!!!
-                Checker checker = new Checker();
-                ModuleFactory moduleFactory = null;
-                checker.setModuleFactory(moduleFactory);
-                Configuration config = null;
-                Properties props = System.getProperties();
-                try {
-                    // For now, grab the configuration from the module
-                    File f = org.openide.modules.InstalledFileLocator.getDefault().locate("configs/checkstyle.xml", "org.netbeans.modules.tasklist.checkstyle", false);
-                    //System.out.println("FILE LOCATED = " + f);
-                    if (f == null) {
-                        ErrorManager.getDefault().log("Couldn't find configs/checkstyle.xml");
-                        return null;
-                    }
-                    config = ConfigurationLoader.loadConfiguration(f.getPath(), new PropertiesExpander(props));
-                } catch (CheckstyleException e) {
-                    ErrorManager.getDefault().notify(e);
+                if (callCheckstyle(file) == false) {
                     return null;
-                }                                             
-                checker.configure(config);
-                checker.addListener(this);
-                checker.process(new File[] { file }); // Yuck!
+                }
             } catch (Exception e) {
                 ErrorManager.getDefault().notify(e);
+                return null;
             }
+        } else {
+            Writer out = null;
+            try {
+                File tmp = File.createTempFile("tl_cs", "tmp"); // NOI18N
+                tmp.deleteOnExit();
+                out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(tmp)));
+                CharSequence chars = env.getCharSequence();
+                for (int i=0; i<chars.length(); i++) {
+                    out.write(chars.charAt(i));
+                }
+                if (callCheckstyle(file) == false) {
+                    return null;
+                }
+                tmp.delete();
+            } catch (IOException e) {
+                ErrorManager.getDefault().notify(e);
+                return null;
+            } finally {
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        ErrorManager.getDefault().notify(e);
+                    }
+                }
+            }
+
         }
         return tasks;
     }
-    
+
+    private boolean callCheckstyle(File file) {
+        // TODO: this should only be done once, not for each scan!!!
+        Checker checker = new Checker();
+        ModuleFactory moduleFactory = null;
+        checker.setModuleFactory(moduleFactory);
+        Configuration config = null;
+        Properties props = System.getProperties();
+        try {
+            // For now, grab the configuration from the module
+            File f = org.openide.modules.InstalledFileLocator.getDefault().locate("configs/checkstyle.xml", "org.netbeans.modules.tasklist.checkstyle", false);
+            //System.out.println("FILE LOCATED = " + f);
+            if (f == null) {
+                ErrorManager.getDefault().log("Couldn't find configs/checkstyle.xml");
+                return false;
+            }
+            config = ConfigurationLoader.loadConfiguration(f.getPath(), new PropertiesExpander(props));
+        } catch (CheckstyleException e) {
+            ErrorManager.getDefault().notify(e);
+            return false;
+        }
+        checker.configure(config);
+        checker.addListener(this);
+        checker.process(new File[] { file }); // Yuck!
+        return true;
+    }
+
     public void clear(SuggestionContext env,
                       Object request) {
         if (showingTasks != null) {
@@ -273,3 +317,4 @@ public class ViolationProvider extends DocumentSuggestionProvider
     private Document document = null;
     private Object request = null;
 }
+
