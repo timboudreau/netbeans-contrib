@@ -621,52 +621,6 @@ public class VcsUtilities {
         return vars;
     }
     
-    /** Reorder the collection of file objects.
-     * Due to issue #11584 the order should be: the primary file first followed
-     * by the secondary files. To define the order for secondary files, they are
-     * in alphabetical order.
-     * @param fos the collection of FileObjects with order defined for data objects
-     * @return the list of FileObjects with defined order. The order among
-     * FileObjects from different DataObjects is preserved.
-     */
-    public static ArrayList reorderFileObjects(Collection fos) {
-        ArrayList list = new ArrayList();
-        TreeSet secondaries = new TreeSet(new FileObjectNameComparator());
-        FileObject primary = null;
-        DataObject lastData = null;
-        for (Iterator it = fos.iterator(); it.hasNext(); ) {
-            Object obj = it.next();
-            if (!(obj instanceof FileObject)) {
-                list.add(obj);
-                continue;
-            }
-            FileObject fo = (FileObject) obj;
-            DataObject data = null;
-            try {
-                data = DataObject.find(fo);
-            } catch (DataObjectNotFoundException exc) {}
-            if (data == null) {
-                list.add(fo);
-                continue;
-            }
-            if (!data.equals(lastData)) {
-                if (primary != null) list.add(primary);
-                list.addAll(secondaries);
-                primary = null;
-                secondaries.clear();
-                lastData = data;
-            }
-            if (fo.equals(data.getPrimaryFile())) {
-                primary = fo;
-            } else {
-                secondaries.add(fo);
-            }
-        }
-        if (primary != null) list.add(primary);
-        list.addAll(secondaries);
-        return list;
-    }
-
     /**
      * Creates a temporary directory.
      */
@@ -790,20 +744,4 @@ public class VcsUtilities {
         }
     }
 
-    /**
-     * Comparator of FileObjects' names.
-     */
-    public static class FileObjectNameComparator extends Object implements Comparator {
-        public int compare(Object o1, Object o2) {
-            if (o1 instanceof FileObject && o2 instanceof FileObject) {
-                return ((FileObject) o1).getNameExt().compareTo(((FileObject) o2).getNameExt());
-            } else {
-                return 0;
-            }
-        }
-        public boolean equals(Object o) {
-            return false;
-        }
-    }
-    
 }

@@ -93,12 +93,13 @@ public class VcsAction extends NodeAction implements ActionListener {
         for (Iterator it = fos.iterator(); it.hasNext(); ) {
             System.out.println("  "+it.next());
         }*/
-        ArrayList reordered = VcsUtilities.reorderFileObjects(fos);
+        //ArrayList reordered = VcsUtilities.reorderFileObjects(fos); -- not necessary
+        // since DataObject.files() returns the "right" order
         /*System.out.println(" reorderedFileObjects():");
         for (Iterator it = reordered.iterator(); it.hasNext(); ) {
             System.out.println("  "+it.next());
         }*/
-        this.selectedFileObjects = new WeakList(reordered);
+        this.selectedFileObjects = new WeakList(fos);
         /*System.out.println(" Weak setSelectedFileObjects():");
         for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
             System.out.println("  "+it.next());
@@ -111,7 +112,6 @@ public class VcsAction extends NodeAction implements ActionListener {
     private Collection getSelectedFileObjectsFromActivatedNodes() {
         ArrayList files = new ArrayList();
         Node[] nodes = getActivatedNodes();
-        TreeSet secondaries = new TreeSet(new VcsUtilities.FileObjectNameComparator());
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] instanceof VcsGroupNode) {
                 VcsGroupNode grNode = (VcsGroupNode) nodes[i];
@@ -129,23 +129,14 @@ public class VcsAction extends NodeAction implements ActionListener {
                     DataObject dd = (DataObject) nd.getCookie(DataObject.class);
                     if (dd == null) continue;
                     FileObject primary = dd.getPrimaryFile();
-                    files.add(primary);
-                    varFiles.add(primary);
-                    secondaries.addAll(dd.files());
-                    secondaries.remove(dd.getPrimaryFile());
-                    files.addAll(secondaries);
-                    varFiles.addAll(secondaries);
+                    files.addAll(dd.files());
+                    varFiles.addAll(dd.files());
                     variablesForSelectedFiles.put(additionalVars, varFiles);
-                    secondaries.clear();
                 }
             } else {
                 DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
                 if (dd == null) continue;
-                files.add(dd.getPrimaryFile());
-                secondaries.addAll(dd.files());
-                secondaries.remove(dd.getPrimaryFile());
-                files.addAll(secondaries);
-                secondaries.clear();
+                files.addAll(dd.files());
             }
         }
         return new WeakList(files);
