@@ -46,6 +46,9 @@ import org.netbeans.modules.tasklist.core.TLUtils;
  * This class uses the Checkstyle rule checker to provide rule violation
  * suggestions.
  * <p>
+ * @todo This version only operates on the disk-versions of
+ *   the source files! Either get checkstyle modified to
+ *   have a Reader interface, or save files to temporary buffers.
  * @todo Add automatic fixers for some of these rules.
  * @todo Refactor so I can share some code with the pmd bridge
  * <p>
