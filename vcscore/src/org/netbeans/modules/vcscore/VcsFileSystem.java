@@ -1249,10 +1249,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     /** Notifies this file system that it has been added to the repository. 
      */
     public void addNotify() {
-        try { // To distinguish the mounted FS. Necessary in Customizers.
-            setSystemName(getSystemName() + " Mounted"); // NOI18N
-        } catch (PropertyVetoException exc) {
-            // Ignored.
+        // To distinguish the mounted FS. Necessary in Customizers.
+        String systemName = getSystemName();
+        if (!systemName.endsWith(" Mounted")) { // NOI18N
+            try {
+                setSystemName(systemName + " Mounted"); // NOI18N
+            } catch (PropertyVetoException exc) {
+                // Ignored.
+            }
         }
         //System.out.println("fileSystemAdded("+this+")");
         //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
