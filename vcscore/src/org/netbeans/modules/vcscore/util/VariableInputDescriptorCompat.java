@@ -112,7 +112,7 @@ public final class VariableInputDescriptorCompat extends Object {
             //pos = index2;
         }
         if (exec.toString().indexOf("${REASON}") > 0) {
-            inputDescriptor.append(VariableInputDescriptor.INPUT_STR_PROMPT_FIELD + "(REASON, \"Reason:\") ");
+            inputDescriptor.append(VariableInputDescriptor.INPUT_STR_PROMPT_FIELD + "(REASON, \""+g("MSG_Reason")+"\") ");
             num++;
         }
         return num;
@@ -182,4 +182,9 @@ public final class VariableInputDescriptorCompat extends Object {
     private static String varNameGenerator() {
         return "CONVERSION_VAR_" + (variableGeneratorSeed++);
     }
+
+    private static String g(String s) {
+        return org.openide.util.NbBundle.getBundle(VariableInputDescriptorCompat.class).getString(s);
+    }
+    
 }
