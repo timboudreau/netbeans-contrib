@@ -13,17 +13,25 @@
 
 package org.netbeans.modules.corba.wizard.nodes.gui;
 
+import javax.swing.event.DocumentListener;
 /** 
  *
  * @author  root
  * @version 
  */
-public class UnionPanel extends javax.swing.JPanel {
+public class UnionPanel extends javax.swing.JPanel implements DocumentListener {
 
   /** Creates new form UnionPanel */
   public UnionPanel() {
     super ();
     initComponents ();
+    postInitComponents ();
+  }
+
+
+  private void postInitComponents () {
+    this.name.getDocument().addDocumentListener (this);
+    this.type.getDocument().addDocumentListener (this);
   }
 
   /** This method is called from within the constructor to
@@ -82,7 +90,7 @@ public class UnionPanel extends javax.swing.JPanel {
     gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints1.weightx = 1.0;
     add (type, gridBagConstraints1);
-
+    this.setPreferredSize (new java.awt.Dimension (250,88));
   }//GEN-END:initComponents
 
   public String getName () {
@@ -101,5 +109,25 @@ public class UnionPanel extends javax.swing.JPanel {
   private javax.swing.JTextField name;
   private javax.swing.JTextField type;
   // End of variables declaration//GEN-END:variables
+
+
+  private void checkState () {
+    if (name.getText().length() >0 && type.getText().length() >0) {
+    }
+    else {
+    }
+  }
+
+    public void removeUpdate(final javax.swing.event.DocumentEvent p1) {
+        checkState();
+    }
+
+    public void changedUpdate(final javax.swing.event.DocumentEvent p1) {
+        checkState();
+    }
+
+    public void insertUpdate(final javax.swing.event.DocumentEvent p1) {
+        checkState();
+    }
 
 }
