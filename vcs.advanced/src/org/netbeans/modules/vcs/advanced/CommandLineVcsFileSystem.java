@@ -1257,6 +1257,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                             pool.waitToFinish (executors[i]);
                         } catch (InterruptedException iexc) {}
                     }
+                } else {
+                    initialIgnoreList.addAll(createDefaultIgnoreList());
                 }
             }
             return initialIgnoreList;
@@ -1290,6 +1292,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                     pool.waitToFinish(executors[i]);
                 } catch (InterruptedException iexc) {}
             }
+            return ignoreList;
+        }
+        
+        private final String[] DEFAULT_IGNORE_FILES = { ".#*", "*~" };
+        
+        private final java.util.List createDefaultIgnoreList() {
+            java.util.List ignoreList = Arrays.asList(DEFAULT_IGNORE_FILES);
             return ignoreList;
         }
         
