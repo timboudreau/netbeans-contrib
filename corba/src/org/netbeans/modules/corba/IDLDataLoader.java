@@ -83,7 +83,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     
     /** Creates new IDLDataLoader */
     public IDLDataLoader() {
-        super(IDLDataObject.class);
+        super("org.netbeans.modules.corba.IDLDataObject");
         if (DEBUG)
             System.out.println("IDLDataLoader..."); // NOI18N
         _M_folders = new HashMap();

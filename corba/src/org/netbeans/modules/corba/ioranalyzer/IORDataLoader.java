@@ -24,7 +24,7 @@ public class IORDataLoader extends UniFileLoader {
     static final long serialVersionUID = -8245818160929345918L;
 
     public IORDataLoader () {
-        super (IORDataObject.class);
+        super ("org.netbeans.modules.corba.ioranalyzer.IORDataObject");
     } 
     
     public FileObject findPrimaryFile (FileObject fo) {
