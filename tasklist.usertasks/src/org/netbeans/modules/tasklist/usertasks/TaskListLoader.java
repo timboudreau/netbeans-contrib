@@ -48,10 +48,6 @@ public final class TaskListLoader extends UniFileLoader {
     /** store the popup menu actions here */
     protected static SystemAction[] standardActions;
 
-    /** The suffix list for tasklists. Does not include .xml which we
-        handle separately. */
-    private static final String[] hdrExtensions = { "ics" }; //NOI18N
-    
     public TaskListLoader() {
         super("org.netbeans.modules.tasklist.usertasks.TaskListDataObject");//NOI18N
 

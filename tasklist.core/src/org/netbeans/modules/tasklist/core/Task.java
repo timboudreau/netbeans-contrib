@@ -32,13 +32,12 @@ import org.openide.ErrorManager;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 
-
-
-// XXX todo: fire property change whenever anything changes in the node...
-
-/** Class which represents a task in the
- * tasklist.
- * @author Tor Norbye */
+/** 
+ * Class which represents a task in the tasklist.
+ *
+ * @author Tor Norbye 
+ * @author Tim Lebedkov
+ */
 public class Task extends Suggestion implements Cloneable {
     /** Keys for the Bundle.properties */
     private static final String[] PRIORITIES_KEYS = {

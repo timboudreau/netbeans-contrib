@@ -25,10 +25,6 @@ import org.netbeans.modules.tasklist.core.ExpandAllAction;
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.ImportAction;
-import org.netbeans.modules.tasklist.core.LineNumberPropertyEditor;
-import org.netbeans.modules.tasklist.core.Task;
-
-
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskListener;
 import org.netbeans.modules.tasklist.core.TaskNode;
