@@ -46,8 +46,8 @@ import com.netbeans.enterprise.modules.corba.settings.*;
 
 public class IDLDataObject extends MultiDataObject {
 
-   public static final boolean DEBUG = true;
-   //public static final boolean DEBUG = false;
+   //public static final boolean DEBUG = true;
+   public static final boolean DEBUG = false;
 
   public IDLDataObject (final FileObject obj, final MultiFileLoader loader)
                        throws DataObjectExistsException {
@@ -71,7 +71,7 @@ public class IDLDataObject extends MultiDataObject {
        }
     });
     */
-    FileUtil.setMIMEType ("idl", "text/plain");
+    FileUtil.setMIMEType ("idl", "text/x-idl");
 
   }
 
@@ -101,6 +101,7 @@ public class IDLDataObject extends MultiDataObject {
 
 /*
  * <<Log>>
+ *  7    Gandalf   1.6         5/28/99  Karel Gardas    
  *  6    Gandalf   1.5         5/22/99  Karel Gardas    
  *  5    Gandalf   1.4         5/15/99  Karel Gardas    
  *  4    Gandalf   1.3         5/8/99   Karel Gardas    

@@ -26,10 +26,12 @@ import com.netbeans.ide.execution.NbProcessDescriptor;
 import com.netbeans.ide.TopManager;
 import com.netbeans.ide.filesystems.FileObject;
 import com.netbeans.ide.filesystems.FileLock;
+import com.netbeans.ide.filesystems.FileSystem;
 
 import java.util.Vector;
 import java.util.Properties;
 import java.util.Enumeration;
+import java.util.StringTokenizer;
 import java.io.*;
 
 import com.netbeans.enterprise.modules.corba.settings.*;
@@ -49,6 +51,7 @@ public class IDLModule implements ModuleInstall {
       if (DEBUG)
 	 System.err.println ("CORBA Support Module installing...");
       copyImpls ();
+      copyTemplates ();
       restored ();
       if (DEBUG)
 	 System.err.println ("CORBA Support Module installed :)");
@@ -56,7 +59,8 @@ public class IDLModule implements ModuleInstall {
 
    public void copyImpls () {
 
-      String[] list_of_files = {"orbacus", "javaorb", "visibroker", "orbixweb", "jacorb"};
+      String[] list_of_files = {"orbacus.impl", "javaorb.impl", "visibroker.impl", "orbixweb.impl",
+				"jacorb.impl", "jdk1.2-orb.impl"};
       String _package =   "/com/netbeans/enterprise/modules/corba/impl";
       TopManager tm = TopManager.getDefault ();
       
@@ -84,7 +88,8 @@ public class IDLModule implements ModuleInstall {
 	 if (fo.getChildren ().length == 0) {
 	    // copy of implementations files
 	    for (int i=0; i<list_of_files.length; i++) {
-	       FileObject tmp_file = fo.createData (list_of_files[i], "impl");
+	       FileObject tmp_file = fo.createData (getFileName (list_of_files[i]), 
+						    getFileExt (list_of_files[i]));
 	       FileLock lock = tmp_file.lock ();
 	       OutputStream o = tmp_file.getOutputStream (lock);
 	       if (DEBUG)
@@ -122,6 +127,128 @@ public class IDLModule implements ModuleInstall {
       }
    }
 
+
+   public String[] getFileNameAndExt (String name) {
+      int index = name.lastIndexOf (".", 0);
+      String[] retval = new String[2];
+      retval[0] = new String (name.substring (0, index));
+      retval[1] = new String (name.substring (index+1, name.length ()));
+      if (DEBUG) {
+	 System.out.println ("name: " + retval[0]);
+	 System.out.println ("ext: " + retval[1]);
+      }
+      return retval;
+   }
+
+   public String getFileName (String name) {
+      if (DEBUG)
+	 System.out.println ("orig: " + name);
+      String retval = name.substring (0, name.lastIndexOf ('.'));
+      if (DEBUG)
+	 System.out.println ("name: " + retval);
+      return retval;
+   }
+
+   public String getFileExt (String name) {
+      if (DEBUG)
+         System.out.println ("orig: " + name);
+      String retval = name.substring (name.lastIndexOf ('.')+1, name.length ());
+      if (DEBUG)
+	 System.out.println ("ext: " + retval);
+      return retval;
+   }
+
+   
+   public void copyTemplates () {
+
+      String[] list_of_templates     = {"Empty.idl", "Simple.idl", "SimpleInterface.idl", 
+					"ClientMain.java", "ServerMain.java"};
+      String _package =   "/com/netbeans/enterprise/modules/corba/templates";
+      TopManager tm = TopManager.getDefault ();
+      
+      FileObject templates = null;
+
+      templates = tm.getRepository ().getDefaultFileSystem ().getRoot ().getFileObject 
+	    ("Templates"); 
+      if (templates == null)
+	 System.err.println ("can't find system/Templates folder!");
+
+      FileObject fo = null;
+	 /*
+	 boolean is_corba = false;
+	 for (int i=1; folders.hasMoreElements (); ) {
+	    fo = (FileObject)folders.nextElement ();
+	    if (fo.toString ().equals ("CORBA")) {
+	       // it exists 
+	       if (DEBUG)
+		  System.out.println ("CORBA exists :-)");
+	       is_corba = true;
+	       break;
+	    }
+	 }
+	 */
+
+      boolean is_corba = false;
+      boolean error = false;
+	
+      try {
+	 if (templates != null) {
+	    fo = templates.createFolder ("CORBA");
+	    is_corba = true;
+	 }
+      } catch (IOException e) {
+	 error = true;
+      }
+   
+      if (error) {
+	 fo = templates.getFileObject ("CORBA");
+	 if (fo != null)
+	    is_corba = true;
+	 else {
+	    System.err.println ("can't create folder system/Templates/CORBA !");
+	    return;
+	 }
+      }
+      try {
+	 if (fo.getChildren ().length == 0) {
+	    // copy of Templates
+	    for (int i=0; i<list_of_templates.length; i++) {
+	       FileObject tmp_file = fo.createData (getFileName (list_of_templates[i]),
+						    getFileExt (list_of_templates[i]));
+	       DataObject.find (tmp_file).setTemplate (true);
+	       FileLock lock = tmp_file.lock ();
+	       OutputStream o = tmp_file.getOutputStream (lock);
+	       if (DEBUG)
+		  System.out.println ("file: " + tmp_file );
+	       PrintStream out = new PrintStream (o);
+	       //String name = _package + "." + list_of_files[i];
+	       String name = _package + "/" + list_of_templates[i];
+	       if (DEBUG)
+		  System.out.println ("name: " + name);
+	       InputStream input = CORBASupportSettings.class.getResourceAsStream 
+		  (name);
+	       
+	       if (input == null) {
+		  System.err.println ("can't find " + name + " resource.");
+		  continue;
+	       }
+	       BufferedReader in = new BufferedReader (new InputStreamReader (input));
+	       String tmp;
+	       try {
+		  while ((tmp = in.readLine ()) != null) {
+		     out.println (tmp);
+		  }
+	       } catch (IOException e) {
+		  e.printStackTrace ();
+	       }
+	    }
+	 }
+      } catch (IOException e) {
+	 System.err.println ("unexpected error!");
+      }
+	    
+   }
+
    /** Module installed again. */
    public void restored() {
       if (DEBUG)
@@ -155,7 +282,22 @@ public class IDLModule implements ModuleInstall {
 	    //tmps1[0] = new String ("");
 	    //tmps2[0] = new String ("");
 	    String command = new String ();
-	    command = command + css.getIdl () + " ";
+
+	    // for orbs which has idl compiler implemented in java - for correct works
+	    // with classpathsettings from NbProcessDescriptor
+
+	    if (css.getIdl ().getProcessArgs ()[0].equalsIgnoreCase ("java")) {
+	       command = css.getIdl ().getProcessArgs ()[0];
+	       command = command + " " + css.getIdl ().getClasspathSwitch ();
+	       command = command + " " + getClasspath (css.getIdl ().getClasspathItems ());
+	       command = command + " ";
+	       for (int i=0; i<css.getIdl ().getProcessArgs().length-1; i++)
+		  command = command + css.getIdl ().getProcessArgs()[i+1];
+	       command = command + " ";
+	    }
+	    else {
+	       command = command + css.getIdl ().getProcessName () + " ";
+	    }
 	    if (CORBASupportSettings.param () != null)
 	       if (!CORBASupportSettings.param ().equals ("")) {
 		  command = command + CORBASupportSettings.param () + " ";
@@ -188,7 +330,24 @@ public class IDLModule implements ModuleInstall {
 	    String[] tmps2 = new String[] {NbProcessDescriptor.CP_REPOSITORY};
 	    NbProcessDescriptor desc = new NbProcessDescriptor 
 	       (command , NbProcessDescriptor.NO_SWITCH, tmps2);
-	    new ExternalCompiler(job, ido.getPrimaryFile(), type, desc, eexpr);
+	    /*
+	    if (DEBUG)
+	       System.out.println ("sub: " + css.getIdl ().getProcessArgs ()[0]);
+	    if (css.getIdl ().getProcessArgs ()[0].equalsIgnoreCase ("java")) {
+	       if (DEBUG)
+		  System.out.println ("java");
+	       if (DEBUG) {
+		  System.out.println ("process: " + css.getIdl ().getProcessName ());
+		  int length = css.getIdl ().getProcessArgs ().length;
+		  String[] params = css.getIdl ().getProcessArgs ();
+		  for (int i=0; i<length; i++)
+		     System.out.println ("param[" + i + "]: " + params[i]);
+	       }
+	       new ExternalCompiler(job, ido.getPrimaryFile(), type, css.getIdl (), eexpr);
+	    }
+	    else
+	    */
+	       new ExternalCompiler(job, ido.getPrimaryFile(), type, desc, eexpr);
 	 }
       }
 				 );
@@ -199,6 +358,80 @@ public class IDLModule implements ModuleInstall {
 	 System.err.println ("CORBA Support Module restored...");
    }
    
+   private String getClasspath(String[] classpathItems) {
+    StringBuffer buff = new StringBuffer(100);
+    for (int i = 0; i < classpathItems.length; i++) {
+       if (NbProcessDescriptor.CP_REPOSITORY.equals (classpathItems[i])) {
+        Enumeration ee = com.netbeans.ide.TopManager.getDefault().getRepository ().getFileSystems();
+        FileSystem fs;
+	String path;
+        while (ee.hasMoreElements()) {
+          path = "";
+          //try {
+            fs = (FileSystem) ee.nextElement();
+	    //            if (!fs.getUseInCompiler())
+	    //              continue;
+            //fs.prepareEnvironment(this);
+	    //} catch (EnvironmentNotSupportedException ex) {
+            //continue;
+	    //}
+	    //System.out.println ("fs: " + fs.toString ());
+	    //System.out.println ("fs2:" + fs.getSystemName ());
+	    path = fs.getSystemName ();
+	    buff.append(path);
+	    buff.append(java.io.File.pathSeparatorChar);
+        }
+       } else if (NbProcessDescriptor.CP_SYSTEM.equals (classpathItems[i])) {
+        buff.append(getSystemEntries());
+        buff.append(java.io.File.pathSeparatorChar);
+       } else {
+        buff.append (classpathItems[i]);
+        buff.append(java.io.File.pathSeparatorChar);
+       }
+    }
+
+    return buff.toString ();
+   }
+
+   private static final String getSystemEntries() {
+      // boot
+    String boot = System.getProperty("sun.boot.class.path");
+    StringBuffer sb = (boot != null ? new StringBuffer(boot) : new StringBuffer());
+    if (boot != null) {
+      sb.append(java.io.File.pathSeparatorChar);
+    }
+
+    // modules & libs
+    final String[] libs = TopManager.getDefault().getCompilationEngine().getLibraries();
+    for (int i = 0; i < libs.length; i++) {
+      sb.append(libs[i]);
+      sb.append(java.io.File.pathSeparatorChar);
+    }
+
+    // classpath
+    sb.append(System.getProperty("java.class.path"));
+
+    // std extensions
+    String extensions = System.getProperty("java.ext.dirs");
+    if (extensions != null) {
+      for (StringTokenizer st = new StringTokenizer(extensions, File.pathSeparator); 
+	   st.hasMoreTokens ();) {
+        String dir = st.nextToken();
+        File file = new File(dir);
+        if (!dir.endsWith(File.separator)) dir += File.separator;
+        if (file.isDirectory()) {
+          String[] files = file.list();
+          for (int i = 0; i < files.length; i++) {
+            String entry = files[i];
+            if (entry.endsWith(".jar"))
+              sb.append(java.io.File.pathSeparatorChar).append(dir).append(entry);
+          }
+        }
+      }
+    }
+    return sb.toString();
+   }
+
    /** Module was uninstalled. */
    public void uninstalled() {
    }
@@ -212,6 +445,7 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         5/28/99  Karel Gardas    
  *  5    Gandalf   1.4         5/22/99  Karel Gardas    
  *  4    Gandalf   1.3         5/15/99  Karel Gardas    
  *  3    Gandalf   1.2         5/8/99   Karel Gardas    
