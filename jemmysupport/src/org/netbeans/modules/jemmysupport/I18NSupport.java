@@ -59,15 +59,15 @@ public class I18NSupport {
         int i=text.lastIndexOf('(');
         int j=text.lastIndexOf(':');
         int k=text.lastIndexOf(')');
+        LineNumberReader prop=null;
         if (i>=0 && j>i+1 && k>j+1) try {
             int bundle=Integer.parseInt(text.substring(i+1, j));
             int row=Integer.parseInt(text.substring(j+1, k));
             if (--bundle<bundles.length) {
-                LineNumberReader prop=new LineNumberReader(new InputStreamReader(loader.getResourceAsStream(bundles[bundle])));
+                prop=new LineNumberReader(new InputStreamReader(loader.getResourceAsStream(bundles[bundle])));
                 String key;
                 while (--row>0) prop.readLine();
                 key=prop.readLine();
-                prop.close();
                 i=key.indexOf('=');
                 if (i>0) {
                     String res=translate(text, bundles[bundle].endsWith(".properties")?bundles[bundle].substring(0, bundles[bundle].length()-11):bundles[bundle], key.substring(0, i));
@@ -76,7 +76,12 @@ public class I18NSupport {
             }
         } catch (NumberFormatException nfe) { 
         } catch (IOException ioe) {
-        } catch (NullPointerException npe) {} 
+        } catch (NullPointerException npe) {
+        } finally {
+            try {
+                if (prop!=null) prop.close();
+            } catch (IOException ioe2) {}
+        }
         return hardcoded(text);
     }
         

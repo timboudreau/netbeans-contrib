@@ -143,10 +143,14 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
         }
     }
 
+    private static final String oldLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_OldComponent"); // NOI18N
+    private static final String newLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_NewComponent"); // NOI18N
+    private static final String resultLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_ResultOfMerge"); // NOI18N
+    
     static void mergeConflicts(File f, String s) throws IOException {
-        StreamSource s1=new ComponentSource(f, NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_OldComponent")); // NOI18N
-        StreamSource s2=new ComponentSource(f.getName(), s, NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_NewComponent")); // NOI18N
-        StreamSource s3=new ComponentSource(f, NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_ResultOfMerge")); // NOI18N;
+        StreamSource s1=new ComponentSource(f, oldLabel);
+        StreamSource s2=new ComponentSource(f.getName(), s, newLabel);
+        StreamSource s3=new ComponentSource(f, resultLabel);
         DiffProvider diff=(DiffProvider)Lookup.getDefault().lookup(DiffProvider.class);
         MergeVisualizer merge=(MergeVisualizer)Lookup.getDefault().lookup(MergeVisualizer.class);
         Component c=merge.createView(diff.computeDiff(s1.createReader(), s2.createReader()), s1, s2, s3);
@@ -255,13 +259,61 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
         }
         
         public Writer createWriter(Difference[] conflicts) throws IOException {
-            if (file != null) return new BufferedWriter(new FileWriter(file));
-            return null;
+            if (file==null) return null;
+            if (conflicts == null || conflicts.length == 0) {
+                return new FileWriter(file);
+            } else {
+                return new MergeConflictFileWriter(file, conflicts);
+            }
         }
         
         public void notifyClosed() {
         }
     
     }
-  
+
+    private static final String leftLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_Left"); // NOI18N
+    private static final String delimiter = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_Delimiter"); // NOI18N
+    private static final String rightLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_Right"); // NOI18N
+    
+    private static class MergeConflictFileWriter extends FileWriter {
+        
+        private Difference[] conflicts;
+        private int lineNumber;
+        private int currentConflict;
+        
+        public MergeConflictFileWriter(File file, Difference[] conflicts) throws IOException {
+            super(file);
+            this.conflicts = conflicts;
+            this.lineNumber = 1;
+            this.currentConflict = 0;
+            if (lineNumber == conflicts[currentConflict].getFirstStart()) {
+                writeConflict(conflicts[currentConflict]);
+                currentConflict++;
+            }
+        }
+        
+        public void write(String str) throws IOException {
+            super.write(str);
+            lineNumber += numLines(str);
+            if (currentConflict < conflicts.length && lineNumber >= conflicts[currentConflict].getFirstStart()) {
+                writeConflict(conflicts[currentConflict]);
+                currentConflict++;
+            }
+        }
+        
+        private void writeConflict(Difference conflict) throws IOException {
+            super.write(leftLabel);
+            super.write(conflict.getFirstText());
+            super.write(delimiter);
+            super.write(conflict.getSecondText());
+            super.write(rightLabel);
+        }
+        
+        private static int numLines(String str) {
+            int n = 0;
+            for (int pos = str.indexOf('\n'); pos >= 0 && pos < str.length(); pos = str.indexOf('\n', pos + 1)) n++;
+            return n;
+        }
+    }
 }
