@@ -246,6 +246,59 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         return catFile.getName();
     }
     
+    private static boolean checkFileExistsInSubdirs(File folder, String fileName) {
+        if (new File(folder, fileName).exists()) return true;
+        File[] subFiles = folder.listFiles();
+        if (subFiles == null) return false;
+        for (int i = 0; i < subFiles.length; i++) {
+            if (subFiles[i].isDirectory() && "CVS".compareToIgnoreCase(subFiles[i].getName()) != 0) {
+                if (checkFileExistsInSubdirs(subFiles[i], fileName)) return true;
+            }
+        }
+        return false;
+    }
+    
+    private static void createCatExecsInSubfolders(File folder, String catName) {
+        File catFile = new File(folder, catName);
+        OutputStream out = null;
+        try {
+            catFile.createNewFile();
+            out = new BufferedOutputStream(new FileOutputStream(catFile));
+            out.write(WIN_CAT_CONTENT.getBytes());
+        } catch (IOException ioexc) {
+            //ioexc.printStackTrace();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ioexc2) {}
+            }
+        }
+        catFile.deleteOnExit();
+        File[] subFiles = folder.listFiles();
+        if (subFiles == null) return ;
+        for (int i = 0; i < subFiles.length; i++) {
+            if (subFiles[i].isDirectory() && "CVS".compareToIgnoreCase(subFiles[i].getName()) != 0) {
+                createCatExecsInSubfolders(subFiles[i], catName);
+            }
+        }
+    }
+    
+    private static synchronized String createLocalCatExecs(String dir, String relativePath) {
+        File dirFile;
+        if (relativePath == null) {
+            dirFile = new File(dir);
+        } else {
+            dirFile = new File(dir, relativePath);
+        }
+        String cat = WIN_CAT_NAME + "." + WIN_CAT_EXT;
+        for (int i = 0; checkFileExistsInSubdirs(dirFile, cat); i++) {
+            cat = WIN_CAT_NAME + i + "." + WIN_CAT_EXT;
+        }
+        createCatExecsInSubfolders(dirFile, cat);
+        return cat;
+    }
+    
     private static synchronized void removeLocalCatExec(String dir, String relativePath, String catName) {
         File dirFile;
         if (relativePath == null) {
@@ -255,6 +308,27 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         }
         File catFile = new File(dirFile, catName);
         catFile.delete();
+    }
+    
+    private static void removeCatExecsInSubfolders(File folder, String catName) {
+        new File(folder, catName).delete();
+        File[] subFiles = folder.listFiles();
+        if (subFiles == null) return ;
+        for (int i = 0; i < subFiles.length; i++) {
+            if (subFiles[i].isDirectory() && "CVS".compareToIgnoreCase(subFiles[i].getName()) != 0) {
+                removeCatExecsInSubfolders(subFiles[i], catName);
+            }
+        }
+    }
+    
+    private static synchronized void removeLocalCatExecs(String dir, String relativePath, String catName) {
+        File dirFile;
+        if (relativePath == null) {
+            dirFile = new File(dir);
+        } else {
+            dirFile = new File(dir, relativePath);
+        }
+        removeCatExecsInSubfolders(dirFile, catName);
     }
     
     private ArrayList getCommitedFiles(String fsRoot, String relativePath,
@@ -456,7 +530,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             wincat = createCatExec();
             if (wincat == null) {
                 haveLocalCat = true;
-                wincat = createLocalCatExec(fsRoot, relativeToFSRoot);
+                wincat = createLocalCatExecs(fsRoot, relativeToFSRoot);
             }
             vars.put("WINCAT", wincat);
         }
@@ -511,7 +585,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             vars = new Hashtable(varsOriginal);
         } while (filePaths.size() > 0);
         //cpool.preprocessCommand(vce, vars);
-        if (haveLocalCat && wincat != null) removeLocalCatExec(fsRoot, relativeToFSRoot, wincat);
+        if (haveLocalCat && wincat != null) removeLocalCatExecs(fsRoot, relativeToFSRoot, wincat);
         return true;
     }
     
