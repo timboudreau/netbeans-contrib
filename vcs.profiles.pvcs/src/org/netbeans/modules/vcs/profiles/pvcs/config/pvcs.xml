@@ -959,11 +959,12 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_APPLY_DELTA_Mnemonic)</value>
         </property>
         <run dir="${WORKDIR}">
-          <executable value="regen"/>
-          <arg value="${WORKDIR}${PS}${FILE}"/>
-          <arg value="${DELTA_FILE}"/>
-          <arg value="&gt;"/>
-          <arg value="${TEMPORARY_FILE}"/>
+          <executable value="cmd.exe" if="IS_WINNT"/>
+          <executable value="/bin/sh" unless="IS_WINNT"/>
+          <arg value="/X" if="IS_WINNT"/>
+          <arg value="/C" if="IS_WINNT"/>
+          <arg value="-c" unless="IS_WINNT"/>
+          <arg value="regen &quot;${WORKDIR}${PS}${FILE}&quot; &quot;${DELTA_FILE}&quot; &gt; &quot;${TEMPORARY_FILE}&quot;"/>
         </run>
   	<property name="inputDescriptor">
  	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_APPLY_DELTA_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_APPLY_DELTA_Label)))
@@ -989,7 +990,11 @@ Microsystems, Inc. All Rights Reserved.
       <command name="COPY_APPLIED_DELTA">
         <run>
           <executable value="cp" unless="IS_WINNT"/>
-          <executable value="copy" if="IS_WINNT"/>
+          <executable value="cmd.exe" if="IS_WINNT"/>
+          <arg value="/X" if="IS_WINNT"/>
+          <arg value="/C" if="IS_WINNT"/>
+          <arg value="copy" if="IS_WINNT"/>
+          <arg value="/Y" if="IS_WINNT"/>
           <arg value="${TEMPORARY_FILE}"/>
           <arg value="${WORKDIR}${PS}${FILE}"/>
         </run>
