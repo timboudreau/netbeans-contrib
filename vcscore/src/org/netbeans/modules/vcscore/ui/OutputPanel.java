@@ -22,6 +22,7 @@ import javax.swing.*;
  * @author  Richard Gregor
  */
 public class OutputPanel extends AbstractOutputPanel{
+    
     private JTextArea stdOutput;
     private JTextArea errOutput;    
    

@@ -43,16 +43,21 @@ import org.openide.util.NbBundle;
  * @author  Richard Gregor
  */
 public abstract class AbstractOutputPanel extends javax.swing.JPanel {
-    private boolean errEnabled = false;
+    
     private JPopupMenu menu;
     private Object eventSource;
    // private JMenuItem kill;
     private ArrayList killActionListeners = new ArrayList();
+    private JTextArea stdDataOutput;
+    private JTextArea errDataOutput;    
     
     /** Creates new form OutputPanel */
     public AbstractOutputPanel() {
         initComponents(); 
         initPopupMenu();
+        if (Boolean.getBoolean("netbeans.vcs.dev")) {
+            addDataOutputButtons();
+        }
         Font font = btnErr.getFont();
         FontMetrics fm = btnErr.getFontMetrics(font);
         int height = fm.getHeight();
@@ -64,21 +69,15 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         btnStop.setPreferredSize(new Dimension(dim.width,height+6));
         btnStop.setMinimumSize(new Dimension(dim.width,height+6));
         btnStop.setMaximumSize(new Dimension(dim.width,height+6));       
-        if(getErrOutputArea() != null){
-            getErrOutputArea().getDocument().addDocumentListener(new DocumentListener(){
-                public void changedUpdate(DocumentEvent e){
-                    
-                }
-                public void insertUpdate(DocumentEvent e){
-                    btnErr.setEnabled(true);
-                    errEnabled = true;
-                }
-                public void removeUpdate(DocumentEvent e){
-                    
-                }
-                
-            });
-        } 
+        if (getErrOutputArea() != null) {
+            getErrOutputArea().getDocument().addDocumentListener(new OutputButtonEnabler(btnErr));
+        }
+        if (btnDataStd != null && getDataStdOutputArea() != null) {
+            getDataStdOutputArea().getDocument().addDocumentListener(new OutputButtonEnabler(btnDataStd));
+        }
+        if (btnDataErr != null && getDataErrOutputArea() != null) {
+            getDataErrOutputArea().getDocument().addDocumentListener(new OutputButtonEnabler(btnDataErr));
+        }
         setStandardContent();
     }
     
@@ -172,16 +171,16 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                         writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
                         writer.newLine();
                     }
-                    /*
                     if (finPnl.includeDatOut()) {
-                        writer.write(stdDataTextArea.getDocument().getText(0, stdDataTextArea.getDocument().getLength()));
+                        javax.swing.JTextArea outputArea = getDataStdOutputArea();
+                        writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
                         writer.newLine();
                     }
                     if (finPnl.includeDatErr()) {
-                        writer.write(errDataTextArea.getDocument().getText(0, errDataTextArea.getDocument().getLength()));
+                        javax.swing.JTextArea outputArea = getDataErrOutputArea();
+                        writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
                         writer.newLine();
                     }
-                     */
                 } catch (Exception exc) {
                    ErrorManager.getDefault().notify(
                         ErrorManager.getDefault().annotate(exc,
@@ -222,7 +221,7 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                     progress.setValue(100);
                     progress.setVisible(false);
                     btnStop.setVisible(false);
-                    if(!isStdOutput()&&isErrOutput())
+                    if (!isStdOutput() && isErrOutput())
                         btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
                 }
             });
@@ -241,6 +240,23 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         }
     }
     
+    private static class OutputButtonEnabler extends Object implements DocumentListener {
+        
+        javax.swing.JToggleButton btn;
+        
+        public OutputButtonEnabler(javax.swing.JToggleButton button) {
+            this.btn = button;
+        }
+        
+        public void changedUpdate(DocumentEvent e) {}
+        
+        public void insertUpdate(DocumentEvent e) {
+            btn.setEnabled(true);
+        }
+        
+        public void removeUpdate(DocumentEvent e) {}
+
+    }
     
     
     /** This method is called from within the constructor to
@@ -358,6 +374,8 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     private void btnErrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnErrActionPerformed
         btnStd.setSelected(false);
         btnErr.setSelected(true);
+        if (btnDataStd != null) btnDataStd.setSelected(false);
+        if (btnDataErr != null) btnDataErr.setSelected(false);
         setErrorContent();        
     }//GEN-LAST:event_btnErrActionPerformed
 
@@ -365,17 +383,71 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         scroll.setViewportView(getErrComponent());
     }
     private void btnStdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStdActionPerformed
-        if(errEnabled){
-            btnErr.setSelected(false);            
-        }
+        btnErr.setSelected(false);            
         btnStd.setSelected(true);
+        if (btnDataStd != null) btnDataStd.setSelected(false);
+        if (btnDataErr != null) btnDataErr.setSelected(false);
         setStandardContent();
     }//GEN-LAST:event_btnStdActionPerformed
-    
+
     private void setStandardContent(){
         scroll.setViewportView(getStdComponent());       
     }
 
+    private void addDataOutputButtons() {
+        btnDataStd = new javax.swing.JToggleButton();
+        btnDataErr = new javax.swing.JToggleButton();
+        
+        btnDataStd.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.btnDataStd_mnc").charAt(0));
+        btnDataStd.setEnabled(false);
+        btnDataStd.setText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("OutputPanel.btnDataStd"));
+        btnDataStd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDataStdActionPerformed(evt);
+            }
+        });
+
+        toolbar.add(btnDataStd, 2);
+        btnDataStd.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.btnDataStd"));
+
+        btnDataErr.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.btnDataErr_mnc").charAt(0));
+        btnDataErr.setText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("OutputPanel.btnDataErr"));
+        btnDataErr.setEnabled(false);
+        btnDataErr.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDataErrActionPerformed(evt);
+            }
+        });
+
+        toolbar.add(btnDataErr, 3);
+        btnDataErr.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.btnDataErr"));
+
+    }
+    
+    private void btnDataStdActionPerformed(java.awt.event.ActionEvent evt) {
+        btnStd.setSelected(false);
+        btnErr.setSelected(false);
+        btnDataStd.setSelected(true);
+        btnDataErr.setSelected(false);
+        setDataStandardContent();
+    }
+
+    private void setDataStandardContent(){
+        scroll.setViewportView(getDataStdComponent());       
+    }
+
+    private void btnDataErrActionPerformed(java.awt.event.ActionEvent evt) {
+        btnStd.setSelected(false);
+        btnErr.setSelected(false);
+        btnDataStd.setSelected(false);
+        btnDataErr.setSelected(true);
+        setDataErrorContent();        
+    }
+
+    private void setDataErrorContent(){
+        scroll.setViewportView(getDataErrComponent());
+    }
+    
     public javax.swing.JTextArea getStdOutputArea(){
         if(getStdComponent() instanceof javax.swing.JTextArea)
             return (JTextArea)getStdComponent();
@@ -386,6 +458,20 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     public javax.swing.JTextArea getErrOutputArea(){
         if(getErrComponent() instanceof javax.swing.JTextArea)
             return (JTextArea)getErrComponent();
+        else
+            return null;
+    }
+    
+    public javax.swing.JTextArea getDataStdOutputArea(){
+        if(getDataStdComponent() instanceof javax.swing.JTextArea)
+            return (JTextArea)getDataStdComponent();
+        else
+            return null;
+    }
+    
+    public javax.swing.JTextArea getDataErrOutputArea(){
+        if(getDataErrComponent() instanceof javax.swing.JTextArea)
+            return (JTextArea)getDataErrComponent();
         else
             return null;
     }
@@ -412,6 +498,31 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     
     protected abstract JComponent getStdComponent();
     
+    /**
+     * The component that display standard data output.
+     * Returns a JTextArea by default.
+     * Subclasses can return a different component here.
+     */
+    protected JComponent getDataStdComponent() {
+        if(stdDataOutput == null){
+            stdDataOutput = new JTextArea();
+            stdDataOutput.setEditable(false);
+        }
+        return stdDataOutput;
+    }
+    
+    /**
+     * The component that display error data output.
+     * Returns a JTextArea by default.
+     * Subclasses can return a different component here.
+     */
+    protected JComponent getDataErrComponent() {
+        if(errDataOutput == null){
+            errDataOutput = new JTextArea();
+            errDataOutput.setEditable(false);
+        }
+        return errDataOutput;
+    }
       
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -427,4 +538,6 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     private javax.swing.JToolBar toolbar;
     // End of variables declaration//GEN-END:variables
     
+    private javax.swing.JToggleButton btnDataStd;
+    private javax.swing.JToggleButton btnDataErr;
 }
