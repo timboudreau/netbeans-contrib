@@ -29,6 +29,18 @@ public abstract class AbstractWizardPanel extends javax.swing.JPanel implements 
     }
     
     
+    public void addNotify() {
+        super.addNotify();
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                java.awt.Container c = getTopLevelAncestor();
+                if (c instanceof java.awt.Window) {
+                    ((java.awt.Window) c).pack();
+                }
+            }
+        });
+    }
+    
     public synchronized void addChangeListener(javax.swing.event.ChangeListener listener) {
         this.listeners_.add (listener);
     }
