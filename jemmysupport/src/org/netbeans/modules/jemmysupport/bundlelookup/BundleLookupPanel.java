@@ -23,7 +23,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.util.*;
 import org.openide.windows.TopComponent;
-import org.openide.TopManager;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
@@ -36,7 +35,9 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.util.datatransfer.ExClipboard;
 
 /** Panel for Resource Bundle Lookup
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -484,7 +485,8 @@ public class BundleLookupPanel extends TopComponent  {
         if ((evt.getModifiers()==evt.BUTTON3_MASK)&&((i=ResultTable.getSelectedRow())>=0)) {
             ActionListener listener=new ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    TopManager.getDefault().getClipboard().setContents(new StringSelection(((JMenuItem)evt.getSource()).getText().substring(copyPrefix.length())),null);
+                    ExClipboard clp=(ExClipboard)Lookup.getDefault().lookup(ExClipboard.class);
+                    clp.setContents(new StringSelection(((JMenuItem)evt.getSource()).getText().substring(copyPrefix.length())),null);
                 }
             };
             String bundle=ResultTable.getValueAt(i,ResultTable.convertColumnIndexToModel(0)).toString();

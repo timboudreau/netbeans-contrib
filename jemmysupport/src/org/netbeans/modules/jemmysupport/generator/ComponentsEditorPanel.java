@@ -21,7 +21,6 @@ package org.netbeans.modules.jemmysupport.generator;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.openide.DialogDescriptor;
-import org.openide.TopManager;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import org.openide.nodes.Node;
@@ -43,6 +42,7 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeNode;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
 /** class with panel used for edit found components before generation
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -55,16 +55,8 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
     
     static {
         try {
-            InputStream in = TopManager.class.getClassLoader().getResourceAsStream("org/openide/resources/propertysheet/customize.gif"); // NOI18N
-            byte b[] = new byte[in.available()];
-            in.read(b);
-            in.close();
-            rootIcon = new ImageIcon(b);
-            in = TopManager.class.getClassLoader().getResourceAsStream("org/openide/src/resources/sourceOptions.gif"); // NOI18N
-            b = new byte[in.available()];
-            in.read(b);
-            in.close();
-            nodeIcon = new ImageIcon(b);
+            rootIcon = new ImageIcon(Utilities.loadImage("org/openide/resources/propertysheet/customize.gif")); // NOI18N
+            nodeIcon = new ImageIcon(Utilities.loadImage("org/openide/src/resources/sourceOptions.gif")); // NOI18N
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -223,7 +215,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
      * @return boolean false when operation canceled */    
     public static boolean showDialog(ComponentGenerator gen) {
         DialogDescriptor desc = new DialogDescriptor(new ComponentsEditorPanel(gen), NbBundle.getMessage(ComponentsEditorPanel.class, "ComponentsEditor_Title"), true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, null); // NOI18N
-        TopManager.getDefault().createDialog(desc).show();
+        org.openide.DialogDisplayer.getDefault().createDialog(desc).show();
         return desc.getValue()==DialogDescriptor.OK_OPTION;
     }
     
