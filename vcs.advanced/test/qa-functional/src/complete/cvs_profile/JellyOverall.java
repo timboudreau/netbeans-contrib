@@ -24,6 +24,7 @@ import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.NbDialogOperator;
 import org.netbeans.jellytools.NbFrameOperator;
 import org.netbeans.jellytools.actions.DeleteAction;
+import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.CVSAddAction;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.CVSCommitAction;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.VCSGenericMountAction;
@@ -274,6 +275,12 @@ public class JellyOverall extends JellyTestCase {
         co.checkPruneEmptyFolders(false);
         co.oK();
         history.waitCommand("Check Out", hRoot);
+
+        // for assurance only
+        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("CHECKOUT_COMMAND");
+        voo.close(); 
+        voo.waitClosed();
+        
         waitStatus(null, nInitDir);
         new CVSFileNode(exp.repositoryTab().tree(), nRoot).cVSRefreshRecursively();
         assertTrue("Refresh recursively folder command failed", history.waitCommand("Refresh Recursively", hRoot));
