@@ -298,7 +298,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
         TopManager.getDefault().setStatusText(message);
         String notification = null;
-        if (exit != VcsCommandExecutor.SUCCEEDED && !VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
+        if (exit != VcsCommandExecutor.SUCCEEDED && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
             fileSystem.debugErr(message);
             printErrorOutput(vce);
             notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG);
