@@ -251,10 +251,13 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
         private static final long serialVersionUID = -7801790121334731232L;
         
         public OutputTopComponent(){        
-            setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
-            putClientProperty("PersistenceType", "Never");                        
+            setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));                                   
             initAccessibility();
-        }
+        }        
+        
+        public int getPersistenceType() {
+            return TopComponent.PERSISTENCE_NEVER;
+        } 
         
         void setOutputPanel(JComponent outputPanel){
             this.outputPanel = outputPanel;
