@@ -219,6 +219,9 @@ public class VcsAction extends NodeAction implements ActionListener {
         //System.out.println("doCommand("+files+", "+cmd+")");
         if (files.size() == 0) return new VcsCommandExecutor[0];
         assureFilesSaved(files.values());
+        if (VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER)) {
+            files = createHierarchicalOrder(files);
+        }
         ArrayList executors = new ArrayList();
         boolean[] askForEachFile = null;
         String quoting = fileSystem.getQuoting();
@@ -302,6 +305,20 @@ public class VcsAction extends NodeAction implements ActionListener {
                 }
             }
         }
+    }
+    
+    /** Reorder the table of files by the path hierarchical order.
+     * @param files the table of pairs of files and file objects
+     * @return the reordered table
+     */
+    private static Table createHierarchicalOrder(Table files) {
+        TreeMap sorted = new TreeMap(files);
+        Table sortedFiles = new Table();
+        for (Iterator it = sorted.keySet().iterator(); it.hasNext(); ) {
+            Object key = it.next();
+            sortedFiles.put(key, files.get(key));
+        }
+        return sortedFiles;
     }
 
     /**
@@ -431,8 +448,10 @@ public class VcsAction extends NodeAction implements ActionListener {
                 for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
                     FileObject fo = (FileObject) it.next();
                     String path = fo.getPackageNameExt('/', '.');
-                    String status = statusProv.getFileStatus(path);
-                    if (status != null) statuses.add(status);
+                    if (fileSystem.isImportant(path)) {
+                        String status = statusProv.getFileStatus(path);
+                        if (status != null) statuses.add(status);
+                    }
                 }
             } else {
                 Node[] nodes = getActivatedNodes();
@@ -443,8 +462,10 @@ public class VcsAction extends NodeAction implements ActionListener {
                     for (Iterator it = files.iterator(); it.hasNext(); ) {
                         FileObject fo = (FileObject) it.next();
                         String path = fo.getPackageNameExt('/', '.');
-                        String status = statusProv.getFileStatus(path);
-                        if (status != null) statuses.add(status);
+                        if (fileSystem.isImportant(path)) {
+                            String status = statusProv.getFileStatus(path);
+                            if (status != null) statuses.add(status);
+                        }
                     }
                 }
             }
@@ -603,10 +624,11 @@ public class VcsAction extends NodeAction implements ActionListener {
      * <br>QFILE - the first file quoted
      * <br>MIMETYPE - the MIME type of the first file
      * <br>
-     * <br>When more then one file is to be processed, following additional variables are defined:
      * <br>FILES - all files delimeted by the system file separator
      * <br>PATHS - full paths to all files delimeted by two system file separators
      * <br>QPATHS - full paths to all files quoted by filesystem quotation string and delimeted by spaces
+     * <br>NUM_FILES - the number of files
+     * <br>MULTIPLE_FILES - "true" when more than one file is to be processed, "" otherwise
      *
      * @param files the table of files
      * @param vars the table of variables to extend
@@ -628,31 +650,27 @@ public class VcsAction extends NodeAction implements ActionListener {
         vars.put("QFILE", quoting+file+quoting); // NOI18N
         vars.put("MIMETYPE", fo.getMIMEType());
         // Second, set the multifiles variables
-        if (files.size() > 1) {
-            StringBuffer qpaths = new StringBuffer();
-            StringBuffer paths = new StringBuffer();
-            StringBuffer vfiles = new StringBuffer();
-            for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
-                fullName = (String) enum.nextElement();
-                file = VcsUtilities.getFileNamePart(fullName);
-                fullName = fullName.replace('/', java.io.File.separatorChar);
-                vfiles.append(file);
-                vfiles.append(java.io.File.separator);
-                paths.append(fullName);
-                paths.append(java.io.File.separator+java.io.File.separator);
-                qpaths.append(quoting);
-                qpaths.append(fullName);
-                qpaths.append(quoting);
-                qpaths.append(" ");
-            }
-            vars.put("FILES", vfiles.delete(vfiles.length() - 1, vfiles.length()).toString());
-            vars.put("PATHS", paths.delete(paths.length() - 2, paths.length()).toString());
-            vars.put("QPATHS", qpaths.toString().trim());
-        } else { // Note, that these variables are EMPTY on single file to be able to do tests on them
-            vars.put("FILES", "");
-            vars.put("PATHS", "");
-            vars.put("QPATHS", "");
+        StringBuffer qpaths = new StringBuffer();
+        StringBuffer paths = new StringBuffer();
+        StringBuffer vfiles = new StringBuffer();
+        for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
+            fullName = (String) enum.nextElement();
+            file = VcsUtilities.getFileNamePart(fullName);
+            fullName = fullName.replace('/', java.io.File.separatorChar);
+            vfiles.append(file);
+            vfiles.append(java.io.File.separator);
+            paths.append(fullName);
+            paths.append(java.io.File.separator+java.io.File.separator);
+            qpaths.append(quoting);
+            qpaths.append(fullName);
+            qpaths.append(quoting);
+            qpaths.append(" ");
         }
+        vars.put("FILES", vfiles.delete(vfiles.length() - 1, vfiles.length()).toString());
+        vars.put("PATHS", paths.delete(paths.length() - 2, paths.length()).toString());
+        vars.put("QPATHS", qpaths.toString().trim());
+        vars.put("NUM_FILES", ""+files.size());
+        vars.put("MULTIPLE_FILES", (files.size() > 1) ? "true" : "");
     }
     
     protected void performCommand(final String cmdName, final Node[] nodes) {
