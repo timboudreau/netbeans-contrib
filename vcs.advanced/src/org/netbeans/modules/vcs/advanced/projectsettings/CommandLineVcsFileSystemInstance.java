@@ -169,7 +169,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             fs = (CommandLineVcsFileSystem) weakFsInstance.get();
             //System.out.println("  fs = "+((fs == null) ? "null" : fs.getSystemName()));
             if (fs == null) {
-                fs = new CommandLineVcsFileSystem();
+                fs = new CommandLineVcsFileSystem(true);
                 needToReadFSProperties = true;
                 weakFsInstance = new WeakReference(fs);
             }

@@ -162,10 +162,22 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private Object sharedPasswordKey = null;
 
     static final long serialVersionUID =-1017235664394970926L;
-    //-------------------------------------------
+    /**
+     * Create a new command-line VCS FileSystem.
+     */
     public CommandLineVcsFileSystem () {
+        this(false);
+    }
+    
+    /**
+     * Create a new command-line VCS FileSystem with a deserialized flag.
+     * @param treatAsDeserialized If true, the filesystem is considered
+     *        to be read from a settings file rather than created a brand new one.
+     */
+    public CommandLineVcsFileSystem (boolean treatAsDeserialized) {
         //D.deb("CommandLineVcsFileSystem()"); // NOI18N
         super ();
+        deserialized = treatAsDeserialized;
         /*
         if (attr instanceof VcsAttributes) {
             ((VcsAttributes) attr).setCommandsProvider(new CommandLineCommandsProvider(this));
