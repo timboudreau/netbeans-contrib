@@ -13,9 +13,6 @@ Install-Before: com.netbeans.developer.modules.loaders.java.JavaDataObject
 Name: com/netbeans/enterprise/modules/rmi/settings/RMISettings.class
 OpenIDE-Module-Class: Option
 
-Name: com/netbeans/enterprise/modules/rmi/settings/CompilerSettings.class
-OpenIDE-Module-Class: Option
-
 Name: com/netbeans/enterprise/modules/rmi/RMIRegistryNode.class
 OpenIDE-Module-Class: Node
 
