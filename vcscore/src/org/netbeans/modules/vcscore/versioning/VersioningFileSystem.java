@@ -21,6 +21,8 @@ import java.io.Serializable;
 import java.lang.reflect.*;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -316,20 +318,21 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         });
     }
     
+    private StatusChangeUpdater statusUpdateRunnable;
+    private RequestProcessor.Task statusUpdateTask;
+    
     /**
      * Perform refresh of status information of a file
      * @param name the full file name
      */
     public void statusChanged (final String name) {
-        org.netbeans.modules.vcscore.VcsFileSystem.getStatusChangeRequestProcessor().post(new Runnable() {
-            public void run() {
-                FileObject fo = findExistingResource(name);
-                //System.out.println("findResource("+name+") = "+fo);
-                if (fo == null) return;
-                fireFileStatusChanged (new FileStatusEvent(VersioningFileSystem.this, fo, true, true));
-                //checkScheduledStates(Collections.singleton(fo));
-            }
-        });
+        if (statusUpdateTask == null) {
+            statusUpdateRunnable = new StatusChangeUpdater();
+            statusUpdateTask = org.netbeans.modules.vcscore.VcsFileSystem.getStatusChangeRequestProcessor().post(
+                                statusUpdateRunnable, 200, Thread.MIN_PRIORITY);
+        }
+        statusUpdateRunnable.addNameToUpdate(name);
+        statusUpdateTask.schedule(200);
     }
     
     public SystemAction[] getRevisionActions(FileObject fo, Set revisionItems) {
@@ -363,6 +366,35 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         //return findResource(name); // TODO
     }
     //public void markImportant(String name, boolean is);
+    
+    /**
+     * Find the existing resources on this file system.
+     * This method is not much efficient, because it collects all existing
+     * FileObjects and search them for the desired ones.
+     * @param names The collection of file names
+     * @return The set of FileObjects
+     */
+    private Set findExistingResources(Collection names) {
+        Enumeration enum = existingFileObjects(getRoot());
+        Set fos = new HashSet();
+        Iterator namesIt = names.iterator();
+        boolean hasNext = namesIt.hasNext();
+        String name = (hasNext) ? (String) namesIt.next() : null;
+        while (enum.hasMoreElements() && hasNext) {
+            FileObject obj = (FileObject) enum.nextElement();
+            if (name.equals(obj.getPackageNameExt('/', '.'))) {
+                fos.add(obj);
+                hasNext = namesIt.hasNext();
+                if (hasNext) {
+                    name = (String) namesIt.next();
+                } else {
+                    name = null;
+                    break;
+                }
+            }
+        }
+        return fos;
+    }
     
     protected void refreshExistingFolders() {
         org.openide.util.RequestProcessor.postRequest(new Runnable() {
@@ -539,6 +571,37 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
             } else {
                 return new String[0];
             }
+        }
+        
+    }
+    
+    /**
+     * A runnable class, that fires the status change for the collected files.
+     */
+    private class StatusChangeUpdater extends Object implements Runnable {
+        
+        private java.util.List namesToUpdate = new ArrayList();
+        
+        public StatusChangeUpdater() {
+        }
+        
+        public synchronized void addNameToUpdate(String name) {
+            namesToUpdate.add(name);
+        }
+        
+        /**
+         * Run the status update process.
+         */
+        public void run() {
+            java.util.List names;
+            synchronized (this) {
+                names = namesToUpdate;
+                namesToUpdate = new ArrayList();
+            }
+            Set fos = findExistingResources(names);
+            //System.out.println("statusChanged: findResource("+names+") = "+fos);
+            if (fos.isEmpty()) return;
+            fireFileStatusChanged(new FileStatusEvent(VersioningFileSystem.this, fos, true, true));
         }
         
     }

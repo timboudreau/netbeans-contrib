@@ -1115,23 +1115,52 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (versioningSystem != null) versioningSystem.statusChanged(path, recursively);
     }
     
+    private StatusChangeUpdater statusUpdateRunnable;
+    private RequestProcessor.Task statusUpdateTask;
+    
     /**
      * Perform refresh of status information of a file
      * @param name the full file name
      */
     public void statusChanged (final String name) {
-        getStatusChangeRequestProcessor().post(new Runnable() {
-            public void run() {
-                FileObject fo = findExistingResource(name);
-                //System.out.println("statusChanged: findResource("+name+") = "+fo);
-                if (fo == null) return;
-                fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, fo, true, true));
-                Set fileSet = Collections.singleton(fo);
-                checkScheduledStates(fileSet);
-                checkVirtualFiles(fileSet);
-            }
-        });
+        //System.out.println("statusChanged("+name+")");
+        if (statusUpdateTask == null) {
+            statusUpdateRunnable = new StatusChangeUpdater();
+            statusUpdateTask = getStatusChangeRequestProcessor().post(
+                                statusUpdateRunnable, 200, Thread.MIN_PRIORITY);
+        }
+        statusUpdateRunnable.addNameToUpdate(name);
+        statusUpdateTask.schedule(200);
         if (versioningSystem != null) versioningSystem.statusChanged(name);
+    }
+    
+    /**
+     * Find the existing resources on this file system.
+     * This method is not much efficient, because it collects all existing
+     * FileObjects and search them for the desired ones.
+     * @param names The collection of file names
+     * @return The set of FileObjects
+     */
+    private Set findExistingResources(Collection names) {
+        Enumeration enum = existingFileObjects(getRoot());
+        Set fos = new HashSet();
+        Iterator namesIt = names.iterator();
+        boolean hasNext = namesIt.hasNext();
+        String name = (hasNext) ? (String) namesIt.next() : null;
+        while (enum.hasMoreElements() && hasNext) {
+            FileObject obj = (FileObject) enum.nextElement();
+            if (name.equals(obj.getPackageNameExt('/', '.'))) {
+                fos.add(obj);
+                hasNext = namesIt.hasNext();
+                if (hasNext) {
+                    name = (String) namesIt.next();
+                } else {
+                    name = null;
+                    break;
+                }
+            }
+        }
+        return fos;
     }
     
     /**
@@ -4438,6 +4467,39 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (VcsFileSystem.this.equals(repositoryEvent.getFileSystem())) {
                 notifyFSRemoved();
             }
+        }
+        
+    }
+    
+    /**
+     * A runnable class, that fires the status change for the collected files.
+     */
+    private class StatusChangeUpdater extends Object implements Runnable {
+        
+        private java.util.List namesToUpdate = new ArrayList();
+        
+        public StatusChangeUpdater() {
+        }
+        
+        public synchronized void addNameToUpdate(String name) {
+            namesToUpdate.add(name);
+        }
+        
+        /**
+         * Run the status update process.
+         */
+        public void run() {
+            java.util.List names;
+            synchronized (this) {
+                names = namesToUpdate;
+                namesToUpdate = new ArrayList();
+            }
+            Set fos = findExistingResources(names);
+            //System.out.println("statusChanged: findResource("+names+") = "+fos);
+            if (fos.isEmpty()) return;
+            fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, fos, true, true));
+            checkScheduledStates(fos);
+            checkVirtualFiles(fos);
         }
         
     }
