@@ -173,7 +173,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * This variable stores the environment variables and their values
      * in the form: "VAR1=Value1", "VAR2=Value2", etc.
      */
-    private String[] environmentVars = null;
+    private transient String[] environmentVars = null;
 
     private String password = null;
     
@@ -971,6 +971,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //last_rootFile = rootFile;
         last_refreshTime = getCustomRefreshTime ();
         last_useUnixShell = useUnixShell;
+        updateEnvironmentVars();
         init();
         //cache.setLocalFilesAdd (localFilesOn);
         ProjectChangeHack.restored();
