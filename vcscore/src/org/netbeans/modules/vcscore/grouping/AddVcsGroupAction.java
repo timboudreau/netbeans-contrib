@@ -70,7 +70,7 @@ public class AddVcsGroupAction extends NodeAction {
     }
 
     protected String iconResource () {
-        return "AddVcsGroupActionIcon.gif";//NOI18N
+        return "org/netbeans/modules/vcscore/grouping/AddVcsGroupActionIcon.gif";//NOI18N
     }
 
     public HelpCtx getHelpCtx () {

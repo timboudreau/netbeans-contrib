@@ -50,7 +50,7 @@ public class RemoveVcsGroupAction extends NodeAction {
     }
 
     protected String iconResource () {
-        return "RemoveVcsGroupActionIcon.gif";//NOI18N
+        return "org/netbeans/modules/vcscore/grouping/RemoveVcsGroupActionIcon.gif";//NOI18N
     }
 
     public HelpCtx getHelpCtx () {

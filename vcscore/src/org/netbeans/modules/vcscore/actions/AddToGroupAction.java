@@ -58,7 +58,7 @@ public class AddToGroupAction extends NodeAction {
     }
 
     protected String iconResource () {
-        return "AddToGroupActionIcon.gif";
+        return "org/netbeans/modules/vcscore/actions/AddToGroupActionIcon.gif";
     }
 
     public HelpCtx getHelpCtx () {
