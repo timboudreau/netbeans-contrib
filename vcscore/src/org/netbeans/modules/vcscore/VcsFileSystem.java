@@ -3641,7 +3641,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         public void close() throws IOException {
             super.close();
-            if (name != null) VcsFileSystem.this.fileChanged(name);
+            // assure, that we mark the file as modified only once.
+            // FileOutputStream will call close() on finalization even when close() was called before.
+            if (name != null) {
+                VcsFileSystem.this.fileChanged(name);
+                name = null;
+            }
         }
     }
     
