@@ -23,6 +23,7 @@ import org.openide.actions.*;
 import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 import org.openide.util.datatransfer.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.actions.Presenter;
@@ -94,9 +95,11 @@ public class BookmarksToolbarNode extends AbstractNode {
     protected void createPasteTypes(final Transferable t, List l) {
         // Make sure to pick up super impl, which adds intelligent node paste type:
         super.createPasteTypes(t, l);
+        boolean moving = false;
         Node n = NodeTransfer.node(t, NodeTransfer.COPY);
         if (n == null) {
             n = NodeTransfer.node(t, NodeTransfer.MOVE);
+            moving = true;
         }
         if (n != null) {
             InstanceCookie ic = (InstanceCookie)n.getLookup().lookup(InstanceCookie.class);
@@ -117,6 +120,11 @@ public class BookmarksToolbarNode extends AbstractNode {
                 return;
             }
             final Bookmark b1 = b;
+            DataObject dobj = null;
+            if (moving) {
+                dobj = (DataObject)n.getLookup().lookup(DataObject.class);
+            }
+            final DataObject dataToDelete = dobj;
             if (b1 != null) {
                 l.add(new PasteType() {
                     public String getName() {
@@ -131,6 +139,11 @@ public class BookmarksToolbarNode extends AbstractNode {
                                 String safeName = BookmarkServiceImpl.findUnusedName(targetFolder, b1.getName());
                                 // following line will save the bookmark to the system file system
                                 targetFolder.bind(safeName, b1);
+                                
+                                if (dataToDelete != null) {
+                                    // if this is the move operation:
+                                    dataToDelete.delete();
+                                }
                                 return ExTransferable.EMPTY;
                             }
                             throw new IOException("Folder " + BookmarkServiceImpl.BOOKMARKS_TOOLBAR + " does not exists (or is not a folder)");
@@ -144,12 +157,33 @@ public class BookmarksToolbarNode extends AbstractNode {
             }
         }
     }
+
+    /**
+     * Adding support for reorder via supplying an Index cookie.
+     */
+    public Node.Cookie getCookie(Class clazz) {
+        if (clazz.isAssignableFrom(DataFolder.Index.class)) {
+            try {
+                FileObject fo = Repository.getDefault().getDefaultFileSystem().
+                    findResource(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
+                if (fo == null) {
+                    throw new IOException(BookmarkServiceImpl.BOOKMARKS_TOOLBAR + " not found.");
+                }
+                DataFolder folder = DataFolder.findFolder(fo);
+                return new DataFolder.Index(folder, this);
+            } catch (IOException ioe) {
+                ErrorManager.getDefault().notify(ioe);
+            }
+        }
+        return super.getCookie(clazz);
+    }
+
     
     /** List of children of the BookmarksToolbarNode.
      * Each child node is represented by one key of the type String. The String
      * is the name to what is the a bookmark bound in the bookmarks folder (context).
      */
-    public static class BookmarksToolbarChildren extends Children.Keys implements ObjectChangeListener, NamespaceChangeListener {
+    public static class BookmarksToolbarChildren extends Children.Keys implements ObjectChangeListener, NamespaceChangeListener, Runnable {
         
         public BookmarksToolbarChildren() {
         }
@@ -200,6 +234,18 @@ public class BookmarksToolbarNode extends AbstractNode {
          * Computes new children.
          */
         private void updateKeys() {
+            // posting asynchronously since while setting the order
+            // this method would be called to update the state of the children.
+            // But it tries to access the list of children so it would either
+            // loop or deadlock.
+            RequestProcessor.getDefault().post(this);
+        }
+
+        /**
+         * This method is the original body of updateKeys. We are now
+         * calling it in a new thread.
+         */
+        public void run() {
             ArrayList al = new ArrayList();
             try {
                 Context con = (Context)BookmarkServiceImpl.getInitialContext().lookup(CURRENT);
@@ -221,7 +267,6 @@ public class BookmarksToolbarNode extends AbstractNode {
             setKeys(al);
         }
         
-
         /** Overriden from Children.Keys */
         protected void removeNotify() {
             try {
