@@ -819,6 +819,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  29   Gandalf   1.28        6/1/99   Michal Fadljevic 
  *  28   Gandalf   1.27        6/1/99   Michal Fadljevic 
  *  27   Gandalf   1.26        5/27/99  Michal Fadljevic 
  *  26   Gandalf   1.25        5/27/99  Michal Fadljevic 
