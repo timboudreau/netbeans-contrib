@@ -299,7 +299,7 @@ public class RevisionEditorSupport extends CloneableEditorSupport implements Edi
             this.list = list;
             this.revisionItem = revisionItem;
             this.fileObject = list.getFileObject();
-            this.revision = revisionItem.getRevision();
+            this.revision = revisionItem.getRevisionVCS();
         }
         
         /** Locks the file.
