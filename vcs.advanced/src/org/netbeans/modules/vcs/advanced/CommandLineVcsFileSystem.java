@@ -34,9 +34,11 @@ import com.netbeans.ide.filesystems.DefaultAttributes;
 
 /* TODO:
  * 
- * - "Refresh..." dialog s rekurzivnim ziskavanim adresaru
  * - "Details..." s detaily stavu jednotlivych souboru
  * - zobrazovat uzivatelske prikazy v popup menu na konci
+ * - kdyz je pouzita promenna, ktera neni definovana, zeptat se na
+ * - napoveda
+ * - lokalizace
  * - "Customize" tlacitko na upravu konfiguraci
  *
  */
@@ -51,7 +53,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   AbstractFileSystem.Change, FileSystem.Status, Serializable {
 
   private Debug E=new Debug("CommandLineVcsFileSystem",true );
-  private Debug D=new Debug("CommandLineVcsFileSystem",true );
+  private Debug D=E;
 
   private static final int REFRESH_TIME = 0;
 
@@ -109,12 +111,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     }
   }
 
+
   //-------------------------------------------
   public void debug(String msg){
     if( getDebug() ){
       TopManager.getDefault().getStdOut().println(msg);
     }
   }
+
 
   //-------------------------------------------
   public void setImportant(boolean important){
@@ -127,12 +131,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     return cache;
   }
 
+
   //-------------------------------------------
   public String getConfigRoot(){
     return CONFIG_ROOT;
   }
   
-
 
   //-------------------------------------------
   private void createDir(String path){
@@ -175,7 +179,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     variables=UserCommand.readVariables(props);
     commands=UserCommand.readCommands(props);
   }
-
 
 
   //-------------------------------------------
@@ -645,7 +648,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     } catch (IndexOutOfBoundsException e) {
       s = null;
     }
-    D.deb("s="+s);
+    D.deb("mimeType() -> '"+s+"'");
     return s == null ? "content/unknown" : s;
   }
 
@@ -763,6 +766,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  23   Gandalf   1.22        5/24/99  Michal Fadljevic 
  *  22   Gandalf   1.21        5/24/99  Michal Fadljevic 
  *  21   Gandalf   1.20        5/21/99  Michal Fadljevic 
  *  20   Gandalf   1.19        5/21/99  Michal Fadljevic 
