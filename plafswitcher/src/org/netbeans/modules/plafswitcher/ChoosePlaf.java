@@ -60,9 +60,7 @@ public final class ChoosePlaf extends CallableSystemAction {
     public JMenuItem getMenuPresenter() {
         JMenu menu = new org.openide.awt.JMenuPlus();
         Actions.setMenuText(menu, getName(), true);
-//        menu.setHorizontalTextPosition(JMenu.RIGHT);
-//        menu.setHorizontalAlignment(JMenu.LEFT);
-//        menu.setIcon (getIcon());
+        menu.setIcon (getIcon());
         HelpCtx.setHelpIDString (menu, ChoosePlaf.class.getName ());
 
         // get all L&Fs
