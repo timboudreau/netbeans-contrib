@@ -61,7 +61,7 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
     private static int defaultPropertyIndex = -1; //GEN-BEGIN:Idx
     private static int defaultEventIndex = -1; //GEN-END:Idx
 
-    static {
+    private static void initPropertyDescriptors() {
         PropertyDescriptor showDeadFiles = null;
         PropertyDescriptor showMessages = null;
         PropertyDescriptor messageLength = null;
@@ -104,6 +104,9 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
         } catch (IntrospectionException ex) {
             TopManager.getDefault().notifyException(ex);
         }
+    }
+    
+    private static void initBeanDescriptor() {
         beanDescriptor = new BeanDescriptor(VcsVersioningSystem.class, null);
         beanDescriptor.setValue(VcsFileSystem.VCS_PROVIDER_ATTRIBUTE, new Boolean(true));
     }
@@ -116,6 +119,9 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
      * information should be obtained by automatic analysis.
      */
     public BeanDescriptor getBeanDescriptor() {
+        if (beanDescriptor == null) {
+            initBeanDescriptor();
+        }
 	return beanDescriptor;
     }
 
@@ -132,6 +138,9 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
      * if a given PropertyDescriptor is an IndexedPropertyDescriptor.
      */
     public PropertyDescriptor[] getPropertyDescriptors() {
+        if (properties == null) {
+            initPropertyDescriptors();
+        }
         return properties;
     }
 

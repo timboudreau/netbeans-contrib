@@ -19,13 +19,19 @@ import org.openide.util.NbBundle;
 
 public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
 
-    private static final String iconNameC16 = "org/netbeans/modules/vcscore/settings/vcsSettings.gif";   // NOI18N
-    private static final String iconNameC32 = "org/netbeans/modules/vcscore/settings/vcsSettings32.gif"; // NOI18N
+    private static String iconNameC16 = null;
+    private static String iconNameC32 = null;
 
     private static int defaultPropertyIndex = -1; 
     private static int defaultEventIndex = -1; 
 
     private static PropertyDescriptor[] properties = null;
+    
+    private static void initIconNames() {
+        iconNameC16 = "org/netbeans/modules/vcscore/settings/vcsSettings.gif";   // NOI18N
+        iconNameC32 = "org/netbeans/modules/vcscore/settings/vcsSettings32.gif"; // NOI18N
+    }
+    
     /**
      * Gets the bean's <code>PropertyDescriptor</code>s.
      * 
@@ -135,11 +141,19 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
      *    return null if no suitable icon is available.
      */
     public java.awt.Image getIcon(int iconKind) {
-        if (iconNameC16 == null) {
-            return null;
-        } else {
-            return org.openide.util.Utilities.loadImage(iconNameC16);
+        switch ( iconKind ) {
+            case ICON_COLOR_16x16:
+                if (iconNameC16 == null) {
+                    initIconNames();
+                }
+                return org.openide.util.Utilities.loadImage(iconNameC16);
+            case ICON_COLOR_32x32:
+                if (iconNameC32 == null) {
+                    initIconNames();
+                }
+                return org.openide.util.Utilities.loadImage(iconNameC32);
         }
+        return null;
     }
 
 }

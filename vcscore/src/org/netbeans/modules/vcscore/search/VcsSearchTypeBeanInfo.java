@@ -19,14 +19,7 @@ import java.beans.*;
 
 public class VcsSearchTypeBeanInfo extends SimpleBeanInfo {
 
-    private static PropertyDescriptor[] properties = new PropertyDescriptor[1]; //GEN-FIRST:Properties
-    static {
-        try {
-            properties[0] = new PropertyDescriptor ( "matchStatus", VcsSearchType.class, "getMatchStatus", "setMatchStatus" ); // NOI18N
-            properties[0].setDisplayName (NbBundle.getBundle(VcsSearchTypeBeanInfo.class).getString ("CTL_StatusMatch"));
-        }
-        catch( IntrospectionException e) {}
-    }
+    private static PropertyDescriptor[] properties = null; //GEN-FIRST:Properties
     // Here you can add code for customizing the properties array.
 
     //GEN-LAST:Properties
@@ -50,6 +43,17 @@ public class VcsSearchTypeBeanInfo extends SimpleBeanInfo {
     private static int defaultEventIndex = -1; //GEN-END:Idx
 
 
+    private static void initProperties() {
+        try {
+            properties = new PropertyDescriptor[1];
+            properties[0] = new PropertyDescriptor ( "matchStatus", VcsSearchType.class, "getMatchStatus", "setMatchStatus" ); // NOI18N
+            properties[0].setDisplayName (NbBundle.getBundle(VcsSearchTypeBeanInfo.class).getString ("CTL_StatusMatch"));
+        }
+        catch( IntrospectionException e) {
+            org.openide.TopManager.getDefault().notifyException(e);
+        }
+    }
+    
     /**
      * Gets the beans <code>PropertyDescriptor</code>s.
      * 
@@ -63,6 +67,9 @@ public class VcsSearchTypeBeanInfo extends SimpleBeanInfo {
      * if a given PropertyDescriptor is an IndexedPropertyDescriptor.
      */
     public PropertyDescriptor[] getPropertyDescriptors() {
+        if (properties == null) {
+            initProperties();
+        }
         return properties;
     }
 
