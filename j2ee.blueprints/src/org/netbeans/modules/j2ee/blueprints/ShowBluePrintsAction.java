@@ -31,6 +31,10 @@ import org.openide.windows.TopComponent;
  * @author  Ludo
  */
 public class ShowBluePrintsAction extends CallableSystemAction {
+    
+    public ShowBluePrintsAction () {
+        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
+    }
 
     public void performAction() {        
         BluePrintsComponent topComp = null;
@@ -53,10 +57,6 @@ public class ShowBluePrintsAction extends CallableSystemAction {
     
     public String getName() {
         return NbBundle.getMessage(ShowBluePrintsAction.class, "LBL_Action");
-    }
-    
-    protected String iconResource() {
-        return "org/openide/resources/actions/empty.gif";  //NOI18N
     }
     
     public HelpCtx getHelpCtx() {
