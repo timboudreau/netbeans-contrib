@@ -30,19 +30,29 @@ import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec.Argument;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
+import org.netbeans.modules.vcscore.util.ChooseDirDialog;
+import org.netbeans.modules.vcscore.util.ChooseFileDialog;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
  *
  * @author  Martin Entlicher
  */
-public class StructuredExecPanel extends javax.swing.JPanel {
+public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedCustomPropertyEditor {
     
     private String execString;
     private StructuredExec execStructured;
     protected DefaultTableModel argTableModel;
+    private VcsCommand cmd;
     
     /** Creates new form StructuredExecPanel */
     public StructuredExecPanel() {
+        this(null);
+    }
+    
+    /** Creates new form StructuredExecPanel */
+    public StructuredExecPanel(VcsCommand cmd) {
+        this.cmd = cmd;
         initComponents();
         execButtonGroup.add(stringRadioButton);
         execButtonGroup.add(structuredRadioButton);
@@ -296,10 +306,58 @@ public class StructuredExecPanel extends javax.swing.JPanel {
 
     private void execButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_execButtonActionPerformed
         // Add your handling code here:
+        java.awt.Frame frame = null;
+        java.awt.Dialog dialog = null;
+        java.awt.Container tparent = getTopLevelAncestor();
+        if (tparent instanceof java.awt.Frame) {
+            frame = (java.awt.Frame) tparent;
+        } else if (tparent instanceof java.awt.Dialog) {
+            dialog = (java.awt.Dialog) tparent;
+        } else {
+            frame = new javax.swing.JFrame();
+        }
+        ChooseFileDialog chooseFile;
+        if (frame != null) {
+            chooseFile = new ChooseFileDialog(frame, new java.io.File(execTextField.getText ()), false);
+        } else {
+            chooseFile = new ChooseFileDialog(dialog, new java.io.File(execTextField.getText ()), false);
+        }
+        VcsUtilities.centerWindow (chooseFile);
+        chooseFile.show();
+        String selected = chooseFile.getSelectedFile();
+        if (selected == null) {
+            //D.deb("no directory selected"); // NOI18N
+            return ;
+        }
+        execTextField.setText(selected);
     }//GEN-LAST:event_execButtonActionPerformed
 
     private void workButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_workButtonActionPerformed
         // Add your handling code here:
+        java.awt.Frame frame = null;
+        java.awt.Dialog dialog = null;
+        java.awt.Container tparent = getTopLevelAncestor();
+        if (tparent instanceof java.awt.Frame) {
+            frame = (java.awt.Frame) tparent;
+        } else if (tparent instanceof java.awt.Dialog) {
+            dialog = (java.awt.Dialog) tparent;
+        } else {
+            frame = new javax.swing.JFrame();
+        }
+        ChooseDirDialog chooseDir;
+        if (frame != null) {
+            chooseDir = new ChooseDirDialog(frame, new java.io.File(workTextField.getText ()));
+        } else {
+            chooseDir = new ChooseDirDialog(dialog, new java.io.File(workTextField.getText ()));
+        }
+        VcsUtilities.centerWindow (chooseDir);
+        chooseDir.show();
+        String selected = chooseDir.getSelectedDir();
+        if (selected == null) {
+            //D.deb("no directory selected"); // NOI18N
+            return ;
+        }
+        workTextField.setText(selected);
     }//GEN-LAST:event_workButtonActionPerformed
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
@@ -417,6 +475,8 @@ public class StructuredExecPanel extends javax.swing.JPanel {
         if (execString != null) {
             stringTextField.setText(execString);
             stringRadioButton.setSelected(true);
+            enableString(true);
+            enableStructured(false);
         }
     }
     
@@ -425,6 +485,8 @@ public class StructuredExecPanel extends javax.swing.JPanel {
         if (execStructured != null) {
             setFromStructured();
             structuredRadioButton.setSelected(true);
+            enableString(false);
+            enableStructured(true);
         }
     }
     
@@ -447,10 +509,29 @@ public class StructuredExecPanel extends javax.swing.JPanel {
     }
     
     public StructuredExec getExecStructured() {
-        return execStructured;
+        int n = argTableModel.getRowCount();
+        StructuredExec.Argument[] args = new StructuredExec.Argument[n];
+        for (int i = 0; i < n; i++) {
+            String arg = (String) argTableModel.getValueAt(i, 0);
+            boolean line = ((Boolean) argTableModel.getValueAt(i, 1)).booleanValue();
+            args[i] = new StructuredExec.Argument(arg, line);
+        }
+        return new StructuredExec(new java.io.File(workTextField.getText()), execTextField.getText(), args);
     }
     
     public boolean isStringExecSelected() {
         return stringRadioButton.isSelected();
     }
+    
+    public Object getPropertyValue() throws IllegalStateException {
+        if (isStringExecSelected()) {
+            if (cmd != null) {
+                cmd.setProperty(VcsCommand.PROPERTY_EXEC, getExecString());
+            }
+            return null;
+        } else {
+            return getExecStructured();
+        }
+    }
+    
 }

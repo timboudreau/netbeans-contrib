@@ -43,7 +43,7 @@ public class StructuredExecEditor extends PropertyEditorSupport {
     }
     
     public java.awt.Component getCustomEditor() {
-        StructuredExecPanel panel = new StructuredExecPanel();
+        StructuredExecPanel panel = new StructuredExecPanel(cmd);
         panel.setExecString(execString);
         panel.setExecStructured(execStructured);
         return panel;
@@ -55,11 +55,14 @@ public class StructuredExecEditor extends PropertyEditorSupport {
     }
     
     public void setAsText(String text) throws java.lang.IllegalArgumentException {
-        // Unimplemented
+        if (execStructured == null) {
+            execString = text;
+        }
     }
     
     public void setValue(Object value) {
         execStructured = (StructuredExec) value;
+        execString = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
     }
     
     public boolean supportsCustomEditor() {
