@@ -21,3 +21,9 @@ corba/src/org/netbeans/modules/corba/resources/ServantLocator.html
 corba/src/org/netbeans/modules/corba/resources/ServerMain.html
 corba/src/org/netbeans/modules/corba/resources/Empty.html
 corba/src/org/netbeans/modules/corba/resources/Simple.html
+corba/javahelp/org/netbeans/modules/corba/docs/**/*.html
+corba/javahelp/org/netbeans/modules/corba/docs/**/*.xml
+corba/javahelp/org/netbeans/modules/corba/docs/**/*.hs
+corba/javahelp/org/netbeans/modules/corba/docs/**/*.jhm
+corba/javahelp/org/netbeans/modules/corba/docs/**/*.css
+corba/javahelp/org/netbeans/modules/corba/docs/**/*.gif
