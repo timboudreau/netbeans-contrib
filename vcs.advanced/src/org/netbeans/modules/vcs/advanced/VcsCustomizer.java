@@ -495,6 +495,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private void promptEditCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_promptEditCheckBoxActionPerformed
         // Add your handling code here:
+        fileSystem.setPromptForEditOn(promptEditCheckBox.isSelected());
     }//GEN-LAST:event_promptEditCheckBoxActionPerformed
 
     private void editCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editCheckBoxActionPerformed
@@ -1139,7 +1140,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         advancedModeCheckBox.setSelected(fileSystem.isExpertMode());
         debugCheckBox.setSelected(fileSystem.isDefault());
         editCheckBox.setSelected(fileSystem.isCallEditFilesOn());
-        //promptEditCheckBox.setSelected(
+        promptEditCheckBox.setSelected(fileSystem.isPromptForEditOn());
         promptEditCheckBox.setEnabled(editCheckBox.isSelected());
         lockCheckBox.setSelected(fileSystem.isLockFilesOn());
         promptLockCheckBox.setSelected(fileSystem.isPromptForLockOn());
