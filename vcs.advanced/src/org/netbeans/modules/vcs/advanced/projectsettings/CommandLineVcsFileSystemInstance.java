@@ -641,8 +641,10 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                                     java.io.OutputStream out = null;
                                     try {
                                         lock = fo.lock();
-                                        out = fo.getOutputStream(lock);
-                                        XMLUtil.write(doc, out, null);
+                                        if (lock.isValid()) { // Ignore the change when e.g. the file is already gone. (FS is unmounted)
+                                            out = fo.getOutputStream(lock);
+                                            XMLUtil.write(doc, out, null);
+                                        }
                                         //System.out.println("  written to "+fo+", File = "+org.openide.filesystems.FileUtil.toFile(fo));
                                     } finally {
                                         try {
