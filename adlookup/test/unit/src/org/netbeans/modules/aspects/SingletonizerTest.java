@@ -84,5 +84,23 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         assertNull ("Runnable not available any longer", lookup.lookup (Runnable.class));
         
     }
-  
+
+    public void testSingletonizerCanDelegateJustToInterfaces () {
+        Class[] classes = { Integer.class };
+        
+        try {
+            AspectProvider provider = Singletonizer.create (classes, new Singletonizer.Impl () {
+                public boolean isEnabled (Class c) {
+                    return false;
+                }
+
+                public Object invoke (Object obj, java.lang.reflect.Method method, Object[] args) {
+                    return null;
+                }
+            });
+            fail ("Should fail, as non interface classes cannot be supported");
+        } catch (IllegalArgumentException ex) {
+            // ok, that is what we expect
+        }
+    }
 }
