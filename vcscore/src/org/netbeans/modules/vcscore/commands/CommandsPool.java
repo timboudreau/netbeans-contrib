@@ -125,22 +125,64 @@ public class CommandsPool extends Object /*implements CommandListener */{
         runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
         fileSystem.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                RuntimeSupport.updateRuntime(runtimeNode, fileSystem.getDisplayName());
-            }
-        });
-        org.openide.TopManager.getDefault().getRepository().addRepositoryListener(new RepositoryListener() {
-            public void fileSystemAdded(RepositoryEvent ev) {}
-            public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {}
-            public void fileSystemRemoved(RepositoryEvent ev) {
-                if (ev.getFileSystem().equals(fileSystem)) {
-                    //cleanup(); - The FS may still exist i.e. inside a MultiFileSystem => do not make the cleanup now
-                    ev.getRepository().removeRepositoryListener(this);
+                if (runtimeNode != null) {
+                    RuntimeSupport.updateRuntime(runtimeNode, fileSystem.getDisplayName());
                 }
             }
         });
+        /*
+        org.openide.filesystems.Repository repo = TopManager.getDefault().getRepository();
+        repo.addRepositoryListener(
+            org.openide.util.WeakListener.repository(this, repo));
+         */
         //executorStarterLoop();
     }
     
+    /*
+    public void fileSystemAdded(RepositoryEvent ev) {
+        FileSystem fs = ev.getFileSystem();
+        System.out.println("fs added : "+fs);
+        boolean added = false;
+                    /*
+                    if (fs instanceof MultiFileSystem) {
+                        MultiFileSystem mfs = (MultiFileSystem) fs;
+                        FileSystem[] delegates = mfs.getDelegates();
+                        if (Arrays.asList(delegates).contains(fileSystem)) {
+                            added = true;
+                        }
+                    }
+                     *
+        if (runtimeNode == null && fs.equals(fileSystem) || added) {
+            runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
+            runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
+            runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
+            execStarterLoopStarted = false;
+            execStarterLoopRunning = true;
+        }
+    }
+
+    public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {}
+
+    public void fileSystemRemoved(RepositoryEvent ev) {
+        FileSystem fs = ev.getFileSystem();
+        System.out.println("fs removed : "+fs);
+        boolean removed = false;
+                    /*
+                    if (fs instanceof MultiFileSystem) {
+                        MultiFileSystem mfs = (MultiFileSystem) fs;
+                        FileSystem[] delegates = mfs.getDelegates();
+                        if (Arrays.asList(delegates).contains(fileSystem)) {
+                            removed = true;
+                        }
+                    }
+                     *
+        if (fs.equals(fileSystem) || removed) {
+            cleanup();// - The FS may still exist i.e. inside a MultiFileSystem => do not make the cleanup now
+            //ev.getRepository().removeRepositoryListener(this);
+        }
+    }
+     */
+
     protected void finalize () {
         cleanup();
     }
@@ -154,6 +196,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         runtimeNode.removePropertyChangeListener(runtimeNodePropertyChange);
         try {
             runtimeNode.destroy();
+            runtimeNode = null;
         } catch (java.io.IOException exc) {
             TopManager.getDefault().notifyException(exc);
         }
@@ -162,6 +205,16 @@ public class CommandsPool extends Object /*implements CommandListener */{
             execStarterLoopRunning = false;
             notifyAll();
             // */
+        }
+    }
+    
+    public void setupRuntime() {
+        if (runtimeNode == null) {
+            runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
+            runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
+            runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
+            execStarterLoopStarted = false;
+            execStarterLoopRunning = true;
         }
     }
     
