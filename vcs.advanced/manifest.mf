@@ -1,6 +1,7 @@
-Netbeans-Module: Version 1.00
-Netbeans-Module-Name: Generic Command Line VCS
+NetBeans-Module: com.netbeans.enterprise.modules.vcs.cmdline/1
+NetBeans-Module-Name: Generic Command Line VCS
 
 Name: com/netbeans/enterprise/modules/vcs/cmdline/CommandLineVcsFileSystem.class
+NetBeans-Module-Class: Filesystem
 Display-Name: Add CmdLine VCS
-Netbeans-Module-Class: Filesystem
+
