@@ -152,6 +152,8 @@ public final class JndiRootNode extends AbstractNode{
     public org.openide.util.actions.SystemAction[] createActions() {
         return new SystemAction[] {
                    SystemAction.get(NewAction.class),
+                   null,
+                   SystemAction.get (PropertiesAction.class)
                };
     }
 
