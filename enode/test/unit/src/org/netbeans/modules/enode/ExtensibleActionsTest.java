@@ -41,6 +41,8 @@ import org.netbeans.api.enode.ExtensibleNode;
 public class ExtensibleActionsTest extends NbTestCase {
     /** root folder FileObject */
     private FileObject root;
+    /** root folder FileObject for the lookup tests*/
+    private FileObject rootLookup;
 
     public ExtensibleActionsTest(String name) {
         super(name);
@@ -67,6 +69,12 @@ public class ExtensibleActionsTest extends NbTestCase {
             } 
             root = f1.createFolder(baseFolder.substring(baseFolder.lastIndexOf('/')+1));
         }
+        
+        String baseFolderLookup = ExtensibleNode.E_NODE_LOOKUP.substring(1, ExtensibleNode.E_NODE_LOOKUP.length()-1);
+        rootLookup = Repository.getDefault().getDefaultFileSystem().findResource(baseFolderLookup);
+        if (rootLookup == null) {
+            rootLookup = root.getParent().createFolder(baseFolderLookup.substring(baseFolderLookup.lastIndexOf('/')+1));
+        }
     }
     
     /**
@@ -74,6 +82,7 @@ public class ExtensibleActionsTest extends NbTestCase {
      */
     protected void tearDown() throws Exception {
         root.getParent().delete();
+        rootLookup.getParent().delete();
     }
     
     /**
@@ -103,7 +112,6 @@ public class ExtensibleActionsTest extends NbTestCase {
         a1.delete();
         assertEquals("No actions after deleting", 0, en1.getActions(false).length);
     }
-    
     
     /**
      * This test tests the presence of declarative actions from
@@ -223,9 +231,9 @@ public class ExtensibleActionsTest extends NbTestCase {
         if (test == null) {
             test = root.createFolder("test");
         }
-        FileObject sub = test.getFileObject("Sub Menu");
+        FileObject sub = test.getFileObject("SubMenuSub Menu");
         if (sub == null) {
-            sub = test.createFolder("Sub Menu");
+            sub = test.createFolder("SubMenuSub Menu");
         }
         FileObject a1 = sub.createData("org-openide-actions-PropertiesAction.instance");
         FileObject a2 = sub.createData("org-openide-actions-CutAction.instance");
@@ -237,5 +245,39 @@ public class ExtensibleActionsTest extends NbTestCase {
         javax.swing.JMenu jm = (javax.swing.JMenu)jp.getComponent(0);
         assertEquals("Submenu should contain two elements", 2, jm.getMenuComponentCount());
         assertEquals("Submenu should have correct name", "Sub Menu", jm.getText());
+    }
+    
+    /**
+     * This test tests the presence of declarative actions from
+     * system file system configured for declarative cookie instances.
+     * The tests performs following steps:
+     * <OL><LI> Create an instance of ExtensibleNode with folder set to "test"
+     *     <LI> No actions should be returned by getActions since the "test" folder
+     *          is not there
+     *     <LI> Cookie.instance is added to the lookup folder
+     *          and Cookie folder is added to the actions folder
+     *     <LI> Create one action in the Cookie folder
+     *     <LI> The action should be visible in the result of getActions
+     *     <LI> After deleting the cookie the action should
+     *          not be returned from getActions().
+     * </OL>
+     */
+    public void testCreateAndDeleteActionForCookie() throws Exception {
+        ExtensibleNode en1 = new ExtensibleNode("test", false);
+        assertEquals("No actions at the start", 0, en1.getActions(false).length);
+        FileObject test = rootLookup.getFileObject("test");
+        if (test == null) {
+            test = rootLookup.createFolder("test");
+        }
+        FileObject cFolder = root.getFileObject("Cookie");
+        if (cFolder == null) {
+            cFolder = root.createFolder("Cookie");
+        }
+        FileObject ck = test.createData("Cookie.instance");
+        FileObject a1 = cFolder.createData("org-openide-actions-PropertiesAction.instance");
+        Action [] res = en1.getActions(false);
+        assertEquals("There should be exactly one action.", 1, res.length);
+        ck.delete();
+        assertEquals("No actions after deleting cookie", 0, en1.getActions(false).length);
     }
 }

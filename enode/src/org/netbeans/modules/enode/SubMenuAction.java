@@ -88,10 +88,14 @@ public class SubMenuAction extends AbstractAction implements org.openide.util.ac
                 }
                 //
                 if (obj instanceof Context) {
+                    // recurisvelly add submenus!
                     b.setRelative(true);
                     String n = b.getName();
-                    // recurisvelly add submenus!
-                    menu.add(createMenuForContext((Context)obj, n)); 
+                    if ((n != null) && (n.startsWith(ExtensibleNodeActions.SUBMENU_PREFIX)) && 
+                        (n.length() > (ExtensibleNodeActions.SUBMENU_PREFIX.length()))) {
+                        menu.add(createMenuForContext((Context)obj, 
+                            n.substring(ExtensibleNodeActions.SUBMENU_PREFIX.length())));
+                    }
                 }
             }
         } catch (NameNotFoundException nnfe) {
