@@ -60,7 +60,7 @@ public class IDLModule implements ModuleInstall {
    public void copyImpls () {
 
       String[] list_of_files = {"orbacus.impl", "javaorb.impl", "visibroker.impl", "orbixweb.impl",
-				"jacorb.impl", "jdk1.2-orb.impl"};
+				"jacorb.impl", "jdk1.2-orb.impl", "orbacus-for-windows.impl"};
       String _package =   "/com/netbeans/enterprise/modules/corba/impl";
       TopManager tm = TopManager.getDefault ();
       
@@ -445,6 +445,7 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  7    Gandalf   1.6         5/28/99  Karel Gardas    
  *  6    Gandalf   1.5         5/28/99  Karel Gardas    
  *  5    Gandalf   1.4         5/22/99  Karel Gardas    
  *  4    Gandalf   1.3         5/15/99  Karel Gardas    

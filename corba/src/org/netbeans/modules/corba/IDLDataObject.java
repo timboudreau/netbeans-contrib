@@ -71,7 +71,7 @@ public class IDLDataObject extends MultiDataObject {
        }
     });
     */
-    FileUtil.setMIMEType ("idl", "text/x-idl");
+    FileUtil.setMIMEType ("idl", "text/plain");
 
   }
 
@@ -101,6 +101,7 @@ public class IDLDataObject extends MultiDataObject {
 
 /*
  * <<Log>>
+ *  8    Gandalf   1.7         5/28/99  Karel Gardas    
  *  7    Gandalf   1.6         5/28/99  Karel Gardas    
  *  6    Gandalf   1.5         5/22/99  Karel Gardas    
  *  5    Gandalf   1.4         5/15/99  Karel Gardas    
