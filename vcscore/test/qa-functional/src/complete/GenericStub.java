@@ -491,12 +491,8 @@ public abstract class GenericStub extends JellyTestCase {
     }
     
     protected void configure() {
-        String workroot;
-        try {
-            workroot = getWorkDirPath();
-        } catch (IOException e) {
-            throw new AssertionFailedErrorException("IOException while getWorkDirPath()", e);
-        }
+        String workroot = getWorkDirPath();
+
         serverDirectory = workroot + "/server";
         clientDirectory = workroot + "/client";
         if (Utilities.isUnix ()) {
@@ -742,15 +738,7 @@ public abstract class GenericStub extends JellyTestCase {
         info.println ("User Name: " + text);
         return text;
     }
-    
-    protected String getWorkFilePath () {
-        try {
-            return getWorkDirPath();
-        } catch (IOException e) {
-            throw new AssertionFailedErrorException ("IOException while getWorkDirPath", e);
-        }
-    }
-    
+
     protected void printFiltered (String output, StringFilter sf) {
         StringTokenizer st = new StringTokenizer (output, "\n");
         while (st.hasMoreTokens()) {
