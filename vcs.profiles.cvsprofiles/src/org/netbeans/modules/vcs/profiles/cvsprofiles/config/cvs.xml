@@ -253,6 +253,9 @@ Microsystems, Inc. All Rights Reserved.
       <value>PROMPT_FOR(ROOTDIR, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INPUT_WORKING_DIR)", "",
                         ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_INPUT_WORKING_DIR);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INPUT_WORKING_DIR_Mnemonic)),
                         SELECTOR_DIR)
+             PROMPT_FOR(MODULE, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INPUT_REL_MOUNT_POINT)", "",
+                        ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_INPUT_REL_MOUNT_POINT);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INPUT_REL_MOUNT_POINT_Mnemonic)),
+                        SELECTOR_CMD_RELATIVE_MOUNT_POINT_SELECTOR)
              SELECT_COMBO_EDITABLE(SERVERTYPE, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Type):", "pserver",
                                    ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_SERVER_Type);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Type_Mnemonic)),
                                    [local, local], [server, server], [pserver, pserver], [ext, ext])
@@ -2688,6 +2691,11 @@ Microsystems, Inc. All Rights Reserved.
     <command name="LOGIN_CHECK">
       <property name="exec">
         <value>${RUN} ${CVS_DEF_EXE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}</value>
+      </property>
+    </command>
+    <command name="RELATIVE_MOUNT_POINT_SELECTOR">
+      <property name="exec">
+        <value>org.netbeans.modules.vcs.profiles.commands.RelativeMountPointSelector.class</value>
       </property>
     </command>
 
