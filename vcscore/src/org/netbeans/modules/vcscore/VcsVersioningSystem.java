@@ -370,11 +370,19 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     private void vcsStatusChanged (String path, boolean recursively) {
         FileObject fo = findExistingResource(path);
         if (fo == null) return ;
-        Enumeration enum = fo.getChildren(recursively);
+        Enumeration enum = existingFileObjects(fo);
+        //D.deb("I have root = "+fo.getName()); // NOI18N
         HashSet hs = new HashSet();
+        if (enum.hasMoreElements()) {
+            // First add the root FileObject
+            hs.add(enum.nextElement());
+        }
         while(enum.hasMoreElements()) {
-            fo = (FileObject) enum.nextElement();
-            hs.add(fo);
+            //fo = (FileObject) enum.nextElement();
+            //hs.add(fo);
+            FileObject chfo = (FileObject) enum.nextElement();
+            if (!recursively && !fo.equals(chfo.getParent())) break;
+            hs.add(chfo);
             //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
         }
         Set s = Collections.synchronizedSet(hs);

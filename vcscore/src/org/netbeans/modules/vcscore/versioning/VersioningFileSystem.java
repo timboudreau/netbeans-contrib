@@ -290,7 +290,7 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         org.netbeans.modules.vcscore.VcsFileSystem.getStatusChangeRequestProcessor().post(new Runnable() {
             public void run() {
                 //D.deb("statusChanged("+path+")"); // NOI18N
-                FileObject fo = findResource(path);
+                FileObject fo = findExistingResource(path);
                 if (fo == null) return;
                 //D.deb("I have root = "+fo.getName()); // NOI18N
                 Enumeration enum = existingFileObjects(fo);
@@ -305,7 +305,7 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
                     //fo = (FileObject) enum.nextElement();
                     //hs.add(fo);
                     FileObject chfo = (FileObject) enum.nextElement();
-                    if (!fo.equals(chfo.getParent()) && !recursively) break;
+                    if (!recursively && !fo.equals(chfo.getParent())) break;
                     hs.add(chfo);
                     //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
                 }

@@ -1085,7 +1085,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         getStatusChangeRequestProcessor().post(new Runnable() {
             public void run() {
                 //D.deb("statusChanged("+path+")"); // NOI18N
-                FileObject fo = findResource(path);
+                FileObject fo = findExistingResource(path);
                 if (fo == null) return;
                 Enumeration enum = existingFileObjects(fo);
                 //D.deb("I have root = "+fo.getName()); // NOI18N
@@ -1099,7 +1099,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     //fo = (FileObject) enum.nextElement();
                     //hs.add(fo);
                     FileObject chfo = (FileObject) enum.nextElement();
-                    if (!fo.equals(chfo.getParent()) && !recursively) break;
+                    if (!recursively && !fo.equals(chfo.getParent())) break;
                     hs.add(chfo);
                     //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
                 }
@@ -1131,7 +1131,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (versioningSystem != null) versioningSystem.statusChanged(name);
     }
     
-    protected FileObject findExistingResource(String name) {
+    /**
+     * Find the existing resource on this file system.
+     * This method is not much efficient, because it collects all existing
+     * FileObjects and search them for the desired one.
+     */
+    public FileObject findExistingResource(String name) {
         Enumeration enum = existingFileObjects(getRoot());
         FileObject fo = null;
         while (enum.hasMoreElements()) {
