@@ -85,6 +85,8 @@ public class GeneralCommandAction extends AbstractCommandAction {
         if (delegate) {
             AbstractCommandAction genAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
             suppMap = genAction.getSupporterMap();
+            putValue(GROUP_DESCRIPTION_PROP, genAction.getValue(GROUP_DESCRIPTION_PROP));
+            putValue(GROUP_NAME_PROP, genAction.getValue(GROUP_NAME_PROP));
         } else {
             suppMap = this.getSupporterMap();
         }

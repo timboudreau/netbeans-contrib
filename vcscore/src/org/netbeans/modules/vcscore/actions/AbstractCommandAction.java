@@ -33,6 +33,19 @@ import org.netbeans.modules.vcscore.grouping.VcsGroupNode;
  */
 public class AbstractCommandAction extends NodeAction {
 
+    /** 
+     * a property accessible via the getValue() method.
+     * for VcsGroup nodes it holds the description of the group. Otherwise null.
+     * Can be used within the CommandActionSupporters in the modules.
+     */
+    public static final String GROUP_DESCRIPTION_PROP = "GROUP_DESCRIPTION"; //NOI18N
+    /** 
+     * a property accessible via the getValue() method.
+     * for VcsGroup nodes it holds the display name of the group. Otherwise null.
+     * Can be used within the CommandActionSupporters in the modules. eg. for commit message.
+     */
+    public static final String GROUP_NAME_PROP = "GROUP_NAME"; //NOI18N
+    
     /**
      * Name of a FileObject attribute. Needs to be set on primary file of a node(dataobject)
      * in order to trigger the GeneralCommandAction and it's suclasses.
@@ -73,6 +86,8 @@ public class AbstractCommandAction extends NodeAction {
     }
     
     protected boolean createSupporterMap(Node[] nodes) {
+        putValue(GROUP_NAME_PROP, null);
+        putValue(GROUP_DESCRIPTION_PROP, null);
         if (nodes == null || nodes.length == 0) {
             suppMap = null;
             return false;
@@ -85,6 +100,10 @@ public class AbstractCommandAction extends NodeAction {
         suppMap = new HashMap();
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] instanceof VcsGroupNode) {
+                // setValue for recognition by the supporters
+                VcsGroupNode grNode = (VcsGroupNode)nodes[i];
+                putValue(GROUP_DESCRIPTION_PROP, grNode.getShortDescription());
+                putValue(GROUP_NAME_PROP, grNode.getDisplayName());
                 Enumeration childs = nodes[i].getChildren().nodes();
 //                System.out.println("create supp. map for group..");
                 while (childs.hasMoreElements()) {
@@ -185,7 +204,7 @@ public class AbstractCommandAction extends NodeAction {
     }
 
     public String getName () {
-        return NbBundle.getMessage(AbstractCommandAction.class, "LBL_Action");
+        return NbBundle.getMessage(AbstractCommandAction.class, "LBL_Action"); //NOI18N
     }
     
 
