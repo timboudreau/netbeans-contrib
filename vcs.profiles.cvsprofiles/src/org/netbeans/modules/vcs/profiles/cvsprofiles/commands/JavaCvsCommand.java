@@ -37,6 +37,7 @@ import org.netbeans.modules.vcscore.cmdline.exec.ExternalCommand;
 import org.netbeans.modules.vcscore.commands.*;
 
 import org.netbeans.lib.cvsclient.commandLine.CVSCommand;
+import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 
 /**
  * A command, that executes JavaCVS library commands.
@@ -166,6 +167,10 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
                     errin = new PipedInputStream(pstderr);
                 } catch (IOException ioex) {}
             }
+        }
+        VariableValueAdjustment vva = fileSystem.getVarValueAdjustment();
+        for (int i = 0; i < args.length; i++) {
+            args[i] = vva.revertAdjustedVarValue(args[i]);
         }
         RequestProcessor.Task task1 = null;
         RequestProcessor.Task task2 = null;
