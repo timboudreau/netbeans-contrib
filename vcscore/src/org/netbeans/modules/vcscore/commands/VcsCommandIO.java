@@ -107,7 +107,7 @@ public class VcsCommandIO extends Object {
         if (value instanceof Boolean) {
             return ((Boolean) value).booleanValue();
         } else {
-            return true;
+            return false;
         }
     }
     
