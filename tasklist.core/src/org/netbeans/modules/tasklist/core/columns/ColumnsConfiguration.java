@@ -24,8 +24,6 @@ import org.netbeans.modules.tasklist.core.TaskListView;
 
 /**
  * View's columns
- *
- * @author Tim Lebedkov
  */
 public class ColumnsConfiguration {
     private ArrayList listeners = new ArrayList();

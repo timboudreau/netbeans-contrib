@@ -17,9 +17,7 @@ package org.netbeans.modules.tasklist.core;
 import java.io.*;
 import java.util.*;
 
-import org.netbeans.modules.tasklist.core.translators.XMLTranslator;
 import org.netbeans.modules.tasklist.core.translators.HTMLSupport;
-import org.netbeans.modules.tasklist.core.translators.FormatTranslator;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 
@@ -378,18 +376,6 @@ public class TaskList implements ObservableList, TaskListener {
         synchronized(tasks) {
             return TLUtils.recursiveCount(tasks.iterator());
         }
-    }
-
-    /** Return the translators capable of handling this tasklist.
-     * @return Array of translators that can read/write the tasklist
-     */
-    public FormatTranslator[] getTranslators() {
-        // XXX is it really tasklist property?
-        FormatTranslator[] translators = new FormatTranslator[]{
-            new HTMLSupport(),
-            new XMLTranslator()
-        };
-        return translators;
     }
 
     /**

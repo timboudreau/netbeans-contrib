@@ -25,12 +25,14 @@ import java.util.ListIterator;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import org.netbeans.modules.tasklist.core.filter.Filter;
-import org.netbeans.modules.tasklist.core.translators.IconManager;
 import org.netbeans.modules.tasklist.core.ColumnProperty;
+import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskList;
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.core.TaskNode;
+import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
+import org.netbeans.modules.tasklist.core.util.IconManager;
 import org.openide.NotifyDescriptor;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor.Confirmation;
@@ -41,15 +43,18 @@ import org.openide.util.NbBundle;
 import org.openide.awt.HtmlBrowser.URLDisplayer;
 import org.openide.awt.HtmlBrowser;
 import org.openide.DialogDisplayer;
+import org.openide.WizardDescriptor;
 
 
 /**
+ * This class is not currently used.
+ *
  * This class exports a given TaskListView to HTML, using the current
  * visible columns, sorting column, etc.
  *
  * @author Tor Norbye
  */
-public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.AbstractTranslator {
+public abstract class HTMLSupport implements ExportImportFormat {
     // these values are stored temporary during export
     private ColumnProperty[] columns;
     private String[] headers;
@@ -60,47 +65,19 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
     private boolean sortedByName = false;
     private boolean noSorting = true;
     private Node.Property sortedByProperty = null;
+    private IconManager iconMap = null;
 
-    public String getDefaultExtension() {
-        return "html";
-    }
-
-    public String getImportName() {
-        return null;
-    }
-
-    public String getExportName() {
+    public String getName() {
         return NbBundle.getMessage(HTMLSupport.class, "HTML"); // NOI18N
     }
 
-    public boolean supportsImport() {
-        return false;
-    }
-
-    public boolean supportsExport() {
-        return true;
-    }
-
-    // Extends AbstractTranslator
-    protected String getExportDialogTitle() {
-        return NbBundle.getMessage(HTMLSupport.class, "ExportHTML"); // NOI18N
-    }
-    
-    protected String getImportDialogTitle() {
+    public WizardDescriptor getWizard() {
+        // TODO return NbBundle.getMessage(HTMLSupport.class, "ExportHTML"); // NOI18N
         return null;
     }
-
-    /** Do the actual export of the list into the stream
-        @param list The tasklist to read into
-        @param file The FileObject for the file to be read 
-        @param interactive Whether or not the user should be kept informed
-        @param dir May be null, or a directory where the writer is
-                 going to write the tasklist. Exporters may for example
-                 write additional files in this directory.
-        @return true iff the list was successfully written
-    */
-    public boolean writeList(TaskList list, OutputStream out,
-                             boolean interactive, File dir) throws IOException {
+    
+    public boolean doExportImport(File dir, 
+    boolean interactive, OutputStream out) throws IOException {
         Writer writer = new OutputStreamWriter(out, "utf8");  // NOI18N
         this.view = TaskListView.getCurrent();
         if (view == null) {
@@ -110,19 +87,16 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
         this.writer = writer;
 
         if (interactive && (dir != null)) {
-            IconManager icm = IconManager.getDefault();
-            if (icm != null) {
-                // Show the result?
-                NotifyDescriptor nd = new NotifyDescriptor.Confirmation (
-                     NbBundle.getMessage(HTMLSupport.class,
-                                       "ExportIcons"), // NOI18N
-                     NotifyDescriptor.YES_NO_OPTION
-                );
-                Object result = DialogDisplayer.getDefault().notify(nd);
-                if (NotifyDescriptor.YES_OPTION == result) {
-                    iconMap = icm;
-                    iconMap.setBase(dir); // XXX get right directory
-                }
+            IconManager icm = new IconManager(dir);
+            // Show the result?
+            NotifyDescriptor nd = new NotifyDescriptor.Confirmation (
+                 NbBundle.getMessage(HTMLSupport.class,
+                                   "ExportIcons"), // NOI18N
+                 NotifyDescriptor.YES_NO_OPTION
+            );
+            Object result = DialogDisplayer.getDefault().notify(nd);
+            if (NotifyDescriptor.YES_OPTION == result) {
+                iconMap = icm;
             }
         }
         
@@ -133,48 +107,6 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
         return true;
     }
 
-    protected void exportDone(FileObject file) {
-        URL url = null;
-        try {
-            url = file.getURL();
-        } catch (FileStateInvalidException e) {
-            // Can't show URL
-            ErrorManager.getDefault().notify(e);
-            return;
-        }
-
-        // Show the result?
-        NotifyDescriptor nd = new NotifyDescriptor.Confirmation (
-                     NbBundle.getMessage(HTMLSupport.class,
-                                       "ViewExportedHTML"), // NOI18N
-                     NotifyDescriptor.YES_NO_OPTION
-        );
-        Object result = DialogDisplayer.getDefault().notify(nd);
-        if (NotifyDescriptor.YES_OPTION == result) {
-            HtmlBrowser.URLDisplayer.getDefault().showURL(url);
-        }
-    }
-
-   protected void exportDone(File file) {
-        URL url;
-        try {
-            url = file.toURI().toURL(); // NOI18N
-        } catch (MalformedURLException e) {
-            // Can't show URL
-            ErrorManager.getDefault().notify(e);
-            return;
-        }
-
-        // Show the result?
-        NotifyDescriptor nd = new NotifyDescriptor.Confirmation (
-            NbBundle.getMessage(HTMLSupport.class, "ViewExportedHTML"), // NOI18N
-            NotifyDescriptor.YES_NO_OPTION);
-        Object result = DialogDisplayer.getDefault().notify(nd);
-        if (NotifyDescriptor.YES_OPTION == result) {
-            HtmlBrowser.URLDisplayer.getDefault().showURL(url);
-        }
-    }    
-   
     /**
      * Creates CSS commands.
      */
@@ -236,14 +168,14 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
                              "%\">"); // NOI18N
             }
             headers[j] = column.getHeaderValue().toString();
-            writer.write(toHTML(headers[j]));
+            writer.write(TLUtils.toHTML(headers[j]));
             writer.write("</TH>\n"); // NOI18N
         }
         writer.write("</TR>\n"); // NOI18N
         
         // Write out task items
         
-        // XXX How do I generalize the case that some exporters
+        // How do I generalize the case that some exporters
         // want to nest subtasks, others want to put them at the
         // end (or at the beginning) ???
         // Perhaps task iteration should be left to each export
@@ -406,7 +338,7 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
 
                             exportIcon(writer, first, node);
                             try {
-                                writer.write(toHTML(prop.getValue().toString()));
+                                writer.write(TLUtils.toHTML(prop.getValue().toString()));
                             } catch (java.lang.IllegalAccessException e) {
                                 writer.write("ERROR"); // NOI18N
                                 ErrorManager.getDefault().notify(e);
@@ -424,9 +356,9 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
             writer.write("<TD>\n"); // NOI18N
                 try {
                     Object value = prop.getValue();
-                    String s = value == null ? "" : value.toString();
-                    if (s == null) s = "";
-                    writer.write(toHTML(s));
+                    String s = value == null ? "" : value.toString(); // NOI18N
+                    if (s == null) s = ""; // NOI18N
+                    writer.write(TLUtils.toHTML(s));
                 } catch (java.lang.IllegalAccessException e) {
                     writer.write("ERROR"); // NOI18N
                     ErrorManager.getDefault().notify(e);
@@ -452,28 +384,4 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
         }
         return false;
     }
-
-    
-    /** 
-     * Convert a string to HTML, escaping &, <, >, etc
-     */
-    public static String toHTML(String text) {
-        StringBuffer sb = new StringBuffer(2*text.length());
-        // Same as TLUtils.appendHTMLChar, but we don't want to
-        // translate ' ' into &nbsp;
-        int n = text.length();
-        for (int i = 0; i < n; i++) {
-            switch (text.charAt(i)) {
-            case '&': sb.append("&amp;"); break; // NOI18N
-            case '<': sb.append("&lt;"); break; // NOI18N
-            case '>': sb.append("&gt;"); break; // NOI18N
-            case '"': sb.append("&quot;"); break; // NOI18N
-            case '\n': sb.append("<br>"); break; // NOI18N
-            default: sb.append(text.charAt(i)); break;
-            }
-        }
-        return sb.toString();
-    }
-
-    private IconManager iconMap = null;
 }

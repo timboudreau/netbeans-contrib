@@ -39,7 +39,6 @@ import javax.swing.text.DefaultEditorKit;
 
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.ColumnProperty;
-import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.netbeans.modules.tasklist.core.ObservableList;
 import org.netbeans.modules.tasklist.core.TLUtils;
@@ -48,8 +47,15 @@ import org.netbeans.modules.tasklist.core.TaskAnnotation;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskListener;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
+import org.netbeans.modules.tasklist.core.export.ExportAction;
+import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
+import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
+import org.netbeans.modules.tasklist.usertasks.translators.HtmlExportFormat;
+import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
+import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
+import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.openide.actions.DeleteAction;
@@ -70,7 +76,8 @@ import org.openide.windows.WindowManager;
  *
  * @author Tor Norbye
  */
-public class UserTaskView extends TaskListView implements TaskListener {
+public class UserTaskView extends TaskListView implements TaskListener,
+ExportImportProvider {
     // TODO: replace these constants with the equivalents from UserTaskProperties
     public static final String PROP_TASK_DONE = UserTaskProperties.PROPID_DONE;
     public static final String PROP_TASK_DUE = UserTaskProperties.PROPID_DUE_DATE;
@@ -482,5 +489,19 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public org.openide.util.HelpCtx getHelpCtx() {
         return new HelpCtx(
             "org.netbeans.modules.tasklist.usertasks.HOMEID"); // NOI18N
+    }    
+    
+    public ExportImportFormat[] getExportFormats() {
+        return new ExportImportFormat[] {
+            new XmlExportFormat(), 
+            new HtmlExportFormat(),
+            new ICalExportFormat()
+        };
+    }
+    
+    public ExportImportFormat[] getImportFormats() {
+        return new ExportImportFormat[] {
+            new ICalImportFormat()
+        };
     }    
 }

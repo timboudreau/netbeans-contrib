@@ -31,8 +31,6 @@ import org.w3c.dom.NodeList;
 /**
  * Convertor for column widths in XML format.
  * Public ID: "-//NetBeans org.netbeans.modules.tasklist//DTD Column Widths 1.0//EN"
- *
- * @author Tim Lebedkov
  */
 public final class ColumnsConfigurationConvertor extends DOMConvertor
 implements ChangeListener {

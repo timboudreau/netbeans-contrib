@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import java.awt.*;
 import java.awt.event.FocusListener;
 import java.awt.event.FocusEvent;
+import java.io.OutputStream;
 import javax.swing.JEditorPane;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -56,12 +57,86 @@ import org.openide.windows.WindowManager;
  * @author Tor Norbye 
  */
 public final class TLUtils {
-    private static Logger LOGGER = TLUtils.getLogger(TLUtils.class);
+    /** Common logger for the core module */
+    public static Logger LOGGER = TLUtils.getLogger(TLUtils.class);
     
     static {
-        LOGGER.setLevel(Level.OFF);
+        LOGGER.setLevel(Level.FINE);
     }
 
+    /** 
+     * Convert a string to HTML, escaping &, <, >, etc
+     * Same as TLUtils.appendHTMLChar, but we don't want to
+     * translate ' ' into &nbsp;
+     *
+     * TODO: comment params
+     */
+    public static String toHTML(String text) {
+        StringBuffer sb = new StringBuffer(2*text.length());
+        // Same as TLUtils.appendHTMLChar, but we don't want to
+        // translate ' ' into &nbsp;
+        int n = text.length();
+        for (int i = 0; i < n; i++) {
+            switch (text.charAt(i)) {
+            case '&': sb.append("&amp;"); break; // NOI18N
+            case '<': sb.append("&lt;"); break; // NOI18N
+            case '>': sb.append("&gt;"); break; // NOI18N
+            case '"': sb.append("&quot;"); break; // NOI18N
+            case '\n': sb.append("<br>"); break; // NOI18N
+            default: sb.append(text.charAt(i)); break;
+            }
+        }
+        return sb.toString();
+    }
+    
+    /**
+     * TODO: comment
+     */
+    /*public static void writeWithBackup() {
+        File file = null;
+        boolean success = false;
+        OutputStream out = null;
+
+        try {
+        
+            file = new File(folderPath.getPath()+File.separatorChar+name);
+            if (file.exists()) {
+                if (!backedUp && backup) {
+                    // Save backup
+                    File oldFile = new File(file.getPath()+'~');
+                    if (oldFile.exists()) {
+                        oldFile.delete();
+                    }
+                    file.renameTo(oldFile);
+                    backedUp = true;
+                } else {
+                    file.delete();
+                }
+            }
+            file.createNewFile();
+
+            out = new BufferedOutputStream(new FileOutputStream(file));
+
+            success = writeList(list, out, interactive, file.getParentFile());
+        } catch (IOException ioe) {
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
+			     ioe, NotifyDescriptor.ERROR_MESSAGE));
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+
+        if (success) {
+            exportDone(file);
+        }
+        
+        return success;        
+    }*/
+    
     /** Return the Line object for a particular line in a file
      */
     public static Line getLineByNumber(DataObject dobj, int lineno) {
