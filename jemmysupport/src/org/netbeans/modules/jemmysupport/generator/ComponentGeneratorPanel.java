@@ -1,13 +1,13 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -16,28 +16,27 @@ package org.netbeans.modules.jemmysupport.generator;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.StringTokenizer;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-
-/*
- * ComponentGeneratorPanel.java
- *
- * Created on February 7, 2002, 10:34 AM
- */
-
+import org.openide.util.Utilities;
 
 /** Component Generator panel
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
- * @version 0.2
+ * @author Jiri.Skrivanek@sun.com
  */
-public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.beans.PropertyChangeListener, java.beans.VetoableChangeListener, org.openide.loaders.DataFilter, ActionListener {
-
-    /** root node */
-    private Node rootNode;
+public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.beans.PropertyChangeListener, java.beans.VetoableChangeListener, ActionListener {
+    
     private static java.awt.Dialog dialog;
     private static ComponentGeneratorPanel panel;
     private String packageName;
@@ -45,9 +44,12 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     private DataFolder targetDataFolder;
     private Thread thread;
     private java.util.Properties props;
+    // "<default package>"
+    private static final String DEFAULT_PACKAGE_LABEL = NbBundle.getBundle("org/netbeans/spi/java/project/support/ui/Bundle").getString("LBL_DefaultPackage");
+
     
     /** creates ans shows Component Generator dialog
-     */    
+     */
     public static void showDialog(Node[] nodes){
         if (dialog==null) {
             panel = new ComponentGeneratorPanel(nodes);
@@ -58,7 +60,8 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
                 }
             });
         }
-        panel.setSelectedNodes(nodes);
+        // XXX doesn't work for projects
+        //panel.setSelectedNodes(nodes);
         dialog.show();
     }
     
@@ -67,13 +70,14 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     public ComponentGeneratorPanel(Node[] nodes) {
         loadProperties();
         initComponents();
-        rootNode = createPackagesNode();
-        packagesPanel.getExplorerManager().setRootContext(rootNode);
+        packagesPanel.getExplorerManager().setRootContext(createPackagesNode());
         packagesPanel.getExplorerManager().addVetoableChangeListener(this);
         packagesPanel.getExplorerManager().addPropertyChangeListener(this);
     }
+
     
     private void setSelectedNodes(Node[] nodes) {
+        // XXX this doesnt work anymore
         DataFolder df;
         if (packagesTreeView.isEnabled() && nodes!=null && nodes.length>0 && (df=(DataFolder)nodes[0].getCookie(DataFolder.class))!=null) {
             try {
@@ -82,26 +86,30 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
                 while (packageName.hasMoreTokens()) {
                     node = node.getChildren().findChild(packageName.nextToken());
                 }
-                packagesPanel.getExplorerManager().setSelectedNodes (new Node[]{node});
+                packagesPanel.getExplorerManager().setSelectedNodes(new Node[]{node});
             }
             catch(Exception e) {}
         }
     }
     
-    /** Creates node that displays all packages.
-    */
-    private Node createPackagesNode () {
-        Node orig = org.openide.loaders.RepositoryNodeFactory.getDefault().repository(this);
-        return orig;
+    private Node createPackagesNode() {
+        Lookup context = Utilities.actionsGlobalContext();
+        DataObject dataObject = (DataObject)context.lookup(DataObject.class);
+        if(dataObject != null) {
+            Project p = FileOwnerQuery.getOwner(dataObject.getPrimaryFile());
+            if(p != null) {
+                LogicalViewProvider lvp = (LogicalViewProvider)p.getLookup().lookup(LogicalViewProvider.class);
+                return new DataFolderFilterNode(lvp.createLogicalView().cloneNode());
+            }
+        }
+        // no project selected => create a dummy node with message "Please, close the dialog and select a project."
+        Node node = new AbstractNode(Children.LEAF);
+        node.setDisplayName(NbBundle.getMessage(ComponentGeneratorPanel.class, "LBL_SelectProjectNode")); // NOI18N
+        return node;
     }
-
+    
     void loadProperties() {
         props = new java.util.Properties();
-/*
-        try {
-            props.load( org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().findResource("jemmysupport/ComponentGenerator.properties").getInputStream());
-        } catch (Exception e1) {
-*/
         try {
             props.load( this.getClass().getClassLoader().getResourceAsStream("org/netbeans/modules/jemmysupport/generator/ComponentGenerator.properties")); // NOI18N
         } catch (Exception e) {
@@ -123,7 +131,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
             }
             props.store(fo.getOutputStream(fo.lock()),NbBundle.getMessage(ComponentGeneratorPanel.class, "MSG_PropertiesTitle")); // NOI18N
         } catch (Exception e) {
-                throw new java.lang.reflect.UndeclaredThrowableException(e, NbBundle.getMessage(ComponentGeneratorPanel.class, "MSG_PropertiesNoSaved")); // NOI18N
+            throw new java.lang.reflect.UndeclaredThrowableException(e, NbBundle.getMessage(ComponentGeneratorPanel.class, "MSG_PropertiesNoSaved")); // NOI18N
         }
     }
     
@@ -152,7 +160,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
 
         setAlignmentX(0.0F);
         setAlignmentY(0.0F);
-        setPreferredSize(new java.awt.Dimension(570, 300));
+        setPreferredSize(new java.awt.Dimension(600, 300));
         packagesPanel.setName("");
         packagesTreeView.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentGeneratorPanel.class, "TTT_Package"));
         packagesTreeView.setPopupAllowed(false);
@@ -286,7 +294,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         add(cbUseComponentName, gridBagConstraints);
 
     }//GEN-END:initComponents
-
+    
     private void stopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButtonActionPerformed
         if (thread!=null) {
             thread.interrupt();
@@ -296,18 +304,18 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         helpLabel.setVisible(false);
         packagesTreeView.setEnabled(true);
         startButton.setVisible(true);
-//        customizeButton.setEnabled(true);
+        //        customizeButton.setEnabled(true);
         screenShot.setEnabled(true);
         showEditor.setEnabled(true);
         cbUseComponentName.setEnabled(true);
         mergeConflicts.setEnabled(true);
     }//GEN-LAST:event_stopButtonActionPerformed
-
+    
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
         packagesTreeView.setEnabled(false);
         startButton.setVisible(false);
         stopButton.setVisible(true);
-//        customizeButton.setEnabled(false);
+        //        customizeButton.setEnabled(false);
         screenShot.setEnabled(false);
         showEditor.setEnabled(false);
         cbUseComponentName.setEnabled(false);
@@ -320,34 +328,17 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         thread = new Thread(new ComponentGeneratorRunnable(targetDataFolder, packageName, this, props, screenShot.isSelected(), showEditor.isSelected(), mergeConflicts.isSelected(), cbUseComponentName.isSelected()));
         thread.start();
     }//GEN-LAST:event_startButtonActionPerformed
-
-    //
-    // Filter to accept only folders
-    //
-
-    /** Should the data object be displayed or not?
-    * @param obj the data object
-    * @return <CODE>true</CODE> if the object should be displayed,
-    *    <CODE>false</CODE> otherwise
-    */
-    public boolean acceptDataObject(org.openide.loaders.DataObject obj) {
-        Object o = obj.getCookie(org.openide.loaders.DataFolder.class);
-        if (o == null) {
-            return false;
-        }
-        return true;
-    }
-
+    
     /** Allow only simple selection.
      * @param ev PropertyChangeEvent
      * @throws PropertyVetoException PropertyVetoException
      */
     public void vetoableChange(java.beans.PropertyChangeEvent ev) throws java.beans.PropertyVetoException {
-        if (org.openide.explorer.ExplorerManager.PROP_SELECTED_NODES.equals (ev.getPropertyName ())) {
+        if (org.openide.explorer.ExplorerManager.PROP_SELECTED_NODES.equals(ev.getPropertyName())) {
             Node n[] = (Node[])ev.getNewValue();
             if (n.length > 1 ) {
-                throw new java.beans.PropertyVetoException (NbBundle.getMessage(ComponentGeneratorPanel.class, "MSG_SingleSelection"), ev); // NOI18N
-            } 
+                throw new java.beans.PropertyVetoException(NbBundle.getMessage(ComponentGeneratorPanel.class, "MSG_SingleSelection"), ev); // NOI18N
+            }
         }
     }
     
@@ -355,15 +346,19 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
      * @param ev PropertyChangeEvent
      */
     public void propertyChange(java.beans.PropertyChangeEvent ev) {
-        if (org.openide.explorer.ExplorerManager.PROP_SELECTED_NODES.equals (ev.getPropertyName ())) {
+        if (org.openide.explorer.ExplorerManager.PROP_SELECTED_NODES.equals(ev.getPropertyName())) {
             startButton.setEnabled(false);
-            Node[] arr = packagesPanel.getExplorerManager ().getSelectedNodes ();
+            Node[] arr = packagesPanel.getExplorerManager().getSelectedNodes();
             if (arr.length == 1) {
-                org.openide.loaders.DataFolder df = (org.openide.loaders.DataFolder)arr[0].getCookie (org.openide.loaders.DataFolder.class);
+                org.openide.loaders.DataFolder df = (org.openide.loaders.DataFolder)arr[0].getCookie(org.openide.loaders.DataFolder.class);
                 try {
                     if ((df != null) && (!df.getPrimaryFile().getFileSystem().isReadOnly())) {
                         startButton.setEnabled(true);
-                        packageName = df.getPrimaryFile().getPackageName('.');
+                        packageName = arr[0].getDisplayName();
+                        if(packageName.equals(DEFAULT_PACKAGE_LABEL)) {
+                            // if default package selected
+                            packageName = "";
+                        }
                         targetDataFolder = df;
                     }
                 } catch (org.openide.filesystems.FileStateInvalidException e) {}
@@ -373,11 +368,11 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     
     /** returns JLabel used as status line
      * @return JLabel used as status line
-     */    
+     */
     public javax.swing.JLabel getHelpLabel() {
         return helpLabel;
     }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox cbUseComponentName;
     private javax.swing.JLabel helpLabel;
@@ -390,10 +385,10 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     private javax.swing.JButton startButton;
     private javax.swing.JButton stopButton;
     // End of variables declaration//GEN-END:variables
-
+    
     /** creates Component Generator dialog for debugging purposes
      * @param args command line arguments
-     */    
+     */
     public static void main(String args[]) {
         showDialog(null);
     }
