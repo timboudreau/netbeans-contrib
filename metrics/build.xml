@@ -29,7 +29,9 @@ Microsystems, Inc. All Rights Reserved.
        <pathelement location="../java/netbeans/modules/java.jar" />
        <pathelement location="../clazz/netbeans/modules/clazz.jar" />
        <pathelement location="../classfile/netbeans/modules/autoload/classfile.jar" />
-       <pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar" />
+       <fileset dir="../core/external">
+         <include name="xml-apis*.jar"/>
+       </fileset>
     </classpath>
     </javac>
   </target>
