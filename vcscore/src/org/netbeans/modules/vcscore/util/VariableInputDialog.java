@@ -118,6 +118,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         nextButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.nextButton.mnemonic").charAt(0));
         asDefaultButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.mnemonic").charAt(0));
         getDefaultButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("getDefaultButton.mnemonic").charAt(0));
+        promptEachCheckBox.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.promptEachCheckBox.mnemonic").charAt(0));
     }
 
     public void setFilePromptDocumentListener(VariableInputDialog.FilePromptDocumentListener docListener) {
