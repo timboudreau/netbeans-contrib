@@ -96,7 +96,7 @@ public class PvcsProjectSelector extends Object implements VcsAdditionalCommand,
                                                                "ProjectSelectorTitle"),
                                     new HelpCtx(PvcsProjectSelector.class));
         if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(dialog))) {
-            stdoutDataListener.outputData(new String[] { "/" + panel.getRelMount() });
+            stdoutDataListener.outputData(new String[] { panel.getRelMount() });
         }
         return true;
     }
