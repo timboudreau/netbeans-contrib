@@ -130,6 +130,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
             Node root = null;
             String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
             setName(modeName);
+            setToolTipText(modeName);
             
             root = GroupUtils.getMainVcsGroupNodeInstance();
             GroupUtils.getDefaultGroupInstance(); // here just to make sure the default is created.

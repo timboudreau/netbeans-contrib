@@ -73,6 +73,7 @@ public class CommandOutputTopComponent extends TopComponent {
         setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/vcs_output.png"));  //NOI18N        
         initComponents();
         setName(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.topName")); //NOI18N
+        setToolTipText(getName());
         initPopupMenu();
         new CommandOutputTopComponent.OutputTabPopupListener();
         getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
