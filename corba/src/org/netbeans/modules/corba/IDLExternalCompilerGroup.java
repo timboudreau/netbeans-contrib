@@ -285,7 +285,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 	    __setting = css.getActiveSetting ();
 	}
 	
-        return fo.getParent ().getPackageName (__setting.delim ());
+        return "\"" + fo.getParent ().getPackageName (__setting.delim ()) + "\"";
     }
 
     public static String getPackageRoot(FileObject fo) throws IllegalArgumentException {
@@ -307,7 +307,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
         String root = pr.toString();
         File fr = new File(root);
         try {
-            if (fr.isDirectory()) return root;
+            if (fr.isDirectory()) return "\"" + root + "\"";
         } catch (Exception ex) {
         }
         return "."; // NOI18N
