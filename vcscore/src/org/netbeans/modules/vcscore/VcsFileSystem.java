@@ -935,6 +935,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     public String[] getPossibleFileStatuses() {
         String[] statuses;
+        if (possibleFileStatusesMap == null) return null;
         synchronized (possibleFileStatusesMap) {
             statuses = new String[possibleFileStatusesMap.size()];
             int i = 0;
