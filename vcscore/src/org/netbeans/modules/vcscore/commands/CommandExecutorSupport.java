@@ -45,6 +45,25 @@ public class CommandExecutorSupport extends Object {
     }
      */
     
+    /**
+     * Find out, the number of important files among these paths.
+     * @param paths the files paths delimited by double File.separator
+     * @return the number of important files
+     */
+    private static int numImportant(VcsFileSystem fileSystem, String paths) {
+        int num = 0;
+        String delim = java.io.File.separator + java.io.File.separator;
+        int begin = 0;
+        int end = paths.indexOf(delim);
+        while (end > 0) {
+            String path = paths.substring(begin, end);
+            if (fileSystem.isImportant(path)) num++;
+            begin = end + delim.length();
+            end = paths.indexOf(delim, begin);
+        }
+        return num;
+    }
+    
     public static int preprocessCommand(VcsFileSystem fileSystem, VcsCommandExecutor vce,
                                         Hashtable vars, boolean[] askForEachFile) {
         VcsCommand cmd = vce.getCommand();
@@ -52,12 +71,18 @@ public class CommandExecutorSupport extends Object {
         Object confObj = cmd.getProperty(VcsCommand.PROPERTY_CONFIRMATION_MSG);
         String confirmation = (confObj == null) ? "" : (String) confObj; //cmd.getConfirmationMsg();
         String fullName = (String) vars.get("PATH");
+        String paths = (String) vars.get("PATHS");
+        boolean confirmed = false;
         if (fileSystem.isImportant(fullName)) {
+            String numFiles = (String) vars.get("NUM_FILES");
+            vars.put("NUM_FILES", ""+numImportant(fileSystem, paths));
             confirmation = Variables.expand(vars, confirmation, true);
-        } else {
-            confirmation = null;
+            vars.put("NUM_FILES", numFiles);
+            confirmed = true;
+        //} else {
+        //    confirmation = null;
         }
-        if (confirmation != null && confirmation.length() > 0) {
+        if (confirmed && confirmation.length() > 0) {
             if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
                     TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (
                         confirmation, NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
@@ -83,11 +108,30 @@ public class CommandExecutorSupport extends Object {
         if (!fileSystem.promptForVariables(exec, vars, cmd, askForEachFile)) {
             return CommandsPool.PREPROCESS_CANCELLED; // The command is cancelled for that file
         }
+        /*
         // Have to remove multifile variables if has to execute on only one file:
         if (askForEachFile != null && askForEachFile[0]) {
             vars.put("PATHS", "");
             vars.put("QPATHS", "");
             vars.put("FILES", "");
+        }
+         */
+        // Ask for the confirmation again, if the preprocessing was done, but there is an important file
+        if (!(askForEachFile != null && askForEachFile[0])) {
+            int numImp = numImportant(fileSystem, paths);
+            if (!confirmed && numImp > 0) {
+                String numFiles = (String) vars.get("NUM_FILES");
+                vars.put("NUM_FILES", ""+numImp);
+                confirmation = Variables.expand(vars, confirmation, true);
+                vars.put("NUM_FILES", numFiles);
+                if (confirmation.length() > 0) {
+                    if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
+                            TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (
+                                confirmation, NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
+                        return CommandsPool.PREPROCESS_CANCELLED; // The command is cancelled for that file
+                    }
+                }
+            }
         }
         // IV. Perform the default variable expansion
         exec = Variables.expand(vars, exec, true);
