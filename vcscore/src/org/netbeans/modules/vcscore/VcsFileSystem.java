@@ -2875,6 +2875,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
 
         String rDir = r.getPath();
+        if (rDir.length() == 0) {
+            throw new PropertyVetoException("Can not set empty root.", null);
+        }
         if (org.openide.util.Utilities.isWindows() && rDir.length() == 2 &&
             Character.isLetter(rDir.charAt(0)) && ':' == rDir.charAt(1)) {
             rDir += "\\"; // A special case for C:\
