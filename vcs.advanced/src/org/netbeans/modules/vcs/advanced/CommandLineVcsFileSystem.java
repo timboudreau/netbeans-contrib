@@ -853,6 +853,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             if (loader == null) loader = ClassLoader.getSystemClassLoader();
             for (int i = 0; i < statuses.length && i < iconResources.length; i++) {
                 if (iconResources[i].length() == 0) continue;
+                // Translate from old paths because of backward compatibility.
+                if (iconResources[i].startsWith("vcs/resources/badge")) { // NOI18N
+                    iconResources[i] = "org/netbeans/modules/vcs/profiles/resources/badge" + iconResources[i].substring("vcs/resources/badge".length()); // NOI18N
+                }
                 URL urlResource = loader.getResource(iconResources[i]);
                 if (urlResource == null) {
                     DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
