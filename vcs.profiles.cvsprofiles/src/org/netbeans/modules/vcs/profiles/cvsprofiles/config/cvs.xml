@@ -100,11 +100,11 @@ Microsystems, Inc. All Rights Reserved.
     </variable>
     <variable name="RUNCDW" basic="false">
       <value unless="IS_WINDOWS">/bin/sh -c "${CD} ${QUOTE}${WORKDIR}${QUOTE};</value>
-      <value if="IS_WINDOWS" unless="IS_WIN9X">cmd /X /C "${CD} ${QUOTE}${ROOTDIR}${PS}${MODULE}${PS}${DIR}${PS}.${QUOTE}&amp;&amp;  </value>
-      <value if="IS_WIN9X">${SHELL} -c "${CD} ${QUOTE}${ROOTDIR}${PS}${MODULE}${PS}${DIR}${PS}.${QUOTE}&amp;&amp;  </value>
+      <value if="IS_WINDOWS" unless="IS_WIN9X">cmd /X /C "${CD} ${QUOTE}${WORKDIR}${QUOTE}&amp;&amp;  </value>
+      <value if="IS_WIN9X">${SHELL} -c "${CD} ${QUOTE}${WORKDIR}${QUOTE}&amp;&amp;  </value>
     </variable>
     <variable name="RUNCDM" basic="false">
-      <value unless="IS_WINDOWS">/bin/sh -c "${CD} ${QUOTE}${MODDIR}${QUOTE};</value>
+      <value unless="IS_WINDOWS">/bin/sh -c "${CD} ${QUOTE}${ROOTDIR}${PS}${MODULE}${QUOTE};</value>
       <value if="IS_WIN9X">${SHELL} -c "${CD} ${QUOTE}${ROOTDIR}${PS}${MODULE}${PS}.${QUOTE}&amp;&amp;  </value>
       <value>cmd /X /C "${CD} ${QUOTE}${ROOTDIR}${PS}${MODULE}${PS}.${QUOTE}&amp;&amp;  </value>
     </variable>
