@@ -27,6 +27,7 @@ import com.netbeans.ide.loaders.DataNode;
 import com.netbeans.ide.util.datatransfer.TransferableOwner;
 import com.netbeans.ide.util.RequestProcessor;
 import com.netbeans.ide.util.NbBundle;
+import com.netbeans.ide.src.ElementProperties;
 
 /** Represents ClassDataObject
 *
@@ -37,15 +38,15 @@ class ClassDataNode extends DataNode {
   static final long serialVersionUID = -1543899241509520203L;
 
   /** Properties */
-  private final static String PROP_ISINTERFACE      = "isInterface";
-  private final static String PROP_SUPERCLASS       = "superclass";
-  private final static String PROP_MODIFIERS        = "modifiers";
-  private final static String PROP_CLASSNAME        = "className";
+  private final static String PROP_CLASS_NAME = "className";
   private final static String PROP_SHOWDECLAREDONLY = "showDeclaredOnly";
-  private final static String PROPERTY_SET_NAME     = "Property";
+  private final static String PROP_IS_JAVA_BEAN = "isJavaBean";
+  private final static String PROP_IS_APPLET = "isApplet";
+  private final static String PROP_IS_EXECUTABLE = "isExecutable";
+  private final static String PROP_FILE_PARAMS = "fileParams";
+  private final static String PROP_EXECUTION = "execution";
+
   private final static String EXECUTION_SET_NAME     = "Execution";
-  private final static String PROP_FILE_PARAMS      = "fileParams";
-  private final static String PROP_EXECUTION        = "execution";
 
   /** Icon bases for icon manager */
   private final static String CLASS_BASE =
@@ -142,23 +143,17 @@ class ClassDataNode extends DataNode {
              }
            });
     ps.put(new PropertySupport.ReadOnly (
-             PROP_MODIFIERS,
+             PROP_CLASS_NAME,
              String.class,
              bundle.getString("PROP_className"),
              bundle.getString("HINT_className")
            ) {
              public Object getValue () throws InvocationTargetException {
-               Object result = null;
-               try {
-                 result = obj.getClassName();
-               } catch (IOException ex) {
-               } catch (ClassNotFoundException ex) {
-               }
-               return result;
+               return obj.getClassName();
              }
            });
     ps.put(new PropertySupport.ReadOnly (
-             PROP_MODIFIERS,
+             ElementProperties.PROP_MODIFIERS,
              String.class,
              bundle.getString ("PROP_modifiers"),
              bundle.getString ("HINT_modifiers")
@@ -167,16 +162,16 @@ class ClassDataNode extends DataNode {
                Object result = null;
                try {
                  result = obj.getModifiers();
-               } catch (ThreadDeath td) {
-                 throw td;
-               } catch (Throwable t) {
+               } catch (IOException ex) {
+                 // ignore - return null
+               } catch (ClassNotFoundException ex) {
                  // ignore - return null
                }
                return result;
              }
            });
     ps.put(new PropertySupport.ReadOnly (
-             PROP_SUPERCLASS,
+             ElementProperties.PROP_SUPERCLASS,
              Class.class,
              bundle.getString ("PROP_superclass"),
              bundle.getString ("HINT_superclass")
@@ -185,84 +180,52 @@ class ClassDataNode extends DataNode {
                Object result = null;
                try {
                  result = obj.getSuperclass();
-               } catch (ThreadDeath td) {
-                 throw td;
-               } catch (Throwable t) {
+               } catch (IOException ex) {
+                 // ignore - return null
+               } catch (ClassNotFoundException ex) {
                  // ignore - return null
                }
                return result;
              }
            });
     ps.put(new PropertySupport.ReadOnly (
-             PROP_SUPERCLASS,
+             PROP_IS_EXECUTABLE,
              Boolean.TYPE,
-             bundle.getString ("PROP_hasMainMethod"),
-             bundle.getString ("HINT_hasMainMethod")
+             bundle.getString ("PROP_isExecutable"),
+             bundle.getString ("HINT_isExecutable")
            ) {
              public Object getValue () throws InvocationTargetException {
-               boolean result = false;
-               try {
-                 obj.getHasMainMethod();
-               } catch (ThreadDeath td) {
-                 throw td;
-               } catch (Throwable t) {
-                 // ignore - return null
-               }
-               return new Boolean (result);
+               return new Boolean(obj.isExecutable());
              }
            });
     ps.put(new PropertySupport.ReadOnly (
-             PROP_ISINTERFACE,
+             ElementProperties.PROP_CLASS_OR_INTERFACE,
              Boolean.TYPE,
              bundle.getString ("PROP_isInterface"),
              bundle.getString ("HINT_isInterface")
            ) {
              public Object getValue () throws InvocationTargetException {
-               boolean result = false;
-               try {
-                 obj.isInterface();
-               } catch (ThreadDeath td) {
-                 throw td;
-               } catch (Throwable t) {
-                 // ignore - return null
-               }
-               return new Boolean (result);
+               return new Boolean (obj.isInterface());
              }
            });
     ps.put(new PropertySupport.ReadOnly (
-             PROP_SUPERCLASS,
+             PROP_IS_APPLET,
              Boolean.TYPE,
              bundle.getString ("PROP_isApplet"),
              bundle.getString ("HINT_isApplet")
            ) {
              public Object getValue () throws InvocationTargetException {
-               boolean result = false;
-               try {
-                 obj.isApplet();
-               } catch (ThreadDeath td) {
-                 throw td;
-               } catch (Throwable t) {
-                 // ignore - return null
-               }
-               return new Boolean (result);
+               return new Boolean (obj.isApplet());
              }
            });
     ps.put(new PropertySupport.ReadOnly (
-             PROP_SUPERCLASS,
+             PROP_IS_JAVA_BEAN,
              Boolean.TYPE,
              bundle.getString ("PROP_isJavaBean"),
              bundle.getString ("HINT_isJavaBean")
            ) {
              public Object getValue () throws InvocationTargetException {
-               boolean result = false;
-               try {
-                 obj.isJavaBean();
-               } catch (ThreadDeath td) {
-                 throw td;
-               } catch (Throwable t) {
-                 // ignore - return null
-               }
-               return new Boolean (result);
+               return new Boolean (obj.isJavaBean());
              }
            });
     // execution property set
@@ -401,18 +364,18 @@ class ClassDataNode extends DataNode {
     try {
       dataObj.getBeanClass (); // check exception
       if (dataObj.isJavaBean ()) {
-        if (dataObj.getHasMainMethod ())
+        if (dataObj.isExecutable ())
           setIconBase(BEAN_MAIN_BASE);
         else
           setIconBase(BEAN_BASE);
       } else
-      if (dataObj.getHasMainMethod ())
+      if (dataObj.isExecutable ())
         setIconBase(CLASS_MAIN_BASE);
       else
         setIconBase(CLASS_BASE);
-    } catch (ThreadDeath td) {
-      throw td;
-    } catch (Throwable t) {
+    } catch (IOException ex) {
+      setIconBase(ERROR_BASE);
+    } catch (ClassNotFoundException ex) {
       setIconBase(ERROR_BASE);
     }
     iconResolved = true;
@@ -466,6 +429,7 @@ class ClassDataNode extends DataNode {
 
 /*
  * Log
+ *  5    Gandalf   1.4         1/20/99  David Simonek   rework of class DO
  *  4    Gandalf   1.3         1/19/99  David Simonek   
  *  3    Gandalf   1.2         1/13/99  David Simonek   
  *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 

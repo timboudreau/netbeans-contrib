@@ -76,11 +76,6 @@ implements DebuggerCookie {
   /** Name of "execution" property. */
   private final static String  PROP_EXECUTION = "Execution";
 
-  /** bundle to obtain text information from */
-  //private static java.util.ResourceBundle bundle =
-  //  NbBundle.getBundle ("com.netbeans.developer.modules.locales.LoadersClazzBundle");
-
-
   // variables ...................................................................................
 
   transient protected InstanceSupport instanceSupport;
@@ -116,10 +111,11 @@ implements DebuggerCookie {
     try {
       instanceSupport.instanceClass();
       isExecutable = instanceSupport.isExecutable();
-    } catch (ThreadDeath td) {
-      throw td;
-    } catch (Throwable t) {
-      System.out.println ("Chytam vsechny excs.....");
+    } catch (IOException ex) {
+      System.out.println ("Chytam IOExc....");
+      return;
+    } catch (ClassNotFoundException ex) {
+      System.out.println ("Chytam ClassNFExc...");
       return;
     }
     CookieSet cs = getCookieSet();
@@ -147,13 +143,7 @@ implements DebuggerCookie {
   * @return true if the object can be copied
   */
   public boolean isCopyAllowed () {
-    try {
-      return isJavaBean ();
-    } catch (ThreadDeath td) {
-    } catch (Throwable t) {
-      // ignore and return false if some error
-    }
-    return false;
+    return isJavaBean ();
   }
 
   /** Class DO cannot be moved.
@@ -272,12 +262,7 @@ implements DebuggerCookie {
 
   /** @return The informations needed for debugging. */
   public DebuggerInfo getDebuggerInfo () {
-    try {
-      if (isApplet ()) return new AppletDebuggerInfo(getPrimaryFile());
-    } catch (IOException ex) {
-    } catch (ClassNotFoundException ex) {
-      // ignore and return "normal" debugger info at least
-    }
+    if (isApplet ()) return new AppletDebuggerInfo(getPrimaryFile());
     // build debugger info
     String[] args = execSupport.getArguments();
     String className = getPrimaryFile().getPackageName('.');
@@ -299,7 +284,7 @@ implements DebuggerCookie {
 
   // Properties implementation .....................................................................
 
-  public boolean isInterface () throws IOException, ClassNotFoundException {
+  public boolean isInterface () {
     return instanceSupport.isInterface ();
   }
 
@@ -311,7 +296,7 @@ implements DebuggerCookie {
     return Modifier.toString (instanceSupport.instanceClass().getModifiers());
   }
 
-  public String getClassName () throws IOException, ClassNotFoundException {
+  public String getClassName () {
     return instanceSupport.instanceName ();
   }
 
@@ -319,15 +304,15 @@ implements DebuggerCookie {
     return instanceSupport.instanceClass ();
   }
 
-  public boolean getHasMainMethod () throws IOException, ClassNotFoundException {
+  public boolean isExecutable () {
     return instanceSupport.isExecutable ();
   }
 
-  public boolean isJavaBean () throws IOException, ClassNotFoundException {
+  public boolean isJavaBean () {
     return instanceSupport.isJavaBean();
   }
 
-  public boolean isApplet () throws IOException, ClassNotFoundException {
+  public boolean isApplet () {
     return instanceSupport.isApplet ();
   }
 
@@ -457,6 +442,7 @@ implements DebuggerCookie {
 
 /*
  * Log
+ *  5    Gandalf   1.4         1/20/99  David Simonek   rework of class DO
  *  4    Gandalf   1.3         1/19/99  David Simonek   
  *  3    Gandalf   1.2         1/13/99  David Simonek   
  *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
