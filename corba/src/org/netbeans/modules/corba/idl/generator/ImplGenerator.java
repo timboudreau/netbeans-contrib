@@ -41,13 +41,23 @@ public class ImplGenerator {
    private static final boolean DEBUG = false;
 
 
-   private com.netbeans.enterprise.modules.corba.idl.src.Element src;
+   private IDLElement src;
 
-   private String IMPL_PREFIX;
-   private String IMPL_POSTFIX;
+   private String IMPLBASE_IMPL_PREFIX;
+   private String IMPLBASE_IMPL_POSTFIX;
    private String EXT_CLASS_PREFIX;
    private String EXT_CLASS_POSTFIX;
-   
+   private String TIE_IMPL_PREFIX;
+   private String TIE_IMPL_POSTFIX;
+   private String IMPL_INT_PREFIX;
+   private String IMPL_INT_POSTFIX;
+   private boolean TIE;
+
+   private int IN_MODULE_PACKAGE = 0;
+   private int IN_IDL_PACKAGE = 1;
+
+   private int where_generate = IN_IDL_PACKAGE;
+
    private IDLDataObject ido;
 
    public ImplGenerator (IDLDataObject _do) {
@@ -57,13 +67,30 @@ public class ImplGenerator {
       CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
 	 (CORBASupportSettings.class, true);
 
-      IMPL_PREFIX = css.getImplPrefix ();
-      IMPL_POSTFIX = css.getImplPostfix ();
+      IMPLBASE_IMPL_PREFIX = css.getImplBasePrefix ();
+      IMPLBASE_IMPL_POSTFIX = css.getImplBasePostfix ();
       EXT_CLASS_PREFIX = css.getExtClassPrefix ();
       EXT_CLASS_POSTFIX = css.getExtClassPostfix ();
+      TIE_IMPL_PREFIX = css.getTiePrefix ();
+      TIE_IMPL_POSTFIX = css.getTiePostfix ();
+      IMPL_INT_PREFIX = css.getImplIntPrefix ();
+      IMPL_INT_POSTFIX = css.getImplIntPostfix ();
+      TIE = css.isTie ();
    }
 
-   public void setSources (com.netbeans.enterprise.modules.corba.idl.src.Element e) {
+   public ImplGenerator () {
+      IMPLBASE_IMPL_PREFIX = "";
+      IMPLBASE_IMPL_POSTFIX = "Impl";
+      EXT_CLASS_PREFIX = "_";
+      EXT_CLASS_POSTFIX = "ImplBase";
+      TIE_IMPL_PREFIX = "";
+      TIE_IMPL_POSTFIX = "ImplTIE";
+      IMPL_INT_PREFIX = "";
+      IMPL_INT_POSTFIX = "Operations";
+      TIE = false;
+   }
+
+   public void setSources (IDLElement e) {
       src = e;
    }
 
@@ -131,18 +158,19 @@ public class ImplGenerator {
       return null;
    }
 
-   public boolean isAbsoluteScopedName (String name) {
+   public boolean isAbsoluteScopeName (String name) {
       if (DEBUG)
-	 System.out.println ("isAbsoluteScopedName (" + name + ");");
-      if (name.substring (0, 2).equals ("::"))
-	 return true;
-      else
-	 return false;
+	 System.out.println ("isAbsoluteScopeName (" + name + ");");
+      if (name.length () >= 3)
+	 if (name.substring (0, 2).equals ("::"))
+	    return true;
+
+      return false;
    }
 
-   public boolean isScopedName (String name) {
+   public boolean isScopeName (String name) {
       if (DEBUG)
-         System.out.println ("isScopedName (" + name + ");");
+         System.out.println ("isScopeName (" + name + ");");
        if (name.indexOf ("::") > -1)
 	 return true;
       else
@@ -167,16 +195,16 @@ public class ImplGenerator {
       return retval;
    }
 
-   public boolean isTypeDefinedIn (InterfaceElement _interface, String idl_type) {
+   public boolean isTypeDefinedIn (String idl_type, IDLElement _element) {
       boolean is_in = false;
       if (DEBUG)
 	 System.out.println ("isTypeDefinedIn ...");
-      for (int i=0; i<_interface.getMembers ().size (); i++) {
-	 if (_interface.getMember (i) instanceof TypeElement)
-	    if ((_interface.getMember (i).getMember (0) instanceof StructTypeElement)
-	     || (_interface.getMember (i).getMember (0) instanceof EnumTypeElement)
-	     || (_interface.getMember (i).getMember (0) instanceof UnionTypeElement))
-	       if (((TypeElement)_interface.getMember (i).getMember (0)).getName ()
+      for (int i=0; i<_element.getMembers ().size (); i++) {
+	 if (_element.getMember (i) instanceof TypeElement)
+	    if ((_element.getMember (i).getMember (0) instanceof StructTypeElement)
+	     || (_element.getMember (i).getMember (0) instanceof EnumTypeElement)
+	     || (_element.getMember (i).getMember (0) instanceof UnionTypeElement))
+	       if (((TypeElement)_element.getMember (i).getMember (0)).getName ()
 		   .equals (idl_type)) {
 	       is_in = true;
 	       break;
@@ -199,35 +227,534 @@ public class ImplGenerator {
       }
       return is_in;
    }
+
+
+   public String modules2package (InterfaceElement _interface) {
+      // checking modules
+      String modules = "";
+      if (_interface.getParent () instanceof ModuleElement) {
+	 // has min one Module as Parent
+	 IDLElement tmp = _interface;
+	 Vector mods = new Vector ();
+	 while (tmp.getParent () instanceof ModuleElement) {
+	    mods.add (tmp.getParent ().getName ());
+	    tmp = tmp.getParent ();
+	 }
+	 // transform modules names from vector to string in package format
+	 for (int i=mods.size () - 1; i>=0; i--) {
+	    modules = modules + (String)mods.elementAt (i) + ".";
+	 }
+      }
+      
+      return modules;
+   }
+
+
+   public String elements2package (IDLElement _element) {
+      // checking modules
+      String modules = "";
+      if (_element.getParent () instanceof ModuleElement) {
+	 // has min one Module as Parent
+	 IDLElement tmp = _element;
+	 Vector mods = new Vector ();
+	 while (tmp.getParent () instanceof ModuleElement) {
+	    mods.add (tmp.getParent ().getName ());
+	    tmp = tmp.getParent ();
+	 }
+	 // transform modules names from vector to string in package format
+	 for (int i=mods.size () - 1; i>=0; i--) {
+	    modules = modules + (String)mods.elementAt (i) + ".";
+	 }
+      }
+      
+      return modules;
+   }
+
+
+   public String findType (String name, IDLElement from) {
+      Vector mm = from.getMembers ();
+      boolean is_in = false;
+      for (int i=0; i<mm.size (); i++) {
+	 if (from.getMember (i) instanceof TypeElement)
+	    if ((from.getMember (i).getMember (0) instanceof StructTypeElement)
+		|| (from.getMember (i).getMember (0) instanceof EnumTypeElement)
+		|| (from.getMember (i).getMember (0) instanceof UnionTypeElement)) {
+	       if (((TypeElement)from.getMember (i).getMember (0)).getName ()
+		   .equals (name)) {
+		  return ((TypeElement)from.getMember (i).getMember (0)).getType ();
+	       }
+	    } else {
+	       if (((TypeElement)from.getMember (i)).getName ().equals (name))
+		  return ((TypeElement)from.getMember (i)).getType ();
+	    }
+      }
+      if (from.getParent () != null)
+	 return findType (name, from.getParent ());
+      return null;
+   }
+
+   public Type hasSimpleParent (String name, IDLElement from) {
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::hasSimpleParent (" + name + ", " + from + ");");
+      Vector mm = from.getMembers ();
+      boolean is_in = false;
+      
+      if (isAbsoluteScopeName (name)) {
+	 // is absolute scoped name
+	 return hasSimpleParent (name.substring (name.lastIndexOf ("::") + 2, name.length ()), 
+				 findTopLevelModuleForType (name, from));
+      }
+      if (isScopeName (name)) {
+	 // is scoped name
+	 return hasSimpleParent (name.substring (name.lastIndexOf ("::") + 2, name.length ()), 
+				 findModuleForScopeType (name, from));
+      }
+      
+      for (int i=0; i<mm.size (); i++) {
+	 if (from.getMember (i) instanceof TypeElement) {
+	    if ((from.getMember (i).getMember (0) instanceof StructTypeElement)
+		|| (from.getMember (i).getMember (0) instanceof EnumTypeElement)
+		|| (from.getMember (i).getMember (0) instanceof UnionTypeElement)) {
+	       if (DEBUG)
+		  System.out.println ("constructed type");
+	       if (((TypeElement)from.getMember (i).getMember (0)).getName ()
+		   .equals (name)) {
+		  String type = ((TypeElement)from.getMember (i).getMember (0)).getType ();
+		  if (isScopeName (type)) {
+		     // is scoped type
+		     return hasSimpleParent 
+			(type.substring (type.lastIndexOf ("::") + 2, type.length ()), 
+			 findModuleForScopeType (type, from));
+		  }
+		  if (type2java (type) != null)
+		     return type2java (type);
+		  else 
+		     return hasSimpleParent (type, from);
+	       }
+	    }
+	    if (from.getMember (i).getMember (0) instanceof DeclaratorElement) {
+	       //
+	       // first member is DeclaratorElement e.g.  typedef long x;
+	       //
+	       if (DEBUG)
+		  System.out.println ("first declarator element");
+	       if (((TypeElement)from.getMember (i).getMember (0)).getName ()
+                   .equals (name)) {
+		  String type = ((TypeElement)from.getMember (i).getMember (0)).getType ();
+		  /*
+		    // nothing todo because in this case we can't have scoped name
+		  if (isScopeName (type)) {
+		     // is scoped type
+		     return hasSimpleParent 
+			(type.substring (type.lastIndexOf ("::") + 2, type.length ()), 
+			 findModuleForScopeType (type, from));
+		  }
+		  */
+		  if (type2java (type) != null)
+		     return type2java (type);
+		  else 
+		     return hasSimpleParent (type, from);
+	       }
+	    }
+	    if (from.getMember (i).getMembers ().size () > 1 
+		&& from.getMember (i).getMember (from.getMember (i).getMembers ().size () - 1) 
+		instanceof DeclaratorElement) {
+	       //
+	       // last member is DeclaratorElement e.g.  typedef haha x; or typedef mx::haha x;
+	       //                                     or typedef ::m1::m2::haha x; 
+	       //
+	       int last = from.getMember (i).getMembers ().size () - 1;
+	       if (DEBUG) {
+		  System.out.println ("last declarator element");
+		  System.out.println 
+		     ("name: " + ((TypeElement)from.getMember (i).getMember (last)).getName ());
+		  System.out.println
+		     ("type: " + ((TypeElement)from.getMember (i).getMember (last)).getType ());
+	       }
+	       if (((TypeElement)from.getMember (i).getMember (last)).getName ()
+                   .equals (name)) {
+		  String type = ((TypeElement)from.getMember (i).getMember (last)).getType ();
+		  if (DEBUG)
+		     System.out.println ("name: " + name + " is type: " + type);
+		  if (isAbsoluteScopeName (type)) {
+		     // is absolute scope type
+		     return hasSimpleParent 
+			(type.substring (type.lastIndexOf ("::") + 2, type.length ()),
+			 findTopLevelModuleForType (type, from));
+		  }
+		  if (isScopeName (type)) {
+		     // is scope type
+		     return hasSimpleParent 
+			(type.substring (type.lastIndexOf ("::") + 2, type.length ()), 
+			 findModuleForScopeType (type, from));
+		  }
+		  if (type2java (type) != null)
+		     return type2java (type);
+		  else 
+		     return hasSimpleParent (type, from);
+	       }
+	    }
+	 }
+      }
+      if (from.getParent () != null)
+	 return hasSimpleParent (name, from.getParent ());
+      return null;
+   }
+
+   
+   public IDLElement findModule (String name, IDLElement from) {
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::findModule (" + name + ", " + from + ");");
+      if (from.getName ().equals (name)) {
+	 return from;
+      }
+      else {
+	 if (findModuleIn (name, from) != null)
+	    return findModuleIn (name, from);
+	 else
+	    if (from.getParent () != null) {
+	       return findModule (name, from.getParent ());
+	    }
+	 return null;
+      }
+   }
+
+
+   public IDLElement findModuleIn (String name, IDLElement from) {
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::findModuleIn (" + name + ", " + from + ");");
+      Vector mm = from.getMembers ();
+      IDLElement retval = null;
+      for (int i=0; i<mm.size (); i++) {
+	 if (from.getMember (i) instanceof ModuleElement 
+	     || from.getMember (i) instanceof InterfaceElement) {
+	    if (((IDLElement)from.getMember (i)).getName ().equals (name)) {
+	       retval = from.getMember (i);
+	       break;
+	    }
+	 }
+      }
+
+      return retval;
+   }
+
+
+   public IDLElement findElementByName (String name, IDLElement from) {
+      // constructed type by name
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::findElementByName (" + name + ", " + from + " : "
+			     + from.getName () + ");");
+      //from = findType (name, from);
+      Vector mm = from.getMembers ();
+      IDLElement result = null;
+      result = findElementInElement (name, from);
+      if (result != null)
+	 return result;
+      else
+	 if (from.getParent () != null)
+	    return findElementByName (name, from.getParent ());
+      return null;
+   }
+
+
+   public IDLElement findModuleForScopeType (String name, IDLElement from) {
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::findModuleForScopeType (" + name + ", " + from + ");");
+      StringTokenizer st = new StringTokenizer (name, "::");
+      String retval = "";
+      String s1;
+      IDLElement fm = findModule (st.nextToken (), from);
+      while (st.hasMoreTokens ()) {
+	 s1 = st.nextToken ();
+	 if (st.hasMoreTokens ()) {
+	    // in s1 in module name
+	    fm = findModuleIn (s1, fm);
+	 } else {
+	    // in s1 is name of type 
+	    break;
+	 }
+      }
 	 
+      return fm;
+   }
+	 
+
+   public IDLElement findTopLevelModuleForType (String name, IDLElement from) {
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::findTopLevelModuleForType (" + name + ", " 
+			     + from + ");");
+      StringTokenizer st = new StringTokenizer (name, "::");
+      String retval = "";
+      String s1;
+      IDLElement fm = from;
+      // find top level IDLElement
+      while (fm.getParent () != null) {
+	 fm = fm.getParent ();
+      }
+      //fm = findModuleIn (st.nextToken (), from);
+      while (st.hasMoreTokens ()) {
+	 s1 = st.nextToken ();
+	 if (st.hasMoreTokens ()) {
+	    // in s1 in module name
+	    fm = findModuleIn (s1, fm);
+	 } else {
+	    // in s1 is name of type 
+	    break;
+	 }
+      }
+	 
+      return fm;
+   }
+	 
+
+   public String ctype2package (IDLElement type) {
+      // checking modules
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::ctype2package (" + type + ");");
+      String modules = "";
+      if (type != null) {
+	 Vector mods = new Vector ();
+	 mods.add (type.getName ());
+	 while (type.getParent () != null) {
+	    type = type.getParent ();
+	    if (type instanceof ModuleElement)
+	       mods.add (type.getName ());
+	    if (type instanceof InterfaceElement)
+	       mods.add (type.getName () + "Package");
+	    
+	 }
+	 // transform modules names from vector to string in package format
+	 for (int i=mods.size () - 1; i>=0; i--) {
+	    if (DEBUG)
+	       System.out.println ("transfrom: " + (String)mods.elementAt (i));
+	    modules = modules + (String)mods.elementAt (i) + ".";
+	 }
+	 // without last dot
+	 modules = modules.substring (0, modules.length () - 1);
+	 if (DEBUG)
+	    System.out.println ("result: >" + modules + "<");
+      }
+      return modules;
+   }
+
+
+   public Type isSimpleType (String type, IDLElement _element) {
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::isSimpleType (" + type + ", " + _element.getName () 
+			     + ");");
+      return type2java (type);
+   }
+
+
+   public String nameFromScopeName (String name) {
+      if (name != null) {
+	 if (name.lastIndexOf ("::") != -1) {
+	    return name.substring (name.lastIndexOf ("::") + 2, name.length ());
+	 }
+      }
+      return name;
+   }
+
+
+   public IDLElement findElementInElement (String name, IDLElement element) {
+      name = nameFromScopeName (name);
+      if (element == null)
+	 return null;
+
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::findElementInElement (" + name + ", " + element + " : "
+			     + element.getName () + ");");
+      Vector mm = element.getMembers ();
+      IDLElement tmp_element = null;
+
+      for (int i=0; i<mm.size (); i++) {
+	 if (element.getMember (i) instanceof TypeElement) {
+	    if ((element.getMember (i).getMember (0) instanceof StructTypeElement)
+		|| (element.getMember (i).getMember (0) instanceof EnumTypeElement)
+		|| (element.getMember (i).getMember (0) instanceof UnionTypeElement)) {
+	       if (DEBUG)
+		  System.out.println ("constructed type");
+	       if (((TypeElement)element.getMember (i).getMember (0)).getName ().equals (name)) {
+		  tmp_element = element.getMember (i).getMember (0);
+		  if (DEBUG)
+		     System.out.println ("element: " + tmp_element+ " : " + tmp_element.getName ());
+		  return tmp_element;
+	       }
+	    }
+	 }
+	 if (element.getMember (i) instanceof ExceptionElement) {
+	    if (DEBUG)
+	       System.out.println ("exception");
+	    if (((IDLElement)element.getMember (i)).getName ().equals (name)) {
+	       tmp_element = element.getMember (i);
+	       if (DEBUG)
+		  System.out.println ("element: " + tmp_element + " : " + tmp_element.getName ());
+	       return (IDLElement)tmp_element;
+	    
+	    }
+	 }
+      }
+      return null;
+   }
+
+
+   public Type type2java (String idl_type, int mode, String _package, InterfaceElement _interface) {
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::type2java (" + idl_type + ", " + mode + ", " 
+			     + _package + ", " + _interface.getName () + ");");
+      String name_of_interface = _interface.getName ();
+      String type_name;
+      Type type = null;
+      if (DEBUG)
+	 System.out.println ("-- is simple type?");
+      if ((type = isSimpleType (idl_type, _interface)) != null) {
+	 // idl_type is mapped to java simple type
+	 return type;
+      }
+      if (DEBUG)
+	 System.out.println ("-- is type with simple parent?");
+      if ((type = hasSimpleParent (idl_type, _interface)) != null) {
+	 // idl_type is mapped throw other idl type(s) to simple java type
+	 return type;
+      }
+      if (DEBUG)
+	 System.out.println ("cons: " + ctype2package (findElementByName (idl_type, _interface)));
+      
+      if (DEBUG)
+	 System.out.println ("-- is type with absolute scope name");
+      if (isAbsoluteScopeName (idl_type)) {
+	 // is absolute scoped name
+	 Type tmp_type;
+	 //if ((tmp_type = hasSimpleParent (idl_type, _interface)) != null)
+	 //   return tmp_type;
+	 IDLElement tmp = findTopLevelModuleForType (idl_type, _interface);
+	 //
+	 IDLElement element_for_type = findElementInElement (idl_type, tmp);
+	 String full_name = _package + "." + ctype2package (element_for_type);
+	 if (mode != Parameter.IN)
+	    full_name = full_name + "Holder";
+	 type = Type.createClass (org.openide.src.Identifier.create (full_name));
+				  
+	 /*
+	 type = Type.createClass (org.openide.src.Identifier.create 
+				  (scopedName2javaName (idl_type.substring 
+				  (2, idl_type.length ()), true)));	    
+	 */
+	 return type;
+      }
+      if (DEBUG)
+	 System.out.println ("-- is type with scope name");
+      if (isScopeName (idl_type)) {
+	 // find first module of this scoped type
+	 
+	 // is in module second module of this scoped type?
+	 
+	 // etc to simple type => is this simple type?
+	 Type tmp_type;
+	 IDLElement tmp = findModuleForScopeType (idl_type, _interface);
+	 IDLElement element_for_type = findElementInElement (idl_type, tmp);
+	 String full_name = _package + "." + ctype2package (element_for_type);
+	 if (mode != Parameter.IN)
+	    full_name = full_name + "Holder";
+	 type = Type.createClass (org.openide.src.Identifier.create (full_name));
+
+	 return type;
+	 
+      }
+      if (DEBUG)
+	 System.out.println ("-- is type normal name");
+      Type tmp_type;
+      IDLElement element_for_type = findElementByName (idl_type, _interface);
+      if (DEBUG)
+	 System.out.println ("element_for_type: " + element_for_type.getName () + " : " 
+			     + element_for_type);
+      String full_name = _package + "." + ctype2package (element_for_type);
+      if (mode != Parameter.IN)
+	 full_name = full_name + "Holder";
+      type = Type.createClass (org.openide.src.Identifier.create (full_name));
+      
+      return type;
+      
+      /*
+      if (DEBUG)
+	 System.out.println ("type is constructed or not simple");
+      String modules = modules2package (_interface);
+      if (DEBUG)
+	 System.out.println ("type is defined in modules: " + modules);
+      Type tmp_type;
+      if ((tmp_type = hasSimpleParent (idl_type, _interface)) != null) {
+	 return tmp_type;
+      }
+      if (isTypeDefinedIn (idl_type, _interface)) {
+	 if (DEBUG)
+	    System.out.println ("type is defined in interface");
+	 //type_name = _package + "." + _interface.getName () + "Package" + "." + idl_type;
+	 // for module support we must do
+	 type_name = _package + "." + modules + _interface.getName () + "Package" + "." 
+	    + idl_type;
+	 if ((mode == Parameter.INOUT) || (mode == Parameter.OUT))
+	    type_name = type_name + "Holder";
+      }
+      else {
+	 if (DEBUG)
+	    System.out.println ("type isn't defined in interface");
+	 //type_name = _package + "." + idl_type;
+	 // for module support we must do
+	 type_name = _package + "." + modules + idl_type;
+	 
+	 if ((mode == Parameter.INOUT) || (mode == Parameter.OUT))
+	    type_name = type_name + "Holder";
+      }
+      type = Type.createClass (org.openide.src.Identifier.create (type_name));
+     }
+     else {
+     // idl_type is simple type :-)
+     type = type2java (idl_type);
+     }
+      */     
+      //return null;
+   }
+
+
+
+   /*	 
    public Type type2java (String idl_type, int mode, String _package, InterfaceElement _interface) {
       String name_of_interface = _interface.getName ();
       String type_name;
       Type type = null;
       if (type2java (idl_type) == null) {
 	 // idl_type isn't simple
-	 if (isAbsoluteScopedName (idl_type)) {
+	 if (isAbsoluteScopeName (idl_type)) {
 	    type = Type.createClass (org.openide.src.Identifier.create 
 				     (scopedName2javaName (idl_type.substring 
 							   (2, idl_type.length ()), true)));	    
 	 }
 	 else {
-	    if (isScopedName (idl_type)) {
+	    if (isScopeName (idl_type)) {
 	       idl_type = scopedName2javaName (idl_type, false);
 	    }
 	    if (DEBUG)
                System.out.println ("type is constructed or not simple");
+	    String modules = modules2package (_interface);
+	    if (DEBUG)
+	       System.out.println ("type is defined in modules: " + modules);
 	    if (isTypeDefinedIn (_interface, idl_type)) {
 	       if (DEBUG)
 		  System.out.println ("type is defined in interface");
-	       type_name = _package + "." + _interface.getName () + "Package" + "." + idl_type;
+	       //type_name = _package + "." + _interface.getName () + "Package" + "." + idl_type;
+	       // for module support we must do
+	       type_name = _package + "." + modules + _interface.getName () + "Package" + "." 
+		  + idl_type;
 	       if ((mode == Parameter.INOUT) || (mode == Parameter.OUT))
 		  type_name = type_name + "Holder";
 	    }
 	    else {
 	       if (DEBUG)
 		  System.out.println ("type isn't defined in interface");
-	       type_name = _package + "." + idl_type;
+	       //type_name = _package + "." + idl_type;
+ 	       // for module support we must do
+	       type_name = _package + "." + modules + idl_type;
+
 	       if ((mode == Parameter.INOUT) || (mode == Parameter.OUT))
 		  type_name = type_name + "Holder";
 	    }
@@ -241,15 +768,17 @@ public class ImplGenerator {
       return type;
    }
 
+   */
+
    public String exception2java (String ex, String _package, InterfaceElement _interface) {
       String name_of_interface = _interface.getName ();
       String exc_name = "";
       String exc_type = null;
-      if (isAbsoluteScopedName (ex)) {
+      if (isAbsoluteScopeName (ex)) {
 	 exc_type = scopedName2javaName (ex.substring (2, ex.length ()), true);    
       }
       else {
-	 if (isScopedName (ex)) {
+	 if (isScopeName (ex)) {
 	    exc_name = _package + "." + scopedName2javaName (ex, false);
 	 }
 	 else {
@@ -314,8 +843,8 @@ public class ImplGenerator {
       InterfaceElement _interface = (InterfaceElement)operation.getParent ();
       Type rettype = type2java (operation.getReturnType (), Parameter.IN, _package, _interface);
       if (DEBUG) {
-	 System.out.println ("opeartion: " + operation.getName ());
-	 System.out.println ("opeartion rettype:" + operation.getReturnType () + ":"); 
+	 System.out.println ("operation: " + operation.getName ());
+	 System.out.println ("operation rettype:" + operation.getReturnType () + ":"); 
 	 System.out.println ("return type: " + rettype);
       }
       try {
@@ -351,8 +880,9 @@ public class ImplGenerator {
 	 }
 	 oper.setExceptions (excs);
 
-	 // set body to return null;
-	 oper.setBody ("\n  return null;\n");
+	 // set body to return null if rettype != void;
+	 if (oper.getReturn () != Type.VOID)
+	    oper.setBody ("\n  return null;\n");
 
 	 clazz.addMethod (oper);
       } catch (SourceException e) {
@@ -361,15 +891,60 @@ public class ImplGenerator {
 
    }
 
+   
+   public Vector getInterfaces (Vector elements) {
+      Vector retval = new Vector ();
+
+      for (int i=0; i<elements.size (); i++) {
+	 if (elements.elementAt (i) instanceof ModuleElement)
+	    retval.addAll (getInterfaces (((ModuleElement)elements.elementAt (i)).getMembers ()));
+	 if (elements.elementAt (i) instanceof InterfaceElement)
+	    retval.add ((InterfaceElement)elements.elementAt (i));
+      }
+      
+      return retval;
+   }
+
+
+   public void generate (InterfaceElement element, String name) {
+   }
+
+   public void synchronize (InterfaceElement element, String name) {
+   }
+
    public void interface2java (InterfaceElement element) {
       if (DEBUG)
 	 System.out.println ("interface2java: " + element.getName ());
       if (DEBUG)
          System.out.println ("name: " + ido.getPrimaryFile ().getName ());
 
-      String impl_name = IMPL_PREFIX + element.getName () + IMPL_POSTFIX;
-      String super_name = EXT_CLASS_PREFIX + element.getName () + EXT_CLASS_POSTFIX;
+      String impl_name = "";
+      String super_name = "";
+      String modules = modules2package (element);
       String _package = ido.getPrimaryFile ().getParent ().getPackageName ('.'); 
+      
+      if (DEBUG) {
+	 System.out.println ("modules:>" + modules + "<");
+	 System.out.println ("package:>" + _package + "<");
+      }
+
+      if (!TIE) {
+	 impl_name = IMPLBASE_IMPL_PREFIX + element.getName () + IMPLBASE_IMPL_POSTFIX;
+	 if (where_generate == IN_IDL_PACKAGE)
+	    super_name = _package + "." + modules + EXT_CLASS_PREFIX + element.getName () 
+	       + EXT_CLASS_POSTFIX;
+	 else
+	    super_name = EXT_CLASS_PREFIX + element.getName () + EXT_CLASS_POSTFIX;
+      }
+      else {
+	 impl_name = TIE_IMPL_PREFIX + element.getName () + TIE_IMPL_POSTFIX;
+	 if (where_generate == IN_IDL_PACKAGE)
+	    super_name = _package + "." + modules + IMPL_INT_PREFIX + element.getName () 
+	       + IMPL_INT_POSTFIX;
+	 else
+	    super_name = IMPL_INT_PREFIX + element.getName () + IMPL_INT_POSTFIX;
+      }
+
 
       Vector members = element.getMembers ();
 
@@ -406,7 +981,11 @@ public class ImplGenerator {
 
 	 ClassElement clazz = new ClassElement ();
 	 clazz.setName (org.openide.src.Identifier.create (impl_name));
-	 clazz.setSuperclass (org.openide.src.Identifier.create (super_name));
+	 if (!TIE)
+	    clazz.setSuperclass (org.openide.src.Identifier.create (super_name));
+	 else
+	    clazz.setInterfaces (new org.openide.src.Identifier[] 
+				 {org.openide.src.Identifier.create (super_name)} );
 	 //java_src.addClass (clazz);
 	 //java_src.addClasses (new ClassElement[] { clazz });
 
@@ -434,7 +1013,8 @@ public class ImplGenerator {
    public void generate () {
       if (DEBUG)
 	 System.out.println ("generate :-))");
-      Vector members = src.getMembers ();
+      //Vector members = src.getMembers ();     // update for working with modules :-))
+      Vector members = getInterfaces (src.getMembers ());
       for (int i=0; i<members.size (); i++) {
 	 if (members.elementAt (i) instanceof InterfaceElement)
 	    interface2java ((InterfaceElement)members.elementAt (i));
@@ -443,6 +1023,20 @@ public class ImplGenerator {
 
    
    public static void main (String[] args) {
+      try {
+	 IDLParser parser = new IDLParser (new FileInputStream (args[0]));
+
+	 IDLElement src = (IDLElement)parser.Start ();
+
+	 ImplGenerator generator = new ImplGenerator ();
+	 generator.setSources (src);
+	 generator.generate ();
+
+      } catch (Exception e) {
+	 e.printStackTrace ();
+      }
+
+      
    }
 
 }
@@ -452,3 +1046,14 @@ public class ImplGenerator {
  * $Log
  * $
  */
+
+
+
+
+
+
+
+
+
+
+
