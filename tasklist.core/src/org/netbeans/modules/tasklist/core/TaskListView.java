@@ -799,6 +799,9 @@ public abstract class TaskListView extends ExplorerPanel
     public static TaskListView getCurrent() {
 	// Try to figure out which view is current. If none is found to
 	// be visible, guess one.
+        if (views == null) {
+            return null;
+        }
 	Collection vs = views.values();
 	Iterator it = vs.iterator();
 	TaskListView first = null;
