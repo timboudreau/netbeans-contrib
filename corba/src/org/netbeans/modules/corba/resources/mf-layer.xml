@@ -17,16 +17,16 @@ Microsystems, Inc. All Rights Reserved.
 <filesystem>
 	<folder name="Templates">
 		<folder name="CORBA">
-			<file name="ClientMain.java" url="templates/ClientMain.java">
+			<file name="ClientMain.java" url="templates/ClientMain.jtemplate">
 				<attr name = "template" boolvalue="true"/>
 			</file>
-			<file name="Empty.idl" url="templates/Empty.idl">
+			<file name="Empty.idl" url="templates/Empty.itemplate">
 				<attr name = "template" boolvalue="true"/>
 			</file>
-			<file name="ServerMain.java" url="templates/ServerMain.java">
+			<file name="ServerMain.java" url="templates/ServerMain.jtemplate">
 				<attr name = "template" boolvalue="true"/>
 			</file>
-			<file name="Simple.idl" url="templates/Simple.idl">
+			<file name="Simple.idl" url="templates/Simple.itemplate">
 				<attr name = "template" boolvalue="true"/>
 			</file>
 		</folder>
