@@ -202,28 +202,61 @@ Microsystems, Inc. All Rights Reserved.
     </variable>
     <variable name="DO_PVCS_CHECKOUT" basic="false">
       <value></value>
+    </variable>
+    <variable name="INITIAL_CO_PROJECT" basic="false">
+      <value>/</value>
+    </variable>  
+    <variable name="INITIAL_CO_SHOULD_LOCK" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_WRITABLE" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_REVISION" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_VERSION" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_DO_CHECKOUT_BY_DATE" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_CHECKOUT_BY_DATE" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_DATE_AFTER" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_DATE_BEFORE" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_SET_CURR_TIME" basic="false">
+      <value></value>
+    </variable>  
+    <variable name="INITIAL_CO_RECURSIVE" basic="false">
+      <value></value>
     </variable>  
     <variable name="WIZARD_INPUT_DESCRIPTOR1" basic="false">
-      <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))                 
-                 PROMPT_FOR(PROJECT, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Project)", "/",
+      <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
+                 PROMPT_FOR(INITIAL_CO_PROJECT, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Project)", "/",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Project);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_GET_Project_Mnemonic)))                 
-                 ASK_FOR(SHOULD_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
-                 ASK_FOR(WRITABLE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
-                 PROMPT_FOR_EXPERT(REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Revision), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
-                 PROMPT_FOR_EXPERT(VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Version), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Version);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Version_mnc)))
-                 ASK_FOR_EXPERT(DO_CHECKOUT_BY_DATE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_ByDate), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_ByDate);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_ByDate_mnc)), ENABLE(CHECKOUT_BY_DATE))
-                 SELECT_RADIO_EXPERT(CHECKOUT_BY_DATE, "", "-u",
+                 ASK_FOR(INITIAL_CO_SHOULD_LOCK, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
+                 ASK_FOR(INITIAL_CO_WRITABLE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
+                 PROMPT_FOR_EXPERT(INITIAL_CO_REVISION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Revision), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
+                 PROMPT_FOR_EXPERT(INITIAL_CO_VERSION, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Version), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Version);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Version_mnc)))
+                 ASK_FOR_EXPERT(INITIAL_CO_DO_CHECKOUT_BY_DATE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_ByDate), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_ByDate);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_ByDate_mnc)), ENABLE(CHECKOUT_BY_DATE))
+                 SELECT_RADIO_EXPERT(INITIAL_CO_CHECKOUT_BY_DATE, "", "-u",
                   [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_NewerThanWork), "-u", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_NewerThanWork);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_NewerThanWork_mnc))],
                   [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_NewerThan), "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_NewerThan);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_NewerThan_mnc)),
-                    PROMPT_FOR_EXPERT(DATE_AFTER, "")],
+                    PROMPT_FOR_EXPERT(INITIAL_CO_DATE_AFTER, "")],
                   [getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_InBefore), "D", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_InBefore);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_InBefore_mnc)),
-                    PROMPT_FOR_EXPERT(DATE_BEFORE, "")])
-                 ASK_FOR_EXPERT(SET_CURR_TIME, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_SetCurrTime), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_SetCurrTime);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_SetCurrTime_mnc)), "-t", "")
-                 ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Recursive), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
+                    PROMPT_FOR_EXPERT(INITIAL_CO_DATE_BEFORE, "")])
+                 ASK_FOR_EXPERT(INITIAL_CO_SET_CURR_TIME, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_SetCurrTime), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_SetCurrTime);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_SetCurrTime_mnc)), "-t", "")
+                 ASK_FOR(INITIAL_CO_RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Recursive), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
           </value>
     </variable>
     <variable name="AUTO_EXEC"> <!-- executed after filesystem instantiation if defined -->
-      <value>$[? DO_PVCS_CHECKOUT][CHECKOUT][]</value>
+      <value>$[? DO_PVCS_CHECKOUT][INITIAL_CHECKOUT][]</value>
     </variable>
   </variables>
   <commands>
@@ -447,6 +480,42 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="generalCommandActionDisplayName">
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_GENERAL_ACTION_UPDATE)</value>
+        </property>
+      </command>
+      <command name="INITIAL_CHECKOUT">
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="Get ${PRIDPP} ${INITIAL_CO_RECURSIVE} ${INITIAL_CO_SHOULD_LOCK} ${INITIAL_CO_WRITABLE} $[? INITIAL_CO_REVISION] [-r${INITIAL_CO_REVISION}] [] $[? INITIAL_CO_VERSION] [-v${QUOTE}${INITIAL_CO_VERSION}${QUOTE}] [] $[? INITIAL_CO_DO_CHECKOUT_BY_DATE] [$[? INITIAL_CO_CHECKOUT_BY_DATE] [$[? INITIAL_CO_CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${INITIAL_CO_CHECKOUT_BY_DATE}] [-d${INITIAL_CO_DATE_BEFORE}]] [-u${INITIAL_CO_DATE_AFTER}]] [] ${INITIAL_CO_SET_CURR_TIME} ${QUOTE}${INITIAL_CO_PROJECT}${QUOTE}"/>
+        </run>
+	<property name="onDir">
+	  <value>true</value>
+	</property>
+	<property name="onRoot">
+	  <value>true</value>
+	</property>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+        </property>
+	<property name="displayInteractive">
+	  <value>true</value>
+	</property>
+	<property name="data.regex">
+	  <value>$ ^</value>
+	</property>
+	<property name="error.regex">
+	  <value>$ ^</value>
+	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
+        <property name="refreshRecursivelyPatternMatched">
+          <value>-z</value>
+        </property>
+        <property name="refreshOnFail">
+          <value>2</value>
         </property>
       </command>
       <separator />
