@@ -418,7 +418,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
     }
     
     private TaskTag getTag(CharSequence text, int start, int end) {
-        TaskTag tag = settings().getTaskTags().getTag(text, start, end);
+        TaskTag tag = settings().getTaskTags().getTag(text, start+1, (end - start)-1);
         return tag;
     }    
 

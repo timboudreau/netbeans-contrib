@@ -63,7 +63,7 @@ public final class TaskTags implements Externalizable {
     private static boolean same(String s1, CharSequence s2, int start, int len) {
         if (s1.length() != len) return false;
         for (int i = 0; i<len; i++) {
-            if (s1.charAt(i) != s2.charAt(start+1)) return false;
+            if (s1.charAt(i) != s2.charAt(start+i)) return false;
         }
         return true;
     }
