@@ -219,6 +219,9 @@ Microsystems, Inc. All Rights Reserved.
                  ASK_FOR(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_CHECKOUT_Recursive), "true", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_CHECKOUT_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_COMMAND_PVCS_CHECKOUT_Recursive_mnc)), "-z", "")
           </value>
     </variable>
+    <variable name="AUTO_EXEC"> <!-- executed after filesystem instantiation if defined -->
+      <value>$[? DO_PVCS_CHECKOUT][CHECKOUT][]</value>
+    </variable>
   </variables>
   <commands>
     <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS)">

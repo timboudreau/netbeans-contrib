@@ -30,8 +30,7 @@ import org.netbeans.modules.vcscore.registry.FSRegistry;
  * @author  Richard Gregor
  */
 public class PvcsGlobalRegister extends Object implements VcsAdditionalCommand {
- 
-    private static final String ROOT_DIR = "ROOTDIR"; // NOI18N     
+  
     private CommandExecutionContext context = null;
     
     public void setExecutionContext(CommandExecutionContext context){                
