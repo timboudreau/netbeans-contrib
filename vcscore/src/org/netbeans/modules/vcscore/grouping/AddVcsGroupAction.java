@@ -35,7 +35,7 @@ public class AddVcsGroupAction extends NodeAction {
              NbBundle.getBundle(AddVcsGroupAction.class).getString("AddVcsGroupAction.groupNameTitle"));//NOI18N
         Object retValue = TopManager.getDefault().notify(line);
         String newName = line.getInputText();
-        DataFolder rootFolder = MainVcsGroupNode.getMainVcsGroupFolder();
+        DataFolder rootFolder = GroupUtils.getMainVcsGroupFolder();
         if (rootFolder != null) {
             try {
                 FileObject fo = rootFolder.getPrimaryFile();

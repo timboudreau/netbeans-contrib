@@ -89,31 +89,7 @@ public class MainVcsGroupChildren extends Children.Keys  {
         return getDefaultGroupNode();
     }
     
-    /**
-     * the method checks final the specified dataobject is already 
-     * in any of the groups. if so, returns the shadow data object.
-     * Otherwise returns null
-     */
-    
-    public static DataShadow findDOInGroups(DataObject dataObj) {
-        FileSystem fs = TopManager.getDefault().getRepository().getDefaultFileSystem();
-        FileObject rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
-        Enumeration enum = rootFo.getData(true);
-        while (enum.hasMoreElements()) {
-            FileObject fo = (FileObject)enum.nextElement();
-            try {
-                DataObject dobj = DataObject.find(fo);
-                if (dobj.getClass().equals(DataShadow.class)) {
-                    DataShadow shadow = (DataShadow)dobj;
-                    if (shadow.getOriginal().equals(dataObj)) {
-                        return shadow;
-                    }
-                }
-            } catch (DataObjectNotFoundException exc) {
-            }
-        }
-        return null;
-    }
+
     
     private Node createVcsGroupNode(FileObject fo) {
         DataFolder fold = null;

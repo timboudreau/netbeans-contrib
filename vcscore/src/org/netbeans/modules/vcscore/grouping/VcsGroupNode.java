@@ -22,7 +22,7 @@ public class VcsGroupNode extends AbstractNode {
     public static final String PROPFILE_EXT = "properties"; //NOI18N
     private DataFolder groupDO;
     private String groupName;
-    private String groupDescription;
+    private String groupDescription = "";
 //    private static ShadowOnlyDataFilter SHADOW_ONLY = new ShadowOnlyDataFilter();
     
     public VcsGroupNode(DataFolder dobj) {
@@ -41,7 +41,7 @@ public class VcsGroupNode extends AbstractNode {
             } catch (IOException exc) {
                 System.out.println("io exc, while preading props for group");
             } catch (MissingResourceException exc3) {
-                System.out.println("msr exc, while preading props for group");
+//                System.out.println("msr exc, while preading props for group");
             }
         }
     }

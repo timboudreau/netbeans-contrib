@@ -88,7 +88,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
     public void actionPerformed(java.awt.event.ActionEvent e){    
         //        System.out.println("Performing cvs command.. :)");
         Node root = null;
-        root = MainVcsGroupNode.getMainVcsGroupNodeInstance();
+        root = GroupUtils.getMainVcsGroupNodeInstance();
 /*        FileSystem defFs = TopManager.getDefault().getRepository().getDefaultFileSystem();
         FileObject fo = defFs.findResource(MainVcsGroupNode.GROUPS_PATH + "/org-netbeans-modules-vcscore-grouping-MainVcsGroupNode.instance");
         if (fo != null) {
@@ -108,29 +108,72 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
             return;
         }        
  */
-        ExplorerPanel panel = new ExplorerPanel();
+        ExplorerPanel panel = null; 
         Workspace workspace = TopManager.getDefault().getWindowManager().getCurrentWorkspace();
-        Mode myMode = workspace.findMode(panel);
+        String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
+        Mode myMode = workspace.findMode(MODE_NAME);
+        boolean newPan = false;
         if (myMode == null) {
                 // create new mode for CI and set the bounds properly
-            String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
             myMode = workspace.createMode(MODE_NAME, modeName, null); //NOI18N
                 /*
                 Rectangle workingSpace = workspace.getBounds();
                 myMode.setBounds(new Rectangle(workingSpace.x +(workingSpace.width * 3 / 10), workingSpace.y,
                                                workingSpace.width * 2 / 10, workingSpace.height / 2));
                */
+            newPan = true;
+        } else {
+            TopComponent[] comps = myMode.getTopComponents();
+            if (comps != null)  {
+                for (int i = 0; i < comps.length; i++) {
+                    if (comps[i] instanceof GroupExplorerPanel) {
+                        panel = (GroupExplorerPanel)comps[i];
+                        break;
+                    }
+                }
+            }
+        }
+        if (panel == null) {
+            panel = new GroupExplorerPanel();            
+        }
+        if (newPan) {
             myMode.dockInto(panel);
-        }        
-        ExplorerManager manager = panel.getExplorerManager();
-
-        manager.setRootContext(root);
-        panel.add(new BeanTreeView());
-        ExplorerActions actions = new ExplorerActions();
-        actions.attach(manager);
+        }
         panel.open(TopManager.getDefault().getWindowManager().getCurrentWorkspace());
     }
     
 
+    public static class GroupExplorerPanel extends ExplorerPanel {
+        
+        public void open() {
+            if (!isOpened()) {
+                Node root = null;
+                root = GroupUtils.getMainVcsGroupNodeInstance();
+                ExplorerManager manager = getExplorerManager();
+                
+                manager.setRootContext(root);
+                add(new BeanTreeView());
+                ExplorerActions actions = new ExplorerActions();
+                actions.attach(manager);
+            }
+            super.open();
+        }
+        
+        public void open(org.openide.windows.Workspace workspace) {
+            if (!isOpened()) {
+                Node root = null;
+                root = GroupUtils.getMainVcsGroupNodeInstance();
+                ExplorerManager manager = getExplorerManager();
+                
+                manager.setRootContext(root);
+                add(new BeanTreeView());
+                ExplorerActions actions = new ExplorerActions();
+                actions.attach(manager);
+            }
+            super.open(workspace);
+        }
+        
+    }
+    
 }
 

@@ -95,7 +95,7 @@ public class AddToGroupAction extends NodeAction {
         }
         HelpCtx.setHelpIDString (menu, AddToGroupAction.class.getName ());
         JMenuItem item=null;
-        DataFolder folder = MainVcsGroupNode.getMainVcsGroupFolder();
+        DataFolder folder = GroupUtils.getMainVcsGroupFolder();
         FileObject foFolder = folder.getPrimaryFile();
         Enumeration children = foFolder.getData(false);
         boolean hasAny = false;
@@ -118,12 +118,14 @@ public class AddToGroupAction extends NodeAction {
             }
         }
         if (!hasAny) {
-            menu.add(createItem("default", MainVcsGroupNode.getMainVcsGroupNodeInstance().getDefaultGroupInstance().getDisplayName()));
+            menu.add(createItem("default", GroupUtils.getDefaultGroupInstance().getDisplayName()));
         }
-        JMenuItem[] menus = new JMenuItem[1];
+/*        JMenuItem[] menus = new JMenuItem[1];
         menus[0] = menu;
         inlineMenu.setMenuItems(menus);
         return inlineMenu;
+ */
+        return menu;
     }
 
     //-------------------------------------------
@@ -147,7 +149,7 @@ public class AddToGroupAction extends NodeAction {
                 adding = false;
             }
         }
-        DataFolder folder = MainVcsGroupNode.getMainVcsGroupFolder();
+        DataFolder folder = GroupUtils.getMainVcsGroupFolder();
         DataObject[] children = folder.getChildren();
         if (children == null || children.length == 0) {
             return false;
@@ -177,71 +179,8 @@ public class AddToGroupAction extends NodeAction {
         }
     }
     
-    /**
-     * Add the array of nodes to the default group..
-     */
-    public static void addToDefaultGroup(Node[] nodes) {
-       VcsGroupNode node = MainVcsGroupNode.getMainVcsGroupNodeInstance().getDefaultGroupInstance(); 
-       DataFolder fold = (DataFolder)node.getCookie(DataObject.class);
-       if (fold != null) {
-           addToGroup(fold, nodes);
-       }
-    }
-    
-    private static void addToGroup(DataFolder group, Node[] nodes) {
-        List okFiles = new LinkedList();
-        List badGroup = new LinkedList();
-        for(int i = 0; i < nodes.length; i++) {
-            //D.deb("nodes["+i+"]="+nodes[i]); // NOI18N
-            DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-            if (dd != null) {
-                DataShadow shadow = MainVcsGroupChildren.findDOInGroups(dd);
-                if (shadow != null) {
-                    if (!group.equals(shadow.getFolder())) {
-                    //TODO warning.. some files are already in groups
-                        badGroup.add(shadow);
-                        System.out.println("already in another group " + shadow.getOriginal().getName());
-                    }
-                } else {
-                    okFiles.add(dd);
-                }
-                
-            }
-        }
-        if (badGroup.size() > 0) {
-            NotifyDescriptor.Confirmation conf = new NotifyDescriptor.Confirmation(
-                NbBundle.getBundle(AddToGroupAction.class).getString("AddToGroupAction.moveToGroupQuestion"),
-                NotifyDescriptor.YES_NO_CANCEL_OPTION);
-            Object retValue = TopManager.getDefault().notify(conf);
-            if (retValue.equals(NotifyDescriptor.CANCEL_OPTION)) {
-                return;
-            }
-            if (retValue.equals(NotifyDescriptor.YES_OPTION)) {
-                Iterator it = badGroup.iterator();
-                while (it.hasNext()) {
-                    DataShadow oldShadow = (DataShadow)it.next();
-                    DataObject obj = oldShadow.getOriginal();
-                    try {
-                        oldShadow.delete();
-                        obj.createShadow(group);
-                    } catch (IOException exc) {
-                        //TODO warning..
-                        System.out.println("operation could not be completed.");
-                    }
-                }
-            }
-        }
-        Iterator it = okFiles.iterator();
-        while (it.hasNext()) {
-            try {
-                DataObject obj = (DataObject)it.next();
-                DataShadow shadow = obj.createShadow(group);
-            } catch (java.io.IOException exc) {
-                //TODO warning
-                System.out.println("cannot create shadow");
-            }
-        }
-    }
+
+
     
     
         /** Fires operation event to data loader pool.
@@ -256,7 +195,7 @@ public class AddToGroupAction extends NodeAction {
 
     private void movePerformed(java.awt.event.ActionEvent actionEvent) {
         String groupName = actionEvent.getActionCommand();
-        Node grFolder = MainVcsGroupNode.getMainVcsGroupNodeInstance();
+        Node grFolder = GroupUtils.getMainVcsGroupNodeInstance();
         Node[] dobjs = grFolder.getChildren().getNodes();
         DataFolder group = null;
         if (dobjs == null) return;
@@ -289,7 +228,7 @@ public class AddToGroupAction extends NodeAction {
     
     private void addPerformed(java.awt.event.ActionEvent actionEvent) {
         String groupName = actionEvent.getActionCommand();
-        Node grFolder = MainVcsGroupNode.getMainVcsGroupNodeInstance();
+        Node grFolder = GroupUtils.getMainVcsGroupNodeInstance();
         Node[] dobjs = grFolder.getChildren().getNodes();
         DataFolder group = null;
         if (dobjs == null) return;
@@ -302,7 +241,7 @@ public class AddToGroupAction extends NodeAction {
         }
         if (group == null) return;
         Node[] nodes = getActivatedNodes();
-        addToGroup(group, nodes);
+        GroupUtils.addToGroup(group, nodes);
     }
 
     

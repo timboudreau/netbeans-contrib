@@ -56,18 +56,7 @@ public class MainVcsGroupNode extends AbstractNode   {
          
     }
     
-    public static DataFolder getMainVcsGroupFolder() {
-        FileSystem fs = TopManager.getDefault().getRepository().getDefaultFileSystem();
-        FileObject rootFo = fs.findResource(GROUPS_PATH);
-        DataFolder fold = null;
-        try {
-            fold = (DataFolder)DataObject.find(rootFo);
-        } catch (DataObjectNotFoundException exc) {
-            return null;
-        }
-        return fold;
-        
-    }
+
     
     
     // Create the popup menu:
@@ -321,34 +310,6 @@ public class MainVcsGroupNode extends AbstractNode   {
         return new MainVcsGroupNodeHandle();
     }    
 
-    
-    public VcsGroupNode getDefaultGroupInstance() {
-        MainVcsGroupChildren child = (MainVcsGroupChildren)getChildren();
-        return child.getDefaultGroupNode();
-    }
-
-    
-    public static MainVcsGroupNode getMainVcsGroupNodeInstance() {
-        MainVcsGroupNode root = null;
-        FileSystem defFs = TopManager.getDefault().getRepository().getDefaultFileSystem();
-        FileObject fo = defFs.findResource(GROUPS_PATH + "/org-netbeans-modules-vcscore-grouping-MainVcsGroupNode.instance");//NOI18N
-        if (fo != null) {
-            DataObject dobj;
-            try {
-                dobj = DataObject.find(fo);
-            } catch (DataObjectNotFoundException exc) {
-                dobj = null;
-            }
-            if (dobj != null && dobj instanceof InstanceDataObject) {
-                InstanceDataObject ido = (InstanceDataObject)dobj;
-                InstanceCookie cook = (InstanceCookie)ido.getCookie(InstanceCookie.class);
-                root = (MainVcsGroupNode)ido.getNodeDelegate();
-            }
-        }
-        return root;
-    }
-    
-    
     
     // Note that this class should be static and is serializable:
     private static class MainVcsGroupNodeHandle implements Node.Handle {

@@ -83,7 +83,7 @@ public class RemoveVcsGroupAction extends NodeAction {
         HelpCtx.setHelpIDString (menu, RemoveVcsGroupAction.class.getName ());
 
         JMenuItem item=null;
-        DataFolder folder = MainVcsGroupNode.getMainVcsGroupFolder();
+        DataFolder folder = GroupUtils.getMainVcsGroupFolder();
         FileObject foFolder = folder.getPrimaryFile();
         Enumeration children = foFolder.getData(false);
         while (children.hasMoreElements()) {
@@ -122,7 +122,7 @@ public class RemoveVcsGroupAction extends NodeAction {
     }    
 
     protected boolean enable(org.openide.nodes.Node[] node) {
-        FileObject folder = MainVcsGroupNode.getMainVcsGroupFolder().getPrimaryFile();
+        FileObject folder = GroupUtils.getMainVcsGroupFolder().getPrimaryFile();
         Enumeration children = folder.getFolders(false);
         if (children.hasMoreElements()) {
             return true;
@@ -133,7 +133,7 @@ public class RemoveVcsGroupAction extends NodeAction {
 
     public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
         String groupName = actionEvent.getActionCommand();
-        Node grFolder = MainVcsGroupNode.getMainVcsGroupNodeInstance();
+        Node grFolder = GroupUtils.getMainVcsGroupNodeInstance();
         Node[] dobjs = grFolder.getChildren().getNodes();
         DataFolder group = null;
         if (dobjs == null) return;
