@@ -228,10 +228,11 @@ public class GetInitializationVariable extends Object implements VcsAdditionalCo
      * @return The variable value, or <code>null</code> when the variable of that name was not found.
      */
     public static String getValueFromLine(int index, String line) {
-        while (Character.isWhitespace(line.charAt(index))) index++;
-        if (line.charAt(index++) != '=') return null;
-        while (Character.isWhitespace(line.charAt(index))) index++;
-        return line.substring(index).trim();
+        int n = line.length();
+        while (index < n && Character.isWhitespace(line.charAt(index))) index++;
+        if (index >= n || line.charAt(index++) != '=') return null;
+        while (index < n && Character.isWhitespace(line.charAt(index))) index++;
+        return (index < n) ? line.substring(index).trim() : "";
     }
     
 }
