@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -43,6 +44,7 @@ import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 import org.netbeans.modules.vcs.advanced.Profile;
 import org.netbeans.modules.vcs.advanced.ProfilesFactory;
+import org.netbeans.modules.vcs.advanced.projectsettings.CommandLineVcsFileSystemInstance;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariablesUpdater;
 import org.netbeans.modules.vcscore.VcsFileSystem;
@@ -52,6 +54,8 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.loaders.InstanceDataObject;
+import org.openide.modules.ModuleInfo;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -72,8 +76,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
     private transient Reference fileSystemRef = new WeakReference(null);
     private transient PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
     private transient VetoableChangeSupport vchangeSupport = new VetoableChangeSupport(this);
-    private transient DataFolder settingsFolder;
-    
+    private transient DataFolder settingsFolder;   
     static final long serialVersionUID = 8679717370363337670L;
     /**
      * Creates a new instance of CommandLineVcsFileSystemInfo.
@@ -96,9 +99,34 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
         this.root = fileSystem.getWorkingDirectory();
         this.profileName = fileSystem.getProfile().getName();
         fileSystem.addPropertyChangeListener(WeakListeners.propertyChange(this,fileSystem));
+        String moduleCodeName = (String)fileSystem.getVariablesAsHashtable().get(CommandLineVcsFileSystemInstance.MODULE_INFO_CODE_NAME_BASE_VAR);
+        if(moduleCodeName != null)
+            attachModuleListener(moduleCodeName);        
         fileSystemRef = new WeakReference(fileSystem);
         initSettingsFolder();
         storeFSSettings(fileSystem);
+    }
+    
+    /**
+     *Finds a module providing filesystem and attaches listener to it
+     *to listen when module is disabled.
+     */
+    private void attachModuleListener(String moduleCodeName){        
+        Lookup.Result result = Lookup.getDefault().lookup(new Lookup.Template(ModuleInfo.class));
+        Collection modules = result.allInstances(); 
+        Iterator it = modules.iterator();
+        ModuleInfo info = null;
+        while(it.hasNext()){
+            info = (ModuleInfo)it.next();
+            if(info == null)
+                continue;
+            if(info.getCodeNameBase().equals(moduleCodeName)){                
+                break;
+            }
+        }
+        if(info != null){            
+            info.addPropertyChangeListener(new ModuleDisabledListener());           
+        }
     }
     
     private void initSettingsFolder() {
@@ -345,7 +373,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
         vchangeSupport.removeVetoableChangeListener(l);
     }
     
-    public void addPropertyChangeListener(PropertyChangeListener l) {
+    public void addPropertyChangeListener(PropertyChangeListener l) {       
         changeSupport.addPropertyChangeListener(l);
     }
     
@@ -353,7 +381,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
         changeSupport.removePropertyChangeListener(l);
     }
  
-    public void setControl(boolean value) {
+    public void setControl(boolean value) {        
         if (control != value) {
             control = value;
             changeSupport.firePropertyChange(FSInfo.PROP_CONTROL, !control, control);
@@ -372,4 +400,13 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
         initSettingsFolder();
     }
     
+    private final class ModuleDisabledListener implements PropertyChangeListener{
+        
+        public void propertyChange(PropertyChangeEvent evt) {
+            if(ModuleInfo.PROP_ENABLED.equals(evt.getPropertyName())){
+                CommandLineVcsFileSystemInfo.this.setControl(((ModuleInfo)evt.getSource()).isEnabled());
+            }
+        }
+        
+    }
 }

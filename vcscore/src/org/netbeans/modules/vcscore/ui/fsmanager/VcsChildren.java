@@ -18,6 +18,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ResourceBundle;
 import javax.swing.Action;
@@ -81,7 +82,15 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
     
     private Object[] getVcsFileSystems() {           
         debug("getVcsFileSystems");
+        //filter those which are isControl
+        ArrayList list = new ArrayList();        
         FSInfo info[] = registry.getRegistered();
+        for(int i=0; i< info.length; i++){
+            if(info[i].isControl())                
+                list.add(info[i]);            
+        }
+        
+        info = (FSInfo[]) list.toArray(new FSInfo[0]);
         return info;
     }
 
@@ -115,7 +124,7 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
         setKeys(getVcsFileSystems());
     }
     
-    static class FSInfoBeanNode extends AbstractNode implements PropertyChangeListener {
+    class FSInfoBeanNode extends AbstractNode implements PropertyChangeListener {
         private FSInfo info;
         
         public FSInfoBeanNode(FSInfo info) throws IntrospectionException{        
@@ -189,7 +198,8 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
             if (FSInfo.PROP_ROOT.equals(evt.getPropertyName())) {
                 setName(info.getFSRoot().toString());
                 setDisplayName(info.getFSRoot().toString());
-            }
+            }else if(FSInfo.PROP_CONTROL.equals(evt.getPropertyName()))
+                VcsChildren.this.resetKeys();
         }        
         
         
