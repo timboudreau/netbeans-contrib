@@ -123,7 +123,7 @@ public final class SuggestionsScanner {
                 if (progressMonitor == null) {
                     // XXX stil strange that possibly backgournd process writes directly to UI
                     StatusDisplayer.getDefault().setStatusText(
-                            NbBundle.getMessage(ScanSuggestionsAction.class,
+                            NbBundle.getMessage(SuggestionsScanner.class,
                                     "ScanningFolder", // NOI18N
                                     f.getPrimaryFile().getNameExt()));
                 } else {
@@ -153,7 +153,7 @@ public final class SuggestionsScanner {
                 if (progressMonitor == null) {
                     // XXX stil strange that possibly backgournd process writes directly to UI
                     StatusDisplayer.getDefault().setStatusText(
-                            NbBundle.getMessage(ScanSuggestionsAction.class,
+                            NbBundle.getMessage(SuggestionsScanner.class,
                                     "ScanningFile", // NOI18N
                                     f.getPrimaryFile().getNameExt()));
                 }

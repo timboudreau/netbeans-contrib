@@ -13,35 +13,21 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import java.util.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.io.IOException;
 import javax.swing.*;
 
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.*;
-import org.openide.loaders.DataObject;
-import org.openide.ErrorManager;
-import org.openide.nodes.Node;
-import org.openide.cookies.InstanceCookie;
-import org.openide.windows.Mode;
-import org.openide.windows.WindowManager;
-import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.filesystems.*;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
 import org.netbeans.modules.tasklist.suggestions.SuggestionManagerImpl;
-import org.netbeans.modules.tasklist.suggestions.SuggestionList;
 import org.netbeans.modules.tasklist.suggestions.SuggestionsScanner;
-import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
-import org.netbeans.modules.tasklist.core.TaskListView;
 
 /**
  * Opens window with scanned project source tasks.
  *
  * @author Petr Kuzel
  */
-public class SourceTasksAction extends CallableSystemAction {
+public final class SourceTasksAction extends CallableSystemAction {
+
     protected boolean asynchronous() {
         return false;
     }
@@ -67,162 +53,9 @@ public class SourceTasksAction extends CallableSystemAction {
 
         view.showInMode();
         RepaintManager.currentManager(view).paintDirtyRegions();
-        scanTasksAsync(view);
+        SourceTasksScanner.scanTasksAsync(view);  // delayed class loading
     }
 
-    /**
-     * Scans for tasks in asyncronous threads (a scanner
-     * thread and AWT thread).
-     *
-     * @param view requestor
-     */
-    public static void scanTasksAsync(final SourceTasksView view) {
-
-        final SuggestionList list = (SuggestionList) view.getList();
-
-        RequestProcessor.getDefault().post(
-            new Runnable() {
-                public void run() {
-                    try {
-                        try {
-                            // block until previous AWT events get processed
-                            // it does not survive nested invokeAndWaits
-                            SwingUtilities.invokeAndWait(
-                                new Runnable() {
-                                    public void run() {
-                                        view.setCursor(Utilities.createProgressCursor(view));
-                                    }
-                                }
-                            );
-                        } catch (InterruptedException ignore) {
-                            // XXX
-                        } catch (InvocationTargetException e) {
-                            ErrorManager.getDefault().notify(e);
-                        }
-                        scanProjectSuggestions(list, view);
-
-                    } finally {
-                        SwingUtilities.invokeLater(
-                            new Runnable() {
-                                public void run() {
-                                    view.statistics(list.size());
-                                    view.setCursor(null);
-                                }
-                            }
-                        );
-                    }
-                }
-            }, 53, Thread.MIN_PRIORITY    //
-        );
-    }
-
-    static void scanProjectSuggestions(final SuggestionList list, final ScanProgressMonitor view) {
-        List project = new ArrayList(23);
-        int allFolders = -1;
-
-        if ("project".equals(System.getProperty("todos.project", "repository"))) {
-            allFolders = project(project);
-        }
-
-        if (allFolders == -1) {
-            project.clear();
-            allFolders = repository(project);
-        }
-
-        DataObject.Container projectFolders[] = new DataObject.Container[project.size()];
-        project.toArray(projectFolders);
-
-        final int estimatedFolders = allFolders + 1;
-        view.estimate(estimatedFolders);
-        SuggestionsScanner.getDefault().scan(projectFolders, list, view);
-
-    }
-
-    static int repository(List folders) {
-        Repository repository = Repository.getDefault();
-        Enumeration en = repository.fileSystems();
-
-        int allFolders = 0;
-        while (en.hasMoreElements()) {
-            FileSystem next = (FileSystem) en.nextElement();
-            if (next.isDefault() || next.isHidden() || next.isReadOnly()) {
-                continue;
-            }
-            if (next.isValid()) {
-                FileObject fo = next.getRoot();
-                try {
-                    DataObject dobj = DataObject.find(fo);
-                    if (dobj instanceof DataObject.Container) {
-                        folders.add(dobj);
-                        allFolders += countFolders(fo);
-                    }
-                } catch (DataObjectNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return allFolders;
-    }
-
-    static int project(List folders) {
-        // HACK XXX ProjectCookie is deprecated without replacement
-        // access it's registration file directly
-        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject registration = fs.findResource("Services/Hidden/org-netbeans-modules-projects-ProjectCookieImpl.instance");
-        if (registration == null) {
-            // it's not installed or some incomaptible version
-            return -1;
-        } else {
-            try {
-                int allFolders = -1;
-                DataObject dobj = DataObject.find(registration);
-                InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
-                Object obj = ic.instanceCreate();
-                Method method = obj.getClass().getMethod("projectDesktop", new Class[0]);
-                Node node = (Node) method.invoke(obj, new Object[0]);
-                DataObject prjDO = (DataObject) node.getCookie(DataObject.class);
-                if (prjDO instanceof DataObject.Container) {
-                    allFolders = 0;
-                    DataObject[] kids = ((DataObject.Container)prjDO).getChildren();
-                    for (int i=0; i<kids.length; i++) {
-                        if (kids[i] instanceof DataObject.Container) {
-                            folders.add(kids[i]);
-                            allFolders += countFolders(kids[i].getPrimaryFile());
-                        }
-                    }
-                }
-                return allFolders;
-            } catch (DataObjectNotFoundException e) {
-                return -1;
-            } catch (IOException e) {
-                return -1;
-            } catch (ClassNotFoundException e) {
-                return -1;
-            } catch (NoSuchMethodException e) {
-                return -1;
-            } catch (IllegalAccessException e) {
-                return -1;
-            } catch (InvocationTargetException e) {
-                return -1;
-            }
-        }
-    }
-
-    private static int countFolders(FileObject projectFolder) {
-        int count = 0;
-        Enumeration en = projectFolder.getChildren(true);
-        while (en.hasMoreElements()) {
-            FileObject next = (FileObject) en.nextElement();
-            if (next.isFolder() == false) continue;
-            String name = next.getNameExt();
-            //XXX there is discrepancy because CVS folders are skipped by engine
-            if ("CVS".equals(name) || "SCCS".equals(name)) { // NOI18N
-                continue;
-            }
-            count++;
-        }
-        return count;
-    }
 
 
     public String getName() {
@@ -231,6 +64,10 @@ public class SourceTasksAction extends CallableSystemAction {
 
     public HelpCtx getHelpCtx() {
         return new HelpCtx(SourceTasksAction.class);
+    }
+
+    protected String iconResource() {
+        return "org/netbeans/modules/tasklist/docscan/scanned-task.gif";  // NOI18N
     }
 
     public static interface ScanProgressMonitor extends SuggestionsScanner.ScanProgress {

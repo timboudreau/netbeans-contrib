@@ -9,6 +9,6 @@ OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/1 > 1.9,
   org.netbeans.tasklistapi/1 = tasklist-barracuda,
   org.netbeans.modules.suggestions_framework/1 = @BUILD_NUMBER_SUBST@
 
-Name: org/netbeans/modules/tasklist/suggestions/ScanSuggestionsAction.class
+Name: org/netbeans/modules/tasklist/suggestions/ui/ScanSuggestionsAction.class
 OpenIDE-Module-Class: Action
 

@@ -373,7 +373,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private void handleRefresh() {
         this.getList().clear();
-        SourceTasksAction.scanTasksAsync(this);
+        SourceTasksScanner.scanTasksAsync(this);
     }
 
     private JToggleButton allFilesButton;
@@ -631,7 +631,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         showList(list);
         setFiltered(false);
         interrupt = false;
-        SourceTasksAction.scanTasksAsync(this);
+        SourceTasksScanner.scanTasksAsync(this);
         getRefresh().setEnabled(true);
     }
 

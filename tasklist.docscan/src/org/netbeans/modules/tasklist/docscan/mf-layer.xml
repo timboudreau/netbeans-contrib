@@ -55,6 +55,18 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
     </folder>
 
+    <folder name="Toolbars">
+        <folder name="Task">
+            <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-docscan-SourceTasksAction.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-tasklist-docscan-SourceTasksAction.instance"/>
+        </folder>
+        <folder name="Window">
+            <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-docscan-SourceTasksAction.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-tasklist-suggestions-ui-SuggestionsAction.instance/org-netbeans-modules-tasklist-docscan-SourceTasksAction.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-tasklist-docscan-SourceTasksAction.instance"/>
+        </folder>
+    </folder>
+
     <folder name="TaskList">
         <folder name="sourcetasks">
             <file name="columns.settings" url="sourcetasks_columns.xml">
