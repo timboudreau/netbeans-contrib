@@ -303,8 +303,8 @@ public abstract class TaskListView extends ExplorerPanel
         
 	// Populate the view
 	showList();
-
-        installJumpActions();
+        
+        installJumpActions(true);
     }
 
 
@@ -321,7 +321,15 @@ public abstract class TaskListView extends ExplorerPanel
 	// Unregister listeners 
         unregisterListeners();
     }
-
+    
+    protected void componentActivated() {
+        super.componentActivated();
+        installJumpActions(true);
+    }
+    
+    protected void componentDeactivated() {
+        super.componentDeactivated();
+    }
 
     /** Create the root node to be used in this view */
     abstract protected TaskNode createRootNode();
@@ -1199,14 +1207,6 @@ public abstract class TaskListView extends ExplorerPanel
     }
 
     
-    public void componentActivated() {
-        super.componentActivated();
-    } 
-    
-    public void componentDectivated() {
-        super.componentDeactivated();
-    }
-    
     private JPanel filterPanel = null;
     private JButton removeFilterButton = null;
     private JLabel filterLabel = null;
@@ -1300,8 +1300,10 @@ public abstract class TaskListView extends ExplorerPanel
     /** 
      * Assign the Next/Previous build actions to point to the
      * task window 
+     *
+     * @param install true = install, false = deinstall
      */
-    private void installJumpActions() {
+    private void installJumpActions(boolean install) {
         // TODO - only install if the list is non empty (and call
         // this method from SMI when the list becomes non-empty)
         // In other words, the next action button shouldn't light
@@ -1333,20 +1335,22 @@ public abstract class TaskListView extends ExplorerPanel
             (CallbackSystemAction)SystemAction.get(nextActionClz);
         CallbackSystemAction previousAction = 
             (CallbackSystemAction)SystemAction.get(prevActionClz);
-        getActionMap().put(nextAction.getActionMapKey(), 
-            new AbstractAction() {
-                public void actionPerformed(ActionEvent e) {
+        
+        if (install) {
+            nextAction.setActionPerformer(new ActionPerformer() {
+                public void performAction(SystemAction action) {
                     nextTask();
                 }
-            }
-        );
-        getActionMap().put(previousAction.getActionMapKey(), 
-            new AbstractAction() {
-                public void actionPerformed(ActionEvent e) {
+            });
+            previousAction.setActionPerformer(new ActionPerformer() {
+                public void performAction(SystemAction action) {
                     prevTask();
                 }
-            }
-        );
+            });
+        } else {
+            nextAction.setActionPerformer(null);
+            previousAction.setActionPerformer(null);
+        }
     }
 
     private boolean lookupAttempted = false;
