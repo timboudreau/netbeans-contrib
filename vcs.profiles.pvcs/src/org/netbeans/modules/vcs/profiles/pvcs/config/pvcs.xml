@@ -421,6 +421,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_CHECKIN),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CHECKIN)))
+                 VARIABLE_DEFAULTS(FORCE_PUT USER, CHECK_IN_OUT USER, CHECK_IN_OUT_LOCK USER)
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
                  ASK_FOR(FORCE_PUT, ResourceMsg(COMMAND_PVCS_CHECKIN_Force), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Force);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Force_mnc)), "-f", "")
                  ASK_FOR(CHECK_IN_OUT, ResourceMsg(COMMAND_PVCS_CHECKIN_Out), "true", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Out);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Out_mnc)), "-u", "", ENABLE(CHECK_IN_OUT_LOCK))
@@ -490,6 +491,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CHECKOUT)))
+                 VARIABLE_DEFAULTS(SHOULD_LOCK USER, WRITABLE USER, SET_CURR_TIME USER)
                  ASK_FOR(SHOULD_LOCK, ResourceMsg(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
                  ASK_FOR(WRITABLE, ResourceMsg(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
                  PROMPT_FOR_EXPERT(REVISION, ResourceMsg(COMMAND_PVCS_CHECKOUT_Revision), "${revision}",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
@@ -601,6 +603,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_ADD)))
+                 VARIABLE_DEFAULTS(KEEP_LOCK USER)
                  PROMPT_FOR(WF_DESCRIPTION, ResourceMsg(COMMAND_PVCS_ADD_Reason),"${message}",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
                  ASK_FOR(KEEP_LOCK, ResourceMsg(COMMAND_PVCS_ADD_KeepLocked), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_KeepLocked);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_KeepLocked_mnc)), "-l", "")
@@ -661,6 +664,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_ADD)))
+                 VARIABLE_DEFAULTS(KEEP_LOCK USER, RECURSIVE USER)
                  PROMPT_FOR(WF_DESCRIPTION, ResourceMsg(COMMAND_PVCS_ADD_Reason),"${message}",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
                  ASK_FOR(KEEP_LOCK, ResourceMsg(COMMAND_PVCS_ADD_KeepLocked), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_KeepLocked);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_KeepLocked_mnc)), "-l", "")
@@ -812,6 +816,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_REMOVE),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_REMOVE)))
+                 VARIABLE_DEFAULTS(REMOVE_WHAT USER)
                  SELECT_RADIO(REMOVE_WHAT, ResourceMsg(COMMAND_PVCS_REMOVE_What), "-r",
                     [ResourceMsg(COMMAND_PVCS_REVISION_Tip), "-r", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_REVISION_Tip);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_REVISION_Tip_mnc))],
                     [ResourceMsg(COMMAND_PVCS_REVISION_Revision), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_REVISION_Revision);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_REVISION_Revision_mnc)),
@@ -871,6 +876,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CHECKOUT)))
+                 VARIABLE_DEFAULTS(SHOULD_LOCK USER)
                  ASK_FOR(SHOULD_LOCK, ResourceMsg(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
 	  </value>
 	</property>
@@ -1031,6 +1037,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_STATUS),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_STATUS)))
+                 VARIABLE_DEFAULTS(REPORT_TYPE USER, REVISION USER, AUTHORS USER, LOCKERS USER, OWNERS USER, DATE_FROM USER, DATE_TO USER, RECURSIVE USER)
                  SELECT_COMBO_EXPERT(REPORT_TYPE, ResourceMsg(COMMAND_PVCS_STATUS_ReportType), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_STATUS_ReportType);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_STATUS_ReportType_mnc)),
                     [ResourceMsg(COMMAND_PVCS_STATUS_RT_Full), ""],
                     [ResourceMsg(COMMAND_PVCS_STATUS_RT_FileInf), "-b"],
@@ -1108,6 +1115,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg(COMMAND_PVCS_DIFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Label)))
+                 VARIABLE_DEFAULTS(REV_VER1 USER, REVISION1 USER, VERSION1 USER, REV_VER2 USER, REVISION2 USER, VERSION2 USER, IGNORE_WHITE USER, GEN_DELTA EXPERT_USER, DELTA_FILE EXPERT_USER)
                  SELECT_RADIO_EXPERT(REV_VER1, "", "R",
                   [ResourceMsg(COMMAND_PVCS_DIFF_Rev1), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Rev1);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_DIFF_Rev1_mnc)),
                     PROMPT_FOR_EXPERT(REVISION1, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_DIFF_Rev1)))],
@@ -1159,6 +1167,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg(COMMAND_PVCS_APPLY_DELTA_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_APPLY_DELTA_Label)))
+                 VARIABLE_DEFAULTS(DELTA_FILE USER)
                  PROMPT_FOR(DELTA_FILE, ResourceMsg(COMMAND_PVCS_APPLY_DELTA_DeltaFile), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_APPLY_DELTA_DeltaFile);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_APPLY_DELTA_DeltaFile_mnc)), SELECTOR_FILE)
           </value>
 	</property>
@@ -1238,6 +1247,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg(COMMAND_PVCS_MERGE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Label)))
+                 VARIABLE_DEFAULTS(PARENT USER, PARENT_REVISION USER, PARENT_VERSION USER, BRANCH1 USER, BRANCH1_REVISION USER, BRANCH1_VERSION USER, BRANCH2 USER, BRANCH2_REVISION USER, BRANCH2_VERSION USER, OUT_FILE EXPERT_USER)
                  SELECT_RADIO(PARENT, ResourceMsg(COMMAND_PVCS_MERGE_Parent), "R",
                   [ResourceMsg(COMMAND_PVCS_MERGE_RevisionNumberPR), "R", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Parent_RevisionNumber);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_MERGE_Parent_RevisionNumber_mnc)),
                     PROMPT_FOR(PARENT_REVISION, "", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_MERGE_Parent_RevisionNumber)))],
@@ -1607,6 +1617,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg(PVCS_CREATE_PROJECT_DATABASE), ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CREATE_PROJECT_DATABASE_Label)))
+                 VARIABLE_DEFAULTS(DB_PATH USER, DB_WORK USER, DB_NAME USER)
                  PROMPT_FOR(DB_PATH, "ResourceMsg(GCOMMAND_Database)", "",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_GCOMMAND_Database);;MNEMONIC_ResourceMsg(GCOMMAND_Database_Mnemonic)),
                             VALIDATOR_FOLDER, SELECTOR_DIR)
@@ -1631,6 +1642,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CHECKOUT)))
+                 VARIABLE_DEFAULTS(PROJECT_DB USER, USER_NAME USER, PROJECT USER, WORK_PATH USER, SHOULD_LOCK USER, WRITABLE USER)
                  PROMPT_FOR(PROJECT_DB, "ResourceMsg(GCOMMAND_Database)", "",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_GCOMMAND_Database);;MNEMONIC_ResourceMsg(GCOMMAND_GET_Database_Mnemonic)),
                             VALIDATOR_FOLDER, SELECTOR_DIR)

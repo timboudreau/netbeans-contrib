@@ -342,6 +342,7 @@ Microsystems, Inc. All Rights Reserved.
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_CHECKIN),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CHECKIN)))
+                 VARIABLE_DEFAULTS(CHECKIN_OPTIONS USER)
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CHECKIN_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Reason_mnc)))
                  PROMPT_FOR_EXPERT(CHECKIN_OPTIONS, ResourceMsg(COMMAND_VSS_CHECKIN_Options), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CHECKIN_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Options_mnc)))
           </value>
@@ -400,6 +401,7 @@ Microsystems, Inc. All Rights Reserved.
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_CHECKIN),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CHECKIN)))
+                 VARIABLE_DEFAULTS(CHECKIN_OPTIONS USER)
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_CHECKIN_Reason),"",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CHECKIN_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Reason_mnc)))
                  IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_CHECKIN_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CHECKIN_Rec);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(CHECKIN_OPTIONS, ResourceMsg(COMMAND_VSS_CHECKIN_Options), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CHECKIN_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKIN_Options_mnc)))
@@ -487,6 +489,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CHECKOUT)))
+                 VARIABLE_DEFAULTS(CHECKOUT_OPTIONS USER)
                  PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, ResourceMsg(COMMAND_VSS_CHECKOUT_Options), "-GWA", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CHECKOUT_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Options_mnc)))
           </value>
 	</property>
@@ -558,6 +561,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CHECKOUT)))
+                 VARIABLE_DEFAULTS(CHECKOUT_OPTIONS USER)
                  IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_CHECKOUT_Rec), "$[? recursionBanned] [-l] [-R]", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CHECKOUT_Rec);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, ResourceMsg(COMMAND_VSS_CHECKOUT_Options), "-GWA", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CHECKOUT_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Options_mnc)))
           </value>
@@ -633,6 +637,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(COMMAND_VSS_UNCHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_UNCHECKOUT_Label)))
+                 VARIABLE_DEFAULTS(CMD_OPTIONS USER)
                  PROMPT_FOR_EXPERT(CMD_OPTIONS, ResourceMsg(COMMAND_VSS_UNCHECKOUT_Options), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_UNCHECKOUT_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_UNCHECKOUT_Options_mnc)))
           </value>
 	</property>
@@ -698,6 +703,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(COMMAND_VSS_UNCHECKOUTR_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_UNCHECKOUTR_Label)))
+                 VARIABLE_DEFAULTS(CMD_OPTIONS USER)
                  IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSIVELY, ResourceMsg(COMMAND_VSS_UNCHECKOUTR_Recursively), "$[? recursionBanned] [-R-] [-R]",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_UNCHECKOUTR_Recursively);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_UNCHECKOUTR_Recursively_mnc)) ,"-R", "-R-")
                  PROMPT_FOR_EXPERT(CMD_OPTIONS, ResourceMsg(COMMAND_VSS_UNCHECKOUT_Options), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_UNCHECKOUT_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_UNCHECKOUT_Options_mnc)))
           </value>
@@ -784,6 +790,7 @@ Microsystems, Inc. All Rights Reserved.
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_GET),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_GET)))
+                 VARIABLE_DEFAULTS(RW_MODE USER, GET_OPTIONS USER)
                  ASK_FOR(RW_MODE, ResourceMsg(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_GET_RW);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
                  PROMPT_FOR_EXPERT(GET_OPTIONS, ResourceMsg(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_GET_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Options_mnc)))
           </value>
@@ -850,6 +857,7 @@ Microsystems, Inc. All Rights Reserved.
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_GET),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_GET)))
+                 VARIABLE_DEFAULTS(RW_MODE USER, GET_OPTIONS USER)
                  ASK_FOR(RW_MODE, ResourceMsg(COMMAND_VSS_GET_RW), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_GET_RW);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_RW_mnc)), "-W", "")
                  IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_GETR_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_GET_Rec);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(GET_OPTIONS, ResourceMsg(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_GET_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GET_Options_mnc)))
@@ -905,6 +913,7 @@ Microsystems, Inc. All Rights Reserved.
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_ADD)))
+                 VARIABLE_DEFAULTS(ADD_OPTIONS USER)
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_ADD_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Reason_mnc)))
                  PROMPT_FOR_EXPERT(ADD_OPTIONS, ResourceMsg(COMMAND_VSS_ADD_Options), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_ADD_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Options_mnc)))
           </value>
@@ -999,6 +1008,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_ADD)))
+                 VARIABLE_DEFAULTS(RELEVANT_MASK USER, ADD_OPTIONS USER)
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_ADD_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Reason_mnc)))
                  IF_VAR_EMPTY"recursionBanned"_ASK_FOR(IS_RECURSIVE, ResourceMsg(COMMAND_VSS_ADD_ALL_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_ADD_ALL_Rec);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_ALL_Rec_mnc)), "true", "")
                  PROMPT_FOR_EXPERT(RELEVANT_MASK, ResourceMsg(COMMAND_VSS_ADD_ALL_RelevantMask), "{INSERT_OUTPUT_OF_GET_ADJUSTED_RELEVANT_MASKS(0)}", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_ADD_ALL_RelevantMask);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_ALL_RelevantMask_mnc)))
@@ -1138,6 +1148,7 @@ Microsystems, Inc. All Rights Reserved.
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_CREATE),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CREATE)))
+                 VARIABLE_DEFAULTS(CREATE_OPTIONS USER)
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_CREATE_Reason),"",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CREATE_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CREATE_Reason_mnc)))
                  PROMPT_FOR_EXPERT(CREATE_OPTIONS, ResourceMsg(COMMAND_VSS_CREATE_Options), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CREATE_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CREATE_Options_mnc)))
           </value>
@@ -1237,6 +1248,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(COMMAND_VSS_REMOVE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_REMOVE_Label)))
+                 VARIABLE_DEFAULTS(CMD_OPTIONS USER)
                  PROMPT_FOR_EXPERT(CMD_OPTIONS, ResourceMsg(COMMAND_VSS_REMOVE_Options), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_REMOVE_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_REMOVE_Options_mnc)))
           </value>
 	</property>
@@ -1295,6 +1307,7 @@ Microsystems, Inc. All Rights Reserved.
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_RECOVER),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_RECOVER)))
+                 VARIABLE_DEFAULTS(RECOVER_OPTIONS USER)
                  PROMPT_FOR_EXPERT(RECOVER_OPTIONS, ResourceMsg(COMMAND_VSS_RECOVER_Options), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_RECOVER_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_RECOVER_Options_mnc)))
           </value>
 	</property>
@@ -1351,6 +1364,7 @@ Microsystems, Inc. All Rights Reserved.
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_HISTORY),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_HISTORY)))
+                 VARIABLE_DEFAULTS(HISTORY_OPTIONS USER)
                  IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg(COMMAND_VSS_HISTORY_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_HISTORY_Rec);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_HISTORY_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(HISTORY_OPTIONS, ResourceMsg(COMMAND_VSS_HISTORY_Options), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_HISTORY_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_HISTORY_Options_mnc)))
           </value>
@@ -1401,6 +1415,7 @@ Microsystems, Inc. All Rights Reserved.
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_PROPERTIES),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_PROPERTIES)))
+                 VARIABLE_DEFAULTS(PROPERTIES_OPTIONS USER)
                  IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg(COMMAND_VSS_PROPERTIES_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_PROPERTIES_Rec);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_PROPERTIES_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(PROPERTIES_OPTIONS, ResourceMsg(COMMAND_VSS_PROPERTIES_Options), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_PROPERTIES_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_PROPERTIES_Options_mnc)))
           </value>
@@ -1446,6 +1461,7 @@ Microsystems, Inc. All Rights Reserved.
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(COMMAND_VSS_DIFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_DIFF_Label)))
+                 VARIABLE_DEFAULTS(CMD_DIFF_OPTIONS USER)
                  PROMPT_FOR_EXPERT(CMD_DIFF_OPTIONS, ResourceMsg(COMMAND_VSS_DIFF_Options), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_DIFF_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_DIFF_Options_mnc)) ,VALIDATOR_REGEXP_UNMATCH(^.*-B.*$|^.*-D.*$|^.*-O.*$))
           </value>
 	</property>
@@ -1727,6 +1743,7 @@ Microsystems, Inc. All Rights Reserved.
          </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_GET),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_GET)))
+                 VARIABLE_DEFAULTS(ROOTDIR USER, ENVIRONMENT_VAR_SSDIR USER, PROJECT USER, VSSCMD_EXE USER, USER_NAME USER, RW_MODE USER, GET_OPTIONS USER)
                  PROMPT_FOR(ROOTDIR, ResourceMsg(COMMAND_VSS_GGET_WORK), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_GGET_WORK);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_WORK_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
                  PROMPT_FOR(ENVIRONMENT_VAR_SSDIR, ResourceMsg(COMMAND_VSS_GGET_SSDIR), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_GGET_SSDIR);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_SSDIR_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
                  PROMPT_FOR(PROJECT, ResourceMsg(COMMAND_VSS_GGET_PROJECT), "$/", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_GGET_PROJECT);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_GGET_PROJECT_mnc)), VALIDATOR_NON_EMPTY)
