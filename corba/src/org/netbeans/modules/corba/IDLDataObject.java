@@ -32,6 +32,7 @@ import org.openide.TopManager;
 
 import org.openide.cookies.OpenCookie;
 import org.openide.cookies.CloseCookie;
+import org.openide.cookies.SaveCookie;
 import org.openide.cookies.CompilerCookie;
 import org.openide.cookies.LineCookie;
 
@@ -123,6 +124,8 @@ public class IDLDataObject extends MultiDataObject {
     //private Vector idlConstructs;
     //private Vector idlInterfaces;
     private Hashtable _M_possible_names;
+    //private Object _M_possible_names_lock = new Object ();
+    //private boolean _M_possible_names_lock;
 
     private MultiFileLoader idl_loader;
     //private IDLParser _M_parser;
@@ -151,7 +154,8 @@ public class IDLDataObject extends MultiDataObject {
         if (DEBUG)
             System.out.println ("IDLDataObject::IDLDataObject (...)"); // NOI18N
         idl_loader = loader;
-	_M_status = STATUS_NOT_PARSED;
+	this.setStatus (IDLDataObject.STATUS_NOT_PARSED);
+	//_M_status = STATUS_NOT_PARSED;
         // use editor support
         MultiDataObject.Entry entry = getPrimaryEntry ();
         CookieSet cookies = getCookieSet ();
@@ -225,7 +229,8 @@ public class IDLDataObject extends MultiDataObject {
 	    // parser is quicker - so we have parsed idl file
 	    _M_idl_node.update ();
 	    //}
-            if (_M_status == STATUS_ERROR) {
+            //if (_M_status == STATUS_ERROR) {
+            if (this.getStatus () == STATUS_ERROR) {
                 if (DEBUG)
                     System.out.println ("set error icon..."); // NOI18N
                 _M_idl_node.setIconBase (IDLNode.IDL_ERROR_ICON);
@@ -244,8 +249,14 @@ public class IDLDataObject extends MultiDataObject {
         return HelpCtx.DEFAULT_HELP;
     }
 
-    public int getStatus () {
+    public synchronized int getStatus () {
+	//System.out.println (this + " IDLDataObject::getStatus () -> " + _M_status);
 	return _M_status;
+    }
+
+    public synchronized void setStatus (int __value) {
+	//System.out.println (this + " IDLDataObject::setStatus (" + __value + ");");
+	_M_status = __value;
     }
 
     public void openAtPosition (int line_pos, int offset) {
@@ -302,13 +313,27 @@ public class IDLDataObject extends MultiDataObject {
 
     public Compiler createCompiler (CompilerJob __job, Class __type) {
         if (DEBUG)
-            System.out.println ("IDLDataObject.java:112:createCompiler"); // NOI18N
+	    System.out.println (this + "IDLDataObject.java:112:createCompiler"); // NOI18N
         CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                    (CORBASupportSettings.class, true);
         if (css.getOrb () == null) {
             new NotSetuped ();
             return null;
         }
+
+	if (this.isModified ()) {
+	    //System.out.println (this + " ido was modified.");
+	    //System.out.print ("Save...");
+	    SaveCookie __cookie = (SaveCookie)this.getCookie (SaveCookie.class);
+	    try {
+		__cookie.save ();
+	    } catch (IOException __ex) {
+		if (Boolean.getBoolean ("netbeans.debug.exceptions")) {
+		    __ex.printStackTrace ();
+		}
+	    }
+	    //System.out.println ("done.");
+	}
 
 	ORBSettings __setting;
 	if (this.getOrbForCompilation () != null) {
@@ -332,7 +357,7 @@ public class IDLDataObject extends MultiDataObject {
 
 	__job.add (__ec);
 
-        Vector __gens = getGeneratedFileObjects ();
+        Vector __gens = this.getGeneratedFileObjects ();
         //JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
         //JavaCompilerType jct = (JavaCompilerType)js.getCompiler ();
         JavaCompilerType __jct = (JavaCompilerType)TopManager.getDefault ().getServices
@@ -613,18 +638,54 @@ public class IDLDataObject extends MultiDataObject {
 
     public boolean canGenerate (FileObject __fo) {
         String __name = __fo.getName ();
+	//boolean DEBUG = true;
         if (DEBUG)
-            System.out.print ("IDLDataObject.canGenerate (" + __name + ") ..."); // NOI18N
-        if (_M_possible_names.get (__name) != null) {
-            if (DEBUG)
-                System.out.println ("yes"); // NOI18N
-            return true;
-        }
-        else {
-            if (DEBUG)
-                System.out.println ("no"); // NOI18N
-            return false;
-        }
+	    System.out.print ("IDLDataObject::canGenerate (" + __name + ") ..."); // NOI18N
+	//try {
+	//if (_M_possible_names.get (__name) != null) {
+	if (this.getPossibleNames ().get (__name) != null) {
+	    if (DEBUG)
+		System.out.println ("yes"); // NOI18N
+	    return true;
+	}
+	else {
+	    if (DEBUG)
+		System.out.println ("no"); // NOI18N
+	    return false;
+	}
+	/*
+	  } catch (java.lang.NullPointerException __ex) {
+	  //synchronized (_M_possible_names_lock) {
+	  synchronized (this) {
+	  // thread must wait for parser
+	  try {
+	  if (_M_possible_names == null) {
+	  if (DEBUG)
+	  System.out.println (this + ": this.wait ();");
+	  this.wait ();
+	  }
+	  else {
+	  if (DEBUG)
+	  System.out.println ("DeadLock recovery successfull :-))");
+	  }
+	  } catch (java.lang.InterruptedException __ex2) {
+	  return false;
+	  }
+	  }
+	  if (DEBUG)
+	  System.out.println ("OK - run again");
+	  if (_M_possible_names.get (__name) != null) {
+	  if (DEBUG)
+	  System.out.println ("yes"); // NOI18N
+	  return true;
+	  }
+	  else {
+	  if (DEBUG)
+	  System.out.println ("no"); // NOI18N
+	  return false;
+	  }
+	  }
+	*/
     }
 
     public LinkedList getImplementationNames () {
@@ -729,10 +790,6 @@ public class IDLDataObject extends MultiDataObject {
           possibleNames = createPossibleNames (getIdlConstructs (STYLE_NOTHING), 
           getIdlInterfaces (STYLE_NOTHING));
         */
-        _M_possible_names = this.createPossibleNames 
-	    (this.getIdlConstructs (STYLE_FIRST_LEVEL_WITH_NESTED_TYPES),
-	     this.getIdlInterfaces (STYLE_FIRST_LEVEL));
-
 
         FileObject tmp_file = null;
         FileLock lock = null;
@@ -767,7 +824,8 @@ public class IDLDataObject extends MultiDataObject {
     public void startParsing () {
 	if (DEBUG)
 	    System.out.println ("IDLDataObject::startParsing ();"); // NOI18N
-	_M_status = STATUS_PARSING;
+	//_M_status = STATUS_PARSING;
+	this.setStatus (IDLDataObject.STATUS_PARSING);
 	this.firePropertyChange ("_M_status", null, null); // NOI18N
         _S_request_processor.post (new Runnable () {
 		public void run () {
@@ -789,6 +847,7 @@ public class IDLDataObject extends MultiDataObject {
     public void parse () {
 	if (DEBUG)
 	    System.out.println ("IDLDataObject::parse () of " + this.getPrimaryFile ()); // NOI18N
+	//System.out.println (this + ": ->parse ();"); // NOI18N
 	InputStream __stream = null;
         try {
 	    __stream = this.getPrimaryFile ().getInputStream ();
@@ -799,7 +858,8 @@ public class IDLDataObject extends MultiDataObject {
             _M_src = (IDLElement)__parser.Start ();
             //_M_src.xDump (" "); // NOI18N
             _M_src.setDataObject (this);
-            _M_status = STATUS_OK;	    
+            //_M_status = STATUS_OK;
+	    this.setStatus (IDLDataObject.STATUS_OK);
 	    if (DEBUG)
                 _M_src.dump (""); // NOI18N
             if (DEBUG)
@@ -807,11 +867,13 @@ public class IDLDataObject extends MultiDataObject {
         } catch (ParseException e) {
             if (DEBUG)
 		System.out.println ("parse exception"); // NOI18N
-            _M_status = STATUS_ERROR;
+            //_M_status = STATUS_ERROR;
+	    this.setStatus (IDLDataObject.STATUS_ERROR);
         } catch (TokenMgrError e) {
             if (DEBUG)
 		System.out.println ("parser error!!!"); // NOI18N
-            _M_status = STATUS_ERROR;
+            //_M_status = STATUS_ERROR;
+	    this.setStatus (IDLDataObject.STATUS_ERROR);
         } catch (java.io.FileNotFoundException e) {
             if (Boolean.getBoolean ("netbeans.debug.exceptions")) { // NOI18N
 		e.printStackTrace ();
@@ -829,15 +891,35 @@ public class IDLDataObject extends MultiDataObject {
 	    } catch (IOException __ex) {
 	    }
 	}
-	if (DEBUG)
-	    System.out.println ("status: " + _M_status); // NOI18N
+	//synchronized (_M_possible_names_lock) {
+	synchronized (this) {
+	    //if (_M_status == STATUS_OK || _M_possible_names == null) {
+	    if (this.getStatus () == STATUS_OK || _M_possible_names == null) {
+		//System.out.println ("// we can crate new map");
+		// we can crate new map
+		_M_possible_names = this.createPossibleNames 
+		    (this.getIdlConstructs (STYLE_FIRST_LEVEL_WITH_NESTED_TYPES),
+		     this.getIdlInterfaces (STYLE_FIRST_LEVEL));
+	    }
+	    if (DEBUG)
+		System.out.println (this + ": this.notifyAll ();"); // NOI18N
+	    this.notifyAll ();
+	}
+	//System.out.println ("this.notifyAll ();");
+	//this.notifyAll ();
+	if (DEBUG) {
+	    System.out.println (this + ": after notifyAll ();"); // NOI18N
+	    System.out.println (this + ": status: " + _M_status); // NOI18N
+	}
 	if (_M_idl_node != null) {
-	    if (_M_status == STATUS_OK) {
+	    //if (_M_status == STATUS_OK) {
+	    if (this.getStatus () == STATUS_OK) {
 		if (DEBUG)
 		    System.out.println ("STATUS_OK"); // NOI18N
 		_M_idl_node.setIconBase (IDLNode.IDL_ICON_BASE);
 	    }
-	    if (_M_status == STATUS_ERROR) {
+	    //if (_M_status == STATUS_ERROR) {
+	    if (this.getStatus () == STATUS_ERROR) {
 		if (DEBUG)
 		    System.out.println ("STATUS_ERROR"); // NOI18N
                 _M_idl_node.setIconBase (IDLNode.IDL_ERROR_ICON);
@@ -851,6 +933,7 @@ public class IDLDataObject extends MultiDataObject {
 		System.out.println ("idl node is null"); // NOI18N
 	}
 	this.firePropertyChange ("_M_status", null, null); // NOI18N
+	//System.out.println (this + ": parse ();->");	
     }
 
     public IDLElement getSources () {
@@ -861,6 +944,7 @@ public class IDLDataObject extends MultiDataObject {
         public void fileChanged (FileEvent e) {
             if (DEBUG)
 		System.out.println ("idl file was changed."); // NOI18N
+	    IDLDataObject.this.setStatus (IDLDataObject.STATUS_NOT_PARSED);
             //IDLDataObject.this.handleFindDataObject (
             //IDLDataObject.this.startParsing ();
             IDLDataObject.this.update ();
@@ -868,6 +952,10 @@ public class IDLDataObject extends MultiDataObject {
 		IDLDataObject.this._M_idl_node.update ();
             CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                        (CORBASupportSettings.class, true);
+            IDLDataLoader __loader = (IDLDataLoader) IDLDataLoader.findObject
+		(IDLDataLoader.class, true);
+	    __loader.setHide (__loader.getHide ());
+
 	    if (css.getActiveSetting ().getSynchro () == ORBSettingsBundle.SYNCHRO_ON_SAVE)
 		IDLDataObject.this.generateImplementation ();
         }
@@ -914,15 +1002,31 @@ public class IDLDataObject extends MultiDataObject {
       }
     */
 
-    public Hashtable getPossibleNames () {
-        return _M_possible_names;
+    public synchronized Hashtable getPossibleNames () {
+	while (this.getStatus () != STATUS_OK && this.getStatus () != STATUS_ERROR) {
+	    try {
+		//System.out.println (this + " IDLDataObject::getPossibleNames () -> wait ()");
+		this.wait ();
+	    } catch (InterruptedException __ex) {
+	    }
+	}
+	//System.out.println ("IDLDataObject::getPossibleNames () -> continue ...");
+	if (this.getStatus () == STATUS_OK)
+	    return _M_possible_names;
+	if (this.getStatus () == STATUS_ERROR)
+	    return _M_possible_names;
+	    //return new Hashtable ();
+	// never execute
+	return null;	
     }
 
     public Vector getGeneratedFileObjects () {
+	//System.out.println (this + " IDLDataObject::getGeneratedFileObjects ();");
         Vector result = new Vector ();
         Hashtable h = this.getPossibleNames ();
         Enumeration enum = h.keys ();
         FileObject folder = this.getPrimaryFile ().getParent ();
+	folder.refresh ();
         FileObject gen_file;
         while (enum.hasMoreElements ()) {
             gen_file = folder.getFileObject ((String)enum.nextElement (), "java"); // NOI18N
@@ -946,7 +1050,7 @@ public class IDLDataObject extends MultiDataObject {
         if (DEBUG)
 	    System.out.println ("generating of idl implemenations..."); // NOI18N
         generator = new ImplGenerator (this);
-        generator.setSources (getSources ());
+        generator.setSources (this.getSources ());
 	// this can be done in system RequestProcessor
 	//generator.generate ();
 	synchronized (this) {
