@@ -87,6 +87,7 @@ public final class SuggestionsScanner implements Cancellable {
     private volatile boolean interrupted;
     private int suggestionsCounter;
     private int usabilityLimit = 503;
+    private boolean workaround38476;
 
     private SuggestionsScanner() {
         manager = (SuggestionManagerImpl) Lookup.getDefault().lookup(SuggestionManager.class);
@@ -150,7 +151,9 @@ public final class SuggestionsScanner implements Cancellable {
 
             // scan opened files first these are most specifics
             // it should also improve perceived performance
+            workaround38476 = true;
             scanPreferred(folders, recursive);
+            workaround38476 = false;
 
             if (progressMonitor != null) {
                 int estimate = -1;
@@ -323,7 +326,7 @@ public final class SuggestionsScanner implements Cancellable {
         // does not release documents on unless one explicitly
         // call close() that as side effect closes all components.
         // So call close() is we are likely only document users
-        if (isPrimed && edit.getOpenedPanes() == null) {
+        if (isPrimed && edit.getOpenedPanes() == null && workaround38476 == false) {
             edit.close();
         }
 
