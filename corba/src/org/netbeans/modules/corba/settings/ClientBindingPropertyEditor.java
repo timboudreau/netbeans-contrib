@@ -107,6 +107,7 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport
 
 /*
  * <<Log>>
+ *  7    Gandalf   1.6         5/28/99  Karel Gardas    
  *  6    Gandalf   1.5         5/28/99  Karel Gardas    
  *  5    Gandalf   1.4         5/22/99  Karel Gardas    fixed for reading 
  *       configuration from implementations files
