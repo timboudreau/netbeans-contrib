@@ -141,7 +141,7 @@ public class CommandExecutorSupport extends Object {
             }
         }
         // IV. Perform the default variable expansion
-        exec = Variables.expand(vars, exec, true);
+        //exec = Variables.expand(vars, exec, true); - moved to ExecuteCommand. Each command executor have to take care of it
         //vce.updateExec(exec);
         // V. Allow a custom preprocessing
         exec = vce.preprocessCommand(cmd, vars, exec);
