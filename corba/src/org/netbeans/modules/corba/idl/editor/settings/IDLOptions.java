@@ -38,6 +38,10 @@ public class IDLOptions extends BaseOptions {
         //		("CTL_IDLOptions_Name"));
         return NbBundle.getBundle (IDLOptions.class).getString ("CTL_IDLOptions_Name");
     }
+    
+    public Class getDefaultIndentEngineClass () {
+        return org.netbeans.modules.corba.idl.editor.indent.IDLIndentEngine.class;
+    }
 
 }
 

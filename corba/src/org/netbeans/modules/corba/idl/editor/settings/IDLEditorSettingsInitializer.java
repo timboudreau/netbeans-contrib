@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 import java.awt.Color;
 import java.awt.Font;
+import org.netbeans.editor.ext.ExtSettingsNames;
 import org.netbeans.editor.BaseKit;
 import org.netbeans.editor.Settings;
 import org.netbeans.editor.SettingsUtil;
@@ -28,9 +29,11 @@ import org.netbeans.editor.Syntax;
 import org.netbeans.editor.TokenContext;
 import org.netbeans.editor.TokenContextPath;
 import org.netbeans.editor.TokenCategory;
+import org.netbeans.editor.ext.ExtSettingsNames;
 import org.netbeans.modules.corba.idl.editor.coloring.IDLKit;
 import org.netbeans.modules.corba.idl.editor.coloring.IDLSyntax;
 import org.netbeans.modules.corba.idl.editor.coloring.IDLTokenContext;
+import org.netbeans.modules.corba.idl.editor.indent.IDLIndentAcceptor;
 
 public class IDLEditorSettingsInitializer extends Settings.AbstractInitializer {
 
@@ -53,7 +56,7 @@ public class IDLEditorSettingsInitializer extends Settings.AbstractInitializer {
         if (kitClass == IDLKit.class) {
 
             settingsMap.put (SettingsNames.ABBREV_MAP, getIDLAbbrevMap());
-
+            settingsMap.put (ExtSettingsNames.INDENT_HOT_CHARS_ACCEPTOR, new IDLIndentAcceptor());
             SettingsUtil.updateListSetting(settingsMap, SettingsNames.TOKEN_CONTEXT_LIST,
                    new TokenContext[] { IDLTokenContext.context });
 

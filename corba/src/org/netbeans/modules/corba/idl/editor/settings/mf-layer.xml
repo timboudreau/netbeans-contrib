@@ -28,4 +28,12 @@ Microsystems, Inc. All Rights Reserved.
       </folder>
     </folder>
   </folder>
+  <folder name="Services">
+    <folder name="IndentEngine">
+	<file name="IDLIndentEngine.settings" url="IDLIndentEngine.settings">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.idl.editor.indent.Bundle"/>
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/editor/resources/indentEngine.gif"/>
+        </file>
+    </folder>
+  </folder>
 </filesystem>
