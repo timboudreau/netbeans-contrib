@@ -61,6 +61,12 @@ public class ImplGenerator {
 
   private IDLDataObject ido;
 
+  
+  private boolean WAS_TEMPLATE = false;  
+  // this variable indicate if in calling of hasTemplateParent is template type or not
+  // => it must be setuped to
+  
+
   public ImplGenerator (IDLDataObject _do) {
       
     ido = _do;
@@ -136,6 +142,8 @@ public class ImplGenerator {
   }
 
   public Type type2java (IDLType idl_type) {
+    if (DEBUG)
+      System.out.println ("ImplGenerator::type2java (" + idl_type + ");");
     String java_type = simple2java (idl_type);
 
     if (DEBUG) {
@@ -529,8 +537,24 @@ public class ImplGenerator {
       System.out.println ("ImplGenerator::hasSimpleParent (" + type.getName () 
 			  + ", " + from + ");");
 
+    Type java_type;
+
     if (type2java (type) != null)
       return type2java (type);
+
+    // if type is template type it hasn't simple parent
+    if (type.getType () == IDLType.SEQUENCE) {
+      if (DEBUG)
+	System.out.println ("hasn't simple parent -- is template type");
+      return null;
+    }
+    if (type.getType () == IDLType.STRUCT
+	|| type.getType () == IDLType.UNION
+	|| type.getType () == IDLType.ENUM) {
+      if (DEBUG)
+	System.out.println ("hasn't simple parent -- is constructed type");
+      return null;
+    }
 
     if (isAbsoluteScopeType (type)) {
       // is absolute scoped name
@@ -541,28 +565,11 @@ public class ImplGenerator {
       // is scoped name
       IDLType tmp_type = createChildFromType (type);
       return hasSimpleParent (tmp_type, findModuleForScopeType (type, from));
-      
-      /*
-	if (type.getType () != IDLType.SEQUENCE) {
-	return hasSimpleParent 
-	(new IDLType (type.getType (), 
-	type.getName ().substring (type.getName ().lastIndexOf ("::") + 2, 
-	type.getName ().length ())), 
-	findModuleForScopeType (type, from));
-	}
-	else {
-	return hasSimpleParent 
-	(new IDLType (type.ofType ().getType (), 
-	type.ofType ().getName ().substring 
-	(type.ofType ().getName ().lastIndexOf ("::") + 2, 
-	type.ofType ().getName ().length ())), 
-	findModuleForScopeType (type.ofType (), from));
-	
-	}
-      */
     }
     
     IDLElement tmp_element = findElementByName (type.getName (), from);
+    if (DEBUG)
+      System.out.println ("dimension of element: " + type.ofDimension ()); 
     if (tmp_element instanceof TypeElement) {
       TypeElement result = (TypeElement)tmp_element;
       if (result == null) {
@@ -573,8 +580,17 @@ public class ImplGenerator {
       }
       
       IDLType res_type = result.getType ();
-      if (type2java (res_type) != null)
-	return type2java (res_type);
+      Vector dim = result.getType ().ofDimension ();
+      if ((java_type = type2java (res_type)) != null) {
+	//if (dim != null) {
+	for (int i=0; i<dim.size (); i++) {
+	  if (DEBUG)
+	    System.out.println ("!!!!!!!!!!!!! " + i + "  !!!!!!!!!!!!!!!!!!!");
+	  java_type = Type.createArray (java_type);
+	}
+	//}
+	return java_type;
+      }
       else 
 	return hasSimpleParent (res_type, from);
     }
@@ -790,17 +806,21 @@ public class ImplGenerator {
 
     }
 
-    /*
-      if ((java_type = hasSimpleParent (type, from)) != null) {
+    if (type.getType () == IDLType.STRUCT
+	|| type.getType () == IDLType.UNION
+	|| type.getType () == IDLType.ENUM) {
       if (DEBUG)
-      System.out.println (type + "has simple parent");
-      return java_type;
-      }
-    */
+	System.out.println ("hasn't template parent -- is constructed type");
+      return null;
+    }
+
 
     TypeElement el_for_type;
     
     if (type.getType () == IDLType.SEQUENCE) {
+      
+      WAS_TEMPLATE = true;
+
       if (mode == Parameter.IN) {
 	// variable of this type is "in"
 	if (DEBUG)
@@ -808,13 +828,15 @@ public class ImplGenerator {
 	if (DEBUG)
 	  System.out.println ("has simple parent??");
 	if ((java_type = hasSimpleParent (type.ofType (), from)) != null) {
+	  if (DEBUG)
+	    System.out.println (type + "has simple parent2");
 	  return java_type;
 	}
       }
       else {
 	// variable of this type is "inout" or "out"
 	if (DEBUG)
-	  System.out.println ("\"INOUT\" || \"OUT\"");
+	  System.out.println ("\"INOUT\" || \"OUT\" => return null");
 	return null;
       }
     }
@@ -830,17 +852,69 @@ public class ImplGenerator {
 	  
 	IDLElement tmp_element  = findElementByName (type.getName (), from);
 	if (tmp_element instanceof TypeElement) {
-	  if (((TypeElement)tmp_element).getType ().ofType () != null) {
-	    return Type.createArray 
-	      (hasTemplateParent (((TypeElement)tmp_element).getType ().ofType (), 
-				  mode, _package, from));
+	  type_element = (TypeElement)tmp_element;
+	  //if (type_element.getType ().ofType () != null) {
+	  if (type_element.getType ().getType () == IDLType.SEQUENCE) {
+	    
+	    WAS_TEMPLATE = true;
+	    
+	    if ((java_type = hasTemplateParent (type_element.getType ().ofType (), 
+						mode, _package, from)) != null) {
+	      return Type.createArray (java_type);
+	    }
+	    else {
+	      if (WAS_TEMPLATE)
+		return Type.createClass (org.openide.src.Identifier.create 
+					 (type_element.getName ()));
+	      else
+		return null;
+	    }
+	    
+	    //throw new NullPointerException ();
 	  }
 	  else {
-	    return Type.createClass (org.openide.src.Identifier.create (type.getName ()));
+	    type_element = (TypeElement)tmp_element;
+	    if (DEBUG)
+	      System.out.println ("Chcip 1:" + type_element.getType () + " : " 
+				  + type_element.getName ());
+	    
+
+	    if (type_element.getType ().getType () == IDLType.STRUCT
+		|| type_element.getType ().getType () == IDLType.UNION
+		|| type_element.getType ().getType () == IDLType.ENUM) {
+	      
+	      if (WAS_TEMPLATE) {
+		if (DEBUG)
+		  System.out.println ("hasn't template parent -- is constructed type but"
+				      + " WAS_TEMPLATE");
+		return Type.createClass (org.openide.src.Identifier.create 
+					 (type_element.getName ()));
+	      }
+	      else {
+		if (DEBUG)
+		  System.out.println ("hasn't template parent -- is constructed type but"
+				      + " WASN'T_TEMPLATE");
+		return null;
+	      }
+	    }
+	    if ((java_type = hasTemplateParent (type_element.getType (), mode, _package, from))
+		!= null) {
+	      return java_type;
+	    }
+	    else {
+	      if (WAS_TEMPLATE)
+		return Type.createClass (org.openide.src.Identifier.create 
+					 (type_element.getName ()));
+	      else
+		return null;
+	    }
 	  }	  
 	}
 	if (tmp_element instanceof InterfaceElement) {
-	  return Type.createClass (org.openide.src.Identifier.create (type.getName ()));
+	  if (WAS_TEMPLATE)
+	    return Type.createClass (org.openide.src.Identifier.create (type.getName ()));
+	  else
+	    return null;
 	}
       }
       else {
@@ -849,8 +923,11 @@ public class ImplGenerator {
 	  System.out.println ("tmp_element: " + tmp_element.getName () + " : " + tmp_element);
 	String full_name = _package + "." + ctype2package (tmp_element);
 	full_name = full_name + "Holder";
-	return Type.createClass (org.openide.src.Identifier.create (full_name));
-	
+
+	if (WAS_TEMPLATE)
+	  return Type.createClass (org.openide.src.Identifier.create (full_name));
+	else
+	  return null;
       }
     }
 
@@ -940,7 +1017,7 @@ public class ImplGenerator {
       return null;
       } 
     */
-
+    
     return null;
   }
 
@@ -1149,7 +1226,7 @@ public class ImplGenerator {
 
     if (DEBUG)
       System.out.println ("ImplGenerator::findElementInElement (" + name + ", " 
-			  + element.getName () + ":" + element.getName () + ");");
+			  + element.getName () + ":" + element + ");");
     Vector mm = element.getMembers ();
     IDLElement tmp_element = null;
 
@@ -1174,8 +1251,8 @@ public class ImplGenerator {
 	if (element.getMember (i).getMember (0) instanceof DeclaratorElement) {
 	  if (DEBUG) {
 	    System.out.println ("declarator element: " + 
-				((TypeElement)element.getMember (i).getMember (0)).getName ());
-	    System.out.println ("name: " + name);
+				((TypeElement)element.getMember (i).getMember (0)).getName ()
+				+ ":" + ((DeclaratorElement)element.getMember (i).getMember (0)).getType ().ofDimension ());
 	  }
 	  
 	  if (((TypeElement)element.getMember (i).getMember (0)).getName ().equals (name)) {
@@ -1186,8 +1263,8 @@ public class ImplGenerator {
 	  }
 	}
 	if ((element.getMember (i).getMembers ().size () > 1)
-	     && (element.getMember (i).getMember (element.getMember (i).getMembers ().size () - 1)
-		 instanceof DeclaratorElement)) {
+	    && (element.getMember (i).getMember (element.getMember (i).getMembers ().size () - 1)
+		instanceof DeclaratorElement)) {
 	  int last = element.getMember (i).getMembers ().size () - 1;
 	  if (DEBUG) {
 	    System.out.println ("last declarator element: " + 
@@ -1245,7 +1322,11 @@ public class ImplGenerator {
       if (mode == Parameter.IN)
 	return type;
       else {
-	return JavaTypeToHolder (type);
+	//	if (type.isPrimitive ())
+	  return JavaTypeToHolder (type);
+	  //else
+	  //return JavaTypeToHolder (Type.createClass (org.openide.src.Identifier.create (idl_type.getName ())));
+
       }
     }
     if (DEBUG)
@@ -1261,7 +1342,11 @@ public class ImplGenerator {
       }
       else {
 	// is array ???
-	return JavaTypeToHolder (type);
+	if (type.isPrimitive ())
+	  return JavaTypeToHolder (type);
+	//else
+	//  return JavaTypeToHolder (Type.createClass (org.openide.src.Identifier.create 
+	//					     (idl_type.getName ())));
       }
     }
     if (DEBUG)
@@ -1269,8 +1354,12 @@ public class ImplGenerator {
 
     if (DEBUG)
       System.out.println ("-- is type with template parent?");
+
+    WAS_TEMPLATE = false;
     if ((type = hasTemplateParent (idl_type, mode, _package, _interface)) != null) {
       // idl_type is template type
+      if (DEBUG)
+	System.out.println ("-- is type with template parent? YEEES");
       return type;
       /*
 	if (mode == Parameter.IN) {
@@ -1730,6 +1819,13 @@ public class ImplGenerator {
       //	 if (source != null)
       //   source.addClass (clazz);
       PrintStream printer = new PrintStream (impl.getOutputStream (lock));
+
+      // add comment 
+      printer.println ("/*\n * This file was generated from " 
+		       + ido.getPrimaryFile ().getName () + ".idl file\n"
+		       + " * by NetBeans Developer Enterprise Implementation Generator\n"
+		       + " */");
+
       printer.println ("\npackage " + _package + ";\n");
       printer.println (clazz.toString ());
       lock.releaseLock ();

@@ -129,7 +129,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 	    if (DEBUG)
 	      System.out.println ("prepareJob for " 
 				  + ((FileObject)gens.elementAt (j)).getName ());
-	    jct.prepareJobForFileObject (job, CompilerCookie.Compile.class,
+	    jct.prepareJobForFileObject (job, CompilerCookie.Build.class,
 					 (FileObject)gens.elementAt (j));
 	  }
 	  if (DEBUG)
