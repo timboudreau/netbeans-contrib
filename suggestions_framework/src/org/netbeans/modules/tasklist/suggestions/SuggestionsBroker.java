@@ -623,7 +623,7 @@ err.log("Couldn't find current nodes...");
             SuggestionImpl s = (SuggestionImpl) it.next();
             Object seed = s.getSeed();
             // Make sure we don't pick up category nodes here!!!
-            if (seed instanceof DocumentSuggestionProvider) {
+            if (seed != SuggestionList.CATEGORY_NODE_SEED) {
                 sgs.add(s);
             }
 
@@ -632,7 +632,7 @@ err.log("Couldn't find current nodes...");
                 while (sit.hasNext()) {
                     s = (SuggestionImpl) sit.next();
                     seed = s.getSeed();
-                    if (seed instanceof DocumentSuggestionProvider) {
+                    if (seed != SuggestionList.CATEGORY_NODE_SEED) {
                         sgs.add(s);
                     }
                 }
@@ -646,6 +646,7 @@ err.log("Couldn't find current nodes...");
         }
 
         // Get rid of tasks from list
+        // XXX is not it already done by providers, it causes problems
         if (sgs.size() > 0) {
             manager.register(null, null, sgs, tasklist, true);
         }

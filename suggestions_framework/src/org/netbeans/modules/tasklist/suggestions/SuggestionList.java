@@ -46,6 +46,8 @@ public class SuggestionList extends TaskList {
      */
     private static final int MAX_INLINE = 4;
 
+    static final Object CATEGORY_NODE_SEED = new Object();
+
     private final int groupTreshold;
 
     /** Construct a new SuggestionManager instance. */
@@ -69,12 +71,8 @@ public class SuggestionList extends TaskList {
             category = (SuggestionImpl)categoryTasks.get(type);
         }
         if (create && (category == null)) {
-            category = new SuggestionImpl();
-
-            category.setSummary(type.getLocalizedName());
-            category.setAction(null);
+            category = new SuggestionImpl(type.getLocalizedName(),type, null, CATEGORY_NODE_SEED);
             category.setType(type.getName());
-            category.setSType(type);
             category.setIcon(type.getIconImage());
             category.setVisitable(false);
             // Don't duplicate the provider field! We don't want

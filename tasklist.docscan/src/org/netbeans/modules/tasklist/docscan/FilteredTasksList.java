@@ -21,6 +21,7 @@ import org.netbeans.modules.tasklist.core.TaskList;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.WeakHashMap;
 
 /**
  * Delegate actions to original task list while
@@ -101,7 +102,7 @@ final class FilteredTasksList implements ObservableList {
     }
 
     public void notifyStructureChanged(Task task) {
-//        if (silent) return;
+//        if (silent) return;  // the event comes from root.updatedStructure
         Iterator it = listeners.iterator();
         while (it.hasNext()) {
             TaskListener listener = (TaskListener) it.next();
@@ -120,6 +121,7 @@ final class FilteredTasksList implements ObservableList {
         while (it.hasNext()) {
             Task task = (Task) it.next();
             if (task.getSeed() instanceof SourceTaskProvider) {
+                // loosing identity here
                 Task clone = task.cloneTask();
                 root.addSubtask(clone, true);
             } else {
@@ -153,7 +155,14 @@ final class FilteredTasksList implements ObservableList {
 
         public void addedTask(Task t) {
             if (t.getSeed() instanceof SourceTaskProvider) {
-                getRoot().addSubtask(t, true);
+                try {
+                    silent = true;
+                    // loosing identity here
+                    Task clone = t.cloneTask();
+                    getRoot().addSubtask(clone, true);
+                } finally {
+                    silent = false;
+                }
                 Iterator it = listeners.iterator();
                 while (it.hasNext()) {
                     TaskListener listener = (TaskListener) it.next();
@@ -171,7 +180,26 @@ final class FilteredTasksList implements ObservableList {
 
         public void removedTask(Task t) {
             if (t.getSeed() instanceof SourceTaskProvider) {
-                getRoot().removeSubtask(t);
+                try {
+                    // find pairing task by key identity
+                    Object key = t.getKey();
+                    Task remove = null;
+                    Iterator it = getRoot().getSubtasks().iterator();
+                    while (it.hasNext()) {
+                        Task task = (Task) it.next();
+                        if (key == task.getKey()) {
+                            remove = task;
+                            break;
+                        }
+                    }
+
+                    if (remove != null) {
+                        silent = true;
+                        getRoot().removeSubtask(t);
+                    }
+                } finally {
+                    silent = false;
+                }
                 Iterator it = listeners.iterator();
                 while (it.hasNext()) {
                     TaskListener listener = (TaskListener) it.next();

@@ -29,8 +29,7 @@ import org.openide.nodes.Children;
  */
 public class TaskChildren extends Children.Keys {
     
-    /** Optional holder for the keys, to be used when changing them dynamically. */
-    private List myKeys;
+    private java.util.Map keys2tasks;  // vs. Children.Map
     private final Task parent;
     private Monitor monitor;
 
@@ -42,6 +41,23 @@ public class TaskChildren extends Children.Keys {
         if (parent.hasSubtasks() == false) {
             setKeys(Collections.EMPTY_SET);
         } else {
+
+// It does not work and does not save any Node instance creation
+//            // threat task clones as equal
+//            // XXX we may need to refresh nodes that share key
+//            // why do all pay here this extra overhead?
+//
+//            int size = parent.getSubtasks().size();
+//            ArrayList list = new ArrayList(size);
+//            keys2tasks = new WeakHashMap(size*2);
+//            Iterator it = parent.getSubtasks().iterator();
+//            while (it.hasNext()) {
+//                Task task = (Task) it.next();
+//                Object key = task.getKey();
+//                list.add(key);
+//                keys2tasks.put(key, task);
+//            }
+//            setKeys(list);
             setKeys(parent.getSubtasks());
         }
     }
@@ -60,7 +76,7 @@ public class TaskChildren extends Children.Keys {
     
     /** Called when the parent node is collapsed: cleanup */    
     protected void removeNotify() {
-        myKeys = null;
+        keys2tasks = null;
         assert monitor != null : "Dangling removeNotify()"; // NOI18N
         parent.getList().removeListener(monitor);
         monitor = null;
@@ -78,8 +94,9 @@ public class TaskChildren extends Children.Keys {
         //  return new Node[] { new TodoNode((MyParameter) key) };
         //return new Node[] { new TodoNode(key) };
 
-        Task item = (Task)key;
-        return item.createNode(); // XXX I do not like this model-view 1:1
+//        Task item = (Task)keys2tasks.get(key);
+//        assert item != null : "The key was held by Children.Keys!";
+        return ((Task)key).createNode(); // XXX I do not like this model-view 1:1
     }
 
     // Monitor tasklist and react to changes ~~~~~~~~~~~~~~~~~~~~~

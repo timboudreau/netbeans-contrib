@@ -125,7 +125,10 @@ public class Task extends Suggestion implements Cloneable {
     protected boolean silentUpdate = false;
     
     protected Task parent;
-    
+
+    // key shared by all clones
+    private Object key;
+
     /** If this item has subtasks, they are stored in this list */
     protected LinkedList subtasks = null;
 
@@ -137,15 +140,17 @@ public class Task extends Suggestion implements Cloneable {
     public Task() { // TODO consider using a factory instead
         super(null, null, null);
         parent = null;
-	list = null;
+	    list = null;
         visitable = true;
+        key = new Object();
     }
     
     public Task(String desc, Task parent) {
         super(null, desc, null);
         this.parent = parent;
-	list = null;
+    	list = null;
         visitable = true;
+        key = new Object();
     }
     
     /**
@@ -722,6 +727,13 @@ public class Task extends Suggestion implements Cloneable {
     }
 
     /**
+     * Returns a key shared by all task clones.
+     */
+    public final Object getKey() {
+        return key;
+    }
+
+    /**
      * Get the provider. Not defined for tasks - will be subclassed
      * in SuggestionImpl but we don't want Task to be abstract...
      */
@@ -746,6 +758,9 @@ public class Task extends Suggestion implements Cloneable {
         list = from.list;
         visitable = from.visitable;
         zombie = from.zombie;
+
+        assert from.key != null;
+        key = from.key;
 
         // Copy fields from the parent implementation
         super.setSummary(from.getSummary());
