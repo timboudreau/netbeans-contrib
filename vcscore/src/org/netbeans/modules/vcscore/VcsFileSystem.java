@@ -726,7 +726,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         FileObject primary = dobj.getPrimaryFile();
         Set[] scheduled = (Set[]) primary.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
-        if (scheduled != null) {
+        if (scheduled != null && scheduled[id] != null) {
             scheduled[id].remove(fo.getPackageNameExt('/', '.'));
             try {
                 primary.setAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR, scheduled);
