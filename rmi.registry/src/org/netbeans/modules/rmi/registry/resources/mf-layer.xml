@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+
+<filesystem>
+
+    <folder name="Services">
+        <file name="org-netbeans-modules-rmi-registry-settings-RMIRegistrySettings.settings" url="registry.settings">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.registry.Bundle"/>
+            <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/registry/resources/rmiSettings.gif"/>
+        </file>
+    </folder>
+
+  <folder name="UI">
+    <folder name="Runtime">
+      <file name="org-netbeans-modules-rmi-registry-RMIRegistryNode.instance">
+        <attr name="instanceClass" stringvalue="org.netbeans.modules.rmi.registry.RMIRegistryNode"/>
+      </file>
+    </folder> <!-- Runtime -->
+    <folder name="Services">
+        <folder name="RMI">
+            <file name="org-netbeans-modules-rmi-registry-settings-RMIRegistrySettings.shadow">
+                <attr name="originalFile" stringvalue="Services/org-netbeans-modules-rmi-registry-settings-RMIRegistrySettings.settings"/>
+                <attr name="originalFileSystem" stringvalue="SystemFileSystem"/>               
+            </file>
+        </folder>
+    </folder>
+  </folder> <!-- UI -->
+</filesystem>

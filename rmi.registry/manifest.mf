@@ -1,0 +1,8 @@
+OpenIDE-Module: org.netbeans.modules.rmi.registry/2
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/rmi/registry/Bundle.properties
+OpenIDE-Module-Layer: org/netbeans/modules/rmi/registry/resources/mf-layer.xml
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.25
+OpenIDE-Module-Specification-Version: 2.0
+OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
+
+
