@@ -17,6 +17,7 @@ import java.awt.Image;
 import org.openide.util.Utilities;
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.client.SuggestionPerformer;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.text.Line;
@@ -200,6 +201,19 @@ public class SuggestionImpl extends Task implements Node.Cookie {
          return seed;
     }
 
+    /**
+     * Get the priority of the task.
+     * This method could also return null if it is a category item.
+     *
+     * @return The priority of the task or null
+     */
+    public SuggestionPriority getPriority() {
+        if (seed == SuggestionList.CATEGORY_NODE_SEED)
+            return null;
+        else
+            return super.getPriority();
+    }
+    
 /*
     public boolean isHighlighted() {
         return highlighted;
