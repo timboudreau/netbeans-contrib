@@ -93,7 +93,9 @@ public class TaskNode extends AbstractNode {
     private void init() {
         setName(item.getSummary());
         monitor = new Monitor();
-        item.getList().addTaskListener(monitor);
+        ObservableList list = item.getList();
+        TaskListener weakMonitor = (TaskListener) WeakListeners.create(TaskListener.class, monitor, list);
+        list.addTaskListener(weakMonitor);
         item.addPropertyChangeListener(monitor);
         updateDisplayStuff();
         getCookieSet().add(new InstanceSupport.Instance(item));
