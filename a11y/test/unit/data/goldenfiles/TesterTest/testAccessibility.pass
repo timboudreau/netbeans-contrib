@@ -1,0 +1,59 @@
+Results of Accessibility test
+
+
+ Doesn't implement Accessible :
+   Class: javax.swing.plaf.metal.MetalSplitPaneDivider {  } 
+
+
+ No Accessible name :
+   Class: javax.swing.JList {  |  } 
+   Class: javax.swing.JTabbedPane {  |  } 
+   Class: javax.swing.JTextArea {  |  } 
+   Class: javax.swing.JTextArea {  |  } 
+   Class: javax.swing.JTextField {  |  } 
+
+
+ No Accessible description :
+   Class: TestJFrame {   |  } 
+   Class: javax.swing.JButton {  jButton1 |  } 
+   Class: javax.swing.JButton {  jButton1 |  } 
+   Class: javax.swing.JCheckBox {  jCheckBox1 |  } 
+   Class: javax.swing.JList {  |  } 
+   Class: javax.swing.JRadioButton {  jRadioButton1 |  } 
+   Class: javax.swing.JTabbedPane {  |  } 
+   Class: javax.swing.JTextArea {  |  } 
+   Class: javax.swing.JTextArea {  |  } 
+   Class: javax.swing.JTextField {  |  } 
+   Class: javax.swing.JToggleButton {  jToggleButton1 |  } 
+
+
+ Label with LABEL_FOR not set :
+   - none.
+
+ Components with no LABEL_FOR pointing to it :
+   Class: javax.swing.JList {  |  } 
+   Class: javax.swing.JTabbedPane {  |  } 
+   Class: javax.swing.JTextArea {  |  } 
+   Class: javax.swing.JTextArea {  |  } 
+   Class: javax.swing.JTextField {  |  } 
+
+
+ Components with no mnemonic :
+   Class: javax.swing.JButton {  jButton1 |  } 
+
+
+ Components with wrong mnemonic (mnemonic isn't ASCII , label doesn't contain mnemonic):
+   - none.
+
+ Components with potential mnemonics conflict:
+ - components with mnemonic 'L' :
+   Class: javax.swing.JLabel {  jLabel1 |  tooltip } 
+   Class: javax.swing.JLabel {  jLabel3 |  tooltip } 
+
+ - components with mnemonic 'B' :
+   Class: javax.swing.JButton {  jButton1 |  } 
+   Class: javax.swing.JRadioButton {  jRadioButton1 |  } 
+
+
+ Components not reachable with tab traversal :
+   - none.

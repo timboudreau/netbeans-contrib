@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="Test a11y module" basedir="." default="all">
+
+    <import file="../../nbbuild/default.xml"/>
+    <property file="../../nbbuild/directories.properties"/>
+
+    <path id="codetest.classpath">
+        <pathelement location="../../nbbuild/netbeans/extra/modules/org-netbeans-modules-a11y.jar"/>
+    </path>
+                
+    <!-- ========= -->
+    <!-- Compilers -->
+    <!-- ========= -->
+    
+    <target name="unit-compiler">
+        <buildTests srcDir="unit/src" compileexcludes="**/data/**">
+            <classpath refid="codetest.classpath"/>
+        </buildTests>
+    </target>
+    
+    <!-- ========= -->
+    <!-- Executors -->
+    <!-- ========= -->
+
+    <!-- Executor for a11y tests -->
+    <target name="runcodetest_a11y">
+        <executeTests pluginName="jvm">
+            <classpath refid="codetest.classpath"/>
+<!--            <property name="xtest.userdata|a11ytest.log" value="true"/>  -->
+        </executeTests>
+    </target>
+    
+</project>
