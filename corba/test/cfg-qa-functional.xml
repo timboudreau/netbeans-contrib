@@ -14,7 +14,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <mconfig name="CORBA config">
 
-	<testbag testattribs="stable,validation,basic" executor="ide" name="testbag_Basic" resultsprocessor="qa-functional">
+	<testbag testattribs="stable,full,validation,basic" executor="ide" name="testbag_Basic" resultsprocessor="qa-functional">
 		<testset dir="qa-functional/src">
 			<patternset>
 				<include name="test/basic/BasicSuite.class"/>
@@ -22,7 +22,7 @@ Microsystems, Inc. All Rights Reserved.
 		</testset>
 	</testbag>
 
-	<testbag testattribs="stable,a11y" executor="ide" name="testbag_A11Y" resultsprocessor="qa-functional">
+	<testbag testattribs="stable,full,a11y" executor="ide" name="testbag_A11Y" resultsprocessor="qa-functional">
 		<testset dir="qa-functional/src">
 			<patternset>
 				<include name="test/a11y/Main.class"/>
@@ -30,7 +30,7 @@ Microsystems, Inc. All Rights Reserved.
 		</testset>
 	</testbag>
 
-	<testbag testattribs="stable,genimpl,genimpl1" executor="ide" name="testbag_GenImpl_Suite1" resultsprocessor="qa-functional">
+	<testbag testattribs="stable,full,genimpl,genimpl1" executor="ide" name="testbag_GenImpl_Suite1" resultsprocessor="qa-functional">
 		<testset dir="qa-functional/src">
 			<patternset>
 				<include name="test/genimpl/Suite1.class"/>
@@ -38,7 +38,7 @@ Microsystems, Inc. All Rights Reserved.
 		</testset>
 	</testbag>
 
-	<testbag testattribs="stable,genimpl,genimpl2" executor="ide" name="testbag_GenImpl_Suite2" resultsprocessor="qa-functional">
+	<testbag testattribs="stable,full,genimpl,genimpl2" executor="ide" name="testbag_GenImpl_Suite2" resultsprocessor="qa-functional">
 		<testset dir="qa-functional/src">
 			<patternset>
 				<include name="test/genimpl/Suite2.class"/>
