@@ -34,5 +34,13 @@ Microsystems, Inc. All Rights Reserved.
              <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-bugs-NewQueryAction.instance" boolvalue="true" />
         </folder>
     </folder>
+
+    <folder name="TaskList">
+        <folder name="bugs">
+            <file name="columns.settings" url="columns.xml">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration"/>
+            </file>
+        </folder>
+    </folder>
 </filesystem>
 

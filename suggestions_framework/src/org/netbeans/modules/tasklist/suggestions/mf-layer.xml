@@ -80,5 +80,12 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
     </folder>
 
+    <folder name="TaskList">
+        <folder name="suggestions">
+            <file name="columns.settings" url="columns.xml">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration"/>
+            </file>
+        </folder>
+    </folder>
 </filesystem>
 

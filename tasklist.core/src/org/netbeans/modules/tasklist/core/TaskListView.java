@@ -35,6 +35,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -44,6 +45,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.openide.filesystems.FileObject;
@@ -61,7 +63,11 @@ import org.openide.util.NbBundle;
 import org.openide.awt.StatusDisplayer;
 import org.openide.ErrorManager;
 import org.openide.actions.FindAction;
+import org.openide.cookies.InstanceCookie;
 import org.openide.explorer.ExplorerPanel;
+import org.openide.filesystems.FileSystem;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.Line;
 import org.openide.util.actions.ActionPerformer;
 import org.openide.util.actions.SystemAction;
@@ -69,7 +75,6 @@ import org.openide.windows.Mode;
 import org.openide.windows.Workspace;
 import org.openide.windows.WindowManager;
 import org.openide.util.actions.CallbackSystemAction;
-
 
 
 /** View showing the todo list items
@@ -81,6 +86,9 @@ public abstract class TaskListView extends ExplorerPanel
     implements TaskListener, ActionListener, PropertyChangeListener {
     /** Property "task summary" */
     public static final String PROP_TASK_SUMMARY = "taskDesc"; // NOI18N
+    
+    /** String (category of a view) -> ColumnsConfiguration */
+    private static Map defColumns = new HashMap();
     
     transient protected TaskNode rootNode = null;
     transient protected MyTreeTable treeTable;
@@ -233,6 +241,33 @@ public abstract class TaskListView extends ExplorerPanel
         return columns;
     }
     
+    /**
+     * Returns default configuration for visible columns
+     *
+     * @return default columns configuration
+     */
+    protected ColumnsConfiguration getDefaultColumns() {
+        ColumnsConfiguration cc = (ColumnsConfiguration) defColumns.get(category);
+        if (cc != null)
+            return cc;
+        
+        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
+        FileObject fo = fs.findResource("TaskList/" + category + "/columns.settings"); // NOI18N
+        
+        try {
+            DataObject dobj = DataObject.find(fo);
+            InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
+            cc = (ColumnsConfiguration) ic.instanceCreate();
+        } catch (ClassNotFoundException e) {
+            ErrorManager.getDefault().notify(e);
+        } catch (DataObjectNotFoundException e) {
+            ErrorManager.getDefault().notify(e);
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
+        }
+        return cc;
+    }
+    
     /** Called when the object is opened. Add the GUI. 
 	@todo Trigger source listening on window getting VISIBLE instead
               of getting opened.
@@ -247,6 +282,9 @@ public abstract class TaskListView extends ExplorerPanel
 	}
 	initialized = true;
 	
+        ColumnsConfiguration cc = getDefaultColumns();
+        cc.configure(this);
+        
         FindAction find = (FindAction) FindAction.get(FindAction.class);
         FilterAction filter = (FilterAction) FilterAction.get(FilterAction.class);
         getActionMap().put(find.getActionMapKey(), filter);
@@ -320,6 +358,8 @@ public abstract class TaskListView extends ExplorerPanel
     
     protected void componentDeactivated() {
         super.componentDeactivated();
+        ColumnsConfiguration columns = getDefaultColumns();
+        columns.loadFrom(this);
     }
 
     /** Create the root node to be used in this view */
@@ -462,11 +502,14 @@ public abstract class TaskListView extends ExplorerPanel
         //super.readExternal(objectInput);
 
 	int ver = objectInput.read();
-        //assert ver <= 3 : "serialization version incorrect; should be 1, 2 or 3";
+        //assert ver <= 4 : "serialization version incorrect; should be 1 to 4";
 
 	// Read in the UID of the currently selected task, or null if none
+	// TODO: Not yet implemented
 	String selUID = (String)objectInput.readObject();
-	 // Unused: Not yet implemented
+        
+        if (ver == 4)
+            return;
 	
 	int sortingColumn = objectInput.read();
 	int sortAscendingInt = objectInput.read();
@@ -512,7 +555,8 @@ public abstract class TaskListView extends ExplorerPanel
 		    }
 		}
 		
-		if (index != -1) {
+		/* don't do anything. we just read the bytes
+                if (index != -1) {
 		    columnVisible[index] = true;
 		    
 		    // Set sorting attribute
@@ -526,10 +570,12 @@ public abstract class TaskListView extends ExplorerPanel
 			}
 		    }
 		}
+                */
 	    }
 
 	    //System.out.print("Column visibility: {");
-	    for (int i = 0; i < columns.length; i++) {
+	    /* we don't do anything. we just read the bytes
+            for (int i = 0; i < columns.length; i++) {
                 //System.out.print(" " + columnVisible[i]);
 
 		// Is this column visible?
@@ -546,6 +592,7 @@ public abstract class TaskListView extends ExplorerPanel
 					Boolean.TRUE);
 		}
 	    }
+            */
             //System.out.println(" }");
 	}
 
@@ -590,116 +637,35 @@ public abstract class TaskListView extends ExplorerPanel
         //  don't want this.)
         // TopComponent persists the name and tooltip text; we
         //  don't care about that either.
-        //super.writeExternal(objectOutput);
+        // super.writeExternal(objectOutput);
 
-
-        // Here I should record a few things; in particular, sorting order, view
-        // preferences, etc.
-        // Since I'm not doing that yet, let's at a minimum put in a version
-        // byte so we can do the right thing later without corrupting the userdir
-        objectOutput.write(3); // SERIAL VERSION
-
-	// Write out the UID of the currently selected task, or null if none
-	objectOutput.writeObject(null); // Not yet implemented
-	
 	// Version 1 format:
 	// String: selected uid
 	// byte: sortingColumn (255: no sort, otherwise, sorting id)
 	// byte: sort ascending (0:false or 1:true)
 	// byte: number of visible columns (N)
 	// N bytes: visible column uids
+        
+        // Version 4 format:
+        // String: selected UID
+        // String: category
+        // String: title
+        // byte: persistent
 
 	// TODO Additional:
-	// N bytes: visible column order id's
-	// N bytes: column widths?
-	//  (Question: should the above two lines be written for ALL columns
-	//   or just visible?)
 	// String Object: selected task? (should this be a multi-selection?)
 	
-	// Look at column properties and figure out which columns are visible,
-	// which column is the sorting column and which whether or not the sort
-	// is ascending/descending
-	int[] visibleColumns = null;
-	int numVisible = 0;
-	int sortingColumn = -1;
-	boolean ascending = false;
-	if (columns != null) {
-	    int numColumns = columns.length;
-	    visibleColumns = new int[numColumns];
-
-	    for (int i = 0; i < columns.length; i++) {
-		Boolean invisible =
-		    (Boolean)columns[i].getValue("InvisibleInTreeTableView"); // NOI18N
-
-		// Is the column visible?
-
-                // Grrr.... openide must not be using the Boolean enum's;
-                // it must be creating new Boolean objects.... so I've
-                // gotta use boolean value instead of this nice line:
-                //    if (!(invisible == Boolean.TRUE)) {
-                if ((invisible == null) || !invisible.booleanValue()) {
-		    // yes
-		    visibleColumns[numVisible++] = columns[i].uid;
-		}
-
-		Boolean sorting =
-		    (Boolean)columns[i].getValue( "SortingColumnTTV"); // NOI18N
-                if ((sorting != null) && (sorting.booleanValue())) {
-		    //assert sortingColumn == -1; // Only one column should be it
-		    sortingColumn = columns[i].uid;
-		    Boolean desc = (Boolean)columns[i].getValue( "DescendingOrderTTV"); // NOI18N
-		    ascending = (desc != Boolean.TRUE);
-		}
-		
-	    }
-	}
-
-        /*
-        System.out.println("writeExternal: " + getClass().getName()); // NOI18N
-	System.out.println("Sorting column: " + sortingColumn); // NOI18N
-	System.out.println("Sorting ascending: " + ascending); // NOI18N
-	System.out.println("Number of visible columns: " + numVisible); // NOI18N
-	for (int i = 0; i < numVisible; i++) {
-	    System.out.print("   " + visibleColumns[i]); // NOI18N
-	}
-	System.out.println("\n"); // NOI18N
-        */
-
-	int sortAscendingInt = ascending ? 1 : 0;
-	    
-	// WARNING! These write functions write BYTES! So don't try to
-	// write negative numbers
-	if (sortingColumn == -1) {
-	    sortingColumn = 255;
-	}
-	
-	//assert ((sortingColumn >= 0) && (sortingColumn <= 255));
-	//assert ((sortAscendingInt >= 0) &&
-	//	(sortAscendingInt <= 255));
-	//assert ((numVisible >= 0) && (numVisible <= 255));
-	
-	objectOutput.write(sortingColumn);
-	objectOutput.write(sortAscendingInt);
-	objectOutput.write(numVisible);
-
-	for (int i = 0; i < numVisible; i++) {
-	    // Can only write bytes...
-	    //assert((visibleColumns[i] >= 0) &&
-	    //		    (visibleColumns[i] <= 255));
-	    
-	    objectOutput.write(visibleColumns[i]);
-	}
-	    /*
-	      column order in ttv ( columns can be moved )
-	      (Integer)columns[i].getValue( "OrderNumberTTV" ));
-	    */	
+	// Write out the UID of the currently selected task, or null if none
+        objectOutput.write(4); // SERIAL VERSION
 
 	// Write out the UID of the currently selected task, or null if none
+	objectOutput.writeObject(null); // Not yet implemented
 
 	// Write out the window's properties:
-	objectOutput.writeObject(category);
-	objectOutput.writeObject(title);
-	objectOutput.write(persistent ? 1 : 0);
+        // TODO: do we really need these properties?
+	// objectOutput.writeObject(category);
+	// objectOutput.writeObject(title);
+	// objectOutput.write(persistent ? 1 : 0);
     }
     
     /** Create the list of columns to be used in the view.
