@@ -323,6 +323,7 @@ public class CommandExecutorSupport extends Object {
         for (Iterator filesIt = fileNames.iterator(); filesIt.hasNext(); ) {
             String name = (String) filesIt.next();
             org.openide.filesystems.FileObject fo = fileSystem.findResource(name);
+            if (fo == null) continue;
             try {
                 org.openide.loaders.DataObject dobj = org.openide.loaders.DataObject.find(fo);
                 files.addAll(dobj.files());
