@@ -146,7 +146,6 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
             vars.put(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_UPDATE_CHANGED_FROM_SELECTOR, "true");
             return false;
         } catch (java.io.IOException exc) {
-            org.openide.ErrorManager.getDefault().notify(exc);
             if (loginPanel != null) {
                 /*
                 DialogDisplayer.getDefault().notify(
