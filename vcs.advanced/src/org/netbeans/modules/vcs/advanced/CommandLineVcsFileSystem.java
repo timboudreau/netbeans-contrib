@@ -133,6 +133,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public CommandLineVcsFileSystem () {
         //D.deb("CommandLineVcsFileSystem()"); // NOI18N
         super ();
+        //System.out.println("\nNEW CommandLineVcsFileSystem()\n");
         setConfigFO();
         //boolean status = readConfiguration (DEFAULT_CONFIG_NAME);
         //if (status == false) readConfigurationCompat(DEFAULT_CONFIG_NAME_COMPAT);
@@ -141,6 +142,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         cacheRoot = System.getProperty("netbeans.user")+File.separator+
                     "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
         cachePath = createNewCacheDir();
+        //System.out.println("  cachePath = "+cachePath);
         setCreateVersioningSystem(true);
         try {
             setRootDirectory(getRootDirectory(), true);
@@ -853,6 +855,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             org.openide.xml.XMLUtil.write(doc, fo.getOutputStream(fo.lock()), null);
             try {
                 DataObject myXMLDataObject = DataObject.find(fo);
+                //((CommandLineVcsFileSystemInstance) myXMLDataObject.getCookie(org.openide.cookies.InstanceCookie.Of.class)).setInstance(this);
+                org.openide.util.Lookup instanceLookup = org.openide.loaders.Environment.find(myXMLDataObject);
+                ((CommandLineVcsFileSystemInstance) instanceLookup.lookup(org.openide.cookies.InstanceCookie.class)).setInstance(this);
                 //System.out.println("createInstanceDataObject() = "+myXMLDataObject);
                 return myXMLDataObject;
             } catch (DataObjectNotFoundException donfExc) {}

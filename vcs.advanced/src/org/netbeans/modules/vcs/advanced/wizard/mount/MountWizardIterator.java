@@ -60,7 +60,7 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     
     public void initialize(org.openide.loaders.TemplateWizard templateWizard) {
         if (panels == null) {
-            Object instance = null;
+            Object instance = new org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem();/*null;
             try {
                 instance = ((InstanceCookie) templateWizard.getTemplate().getCookie(InstanceCookie.class)).instanceCreate();
             } catch (java.io.IOException ioExc) {
@@ -69,6 +69,7 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
                 org.openide.TopManager.getDefault().notifyException(cnfExc);
             }
             if (instance == null) return ;
+                                                              */
             data = new MountWizardData(instance);
             setupPanels(templateWizard);
             listenerList = new javax.swing.event.EventListenerList();
