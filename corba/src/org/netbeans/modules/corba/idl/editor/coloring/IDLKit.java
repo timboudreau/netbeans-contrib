@@ -15,10 +15,10 @@ package com.netbeans.enterprise.modules.corba.idl.editor.coloring;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import com.netbeans.editor.BaseKit;
 import com.netbeans.editor.BaseAction;
 import com.netbeans.editor.Syntax;
 import com.netbeans.editor.Utilities;
+import com.netbeans.editor.BaseDocument;
 import javax.swing.Action;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.TextAction;
@@ -28,6 +28,7 @@ import javax.swing.text.Document;
 import javax.swing.JEditorPane;
 
 import com.netbeans.developer.modules.text.NbEditorDocument;
+import com.netbeans.developer.modules.text.NbEditorBaseKit;
 import com.netbeans.developer.modules.text.KitSupport;
 /** 
 * Editor kit implementation for Idl content type
@@ -36,28 +37,21 @@ import com.netbeans.developer.modules.text.KitSupport;
 * @version 0.01
 */
 
-public class IDLKit extends BaseKit {
+public class IDLKit extends NbEditorBaseKit {
 
   static final long serialVersionUID =-64995352874400403L;
+
   /** Create new instance of syntax coloring parser */
-  public Syntax createSyntax() {
+  public Syntax createSyntax(BaseDocument doc) {
     return new IDLSyntax();
   }
-
-  public Document createDefaultDocument() {
-    return new NbEditorDocument(this.getClass());
-  }
-
-  public void install(JEditorPane c) {
-    super.install(c);
-    KitSupport.updateActions(c); // update IDE find and goto action
-  }
-
 
 }
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         1/18/00  Miloslav Metelka extending 
+ *       NbEditorBaseKit
  *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
  *  1    Gandalf   1.0         11/9/99  Karel Gardas    
  * $
