@@ -2324,7 +2324,6 @@ public class VariableInputDialog extends javax.swing.JPanel {
         textArea.setWrapStyleWord(true);
         textArea.setLineWrap(component.isMultiLine());
         textArea.setEditable(false);
-        textArea.setEnabled(false);
         textArea.setOpaque(false);
         textArea.getAccessibleContext().setAccessibleName(valueExpanded);
         textArea.getAccessibleContext().setAccessibleDescription(valueExpanded);
