@@ -23,13 +23,13 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 
 /**
- * Moves a task up
+ * Moves a task down
  */
-public class MoveUpAction extends NodeAction {
+public class MoveDownAction extends NodeAction {
     /**
-     * Creates a new instance of MoveUpAction
+     * Creates a new instance
      */
-    public MoveUpAction() {
+    public MoveDownAction() {
     }
     
     protected void performAction(org.openide.nodes.Node[] activatedNodes) {
@@ -37,7 +37,7 @@ public class MoveUpAction extends NodeAction {
         UserTask ut = n.getTask();
         UserTaskView utv = UserTaskView.getCurrent();
         Object es = utv.getTreeTable().getExpandedNodesAndSelection();
-        ut.moveUp();
+        ut.moveDown();
         utv.getTreeTable().setExpandedNodesAndSelection(es);
     }
     
@@ -51,21 +51,21 @@ public class MoveUpAction extends NodeAction {
         UTUtils.LOGGER.fine("checking the index"); // NOI18N
         UserTaskNode n = (UserTaskNode) activatedNodes[0];
         UserTask ut = n.getTask();
-
+        
         UserTaskObjectList list;
         if (ut.getParent() == null)
             list = ut.getList().getSubtasks();
         else
             list = ut.getParent().getSubtasks();
         
-        if (list.indexOf(ut) == 0) 
+        if (list.indexOf(ut) == list.size() - 1) 
             return false;
         
         return true;
     }
     
     protected String iconResource() {
-        return "org/netbeans/modules/tasklist/usertasks/actions/moveUp.gif"; // NOI18N
+        return "org/netbeans/modules/tasklist/usertasks/actions/moveDown.gif"; // NOI18N
     }
     
     public org.openide.util.HelpCtx getHelpCtx() {
@@ -73,7 +73,7 @@ public class MoveUpAction extends NodeAction {
     }
     
     public String getName() {
-        return NbBundle.getMessage(MoveUpAction.class, "MoveUp"); // NOI18N
+        return NbBundle.getMessage(MoveUpAction.class, "MoveDown"); // NOI18N
     }    
     
     protected boolean asynchronous() {

@@ -35,15 +35,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import javax.swing.Action;
 import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -57,6 +53,8 @@ import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.MoveDownAction;
+import org.netbeans.modules.tasklist.usertasks.actions.MoveUpAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
@@ -69,6 +67,7 @@ import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.openide.ErrorManager;
 import org.openide.actions.FindAction;
@@ -96,7 +95,7 @@ import org.openide.windows.WindowManager;
  *
  * @author Tor Norbye
  */
-public class UserTaskView extends TopComponent implements UserTaskListener, 
+public class UserTaskView extends TopComponent implements
 ExplorerManager.Provider, ExportImportProvider {
     // TODO: replace these constants with the equivalents from UserTaskProperties
     public static final String PROP_TASK_DONE = UserTaskProperties.PROPID_DONE;
@@ -115,6 +114,8 @@ ExplorerManager.Provider, ExportImportProvider {
     
     private static final long serialVersionUID = 1;
 
+    private static int nextViewId = 0;
+    
     private static UserTaskView defview = null;
     
     /** Keeps track of all UserTaskViews */
@@ -176,6 +177,8 @@ ExplorerManager.Provider, ExportImportProvider {
     
     private UserTasksTreeTable tt;
     
+    private int viewId;
+    
     /** 
      * Construct a new UserTaskView. Most work is deferred to
      * componentOpened. NOTE: this is only for use by the window
@@ -199,6 +202,7 @@ ExplorerManager.Provider, ExportImportProvider {
 
         assert category != null : "category == null";
 
+        this.viewId = nextViewId++;
         this.category = category;
         setName(title);
         this.persistent = persistent;
@@ -234,6 +238,15 @@ ExplorerManager.Provider, ExportImportProvider {
     }
 
     /**
+     * Returns the component representing the tasks.
+     *
+     * @return TreeTable
+     */
+    public TreeTable getTreeTable() {
+        return tt;
+    }
+    
+    /**
      * Returns actions for the toolbar.
      *
      * @return actions for the toolbar or null
@@ -245,7 +258,9 @@ ExplorerManager.Provider, ExportImportProvider {
             SystemAction.get(FilterUserTaskAction.class),
             SystemAction.get(RemoveFilterUserTaskAction.class),
             SystemAction.get(StartTaskAction.class),
-            SystemAction.get(PauseAction.class)
+            SystemAction.get(PauseAction.class),
+            SystemAction.get(MoveUpAction.class),
+            SystemAction.get(MoveDownAction.class)
         };
     }
     
@@ -273,14 +288,14 @@ ExplorerManager.Provider, ExportImportProvider {
         removeFilter.enable();
 
         // it's strange I'd expect live listener based solution
-        Iterator it = getModel().getTasks().iterator();
+        Iterator it = getModel().getSubtasks().iterator();
         while (it.hasNext()) {
             UserTask next = (UserTask) it.next();
             next.updateLineNumberRecursively();
         }
 
-        // debug Ctrl+C,V,X
-        if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
+        /* debug Ctrl+C,V,X
+         if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
             ActionMap am = this.getActionMap();
             Object[] actionKeys = am.allKeys();
             for (int i = 0; i < actionKeys.length; i++) {
@@ -312,6 +327,7 @@ ExplorerManager.Provider, ExportImportProvider {
                 cmp = cmp.getParent();
             }
         }
+         */
     }
     
     /** 
@@ -446,37 +462,36 @@ for (int i = 0; i < columns.length; i++) {
      */    
     public void readExternal(ObjectInput objectInput) throws IOException, java.lang.ClassNotFoundException {
         try {
-        readExternalCore(objectInput);
-	int ver = objectInput.read();
+            readExternalCore(objectInput);
+            int ver = objectInput.read();
 
-        if (ver >= 2) {
-            // Read tasklist file name
-	    String urlString = (String)objectInput.readObject();
-            if (urlString != null) {
-                URL url = new URL(urlString);
-                final FileObject fo = URLMapper.findFileObject(url);
-                if (fo != null) {
-                	UserTaskList utl = new UserTaskList();
-                	utl.readFile(fo);
-                    setModel(utl);
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            setName(fo.getNameExt());
-                        }
-                    }); 
-                }
-                // XXX I do extra work here. I read in the global task
-                // list each time (default UserTaskView constructor)
-                // and then replace it with my own. If the default is large
-                // this is significant. Think of a better way to do it.
-                if (defview == this) { // work around one such problem
-                    defview = null;
+            if (ver >= 2) {
+                // Read tasklist file name
+                String urlString = (String)objectInput.readObject();
+                if (urlString != null) {
+                    URL url = new URL(urlString);
+                    final FileObject fo = URLMapper.findFileObject(url);
+                    if (fo != null) {
+                            UserTaskList utl = new UserTaskList();
+                            utl.readFile(fo);
+                        setModel(utl);
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                setName(fo.getNameExt());
+                            }
+                        }); 
+                    }
+                    // XXX I do extra work here. I read in the global task
+                    // list each time (default UserTaskView constructor)
+                    // and then replace it with my own. If the default is large
+                    // this is significant. Think of a better way to do it.
+                    if (defview == this) { // work around one such problem
+                        defview = null;
+                    }
                 }
             }
-        }
         } catch (Throwable t) {
-            if (UTUtils.LOGGER.isLoggable(Level.SEVERE))
-                t.printStackTrace();
+            t.printStackTrace();
         }
     }
 
@@ -491,8 +506,8 @@ for (int i = 0; i < columns.length; i++) {
     public void writeExternalCore(ObjectOutput objectOutput) throws IOException {
         if (!persistent) {
             ErrorManager.getDefault().log(
-                    ErrorManager.INFORMATIONAL,
-                    "Warning: This tasklist window (" + getName() + ") should not have been persisted!");
+                ErrorManager.INFORMATIONAL,
+                "Warning: This tasklist window (" + getName() + ") should not have been persisted!");
             return;
         }
 
@@ -529,12 +544,6 @@ for (int i = 0; i < columns.length; i++) {
 
         // Write out the UID of the currently selected task, or null if none
         objectOutput.writeObject(null); // Not yet implemented
-
-        // Write out the window's properties:
-        // TODO: do we really need these properties?
-        // objectOutput.writeObject(category);
-        // objectOutput.writeObject(title);
-        // objectOutput.write(persistent ? 1 : 0);
     }
 
     /** 
@@ -622,19 +631,21 @@ for (int i = 0; i < columns.length; i++) {
     protected void setModel(UserTaskList list) {
         hideList();
         tasklist = list;
-        getModel().addTaskListener(this);
+        // TODO getModel().addTaskListener(this);
         UserTaskList utl = (UserTaskList) this.getList();
-        utl.showAnnotations(utl.getTasks().iterator());
+        utl.showAnnotations(utl.getSubtasks().iterator());
     }
     
     protected void hideList() {
-        UserTaskList prev = getModel();
+        /*UserTaskList prev = getModel();
         if (prev != null) {
             prev.removeTaskListener(this);
         }
         UserTaskList utl = (UserTaskList) this.getModel();
         if (utl != null)
             utl.hideAnnotations(utl.getTasks().iterator());
+         *
+         * TODO */
     }
 
     public String toString() { 
@@ -651,7 +662,10 @@ for (int i = 0; i < columns.length; i++) {
     }
 
     protected java.lang.String preferredID() {
-        return "org.netbeans.modules.tasklist.usertasks.Window";
+        // although TC.preferredId says that the return value of
+        // preferredID must not be unique it does not seem to work
+        // so viewId is used to identify the views
+        return "org.netbeans.modules.tasklist.usertasks.Window" + viewId; // NOI18N
     }    
 
     protected void setFiltered() {
@@ -1136,35 +1150,6 @@ for (int i = 0; i < columns.length; i++) {
         storeColumnsConfiguration();
     }
 
-    private void setRoot() {
-        /* TODO: remove
-         rootNode = createRootNode();
-	// TODO: usertasks module sets the display name of the root node to
-        // "Task List"
-        rootNode.setDisplayName(getMainColumn(-1).getDisplayName());
-
-        LOGGER.fine("root created " + rootNode);
-
-        Node prevRoot = getExplorerManager().getRootContext();
-
-        if (isFiltered()) {
-            // Create filtered view of the tasklist
-            FilteredTaskChildren children =
-                new FilteredTaskChildren(this, rootNode, getFilter());
-            FilterNode n = new FilterTaskNode(rootNode, children, false);
-            getExplorerManager().setRootContext(n);
-        } else {
-            getExplorerManager().setRootContext(rootNode);
-        }
-
-        try {
-            if (prevRoot != null) prevRoot.destroy();
-        } catch (IOException ex) {
-            throw new IllegalStateException("Unexpected IOex in " + prevRoot);  // NOI18N
-        }
-         **/
-    }
-
     /**
      * Returns the root node. It is never a filtered node.
      *
@@ -1335,6 +1320,9 @@ for (int i = 0; i < columns.length; i++) {
         // Nothing to do?
     }
 
+    public void tasksReordered(UserTask parent) {
+    }
+    
     public void removedTask(UserTask pt, UserTask task, int index) {
         if ((task == unshowItem) && (listeningViews != null)) {
             unshowItem = null;
@@ -1416,20 +1404,6 @@ for (int i = 0; i < columns.length; i++) {
     /** When true, we've already warned about the need to wrap */
     private boolean wrapWarned = false;
 
-    /** Try to select nodes in all known views. */
-    private void selectNode(Node node) {
-        if (node != null) {
-            UserTask nextTask = ((UserTaskNode) node).getTask();
-            if (nextTask.getLine() != null) {
-                UserTaskAnnotation anno = getAnnotation(nextTask);
-                if (anno != null) {
-                    showTaskInEditor(nextTask, anno);
-                }
-            }
-            select(nextTask); // XXX call EM directly
-        }
-    }
-
     /**
      * @param tail if true take the last one from multiple selection
      *        othervise the first one
@@ -1467,26 +1441,4 @@ for (int i = 0; i < columns.length; i++) {
             tt.requestFocus();
         }
     }
-
-    /**
-     * Returns visible columns
-     *
-     * @return visible columns
-     */
-    /*public final ColumnProperty[] getVisibleColumns() {
-        TableColumnModel tcm = getTable().getColumnModel();
-        ColumnProperty[] all = getColumns();
-        List ret = new ArrayList();
-        ret.add(all[0]);
-        for (int i = 0; i < tcm.getColumnCount(); i++) {
-            String title = tcm.getColumn(i).getHeaderValue().toString();
-            for (int j = 1; j < all.length; j++) {
-                if (title.equalsIgnoreCase(all[j].getDisplayName())) {
-                    ret.add(all[j]);
-                    break;
-                }
-            }
-        }
-        return (ColumnProperty[]) ret.toArray(new ColumnProperty[ret.size()]);
-    } TODO: remove*/
 }

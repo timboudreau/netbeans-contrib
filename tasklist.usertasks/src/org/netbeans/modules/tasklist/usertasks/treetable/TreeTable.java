@@ -29,8 +29,10 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.EventObject;
+import java.util.List;
 import javax.swing.ActionMap;
 import javax.swing.Icon;
 import javax.swing.InputMap;
@@ -68,9 +70,20 @@ import org.netbeans.modules.tasklist.usertasks.UTUtils;
  * @author Scott Violet
  */
 public class TreeTable extends JTable {
-
+    /**
+     * Expanded nodes and selection.
+     * See setExpandedNodesAndSelection/getExpandedNodesAndSelection
+     */
+    private static final class ExpandedNodesAndSelection {
+        /** selection */
+        public TreePath[] selection;
+        
+        /** expanded nodes */
+        public TreePath[] expandedNodes;
+    }
+    
     private static final long serialVersionUID = 1;
-
+    
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
     private TreeTableModel treeTableModel;
@@ -137,32 +150,71 @@ public class TreeTable extends JTable {
         // copied from TTV
         getSortingModel().addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
-                Enumeration en = tree.getExpandedDescendants( 
-                    new TreePath(getTreeTableModel().getRoot()));
-                int[] selRows = getSelectedRows();
-                TreePath[] selPaths = new TreePath[selRows.length];
-                for (int i = 0; i < selRows.length; i++) {
-                    selPaths[i] = tree.getPathForRow(selRows[i]);
-                }
-                    
+                Object es = getExpandedNodesAndSelection();
+
                 getTreeTableModel().sort(getSortingModel());
                 
-                // expand again folders
-                if (en != null) { // #49217
-                    while (en.hasMoreElements()) {
-                        TreePath tp = (TreePath) en.nextElement();
-                        tree.expandPath(tp);
-                    }
-                }
-                
-                for (int i = 0; i < selPaths.length; i++) {
-                    int row = tree.getRowForPath(selPaths[i]);
-                    getSelectionModel().addSelectionInterval(row, row);
-                }
+                setExpandedNodesAndSelection(es);
             }
         });
     }
 
+    /**
+     * TreeModel does not support a reordering event. Therefore it is 
+     * necessary to save the expanded nodes and selection before 
+     * a reordering and restore them after such an operation.
+     *
+     * @return an object that could be used in setExpandedNodesAndSelection()
+     */
+    public Object getExpandedNodesAndSelection() {
+        TreeTable.ExpandedNodesAndSelection ret =
+            new TreeTable.ExpandedNodesAndSelection();
+        
+        Enumeration en = tree.getExpandedDescendants( 
+            new TreePath(getTreeTableModel().getRoot()));
+        if (en != null) {
+            List exp = new ArrayList();
+            while (en.hasMoreElements()) {
+                exp.add(en.nextElement());
+            }
+            ret.expandedNodes = (TreePath[]) exp.toArray(
+                new TreePath[exp.size()]);
+        } else {
+            ret.expandedNodes = new TreePath[0];
+        }
+        
+        int[] selRows = getSelectedRows();
+        ret.selection = new TreePath[selRows.length];
+        for (int i = 0; i < selRows.length; i++) {
+            ret.selection[i] = tree.getPathForRow(selRows[i]);
+        }
+
+        return ret;
+    }
+    
+    /**
+     * TreeModel does not support a reordering event. Therefore it is 
+     * necessary to save the expanded nodes and selection before 
+     * a reordering and restore them after such an operation.
+     *
+     * @param an object that was returned by getExpandedNodesAndSelection()
+     */
+    public void setExpandedNodesAndSelection(Object obj) {
+        TreeTable.ExpandedNodesAndSelection es = 
+            (TreeTable.ExpandedNodesAndSelection) obj;
+        
+        // expanded nodes
+        for (int i = 0; i < es.expandedNodes.length; i++) {
+            tree.expandPath(es.expandedNodes[i]);
+        }
+
+        // selection
+        for (int i = 0; i < es.selection.length; i++) {
+            int row = tree.getRowForPath(es.selection[i]);
+            getSelectionModel().addSelectionInterval(row, row);
+        }
+    }
+    
     /**
      * Expands all nodes
      */    

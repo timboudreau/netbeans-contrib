@@ -34,6 +34,8 @@ import org.netbeans.modules.tasklist.usertasks.actions.ClearCompletedAction;
 import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.MoveDownAction;
+import org.netbeans.modules.tasklist.usertasks.actions.MoveUpAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskListAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
@@ -46,6 +48,7 @@ import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
+import org.netbeans.modules.tasklist.usertasks.filter.RemoveFilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
@@ -95,7 +98,7 @@ public final class UserTaskNode extends AbstractNode {
                 UserTaskNode.this.firePropertyChange(e.getPropertyName(),
                     e.getOldValue(), e.getNewValue());
                 String n = e.getPropertyName();
-                if (n == "started" || n == "spentTimeComputed") {
+                if (n == "started" || n == "spentTimeComputed") { // NOI18N
                     fireCookieChange();
                 }
             }
@@ -111,9 +114,6 @@ public final class UserTaskNode extends AbstractNode {
     
     protected void updateIcon() {
         UserTask uitem = (UserTask)item;
-        if (uitem.getIcon() != null) {
-            return;
-        }
         if (uitem.isDone()) {
             setIconBase("org/netbeans/modules/tasklist/core/doneItem"); // NOI18N
         } else {
@@ -138,7 +138,12 @@ public final class UserTaskNode extends AbstractNode {
             null,
             SystemAction.get(DeleteAction.class),
             null,
+            SystemAction.get(MoveUpAction.class),
+            SystemAction.get(MoveDownAction.class),
+            null,
             SystemAction.get(FilterUserTaskAction.class),
+            SystemAction.get(RemoveFilterUserTaskAction.class),
+            null,
             SystemAction.get(PurgeTasksAction.class),
             SystemAction.get(ClearCompletedAction.class),
             null,
@@ -215,47 +220,47 @@ public final class UserTaskNode extends AbstractNode {
             
             p = new PropertySupport.Reflection(item, Boolean.TYPE, 
                 "isProgressComputed", "setProgressComputed"); // NOI18N
-            p.setName("progressComputed");
-            p.setDisplayName("Compute Progress"); // TODO: i18n
-            p.setShortDescription("Should the progress be computed automatically"); // TODO: i18n
+            p.setName("progressComputed"); // NOI18N
+            p.setDisplayName(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "LBL_computeProgress")); // NOI18N
+            p.setShortDescription(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "HNT_progressComputed")); // NOI18N
             ss.put(p);
             
-            p = new PropertySupport.Reflection(item, Integer.TYPE, "getEffort", null);
-            p.setName("effort");
+            p = new PropertySupport.Reflection(item, Integer.TYPE, "getEffort", null); // NOI18N
+            p.setName("effort"); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_effortProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_effortProperty")); // NOI18N
-            p.setValue("suppressCustomEditor", Boolean.TRUE);
+            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
             p = new PropertySupport.Reflection(item, Boolean.TYPE, 
                 "isEffortComputed", "setEffortComputed"); // NOI18N
-            p.setName("effortComputed");
-            p.setDisplayName("Compute Effort"); // TODO: i18n
-            p.setShortDescription("Should the effort be computed automatically"); // TODO: i18n
+            p.setName("effortComputed"); // NOI18N
+            p.setDisplayName(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "LBL_computeEffort")); // NOI18N
+            p.setShortDescription(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "HNT_effortComputed")); // NOI18N
             ss.put(p);
             
-            p = new PropertySupport.Reflection(item, Integer.TYPE, "getRemainingEffort", null);
-            p.setName("remainingEffort");
+            p = new PropertySupport.Reflection(item, Integer.TYPE, "getRemainingEffort", null); // NOI18N
+            p.setName("remainingEffort"); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_remainingEffortProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_remainingEffortProperty")); // NOI18N
-            p.setValue("suppressCustomEditor", Boolean.TRUE);
+            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
-            p = new PropertySupport.Reflection(item, Integer.TYPE, "getSpentTime", null);
-            p.setName("spentTime");
+            p = new PropertySupport.Reflection(item, Integer.TYPE, "getSpentTime", null); // NOI18N
+            p.setName("spentTime"); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_spentTimeProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_spentTimeProperty")); // NOI18N
-            p.setValue("suppressCustomEditor", Boolean.TRUE);
+            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
             p = new PropertySupport.Reflection(item, Boolean.TYPE, 
                 "isSpentTimeComputed", "setSpentTimeComputed"); // NOI18N
-            p.setName("spentTimeComputed");
-            p.setDisplayName("Compute Spent Time"); // TODO: i18n
-            p.setShortDescription("Should the spent time be computed automatically"); // TODO: i18n
+            p.setName("spentTimeComputed"); // NOI18N
+            p.setDisplayName(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "LBL_spentTimeComputed")); // NOI18N
+            p.setShortDescription(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "HNT_spentTimeComputed")); // NOI18N
             ss.put(p);
             
             p = new PropertySupport.Reflection(item, String.class, "getDetails", "setDetails"); // NOI18N
@@ -268,7 +273,7 @@ public final class UserTaskNode extends AbstractNode {
             p.setName(UserTaskView.PROP_TASK_FILE);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_filenameProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_filenameProperty")); // NOI18N
-            p.setValue("suppressCustomEditor", Boolean.TRUE);
+            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             ss.put(p);
 
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getLineNumber", "setLineNumber"); // NOI18N
@@ -282,7 +287,7 @@ public final class UserTaskNode extends AbstractNode {
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_categoryProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_categoryProperty")); // NOI18N
             p.setValue("canEditAsText", Boolean.TRUE); // NOI18N
-            p.setValue("suppressCustomEditor", Boolean.TRUE);
+            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             ss.put(p);
 
             p = new PropertySupport.Reflection(item, Date.class, "getCreatedDate", null); // NOI18N
@@ -290,7 +295,7 @@ public final class UserTaskNode extends AbstractNode {
             p.setName(UserTaskView.PROP_TASK_CREATED);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_createdProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_createdProperty")); // NOI18N
-            p.setValue("suppressCustomEditor", Boolean.TRUE);
+            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             ss.put(p);
 
             p = new PropertySupport.Reflection(item, Date.class, "getLastEditedDate", null); // NOI18N
@@ -298,7 +303,7 @@ public final class UserTaskNode extends AbstractNode {
             p.setName(UserTaskView.PROP_TASK_EDITED);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_editedProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_editedProperty")); // NOI18N
-            p.setValue("suppressCustomEditor", Boolean.TRUE);
+            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             ss.put(p);
 
             p = new PropertySupport.Reflection(item, Date.class, "getDueDate", "setDueDate"); // NOI18N            
@@ -357,7 +362,7 @@ public final class UserTaskNode extends AbstractNode {
      */
     public static PasteType createTodoPasteType(
     UserTaskNode target, Transferable t) {
-        UTUtils.LOGGER.fine("entering");
+        // UTUtils.LOGGER.fine("entering");
         if (t.isDataFlavorSupported(ExTransferable.multiFlavor)) {
             try {
                 // Multiselection
@@ -409,7 +414,7 @@ public final class UserTaskNode extends AbstractNode {
     }
     
     public Transferable clipboardCopy() throws IOException {
-        UTUtils.LOGGER.fine("entering");
+        UTUtils.LOGGER.fine("entering"); // NOI18N
         final UserTask copy = (UserTask) item.clone();
         return new ExTransferable.Single(UserTaskTransfer.TODO_FLAVOR) {
             protected Object getData() {
@@ -426,11 +431,11 @@ public final class UserTaskNode extends AbstractNode {
     public void destroy() throws IOException {
         AdvancedTreeTableNode n = 
             (AdvancedTreeTableNode) this.node.findNextNodeAfterDelete();
-        UTUtils.LOGGER.fine("selected node after delete:" + n);
+        UTUtils.LOGGER.fine("selected node after delete:" + n); // NOI18N
         if (item.getParent() != null)
-            item.getParent().removeSubtask(item);
+            item.getParent().getSubtasks().remove(item);
         else
-            utl.removeTask(item);
+            utl.getSubtasks().remove(item);
         super.destroy();
         if (n != null) {
             TreePath tp = new TreePath(n.getPathToRoot());
@@ -446,7 +451,7 @@ public final class UserTaskNode extends AbstractNode {
      */
     public void pasteTask(UserTask t) {
         t = (UserTask) t.clone();
-        item.addSubtask(t);
+        item.getSubtasks().add(t);
         int index = this.node.getIndexOfObject(t);
         if (index >= 0) {
             AdvancedTreeTableNode n = 

@@ -160,7 +160,7 @@ public class XmlExportFormat implements ExportImportFormat {
         Element tasks = doc.createElement("tasks"); // NOI18N
         doc.appendChild(tasks);
 
-        Iterator it = list.getTasks().iterator();
+        Iterator it = list.getSubtasks().iterator();
         while (it.hasNext()) {
             task(tasks, (UserTask) it.next());
         }
@@ -240,7 +240,7 @@ public class XmlExportFormat implements ExportImportFormat {
         
         node.appendChild(doc.createTextNode(LINE_SEPARATOR));
         
-        Iterator it = task.subtasksIterator();
+        Iterator it = task.getSubtasks().iterator();
         while (it.hasNext()) {
             task(node, (UserTask) it.next());
         }

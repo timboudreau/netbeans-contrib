@@ -161,7 +161,7 @@ public class ICalExportFormat implements ExportImportFormat {
         formatter.setTimeZone(new SimpleTimeZone(0, "GMT")); // NOI18N
         
         // Write out todo items
-        Iterator it = list.getTasks().iterator();
+        Iterator it = list.getSubtasks().iterator();
         while (it.hasNext()) {
             // Note: The previous try/catch block was superfluous (?) since
             // no exceptions will we thrown inside this block (unless
@@ -410,7 +410,7 @@ public class ICalExportFormat implements ExportImportFormat {
 
         // Recurse over subtasks
         // XXX do the other tags here...
-        Iterator it = task.subtasksIterator();
+        Iterator it = task.getSubtasks().iterator();
         while (it.hasNext()) {
             UserTask subtask = (UserTask)it.next();
             writeTask(writer, subtask, sdf);

@@ -412,7 +412,7 @@ public class ICalImportFormat implements ExportImportFormat {
      */
     private UserTask readVTODO(UserTaskList list, UserTask prev, SimpleDateFormat formatter) throws IOException {
         UserTask task = new UserTask("", list); // NOI18N
-        task.setSilentUpdate(true, false);
+        // TODO task.setSilentUpdate(true, false);
         task.setLastEditedDate(System.currentTimeMillis());
         StringWriter writer = null;
         String related = null;
@@ -434,6 +434,8 @@ public class ICalImportFormat implements ExportImportFormat {
                 }
                 stashBulk(writer, name, param, value);
             }
+            
+            // UTUtils.LOGGER.fine("processing " + name); // NOI18N
             
             if (name.equals("END")) { // NOI18N
                 break;  // @@@ Should I verify that this is the end of a VTODO???
@@ -610,18 +612,23 @@ public class ICalImportFormat implements ExportImportFormat {
             task.userObject = writer.getBuffer();
         }
         
-        UserTask alreadyExists = list.findItem(list.getTasks().iterator(), task.getUID());
+        UserTask alreadyExists = list.findItem(list.getSubtasks().iterator(), task.getUID());
         if (alreadyExists != null) {
             // I should replace alreadyexists with task...
             UserTask parent = alreadyExists.getParent();
-            parent.removeSubtask(alreadyExists);
-            parent.addSubtask(task);
+            if (parent != null) {
+                parent.getSubtasks().remove(alreadyExists);
+                parent.getSubtasks().add(task);
+            } else {
+                list.getSubtasks().remove(alreadyExists);
+                list.getSubtasks().add(task);
+            }
             
-            Iterator li = alreadyExists.subtasksIterator();
+            Iterator li = alreadyExists.getSubtasks().iterator();
             while (li.hasNext()) {
                 UserTask c = (UserTask)li.next();
-                alreadyExists.removeSubtask(c);
-                task.addSubtask(c);
+                alreadyExists.getSubtasks().remove(c);
+                task.getSubtasks().add(c);
             }
         } else if (related != null) {
             // the parent setting !!
@@ -629,11 +636,11 @@ public class ICalImportFormat implements ExportImportFormat {
             if (prev != null && prev.getUID().equals(related)) {
                 parent = prev;
             } else {
-                parent = list.findItem(list.getTasks().iterator(), related);
+                parent = list.findItem(list.getSubtasks().iterator(), related);
             }
             
             if (parent != null) {
-                parent.addSubtask(task, true);
+                parent.getSubtasks().add(task);
             }
         }
         
@@ -687,9 +694,9 @@ public class ICalImportFormat implements ExportImportFormat {
                     
                     if (task != null) {
                         if (task.getParent() == null) {
-                            ulist.appendTask(task);
+                            ulist.getSubtasks().add(task);
                         }
-                        task.setSilentUpdate(false, false);
+                        // TODO task.setSilentUpdate(false, false);
                         prev = (UserTask)task;
                     }
                 } else if (value.equals("VCALENDAR")) { // NOI18N

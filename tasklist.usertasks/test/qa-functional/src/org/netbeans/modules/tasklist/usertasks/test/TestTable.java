@@ -13,32 +13,11 @@
 
 package org.netbeans.modules.tasklist.usertasks.test;
 
-import java.io.File;
-import java.util.HashSet;
-
-import junit.framework.*;
-import junit.extensions.TestSetup;
-
-import org.netbeans.junit.*;
-
-import org.netbeans.jemmy.EventTool;
-
-import org.netbeans.jellytools.Bundle;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.netbeans.jellytools.JellyTestCase;
-import org.netbeans.jellytools.NbDialogOperator;
-import org.netbeans.jellytools.EditorOperator;
-
-import org.netbeans.jellytools.actions.SaveAllAction;
-import org.netbeans.jellytools.actions.CopyAction;
-import org.netbeans.jellytools.actions.PasteAction;
-import org.netbeans.jellytools.actions.CutAction;
-import org.netbeans.jellytools.actions.DeleteAction;
-
-import org.netbeans.jellytools.nodes.Node;
-
-import org.netbeans.jellytools.MainWindowOperator;
-import org.netbeans.jellytools.OutputOperator;
+import org.netbeans.junit.NbTestSuite;
 
 /**
  * Tests for the TreeTable

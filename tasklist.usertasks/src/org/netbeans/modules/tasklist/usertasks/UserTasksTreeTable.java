@@ -48,7 +48,9 @@ import org.openide.util.actions.SystemAction;
 public class UserTasksTreeTable extends NodesTreeTable {
     /**
      * Creates a new instance of UserTasksTreeTable
-     * TODO: comment
+     * 
+     * @param em ExplorerManager associated with this tree table
+     * @param utl list with user tasks
      * @param filter used filter or null
      */
     public UserTasksTreeTable(ExplorerManager em, UserTaskList utl,

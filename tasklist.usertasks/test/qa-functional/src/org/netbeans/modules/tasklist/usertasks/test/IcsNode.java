@@ -13,12 +13,9 @@
 
 package org.netbeans.modules.tasklist.usertasks.test;
 
-import org.netbeans.jemmy.EventTool;
-
-import org.netbeans.jellytools.Bundle;
 import org.netbeans.jellytools.FilesTabOperator;
-import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jellytools.actions.ExecuteAction;
+import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jemmy.operators.JTreeOperator;
 
 /**

@@ -55,7 +55,7 @@ public class ClearCompletedAction extends NodeAction {
             } else {
                 UserTaskList utl = 
                     ((UserTaskListNode) nodes[0]).getUserTaskList();
-                Iterator it = utl.getTasks().iterator();
+                Iterator it = utl.getSubtasks().iterator();
                 while (it.hasNext()) {
                     UserTask ut = (UserTask) it.next();
                     clearCompleted(ut);

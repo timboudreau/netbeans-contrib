@@ -206,6 +206,29 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     }
     
     /**
+     * Fires the appropriate events if the children under this node
+     * were reordered.
+     */
+    protected void fireChildObjectsReordered() {
+        if (children != null) {
+            if (this.comparator == null) {
+                AdvancedTreeTableNode[] newch = 
+                    new AdvancedTreeTableNode[children.length];
+                Iterator it = this.getChildrenObjectsIterator();
+                int i = 0;
+                while (it.hasNext()) {
+                    Object obj = it.next();
+                    int index = getIndexOfObject(obj);
+                    if (index >= 0)
+                        newch[i++] = (AdvancedTreeTableNode) children[index];
+                }
+                children = newch;
+                model.fireTreeStructureChanged(model, getPathToRoot());
+            }
+        }
+    }
+    
+    /**
      * Fires the appropriate events if a child object was removed
      *
      * @param obj one of the child nodes objects

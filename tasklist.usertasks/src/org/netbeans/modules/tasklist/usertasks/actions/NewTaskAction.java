@@ -17,8 +17,6 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collections;
-
 import javax.swing.JButton;
 
 import org.netbeans.modules.tasklist.usertasks.EditTaskPanel;
@@ -142,9 +140,15 @@ public class NewTaskAction extends NodeAction {
         // See if the user wants to append or prepend
         boolean append = panel.getAppend();
         if (parent != null) {
-            parent.addSubtask(ut, append);
+        	if (append)
+        		parent.getSubtasks().add(ut);
+        	else
+        		parent.getSubtasks().add(0, ut);
         } else {
-            utl.addTasks(Collections.singletonList(ut), append);
+        	if (append)
+        		utl.getSubtasks().add(ut);
+        	else
+        		utl.getSubtasks().add(0, ut);
         }
 
         ut.updateAnnotation();
@@ -155,12 +159,6 @@ public class NewTaskAction extends NodeAction {
         utv.scrollTo(ut);
 
         ut = new UserTask("", utl); // NOI18N
-        if (filename != null) {
-            ut.setFilename(filename);
-            if (line != 0) {
-                ut.setLineNumber(line);
-            }
-        }
         panel.fillPanel(ut);
         panel.focusSummary();
     }
@@ -247,12 +245,6 @@ public class NewTaskAction extends NodeAction {
             view = UserTaskView.getDefault();
         
         UserTask ut = new UserTask("", utl); // NOI18N
-        if (filename != null) {
-            ut.setFilename(filename);
-            if (line != 0) {
-                ut.setLineNumber(line);
-            }
-        }
 
         EditTaskPanel panel = getEditTaskPanel();
         panel.fillPanel(ut);
@@ -267,9 +259,15 @@ public class NewTaskAction extends NodeAction {
             // See if the user wants to append or prepend
             boolean append = panel.getAppend();
             if (parent != null) {
-                parent.addSubtask(ut, append);
+            	if (append)
+                    parent.getSubtasks().add(ut);
+            	else
+                    parent.getSubtasks().add(0, ut);
             } else {
-                utl.addTasks(Collections.singletonList(ut), append);
+            	if (append)
+                    utl.getSubtasks().add(ut);
+            	else
+                    utl.getSubtasks().add(0, ut);
             }
 
             ut.updateAnnotation();
