@@ -200,5 +200,60 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         }
         return statuses;
     }
+    
+    private String getCommandActionDisplayName(GeneralCommandAction action) {
+        String cmdName = (String) commandMap.get(action.getClass());
+        if (cmdName != null) {
+            VcsCommand cmd = ((VcsFileSystem) fileSystem.get()).getCommand(cmdName);
+            if (cmd != null) {
+                String name = (String) cmd.getProperty(VcsCommand.PROPERTY_GENERAL_COMMAND_ACTION_DISPLAY_NAME);
+                if (name != null) {
+                    return name;
+                }
+            }
+        }
+        return null;
+    }
 
+    /**
+     * If the supporter enables the action, it can then add supporter-specific 
+     * description to the toolbar tooltip. (use with caution.) <B>Experimental</B>
+     */
+    public String getToolBarDisplayName(GeneralCommandAction action) {
+        String name = getCommandActionDisplayName(action);
+        if (name != null) {
+            return name;
+        } else {
+            return super.getToolBarDisplayName(action);
+        }
+    }
+
+    /**
+     * If the supporter enables the action, it can then add supporter-specific 
+     * description to the menu name. (use with caution.) <B>Experimental</B>
+     */
+    
+    public String getMenuDisplayName(GeneralCommandAction action) {
+        String name = getCommandActionDisplayName(action);
+        if (name != null) {
+            return name;
+        } else {
+            return super.getMenuDisplayName(action);
+        }
+    }
+
+    /**
+     * If the supporter enables the action, it can then add supporter-specific 
+     * description to the popup menu name. (use with caution.) <B>Experimental</B>
+     */
+    
+    public String getPopupDisplayName(GeneralCommandAction action) {
+        String name = getCommandActionDisplayName(action);
+        if (name != null) {
+            return name;
+        } else {
+            return getPopupDisplayName(action);
+        }
+    }
+    
 }

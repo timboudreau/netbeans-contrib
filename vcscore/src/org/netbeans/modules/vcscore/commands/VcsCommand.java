@@ -311,6 +311,12 @@ public interface VcsCommand extends VcsCommandCookie {
      * this command. The action has to sublass the GeneralCommandAction class.
      */
     public static final String PROPERTY_GENERAL_COMMAND_ACTION_CLASS_NAME = "generalCommandActionClassName";
+    /**
+     * This String property contains the display name of an action, that will run
+     * this command. This name will be displayed as a tooltip to the action in
+     * toolbar or action's menu item name.
+     */
+    public static final String PROPERTY_GENERAL_COMMAND_ACTION_DISPLAY_NAME = "generalCommandActionDisplayName";
     
     /**
      * Properties wich contains this string in their names can be added to the command
