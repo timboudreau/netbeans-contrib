@@ -4043,6 +4043,43 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         this.promptForLockResult = promptForLockResult;
     }
      */
+    
+    /**
+     * Test whether the current user has locked file with given locker attribute.
+     * @param lockerAttribute The file locker attribute. It can contain more
+     *                        lockers separated by commas.
+     * @param lockerUserName The locker user name, or <code>null</code> when
+     *                       the system user name should be taken.
+     * @return Whether there is the locker user name one of the lockers in the
+     *         locker attribute.
+     */
+    public static boolean lockerMatch(String lockerAttribute, String lockerUserName) {
+        if (lockerAttribute != null) {
+            if (lockerUserName == null || lockerUserName.length() == 0) {
+                lockerUserName = System.getProperty("user.name");
+            }
+            int comma = lockerAttribute.indexOf(',');
+            if (comma < 0) {
+                if (lockerAttribute.equals(lockerUserName)) {
+                    return true;
+                }
+            } else {
+                int begin = 0;
+                do {
+                    if (lockerAttribute.substring(begin, comma).trim().equals(lockerUserName)) {
+                        return true;
+                    }
+                    begin = comma + 1;
+                    if (begin > lockerAttribute.length()) {
+                        break;
+                    }
+                    comma = lockerAttribute.indexOf(',', begin);
+                    if (comma < 0) comma = lockerAttribute.length();
+                } while (true);
+            }
+        }
+        return false;
+    }
 
     /**
      * Whether the LOCK command should be performed for this file. This method should
@@ -4072,29 +4109,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     currentLocker = Variables.expand(getVariablesAsHashtable(), currentLocker, false);
                 }
             }
-            if (currentLocker == null || currentLocker.length() == 0) {
-                currentLocker = System.getProperty("user.name");
-            }
-            if (locker != null) {
-                int comma = locker.indexOf(',');
-                if (comma < 0) {
-                    if (locker.equals(currentLocker)) {
-                        return false;
-                    }
-                } else {
-                    int begin = 0;
-                    do {
-                        if (locker.substring(begin, comma).trim().equals(currentLocker)) {
-                            return false;
-                        }
-                        begin = comma + 1;
-                        if (begin > locker.length()) {
-                            break;
-                        }
-                        comma = locker.indexOf(',', begin);
-                        if (comma < 0) comma = locker.length();
-                    } while (true);
-                }
+            if (lockerMatch(locker, currentLocker)) {
+                return false;
             }
         }
         return true;

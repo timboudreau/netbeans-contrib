@@ -312,6 +312,13 @@ public interface VcsCommand extends VcsCommandCookie {
      * status attributes in this property value.
      */
     public static final String PROPERTY_DISABLED_ON_STATUS = "disabledOnStatus";
+    /**
+     * A boolean property, that when true, the command menu item will be disabled
+     * on files that are not locked by the user defined in
+     * {@link org.netbeans.modules.vcscore.VcsFileSystem#VAR_LOCKER_USER_NAME}
+     * variable, or locked by the current user if the variable does not exist.
+     */
+    public static final String PROPERTY_DISABLED_WHEN_NOT_LOCKED = "disabledWhenNotLocked";
     
     /**
      * A boolean property that describes if the command supports advanced mode in filesystem.
