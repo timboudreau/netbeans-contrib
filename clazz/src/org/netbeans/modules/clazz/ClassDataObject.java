@@ -99,10 +99,6 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     transient private InstanceSupport instanceSupport;
 
     transient private boolean sourceCreated;
-    /**
-     * Quick check whether the class was already loaded.
-     */
-    transient boolean classLoaded;
     
     transient PropL propL;
     
