@@ -50,16 +50,19 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
                                             UserCommand listSub, Hashtable vars) {
         super(fileSystem, listSub, vars);
         this.listener = listener;
-        this.path = (String)vars.get("DIR"); // NOI18N
-        D.deb ("DIR="+(String)vars.get("DIR")); // NOI18N
+        String commonParent = (String) vars.get("COMMON_PARENT");
+        String dir = (String) vars.get("DIR"); // NOI18N
+        if (commonParent != null && commonParent.length() > 0) {
+            dir = commonParent + Variables.expand(vars, "${PS}", false) + dir;
+        }
+        this.path = dir.replace (java.io.File.separatorChar, '/');
+        //D.deb ("DIR="+(String)vars.get("DIR")); // NOI18N
         //dir = new VcsDir();
-        path = path.replace (java.io.File.separatorChar, '/');
-        //path = fileSystem.getFile(path).getAbsolutePath().replace(java.io.File.separatorChar, '/');
         //dir = new VcsCacheDir(fileSystem.getCacheIdStr(), fileSystem.getFile(path));
         //dir.setPath (path);
         //dir.setName(VcsUtilities.getFileNamePart(path));
         //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
-        D.deb("DIR="+(String)vars.get("DIR")); // NOI18N
+        //D.deb("DIR="+(String)vars.get("DIR")); // NOI18N
     }
 
     /**
@@ -229,7 +232,7 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
         if (commonParent != null && commonParent.length() > 0) {
             dir = commonParent + Variables.expand(vars, "${PS}", false) + dir;
         }
-        String path = dir.replace (java.io.File.separatorChar, '/');
+        //path = dir.replace (java.io.File.separatorChar, '/');
         String exec = getExec();
         if (exec == null || exec.trim().length() == 0) {
             //String dirName = (((String) vars.get("DIR"))).replace(((String) vars.get("PS")).charAt(0), '/');
