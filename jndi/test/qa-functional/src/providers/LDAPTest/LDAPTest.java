@@ -52,6 +52,11 @@ public class LDAPTest extends JellyTestCase {
         super (name);
     }
     
+    public void failNotify (Throwable th) {
+        log.println ("Status Text Tracer history:");
+        MainWindowOperator.getDefault().getStatusTextTracer ().printStatusTextHistory (log);
+    }
+    
     public static org.openide.nodes.Node findSubNode(org.openide.nodes.Node node, String name) {
         org.openide.nodes.Node[] nodes = node.getChildren().getNodes(true);
         for (int a = 0; a < nodes.length; a ++)
