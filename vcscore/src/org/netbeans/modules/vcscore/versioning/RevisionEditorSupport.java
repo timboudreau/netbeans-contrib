@@ -63,6 +63,7 @@ import org.openide.cookies.OpenCookie;
 import org.openide.cookies.CloseCookie;
 import org.openide.cookies.SaveCookie;
 import org.openide.cookies.PrintCookie;
+import org.openide.cookies.ViewCookie;
 import org.openide.filesystems.*;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeAdapter;
@@ -83,7 +84,7 @@ import org.openide.util.NbBundle;
  *
  * @author Jaroslav Tulach, Martin Entlicher
  */
-public class RevisionEditorSupport extends CloneableEditorSupport implements EditorCookie.Observable, OpenCookie, PrintCookie, CloseCookie {
+public class RevisionEditorSupport extends CloneableEditorSupport implements EditorCookie.Observable, OpenCookie, ViewCookie, PrintCookie, CloseCookie {
     private final RevisionList list;
     private final RevisionItem revisionItem;
     /** Which file object we are associated with */

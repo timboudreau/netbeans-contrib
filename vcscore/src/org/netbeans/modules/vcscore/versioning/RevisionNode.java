@@ -25,7 +25,7 @@ import java.util.Map;
 
 import org.openide.nodes.*;
 import org.openide.actions.*;
-import org.openide.cookies.OpenCookie;
+import org.openide.cookies.ViewCookie;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.util.actions.SystemAction;
@@ -287,8 +287,8 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
         ArrayList actions = new ArrayList();
         VersioningFileSystem vs = getVersioningFileSystem();
         //SystemAction[] revActions = vs.getRevisionActions(list.getFileObject());
-        if (getCookie(OpenCookie.class) != null) {
-            actions.add(SystemAction.get(OpenAction.class));
+        if (getCookie(ViewCookie.class) != null) {
+            actions.add(SystemAction.get(ViewAction.class));
         }
         actions.add(SystemAction.get(VSRevisionAction.class));
         /*
