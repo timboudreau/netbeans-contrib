@@ -80,6 +80,9 @@ public class CommandOutputTopComponent extends TopComponent {
         "discard"); //NOI18N
         
         getActionMap().put("discard", discardAction);//NOI18N
+
+        // #54284 ctrl + BS handling
+        setFocusable(true);        
     }
 
     protected String preferredID(){
