@@ -36,19 +36,27 @@ public final class Validators {
                 process.waitFor();
                 InputStream in = new BufferedInputStream(process.getInputStream());
                 BufferedReader r = new BufferedReader(new InputStreamReader(in));
-                boolean foundCVS = false;
-                boolean foundVersion = false;
-                while (true) {
-                    String line = r.readLine();
-                    if (line == null) break;
+                try {
+                    boolean foundCVS = false;
+                    boolean foundVersion = false;
+                    while (true) {
+                        String line = r.readLine();
+                        if (line == null) break;
 
-                    // cvshome.org client
-                    if (line.indexOf("CVS") != -1) foundCVS = true; // NOI18N
-                    if (line.indexOf("1.11") != -1) foundVersion = true; // NOI18N
-                    if (line.indexOf("1.12") != -1) foundVersion = true; // NOI18N
-                }
-                if (!foundCVS || !foundVersion) {
-                    ret = getString("cvs_unsupported");
+                        // cvshome.org client
+                        if (line.indexOf("CVS") != -1) foundCVS = true; // NOI18N
+                        if (line.indexOf("1.11") != -1) foundVersion = true; // NOI18N
+                        if (line.indexOf("1.12") != -1) foundVersion = true; // NOI18N
+                    }
+                    if (!foundCVS || !foundVersion) {
+                        ret = getString("cvs_unsupported");
+                    }
+                } finally {
+                    try {
+                        r.close();
+                    } catch (IOException ex) {
+                        // elsready closed
+                    }
                 }
             } catch (IOException e) {
                 ret = path + " " + e.getLocalizedMessage();
