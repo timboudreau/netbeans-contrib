@@ -353,6 +353,10 @@ class CommandOutputCollector extends Object implements CommandListener {
     }
     
     protected void finalize() {
+        synchronized (CommandOutputCollector.class) {
+            // It's not worth to write the output if we're gonna to delete it.
+            outputCollectorsToFree.remove(this);
+        }
         if (outputFiles != null) {
             for (int i = 0; i < NUM_OUTPUTS; i++) {
                 if (outputFiles[i] != null) {
