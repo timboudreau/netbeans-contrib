@@ -14,6 +14,7 @@
 package org.netbeans.modules.vcscore;
 
 import java.beans.FeatureDescriptor;
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.*;
 
@@ -21,6 +22,7 @@ import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
 import org.openide.filesystems.FileObject;
 import org.openide.util.RequestProcessor;
+import org.openide.loaders.DataObject;
 
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
@@ -244,11 +246,8 @@ public class VcsAttributes extends DefaultAttributes {
         }  else {
             if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
                 CacheReference ref = fileSystem.getCacheReference(name);
-                if (ref != null) {
-                    if (ref.isVirtual()) {
-                        //                        System.out.println("is virtual.." + name);
+                if ( (ref != null) && ref.isVirtual()) {
                         return VirtualsDataLoader.class.getName();
-                    }
                 }
             } else if ("NetBeansAttrAssignedLoaderModule".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER_MODULE */  //NOI18N
                 CacheReference ref = fileSystem.getCacheReference(name);
@@ -275,7 +274,7 @@ public class VcsAttributes extends DefaultAttributes {
      * @throws IOException if the attribute cannot be set. If serialization is
      *                     used to store it, this may in fact be a subclass such
      *                     as NotSerializableException.
-     * @throws UnknownServiceException if the requested VCS action is not provided.
+     * @throws java.net.UnknownServiceException if the requested VCS action is not provided.
      *                                 A subclass of IOException was chosen, since
      *                                 FileObject.setAttribute throws IOException.
      */
@@ -311,23 +310,25 @@ public class VcsAttributes extends DefaultAttributes {
             super.writeAttribute(name, VCS_SCHEDULED_FILE_ATTR, value);
         } else {
             if ("NetBeansAttrAssignedLoader".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER */  //NOI18N
-                if (value != null && "org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader".equals(value.toString())) {
-                    //System.out.println("dont write loader attribute,.," + name);
-                    //don't write to .nbattrs file..
-                    CacheReference ref = fileSystem.getCacheReference(name);
-                    if (ref != null) {
-                        //System.out.println("writed is virtual");
-                        ref.setVirtual(true);
-                    }
-                    return;
-                }
                 if (value == null) {
                     CacheReference ref = fileSystem.getCacheReference(name);
                     if (ref != null) {
                         ref.setVirtual(false);
+                        try {
+                            DataObject.find (fileSystem.findFileObject(name)).setValid (false);
+                        } catch (PropertyVetoException pve) {}
                     }
                 }
-                //System.out.println("write assigned loader for=" + name);
+                else if (VirtualsDataLoader.class.getName().equals(value)) {
+                    CacheReference ref = fileSystem.getCacheReference(name);
+                    if (ref != null) {
+                        ref.setVirtual(true);
+                        try {
+                            DataObject.find (fileSystem.findFileObject(name)).setValid (false);
+                        } catch (PropertyVetoException pve) {}
+                    }
+                    return;
+                }
             }    
             if ("NetBeansAttrAssignedLoaderModule".equals(attrName)) { /* DataObject.EA_ASSIGNED_LOADER_MODULE */  //NOI18N
                 if (value != null && "org.netbeans.modules.vcscore".equals(value.toString())  //NOI18N

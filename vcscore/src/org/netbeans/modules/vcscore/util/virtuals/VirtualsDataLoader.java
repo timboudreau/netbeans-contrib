@@ -22,6 +22,9 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.util.actions.SystemAction;
 
+import java.util.WeakHashMap;
+
+
 
 /**
  * The loader of virtual files (files that are not locally present 
@@ -29,6 +32,7 @@ import org.openide.util.actions.SystemAction;
  * @author  Milos Kleint
  */
 public class VirtualsDataLoader extends UniFileLoader {
+
 
     /** Create the loader.
     * Should <em>not</em> be used by subclasses.
@@ -58,8 +62,10 @@ public class VirtualsDataLoader extends UniFileLoader {
     }
     
     protected FileObject findPrimaryFile(FileObject fo) {
-        if (fo.isFolder()) return null;
-        return fo;
+        if (fo.isFolder())
+            return null;
+        else
+            return fo;
     }
     
     private SystemAction[] createDefaultActions() {

@@ -410,7 +410,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     /** The InputOutput used for display of VCS commands output */
     private transient InputOutput cmdIO = null;
-    
+
+
+    /** Non local file names, derived temporary information
+     * used by addLocalFiles and createReference methods.
+     */
+    private transient Set nonLocals = new HashSet ();
+
 //    private transient Hashtable revisionListsByName = null;
 
     public boolean isLockFilesOn () {
@@ -956,20 +962,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public void doVirtualsRefresh(FileObject fo) {
         fo.refresh();
-        if (fo.isFolder()) {
-            Enumeration en = existingFileObjects(fo);
-            while (en.hasMoreElements()) {
-                FileObject fo2 = (FileObject) en.nextElement();
-                if (fo2 != null && (fo2.getParent() == null || !fo2.getParent().equals(fo))) {
-                    // uses the feature of the existingFileObject method that the closest siblings are the first to come..
-                    //HACK..
-                    break;
-                }
-                if (!fo2.isFolder()) {
-                    setVirtualDataLoader(fo2);
-                }
-            }
-        }
     }
     
     /** Return the working directory of the file system. 
@@ -1363,13 +1355,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return Reference to FileObject
      */
     protected java.lang.ref.Reference createReference(final FileObject fo) {
-	if (cache != null) {
-            java.lang.ref.Reference ref = cache.createReference(fo);
-	    return ref;
-	}
-	else return super.createReference(fo);
+        Reference result = null;
+        if (cache != null) {
+            result = cache.createReference(fo);
+	    }
+	    else
+            result =  super.createReference(fo);
+
+        String fullName = fo.getPath();
+        if (this.nonLocals.remove (fullName)) {
+            try {
+                fo.setAttribute ("NetBeansAttrAssignedLoader", VirtualsDataLoader.class.getName());       //NoI18N
+            } catch (IOException e) {}
+        }
+        return result;
     }
-    
+
     /**
      * Utility method that find the fileobject reference and if it exists, retypes it to CacheReference.
      * @param name pathname of the resource.
@@ -2976,19 +2977,25 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             files = new String[0];
             mergedFiles = cachedFiles;
         } else {
-            Vector cached = new Vector(Arrays.asList(cachedFiles));
-            Vector local = new Vector(Arrays.asList(files));
+            java.util.List cached = new LinkedList(Arrays.asList(cachedFiles));
+            java.util.List local = new LinkedList(Arrays.asList(files));
+            java.util.List remote = new LinkedList (Arrays.asList(cachedFiles));
+            remote.removeAll (local);
             local.removeAll(cached);
             checkScheduledLocals(name, local, removedFilesScheduledForRemove);
             cached.addAll(local);
             mergedFiles = (String[]) cached.toArray(new String[0]);
+
+            for (Iterator it = remote.iterator(); it.hasNext();) {
+                this.nonLocals.add (name+"/"+(String)it.next());    //NoI18N
+            }
         }
         if (cache != null) {
             if (missingFileStatus != null || missingFolderStatus != null) {
                 markAsMissingFiles(name, files, cachedFiles);
             }
         }
-        return mergedFiles;
+        return mergedFiles;     // merged files are local + cached virtual = rerged - local
     }
     
     private void markAsMissingFiles(String name, String[] local, String[] cached) {
@@ -4315,44 +4322,25 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param the set of FileObjects whose status was changed
      */
     protected void checkVirtualFiles(Set foSet) {
-    }
-    
-    /**
-     * This method assigns/unassigns special virtual data object to files,
-     * that are virtual.
-     * Subclasses should call this method on every change of the file "virtual"
-     * property.
-     * @param fo the FileObject
-     * @return whether the data object loader was changed for this file
-     */
-    protected boolean setVirtualDataLoader(FileObject fo) {
-        boolean reload = false;
-        try {
-            if (checkVirtual(fo.getPackageNameExt('/', '.'))) {
-                if (statusProvider != null) {
-                    String stat = statusProvider.getFileStatus(fo.getPackageNameExt('/', '.'));
-                    if (statusProvider.getLocalFileStatus().equals(stat)) {
-                        return reload;
-                    }
-                }
-                DataLoader loader = DataLoaderPool.getPreferredLoader(fo);
-                if (loader == null || !loader.getClass().equals(VirtualsDataLoader.class)) {
-                    DataLoaderPool.setPreferredLoader(fo,
-                        (VirtualsDataLoader) org.openide.util.SharedClassObject.findObject(VirtualsDataLoader.class, true));
-                    reload = true;
-                    //System.out.println("to vitrual..");
-                }
-            } else {
-                DataLoader loader = DataLoaderPool.getPreferredLoader(fo);
-                if (loader != null && loader.getClass().equals(VirtualsDataLoader.class)) {
-                    //System.out.println("resetitting loader");
-                    DataLoaderPool.setPreferredLoader(fo, null);
-                    reload = true;
+        Iterator it = foSet.iterator();
+        while (it.hasNext()) {
+            FileObject o = (FileObject) it.next();
+            if (checkVirtual (o.getPath())) {
+                try {
+                    o.setAttribute ("NetBeansAttrAssignedLoader", VirtualsDataLoader.class.getName());       //NoI18N
+                } catch (IOException e) {}
+            }
+            else {
+                Reference ref = findReference (o.getPath());
+                if ( (ref instanceof CacheReference) && ((CacheReference)ref).isVirtual()) {
+                    try {
+                        o.setAttribute ("NetBeansAttrAssignedLoader",null);       //NoI18N
+                    } catch (IOException e) {}
                 }
             }
-        } catch (java.io.IOException exc) {}
-        return reload;
+        }
     }
+
     
     private void settingsChanged(String propName, Object oldVal, Object newVal) {
         GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);

@@ -13,13 +13,8 @@
 
 package org.netbeans.modules.vcscore.util.virtuals;
 
-import org.openide.cookies.*;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
-import org.openide.loaders.DataNode;
-import org.openide.loaders.MultiDataObject;
-import org.openide.loaders.MultiFileLoader;
-import org.openide.loaders.DataObjectExistsException;
+import org.openide.filesystems.*;
+import org.openide.loaders.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
@@ -50,7 +45,7 @@ public class VirtualsDataObject extends MultiDataObject {
         DataNode node = new VirtualsDataNode (this, Children.LEAF);
         return node;
     }
-    
+
     public class VirtualsDataNode extends DataNode {
         
         public VirtualsDataNode(MultiDataObject obj, Children childs) {
