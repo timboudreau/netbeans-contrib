@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?> <!-- -*- sgml-indent-step: 2 -*- -->
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="extbrowser/jdiclib" basedir="." default="netbeans">
+  <import file="../../nbbuild/templates/projectized.xml"/>
+  
+  <target name="files-init" depends="basic-init">
+    <patternset id="module.files">
+        <include name="${module.jar}"/>
+        <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
+        <include name="${nb.modules.dir}/ext/jdic.jar"/>
+        <include name="${nb.modules.dir}/lib/libjdic.so"/>
+    </patternset>
+  </target>
+
+  <target name="netbeans-extra" depends="release"/>
+
+  <target name="release" depends="init">
+    <copy todir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext">
+        <fileset dir="../release/">
+            <include name="*.jar"/>
+        </fileset>
+    </copy>
+    <copy todir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/lib">
+        <fileset dir="../release/">
+            <include name="mozembed*"/>
+            <include name="*.dll"/>
+            <include name="*.so"/>
+        </fileset>
+    </copy>
+  </target>
+  
+</project>
