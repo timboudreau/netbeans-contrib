@@ -169,10 +169,7 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
     }
     
     public void propertyChange(java.beans.PropertyChangeEvent propertyChangeEvent) {
-        if (propertyChangeEvent.getPropertyName() == null) {
-            return;
-        }
-        if (propertyChangeEvent.getPropertyName().equals(VcsGroupSettings.PROP_SHOW_LINKS)) {
+        if (propertyChangeEvent != null && VcsGroupSettings.PROP_SHOW_LINKS.equals(propertyChangeEvent.getPropertyName())) {
             Node[] nods = getNodes();
             for (int i = 0; i < nods.length; i++) {
                 if (nods[i] instanceof VcsGroupFileNode) {
