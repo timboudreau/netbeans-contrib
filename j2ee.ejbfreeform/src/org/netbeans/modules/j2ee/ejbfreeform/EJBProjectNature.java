@@ -116,6 +116,7 @@ public class EJBProjectNature implements ProjectNature {
     }
 
     public Node findSourceFolderViewPath(Project project, Node root, Object target) {
+        // XXX #56978
         return null;
     }
 
