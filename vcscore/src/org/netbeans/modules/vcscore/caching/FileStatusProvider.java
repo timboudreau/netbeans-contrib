@@ -98,6 +98,7 @@ public interface FileStatusProvider {
 
     public void setFileStatus(String path, String status);
 
+    /** Should set the file as modified if it's version controlled. */
     public void setFileModified(String path);
     
     public String getLocalFileStatus();
