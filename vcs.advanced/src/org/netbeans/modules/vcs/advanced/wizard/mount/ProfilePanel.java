@@ -38,6 +38,11 @@ public class ProfilePanel extends AbstractWizardPanel {
         this.index = index;
     }
 
+
+    public org.openide.util.HelpCtx getHelp() {
+        return null;
+    }
+
     protected void readWizardSettings(MountWizardData data) {
         this.data = data;
         getPanelUI().putClientProperty ("WizardPanel_contentSelectedIndex", new Integer (index)); // NOI18N
