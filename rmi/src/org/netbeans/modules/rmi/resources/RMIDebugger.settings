@@ -4,6 +4,7 @@
     <module name="org.netbeans.modules.rmi"/>
     <instanceof class="org.openide.ServiceType"/>
     <instanceof class="org.openide.debugger.DebuggerType"/>
+    <instanceof class="org.netbeans.modules.debugger.AbstractDebuggerType"/>
     <instanceof class="org.netbeans.modules.debugger.delegator.DefaultDebuggerType"/>
     <instanceof class="org.netbeans.modules.debugger.support.ProcessDebuggerType"/>
     <instanceof class="org.netbeans.modules.rmi.RMIDebugType"/>
