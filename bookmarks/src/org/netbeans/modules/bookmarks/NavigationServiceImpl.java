@@ -73,10 +73,13 @@ public class NavigationServiceImpl extends NavigationService implements Property
             list = new LimitedSizeList(80, 120);
             navigationEvents.put(tc, list);
         }
-        int index = list.indexOf(ev);
-        if (index >= 0) {
-            for (int i = list.size()-1; i > index; i--) {
-                list.remove(i);
+        NavigationEvent current = (NavigationEvent)currentNavigationState.get(tc);
+        if (current != null) {
+            int index = list.indexOf(current);
+            if (index >= 0) {
+                for (int i = list.size()-1; i > index; i--) {
+                    list.remove(i);
+                }
             }
         }
         currentNavigationState.put(tc, ev);
