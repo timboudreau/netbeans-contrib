@@ -65,7 +65,7 @@ public class FileVcsInfo extends Object implements Node.Cookie {
     private transient javax.swing.event.EventListenerList listenerList =  null;        
     
     /** Creates a new instance of FileVcsInfo - blank..*/
-    FileVcsInfo() {
+    public FileVcsInfo() {
         this(new File(""), BLANK, new FileVcsInfoChildren());
     }
     
@@ -77,7 +77,7 @@ public class FileVcsInfo extends Object implements Node.Cookie {
     }
     
     
-    FileVcsInfo(File file, String type, Children children) {
+    public FileVcsInfo(File file, String type, Children children) {
         this(file, children);
         this.type = type;
     }
