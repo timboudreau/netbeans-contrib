@@ -17,6 +17,7 @@ import java.util.*;
 
 import org.openidex.search.*;
 import org.openide.nodes.Node;
+import org.openide.cookies.InstanceCookie;
 import org.openide.util.*;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
@@ -90,7 +91,17 @@ public class VcsSearchType extends org.netbeans.modules.search.types.DataObjectT
                 }
             }
 
-            if (node.getCookie(org.openide.filesystems.Repository.class) != null) {
+            boolean isRep = false;
+            try {
+                InstanceCookie ic = (InstanceCookie)node.getCookie (InstanceCookie.class);
+                isRep = ic != null && org.openide.filesystems.Repository.class.isAssignableFrom (ic.instanceClass ());
+            } catch (java.io.IOException ex) {
+                // does not provide instance
+            } catch (ClassNotFoundException ex) {
+                // does not provide instance
+            }
+
+            if (isRep) {
                 return isVcsFileSystem;
             }
         }
