@@ -3481,6 +3481,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param recursively Whether the files in directories should be locked recursively.
      */
     public void lockFilesToBeModified(String path, boolean recursively) {
+        if (".".equals(path)) path = "";
         synchronized (lockedFilesToBeModified) {
             // Multiple locks are not considered. It's locked just once.
             lockedFilesToBeModified.put(path, recursively ? Boolean.TRUE : Boolean.FALSE);
@@ -3493,6 +3494,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * the command finish so that the user can edit the files.
      */
     public void unlockFilesToBeModified(String path, boolean recursively) {
+        if (".".equals(path)) path = "";
         synchronized (lockedFilesToBeModified) {
             lockedFilesToBeModified.remove(path);
         }
@@ -3505,9 +3507,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         synchronized (lockedFilesToBeModified) {
             isLocked = lockedFilesToBeModified.get(name) != null;
             if (!isLocked) {
-                for (Iterator it = lockedFilesToBeModified.keySet().iterator(); it.hasNext(); ) {
+                for (Iterator it = lockedFilesToBeModified.keySet().iterator(); !isLocked && it.hasNext(); ) {
                     String path = (String) it.next();
-                    if (name.startsWith(path) && name.charAt(path.length()) == '/') {
+                    if (path.length() == 0 || (name.startsWith(path) && name.charAt(path.length()) == '/')) {
                         boolean recursively = ((Boolean) lockedFilesToBeModified.get(path)).booleanValue();
                         // either we lock it recursively or there are no more path separators '/':
                         isLocked = (recursively || name.indexOf('/', path.length() + 1) < 0);
