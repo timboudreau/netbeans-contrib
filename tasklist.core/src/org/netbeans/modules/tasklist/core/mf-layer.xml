@@ -33,6 +33,7 @@ Microsystems, Inc. All Rights Reserved.
 	</folder>
     </folder>
 
+    <!--
     <folder name="Menu">
         <folder name="Help">
             <folder name="HelpShortcuts">
@@ -45,6 +46,7 @@ Microsystems, Inc. All Rights Reserved.
             </folder>
         </folder>
     </folder>
+    -->
 
     <folder name="xml">
         <folder name="memory">
