@@ -99,7 +99,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
         //UserCommand[] preCommands = cmd.getPreCommands();
         ArrayList commands = findPreCommands(exec);
         String[] commandNames = (String[]) new TreeSet(commands).toArray(new String[0]);
-        Collection exiStates = processPreCommands(commandNames);
+        Collection exiStates = processPreCommands(commandNames, null);
         if (cmdExitStates != null) {
             cmdExitStates.clear();
             cmdExitStates.addAll(exiStates);
@@ -115,12 +115,23 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
      * is not changed.
      */
     public String[] process(String[] execs) throws UserCancelException {
+        return process(execs, null);
+    }
+    
+    /**
+     * Execute all commands and insert their output to the provided strings.
+     * @param executedTasks The executed tasks are added into this collection.
+     * @return the array of strings of the same size as the original array,
+     * with commands output filled to individual strings. The original array
+     * is not changed.
+     */
+    public String[] process(String[] execs, Collection executedTasks) throws UserCancelException {
         if (execs == null) return null;
         String[] processed = new String[execs.length];
         String concatenation = VcsUtilities.array2string(execs);
         ArrayList commands = findPreCommands(concatenation);
         String[] commandNames = (String[]) new TreeSet(commands).toArray(new String[0]);
-        processPreCommands(commandNames);
+        processPreCommands(commandNames, executedTasks);
         for (int i = 0; i < execs.length; i++) {
             processed[i] = insertPreCommandsOutput(execs[i], commandNames);
         }
@@ -163,7 +174,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     }
      */
     
-    private Collection processPreCommands(String[] preCommands) throws UserCancelException {
+    private Collection processPreCommands(String[] preCommands, Collection executedTasks) throws UserCancelException {
         preCommandOutput = new Vector[preCommands.length];
         preCommandError = new Vector[preCommands.length];
         ArrayList runningExecutors = new ArrayList();
@@ -190,6 +201,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             //executor.addDataErrorOutputListener(new DataErrorOutputContainer(i));
             //pool.startExecutor(executor);
             runningExecutors.add(task);
+            if (executedTasks != null) executedTasks.add(task);
         }
         ArrayList exitStates = new ArrayList();
         while (runningExecutors.size() > 0) {

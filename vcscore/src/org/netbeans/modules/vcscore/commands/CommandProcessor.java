@@ -1048,7 +1048,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     /**
      * Wait to finish the task.
      * This methods blocks the current thread untill the task finishes.
-     * @param vce the executor
+     * @param task the command task
      */
     public void waitToFinish(CommandTask task) throws InterruptedException {
         CommandTaskInfo cw = (CommandTaskInfo) taskInfos.get(task);
@@ -1074,6 +1074,27 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
         }
          */
+    }
+    
+    /**
+     * Wait to finish the task of a specific ID.
+     * This methods blocks the current thread untill the task finishes.
+     * @param taskID the command task ID.
+     */
+    public void waitToFinish(long taskID) throws InterruptedException {
+        CommandTask task = null;
+        synchronized (this) {
+            for (Iterator it = taskInfos.values().iterator(); it.hasNext(); ) {
+                CommandTaskInfo cw = (CommandTaskInfo) it.next();
+                if (taskID == cw.getCommandID()) {
+                    task = cw.getTask();
+                    break;
+                }
+            }
+        }
+        if (task != null) {
+            waitToFinish(task);
+        }
     }
     
     /**

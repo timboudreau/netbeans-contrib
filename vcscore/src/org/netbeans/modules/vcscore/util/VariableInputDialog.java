@@ -13,29 +13,35 @@
 
 package org.netbeans.modules.vcscore.util;
 
+import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.event.*;
 
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.Mnemonics;
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
+import org.openide.util.UserCancelException;
 
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
 
+import org.netbeans.spi.vcs.VcsCommandsProvider;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.commands.*;
-import org.netbeans.spi.vcs.VcsCommandsProvider;
 
 /**
  * Dialog that enables users to set variable values before running the command.
@@ -55,6 +61,17 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * of returned variables.
      */
     public static final String VAR_UPDATE_CHANGED_FROM_SELECTOR = "UPDATE CHANGED VARIABLES FROM SELECTOR";
+    
+    /**
+     * When the value of this variable is true, the dialog will be canceled.
+     */
+    public static final String VAR_CANCEL_DIALOG_BY_PRECOMMAND = "CANCEL DIALOG BY PRE-COMMAND";
+    
+    /**
+     * The suffix of a variable name, that is checked for the text that is presented
+     * to the user while the pre-command is running.
+     */
+    public static final String VAR_PLEASE_WAIT_TEXT = "_PLEASE_WAIT_TEXT";
     
     /**
      * This property (which name has the variable name appended) is fired
@@ -111,6 +128,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
      *  that disabled them as values. */
     private HashMap disabledComponents = new HashMap();
     private java.awt.Component firstFocusedComponent;
+    /**
+     * The collection of components that need to be preprocessed.
+     */
+    private List/*<VariableInputComponent>*/ componentsToPreprocess = Collections.EMPTY_LIST;
+    /** The map of components and their original cursors */
+    private Map cursorChangedComponents = new HashMap();
     /**
      * The name of the variable, that contains pairs of variables and commands.
      * When the variables listed here change their value, the corresponding command
@@ -712,7 +735,17 @@ public class VariableInputDialog extends javax.swing.JPanel {
             if (components != null) {
                 for (int i = 0; i < components.length; i++) {
                     java.awt.Component component = components[i];
-                    if (component instanceof javax.swing.text.JTextComponent) {
+                    if (component instanceof javax.swing.JTextArea) {
+                        varValue = Variables.expand(vars, varValue, false);
+                        inComponent.setValue(varValue);
+                        initArea((javax.swing.JTextArea) component, varValue);
+                        PropertyChangeEvent pcev = new PropertyChangeEvent(this, PROP_VAR_CHANGED+varName, oldValue, varValue);
+                        if (inComponent.isExpandableDefaultValue()) {
+                            // Not to persistently store the expanded value!
+                            pcev.setPropagationId(inComponent.getDefaultValue());
+                        }
+                        propertyChangeEvents.add(pcev);
+                    } else if (component instanceof javax.swing.text.JTextComponent) {
                         varValue = Variables.expand(vars, varValue, false);
                         //if (varValue != null && varValue.equals(oldValue)) { - do not check it here. We need to have the text set.
                         //    continue;
@@ -988,6 +1021,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
         jComponent.getAccessibleContext().setAccessibleDescription(a11yDescription);
     }
     
+    /** Gets the text that is presented to the user before the pre-command retrieves the value. */
+    private String getPleaseWaitText(VariableInputComponent component) {
+        String pleaseWaitText = (String) vars.get(component.getVariable()+VAR_PLEASE_WAIT_TEXT);
+        if (pleaseWaitText == null) {
+            pleaseWaitText = NbBundle.getMessage(VariableInputDialog.class, "VariableInputDialog.PleaseWaitText");
+        }
+        return pleaseWaitText;
+    }
+    
     private void addVarPromptField(final VariableInputComponent component,
                                    int gridy, javax.swing.JPanel variablePanel,
                                    int leftInset, boolean password,
@@ -1024,7 +1066,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
         setA11y(field, component);
         String value;
         if (component.needsPreCommandPerform()) {
-            value = component.getValue();
+            //value = component.getValue();
+            value = getPleaseWaitText(component);
+            cursorChangedComponents.put(field, field.getCursor());
+            field.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         } else {
             value = component.getDefaultValue();
         }
@@ -1496,8 +1541,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //VcsUtilities.removeEnterFromKeymap(field);
         //fileNames.add(filePrompts.get(message));
         String fileName;
+        boolean areaInitialized = false;
         if (component.needsPreCommandPerform()) {
-            fileName = component.getValue();
+            //fileName = component.getValue();
+            area.setText(getPleaseWaitText(component));
+            cursorChangedComponents.put(area, area.getCursor());
+            area.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            areaInitialized = true;
+            fileName = null;
         } else {
             fileName = component.getDefaultValue();
         }
@@ -1513,9 +1564,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
             }
         }
         //System.out.println("setting file name value = "+fileName);
-        component.setValue(fileName);
-        initArea(area, fileName);
+        if (!areaInitialized) {
+            component.setValue(fileName);
+            initArea(area, fileName);
+        }
         awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { label, area });
+        componentsByVars.put(component.getVariable(), component);
         addActionToProcess(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 //component.setValue(chbox.isSelected() ? Boolean.TRUE.toString() : "");
@@ -2192,6 +2246,71 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 }
             }
         //}
+    }
+    
+    public void setComponentsToPreprocess(List/*<VariableInputComponent>*/ componentsToPreprocess) {
+        this.componentsToPreprocess = componentsToPreprocess;
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                doPreprocessComponents();
+            }
+        });
+    }
+    
+    private void doPreprocessComponents() {
+        if (componentsToPreprocess.size() > 0) {
+            String[] defVals = new String[componentsToPreprocess.size()];
+            for (int i = 0; i < defVals.length; i++) {
+                defVals[i] = ((VariableInputComponent) componentsToPreprocess.get(i)).getDefaultValue();
+            }
+            PreCommandPerformer cmdPerf = new PreCommandPerformer(executionContext, vars);
+            try {
+                Collection executedTasks = new ArrayList();
+                String[] values = cmdPerf.process(defVals, executedTasks);
+                for (int i = 0; i < values.length; i++) {
+                    VariableInputComponent c = (VariableInputComponent) componentsToPreprocess.get(i);
+                    vars.put(c.getVariable(), values[i]);
+                }
+                for (Iterator it = executedTasks.iterator(); it.hasNext(); ) {
+                    CommandTask task = (CommandTask) it.next();
+                    Map commandVars = ((VcsDescribedTask) task).getVariables();
+                    // We update variables changed by the selector when VAR_UPDATE_CHANGED_FROM_SELECTOR is set to "true".
+                    if ("true".equals(commandVars.get(VAR_UPDATE_CHANGED_FROM_SELECTOR))) {
+                        commandVars.remove(VAR_UPDATE_CHANGED_FROM_SELECTOR);
+                        Hashtable varsHashtable;
+                        if (commandVars instanceof Hashtable) {
+                            varsHashtable = (Hashtable) commandVars;
+                        } else {
+                            varsHashtable = new Hashtable(commandVars);
+                        }
+                        String cancelStr = (String) varsHashtable.get(VAR_CANCEL_DIALOG_BY_PRECOMMAND);
+                        if ("true".equals(cancelStr)) {
+                            ActionEvent ev = new ActionEvent(NotifyDescriptor.CANCEL_OPTION, ActionEvent.ACTION_PERFORMED, "");
+                            for (Iterator clit = closeListeners.iterator(); clit.hasNext(); ) {
+                                ((ActionListener) clit.next()).actionPerformed(ev);
+                            }
+                            closeListeners.clear();
+                            return ;
+                        }
+                        updateVariableValues(varsHashtable, false);
+                    }
+                }
+            } catch (UserCancelException uce) {
+                for (int i = 0; i < defVals.length; i++) {
+                    VariableInputComponent c = (VariableInputComponent) componentsToPreprocess.get(i);
+                    vars.put(c.getVariable(), defVals[i]);
+                }
+            }
+            updateVariableValues(vars);
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    for (Iterator it = cursorChangedComponents.keySet().iterator(); it.hasNext(); ) {
+                        Component c = (Component) it.next();
+                        c.setCursor((Cursor) cursorChangedComponents.get(c));
+                    }
+                }
+            });
+        }
     }
     
     /**

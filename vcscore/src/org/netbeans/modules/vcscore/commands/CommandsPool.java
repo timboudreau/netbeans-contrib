@@ -173,13 +173,12 @@ public class CommandsPool extends Object {
      * Get the command's ID. It's a unique command identification number.
      * @param vce the command's executor
      * @return the ID or -1 if the command does not have one.
-     *
-    public long getCommandID(VcsCommandExecutor vce) {
-        VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
-        if (cw != null) return cw.getCommandID();
-        else return -1;
-    }
      */
+    public long getCommandID(VcsCommandExecutor vce) {
+        if (!(vce instanceof ExecuteCommand)) return -1;
+        CommandTask task = ((ExecuteCommand) vce).getTask();
+        return CommandProcessor.getInstance().getTaskID(task);
+    }
 
     /**
      * Perform preprocessing of a new command. It will perform any needed input

@@ -759,6 +759,15 @@ public class CommandCustomizationSupport extends Object {
         }
     }
     
+    private static java.util.List getComponentsToPreprocess(VariableInputDescriptor inputDescriptor) {
+        VariableInputComponent[] components = inputDescriptor.components();
+        ArrayList componentsWithPrecommands = new ArrayList();
+        for (int i = 0; i < components.length; i++) {
+            addComponentsWithPrecommands(components[i], componentsWithPrecommands);
+        }
+        return componentsWithPrecommands;
+    }
+    
     private static void doPromptForPasswordIfNecessary(final CommandExecutionContext executionContext,
                                                        final String exec,
                                                        final Hashtable vars) throws UserCancelException {
@@ -835,15 +844,6 @@ public class CommandCustomizationSupport extends Object {
                 cmd.setProperty(INPUT_DESCRIPTOR_PARSED, inputDescriptor);
             }
         }
-        if (inputDescriptor != null) {
-            //try {
-            processPrecommands(executionContext, vars, inputDescriptor);
-                /*
-            } catch (UserCancelException cancelExc) {
-                return false;
-            }
-                 */
-        }
         synchronized (vars) {
             doPromptForPasswordIfNecessary(executionContext, exec, vars);
             if (forEachFile == null || forEachFile[0] == true) {
@@ -886,6 +886,7 @@ public class CommandCustomizationSupport extends Object {
                     if (expertCondition) {
                         if (exec != null) dlg.setExec(exec);
                     }
+                    dlg.setComponentsToPreprocess(getComponentsToPreprocess(inputDescriptor));
                     final String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
                     String globalInputStrStored = (String) globalInputStrs.get(executionContext);
                     VariableInputDescriptor globalInputDescriptor = null;
