@@ -23,6 +23,7 @@ import org.openide.loaders.*;
 import org.openide.cookies.*;
 import org.openide.src.*;
 import org.openide.src.nodes.*;
+import org.openide.*;
 
 import com.netbeans.*;
 
@@ -37,8 +38,8 @@ import com.netbeans.enterprise.modules.corba.*;
  
 public class ImplGenerator {
 
-   //public static final boolean DEBUG = true;
-   private static final boolean DEBUG = false;
+   public static final boolean DEBUG = true;
+   //private static final boolean DEBUG = false;
 
 
    private IDLElement src;
@@ -593,6 +594,17 @@ public class ImplGenerator {
 	    
 	    }
 	 }
+	 if (element.getMember (i) instanceof InterfaceElement) {
+	    if (DEBUG)
+	       System.out.println ("interface");
+	    if (((IDLElement)element.getMember (i)).getName ().equals (name)) {
+	       tmp_element = element.getMember (i);
+	       if (DEBUG)
+		  System.out.println ("element: " + tmp_element + " : " + tmp_element.getName ());
+	       return (IDLElement)tmp_element;
+	    
+	    }
+	 }
       }
       return null;
    }
@@ -770,7 +782,6 @@ public class ImplGenerator {
 
    */
 
-
    public String exception2java (String ex, String _package, InterfaceElement _interface) {
       if (DEBUG)
 	 System.out.println ("-- is exception with absolute scope name");
@@ -804,6 +815,20 @@ public class ImplGenerator {
       return full_name;
    }
    
+   public boolean existMethodInClass (ClassElement clazz, MethodElement method) {
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::existMethodInClass (" + clazz + ", " + method + ");");
+      MethodParameter[] mps = method.getParameters ();
+      org.openide.src.Identifier id = method.getName ();
+      Type[] types = new Type [mps.length];
+      for (int i=0; i<mps.length; i++)
+	 types[i] = mps[i].getType ();
+      if (clazz.getMethod (id, types) != null)
+	 return true;
+      else
+	 return false;
+   }
+
    public void attribute2java (AttributeElement attr, ClassElement clazz) {
       String _package = ido.getPrimaryFile ().getParent ().getPackageName ('.');
       InterfaceElement _interface = (InterfaceElement)attr.getParent ();
@@ -822,7 +847,8 @@ public class ImplGenerator {
 	 geter.setModifiers (Modifier.PUBLIC);
 	 geter.setReturn (attr_type);
 	 geter.setBody ("\n  return null;\n");
-	 clazz.addMethod (geter);
+	 if (!existMethodInClass (clazz, geter))
+	    clazz.addMethod (geter);
       } catch (SourceException e) {
 	 e.printStackTrace ();
       }
@@ -835,7 +861,8 @@ public class ImplGenerator {
 	    seter.setReturn (Type.VOID);
 	    seter.setParameters (new MethodParameter[] { 
 	    new MethodParameter ("value", attr_type, false) });
-	    clazz.addMethod (seter);
+	    if (!existMethodInClass (clazz, seter))
+	       clazz.addMethod (seter);
 	 } catch (SourceException e) {
 	    e.printStackTrace ();
 	 }
@@ -891,7 +918,8 @@ public class ImplGenerator {
 	 if (oper.getReturn () != Type.VOID)
 	    oper.setBody ("\n  return null;\n");
 
-	 clazz.addMethod (oper);
+	 if (!existMethodInClass (clazz, oper)) 
+	    clazz.addMethod (oper);
       } catch (SourceException e) {
             e.printStackTrace ();
       }
@@ -919,11 +947,40 @@ public class ImplGenerator {
    public void synchronize (InterfaceElement element, String name) {
    }
 
+
+   public void interface2java (ClassElement clazz, InterfaceElement element) {
+      if (DEBUG)
+	 System.out.println ("ImplGenerator::interface2java (clazz, " + element.getName () + ");");
+      // parents...
+
+      Vector parents = element.getParents ();
+      for (int i=0; i<parents.size (); i++) {
+	 IDLElement parent 
+	    = findElementByName (((com.netbeans.enterprise.modules.corba.idl.src.Identifier)
+				  parents.elementAt (i)).getName (), element);
+	 //InterfaceElement parent = (InterfaceElement)id.getParent ();
+	 interface2java (clazz, (InterfaceElement)parent);
+      }
+
+      Vector members = element.getMembers ();
+      
+      for (int i=0; i<members.size (); i++) {
+	 if (members.elementAt (i) instanceof AttributeElement) {
+	    attribute2java ((AttributeElement)members.elementAt (i), clazz);
+	 }
+	 if (members.elementAt (i) instanceof OperationElement) {
+	    operation2java ((OperationElement)members.elementAt (i), clazz);
+	 }
+      }
+      
+   }
+
    public void interface2java (InterfaceElement element) {
       if (DEBUG)
 	 System.out.println ("interface2java: " + element.getName ());
       if (DEBUG)
          System.out.println ("name: " + ido.getPrimaryFile ().getName ());
+
 
       String impl_name = "";
       String super_name = "";
@@ -934,6 +991,7 @@ public class ImplGenerator {
 	 System.out.println ("modules:>" + modules + "<");
 	 System.out.println ("package:>" + _package + "<");
       }
+
 
       if (!TIE) {
 	 impl_name = IMPLBASE_IMPL_PREFIX + element.getName () + IMPLBASE_IMPL_POSTFIX;
@@ -952,6 +1010,14 @@ public class ImplGenerator {
 	    super_name = IMPL_INT_PREFIX + element.getName () + IMPL_INT_POSTFIX;
       }
 
+      // print to status line
+      String status_package = "";
+      StringTokenizer st = new StringTokenizer (_package, ".");
+      while (st.hasMoreTokens ()) {
+	 status_package += st.nextToken () + "/";
+      }
+
+      TopManager.getDefault ().setStatusText ("Generate " + status_package + impl_name + " ...");
 
       Vector members = element.getMembers ();
 
@@ -996,6 +1062,9 @@ public class ImplGenerator {
 	 //java_src.addClass (clazz);
 	 //java_src.addClasses (new ClassElement[] { clazz });
 
+	 interface2java (clazz, element); 
+	 /*
+
 	 for (int i=0; i<members.size (); i++) {
 	    if (members.elementAt (i) instanceof AttributeElement) {
 	       attribute2java ((AttributeElement)members.elementAt (i), clazz);
@@ -1004,6 +1073,7 @@ public class ImplGenerator {
 	       operation2java ((OperationElement)members.elementAt (i), clazz);
 	    }
 	 }
+	 */
 
 	 FileLock lock = impl.lock ();
 	 //	 if (source != null)
@@ -1018,14 +1088,20 @@ public class ImplGenerator {
    }
 
    public void generate () {
-      if (DEBUG)
+      if (DEBUG) {
 	 System.out.println ("generate :-))");
+	 src.dump ("");
+      }
       //Vector members = src.getMembers ();     // update for working with modules :-))
       Vector members = getInterfaces (src.getMembers ());
       for (int i=0; i<members.size (); i++) {
 	 if (members.elementAt (i) instanceof InterfaceElement)
 	    interface2java ((InterfaceElement)members.elementAt (i));
       }
+
+      TopManager.getDefault ().setStatusText ("Successfully Generated Implementation Classes for "
+					      + ido.getPrimaryFile ().getName () + ".");
+
    }
 
    
