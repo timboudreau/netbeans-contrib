@@ -13,10 +13,15 @@
 
 package org.netbeans.modules.vcscore.commands;
 
-import java.util.Set;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Hashtable;
+
+import org.openide.TopManager;
+import org.openide.NotifyDescriptor;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 
@@ -31,6 +36,62 @@ public class CommandExecutorSupport extends Object {
     private CommandExecutorSupport() {
     }
     
+    /*
+    public static int preprocessCommand(VcsFileSystem fileSystem, VcsCommandExecutor vce, Hashtable vars) {
+        return preprocessCommand(fileSystem, vce, vars, CommandsPool.PREPROCESS_DONE, null);
+    }
+     */
+    
+    public static int preprocessCommand(VcsFileSystem fileSystem, VcsCommandExecutor vce,
+                                        Hashtable vars, boolean[] askForEachFile) {
+        VcsCommand cmd = vce.getCommand();
+        // I. First check the confirmation:
+        Object confObj = cmd.getProperty(VcsCommand.PROPERTY_CONFIRMATION_MSG);
+        String confirmation = (confObj == null) ? "" : (String) confObj; //cmd.getConfirmationMsg();
+        String fullName = (String) vars.get("PATH");
+        if (fileSystem.isImportant(fullName)) {
+            confirmation = Variables.expand(vars, confirmation, true);
+        } else {
+            confirmation = null;
+        }
+        if (confirmation != null && confirmation.length() > 0) {
+            if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
+                    TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (
+                        confirmation, NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
+                return CommandsPool.PREPROCESS_CANCELLED; // The command is cancelled for that file
+            }
+        }
+        // II. Then filll output from pre commands:
+        PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, cmd, vars);
+        String exec = cmdPerf.process();
+        // III. Perform the default variable expansion
+        //exec = Variables.expand(vars, exec, true);
+        // III. Ask for the variable input
+        /*
+        boolean[] askForEachFile;
+        if (fileNames == null || fileNames.length <= 1) {
+            askForEachFile = null;
+        } else {
+            askForEachFile = new boolean[1];
+            askForEachFile[0] = (CommandsPool.PREPROCESS_NEXT_FILE == lastPreprocessState);
+        }
+         */
+        // III. Ask for the variable input
+        if (!fileSystem.promptForVariables(exec, vars, cmd, askForEachFile)) {
+            return CommandsPool.PREPROCESS_CANCELLED; // The command is cancelled for that file
+        }
+        // IV. Perform the default variable expansion
+        exec = Variables.expand(vars, exec, true);
+        //vce.updateExec(exec);
+        // V. Allow a custom preprocessing
+        exec = vce.preprocessCommand(cmd, vars, exec);
+        if (askForEachFile != null && askForEachFile[0]) {
+            return CommandsPool.PREPROCESS_NEXT_FILE;
+        } else {
+            return CommandsPool.PREPROCESS_DONE;
+        }
+    }
+    
     /**
      * Performs an automatic refresh after the command finishes.
      */
@@ -38,7 +99,7 @@ public class CommandExecutorSupport extends Object {
         VcsCommand cmd = vce.getCommand();
         String dir = vce.getPath();
         //String file = "";
-        Set files = vce.getFiles();
+        Collection files = vce.getFiles();
         for(Iterator it = files.iterator(); it.hasNext(); ) {
             String file = (String) it.next();
             doRefresh(fileSystem, vce.getExec(), cmd, dir, file);
