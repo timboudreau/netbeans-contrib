@@ -71,37 +71,12 @@ public class CvsGlobalRegister extends Object implements VcsAdditionalCommand {
                 return true; // It's already registered
             }
         }
-        String rootStr = (String) vars.get("CVS_ROOT"); // NOI18N
-        if (rootStr == null) {
-            rootStr = (String) vars.get("CVSROOT"); // NOI18N
-        }
-        rootStr = Variables.expand(vars, rootStr, false);
-        String serverType = null;
-        String repository = null;
-        String userName = null;
-        String serverName = null;
-        String serverPort = null;
-        CVSRoot cvsroot = null;
-        try {
-            cvsroot = CVSRoot.parse(rootStr);
-            serverType = cvsroot.getMethod();            
-            if (serverType == null) {
-                if (cvsroot.isLocal()) {
-                    serverType = CVS_LOCAL;
-                } else {
-                    serverType = CVS_EXT;
-                }
-            }
-            repository = cvsroot.getRepository();
-            userName = cvsroot.getUserName();
-            serverName = cvsroot.getHostName();
-            int port = cvsroot.getPort();
-            if (port > 0) {
-                serverPort = Integer.toString(port);
-            }
-        } catch (IllegalArgumentException iaex) {
-            //doesn't matter - nothing will be filled in
-        }
+        
+        String serverType = (String) vars.get("SERVERTYPE"); // NOI18N
+        String repository = (String) vars.get("CVS_REPOSITORY"); // NOI18N
+        String userName = (String) vars.get("CVS_USERNAME"); // NOI18N
+        String serverName = (String) vars.get("CVS_SERVER"); // NOI18N
+        String serverPort = (String) vars.get("ENVIRONMENT_VAR_CVS_CLIENT_PORT"); // NOI18N
                 
         // add aditional variables from cmd as values of customizer 
         Hashtable addVars = new Hashtable(); 
