@@ -88,7 +88,7 @@ Microsystems, Inc. All Rights Reserved.
           <patternset refid="standard-jar-excludes"/>
         </jar>
 	
-        <jar basedir="src" compress="false" jarfile="tests/a11y.jar">
+        <jar basedir="src" compress="false" jarfile="a11y.jar">
           <include name="org/netbeans/a11y/**"/>
           <exclude name="WorkspaceActivator.java"/>
           <patternset refid="standard-jar-excludes"/>
@@ -151,7 +151,7 @@ Microsystems, Inc. All Rights Reserved.
                 <include name="**/*.zip"/>
                 <include name="**/*.jar"/>
 		<!--
-         	<exclude name="tests/a11y.jar"/>
+         	<exclude name="a11y.jar"/>
 		-->
             </fileset>
         </delete>
