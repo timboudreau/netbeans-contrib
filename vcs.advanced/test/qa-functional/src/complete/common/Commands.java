@@ -456,7 +456,9 @@ public class Commands extends org.netbeans.jellytools.JellyTestCase {
             filesystemNode.expand();
             Node fileNode = new Node(filesystemNode, "A_File");
             new CompileAction().perform(fileNode);
-            MainWindowOperator.getDefault().waitStatusText("Finished A_File [Local].");
+            Thread.sleep(10000);
+            if (MainWindowOperator.getDefault().getStatusText().indexOf("Finished A_File") == -1)
+                throw new Exception("Error: A_File class was not compiled within 10 seconds.");
             new Action(null, "Empty|My Submenu|Test").perform(filesystemNode);
             MainWindowOperator.getDefault().waitStatusText("Command Test is running ...");
             VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Test");
