@@ -12,7 +12,19 @@ Line 4
 Line 5
 
 ==== Colors - Panel 1 ====
+Pos: 0 ---- Blue
+Pos: 2 ---- Blue
+Pos: 4 ---- Blue
+Pos: 6 ---- Blue
 ==== Colors - Panel 2 ====
+Pos: 0 ---- Blue
+Pos: 2 ---- Blue
+Pos: 4 ---- Blue
+Pos: 6 ---- Blue
+Pos: 14 ---- Green
+Pos: 16 ---- Green
+Pos: 18 ---- Green
+Pos: 20 ---- Green
 !!!! ==== Comparing revisions: 1.2 and 1.3 ==== !!!!
 ==== Text - Panel 1 ====
 
@@ -30,3 +42,7 @@ Line 5
 
 ==== Colors - Panel 1 ====
 ==== Colors - Panel 2 ====
+Pos: 0 ---- Green
+Pos: 2 ---- Green
+Pos: 4 ---- Green
+Pos: 6 ---- Green

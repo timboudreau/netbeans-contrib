@@ -20,7 +20,31 @@ Line6
 Line8
 
 ==== Colors - Panel 1 ====
+Pos: 0 ---- Blue
+Pos: 2 ---- Blue
+Pos: 4 ---- Blue
+Pos: 6 ---- Blue
+Pos: 8 ---- Blue
+Pos: 16 ---- Blue
+Pos: 18 ---- Blue
+Pos: 20 ---- Blue
+Pos: 35 ---- Red
+Pos: 37 ---- Red
+Pos: 39 ---- Red
 ==== Colors - Panel 2 ====
+Pos: 0 ---- Blue
+Pos: 2 ---- Blue
+Pos: 4 ---- Blue
+Pos: 6 ---- Blue
+Pos: 8 ---- Blue
+Pos: 16 ---- Blue
+Pos: 18 ---- Blue
+Pos: 20 ---- Blue
+Pos: 22 ---- Blue
+Pos: 30 ---- Green
+Pos: 32 ---- Green
+Pos: 34 ---- Green
+Pos: 36 ---- Green
 !!!! ==== Textual comparing revisions: 1.1 and 1.2 ==== !!!!
 1c1
 ---
