@@ -29,7 +29,8 @@ public class StructuredExec extends Object {
     private Argument[] args;
     
     /** Creates a new instance of StructuredExec.
-     * @param working The working directory
+     * @param working The working directory or <code>null</code> to use the current
+     *                working directory.
      * @param executable The executable
      * @param args The list of arguments passed to the executable
      */
@@ -41,6 +42,8 @@ public class StructuredExec extends Object {
     
     /**
      * Get the working directory.
+     * @return The working directory or <code>null</code> to use the current
+     *         working directory.
      */
     public File getWorking() {
         return working;
@@ -48,6 +51,8 @@ public class StructuredExec extends Object {
     
     /**
      * Set the working directory.
+     * @param working The working directory or <code>null</code> to use the current
+     *                working directory.
      */
     public void setWorking(File working) {
         this.working = working;
@@ -111,14 +116,17 @@ public class StructuredExec extends Object {
     }
     
     public StructuredExec getExpanded(Hashtable vars, boolean warnUndefVars) {
-        String ew = getWorking().getPath();
-        ew = Variables.expand(vars, ew, warnUndefVars);
+        String ew = null;
+        if (getWorking() != null) {
+            ew = getWorking().getPath();
+            ew = Variables.expand(vars, ew, warnUndefVars);
+        }
         String ee = Variables.expand(vars, getExecutable(), warnUndefVars);
         Argument[] eargs = new Argument[args.length];
         for (int i = 0; i < args.length; i++) {
             eargs[i] = new Argument(Variables.expand(vars, args[i].getArgument(), warnUndefVars), args[i].isLine());
         }
-        return new StructuredExec(new File(ew), ee, eargs);
+        return new StructuredExec((ew != null) ? new File(ew) : null, ee, eargs);
     }
     
     /**

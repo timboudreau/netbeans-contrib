@@ -412,12 +412,14 @@ public class CommandCustomizationSupport extends Object {
         if (executionContext != null) {
             PreCommandPerformer cmdPerf = new PreCommandPerformer(executionContext, vars);
             StructuredExec.Argument[] args = exec.getArguments();
-            String w;
+            String w = null;
             String exe;
             StructuredExec.Argument[] as = new StructuredExec.Argument[args.length];
             try {
-                w = cmdPerf.process(exec.getWorking().getPath());
-                w = insertGlobalOptions(w, vars);
+                if (exec.getWorking() != null) {
+                    w = cmdPerf.process(exec.getWorking().getPath());
+                    w = insertGlobalOptions(w, vars);
+                }
                 exe = cmdPerf.process(exec.getExecutable());
                 exe = insertGlobalOptions(exe, vars);
                 for (int i = 0; i < args.length; i++) {
@@ -428,7 +430,7 @@ public class CommandCustomizationSupport extends Object {
             } catch (UserCancelException cancelExc) {
                 return null;
             }
-            exec = new StructuredExec(new java.io.File(w), exe, as);
+            exec = new StructuredExec((w != null) ? new java.io.File(w) : null, exe, as);
         }
         return exec;
     }
