@@ -54,6 +54,7 @@ import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.WindowManager;
+import org.openide.nodes.Node;
 
 
 
@@ -490,7 +491,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
         return null;
     }
 
-    protected TaskNode createRootNode() {
+    protected Node createRootNode() {
         UserTask root = (UserTask)getModel().getRoot();
         return new UserTaskNode(root, root.subtasksIterator());
     }

@@ -123,7 +123,7 @@ public abstract class TaskListView extends TopComponent
     /** String (category of a view) -> ColumnsConfiguration */
     private static Map defColumns = new HashMap();
 
-    transient protected TaskNode rootNode = null;
+    transient protected Node rootNode = null;
     transient protected TreeTableIntf treeTable;
 
     protected transient ColumnProperty[] columns = null;
@@ -585,7 +585,7 @@ public abstract class TaskListView extends TopComponent
     }
 
     /** Create the root node to be used in this view */
-    abstract protected TaskNode createRootNode();
+    abstract protected Node createRootNode();
 
     /**
      * Start showing new tasklist.

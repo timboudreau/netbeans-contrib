@@ -211,9 +211,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
 
-    protected TaskNode createRootNode() {
-        Task root = getModel().getRoot();
-        return new SourceTaskNode(root, this);
+    protected Node createRootNode() {
+        return new TaskListNode(getModel());
+//        Task root = getModel().getRoot();
+//        return new SourceTaskNode(root, this);
     }
 
 
