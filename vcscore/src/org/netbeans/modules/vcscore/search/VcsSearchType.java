@@ -86,7 +86,7 @@ public class VcsSearchType extends SearchType {
             propListener = new PropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent evt) {
                     if(DataObject.PROP_COOKIE.equals(evt.getPropertyName()))
-                        firePropertyChange(SearchType.PROP_OBJECT_CHANGED, null, evt.getSource());
+                        firePropertyChange(PROP_OBJECT_CHANGED, null, evt.getSource());
                 }
             };
         }

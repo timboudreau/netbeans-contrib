@@ -1132,15 +1132,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
         });
         comboBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent ev) {
-                boolean selected = (ItemEvent.SELECTED == ev.getStateChange());
+                boolean selected2 = (ItemEvent.SELECTED == ev.getStateChange());
                 Object item = ev.getItem();
                 int index;
                 for (index = 0; index < items; index++) {
                     if (item.equals(comboBox.getItemAt(index))) break;
                 }
                 if (index < items) {
-                    enableComponents(varsEnabled[index], selected);
-                    enableComponents(varsDisabled[index], !selected);
+                    enableComponents(varsEnabled[index], selected2);
+                    enableComponents(varsDisabled[index], !selected2);
                 }
             }
         });
@@ -1165,11 +1165,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
         addHistoryListener(new VariableInputDialog.HistoryListener() {
             public void changeHistory(int index1, int index) {
                 String value = component.getValue();
-                String selected = component.getHistoryValue(index);
-                if (selected != null) {
+                String selected2 = component.getHistoryValue(index);
+                if (selected2 != null) {
                     int i;
                     for (i = 0; i < items; i++) {
-                        if (selected.equals(values[i])) break;
+                        if (selected2.equals(values[i])) break;
                     }
                     if (i < items) comboBox.setSelectedIndex(i);
                 } else comboBox.setSelectedIndex(0);
