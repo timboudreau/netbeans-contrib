@@ -258,11 +258,11 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
         Hashtable additionalVars = new Hashtable();
         if (mimeType != null) additionalVars.put("MIMETYPE", mimeType); // NOI18N
         if (items.length > 0) {
-            additionalVars.put("REVISION", items[0].getRevision());
+            additionalVars.put("REVISION", items[0].getRevisionVCS());
         }
         for(int i = 0; i < items.length; i++) {
             //D.deb("nodes["+i+"]="+nodes[i]); // NOI18N
-            additionalVars.put("REVISION"+(i+1), items[i].getRevision());
+            additionalVars.put("REVISION"+(i+1), items[i].getRevisionVCS());
         }
         additionalVars.put("BRANCH", getBranch(items));
         //D.deb("files="+files); // NOI18N
