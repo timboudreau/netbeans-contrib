@@ -273,9 +273,7 @@ ExplorerManager.Provider, ExportImportProvider {
 
         int ver = objectInput.read();
 
-        // Read in the UID of the currently selected task, or null if none
-        // TODO: Not yet implemented
-        String selUID = (String) objectInput.readObject();
+        objectInput.readObject(); // ignore the UID of selected task
 
         if (ver == 4)
             return;
@@ -290,13 +288,6 @@ ExplorerManager.Provider, ExportImportProvider {
             sortingColumn = -1;
         }
 
-        /*
-        System.out.println("readExternal: " + getClass().getName()); // NOI18N
-        System.out.println("numVisible is " + numVisible); // NOI18N
-        System.out.println("sortingColumn is " + sortingColumn); // NOI18N
-        System.out.println("ascending is " + ascending); // NOI18N
-        */
-
         if (numVisible > 0) {
             String[] columns = new String[0];
             int numColumns = columns.length;
@@ -306,68 +297,13 @@ ExplorerManager.Provider, ExportImportProvider {
             }
             for (int i = 0; i < numVisible; i++) {
                 int uid = objectInput.read();
-                /* don't do anything. we just read the bytes
-                int index;
-                if ((uid < numColumns) && (columns[uid].uid == uid)) {
-                    // UID == column index. This is the scenario for now
-                    // until we delete columns in the middle etc.
-                    index = uid;
-                } else {
-                    // Have to search for the uid
-                    index = -1;
-                    for (int j = 0; j < numColumns; j++) {
-                        if (columns[j].uid == uid) {
-                            index = j;
-                            break;
-                        }
-                    }
-                }
-
-    if (index != -1) {
-                    columnVisible[index] = true;
-
-                    // Set sorting attribute
-                    if (sortingColumn == uid) {
-                    columns[index].setValue("SortingColumnTTV", // NOI18N
-                                Boolean.TRUE);
-                    // Descending sort?
-                    if (!ascending) {
-                        columns[index].setValue("DescendingOrderTTV", // NOI18N
-                                    Boolean.TRUE);
-                    }
-                    }
-                }
-    */
             }
-
-            //System.out.print("Column visibility: {");
-            /* we don't do anything. we just read the bytes
-for (int i = 0; i < columns.length; i++) {
-//System.out.print(" " + columnVisible[i]);
-
-            // Is this column visible?
-            if (columnVisible[i]) {
-                columns[i].setValue("InvisibleInTreeTableView", // NOI18N
-                        // NOTE reverse logic: this is INvisible
-                        Boolean.FALSE);
-            } else {
-                // Necessary because by default some columns
-                // set invisible by default, so I have to
-                // override these
-                columns[i].setValue("InvisibleInTreeTableView", // NOI18N
-                        // NOTE reverse logic: this is INvisible
-                        Boolean.TRUE);
-            }
-            }
-*/
-//System.out.println(" }");
         }
 
         if (ver >= 2) {
             objectInput.readObject(); // ignoring category
             objectInput.readObject(); // ignoring title
             int persistentInt = objectInput.read();
-            // persistent = (persistentInt != 0);
         }
 
         synchronized (UserTaskView.class) {
@@ -385,34 +321,50 @@ for (int i = 0; i < columns.length; i++) {
      * @throws ClassNotFoundException  
      */    
     public void readExternal(ObjectInput objectInput) throws IOException, java.lang.ClassNotFoundException {
-        try {
-            readExternalCore(objectInput);
-            int ver = objectInput.read();
+        readExternalCore(objectInput);
+        int ver = objectInput.read();
 
-            if (ver >= 2) {
-                // Read tasklist file name
-                String urlString = (String)objectInput.readObject();
-                
-                UTUtils.LOGGER.fine("reading url " + urlString); // NOI18N
-                
-                if (urlString != null) {
-                    URL url = new URL(urlString);
-                    FileObject fo = URLMapper.findFileObject(url);
-                    if (fo != null) {
-                        UserTaskList utl = new UserTaskList();
-                        utl.readFile(fo);
-                        setList(utl);
-                    }
-                } else {
-                    setList(UserTaskList.getDefault());
+        if (ver >= 2) {
+            // Read tasklist file name
+            String urlString = (String)objectInput.readObject();
+
+            UTUtils.LOGGER.fine("reading url " + urlString); // NOI18N
+
+            if (urlString != null) {
+                URL url = new URL(urlString);
+                FileObject fo = URLMapper.findFileObject(url);
+                if (fo != null) {
+                    UserTaskList utl = new UserTaskList();
+                    utl.readFile(fo);
+                    setList(utl);
                 }
+            } else {
+                setList(UserTaskList.getDefault());
+                defview = this;
             }
-            if (ver >= 3) {
-                tt.readExpandedState(objectInput);
-                tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
+        }
+        if (ver >= 3) {
+            tt.readExpandedState(objectInput);
+            tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
+        }
+        if (ver >= 4) {
+            Object sel = objectInput.readObject();
+            if (sel != null) {
+                TreePath tp = tt.readResolveTreePath(sel);
+                if (tp != null)
+                    tt.select(tp);
             }
-        } catch (Throwable t) {
-            t.printStackTrace();
+        }
+        if (ver >= 5) {
+            String uid = (String) objectInput.readObject();
+            
+            // started task
+            if (UserTaskList.getStarted() == null && uid != null) {
+                UserTask ut = tasklist.findItem(
+                    tasklist.getSubtasks().iterator(), uid);
+                if (ut != null)
+                    ut.start();
+            }
         }
     }
 
@@ -421,21 +373,16 @@ for (int i = 0; i < columns.length; i++) {
      * columns, sorting order, etc.) such that they can
      * be reconstructed the next time the IDE is started.
      * @todo Use a more robust serialization format (not int uid based)
+     *
      * @param objectOutput Object stream to write to
      * @throws IOException  
-     */
-    public void writeExternalCore(ObjectOutput objectOutput) throws IOException {
+     */    
+    public void writeExternal(ObjectOutput objectOutput) throws IOException {
         // Don't call super.writeExternal.
-        // Our parents are ExplorerPanel and TopComponent.
-        // ExplorerPanel writes out the ExplorerManager, which tries
-        //  to write out the node selection, explored content, etc.
-        //  We don't want that. Specific tasklist children, such as
-        //  the usertasklist, may want to persist the selection but
-        //  most (such as the suggestions view, source scan etc,
-        //  don't want this.)
+        // Our parent is TopComponent.
         // TopComponent persists the name and tooltip text; we
         //  don't care about that either.
-        //super.writeExternal(objectOutput);
+        // super.writeExternal(objectOutput);
 
         // Version 1 format:
         // String: selected uid
@@ -455,19 +402,6 @@ for (int i = 0; i < columns.length; i++) {
 
         // Write out the UID of the currently selected task, or null if none
         objectOutput.writeObject(null); // Not yet implemented
-    }
-
-    /** 
-     * Write out relevant settings in the window (visible
-     * columns, sorting order, etc.) such that they can
-     * be reconstructed the next time the IDE is started.
-     * @todo Use a more robust serialization format (not int uid based)
-     *
-     * @param objectOutput Object stream to write to
-     * @throws IOException  
-     */    
-    public void writeExternal(ObjectOutput objectOutput) throws IOException {
-        writeExternalCore(objectOutput);
 
         UserTaskList tl = (UserTaskList)getList();
         tl.save(); // Only does something if the todolist has changed...        
@@ -476,7 +410,7 @@ for (int i = 0; i < columns.length; i++) {
         // preferences, etc.
         // Since I'm not doing that yet, let's at a minimum put in a version
         // byte so we can do the right thing later without corrupting the userdir
-        objectOutput.write(3); // SERIAL VERSION
+        objectOutput.write(5); // SERIAL VERSION
 
         FileObject fo = tl.getFile();
         if (fo != null) {
@@ -489,15 +423,21 @@ for (int i = 0; i < columns.length; i++) {
         }
         
         tt.writeExpandedState(objectOutput);
-    }
-
-    /** 
-     * Create the root node to be used in this view 
-     *
-     * @return created node
-     */
-    protected Node createRootNode() {
-        return new UserTaskListNode((UserTaskList) getList(), null);
+        
+        // selected task
+        TreePath tp = tt.getSelectedPath();
+        if (tp != null)
+            objectOutput.writeObject(tt.writeReplaceTreePath(tp));
+        else
+            objectOutput.writeObject(null);
+        
+        // started task
+        if (UserTaskList.getStarted() != null && 
+            UserTaskList.getStarted().getList() == tasklist) {
+            objectOutput.writeObject(UserTaskList.getStarted().getUID());
+        } else {
+            objectOutput.writeObject(null);
+        }
     }
 
     /**

@@ -53,8 +53,6 @@ import org.openide.util.NbBundle;
  *       file. I might need some of it again when we decide we want to
  *       event support.
  *
- * TODO: review this class after the "export/import framework" rewrite
- *
  * @author Tor Norbye
  * @author Trond Norbye
  */

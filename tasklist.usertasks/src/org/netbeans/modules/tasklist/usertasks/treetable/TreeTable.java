@@ -170,6 +170,19 @@ public class TreeTable extends JTable {
     }
 
     /**
+     * Returns selected path
+     *
+     * @return selected path or null
+     */
+    public TreePath getSelectedPath() {
+        int row = getSelectedRow();
+        if (row < 0)
+            return null;
+        
+        return tree.getPathForRow(row);
+    }
+    
+    /**
      * TreeModel does not support a reordering event. Therefore it is 
      * necessary to save the expanded nodes and selection before 
      * a reordering and restore them after such an operation.
