@@ -113,6 +113,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public static final String PROP_CREATE_VERSIONING_EXPLORER = "createVersioningExplorer"; // NOI18N
     public static final String PROP_CREATE_BACKUP_FILES = "createBackupFiles"; // NOI18N
     public static final String PROP_FILTER_BACKUP_FILES = "filterBackupFiles"; // NOI18N
+    public static final String PROP_PROMPT_FOR_VARS_FOR_EACH_FILE = "promptForVarsForEachFile"; // NOI18N
     protected static final String PROP_USE_UNIX_SHELL = "useUnixShell"; // NOI18N
     protected static final String PROP_NOT_MODIFIABLE_STATUSES = "notModifiableStatuses"; // NOI18N
     
@@ -358,6 +359,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setLockFilesOn (boolean lock) {
         if (lock != lockFilesOn) {
             lockFilesOn = lock;
+            VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(LOCK_FILES_ON);
+            if (var == null) {
+                var = new VcsConfigVariable(LOCK_FILES_ON, null, "", false, false, false, null);
+                variables.add(var);
+                variablesByName.put(var.getName(), var);
+            }
+            var.setValue(new Boolean(lock).toString());
             firePropertyChange(PROP_CALL_LOCK, new Boolean(!lockFilesOn), new Boolean(lockFilesOn));
         }
     }
@@ -365,6 +373,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setPromptForLockOn (boolean prompt) {
         if (prompt != promptForLockOn) {
             promptForLockOn = prompt;
+            VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(PROMPT_FOR_LOCK_ON);
+            if (var == null) {
+                var = new VcsConfigVariable(PROMPT_FOR_LOCK_ON, null, "", false, false, false, null);
+                variables.add(var);
+                variablesByName.put(var.getName(), var);
+            }
+            var.setValue(new Boolean(prompt).toString());
             firePropertyChange(PROP_CALL_LOCK_PROMPT, new Boolean(!promptForLockOn), new Boolean(promptForLockOn));
         }
     }
@@ -376,6 +391,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setCallEditFilesOn(boolean edit) {
         if (edit != callEditFilesOn) {
             callEditFilesOn = edit;
+            VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(EDIT_FILES_ON);
+            if (var == null) {
+                var = new VcsConfigVariable(EDIT_FILES_ON, null, "", false, false, false, null);
+                variables.add(var);
+                variablesByName.put(var.getName(), var);
+            }
+            var.setValue(new Boolean(edit).toString());
             firePropertyChange(PROP_CALL_EDIT, new Boolean(!callEditFilesOn), new Boolean(callEditFilesOn));
         }
     }
@@ -383,6 +405,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setPromptForEditOn (boolean prompt) {
         if (prompt != promptForEditOn) {
             promptForEditOn = prompt;
+            VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(PROMPT_FOR_EDIT_ON);
+            if (var == null) {
+                var = new VcsConfigVariable(PROMPT_FOR_EDIT_ON, null, "", false, false, false, null);
+                variables.add(var);
+                variablesByName.put(var.getName(), var);
+            }
+            var.setValue(new Boolean(prompt).toString());
             firePropertyChange(PROP_CALL_EDIT_PROMPT, new Boolean(!promptForEditOn), new Boolean(promptForEditOn));
         }
     }
@@ -465,7 +494,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * initial default value in the VariableInputDialog.
      */
     public void setPromptForVarsForEachFile(boolean promptForVarsForEachFile) {
-        this.promptForVarsForEachFile = promptForVarsForEachFile;
+        if (this.promptForVarsForEachFile != promptForVarsForEachFile) {
+            this.promptForVarsForEachFile = promptForVarsForEachFile;
+            firePropertyChange(PROP_PROMPT_FOR_VARS_FOR_EACH_FILE, new Boolean(!promptForVarsForEachFile), new Boolean(promptForVarsForEachFile));
+        }
     }
     
     /**
@@ -482,12 +514,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setProcessUnimportantFiles(boolean processUnimportantFiles) {
+        boolean fire = false;
+        Boolean old = null;
         synchronized (this.processUnimportantFiles) {
             if (processUnimportantFiles != this.processUnimportantFiles.booleanValue()) {
-                Boolean old = this.processUnimportantFiles;
+                old = this.processUnimportantFiles;
                 this.processUnimportantFiles = new Boolean(processUnimportantFiles);
-                firePropertyChange(PROP_PROCESS_UNIMPORTANT_FILES, old, this.processUnimportantFiles);
+                fire = true;
             }
+        }
+        if (fire) {
+            firePropertyChange(PROP_PROCESS_UNIMPORTANT_FILES, old, this.processUnimportantFiles);
         }
     }
     
@@ -639,6 +676,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         } else {
             var.setValue(showDeadFiles ? "true" : "");
         }
+    }
+    
+    public int getNumberOfFinishedCmdsToCollect() {
+        return RuntimeSupport.getInstance().getCollectFinishedCmdsNum(getSystemName());
+    }
+    
+    public void setNumberOfFinishedCmdsToCollect(int numberOfFinishedCmdsToCollect) {
+        this.numberOfFinishedCmdsToCollect = new Integer(numberOfFinishedCmdsToCollect);
+        RuntimeSupport.getInstance().setCollectFinishedCmdsNum(numberOfFinishedCmdsToCollect, getSystemName());
+        // Do NOT fire a property change here !!!
+        // The property change is propagated from RuntimeSupport.getInstance().setCollectFinishedCmdsNum()
+        //                                   to   this.numOfFinishedCmdsToCollectChanged()
     }
     
     public void addRevisionListener(RevisionListener listener) {
@@ -1161,13 +1210,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Get the cache identification.
      */
     public String getCacheIdStr() {
-        if (cacheID == null) {
-            synchronized (this) {
-                if (cacheID == null) {
-                    cacheID = initCacheIdStr();
-                }
+        synchronized (this) {
+            if (cacheID == null) {
+                cacheID = initCacheIdStr();
+                firePropertyChange("cacheID", null, cacheID); // NOI18N
             }
-            firePropertyChange("cacheID", null, cacheID); // NOI18N
         }
         return cacheID;
     }
