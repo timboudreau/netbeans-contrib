@@ -38,13 +38,14 @@ import org.netbeans.modules.vcs.advanced.variables.Condition;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
-import org.netbeans.modules.vcscore.caching.StatusFormat;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.spi.vcs.commands.CommandSupport;
+
+import org.openide.xml.XMLUtil;
 
 /**
  * Writes the VCS profile in an XML format.
@@ -125,7 +126,7 @@ public final class ProfileWriter {
      */
     private static void writeSimpleElement(OutputStream out, int inset,
                                            String elementName, String content) throws IOException {
-        writeSimpleElement(out, inset, elementName.getBytes(), content.getBytes());
+        writeSimpleElement(out, inset, elementName.getBytes(), XMLUtil.toElementContent(content).getBytes());
     }
     
     /**
@@ -148,7 +149,7 @@ public final class ProfileWriter {
      * A space is prepended automatically.
      */
     private static void writeAttribute(OutputStream out, String attrName, String attrValue) throws IOException {
-        writeAttribute(out, attrName.getBytes(), StatusFormat.escapeSpecialHTMLCharacters(attrValue).getBytes());
+        writeAttribute(out, attrName.getBytes(), XMLUtil.toAttributeValue(attrValue).getBytes());
     }
     
     /**
@@ -171,8 +172,8 @@ public final class ProfileWriter {
                                              String[] resourceBundles) throws IOException {
         if (resourceBundles != null) {
             for (int i = 0; i < resourceBundles.length; i++) {
-                writeSimpleElement(out, inset, ProfileContentHandler.RESOURCE_BUNDLE_TAG.getBytes(),
-                                   resourceBundles[i].getBytes());
+                writeSimpleElement(out, inset, ProfileContentHandler.RESOURCE_BUNDLE_TAG,
+                                   resourceBundles[i]);
             }
         }
     }
@@ -182,8 +183,8 @@ public final class ProfileWriter {
      */
     private static void writeLabel(OutputStream out, int inset,
                                    String label) throws IOException {
-        writeSimpleElement(out, inset, ProfileContentHandler.LABEL_TAG.getBytes(),
-                           label.getBytes());
+        writeSimpleElement(out, inset, ProfileContentHandler.LABEL_TAG,
+                           label);
     }
     
     /**
@@ -206,16 +207,16 @@ public final class ProfileWriter {
                 String oss = VcsUtilities.arrayToQuotedStrings(
                     (String[]) new TreeSet(compatibleOSs).toArray(new String[0]));
                 writeSimpleElement(out, inset + INSET,
-                                   ProfileContentHandler.OS_COMPATIBLE_TAG.getBytes(),
-                                   oss.getBytes());
+                                   ProfileContentHandler.OS_COMPATIBLE_TAG,
+                                   oss);
             }
             
             if (uncompatibleOSs.size() > 0) {
                 String oss = VcsUtilities.arrayToQuotedStrings(
                     (String[]) new TreeSet(uncompatibleOSs).toArray(new String[0]));
                 writeSimpleElement(out, inset + INSET,
-                                   ProfileContentHandler.OS_UNCOMPATIBLE_TAG.getBytes(),
-                                   oss.getBytes());
+                                   ProfileContentHandler.OS_UNCOMPATIBLE_TAG,
+                                   oss);
             }
             
             writeInset(out, inset);
@@ -517,7 +518,7 @@ public final class ProfileWriter {
             writeConditionAttributes(out, c);
         }
         out.write(CLOSE_ELM);
-        out.write(StatusFormat.escapeSpecialHTMLCharacters(value).getBytes());
+        out.write(XMLUtil.toElementContent(value).getBytes());
         out.write(OPEN_ELM_END);
         out.write(ProfileContentHandler.VARIABLE_PROPERTY_VALUE_TAG.getBytes());
         out.write(CLOSE_ELM_NL);
