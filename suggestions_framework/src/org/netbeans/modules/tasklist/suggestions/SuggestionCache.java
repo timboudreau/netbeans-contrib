@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.text.Document;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
@@ -96,7 +96,7 @@ Here's how the SuggestionManager uses the cache:
  * @author Tor Norbye
  */
 
-class SuggestionCache implements DocumentListener, ChangeListener {
+class SuggestionCache implements DocumentListener, PropertyChangeListener {
 
     private HashMap map = null;
 
@@ -127,32 +127,16 @@ class SuggestionCache implements DocumentListener, ChangeListener {
         doc.removeDocumentListener(this); // prevent double registering
         doc.addDocumentListener(this);
 
-        /* This was an attempt at registering a listener such that if
-           a document we're not paying attention to is closed, its cache
-           entry is removed. But this doesn't work - JavaEditor for example
-           (the EditorCookie for java data objects) is not a
-           CloneableEditorSupport, it's just an EditorSupport.
-
-           The other choices are to either use some kind of weak listener,
-           such that the items are removed automatically by the garbage
-           collector, or to use another way to detect when tabs are
-           closed. Turns out we're already doing that - in the Suggestion
-           Manager, so we'll use that scheme instead. The manager is
-           responsible for clearing out "background" documents.
-
-           If you fix this, be sure to remove the listener too, in
-           the remove() method.
-           
-        EditorCookie editor = (EditorCookie)dobj.getCookie (EditorCookie.class);
-        if (editor != null && (editor instanceof CloneableEditorSupport)) {
-            CloneableEditorSupport supp = (CloneableEditorSupport)editor;
-            if (supp != null) {
-                supp.removeChangeListener(this);
-                supp.addChangeListener(this);
-            }
+        /* TODO Not yet handled - see issue 31101 & 31558.
+        EditorCookie.Observable observable = 
+            (EditorCookie.Observable)dobj.getCookie(
+                                         EditorCookie.Observable.class);
+        if (observable != null) {
+            observable.removePropertyChangeListener(this); // prevent dupes
+            observable.addPropertyChangeListener(this);
         }
         */
-
+        
         map.put(doc, suggestions);
     }
 
@@ -188,12 +172,28 @@ class SuggestionCache implements DocumentListener, ChangeListener {
             // Was in the table - gotta remove doc listeners
             doc.removeDocumentListener(this);
 
-            // If you fix auto-listening for document closure
-            // (see section around addDocumentListener further up),
-            // make sure you remove the changeListener too!
-            //supp.removeChangeListener(this);
+            /* TODO Not yet handled - see issue 31101 & 31558
+               EditorCookie.Observable observable = 
+               (EditorCookie.Observable)dobj.getCookie(
+               EditorCookie.Observable.class);
+               if (observable != null) {
+                   observable.removePropertyChangeListener(this);
+               }
+            */
         }
     }
+
+    /** Reacts to changes */
+    public void propertyChange(PropertyChangeEvent ev) {
+        /* TODO Not yet implemented - see issue 31101 & 31558
+        String prop = ev.getPropertyName();
+        if (prop.equals(EditorCookie.Observable.PROP_DOCUMENT)) {
+            EditorCookie ec = (EditorCookie)ev.getSource();
+            Document doc = ec.getDocument();
+            invalidate(doc);
+        }
+        */
+    }    
 
     /** The given document should be removed from the map */
     private void invalidate(Document doc) {
@@ -212,11 +212,4 @@ class SuggestionCache implements DocumentListener, ChangeListener {
     public void removeUpdate(DocumentEvent e) {
         invalidate(e.getDocument());
     }
-
-    public void stateChanged(ChangeEvent evt) {
-        // Remove listener too, if invalidate fails
-        CloneableEditorSupport supp = (CloneableEditorSupport)evt.getSource();
-        invalidate(supp.getDocument());
-    }
-    
 }

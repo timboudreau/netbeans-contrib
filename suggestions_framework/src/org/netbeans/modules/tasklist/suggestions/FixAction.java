@@ -207,7 +207,7 @@ public class FixAction extends NodeAction {
             itemList.add(item);
             SuggestionList sList = (SuggestionList)item.getList();
             manager.register(item.getSType().getName(), null, itemList,
-                             sList, true);
+                             sList, null, true);
         }
         } finally {
             if (fixingStarted) {

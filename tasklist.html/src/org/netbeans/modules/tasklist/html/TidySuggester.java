@@ -49,45 +49,28 @@ public class TidySuggester extends DocumentSuggestionProvider
 
     final private static String TYPE = "nb-html-errors"; // NOI18N
 
-    /**
-     * Return the typenames of the suggestions that this provider
-     * will create.
-     * @return An array of string names. Should never be null. Most
-     *  providers will create Suggestions of a single type, so it will
-     *  be an array with one element.
-     */
     public String[] getTypes() {
         return new String[] { TYPE };
     }
     
-    /** Rescan the given document for suggestions. Typically called
-     * when a document is shown or when a document is edited, but
-     * could also be called for example when the document is
-     * saved.
-     * <p>
-     * This method should register the suggestions with the
-     * suggestion manager.
-     * <p>
-     * @param doc The document being scanned
-     * @param dobj The Data Object for the file being scanned
-     */
-    public void rescan(Document doc, DataObject dobj) {
+    public void rescan(Document doc, DataObject dobj, Object request) {
         dataobject = dobj;
         document = doc;
+        this.request = request;
         List newTasks = scan(doc, dobj);
         SuggestionManager manager = SuggestionManager.getDefault();
 
         if ((newTasks == null) && (showingTasks == null)) {
             return;
         }
-        manager.register(TYPE, newTasks, showingTasks);
+        manager.register(TYPE, newTasks, showingTasks, request);
         showingTasks = newTasks;
     }
 
     /** Package private rescan: called when you've rewritten
         the HTML for example */
     void rescan() {
-        rescan(document, dataobject);
+        rescan(document, dataobject, request);
     }
 
     static boolean isHTML(DataObject dobj) {
@@ -114,17 +97,6 @@ public class TidySuggester extends DocumentSuggestionProvider
             (dobj.getClass().getName().indexOf("XMLDataObject") != -1); // NOI18N
     }
                          
-    
-    /** Scan the given document for suggestions. Typically called
-     * when a document is shown or when a document is edited, but
-     * could also be called for example as part of a directory
-     * scan for suggestions.
-     * <p>
-     * @param doc The document being hidden
-     * @param dobj The Data Object for the file being opened
-     * @return List of suggestions scanned for this document type
-     *
-     */
     public List scan(Document doc, final DataObject dobj) {
          // XXX instanceof not good - I've heard data object
          // instancing like this is going away. Look for
@@ -175,20 +147,15 @@ public class TidySuggester extends DocumentSuggestionProvider
         return parseTasks;
     }
 
-    /**
-      * Remove items added by {@link rescan}.
-     * <p>
-     * @param document The document previously scanned
-     * @param dataobject The Data Object for the file previously scanned
-      */
-     public void clear(Document document, DataObject dataobject) {
+    public void clear(Document document, DataObject dataobject, 
+                      Object request) {
         // Remove existing items
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
-            manager.register(TYPE, null, showingTasks);
+            manager.register(TYPE, null, showingTasks, request);
             showingTasks = null;
         }
-     }
+    }
 
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;
@@ -217,5 +184,6 @@ public class TidySuggester extends DocumentSuggestionProvider
 
     private DataObject dataobject = null;
     private Document document = null;
+    private Object request = null;
     private Tidy tidy = null;
 }

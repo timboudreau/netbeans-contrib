@@ -1,9 +1,9 @@
-OpenIDE-Module-Specification-Version: 0.8.37
+OpenIDE-Module-Specification-Version: 0.9.0
 OpenIDE-Module: org.netbeans.modules.tasklist.html/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/html/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/html/mf-layer.xml
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.35
-OpenIDE-Module-Module-Dependencies: org.openide.src > 1.0, org.netbeans.modules.html/1 > 1.11, org.netbeans.api.tasklist/1 > 0.8.31, org.netbeans.modules.tasklist.core/1 > 0.8.26, org.netbeans.modules.diff/1 > 1.6
+OpenIDE-Module-Module-Dependencies: org.openide.src > 1.0, org.netbeans.modules.html/1 > 1.11, org.netbeans.api.tasklist/1 > 0.9.0, org.netbeans.modules.tasklist.core/1 > 0.9.0, org.netbeans.modules.diff/1 > 1.6
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 Class-Path: ext/Tidy-r7.jar
 

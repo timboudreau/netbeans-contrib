@@ -84,7 +84,7 @@ import org.netbeans.core.output.PreviousOutJumpAction;
  *       from this class
  */
 public abstract class TaskListView extends ExplorerPanel
-    implements TaskListener, ActionListener, ComponentListener,
+    implements TaskListener, ActionListener,
                PropertyChangeListener {
     
     transient protected TaskNode rootNode = null;
@@ -148,8 +148,6 @@ public abstract class TaskListView extends ExplorerPanel
 	    }
 	    views.put(category, this);
 	}
-
-        addComponentListener(this);
     }
 
     public void changedTask(Task task) {
@@ -1390,15 +1388,7 @@ public abstract class TaskListView extends ExplorerPanel
         return null;
     }
 
-    private boolean showing = false;
-
-    public void componentHidden(ComponentEvent e) {
-        //super.componentHidden(e);
-        if (!showing) {
-            return;
-        }
-        showing = false;
-
+    protected void componentHidden() {
         // Stop listening for node activation
         getExplorerManager().removePropertyChangeListener(this);	    
         
@@ -1410,27 +1400,11 @@ public abstract class TaskListView extends ExplorerPanel
         //    installJumpActions(false);
     }
 
-    public void componentShown(ComponentEvent e) {
-        //super.componentShown(e);
-        if (showing) {
-            return;
-        }
-        showing = true;
-
+    protected void componentShowning() {
         // Listen for node activation
         getExplorerManager().addPropertyChangeListener(this);	    
         
         installJumpActions(true);
-    }
-
-    /** Don't care - but must implement full ComponentListener interface */
-    public void componentResized(ComponentEvent e) {
-	// Don't care
-    }
-    
-    /** Don't care - but must implement full ComponentListener interface */
-    public void componentMoved(ComponentEvent e) {
-	// Don't care
     }
 
     public void propertyChange(PropertyChangeEvent ev) {
@@ -1499,5 +1473,13 @@ public abstract class TaskListView extends ExplorerPanel
                     }
                 }
             });
+    }
+    
+    /** Transfer focus to the dialog */
+    public void requestFocus() {
+        super.requestFocus();
+        if (treeTable != null) {
+            treeTable.requestFocus();
+        }
     }
 }

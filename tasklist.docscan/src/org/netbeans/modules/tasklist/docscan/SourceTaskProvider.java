@@ -85,30 +85,14 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
                              findObject(Settings.class, true)).getSkipComments();
 
     
-    /**
-     * Rescan the given document for suggestions. Typically called
-     * when a document is shown or when a document is edited, but
-     * could also be called for example when the document is
-     * saved.
-     * <p>
-     * This method should register the suggestions with the
-     * suggestion manager.
-     * <p>
-     * @param doc The document being scanned
-     * @param dobj The Data Object for the file being scanned
-     * @return list of tasks that result from the scan. May be null.
-     * <p>
-     * This method is called internally by the toolkit and should not be
-     * called directly by programs.
-     */
-    public void rescan(Document doc, DataObject dobj) {
+    public void rescan(Document doc, DataObject dobj, Object request) {
         List newTasks = scan(doc, dobj);
         SuggestionManager manager = SuggestionManager.getDefault();
 
         if ((newTasks == null) && (showingTasks == null)) {
             return;
         }
-        manager.register(TYPE, newTasks, showingTasks);
+        manager.register(TYPE, newTasks, showingTasks, request);
         showingTasks = newTasks;
     }
     
@@ -164,11 +148,12 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
         }        
      }
 
-     public void clear(Document document, DataObject dataobject) {
+    public void clear(Document document, DataObject dataobject,
+                      Object request) {
 	// Remove existing items
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
-            manager.register(TYPE, null, showingTasks);
+            manager.register(TYPE, null, showingTasks, request);
 	    showingTasks = null;
 	}     
     }

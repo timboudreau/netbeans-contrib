@@ -69,53 +69,29 @@ public class ViolationProvider extends DocumentSuggestionProvider {
 
     final private static String TYPE = "pmd-violations"; // NOI18N
 
-    /**
-     * Return the typenames of the suggestions that this provider
-     * will create.
-     * @return An array of string names. Should never be null. Most
-     *  providers will create Suggestions of a single type, so it will
-     *  be an array with one element.
-     */
     public String[] getTypes() {
         return new String[] { TYPE };
     }
-    
-    /**
-     * Rescan the given document for suggestions. Typically called
-     * when a document is shown or when a document is edited, but
-     * could also be called for example when the document is
-     * saved.
-     * <p>
-     * This method should register the suggestions with the
-     * suggestion manager.
-     * <p>
-     * @param doc The document being scanned
-     * @param dobj The Data Object for the file being scanned
-     * @return list of tasks that result from the scan. May be null.
-     * <p>
-     * This method is called internally by the toolkit and should not be
-     * called directly by programs.
-     */
-    public void rescan(Document doc, DataObject dobj) {
+
+    // javadoc in super()
+    public void rescan(Document doc, DataObject dobj, Object request) {
         dataobject = dobj;
         document = doc;
+        this.request = request;
         List newTasks = scan(doc, dobj);
         SuggestionManager manager = SuggestionManager.getDefault();
 
         if ((newTasks == null) && (showingTasks == null)) {
             return;
         }
-        manager.register(TYPE, newTasks, showingTasks);
+        manager.register(TYPE, newTasks, showingTasks, request);
         showingTasks = newTasks;
     }
 
-    /** Package private rescan: called when you've changed the
-        rulesets for example. */
     void rescan() {
-        rescan(document, dataobject);
+        rescan(document, dataobject, request);
     }
     
-    /** The actual workhorse of this class - scan a document for rule violations */
     public List scan(Document doc, DataObject dobj) {
         List tasks = null;
         try {
@@ -489,10 +465,11 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         return jPanel1;
     }
 
-     public void clear(Document document, DataObject dataobject) {
+    public void clear(Document document, DataObject dataobject, 
+                      Object request) {
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
-            manager.register(TYPE, null, showingTasks);
+            manager.register(TYPE, null, showingTasks, request);
 	    showingTasks = null;
 	}     
     }
@@ -502,4 +479,5 @@ public class ViolationProvider extends DocumentSuggestionProvider {
 
     private DataObject dataobject = null;
     private Document document = null;
+    private Object request = null;
 }

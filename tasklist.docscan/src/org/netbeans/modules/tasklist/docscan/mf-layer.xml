@@ -52,26 +52,5 @@ Microsystems, Inc. All Rights Reserved.
 	</folder>
     </folder>
 
-    <folder name="Actions">
-	<folder name="View">
-            <file name="org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance" />
-        </folder>
-    </folder>        
-            
-    <folder name="Menu">
-        <folder name="View">
-            <file name="org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance" />
-            <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance" boolvalue="true" />
-            <attr name="org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
-         </folder>
-     </folder>
-
-     <folder name="Toolbars">  
-         <folder name="Task">
-             <file name="org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance" />
-             <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance" boolvalue="true" />
-        </folder>
-    </folder>
-
 </filesystem>
 

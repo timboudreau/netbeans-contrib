@@ -294,10 +294,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
             docStop();
             running = false;
             
-            // Get rid of suggestion cache
+            // Get rid of suggestion cache?
+            // Moved to notifyView Closed
+            /*
             if (cache != null) {
                 cache.flush();
             }
+            */
         }
     }
 
@@ -315,6 +318,15 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
             prepared = false;
         }
+
+        // Get rid of suggestion cache?
+        if (cache != null) {
+            cache.flush();
+        }
+        // Clear out provider lists etc.
+        providers = null;
+        docProviders = null;
+        providersByType = null;
     }
 
     private List providers = null;
@@ -508,7 +520,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             if ((document != null) &&
                 (provider instanceof DocumentSuggestionProvider)) {
                 ((DocumentSuggestionProvider)provider).docShown(document, dataobject);
-                ((DocumentSuggestionProvider)provider).rescan(document, dataobject);
+                ((DocumentSuggestionProvider)provider).rescan(document, dataobject, currRequest);
             }
         } else {
             if (!allTypes) {
@@ -526,7 +538,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             
             // Remove suggestions of this type
             if (provider instanceof DocumentSuggestionProvider) {
-                ((DocumentSuggestionProvider)provider).clear(document, dataobject);
+                ((DocumentSuggestionProvider)provider).clear(document, dataobject, currRequest);
                 ((DocumentSuggestionProvider)provider).docHidden(document, dataobject);
             }
             provider.notifyStop();
@@ -648,7 +660,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                         }
                     }
                 }
-                register(t.getName(), list, null, tasklist, true);
+                register(t.getName(), list, null, tasklist, null, true);
             }
 
         } else {
@@ -665,7 +677,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 if (s.getSType() != prevType) {
                     if (group != null) {
                         register(prevType.getName(), group, null, 
-                                 tasklist, true);
+                                 tasklist, null, true);
                         group.clear();
                     } else {
                         group = new ArrayList(50);
@@ -675,7 +687,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 group.add(s);
             }
             if ((group != null) && (group.size() > 0)) {
-                register(prevType.getName(), group, null, tasklist, true);
+                register(prevType.getName(), group, null, tasklist, null,
+                         true);
             }
         }
 
@@ -1178,7 +1191,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 List l = ((DocumentSuggestionProvider)provider).scan(doc, f);
                 if (l != null) {
                     // XXX ensure that scan returns a homogeneous list of tasks
-                    register(provider.getTypes()[0], l, null, list, true);
+                    register(provider.getTypes()[0], l, null, list, null,
+                             true);
                 }
             }
         }
@@ -1272,29 +1286,17 @@ final public class SuggestionManagerImpl extends SuggestionManager
      */
     private static final int MAX_INLINE = 4;
     
-    /** Add and remove lists of suggestions from the suggestion
-     * registry.
-     * <p>
-     * @todo Handle null parameter for the type!
-     *
-     * @param add List of suggestions that should be added
-     * @param remove List of suggestions that should be removed. Note that
-     *    the remove is performed before the add, so if a task appears
-     *    in both list it will not be removed.
-     * @param type Type of all items - or null if nonhomogeneous list
-     *
-     */
-    public void register(String type, List add, List remove) {
+    public void register(String type, List add, List remove, Object request) {
         //System.out.println("register(" + type + ", " + add +
-        //  ", " + remove + ")");
+        //                   ", " + remove + ", " + request + ")");
         if ((type == null) && (add != null) && (remove != null)) {
             // Gotta break up the calls since we cannot handle
             // both adds and removes with mixed types. Do removes,
             // then adds.
-            register(type, null, remove, getList(), !switchingFiles);
-            register(type, add, null, getList(), !switchingFiles);
+            register(type, null, remove, getList(), request, !switchingFiles);
+            register(type, add, null, getList(), request, !switchingFiles);
         } else {
-            register(type, add, remove, getList(), !switchingFiles);
+            register(type, add, remove, getList(), request, !switchingFiles);
         }
     }
 
@@ -1309,9 +1311,19 @@ final public class SuggestionManagerImpl extends SuggestionManager
     public synchronized void register(String typeName, 
                                       List addList, List removeList,
                                       SuggestionList tasklist, 
+                                      Object request,
                                       boolean sizeKnown) {
         //System.err.println("register(" + typeName + ", " + addList +
-        //                   ", " + removeList + "," + tasklist + ", " + sizeKnown + ")");
+        //                   ", " + removeList + "," + tasklist + ", " + 
+        //                   request + ", " + sizeKnown + ")");
+
+        if ((request != null) && (request != currRequest)) {
+            // This is a result from a previous request - e.g. a long
+            // running request which was "cancelled" but too late to
+            // stop the provider from computing and providing a result.
+            return;
+        }
+
         // TODO check instanceof Task here, and throw an exception if not?
 
         // Get the first element, and use its type as the type for all.
@@ -1566,15 +1578,25 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 */
 
-    /** Set when the file has been saved before rescan is called */
-    private boolean haveSaved = false;
+    /** Set to the request generation when a new file has been shown */
+    private volatile Long haveShown = null; // XXX use Long instead?
     
-    /** Set when the file has been edited before rescan is called */
-    private boolean haveEdited = false;
+    /** Set to the request generation when a file has been saved */
+    private volatile Long haveSaved = null;
     
-    /** Set when the file has been edited before rescan is called */
-    private boolean haveShown = false;
+    /** Set to the request generation when a file has been edited */
+    private volatile Long haveEdited = null;
     
+    /** Current request reference. Used to correlate register()
+     * calls with requests sent to rescan()/clear()
+     */
+    private volatile Long currRequest = new Long(0);
+
+    /** Points to the last completed request. Set to currRequest
+     * when rescan() is done.
+     */
+    private volatile Long finishedRequest = null;
+
     /** Return true iff the given provider should rescan when a file is shown */
     private boolean scanOnShow(DocumentSuggestionProvider provider) {
         // For now, just use "global" flag (shared for all providers)
@@ -1672,32 +1694,57 @@ final public class SuggestionManagerImpl extends SuggestionManager
     public void rescan(final Document document,
                        final DataObject dataobject) {
         if ((docSuggestions != null) && (docSuggestions.size() > 0)) {
-            register(null, null, docSuggestions, getList(), true);
+            // Clear out previous items before a rescan
+            register(null, null, docSuggestions, getList(), null, true);
             docSuggestions = null;
         }
-        
-/*
-    XXX What happens if right after scheduling the request
-    processor the user closes the window - now document references
-    etc. get nulled out
+  
+        /* Scan requests are run in a separate "background" thread.
+           However, what happens if the user switches to a different
+           tab -while- a scan job is running? If the scan hasn't
+           started, the timer is removed, but if the scan is in
+           progress, we have to know to discard registered results.
+           For that reason, we have a "current request" reference that
+           we pass with scan requests, and that scanners will hand
+           back with scan results. The reference is an integer.
+           When we switch to a new tab, we increment the integer.
+           So if we get a registration, with an "old" integer (not the
+           current one), we know the results are obsolete.
+           We also need to know if the current scan is done (to know
+           whether or not we should flush these results into the cache,
+           or if scanning must begin from the beginning when we return
+           to this file.)   For that reason, we also have a "finished
+           request" integer which points to the most recent finished
+           request; we only stuff the cache if finished == current.
+           We can also use the request flag to bail in the middle of
+           iterating over providers in case a new request has arrived.
+        */
 
-*/
-         // XXX This introduces a synchronization problem...
+        final Long origRequest = currRequest;
          RequestProcessor.postRequest(new Runnable() {
                  public void run() {
         long start = 0, end = 0, total = 0;
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
+
+        boolean saved = (haveSaved == currRequest);
+        boolean edited = (haveEdited == currRequest);
+        boolean shown = (haveShown == currRequest);
+
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
+            // Has the request changed? If so, just drop this one
+            if (origRequest != currRequest) {
+                break;
+            }
             if ((unfiltered == null) || (provider == unfiltered)) {
-                if ((haveSaved && scanOnSave(provider))
-                    || (haveEdited && scanOnEdit(provider))
-                    || (haveShown && scanOnShow(provider))) {
+                if ((saved && scanOnSave(provider))
+                    || (edited && scanOnEdit(provider))
+                    || (shown && scanOnShow(provider))) {
                     if (stats) {
                         start = System.currentTimeMillis();
                     }
-                    provider.rescan(document, dataobject);
+                    provider.rescan(document, dataobject, origRequest);
                     if (stats) {
                         end = System.currentTimeMillis();
                         System.out.println("Scan time for provider " + provider.getClass().getName() + " = " + (end-start) + " ms");
@@ -1706,12 +1753,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 }
             }
         }
+        if ((finishedRequest == null) ||
+            (origRequest.longValue() > finishedRequest.longValue())) {
+            finishedRequest = origRequest;
+        }
         if (stats) {
             System.out.println("TOTAL SCAN TIME = " + total + "\n");
         }
-        haveSaved = false;
-        haveEdited = false;
-        haveShown = false;
                  }});
     }
     
@@ -1734,7 +1782,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 provider.docShown(document, dataobject);
             }
         }
-        haveShown = true;
+        haveShown = currRequest;
     }
 
     /**
@@ -1750,21 +1798,29 @@ final public class SuggestionManagerImpl extends SuggestionManager
     public void docHidden(Document document, DataObject dataobject) {
         // Update expansion state before we remove the nodes
         getList().flushExpansion();
-        
-        if (runTimer == null) {
-            stuffCache(document, dataobject);
-        } else {
+
+        // This is not right - runTimer is telling us whether we have
+        // a request pending - (and we should indeed kill the timer
+        // if we do) - but we need to know if a RequestProcessor is
+        // actually running.
+        if (currRequest != finishedRequest) {
             if (cache != null) {
                 cache.remove(document);
             }
+            // TODO - remove the items we've registered so far... (partial
+            // registration) since we're in the middle of a request
+            stuffCache(document, dataobject, true);
+        } else {
+            stuffCache(document, dataobject, false);
         }
+        
         docSuggestions = null;
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
             if ((unfiltered == null) || (provider == unfiltered)) {
-                provider.clear(document, dataobject);
+                provider.clear(document, dataobject, currRequest);
                 provider.docHidden(document, dataobject);
             }
         }
@@ -1774,7 +1830,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * Grab all the suggestions associated with this document/dataobject
      * and push it into the suggestion cache.
      */
-    private void stuffCache(Document document, DataObject dataobject) {
+    private void stuffCache(Document document, DataObject dataobject,
+                            boolean unregisterOnly) {
         // XXX Performance: if docSuggestions != null, we should be able
         // to just reuse it, since the document must not have been edited!
         
@@ -1803,14 +1860,16 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 }
             }
         }
-        if (cache == null) {
-            cache = new SuggestionCache();
+        if (!unregisterOnly) {
+            if (cache == null) {
+                cache = new SuggestionCache();
+            }
+            cache.add(document, dataobject, sgs);
         }
-        cache.add(document, dataobject, sgs);
 
         // Get rid of tasks from list
         if (sgs.size() > 0) {
-            register(null, null, sgs, getList(), true);
+            register(null, null, sgs, getList(), null, true);
         }
     }
 
@@ -1843,12 +1902,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 	
     public void insertUpdate(DocumentEvent e) {
-        haveEdited = true;
+        haveEdited = currRequest;
         scheduleRescan(e, false, editScanDelay);
     }
 
     public void removeUpdate(DocumentEvent e) {
-        haveEdited = true;
+        haveEdited = currRequest;
         scheduleRescan(e, false, editScanDelay);
     }
 
@@ -2227,11 +2286,18 @@ final public class SuggestionManagerImpl extends SuggestionManager
         
         dataobject = dao;
 
+        // TODO: Is MAX_VALUE even feasible here? There's no greater/lessthan
+        // comparison, so wrapping around will work just fine, but I may
+        // have to check manually and do it myself in case some kind
+        // of overflow exception is thrown
+        //  Wait, I'm doing a comparison now - look for currRequest.longValue
+        currRequest = new Long(currRequest.intValue()+1);
+
         docShown(doc, dataobject);
         addCaretListeners();
 
         // XXX Use scheduleRescan instead? (but then I have to call docShown instead of rescan;
-        //haveShown = true;
+        //haveShown = currRequest;
         //scheduleRescan(null, false, showScanDelay);
 
         if (cache != null) {
@@ -2241,7 +2307,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             // check it here; it's always true. Make it user selectable.)
             docSuggestions = cache.lookup(document);
             if (docSuggestions != null) {
-                register(null, docSuggestions, null, getList(), true);
+                register(null, docSuggestions, null, getList(), null, true);
                 // TODO Consider putting the above on a runtimer - but
                 // a much shorter runtimer (0.1 seconds or something like
                 // that) such that the editor gets a chance to draw itself
@@ -2251,6 +2317,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 // when docHidden is called, or when docEdited is called,
                 // etc.
                 //cache.remove(document);
+
+                // Remember that we're done "scanning"
+                finishedRequest = currRequest;
                 return;
             }
         }
@@ -2640,7 +2709,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             isModified = mods.contains(dataobject);
             if (isModified != wasModified) {
                 if (!isModified) {
-                    haveSaved = true;
+                    haveSaved = currRequest;
                     scheduleRescan(null, false, saveScanDelay);
                 }
             }
