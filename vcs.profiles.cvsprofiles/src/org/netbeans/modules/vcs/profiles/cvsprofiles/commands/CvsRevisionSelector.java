@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
+import java.awt.Dialog;
 import java.util.Vector;
 import java.util.Hashtable;
 
@@ -20,6 +21,7 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 
 //import org.netbeans.modules.vcs.cmdline.exec.*;
@@ -34,6 +36,8 @@ public class CvsRevisionSelector extends Object implements VcsAdditionalCommand 
     private static final String BRANCH_OPTION = "-b"; // NOI18N
     private static final String TAGS_OPTION = "-t"; // NOI18N
     private CvsLogInfo logInfo = new CvsLogInfo();
+    private volatile boolean dlgSuccess = false;
+    private final Object dlgFinishedLock = new Object();
 
     /** Creates new CvsRevisionSelector */
     public CvsRevisionSelector() {
@@ -97,6 +101,18 @@ public class CvsRevisionSelector extends Object implements VcsAdditionalCommand 
             argsCmd = args[startArg];
             startArg++;
         }
+        final DialogDescriptor dd = new DialogDescriptor(crc, cmdName);
+        final Dialog fdlg = DialogDisplayer.getDefault().createDialog(dd);
+        Runnable showRunnable = new Runnable() {
+            public void run() {
+                fdlg.setVisible(true);
+                dlgSuccess = (dd.getValue() == DialogDescriptor.OK_OPTION);
+                synchronized (dlgFinishedLock) {
+                    dlgFinishedLock.notify();
+                }
+            }
+        };
+        javax.swing.SwingUtilities.invokeLater(showRunnable);
         boolean success = this.logInfo.updateLogInfo(vars, argsCmd, stdoutNRListener, stderrNRListener);
         if (success) {
             Vector revisions;
@@ -110,10 +126,19 @@ public class CvsRevisionSelector extends Object implements VcsAdditionalCommand 
             }
             revisions.insertElementAt("HEAD", 0); // NOI18N
             crc.setRevisions(revisions);
-            org.openide.DialogDescriptor dd = new org.openide.DialogDescriptor(crc, cmdName);
-            success = org.openide.NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dd));
-        } else return false;
-        if (success) {
+            //org.openide.DialogDescriptor dd = new org.openide.DialogDescriptor(crc, cmdName);
+            //success = org.openide.NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dd));
+        } else {
+            crc.setFailed();
+        }
+        synchronized (dlgFinishedLock) {
+            try {
+                dlgFinishedLock.wait();
+            } catch (InterruptedException iex) {
+                dlgSuccess = false;
+            }
+        }
+        if (success && dlgSuccess) {
             String revision = crc.getRevision();
             //D.deb("I have revision = "+revision); // NOI18N
             if (revision != null) {

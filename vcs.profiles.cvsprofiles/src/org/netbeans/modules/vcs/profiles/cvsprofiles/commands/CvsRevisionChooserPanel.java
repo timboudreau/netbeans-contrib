@@ -15,6 +15,8 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
 import java.util.*;
 
+import org.openide.util.NbBundle;
+
 /**
  *
  * @author  Martin Entlicher
@@ -25,7 +27,7 @@ public class CvsRevisionChooserPanel extends javax.swing.JPanel {
     /** Creates new form CvsRevisionChooserPanel */
     public CvsRevisionChooserPanel() {
         initComponents();
-        infoLabel.setDisplayedMnemonic(org.openide.util.NbBundle.getBundle(CvsRevisionChooserPanel.class).getString("CvsRevisionChooser.infoLabel.text_Mnemonic").charAt(0));  // NOI18N
+        infoLabel.setDisplayedMnemonic(NbBundle.getBundle(CvsRevisionChooserPanel.class).getString("CvsRevisionChooser.infoLabel.text_Mnemonic").charAt(0));  // NOI18N
         initAccessibility();
     }
     
@@ -80,9 +82,15 @@ public class CvsRevisionChooserPanel extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 
     public void setCommandName(String name) {
-        infoLabel.setText(name);
+        //infoLabel.setText(name);
+        infoLabel.setText(NbBundle.getBundle(CvsRevisionChooserPanel.class).getString("CvsRevisionChooser.infoLabel.loading"));
         infoLabel.repaint();
         //setTitle(name);
+    }
+    
+    public void setFailed() {
+        infoLabel.setText(NbBundle.getBundle(CvsRevisionChooserPanel.class).getString("CvsRevisionChooser.infoLabel.failed"));
+        infoLabel.repaint();
     }
 
     public void setRevisions(Vector revisions) {
@@ -93,6 +101,8 @@ public class CvsRevisionChooserPanel extends javax.swing.JPanel {
         }
         revisionList.setModel(lm);
         revisionList.setSelectedIndex(0);
+        infoLabel.setText(NbBundle.getBundle(CvsRevisionChooserPanel.class).getString("CvsRevisionChooser.infoLabel.loaded"));
+        infoLabel.repaint();
     }
 
     public String getRevision() {

@@ -42,9 +42,9 @@ public class CvsModuleSelector implements VcsAdditionalCommand, TextOutputListen
     private CommandOutputListener stdoutNRListener;
     private CommandOutputListener stderrNRListener; 
     private StringBuffer outputBuffer;
-    private volatile boolean cmdSuccess = true;  // By default we hope the module list is in cash
+    private volatile boolean cmdSuccess = true;  // By default we hope the module list is in cache
     private volatile boolean dlgSuccess = false;
-    private volatile boolean dlgFinished = false;
+    private final Object dlgFinishedLock = new Object();
     private boolean isCommand = false;
     //stores results of cvs co -s command
     private HashSet s_resultSet;
@@ -126,23 +126,22 @@ public class CvsModuleSelector implements VcsAdditionalCommand, TextOutputListen
         final Dialog fdlg = DialogDisplayer.getDefault().createDialog(dd);
         VcsUtilities.centerWindow(fdlg);
         
-        Thread showThread = new Thread() {
+        Runnable showRunnable = new Runnable() {
             public void run() {
                 fdlg.setVisible(true);
                 dlgSuccess = (dd.getValue() == DialogDescriptor.OK_OPTION);
-                dlgFinished = true;
+                synchronized (dlgFinishedLock) {
+                    dlgFinishedLock.notify();
+                }
             }
         };
-        javax.swing.SwingUtilities.invokeLater(showThread);
-        try {
-            while(!dlgFinished) {
-                Thread.sleep(200);
+        javax.swing.SwingUtilities.invokeLater(showRunnable);
+        synchronized (dlgFinishedLock) {
+            try {
+                dlgFinishedLock.wait();
+            } catch (InterruptedException e) {
+                dlgSuccess = false;
             }
-            D.deb("showThread is alive = "+showThread.isAlive()+", joining him");
-            showThread.join();
-        } catch (InterruptedException e) {
-            // Interrupted
-            dlgSuccess = false;
         }
         D.deb("dlgSuccess = "+dlgSuccess+", cmdSuccess = "+cmdSuccess);
         if (dlgSuccess && cmdSuccess) {
