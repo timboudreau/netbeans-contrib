@@ -27,4 +27,8 @@ Microsystems, Inc. All Rights Reserved.
 		<file name="com_sun_jndi_rmi_registry_RegistryContextFactory.impl" url="providers/com_sun_jndi_rmi_registry_RegistryContextFactory.impl">
 		</file>
 	</folder>
+
+        <folder name="Services">
+                <file name="jndi-settings.settings" url="jndi-settings.settings"/>
+        </folder>
 </filesystem>

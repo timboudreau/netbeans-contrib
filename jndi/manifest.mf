@@ -18,6 +18,3 @@ OpenIDE-Module-Long-Description: The JNDI module helps you write programs
 Name: org/netbeans/modules/jndi/JndiRootNode.class
 OpenIDE-Module-Class: Node
 Type: Environment
-
-Name: org/netbeans/modules/jndi/settings/JndiSystemOption.class
-OpenIDE-Module-Class: Option
