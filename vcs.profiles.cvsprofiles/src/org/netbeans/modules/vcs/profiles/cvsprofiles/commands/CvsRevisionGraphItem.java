@@ -51,17 +51,30 @@ public class CvsRevisionGraphItem extends Object {
     }
 
     private int cmpRev(String revision) {
-        int lastDot1 = this.revision.lastIndexOf('.');
-        int lastDot2 = revision.lastIndexOf('.');
-        int rev1 = 0;
-        int rev2 = 0;
-        try {
-            rev1 = Integer.parseInt(this.revision.substring(lastDot1+1));
-            rev2 = Integer.parseInt(revision.substring(lastDot2+1));
-        } catch (NumberFormatException e) {
-            return -1000;
+        int b1 = 0;
+        int b2 = 0;
+        int e1 = this.revision.indexOf('.');
+        int e2 = revision.indexOf('.');
+        while (b1 < e1 && b2 < e2) {
+            int rev1 = 0;
+            int rev2 = 0;
+            try {
+                rev1 = Integer.parseInt(this.revision.substring(b1, e1));
+                rev2 = Integer.parseInt(revision.substring(b2, e2));
+            } catch (NumberFormatException e) {
+                return -1000;
+            }
+            if (rev1 != rev2) {
+                return rev1 - rev2;
+            }
+            b1 = e1 + 1;
+            b2 = e2 + 1;
+            e1 = this.revision.indexOf('.', b1);
+            if (e1 < 0) e1 = this.revision.length();
+            e2 = revision.indexOf('.', b2);
+            if (e2 < 0) e2 = revision.length();
         }
-        return rev1 - rev2;
+        return 0;
     }
 
     public void addRevision(String revision) {
