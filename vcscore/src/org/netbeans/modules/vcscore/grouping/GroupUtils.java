@@ -34,6 +34,9 @@ public class GroupUtils {
     private GroupUtils() {
     }
     
+    /**
+     * Returns the root node of the vcs group structure.
+     */
     public static MainVcsGroupNode getMainVcsGroupNodeInstance() {
         MainVcsGroupNode root = null;
         FileSystem defFs = TopManager.getDefault().getRepository().getDefaultFileSystem();
@@ -54,6 +57,9 @@ public class GroupUtils {
         return root;
     }
 
+    /**
+     * returns the folder in the default filesystem where the groups data is stored.
+     */
     public static DataFolder getMainVcsGroupFolder() {
         FileSystem fs = TopManager.getDefault().getRepository().getDefaultFileSystem();
         FileObject rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
@@ -67,6 +73,9 @@ public class GroupUtils {
         
     }    
 
+    /**
+     * Returns the node of the default group.
+     */
     
     public static VcsGroupNode getDefaultGroupInstance() {
         MainVcsGroupNode node = getMainVcsGroupNodeInstance();
@@ -85,6 +94,9 @@ public class GroupUtils {
        }
     }
     
+    /**
+     * Add the array of nodes to the specified group.
+     */
     public static void addToGroup(DataFolder group, Node[] nodes) {
         List okFiles = new LinkedList();
         List badGroup = new LinkedList();
