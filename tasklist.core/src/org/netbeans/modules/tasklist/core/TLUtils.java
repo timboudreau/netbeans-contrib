@@ -276,13 +276,16 @@ public final class TLUtils {
     public static Document getDocument(Line line) {
         DataObject dao = line.getDataObject();
         if (!dao.isValid()) {
-            ErrorManager.getDefault().log(ErrorManager.USER, "dataobject was not null");
+            //ErrorManager.getDefault().log(ErrorManager.USER, "dataobject was not null");
             return null;
         }
+        return getDocument(dao);
+    }
 
+    public static Document getDocument(DataObject dao) {
 	final EditorCookie edit = (EditorCookie)dao.getCookie(EditorCookie.class);
 	if (edit == null) {
-            ErrorManager.getDefault().log(ErrorManager.USER, "no editor cookie!");
+            //ErrorManager.getDefault().log(ErrorManager.USER, "no editor cookie!");
 	    return null;
 	}
 
