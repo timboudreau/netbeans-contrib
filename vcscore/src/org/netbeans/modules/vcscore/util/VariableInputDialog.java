@@ -900,7 +900,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                org.openide.util.RequestProcessor.postRequest(new Runnable() {
+                new org.openide.util.RequestProcessor("Selector Request Processor").post(new Runnable() {
                     public void run() {
                         String selected = getSelectorText(commandName, field.getText());
                         //System.out.println("selected = "+selected);
