@@ -14,8 +14,6 @@
 package org.netbeans.modules.tasklist.core; 
 
 
-import java.awt.BorderLayout;
-import java.awt.Component;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
@@ -30,8 +28,7 @@ import javax.swing.JLabel;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import java.awt.Dimension;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
@@ -301,7 +298,15 @@ public abstract class TaskListView extends ExplorerPanel
     public SystemAction[] getToolBarActions() {
         return null;
     }
-    
+
+    /**
+     * Could be overriden to change actions on second toolbar row.
+     * @return
+     */
+    public SystemAction[] getGlobalToolBarActions() {
+        return null;
+    }
+
     public void changedTask(Task task) {
         // Part of fix for #27670
         // It leads to an exception after editing task's description
@@ -388,15 +393,28 @@ public abstract class TaskListView extends ExplorerPanel
         centerPanel.setLayout(new BorderLayout());
         centerCmp = createCenterComponent();
         centerPanel.add(centerCmp, BorderLayout.CENTER);
-        add(centerPanel, BorderLayout.CENTER); 
+        add(centerPanel, BorderLayout.CENTER);
 
-        SystemAction actions[] = getToolBarActions();
+        JPanel toolbars = new JPanel();
+        toolbars.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
+
+        SystemAction[] actions = getGlobalToolBarActions();
         if (actions != null) {
             JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
             toolbar.setOrientation(JToolBar.VERTICAL);
-            add(toolbar, BorderLayout.WEST);
+            toolbars.add(toolbar);
         }
-        
+
+        actions = getToolBarActions();
+        if (actions != null) {
+            JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
+            toolbar.setOrientation(JToolBar.VERTICAL);
+            toolbars.add(toolbar);
+        }
+
+
+        add(toolbars, BorderLayout.WEST);
+
 	// Populate the view
 	showList();
         

@@ -917,7 +917,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     public synchronized void register(String typeName, 
                                       List addList, List removeList,
-                                      SuggestionList tasklist, 
+                                      SuggestionList tasklist,
                                       Object request,
                                       boolean sizeKnown) {
         //System.err.println("register(" + typeName + ", " + addList +

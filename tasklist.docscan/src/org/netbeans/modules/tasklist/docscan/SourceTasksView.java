@@ -27,6 +27,9 @@ import org.openide.util.Utilities;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.ObjectOutput;
+import java.io.IOException;
+import java.io.ObjectInput;
 
 /**
  * View containing only source tasks (TODOs).
@@ -65,7 +68,7 @@ final class SourceTasksView extends TaskListView {
                 list
         );
 
-        assert list instanceof SuggestionList;
+        assert list instanceof SourceTasksList;
 
         // When the tab is alone in a container, don't show a tab;
         // the category nodes provide enough feedback.
@@ -73,7 +76,7 @@ final class SourceTasksView extends TaskListView {
     }
 
     protected TaskNode createRootNode() {
-        SuggestionImpl root = (SuggestionImpl) tasklist.getRoot();
+        SourceTask root = (SourceTask) tasklist.getRoot();
         return new SourceTaskNode(root, root.getSubtasks());
     }
 
@@ -173,4 +176,12 @@ final class SourceTasksView extends TaskListView {
 //        panel.add(new JLabel("Status"));
 //        return panel;
 //    }
+
+    public void writeExternal(ObjectOutput objectOutput) throws IOException {
+        // TODO super.writeExternal(objectOutput);
+    }
+
+    public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException {
+        // TODO super.readExternal(objectInput);
+    }
 }

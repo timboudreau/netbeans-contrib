@@ -50,7 +50,7 @@ import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 final class SourceTaskNode extends TaskNode {
 
     // Leaf
-    SourceTaskNode(SuggestionImpl item) {
+    SourceTaskNode(SourceTask item) {
         super(item);
         init(item);
     }
@@ -60,12 +60,12 @@ final class SourceTaskNode extends TaskNode {
      * @param item
      * @param subtasks
      */
-    SourceTaskNode(SuggestionImpl item, List subtasks) {
+    SourceTaskNode(SourceTask item, List subtasks) {
         super(item, subtasks);
         init(item);
     }
 
-    private void init(SuggestionImpl item) {
+    private void init(SourceTask item) {
         this.item = item;
         setIconBase("org/netbeans/modules/tasklist/docscan/scanned-task"); // NOI18N
     }
@@ -76,7 +76,7 @@ final class SourceTaskNode extends TaskNode {
 
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):
     public Node cloneNode() {
-        SuggestionImpl eitem = (SuggestionImpl) item;
+        SourceTask eitem = (SourceTask) item;
         if (eitem.hasSubtasks()) {
             return new SourceTaskNode(eitem, eitem.getSubtasks());
         } else {

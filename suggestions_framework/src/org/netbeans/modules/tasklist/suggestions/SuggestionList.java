@@ -31,7 +31,8 @@ import org.openide.util.NbBundle;
 
 
 /**
- * A list of suggestions
+ * A list of suggestions adding category grouping capabilities to
+ * orginary tasklist.
  *
  * @author Tor Norbye
  */

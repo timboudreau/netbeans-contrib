@@ -116,17 +116,16 @@ public class SuggestionNode extends TaskNode {
                 }
             }
 
-            // "Global" (not node specific) actions
-            actions.add(null);
-            actions.add(SystemAction.get(ShowCategoryAction.class));
-            actions.add(SystemAction.get(EditTypesAction.class));
-            actions.add(SystemAction.get(DisableAction.class));
-//            actions.add(SystemAction.get(OptionsAction.class));
-            actions.add(null);
-            actions.add(SystemAction.get(FilterAction.class));
-            actions.add(SystemAction.get(ExpandAllAction.class));
-            actions.add(null);
-            actions.add(SystemAction.get(ExportAction.class));
+            // "Global" (not node specific) actions moved to toolbar
+//            actions.add(null);
+//            actions.add(SystemAction.get(ShowCategoryAction.class));
+//            actions.add(SystemAction.get(EditTypesAction.class));
+//            actions.add(SystemAction.get(DisableAction.class));
+//            actions.add(null);
+//            actions.add(SystemAction.get(FilterAction.class));
+//            actions.add(SystemAction.get(ExpandAllAction.class));
+//            actions.add(null);
+//            actions.add(SystemAction.get(ExportAction.class));
 
             // Property: node specific, but by convention last in menu
             actions.add(null);

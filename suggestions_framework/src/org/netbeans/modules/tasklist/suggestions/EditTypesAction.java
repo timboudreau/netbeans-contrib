@@ -67,12 +67,10 @@ public class EditTypesAction extends CallableSystemAction
                                    "EditTypes"); // NOI18N
     }
 
-    /*
     protected String iconResource() {
-        return "org/netbeans/modules/tasklist/suggestions/editTypes.gif"; // NOI18N
+        return "org/netbeans/modules/tasklist/suggestions/editTypesAction.gif"; // NOI18N
     }
-    */
-    
+
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
         // If you will provide context help then use:

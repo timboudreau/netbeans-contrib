@@ -77,6 +77,7 @@ public class TaskChildren extends Children.Keys implements PropertyChangeListene
         // interpret your key here...usually one node generated, but could be zero or more
         //  return new Node[] { new TodoNode((MyParameter) key) };
         //return new Node[] { new TodoNode(key) };
+
         Task item = (Task)key;
         return item.createNode();
     }
