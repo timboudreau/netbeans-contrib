@@ -86,7 +86,6 @@ Microsystems, Inc. All Rights Reserved.
                 <!-- XXX used by vcsgeneric; should be handled differently, please ask DevRev: -->
                 <package>org.netbeans.modules.vcscore</package>
                 <package>org.netbeans.modules.vcscore.actions</package>
-                <package>org.netbeans.modules.vcscore.annotation</package>
                 <package>org.netbeans.modules.vcscore.caching</package>
                 <package>org.netbeans.modules.vcscore.cmdline.exec</package>
                 <package>org.netbeans.modules.vcscore.cmdline.exec.StructuredExec</package>
