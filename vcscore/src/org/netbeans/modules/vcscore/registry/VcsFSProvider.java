@@ -25,6 +25,7 @@ import java.lang.ref.SoftReference;
 
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListeners;
 
@@ -104,7 +105,7 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
             if (rootPath.equals(lastFSRootRecognized)) {
                 info = (FSInfo) lastFSInfoCached.get();
             } else {
-                info = pool.findFilesystemInfo(new File(rootPath));
+                info = pool.findFilesystemInfo(FileUtil.normalizeFile(new File(rootPath)));
                 if (info != null) {
                     FSRegistry.getDefault().register(info, PROPAGATION_IGNORE_FSREGISTRY_EVENT, true);
                 }
@@ -131,10 +132,11 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
             }
         }
         File root = new File(rootPath);
+        root = FileUtil.normalizeFile(root);
         if (root.getParent() != null) {
             if (!root.isDirectory()) return false;
         }
-        final FSInfo fsInfo = pool.findFilesystemInfo(new File(rootPath));
+        final FSInfo fsInfo = pool.findFilesystemInfo(FileUtil.normalizeFile(new File(rootPath)));
         //System.out.println("isRootOfFileSystem("+rootPath+") = "+fsInfo);
         if (fsInfo != null && fsInfo.isControl()) {
             if (!root.equals(fsInfo.getFSRoot())) {
@@ -171,7 +173,7 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
             if (rootPath.equals(lastFSRootRecognized)) {
                 info = (FSInfo) lastFSInfoCached.get();
             } else {
-                info = pool.findFilesystemInfo(new File(rootPath));
+                info = pool.findFilesystemInfo(FileUtil.normalizeFile(new File(rootPath)));
                 if (info != null) {
                     FSRegistry.getDefault().register(info, PROPAGATION_IGNORE_FSREGISTRY_EVENT, true);
                 }

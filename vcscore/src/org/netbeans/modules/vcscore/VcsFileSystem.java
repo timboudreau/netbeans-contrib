@@ -2889,6 +2889,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             throw new IOException(g("EXC_RootNotExist", r.toString ())); // NOI18N
         }
 
+        r = FileUtil.normalizeFile(r);
         String rDir = r.getPath();
         if (rDir.length() == 0) {
             throw new PropertyVetoException("Can not set empty root.", null);
@@ -3095,6 +3096,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 file = new File(path + File.separator);
             }
         }
+        file = FileUtil.normalizeFile(file);
         return file;
     }
 
