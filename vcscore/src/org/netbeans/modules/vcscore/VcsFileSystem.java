@@ -136,6 +136,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * is added to the process environment.
      */
     public static final String VAR_ENVIRONMENT_PREFIX = "ENVIRONMENT_VAR_";
+    
+    public static final String VAR_STATUS_SCHEDULED_ADD = "STATUS_SCHEDULED_ADD";
+    public static final String VAR_STATUS_SCHEDULED_REMOVE = "STATUS_SCHEDULED_REMOVE";
 
     protected static final int REFRESH_TIME = 15000; // This is default in LocalFileSystem
     protected volatile int refreshTimeToSet = REFRESH_TIME;
@@ -657,6 +660,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         Set s = Collections.synchronizedSet(hs);
         fireFileStatusChanged (new FileStatusEvent(this, s, true, true));
+        checkScheduledStates(s);
     }
 
     /**
@@ -668,6 +672,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("findResource("+name+") = "+fo);
         if (fo == null) return;
         fireFileStatusChanged (new FileStatusEvent(this, fo, true, true));
+        checkScheduledStates(Collections.singleton(fo));
         /*
         try {
             DataObject dobj = DataObject.find(fo);
@@ -680,6 +685,53 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
          */
         //statusChanged(fo.getParent().getPackageNameExt('/', '.'), false);
         //System.out.println("fo = "+fo+" and parent = "+fo.getParent()+" refreshed.");
+    }
+    
+    private void checkScheduledStates(Set fos) {
+        FileStatusProvider status = getStatusProvider();
+        if (status == null) return ;
+        VcsConfigVariable schVar = (VcsConfigVariable) variablesByName.get(VAR_STATUS_SCHEDULED_ADD);
+        String scheduledStatusAdd = (schVar != null) ? schVar.getValue() : null;
+        schVar = (VcsConfigVariable) variablesByName.get(VAR_STATUS_SCHEDULED_REMOVE);
+        String scheduledStatusRemove = (schVar != null) ? schVar.getValue() : null;
+        //System.out.println("checkScheduledStates(): scheduledStatusAdd = "+scheduledStatusAdd+", scheduledStatusRemove = "+scheduledStatusRemove);
+        for (Iterator it = fos.iterator(); it.hasNext(); ) {
+            FileObject fo = (FileObject) it.next();
+            //System.out.println("checkScheduledStates("+fo.getPackageNameExt('/', '.')+")");
+            String attr = (String) fo.getAttribute(VcsAttributes.VCS_SCHEDULED_FILE_ATTR);
+            //System.out.println("attr("+VcsAttributes.VCS_SCHEDULED_FILE_ATTR+") = "+attr);
+            if (VcsAttributes.VCS_SCHEDULING_ADD.equals(attr) && scheduledStatusAdd != null &&
+                !scheduledStatusAdd.equals(status.getFileStatus(fo.getPackageNameExt('/', '.')))) {
+                try {
+                    fo.setAttribute(VcsAttributes.VCS_SCHEDULED_FILE_ATTR, null);
+                } catch (IOException exc) {}
+                removeScheduledFromPrimary(fo, 1);
+            }
+            if (VcsAttributes.VCS_SCHEDULING_REMOVE.equals(attr) && scheduledStatusRemove != null &&
+                !scheduledStatusRemove.equals(status.getFileStatus(fo.getPackageNameExt('/', '.')))) {
+                try {
+                    fo.setAttribute(VcsAttributes.VCS_SCHEDULED_FILE_ATTR, null);
+                } catch (IOException exc) {}
+                removeScheduledFromPrimary(fo, 0);
+            }
+        }
+    }
+    
+    private static void removeScheduledFromPrimary(FileObject fo, int id) {
+        DataObject dobj;
+        try {
+            dobj = DataObject.find(fo);
+        } catch (org.openide.loaders.DataObjectNotFoundException exc) {
+            return ;
+        }
+        FileObject primary = dobj.getPrimaryFile();
+        Set[] scheduled = (Set[]) primary.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
+        if (scheduled != null) {
+            scheduled[id].remove(fo.getPackageNameExt('/', '.'));
+            try {
+                primary.setAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR, scheduled);
+            } catch (IOException exc) {}
+        }
     }
     
     public void disableRefresh() {
@@ -1049,6 +1101,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             VcsAttributes a = new VcsAttributes (info, change, this, this, new VcsActionSupporter(this));
             attr = a;
             list = a;
+        } else {
+            ((VcsAttributes) attr).setCurrentSupporter(new VcsActionSupporter(this));
         }
         //last_rootFile = rootFile;
         last_refreshTime = getCustomRefreshTime ();
@@ -1597,19 +1651,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return the annotation string
      */
     public String annotateName(String name, Set files) {
-        //String filesStr = "";
-        //for (Iterator it = files.iterator(); it.hasNext(); ) filesStr += ((FileObject) it.next()).getNameExt() + ", ";
+        String filesStr = "";
+        for (Iterator it = files.iterator(); it.hasNext(); ) filesStr += ((FileObject) it.next()).getNameExt() + ", ";
         //System.out.println("annotateName("+name+", "+filesStr.substring(0, filesStr.length() - 2)+")");
         String result = name;
         if (result == null)
             return result;  // Null name, ignore it
-        Object[] oo = files.toArray();
-        int len = oo.length;
+        //Object[] oo = files.toArray();
+        int len = files.size();
         if (len == 0 || name.indexOf(getRootDirectory().toString()) >= 0) {
             return result;
         }
 
         if (statusProvider != null) {
+            Object[] oo = VcsUtilities.reorderFileObjects(files).toArray();
+            ArrayList importantFiles = getImportantFiles(oo);
+            len = importantFiles.size();
             if (len == 1) {
                 FileObject ff = (FileObject) oo[0];
                 String fullName = ff.getPackageNameExt('/','.');
@@ -1622,8 +1679,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     }
                 }
             } else {
-                oo = VcsUtilities.reorderFileObjects(files).toArray();
-                ArrayList importantFiles = getImportantFiles(oo);
+                //oo = VcsUtilities.reorderFileObjects(files).toArray();
+                //ArrayList importantFiles = getImportantFiles(oo);
                 result = RefreshCommandSupport.getStatusAnnotation(name, importantFiles, annotationPattern, statusProvider, multiFilesAnnotationTypes);
             }
         }
@@ -1656,6 +1713,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 if (processAll || isImportant(fullName)) {
                     result.add(fullName);
                 }
+            }
+            Set[] scheduled = (Set[]) ff.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
+            if (scheduled != null) {
+                result.addAll(scheduled[0]);
             }
         }
         return result;
@@ -1910,6 +1971,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             D.deb("files="+VcsUtilities.arrayToString(files)); // NOI18N
             return files;
             */
+            vcsFiles = filterScheduledSecondaryFiles(name, vcsFiles);
         }
         if (vcsFiles == null || isHideShadowFiles()) files = getLocalFiles(name);
         else files = addLocalFiles(name, vcsFiles);
@@ -1923,6 +1985,38 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return files;
     }
 
+    private String[] filterScheduledSecondaryFiles(String packageName, String[] files) {
+        ArrayList filtered = new ArrayList(Arrays.asList(files));
+        for (int i = 0; i < files.length; i++) {
+            Set[] scheduled = (Set[]) attr.readAttribute(packageName + "/" + files[i], VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
+            //System.out.println("filterScheduledSecondaryFiles("+packageName+"): "+ packageName + "/" + files[i]+" scheduled = "+scheduled);
+            if (scheduled != null) {
+                LinkedList toRemove = new LinkedList();
+                for (Iterator it = scheduled[0].iterator(); it.hasNext(); ) {
+                    String secFile = (String) it.next();
+                    //System.out.println("secFile = '"+secFile+"'");
+                    if (secFile.startsWith(packageName)) {
+                        //System.out.println("removing '"+secFile.substring(packageName.length() + 1)+"'");
+                        boolean removed = filtered.remove(secFile.substring(packageName.length() + 1));
+                        //System.out.println("removed = "+removed+", filtered.contains("+secFile.substring(packageName.length() + 1)+") = "+filtered.contains(secFile.substring(packageName.length() + 1)));
+                        if (!removed) {
+                            toRemove.add(secFile);
+                            try {
+                                attr.writeAttribute(secFile, VcsAttributes.VCS_SCHEDULED_FILE_ATTR, null);
+                            } catch (IOException exc) {}
+                        }
+                    }
+                }
+                if (toRemove.size() > 0) {
+                    scheduled[0].removeAll(toRemove);
+                    try {
+                        attr.writeAttribute(packageName + "/" + files[i], VcsAttributes.VCS_SCHEDULED_FILES_ATTR, scheduled);
+                    } catch (IOException exc) {}
+                }
+            }
+        }
+        return (String[]) filtered.toArray(new String[0]);
+    }
 
     // create local folder for existing VCS folder that is missing
     private void checkLocalFolder (String name) throws java.io.IOException {
@@ -2595,7 +2689,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     private void D(String debug) {
-        System.out.println("VcsFileSystem(): "+debug);
+        //System.out.println("VcsFileSystem(): "+debug);
     }
     //-------------------------------------------
 }

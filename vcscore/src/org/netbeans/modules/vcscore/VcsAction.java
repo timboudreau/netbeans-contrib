@@ -297,97 +297,49 @@ public class VcsAction extends NodeAction implements ActionListener {
         boolean[] askForEachFile = null;
         //String quoting = fileSystem.getQuoting();
         String quoting = "${QUOTE}";
-        if (files.size() > 1) {
-            askForEachFile = new boolean[1];
-            askForEachFile[0] = true;
-        }
         int preprocessStatus;
         boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
         boolean cmdCanRunOnMultipleFilesInFolder = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER);
-        CommandsPool pool = fileSystem.getCommandsPool();
         VariableValueAdjustment valueAdjustment = fileSystem.getVarValueAdjustment();
-        VcsCommandExecutor vce;
         Hashtable vars = fileSystem.getVariablesAsHashtable();
         if (additionalVars != null) vars.putAll(additionalVars);
+        Map scheduledFilesMap = extractScheduledFiles(files, cmd);
+        String scheduledAttribute = null;
+        VcsCommand scheduledCmd = cmd;
         do {
-            setVariables(files, vars, quoting, valueAdjustment);
-            vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
-            preprocessStatus = pool.preprocessCommand(vce, vars, askForEachFile);
-            //System.out.println("VcsAction.doCommand(): CommandsPool.preprocessCommand() = "+preprocessStatus+", askForEachFile = "+((askForEachFile.length > 0) ? ""+askForEachFile : ""+askForEachFile[0]));
-            if (CommandsPool.PREPROCESS_CANCELLED == preprocessStatus) {
-                vce = null;
-                break;
+            if (files.size() > 1) {
+                askForEachFile = new boolean[1];
+                askForEachFile[0] = true;
             }
-            if (!cmdCanRunOnMultipleFiles && !cmdCanRunOnMultipleFilesInFolder) {
-                // When the executor can not run on more than one file, it has to be processed one by one.
+            Object[] askForEachFileRef = new Object[] { askForEachFile };
+            do {
+                if (files.size() == 0) {
+                    preprocessStatus = CommandsPool.PREPROCESS_DONE;
+                } else {
+                    preprocessStatus = doCommandExecution(files, vars, additionalVars, 
+                                                          fileSystem, scheduledCmd,
+                                                          cmdCanRunOnMultipleFiles,
+                                                          cmdCanRunOnMultipleFilesInFolder,
+                                                          quoting, askForEachFileRef,
+                                                          valueAdjustment, executors,
+                                                          stdoutListener, stderrListener,
+                                                          stdoutDataListener, stderrDataListener);
+                }
+                if (CommandsPool.PREPROCESS_CANCELLED == preprocessStatus) break;
+            } while (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus);
+            if (CommandsPool.PREPROCESS_CANCELLED != preprocessStatus && scheduledFilesMap.size() > 0) {
+                scheduledAttribute = (String) scheduledFilesMap.keySet().iterator().next();
+                Table scheduledFiles = (Table) scheduledFilesMap.get(scheduledAttribute);
+                files = scheduledFiles;
+                scheduledFilesMap.remove(scheduledAttribute);
                 preprocessStatus = CommandsPool.PREPROCESS_NEXT_FILE;
-            }
-            if (files.size() == 1) preprocessStatus = CommandsPool.PREPROCESS_DONE;
-            Table singleFolderTable = null;
-            if (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus) {
-                Table singleFileTable = new Table();
-                Object singleFile = files.keys().nextElement();
-                singleFileTable.put(singleFile, files.get(singleFile));
-                setVariables(singleFileTable, vars, quoting, valueAdjustment);
-            } else if (cmdCanRunOnMultipleFilesInFolder) {
-                singleFolderTable = new Table();
-                Enumeration keys = files.keys();
-                String file = (String) keys.nextElement();
-                singleFolderTable.put(file, files.get(file));
-                //String folder = file.getPackageName('/');
-                String folder = "";
-                int index = file.lastIndexOf('/');
-                if (index >= 0) folder = file.substring(0, index);
-                while (keys.hasMoreElements()) {
-                    file = (String) keys.nextElement();
-                    String testFolder = "";
-                    index = file.lastIndexOf('/');
-                    if (index >= 0) testFolder = file.substring(0, index);
-                    if (folder.equals(testFolder)) {
-                        singleFolderTable.put(file, files.get(file));
-                    }
-                }
-                setVariables(singleFolderTable, vars, quoting, valueAdjustment);
-            }
-            executors.add(vce);
-            if (stdoutListener != null) vce.addOutputListener(stdoutListener);
-            if (stderrListener != null) vce.addErrorOutputListener(stderrListener);
-            if (stdoutDataListener != null) vce.addDataOutputListener(stdoutDataListener);
-            if (stderrDataListener != null) vce.addDataErrorOutputListener(stderrDataListener);
-            pool.startExecutor(vce);
-            if (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus) {
-                files.remove(files.keys().nextElement()); // remove the processed file
-                synchronized (vars) {
-                    if (askForEachFile != null && askForEachFile[0] == true) {
-                        vars = new Hashtable(fileSystem.getVariablesAsHashtable());
-                        if (additionalVars != null) vars.putAll(additionalVars);
-                    } else {
-                        vars = new Hashtable(vars);
-                    }
-                }
-                if (files.size() == 1 && askForEachFile != null && askForEachFile[0] == true) {
-                    askForEachFile = null; // Do not show the check box for the last file.
-                }
-            } else if (cmdCanRunOnMultipleFilesInFolder) {
-                for (Enumeration keys = singleFolderTable.keys(); keys.hasMoreElements(); ) {
-                    files.remove(keys.nextElement());
-                }
-                synchronized (vars) {
-                    if (askForEachFile != null && askForEachFile[0] == true) {
-                        vars = new Hashtable(fileSystem.getVariablesAsHashtable());
-                        if (additionalVars != null) vars.putAll(additionalVars);
-                    } else {
-                        vars = new Hashtable(vars);
-                    }
-                }
-                if (files.size() == 1 && askForEachFile != null && askForEachFile[0] == true) {
-                    askForEachFile = null; // Do not show the check box for the last file.
-                }
-                if (files.size() > 0) {
-                    preprocessStatus = CommandsPool.PREPROCESS_NEXT_FILE;
+                String scheduledCmdStr = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC_SCHEDULED_COMMAND + scheduledAttribute);
+                if (scheduledCmdStr != null) {
+                    scheduledCmd = fileSystem.getCommand(scheduledCmdStr);
+                    if (scheduledCmd == null) scheduledCmd = cmd;
                 }
             }
-        } while (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus);
+        } while(CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus);
         //System.out.println("VcsAction.doCommand(): executors started = "+executors.size());
         return (VcsCommandExecutor[]) executors.toArray(new VcsCommandExecutor[executors.size()]);
     }
@@ -409,19 +361,146 @@ public class VcsAction extends NodeAction implements ActionListener {
         VcsAction.doCommand(files, cmd, map, fileSystem);
     }
     
+    private static int doCommandExecution(Table files, Hashtable vars, Hashtable additionalVars,
+                                          VcsFileSystem fileSystem, VcsCommand cmd,
+                                          boolean cmdCanRunOnMultipleFiles,
+                                          boolean cmdCanRunOnMultipleFilesInFolder,
+                                          String quoting, Object[] askForEachFileRef,
+                                          VariableValueAdjustment valueAdjustment, List executors,
+                                          CommandOutputListener stdoutListener, CommandOutputListener stderrListener,
+                                          CommandDataOutputListener stdoutDataListener, CommandDataOutputListener stderrDataListener) {
+        boolean[] askForEachFile = (boolean[]) askForEachFileRef[0];
+        setVariables(files, vars, quoting, valueAdjustment);
+        VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+        CommandsPool pool = fileSystem.getCommandsPool();
+        int preprocessStatus = pool.preprocessCommand(vce, vars, askForEachFile);
+        //System.out.println("VcsAction.doCommand(): CommandsPool.preprocessCommand() = "+preprocessStatus+", askForEachFile = "+((askForEachFile.length > 0) ? ""+askForEachFile : ""+askForEachFile[0]));
+        if (CommandsPool.PREPROCESS_CANCELLED == preprocessStatus) {
+            return preprocessStatus;
+        }
+        if (!cmdCanRunOnMultipleFiles && !cmdCanRunOnMultipleFilesInFolder) {
+            // When the executor can not run on more than one file, it has to be processed one by one.
+            preprocessStatus = CommandsPool.PREPROCESS_NEXT_FILE;
+        }
+        if (files.size() == 1) preprocessStatus = CommandsPool.PREPROCESS_DONE;
+        Table singleFolderTable = null;
+        if (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus) {
+            Table singleFileTable = new Table();
+            Object singleFile = files.keys().nextElement();
+            singleFileTable.put(singleFile, files.get(singleFile));
+            setVariables(singleFileTable, vars, quoting, valueAdjustment);
+        } else if (cmdCanRunOnMultipleFilesInFolder) {
+            singleFolderTable = new Table();
+            Enumeration keys = files.keys();
+            String file = (String) keys.nextElement();
+            singleFolderTable.put(file, files.get(file));
+            //String folder = file.getPackageName('/');
+            String folder = "";
+            int index = file.lastIndexOf('/');
+            if (index >= 0) folder = file.substring(0, index);
+            while (keys.hasMoreElements()) {
+                file = (String) keys.nextElement();
+                String testFolder = "";
+                index = file.lastIndexOf('/');
+                if (index >= 0) testFolder = file.substring(0, index);
+                if (folder.equals(testFolder)) {
+                    singleFolderTable.put(file, files.get(file));
+                }
+            }
+            setVariables(singleFolderTable, vars, quoting, valueAdjustment);
+        }
+        executors.add(vce);
+        if (stdoutListener != null) vce.addOutputListener(stdoutListener);
+        if (stderrListener != null) vce.addErrorOutputListener(stderrListener);
+        if (stdoutDataListener != null) vce.addDataOutputListener(stdoutDataListener);
+        if (stderrDataListener != null) vce.addDataErrorOutputListener(stderrDataListener);
+        pool.startExecutor(vce);
+        if (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus) {
+            files.remove(files.keys().nextElement()); // remove the processed file
+            synchronized (vars) {
+                if (askForEachFile != null && askForEachFile[0] == true) {
+                    vars = new Hashtable(fileSystem.getVariablesAsHashtable());
+                    if (additionalVars != null) vars.putAll(additionalVars);
+                } else {
+                    vars = new Hashtable(vars);
+                }
+            }
+            if (files.size() == 1 && askForEachFile != null && askForEachFile[0] == true) {
+                askForEachFile = null; // Do not show the check box for the last file.
+            }
+        } else if (cmdCanRunOnMultipleFilesInFolder) {
+            for (Enumeration keys = singleFolderTable.keys(); keys.hasMoreElements(); ) {
+                files.remove(keys.nextElement());
+            }
+            synchronized (vars) {
+                if (askForEachFile != null && askForEachFile[0] == true) {
+                    vars = new Hashtable(fileSystem.getVariablesAsHashtable());
+                    if (additionalVars != null) vars.putAll(additionalVars);
+                } else {
+                    vars = new Hashtable(vars);
+                }
+            }
+            if (files.size() == 1 && askForEachFile != null && askForEachFile[0] == true) {
+                askForEachFile = null; // Do not show the check box for the last file.
+            }
+            if (files.size() > 0) {
+                preprocessStatus = CommandsPool.PREPROCESS_NEXT_FILE;
+            }
+        }
+        return preprocessStatus;
+    }
+    
+    private static Map extractScheduledFiles(Table files, VcsCommand cmd) {
+        HashMap scheduledMap = new HashMap();
+        //Table scheduled = new Table();
+        LinkedList keys = new LinkedList();
+        for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
+            keys.add(enum.nextElement());
+        }
+        for (Iterator it = keys.iterator(); it.hasNext(); ) {
+            String fileName = (String) it.next();
+            FileObject fo = (FileObject) files.get(fileName);
+            String attr;
+            if (fo == null) {
+                attr = VcsAttributes.VCS_SCHEDULING_REMOVE;
+            } else {
+                attr = (String) fo.getAttribute(VcsAttributes.VCS_SCHEDULED_FILE_ATTR);
+            }
+            if (attr == null) continue;
+            String scheduledCmdStr = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC_SCHEDULED_COMMAND + attr);
+            if (scheduledCmdStr == null) continue;
+            Table scheduled = (Table) scheduledMap.get(attr);
+            if (scheduled == null) {
+                scheduled = new Table();
+                scheduledMap.put(attr, scheduled);
+            }
+            files.remove(fileName);
+            scheduled.put(fileName, fo);
+        }
+        return scheduledMap;
+        /*
+        if (scheduled.size() > 0) {
+            return scheduled;
+        } else {
+            return null;
+        }
+         */
+    }
+    
     /** Make sure, that the files are saved. If not, save them.
      * @param fos the collection of FileObjects
      */
     private static void assureFilesSaved(Collection fos) {
         for (Iterator it = fos.iterator(); it.hasNext(); ) {
             FileObject fo = (FileObject) it.next();
+            if (fo == null) continue;
             DataObject dobj = null;
             try {
                 dobj = DataObject.find(fo);
             } catch (DataObjectNotFoundException exc) {
                 // ignored
             }
-            if (dobj != null || dobj.isModified()) {
+            if (dobj != null && dobj.isModified()) {
                 Node.Cookie cake = dobj.getCookie(SaveCookie.class);
                 try {
                     if (cake != null) ((SaveCookie) cake).save();
@@ -564,6 +643,13 @@ public class VcsAction extends NodeAction implements ActionListener {
                 //D.deb(fileName+" is important");
                 res.put(fileName, ff);
             }
+            Set[] scheduled = (Set[]) ff.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
+            if (scheduled != null) {
+                for (Iterator sit = scheduled[0].iterator(); sit.hasNext(); ) {
+                    String name = (String) sit.next();
+                    res.put(name, null);
+                }
+            }
             //else D.deb(fileName+" is NOT important");
         }
     }
@@ -582,6 +668,14 @@ public class VcsAction extends NodeAction implements ActionListener {
                         String status = statusProv.getFileStatus(path);
                         if (status != null) statuses.add(status);
                     }
+                    Set[] scheduled = (Set[]) fo.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
+                    if (scheduled != null) {
+                        for (Iterator sit = scheduled[0].iterator(); sit.hasNext(); ) {
+                            path = (String) sit.next();
+                            String status = statusProv.getFileStatus(path);
+                            statuses.add(status);
+                        }
+                    }
                 }
             } else {
                 Node[] nodes = getActivatedNodes();
@@ -595,6 +689,14 @@ public class VcsAction extends NodeAction implements ActionListener {
                         if (processAll || fileSystem.isImportant(path)) {
                             String status = statusProv.getFileStatus(path);
                             if (status != null) statuses.add(status);
+                        }
+                        Set[] scheduled = (Set[]) fo.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
+                        if (scheduled != null) {
+                            for (Iterator sit = scheduled[0].iterator(); sit.hasNext(); ) {
+                                path = (String) sit.next();
+                                String status = statusProv.getFileStatus(path);
+                                statuses.add(status);
+                            }
                         }
                     }
                 }
@@ -821,7 +923,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         // At first, find the first file and set the variables
         String fullName = (String) files.keys().nextElement();
         FileObject fo = (FileObject) files.get(fullName);
-        boolean isFileFolder = fo.isFolder();
+        boolean isFileFolder = (fo != null && fo.isFolder());
         String path = VcsUtilities.getDirNamePart(fullName);
         String file = VcsUtilities.getFileNamePart(fullName);
         String separator = (String) vars.get("PS");
@@ -841,7 +943,14 @@ public class VcsAction extends NodeAction implements ActionListener {
         if (path.length() == 0 && file.length() > 0 && file.charAt(0) == '/') file = file.substring (1, file.length ());
         vars.put("FILE", file); // NOI18N
         vars.put("QFILE", quoting+file+quoting); // NOI18N
-        vars.put("MIMETYPE", fo.getMIMEType());
+        if (fo != null) {
+            vars.put("MIMETYPE", fo.getMIMEType());
+        } else {
+            int extIndex = file.lastIndexOf('.');
+            String ext = (extIndex >= 0 && extIndex < file.length() - 1) ? file.substring(extIndex + 1) : "";
+            String mime = FileUtil.getMIMEType(ext);
+            if (mime != null) vars.put("MIMETYPE", mime);
+        }
         vars.put("FILE_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// the FILE is a folder
         // Second, set the multifiles variables
         StringBuffer qpaths = new StringBuffer();
@@ -854,7 +963,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             fullName = (String) enum.nextElement();
             fo = (FileObject) files.get(fullName);
             if (fullName.length() == 0) fullName = ".";
-            isFileFolder |= fo.isFolder();
+            isFileFolder |= (fo != null && fo.isFolder());
             file = VcsUtilities.getFileNamePart(fullName);
             fullName = fullName.replace('/', separatorChar);
             file = valueAdjustment.adjustVarValue(file);
@@ -938,6 +1047,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             ArrayList paths = new ArrayList();
             for (Iterator it = files.values().iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
+                if (fo == null) continue;
                 String path = fo.getPackageName('/');
                 if (!paths.contains(path)) {
                     doList(path);
@@ -948,6 +1058,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             ArrayList paths = new ArrayList();
             for (Iterator it = files.values().iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
+                if (fo == null) continue;
                 String path = fo.getPackageName('/');
                 if (!paths.contains(path)) {
                     doListSub(path);

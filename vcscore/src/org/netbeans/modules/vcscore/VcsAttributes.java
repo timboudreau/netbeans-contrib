@@ -42,6 +42,30 @@ public class VcsAttributes extends DefaultAttributes {
      */
     public static final String VCS_ACTION = "VCS_ACTION";
     /**
+     * Attribute name for a VCS action, that schedules the VCS operation for later processing.
+     * This action should be performed on important secondary file objects.
+     */
+    public static final String VCS_SCHEDULING_SECONDARY_FO_ACTION = "VCS_SCHEDULING_SECONDARY_FO_ACTION";
+    /**
+     * The scheduling VCS Add action name. The file will be added to the VCS repository
+     * as soon as the primary file will be committed.
+     */
+    public static final String VCS_SCHEDULING_ADD = "ADD";
+    /**
+     * The scheduling VCS Remove action name. The file will be removed from the VCS repository
+     * as soon as the primary file will be committed.
+     */
+    public static final String VCS_SCHEDULING_REMOVE = "REMOVE";
+    /**
+     * The attribute name where scheduled files are stored.
+     */
+    public static final String VCS_SCHEDULED_FILES_ATTR = "VCS_SCHEDULED_FILES";
+    /**
+     * The attribute name marking the file as scheduled for later processing.
+     * The value should be {@link VCS_SCHEDULING_ADD} or {@link VCS_SCHEDULING_REMOVE}.
+     */
+    public static final String VCS_SCHEDULED_FILE_ATTR = "VCS_SCHEDULED_FILE";
+    /**
      * The VCS Add command name. This command adds the file to the VCS repository.
      */
     public static final String VCS_ACTION_ADD = "VCS_ADD";
@@ -86,7 +110,7 @@ public class VcsAttributes extends DefaultAttributes {
      */
     public static String VCS_STATUS_UNKNOWN = "VCS_STATUS_UNKNOWN";
     
-    private CommandActionSupporter supporter;
+    private VcsActionSupporter supporter;
         
     private VcsFileSystem fileSystem;
 
@@ -94,14 +118,18 @@ public class VcsAttributes extends DefaultAttributes {
     
     /** Creates new VcsAttributes */
     public VcsAttributes(AbstractFileSystem.Info info, AbstractFileSystem.Change change,
-                         AbstractFileSystem.List list, VcsFileSystem fileSystem, CommandActionSupporter supp) {
+                         AbstractFileSystem.List list, VcsFileSystem fileSystem, VcsActionSupporter supp) {
         super(info, change, list);
         this.fileSystem = fileSystem;
         supporter = supp;
     }
     
     public VcsActionSupporter getCurrentSupporter() {
-        return (VcsActionSupporter)supporter;
+        return supporter;
+    }
+    
+    public void setCurrentSupporter(VcsActionSupporter supporter) {
+        this.supporter = supporter;
     }
     
     /**
@@ -151,31 +179,79 @@ public class VcsAttributes extends DefaultAttributes {
      */
     public void writeAttribute(String name, String attrName, Object value) throws IOException, java.net.UnknownServiceException {
         if (VCS_ACTION.equals(attrName) && value instanceof FeatureDescriptor) {
-            final FeatureDescriptor descriptor = (FeatureDescriptor) value;
-            String cmdName = descriptor.getName();
-            final VcsCommand cmd = fileSystem.getCommand(cmdName);
-            if (cmd == null) throw new java.net.UnknownServiceException(cmdName);
-            final Table files = new Table();
-            files.put(name, fileSystem.findResource(name));
-            final Hashtable additionalVars = new Hashtable();
-            for (Enumeration varNames = descriptor.attributeNames(); varNames.hasMoreElements(); ) {
-                String varName = (String) varNames.nextElement();
-                additionalVars.put(varName, descriptor.getValue(varName));
+            performVcsAction(name, (FeatureDescriptor) value);
+        } else if (VCS_SCHEDULING_SECONDARY_FO_ACTION.equals(attrName) && value instanceof String) {
+            if (scheduleSecondaryFOVcsAction(name, (String) value)) {
+                super.writeAttribute(name, VCS_SCHEDULED_FILE_ATTR, value);
             }
-            RequestProcessor.postRequest(new Runnable() {
-                public void run() {
-                    VcsCommandExecutor[] executors = VcsAction.doCommand(files, cmd, additionalVars, fileSystem);
-                    boolean status = true;
-                    for (int i = 0; i < executors.length; i++) {
-                        fileSystem.getCommandsPool().waitToFinish(executors[i]);
-                        status &= executors[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED;
-                    }
-                    descriptor.setValue(VCS_ACTION_DONE, new Boolean(status));
-                }
-            });
         } else {
             super.writeAttribute(name, attrName, value);
         }
+    }
+    
+    private void performVcsAction(final String name, final FeatureDescriptor descriptor) throws java.net.UnknownServiceException {
+        String cmdName = descriptor.getName();
+        final VcsCommand cmd = fileSystem.getCommand(cmdName);
+        if (cmd == null) throw new java.net.UnknownServiceException(cmdName);
+        final Table files = new Table();
+        files.put(name, fileSystem.findResource(name));
+        final Hashtable additionalVars = new Hashtable();
+        for (Enumeration varNames = descriptor.attributeNames(); varNames.hasMoreElements(); ) {
+            String varName = (String) varNames.nextElement();
+            additionalVars.put(varName, descriptor.getValue(varName));
+        }
+        RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                VcsCommandExecutor[] executors = VcsAction.doCommand(files, cmd, additionalVars, fileSystem);
+                boolean status = true;
+                for (int i = 0; i < executors.length; i++) {
+                    fileSystem.getCommandsPool().waitToFinish(executors[i]);
+                    status &= executors[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED;
+                }
+                descriptor.setValue(VCS_ACTION_DONE, new Boolean(status));
+            }
+        });
+    }
+    
+    private boolean scheduleSecondaryFOVcsAction(final String name, final String actionName) {
+        int id;
+        if (VCS_SCHEDULING_ADD.equals(actionName)) {
+            //fileSystem.addScheduledSecondaryFO(name, VcsFileSystem.SCHEDULING_ACTION_ADD_ID);
+            FeatureDescriptor descriptor = new FeatureDescriptor();
+            descriptor.setName(VcsCommand.NAME_SCHEDULE_ADD);
+            try {
+                performVcsAction(name, descriptor);
+            } catch (java.net.UnknownServiceException unsExc) {}
+            id = 1;
+        } else if (VCS_SCHEDULING_REMOVE.equals(actionName)) {
+            //fileSystem.addScheduledSecondaryFO(name, VcsFileSystem.SCHEDULING_ACTION_REMOVE_ID);
+            FeatureDescriptor descriptor = new FeatureDescriptor();
+            descriptor.setName(VcsCommand.NAME_SCHEDULE_REMOVE);
+            try {
+                performVcsAction(name, descriptor);
+            } catch (java.net.UnknownServiceException unsExc) {}
+            id = 0;
+        } else return false;
+        org.openide.filesystems.FileObject fo = fileSystem.findFileObject(name);
+        if (fo == null) return false;
+        try {
+            org.openide.loaders.DataObject dobj = org.openide.loaders.DataObject.find(fo);
+            org.openide.filesystems.FileObject primary = dobj.getPrimaryFile();
+            if (primary.equals(fo)) return false;
+            //String primaryName = primary.getPackageNameExt('/', '.');
+            Set[] scheduled = (Set[]) primary.getAttribute(VCS_SCHEDULED_FILES_ATTR);
+            if (scheduled == null) scheduled = new HashSet[2];
+            if (scheduled[id] == null) scheduled[id] = new HashSet();
+            scheduled[id].add(name);
+            try {
+                primary.setAttribute(VCS_SCHEDULED_FILES_ATTR, scheduled);
+            } catch (IOException ioExc) {
+                return false;
+            }
+        } catch (org.openide.loaders.DataObjectNotFoundException exc) {
+            return false;
+        }
+        return true;
     }
     
     private void readObject (java.io.ObjectInputStream ois)

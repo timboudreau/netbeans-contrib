@@ -68,6 +68,15 @@ public interface VcsCommand extends VcsCommandCookie {
     public static final String NAME_REVISION_OPEN = "REVISION_OPEN";
     
     /**
+     * The name of the command which will schedule a file for later add to the repository.
+     */
+    public static final String NAME_SCHEDULE_ADD = "SCHEDULE_ADD";
+    /**
+     * The name of the command which will schedule a file for later remove from the repository.
+     */
+    public static final String NAME_SCHEDULE_REMOVE = "SCHEDULE_REMOVE";
+    
+    /**
      * Command may set this property which will be visible on the VariableInputDialog.
      * Can be used to tell the user about the specific command appearance.
      */
@@ -83,6 +92,11 @@ public interface VcsCommand extends VcsCommandCookie {
      * any number of variables that are expanded prior to execution.
      */
     public static final String PROPERTY_EXEC = "exec";
+    /**
+     * This property contains the name of command, that is executed on scheduled files.
+     * To obtain the full name of this property it has to followed by the scheduled action name.
+     */
+    public static final String PROPERTY_EXEC_SCHEDULED_COMMAND = "execScheduledCommand_";
     /**
      * This Integer property can contain any combination of EXEC_* constants delimeted
      * by OR operator.
