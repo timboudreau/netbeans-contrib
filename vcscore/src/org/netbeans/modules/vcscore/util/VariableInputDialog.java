@@ -2396,7 +2396,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     private void writeFileContents(javax.swing.JTextArea filePromptArea, String fileName, int promptAreaNum) {
         //for(int i = 0; i < filePromptAreas.length; i++) {
-            if (docListener != null) docListener.filePromptDocumentCleanup(filePromptArea, promptAreaNum, docIdentif);
+            if (docListener != null) {
+                // We should not change the original text area!
+                javax.swing.JTextArea cleanedArea = new javax.swing.JTextArea(filePromptArea.getText(),
+                                                        filePromptArea.getRows(), filePromptArea.getColumns());
+                docListener.filePromptDocumentCleanup(cleanedArea, promptAreaNum, docIdentif);
+                filePromptArea = cleanedArea;
+            }
             //String name = fileNames[i];
             if (fileName == null || fileName.length() == 0) return ;
             File file = new File(fileName);
