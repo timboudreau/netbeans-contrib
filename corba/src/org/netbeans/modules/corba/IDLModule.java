@@ -73,6 +73,10 @@ public class IDLModule extends ModuleInstall {
       System.out.println ("CORBA Support Module restoring...");
     if (DEBUG) 
       System.out.println ("restoring editor support ...");
+  
+    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
+      (CORBASupportSettings.class, true);
+    css.init ();
     
     installColoring ();
     if (DEBUG)
@@ -154,6 +158,7 @@ public class IDLModule extends ModuleInstall {
 
 /*
  * <<Log>>
+ *  26   Gandalf   1.25        2/9/00   Karel Gardas    
  *  25   Gandalf   1.24        2/8/00   Karel Gardas    
  *  24   Gandalf   1.23        11/27/99 Patrik Knakal   
  *  23   Gandalf   1.22        11/9/99  Karel Gardas    - updated for new IDL 

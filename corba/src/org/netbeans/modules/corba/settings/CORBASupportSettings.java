@@ -39,11 +39,11 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
   private static final boolean DEBUG = false;
   //private static final boolean DEBUG = true;
 
-  private static final boolean DYNLOAD = true;
-  //private static final boolean DYNLOAD = false;
+  //private static final boolean DYNLOAD = true;
+  private static final boolean DYNLOAD = false;
 
-  //private static final boolean PRODUCTION = true;
-  private static final boolean PRODUCTION = false;
+  private static final boolean PRODUCTION = true;
+  //private static final boolean PRODUCTION = false;
 
   private String[] checkSections = {"CTL_NAME", "IMPORT", "SETTINGS_ORB_PROPERTIES", 
 				    "ORB_SERVER_INIT", "ORB_CLIENT_INIT", "ORB_SERVER_RUN",
@@ -161,6 +161,10 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
     if (DEBUG)
       System.out.println ("CORBASupportSettings () ...");
 
+  }
+
+  public void init () {
+
     _ORB = ORB.init (new String[] {""}, null);
     //names = new Vector (5);
     props = new Vector (5);
@@ -190,6 +194,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       setClientBinding (CORBASupport.CLIENT_NS);
       setServerBinding (CORBASupport.SERVER_NS);
     }
+
   }
 
   /*

@@ -37,8 +37,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
   static final String ICON_BASE_ROOT 
     = "com/netbeans/enterprise/modules/corba/browser/ns/resources/ns-root";
 
-  //public static final boolean DEBUG = false;
-  public static final boolean DEBUG = true;
+  public static final boolean DEBUG = false;
+  //public static final boolean DEBUG = true;
 
 
   private ORB orb;

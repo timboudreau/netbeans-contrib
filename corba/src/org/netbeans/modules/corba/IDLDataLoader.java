@@ -226,7 +226,8 @@ public class IDLDataLoader extends MultiFileLoader {
       }
     } catch (ClassCastException ex) {
       //ex.printStackTrace ();
-      System.out.println ("exception: " + ex);
+      if (DEBUG)
+	System.out.println ("exception: " + ex);
     }
 
     return null;
