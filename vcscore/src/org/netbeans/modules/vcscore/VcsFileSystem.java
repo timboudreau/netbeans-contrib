@@ -1005,12 +1005,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 unimportantFiles.add(name);
             }
         }
-        if (versioningFolderListeners != null) {
+        Map map = versioningFolderListeners;
+        if (map != null) {
             FileObject fo = findResource(name);
             if (fo != null) {
                 FileObject folder = fo.getParent();
                 if (folder != null) {
-                    FileChangeListener l = (FileChangeListener) versioningFolderListeners.get(folder);
+                    FileChangeListener l = (FileChangeListener) map.get(folder);
                     if (l != null) l.fileChanged(null);
                 }
             }
