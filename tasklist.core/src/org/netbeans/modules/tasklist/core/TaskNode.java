@@ -21,10 +21,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.tasklist.core.filter.Filter;
@@ -86,7 +83,7 @@ public class TaskNode extends AbstractNode {
     /**
      * Non-leaf/parent
      */
-    public TaskNode(Task item, List subtasks) {
+    public TaskNode(Task item, Iterator subtasks) {
         super(new TaskChildren(item));
         this.item = item;
         assert item.getList() != null;
@@ -112,7 +109,7 @@ public class TaskNode extends AbstractNode {
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):
     public Node cloneNode () {
         if (item.hasSubtasks()) {
-            return new TaskNode(item, item.getSubtasks());
+            return new TaskNode(item, item.subtasksIterator());
         } else {
             return new TaskNode(item);
         }

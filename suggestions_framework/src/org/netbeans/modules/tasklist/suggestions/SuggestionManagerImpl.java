@@ -451,7 +451,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
         if (type != null) {
             // "Flatten" the list when I'm filtering so that I don't show
             // category nodes!
-            List oldList = tasklist.getTasks();
+            List oldList = tasklist.getRoot().getSubtasks();
 
             if (oldList != null) {
                 List allTasks = new ArrayList(oldList.size());
@@ -483,7 +483,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
             }
         } else {
             tasklist.clearCategoryTasks();
-            List oldList = tasklist.getTasks();
+            List oldList = tasklist.getRoot().getSubtasks();
             List suggestions = new ArrayList();
             if (oldList != null)
                 suggestions.addAll(oldList);

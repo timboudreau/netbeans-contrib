@@ -221,15 +221,13 @@ public class DefaultSuggestionManager extends SuggestionManager {
             // you can have multiple clients of the type registry.
             int currnum = 0;
             if (category != null) {
-                currnum = category.getSubtasks().size();
+                currnum = category.subtasksCount();
             } else {
-                if (tasklist.getTasks() != null) {
-                    Iterator it = tasklist.getTasks().iterator();
-                    while (it.hasNext()) {
-                        SuggestionImpl s = (SuggestionImpl) it.next();
-                        if (s.getSType() == type) {
-                            currnum++;
-                        }
+                Iterator it = tasklist.getRoot().subtasksIterator();
+                while (it.hasNext()) {
+                    SuggestionImpl s = (SuggestionImpl) it.next();
+                    if (s.getSType() == type) {
+                        currnum++;
                     }
                 }
             }
@@ -253,7 +251,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
                         }
                         if (currnum - remnum > 0) {
                             leftover = new ArrayList(currnum);
-                            Iterator it = tasklist.getTasks().iterator();
+                            Iterator it = tasklist.getRoot().subtasksIterator();
                             while (it.hasNext()) {
                                 SuggestionImpl s = (SuggestionImpl) it.next();
                                 if ((s.getSType() == type) &&
@@ -314,8 +312,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
 
     private static void updateCategoryCount(SuggestionImpl category, boolean sizeKnown) {
         SuggestionType type = category.getSType();
-        int count = category.hasSubtasks() ?
-                category.getSubtasks().size() : 0;
+        int count = category.subtasksCount();
         String summary;
         if ((count != 0) || sizeKnown) {
             summary = type.getLocalizedName() + " (" + // NOI18N

@@ -61,7 +61,7 @@ public class SuggestionNode extends TaskNode {
     }
 
     // Non-leaf/parent
-    protected SuggestionNode(SuggestionImpl item, List subtasks) {
+    protected SuggestionNode(SuggestionImpl item, Iterator subtasks) {
         super(item, subtasks);
     }
 
@@ -71,7 +71,7 @@ public class SuggestionNode extends TaskNode {
      * @param view
      */
     public SuggestionNode(Task rootItem, TaskListView view) {
-        super(rootItem, Collections.EMPTY_LIST);  //XXX parametr existence is used as flag
+        super(rootItem, Collections.EMPTY_LIST.iterator());  //XXX parametr existence is used as flag
         this.view = view;
     }
 
@@ -87,7 +87,7 @@ public class SuggestionNode extends TaskNode {
     public Node cloneNode () {
 	SuggestionImpl eitem = (SuggestionImpl)item;
         if (eitem.hasSubtasks()) {
-            return new SuggestionNode(eitem, eitem.getSubtasks());
+            return new SuggestionNode(eitem, eitem.subtasksIterator());
         } else {
             return new SuggestionNode(eitem);
         }

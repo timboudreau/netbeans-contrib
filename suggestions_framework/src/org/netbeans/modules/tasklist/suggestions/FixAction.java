@@ -254,14 +254,14 @@ public final class FixAction extends NodeAction {
                 //   - have the same details
                 //
                 int matches = 0;
-                Iterator it = sList.getTasks().iterator();
+                Iterator it = sList.getRoot().subtasksIterator();
                 SuggestionImpl match = null;
                 boolean exact = false;
                 while (it.hasNext()) {
                     SuggestionImpl sm = (SuggestionImpl)it.next();
                     if (sm.hasSubtasks()) {
                         // It's a category node
-                        Iterator it2 = sm.getSubtasks().iterator();
+                        Iterator it2 = sm.subtasksIterator();
                         while (it2.hasNext()) {
                             SuggestionImpl sm2 = (SuggestionImpl)it2.next();
                             if ((item.getSType() == sm2.getSType()) &&

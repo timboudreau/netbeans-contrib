@@ -489,7 +489,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
 
     protected TaskNode createRootNode() {
         UserTask root = (UserTask)getModel().getRoot();
-        return new UserTaskNode(root, root.getSubtasks());
+        return new UserTaskNode(root, root.subtasksIterator());
     }
 
     /** Show the given task. "Showing" means getting the editor to

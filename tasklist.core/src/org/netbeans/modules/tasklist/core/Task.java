@@ -251,14 +251,47 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      * Returns subtasks of this task
      *
      * @todo all usages require iterator() or size() calls only, so it could be replaced by
-     *       subtasksIterator and subtasksCount methods.
+     *       subtasksIterator and subtasksCount methods. Add TLUtil.iteratorToCollection.
      * @return children
      */
-    public List getSubtasks() {
-        if (subtasks == null)
+    public final List getSubtasks() {
+        if (subtasks == null) {
             return Collections.EMPTY_LIST;
-        else
+        } else {
             return subtasks;
+        }
+    }
+
+    /**
+     * Create subtasks iterator. It's remove method is not
+     * supported yet. You need to call removeTask().
+     *
+     * @return non-recursive subtask iterator
+     */
+    public final Iterator subtasksIterator() {  // in JRE 1.5 could be turned to Iterable by renaming to Iterator<T> iterator().
+        if (subtasks == null) {
+            return Collections.EMPTY_LIST.iterator();
+        } else {
+            return subtasks.iterator();
+        }
+    }
+
+    /** @return subtasks count */
+    public final int subtasksCount() {
+        if (subtasks == null) {
+            return 0;
+        } else {
+            return subtasks.size();
+        }
+    }
+
+    /** @return true if task exits in non-recursive subtasks. */
+    public final boolean containsSubtask(Task task) {
+        if (subtasks == null) {
+            return false;
+        } else {
+            return subtasks.contains(task);
+        }
     }
 
     /**
@@ -546,7 +579,7 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     public Node[] createNode() {
         //if (hasSubtasks()) {
         if (subtasks != null) {  // Want to make root a non-leaf; empty list, not null
-            return new Node[] { new TaskNode(this, getSubtasks())};
+            return new Node[] { new TaskNode(this, subtasksIterator())};
         } else {
             return new Node[] { new TaskNode(this)};
         }

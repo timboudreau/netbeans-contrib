@@ -111,11 +111,7 @@ final class FilteredTaskChildren extends FilterNode.Children {
         if (filter.accept(n))
             return true;
 
-        List st = n.getSubtasks();
-        if (st == null || st.size() == 0)
-            return false;
-        
-        Iterator it = st.iterator();
+        Iterator it = n.subtasksIterator();
         while (it.hasNext()) {
             if (hasMatch((Task) it.next()))
                 return true;
@@ -128,11 +124,7 @@ final class FilteredTaskChildren extends FilterNode.Children {
      */
     private void findMatches(List matches, Task n) {
         // we check those as well...
-        List st = n.getSubtasks();
-        if (st == null || st.size() == 0)
-            return;
-        
-        Iterator it = st.iterator();
+        Iterator it = n.subtasksIterator();
         while (it.hasNext()) {
             Task next = (Task) it.next();
             if (filter.accept(next)) {

@@ -119,7 +119,7 @@ final class FilteredTasksList implements ObservableList {
 
     private void loadSourceTasks(Task parent) {
         if (parent.hasSubtasks() == false) return;
-        Iterator it = parent.getSubtasks().iterator();
+        Iterator it = parent.subtasksIterator();
         while (it.hasNext()) {
             Task task = (Task) it.next();
             if (task.getSeed() instanceof SourceTaskProvider) {
@@ -142,7 +142,7 @@ final class FilteredTasksList implements ObservableList {
      */
     private class EventHandler implements TaskListener {
         public void selectedTask(Task t) {
-            if (getRoot().getSubtasks().contains(t)) {
+            if (getRoot().containsSubtask(t)) {
                 Iterator it = listeners.iterator();
                 while (it.hasNext()) {
                     TaskListener listener = (TaskListener) it.next();
@@ -172,7 +172,7 @@ final class FilteredTasksList implements ObservableList {
                 }
             } else if (t.hasSubtasks()) {
                 // category nodes
-                Iterator it = t.getSubtasks().iterator();
+                Iterator it = t.subtasksIterator();
                 while (it.hasNext()) {
                     Task task = (Task) it.next();
                     addedTask(task);  // recursion
@@ -186,7 +186,7 @@ final class FilteredTasksList implements ObservableList {
                     // find pairing task by key identity
                     Object key = t.getKey();
                     Task remove = null;
-                    Iterator it = getRoot().getSubtasks().iterator();
+                    Iterator it = getRoot().subtasksIterator();
                     while (it.hasNext()) {
                         Task task = (Task) it.next();
                         if (key == task.getKey()) {
@@ -209,7 +209,7 @@ final class FilteredTasksList implements ObservableList {
                 }
             } else if (t.hasSubtasks()) {
                 // category nodes
-                Iterator it = t.getSubtasks().iterator();
+                Iterator it = t.subtasksIterator();
                 while (it.hasNext()) {
                     Task task = (Task) it.next();
                     

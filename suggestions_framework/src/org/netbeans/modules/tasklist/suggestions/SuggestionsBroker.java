@@ -25,6 +25,7 @@ import org.openide.cookies.EditorCookie;
 import org.openide.util.RequestProcessor;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 
 import javax.swing.*;
@@ -555,11 +556,12 @@ err.log("Couldn't find current nodes...");
         // to just reuse it, since the document must not have been edited!
 
         SuggestionList tasklist = getSuggestionsList();
-        if (tasklist.getTasks() == null) {
+        Task root = tasklist.getRoot();
+        if (root.subtasksCount() == 0) {
             return;
         }
-        Iterator it = tasklist.getTasks().iterator();
-        List sgs = new ArrayList(tasklist.getTasks().size());
+        Iterator it = root.subtasksIterator();
+        List sgs = new ArrayList(root.subtasksCount());
         while (it.hasNext()) {
             SuggestionImpl s = (SuggestionImpl) it.next();
             Object seed = s.getSeed();
@@ -568,14 +570,12 @@ err.log("Couldn't find current nodes...");
                 sgs.add(s);
             }
 
-            if (s.hasSubtasks()) {
-                Iterator sit = s.getSubtasks().iterator();
-                while (sit.hasNext()) {
-                    s = (SuggestionImpl) sit.next();
-                    seed = s.getSeed();
-                    if (seed != SuggestionList.CATEGORY_NODE_SEED) {
-                        sgs.add(s);
-                    }
+            Iterator sit = s.subtasksIterator();
+            while (sit.hasNext()) {
+                s = (SuggestionImpl) sit.next();
+                seed = s.getSeed();
+                if (seed != SuggestionList.CATEGORY_NODE_SEED) {
+                    sgs.add(s);
                 }
             }
         }

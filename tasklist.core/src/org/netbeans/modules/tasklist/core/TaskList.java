@@ -307,16 +307,6 @@ public class TaskList implements ObservableList {
         if (root != null) root.clear();
     }
 
-    /**
-     * Return the list of tasks in this tasklist
-     *
-     * @return subtasks of the root
-     * @deprecated use getRoot().getSubtasks() instead
-     */
-    public List getTasks() {
-        return getRoot().getSubtasks();
-    }
-
 //    ///* For debugging purposes:
 //    public void print() {
 //        System.err.println("\nTask List:\n-------------");

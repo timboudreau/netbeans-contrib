@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
@@ -106,7 +107,7 @@ class UserTaskNode extends TaskNode {
     } 
 
     // Non-leaf/parent
-    UserTaskNode(UserTask item, List subtasks) {
+    UserTaskNode(UserTask item, Iterator subtasks) {
         super(item, subtasks);
         init();
     }
@@ -129,7 +130,7 @@ class UserTaskNode extends TaskNode {
     public Node cloneNode () {
 	UserTask uitem = (UserTask)item;
         if (uitem.hasSubtasks()) {
-            return new UserTaskNode(uitem, uitem.getSubtasks());
+            return new UserTaskNode(uitem, uitem.subtasksIterator());
         } else {
             return new UserTaskNode(uitem);
         }

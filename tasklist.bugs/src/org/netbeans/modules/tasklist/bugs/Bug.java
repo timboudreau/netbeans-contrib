@@ -214,7 +214,7 @@ public final class Bug extends Task {
         // seems like something you could consider a "subtask", although
         // not quite
         if (hasSubtasks()) {
-            return new Node[] { new BugNode(this, getSubtasks())};
+            return new Node[] { new BugNode(this, subtasksIterator())};
         } else {
             return new Node[] { new BugNode(this)};
         }

@@ -14,6 +14,8 @@
 package org.netbeans.modules.tasklist.bugs;
 
 import java.util.List;
+import java.util.Iterator;
+
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.TaskNode;
@@ -39,7 +41,7 @@ class BugNode extends TaskNode {
     } 
 
     // Non-leaf/parent
-    BugNode(Bug item, List subtasks) {
+    BugNode(Bug item, Iterator subtasks) {
         super(item, subtasks);
         init();
     }
@@ -53,7 +55,7 @@ class BugNode extends TaskNode {
     public Node cloneNode () {
 	Bug eitem = (Bug)item;
         if (eitem.hasSubtasks()) {
-            return new BugNode(eitem, eitem.getSubtasks());
+            return new BugNode(eitem, eitem.subtasksIterator());
         } else {
             return new BugNode(eitem);
         }
