@@ -210,8 +210,8 @@ public class VariableInputDescriptor extends Object {
      * @return the name of the original input item
      */
     private static String getVarConditions(String inputStr, String[] varConditions) {
-        System.out.println("getVarConditions("+inputStr+")");
-        System.out.println(inputStr+".startsWith("+IF_VAR_EMPTY_BEGIN+") = "+inputStr.startsWith(IF_VAR_EMPTY_BEGIN));
+        //System.out.println("getVarConditions("+inputStr+")");
+        //System.out.println(inputStr+".startsWith("+IF_VAR_EMPTY_BEGIN+") = "+inputStr.startsWith(IF_VAR_EMPTY_BEGIN));
         if (inputStr.startsWith(IF_VAR_EMPTY_BEGIN)) {
             int i = inputStr.indexOf(IF_VAR_EMPTY_END, IF_VAR_EMPTY_BEGIN.length());
             if (i > 0) {
@@ -219,7 +219,7 @@ public class VariableInputDescriptor extends Object {
                 inputStr = inputStr.substring(i + IF_VAR_EMPTY_END.length());
             }
         }
-        System.out.println(inputStr+".startsWith("+IF_VAR_NON_EMPTY_BEGIN+") = "+inputStr.startsWith(IF_VAR_NON_EMPTY_BEGIN));
+        //System.out.println(inputStr+".startsWith("+IF_VAR_NON_EMPTY_BEGIN+") = "+inputStr.startsWith(IF_VAR_NON_EMPTY_BEGIN));
         if (inputStr.startsWith(IF_VAR_NON_EMPTY_BEGIN)) {
             int i = inputStr.indexOf(IF_VAR_NON_EMPTY_END, IF_VAR_NON_EMPTY_BEGIN.length());
             if (i > 0) {
@@ -358,36 +358,42 @@ public class VariableInputDescriptor extends Object {
     }
         
     private static int addEnable(String[] inputArgs, int enableIndex, VariableInputComponent component) {
+        //System.out.println("addEnable("+VcsUtilities.arrayToString(inputArgs)+")");
         String var = inputArgs[enableIndex].substring(INPUT_STR_ENABLE.length() + 1).trim();
         String endBracket = new Character(INPUT_STR_ARG_CLOSE).toString();
         do {
             if (var.endsWith(endBracket)) {
                 var = var.substring(0, var.length() - 1);
-                component.addEnable(var);
+                component.addEnable(var.trim());
+                //System.out.println("  addEnable: "+var.trim()+", to component "+component.getLabel());
                 break;
             } else {
-                component.addEnable(var);
+                component.addEnable(var.trim());
+                //System.out.println("  addEnable: "+var.trim()+", to component "+component.getLabel());
                 ++enableIndex;
                 if (enableIndex >= inputArgs.length) break;
-                var = inputArgs[enableIndex];
+                var = inputArgs[enableIndex].trim();
             }
         } while (true);
         return enableIndex + 1;
     }
     
     private static int addDisable(String[] inputArgs, int enableIndex, VariableInputComponent component) {
+        //System.out.println("addDisable("+VcsUtilities.arrayToString(inputArgs)+")");
         String var = inputArgs[enableIndex].substring(INPUT_STR_DISABLE.length() + 1).trim();
         String endBracket = new Character(INPUT_STR_ARG_CLOSE).toString();
         do {
             if (var.endsWith(endBracket)) {
                 var = var.substring(0, var.length() - 1);
-                component.addDisable(var);
+                component.addDisable(var.trim());
+                //System.out.println("  addDisable: "+var.trim()+", to component "+component.getLabel());
                 break;
             } else {
-                component.addDisable(var);
+                component.addDisable(var.trim());
+                //System.out.println("  addDisable: "+var.trim()+", to component "+component.getLabel());
                 ++enableIndex;
                 if (enableIndex >= inputArgs.length) break;
-                var = inputArgs[enableIndex];
+                var = inputArgs[enableIndex].trim();
             }
         } while (true);
         return enableIndex + 1;
