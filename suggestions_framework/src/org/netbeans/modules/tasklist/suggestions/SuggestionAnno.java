@@ -15,11 +15,16 @@ package org.netbeans.modules.tasklist.suggestions;
 
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.core.TaskAnnotation;
+import org.netbeans.modules.tasklist.core.TaskSelector;
 
 class SuggestionAnno extends TaskAnnotation {
 
     SuggestionAnno(Task task) {
         super(task);
+    }
+
+    SuggestionAnno(Task task, TaskSelector view) {
+        super(task, view);
     }
 
     public String getAnnotationType () {

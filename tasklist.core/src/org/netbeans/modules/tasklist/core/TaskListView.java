@@ -73,7 +73,7 @@ import org.openide.util.actions.CallbackSystemAction;
  *       from this class
  */
 public abstract class TaskListView extends TopComponent
-        implements TaskListener, PropertyChangeListener, ExplorerManager.Provider, Lookup.Provider {
+        implements TaskListener, PropertyChangeListener, ExplorerManager.Provider, Lookup.Provider, TaskSelector {
 
     /** Property "task summary" */
     public static final String PROP_TASK_SUMMARY = "taskDesc"; // NOI18N
@@ -137,10 +137,6 @@ public abstract class TaskListView extends TopComponent
         setName(title);
         this.persistent = persistent;
         this.tasklist = tasklist;
-        if (tasklist != null) {
-            tasklist.setView(this);
-        }
-
         setIcon(icon);
 
         if (persistent) {
@@ -913,6 +909,9 @@ for (int i = 0; i < columns.length; i++) {
      * @param item The item to be shown
      */
     public void select(final Task item) {
+
+        if (isShowing() == false) return;
+
         // Expand nodes to show the given item
 
         // XXX HACK HACK HACK
@@ -1471,7 +1470,7 @@ for (int i = 0; i < columns.length; i++) {
      * @return created annotation or null
      */
     protected TaskAnnotation getAnnotation(Task task) {
-        return new TaskAnnotation(task);
+        return new TaskAnnotation(task, this);
     }
 
 

@@ -82,16 +82,17 @@ public class SuggestionList extends TaskList {
             SuggestionManagerImpl manager =
                 (SuggestionManagerImpl)SuggestionManager.getDefault();
             if (manager.isExpandedType(type)) {
-                SuggestionsView view;
-                if (getView() instanceof SuggestionsView) {
-                    view = (SuggestionsView)getView();
-                } else {
-                    view = SuggestionsView.getCurrentView();
-                }
-                if (view != null) {
-                    manager.scheduleNodeExpansion(view,
-                                                  category);
-                }
+                // TODO it's callers reponsibity
+//                SuggestionsView view;
+//                if (getView() instanceof SuggestionsView) {
+//                    view = (SuggestionsView)getView();
+//                } else {
+//                    view = SuggestionsView.getCurrentView();
+//                }
+//                if (view != null) {
+//                    manager.scheduleNodeExpansion(view,
+//                                                  category);
+//                }
             }
             
             if (categoryTasks == null) {

@@ -37,6 +37,19 @@ public class TaskAnnotation extends Annotation {
         this.highlight = highlight;
     }
 
+    /**
+     * Constructs annotation that is capable to locate
+     * task in other tasks views (implementing TaskSelector).
+     *
+     * @param task
+     * @param view
+     */
+    public TaskAnnotation(Task task, TaskSelector view) {
+        this.task = task;
+        this.view = view;
+        highlight = true;
+    }
+
     public String getAnnotationType () {
         // THE TYPE IS DEFINED IN THE TASKLIST EDITOR MODULE!
         // (because it registers an Editor action - New Task, to be
@@ -61,14 +74,7 @@ public class TaskAnnotation extends Annotation {
 
     /** Show the task for this annotation in its view */
     protected void showTask() {
-        TaskList list = task.getList();
-        if (list == null) {
-            return;
-        }
-        TaskListView view = list.getView();
-        if ((view != null) && (view.isShowing())) {
-            view.select(task);
-        }
+        if (view != null) view.select(task);
     }
 
     /** Return the task associated with this annotation */
@@ -76,6 +82,9 @@ public class TaskAnnotation extends Annotation {
         return task;
     }
 
+
+
     protected Task task = null;
     private boolean highlight = false;
+    private TaskSelector view;
 }
