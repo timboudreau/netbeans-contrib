@@ -111,7 +111,7 @@ public class JellyCommands extends CVSStub {
 
         releaseNode.cvsNode ().cVSRelease();
         assertQuestionNoDialog(null);
-        releaseNode.waitHistory ("Release");
+        releaseNode.waitHistory ("PRE_RELEASE");
         refresh (root); // stabilization
         releaseNode.waitStatus (null);
 
@@ -128,6 +128,7 @@ public class JellyCommands extends CVSStub {
         str = new JLabelOperator (dia, releaseNode.name ()).getText ();
         dia.yes ();
         dia.waitClosed();
+        releaseNode.waitHistory ("Release");
 //        Helper.waitNoNode (exp.repositoryTab ().tree (), root.node (), releaseNode.name()); // fails due to bug #28223
         for (int a = 0; a < 60; a ++) {
             sleep (1000);
