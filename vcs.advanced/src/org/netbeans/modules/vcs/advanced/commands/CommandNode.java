@@ -29,6 +29,7 @@ import org.openide.util.datatransfer.NewType;
 
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
+import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.util.Table;
 
@@ -242,6 +243,9 @@ public class CommandNode extends AbstractNode {
                             Object old = getValue();
                             cmd.setProperty(getName(), value);
                             firePropertyChange(getName(), old, value);
+                            if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(getName())) {
+                                cmd.setProperty(CommandExecutorSupport.INPUT_DESCRIPTOR_PARSED, null);
+                            }
                             //cmd.fireChanged();
                         }
                         
@@ -253,6 +257,9 @@ public class CommandNode extends AbstractNode {
                             Object old = getValue();
                             cmd.setProperty(getName(), defaultValue);
                             firePropertyChange(getName(), old, defaultValue);
+                            if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(getName())) {
+                                cmd.setProperty(CommandExecutorSupport.INPUT_DESCRIPTOR_PARSED, null);
+                            }
                         }
                 });
         }
