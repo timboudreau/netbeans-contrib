@@ -27,23 +27,43 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.openide.explorer.view.*;
+import org.apache.regexp.RE;
+import org.apache.regexp.RESyntaxException;
+
+import org.openide.ErrorManager;
 import org.openide.nodes.*;
-
-
-
-
 import org.openide.loaders.DataObject;
+
+// I was tempted to use BaseDocument here, since it has various
+// advantages such as utilities for computing line numbers, access
+// to the contents as an array, etc.
+// However, not all documents opened are BaseDocuments - in particular,
+// when using the XEmacs integration or the Vim integration, we have
+// Documents, not BaseDocuments (a subclass of Document), so I'll
+// stick with direct Document manipulation here.
+//import org.netbeans.editor.BaseDocument;
 
 
 /**
  * This class scans the given document for source tasks and
  * copyright errors.
  *
+ * @todo Move the regexp code into tasktags.
+ * @todo I should use Line objects for the tasks - especially the
+ *       copyright ones - and get rid of getLineContext() and replace
+ *       it with Line.getText()
+ * @todo If you have multiple hits on the same line, don't create a new
+ *       task!
+ * @todo PERFORMANCE OPTIMIZE THIS THING!
+ * @todo Should I use FileObjects instead of DataObjects when passing
+ *       file identity around? It seems weird that I don't allow
+ *       scanning on secondary files (although it seems right in the
+ *       cases I can think of - we don't want to scan .class files,
+ *       .o files, .form files, ...)
+ *
  * @author Tor Norbye
+ * @author Trond Norbye
  */
-
-
 public class SourceTaskProvider extends DocumentSuggestionProvider
     implements PropertyChangeListener {
 
@@ -60,20 +80,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
         return new String[] { TYPE };
     }
     
-    /** Scanner which reads through the current document and locates tasks */
-    private SourceScanner scanner = null;
-
-    /** List updated by the Source Scanner */
-    private TaskList tasklist = null;
-
-    private DataObject dataobject = null;
-    private Document document = null;
-    private Object request = null;
-
-    private void rescan() {
-        rescan(document, dataobject, request);
-    }
-    
     /**
      * The given document has been "shown"; it is now visible.
      * <p>
@@ -82,7 +88,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     public void docShown(Document document, DataObject dataobject) {
         Settings settings = (Settings)Settings.findObject(Settings.class, true);
         settings.addPropertyChangeListener(this);
-        skipCode = settings.getSkipComments();
     }
 
     /**
@@ -94,23 +99,13 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     public void docHidden(Document document, DataObject dataobject) {
         Settings settings = (Settings)Settings.findObject(Settings.class, true);
         settings.removePropertyChangeListener(this);
-
-        //System.out.println("docHidden(" + document + ")");
-	if (scanner != null) {
-	    scanner = null;
-        }        
      }
-
-    private boolean skipCode = ((Settings)Settings.
-                             findObject(Settings.class, true)).getSkipComments();
 
     public void propertyChange(PropertyChangeEvent ev) {
         if (Settings.PROP_SCAN_TAGS == ev.getPropertyName()) {
-            if (scanner != null) {
-                scanner.tokensChanged();
-            }
-            rescan();
+            tokensChanged();
         }
+        rescan();
     }
 
     public void rescan(Document doc, DataObject dobj, Object request) {
@@ -133,35 +128,21 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
             return null;
         }
 
-        // Don't update old tasks - just generate new ones!
-        if (tasklist == null) {
-            tasklist = new TaskList();
-        } else {
-            tasklist.clear();
+        // Initialize the regular expression, if necessary
+        // XXX Move to parent
+        Settings settings =
+            (Settings)Settings.findObject(Settings.class, true);
+        if (tags == null) {
+            tags = settings.getTaskTags();
+            regexp = tags.getScanRegexp();
         }
-        if (scanner == null) {
-            scanner = new SourceScanner(tasklist, skipCode);
-        }
-
-        scanner.scan(doc, dobj, false, false);
-        
-        ListIterator it = tasklist.getTasks().listIterator();
+        boolean skipCode = settings.getSkipComments();
         List tasks = null;
-        while (it.hasNext()) {
-            DocTask subtask = (DocTask)it.next();
-            String summary = subtask.getSummary();
-            Suggestion s = manager.createSuggestion(TYPE,
-                summary,
-                null,
-                this);
-            s.setLine(subtask.getLine());
-            s.setPriority(subtask.getPriority());
-            if (tasks == null) {
-                tasks = new ArrayList(tasklist.getTasks().size());
-            }
-            tasks.add(s);
+        if (skipCode) {
+            tasks = scanCommentsOnly(doc, dobj);
+        } else {
+            tasks = scanAll(doc, dobj);
         }
-        
         return tasks;
     }
     
@@ -176,6 +157,221 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
 	}     
     }
 
+
+    private void tokensChanged() {
+	// XXX Probably should synchronize here -- especially when I get
+	// the scanning code into a separate thread running in the background
+        tags = null;
+	regexp = null;
+    }
+
+    /**
+     * Given the contents of a buffer, scan it for todo items.
+     * @param doc The document to scan
+     * @param dobj The data object whose primary file should be scanned
+     */
+    private List scanCommentsOnly(Document doc, DataObject dobj) {
+        ArrayList newTasks = new ArrayList();
+        SourceCodeCommentParser sccp = null;
+        boolean washComment = true;
+
+        String suffix = dobj.getPrimaryFile().getExt();
+            
+        // @todo These parameters should be configured somewhere.
+        //       Since I don't know how I am going to store the data, I 
+        //       support only a set of hardcoded rules... After all, 
+        //       I promised only to support a given set of filetypes ;)
+        if (suffix.equalsIgnoreCase("java") || // NOI18N
+            suffix.equalsIgnoreCase("c") ||  // NOI18N
+            suffix.equalsIgnoreCase("cpp")) {  // NOI18N
+                // I know that '//' require the C-99 standard, but I think
+                // the compiler should sort that out....
+            sccp = new SourceCodeCommentParser("//", "/*", "*/");
+        } else if (suffix.equalsIgnoreCase("html") ||  // NOI18N
+                   suffix.equalsIgnoreCase("htm") ||  // NOI18N
+                   suffix.equalsIgnoreCase("xml")) {  // NOI18N
+            sccp = new SourceCodeCommentParser("<!--", "-->");
+        } else if (suffix.equalsIgnoreCase("jsp")) {  // NOI18N
+            sccp = new SourceCodeCommentParser("<%--", "--%>");
+        } else if (suffix.equalsIgnoreCase("sh")) { // NOI18N
+            sccp = new SourceCodeCommentParser("#"); // NOI18N
+        } else {
+            sccp = new SourceCodeCommentParser();
+        }
+
+        try {
+            sccp.setDocument(doc);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+            return null;
+        }
+        SourceCodeCommentParser.CommentLine cl =
+            new SourceCodeCommentParser.CommentLine();
+        
+        TaskTag matchTag = null;
+        try {
+            while (sccp.getNextLine(cl)) {
+                // I am inside a comment, scan for todo-items:
+                if (regexp.match(cl.line, 0)) {
+                    String description = cl.line.trim();
+                    
+                    matchTag = getTag(cl.line, regexp.getParenStart(0),
+                                      regexp.getParenEnd(0));
+
+                    // [trond] I personally would like to strip off
+                    // non-text characters in front of the task
+                    // description, but it seemd that Tor disagreed
+                    // there... I'll keep the code here until someone
+                    // complains.....
+                    // [tor] No, I don't disagree with stripping off
+                    // non-text characters; I disagreed with stripping
+                    // off all the line contents in front of the
+                    // matched token, since I often put the TODO token
+                    // at the end of a line and I'd like to see the
+                    // relevant comment or code as part of the task
+                    if (washComment) {
+                        int idx = 0;
+                        int stop = regexp.getParenStart(0);
+
+                        while (idx < stop) {
+                            char c = description.charAt(idx);
+                            if (c == '@' || Character.isLetter(c)) {// NOI18N
+                                break;
+                            } else {
+                                ++idx;
+                            }
+                        }
+                    
+                        if (idx != 0) {
+                            description = description.substring(idx);
+                        }
+                    }
+                    
+                    SuggestionManager manager = SuggestionManager.getDefault();
+                    Suggestion item = 
+                        manager.createSuggestion(SourceTaskProvider.TYPE,
+                                                description,
+                                                null,
+                                                this);
+                    item.setLine(TLUtils.getLineByNumber(dobj, cl.lineno));
+                    if (matchTag != null) {
+                        item.setPriority(matchTag.getPriority());
+                    }
+
+                    newTasks.add(item);
+                }
+            }
+        } catch (Exception e) {
+            ErrorManager.getDefault().notify(e);
+        }
+        return newTasks;
+    }
+    
+    /**
+     * Given the contents of a buffer, scan it for todo items.
+     * @param doc The document to scan
+     * @param dobj The data object whose primary file should be scanned
+     */
+    private List scanAll(Document doc, DataObject dobj) {
+        ArrayList newTasks = new ArrayList();
+ 
+      	String text = null;
+	try {
+	    text = doc.getText(0, doc.getLength());
+	} catch (BadLocationException e) {
+            e.printStackTrace();
+            return null;
+	}
+
+        TaskTag matchTag = null;
+        try {
+            int index = 0;
+            int lineno = 1;
+            int len = text.length();
+            
+            while (index < len && regexp.match(text, index)) {
+                matchTag = getTag(text, regexp.getParenStart(0),
+                                  regexp.getParenEnd(0));
+                int begin = regexp.getParenStart(0);
+	        int end   = regexp.getParenEnd(0);
+
+                // begin should be the beginning of this line (but avoid 
+                // clash if I have two tokens on the same line...
+                char c = 'a'; // NOI18N
+                int nonwhite = begin;
+                while (begin >= index && (c = text.charAt(begin)) != '\n') { // NOI18N
+                    if (c != ' ' && c != '\t') { // NOI18N
+                        nonwhite = begin;
+                    }
+                    --begin;
+                }
+                
+                begin = nonwhite;
+                
+                // end should be the last "nonwhite" character on this line...
+                nonwhite = end;
+                while (end < len) {
+                    c = text.charAt(end);
+                    if (c == '\n' || c == '\r') {// NOI18N
+                        break;
+                    } else if (c != ' ' && c != '\t') {// NOI18N
+                            nonwhite = end;
+                    }
+                    ++end;
+                }
+
+                // calculate current line number
+                int idx = index;
+                while (idx <= begin) {
+                    if (text.charAt(idx) == '\n') {// NOI18N
+                        ++lineno;
+                    }
+                    ++idx;
+                }
+                
+                index = end;
+                
+                String description = text.substring(begin, nonwhite+1);
+
+                SuggestionManager manager = SuggestionManager.getDefault();
+                Suggestion item = 
+                    manager.createSuggestion(SourceTaskProvider.TYPE,
+                                             description,
+                                             null,
+                                             this);
+                item.setLine(TLUtils.getLineByNumber(dobj, lineno));
+                if (matchTag != null) {
+                    item.setPriority(matchTag.getPriority());
+                }
+
+                newTasks.add(item);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return newTasks;
+    }
+    
+    private TaskTag getTag(String text, int start, int end) {
+        String token = text.substring(start, end).trim();
+        TaskTag tag = tags.getTag(token);
+        return tag;
+    }    
+
+    private void rescan() {
+        rescan(document, dataobject, request);
+    }
+    
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;
+
+    private DataObject dataobject = null;
+    private Document document = null;
+    private Object request = null;
+
+    /** Regular expression used for matching tasks in the todolist */
+    private RE regexp = null;
+
+    /** Set of tags used for scanning. Equivalent to the regexp above. */
+    private TaskTags tags = null;
 }
