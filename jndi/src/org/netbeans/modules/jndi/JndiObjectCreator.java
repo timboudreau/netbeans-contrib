@@ -73,7 +73,7 @@ final class JndiObjectCreator {
         String code = generateProperties(ctx);
         String root = (String) ctx.getEnvironment().get(JndiRootNode.NB_ROOT);
         code = code + generateObjectReference(offset, root, className);
-        code+= "  jndiObject.bind(\"<Name>\",<Object>);\n";
+        code+= "    jndiObject.bind(\"<Name>\",<Object>);\n";  // No I18N
         code = code + generateTail();
         return code;
     }
@@ -90,8 +90,8 @@ final class JndiObjectCreator {
         if (env == null) {
             return null;
         }
-        String code = "/** Inserted by Jndi module */\n";
-        code = code + "java.util.Properties jndiProperties = new java.util.Properties();\n";
+        String code = "/** Inserted by Jndi module */\n";  // No I18N
+        code = code + "java.util.Properties jndiProperties = new java.util.Properties();\n";  // No I18N
         Enumeration keys = env.keys();
         Enumeration values = env.elements();
         while (keys.hasMoreElements()) {
@@ -101,7 +101,7 @@ final class JndiObjectCreator {
                     name.equals(JndiRootNode.NB_LABEL)) {
                 continue;
             }
-            code = code + "jndiProperties.put(\"" + name + "\",\"" + value + "\");\n";
+            code = code + "jndiProperties.put(\"" + name + "\",\"" + value + "\");\n";  // No I18N
         }
         return code;
     }
@@ -114,13 +114,13 @@ final class JndiObjectCreator {
      */
     private static String generateObjectReference(CompositeName offset, String root, String className){
         String code = new String();
-        code = code + "try {\n  javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);\n";
+        code = code + "try {\n    javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);\n"; // No I18N
         if (root != null && root.length() > 0){
-            code = code + "  javax.naming.Context jndiRootCtx = (javax.naming.Context) jndiCtx.lookup(\""+correctValue(root)+"\");\n";
-            code = code + "  "+className+" jndiObject = ("+className+")jndiRootCtx.lookup(\"" + correctValue(offset.toString()) + "\");\n";
+            code = code + "    javax.naming.Context jndiRootCtx = (javax.naming.Context) jndiCtx.lookup(\""+correctValue(root)+"\");\n";  // No I18N
+            code = code + "    "+className+" jndiObject = ("+className+")jndiRootCtx.lookup(\"" + correctValue(offset.toString()) + "\");\n"; // No I18N
         }
         else{
-            code = code + "  "+className+" jndiObject = ("+className+")jndiCtx.lookup(\"" + correctValue(offset.toString()) + "\");\n";
+            code = code + "    "+className+" jndiObject = ("+className+")jndiCtx.lookup(\"" + correctValue(offset.toString()) + "\");\n";  //No I18N
         }
         return code;
     }
@@ -129,6 +129,6 @@ final class JndiObjectCreator {
      *  @return String code
      */
     private static String generateTail(){
-        return "} catch (javax.naming.NamingException ne) {\n  ne.printStackTrace();\n}\n";
+        return "} catch (javax.naming.NamingException ne) {\n    ne.printStackTrace();\n}\n"; // No I18N
     }
 }

@@ -29,6 +29,8 @@ import java.util.Hashtable;
  */
 public class JndiSystemOption extends SystemOption {
 
+    public static final int DEFAULT_TIMEOUT = 4000;
+
     /** serialVersionUID */
     private static final long serialVersionUID = -4589004604197297781L;
 
@@ -36,7 +38,7 @@ public class JndiSystemOption extends SystemOption {
 
     /** Creates new JndiSystemOption */
     public JndiSystemOption() {
-        this.timeOut=4000;
+        this.timeOut=DEFAULT_TIMEOUT;
     }
 
     /** Returns the value of timeout for connect operation
@@ -71,8 +73,8 @@ public class JndiSystemOption extends SystemOption {
             ArrayList redProviders = (ArrayList) in.readObject();
             JndiRootNode node = JndiRootNode.getDefault();
             if ( node != null ) node.initStartContexts(redProviders);
-        }catch (java.io.IOException ioe){timeOut=4000;}
-        catch (java.lang.ClassNotFoundException cnfe) {timeOut=4000;}
+        }catch (java.io.IOException ioe){timeOut=DEFAULT_TIMEOUT;}
+        catch (java.lang.ClassNotFoundException cnfe) {timeOut=DEFAULT_TIMEOUT;}
     }
 
     /** Stors the settings for Jndi module
