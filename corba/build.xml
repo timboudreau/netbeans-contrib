@@ -50,17 +50,12 @@ Microsystems, Inc. All Rights Reserved.
 	 compress="false"/>
   </target>
 
-<!-- you need to add it into netbeans target
-  <target name="javahelp">
-    <copydir src="javahelp" dest="netbeans/docs"/>
-  </target>
--->
-
   <target name="release">
     <copydir src="release" dest="netbeans"/>
   </target>
 
   <target name="netbeans" depends="jars,release"/>
+
 <!-- TODO:
   <target name="nbm" depends="netbeans">
     <makenbm file="corba.nbm"
