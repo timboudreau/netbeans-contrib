@@ -13,11 +13,11 @@
 
 package org.netbeans.modules.jndi.utils;
 
-/** 
+/**
  *
  * @author  tzezula
  * @version 
  */
 public interface AttributeManager {
-  public void editAttribute();
+    public void editAttribute();
 }

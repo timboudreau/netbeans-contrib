@@ -32,45 +32,45 @@ import org.netbeans.modules.corba.idl.src.ModuleElement;
 
 public class IDLModuleNode extends IDLAbstractNode {
 
-  ModuleElement _module;
+    ModuleElement _module;
 
-  private static final String MODULE_ICON_BASE =
-    "org/netbeans/modules/corba/idl/node/module";
+    private static final String MODULE_ICON_BASE =
+        "org/netbeans/modules/corba/idl/node/module";
 
-  public IDLModuleNode (ModuleElement value) {
-    super (new IDLDocumentChildren ((IDLElement)value));
-    setIconBase (MODULE_ICON_BASE);
-    _module = value;
-    setCookieForDataObject (_module.getDataObject ());
-  }
+    public IDLModuleNode (ModuleElement value) {
+        super (new IDLDocumentChildren ((IDLElement)value));
+        setIconBase (MODULE_ICON_BASE);
+        _module = value;
+        setCookieForDataObject (_module.getDataObject ());
+    }
 
-  public IDLElement getIDLElement () {
-    return _module;
-  }
+    public IDLElement getIDLElement () {
+        return _module;
+    }
 
-  public String getDisplayName () {
-    if (_module != null)
-      //return ((Identifier)_interface.jjtGetChild (0)).getName ();
-      return _module.getName ();
-    else 
-      return "NoName :)";
-  }
+    public String getDisplayName () {
+        if (_module != null)
+            //return ((Identifier)_interface.jjtGetChild (0)).getName ();
+            return _module.getName ();
+        else
+            return "NoName :)";
+    }
 
-  public String getName () {
-    return "module";
-  }
+    public String getName () {
+        return "module";
+    }
 
-  protected Sheet createSheet () {
-    Sheet s = Sheet.createDefault ();
-    Sheet.Set ss = s.get (Sheet.PROPERTIES);
-    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of module") {
-	public Object getValue () {
-	  return _module.getName ();
-	}
-      });
+    protected Sheet createSheet () {
+        Sheet s = Sheet.createDefault ();
+        Sheet.Set ss = s.get (Sheet.PROPERTIES);
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of module") {
+                    public Object getValue () {
+                        return _module.getName ();
+                    }
+                });
 
-    return s;
-  }
+        return s;
+    }
 
 }
 

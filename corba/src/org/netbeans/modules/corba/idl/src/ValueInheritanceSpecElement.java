@@ -17,44 +17,44 @@ import java.util.Vector;
 
 public class ValueInheritanceSpecElement extends IDLElement {
 
-  private Vector supported_interfaces;
-  private Vector inherited_values;
-  private boolean truncatable;
+    private Vector supported_interfaces;
+    private Vector inherited_values;
+    private boolean truncatable;
 
-  public ValueInheritanceSpecElement(int id) {
-    super(id);
-    truncatable = false;
-  }
+    public ValueInheritanceSpecElement(int id) {
+        super(id);
+        truncatable = false;
+    }
 
-  public ValueInheritanceSpecElement(IDLParser p, int id) {
-    super(p, id);
-    truncatable = false;
-  }
+    public ValueInheritanceSpecElement(IDLParser p, int id) {
+        super(p, id);
+        truncatable = false;
+    }
 
-  public void setTruncatable (boolean value) {
-    truncatable = value;
-  }
+    public void setTruncatable (boolean value) {
+        truncatable = value;
+    }
 
-  public boolean getTruncatable () {
-    return truncatable;
-  }
+    public boolean getTruncatable () {
+        return truncatable;
+    }
 
-  public void setInterfaces (Vector value) {
-    supported_interfaces = value;
-  }
+    public void setInterfaces (Vector value) {
+        supported_interfaces = value;
+    }
 
-  public Vector getInterfaces () {
-    return supported_interfaces;
-  }
+    public Vector getInterfaces () {
+        return supported_interfaces;
+    }
 
-  public void setValues (Vector value) {
-    inherited_values = value;
-  }
+    public void setValues (Vector value) {
+        inherited_values = value;
+    }
 
-  public Vector getValues () {
-    return inherited_values;
-  }
+    public Vector getValues () {
+        return inherited_values;
+    }
 
-  
+
 
 }

@@ -15,63 +15,63 @@ package org.netbeans.modules.jndi;
 
 import javax.naming.NameClassPair;
 
-/** 
+/**
  * This class represents the key for Children.Keys used by this module
  * @author  tzezula
  * @version 1.0
  * @see JndiChildren
  */
 public final class JndiKey extends Object {
-  
-  /* Failed this node while listing*/
-  public boolean failed;
-  /* The name class pair*/
-  public NameClassPair name;
 
-  
-  /** Constructor used for Keys representing remote objects
-   *  @param NameClassPair name, name and class of remote object
-   */
-  public JndiKey (NameClassPair name) {
-    this.name = name;
-    this.failed = false;
-  }
-  
-  /** Constructor used for Keys representing remote objects
-   *  @param NameClassPair name, name and class of remote object
-   *  @param boolean failed, if the node is failed
-   */
-  public JndiKey (NameClassPair name, boolean failed){
-    this.name = name;
-    this.failed = failed;
-  }
-  
-  /** Comparator
-   *  @param Object obj, object to compare with
-   *  @return boolean, true if equals
-   */
-  public boolean equals(Object obj){
-    if (! (obj instanceof JndiKey)){
-      return false;
+    /* Failed this node while listing*/
+    public boolean failed;
+    /* The name class pair*/
+    public NameClassPair name;
+
+
+    /** Constructor used for Keys representing remote objects
+     *  @param NameClassPair name, name and class of remote object
+     */
+    public JndiKey (NameClassPair name) {
+        this.name = name;
+        this.failed = false;
     }
-    JndiKey key = (JndiKey) obj;
-    if (!this.name.getName().equals(key.name.getName()) || !this.name.getClassName().equals(key.name.getClassName()))
-      return false;
-    else return true;
-  }
-  
-  /** Hash code of object
-   *  @return int hash code of object
-   */
-  public int hashCode(){
-    return this.name.getName().hashCode();
-  }
-  
-  /** Returns the name of key
-   *  return String name
-   */
-  public String toString () {
-    return name.toString();
-  }
-  
+
+    /** Constructor used for Keys representing remote objects
+     *  @param NameClassPair name, name and class of remote object
+     *  @param boolean failed, if the node is failed
+     */
+    public JndiKey (NameClassPair name, boolean failed){
+        this.name = name;
+        this.failed = failed;
+    }
+
+    /** Comparator
+     *  @param Object obj, object to compare with
+     *  @return boolean, true if equals
+     */
+    public boolean equals(Object obj){
+        if (! (obj instanceof JndiKey)){
+            return false;
+        }
+        JndiKey key = (JndiKey) obj;
+        if (!this.name.getName().equals(key.name.getName()) || !this.name.getClassName().equals(key.name.getClassName()))
+            return false;
+        else return true;
+    }
+
+    /** Hash code of object
+     *  @return int hash code of object
+     */
+    public int hashCode(){
+        return this.name.getName().hashCode();
+    }
+
+    /** Returns the name of key
+     *  return String name
+     */
+    public String toString () {
+        return name.toString();
+    }
+
 }

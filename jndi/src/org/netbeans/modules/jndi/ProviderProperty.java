@@ -23,38 +23,38 @@ import org.openide.nodes.PropertySupport;
  */
 public class ProviderProperty extends PropertySupport {
 
-  /** data holder */
-  private ProviderProperties repository;
-  
-  /** Creates new ProviderProperty 
-   *  @param String name of property (hash key of property in Properties)
-   *  @param Class type
-   *  @param String name to be displayed
-   *  @param String short description
-   *  @param Object repository (should be java.util.Properties)
-   *  @param boollean writeable, can be changed
-   */
-  public ProviderProperty (String name, Class type, String displayName, String shortDescription, Object repository, boolean writable) {
-    super (name, type, displayName,  shortDescription, true, writable);
-    this.repository = (ProviderProperties) repository;
-  }
-  
-  /** Returns value of the property
-   *  @return Object value of property
-   *  @exception IllegalAccessException, IllegalArgumentException, InvocationTargetException
-   */
-  public Object getValue () throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    String key = getName();
-    return this.repository.getProperty(key);
-  }
-  
-  /** Sets value of the property
-   *  @param Object value of property
-   *  @exception IllegalAccessException, IllegalArgumentException, InvocationTargetException
-   */
-  public void setValue (Object value) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    String key = getName();
-    this.repository.setProperty (key, value);
-  }
-  
+    /** data holder */
+    private ProviderProperties repository;
+
+    /** Creates new ProviderProperty
+     *  @param String name of property (hash key of property in Properties)
+     *  @param Class type
+     *  @param String name to be displayed
+     *  @param String short description
+     *  @param Object repository (should be java.util.Properties)
+     *  @param boollean writeable, can be changed
+     */
+    public ProviderProperty (String name, Class type, String displayName, String shortDescription, Object repository, boolean writable) {
+        super (name, type, displayName,  shortDescription, true, writable);
+        this.repository = (ProviderProperties) repository;
+    }
+
+    /** Returns value of the property
+     *  @return Object value of property
+     *  @exception IllegalAccessException, IllegalArgumentException, InvocationTargetException
+     */
+    public Object getValue () throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        String key = getName();
+        return this.repository.getProperty(key);
+    }
+
+    /** Sets value of the property
+     *  @param Object value of property
+     *  @exception IllegalAccessException, IllegalArgumentException, InvocationTargetException
+     */
+    public void setValue (Object value) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        String key = getName();
+        this.repository.setProperty (key, value);
+    }
+
 }

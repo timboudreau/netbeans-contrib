@@ -13,7 +13,7 @@
 
 package org.netbeans.modules.jndi;
 
-/** 
+/**
  *
  * @author  tzezula
  * @version 
@@ -24,9 +24,9 @@ import javax.naming.CompositeName;
 
 public class JndiFailedNode extends JndiLeafNode {
 
-  /** Creates new JndiFailedNode */
-  public JndiFailedNode(Object key, Context ctx, CompositeName parentOffset, String name, String classname){
-    super (key,ctx, parentOffset, name, classname);
-    this.setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiDisabledNode.DISABLED_CONTEXT_ICON));
-  }
+    /** Creates new JndiFailedNode */
+    public JndiFailedNode(Object key, Context ctx, CompositeName parentOffset, String name, String classname){
+        super (key,ctx, parentOffset, name, classname);
+        this.setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiDisabledNode.DISABLED_CONTEXT_ICON));
+    }
 }

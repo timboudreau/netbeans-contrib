@@ -25,18 +25,18 @@ import org.netbeans.modules.corba.browser.ir.Util;
  * @author tzezula
  */
 public class IRUnknownTypeNode extends IRLeafNode {
-  
-  private static final String UNKNOWN_ICON_BASE =
-   "org/netbeans/modules/corba/browser/ir/resources/unknown";
 
-  public IRUnknownTypeNode() {
-    super ();
-    setIconBase (UNKNOWN_ICON_BASE);
-    setName (Util.getLocalizedString("TITLE_UnknownIRType")); 
-  }
-  
-  public GenerateSupport createGenerator(){
-    return null;
-  }
-  
+    private static final String UNKNOWN_ICON_BASE =
+        "org/netbeans/modules/corba/browser/ir/resources/unknown";
+
+    public IRUnknownTypeNode() {
+        super ();
+        setIconBase (UNKNOWN_ICON_BASE);
+        setName (Util.getLocalizedString("TITLE_UnknownIRType"));
+    }
+
+    public GenerateSupport createGenerator(){
+        return null;
+    }
+
 }

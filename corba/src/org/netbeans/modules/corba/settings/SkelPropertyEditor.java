@@ -27,23 +27,23 @@ import org.netbeans.modules.corba.*;
 
 public class SkelPropertyEditor extends PropertyEditorSupport {
 
-  /** array of hosts */
-  private static final String[] viewers = {CORBASupport.INHER, CORBASupport.TIE};
+    /** array of hosts */
+    private static final String[] viewers = {CORBASupport.INHER, CORBASupport.TIE};
 
-  /** @return names of the supported LookAndFeels */
-  public String[] getTags() {
-    return viewers;
-  }
+    /** @return names of the supported LookAndFeels */
+    public String[] getTags() {
+        return viewers;
+    }
 
-  /** @return text for the current value */
-  public String getAsText () {
-    return (String) getValue();
-  }
+    /** @return text for the current value */
+    public String getAsText () {
+        return (String) getValue();
+    }
 
-  /** @param text A text for the current value. */
-  public void setAsText (String text) {
-      setValue(text);
-  }
+    /** @param text A text for the current value. */
+    public void setAsText (String text) {
+        setValue(text);
+    }
 }
 
 /*

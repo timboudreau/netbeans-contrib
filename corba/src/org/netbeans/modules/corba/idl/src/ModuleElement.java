@@ -15,13 +15,13 @@ package org.netbeans.modules.corba.idl.src;
 
 public class ModuleElement extends IDLElement {
 
-  static final long serialVersionUID =7432704129176496385L;
-  public ModuleElement (int id) {
-    super(id);
-  }
+    static final long serialVersionUID =7432704129176496385L;
+    public ModuleElement (int id) {
+        super(id);
+    }
 
-  public ModuleElement (IDLParser p, int id) {
-    super(p, id);
-  }
+    public ModuleElement (IDLParser p, int id) {
+        super(p, id);
+    }
 
 }

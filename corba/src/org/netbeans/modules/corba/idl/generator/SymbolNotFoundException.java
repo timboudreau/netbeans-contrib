@@ -17,20 +17,20 @@ package org.netbeans.modules.corba.idl.generator;
 /*
  * @author Karel Gardas
  */
- 
+
 public class SymbolNotFoundException extends Exception {
 
-  String name;
+    String name;
 
-  static final long serialVersionUID =-5758146660118026855L;
-  public SymbolNotFoundException (String symbol) {
-    super (symbol);
-    name = symbol;
-  }
+    static final long serialVersionUID =-5758146660118026855L;
+    public SymbolNotFoundException (String symbol) {
+        super (symbol);
+        name = symbol;
+    }
 
-  public String getSymbolName () {
-    return name;
-  }
+    public String getSymbolName () {
+        return name;
+    }
 }
 
 

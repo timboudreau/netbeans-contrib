@@ -15,12 +15,12 @@ package org.netbeans.modules.corba.idl.src;
 
 public class SimpleDeclarator extends DeclaratorElement { // IDLElement
 
-  public SimpleDeclarator(int id) {
-    super(id);
-  }
+    public SimpleDeclarator(int id) {
+        super(id);
+    }
 
-  public SimpleDeclarator(IDLParser p, int id) {
-    super(p, id);
-  }
+    public SimpleDeclarator(IDLParser p, int id) {
+        super(p, id);
+    }
 
 }

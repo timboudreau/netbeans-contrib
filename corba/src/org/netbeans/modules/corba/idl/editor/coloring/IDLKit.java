@@ -28,7 +28,7 @@ import javax.swing.JEditorPane;
 
 import org.netbeans.modules.editor.NbEditorKit;
 
-/** 
+/**
 * Editor kit implementation for Idl content type
 *
 * @author Miloslav Metelka, Karel Gardas
@@ -37,12 +37,12 @@ import org.netbeans.modules.editor.NbEditorKit;
 
 public class IDLKit extends NbEditorKit {
 
-  static final long serialVersionUID =-64995352874400403L;
+    static final long serialVersionUID =-64995352874400403L;
 
-  /** Create new instance of syntax coloring parser */
-  public Syntax createSyntax (Document document) {
-    return new IDLSyntax ();
-  }
+    /** Create new instance of syntax coloring parser */
+    public Syntax createSyntax (Document document) {
+        return new IDLSyntax ();
+    }
 
 }
 

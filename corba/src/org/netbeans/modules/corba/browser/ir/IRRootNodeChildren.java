@@ -28,85 +28,85 @@ import org.netbeans.modules.corba.*;
 /*
  * @author Karel Gardas
  */
- 
+
 public class IRRootNodeChildren extends Children.Keys {
 
-  //private ContextNode _context_node;
-  private IRRootNode _root_node;
+    //private ContextNode _context_node;
+    private IRRootNode _root_node;
 
-  public static final boolean DEBUG = false;
-  //public static final boolean DEBUG = true;
-  
-  public IRRootNodeChildren () {
-    super ();
-  }
+    public static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
 
-  public void addNotify () {
-    if (DEBUG) 
-      System.out.println ("addNotify ()");
-    createKeys ();
-  }
-
-   
-  public void createKeys () {
-    //ORB orb = ORB.init ();
-    if (DEBUG) 
-      System.out.println ("createKeys ()");
-    if (!getRootNode ().loaded ())
-      getRootNode ().restore ();
-
-    Vector keys = new Vector ();
-    //Vector names = getRootNode ().getNames (); 
-    //Vector repos = getRootNode ().getRepositories ();
-    Vector repositories = getRootNode ().getRepositories ();
-    
-    /*
-      for (int i=0; i<repositories.size (); i++) {
-      keys.addElement (new RepositoryNode 
-      (((Repository)repositories.elementAt (i)).getName (), 
-      ((Repository)repositories.elementAt (i)).getRepository ()));
-      }
-    *
-    /*
-      try {
-      ORB orb = getContextNode ().getORB ();
-      if (DEBUG) 
-      System.out.println ("createKeys ();");
-      if (!getContextNode ().loaded ()) {
-      getContextNode ().restore ();
-      }
-      setKeys (getContextNode ().getContexts ());
-      return;
-      }
-    */
-    setKeys (repositories);
-  }
-
-
-  public void setRootNode (IRRootNode node) {
-    _root_node = node;
-  }
-  
-  public IRRootNode getRootNode () {
-    return _root_node;
-  }
-
-  public org.openide.nodes.Node[] createNodes (java.lang.Object key) {
-    if (key != null){
-      if (key instanceof Repository){
-        Node[] nodes = new Node[1];
-        if (!((Repository)key).failed()){
-          nodes[0] = new IRRepositoryNode (((Repository)key).getName (), 
-                                             ((Repository)key).getRepository ());
-        }
-        else{
-          nodes[0] = new IRFailedRepositoryNode(((Repository)key).getName());
-        }
-        return nodes;
-      }
+    public IRRootNodeChildren () {
+        super ();
     }
-    return new Node[0];
-  }
+
+    public void addNotify () {
+        if (DEBUG)
+            System.out.println ("addNotify ()");
+        createKeys ();
+    }
+
+
+    public void createKeys () {
+        //ORB orb = ORB.init ();
+        if (DEBUG)
+            System.out.println ("createKeys ()");
+        if (!getRootNode ().loaded ())
+            getRootNode ().restore ();
+
+        Vector keys = new Vector ();
+        //Vector names = getRootNode ().getNames ();
+        //Vector repos = getRootNode ().getRepositories ();
+        Vector repositories = getRootNode ().getRepositories ();
+
+        /*
+          for (int i=0; i<repositories.size (); i++) {
+          keys.addElement (new RepositoryNode 
+          (((Repository)repositories.elementAt (i)).getName (), 
+          ((Repository)repositories.elementAt (i)).getRepository ()));
+          }
+        *
+        /*
+          try {
+          ORB orb = getContextNode ().getORB ();
+          if (DEBUG) 
+          System.out.println ("createKeys ();");
+          if (!getContextNode ().loaded ()) {
+          getContextNode ().restore ();
+          }
+          setKeys (getContextNode ().getContexts ());
+          return;
+          }
+        */
+        setKeys (repositories);
+    }
+
+
+    public void setRootNode (IRRootNode node) {
+        _root_node = node;
+    }
+
+    public IRRootNode getRootNode () {
+        return _root_node;
+    }
+
+    public org.openide.nodes.Node[] createNodes (java.lang.Object key) {
+        if (key != null){
+            if (key instanceof Repository){
+                Node[] nodes = new Node[1];
+                if (!((Repository)key).failed()){
+                    nodes[0] = new IRRepositoryNode (((Repository)key).getName (),
+                                                     ((Repository)key).getRepository ());
+                }
+                else{
+                    nodes[0] = new IRFailedRepositoryNode(((Repository)key).getName());
+                }
+                return nodes;
+            }
+        }
+        return new Node[0];
+    }
 
 }
 

@@ -15,35 +15,35 @@ package org.netbeans.modules.corba.idl.src;
 
 public class UnionMemberElement extends TypeElement {
 
-   //private 
+    //private
 
-   private String _cases;
+    private String _cases;
 
-  static final long serialVersionUID =6067453167467867759L;
-   public UnionMemberElement(int id) {
-      super(id);
-   }
+    static final long serialVersionUID =6067453167467867759L;
+    public UnionMemberElement(int id) {
+        super(id);
+    }
 
-   public UnionMemberElement(IDLParser p, int id) {
-      super(p, id);
-   }
+    public UnionMemberElement(IDLParser p, int id) {
+        super(p, id);
+    }
 
-   public String getCases () {
-      return _cases;
-   }
+    public String getCases () {
+        return _cases;
+    }
 
-   public void setCases (String s) {
-      _cases = s;
-   }
-   
-   /*
-   public void jjtClose () {
-      super.jjtClose ();
-      setName (((DeclaratorElement)getMember (getMembers ().size () - 1)).getName ());
-   }
-   */
-   public void jjtSetParent (Node n) {
-      super.jjtSetParent (n);
-      setName (((DeclaratorElement)getMember (getMembers ().size () - 1)).getName ());
-   }
+    public void setCases (String s) {
+        _cases = s;
+    }
+
+    /*
+    public void jjtClose () {
+       super.jjtClose ();
+       setName (((DeclaratorElement)getMember (getMembers ().size () - 1)).getName ());
+}
+    */
+    public void jjtSetParent (Node n) {
+        super.jjtSetParent (n);
+        setName (((DeclaratorElement)getMember (getMembers ().size () - 1)).getName ());
+    }
 }

@@ -23,70 +23,70 @@ import javax.naming.NameClassPair;
  */
 abstract class JndiIcons extends Object {
 
-  /** The directory with Jndi icons*/
-  public final static String ICON_BASE = "/org/netbeans/modules/jndi/resources/";
-  /** The array of pairs (Class,IconName)*/
-  private final static String[] defaultIcons = {"*","interface",
-                                              JndiRootNode.NB_ROOT,"jndi",
-                                              JndiProvidersNode.DRIVERS,"providerfolder",
-                                              ProviderNode.DRIVER,"driver",
-                                              ProviderNode.DISABLED_DRIVER,"disableddriver",
-                                              JndiDisabledNode.DISABLED_CONTEXT_ICON,"disabled",
-                                              WaitNode.WAIT_ICON,"wait",
-                                              "javax.naming.Context","folder",
-                                              "java.io.File","file"};
-  /** Hashtable with Class name as key, Icon name as value*/
-  private static Hashtable icontable;
-  
-  
-  /** Returns icon name for string containig the name of Class
-   *  @param name  name oc Class
-   *  @return name of icon
-   */
-  public static String getIconName(String name) {
-    String iconname;
+    /** The directory with Jndi icons*/
+    public final static String ICON_BASE = "/org/netbeans/modules/jndi/resources/";
+    /** The array of pairs (Class,IconName)*/
+    private final static String[] defaultIcons = {"*","interface",
+            JndiRootNode.NB_ROOT,"jndi",
+            JndiProvidersNode.DRIVERS,"providerfolder",
+            ProviderNode.DRIVER,"driver",
+            ProviderNode.DISABLED_DRIVER,"disableddriver",
+            JndiDisabledNode.DISABLED_CONTEXT_ICON,"disabled",
+            WaitNode.WAIT_ICON,"wait",
+            "javax.naming.Context","folder",
+            "java.io.File","file"};
+    /** Hashtable with Class name as key, Icon name as value*/
+    private static Hashtable icontable;
 
-    if (icontable == null) {
-      lazyInitialize();
-    }
-    iconname = (String) icontable.get(name);
-    if (iconname != null) {
-      return iconname;
-    } else {
-      return (String) icontable.get("*");
-    }
-  }
-  
-  /** Returns the name of icon for NameClassPair
-   *  @param name  NameClassPair for which the icon should be returned  
-   *  @return String name of icon
-   */
-  public static String getIconName(NameClassPair name) {
 
-    String iconname;
-    
-    if (icontable == null) {
-      lazyInitialize();
+    /** Returns icon name for string containig the name of Class
+     *  @param name  name oc Class
+     *  @return name of icon
+     */
+    public static String getIconName(String name) {
+        String iconname;
+
+        if (icontable == null) {
+            lazyInitialize();
+        }
+        iconname = (String) icontable.get(name);
+        if (iconname != null) {
+            return iconname;
+        } else {
+            return (String) icontable.get("*");
+        }
     }
-    
-    if (name == null) {
-      return (String) icontable.get("*");
+
+    /** Returns the name of icon for NameClassPair
+     *  @param name  NameClassPair for which the icon should be returned  
+     *  @return String name of icon
+     */
+    public static String getIconName(NameClassPair name) {
+
+        String iconname;
+
+        if (icontable == null) {
+            lazyInitialize();
+        }
+
+        if (name == null) {
+            return (String) icontable.get("*");
+        }
+
+        iconname = (String) icontable.get(name.getClassName());
+        if (iconname != null) {
+            return iconname;
+        } else {
+            return (String) icontable.get("*");
+        }
     }
-    
-    iconname = (String) icontable.get(name.getClassName());
-    if (iconname != null) {
-      return iconname;
-    } else {
-      return (String) icontable.get("*");
+
+    /**lazy_initialization
+     */
+    private static void lazyInitialize() {
+        icontable = new Hashtable();
+        for (int i=0; i < defaultIcons.length; i += 2) {
+            icontable.put(defaultIcons[i], defaultIcons[i+1]);
+        }
     }
-  }
-  
-  /**lazy_initialization
-   */
-  private static void lazyInitialize() {
-    icontable = new Hashtable();
-    for (int i=0; i < defaultIcons.length; i += 2) {
-      icontable.put(defaultIcons[i], defaultIcons[i+1]);
-    }
-  }
 }

@@ -31,81 +31,81 @@ import org.netbeans.modules.corba.idl.src.DeclaratorElement;
  */
 public class IDLUnionMemberNode extends IDLAbstractNode {
 
-  UnionMemberElement _unionmember;
-  String name;
+    UnionMemberElement _unionmember;
+    String name;
 
-  private static final String UNIONMEMBER_ICON_BASE =
-    "org/netbeans/modules/corba/idl/node/unionmember";
+    private static final String UNIONMEMBER_ICON_BASE =
+        "org/netbeans/modules/corba/idl/node/unionmember";
 
-  public IDLUnionMemberNode (UnionMemberElement value) {
-    //super (new IDLDocumentChildren ((SimpleNode)value));
-    super (Children.LEAF);
-    setIconBase (UNIONMEMBER_ICON_BASE);
-    _unionmember = value;
-    setCookieForDataObject (_unionmember.getDataObject ());
-    if (_unionmember != null) {
-      /*
-	for (int i=0; i<_unionmember.getUnionMembers ().size (); i++)  {
-	if (_unionmember.getUnionMember (i) instanceof Identifier) {
-	name = ((Identifier)_unionmember.getUnionMember (i)).getName ();
-	System.out.println ("found name: " + name + " at " + i + " position");
-	}
-	}
-	}
-      */
-      name = _unionmember.getName ();
+    public IDLUnionMemberNode (UnionMemberElement value) {
+        //super (new IDLDocumentChildren ((SimpleNode)value));
+        super (Children.LEAF);
+        setIconBase (UNIONMEMBER_ICON_BASE);
+        _unionmember = value;
+        setCookieForDataObject (_unionmember.getDataObject ());
+        if (_unionmember != null) {
+            /*
+            for (int i=0; i<_unionmember.getUnionMembers ().size (); i++)  {
+            if (_unionmember.getUnionMember (i) instanceof Identifier) {
+            name = ((Identifier)_unionmember.getUnionMember (i)).getName ();
+            System.out.println ("found name: " + name + " at " + i + " position");
+        }
+        }
+        }
+            */
+            name = _unionmember.getName ();
+        }
+        else
+            name = "NoName :)";
     }
-    else 
-      name = "NoName :)";
-  }
 
-  public IDLElement getIDLElement () {
-    return _unionmember;
-  }
+    public IDLElement getIDLElement () {
+        return _unionmember;
+    }
 
-  public String getDisplayName () {
-    return name;
-  }
+    public String getDisplayName () {
+        return name;
+    }
 
-  public String getName () {
-    return "unionmember";
-  }
+    public String getName () {
+        return "unionmember";
+    }
 
-  public SystemAction getDefaultAction () {
-    SystemAction result = super.getDefaultAction();
-    return result == null ? SystemAction.get(OpenAction.class) : result;
-  }
+    public SystemAction getDefaultAction () {
+        SystemAction result = super.getDefaultAction();
+        return result == null ? SystemAction.get(OpenAction.class) : result;
+    }
 
-  protected Sheet createSheet () {
-    Sheet s = Sheet.createDefault ();
-    Sheet.Set ss = s.get (Sheet.PROPERTIES);
-    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of union member") {
-	public Object getValue () {
-	  return _unionmember.getName ();
-	}
-      });
-    ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of union member") {
-	public Object getValue () {
-	  return _unionmember.getType ().getName ();
-	}
-      });
-    ss.put (new PropertySupport.ReadOnly ("dimension", String.class, "dimension", 
-					  "dimension of union member") {
-	public Object getValue () {
-	  return ((DeclaratorElement)_unionmember.getMember 
-		  (_unionmember.getMembers ().size () -1 )).getDimension ();
-	}
-      });
-    ss.put (new PropertySupport.ReadOnly ("case", String.class, "case", 
-					  "case of union member") {
-	public Object getValue () {
-	  return _unionmember.getCases ();
-	}
-      });
+    protected Sheet createSheet () {
+        Sheet s = Sheet.createDefault ();
+        Sheet.Set ss = s.get (Sheet.PROPERTIES);
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of union member") {
+                    public Object getValue () {
+                        return _unionmember.getName ();
+                    }
+                });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of union member") {
+                    public Object getValue () {
+                        return _unionmember.getType ().getName ();
+                    }
+                });
+        ss.put (new PropertySupport.ReadOnly ("dimension", String.class, "dimension",
+                                              "dimension of union member") {
+                    public Object getValue () {
+                        return ((DeclaratorElement)_unionmember.getMember
+                                (_unionmember.getMembers ().size () -1 )).getDimension ();
+                    }
+                });
+        ss.put (new PropertySupport.ReadOnly ("case", String.class, "case",
+                                              "case of union member") {
+                    public Object getValue () {
+                        return _unionmember.getCases ();
+                    }
+                });
 
-    return s;
-  }
-	    
+        return s;
+    }
+
 
 }
 

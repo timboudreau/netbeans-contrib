@@ -22,42 +22,42 @@ import javax.naming.directory.InitialDirContext;
  *  @author Ales Novak, Tom Zezula
  */
 final class JndiDirContext extends InitialDirContext {
-  
-  
-  
-  /** Environment used for InitialContext*/	
-  protected Hashtable envTable;
 
-  /**
-   * Constuctor 
-   * @param env  hashtable of properties for InitialDirContext
-   */
-  public JndiDirContext(Hashtable env) throws NamingException {
-    super(env);
-    this.envTable = env;
-  }
-  
-  /** Returns environment for which the Context was created
-   *  @return Hashtable of key type java.lang.String, value type java.lang.String
-   */ 
-  public final Hashtable getEnvironment() {
-   // return envTable;
-    try{
-      return super.getEnvironment();
-    }catch(Exception e){
-      return null;
+
+
+    /** Environment used for InitialContext*/
+    protected Hashtable envTable;
+
+    /**
+     * Constuctor 
+     * @param env  hashtable of properties for InitialDirContext
+     */
+    public JndiDirContext(Hashtable env) throws NamingException {
+        super(env);
+        this.envTable = env;
     }
-  }
-  
-  /** This method check whether the Context is valid,
-   *  if not it simply throws Exception
-   *  @param javax.naming.Context context to be checked
-   *  @exception NamingException
-   */
-  public final void checkContext () throws NamingException{
-    // We simply call any context operation to see that the 
-    // context is correct
-    this.list("");
-  }
-  
+
+    /** Returns environment for which the Context was created
+     *  @return Hashtable of key type java.lang.String, value type java.lang.String
+     */ 
+    public final Hashtable getEnvironment() {
+        // return envTable;
+        try{
+            return super.getEnvironment();
+        }catch(Exception e){
+            return null;
+        }
+    }
+
+    /** This method check whether the Context is valid,
+     *  if not it simply throws Exception
+     *  @param javax.naming.Context context to be checked
+     *  @exception NamingException
+     */
+    public final void checkContext () throws NamingException{
+        // We simply call any context operation to see that the
+        // context is correct
+        this.list("");
+    }
+
 }

@@ -18,27 +18,27 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 
-/** Panel for adding new subdirectory 
+/** Panel for adding new subdirectory
  *
  *  @author Tomas Zezula
  */
 final class NewJndiSubContextPanel extends JPanel {
-  /** name of directory */
-  private JTextField name;    
+    /** name of directory */
+    private JTextField name;
 
-  /** Constructor
-   */
-  public NewJndiSubContextPanel() {
-    this.setLayout(new BorderLayout());
-    this.name = new JTextField(25);
-    this.add("North", new JLabel("Subcontext name:"));
-    this.add("Center", this.name); 
-  }
-    
-  /** Accessor for directory name
-   *  @return String name of Context
-   */
-  public String getName() {
-    return name.getText();
-  }
+    /** Constructor
+     */
+    public NewJndiSubContextPanel() {
+        this.setLayout(new BorderLayout());
+        this.name = new JTextField(25);
+        this.add("North", new JLabel("Subcontext name:"));
+        this.add("Center", this.name);
+    }
+
+    /** Accessor for directory name
+     *  @return String name of Context
+     */
+    public String getName() {
+        return name.getText();
+    }
 }

@@ -23,55 +23,55 @@ import java.io.*;
 /*
  * @author Karel Gardas
  */
- 
+
 public class Repository implements Serializable {
 
-  String name;
-  org.omg.CORBA.Container repository;
-  String url;
-  String ior;
-  transient boolean failed;
+    String name;
+    org.omg.CORBA.Container repository;
+    String url;
+    String ior;
+    transient boolean failed;
 
-  public Repository (String _name, org.omg.CORBA.Container repo, String _url, String _ior) {
-    name = _name;
-    repository = repo;
-    url = _url;
-    ior = _ior;
-    failed = false;
-  }
-  
-  public Repository (String _name, org.omg.CORBA.Container repo, String _url, String _ior, boolean failed){
-    this.name = name;
-    this.repository = repo;
-    this.url = url;
-    this.ior = ior;
-    this.failed = failed;
-  }
+    public Repository (String _name, org.omg.CORBA.Container repo, String _url, String _ior) {
+        name = _name;
+        repository = repo;
+        url = _url;
+        ior = _ior;
+        failed = false;
+    }
 
-  public String getName () {
-    return name;
-  }
+    public Repository (String _name, org.omg.CORBA.Container repo, String _url, String _ior, boolean failed){
+        this.name = name;
+        this.repository = repo;
+        this.url = url;
+        this.ior = ior;
+        this.failed = failed;
+    }
 
-  public org.omg.CORBA.Container getRepository () {
-    return repository;
-  }
+    public String getName () {
+        return name;
+    }
 
-  public String getURL () {
-    return url;
-  }
+    public org.omg.CORBA.Container getRepository () {
+        return repository;
+    }
 
-  public String getIOR () {
-    return ior;
-  }
-  
-  public boolean failed(){
-    return this.failed;
-  }
-  
-  public void setFailed (boolean failed){
-    this.failed = failed;
-  }
-  
+    public String getURL () {
+        return url;
+    }
+
+    public String getIOR () {
+        return ior;
+    }
+
+    public boolean failed(){
+        return this.failed;
+    }
+
+    public void setFailed (boolean failed){
+        this.failed = failed;
+    }
+
 }
 
 /*

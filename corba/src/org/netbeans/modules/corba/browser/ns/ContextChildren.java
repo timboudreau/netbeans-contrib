@@ -28,112 +28,112 @@ import org.netbeans.modules.corba.*;
 /*
  * @author Karel Gardas
  */
- 
+
 public class ContextChildren extends Children.Keys {
 
-   private NamingContext context;
-   private ContextNode _context_node;
+    private NamingContext context;
+    private ContextNode _context_node;
 
-   public static final boolean DEBUG = false;
-   //public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
 
-   public ContextChildren () {
-      super ();
-   }
+    public ContextChildren () {
+        super ();
+    }
 
-   public void addNotify () {
-      if (DEBUG) 
-	 System.out.println ("addNotify ()");
-      createKeys ();
-   }
-
-   
-   public void createKeys () {
-      //ORB orb = ORB.init ();
-      Vector keys = new Vector ();
-      try {
-	 ORB orb = getContextNode ().getORB ();
-	 if (DEBUG) 
-	    System.out.println ("createKeys ();");
-	 if (getContextNode ().root ()) { 
-	    if (DEBUG) 
-	       System.out.println ("context is null");
-	    if (!getContextNode ().loaded ()) {
-	       getContextNode ().restore ();
-	    }
-	    setKeys (getContextNode ().getContexts ());
-	    return;
-	 }
-	 BindingIteratorHolder it = new BindingIteratorHolder ();
-	 BindingListHolder list = new BindingListHolder ();
-	 context.list (0, list, it);
-	 BindingHolder binding = new BindingHolder ();
-	 boolean next_exist = false;
-	 if (it.value == null)
-	    if (DEBUG) 
-	       System.out.println ("NULL");
-      
-	 while (it.value != null && (next_exist = it.value.next_one (binding))) {
-	    for (int j=0; j<binding.value.binding_name.length; j++) {
-	       if (DEBUG) {
-		  System.out.println ("id: " + binding.value.binding_name[j].id);
-		  System.out.println("kind: " + binding.value.binding_name[j].kind);
-	       }
-	       if (binding.value.binding_type == BindingType.nobject) {
-		  if (DEBUG) 
-		     System.out.println("type: object");
-		  try {
-		     org.omg.CORBA.Object o = context.resolve (binding.value.binding_name);
-		     if (DEBUG) 
-			System.out.println (orb.object_to_string (o));
-		     keys.addElement (new ObjectNode (binding.value, orb.object_to_string (o)));
-		  } catch (Exception e) {
-		     if (DEBUG) 
-			System.out.println ("IOR: exception");
-		     e.printStackTrace ();
-		  }
-	       }
-	       else {
-		  if (DEBUG) 
-		     System.out.println("type: context");
-		  try {
-		     org.omg.CORBA.Object o = context.resolve (binding.value.binding_name);
-		     NamingContext tmp_context = NamingContextHelper.narrow (o);
-		     keys.addElement (new ContextNode (tmp_context, binding.value));
-		  } catch (Exception e) {
-		     e.printStackTrace ();
-		  }
-	       
-	       }
-	    
-	    }
-	 }
-      } catch (Exception e) {
-	 //System.out.println ("exception " + e);
-	 TopManager.getDefault ().notify (new NotifyDescriptor.Exception 
-					  ((java.lang.Throwable) e));
-	 if (DEBUG)
-	    e.printStackTrace ();
-      }	
-      setKeys (keys);
-   }
+    public void addNotify () {
+        if (DEBUG)
+            System.out.println ("addNotify ()");
+        createKeys ();
+    }
 
 
-   public void setContext (NamingContext nc) {
-      context = nc;
-   }
+    public void createKeys () {
+        //ORB orb = ORB.init ();
+        Vector keys = new Vector ();
+        try {
+            ORB orb = getContextNode ().getORB ();
+            if (DEBUG)
+                System.out.println ("createKeys ();");
+            if (getContextNode ().root ()) {
+                if (DEBUG)
+                    System.out.println ("context is null");
+                if (!getContextNode ().loaded ()) {
+                    getContextNode ().restore ();
+                }
+                setKeys (getContextNode ().getContexts ());
+                return;
+            }
+            BindingIteratorHolder it = new BindingIteratorHolder ();
+            BindingListHolder list = new BindingListHolder ();
+            context.list (0, list, it);
+            BindingHolder binding = new BindingHolder ();
+            boolean next_exist = false;
+            if (it.value == null)
+                if (DEBUG)
+                    System.out.println ("NULL");
 
-   public void setContextNode (ContextNode cn) {
-      _context_node = cn;
-   }
+            while (it.value != null && (next_exist = it.value.next_one (binding))) {
+                for (int j=0; j<binding.value.binding_name.length; j++) {
+                    if (DEBUG) {
+                        System.out.println ("id: " + binding.value.binding_name[j].id);
+                        System.out.println("kind: " + binding.value.binding_name[j].kind);
+                    }
+                    if (binding.value.binding_type == BindingType.nobject) {
+                        if (DEBUG)
+                            System.out.println("type: object");
+                        try {
+                            org.omg.CORBA.Object o = context.resolve (binding.value.binding_name);
+                            if (DEBUG)
+                                System.out.println (orb.object_to_string (o));
+                            keys.addElement (new ObjectNode (binding.value, orb.object_to_string (o)));
+                        } catch (Exception e) {
+                            if (DEBUG)
+                                System.out.println ("IOR: exception");
+                            e.printStackTrace ();
+                        }
+                    }
+                    else {
+                        if (DEBUG)
+                            System.out.println("type: context");
+                        try {
+                            org.omg.CORBA.Object o = context.resolve (binding.value.binding_name);
+                            NamingContext tmp_context = NamingContextHelper.narrow (o);
+                            keys.addElement (new ContextNode (tmp_context, binding.value));
+                        } catch (Exception e) {
+                            e.printStackTrace ();
+                        }
 
-   public ContextNode getContextNode () {
-      return _context_node;
-   }
+                    }
 
-   public org.openide.nodes.Node[] createNodes (java.lang.Object key) {
-      return new Node[] { (Node)key }; 
-   }
+                }
+            }
+        } catch (Exception e) {
+            //System.out.println ("exception " + e);
+            TopManager.getDefault ().notify (new NotifyDescriptor.Exception
+                                             ((java.lang.Throwable) e));
+            if (DEBUG)
+                e.printStackTrace ();
+        }
+        setKeys (keys);
+    }
+
+
+    public void setContext (NamingContext nc) {
+        context = nc;
+    }
+
+    public void setContextNode (ContextNode cn) {
+        _context_node = cn;
+    }
+
+    public ContextNode getContextNode () {
+        return _context_node;
+    }
+
+    public org.openide.nodes.Node[] createNodes (java.lang.Object key) {
+        return new Node[] { (Node)key };
+    }
 
 }
 

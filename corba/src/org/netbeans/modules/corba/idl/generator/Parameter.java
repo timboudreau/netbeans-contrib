@@ -19,12 +19,12 @@ package org.netbeans.modules.corba.idl.generator;
 /*
  * @author Karel Gardas
  */
- 
+
 public class Parameter {
 
-   public static int IN = 0;
-   public static int INOUT = 1;
-   public static int OUT = 2;
+    public static int IN = 0;
+    public static int INOUT = 1;
+    public static int OUT = 2;
 }
 
 

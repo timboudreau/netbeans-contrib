@@ -17,53 +17,53 @@ import java.util.Vector;
 
 public class DeclaratorElement extends TypeElement {
 
-  private Vector dim;
+    private Vector dim;
 
-  public DeclaratorElement (int id) {
-    super(id);
-    dim = new Vector ();
-  }
-
-  public DeclaratorElement (IDLParser p, int id) {
-    super(p, id);
-    dim = new Vector ();
-  }
-
-  public void setDimension (Vector s) {
-    dim = s;
-  }
-
-  public Vector getDimension () {
-    return dim;
-  }
-
-  /*
-    public void setType (String s) {
-    System.out.println (getType () + " -> " + s);
-    super.setType (s);
-    Thread.dumpStack ();
+    public DeclaratorElement (int id) {
+        super(id);
+        dim = new Vector ();
     }
-  */
 
-  public IDLType getType () {
-    if (super.getType ().ofDimension () != null) {
-      if (!super.getType ().ofDimension ().equals (getDimension ())) {
-	//System.out.println ("setting right dimension for IDLType");
-	super.getType ().setDimension (getDimension ());
+    public DeclaratorElement (IDLParser p, int id) {
+        super(p, id);
+        dim = new Vector ();
+    }
+
+    public void setDimension (Vector s) {
+        dim = s;
+    }
+
+    public Vector getDimension () {
+        return dim;
+    }
+
+    /*
+      public void setType (String s) {
+      System.out.println (getType () + " -> " + s);
+      super.setType (s);
+      Thread.dumpStack ();
       }
+    */
+
+    public IDLType getType () {
+        if (super.getType ().ofDimension () != null) {
+            if (!super.getType ().ofDimension ().equals (getDimension ())) {
+                //System.out.println ("setting right dimension for IDLType");
+                super.getType ().setDimension (getDimension ());
+            }
+        }
+        else {
+            super.getType ().setDimension (new Vector ());
+        }
+        return super.getType ();
     }
-    else {
-      super.getType ().setDimension (new Vector ());
-    }
-    return super.getType ();
-  }
-  /*
-    public void jjtClose () {
-    super.jjtClose ();
-    //System.out.println ("DeclaratorElement.jjtClose ();");
-    setName (((Identifier)getMember (0)).getName ());
-    //getType ().setDimension (getDimension ());
-    }
-  */}
+    /*
+      public void jjtClose () {
+      super.jjtClose ();
+      //System.out.println ("DeclaratorElement.jjtClose ();");
+      setName (((Identifier)getMember (0)).getName ());
+      //getType ().setDimension (getDimension ());
+      }
+    */}
 
 

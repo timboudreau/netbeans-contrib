@@ -22,17 +22,17 @@ import javax.naming.NamingException;
  *  @author Tomas Zezula 
  */
 public final class JndiException extends NamingException {
-  
-  /** Constructor*/
-  public JndiException() {
-    super();
-  }
-  
-  /** Constructor
-   * @param msg message holds by exception
-   */
-  public JndiException(String msg) {
-    super(msg);
-  }
+
+    /** Constructor*/
+    public JndiException() {
+        super();
+    }
+
+    /** Constructor
+     * @param msg message holds by exception
+     */
+    public JndiException(String msg) {
+        super(msg);
+    }
 }
 

@@ -32,79 +32,79 @@ import org.netbeans.modules.corba.idl.src.DeclaratorElement;
  */
 public class IDLDeclaratorNode extends IDLAbstractNode {
 
-  DeclaratorElement _declarator;
-  String name;
+    DeclaratorElement _declarator;
+    String name;
 
-  private static final String DECLARATOR_ICON_BASE =
-    "org/netbeans/modules/corba/idl/node/declarator";
+    private static final String DECLARATOR_ICON_BASE =
+        "org/netbeans/modules/corba/idl/node/declarator";
 
-  public IDLDeclaratorNode (DeclaratorElement value) {
-    //super (new IDLDocumentChildren ((SimpleNode)value));
-    super (Children.LEAF);
-    setIconBase (DECLARATOR_ICON_BASE);
-    _declarator = value;
-    setCookieForDataObject (_declarator.getDataObject ());
-    if (_declarator != null) {
-      /*
-	for (int i=0; i<_declarator.getDeclarators ().size (); i++)  {
-	if (_declarator.getDeclarator (i) instanceof Identifier) {
-	name = ((Identifier)_declarator.getDeclarator (i)).getName ();
-	System.out.println ("found name: " + name + " at " + i + " position");
-	}
-	}
-	}
-      */
-      name = _declarator.getName ();
+    public IDLDeclaratorNode (DeclaratorElement value) {
+        //super (new IDLDocumentChildren ((SimpleNode)value));
+        super (Children.LEAF);
+        setIconBase (DECLARATOR_ICON_BASE);
+        _declarator = value;
+        setCookieForDataObject (_declarator.getDataObject ());
+        if (_declarator != null) {
+            /*
+            for (int i=0; i<_declarator.getDeclarators ().size (); i++)  {
+            if (_declarator.getDeclarator (i) instanceof Identifier) {
+            name = ((Identifier)_declarator.getDeclarator (i)).getName ();
+            System.out.println ("found name: " + name + " at " + i + " position");
+        }
+        }
+        }
+            */
+            name = _declarator.getName ();
+        }
+        else
+            name = "NoName :)";
     }
-    else 
-      name = "NoName :)";
-  }
 
-  public IDLElement getIDLElement () {
-    return _declarator;
-  }
+    public IDLElement getIDLElement () {
+        return _declarator;
+    }
 
-  public String getDisplayName () {
-    return name;
-  }
+    public String getDisplayName () {
+        return name;
+    }
 
-  public String getName () {
-    return "declarator";
-  }
+    public String getName () {
+        return "declarator";
+    }
 
-  public SystemAction getDefaultAction () {
-    SystemAction result = super.getDefaultAction();
-    return result == null ? SystemAction.get(OpenAction.class) : result;
-  }
+    public SystemAction getDefaultAction () {
+        SystemAction result = super.getDefaultAction();
+        return result == null ? SystemAction.get(OpenAction.class) : result;
+    }
 
-  protected Sheet createSheet () {
-    Sheet s = Sheet.createDefault ();
-    Sheet.Set ss = s.get (Sheet.PROPERTIES);
-    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of declarator") {
-      public Object getValue () {
-	return _declarator.getName ();
-      }
-    });
-    ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of declarator") {
-      public Object getValue () {
-	return _declarator.getType ().getName ();
-      }
-    });
-    ss.put (new PropertySupport.ReadOnly ("dimension", String.class, "dimension", 
-					  "dimension of declarator") {
-      public Object getValue () {
-	String retval = "";
-	Vector dim = _declarator.getDimension ();
-	for (int i=0; i<dim.size (); i++) {
-	  retval = retval + "[" + ((Integer)dim.elementAt (i)).toString () + "]";
-	}
-	return retval;
-      }
-    });
+    protected Sheet createSheet () {
+        Sheet s = Sheet.createDefault ();
+        Sheet.Set ss = s.get (Sheet.PROPERTIES);
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of declarator") {
+                    public Object getValue () {
+                        return _declarator.getName ();
+                    }
+                });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of declarator") {
+                    public Object getValue () {
+                        return _declarator.getType ().getName ();
+                    }
+                });
+        ss.put (new PropertySupport.ReadOnly ("dimension", String.class, "dimension",
+                                              "dimension of declarator") {
+                    public Object getValue () {
+                        String retval = "";
+                        Vector dim = _declarator.getDimension ();
+                        for (int i=0; i<dim.size (); i++) {
+                            retval = retval + "[" + ((Integer)dim.elementAt (i)).toString () + "]";
+                        }
+                        return retval;
+                    }
+                });
 
-    return s;
-  }
-	    
+        return s;
+    }
+
 
 }
 

@@ -22,12 +22,12 @@ import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
 public abstract class IRAbstractNode extends AbstractNode implements GenerateSupportFactory {
 
-  /** Creates new IRAbstractNode 
-   *  @param Children children
-   */
-  protected GenerateSupport generator;
-  
-  public IRAbstractNode(Children children) {
-    super(children);
-  }
+    /** Creates new IRAbstractNode
+     *  @param Children children
+     */
+    protected GenerateSupport generator;
+
+    public IRAbstractNode(Children children) {
+        super(children);
+    }
 }

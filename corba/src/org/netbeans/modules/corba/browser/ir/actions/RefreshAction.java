@@ -20,30 +20,30 @@ import org.netbeans.modules.corba.browser.ir.Util;
 
 public class RefreshAction extends NodeAction {
 
-  /** Creates new RefreshAction */
-  public RefreshAction() {
-  }
-  
-  
-  protected boolean enable (Node[] nodes){
-    if (nodes!= null && nodes.length == 1){
-      return (nodes[0].getCookie (IRContainerNode.class) != null);
+    /** Creates new RefreshAction */
+    public RefreshAction() {
     }
-    return false;
-  }
-  
-  protected void performAction (Node[] nodes){
-    if ( enable ( nodes)){
-      ((IRContainerNode)nodes[0].getCookie (IRContainerNode.class)).refresh();
-    }
-  }
-  
-  public String getName() {
-    return Util.getLocalizedString ("CTL_RefreshAction");
-  }
 
-  public HelpCtx getHelpCtx() {
-    return HelpCtx.DEFAULT_HELP; // [PENDING]
-  }
-  
+
+    protected boolean enable (Node[] nodes){
+        if (nodes!= null && nodes.length == 1){
+            return (nodes[0].getCookie (IRContainerNode.class) != null);
+        }
+        return false;
+    }
+
+    protected void performAction (Node[] nodes){
+        if ( enable ( nodes)){
+            ((IRContainerNode)nodes[0].getCookie (IRContainerNode.class)).refresh();
+        }
+    }
+
+    public String getName() {
+        return Util.getLocalizedString ("CTL_RefreshAction");
+    }
+
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP; // [PENDING]
+    }
+
 }

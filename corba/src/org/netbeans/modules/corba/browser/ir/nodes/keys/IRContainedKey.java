@@ -18,42 +18,42 @@ import org.omg.CORBA.Contained;
 
 public class IRContainedKey extends IRAbstractKey implements Cloneable{
 
-  public Contained contained;
-  // To improve the eficiency, by decreasing remote operations
-  // cash the RepositoryId in private field;
-  private String id;
-  
-  /** Creates new IRContainedKey */
-  public IRContainedKey(Contained contained) {
-    this.contained = contained;
-  }
-  
-  /** Object.equals()
-   */
-  public boolean equals (Object other){
-    if (other== null || !(other instanceof IRContainedKey))
-      return false;
-    if (!(this.getId().equals(((IRContainedKey)other).getId())))
-      return false;
-    return true;
-  }
-  
-  /** Object.hashCode()
-   */
-  public int hashCode () {
-    return this.getId().hashCode();
-  }
-  
-  /** Returns the Repository Id of contained
-   */
-  private String getId () {
-    if (this.id == null)
-      this.id = contained.id();
-    return this.id;
-  }
-  
-  public Object clone() throws CloneNotSupportedException {
-    return super.clone();
-  }
-  
+    public Contained contained;
+    // To improve the eficiency, by decreasing remote operations
+    // cash the RepositoryId in private field;
+    private String id;
+
+    /** Creates new IRContainedKey */
+    public IRContainedKey(Contained contained) {
+        this.contained = contained;
+    }
+
+    /** Object.equals()
+     */
+    public boolean equals (Object other){
+        if (other== null || !(other instanceof IRContainedKey))
+            return false;
+        if (!(this.getId().equals(((IRContainedKey)other).getId())))
+            return false;
+        return true;
+    }
+
+    /** Object.hashCode()
+     */
+    public int hashCode () {
+        return this.getId().hashCode();
+    }
+
+    /** Returns the Repository Id of contained
+     */
+    private String getId () {
+        if (this.id == null)
+            this.id = contained.id();
+        return this.id;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
 }

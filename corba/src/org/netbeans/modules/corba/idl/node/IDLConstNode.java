@@ -30,62 +30,62 @@ import org.netbeans.modules.corba.idl.src.ConstElement;
  */
 public class IDLConstNode extends IDLAbstractNode {
 
-  ConstElement _const;
-  private static final String CONST_ICON_BASE =
-    "org/netbeans/modules/corba/idl/node/const";
+    ConstElement _const;
+    private static final String CONST_ICON_BASE =
+        "org/netbeans/modules/corba/idl/node/const";
 
-  public IDLConstNode (ConstElement value) {
-    super (Children.LEAF);
-    setIconBase (CONST_ICON_BASE);
-    _const = value;
-    setCookieForDataObject (_const.getDataObject ());
-  }
-  
-  public IDLElement getIDLElement () {
-    return _const;
-  }
+    public IDLConstNode (ConstElement value) {
+        super (Children.LEAF);
+        setIconBase (CONST_ICON_BASE);
+        _const = value;
+        setCookieForDataObject (_const.getDataObject ());
+    }
 
-  public String getDisplayName () {
-    if (_const != null)
-      return _const.getName ();
-    else 
-      return "NoName :)";
-  }
+    public IDLElement getIDLElement () {
+        return _const;
+    }
 
-  public String getName () {
-    return "const";
-  }
+    public String getDisplayName () {
+        if (_const != null)
+            return _const.getName ();
+        else
+            return "NoName :)";
+    }
 
-  public SystemAction getDefaultAction () {
-    SystemAction result = super.getDefaultAction();
-    return result == null ? SystemAction.get(OpenAction.class) : result;
-  }
+    public String getName () {
+        return "const";
+    }
 
-  protected Sheet createSheet () {
-    Sheet s = Sheet.createDefault ();
-    Sheet.Set ss = s.get (Sheet.PROPERTIES);
-    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of constant") {
-	public Object getValue () {
-	  return _const.getName ();
-	}
-      });
-    ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of constant") {
-	public Object getValue () {
-	  return _const.getType ();
-	}
-      });
-    ss.put (new PropertySupport.ReadOnly ("exp", String.class, "expression", 
-					  "constant expression") {
-	public Object getValue () {
-	  if (_const.getExpression () != null)
-	    return _const.getExpression ();
-	  else 
-	    return "";
-	}
-      });
-    return s;
-  }
-	    
+    public SystemAction getDefaultAction () {
+        SystemAction result = super.getDefaultAction();
+        return result == null ? SystemAction.get(OpenAction.class) : result;
+    }
+
+    protected Sheet createSheet () {
+        Sheet s = Sheet.createDefault ();
+        Sheet.Set ss = s.get (Sheet.PROPERTIES);
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of constant") {
+                    public Object getValue () {
+                        return _const.getName ();
+                    }
+                });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of constant") {
+                    public Object getValue () {
+                        return _const.getType ();
+                    }
+                });
+        ss.put (new PropertySupport.ReadOnly ("exp", String.class, "expression",
+                                              "constant expression") {
+                    public Object getValue () {
+                        if (_const.getExpression () != null)
+                            return _const.getExpression ();
+                        else
+                            return "";
+                    }
+                });
+        return s;
+    }
+
 
 }
 

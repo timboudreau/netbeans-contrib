@@ -28,31 +28,31 @@ import org.openide.util.actions.SystemAction;
 public abstract class JndiAbstractNode extends AbstractNode {
 
     /** My actions */
-  private SystemAction[] jndiactions;
-  
-  /** Creates new JndiAbstractNode */  
-  public JndiAbstractNode (Children children) {
-    super (children);
-  }
-    
-  /** Creates new JndiAbstractNode */
-  public JndiAbstractNode(Children children, String name) {
-    super (children);
-    setName(name);
-  }
-  
-  /** @return actions */
-  public final SystemAction[] getActions() {
-    if (jndiactions == null) {
-      jndiactions = createActions();
+    private SystemAction[] jndiactions;
+
+    /** Creates new JndiAbstractNode */
+    public JndiAbstractNode (Children children) {
+        super (children);
     }
-    return jndiactions;
-  }
-  
-  /** @creates actions */
-  protected abstract SystemAction[] createActions();
- 
-  /** Returns the properties of InitialContext*/
-  public abstract Hashtable getInitialDirContextProperties() throws NamingException;
-  
+
+    /** Creates new JndiAbstractNode */
+    public JndiAbstractNode(Children children, String name) {
+        super (children);
+        setName(name);
+    }
+
+    /** @return actions */
+    public final SystemAction[] getActions() {
+        if (jndiactions == null) {
+            jndiactions = createActions();
+        }
+        return jndiactions;
+    }
+
+    /** @creates actions */
+    protected abstract SystemAction[] createActions();
+
+    /** Returns the properties of InitialContext*/
+    public abstract Hashtable getInitialDirContextProperties() throws NamingException;
+
 }

@@ -15,14 +15,14 @@ package org.netbeans.modules.corba.idl.src;
 
 public class EnumTypeElement extends TypeElement {
 
-  static final long serialVersionUID =8865434492093977471L;
-  public EnumTypeElement (int id) {
-    super(id);
-  }
+    static final long serialVersionUID =8865434492093977471L;
+    public EnumTypeElement (int id) {
+        super(id);
+    }
 
-  public EnumTypeElement (IDLParser p, int id) {
-    super(p, id);
-  }
+    public EnumTypeElement (IDLParser p, int id) {
+        super(p, id);
+    }
 
 }
 

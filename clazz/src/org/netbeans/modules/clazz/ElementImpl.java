@@ -28,48 +28,48 @@ import org.openide.src.Element;
 */
 public abstract class ElementImpl extends Object implements Element.Impl, Externalizable {
 
-  /** The element we aare asociated to. We provide an implementation
-  * to that element */
-  protected Element element;
+    /** The element we aare asociated to. We provide an implementation
+    * to that element */
+    protected Element element;
 
-static final long serialVersionUID =6363778502021582852L;
-  /** Default constructor
-  */
-  public ElementImpl () {
-  }
+    static final long serialVersionUID =6363778502021582852L;
+    /** Default constructor
+    */
+    public ElementImpl () {
+    }
 
-  /** Attaches this implementation to the element.
-  *
-  * @param element the element we are attached to
-  */
-  public void attachedToElement (Element element) {
-    this.element = element;
-  }
+    /** Attaches this implementation to the element.
+    *
+    * @param element the element we are attached to
+    */
+    public void attachedToElement (Element element) {
+        this.element = element;
+    }
 
-  /** We don't support property changes - does nothing */
-  public void addPropertyChangeListener (PropertyChangeListener l) {
-  }
+    /** We don't support property changes - does nothing */
+    public void addPropertyChangeListener (PropertyChangeListener l) {
+    }
 
-  /** We don't support property changes - does nothing */
-  public void removePropertyChangeListener (PropertyChangeListener l) {
-  }
+    /** We don't support property changes - does nothing */
+    public void removePropertyChangeListener (PropertyChangeListener l) {
+    }
 
-  /** No cookie supported.
-  * @return null
-  */
-  public Node.Cookie getCookie (Class type) {
-    return null;
-  }
+    /** No cookie supported.
+    * @return null
+    */
+    public Node.Cookie getCookie (Class type) {
+        return null;
+    }
 
-  /** Mark the current element in the context of this element.
-  * The current element means the position for inserting new elements.
-  * @param beforeAfter <CODE>true</CODE> means that new element is inserted before
-  *        the specified element, <CODE>false</CODE> means after.
-  */
-  public void markCurrent(boolean beforeAfter) {
-    // nothing to do - class is not editable
-  }
-  
+    /** Mark the current element in the context of this element.
+    * The current element means the position for inserting new elements.
+    * @param beforeAfter <CODE>true</CODE> means that new element is inserted before
+    *        the specified element, <CODE>false</CODE> means after.
+    */
+    public void markCurrent(boolean beforeAfter) {
+        // nothing to do - class is not editable
+    }
+
 }
 
 /*

@@ -17,40 +17,40 @@ import java.util.Vector;
 
 public class ValueElement extends ValueAbsElement {
 
-  private boolean is_custom;
-  private ValueInheritanceSpecElement inheritance;
+    private boolean is_custom;
+    private ValueInheritanceSpecElement inheritance;
 
-  public ValueElement(int id) {
-    super(id);
-    is_custom = false;
-  }
+    public ValueElement(int id) {
+        super(id);
+        is_custom = false;
+    }
 
-  public ValueElement(IDLParser p, int id) {
-    super(p, id);
-    is_custom = false;
-  }
+    public ValueElement(IDLParser p, int id) {
+        super(p, id);
+        is_custom = false;
+    }
 
-  public boolean isAbstract () {
-    return is_abstract; // because ValueElement is never abstract
-  }
+    public boolean isAbstract () {
+        return is_abstract; // because ValueElement is never abstract
+    }
 
-  public void setCustom (boolean value) {
-    is_custom = value;
-  }
+    public void setCustom (boolean value) {
+        is_custom = value;
+    }
 
-  public boolean isCustom () {
-    return is_custom;
-  }
+    public boolean isCustom () {
+        return is_custom;
+    }
 
 
-  public void jjtClose () {
-    super.jjtClose ();
-    Vector _members = super.getMembers ();
-    ValueHeaderElement header = (ValueHeaderElement)_members.elementAt (0);
-    setName (header.getName ());
-    setCustom (header.isCustom ());
-  }
- 
+    public void jjtClose () {
+        super.jjtClose ();
+        Vector _members = super.getMembers ();
+        ValueHeaderElement header = (ValueHeaderElement)_members.elementAt (0);
+        setName (header.getName ());
+        setCustom (header.isCustom ());
+    }
+
 }
 
 

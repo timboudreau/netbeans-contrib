@@ -25,87 +25,87 @@ import org.openide.util.NbBundle;
 
 import org.netbeans.modules.corba.*;
 
-public class ClientBindingPropertyEditor extends PropertyEditorSupport 
-   implements PropertyChangeListener {
+public class ClientBindingPropertyEditor extends PropertyEditorSupport
+    implements PropertyChangeListener {
 
-   //public static final boolean DEBUG = true;
-   public static final boolean DEBUG = false;
-
-
-  /** array of orbs */
-   /*
-  private static final String[] choices = {CORBASupport.CLIENT_NS, 
-					   CORBASupport.CLIENT_IOR_FROM_FILE, 
-					   CORBASupport.CLIENT_IOR_FROM_INPUT,
-					   CORBASupport.CLIENT_BINDER};
-   */
-
-   private static String[] choices = {""};
+    //public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
 
-   public ClientBindingPropertyEditor () {
-      if (DEBUG)
-	 System.out.println ("ClientBindingPropertyEditor () ...");
-      CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
-	 (CORBASupportSettings.class, true);
-      choices = css.getClientBindingsChoices ();
-      css.addPropertyChangeListener (this);
-      //css.setClientBinding (choices[0]);
-      for (int i=0; i<choices.length; i++)
-	 if (DEBUG)
-	    System.out.println ("choice: " + choices[i]);
-   }
+    /** array of orbs */
+    /*
+    private static final String[] choices = {CORBASupport.CLIENT_NS, 
+    		   CORBASupport.CLIENT_IOR_FROM_FILE, 
+    		   CORBASupport.CLIENT_IOR_FROM_INPUT,
+    		   CORBASupport.CLIENT_BINDER};
+    */
+
+    private static String[] choices = {""};
 
 
-  /** @return names of the supported orbs*/
-  public String[] getTags () {
-    return choices;
-  }
-
-   public void setTags (String[] s) {
-      String[] old = choices;
-      choices = s;
-      //firePropertyChange ("choices", (Object)old, (Object)choices);
-      //CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
-      //	 (CORBASupportSettings.class, true);
-      //css.fireChangeChoices ();
-   }
-
-   public void setChoices (String[] s) {
-      setTags (s);
-   }
-
-   public void propertyChange (PropertyChangeEvent event) {
-      
-     if (event == null || event.getPropertyName () == null)
-       return;
-
-      if (DEBUG)
-      	 System.out.println ("propertyChange in CBPE: " + event.getPropertyName ());
-      if (event.getPropertyName ().equals ("orb")) {
-	 CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
-	    (CORBASupportSettings.class, true);
-	 setChoices (css.getClientBindingsChoices ());
-	 css.setClientBinding (getTags ()[0]);
-	 if (DEBUG) {
-	    for (int i=0; i<choices.length; i++)
-	       System.out.println ("choice[" + i + "] in cb-editor: " + choices[i]);
-	 }
-	 
-      }
-      
-   }
+    public ClientBindingPropertyEditor () {
+        if (DEBUG)
+            System.out.println ("ClientBindingPropertyEditor () ...");
+        CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+                                   (CORBASupportSettings.class, true);
+        choices = css.getClientBindingsChoices ();
+        css.addPropertyChangeListener (this);
+        //css.setClientBinding (choices[0]);
+        for (int i=0; i<choices.length; i++)
+            if (DEBUG)
+                System.out.println ("choice: " + choices[i]);
+    }
 
 
-  /** @return text for the current value */
-  public String getAsText () {
-    return (String) getValue();
-  }
+    /** @return names of the supported orbs*/
+    public String[] getTags () {
+        return choices;
+    }
 
-  /** @param text A text for the current value. */
-  public void setAsText (String text) {
-      setValue(text);
-  }
+    public void setTags (String[] s) {
+        String[] old = choices;
+        choices = s;
+        //firePropertyChange ("choices", (Object)old, (Object)choices);
+        //CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+        //	 (CORBASupportSettings.class, true);
+        //css.fireChangeChoices ();
+    }
+
+    public void setChoices (String[] s) {
+        setTags (s);
+    }
+
+    public void propertyChange (PropertyChangeEvent event) {
+
+        if (event == null || event.getPropertyName () == null)
+            return;
+
+        if (DEBUG)
+            System.out.println ("propertyChange in CBPE: " + event.getPropertyName ());
+        if (event.getPropertyName ().equals ("orb")) {
+            CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+                                       (CORBASupportSettings.class, true);
+            setChoices (css.getClientBindingsChoices ());
+            css.setClientBinding (getTags ()[0]);
+            if (DEBUG) {
+                for (int i=0; i<choices.length; i++)
+                    System.out.println ("choice[" + i + "] in cb-editor: " + choices[i]);
+            }
+
+        }
+
+    }
+
+
+    /** @return text for the current value */
+    public String getAsText () {
+        return (String) getValue();
+    }
+
+    /** @param text A text for the current value. */
+    public void setAsText (String text) {
+        setValue(text);
+    }
 }
 
 /*

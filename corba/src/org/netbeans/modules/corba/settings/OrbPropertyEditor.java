@@ -27,55 +27,55 @@ import org.netbeans.modules.corba.*;
 
 public class OrbPropertyEditor extends PropertyEditorSupport {
 
-  /** array of orbs */
-   //private static final String[] orbs = {CORBASupport.ORBIX, CORBASupport.VISIBROKER, 
-   //					CORBASupport.ORBACUS, CORBASupport.JAVAORB};
+    /** array of orbs */
+    //private static final String[] orbs = {CORBASupport.ORBIX, CORBASupport.VISIBROKER,
+    //					CORBASupport.ORBACUS, CORBASupport.JAVAORB};
 
-   //private static final boolean DEBUG = true;
-   private static final boolean DEBUG = false;
+    //private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
-   private static String[] orbs = {""};
+    private static String[] orbs = {""};
 
-   public OrbPropertyEditor () {
-      if (DEBUG)
-	 System.out.println ("OrbPropertyEditor ()...");
-      CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
-	 (CORBASupportSettings.class, true);
-      java.util.Vector names = css.getNames ();
-      int length = names.size ();
-      if (DEBUG)
-	 System.out.println ("length: " + length);
-      
-      if (length > 0) {
-	 orbs = new String[length];
-	 for (int i = 0; i<length; i++) {
-	    orbs[i] = (String)names.elementAt (i);
-	    if (DEBUG)
-	       System.out.println ("name: " + orbs[i]);
-	 }
-      }
-      if (DEBUG) {
-	 System.out.println ("first:");
-	 System.out.println ("names: " + orbs[0]);
-	 System.out.flush ();
-      }
-   }
+    public OrbPropertyEditor () {
+        if (DEBUG)
+            System.out.println ("OrbPropertyEditor ()...");
+        CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+                                   (CORBASupportSettings.class, true);
+        java.util.Vector names = css.getNames ();
+        int length = names.size ();
+        if (DEBUG)
+            System.out.println ("length: " + length);
+
+        if (length > 0) {
+            orbs = new String[length];
+            for (int i = 0; i<length; i++) {
+                orbs[i] = (String)names.elementAt (i);
+                if (DEBUG)
+                    System.out.println ("name: " + orbs[i]);
+            }
+        }
+        if (DEBUG) {
+            System.out.println ("first:");
+            System.out.println ("names: " + orbs[0]);
+            System.out.flush ();
+        }
+    }
 
 
-  /** @return names of the supported orbs*/
-  public String[] getTags() {
-    return orbs;
-  }
+    /** @return names of the supported orbs*/
+    public String[] getTags() {
+        return orbs;
+    }
 
-  /** @return text for the current value */
-  public String getAsText () {
-    return (String) getValue();
-  }
+    /** @return text for the current value */
+    public String getAsText () {
+        return (String) getValue();
+    }
 
-  /** @param text A text for the current value. */
-  public void setAsText (String text) {
-      setValue(text);
-  }
+    /** @param text A text for the current value. */
+    public void setAsText (String text) {
+        setValue(text);
+    }
 }
 
 /*

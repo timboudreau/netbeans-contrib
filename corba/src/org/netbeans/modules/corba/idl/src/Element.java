@@ -26,104 +26,104 @@ import org.openide.cookies.OpenCookie;
  */
 
 public class Element extends SimpleNode
-   implements Serializable, OpenCookie {
-    
-   //public static final boolean DEBUG = true;
-   public static final boolean DEBUG = false;
+    implements Serializable, OpenCookie {
 
-   private String name;
-   private int line;
-   private Vector members;
+    //public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
-   private Element parent;
+    private String name;
+    private int line;
+    private Vector members;
 
-  static final long serialVersionUID =-3167109028199964338L;
-   public Element (int i) {
-      super (i);
-      members = new Vector ();
-   }
+    private Element parent;
 
-   public Element (IDLParser p, int i) {
-      super (p, i);
-      members = new Vector ();
-   }
+    static final long serialVersionUID =-3167109028199964338L;
+    public Element (int i) {
+        super (i);
+        members = new Vector ();
+    }
 
-   public void setLine (int i) {
-      if (DEBUG)
-	 System.out.println ("set line: " + i);
-      line = i;
-   }
+    public Element (IDLParser p, int i) {
+        super (p, i);
+        members = new Vector ();
+    }
 
-   public int getLine () {
-      return line;
-   }
+    public void setLine (int i) {
+        if (DEBUG)
+            System.out.println ("set line: " + i);
+        line = i;
+    }
 
-   public void setName (String v) {
-      name = v;
-   }
-   
-   public String getName () {
-      return name;
-   }
-   
-   public void addMember (Node x) {
-      members.addElement (x);
-   }
+    public int getLine () {
+        return line;
+    }
 
-   public Vector getMembers () {
-      return members;
-   }
-   /*   
-   public Object getMember (int i) {
-      return members.elementAt (i);
-   }
-   */
+    public void setName (String v) {
+        name = v;
+    }
 
-   public Element getMember (int i) {
-      return (Element)members.elementAt (i);
-   }
+    public String getName () {
+        return name;
+    }
 
-   public void setParent (Element e) {
-      parent = e;
-   }
+    public void addMember (Node x) {
+        members.addElement (x);
+    }
 
-   public Element getParent () {
-      return parent;
-   }
+    public Vector getMembers () {
+        return members;
+    }
+    /*
+    public Object getMember (int i) {
+       return members.elementAt (i);
+}
+    */
 
-   public void open () {
-      if (DEBUG)
-	 System.out.println ("open action :-))");
-   }
+    public Element getMember (int i) {
+        return (Element)members.elementAt (i);
+    }
+
+    public void setParent (Element e) {
+        parent = e;
+    }
+
+    public Element getParent () {
+        return parent;
+    }
+
+    public void open () {
+        if (DEBUG)
+            System.out.println ("open action :-))");
+    }
 
 
-   public void jjtClose () {
-      if (DEBUG)
-	 System.out.println ("Element.jjtClose ()");
-      for (int i=0; i<jjtGetNumChildren (); i++) {
-	 addMember (jjtGetChild (i));
-      }
-      for (int i=0; i<getMembers ().size (); i++) {
-         ((Element)getMember (i)).setParent (this);
-      }
+    public void jjtClose () {
+        if (DEBUG)
+            System.out.println ("Element.jjtClose ()");
+        for (int i=0; i<jjtGetNumChildren (); i++) {
+            addMember (jjtGetChild (i));
+        }
+        for (int i=0; i<getMembers ().size (); i++) {
+            ((Element)getMember (i)).setParent (this);
+        }
 
-   }      
+    }
 
-   public void xDump (String s) {
-      //System.out.println ("dump: " + members);
-      for (int i=0; i<members.size (); i++) {
-	 System.out.println (s + members.elementAt (i));
-	 ((Element)members.elementAt (i)).xDump (s + " ");
-      } 
-   }
+    public void xDump (String s) {
+        //System.out.println ("dump: " + members);
+        for (int i=0; i<members.size (); i++) {
+            System.out.println (s + members.elementAt (i));
+            ((Element)members.elementAt (i)).xDump (s + " ");
+        }
+    }
 
-  public static Node jjtCreate(int id) {
-      return new Element (id);
-  }
+    public static Node jjtCreate(int id) {
+        return new Element (id);
+    }
 
-  public static Node jjtCreate(IDLParser p, int id) {
-      return new Element (p, id);
-  }
+    public static Node jjtCreate(IDLParser p, int id) {
+        return new Element (p, id);
+    }
 
 }
 

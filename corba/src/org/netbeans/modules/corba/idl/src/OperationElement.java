@@ -17,88 +17,88 @@ import java.util.Vector;
 
 public class OperationElement extends IDLElement {
 
-   private String op_attribute;
-   //private Element op_type_spec;
-   private IDLType op_type_spec;
-   //private Element name;
-   private Vector params;
-   private Vector exceptions;
-   private Vector contexts;
+    private String op_attribute;
+    //private Element op_type_spec;
+    private IDLType op_type_spec;
+    //private Element name;
+    private Vector params;
+    private Vector exceptions;
+    private Vector contexts;
 
-  static final long serialVersionUID =-533680242820260136L;
-   public OperationElement(int id) {
-      super(id);
-      params = new Vector ();
-      exceptions = new Vector ();
-      contexts = new Vector ();
-   }
+    static final long serialVersionUID =-533680242820260136L;
+    public OperationElement(int id) {
+        super(id);
+        params = new Vector ();
+        exceptions = new Vector ();
+        contexts = new Vector ();
+    }
 
-   public OperationElement(IDLParser p, int id) {
-      super(p, id);
-      params = new Vector ();
-      exceptions = new Vector ();
-      contexts = new Vector ();
-   }
+    public OperationElement(IDLParser p, int id) {
+        super(p, id);
+        params = new Vector ();
+        exceptions = new Vector ();
+        contexts = new Vector ();
+    }
 
-   public void setAttribute (String attr) {
-      op_attribute = attr;
-   }
+    public void setAttribute (String attr) {
+        op_attribute = attr;
+    }
 
-   public String getAttribute () {
-      return op_attribute;
-   }
+    public String getAttribute () {
+        return op_attribute;
+    }
 
-   /*
-   public void setReturnType (Element type) {
-      op_type_spec = type;
-   }
+    /*
+    public void setReturnType (Element type) {
+       op_type_spec = type;
+}
 
-   public Element getReturnType () {
-      return op_type_spec;
-   }
-   */
+    public Element getReturnType () {
+       return op_type_spec;
+}
+    */
 
-   public void setReturnType (IDLType type) {
-      op_type_spec = type;
-   }
+    public void setReturnType (IDLType type) {
+        op_type_spec = type;
+    }
 
-   public IDLType getReturnType () {
-      return op_type_spec;
-   }
+    public IDLType getReturnType () {
+        return op_type_spec;
+    }
 
-   public void setParameters (Vector ps) {
-      params = ps;
-   }
+    public void setParameters (Vector ps) {
+        params = ps;
+    }
 
-   public Vector getParameters () {
-      return params;
-   }
+    public Vector getParameters () {
+        return params;
+    }
 
-   public void setExceptions (Vector es) {
-      exceptions = es;
-   }
+    public void setExceptions (Vector es) {
+        exceptions = es;
+    }
 
-   public Vector getExceptions () {
-      return exceptions;
-   }
+    public Vector getExceptions () {
+        return exceptions;
+    }
 
 
-   public void setContexts (Vector cs) {
-      contexts = cs;
-   }
+    public void setContexts (Vector cs) {
+        contexts = cs;
+    }
 
-   public Vector getContexts () {
-      return contexts;
-   }
+    public Vector getContexts () {
+        return contexts;
+    }
 
-   public void jjtClose () {
-      super.jjtClose ();
-      for (int i=0; i<getMembers ().size (); i++) {
-	 if (getMember (i) instanceof ParameterElement)
-	    params.addElement ((ParameterElement)getMember (i));
-      }
-   }
-   
+    public void jjtClose () {
+        super.jjtClose ();
+        for (int i=0; i<getMembers ().size (); i++) {
+            if (getMember (i) instanceof ParameterElement)
+                params.addElement ((ParameterElement)getMember (i));
+        }
+    }
+
 
 }
 

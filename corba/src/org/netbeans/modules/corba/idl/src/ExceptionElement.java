@@ -14,17 +14,17 @@
 package org.netbeans.modules.corba.idl.src;
 
 public class ExceptionElement extends IDLElement {
-  static final long serialVersionUID =-8166176459752773578L;
-  public ExceptionElement(int id) {
-    super(id);
-  }
+    static final long serialVersionUID =-8166176459752773578L;
+    public ExceptionElement(int id) {
+        super(id);
+    }
 
-  public ExceptionElement(IDLParser p, int id) {
-    super(p, id);
-  }
+    public ExceptionElement(IDLParser p, int id) {
+        super(p, id);
+    }
 
-   public void jjtClose () {
-      super.jjtClose ();
-      setName (((Identifier)getMember (0)).getName ());
-   }
+    public void jjtClose () {
+        super.jjtClose ();
+        setName (((Identifier)getMember (0)).getName ());
+    }
 }

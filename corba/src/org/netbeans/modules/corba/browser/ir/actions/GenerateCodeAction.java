@@ -25,34 +25,34 @@ import org.netbeans.modules.corba.browser.ir.util.Generatable;
 
 public class GenerateCodeAction extends NodeAction {
 
-  protected void performAction (Node[] nodes) {
-    if ( enable ( nodes) ){
-      TopManager.getDefault().setStatusText(Util.getLocalizedString("MSG_GenerateWait"));
-      ((Generatable)nodes[0].getCookie(Generatable.class)).generateCode();
-      TopManager.getDefault().setStatusText(Util.getLocalizedString("MSG_GenerateDone"));
+    protected void performAction (Node[] nodes) {
+        if ( enable ( nodes) ){
+            TopManager.getDefault().setStatusText(Util.getLocalizedString("MSG_GenerateWait"));
+            ((Generatable)nodes[0].getCookie(Generatable.class)).generateCode();
+            TopManager.getDefault().setStatusText(Util.getLocalizedString("MSG_GenerateDone"));
+        }
     }
-  }
-  
-  protected boolean enable (Node[] nodes) {
-      Node node;
-      if (nodes != null && nodes.length == 1){
-        if ((node = (Node) nodes[0].getCookie(Generatable.class))  == null) return false;
-        if (node.getParentNode() instanceof IRInterfaceDefNode) return false;
-        return true;
-      }
-      return false;
-  }
 
-  public String getName () {
-    return Util.getLocalizedString("CTL_GenerateCode");
-  }
+    protected boolean enable (Node[] nodes) {
+        Node node;
+        if (nodes != null && nodes.length == 1){
+            if ((node = (Node) nodes[0].getCookie(Generatable.class))  == null) return false;
+            if (node.getParentNode() instanceof IRInterfaceDefNode) return false;
+            return true;
+        }
+        return false;
+    }
 
-  protected String iconResource () {
-    return "GenerateCodeActionIcon.gif";
-  }
+    public String getName () {
+        return Util.getLocalizedString("CTL_GenerateCode");
+    }
 
-  public HelpCtx getHelpCtx () {
-    return HelpCtx.DEFAULT_HELP;
-  }
-  
+    protected String iconResource () {
+        return "GenerateCodeActionIcon.gif";
+    }
+
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
+
 }

@@ -34,71 +34,71 @@ import org.netbeans.modules.corba.idl.node.*;
 * @author Karel Gardas
 */
 
- /** IDL Node implementation.
- * Leaf node, default action opens editor or instantiates template.
- * Icons redefined.
- */
+/** IDL Node implementation.
+* Leaf node, default action opens editor or instantiates template.
+* Icons redefined.
+*/
 
 public class IDLNode extends DataNode {
 
-  //public static final boolean DEBUG = true;
-  public static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
-  /** Icon base for the IDLNode node */
-  public static final String IDL_ICON_BASE =
-    "org/netbeans/modules/corba/settings/idl";
-  public static final String IDL_ERROR_ICON =
-    "org/netbeans/modules/corba/settings/idl-error";
+    /** Icon base for the IDLNode node */
+    public static final String IDL_ICON_BASE =
+        "org/netbeans/modules/corba/settings/idl";
+    public static final String IDL_ERROR_ICON =
+        "org/netbeans/modules/corba/settings/idl-error";
 
-  IDLDocumentChildren children;
-  IDLDataObject ido;
+    IDLDocumentChildren children;
+    IDLDataObject ido;
 
-  /** Default constructor, constructs node */
-  public IDLNode (DataObject dataObject) throws Exception {
-    //super(dataObject, Children.LEAF);
-    //try {
-    super (dataObject, new IDLDocumentChildren ((IDLDataObject) dataObject));
-    ido = (IDLDataObject)dataObject;
-    setIconBase (IDL_ICON_BASE);
-    children = (IDLDocumentChildren) getChildren ();
-    children.setNode (this);
-    //children.startParsing ();
-    //} catch (ParseException e) {
-    //setIconBase(IDL_ERROR_ICON);
-    //}
-    if (DEBUG)
-      System.out.println ("IDLNode constructor!!!");
-  }
-  
-  /** Overrides default action from DataNode.
-   * Instantiate a template, if isTemplate() returns true.
-   * Opens otherwise.
-   */
-  public SystemAction getDefaultAction () {
-    SystemAction result = super.getDefaultAction();
-    return result == null ? SystemAction.get(OpenAction.class) : result;
-  }
-
-  public boolean canRename () {
-    return true;
-  }
-
-  protected IDLDataObject getIDLDataObject () {
-    return (IDLDataObject) getDataObject ();
-  }
-   
-  public void update () {
-    children.setSrc (ido.getSources ());
-    children.createKeys ();
-  }
-
-  // for better debuging
-  /*
-    public Node.Cookie getCookie (java.lang.Class clazz) {
-    System.out.println ("IDLNode::getCookie (" + clazz + ");");
-    return super.getCookie (clazz);
+    /** Default constructor, constructs node */
+    public IDLNode (DataObject dataObject) throws Exception {
+        //super(dataObject, Children.LEAF);
+        //try {
+        super (dataObject, new IDLDocumentChildren ((IDLDataObject) dataObject));
+        ido = (IDLDataObject)dataObject;
+        setIconBase (IDL_ICON_BASE);
+        children = (IDLDocumentChildren) getChildren ();
+        children.setNode (this);
+        //children.startParsing ();
+        //} catch (ParseException e) {
+        //setIconBase(IDL_ERROR_ICON);
+        //}
+        if (DEBUG)
+            System.out.println ("IDLNode constructor!!!");
     }
-  */
+
+    /** Overrides default action from DataNode.
+     * Instantiate a template, if isTemplate() returns true.
+     * Opens otherwise.
+     */
+    public SystemAction getDefaultAction () {
+        SystemAction result = super.getDefaultAction();
+        return result == null ? SystemAction.get(OpenAction.class) : result;
+    }
+
+    public boolean canRename () {
+        return true;
+    }
+
+    protected IDLDataObject getIDLDataObject () {
+        return (IDLDataObject) getDataObject ();
+    }
+
+    public void update () {
+        children.setSrc (ido.getSources ());
+        children.createKeys ();
+    }
+
+    // for better debuging
+    /*
+      public Node.Cookie getCookie (java.lang.Class clazz) {
+      System.out.println ("IDLNode::getCookie (" + clazz + ");");
+      return super.getCookie (clazz);
+      }
+    */
 }
 
 

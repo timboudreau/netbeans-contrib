@@ -15,25 +15,25 @@ package org.netbeans.modules.corba.idl.src;
 
 public class InterfaceForwardElement extends IDLElement {
 
-  boolean is_abstract;
+    boolean is_abstract;
 
-  public InterfaceForwardElement(int id) {
-    super(id);
-    is_abstract = false;
-  }
+    public InterfaceForwardElement(int id) {
+        super(id);
+        is_abstract = false;
+    }
 
-  public InterfaceForwardElement(IDLParser p, int id) {
-    super(p, id);
-    is_abstract = false;
-  }
+    public InterfaceForwardElement(IDLParser p, int id) {
+        super(p, id);
+        is_abstract = false;
+    }
 
-  public void setAbstract (boolean value) {
-    is_abstract = value;
-  }
+    public void setAbstract (boolean value) {
+        is_abstract = value;
+    }
 
-  public boolean isAbstract () {
-    return is_abstract;
-  }
-  
+    public boolean isAbstract () {
+        return is_abstract;
+    }
+
 
 }

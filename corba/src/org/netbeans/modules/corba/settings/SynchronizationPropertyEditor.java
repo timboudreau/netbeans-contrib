@@ -27,21 +27,21 @@ import org.netbeans.modules.corba.*;
 
 public class SynchronizationPropertyEditor extends PropertyEditorSupport {
 
-  private static final String[] modes = {CORBASupport.SYNCHRO_DISABLE, 
-					 CORBASupport.SYNCHRO_ON_UPDATE,
-					 CORBASupport.SYNCHRO_ON_SAVE};
+    private static final String[] modes = {CORBASupport.SYNCHRO_DISABLE,
+                                           CORBASupport.SYNCHRO_ON_UPDATE,
+                                           CORBASupport.SYNCHRO_ON_SAVE};
 
-  public String[] getTags() {
-    return modes;
-  }
+    public String[] getTags() {
+        return modes;
+    }
 
-  public String getAsText () {
-    return (String) getValue();
-  }
+    public String getAsText () {
+        return (String) getValue();
+    }
 
-  public void setAsText (String text) {
-      setValue(text);
-  }
+    public void setAsText (String text) {
+        setValue(text);
+    }
 }
 
 /*

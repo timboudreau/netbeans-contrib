@@ -19,43 +19,43 @@ import org.omg.CORBA.Any;
 
 public class IRTypeCodeKey extends IRAbstractKey implements Cloneable {
 
-  public String name;
-  public TypeCode type;
-  public Any label;
+    public String name;
+    public TypeCode type;
+    public Any label;
 
 
-  
-  /** Creates new IRTypeCodeKey */
-  public IRTypeCodeKey(String name, TypeCode type, Any label){
-    this.name = name;
-    this.type = type;
-    this.label = label;
-  }
 
-  public IRTypeCodeKey(String name, TypeCode type) {
-    this (name,type,null);
-  }
-  
-  public IRTypeCodeKey (String name){
-    this (name,null,null);
-  }
-  
-  
-  public boolean equals (Object other){
-    if (! (other instanceof IRTypeCodeKey))
-      return false;
-    if (! name.equals(((IRTypeCodeKey)other).name))
-      return false;
-    return true;
-  }
-  
-  public int hashCode(){
-    return this.name.hashCode();
-  }
-  
-  public Object clone () throws CloneNotSupportedException {
-    return super.clone();
-  }
-  
-  
+    /** Creates new IRTypeCodeKey */
+    public IRTypeCodeKey(String name, TypeCode type, Any label){
+        this.name = name;
+        this.type = type;
+        this.label = label;
+    }
+
+    public IRTypeCodeKey(String name, TypeCode type) {
+        this (name,type,null);
+    }
+
+    public IRTypeCodeKey (String name){
+        this (name,null,null);
+    }
+
+
+    public boolean equals (Object other){
+        if (! (other instanceof IRTypeCodeKey))
+            return false;
+        if (! name.equals(((IRTypeCodeKey)other).name))
+            return false;
+        return true;
+    }
+
+    public int hashCode(){
+        return this.name.hashCode();
+    }
+
+    public Object clone () throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+
 }

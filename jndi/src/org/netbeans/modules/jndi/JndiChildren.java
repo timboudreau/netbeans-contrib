@@ -33,199 +33,199 @@ import org.netbeans.modules.jndi.utils.APCTarget;
  */
 public final class JndiChildren extends Children.Keys implements APCTarget {
 
-  /** This constant represents the name of context class */  
-  public final static String CONTEXT_CLASS_NAME = "javax.naming.Context";
+    /** This constant represents the name of context class */
+    public final static String CONTEXT_CLASS_NAME = "javax.naming.Context";
 
-  /** Class object for javax.naming.Context */
-  private static Class ctxClass;
+    /** Class object for javax.naming.Context */
+    private static Class ctxClass;
 
-  /** Initial Directory context */
-  private final Context parentContext;
+    /** Initial Directory context */
+    private final Context parentContext;
 
-  /** Offset in Initial Directory context */
-  private final CompositeName offset;
- 
-  /** The shadow key list for merginag and handling errors*/
-  private ArrayList keys;
-  
-  /** Wait node hoder*/
-  private WaitNode waitNode;
-  
-  /** Constructor
-   *  @param parentContext the initial context
-   *  @param offset the relative offset of Node in context
-   */
-  public JndiChildren(Context parentContext, CompositeName offset){
-    this.parentContext = parentContext;
-    this.offset = offset;
-    this.keys = new ArrayList();
-  }
-  
-  /** Called when node is being opened
-   */
-  protected void addNotify(){
-    //Construct WaitNode key
-    this.waitNode = new WaitNode();
-    this.add( new Node[] { this.waitNode});
-    prepareKeys();
-  }
-  
-  /** Called when node is not being used any more
-   */
-  protected void removeNotify(){
-    setKeys (Collections.EMPTY_SET);
-  }
-  
-  /** Returns actual offset
-   *  @return the relative offset of Node
-   */
-  public CompositeName getOffset() {
-    return offset;
-  }
-  
-  /** Returns context
-   *  @return the initial context
-   */
-  public Context getContext() {
-    return parentContext;
-  }
-    
-  /** This method creates keys
-   *  exception NamingException if Context.list() failed
-   */
-  public void prepareKeys(){
-    JndiRootNode.getDefault().refresher.addNewItem(this);
-  }
-  
-  /** Creates Node for key
-   *  @param key the key for which the Node should be created
-   *  @return the array of created Nodes
-   */
-  public Node[] createNodes(Object key) {   
-    NameClassPair np = null;
-    String objName = null;
-    CompositeName newName = null;
-    if (key == null) {
-      return null;
+    /** Offset in Initial Directory context */
+    private final CompositeName offset;
+
+    /** The shadow key list for merginag and handling errors*/
+    private ArrayList keys;
+
+    /** Wait node hoder*/
+    private WaitNode waitNode;
+
+    /** Constructor
+     *  @param parentContext the initial context
+     *  @param offset the relative offset of Node in context
+     */
+    public JndiChildren(Context parentContext, CompositeName offset){
+        this.parentContext = parentContext;
+        this.offset = offset;
+        this.keys = new ArrayList();
     }
-    if (! (key instanceof JndiKey)) {
-      return null;
-    }
-    try{
-      np =  ((JndiKey)key).name;
-      objName = np.getName();
-      newName = (CompositeName) ((CompositeName) offset.clone()).add(objName);
-      if (((JndiKey)key).failed){
-        // Failed Node
-        return new Node[] {new JndiFailedNode(key, parentContext, newName, objName, np.getClassName())};
-      }
-      else if (isContext(np.getClassName())) {
-        // Contex Node 
-        return new Node[] {new JndiNode(key, parentContext, newName, objName)};
-      }else{
-        // Leaf Node
-        return new Node[] {new JndiLeafNode(key, parentContext, newName, objName, np.getClassName())};
-      }
-    }catch (NamingException ne){
-      // Any of the context operations failed
-      // try to add at least Failed Node
-        return new Node[] {new JndiFailedNode(key, parentContext, newName, objName, np.getClassName())};
-    }
-  }
 
-  /** Heuristicaly decides whether specified class is a Context or not. 
-   *  @param className the name of Class
-   *  @return true if className represents the name of Context*/
-  static boolean isContext(String className) {
-    if (className.equals(CONTEXT_CLASS_NAME)) {
-      return true;
-    } else if (isPrimitive(className)) {
-      return false;
-    } else {
-      try {
-        Class clazz = Class.forName(className);
-        if (getCtxClass().isAssignableFrom(clazz)) {
-          return true;
+    /** Called when node is being opened
+     */
+    protected void addNotify(){
+        //Construct WaitNode key
+        this.waitNode = new WaitNode();
+        this.add( new Node[] { this.waitNode});
+        prepareKeys();
+    }
+
+    /** Called when node is not being used any more
+     */
+    protected void removeNotify(){
+        setKeys (Collections.EMPTY_SET);
+    }
+
+    /** Returns actual offset
+     *  @return the relative offset of Node
+     */
+    public CompositeName getOffset() {
+        return offset;
+    }
+
+    /** Returns context
+     *  @return the initial context
+     */
+    public Context getContext() {
+        return parentContext;
+    }
+
+    /** This method creates keys
+     *  exception NamingException if Context.list() failed
+     */
+    public void prepareKeys(){
+        JndiRootNode.getDefault().refresher.addNewItem(this);
+    }
+
+    /** Creates Node for key
+     *  @param key the key for which the Node should be created
+     *  @return the array of created Nodes
+     */
+    public Node[] createNodes(Object key) {
+        NameClassPair np = null;
+        String objName = null;
+        CompositeName newName = null;
+        if (key == null) {
+            return null;
         }
-      } catch (ClassNotFoundException e) {
-        // Changed from notifying an exception to return false
-        // Needed by some directory services, that provides an
-        // Class repository with deployment.
+        if (! (key instanceof JndiKey)) {
+            return null;
+        }
+        try{
+            np =  ((JndiKey)key).name;
+            objName = np.getName();
+            newName = (CompositeName) ((CompositeName) offset.clone()).add(objName);
+            if (((JndiKey)key).failed){
+                // Failed Node
+                return new Node[] {new JndiFailedNode(key, parentContext, newName, objName, np.getClassName())};
+            }
+            else if (isContext(np.getClassName())) {
+                // Contex Node
+                return new Node[] {new JndiNode(key, parentContext, newName, objName)};
+            }else{
+                // Leaf Node
+                return new Node[] {new JndiLeafNode(key, parentContext, newName, objName, np.getClassName())};
+            }
+        }catch (NamingException ne){
+            // Any of the context operations failed
+            // try to add at least Failed Node
+            return new Node[] {new JndiFailedNode(key, parentContext, newName, objName, np.getClassName())};
+        }
+    }
+
+    /** Heuristicaly decides whether specified class is a Context or not.
+     *  @param className the name of Class
+     *  @return true if className represents the name of Context*/
+    static boolean isContext(String className) {
+        if (className.equals(CONTEXT_CLASS_NAME)) {
+            return true;
+        } else if (isPrimitive(className)) {
+            return false;
+        } else {
+            try {
+                Class clazz = Class.forName(className);
+                if (getCtxClass().isAssignableFrom(clazz)) {
+                    return true;
+                }
+            } catch (ClassNotFoundException e) {
+                // Changed from notifying an exception to return false
+                // Needed by some directory services, that provides an
+                // Class repository with deployment.
+                return false;
+            }
+        }
         return false;
-      }
-    }
-    return false;
-  }
-
-  /** Decides if the string represents the name of primitive type
-   *  @param s the name of type
-   *  @return true iff s is one of int, long, char, boolean, float, byte, double 
-   */
-  private static boolean isPrimitive(String s) {
-    if (s.indexOf('.') >= 0) {
-      return false;
     }
 
-    return s.equals("int") ||
-      s.equals("short") ||
-      s.equals("long") ||
-      s.equals("byte") ||
-      s.equals("char") ||
-      s.equals("float") ||
-      s.equals("double") ||
-      s.equals("boolean");
-  }
+    /** Decides if the string represents the name of primitive type
+     *  @param s the name of type
+     *  @return true iff s is one of int, long, char, boolean, float, byte, double 
+     */
+    private static boolean isPrimitive(String s) {
+        if (s.indexOf('.') >= 0) {
+            return false;
+        }
 
-  /** Returns the super class for classes representing the Context
-   *  @return Class object for javax.naming.Context
-   */
-  static Class getCtxClass() throws ClassNotFoundException {
-    if (ctxClass == null) {
-      ctxClass = Class.forName(CONTEXT_CLASS_NAME);
+        return s.equals("int") ||
+               s.equals("short") ||
+               s.equals("long") ||
+               s.equals("byte") ||
+               s.equals("char") ||
+               s.equals("float") ||
+               s.equals("double") ||
+               s.equals("boolean");
     }
-    return ctxClass;
-  }
-  
-  /** This method is called by Refreshd thread before performing
-   *  main action
-   */
-  public void preAction() throws Exception{
-  }
-  
-  /** This is the main action called by Refreshd
-   */
-  public void performAction() throws Exception {
-    NamingEnumeration ne = parentContext.list(offset);
-    this.keys.clear();
-    if (ne == null)
-      return;
-    while (ne.hasMore()){
-      this.keys.add(new JndiKey((NameClassPair)ne.next()));
-     }
-  }
-  
-  
-  /** This action is called by Refreshd after performing main action
-   */
-  public void postAction() throws Exception{
-    this.setKeys(this.keys);
-    this.remove ( new Node[]{ this.waitNode});
-  }
-  
-  /** public method that returns the node for which the Children is created
-   *  @return Node
-   */
-  public final Node getOwner(){
-    return this.getNode();
-  }
-  
-  /** This method calls the refreshKey method of Children,
-   *  used by Refreshd for changing the failed nodes
-   * @see org.netbeans.modules.jndi.utils.Refreshd
-   */
-  public void updateKey(Object key){
-    this.refreshKey(key);
-  }
+
+    /** Returns the super class for classes representing the Context
+     *  @return Class object for javax.naming.Context
+     */
+    static Class getCtxClass() throws ClassNotFoundException {
+        if (ctxClass == null) {
+            ctxClass = Class.forName(CONTEXT_CLASS_NAME);
+        }
+        return ctxClass;
+    }
+
+    /** This method is called by Refreshd thread before performing
+     *  main action
+     */
+    public void preAction() throws Exception{
+    }
+
+    /** This is the main action called by Refreshd
+     */
+    public void performAction() throws Exception {
+        NamingEnumeration ne = parentContext.list(offset);
+        this.keys.clear();
+        if (ne == null)
+            return;
+        while (ne.hasMore()){
+            this.keys.add(new JndiKey((NameClassPair)ne.next()));
+        }
+    }
+
+
+    /** This action is called by Refreshd after performing main action
+     */
+    public void postAction() throws Exception{
+        this.setKeys(this.keys);
+        this.remove ( new Node[]{ this.waitNode});
+    }
+
+    /** public method that returns the node for which the Children is created
+     *  @return Node
+     */
+    public final Node getOwner(){
+        return this.getNode();
+    }
+
+    /** This method calls the refreshKey method of Children,
+     *  used by Refreshd for changing the failed nodes
+     * @see org.netbeans.modules.jndi.utils.Refreshd
+     */
+    public void updateKey(Object key){
+        this.refreshKey(key);
+    }
 }
 
 

@@ -21,35 +21,35 @@ import org.netbeans.modules.corba.browser.ir.util.Refreshable;
 
 public class EnumChildren extends Children.Keys implements Refreshable {
 
-  private EnumDef enum;
-  
-  /** Creates new EnumChildren */
-  public EnumChildren(EnumDef def) {
-    super();
-    this.enum = def;
-  }
-  
-  
-  public void addNotify(){
-    createKeys();
-  }
-  
-  
-  public void createKeys(){
-    String[] members = this.enum.members();
-    setKeys(members);
-  }
-  
-  
-  public Node[] createNodes(java.lang.Object key){
-    if (key != null){
-      if (key instanceof String){
-        return new Node[] {new EnumEntryNode((String)key)};
-      }
-      else return new Node[] { new IRUnknownTypeNode()};
+    private EnumDef enum;
+
+    /** Creates new EnumChildren */
+    public EnumChildren(EnumDef def) {
+        super();
+        this.enum = def;
     }
-    return new Node[0];
-  }
-  
-  
+
+
+    public void addNotify(){
+        createKeys();
+    }
+
+
+    public void createKeys(){
+        String[] members = this.enum.members();
+        setKeys(members);
+    }
+
+
+    public Node[] createNodes(java.lang.Object key){
+        if (key != null){
+            if (key instanceof String){
+                return new Node[] {new EnumEntryNode((String)key)};
+            }
+            else return new Node[] { new IRUnknownTypeNode()};
+        }
+        return new Node[0];
+    }
+
+
 }

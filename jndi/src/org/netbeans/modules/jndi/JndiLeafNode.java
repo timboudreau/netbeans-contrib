@@ -34,90 +34,90 @@ import org.openide.util.actions.SystemAction;
  */
 class JndiLeafNode extends JndiObjectNode {
 
-  /** Inital Context*/
-  protected Context ctx;
-  /** Offset of this node relative to ctx*/
-  protected CompositeName offset;
-  /** The class name*/
-  protected String className;
-  
-  /** Constructor
-   *  @param ctx  initial context
-   *  @param parentOffset offset of parent directory
-   *  @param name name of this node
-   *  @param classname name of Class represented by this name
-   */ 
-  public JndiLeafNode(Object key, Context ctx, CompositeName parentOffset, String name, String classname){
-    super(key,Children.LEAF, name);
-    this.ctx = ctx;
-    this.offset = parentOffset;
-    this.className=classname;
-    setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(classname));
-  }
-  
-  /** Generates code for accessing object that is represented by this node
-   *  @return String the java source code
-   */
-  public String createTemplate() throws NamingException {
-    return JndiObjectCreator.getLookupCode(ctx, offset, className);
-  }
-    
-  /** Returns SystemAction  
-   *  @return array of SystemAction
-   */
-  public SystemAction[] createActions() {
-    return new SystemAction[] {
-      SystemAction.get(LookupCopyAction.class),
-      null,
-      SystemAction.get(DeleteAction.class),
-      null,
-      SystemAction.get(PropertiesAction.class),
-    };
-  }
+    /** Inital Context*/
+    protected Context ctx;
+    /** Offset of this node relative to ctx*/
+    protected CompositeName offset;
+    /** The class name*/
+    protected String className;
 
- 
-  /** Destroys this node.
-  * If this node is root then nothing more is done.
-  * If this node is not root then represented Context is destroyed.
-  *
-  * @exception IOException
-  */
-  public void destroy() throws IOException {
-    try {
-      // destroy this context first
-      ctx.unbind(offset);
-      super.destroy();
-    } catch (NamingException e) {
-      JndiRootNode.notifyForeignException(e);
+    /** Constructor
+     *  @param ctx  initial context
+     *  @param parentOffset offset of parent directory
+     *  @param name name of this node
+     *  @param classname name of Class represented by this name
+     */ 
+    public JndiLeafNode(Object key, Context ctx, CompositeName parentOffset, String name, String classname){
+        super(key,Children.LEAF, name);
+        this.ctx = ctx;
+        this.offset = parentOffset;
+        this.className=classname;
+        setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(classname));
     }
-  }
 
-  /** Returns initial directory context
-   *  @return Context the initial dir context
-   */
-  public Context getContext(){
-    return this.ctx;
-  }
-  
-  /** Returns the properties of Initial Context
-   *  @return Hashtable properties;
-   */
-  public Hashtable getInitialDirContextProperties() throws NamingException {
-    return this.ctx.getEnvironment();
-  }
+    /** Generates code for accessing object that is represented by this node
+     *  @return String the java source code
+     */
+    public String createTemplate() throws NamingException {
+        return JndiObjectCreator.getLookupCode(ctx, offset, className);
+    }
 
-  /** Returns offset of the node in respect to InitialContext
-   *  @return CompositeName the offset
-   */
-  public CompositeName getOffset(){
-    return this.offset;
-  }
-  
-  /** Returns class name
-   *  @return String class name
-   */
-   public String getClassName(){
-     return this.className;
-   }
-    
+    /** Returns SystemAction
+     *  @return array of SystemAction
+     */
+    public SystemAction[] createActions() {
+        return new SystemAction[] {
+                   SystemAction.get(LookupCopyAction.class),
+                   null,
+                   SystemAction.get(DeleteAction.class),
+                   null,
+                   SystemAction.get(PropertiesAction.class),
+               };
+    }
+
+
+    /** Destroys this node.
+    * If this node is root then nothing more is done.
+    * If this node is not root then represented Context is destroyed.
+    *
+    * @exception IOException
+    */
+    public void destroy() throws IOException {
+        try {
+            // destroy this context first
+            ctx.unbind(offset);
+            super.destroy();
+        } catch (NamingException e) {
+            JndiRootNode.notifyForeignException(e);
+        }
+    }
+
+    /** Returns initial directory context
+     *  @return Context the initial dir context
+     */
+    public Context getContext(){
+        return this.ctx;
+    }
+
+    /** Returns the properties of Initial Context
+     *  @return Hashtable properties;
+     */
+    public Hashtable getInitialDirContextProperties() throws NamingException {
+        return this.ctx.getEnvironment();
+    }
+
+    /** Returns offset of the node in respect to InitialContext
+     *  @return CompositeName the offset
+     */
+    public CompositeName getOffset(){
+        return this.offset;
+    }
+
+    /** Returns class name
+     *  @return String class name
+     */
+    public String getClassName(){
+        return this.className;
+    }
+
 }

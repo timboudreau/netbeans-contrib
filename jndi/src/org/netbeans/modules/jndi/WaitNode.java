@@ -16,7 +16,7 @@ package org.netbeans.modules.jndi;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 
-/** 
+/**
  * This class represents na temporary node, that is shown when then 
  * folder data are transfered from remote host.
  * @author  tzezula
@@ -26,42 +26,42 @@ import org.openide.nodes.Children;
 
 public class WaitNode extends AbstractNode {
 
-  /** Constant to the Icon lookup table*/
-  public final static String WAIT_ICON="WAIT_NODE"; // no I18N
-  
-  /** Creates new WaitNode */
-  public WaitNode() {
-    super(Children.LEAF);
-    this.setName(JndiRootNode.getLocalizedString("TITLE_WaitNode"));
-    this.setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(WaitNode.WAIT_ICON));
-  }
-  
-  /** Can not be copied
-   *  @return boolean false
-   */
-  public boolean canCopy(){
-    return false;
-  }
-  
-  /** Can not be cut
-   *  @return boolean false
-   */
-  public boolean canCut(){
-    return false;
-  }
-  
-  /** Can not be deleted
-   *  @return boolean false
-   */
-  public boolean canDelete(){
-    return false;
-  }
-  
-  /** Can not be renamed
-   *  @return boolean false
-   */
-  public boolean canRename(){
-    return false;
-  }
-  
+    /** Constant to the Icon lookup table*/
+    public final static String WAIT_ICON="WAIT_NODE"; // no I18N
+
+    /** Creates new WaitNode */
+    public WaitNode() {
+        super(Children.LEAF);
+        this.setName(JndiRootNode.getLocalizedString("TITLE_WaitNode"));
+        this.setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(WaitNode.WAIT_ICON));
+    }
+
+    /** Can not be copied
+     *  @return boolean false
+     */
+    public boolean canCopy(){
+        return false;
+    }
+
+    /** Can not be cut
+     *  @return boolean false
+     */
+    public boolean canCut(){
+        return false;
+    }
+
+    /** Can not be deleted
+     *  @return boolean false
+     */
+    public boolean canDelete(){
+        return false;
+    }
+
+    /** Can not be renamed
+     *  @return boolean false
+     */
+    public boolean canRename(){
+        return false;
+    }
+
 }

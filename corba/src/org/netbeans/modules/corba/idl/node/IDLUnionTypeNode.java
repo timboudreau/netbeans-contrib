@@ -27,39 +27,39 @@ import org.netbeans.modules.corba.idl.src.TypeElement;
  */
 public class IDLUnionTypeNode extends IDLTypeNode {
 
-   private static final String UNION_ICON_BASE =
-      "org/netbeans/modules/corba/idl/node/union";
-     
-   private UnionTypeElement _union_type;
+    private static final String UNION_ICON_BASE =
+        "org/netbeans/modules/corba/idl/node/union";
 
-   public IDLUnionTypeNode (TypeElement value) {
-      super (value);
-      _union_type = (UnionTypeElement) value;
-      setIconBase (UNION_ICON_BASE);
-   }
+    private UnionTypeElement _union_type;
 
-   protected Sheet createSheet () {
-      Sheet s = Sheet.createDefault ();
-      Sheet.Set ss = s.get (Sheet.PROPERTIES);
-      ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of typedef") {
-	 public Object getValue () {
-	    return _type.getName ();
-	 }
-      });
-      ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type") {
-	 public Object getValue () {
-	    return _type.getType ().getName ();
-	 }
-      });
-      ss.put (new PropertySupport.ReadOnly ("switch type", String.class, "switch type", 
-					    "switch type") {
-	 public Object getValue () {
-	    return _union_type.getSwitchType ();
-	 }
-      });
-      return s;
-   }
-	    
+    public IDLUnionTypeNode (TypeElement value) {
+        super (value);
+        _union_type = (UnionTypeElement) value;
+        setIconBase (UNION_ICON_BASE);
+    }
+
+    protected Sheet createSheet () {
+        Sheet s = Sheet.createDefault ();
+        Sheet.Set ss = s.get (Sheet.PROPERTIES);
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of typedef") {
+                    public Object getValue () {
+                        return _type.getName ();
+                    }
+                });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type") {
+                    public Object getValue () {
+                        return _type.getType ().getName ();
+                    }
+                });
+        ss.put (new PropertySupport.ReadOnly ("switch type", String.class, "switch type",
+                                              "switch type") {
+                    public Object getValue () {
+                        return _union_type.getSwitchType ();
+                    }
+                });
+        return s;
+    }
+
 }
 
 /*

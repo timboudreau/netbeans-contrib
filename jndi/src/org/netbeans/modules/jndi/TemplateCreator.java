@@ -20,7 +20,7 @@ import javax.naming.NamingException;
  *  @author Tomas Zezula
  */
 interface TemplateCreator {
-  /** Produces code for accessing object
-   */
-  String createTemplate() throws NamingException;
+    /** Produces code for accessing object
+     */
+    String createTemplate() throws NamingException;
 }

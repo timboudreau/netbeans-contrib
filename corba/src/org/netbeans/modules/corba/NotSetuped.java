@@ -23,15 +23,15 @@ import org.netbeans.*;
 /*
  * @author Karel Gardas
  */
- 
+
 public class NotSetuped {
 
-   NotSetuped () {
-      
-      TopManager.getDefault ().notify (new NotifyDescriptor.Message 
-				       (CORBASupport.NOT_SETUPED));
+    NotSetuped () {
 
-   }
+        TopManager.getDefault ().notify (new NotifyDescriptor.Message
+                                         (CORBASupport.NOT_SETUPED));
+
+    }
 
 }
 

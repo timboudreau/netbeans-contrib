@@ -29,73 +29,73 @@ import org.openide.filesystems.FileUtil;
 */
 public class CORBASupport {
 
-  public static final boolean DEBUG = false;
+    public static final boolean DEBUG = false;
 
-  /** bundle to obtain text information from */
-  public static ResourceBundle bundle = NbBundle.getBundle(CORBASupport.class);
-   
-  public static final String NOT_SETUPED = CORBASupport.bundle.getString
-    ("CTL_NotSetuped");
-   
-  public static final String INHER = CORBASupport.bundle.getString ("CTL_Inher");
+    /** bundle to obtain text information from */
+    public static ResourceBundle bundle = NbBundle.getBundle(CORBASupport.class);
 
-  public static final String TIE = CORBASupport.bundle.getString ("CTL_Tie");
+    public static final String NOT_SETUPED = CORBASupport.bundle.getString
+            ("CTL_NotSetuped");
 
-  public static final String SERVER_NS = CORBASupport.bundle.getString 
-    ("CTL_SERVER_NS");
-  
-  public static final String SERVER_IOR_TO_FILE = CORBASupport.bundle.getString 
-    ("CTL_SERVER_IOR_TO_FILE");
+    public static final String INHER = CORBASupport.bundle.getString ("CTL_Inher");
 
-  public static final String SERVER_IOR_TO_OUTPUT = CORBASupport.bundle.getString 
-    ("CTL_SERVER_IOR_TO_OUTPUT");
+    public static final String TIE = CORBASupport.bundle.getString ("CTL_Tie");
 
-  public static final String SERVER_BINDER = CORBASupport.bundle.getString 
-    ("CTL_SERVER_BINDER");
+    public static final String SERVER_NS = CORBASupport.bundle.getString
+                                           ("CTL_SERVER_NS");
 
-  public static final String CLIENT_NS = CORBASupport.bundle.getString 
-    ("CTL_CLIENT_NS");
+    public static final String SERVER_IOR_TO_FILE = CORBASupport.bundle.getString
+            ("CTL_SERVER_IOR_TO_FILE");
 
-  public static final String CLIENT_IOR_FROM_FILE = CORBASupport.bundle.getString 
-    ("CTL_CLIENT_IOR_FROM_FILE");
+    public static final String SERVER_IOR_TO_OUTPUT = CORBASupport.bundle.getString
+            ("CTL_SERVER_IOR_TO_OUTPUT");
 
-  public static final String CLIENT_IOR_FROM_INPUT = CORBASupport.bundle.getString 
-    ("CTL_CLIENT_IOR_FROM_INPUT");
+    public static final String SERVER_BINDER = CORBASupport.bundle.getString
+            ("CTL_SERVER_BINDER");
 
-  public static final String CLIENT_BINDER = CORBASupport.bundle.getString 
-    ("CTL_CLIENT_BINDER");
+    public static final String CLIENT_NS = CORBASupport.bundle.getString
+                                           ("CTL_CLIENT_NS");
 
-  public static final String SYNCHRO_DISABLE = CORBASupport.bundle.getString
-    ("CTL_SYNCHRO_DISABLE");
-   
-  public static final String SYNCHRO_ON_UPDATE = CORBASupport.bundle.getString
-    ("CTL_SYNCHRO_ON_UPDATE");
-   
-  public static final String SYNCHRO_ON_SAVE = CORBASupport.bundle.getString
-    ("CTL_SYNCHRO_ON_SAVE");
-   
-  public static final String GEN_NOTHING = CORBASupport.bundle.getString
-    ("CTL_GEN_NOTHING");
+    public static final String CLIENT_IOR_FROM_FILE = CORBASupport.bundle.getString
+            ("CTL_CLIENT_IOR_FROM_FILE");
 
-  public static final String GEN_EXCEPTION = CORBASupport.bundle.getString
-    ("CTL_GEN_EXCEPTION");
+    public static final String CLIENT_IOR_FROM_INPUT = CORBASupport.bundle.getString
+            ("CTL_CLIENT_IOR_FROM_INPUT");
 
-  public static final String GEN_RETURN_NULL = CORBASupport.bundle.getString
-    ("CTL_GEN_RETURN_NULL");
+    public static final String CLIENT_BINDER = CORBASupport.bundle.getString
+            ("CTL_CLIENT_BINDER");
 
-  /** constant for idl extension */
-  private static final String IDL_EXT = "idl";
-    
-  /** constant for java extension */
-  private static final String JAVA_EXT = "java";
+    public static final String SYNCHRO_DISABLE = CORBASupport.bundle.getString
+            ("CTL_SYNCHRO_DISABLE");
 
-  /**
-   * no-arg constructor
-   */
-  CORBASupport() {
-    if (DEBUG)
-      System.out.println ("CORBASupport");
-  }
+    public static final String SYNCHRO_ON_UPDATE = CORBASupport.bundle.getString
+            ("CTL_SYNCHRO_ON_UPDATE");
+
+    public static final String SYNCHRO_ON_SAVE = CORBASupport.bundle.getString
+            ("CTL_SYNCHRO_ON_SAVE");
+
+    public static final String GEN_NOTHING = CORBASupport.bundle.getString
+            ("CTL_GEN_NOTHING");
+
+    public static final String GEN_EXCEPTION = CORBASupport.bundle.getString
+            ("CTL_GEN_EXCEPTION");
+
+    public static final String GEN_RETURN_NULL = CORBASupport.bundle.getString
+            ("CTL_GEN_RETURN_NULL");
+
+    /** constant for idl extension */
+    private static final String IDL_EXT = "idl";
+
+    /** constant for java extension */
+    private static final String JAVA_EXT = "java";
+
+    /**
+     * no-arg constructor
+     */
+    CORBASupport() {
+        if (DEBUG)
+            System.out.println ("CORBASupport");
+    }
 
 }
 

@@ -29,49 +29,49 @@ import org.openide.util.datatransfer.ExTransferable;
 * @author Jaroslav Tulach, Dafe Simonek
 */
 final class SerDataNode extends ClassDataNode {
-  /** generated Serialized Version UID */
-  static final long serialVersionUID = -2645179282674800246L;
+    /** generated Serialized Version UID */
+    static final long serialVersionUID = -2645179282674800246L;
 
-  private static final String SER_BASE =
-    "/org/netbeans/modules/clazz/resources/ser"; // NOI18N
-  private static final String SER_MAIN_BASE =
-    "/org/netbeans/modules/clazz/resources/serMain"; // NOI18N
-  private static final String SER_ERROR_BASE =
-    "/org/netbeans/modules/clazz/resources/serError"; // NOI18N
+    private static final String SER_BASE =
+        "/org/netbeans/modules/clazz/resources/ser"; // NOI18N
+    private static final String SER_MAIN_BASE =
+        "/org/netbeans/modules/clazz/resources/serMain"; // NOI18N
+    private static final String SER_ERROR_BASE =
+        "/org/netbeans/modules/clazz/resources/serError"; // NOI18N
 
-  /** Constructs bean data node with asociated data object.
-  */
-  public SerDataNode(final SerDataObject obj) {
-    super(obj);
-  }
-
-// ----------------------------------------------------------------------------------
-// methods
-
-  /** Returns initial icon base string for ser node.
-  */
-  protected String initialIconBase () {
-    return SER_BASE;
-  }
-
-  protected void resolveIcons () {
-    try {
-      ClassDataObject dataObj = (ClassDataObject)getDataObject();
-      dataObj.getBeanClass(); // check exception
-      if (dataObj.isExecutable()) {
-        setIconBase(SER_MAIN_BASE);
-      } else {
-        setIconBase(SER_BASE);
-      }
-    } catch (IOException ex) {
-      TopManager.getDefault ().notifyException (ex);
-      setIconBase(SER_ERROR_BASE);
-    } catch (ClassNotFoundException ex) {
-      TopManager.getDefault ().notifyException (ex);
-      setIconBase(SER_ERROR_BASE);
+    /** Constructs bean data node with asociated data object.
+    */
+    public SerDataNode(final SerDataObject obj) {
+        super(obj);
     }
-    iconResolved = true;
-  }
+
+    // ----------------------------------------------------------------------------------
+    // methods
+
+    /** Returns initial icon base string for ser node.
+    */
+    protected String initialIconBase () {
+        return SER_BASE;
+    }
+
+    protected void resolveIcons () {
+        try {
+            ClassDataObject dataObj = (ClassDataObject)getDataObject();
+            dataObj.getBeanClass(); // check exception
+            if (dataObj.isExecutable()) {
+                setIconBase(SER_MAIN_BASE);
+            } else {
+                setIconBase(SER_BASE);
+            }
+        } catch (IOException ex) {
+            TopManager.getDefault ().notifyException (ex);
+            setIconBase(SER_ERROR_BASE);
+        } catch (ClassNotFoundException ex) {
+            TopManager.getDefault ().notifyException (ex);
+            setIconBase(SER_ERROR_BASE);
+        }
+        iconResolved = true;
+    }
 
 }
 

@@ -30,69 +30,69 @@ import org.netbeans.modules.corba.idl.src.MemberElement;
  */
 public class IDLMemberNode extends IDLAbstractNode {
 
-  MemberElement _member;
-  String name;
+    MemberElement _member;
+    String name;
 
-  //private static final String MEMBER_ICON_BASE =
-  //   "org/netbeans/modules/corba/idl/node/member";
-  private static final String MEMBER_ICON_BASE =
-    "org/netbeans/modules/corba/idl/node/declarator";
+    //private static final String MEMBER_ICON_BASE =
+    //   "org/netbeans/modules/corba/idl/node/member";
+    private static final String MEMBER_ICON_BASE =
+        "org/netbeans/modules/corba/idl/node/declarator";
 
-  public IDLMemberNode (MemberElement value) {
-    //super (new IDLDocumentChildren ((SimpleNode)value));
-    super (Children.LEAF);
-    setIconBase (MEMBER_ICON_BASE);
-    _member = value;
-    setCookieForDataObject (_member.getDataObject ());
-    if (_member != null) {
-      /*
-	for (int i=0; i<_member.getMembers ().size (); i++)  {
-	if (_member.getMember (i) instanceof Identifier) {
-	name = ((Identifier)_member.getMember (i)).getName ();
-	System.out.println ("found name: " + name + " at " + i + " position");
-	}
-	}
-	}
-      */
-      name = _member.getName ();
+    public IDLMemberNode (MemberElement value) {
+        //super (new IDLDocumentChildren ((SimpleNode)value));
+        super (Children.LEAF);
+        setIconBase (MEMBER_ICON_BASE);
+        _member = value;
+        setCookieForDataObject (_member.getDataObject ());
+        if (_member != null) {
+            /*
+            for (int i=0; i<_member.getMembers ().size (); i++)  {
+            if (_member.getMember (i) instanceof Identifier) {
+            name = ((Identifier)_member.getMember (i)).getName ();
+            System.out.println ("found name: " + name + " at " + i + " position");
+        }
+        }
+        }
+            */
+            name = _member.getName ();
+        }
+        else
+            name = "NoName :)";
     }
-    else 
-      name = "NoName :)";
-  }
 
-  public IDLElement getIDLElement () {
-    return _member;
-  }
+    public IDLElement getIDLElement () {
+        return _member;
+    }
 
-  public String getDisplayName () {
-    return name;
-  }
+    public String getDisplayName () {
+        return name;
+    }
 
-  public String getName () {
-    return "member";
-  }
+    public String getName () {
+        return "member";
+    }
 
-  public SystemAction getDefaultAction () {
-    SystemAction result = super.getDefaultAction();
-    return result == null ? SystemAction.get(OpenAction.class) : result;
-  }
+    public SystemAction getDefaultAction () {
+        SystemAction result = super.getDefaultAction();
+        return result == null ? SystemAction.get(OpenAction.class) : result;
+    }
 
-  protected Sheet createSheet () {
-    Sheet s = Sheet.createDefault ();
-    Sheet.Set ss = s.get (Sheet.PROPERTIES);
-    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of member") {
-	public Object getValue () {
-	  return _member.getName ();
-	}
-      });
-    ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of member") {
-	public Object getValue () {
-	  return _member.getType ();
-	}
-      });
-    return s;
-  }
-	    
+    protected Sheet createSheet () {
+        Sheet s = Sheet.createDefault ();
+        Sheet.Set ss = s.get (Sheet.PROPERTIES);
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of member") {
+                    public Object getValue () {
+                        return _member.getName ();
+                    }
+                });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of member") {
+                    public Object getValue () {
+                        return _member.getType ();
+                    }
+                });
+        return s;
+    }
+
 
 }
 

@@ -17,41 +17,41 @@ import java.util.Vector;
 
 public class ValueAbsElement extends IDLElement {
 
-  protected boolean is_abstract;
-  private Vector inherited_from;
+    protected boolean is_abstract;
+    private Vector inherited_from;
 
-  public ValueAbsElement(int id) {
-    super(id);
-    is_abstract = false;
-    inherited_from = new Vector ();
-  }
+    public ValueAbsElement(int id) {
+        super(id);
+        is_abstract = false;
+        inherited_from = new Vector ();
+    }
 
-  public ValueAbsElement(IDLParser p, int id) {
-    super(p, id);
-    is_abstract = false;
-    inherited_from = new Vector ();
-  }
+    public ValueAbsElement(IDLParser p, int id) {
+        super(p, id);
+        is_abstract = false;
+        inherited_from = new Vector ();
+    }
 
-  public void setParent (Vector parents) {
-    inherited_from = parents;
-  }
-  
-  public Vector getParents () {
-    return inherited_from;
-  }
+    public void setParent (Vector parents) {
+        inherited_from = parents;
+    }
 
-  public void setAbstract (boolean value) {
-    is_abstract = value;
-  }
+    public Vector getParents () {
+        return inherited_from;
+    }
 
-  public boolean isAbstract () {
-    return is_abstract;
-  }
+    public void setAbstract (boolean value) {
+        is_abstract = value;
+    }
 
-  public void jjtClose () {
-    super.jjtClose ();
-    
-  }
+    public boolean isAbstract () {
+        return is_abstract;
+    }
+
+    public void jjtClose () {
+        super.jjtClose ();
+
+    }
 
 }
 

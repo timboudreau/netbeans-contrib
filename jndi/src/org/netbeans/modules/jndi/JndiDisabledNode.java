@@ -22,81 +22,81 @@ import org.openide.util.actions.SystemAction;
 import org.openide.actions.DeleteAction;
 import org.netbeans.modules.jndi.utils.Refreshable;
 
-/** This class represents a mounted Context which is from some 
+/** This class represents a mounted Context which is from some
  *  reason, e.g. the naming service is not running, not in progress.
  */
 public class JndiDisabledNode extends JndiAbstractNode implements Refreshable, Node.Cookie{
 
-  /** Icon name*/
-  public static final String DISABLED_CONTEXT_ICON = "DISABLED_CONTEXT_ICON";
-  
-  /** Initial properties for externalization*/
-  private Hashtable properties;
-  
-  /** Creates new JndiDisabledNode 
-   *  @param Hashtable the properties that represents the root of naming system
-   */
-  public JndiDisabledNode(Hashtable properties) {
-    super (Children.LEAF);
-    this.getCookieSet().add(this);
-    this.setName((String)properties.get(JndiRootNode.NB_LABEL));
-    this.setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(DISABLED_CONTEXT_ICON));
-    this.properties = properties;
-  }
-  
-  /** Returns the properties of InitialDirContext
-   *  @return Hashtable properties;
-   */
-  public Hashtable getInitialDirContextProperties() throws NamingException {
-    return this.properties;
-  }
-  
-  
-  /** Can the node be destroyed 
-   *  @return boolean, true if the node can be destroyed
-   */
-  public boolean canDestroy() {
-    return true;
-  }
-  
-  /** Creates SystemActions of this node
-   *  @return SystemAction[] the actions
-   */
-  public SystemAction[] createActions() {
-    return new SystemAction[] {
-      SystemAction.get(RefreshAction.class),
-      null,
-      SystemAction.get(DeleteAction.class)
-    };
-  }
-  
-  /** Refreshs the node
-   *  If the node is failed, and the preconditions required by the context
-   *  of this node are satisfied, than change the node to JndiNode
-   */
-  public void refresh() {
-    try{
-      JndiRootNode root = JndiRootNode.getDefault();
-      // We create the Context manually not by JndiRootNode factory
-      // because we have to check if the context is in order,
-      // if not than we do nothing.
-      Context ctx = new JndiDirContext(this.properties);
-      String startOffset = (String) this.properties.get(JndiRootNode.NB_ROOT);
-      if (startOffset != null && startOffset.length() > 0){
-        ctx  = (Context) ctx.lookup(startOffset);
-       }else{
-         // If we don't perform lookup
-         // we should check the context
-             ((JndiDirContext)ctx).checkContext();
-       }
-       root.addContext(ctx);
-       this.destroy();
-    }catch(NamingException ne){
-      // If exception was thrown than we don't
-      // remove the node
+    /** Icon name*/
+    public static final String DISABLED_CONTEXT_ICON = "DISABLED_CONTEXT_ICON";
+
+    /** Initial properties for externalization*/
+    private Hashtable properties;
+
+    /** Creates new JndiDisabledNode
+     *  @param Hashtable the properties that represents the root of naming system
+     */
+    public JndiDisabledNode(Hashtable properties) {
+        super (Children.LEAF);
+        this.getCookieSet().add(this);
+        this.setName((String)properties.get(JndiRootNode.NB_LABEL));
+        this.setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(DISABLED_CONTEXT_ICON));
+        this.properties = properties;
     }
-    catch(java.io.IOException ioe){
-      // Should never happen
+
+    /** Returns the properties of InitialDirContext
+     *  @return Hashtable properties;
+     */
+    public Hashtable getInitialDirContextProperties() throws NamingException {
+        return this.properties;
     }
-  }
+
+
+    /** Can the node be destroyed
+     *  @return boolean, true if the node can be destroyed
+     */
+    public boolean canDestroy() {
+        return true;
+    }
+
+    /** Creates SystemActions of this node
+     *  @return SystemAction[] the actions
+     */
+    public SystemAction[] createActions() {
+        return new SystemAction[] {
+                   SystemAction.get(RefreshAction.class),
+                   null,
+                   SystemAction.get(DeleteAction.class)
+               };
+    }
+
+    /** Refreshs the node
+     *  If the node is failed, and the preconditions required by the context
+     *  of this node are satisfied, than change the node to JndiNode
+     */
+    public void refresh() {
+        try{
+            JndiRootNode root = JndiRootNode.getDefault();
+            // We create the Context manually not by JndiRootNode factory
+            // because we have to check if the context is in order,
+            // if not than we do nothing.
+            Context ctx = new JndiDirContext(this.properties);
+            String startOffset = (String) this.properties.get(JndiRootNode.NB_ROOT);
+            if (startOffset != null && startOffset.length() > 0){
+                ctx  = (Context) ctx.lookup(startOffset);
+            }else{
+                // If we don't perform lookup
+                // we should check the context
+                ((JndiDirContext)ctx).checkContext();
+            }
+            root.addContext(ctx);
+            this.destroy();
+        }catch(NamingException ne){
+            // If exception was thrown than we don't
+            // remove the node
+        }
+        catch(java.io.IOException ioe){
+            // Should never happen
+        }
+    }
 }

@@ -22,7 +22,7 @@ import org.openide.nodes.Node;
 */
 public interface IDLNodeCookie extends Node.Cookie {
 
-   public void GenerateImpl (IDLDataObject ido);
+    public void GenerateImpl (IDLDataObject ido);
 }
 
 /*

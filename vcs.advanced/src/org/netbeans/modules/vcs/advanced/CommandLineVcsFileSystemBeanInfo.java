@@ -26,109 +26,109 @@ import org.netbeans.modules.vcs.util.*;
  */
 //-------------------------------------------
 public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
-  private static Debug E=new Debug("CommandLineVcsFileSystemBeanInfo", true); // NOI18N
-  private static Debug D=E;
+    private static Debug E=new Debug("CommandLineVcsFileSystemBeanInfo", true); // NOI18N
+    private static Debug D=E;
 
-  /** Array of property descriptors. */
-  private static PropertyDescriptor[] desc;
+    /** Array of property descriptors. */
+    private static PropertyDescriptor[] desc;
 
-  /** Icon for VCS filesystem. */
-  private static java.awt.Image icon;
-  private static java.awt.Image icon32;
+    /** Icon for VCS filesystem. */
+    private static java.awt.Image icon;
+    private static java.awt.Image icon32;
 
-  static {
-    PropertyDescriptor rootDirectory=null;
-    PropertyDescriptor debug=null;
-    PropertyDescriptor variables=null;
-    PropertyDescriptor commands=null;
-    PropertyDescriptor cacheId=null;
-    PropertyDescriptor config=null;
-    PropertyDescriptor lock=null;    
-    PropertyDescriptor lockPrompt=null;    
-    
-
-    try {
-      rootDirectory=new PropertyDescriptor
-	("rootDirectory", CommandLineVcsFileSystem.class, "getRootDirectory", "setRootDirectory"); // NOI18N
-      debug=new PropertyDescriptor
-	("debug",CommandLineVcsFileSystem.class,"getDebug","setDebug"); // NOI18N
-      
-      variables=new PropertyDescriptor
-	("variables",CommandLineVcsFileSystem.class,"getVariables","setVariables"); // NOI18N
-      variables.setPropertyEditorClass
-	(org.netbeans.modules.vcs.advanced.UserVariablesEditor.class);
-
-      commands=new PropertyDescriptor
-	("commands",CommandLineVcsFileSystem.class,"getCommands","setCommands"); // NOI18N
-      commands.setPropertyEditorClass
-	(org.netbeans.modules.vcs.advanced.UserCommandsEditor.class);
-      
-      cacheId=new PropertyDescriptor
-	("cacheId",CommandLineVcsFileSystem.class,"getCacheId",null); // NOI18N
-
-      config=new PropertyDescriptor
-	("config",CommandLineVcsFileSystem.class,"getConfig",null); // NOI18N
-
-      lock=new PropertyDescriptor
-	("lock",CommandLineVcsFileSystem.class,"isLockFilesOn","setLockFilesOn"); // NOI18N
-
-      lockPrompt=new PropertyDescriptor
-	("lockPrompt",CommandLineVcsFileSystem.class,"isPromptForLockOn","setPromptForLockOn"); // NOI18N
+    static {
+        PropertyDescriptor rootDirectory=null;
+        PropertyDescriptor debug=null;
+        PropertyDescriptor variables=null;
+        PropertyDescriptor commands=null;
+        PropertyDescriptor cacheId=null;
+        PropertyDescriptor config=null;
+        PropertyDescriptor lock=null;
+        PropertyDescriptor lockPrompt=null;
 
 
-      desc = new PropertyDescriptor[] {
-	rootDirectory, debug, variables, commands, cacheId, config, lock, lockPrompt
-      };
+        try {
+            rootDirectory=new PropertyDescriptor
+                          ("rootDirectory", CommandLineVcsFileSystem.class, "getRootDirectory", "setRootDirectory"); // NOI18N
+            debug=new PropertyDescriptor
+                  ("debug",CommandLineVcsFileSystem.class,"getDebug","setDebug"); // NOI18N
 
-      ResourceBundle bundle = NbBundle.getBundle
-	("org.netbeans.modules.vcs.advanced.Bundle"); // NOI18N
-      rootDirectory.setDisplayName      (bundle.getString("PROP_rootDirectory"));
-      rootDirectory.setShortDescription (bundle.getString("HINT_rootDirectory"));
-      debug.setDisplayName              (bundle.getString("PROP_debug"));
-      debug.setShortDescription         (bundle.getString("HINT_debug"));
-      variables.setDisplayName          (bundle.getString("PROP_variables"));
-      variables.setShortDescription     (bundle.getString("HINT_variables"));
-      commands.setDisplayName           (bundle.getString("PROP_commands"));
-      commands.setShortDescription      (bundle.getString("HINT_commands"));
-      cacheId.setDisplayName            (bundle.getString("PROP_cacheId"));
-      cacheId.setShortDescription       (bundle.getString("HINT_cacheId"));
-      config.setDisplayName             (bundle.getString("PROP_config"));
-      config.setShortDescription        (bundle.getString("HINT_config"));
-      lock.setDisplayName               (bundle.getString("PROP_lock"));
-      lock.setShortDescription          (bundle.getString("HINT_lock"));
-      lockPrompt.setDisplayName         (bundle.getString("PROP_lockPrompt"));
-      lockPrompt.setShortDescription    (bundle.getString("HINT_lockPrompt"));
+            variables=new PropertyDescriptor
+                      ("variables",CommandLineVcsFileSystem.class,"getVariables","setVariables"); // NOI18N
+            variables.setPropertyEditorClass
+            (org.netbeans.modules.vcs.advanced.UserVariablesEditor.class);
 
-    } catch (IntrospectionException ex) {
-      ex.printStackTrace ();
+            commands=new PropertyDescriptor
+                     ("commands",CommandLineVcsFileSystem.class,"getCommands","setCommands"); // NOI18N
+            commands.setPropertyEditorClass
+            (org.netbeans.modules.vcs.advanced.UserCommandsEditor.class);
+
+            cacheId=new PropertyDescriptor
+                    ("cacheId",CommandLineVcsFileSystem.class,"getCacheId",null); // NOI18N
+
+            config=new PropertyDescriptor
+                   ("config",CommandLineVcsFileSystem.class,"getConfig",null); // NOI18N
+
+            lock=new PropertyDescriptor
+                 ("lock",CommandLineVcsFileSystem.class,"isLockFilesOn","setLockFilesOn"); // NOI18N
+
+            lockPrompt=new PropertyDescriptor
+                       ("lockPrompt",CommandLineVcsFileSystem.class,"isPromptForLockOn","setPromptForLockOn"); // NOI18N
+
+
+            desc = new PropertyDescriptor[] {
+                       rootDirectory, debug, variables, commands, cacheId, config, lock, lockPrompt
+                   };
+
+            ResourceBundle bundle = NbBundle.getBundle
+                                    ("org.netbeans.modules.vcs.advanced.Bundle"); // NOI18N
+            rootDirectory.setDisplayName      (bundle.getString("PROP_rootDirectory"));
+            rootDirectory.setShortDescription (bundle.getString("HINT_rootDirectory"));
+            debug.setDisplayName              (bundle.getString("PROP_debug"));
+            debug.setShortDescription         (bundle.getString("HINT_debug"));
+            variables.setDisplayName          (bundle.getString("PROP_variables"));
+            variables.setShortDescription     (bundle.getString("HINT_variables"));
+            commands.setDisplayName           (bundle.getString("PROP_commands"));
+            commands.setShortDescription      (bundle.getString("HINT_commands"));
+            cacheId.setDisplayName            (bundle.getString("PROP_cacheId"));
+            cacheId.setShortDescription       (bundle.getString("HINT_cacheId"));
+            config.setDisplayName             (bundle.getString("PROP_config"));
+            config.setShortDescription        (bundle.getString("HINT_config"));
+            lock.setDisplayName               (bundle.getString("PROP_lock"));
+            lock.setShortDescription          (bundle.getString("HINT_lock"));
+            lockPrompt.setDisplayName         (bundle.getString("PROP_lockPrompt"));
+            lockPrompt.setShortDescription    (bundle.getString("HINT_lockPrompt"));
+
+        } catch (IntrospectionException ex) {
+            ex.printStackTrace ();
+        }
     }
-  }
 
-  /* Provides the VCSFileSystem's icon */
-  public java.awt.Image getIcon(int type) {
-    if (icon == null) {
-      icon = loadImage("/org/netbeans/modules/vcs/advanced/vcs2.gif"); // NOI18N
-      icon32 = icon;
+    /* Provides the VCSFileSystem's icon */
+    public java.awt.Image getIcon(int type) {
+        if (icon == null) {
+            icon = loadImage("/org/netbeans/modules/vcs/advanced/vcs2.gif"); // NOI18N
+            icon32 = icon;
+        }
+        if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16))
+            return icon;
+        else
+            return icon32;
     }
-    if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16))
-      return icon;
-    else
-      return icon32;
-  }
 
-  /* Descriptor of valid properties
-  * @return array of properties
-  */
-  public PropertyDescriptor[] getPropertyDescriptors () {
-    return desc;
-  }
+    /* Descriptor of valid properties
+    * @return array of properties
+    */
+    public PropertyDescriptor[] getPropertyDescriptors () {
+        return desc;
+    }
 
 
-  public BeanDescriptor getBeanDescriptor(){
-    D.deb("getBeanDescriptor()"); // NOI18N
-    return new BeanDescriptor(CommandLineVcsFileSystem.class, org.netbeans.modules.vcs.advanced.VcsCustomizer.class);
-  }
-  
+    public BeanDescriptor getBeanDescriptor(){
+        D.deb("getBeanDescriptor()"); // NOI18N
+        return new BeanDescriptor(CommandLineVcsFileSystem.class, org.netbeans.modules.vcs.advanced.VcsCustomizer.class);
+    }
+
 }
 
 /*

@@ -15,12 +15,12 @@ package org.netbeans.modules.corba.idl.src;
 
 public class InitDclElement extends IDLElement {
 
-  public InitDclElement(int id) {
-    super(id);
-  }
+    public InitDclElement(int id) {
+        super(id);
+    }
 
-  public InitDclElement(IDLParser p, int id) {
-    super(p, id);
-  }
+    public InitDclElement(IDLParser p, int id) {
+        super(p, id);
+    }
 
 }

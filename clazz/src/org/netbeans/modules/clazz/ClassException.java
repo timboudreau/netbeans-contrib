@@ -21,27 +21,27 @@ package org.netbeans.modules.clazz;
 * @version 0.10, Apr 15, 1998
 */
 public class ClassException extends java.lang.reflect.InvocationTargetException {
-  /** generated Serialized Version UID */
-  static final long serialVersionUID = 1159065613681402933L;
+    /** generated Serialized Version UID */
+    static final long serialVersionUID = 1159065613681402933L;
 
-  /**
-  * Construct ClassException encapsulating some other.
-  *
-  * @param throwable Exception to be encapsulated.
-  */
-  public ClassException (Throwable throwable) {
-    super (throwable);
-  }
+    /**
+    * Construct ClassException encapsulating some other.
+    *
+    * @param throwable Exception to be encapsulated.
+    */
+    public ClassException (Throwable throwable) {
+        super (throwable);
+    }
 
-  /**
-  * Construct ClassException encapsulating some other with special comment.
-  *
-  * @param throwable Exception to be encapsulated.
-  * @param comment Comment.
-  */
-  public ClassException (Throwable throwable, String comment) {
-    super (throwable, comment);
-  }
+    /**
+    * Construct ClassException encapsulating some other with special comment.
+    *
+    * @param throwable Exception to be encapsulated.
+    * @param comment Comment.
+    */
+    public ClassException (Throwable throwable, String comment) {
+        super (throwable, comment);
+    }
 }
 
 /*

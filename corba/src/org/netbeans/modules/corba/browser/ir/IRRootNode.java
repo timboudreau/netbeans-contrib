@@ -29,212 +29,212 @@ import org.netbeans.modules.corba.settings.*;
 /*
  * @author Karel Gardas
  */
- 
+
 public class IRRootNode extends AbstractNode implements Node.Cookie {
 
-  static final String ICON_BASE_ROOT 
+    static final String ICON_BASE_ROOT
     = "org/netbeans/modules/corba/browser/ir/resources/ir-root";
 
-  public static final boolean DEBUG = false;
-  //public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
 
-  private static IRRootNode instance;
-  
-  private ORB orb;
+    private static IRRootNode instance;
 
-  private Vector repositories;
+    private ORB orb;
 
-  private CORBASupportSettings css;
+    private Vector repositories;
 
-  private boolean _loaded;
+    private CORBASupportSettings css;
 
-  private String name;
+    private boolean _loaded;
 
-  static {
-    instance = null;
-  }
-  
-  public IRRootNode () {
-    super (new IRRootNodeChildren ());
-    instance = this;
-    setName ("CORBA Interface Repository");
-    init ();
-  }
-  
-  public static IRRootNode getDefault(){
-    return instance;
-  }
-  
-  public void init () {
-    if (DEBUG) { 
-      System.out.println ("IRRootNode::init ()");
+    private String name;
+
+    static {
+        instance = null;
     }
-    css = (CORBASupportSettings) CORBASupportSettings.findObject
-      (CORBASupportSettings.class, true);
-    orb = css.getORB ();
-    if (DEBUG){
-      System.out.println(orb);
+
+    public IRRootNode () {
+        super (new IRRootNodeChildren ());
+        instance = this;
+        setName ("CORBA Interface Repository");
+        init ();
     }
-    repositories = new Vector ();
-    setIconBase (ICON_BASE_ROOT);
-    setDisplayName (getName ());
-    
-    ((IRRootNodeChildren)getChildren ()).setRootNode (this);
 
-    systemActions = new SystemAction[] { 
-      SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.AddRepository.class)
-    };
-  }
-
-
-  public void restore () {
-    if (DEBUG)
-      System.out.println ("load from storage :-))");
-    Vector tmp_repositories = css.getInterfaceRepositoryChildren ();
-    
-    for (int i=0; i<tmp_repositories.size (); i++) {
-      Repository child = (Repository)tmp_repositories.elementAt (i);
-      try {
-	restoreRepository (child.getName (), child.getURL (), child.getIOR ());
-      } catch (Exception e) {
-        // Handling the error while reading repisitories
-        child.setFailed(true);
-        this.repositories.addElement(child);
-      }	 
+    public static IRRootNode getDefault(){
+        return instance;
     }
-    if (DEBUG)
-      System.out.println ("no of IR children: " + repositories.size ());
-    
-    _loaded = true;
-    if (DEBUG)
-      System.out.println ("on end of restore - loaded?: " + loaded ());
-    css.setInterfaceRepositoryChildren (repositories);
-  }
 
-  
-  public Node.Cookie getCookie(Class c) {
-    if (c.isInstance(this)) 
-      return this;
-    else 
-      return super.getCookie(c);
-  }
+    public void init () {
+        if (DEBUG) {
+            System.out.println ("IRRootNode::init ()");
+        }
+        css = (CORBASupportSettings) CORBASupportSettings.findObject
+              (CORBASupportSettings.class, true);
+        orb = css.getORB ();
+        if (DEBUG){
+            System.out.println(orb);
+        }
+        repositories = new Vector ();
+        setIconBase (ICON_BASE_ROOT);
+        setDisplayName (getName ());
 
+        ((IRRootNodeChildren)getChildren ()).setRootNode (this);
 
-  public void restoreRepository (String name, String url, String ior)
-    throws java.net.MalformedURLException, 
-    java.io.IOException {
-    
-    org.omg.CORBA.Container rep = null;
-    
-    if (DEBUG) 
-      System.out.println ("IRRootNode::addRepository (...);");
-    if (!url.equals ("")) {
-      //try {
-      URL uc = new URL (url);
-      String ref;
-      //FileInputStream file = new FileInputStream(refFile);
-      BufferedReader in =
-	new BufferedReader(new InputStreamReader(uc.openStream ()));
-      ref = in.readLine();
-      in.close();
-      org.omg.CORBA.Object o = orb.string_to_object (ref);
-      rep = ContainerHelper.narrow (o);
-      if (rep == null)
-	throw new RuntimeException();
-    }  
-    if (!ior.equals ("")) {
-      org.omg.CORBA.Object o = orb.string_to_object (ior);
-      rep = ContainerHelper.narrow (o);
-      if (rep == null)
-	throw new RuntimeException();
+        systemActions = new SystemAction[] {
+                            SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.AddRepository.class)
+                        };
     }
-    if (DEBUG)
-      System.out.println ("loaded?: " + loaded ());
-    /*
-      if ((root () && loaded ()) || !root ()) {
-      ((ContextChildren)getChildren ()).addNotify ();
-      }
-    */
-    boolean exc = false;
-    try {
-      Contained[] contents = rep.contents (DefinitionKind.dk_all, false);
-    } catch (Exception e) {
-      exc = true;
+
+
+    public void restore () {
+        if (DEBUG)
+            System.out.println ("load from storage :-))");
+        Vector tmp_repositories = css.getInterfaceRepositoryChildren ();
+
+        for (int i=0; i<tmp_repositories.size (); i++) {
+            Repository child = (Repository)tmp_repositories.elementAt (i);
+            try {
+                restoreRepository (child.getName (), child.getURL (), child.getIOR ());
+            } catch (Exception e) {
+                // Handling the error while reading repisitories
+                child.setFailed(true);
+                this.repositories.addElement(child);
+            }
+        }
+        if (DEBUG)
+            System.out.println ("no of IR children: " + repositories.size ());
+
+        _loaded = true;
+        if (DEBUG)
+            System.out.println ("on end of restore - loaded?: " + loaded ());
+        css.setInterfaceRepositoryChildren (repositories);
     }
-    if (!exc)
-      repositories.addElement (new Repository (name, rep, url, ior)); 
-  }
 
 
-  public void addRepository (String name, String url, String ior) 
-    throws java.net.MalformedURLException, 
-    java.io.IOException {
-    
-    org.omg.CORBA.Container rep = null;
-    
-    if (DEBUG) 
-      System.out.println ("IRRootNode::addRepository (...);");
-    if (!url.equals ("")) {
-      URL uc = new URL (url);
-      String ref;
-      BufferedReader in =
-	new BufferedReader(new InputStreamReader(uc.openStream ()));
-      ref = in.readLine();
-      in.close();
-      org.omg.CORBA.Object o = orb.string_to_object (ref);
-      rep = ContainerHelper.narrow (o);
-      if (rep == null)
-	throw new RuntimeException();
-    }  
-
-    if (!ior.equals ("")) {
-      org.omg.CORBA.Object o = orb.string_to_object (ior);
-      rep = ContainerHelper.narrow (o);
-      if (rep == null)
-	throw new RuntimeException();
+    public Node.Cookie getCookie(Class c) {
+        if (c.isInstance(this))
+            return this;
+        else
+            return super.getCookie(c);
     }
-    if (DEBUG)
-      System.out.println ("loaded?: " + loaded ());
-    repositories.addElement (new Repository (name, rep, url, ior)); 
 
-    if (loaded ())
-      ((IRRootNodeChildren)getChildren ()).addNotify ();
-  }
-  
 
-  public void removeRepository (String name) {
-    for (int i=0; i<repositories.size (); i++) {
-      if (((Repository)repositories.elementAt (i)).getName ().equals (name)) {
-	repositories.remove (i);
-	break;
-      }
+    public void restoreRepository (String name, String url, String ior)
+    throws java.net.MalformedURLException,
+        java.io.IOException {
+
+        org.omg.CORBA.Container rep = null;
+
+        if (DEBUG)
+            System.out.println ("IRRootNode::addRepository (...);");
+        if (!url.equals ("")) {
+            //try {
+            URL uc = new URL (url);
+            String ref;
+            //FileInputStream file = new FileInputStream(refFile);
+            BufferedReader in =
+                new BufferedReader(new InputStreamReader(uc.openStream ()));
+            ref = in.readLine();
+            in.close();
+            org.omg.CORBA.Object o = orb.string_to_object (ref);
+            rep = ContainerHelper.narrow (o);
+            if (rep == null)
+                throw new RuntimeException();
+        }
+        if (!ior.equals ("")) {
+            org.omg.CORBA.Object o = orb.string_to_object (ior);
+            rep = ContainerHelper.narrow (o);
+            if (rep == null)
+                throw new RuntimeException();
+        }
+        if (DEBUG)
+            System.out.println ("loaded?: " + loaded ());
+        /*
+          if ((root () && loaded ()) || !root ()) {
+          ((ContextChildren)getChildren ()).addNotify ();
+          }
+        */
+        boolean exc = false;
+        try {
+            Contained[] contents = rep.contents (DefinitionKind.dk_all, false);
+        } catch (Exception e) {
+            exc = true;
+        }
+        if (!exc)
+            repositories.addElement (new Repository (name, rep, url, ior));
     }
-    ((IRRootNodeChildren)getChildren ()).addNotify ();
-  }
-  
-  public void setName (String n) {
-    name = n;
-  }
 
-  public String getName () {
-    return name;
-  }
 
-  public Vector getRepositories () {
-    return repositories;
-  }
+    public void addRepository (String name, String url, String ior)
+    throws java.net.MalformedURLException,
+        java.io.IOException {
 
-  public ORB getORB () {
-    return orb;
-  }
+        org.omg.CORBA.Container rep = null;
 
-  public boolean loaded () {
-    return _loaded;
-  }
+        if (DEBUG)
+            System.out.println ("IRRootNode::addRepository (...);");
+        if (!url.equals ("")) {
+            URL uc = new URL (url);
+            String ref;
+            BufferedReader in =
+                new BufferedReader(new InputStreamReader(uc.openStream ()));
+            ref = in.readLine();
+            in.close();
+            org.omg.CORBA.Object o = orb.string_to_object (ref);
+            rep = ContainerHelper.narrow (o);
+            if (rep == null)
+                throw new RuntimeException();
+        }
 
-  public void refresh () {
-    ((IRRootNodeChildren)getChildren ()).addNotify ();
-  }
+        if (!ior.equals ("")) {
+            org.omg.CORBA.Object o = orb.string_to_object (ior);
+            rep = ContainerHelper.narrow (o);
+            if (rep == null)
+                throw new RuntimeException();
+        }
+        if (DEBUG)
+            System.out.println ("loaded?: " + loaded ());
+        repositories.addElement (new Repository (name, rep, url, ior));
+
+        if (loaded ())
+            ((IRRootNodeChildren)getChildren ()).addNotify ();
+    }
+
+
+    public void removeRepository (String name) {
+        for (int i=0; i<repositories.size (); i++) {
+            if (((Repository)repositories.elementAt (i)).getName ().equals (name)) {
+                repositories.remove (i);
+                break;
+            }
+        }
+        ((IRRootNodeChildren)getChildren ()).addNotify ();
+    }
+
+    public void setName (String n) {
+        name = n;
+    }
+
+    public String getName () {
+        return name;
+    }
+
+    public Vector getRepositories () {
+        return repositories;
+    }
+
+    public ORB getORB () {
+        return orb;
+    }
+
+    public boolean loaded () {
+        return _loaded;
+    }
+
+    public void refresh () {
+        ((IRRootNodeChildren)getChildren ()).addNotify ();
+    }
 
 }
 

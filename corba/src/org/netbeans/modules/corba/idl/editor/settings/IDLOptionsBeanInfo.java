@@ -27,14 +27,14 @@ import org.netbeans.modules.editor.options.PlainOptionsBeanInfo;
  */
 public class IDLOptionsBeanInfo extends PlainOptionsBeanInfo {
 
-  public IDLOptionsBeanInfo () {
-    super ("/org/netbeans/modules/editor/resources/htmlOptions");
-    //System.out.println ("IDLOptionsBeanInfo ()");
-  }
+    public IDLOptionsBeanInfo () {
+        super ("/org/netbeans/modules/editor/resources/htmlOptions");
+        //System.out.println ("IDLOptionsBeanInfo ()");
+    }
 
-  protected Class getBeanClass() {
-    return IDLOptions.class;
-  }
+    protected Class getBeanClass() {
+        return IDLOptions.class;
+    }
 }
 
 /*

@@ -26,58 +26,58 @@ import org.openide.util.NbBundle;
 */
 public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 
-  /** Icons for compiler settings objects. */
-  private static Image icon;
-  private static Image icon32;
+    /** Icons for compiler settings objects. */
+    private static Image icon;
+    private static Image icon32;
 
-  /** Propertydescriptors */
-  private static PropertyDescriptor[] descriptors;
+    /** Propertydescriptors */
+    private static PropertyDescriptor[] descriptors;
 
 
-  /** Default constructor.
-  */
-  public IDLDataLoaderBeanInfo() {
-  }
-
-  /**
-  * @return Returns an array of PropertyDescriptors
-  * describing the editable properties supported by this bean.
-  */
-  public PropertyDescriptor[] getPropertyDescriptors () {
-    if (descriptors == null) initializeDescriptors();
-    return descriptors;
-  }
-
-  /** @param type Desired type of the icon
-  * @return returns the Idl loader's icon
-  */
-  public Image getIcon(final int type) {
-    if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) ||
-        (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
-      if (icon == null)
-        icon = loadImage("/org/netbeans/modules/corba/settings/idl.gif");
-      return icon;
-    } else {
-      if (icon32 == null)
-        icon32 = loadImage ("/org/netbeans/modules/corba/settings/idl32.gif");
-      return icon32;
+    /** Default constructor.
+    */
+    public IDLDataLoaderBeanInfo() {
     }
-  }
 
-  private static void initializeDescriptors () {
-    final ResourceBundle bundle =
-      NbBundle.getBundle(IDLDataLoaderBeanInfo.class);
-    try {
-      descriptors =  new PropertyDescriptor[] {
-        new PropertyDescriptor ("displayName", IDLDataLoader.class,
-                                "getDisplayName", null),
-      };
-      descriptors[0].setDisplayName(bundle.getString("PROP_Name"));
-      descriptors[0].setShortDescription(bundle.getString("HINT_Name"));
-    } catch (IntrospectionException e) {
-      e.printStackTrace ();
+    /**
+    * @return Returns an array of PropertyDescriptors
+    * describing the editable properties supported by this bean.
+    */
+    public PropertyDescriptor[] getPropertyDescriptors () {
+        if (descriptors == null) initializeDescriptors();
+        return descriptors;
     }
-  }
+
+    /** @param type Desired type of the icon
+    * @return returns the Idl loader's icon
+    */
+    public Image getIcon(final int type) {
+        if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) ||
+                (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
+            if (icon == null)
+                icon = loadImage("/org/netbeans/modules/corba/settings/idl.gif");
+            return icon;
+        } else {
+            if (icon32 == null)
+                icon32 = loadImage ("/org/netbeans/modules/corba/settings/idl32.gif");
+            return icon32;
+        }
+    }
+
+    private static void initializeDescriptors () {
+        final ResourceBundle bundle =
+            NbBundle.getBundle(IDLDataLoaderBeanInfo.class);
+        try {
+            descriptors =  new PropertyDescriptor[] {
+                               new PropertyDescriptor ("displayName", IDLDataLoader.class,
+                                                       "getDisplayName", null),
+                           };
+            descriptors[0].setDisplayName(bundle.getString("PROP_Name"));
+            descriptors[0].setShortDescription(bundle.getString("HINT_Name"));
+        } catch (IntrospectionException e) {
+            e.printStackTrace ();
+        }
+    }
 
 }
 

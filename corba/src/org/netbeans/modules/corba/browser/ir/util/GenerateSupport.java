@@ -14,7 +14,7 @@
 package org.netbeans.modules.corba.browser.ir.util;
 
 public interface GenerateSupport {
-  String generateHead (int indent);
-  String generateSelf (int indent);
-  String generateTail (int indent);
+    String generateHead (int indent);
+    String generateSelf (int indent);
+    String generateTail (int indent);
 }

@@ -26,52 +26,52 @@ import org.netbeans.modules.corba.*;
 /*
  * @author Karel Gardas
  */
- 
+
 public class NamingServiceChild implements Serializable {
 
-   public static final boolean DEBUG = false;
-   //public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
 
-   public String name;
-   public String kind;
-   public String url;
-   public String ior;
+    public String name;
+    public String kind;
+    public String url;
+    public String ior;
 
-  static final long serialVersionUID =-5051797421901475341L;
-   public NamingServiceChild () {
-   }
+    static final long serialVersionUID =-5051797421901475341L;
+    public NamingServiceChild () {
+    }
 
-   
-   //public Object writeReplace () {
-   //   System.out.println ("serialization of " + this);
-   //   return "NamingServiceChild";
-   //}
 
-   public NamingServiceChild (String n, String k, String u, String i) {
-      if (DEBUG)
-	 System.out.println ("NamingServiceChild (" + n + ", " + k + ", " + u + ", " + i + ");");
-      name = n;
-      kind = k;
-      url = u;
-      ior = i;
-   }
+    //public Object writeReplace () {
+    //   System.out.println ("serialization of " + this);
+    //   return "NamingServiceChild";
+    //}
 
-   public String getName () {
-      return name;
-   }
+    public NamingServiceChild (String n, String k, String u, String i) {
+        if (DEBUG)
+            System.out.println ("NamingServiceChild (" + n + ", " + k + ", " + u + ", " + i + ");");
+        name = n;
+        kind = k;
+        url = u;
+        ior = i;
+    }
 
-   public String getKind () {
-      return kind;
-   }
+    public String getName () {
+        return name;
+    }
 
-   public String getURL () {
-      return url;
-   }
+    public String getKind () {
+        return kind;
+    }
 
-   public String getIOR () {
-      return ior;
-   }
-   
+    public String getURL () {
+        return url;
+    }
+
+    public String getIOR () {
+        return ior;
+    }
+
 }
 
 

@@ -15,33 +15,33 @@ package org.netbeans.modules.corba.idl.src;
 
 public class ConstElement extends IDLElement {
 
-   String exp;
-   String type;
+    String exp;
+    String type;
 
-  static final long serialVersionUID =2501064395128035802L;
-   public ConstElement(int id) {
-      super(id);
-   }
+    static final long serialVersionUID =2501064395128035802L;
+    public ConstElement(int id) {
+        super(id);
+    }
 
-   public ConstElement(IDLParser p, int id) {
-      super(p, id);
-   }
+    public ConstElement(IDLParser p, int id) {
+        super(p, id);
+    }
 
-   public void setExpression (String e) {
-      exp = e;
-   }
-   
-   public String getExpression () {
-      return exp;
-   }
+    public void setExpression (String e) {
+        exp = e;
+    }
 
-   public void setType (String t) {
-      type = t;
-   }
+    public String getExpression () {
+        return exp;
+    }
 
-   public String getType () {
-      return type;
-   }
+    public void setType (String t) {
+        type = t;
+    }
+
+    public String getType () {
+        return type;
+    }
 
 }
 

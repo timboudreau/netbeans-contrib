@@ -17,8 +17,8 @@ package org.netbeans.modules.corba.browser.ir.nodes.keys;
 
 abstract public class IRAbstractKey extends java.lang.Object {
 
-  /** Creates new IRAbstractKey */
-  public IRAbstractKey() {
-  }
-  
+    /** Creates new IRAbstractKey */
+    public IRAbstractKey() {
+    }
+
 }

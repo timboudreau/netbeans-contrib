@@ -33,49 +33,49 @@ import org.netbeans.modules.corba.idl.src.IDLElement;
 /*
  * @author Karel Gardas
  */
- 
+
 public abstract class IDLAbstractNode extends AbstractNode {
 
-  //public static final boolean DEBUG = true;
-  public static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
-  public IDLAbstractNode (Children children) {
-    super (children);
-    if (DEBUG)
-      System.out.println ("IDLAbstractNode (...)");
-  }
+    public IDLAbstractNode (Children children) {
+        super (children);
+        if (DEBUG)
+            System.out.println ("IDLAbstractNode (...)");
+    }
 
-  public void setCookieForDataObject (IDLDataObject ido) {
-    CookieSet cookie = getCookieSet ();
-    cookie.add (ido.getCookie (IDLEditorSupport.class));
-  }
+    public void setCookieForDataObject (IDLDataObject ido) {
+        CookieSet cookie = getCookieSet ();
+        cookie.add (ido.getCookie (IDLEditorSupport.class));
+    }
 
-  public SystemAction getDefaultAction () {
-    if (DEBUG)
-      System.out.println ("getDefaultAction ()");
-    SystemAction result = super.getDefaultAction();
-    if (DEBUG)
-      System.out.println ("result: " + result);
-    //getIDLElement ().getDataObject ().setPositionRef (getPositionRef ());
-    getIDLElement ().getDataObject ().setLinePosition (getIDLElement ().getLine ());
-    getIDLElement ().getDataObject ().setColumnPosition (getIDLElement ().getColumn ());
-    return result == null ? SystemAction.get(OpenAction.class) : result;
-  }
+    public SystemAction getDefaultAction () {
+        if (DEBUG)
+            System.out.println ("getDefaultAction ()");
+        SystemAction result = super.getDefaultAction();
+        if (DEBUG)
+            System.out.println ("result: " + result);
+        //getIDLElement ().getDataObject ().setPositionRef (getPositionRef ());
+        getIDLElement ().getDataObject ().setLinePosition (getIDLElement ().getLine ());
+        getIDLElement ().getDataObject ().setColumnPosition (getIDLElement ().getColumn ());
+        return result == null ? SystemAction.get(OpenAction.class) : result;
+    }
 
-  abstract public IDLElement getIDLElement ();
+    abstract public IDLElement getIDLElement ();
 
-  //public static int possition (long val) {
-  //  return (int)(p & 0xFFFFFFFFL);
-  //}
-  
-  public PositionRef getPositionRef () {
-    int line = getIDLElement ().getLine ();
-    if (DEBUG)
-      System.out.println ("getPositionRef for line: " + line);
-    IDLEditorSupport editor = (IDLEditorSupport)getIDLElement ().getDataObject ().getCookie 
-      (IDLEditorSupport.class);
-    return editor.createPositionRef (line, Bias.Forward);
-  }
+    //public static int possition (long val) {
+    //  return (int)(p & 0xFFFFFFFFL);
+    //}
+
+    public PositionRef getPositionRef () {
+        int line = getIDLElement ().getLine ();
+        if (DEBUG)
+            System.out.println ("getPositionRef for line: " + line);
+        IDLEditorSupport editor = (IDLEditorSupport)getIDLElement ().getDataObject ().getCookie
+                                  (IDLEditorSupport.class);
+        return editor.createPositionRef (line, Bias.Forward);
+    }
 
 }
 /*

@@ -24,44 +24,44 @@ import org.netbeans.modules.jndi.utils.Refreshable;
 */
 public final class RefreshAction extends org.openide.util.actions.NodeAction {
 
-  /** No arg constructor. */
-  public RefreshAction() {
-    super ();
-  }
-
-  /** Performs refresh.
-  *
-  * @param nodes an array of selected nodes
-  */
-  protected void performAction(Node[] nodes) {
-
-    if (enable(nodes)) {
-      ((Refreshable) nodes[0].getCookie(Refreshable.class)).refresh();
-    }
-  }
-
-  /** Should be the action enabled?
-  *
-  * @param nodes an array of selected nodes
-  * @return <tt>true</tt> iff the array has length 1 and contains a JndiNode
-  */
-  protected boolean enable(Node[] nodes) {
-
-    if ((nodes == null) ||
-        (nodes.length != 1)) {
-      return false;
+    /** No arg constructor. */
+    public RefreshAction() {
+        super ();
     }
 
-    return (nodes[0].getCookie(Refreshable.class) != null);
-  }
+    /** Performs refresh.
+    *
+    * @param nodes an array of selected nodes
+    */
+    protected void performAction(Node[] nodes) {
 
-  /** @return name of the action */
-  public String getName() {
-    return JndiRootNode.getLocalizedString("CTL_RefreshName");
-  }
+        if (enable(nodes)) {
+            ((Refreshable) nodes[0].getCookie(Refreshable.class)).refresh();
+        }
+    }
 
-  /** @return help */
-  public HelpCtx getHelpCtx() {
-    return HelpCtx.DEFAULT_HELP;
-  }
+    /** Should be the action enabled?
+    *
+    * @param nodes an array of selected nodes
+    * @return <tt>true</tt> iff the array has length 1 and contains a JndiNode
+    */
+    protected boolean enable(Node[] nodes) {
+
+        if ((nodes == null) ||
+                (nodes.length != 1)) {
+            return false;
+        }
+
+        return (nodes[0].getCookie(Refreshable.class) != null);
+    }
+
+    /** @return name of the action */
+    public String getName() {
+        return JndiRootNode.getLocalizedString("CTL_RefreshName");
+    }
+
+    /** @return help */
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP;
+    }
 }

@@ -32,89 +32,89 @@ import org.openide.nodes.Node;
 * @author Dafe Simonek
 */
 public abstract class MemberElementImpl extends ElementImpl
-                               implements MemberElement.Impl {
-  /** Asociated java reflection data */
-  protected Object data;
-  /** Cached name identifier */
-  private transient Identifier name;
+    implements MemberElement.Impl {
+    /** Asociated java reflection data */
+    protected Object data;
+    /** Cached name identifier */
+    private transient Identifier name;
 
-static final long serialVersionUID =-6841890195552268874L;
-  /** Constructor, asociates this impl with java reflection
-  * Member element, which acts as data source.
-  */
-  public MemberElementImpl (final Object data) {
-    super();
-    this.data = data;
-  }
-
-  /** @return Modifiers for this element.
-  */
-  public int getModifiers () {
-    if (data instanceof Class) {
-      // Class doesn't implement Member interface...
-      // and moreover we must throw away interface modifier if present
-      try {
-        return ((Class)data).getModifiers() & (~Modifier.INTERFACE);
-      } catch (Exception exc) {
-        return 0;
-      }
+    static final long serialVersionUID =-6841890195552268874L;
+    /** Constructor, asociates this impl with java reflection
+    * Member element, which acts as data source.
+    */
+    public MemberElementImpl (final Object data) {
+        super();
+        this.data = data;
     }
-    return ((Member)data).getModifiers();
-  }
 
-  /** Unsupported. Throws SourceException
-  */
-  public void setModifiers (int mod) throws SourceException {
-    throw new SourceException();
-  }
-
-  /** Getter for name of the field.
-  * @return the name
-  */
-  public Identifier getName () {
-    if (name == null) {
-      String fullName = (data instanceof Class) ?
-        Utilities.getClassName((Class)data) :
-        ((Member)data).getName();
-      
-      int lastDot = fullName.lastIndexOf("."); // NOI18N
-      name = (lastDot == -1) ?
-        Identifier.create(fullName) :
-        Identifier.create(fullName, fullName.substring(lastDot + 1));
+    /** @return Modifiers for this element.
+    */
+    public int getModifiers () {
+        if (data instanceof Class) {
+            // Class doesn't implement Member interface...
+            // and moreover we must throw away interface modifier if present
+            try {
+                return ((Class)data).getModifiers() & (~Modifier.INTERFACE);
+            } catch (Exception exc) {
+                return 0;
+            }
+        }
+        return ((Member)data).getModifiers();
     }
-    return name;
-  }
 
-  /** Unsupported. Throws SourceException.
-  */
-  public void setName (Identifier name) throws SourceException {
-    throw new SourceException();
-  }
-  
-  /** Delegates to source element implementation class,
-  * if it's possible.
-  */
-  public Node.Cookie getCookie (Class type) {
-    ClassElement ce = ((MemberElement)element).getDeclaringClass();
-    if ((ce == null) && (element instanceof ClassElement)) {
-      ce = (ClassElement)element;  
+    /** Unsupported. Throws SourceException
+    */
+    public void setModifiers (int mod) throws SourceException {
+        throw new SourceException();
     }
-    if (ce != null) {
-      SourceElement se = ce.getSource();
-      if (se != null) {
-        return se.getCookie(type);
-      }
+
+    /** Getter for name of the field.
+    * @return the name
+    */
+    public Identifier getName () {
+        if (name == null) {
+            String fullName = (data instanceof Class) ?
+                              Utilities.getClassName((Class)data) :
+                              ((Member)data).getName();
+
+            int lastDot = fullName.lastIndexOf("."); // NOI18N
+            name = (lastDot == -1) ?
+                   Identifier.create(fullName) :
+                   Identifier.create(fullName, fullName.substring(lastDot + 1));
+        }
+        return name;
     }
-    return null;
-  }
 
-  public void writeExternal (ObjectOutput oi) throws IOException {
-    oi.writeObject(data);
-  }
+    /** Unsupported. Throws SourceException.
+    */
+    public void setName (Identifier name) throws SourceException {
+        throw new SourceException();
+    }
 
-  public void readExternal (ObjectInput oi) throws IOException, ClassNotFoundException {
-    data = oi.readObject();
-  }
+    /** Delegates to source element implementation class,
+    * if it's possible.
+    */
+    public Node.Cookie getCookie (Class type) {
+        ClassElement ce = ((MemberElement)element).getDeclaringClass();
+        if ((ce == null) && (element instanceof ClassElement)) {
+            ce = (ClassElement)element;
+        }
+        if (ce != null) {
+            SourceElement se = ce.getSource();
+            if (se != null) {
+                return se.getCookie(type);
+            }
+        }
+        return null;
+    }
+
+    public void writeExternal (ObjectOutput oi) throws IOException {
+        oi.writeObject(data);
+    }
+
+    public void readExternal (ObjectInput oi) throws IOException, ClassNotFoundException {
+        data = oi.readObject();
+    }
 }
 
 /*

@@ -19,45 +19,45 @@ import org.openide.nodes.Node;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
 import org.netbeans.modules.jndi.utils.AttributeManager;
-/** 
+/**
  *
  * @author  tzezula
  * @version 
  */
 public class EditPropertyAction extends NodeAction {
 
-  /** Creates new CreatePropertyAction */
-  public EditPropertyAction() {
-    super();
-  }
-  
-  
-  public void performAction (Node[] nodes){
-    if (enable(nodes)){
-      ((AttributeManager)nodes[0].getCookie(JndiNode.class)).editAttribute();
+    /** Creates new CreatePropertyAction */
+    public EditPropertyAction() {
+        super();
     }
-  }
-  
-  
-  public boolean enable (Node[] nodes){
-    if  (nodes == null || nodes.length!=1)
-      return false;
-     JndiNode node = (JndiNode)nodes[0].getCookie(JndiNode.class);
-     if (node == null) return false;
-     Context ctx = node.getContext();
-    if (ctx == null || !(ctx instanceof DirContext))
-      return false;
-     return true;
-  }
-  
-  
-  public String getName(){
-    return JndiRootNode.getLocalizedString("CTL_EditProperty");
-  }
-  
-  
-  public HelpCtx getHelpCtx(){
-    return HelpCtx.DEFAULT_HELP;
-  }
-  
+
+
+    public void performAction (Node[] nodes){
+        if (enable(nodes)){
+            ((AttributeManager)nodes[0].getCookie(JndiNode.class)).editAttribute();
+        }
+    }
+
+
+    public boolean enable (Node[] nodes){
+        if  (nodes == null || nodes.length!=1)
+            return false;
+        JndiNode node = (JndiNode)nodes[0].getCookie(JndiNode.class);
+        if (node == null) return false;
+        Context ctx = node.getContext();
+        if (ctx == null || !(ctx instanceof DirContext))
+            return false;
+        return true;
+    }
+
+
+    public String getName(){
+        return JndiRootNode.getLocalizedString("CTL_EditProperty");
+    }
+
+
+    public HelpCtx getHelpCtx(){
+        return HelpCtx.DEFAULT_HELP;
+    }
+
 }

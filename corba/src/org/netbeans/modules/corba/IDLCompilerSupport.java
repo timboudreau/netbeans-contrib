@@ -22,34 +22,34 @@ import org.netbeans.*;
 /*
  * @author Karel Gardas
  */
- 
+
 public class IDLCompilerSupport extends CompilerSupport {
 
-  //public static final boolean DEBUG = true;
-  private static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
-  public IDLCompilerSupport (MultiDataObject.Entry entry, Class cookie) {
-    super (entry, cookie);
-    if (DEBUG)
-      System.out.println ("IDLCompilerSupport::IDLCompilerSupport (...)");
-  }
-
-  protected CompilerType defaultCompilerType () {
-    if (DEBUG)
-      System.out.println ("IDLCompilerSupport::defaultCompilerType ()");
-    return new IDLCompilerType ();
-  }
-
-
-  public static class Compile extends IDLCompilerSupport
-    implements CompilerCookie.Compile {
-    
-    public Compile (MultiDataObject.Entry entry) {
-      super (entry, CompilerCookie.Compile.class);
-      if (DEBUG)
-	System.out.println ("Compile::Compile (...)");
+    public IDLCompilerSupport (MultiDataObject.Entry entry, Class cookie) {
+        super (entry, cookie);
+        if (DEBUG)
+            System.out.println ("IDLCompilerSupport::IDLCompilerSupport (...)");
     }
-  }
+
+    protected CompilerType defaultCompilerType () {
+        if (DEBUG)
+            System.out.println ("IDLCompilerSupport::defaultCompilerType ()");
+        return new IDLCompilerType ();
+    }
+
+
+    public static class Compile extends IDLCompilerSupport
+        implements CompilerCookie.Compile {
+
+        public Compile (MultiDataObject.Entry entry) {
+            super (entry, CompilerCookie.Compile.class);
+            if (DEBUG)
+                System.out.println ("Compile::Compile (...)");
+        }
+    }
 
 }
 

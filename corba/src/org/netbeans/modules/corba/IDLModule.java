@@ -48,111 +48,111 @@ import org.netbeans.modules.corba.idl.editor.settings.IDLOptions;
 */
 public class IDLModule extends ModuleInstall {
 
-  static final long serialVersionUID =8847247042163099527L;
+    static final long serialVersionUID =8847247042163099527L;
 
-  private static final boolean DEBUG = false;
-  //private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
+    //private static final boolean DEBUG = true;
 
-  /** Module installed for the first time. */
-  public void installed() {
-    if (DEBUG) 
-      System.out.println ("CORBA Support Module installing...");
-    copyImpls ();
-    copyTemplates ();
+    /** Module installed for the first time. */
+    public void installed() {
+        if (DEBUG)
+            System.out.println ("CORBA Support Module installing...");
+        copyImpls ();
+        copyTemplates ();
 
-    restored ();
-    if (DEBUG) 
-      System.out.println ("CORBA Support Module installed :)");
-  }
-
-
-  /** Module installed again. */
-  public void restored() {
-    if (DEBUG) 
-      System.out.println ("CORBA Support Module restoring...");
-    if (DEBUG) 
-      System.out.println ("restoring editor support ...");
-  
-    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
-      (CORBASupportSettings.class, true);
-    css.init ();
-    
-    installColoring ();
-    if (DEBUG)
-      System.out.println ("CORBA Support Module restored...");
-  }
-   
-  private void installColoring () {
-    if (DEBUG)
-      System.out.println ("installColoring()");
-    try {
-      Class settings = Class.forName
-        ("org.netbeans.editor.Settings",
-         false, this.getClass().getClassLoader()); // only test for editor module
-      
-      Class restore = Class.forName
-        ("org.netbeans.modules.corba.idl.editor.settings.RestoreColoring",
-         false, this.getClass().getClassLoader());
-      Method restoreMethod = restore.getMethod ("restore", null);
-      restoreMethod.invoke (restore.newInstance(), null);
-
-    } catch (ClassNotFoundException e) {
-      if (DEBUG)
-	e.printStackTrace ();
-    } catch (NoSuchMethodException e) {
-      if (DEBUG)
-	e.printStackTrace ();
-    } catch (InvocationTargetException e) {
-      if (DEBUG)
-	e.printStackTrace ();
-    } catch (IllegalAccessException e) {
-      if (DEBUG)
-	e.printStackTrace ();
-    } catch (InstantiationException e) {
-      if (DEBUG)
-	e.printStackTrace ();
+        restored ();
+        if (DEBUG)
+            System.out.println ("CORBA Support Module installed :)");
     }
-    /*
-      } catch (Exception ex) {
-      ex.printStackTrace ();
-      }
-    */
-  }
 
 
-  private String getClasspath(String[] classpathItems) {
-    return null;
-  }
+    /** Module installed again. */
+    public void restored() {
+        if (DEBUG)
+            System.out.println ("CORBA Support Module restoring...");
+        if (DEBUG)
+            System.out.println ("restoring editor support ...");
 
-  private static final String getSystemEntries() {
-    return null;
-  }
+        CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+                                   (CORBASupportSettings.class, true);
+        css.init ();
 
-
-  // -----------------------------------------------------------------------------
-  // Private methods
-  
-  private void copyTemplates () {
-    try {
-      org.openide.filesystems.FileUtil.extractJar (
-						   org.openide.TopManager.getDefault ().getPlaces ().folders().templates ().getPrimaryFile (),
-						   getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/templates.jar")
-						   );
-    } catch (java.io.IOException e) {
-      org.openide.TopManager.getDefault ().notifyException (e);
+        installColoring ();
+        if (DEBUG)
+            System.out.println ("CORBA Support Module restored...");
     }
-  }
 
-  private void copyImpls () {
-    try {
-      org.openide.filesystems.FileUtil.extractJar (
-						   org.openide.TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot (),
-						   getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/impls.jar")
-						   );
-    } catch (java.io.IOException e) {
-      org.openide.TopManager.getDefault ().notifyException (e);
+    private void installColoring () {
+        if (DEBUG)
+            System.out.println ("installColoring()");
+        try {
+            Class settings = Class.forName
+                             ("org.netbeans.editor.Settings",
+                              false, this.getClass().getClassLoader()); // only test for editor module
+
+            Class restore = Class.forName
+                            ("org.netbeans.modules.corba.idl.editor.settings.RestoreColoring",
+                             false, this.getClass().getClassLoader());
+            Method restoreMethod = restore.getMethod ("restore", null);
+            restoreMethod.invoke (restore.newInstance(), null);
+
+        } catch (ClassNotFoundException e) {
+            if (DEBUG)
+                e.printStackTrace ();
+        } catch (NoSuchMethodException e) {
+            if (DEBUG)
+                e.printStackTrace ();
+        } catch (InvocationTargetException e) {
+            if (DEBUG)
+                e.printStackTrace ();
+        } catch (IllegalAccessException e) {
+            if (DEBUG)
+                e.printStackTrace ();
+        } catch (InstantiationException e) {
+            if (DEBUG)
+                e.printStackTrace ();
+        }
+        /*
+          } catch (Exception ex) {
+          ex.printStackTrace ();
+          }
+        */
     }
-  }
+
+
+    private String getClasspath(String[] classpathItems) {
+        return null;
+    }
+
+    private static final String getSystemEntries() {
+        return null;
+    }
+
+
+    // -----------------------------------------------------------------------------
+    // Private methods
+
+    private void copyTemplates () {
+        try {
+            org.openide.filesystems.FileUtil.extractJar (
+                org.openide.TopManager.getDefault ().getPlaces ().folders().templates ().getPrimaryFile (),
+                getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/templates.jar")
+            );
+        } catch (java.io.IOException e) {
+            org.openide.TopManager.getDefault ().notifyException (e);
+        }
+    }
+
+    private void copyImpls () {
+        try {
+            org.openide.filesystems.FileUtil.extractJar (
+                org.openide.TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot (),
+                getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/impls.jar")
+            );
+        } catch (java.io.IOException e) {
+            org.openide.TopManager.getDefault ().notifyException (e);
+        }
+    }
 }
 
 /*

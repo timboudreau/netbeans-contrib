@@ -15,54 +15,54 @@ package org.netbeans.modules.corba.wizard;
 
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
 
-/** 
+/**
  *
  * @author  tzezula
  * @version 
  */
 public class CorbaWizardData extends Object {
 
-  public static final int CLIENT=1;   // Generate Client
-  public static final int SERVER=2;   // Generate Server
-  public static final int IMPL=4;     // Generate Implementation
-  
-  private CORBASupportSettings ccs;
-  private int generate;
-  private String impl;
-  private String bindMethod;
+    public static final int CLIENT=1;   // Generate Client
+    public static final int SERVER=2;   // Generate Server
+    public static final int IMPL=4;     // Generate Implementation
 
-  /** Creates new CorbaWizardData */
-  public CorbaWizardData() {
-    this.ccs = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
-  }
-  
-  
-  public CORBASupportSettings getSettings() {
-    return ccs;
-  }
-  
-  public void setCORBAImpl (String impl) {
-    this.impl = impl;
-  }
-  
-  public void setBindMethod (String bindMethod) {
-    this.bindMethod = bindMethod;
-  }
-  
-  public void setGenerate (int mask) {
-    this.generate = mask;
-  }
-  
-  public String getCORBAImpl() {
-    return this.impl;
-  }
-  
-  public String getBindMethod () {
-    return this.bindMethod;
-  }
-  
-  public int getGenerate(){
-    return this.generate;
-  }
-  
+    private CORBASupportSettings ccs;
+    private int generate;
+    private String impl;
+    private String bindMethod;
+
+    /** Creates new CorbaWizardData */
+    public CorbaWizardData() {
+        this.ccs = (CORBASupportSettings) CORBASupportSettings.findObject (CORBASupportSettings.class, true);
+    }
+
+
+    public CORBASupportSettings getSettings() {
+        return ccs;
+    }
+
+    public void setCORBAImpl (String impl) {
+        this.impl = impl;
+    }
+
+    public void setBindMethod (String bindMethod) {
+        this.bindMethod = bindMethod;
+    }
+
+    public void setGenerate (int mask) {
+        this.generate = mask;
+    }
+
+    public String getCORBAImpl() {
+        return this.impl;
+    }
+
+    public String getBindMethod () {
+        return this.bindMethod;
+    }
+
+    public int getGenerate(){
+        return this.generate;
+    }
+
 }

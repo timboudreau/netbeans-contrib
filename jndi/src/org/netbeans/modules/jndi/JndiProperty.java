@@ -26,60 +26,60 @@ import org.netbeans.modules.jndi.utils.JndiPropertyMutator;
  */
 public final class JndiProperty extends PropertySupport{
 
-  /** Value of property */
-  String value;
-  /** Mutator*/
-  JndiPropertyMutator mutator;
-  
-  /** Constructor
-   *  @param name name of property
-   *  @param type class of value
-   *  @param pname displayed name of property
-   *  @param pvalue value of property
-   */
-  public JndiProperty(String name, Class type, String pName, Object pvalue){
-    this (name,type,pName,null,pvalue);
-  }
-  
-  /** Constructor
-   *  @param name name of property
-   *  @param type class of value
-   *  @param pname displayed name of property
-   *  @param pvalue value of property
-   */
-  public JndiProperty(String name, Class type, String pName, String shortDescription, Object pvalue){
-      this (name,type,pName,null,pvalue,null,false);
-    }
-  
-  /** Constructor
-   *  @param name name of property
-   *  @param type class of value
-   *  @param pname displayed name of property
-   *  @param pvalue value of property
-    * @patam mutator mutator
-   */  
-  public JndiProperty(String name, Class type, String pName, String shortDescription, Object pvalue,JndiPropertyMutator mutator, boolean editable){
-    super (name, type, pName,  shortDescription, true, editable);
-    this.value=(String)pvalue;
-    this.mutator = mutator;
-  }
+    /** Value of property */
+    String value;
+    /** Mutator*/
+    JndiPropertyMutator mutator;
 
-  /** Returns value of property
-   *  @return Object value of this property
-   */
-  public Object getValue(){
-    return this.value;
-  }
-  
-  /** Sets the value of property
-   *  @param Object value
-   */
-  public void setValue (Object value){
-    if (this.mutator != null){
-      if (this.mutator.changeJndiPropertyValue(this.getName(),value))
-        this.value = (String) value;
+    /** Constructor
+     *  @param name name of property
+     *  @param type class of value
+     *  @param pname displayed name of property
+     *  @param pvalue value of property
+     */
+    public JndiProperty(String name, Class type, String pName, Object pvalue){
+        this (name,type,pName,null,pvalue);
     }
-  }
+
+    /** Constructor
+     *  @param name name of property
+     *  @param type class of value
+     *  @param pname displayed name of property
+     *  @param pvalue value of property
+     */
+    public JndiProperty(String name, Class type, String pName, String shortDescription, Object pvalue){
+        this (name,type,pName,null,pvalue,null,false);
+    }
+
+    /** Constructor
+     *  @param name name of property
+     *  @param type class of value
+     *  @param pname displayed name of property
+     *  @param pvalue value of property
+      * @patam mutator mutator
+     */  
+    public JndiProperty(String name, Class type, String pName, String shortDescription, Object pvalue,JndiPropertyMutator mutator, boolean editable){
+        super (name, type, pName,  shortDescription, true, editable);
+        this.value=(String)pvalue;
+        this.mutator = mutator;
+    }
+
+    /** Returns value of property
+     *  @return Object value of this property
+     */
+    public Object getValue(){
+        return this.value;
+    }
+
+    /** Sets the value of property
+     *  @param Object value
+     */
+    public void setValue (Object value){
+        if (this.mutator != null){
+            if (this.mutator.changeJndiPropertyValue(this.getName(),value))
+                this.value = (String) value;
+        }
+    }
 }
 
 

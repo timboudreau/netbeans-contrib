@@ -30,58 +30,58 @@ import org.netbeans.modules.corba.idl.src.TypeElement;
  */
 public class IDLTypeNode extends IDLAbstractNode {
 
-  TypeElement _type;
-  private static final String TYPE_ICON_BASE =
-    "org/netbeans/modules/corba/idl/node/type";
+    TypeElement _type;
+    private static final String TYPE_ICON_BASE =
+        "org/netbeans/modules/corba/idl/node/type";
 
-  String name;
+    String name;
 
-  public IDLTypeNode (TypeElement value) {
-    super (new IDLDocumentChildren ((IDLElement)value));
-    setIconBase (TYPE_ICON_BASE);
-    _type = value;
-    setCookieForDataObject (_type.getDataObject ());
-    if (_type != null) {
-      name = _type.getName ();
-      //name = _type.getType ();
+    public IDLTypeNode (TypeElement value) {
+        super (new IDLDocumentChildren ((IDLElement)value));
+        setIconBase (TYPE_ICON_BASE);
+        _type = value;
+        setCookieForDataObject (_type.getDataObject ());
+        if (_type != null) {
+            name = _type.getName ();
+            //name = _type.getType ();
+        }
+        else
+            name = "NoName :)";
     }
-    else 
-      name = "NoName :)";
-  }
 
-  public IDLElement getIDLElement () {
-    return _type;
-  }
+    public IDLElement getIDLElement () {
+        return _type;
+    }
 
-  public String getDisplayName () {
-    return name;
-  }
+    public String getDisplayName () {
+        return name;
+    }
 
-  public String getName () {
-    return "type";
-  }
+    public String getName () {
+        return "type";
+    }
 
-  public SystemAction getDefaultAction () {
-    SystemAction result = super.getDefaultAction();
-    return result == null ? SystemAction.get(OpenAction.class) : result;
-  }
+    public SystemAction getDefaultAction () {
+        SystemAction result = super.getDefaultAction();
+        return result == null ? SystemAction.get(OpenAction.class) : result;
+    }
 
-  protected Sheet createSheet () {
-    Sheet s = Sheet.createDefault ();
-    Sheet.Set ss = s.get (Sheet.PROPERTIES);
-    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of typedef") {
-      public Object getValue () {
-	return _type.getName ();
-      }
-    });
-    ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type") {
-      public Object getValue () {
-	return _type.getType ().getName ();
-      }
-    });
-    return s;
-  }
-	    
+    protected Sheet createSheet () {
+        Sheet s = Sheet.createDefault ();
+        Sheet.Set ss = s.get (Sheet.PROPERTIES);
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of typedef") {
+                    public Object getValue () {
+                        return _type.getName ();
+                    }
+                });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type") {
+                    public Object getValue () {
+                        return _type.getType ().getName ();
+                    }
+                });
+        return s;
+    }
+
 
 
 }

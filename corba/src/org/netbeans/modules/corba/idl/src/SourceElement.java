@@ -25,30 +25,30 @@ import org.openide.util.Task;
  */
 
 public class SourceElement extends SimpleNode {
-   
-   static int STATUS_OK = 0;
-   static int STATUS_ERROR = 1;
-   static int STATUS_PARTIAL = 2;
-   static int STATUS_NOT = 3;
 
-   public SourceElement (int i) {
-      super (i);
-   }
+    static int STATUS_OK = 0;
+    static int STATUS_ERROR = 1;
+    static int STATUS_PARTIAL = 2;
+    static int STATUS_NOT = 3;
 
-   public SourceElement (IDLParser p, int i) {
-      super (p, i);
-   }
+    public SourceElement (int i) {
+        super (i);
+    }
+
+    public SourceElement (IDLParser p, int i) {
+        super (p, i);
+    }
 
 
-   public int getStatus () {
-      return STATUS_NOT;
-   }
+    public int getStatus () {
+        return STATUS_NOT;
+    }
 
-   public Task prepare () {
-      return null;
-   }
+    public Task prepare () {
+        return null;
+    }
 
-   
+
 }
 
 /*

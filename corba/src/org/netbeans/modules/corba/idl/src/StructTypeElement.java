@@ -14,33 +14,33 @@
 package org.netbeans.modules.corba.idl.src;
 
 public class StructTypeElement extends TypeElement {
-  static final long serialVersionUID =-2986489021433601833L;
-   public StructTypeElement(int id) {
-      super(id);
-   }
+    static final long serialVersionUID =-2986489021433601833L;
+    public StructTypeElement(int id) {
+        super(id);
+    }
 
-   public StructTypeElement(IDLParser p, int id) {
-      super(p, id);
-   }
+    public StructTypeElement(IDLParser p, int id) {
+        super(p, id);
+    }
 
-   /*
-   public void jjtClose () {      
-   
-      System.out.println ("StructTypeElement.jjtClose ()");
-      if (jjtGetChild (0) instanceof Identifier)
-	 setType (((Identifier)jjtGetChild (0)).getName ());
-      else  // constr type
-	 setType (((Identifier)jjtGetChild (0).jjtGetChild (0)).getName ());
-      for (int i=0; i<jjtGetNumChildren (); i++)
-	 if (jjtGetChild (i) instanceof Identifier) {
-	    // simple type
-	    addMember (jjtGetChild (i));
-	 }
-	 else {
-	    addMember (jjtGetChild (i));
-	 }
-   }      
-   */
+    /*
+    public void jjtClose () {      
+
+       System.out.println ("StructTypeElement.jjtClose ()");
+       if (jjtGetChild (0) instanceof Identifier)
+    setType (((Identifier)jjtGetChild (0)).getName ());
+       else  // constr type
+    setType (((Identifier)jjtGetChild (0).jjtGetChild (0)).getName ());
+       for (int i=0; i<jjtGetNumChildren (); i++)
+    if (jjtGetChild (i) instanceof Identifier) {
+      // simple type
+      addMember (jjtGetChild (i));
+}
+    else {
+      addMember (jjtGetChild (i));
+}
+}      
+    */
 
 }
 

@@ -50,235 +50,235 @@ import org.openide.NotifyDescriptor;
  *  @author Ales Novak, Tomas Zezula
  */
 final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
-  /* this two static constants are for testing only
-  in final version only valid constructor will be NewJndiRootPanel(String[],String[])*/
+    /* this two static constants are for testing only
+    in final version only valid constructor will be NewJndiRootPanel(String[],String[])*/
 
-  /** ComboBox holding the factory*/
-  JComboBox  factory;
-  /** TextField holding the label*/
-  JTextField label;
-  
-  /** Reference to Hashtable holding the Properties of providers */
-  Hashtable providers;
-  
-  
-  /** constructor takes as parameter array of factories and protocols
-   * @param fcs array of factories
-   * @param proto array of protocols
-   */
-  public NewJndiRootPanel(Hashtable providers) {
-    super();
-    String className = null;
-    this.providers=providers;
-    java.util.Enumeration enum = this.providers.keys ();
-    while (enum.hasMoreElements () ) {
-      className = (String) enum.nextElement ();
-      this.factory.addItem (className);
-    }
-  }
+    /** ComboBox holding the factory*/
+    JComboBox  factory;
+    /** TextField holding the label*/
+    JTextField label;
 
-  /** Accessor for Factory
-   *  @return String name of Factory
-   */
-  public String getFactory() {
-    return (String) factory.getSelectedItem();
-  }
-  
-  /** Accessor for Label
-   *  @return String name of JndiRootNode
-   */
-  public String getLabel()  {
-    return this.label.getText();
-  }
+    /** Reference to Hashtable holding the Properties of providers */
+    Hashtable providers;
 
 
-  
-  /** Synchronization of Factory and Protocol
-   *  @param event ItemEvent
-   */
-  public void itemStateChanged(ItemEvent event) {
-
-    if (event.getSource() == this.factory) {
-     // this.properties.clear();
-      Object item = factory.getSelectedItem();
-      if (item != null){
-        ProviderProperties p =(ProviderProperties)this.providers.get(item);
-        if (p!=null){
-          this.context.setText(p.getContext());
-          this.authentification.setText(p.getAuthentification());
-          this.principal.setText(p.getPrincipal());
-          this.credentials.setText(p.getCredentials());
-          this.properties.setData(p.getAdditionalSave());
-          this.root.setText(p.getRoot());
+    /** constructor takes as parameter array of factories and protocols
+     * @param fcs array of factories
+     * @param proto array of protocols
+     */
+    public NewJndiRootPanel(Hashtable providers) {
+        super();
+        String className = null;
+        this.providers=providers;
+        java.util.Enumeration enum = this.providers.keys ();
+        while (enum.hasMoreElements () ) {
+            className = (String) enum.nextElement ();
+            this.factory.addItem (className);
         }
-      }
     }
-  }
-  
-  /** Creates a part of GUI, called grom createGUI */
-  JPanel createSubGUI(){
-    this.label = new JTextField();
-    this.factory = new JComboBox();
-    this.factory.setEditable(true);
-    this.factory.setSize(this.label.getSize());
-    this.factory.addItemListener(this);
-    this.context = new JTextField();
-    this.authentification = new JTextField();
-    this.principal = new JTextField();
-    this.credentials= new JTextField();
-    this.root = new JTextField();
-    JPanel p = new JPanel();
-    p.setLayout ( new GridBagLayout());
-    GridBagConstraints gridBagConstraints;
 
-    JLabel label = new JLabel (JndiRootNode.getLocalizedString("TXT_ContextLabel"));
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 0;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    p.add (label, gridBagConstraints);
-    label = new JLabel (JndiRootNode.getLocalizedString("TXT_Factory"));
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 1;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    p.add (label, gridBagConstraints);
-    label = new JLabel (JndiRootNode.getLocalizedString("TXT_InitialContext"));
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 2;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    p.add (label, gridBagConstraints);
-    label = new JLabel (JndiRootNode.getLocalizedString("TXT_Root"));
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 3;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    p.add (label, gridBagConstraints);
-    label = new JLabel (JndiRootNode.getLocalizedString("TXT_Auth"));
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 4;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    p.add (label, gridBagConstraints);
-    label = new JLabel (JndiRootNode.getLocalizedString("TXT_Principal"));
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 5;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    p.add (label, gridBagConstraints);
-    label = new JLabel (JndiRootNode.getLocalizedString("TXT_Credentials"));
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 6;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    p.add (label, gridBagConstraints);
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 0;
-    gridBagConstraints.gridwidth = 0;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    gridBagConstraints.weightx = 1.0;
-    p.add (this.label, gridBagConstraints);
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 1;
-    gridBagConstraints.gridwidth = 0;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    gridBagConstraints.weightx = 1.0;
-    p.add (this.factory, gridBagConstraints);
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 2;
-    gridBagConstraints.gridwidth = 0;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    gridBagConstraints.weightx = 1.0;
-    p.add (this.context, gridBagConstraints);
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 3;
-    gridBagConstraints.gridwidth = 0;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    gridBagConstraints.weightx = 1.0;
-    p.add (this.root, gridBagConstraints);
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 4;
-    gridBagConstraints.gridwidth = 0;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    gridBagConstraints.weightx = 1.0;
-    p.add (this.authentification, gridBagConstraints);
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 5;
-    gridBagConstraints.gridwidth = 0;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    gridBagConstraints.weightx = 1.0;
-    p.add (this.principal, gridBagConstraints);
-    gridBagConstraints = new java.awt.GridBagConstraints ();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 6;
-    gridBagConstraints.gridwidth = 0;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-    gridBagConstraints.weightx = 1.0;
-    p.add (this.credentials, gridBagConstraints);
-    return p;
-  }
+    /** Accessor for Factory
+     *  @return String name of Factory
+     */
+    public String getFactory() {
+        return (String) factory.getSelectedItem();
+    }
 
-  /** Cretes notes panel
-   *  @return JPanel or null
-   */
-  javax.swing.JPanel createNotesPanel(){
-    return null;
-  }
-  
-  /** selects provider
-   *  This mrthod does nearly the same as ItemStateChanged,
-   *  but sets also the factory
-   */
-  public void select (String provider){
-    if (provider != null){
-        ProviderProperties p =(ProviderProperties)this.providers.get(provider);
-        if (p!=null){
-          this.factory.setSelectedItem(provider);
-          this.context.setText(p.getContext());
-          this.authentification.setText(p.getAuthentification());
-          this.principal.setText(p.getPrincipal());
-          this.credentials.setText(p.getCredentials());
-          this.properties.setData(p.getAdditionalSave());
-          this.root.setText(p.getRoot());
+    /** Accessor for Label
+     *  @return String name of JndiRootNode
+     */
+    public String getLabel()  {
+        return this.label.getText();
+    }
+
+
+
+    /** Synchronization of Factory and Protocol
+     *  @param event ItemEvent
+     */
+    public void itemStateChanged(ItemEvent event) {
+
+        if (event.getSource() == this.factory) {
+            // this.properties.clear();
+            Object item = factory.getSelectedItem();
+            if (item != null){
+                ProviderProperties p =(ProviderProperties)this.providers.get(item);
+                if (p!=null){
+                    this.context.setText(p.getContext());
+                    this.authentification.setText(p.getAuthentification());
+                    this.principal.setText(p.getPrincipal());
+                    this.credentials.setText(p.getCredentials());
+                    this.properties.setData(p.getAdditionalSave());
+                    this.root.setText(p.getRoot());
+                }
+            }
         }
-      }
-  }
-  
-  
-  
+    }
+
+    /** Creates a part of GUI, called grom createGUI */
+    JPanel createSubGUI(){
+        this.label = new JTextField();
+        this.factory = new JComboBox();
+        this.factory.setEditable(true);
+        this.factory.setSize(this.label.getSize());
+        this.factory.addItemListener(this);
+        this.context = new JTextField();
+        this.authentification = new JTextField();
+        this.principal = new JTextField();
+        this.credentials= new JTextField();
+        this.root = new JTextField();
+        JPanel p = new JPanel();
+        p.setLayout ( new GridBagLayout());
+        GridBagConstraints gridBagConstraints;
+
+        JLabel label = new JLabel (JndiRootNode.getLocalizedString("TXT_ContextLabel"));
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        p.add (label, gridBagConstraints);
+        label = new JLabel (JndiRootNode.getLocalizedString("TXT_Factory"));
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        p.add (label, gridBagConstraints);
+        label = new JLabel (JndiRootNode.getLocalizedString("TXT_InitialContext"));
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        p.add (label, gridBagConstraints);
+        label = new JLabel (JndiRootNode.getLocalizedString("TXT_Root"));
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        p.add (label, gridBagConstraints);
+        label = new JLabel (JndiRootNode.getLocalizedString("TXT_Auth"));
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        p.add (label, gridBagConstraints);
+        label = new JLabel (JndiRootNode.getLocalizedString("TXT_Principal"));
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        p.add (label, gridBagConstraints);
+        label = new JLabel (JndiRootNode.getLocalizedString("TXT_Credentials"));
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        p.add (label, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        p.add (this.label, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        p.add (this.factory, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        p.add (this.context, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        p.add (this.root, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        p.add (this.authentification, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        p.add (this.principal, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets (8, 8, 0, 8);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        p.add (this.credentials, gridBagConstraints);
+        return p;
+    }
+
+    /** Cretes notes panel
+     *  @return JPanel or null
+     */
+    javax.swing.JPanel createNotesPanel(){
+        return null;
+    }
+
+    /** selects provider
+     *  This mrthod does nearly the same as ItemStateChanged,
+     *  but sets also the factory
+     */
+    public void select (String provider){
+        if (provider != null){
+            ProviderProperties p =(ProviderProperties)this.providers.get(provider);
+            if (p!=null){
+                this.factory.setSelectedItem(provider);
+                this.context.setText(p.getContext());
+                this.authentification.setText(p.getAuthentification());
+                this.principal.setText(p.getPrincipal());
+                this.credentials.setText(p.getCredentials());
+                this.properties.setData(p.getAdditionalSave());
+                this.root.setText(p.getRoot());
+            }
+        }
+    }
+
+
+
 }

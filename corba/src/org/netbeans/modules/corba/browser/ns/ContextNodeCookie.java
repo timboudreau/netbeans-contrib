@@ -21,11 +21,11 @@ import org.netbeans.modules.corba.*;
 /*
  * @author Karel Gardas
  */
- 
+
 public interface ContextNodeCookie extends Node.Cookie {
 
 
-   public void BindNewContext ();
+    public void BindNewContext ();
 
 }
 

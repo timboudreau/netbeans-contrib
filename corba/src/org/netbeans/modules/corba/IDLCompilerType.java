@@ -17,35 +17,35 @@ import org.openide.loaders.DataObject;
 import org.openide.compiler.CompilerType;
 import org.openide.compiler.CompilerJob;
 
-/** 
+/**
 *
 * @author Karel Gardas
 */           
 public class IDLCompilerType extends CompilerType {
 
-  static final long serialVersionUID =-8389299857638878014L;
+    static final long serialVersionUID =-8389299857638878014L;
 
-  //public static final boolean DEBUG = true;
-  private static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
-  /** Prepare a data object for compilation.
-  * Implementations should create an instance of a
-  * suitable subclass of {@link Compiler}, passing
-  * the compiler job to the constructor so that the job may
-  * register the compiler.
-  *
-  * @param job compiler job to add compilers to
-  * @param type the type of compilation task to manage
-  * ({@link org.openide.cookies.CompilationCookie.Compile}, etc.)
-  * @param obj data object to prepare for compilation
-  */
+    /** Prepare a data object for compilation.
+    * Implementations should create an instance of a
+    * suitable subclass of {@link Compiler}, passing
+    * the compiler job to the constructor so that the job may
+    * register the compiler.
+    *
+    * @param job compiler job to add compilers to
+    * @param type the type of compilation task to manage
+    * ({@link org.openide.cookies.CompilationCookie.Compile}, etc.)
+    * @param obj data object to prepare for compilation
+    */
 
-  public void prepareJob (CompilerJob job, Class type, DataObject obj) {
-    if (DEBUG)
-      System.out.println ("IDLCompilerType::prepareJob (...)");
-    if (obj instanceof IDLDataObject)
-      ((IDLDataObject)obj).createCompiler(job, type);
-  }
+    public void prepareJob (CompilerJob job, Class type, DataObject obj) {
+        if (DEBUG)
+            System.out.println ("IDLCompilerType::prepareJob (...)");
+        if (obj instanceof IDLDataObject)
+            ((IDLDataObject)obj).createCompiler(job, type);
+    }
 }
 
 /*

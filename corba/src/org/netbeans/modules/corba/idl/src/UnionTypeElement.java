@@ -15,24 +15,24 @@ package org.netbeans.modules.corba.idl.src;
 
 public class UnionTypeElement extends TypeElement {
 
-   private String switch_type;
+    private String switch_type;
 
-  static final long serialVersionUID =870071007709079899L;
-   public UnionTypeElement(int id) {
-      super(id);
-   }
+    static final long serialVersionUID =870071007709079899L;
+    public UnionTypeElement(int id) {
+        super(id);
+    }
 
-   public UnionTypeElement(IDLParser p, int id) {
-      super(p, id);
-   }
+    public UnionTypeElement(IDLParser p, int id) {
+        super(p, id);
+    }
 
-   public void setSwitchType (String t) {
-      switch_type = t;
-   }
+    public void setSwitchType (String t) {
+        switch_type = t;
+    }
 
-   public String getSwitchType () {
-      return switch_type;
-   }
+    public String getSwitchType () {
+        return switch_type;
+    }
 
 }
 

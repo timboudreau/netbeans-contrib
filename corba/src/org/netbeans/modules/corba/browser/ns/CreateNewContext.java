@@ -24,59 +24,59 @@ import org.netbeans.modules.corba.*;
 /*
  * @author Karel Gardas
  */
- 
+
 public class CreateNewContext extends NodeAction {
 
-   public static final boolean DEBUG = false;
-   //public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
 
-  static final long serialVersionUID =-4377234682968736870L;
-   public CreateNewContext () {
-      super ();
-   }
+    static final long serialVersionUID =-4377234682968736870L;
+    public CreateNewContext () {
+        super ();
+    }
 
-   protected boolean enable (org.openide.nodes.Node[] nodes) {
-      if (nodes == null || nodes.length != 1)
-	 return false;
-      return (nodes[0].getCookie (ContextNode.class) != null);
-   }
+    protected boolean enable (org.openide.nodes.Node[] nodes) {
+        if (nodes == null || nodes.length != 1)
+            return false;
+        return (nodes[0].getCookie (ContextNode.class) != null);
+    }
 
-   public String getName() {
-      return NbBundle.getBundle (ContextNode.class).getString ("CTL_CreateNewContext");
-   }
+    public String getName() {
+        return NbBundle.getBundle (ContextNode.class).getString ("CTL_CreateNewContext");
+    }
 
-   public HelpCtx getHelpCtx() {
-      return HelpCtx.DEFAULT_HELP; // [PENDING]
-   }
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP; // [PENDING]
+    }
 
-   protected void performAction (final Node[] activatedNodes) {
-      if (DEBUG)
-	 System.out.println ("CreateNewContext.java");
-      CreateNewContextPanel p = new CreateNewContextPanel ();
-      DialogDescriptor dd = new DialogDescriptor 
-	 (p, "CORBA Panel", true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, 
-	  DialogDescriptor.BOTTOM_ALIGN, null, null);
-      TopManager.getDefault ().createDialog (dd).show ();
-      if (dd.getValue () == DialogDescriptor.OK_OPTION) {
-	 if (DEBUG) {
-	    System.out.println (":OK");
-	    System.out.println (p.getName ());
-	    System.out.println (p.getKind ());
-	 }
-	 if (enable (activatedNodes)) {
-	    try {
-	       ((ContextNode) activatedNodes[0].getCookie(ContextNode.class)).create_new_context 
-		  (p.getName (), p.getKind ());
-	    } catch (Exception e) {
-	       if (DEBUG)
-		  e.printStackTrace ();
-	       TopManager.getDefault ().notify (new NotifyDescriptor.Exception 
-						((java.lang.Throwable) e));
-	    }
-	    
-	 }
-      }
-   }
+    protected void performAction (final Node[] activatedNodes) {
+        if (DEBUG)
+            System.out.println ("CreateNewContext.java");
+        CreateNewContextPanel p = new CreateNewContextPanel ();
+        DialogDescriptor dd = new DialogDescriptor
+                              (p, "CORBA Panel", true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION,
+                               DialogDescriptor.BOTTOM_ALIGN, null, null);
+        TopManager.getDefault ().createDialog (dd).show ();
+        if (dd.getValue () == DialogDescriptor.OK_OPTION) {
+            if (DEBUG) {
+                System.out.println (":OK");
+                System.out.println (p.getName ());
+                System.out.println (p.getKind ());
+            }
+            if (enable (activatedNodes)) {
+                try {
+                    ((ContextNode) activatedNodes[0].getCookie(ContextNode.class)).create_new_context
+                    (p.getName (), p.getKind ());
+                } catch (Exception e) {
+                    if (DEBUG)
+                        e.printStackTrace ();
+                    TopManager.getDefault ().notify (new NotifyDescriptor.Exception
+                                                     ((java.lang.Throwable) e));
+                }
+
+            }
+        }
+    }
 }
 
 

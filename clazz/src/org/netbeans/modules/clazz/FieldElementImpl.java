@@ -22,58 +22,58 @@ import org.openide.src.*;
 * @author Dafe Simonek
 */
 final class FieldElementImpl extends MemberElementImpl
-                             implements FieldElement.Impl {
-  /** Cached type of this field */
-  private Type type;
+    implements FieldElement.Impl {
+    /** Cached type of this field */
+    private Type type;
 
-  /** One JavaDoc empty implementation for all objects */
-  private static final ClassJavaDocImpl.Field FIELD_JAVADOC_IMPL = new ClassJavaDocImpl.Field(); 
+    /** One JavaDoc empty implementation for all objects */
+    private static final ClassJavaDocImpl.Field FIELD_JAVADOC_IMPL = new ClassJavaDocImpl.Field();
 
-static final long serialVersionUID =-4800326520399939102L;
-  /** Default constructor. Asociates with given
-  * reflection Field data.
-  */
-  public FieldElementImpl (final Field data) {
-    super(data);
-  }
+    static final long serialVersionUID =-4800326520399939102L;
+    /** Default constructor. Asociates with given
+    * reflection Field data.
+    */
+    public FieldElementImpl (final Field data) {
+        super(data);
+    }
 
-  /** Type of the variable.
-  * @return the type
-  */
-  public Type getType () {
-    if (type == null)
-      type = Type.createFromClass(((Field)data).getType());
-    return type;
-  }
+    /** Type of the variable.
+    * @return the type
+    */
+    public Type getType () {
+        if (type == null)
+            type = Type.createFromClass(((Field)data).getType());
+        return type;
+    }
 
-  /** Not supported. Throws SourceException.
-  */
-  public void setType (Type type) throws SourceException {
-    throw new SourceException();
-  }
+    /** Not supported. Throws SourceException.
+    */
+    public void setType (Type type) throws SourceException {
+        throw new SourceException();
+    }
 
-  /** PENDING - don't know how to implement...
-  */
-  public String getInitValue () {
-    return ""; // NOI18N
-  }
+    /** PENDING - don't know how to implement...
+    */
+    public String getInitValue () {
+        return ""; // NOI18N
+    }
 
-  /** Not supported. Throws SourceException.
-  */
-  public void setInitValue (String value) throws SourceException {
-    throw new SourceException();
-  }
+    /** Not supported. Throws SourceException.
+    */
+    public void setInitValue (String value) throws SourceException {
+        throw new SourceException();
+    }
 
-  /** @return java doc for the field
-  */
-  public JavaDoc.Field getJavaDoc () {
-    return FIELD_JAVADOC_IMPL;
-  }
+    /** @return java doc for the field
+    */
+    public JavaDoc.Field getJavaDoc () {
+        return FIELD_JAVADOC_IMPL;
+    }
 
-  public Object readResolve() {
-    return new FieldElement(this, null);
-  }
-  
+    public Object readResolve() {
+        return new FieldElement(this, null);
+    }
+
 }
 
 /*

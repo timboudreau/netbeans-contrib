@@ -27,60 +27,60 @@ import org.netbeans.modules.corba.*;
 /*
  * @author Karel Gardas
  */
- 
+
 public class CopyClientCode extends NodeAction {
 
-   public static final boolean DEBUG = false;
-   //public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
 
-  static final long serialVersionUID =981986841072137161L;
-   public CopyClientCode () {
-      super ();
-   }
+    static final long serialVersionUID =981986841072137161L;
+    public CopyClientCode () {
+        super ();
+    }
 
-   protected boolean enable (org.openide.nodes.Node[] nodes) {
-      if (nodes == null || nodes.length != 1)
-	 return false;
-      return (nodes[0].getCookie (ObjectNode.class) != null);
-   }
+    protected boolean enable (org.openide.nodes.Node[] nodes) {
+        if (nodes == null || nodes.length != 1)
+            return false;
+        return (nodes[0].getCookie (ObjectNode.class) != null);
+    }
 
-   public String getName() {
-      return NbBundle.getBundle (ContextNode.class).getString ("CTL_CopyClientCode");
-   }
+    public String getName() {
+        return NbBundle.getBundle (ContextNode.class).getString ("CTL_CopyClientCode");
+    }
 
-   public HelpCtx getHelpCtx() {
-      return HelpCtx.DEFAULT_HELP; // [PENDING]
-   }
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP; // [PENDING]
+    }
 
-   protected void performAction (final Node[] activatedNodes) {
-      if (DEBUG)
-	 System.out.println ("CopyClientCode.java");
-      Vector names = new Vector ();
-      Node tmp_node = activatedNodes[0];
-      ObjectNode on = (ObjectNode)tmp_node.getCookie (ObjectNode.class);
-      names.add (on.getName ());
-      names.add (on.getKind ());
-      tmp_node = on.getParentNode ();
-      while (tmp_node.getParentNode () != null) {
-	 ContextNode cn = (ContextNode)tmp_node.getCookie (ContextNode.class);
-	 tmp_node = tmp_node.getParentNode ();
-	 names.add (cn.getName ());
-	 names.add (cn.getKind ());
-      }
-      String paste = new String ("      String[] client_name_hierarchy = new String [] {");
-      for (int i=names.size () - 6; i>=0; i=i-2) {
-	 paste = paste + "\"" + (String)names.elementAt (i) + "\"" + ", ";
-	 paste = paste + "\"" + (String)names.elementAt (i+1) + "\"" + ", ";
-      }
-      if (paste.substring (paste.length () - 2, paste.length ()).equals (", "))
-	 paste = paste.substring (0, paste.length () - 2);
-      paste = paste + "};\n";
-      if (DEBUG)
-	 System.out.println ("names: " + paste);
-      StringSelection ss = new StringSelection (paste);
-      TopManager.getDefault().getClipboard().setContents(ss, null);
+    protected void performAction (final Node[] activatedNodes) {
+        if (DEBUG)
+            System.out.println ("CopyClientCode.java");
+        Vector names = new Vector ();
+        Node tmp_node = activatedNodes[0];
+        ObjectNode on = (ObjectNode)tmp_node.getCookie (ObjectNode.class);
+        names.add (on.getName ());
+        names.add (on.getKind ());
+        tmp_node = on.getParentNode ();
+        while (tmp_node.getParentNode () != null) {
+            ContextNode cn = (ContextNode)tmp_node.getCookie (ContextNode.class);
+            tmp_node = tmp_node.getParentNode ();
+            names.add (cn.getName ());
+            names.add (cn.getKind ());
+        }
+        String paste = new String ("      String[] client_name_hierarchy = new String [] {");
+        for (int i=names.size () - 6; i>=0; i=i-2) {
+            paste = paste + "\"" + (String)names.elementAt (i) + "\"" + ", ";
+            paste = paste + "\"" + (String)names.elementAt (i+1) + "\"" + ", ";
+        }
+        if (paste.substring (paste.length () - 2, paste.length ()).equals (", "))
+            paste = paste.substring (0, paste.length () - 2);
+        paste = paste + "};\n";
+        if (DEBUG)
+            System.out.println ("names: " + paste);
+        StringSelection ss = new StringSelection (paste);
+        TopManager.getDefault().getClipboard().setContents(ss, null);
 
-   }
+    }
 
 }
 

@@ -40,71 +40,71 @@ import org.netbeans.modules.vcs.util.Debug;
  */
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends VcsFileSystem implements java.beans.PropertyChangeListener {
-  private Debug D = new Debug ("CommandLineVcsFileSystem", true); // NOI18N
-  private /*static transient*/ String CONFIG_ROOT="vcs/config"; // NOI18N
-  private FileObject CONFIG_ROOT_FO;
-  private transient Hashtable commandsByName=null;
- 
-  static final long serialVersionUID =-1017235664394970926L;
-  //-------------------------------------------
-  public CommandLineVcsFileSystem () {
-    //D.deb("CommandLineVcsFileSystem()"); // NOI18N
-    super ();
-    readConfiguration ();
-    addPropertyChangeListener(this);
-  }
-  
-  public VcsFactory getVcsFactory () {
-    return new CommandLineVcsFactory ();
-  }
-  
-  //-------------------------------------------
-  public String getConfigRoot(){
-    return CONFIG_ROOT;
-  }
-  
-  public void setConfigRoot(String s) {
-    CONFIG_ROOT = s;
-  }
+    private Debug D = new Debug ("CommandLineVcsFileSystem", true); // NOI18N
+    private /*static transient*/ String CONFIG_ROOT="vcs/config"; // NOI18N
+    private FileObject CONFIG_ROOT_FO;
+    private transient Hashtable commandsByName=null;
 
-  public FileObject getConfigRootFO() {
-    return CONFIG_ROOT_FO;
-  }
-  
-  protected void readConfiguration () {
-    D.deb ("readConfiguration ()"); // NOI18N
-    CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
-      "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
-    CONFIG_ROOT = "vcs"+File.separator+"config"; // NOI18N
-    CONFIG_ROOT_FO = TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot ();
-    CONFIG_ROOT_FO = CONFIG_ROOT_FO.getFileObject("vcs");
-    CONFIG_ROOT_FO = CONFIG_ROOT_FO.getFileObject("config");
-    //Properties props=VcsConfigVariable.readPredefinedPropertiesIO(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
-    Properties props = VcsConfigVariable.readPredefinedProperties(CONFIG_ROOT_FO, "empty.properties"); // NOI18N
-    setVariables (VcsConfigVariable.readVariables(props));
-    D.deb("setVariables DONE."); // NOI18N
-    setAdvancedConfig (getVcsFactory ().getVcsAdvancedCustomizer().readConfig (props));
-    D.deb("readConfiguration() done"); // NOI18N
-  }  
-
-  public void propertyChange (PropertyChangeEvent evt) {
-    if (evt.getPropertyName() != FileSystem.PROP_VALID) return;
-    if (isValid()) {
-      D.deb("Filesystem added to the repository, setting refresh time to "+refreshTimeToSet); // NOI18N
-      setRefreshTime(refreshTimeToSet);
-      warnDirectoriesDoNotExists();
-    } else {
-      D.deb("Filesystem is not valid any more, setting refresh time to 0"); // NOI18N
-      setRefreshTime(0);
+    static final long serialVersionUID =-1017235664394970926L;
+    //-------------------------------------------
+    public CommandLineVcsFileSystem () {
+        //D.deb("CommandLineVcsFileSystem()"); // NOI18N
+        super ();
+        readConfiguration ();
+        addPropertyChangeListener(this);
     }
-  }
-  
-  /*
-  protected String g(String s) {
-    return NbBundle.getBundle
-      ("org.netbeans.modules.vcs.cmdline.BundleCVS").getString (s);
-  }
-  */
+
+    public VcsFactory getVcsFactory () {
+        return new CommandLineVcsFactory ();
+    }
+
+    //-------------------------------------------
+    public String getConfigRoot(){
+        return CONFIG_ROOT;
+    }
+
+    public void setConfigRoot(String s) {
+        CONFIG_ROOT = s;
+    }
+
+    public FileObject getConfigRootFO() {
+        return CONFIG_ROOT_FO;
+    }
+
+    protected void readConfiguration () {
+        D.deb ("readConfiguration ()"); // NOI18N
+        CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
+                    "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
+        CONFIG_ROOT = "vcs"+File.separator+"config"; // NOI18N
+        CONFIG_ROOT_FO = TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot ();
+        CONFIG_ROOT_FO = CONFIG_ROOT_FO.getFileObject("vcs");
+        CONFIG_ROOT_FO = CONFIG_ROOT_FO.getFileObject("config");
+        //Properties props=VcsConfigVariable.readPredefinedPropertiesIO(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
+        Properties props = VcsConfigVariable.readPredefinedProperties(CONFIG_ROOT_FO, "empty.properties"); // NOI18N
+        setVariables (VcsConfigVariable.readVariables(props));
+        D.deb("setVariables DONE."); // NOI18N
+        setAdvancedConfig (getVcsFactory ().getVcsAdvancedCustomizer().readConfig (props));
+        D.deb("readConfiguration() done"); // NOI18N
+    }
+
+    public void propertyChange (PropertyChangeEvent evt) {
+        if (evt.getPropertyName() != FileSystem.PROP_VALID) return;
+        if (isValid()) {
+            D.deb("Filesystem added to the repository, setting refresh time to "+refreshTimeToSet); // NOI18N
+            setRefreshTime(refreshTimeToSet);
+            warnDirectoriesDoNotExists();
+        } else {
+            D.deb("Filesystem is not valid any more, setting refresh time to 0"); // NOI18N
+            setRefreshTime(0);
+        }
+    }
+
+    /*
+    protected String g(String s) {
+      return NbBundle.getBundle
+        ("org.netbeans.modules.vcs.cmdline.BundleCVS").getString (s);
+}
+    */
 }
 
 /*

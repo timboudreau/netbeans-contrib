@@ -13,11 +13,11 @@
 
 package org.netbeans.modules.jndi.utils;
 
-/** 
+/**
  * This interface represents an mutator for Naming or Directory attribute
  * @author  tzezula
  * @version 
  */
 public interface JndiPropertyMutator {
-  public boolean changeJndiPropertyValue(String name, Object value);
+    public boolean changeJndiPropertyValue(String name, Object value);
 }

@@ -17,48 +17,48 @@ import java.util.Vector;
 
 public class AttributeElement extends IDLElement {
 
-   private boolean readonly;
-   private IDLType type;
-   private Vector other;
+    private boolean readonly;
+    private IDLType type;
+    private Vector other;
 
-   public AttributeElement(int id) {
-      super(id);
-      readonly = false;
-      other = new Vector ();
-   }
+    public AttributeElement(int id) {
+        super(id);
+        readonly = false;
+        other = new Vector ();
+    }
 
-   public AttributeElement(IDLParser p, int id) {
-      super(p, id);
-   }
+    public AttributeElement(IDLParser p, int id) {
+        super(p, id);
+    }
 
-   public void setReadOnly (boolean v) {
-      readonly = v;
-   }
+    public void setReadOnly (boolean v) {
+        readonly = v;
+    }
 
-   public boolean getReadOnly () {
-      return readonly;
-   }
+    public boolean getReadOnly () {
+        return readonly;
+    }
 
-   public void setType (IDLType t) {
-      type = t;
-   }
+    public void setType (IDLType t) {
+        type = t;
+    }
 
-   public IDLType getType () {
-      return type;
-   }
+    public IDLType getType () {
+        return type;
+    }
 
-   public Vector getOther () {
-      return other;
-   }
+    public Vector getOther () {
+        return other;
+    }
 
-   public void setOther (Vector o) { 
-      other = o;
-   }
+    public void setOther (Vector o) {
+        other = o;
+    }
 
-   public void addOther (SimpleDeclarator o) {
-      other.addElement (o);
-   }
-   
+    public void addOther (SimpleDeclarator o) {
+        other.addElement (o);
+    }
+
 }
 
 

@@ -15,18 +15,18 @@ package org.netbeans.modules.corba.idl.src;
 
 public class Identifier extends IDLElement {
 
-  static final long serialVersionUID =2372459111594765510L;
-   public Identifier(int id) {
-      super(id);
-   }
-   
-   public Identifier(IDLParser p, int id) {
-      super(p, id);
-   }
-   
-   public String toString () {
-      //return "id: " + getName ();
-      return getName ();
-   }
+    static final long serialVersionUID =2372459111594765510L;
+    public Identifier(int id) {
+        super(id);
+    }
+
+    public Identifier(IDLParser p, int id) {
+        super(p, id);
+    }
+
+    public String toString () {
+        //return "id: " + getName ();
+        return getName ();
+    }
 
 }

@@ -22,35 +22,35 @@ import org.netbeans.modules.corba.browser.ir.nodes.keys.IRTypeCodeKey;
 
 public class UnionChildren extends Children.Keys implements Refreshable {
 
-  UnionDef union;
-  
-  /** Creates new UnionChildren */
-  public UnionChildren(UnionDef union) {
-    this.union = union;
-  }
-  
-  
-  public void addNotify(){
-    createKeys();
-  }
-  
-  
-  public void createKeys(){
-    UnionMember[] members = this.union.members();
-    java.lang.Object[] keys = new java.lang.Object[members.length];
-    for (int i = 0; i<members.length; i++)
-      keys[i] = new IRTypeCodeKey ( members[i].name, members[i].type, members[i].label);
-    setKeys(keys);
-  }
-  
-  
-  public Node[] createNodes(java.lang.Object key){
-    if (key != null){
-      if (key instanceof IRTypeCodeKey){
-        return new Node[] { new IRPrimitiveNode(((IRTypeCodeKey)key).type,((IRTypeCodeKey)key).name)};
-      }
+    UnionDef union;
+
+    /** Creates new UnionChildren */
+    public UnionChildren(UnionDef union) {
+        this.union = union;
     }
-    return new Node[] {new IRUnknownTypeNode()};
-  }
+
+
+    public void addNotify(){
+        createKeys();
+    }
+
+
+    public void createKeys(){
+        UnionMember[] members = this.union.members();
+        java.lang.Object[] keys = new java.lang.Object[members.length];
+        for (int i = 0; i<members.length; i++)
+            keys[i] = new IRTypeCodeKey ( members[i].name, members[i].type, members[i].label);
+        setKeys(keys);
+    }
+
+
+    public Node[] createNodes(java.lang.Object key){
+        if (key != null){
+            if (key instanceof IRTypeCodeKey){
+                return new Node[] { new IRPrimitiveNode(((IRTypeCodeKey)key).type,((IRTypeCodeKey)key).name)};
+            }
+        }
+        return new Node[] {new IRUnknownTypeNode()};
+    }
 
 }

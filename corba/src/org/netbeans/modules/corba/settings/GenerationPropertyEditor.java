@@ -27,20 +27,20 @@ import org.netbeans.modules.corba.*;
 
 public class GenerationPropertyEditor extends PropertyEditorSupport {
 
-  private static final String[] viewers = {CORBASupport.GEN_NOTHING, CORBASupport.GEN_EXCEPTION,
-					   CORBASupport.GEN_RETURN_NULL};
+    private static final String[] viewers = {CORBASupport.GEN_NOTHING, CORBASupport.GEN_EXCEPTION,
+                                            CORBASupport.GEN_RETURN_NULL};
 
-  public String[] getTags() {
-    return viewers;
-  }
+    public String[] getTags() {
+        return viewers;
+    }
 
-  public String getAsText () {
-    return (String) getValue();
-  }
+    public String getAsText () {
+        return (String) getValue();
+    }
 
-  public void setAsText (String text) {
-      setValue(text);
-  }
+    public void setAsText (String text) {
+        setValue(text);
+    }
 }
 
 /*

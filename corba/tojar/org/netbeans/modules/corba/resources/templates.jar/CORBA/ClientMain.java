@@ -14,26 +14,26 @@
 package Templates.CORBA;
 
 __ORB_IMPORT__
-/** 
+/**
  *
  * @author  __USER__
  * @version 
  */
 public class ClientMain {
 
-  /** Creates new __NAME__ */
-  public ClientMain () {
-  }
-  
-  /**
-  * @param args the command line arguments
-  */
-  public static void main (String args[]) {
-  
-    __SETTINGS_ORB_PROPERTIES__ 
-    __ORB_CLIENT_INIT__ 
-    
-    __ORB_CLIENT_BINDING__
-  }
+    /** Creates new __NAME__ */
+    public ClientMain () {
+    }
+
+    /**
+    * @param args the command line arguments
+    */
+    public static void main (String args[]) {
+
+        __SETTINGS_ORB_PROPERTIES__
+        __ORB_CLIENT_INIT__
+
+        __ORB_CLIENT_BINDING__
+    }
 
 }

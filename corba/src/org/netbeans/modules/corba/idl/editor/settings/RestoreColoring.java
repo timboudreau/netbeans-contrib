@@ -27,24 +27,24 @@ import org.netbeans.editor.Settings;
  * @author Karel Gardas
  */
 public class RestoreColoring {
-  private static final String IDL_MIME_TYPE = "text/x-idl";
+    private static final String IDL_MIME_TYPE = "text/x-idl";
 
-  public void restore () {
-    //System.out.println ("restore ()");
-    Settings.addInitializer (new IDLEditorSettingsInitializer());
+    public void restore () {
+        //System.out.println ("restore ()");
+        Settings.addInitializer (new IDLEditorSettingsInitializer());
 
-    // Registration of the editor kits to JEditorPane
-    JEditorPane.registerEditorKitForContentType
-      (IDL_MIME_TYPE,
-       "org.netbeans.modules.corba.idl.editor.coloring.IDLKit", 
-       /* "org.netbeans.modules.corba.idl.editor.coloring.IDLKit", */
-       this.getClass().getClassLoader());
-    AllOptions all_options = (AllOptions)AllOptions.findObject (AllOptions.class, true);
-    all_options.addOption (new IDLOptions());
-    //PrintSettings print_settings = (PrintSettings)PrintSettings.findObject 
-    //  (PrintSettings.class, true);
-    //print_settings.addOption (new IDLPrintOptions());
-  }
+        // Registration of the editor kits to JEditorPane
+        JEditorPane.registerEditorKitForContentType
+        (IDL_MIME_TYPE,
+         "org.netbeans.modules.corba.idl.editor.coloring.IDLKit",
+         /* "org.netbeans.modules.corba.idl.editor.coloring.IDLKit", */
+         this.getClass().getClassLoader());
+        AllOptions all_options = (AllOptions)AllOptions.findObject (AllOptions.class, true);
+        all_options.addOption (new IDLOptions());
+        //PrintSettings print_settings = (PrintSettings)PrintSettings.findObject
+        //  (PrintSettings.class, true);
+        //print_settings.addOption (new IDLPrintOptions());
+    }
 }
 /*
  * <<Log>>

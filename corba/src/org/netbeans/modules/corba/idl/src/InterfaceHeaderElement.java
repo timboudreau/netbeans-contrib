@@ -17,35 +17,35 @@ import java.util.Vector;
 
 public class InterfaceHeaderElement extends IDLElement {
 
-  boolean is_abstract;
-  Vector parents;
+    boolean is_abstract;
+    Vector parents;
 
-  public InterfaceHeaderElement(int id) {
-    super(id);
-    is_abstract = false;
-    parents = new Vector ();
-  }
+    public InterfaceHeaderElement(int id) {
+        super(id);
+        is_abstract = false;
+        parents = new Vector ();
+    }
 
-  public InterfaceHeaderElement(IDLParser p, int id) {
-    super(p, id);
-    is_abstract = false;
-    parents = new Vector ();
-  }
+    public InterfaceHeaderElement(IDLParser p, int id) {
+        super(p, id);
+        is_abstract = false;
+        parents = new Vector ();
+    }
 
-  public void setInheritedParents (Vector value) {
-    parents = value;
-  }
+    public void setInheritedParents (Vector value) {
+        parents = value;
+    }
 
-  public Vector getInheritedParents () {
-    return parents;
-  }
+    public Vector getInheritedParents () {
+        return parents;
+    }
 
-  public void setAbstract (boolean value) {
-    is_abstract = value;
-  }
+    public void setAbstract (boolean value) {
+        is_abstract = value;
+    }
 
-  public boolean isAbstract () {
-    return is_abstract;
-  }
+    public boolean isAbstract () {
+        return is_abstract;
+    }
 
 }

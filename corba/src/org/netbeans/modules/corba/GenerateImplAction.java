@@ -26,87 +26,87 @@ import org.openide.nodes.Node;
 
 public class GenerateImplAction extends CookieAction {
 
-  static final long serialVersionUID =7123829348277092914L;
+    static final long serialVersionUID =7123829348277092914L;
 
-  //private String name = NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
-  private String generate = NbBundle.getBundle (CORBASupport.class).getString 
-    ("ACT_GENERATE");
-  private String update_and_generate = NbBundle.getBundle (CORBASupport.class).getString 
-    ("ACT_UPDATE_AND_GENERATE");
-  private String update = NbBundle.getBundle (CORBASupport.class).getString 
-    ("ACT_UPDATE");
-  
-  private String name;
+    //private String name = NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
+    private String generate = NbBundle.getBundle (CORBASupport.class).getString
+                              ("ACT_GENERATE");
+    private String update_and_generate = NbBundle.getBundle (CORBASupport.class).getString
+                                         ("ACT_UPDATE_AND_GENERATE");
+    private String update = NbBundle.getBundle (CORBASupport.class).getString
+                            ("ACT_UPDATE");
 
-  /** @return set of needed cookies */
-  protected Class[] cookieClasses () {
-    return new Class[] { IDLNodeCookie.class };
-  }
+    private String name;
 
-  /** @return false */
-  protected boolean surviveFocusChange () {
-    return false;
-  }
-
-  /** @return exactly one */
-  protected int mode () {
-    return MODE_EXACTLY_ONE;
-  }
-
-  /** Human presentable name of the action. This should be
-  * presented as an item in a menu.
-  * @return the name of the action
-  */
-  public String getName() {
-    //return NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
-    //System.out.println ("getName () -> " + name);
-    return name;
-  }
-
-  /** Help context where to find more about the action.
-  * @return the help context for this action
-  */
-  public HelpCtx getHelpCtx() {
-    return HelpCtx.DEFAULT_HELP; // [PENDING]
-  }
-
-  /** Resource name for the icon.
-  * @return resource name
-  */
-  protected String iconResource () {
-    return "/org/openide/resources/actions/empty.gif"; // no icon
-  }
-
-  
-  protected boolean enable (Node[] activatedNodes) {
-    //name = "Update Implementations";
-    try {
-      IDLDataObject ido = (IDLDataObject)activatedNodes[0].getCookie (IDLDataObject.class);
-      if (ido.hasGeneratedImplementation () == 0)
-	name = generate;
-      if (ido.hasGeneratedImplementation () == 1)
-	name = update_and_generate;
-      if (ido.hasGeneratedImplementation () == 2)
-	name = update;
-    } catch (Exception ex) {
-      //ex.printStackTrace ();
-      return false;
+    /** @return set of needed cookies */
+    protected Class[] cookieClasses () {
+        return new Class[] { IDLNodeCookie.class };
     }
-    return true;
-  }
 
-  /**
-  * Standart perform action extended by actually activated nodes.
-  * @see CallableSystemAction#performAction
-  *
-  * @param activatedNodes gives array of actually activated nodes.
-  */
-  protected void performAction (final Node[] activatedNodes) {
-    IDLNodeCookie unc = (IDLNodeCookie)activatedNodes[0].getCookie(IDLNodeCookie.class);
-    if (unc != null) {
-      unc.GenerateImpl((IDLDataObject)activatedNodes[0].getCookie (IDLDataObject.class));
+    /** @return false */
+    protected boolean surviveFocusChange () {
+        return false;
     }
-  }
+
+    /** @return exactly one */
+    protected int mode () {
+        return MODE_EXACTLY_ONE;
+    }
+
+    /** Human presentable name of the action. This should be
+    * presented as an item in a menu.
+    * @return the name of the action
+    */
+    public String getName() {
+        //return NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
+        //System.out.println ("getName () -> " + name);
+        return name;
+    }
+
+    /** Help context where to find more about the action.
+    * @return the help context for this action
+    */
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP; // [PENDING]
+    }
+
+    /** Resource name for the icon.
+    * @return resource name
+    */
+    protected String iconResource () {
+        return "/org/openide/resources/actions/empty.gif"; // no icon
+    }
+
+
+    protected boolean enable (Node[] activatedNodes) {
+        //name = "Update Implementations";
+        try {
+            IDLDataObject ido = (IDLDataObject)activatedNodes[0].getCookie (IDLDataObject.class);
+            if (ido.hasGeneratedImplementation () == 0)
+                name = generate;
+            if (ido.hasGeneratedImplementation () == 1)
+                name = update_and_generate;
+            if (ido.hasGeneratedImplementation () == 2)
+                name = update;
+        } catch (Exception ex) {
+            //ex.printStackTrace ();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+    * Standart perform action extended by actually activated nodes.
+    * @see CallableSystemAction#performAction
+    *
+    * @param activatedNodes gives array of actually activated nodes.
+    */
+    protected void performAction (final Node[] activatedNodes) {
+        IDLNodeCookie unc = (IDLNodeCookie)activatedNodes[0].getCookie(IDLNodeCookie.class);
+        if (unc != null) {
+            unc.GenerateImpl((IDLDataObject)activatedNodes[0].getCookie (IDLDataObject.class));
+        }
+    }
 }
 
 /*

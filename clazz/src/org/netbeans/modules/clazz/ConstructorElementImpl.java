@@ -27,103 +27,103 @@ import org.openide.src.*;
 * @author Dafe Simonek
 */
 class ConstructorElementImpl extends MemberElementImpl
-                             implements ConstructorElement.Impl {
+    implements ConstructorElement.Impl {
 
-  /** The array of parameters of this constructor (or method)*/
-  private MethodParameter[] parameters;
-  /** The array of exceptions which can be thrown */
-  private Identifier[] exceptions;
-  /** One JavaDoc empty implementation for all objects */
-  private static final ClassJavaDocImpl.Method METHOD_JAVADOC_IMPL = new ClassJavaDocImpl.Method(); 
+    /** The array of parameters of this constructor (or method)*/
+    private MethodParameter[] parameters;
+    /** The array of exceptions which can be thrown */
+    private Identifier[] exceptions;
+    /** One JavaDoc empty implementation for all objects */
+    private static final ClassJavaDocImpl.Method METHOD_JAVADOC_IMPL = new ClassJavaDocImpl.Method();
 
-  static final long serialVersionUID =5714347955571851240L;
-  /** Default constructor, asocitates this object
-  * with java reflection Constructor instance.
-  */
-  public ConstructorElementImpl (final Member data) {
-    super(data);
-  }
-
-  /** @return the array specifying the parameters
-  */
-  public MethodParameter[] getParameters () {
-    if (parameters == null) {
-      // build method params
-      Class[] reflPars = null;
-      if (data instanceof Method)
-        reflPars = ((Method)data).getParameterTypes();
-      else
-        reflPars = ((Constructor)data).getParameterTypes();
-      parameters = new MethodParameter[reflPars.length];
-      // helper variables
-      Class curPar = null;
-      Type curType = null;
-      String curName = null;
-      for (int i = 0; i < reflPars.length; i++) {
-        curPar = reflPars[i];
-        // create method parameter
-        parameters[i] = new MethodParameter(
-          "", Type.createFromClass(curPar), // NOI18N
-          (curPar.getModifiers() & Modifier.FINAL) == 0
-        );
-      }
+    static final long serialVersionUID =5714347955571851240L;
+    /** Default constructor, asocitates this object
+    * with java reflection Constructor instance.
+    */
+    public ConstructorElementImpl (final Member data) {
+        super(data);
     }
-    return parameters;
-  }
 
-  /** Unsupported, throws SourceException
-  */
-  public void setParameters (MethodParameter[] params) throws SourceException {
-    throw new SourceException();
-  }
-
-  /** @return the array of the exceptions throwed by the method.
-  */
-  public Identifier[] getExceptions () {
-    if (exceptions == null) {
-      Class[] reflEx = null;
-      // obtain via reflection
-      if (data instanceof Method)
-        reflEx = ((Method)data).getExceptionTypes();
-      else
-        reflEx = ((Constructor)data).getExceptionTypes();
-      exceptions = new Identifier[reflEx.length];
-      // build our exception types
-      for (int i = 0; i < reflEx.length; i++) {
-        exceptions[i] = Identifier.create(reflEx[i].getName());
-      }
+    /** @return the array specifying the parameters
+    */
+    public MethodParameter[] getParameters () {
+        if (parameters == null) {
+            // build method params
+            Class[] reflPars = null;
+            if (data instanceof Method)
+                reflPars = ((Method)data).getParameterTypes();
+            else
+                reflPars = ((Constructor)data).getParameterTypes();
+            parameters = new MethodParameter[reflPars.length];
+            // helper variables
+            Class curPar = null;
+            Type curType = null;
+            String curName = null;
+            for (int i = 0; i < reflPars.length; i++) {
+                curPar = reflPars[i];
+                // create method parameter
+                parameters[i] = new MethodParameter(
+                                    "", Type.createFromClass(curPar), // NOI18N
+                                    (curPar.getModifiers() & Modifier.FINAL) == 0
+                                );
+            }
+        }
+        return parameters;
     }
-    return exceptions;
-  }
 
-  /** Unsupported, throws SourceException
-  */
-  public void setExceptions (Identifier[] exceptions) throws SourceException {
-    throw new SourceException();
-  }
+    /** Unsupported, throws SourceException
+    */
+    public void setParameters (MethodParameter[] params) throws SourceException {
+        throw new SourceException();
+    }
 
-  /** Unsupported, throws SourceException
-  */
-  public void setBody (String s) throws SourceException {
-    throw new SourceException();
-  }
+    /** @return the array of the exceptions throwed by the method.
+    */
+    public Identifier[] getExceptions () {
+        if (exceptions == null) {
+            Class[] reflEx = null;
+            // obtain via reflection
+            if (data instanceof Method)
+                reflEx = ((Method)data).getExceptionTypes();
+            else
+                reflEx = ((Constructor)data).getExceptionTypes();
+            exceptions = new Identifier[reflEx.length];
+            // build our exception types
+            for (int i = 0; i < reflEx.length; i++) {
+                exceptions[i] = Identifier.create(reflEx[i].getName());
+            }
+        }
+        return exceptions;
+    }
 
-  /** Unsupported, always return empty string.
-  */
-  public String getBody () {
-    return ""; // NOI18N
-  }
+    /** Unsupported, throws SourceException
+    */
+    public void setExceptions (Identifier[] exceptions) throws SourceException {
+        throw new SourceException();
+    }
 
-  /** Empty implementation
-  * @return Empty JavaDoc implementation.
-  */
-  public JavaDoc.Method getJavaDoc () {
-    return METHOD_JAVADOC_IMPL;
-  }
+    /** Unsupported, throws SourceException
+    */
+    public void setBody (String s) throws SourceException {
+        throw new SourceException();
+    }
 
-  public Object readResolve() {
-    return new ConstructorElement(this, null);
-  }
+    /** Unsupported, always return empty string.
+    */
+    public String getBody () {
+        return ""; // NOI18N
+    }
+
+    /** Empty implementation
+    * @return Empty JavaDoc implementation.
+    */
+    public JavaDoc.Method getJavaDoc () {
+        return METHOD_JAVADOC_IMPL;
+    }
+
+    public Object readResolve() {
+        return new ConstructorElement(this, null);
+    }
 
 }
 

@@ -27,63 +27,63 @@ import org.openide.util.NbBundle;
 */
 public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
 
-  public BeanInfo[] getAdditionalBeanInfo () {
-    try {
-      return new BeanInfo[] { Introspector.getBeanInfo (MultiFileLoader.class) };
-    } catch (IntrospectionException ie) {
-      if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-        ie.printStackTrace ();
-      return null;
+    public BeanInfo[] getAdditionalBeanInfo () {
+        try {
+            return new BeanInfo[] { Introspector.getBeanInfo (MultiFileLoader.class) };
+        } catch (IntrospectionException ie) {
+            if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
+                ie.printStackTrace ();
+            return null;
+        }
     }
-  }
 
-  /** Icons for compiler settings objects. */
-  static Image icon;
-  static Image icon32;
+    /** Icons for compiler settings objects. */
+    static Image icon;
+    static Image icon32;
 
-  /** Propertydescriptors */
-  static PropertyDescriptor[] descriptors;
+    /** Propertydescriptors */
+    static PropertyDescriptor[] descriptors;
 
 
-  /**
-  * @return Returns an array of PropertyDescriptors
-  * describing the editable properties supported by this bean.
-  */
-  public PropertyDescriptor[] getPropertyDescriptors () {
-    if (descriptors == null) initializeDescriptors();
-    return descriptors;
-  }
-
-  /** @param type Desired type of the icon
-  * @return returns the Txt loader's icon
-  */
-  public Image getIcon(final int type) {
-    if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) ||
-        (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
-      if (icon == null)
-        icon = loadImage("/org/netbeans/modules/clazz/resources/class.gif"); // NOI18N
-      return icon;
-    } else {
-      if (icon32 == null)
-        icon32 = loadImage ("/org/netbeans/modules/clazz/resources/class32.gif"); // NOI18N
-      return icon32;
+    /**
+    * @return Returns an array of PropertyDescriptors
+    * describing the editable properties supported by this bean.
+    */
+    public PropertyDescriptor[] getPropertyDescriptors () {
+        if (descriptors == null) initializeDescriptors();
+        return descriptors;
     }
-  }
 
-  static void initializeDescriptors () {
-    final ResourceBundle bundle =
-      NbBundle.getBundle(ClassDataLoaderBeanInfo.class);
-    try {
-      descriptors =  new PropertyDescriptor[] {
-        new PropertyDescriptor ("extensions", ClassDataLoader.class, // NOI18N
-                                "getExtensions", "setExtensions") // NOI18N
-      };
-      descriptors[0].setDisplayName(bundle.getString("PROP_Extensions"));
-      descriptors[0].setShortDescription(bundle.getString("HINT_Extensions"));
-    } catch (IntrospectionException e) {
-      e.printStackTrace ();
+    /** @param type Desired type of the icon
+    * @return returns the Txt loader's icon
+    */
+    public Image getIcon(final int type) {
+        if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) ||
+                (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
+            if (icon == null)
+                icon = loadImage("/org/netbeans/modules/clazz/resources/class.gif"); // NOI18N
+            return icon;
+        } else {
+            if (icon32 == null)
+                icon32 = loadImage ("/org/netbeans/modules/clazz/resources/class32.gif"); // NOI18N
+            return icon32;
+        }
     }
-  }
+
+    static void initializeDescriptors () {
+        final ResourceBundle bundle =
+            NbBundle.getBundle(ClassDataLoaderBeanInfo.class);
+        try {
+            descriptors =  new PropertyDescriptor[] {
+                               new PropertyDescriptor ("extensions", ClassDataLoader.class, // NOI18N
+                                                       "getExtensions", "setExtensions") // NOI18N
+                           };
+            descriptors[0].setDisplayName(bundle.getString("PROP_Extensions"));
+            descriptors[0].setShortDescription(bundle.getString("HINT_Extensions"));
+        } catch (IntrospectionException e) {
+            e.printStackTrace ();
+        }
+    }
 
 }
 

@@ -17,32 +17,32 @@ import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.corba.browser.ir.util.Removable;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
-/** 
+/**
  *
  * @author  tzezula
  * @version 
  */
 public class IRFailedRepositoryNode extends IRLeafNode implements Removable, Node.Cookie {
 
-  private static final String FAILED_ICON_BASE =
-   "org/netbeans/modules/corba/browser/ir/resources/failedrep";
-  
-  /** Creates new IRFailedNode */
-  public IRFailedRepositoryNode(String name) {
-    super();
-    this.getCookieSet().add(this);
-    setName(name);
-    setIconBase(FAILED_ICON_BASE);
-  }
-  
-  public SystemAction[] createActions(){
-    return new SystemAction[] {
-      SystemAction.get(org.netbeans.modules.corba.browser.ir.actions.RemoveRepository.class)
-    };
-  }
-  
-  public GenerateSupport createGenerator(){
-    return null;
-  }
-  
+    private static final String FAILED_ICON_BASE =
+        "org/netbeans/modules/corba/browser/ir/resources/failedrep";
+
+    /** Creates new IRFailedNode */
+    public IRFailedRepositoryNode(String name) {
+        super();
+        this.getCookieSet().add(this);
+        setName(name);
+        setIconBase(FAILED_ICON_BASE);
+    }
+
+    public SystemAction[] createActions(){
+        return new SystemAction[] {
+                   SystemAction.get(org.netbeans.modules.corba.browser.ir.actions.RemoveRepository.class)
+               };
+    }
+
+    public GenerateSupport createGenerator(){
+        return null;
+    }
+
 }

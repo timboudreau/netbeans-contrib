@@ -15,5 +15,5 @@ package org.netbeans.modules.corba.browser.ir.util;
 
 
 public interface Refreshable {
-  public void createKeys();
+    public void createKeys();
 }

@@ -25,92 +25,92 @@ import org.netbeans.modules.vcs.cmdline.*;
  */
 //-------------------------------------------
 public class UserCommandsEditor implements PropertyEditor {
-  private Debug E=new Debug("UserCommandsEditor", false); // NOI18N
-  private Debug D=E;
+    private Debug E=new Debug("UserCommandsEditor", false); // NOI18N
+    private Debug D=E;
 
-  private Vector commands=new Vector(10);
+    private Vector commands=new Vector(10);
 
-  private PropertyChangeSupport changeSupport=null;
+    private PropertyChangeSupport changeSupport=null;
 
-  //-------------------------------------------
-  public UserCommandsEditor(){
-    // each PropertyEditor should have a null constructor...
-    changeSupport=new PropertyChangeSupport(this);
-  }
-
-  //-------------------------------------------
-  public String getAsText(){
-    // null if the value can't be expressed as an editable string...
-    return ""+commands; // NOI18N
-  }
-
-  //-------------------------------------------
-  public void setAsText(String text) {
-    //D.deb("setAsText("+text+") ignored"); // NOI18N
-  }
-  
-  //-------------------------------------------
-  public boolean supportsCustomEditor() {
-    return true ;
-  }
-
-  //-------------------------------------------
-  public Component getCustomEditor(){
-    return new UserCommandsPanel(this);
-  }
-
-  //-------------------------------------------
-  public String[] getTags(){
-    // this property cannot be represented as a tagged value..
-    return null ;
-  }
-
-  //-------------------------------------------
-  public String getJavaInitializationString() {
-    return ""; // NOI18N
-  }
-    
-  //-------------------------------------------
-  public Object getValue(){
-    return commands ;
-  }
-
-  //-------------------------------------------
-  public void setValue(Object value) {
-    if( !(value instanceof Vector) ){
-      E.err("Vector expected instead of "+value); // NOI18N
-      throw new IllegalArgumentException("Vector expected instead of "+value);
+    //-------------------------------------------
+    public UserCommandsEditor(){
+        // each PropertyEditor should have a null constructor...
+        changeSupport=new PropertyChangeSupport(this);
     }
-    // make local copy of value - deep copy using clone
-    commands=new Vector();
-    Vector vect = (Vector) value;
-    for(int i=0;i<vect.size (); i++) {
-      org.netbeans.modules.vcs.cmdline.UserCommand cmd = (org.netbeans.modules.vcs.cmdline.UserCommand) vect.get (i);
-      commands.add (cmd.clone ());
+
+    //-------------------------------------------
+    public String getAsText(){
+        // null if the value can't be expressed as an editable string...
+        return ""+commands; // NOI18N
     }
-    
-    changeSupport.firePropertyChange("",null,null); // NOI18N
-  }
 
-  //-------------------------------------------
-  public boolean isPaintable() {
-    return false ;
-  }
-  
-  //-------------------------------------------
-  public void paintValue(Graphics gfx, Rectangle box){
-    // silent noop
-  }
-  
-  //-------------------------------------------
-  public void addPropertyChangeListener (PropertyChangeListener l) {
-    changeSupport.addPropertyChangeListener(l);
-  }
+    //-------------------------------------------
+    public void setAsText(String text) {
+        //D.deb("setAsText("+text+") ignored"); // NOI18N
+    }
 
-  //-------------------------------------------
-  public void removePropertyChangeListener (PropertyChangeListener l) {
-    changeSupport.removePropertyChangeListener(l);
-  }
+    //-------------------------------------------
+    public boolean supportsCustomEditor() {
+        return true ;
+    }
+
+    //-------------------------------------------
+    public Component getCustomEditor(){
+        return new UserCommandsPanel(this);
+    }
+
+    //-------------------------------------------
+    public String[] getTags(){
+        // this property cannot be represented as a tagged value..
+        return null ;
+    }
+
+    //-------------------------------------------
+    public String getJavaInitializationString() {
+        return ""; // NOI18N
+    }
+
+    //-------------------------------------------
+    public Object getValue(){
+        return commands ;
+    }
+
+    //-------------------------------------------
+    public void setValue(Object value) {
+        if( !(value instanceof Vector) ){
+            E.err("Vector expected instead of "+value); // NOI18N
+            throw new IllegalArgumentException("Vector expected instead of "+value);
+        }
+        // make local copy of value - deep copy using clone
+        commands=new Vector();
+        Vector vect = (Vector) value;
+        for(int i=0;i<vect.size (); i++) {
+            org.netbeans.modules.vcs.cmdline.UserCommand cmd = (org.netbeans.modules.vcs.cmdline.UserCommand) vect.get (i);
+            commands.add (cmd.clone ());
+        }
+
+        changeSupport.firePropertyChange("",null,null); // NOI18N
+    }
+
+    //-------------------------------------------
+    public boolean isPaintable() {
+        return false ;
+    }
+
+    //-------------------------------------------
+    public void paintValue(Graphics gfx, Rectangle box){
+        // silent noop
+    }
+
+    //-------------------------------------------
+    public void addPropertyChangeListener (PropertyChangeListener l) {
+        changeSupport.addPropertyChangeListener(l);
+    }
+
+    //-------------------------------------------
+    public void removePropertyChangeListener (PropertyChangeListener l) {
+        changeSupport.removePropertyChangeListener(l);
+    }
 
 }
 

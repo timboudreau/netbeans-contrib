@@ -31,48 +31,48 @@ import org.netbeans.modules.corba.idl.src.Identifier;
  */
 public class IDLExceptionNode extends IDLAbstractNode {
 
-  ExceptionElement _exception;
-  private static final String EXCEPTION_ICON_BASE =
-    "org/netbeans/modules/corba/idl/node/exception";
+    ExceptionElement _exception;
+    private static final String EXCEPTION_ICON_BASE =
+        "org/netbeans/modules/corba/idl/node/exception";
 
-  public IDLExceptionNode (ExceptionElement value) {
-    super (new IDLDocumentChildren ((IDLElement)value));
-    setIconBase (EXCEPTION_ICON_BASE);
-    _exception = value;
-    setCookieForDataObject (_exception.getDataObject ());
-  }
+    public IDLExceptionNode (ExceptionElement value) {
+        super (new IDLDocumentChildren ((IDLElement)value));
+        setIconBase (EXCEPTION_ICON_BASE);
+        _exception = value;
+        setCookieForDataObject (_exception.getDataObject ());
+    }
 
-  public IDLElement getIDLElement () {
-    return _exception;
-  }
+    public IDLElement getIDLElement () {
+        return _exception;
+    }
 
-  public String getDisplayName () {
-    if (_exception != null)
-      return ((Identifier)_exception.jjtGetChild (0)).getName ();
-    else 
-      return "NoName :)";
-  }
+    public String getDisplayName () {
+        if (_exception != null)
+            return ((Identifier)_exception.jjtGetChild (0)).getName ();
+        else
+            return "NoName :)";
+    }
 
-  public String getName () {
-    return "exception";
-  }
+    public String getName () {
+        return "exception";
+    }
 
-  public SystemAction getDefaultAction () {
-    SystemAction result = super.getDefaultAction();
-    return result == null ? SystemAction.get(OpenAction.class) : result;
-  }
+    public SystemAction getDefaultAction () {
+        SystemAction result = super.getDefaultAction();
+        return result == null ? SystemAction.get(OpenAction.class) : result;
+    }
 
-  protected Sheet createSheet () {
-    Sheet s = Sheet.createDefault ();
-    Sheet.Set ss = s.get (Sheet.PROPERTIES);
-    ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of exception") {
-	public Object getValue () {
-	  return _exception.getName ();
-	}
-      });
+    protected Sheet createSheet () {
+        Sheet s = Sheet.createDefault ();
+        Sheet.Set ss = s.get (Sheet.PROPERTIES);
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of exception") {
+                    public Object getValue () {
+                        return _exception.getName ();
+                    }
+                });
 
-    return s;
-  }
+        return s;
+    }
 
 
 }

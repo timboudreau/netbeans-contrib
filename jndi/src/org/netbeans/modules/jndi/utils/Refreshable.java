@@ -13,11 +13,11 @@
 
 package org.netbeans.modules.jndi.utils;
 
-/** 
+/**
  *
  * @author  tzezula
  * @version 
  */
 public interface Refreshable {
-  public void refresh();
+    public void refresh();
 }

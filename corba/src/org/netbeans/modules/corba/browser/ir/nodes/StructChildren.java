@@ -22,34 +22,34 @@ import org.netbeans.modules.corba.browser.ir.nodes.keys.IRTypeCodeKey;
 
 public class StructChildren extends Children.Keys implements Refreshable {
 
-  private StructDef struct;
-  
-  /** Creates new StructChildren */
-  public StructChildren(StructDef struct) {
-    super();
-    this.struct = struct;
-  }
-  
-  public void addNotify(){
-    createKeys();
-  }
-  
-  
-  public void createKeys(){
-    StructMember[] members = this.struct.members();
-    java.lang.Object[] keys = new java.lang.Object[members.length];
-    for (int i=0; i<members.length; i++)
-      keys[i] = new IRTypeCodeKey (members[i].name, members[i].type);
-    setKeys(keys);
-  }
-  
-  public Node[] createNodes(java.lang.Object key){
-    if (key != null){
-      if (key instanceof IRTypeCodeKey){
-        return new Node[]{new IRPrimitiveNode(((IRTypeCodeKey)key).type,((IRTypeCodeKey)key).name)};
-      }
+    private StructDef struct;
+
+    /** Creates new StructChildren */
+    public StructChildren(StructDef struct) {
+        super();
+        this.struct = struct;
     }
-    return new Node[] { new IRUnknownTypeNode()};
-  }
-  
+
+    public void addNotify(){
+        createKeys();
+    }
+
+
+    public void createKeys(){
+        StructMember[] members = this.struct.members();
+        java.lang.Object[] keys = new java.lang.Object[members.length];
+        for (int i=0; i<members.length; i++)
+            keys[i] = new IRTypeCodeKey (members[i].name, members[i].type);
+        setKeys(keys);
+    }
+
+    public Node[] createNodes(java.lang.Object key){
+        if (key != null){
+            if (key instanceof IRTypeCodeKey){
+                return new Node[]{new IRPrimitiveNode(((IRTypeCodeKey)key).type,((IRTypeCodeKey)key).name)};
+            }
+        }
+        return new Node[] { new IRUnknownTypeNode()};
+    }
+
 }

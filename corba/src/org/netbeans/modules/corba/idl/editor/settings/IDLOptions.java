@@ -24,20 +24,20 @@ import org.netbeans.modules.corba.idl.editor.coloring.IDLKit;
  * @author Libor Kramolis
  */
 public class IDLOptions extends BaseOptions {
-  
-  public static final String IDL = "idl";
 
-  static final long serialVersionUID =6740905428824290883L;
-  public IDLOptions() {
-    super (IDLKit.class, IDL);
-    //System.out.println ("IDLOptions ()");
-  }
+    public static final String IDL = "idl";
 
-  public String displayName () {
-    //System.out.println ("name: " + NbBundle.getBundle (IDLOptions.class).getString 
-    //		("CTL_IDLOptions_Name"));
-    return NbBundle.getBundle (IDLOptions.class).getString ("CTL_IDLOptions_Name");
-  }
+    static final long serialVersionUID =6740905428824290883L;
+    public IDLOptions() {
+        super (IDLKit.class, IDL);
+        //System.out.println ("IDLOptions ()");
+    }
+
+    public String displayName () {
+        //System.out.println ("name: " + NbBundle.getBundle (IDLOptions.class).getString
+        //		("CTL_IDLOptions_Name"));
+        return NbBundle.getBundle (IDLOptions.class).getString ("CTL_IDLOptions_Name");
+    }
 
 }
 

@@ -15,34 +15,34 @@ package org.netbeans.modules.corba.idl.src;
 
 public class ParameterElement extends IDLElement {
 
-   private int attr;
-   private IDLType type;
+    private int attr;
+    private IDLType type;
 
-  static final long serialVersionUID =-8349198998203868841L;
-   public ParameterElement (int id) {
-      super(id);
-   }
+    static final long serialVersionUID =-8349198998203868841L;
+    public ParameterElement (int id) {
+        super(id);
+    }
 
-   public ParameterElement (IDLParser p, int id) {
-      super(p, id);
-   }
+    public ParameterElement (IDLParser p, int id) {
+        super(p, id);
+    }
 
-   
-   public void setAttribute (int a) {
-      attr = a;
-   }
 
-   public int getAttribute () {
-      return attr;
-   }
+    public void setAttribute (int a) {
+        attr = a;
+    }
 
-   public void setType (IDLType t) {
-      type = t;
-   }
+    public int getAttribute () {
+        return attr;
+    }
 
-   public IDLType getType () {
-      return type;
-   }
-   
+    public void setType (IDLType t) {
+        type = t;
+    }
+
+    public IDLType getType () {
+        return type;
+    }
+
 }
 

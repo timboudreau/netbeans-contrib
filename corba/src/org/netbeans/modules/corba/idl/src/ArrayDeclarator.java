@@ -16,25 +16,25 @@ package org.netbeans.modules.corba.idl.src;
 import java.util.Vector;
 
 public class ArrayDeclarator extends DeclaratorElement { // IDLElement {
-  
-  Vector _dimension;
-  
-  public ArrayDeclarator(int id) {
-    super(id);
-    _dimension = new Vector ();
-  }
 
-  public ArrayDeclarator(IDLParser p, int id) {
-    super(p, id);
-    _dimension = new Vector ();
-  }
+    Vector _dimension;
 
-  public void setDimension (Vector dim) {
-    _dimension = dim;
-  }
+    public ArrayDeclarator(int id) {
+        super(id);
+        _dimension = new Vector ();
+    }
 
-  public Vector getDimension () {
-    return _dimension;
-  }
+    public ArrayDeclarator(IDLParser p, int id) {
+        super(p, id);
+        _dimension = new Vector ();
+    }
+
+    public void setDimension (Vector dim) {
+        _dimension = dim;
+    }
+
+    public Vector getDimension () {
+        return _dimension;
+    }
 
 }

@@ -20,18 +20,18 @@ import org.openide.util.actions.SystemAction;
 
 public abstract class IRLeafNode extends IRAbstractNode {
 
-  
-  /** Creates new IRLeafNode */
-  public IRLeafNode() {
-    super(Children.LEAF);
-  }
-  
-  public SystemAction[] createActions () {
-    return new SystemAction[] {SystemAction.get(org.netbeans.modules.corba.browser.ir.actions.GenerateCodeAction.class),
-                                null,
-                                SystemAction.get(org.openide.actions.PropertiesAction.class)
-                                };
-  }
-  
-  
+
+    /** Creates new IRLeafNode */
+    public IRLeafNode() {
+        super(Children.LEAF);
+    }
+
+    public SystemAction[] createActions () {
+        return new SystemAction[] {SystemAction.get(org.netbeans.modules.corba.browser.ir.actions.GenerateCodeAction.class),
+                                   null,
+                                   SystemAction.get(org.openide.actions.PropertiesAction.class)
+                                  };
+    }
+
+
 }

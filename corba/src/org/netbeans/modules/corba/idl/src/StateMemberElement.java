@@ -15,12 +15,12 @@ package org.netbeans.modules.corba.idl.src;
 
 public class StateMemberElement extends IDLElement {
 
-  public StateMemberElement(int id) {
-    super(id);
-  }
+    public StateMemberElement(int id) {
+        super(id);
+    }
 
-  public StateMemberElement(IDLParser p, int id) {
-    super(p, id);
-  }
+    public StateMemberElement(IDLParser p, int id) {
+        super(p, id);
+    }
 
 }

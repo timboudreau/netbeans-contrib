@@ -17,38 +17,38 @@ import java.util.Vector;
 
 public class ValueHeaderElement extends IDLElement {
 
-  boolean custom;
-  ValueInheritanceSpecElement inheritance;
+    boolean custom;
+    ValueInheritanceSpecElement inheritance;
 
-  public ValueHeaderElement(int id) {
-    super(id);
-    custom = false;
-  }
+    public ValueHeaderElement(int id) {
+        super(id);
+        custom = false;
+    }
 
-  public ValueHeaderElement(IDLParser p, int id) {
-    super(p, id);
-    custom = false;
-  }
+    public ValueHeaderElement(IDLParser p, int id) {
+        super(p, id);
+        custom = false;
+    }
 
-  public void setCustom (boolean value) {
-    custom = value;
-  }
+    public void setCustom (boolean value) {
+        custom = value;
+    }
 
-  public boolean isCustom () {
-    return custom;
-  }
+    public boolean isCustom () {
+        return custom;
+    }
 
-  public ValueInheritanceSpecElement getInheritanceSpecElement () {
-    return inheritance;
-  }
+    public ValueInheritanceSpecElement getInheritanceSpecElement () {
+        return inheritance;
+    }
 
-  public void jjtClose () {
-    super.jjtClose ();
-    Vector _members = super.getMembers ();
-    Identifier id = (Identifier)_members.elementAt (0);
-    setName (id.getName ());
-    inheritance = (ValueInheritanceSpecElement)_members.elementAt (1);
-  }
-  
+    public void jjtClose () {
+        super.jjtClose ();
+        Vector _members = super.getMembers ();
+        Identifier id = (Identifier)_members.elementAt (0);
+        setName (id.getName ());
+        inheritance = (ValueInheritanceSpecElement)_members.elementAt (1);
+    }
+
 }
 

@@ -23,15 +23,15 @@ import org.openide.nodes.Children;
  * @author Tomas Zezula
  */
 public final class JndiModule extends ModuleInstall {
-  
-  public void installed() {
-  }
 
-  public void uninstalled() {
-  }
+    public void installed() {
+    }
 
-  public void restored() {
-  }
+    public void uninstalled() {
+    }
 
-  
+    public void restored() {
+    }
+
+
 }

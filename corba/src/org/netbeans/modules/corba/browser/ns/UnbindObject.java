@@ -24,45 +24,45 @@ import org.netbeans.modules.corba.*;
 /*
  * @author Karel Gardas
  */
- 
+
 public class UnbindObject extends NodeAction {
 
-   public static final boolean DEBUG = false;
+    public static final boolean DEBUG = false;
 
-  static final long serialVersionUID =3721620137072712461L;
-   public UnbindObject () {
-      super ();
-   }
+    static final long serialVersionUID =3721620137072712461L;
+    public UnbindObject () {
+        super ();
+    }
 
-   protected boolean enable (org.openide.nodes.Node[] nodes) {
-      if (nodes == null || nodes.length != 1)
-	 return false;
-      return (nodes[0].getCookie (ObjectNode.class) != null);
-   }
+    protected boolean enable (org.openide.nodes.Node[] nodes) {
+        if (nodes == null || nodes.length != 1)
+            return false;
+        return (nodes[0].getCookie (ObjectNode.class) != null);
+    }
 
-   public String getName() {
-      return NbBundle.getBundle (ContextNode.class).getString ("CTL_UnbindObject");
-   }
+    public String getName() {
+        return NbBundle.getBundle (ContextNode.class).getString ("CTL_UnbindObject");
+    }
 
-   public HelpCtx getHelpCtx() {
-      return HelpCtx.DEFAULT_HELP; // [PENDING]
-   }
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP; // [PENDING]
+    }
 
-   protected void performAction (final Node[] activatedNodes) {
-      if (DEBUG)
-	 System.out.println ("UnbindObject.java");
-      if (enable (activatedNodes)) {
-	 try {
-	    ((ObjectNode) activatedNodes[0].getCookie(ObjectNode.class)).unbind ();
-	 } catch (Exception e) {
-	    if (DEBUG)
-	       e.printStackTrace ();
-	    TopManager.getDefault ().notify (new NotifyDescriptor.Exception 
-					     ((java.lang.Throwable) e));
-	 }
-      }
-   }
-   
+    protected void performAction (final Node[] activatedNodes) {
+        if (DEBUG)
+            System.out.println ("UnbindObject.java");
+        if (enable (activatedNodes)) {
+            try {
+                ((ObjectNode) activatedNodes[0].getCookie(ObjectNode.class)).unbind ();
+            } catch (Exception e) {
+                if (DEBUG)
+                    e.printStackTrace ();
+                TopManager.getDefault ().notify (new NotifyDescriptor.Exception
+                                                 ((java.lang.Throwable) e));
+            }
+        }
+    }
+
 }
 
 

@@ -15,17 +15,17 @@ package org.netbeans.modules.sysprops;
 import java.util.*;
 import javax.swing.event.*;
 public class PropertiesNotifier {
-  private static Set listeners = new HashSet ();
-  public static void addChangeListener (ChangeListener listener) {
-    listeners.add (listener);
-  }
-  public static void removeChangeListener (ChangeListener listener) {
-    listeners.remove (listener);
-  }
-  public static void changed () {
-    ChangeEvent ev = new ChangeEvent (PropertiesNotifier.class);
-    Iterator it = listeners.iterator ();
-    while (it.hasNext ())
-      ((ChangeListener) it.next ()).stateChanged (ev);
-  }
+    private static Set listeners = new HashSet ();
+    public static void addChangeListener (ChangeListener listener) {
+        listeners.add (listener);
+    }
+    public static void removeChangeListener (ChangeListener listener) {
+        listeners.remove (listener);
+    }
+    public static void changed () {
+        ChangeEvent ev = new ChangeEvent (PropertiesNotifier.class);
+        Iterator it = listeners.iterator ();
+        while (it.hasNext ())
+            ((ChangeListener) it.next ()).stateChanged (ev);
+    }
 }

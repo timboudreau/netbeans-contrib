@@ -27,41 +27,41 @@ import org.openide.util.HelpCtx;
 * @author Jan Jancura, Ian Formanek, Dafe Simonek
 */
 public final class SerDataObject extends ClassDataObject {
-  /** generated Serialized Version UID */
-  static final long serialVersionUID = 8229229209013849842L;
+    /** generated Serialized Version UID */
+    static final long serialVersionUID = 8229229209013849842L;
 
-  /** Constructs a new BeanDataObject */
-  public SerDataObject(FileObject fo, ClassDataLoader loader) throws DataObjectExistsException {
-    super (fo, loader);
-  }
+    /** Constructs a new BeanDataObject */
+    public SerDataObject(FileObject fo, ClassDataLoader loader) throws DataObjectExistsException {
+        super (fo, loader);
+    }
 
-  /** Getter for move action.
-  * @return true if the object can be moved
-  */
-  public boolean isMoveAllowed () {
-    return !getPrimaryFile ().isReadOnly ();
-  }
+    /** Getter for move action.
+    * @return true if the object can be moved
+    */
+    public boolean isMoveAllowed () {
+        return !getPrimaryFile ().isReadOnly ();
+    }
 
-  /** Getter for rename action.
-  * @return true if the object can be renamed
-  */
-  public boolean isRenameAllowed () {
-    return !getPrimaryFile ().isReadOnly ();
-  }
+    /** Getter for rename action.
+    * @return true if the object can be renamed
+    */
+    public boolean isRenameAllowed () {
+        return !getPrimaryFile ().isReadOnly ();
+    }
 
-  /** Creates another delegate.
-  */
-  protected Node createNodeDelegate () {
-    return new SerDataNode (this);
-  }
+    /** Creates another delegate.
+    */
+    protected Node createNodeDelegate () {
+        return new SerDataNode (this);
+    }
 
-  public HelpCtx getHelpCtx () {
-    HelpCtx test = InstanceSupport.findHelp (instanceSupport);
-    if (test != null)
-      return test;
-    else
-      return new HelpCtx (SerDataObject.class);
-  }
+    public HelpCtx getHelpCtx () {
+        HelpCtx test = InstanceSupport.findHelp (instanceSupport);
+        if (test != null)
+            return test;
+        else
+            return new HelpCtx (SerDataObject.class);
+    }
 
 }
 

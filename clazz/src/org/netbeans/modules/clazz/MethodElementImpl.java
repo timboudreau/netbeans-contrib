@@ -23,34 +23,34 @@ import org.openide.src.*;
 * @author Dafe Simonek
 */
 final class MethodElementImpl extends ConstructorElementImpl
-                              implements MethodElement.Impl {
-  /** Return type of the method */
-  private Type returnType;
+    implements MethodElement.Impl {
+    /** Return type of the method */
+    private Type returnType;
 
-static final long serialVersionUID =7928961724192084484L;
-  /** Default constructor, asociates with given
-  * java reflection Method element.
-  */
-  public MethodElementImpl(final Method data) {
-    super(data);
-  }
+    static final long serialVersionUID =7928961724192084484L;
+    /** Default constructor, asociates with given
+    * java reflection Method element.
+    */
+    public MethodElementImpl(final Method data) {
+        super(data);
+    }
 
-  /** @return returns teh Type representing return type of this method.
-  */
-  public Type getReturn () {
-    if (returnType == null)
-      returnType = Type.createFromClass(((Method)data).getReturnType());
-    return returnType;
-  }
+    /** @return returns teh Type representing return type of this method.
+    */
+    public Type getReturn () {
+        if (returnType == null)
+            returnType = Type.createFromClass(((Method)data).getReturnType());
+        return returnType;
+    }
 
-  /** Unsupported. Throws an Source exception. */
-  public void setReturn (Type ret) throws SourceException {
-    throw new SourceException();
-  }
+    /** Unsupported. Throws an Source exception. */
+    public void setReturn (Type ret) throws SourceException {
+        throw new SourceException();
+    }
 
-  public Object readResolve() {
-    return new MethodElement(this, null);
-  }
+    public Object readResolve() {
+        return new MethodElement(this, null);
+    }
 
 }
 

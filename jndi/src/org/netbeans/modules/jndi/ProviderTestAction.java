@@ -23,43 +23,43 @@ import org.openide.util.actions.NodeAction;
  */
 public class ProviderTestAction extends NodeAction {
 
-  /** Creates new ProviderTestAction */
-  public ProviderTestAction() {
-    super();
-  }
-  
-   /** Performs test.
-  *
-  * @param nodes an array of selected nodes
-  */
-  protected void performAction(Node[] nodes) {
-
-    if (enable(nodes)) {
-      ((ProviderNode) nodes[0].getCookie(ProviderNode.class)).testProvider();
+    /** Creates new ProviderTestAction */
+    public ProviderTestAction() {
+        super();
     }
-  }
 
-  /** Should be the action enabled?
-  *
-  * @param nodes an array of selected nodes
-  * @return <tt>true</tt> iff the array has length 1 and contains a ProviderNode
-  */
-  protected boolean enable(Node[] nodes) {
+    /** Performs test.
+    *
+    * @param nodes an array of selected nodes
+    */
+    protected void performAction(Node[] nodes) {
 
-    if ((nodes == null) || (nodes.length != 1)) {
-      return false;
+        if (enable(nodes)) {
+            ((ProviderNode) nodes[0].getCookie(ProviderNode.class)).testProvider();
+        }
     }
-    return (nodes[0].getCookie(ProviderNode.class) != null);
-  }
 
-  /** @return name of the action */
-  public String getName() {
-    return JndiRootNode.getLocalizedString("CTL_TestProvider");
-  }
+    /** Should be the action enabled?
+    *
+    * @param nodes an array of selected nodes
+    * @return <tt>true</tt> iff the array has length 1 and contains a ProviderNode
+    */
+    protected boolean enable(Node[] nodes) {
 
-  /** @return help */
-  public HelpCtx getHelpCtx() {
-    return HelpCtx.DEFAULT_HELP;
-  }
-  
+        if ((nodes == null) || (nodes.length != 1)) {
+            return false;
+        }
+        return (nodes[0].getCookie(ProviderNode.class) != null);
+    }
+
+    /** @return name of the action */
+    public String getName() {
+        return JndiRootNode.getLocalizedString("CTL_TestProvider");
+    }
+
+    /** @return help */
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP;
+    }
+
 }
