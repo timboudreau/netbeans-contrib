@@ -35,6 +35,16 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     private static Debug E=new Debug("UserCommand", true); // NOI18N
     private static Debug D=E;
 
+    /**
+     * The name of the command which refresh a file.
+     */
+    public static final String NAME_REFRESH_FILE = "LIST_FILE";
+
+    /**
+     * When this property is true, refresh of the current folder is performed after successfull execution of this command.
+     */
+    public static final String PROPERTY_REFRESH_PROCESSED_FILES = "refreshProcessedFiles";
+
     public static final String PROPERTY_INPUT = "input";
     //public static final String PROPERTY_DISPLAY = "display";
     public static final String PROPERTY_DATA_REGEX = "data.regex";
@@ -52,6 +62,15 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     public static final String PROPERTY_LIST_INDEX_DATE = "data.date.index";
     public static final String PROPERTY_LIST_INDEX_TIME = "data.time.index";
     public static final String PROPERTY_LIST_INDEX_SIZE = "data.size.index";
+
+    /**
+     * The list of pairs of quoted regular expressions and the status strings separated by commas.
+     * When this property is non-empty, the status returned by the command will be matched
+     * with the regular expressions (from left to right) and when matched, the appropriate
+     * status will be returned. When no match would be possible, the file will be refreshed
+     * by the LIST_FILE command.
+     */
+    public static final String PROPERTY_REFRESH_FILE_STATUS_SUBSTITUTIONS = "refreshFileStatusSubstitutions";
     
     // Properties:
     private String name="";          // e.g. "CHECKIN" // NOI18N

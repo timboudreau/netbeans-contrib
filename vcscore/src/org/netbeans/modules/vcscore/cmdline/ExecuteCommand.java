@@ -19,11 +19,14 @@ import java.beans.*;
 import java.text.*;
 import java.lang.reflect.*;
 
+import org.apache.regexp.*;
+
 import org.openide.util.*;
 import org.openide.TopManager;
 
 import org.netbeans.modules.vcscore.cmdline.exec.*;
 import org.netbeans.modules.vcscore.*;
+import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.util.*;
 //import org.netbeans.modules.vcscore.revision.RevisionListener;
@@ -56,7 +59,19 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private ArrayList commandErrorOutputListener = new ArrayList(); 
     private ArrayList commandDataOutputListener = new ArrayList(); 
     private ArrayList commandDataErrorOutputListener = new ArrayList(); 
+    private ArrayList fileReaderListeners = new ArrayList();
+    private boolean doFileRefresh; // Whether this command refresh status of processed files
+    private ArrayList filesToRefresh; // The list of files, that were not refreshed.
+                                      // Files, that were not refreshed when the command finish
+                                      // will be refreshed by the LIST_FILE command (if present).
+    private ArrayList refreshInfoElements;
+    
+    private boolean substituteStatuses = false;
+    private RE[] substituitionRegExps;
+    private String[] substituitionStatuses;
 
+    private Collection processingFilesCollection = null;
+    
     private int exitStatus = 0;
 
     //private ArrayList commandListeners = new ArrayList();
@@ -75,8 +90,59 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             preferredExec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         }
         this.preferredExec = preferredExec;
+        this.doFileRefresh =
+            VcsCommandIO.getIntegerPropertyAssumeNegative(cmd, UserCommand.PROPERTY_LIST_INDEX_FILE_NAME) >= 0;
+        if (doFileRefresh) {
+            filesToRefresh = new ArrayList();
+            refreshInfoElements = new ArrayList();
+            String statusSubstitutions = (String) cmd.getProperty(UserCommand.PROPERTY_REFRESH_FILE_STATUS_SUBSTITUTIONS);
+            substituteStatuses = (statusSubstitutions != null && statusSubstitutions.length() > 0);
+            if (substituteStatuses) {
+                parseStatusSubstitutions(statusSubstitutions);
+            }
+        }
     }
-
+    
+    private void parseStatusSubstitutions(String statusSubstitutions) {
+        String[] substitutions = VcsUtilities.getQuotedStrings(statusSubstitutions);
+        int n = substitutions.length / 2;
+        RE[] regExps = new RE[n];
+        String[] statuses = new String[n];
+        int nn = n;
+        for (int i = 0; i < n; i++) {
+            try {
+                regExps[i] = new RE(substitutions[2*i]);
+            } catch(RESyntaxException e) {
+                //E.err(e,"RE failed regexp"); // NOI18N
+                TopManager.getDefault().notifyException(
+                    TopManager.getDefault().getErrorManager().annotate(e,
+                        NbBundle.getMessage(ExecuteCommand.class, "MSG_BadRegExpInStatusSubstitution", substitutions[2*i])));
+                nn--;
+                continue;
+                //throw new BadRegexException("Bad regexp.", e); // NOI18N
+            }
+            statuses[i] = substitutions[2*i + 1];
+        }
+        if (n == nn) {
+            substituitionRegExps = regExps;
+            substituitionStatuses = statuses;
+        } else {
+            n = nn;
+            substituitionRegExps = new RE[n];
+            substituitionStatuses = new String[n];
+            int j = 0;
+            for (int i = 0; i < n; i++) {
+                if (regExps[j] == null) {
+                    i--;
+                } else {
+                    substituitionRegExps[i] = regExps[j];
+                    substituitionStatuses[i] = statuses[j];
+                }
+                j++;
+            }
+        }
+    }
+    
     /**
      * Add the listener to the standard output of the command. The listeners are removed
      * when the command finishes.
@@ -141,11 +207,18 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         commandErrorOutputListener.clear();
         commandDataOutputListener.clear();
         commandDataErrorOutputListener.clear();
+        if (doFileRefresh) {
+            flushRefreshInfo();
+        }
+        fileReaderListeners.clear();
         commandOutputListener = null;
         commandErrorOutputListener = null;
         commandDataOutputListener = null;
         commandDataErrorOutputListener = null;
+        fileReaderListeners = null;
         if (success) {
+            refreshRemainingFiles();
+            /* Moved to CommandExecutorSupport
             String path = (String) vars.get("DIR") + "/" + (String) vars.get("FILE");
             path = path.replace(java.io.File.separatorChar, '/');
             if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)) {
@@ -158,53 +231,13 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                     System.out.println("calling refresh(true)...");
                     fo.refresh(true);
                 }
-                 */
-            }
-            int whatChanged = 0;
-            Object changedInfo = null;
-            /*
-            if (cmd.isChangingNumRevisions()) {
-                whatChanged |= RevisionListener.NUM_REVISIONS_CHANGED;
-            }
-            if (cmd.isChangingRevision()) {
-                whatChanged |= RevisionListener.ONE_REVISION_CHANGED;
-                changedInfo = vars.get(cmd.getChangedRevisionVariableName());
-            }
-            if (whatChanged != 0) {
-                org.openide.filesystems.FileObject fo = fileSystem.findFileObject(path);
-                if (fo != null) fileSystem.fireRevisionsChanged(whatChanged, fo, changedInfo);
+                 *
             }
              */
-            //doRefresh(exec);
+            int whatChanged = 0;
+            Object changedInfo = null;
         }
-        /*
-        for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
-            ((CommandListener) it.next()).commandDone(this);
-        }
-         */
     }
-
-    /*
-    private void doRefresh(String exec) {
-        boolean doRefreshCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER);
-        boolean doRefreshParent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER);
-        if((doRefreshCurrent || doRefreshParent) && fileSystem.getDoAutoRefresh((String) vars.get("DIR"))) { // NOI18N
-            //D.deb("Now refresh folder after CheckIn,CheckOut,Lock,Unlock... commands for convenience"); // NOI18N
-            fileSystem.setAskIfDownloadRecursively(false); // do not ask if using auto refresh
-            String refreshPath = (String) vars.get("DIR");
-            refreshPath.replace(java.io.File.separatorChar, '/');
-            String refreshPathFile = refreshPath + ((refreshPath.length() > 0) ? "/" : "") + (String) vars.get("FILE");
-            if (!doRefreshParent && fileSystem.getCache().isDir(refreshPathFile)) refreshPath = refreshPathFile;
-            String pattern = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED);
-            if (pattern != null && pattern.length() > 0 && exec.indexOf(pattern) >= 0 && !fileSystem.getCache().isFile(refreshPathFile)) {
-                fileSystem.getCache().refreshDirRecursive(refreshPath);
-            } else {
-                fileSystem.getCache().refreshDir(refreshPath); // NOI18N
-            }
-        }
-        if (!(doRefreshCurrent || doRefreshParent)) fileSystem.removeNumDoAutoRefresh((String)vars.get("DIR")); // NOI18N
-    }
-     */
 
     /**
      * This method can be used to do some preprocessing of the command which is to be run.
@@ -223,11 +256,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         String exec = cmdPerf.process();
          */
         return exec;
-    }
-    
-    /*
-    public void updateExec(String exec) {
-        this.preferredExec = exec;
     }
     
     /**
@@ -254,49 +282,23 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
 
         String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
         if (dataRegex == null) dataRegex = DEFAULT_REGEX;
+        String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
+        if (errorRegex == null) errorRegex = DEFAULT_REGEX;
         try {
-            for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
-                ec.addStdoutRegexListener((CommandDataOutputListener) it.next(), dataRegex);
-            }
-            /*
-            ec.addStdoutRegexListener(new CommandDataOutputListener () {
-                                          public void outputData(String[] elements) {
-                                              //D.deb("stdout match:"+VcsUtilities.arrayToString(elements)); // NOI18N
-                                              //fileSystem.debug(cmd.getName()+":stdout: "+VcsUtilities.arrayToString(elements)); // NOI18N
-                                              if (stdoutListener != null) {
-                                                  stdoutListener.match(elements);
-                                              }
+            ec.addStdoutRegexListener(new CommandDataOutputListener() {
+                                          public void outputData(String[] data) {
+                                              printDataOutput(data);
                                           }
                                       }, dataRegex);
-             */
+            ec.addStderrRegexListener(new CommandDataOutputListener() {
+                                          public void outputData(String[] data) {
+                                              printDataErrorOutput(data);
+                                          }
+                                      }, errorRegex);
         }
         catch (BadRegexException e) {
             TopManager.getDefault().notifyException(e);
             //E.err(e,"bad regex"); // NOI18N
-        }
-
-        String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
-        if (errorRegex == null) errorRegex = DEFAULT_REGEX;
-        try {
-            for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
-                ec.addStderrRegexListener((CommandDataOutputListener) it.next(), errorRegex);
-            }
-            /*
-            ec.addStderrRegexListener(new RegexListener () {
-                                          public void match(String[] elements) {
-                                              //D.deb("stderr match:"+VcsUtilities.arrayToString(elements)); // NOI18N
-                                              if (!VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_DISPLAY)) {
-                                                  fileSystem.debug(cmd.getName()+":stderr: "+VcsUtilities.arrayToString(elements)); // NOI18N
-                                              }
-                                              if (stderrListener != null) {
-                                                  stderrListener.match(elements);
-                                              }
-                                          }
-                                      }, errorRegex);
-             */
-        }
-        catch (BadRegexException e) {
-            E.err(e,"bad regex"); // NOI18N
         }
 
         for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
@@ -342,6 +344,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private void printDataOutput(String[] data) {
         for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
             ((CommandDataOutputListener) it.next()).outputData(data);
+        }
+        if (doFileRefresh) {
+            collectRefreshInfo(data);
         }
     }
 
@@ -469,6 +474,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             preferredExec = "";
             return ; // Silently ignore empty exec
         }
+        filesToRefresh = new ArrayList(getFiles());
         
         StringTokenizer tokens = new StringTokenizer(exec);
         String first = tokens.nextToken();
@@ -519,6 +525,18 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * to the file system root.
      */
     public Collection getFiles() {
+        if (processingFilesCollection == null) {
+            processingFilesCollection = createProcessingFiles();
+        }
+        return processingFilesCollection;
+    }
+    
+    /**
+     * Get the set of files being processed by the command.
+     * @return the set of files of type <code>String</code> relative
+     * to the file system root.
+     */
+    private Collection createProcessingFiles() {
         VariableValueAdjustment valueAdjustment = fileSystem.getVarValueAdjustment();
         String separator = (String) vars.get("PS");
         char separatorChar = (separator != null && separator.length() == 1) ? separator.charAt(0) : java.io.File.separatorChar;
@@ -535,7 +553,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 files.add(file.replace(separatorChar, '/'));
                 begin = index + 2;
             } while (begin < len);
-            return files;
+            return Collections.unmodifiableList(files);
         } else {
             String path = (String) vars.get("DIR");
             String file = (String) vars.get("FILE");
@@ -550,11 +568,139 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
     }
     
+    private void collectRefreshInfo(String[] elements) {
+        //System.out.println("collectRefreshInfo("+VcsUtilities.arrayToString(elements)+")");
+        elements = CommandLineVcsDirReader.translateElements(elements, cmd);
+        //System.out.println("  translated = "+VcsUtilities.arrayToString(elements));
+        if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
+            elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].length() > 0) {
+                
+            flushRefreshInfo();
+        }
+        refreshInfoElements.add(elements);
+    }
+    
+    private void flushRefreshInfo() {
+        //System.out.println("flushRefreshInfo()");
+        String name = null;
+        String[] elements = mergeInfoElements();
+        //System.out.println("  merged elements = "+VcsUtilities.arrayToString(elements));
+        for (; elements != null; elements = mergeInfoElements()) {
+            if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
+                elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].length() > 0) {
+                
+                if (substituteStatuses) {
+                    elements = performStatusSubstitution(elements);
+                    if (elements == null) continue;
+                }
+                String fileName = elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME];
+                String fileDir = "";
+                fileName.replace(java.io.File.separatorChar, '/');
+                int sepIndex = fileName.indexOf('/');
+                if (sepIndex < 0 || sepIndex == (fileName.length() - 1)) {
+                    fileDir = findFileDir(fileName);
+                    fileName = fileName.substring(fileDir.length() + 1);
+                }
+                //System.out.println("readFileFinished("+fileDir+", "+VcsUtilities.arrayToString(elements)+")");
+                for (Iterator it = fileReaderListeners.iterator(); it.hasNext(); ) {
+                    ((FileReaderListener) it.next()).readFileFinished(fileDir, Collections.singleton(elements));
+                }
+                String filePath;
+                if (fileDir.length() == 0) {
+                    filePath = fileName;
+                } else {
+                    filePath = fileDir + "/" + fileName;
+                }
+                filesToRefresh.remove(filePath);
+            }
+        }
+    }
+    
+    private String[] mergeInfoElements() {
+        String[] elements = null;
+        while(refreshInfoElements.size() > 0) {
+            String[] elements1 = (String[]) refreshInfoElements.get(0);
+            if (elements == null) {
+                elements = elements1;
+                refreshInfoElements.remove(0);
+            } else {
+                if (elements1[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] == null ||
+                    elements1[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].length() == 0) {
+                    elements = mergeElements(elements, elements1);
+                    refreshInfoElements.remove(0);
+                } else {
+                    break;
+                }
+            }
+        }
+        return elements;
+    }
+    
+    private String[] mergeElements(String[] e1, String[] e2) {
+        for (int i = 0; i < e1.length && i < e2.length; i++) {
+            if (i == RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME) continue;
+            if (e1[i] == null || (e1[i].trim().length() == 0 && e2[i] != null && e2[i].trim().length() > 0)) {
+                e1[i] = e2[i];
+            }
+        }
+        return e1;
+    }
+    
+    private String[] performStatusSubstitution(String[] elements) {
+        String status = elements[RefreshCommandSupport.ELEMENT_INDEX_STATUS];
+        for (int i = 0; i < substituitionRegExps.length; i++) {
+            if (substituitionRegExps[i].match(status)) {
+                status = substituitionStatuses[i];
+                elements[RefreshCommandSupport.ELEMENT_INDEX_STATUS] = status;
+                return elements;
+            }
+        }
+        return null;
+    }
+    
+    private String findFileDir(String name) {
+        String dir = "";
+        Collection files = filesToRefresh;
+        for (Iterator it = files.iterator(); it.hasNext(); ) {
+            String filePath = (String) it.next();
+            if (filePath.endsWith(name)) {
+                if (filePath.length() > name.length()) {
+                    dir = filePath.substring(0, filePath.length() - name.length() - 1);
+                }
+                break;
+            }
+        }
+        return dir;
+    }
+    
+    private void refreshRemainingFiles() {
+        if (!UserCommand.NAME_REFRESH_FILE.equals(cmd.getName())) {
+            if (filesToRefresh.size() > 0) {
+                ExecuteCommand.doRefreshFiles(fileSystem, filesToRefresh);
+            } else if (VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_REFRESH_PROCESSED_FILES)) {
+                ExecuteCommand.doRefreshFiles(fileSystem, getFiles());
+            }
+        }
+    }
+    
+    private static void doRefreshFiles(VcsFileSystem fileSystem, Collection filesPaths) {
+        VcsCommand cmd = fileSystem.getCommand(UserCommand.NAME_REFRESH_FILE);
+        if (cmd != null) {
+            Table files = new Table();
+            for (Iterator it = filesPaths.iterator(); it.hasNext(); ) {
+                String file = (String) it.next();
+                files.put(file, fileSystem.findFileObject(file));
+            }
+            VcsAction.doCommand(files, cmd, null, fileSystem);
+        }
+    }
+
     /**
      * Add a file reader listener, that gets the updated attributes of the
      * processed file(s).
      */
     public void addFileReaderListener(FileReaderListener l) {
+        if (fileReaderListeners != null) fileReaderListeners.add(l);
     }
 
     //-------------------------------------------
