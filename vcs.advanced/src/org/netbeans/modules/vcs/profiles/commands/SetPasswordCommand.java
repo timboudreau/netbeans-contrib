@@ -62,7 +62,8 @@ public class SetPasswordCommand extends Object implements VcsAdditionalCommand {
                         CommandDataOutputListener stderrDataListener, String errorRegex) {
         
         String passwdMsg = NbBundle.getMessage(SetPasswordCommand.class, "MSG_Password"); // NOI18N
-        NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (passwdMsg, passwdMsg);
+        String passwdTitle = NbBundle.getMessage(SetPasswordCommand.class, "TITL_Password"); // NOI18N
+        NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (passwdMsg, passwdTitle);
         if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(nd))) {
             fileSystem.setPassword(nd.getInputText());
         }
