@@ -20,6 +20,7 @@ import org.openide.nodes.*;
 import org.openide.filesystems.*;
 import org.openide.filesystems.FileSystem; // override java.io.FileSystem
 import org.openide.TopManager;
+import org.openide.ErrorManager;
 import org.openide.loaders.*;
 import org.openide.util.*;
 import java.beans.*;
@@ -64,7 +65,7 @@ public class MainVcsGroupChildren extends Children.Keys  {
         
     }
     
-    public VcsGroupNode getDefaultGroupNode() {
+    VcsGroupNode getDefaultGroupNode() {
         Node[] nodes = getNodes();
         for (int i = 0; i < nodes.length; i++) {
             DataObject dob = (DataObject)nodes[i].getCookie(DataObject.class);
@@ -77,14 +78,20 @@ public class MainVcsGroupChildren extends Children.Keys  {
         }
         // not found, needs to be created..
         try {
-            FileObject props = rootFo.createData(DEFAULT_FOLDER_NAME, VcsGroupNode.PROPFILE_EXT);
+            FileObject props = rootFo.getFileObject(DEFAULT_FOLDER_NAME, VcsGroupNode.PROPFILE_EXT);
+            if (props == null) {
+                props = rootFo.createData(DEFAULT_FOLDER_NAME, VcsGroupNode.PROPFILE_EXT);
+            }
             PrintWriter writer = new PrintWriter(props.getOutputStream(props.lock()));
             writer.println(VcsGroupNode.PROP_NAME + "=" + NbBundle.getBundle(MainVcsGroupChildren.class).getString("LBL_DefaultGroupName"));//NOI18N
             writer.close();
-            FileObject group = rootFo.createFolder(DEFAULT_FOLDER_NAME);
+            FileObject group = rootFo.getFileObject(DEFAULT_FOLDER_NAME);
+            if (group == null) {
+                rootFo.createFolder(DEFAULT_FOLDER_NAME);
+            }
         } catch (IOException exc) {
-            System.out.println("error TODO - show messgae");
-            exc.printStackTrace();
+            ErrorManager manager = TopManager.getDefault().getErrorManager();
+            manager.notify(ErrorManager.WARNING, exc);
             return null;
         }
         refreshAll();

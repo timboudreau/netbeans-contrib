@@ -116,7 +116,8 @@ public class AddToGroupAction extends NodeAction {
                     }
                 } catch (Exception exc) {
                     // just ignore missing resource or error while reading the props..
-                    System.out.println("add to group exc=" + exc.getClass());
+                    ErrorManager manager = TopManager.getDefault().getErrorManager();
+                    manager.notify(ErrorManager.INFORMATIONAL, exc);
                 }
             }
         }
