@@ -3,7 +3,7 @@ OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/rmi/Bundle.properties
 OpenIDE-Module-Install: org/netbeans/modules/rmi/RMIModule.class
 OpenIDE-Module-Layer: org/netbeans/modules/rmi/resources/mf-layer.xml
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 1.24
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1 > 1.6, org.netbeans.modules.debugger.jpda/1, org.netbeans.modules.utilities/1 > 1.2
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1 > 1.6, org.netbeans.modules.debugger.jpda/1 > 1.11, org.netbeans.modules.utilities/1 > 1.2
 OpenIDE-Module-Requires: org.openide.util.HttpServer$Impl, org.netbeans.api.javahelp.Help
 OpenIDE-Module-Specification-Version: 1.6
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
