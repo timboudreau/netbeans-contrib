@@ -23,6 +23,7 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.TopManager;
 import org.openide.cookies.SaveCookie;
 import org.openide.nodes.*;
+import org.openide.util.RequestProcessor;
 
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
@@ -125,34 +126,39 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
          */
     }
 
-    public void performAction(GeneralCommandAction action, FileObject[] fileObjects) {
+    public void performAction(GeneralCommandAction action, final FileObject[] fileObjects) {
         if (fileObjects == null || fileObjects.length == 0) {
             return;
         }
-        HashSet cmdSet = (HashSet) commandMap.get(action.getClass());
+        final HashSet cmdSet = (HashSet) commandMap.get(action.getClass());
         if (cmdSet == null) {
             return;
         }
-        fileObjects = VcsUtilities.convertFileObjects(fileObjects);
-        for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
-            CommandSupport cmdSupport = (CommandSupport) it.next();
-            if (isEnabled(cmdSupport, fileObjects)) {
-                Command cmd = cmdSupport.createCommand();
-                cmd.setFiles(fileObjects);
-                cmd.setGUIMode(true);
-                if (VcsManager.getDefault().showCustomizer(cmd)) {
-                    cmd.execute();
+        // Leave AWT Event Queue ASAP. This also prevents deadlock with VcsManager.showCustomizer().
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                FileObject[] fos = VcsUtilities.convertFileObjects(fileObjects);
+                for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
+                    CommandSupport cmdSupport = (CommandSupport) it.next();
+                    if (isEnabled(cmdSupport, fos)) {
+                        Command cmd = cmdSupport.createCommand();
+                        cmd.setFiles(fos);
+                        cmd.setGUIMode(true);
+                        if (VcsManager.getDefault().showCustomizer(cmd)) {
+                            cmd.execute();
+                        }
+                        /*
+                        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
+                        VcsCommand cmd = fileSystem.getCommand(cmdName);
+                        if (cmd != null) {
+                            VcsAction.performVcsCommand(cmd, fileSystem, Arrays.asList(fileObjects), false);
+                        }
+                         */
+                        break;
+                    }
                 }
-                /*
-                VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-                VcsCommand cmd = fileSystem.getCommand(cmdName);
-                if (cmd != null) {
-                    VcsAction.performVcsCommand(cmd, fileSystem, Arrays.asList(fileObjects), false);
-                }
-                 */
-                break;
             }
-        }
+        });
     }
 
     
