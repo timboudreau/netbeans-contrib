@@ -178,7 +178,11 @@ public class Main extends JellyTestCase {
     public void testNS_Second () {
         JHelper.closeAllProperties ();
         new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2").refresh ();
+        Helper.sleep (1000);
+        new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName");
+        Helper.sleep (1000);
         new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName").refresh ();
+        Helper.sleep (1000);
         new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName|ServerName").properties ();
 
         PropertySheetOperator pso = new PropertySheetOperator (PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, "ServerName");
