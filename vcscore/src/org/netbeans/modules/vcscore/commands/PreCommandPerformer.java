@@ -345,7 +345,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             tend++;
             whichElement = whichElement.substring(0, tindex) + ((tend < whichElement.length()) ? whichElement.substring(tend) : ""); // NOI18N
         }
-        String nl = (insertNewLine) ? "\n" : "".intern(); // NOI18N
+        String nl = (insertNewLine) ? "\n" : " "; // NOI18N
         int commaIndex = whichElement.indexOf(',');
         if (commaIndex > 0) {
             try {
@@ -366,12 +366,14 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             ArrayList lastLines = null;
             if (maxLastLines > 0) lastLines = new ArrayList();
             boolean linesCut = false;
+            boolean appendNewLine = false;
             for (Enumeration enum = preCommandOutput[whichOutput].elements(); enum.hasMoreElements(); line++) {
                 String[] elements = (String[]) enum.nextElement();
                 if (elements.length > index && elements[index] != null) {
                     if (maxFirstLines > 0) {
                         if (line < maxFirstLines) {
-                            insertion.append(elements[index] + nl);
+                            if (appendNewLine) insertion.append(nl);
+                            insertion.append(elements[index]);
                         } else {
                             linesCut = true;
                             if (maxLastLines > 0) {
@@ -380,18 +382,22 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
                             }
                         }
                     } else {
-                        insertion.append(elements[index] + nl);
+                        if (appendNewLine) insertion.append(nl);
+                        insertion.append(elements[index]);
                     }
+                    appendNewLine = true;
                 }
             }
             if (linesCut) {
-                insertion.append("..." + nl);
+                insertion.append("...");
                 if (lastLines != null) {
                     for (int i = 0; i < lastLines.size(); i++) {
-                        insertion.append(lastLines.get(i) + nl);
+                        insertion.append(nl);
+                        insertion.append(lastLines.get(i));
                     }
                 }
             }
+            if (insertNewLine) insertion.append(nl); // End with a new line
         } catch (NumberFormatException exc) {
             // Ignored
         }
