@@ -35,9 +35,19 @@ import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ImportAction;
+import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
+import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.NewTaskListAction;
+import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
+import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
+import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.StartCookie;
+import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
 import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
+import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.openide.ErrorManager;
@@ -60,7 +70,7 @@ import org.openide.util.datatransfer.MultiTransferObject;
 import org.openide.util.datatransfer.PasteType;
 
 
-final class UserTaskNode extends AbstractNode {
+public final class UserTaskNode extends AbstractNode {
     private UserTask item;
     private UserTaskList utl;
     private UserTaskTreeTableNode node;

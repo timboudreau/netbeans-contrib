@@ -16,24 +16,24 @@ Microsystems, Inc. All Rights Reserved.
 <filesystem>
     <folder name="Actions">
 	<folder name="View">
-            <file name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance" />
+            <file name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance" />
         </folder>
 	<folder name="Edit">
-            <file name="org-netbeans-modules-tasklist-usertasks-NewTaskAction.instance" />
+            <file name="org-netbeans-modules-tasklist-usertasks-actions-NewTaskAction.instance" />
         </folder>
     </folder>        
             
   <folder name="Menu">
     <folder name="Window">
-        <file name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance" />
-        <attr name="org-netbeans-core-actions-EditorViewAction.instance/org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance" boolvalue="true" />
-        <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
+        <file name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance" />
+        <attr name="org-netbeans-core-actions-EditorViewAction.instance/org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance" boolvalue="true" />
+        <attr name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
     </folder>
   </folder>
 
   <folder name="Toolbars">  
     <folder name="Window">
-      <file name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance" />
+      <file name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance" />
     </folder>
   </folder>
 
@@ -111,7 +111,7 @@ Microsystems, Inc. All Rights Reserved.
 	</file>
       </folder>
       <folder name="NetBeans_org_netbeans_modules_tasklist">
-	<file name="DTD_UserTaskFilter_1_0" url="utfilter-1_0.dtd">
+	<file name="DTD_UserTaskFilter_1_0" url="filter/utfilter-1_0.dtd">
 	  <attr name="hint.originalPublicID"
 	    stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD UserTaskFilter 1.0//EN"/>
 	</file>
@@ -123,9 +123,9 @@ Microsystems, Inc. All Rights Reserved.
       <folder name="NetBeans_org_netbeans_modules_tasklist">
 	<file name="DTD_UserTaskFilter_1_0.instance">
 	  <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
-	  <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.usertasks.UserTaskFilter$Convertor.create"/>
-	  <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.usertasks.UserTaskFilter"/>
-	  <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.usertasks.UserTaskFilter"/>
+	  <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter$Convertor.create"/>
+	  <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter"/>
+	  <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter"/>
 	</file>
       </folder>
     </folder>

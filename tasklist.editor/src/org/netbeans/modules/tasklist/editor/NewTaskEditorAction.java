@@ -26,7 +26,7 @@ import org.netbeans.editor.LocaleSupport;
 import org.netbeans.editor.Utilities;
 import org.netbeans.editor.LocaleSupport.Localizer;
 import org.netbeans.modules.editor.NbEditorUtilities;
-import org.netbeans.modules.tasklist.usertasks.NewTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;

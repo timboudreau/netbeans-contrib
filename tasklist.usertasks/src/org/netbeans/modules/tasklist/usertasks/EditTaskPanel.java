@@ -54,7 +54,7 @@ import org.openide.util.NbBundle;
  * @author Tor Norbye
  * @author Tim Lebedkov
  */
-class EditTaskPanel extends JPanel implements ActionListener {
+public class EditTaskPanel extends JPanel implements ActionListener {
 
     private static final long serialVersionUID = 1;
 
@@ -338,7 +338,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         lineTextField.setText(String.valueOf(line));
     }
     
-    void setAssociatedFilePos(boolean set) {
+    public void setAssociatedFilePos(boolean set) {
         fileCheckBox.setSelected(set);
     }
     
