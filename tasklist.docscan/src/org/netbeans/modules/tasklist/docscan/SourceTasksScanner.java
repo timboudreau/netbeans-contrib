@@ -88,32 +88,28 @@ final class SourceTasksScanner {
 
     static void scanProjectSuggestions(final SuggestionList list, final SourceTasksAction.ScanProgressMonitor view) {
         List project = new ArrayList(23);
-        int allFolders = -1;
+        boolean enabled = false;
 
-        view.estimate(-1);
         if ("project".equals(System.getProperty("todos.project", "repository"))) {
-            allFolders = project(project);
+            enabled = project(project);
         }
 
-        if (allFolders == -1) {
+        if (enabled == false) {
             project.clear();
-            allFolders = repository(project);
+            repository(project);
         }
 
         DataObject.Container projectFolders[] = new DataObject.Container[project.size()];
         project.toArray(projectFolders);
 
-        final int estimatedFolders = allFolders + 1;
-        view.estimate(estimatedFolders);
         SuggestionsScanner.getDefault().scan(projectFolders, list, view);
 
     }
 
-    static int repository(List folders) {
+    static void repository(List folders) {
         Repository repository = Repository.getDefault();
         Enumeration en = repository.fileSystems();
 
-        int allFolders = 0;
         while (en.hasMoreElements()) {
             FileSystem next = (FileSystem) en.nextElement();
             if (next.isDefault() || next.isHidden() || next.isReadOnly()) {
@@ -125,27 +121,24 @@ final class SourceTasksScanner {
                     DataObject dobj = DataObject.find(fo);
                     if (dobj instanceof DataObject.Container) {
                         folders.add(dobj);
-                        allFolders += countFolders(fo);
                     }
                 } catch (DataObjectNotFoundException e) {
                     e.printStackTrace();
                 }
             }
         }
-        return allFolders;
     }
 
-    static int project(List folders) {
+    static boolean project(List folders) {
         // HACK XXX ProjectCookie is deprecated without replacement
         // access it's registration file directly
         FileSystem fs = Repository.getDefault().getDefaultFileSystem();
         FileObject registration = fs.findResource("Services/Hidden/org-netbeans-modules-projects-ProjectCookieImpl.instance");
         if (registration == null) {
             // it's not installed or some incomaptible version
-            return -1;
+            return false;
         } else {
             try {
-                int allFolders = -1;
                 DataObject dobj = DataObject.find(registration);
                 InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
                 Object obj = ic.instanceCreate();
@@ -153,47 +146,28 @@ final class SourceTasksScanner {
                 Node node = (Node) method.invoke(obj, new Object[0]);
                 DataObject prjDO = (DataObject) node.getCookie(DataObject.class);
                 if (prjDO instanceof DataObject.Container) {
-                    allFolders = 0;
                     DataObject[] kids = ((DataObject.Container)prjDO).getChildren();
                     for (int i=0; i<kids.length; i++) {
                         if (kids[i] instanceof DataObject.Container) {
                             folders.add(kids[i]);
-                            allFolders += countFolders(kids[i].getPrimaryFile());
                         }
                     }
                 }
-                return allFolders;
+                return true;
             } catch (DataObjectNotFoundException e) {
-                return -1;
+                return false;
             } catch (IOException e) {
-                return -1;
+                return false;
             } catch (ClassNotFoundException e) {
-                return -1;
+                return false;
             } catch (NoSuchMethodException e) {
-                return -1;
+                return false;
             } catch (IllegalAccessException e) {
-                return -1;
+                return false;
             } catch (InvocationTargetException e) {
-                return -1;
+                return false;
             }
         }
-    }
-
-    private static int countFolders(FileObject projectFolder) {
-        int count = 0;
-        if (Thread.currentThread().isInterrupted()) return count;
-        Enumeration en = projectFolder.getFolders(false);
-        while (en.hasMoreElements()) {
-            FileObject next = (FileObject) en.nextElement();
-            String name = next.getNameExt();
-            //XXX there is discrepancy because CVS folders are skipped by engine
-            if ("CVS".equals(name) || "SCCS".equals(name)) { // NOI18N
-                continue;
-            }
-            count++;
-            count += countFolders(next);  // recursion
-        }
-        return count;
     }
 
 }

@@ -20,15 +20,23 @@ import org.openide.util.NbBundle;
 import org.openide.util.Lookup;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.windows.WindowManager;
+import org.openide.windows.Mode;
+import org.openide.windows.TopComponent;
+import org.openide.text.CloneableEditorSupport;
+import org.openide.nodes.Node;
 import org.netbeans.modules.tasklist.providers.SuggestionContext;
 import org.netbeans.modules.tasklist.providers.SuggestionProvider;
 import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 import org.netbeans.apihole.tasklist.SPIHole;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
 
+import javax.swing.*;
 import java.util.*;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Scans for suggestions by delegating to
@@ -40,6 +48,18 @@ public final class SuggestionsScanner {
 
     /** Optional progress monitor */
     private ScanProgress progressMonitor;
+
+    /**
+     * Contains already scanned dataobjects.
+     * It'd be very memory intensive so only preferred
+     * are stored.
+     * Other duplicities (unlikely) can cause
+     * suggestion duplicities.
+     */
+    private final Set scanned = new HashSet();
+
+    /** Target suggestion list. */
+    private SuggestionList list;
 
     // target manager impl
     private final SuggestionManagerImpl manager;
@@ -74,35 +94,124 @@ public final class SuggestionsScanner {
 
     /**
      * Scans recursively for suggestions notifing given progress monitor.
-     * @param folders
+     * @param folders containers to be scanned. It must be DataObject subclasses!
      * @param list
      * @param monitor
      */
-    public final void scan(DataObject.Container[] folders, SuggestionList list, ScanProgress monitor) {
+    public final synchronized void scan(DataObject.Container[] folders, SuggestionList list, ScanProgress monitor) {
         try {
             progressMonitor = monitor;
-            monitor.scanStarted();
             scan(folders, list, true);
         } finally {
-            monitor.scanFinished();
             progressMonitor = null;
+            monitor.scanFinished();
         }
     }
 
-    /** Iterate over the folder recursively (optional) and scan all files.
-     We skip CVS and SCCS folders intentionally. Would be nice if
-     the filesystem hid these things from us. */
-    public final void scan(DataObject.Container[] folders, SuggestionList list,
+    /**
+     * Iterate over the folder recursively (optional) and scan all files.
+     * We skip CVS and SCCS folders intentionally. Would be nice if
+     * the filesystem hid these things from us.
+     *
+     * @param folders containers to be scanned. It must be DataObject subclasses!
+     * @param list target suggestions list
+     * @param recursive use descent policy
+     */
+    public final synchronized void scan(DataObject.Container[] folders, SuggestionList list,
                            boolean recursive) {
-        // package-private instead of private for the benefit of the testsuite
-        for (int i = 0; i < folders.length; i++) {
-            if (Thread.interrupted()) return;
-            DataObject.Container folder = folders[i];
-            scanFolder(folder, recursive, list);
+
+        try {
+            this.list = list;
+
+            // scan opened files first these are most specifics
+            // it should also improve perceived performance
+            scanPreferred(folders, recursive);
+
+            int estimate = -1;
+            progressMonitor.estimate(estimate);
+            for (int i = 0; i < folders.length; i++) {
+                // it's faster to check at FS level however we can miss some links (.shadow)
+                FileObject fo = ((DataObject)folders[i]).getPrimaryFile();
+                estimate += countFolders(fo);
+            }
+            progressMonitor.estimate(estimate);
+
+            progressMonitor.scanStarted();
+            for (int i = 0; i < folders.length; i++) {
+                if (Thread.interrupted()) return;
+                DataObject.Container folder = folders[i];
+                scanFolder(folder, recursive);
+            }
+        } finally {
+            list = null;
+            scanned.clear();
         }
     }
 
-    private void scanFolder(DataObject.Container folder, boolean recursive, SuggestionList list) {
+
+    /**
+     * Determines if given dataobject lies in scan context
+     * and scans it.
+     *
+     * @param folders scan context
+     * @param recursive iff true scan context is scanned recusively
+     */
+    private void scanPreferred(DataObject.Container[] folders, boolean recursive) {
+
+        final Object[] wsResult = new Object[1];
+        try {
+            // I just hope that we are not called from non-AWT thread
+            // still holding AWTTreeLock otherwise deadlock
+            SwingUtilities.invokeAndWait(new Runnable() {
+                public void run() {
+                    Mode editorMode = WindowManager.getDefault().findMode(CloneableEditorSupport.EDITOR_MODE);
+                    wsResult[0] = editorMode.getTopComponents();
+                }
+            });
+        } catch (InterruptedException e) {
+            return; // no preferred scan
+        } catch (InvocationTargetException e) {
+            return; // no preferred scan
+        }
+
+        TopComponent[] views = (TopComponent[]) wsResult[0];
+        DataObject[] roots = null;
+        for (int i = 0; i<views.length; i++) {
+            Node[] nodes = views[i].getActivatedNodes();
+            for (int n = 0; n<nodes.length; n++) {
+                DataObject dobj = (DataObject) nodes[n].getCookie(DataObject.class);
+                if (dobj != null) {
+                    if (roots == null) {
+                        Set allRoots = new HashSet();
+                        for (int r = 0; r<folders.length; r++) {
+                            DataObject[] droots = folders[r].getChildren();
+                            for (int d = 0; d<droots.length; d++) {
+                                allRoots.add(droots[d]);
+                            }
+                        }
+                        roots = (DataObject[]) allRoots.toArray(new DataObject[allRoots.size()]);
+                    }
+                    scanPreferred(dobj, roots, recursive);
+                    break;  // one DataObject per TC is enough :-)
+                }
+            }
+        }
+    }
+
+    private void scanPreferred(DataObject dobj, DataObject[] roots, boolean recursive) {
+        FileObject fo = dobj.getPrimaryFile();
+        for (int i=0; i<roots.length; i++) {
+            FileObject root = roots[i].getPrimaryFile();
+            if (root.equals(fo) || (recursive ? FileUtil.isParentOf(root,fo) : fo.getParent().equals(root))) {
+                scanLeaf(dobj);
+                scanned.add(dobj);
+                break; // certainly it could be under more roots
+                       // but it would create duplicates and slow down the test
+            }
+        }
+    }
+
+    private void scanFolder(DataObject.Container folder, boolean recursive) {
         DataObject[] children = folder.getChildren();
         for (int i = 0; i < children.length; i++) {
 
@@ -130,80 +239,102 @@ public final class SuggestionsScanner {
                     progressMonitor.folderEntered(f.getPrimaryFile());
                 }
 
-                scanFolder((DataObject.Container) f, true, list); // recurse!
+                scanFolder((DataObject.Container) f, true); // recurse!
                 if (progressMonitor != null) {
                     progressMonitor.folderScanned(f.getPrimaryFile());
                 }
 
             } else {
-                // Get document, and I do mean now!
-
-                if (!f.isValid()) {
-                    continue;
-                }
-
-                EditorCookie edit =
-                        (EditorCookie) f.getCookie(EditorCookie.class);
-                if (edit == null) {
-                    continue;
-                }
-
-                boolean isPrimed = edit.getDocument() == null;
-                SuggestionContext env = SPIHole.createSuggestionContext(f);
-
-                if (progressMonitor == null) {
-                    // XXX stil strange that possibly backgournd process writes directly to UI
-                    StatusDisplayer.getDefault().setStatusText(
-                            NbBundle.getMessage(SuggestionsScanner.class,
-                                    "ScanningFile", // NOI18N
-                                    f.getPrimaryFile().getNameExt()));
-                }
-
-                scanLeaf(list, env);
-
-                if (false) {
-                    try {
-                        Thread.sleep(1000);  // simulate long document processing
-                                             // to see what timeout based tasks are triggered
-                                             // (e.g. background java.parser.ParsingSupport.parse)
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
-                }
-
-
-                // XXX default editor cookie implementation (CloneableEditorSupport)
-                // does not release documents on unless one explicitly
-                // call close() that as side effect closes all components.
-                // So call close() is we are likely only document users
-                if (isPrimed && edit.getOpenedPanes() == null) {
-                    edit.close();
-                }
-
-                if (progressMonitor != null) {
-                    progressMonitor.fileScanned(f.getPrimaryFile());
-                }
+                scanLeaf(f);
             }
         }
     }
 
-    private void scanLeaf(SuggestionList list, SuggestionContext env) {
+    /**
+     * Scans given data object. Converts it to scanning context.
+     */
+    private void scanLeaf(DataObject dobj) {
+        // Get document, and I do mean now!
+
+        if (!dobj.isValid()) return;
+
+        if (scanned.contains(dobj)) return;
+
+        EditorCookie edit =
+                (EditorCookie) dobj.getCookie(EditorCookie.class);
+        if (edit == null) return;
+
+        boolean isPrimed = edit.getDocument() == null;
+        SuggestionContext env = SPIHole.createSuggestionContext(dobj);
+
+        if (progressMonitor == null) {
+            // XXX stil strange that possibly backgournd process writes directly to UI
+            StatusDisplayer.getDefault().setStatusText(
+                    NbBundle.getMessage(SuggestionsScanner.class,
+                            "ScanningFile", // NOI18N
+                            dobj.getPrimaryFile().getNameExt()));
+        }
+
+        scanLeaf(env);
+
+        if (false) {
+            try {
+                Thread.sleep(1000);  // simulate long document processing
+                                     // to see what timeout based tasks are triggered
+                                     // (e.g. background java.parser.ParsingSupport.parse)
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        }
+
+
+        // XXX default editor cookie implementation (CloneableEditorSupport)
+        // does not release documents on unless one explicitly
+        // call close() that as side effect closes all components.
+        // So call close() is we are likely only document users
+        if (isPrimed && edit.getOpenedPanes() == null) {
+            edit.close();
+        }
+
+        if (progressMonitor != null) {
+            progressMonitor.fileScanned(dobj.getPrimaryFile());
+        }
+
+    }
+
+    private void scanLeaf(SuggestionContext env) {
         List providers = registry.getProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             if (Thread.currentThread().isInterrupted()) return;
             SuggestionProvider provider = (SuggestionProvider) it.next();
-                // FIXME no initialization events possibly fired
-                // I guess that reponsibility for recovering from missing
-                // lifecycle events should be moved to providers
-                if (provider instanceof DocumentSuggestionProvider) {
-                    List l = ((DocumentSuggestionProvider) provider).scan(env);
-                    if (l != null) {
-                        // XXX ensure that scan returns a homogeneous list of tasks
-                        manager.register(provider.getTypes()[0], l, null, list, true);
-                    }
+            // FIXME no initialization events possibly fired
+            // I guess that reponsibility for recovering from missing
+            // lifecycle events should be moved to providers
+            if (provider instanceof DocumentSuggestionProvider) {
+                List l = ((DocumentSuggestionProvider) provider).scan(env);
+                if (l != null) {
+                    // XXX ensure that scan returns a homogeneous list of tasks
+                    manager.register(provider.getTypes()[0], l, null, list, true);
                 }
+            }
         }
+    }
+
+    private static int countFolders(FileObject projectFolder) {
+        int count = 0;
+        if (Thread.currentThread().isInterrupted()) return count;
+        Enumeration en = projectFolder.getFolders(false);
+        while (en.hasMoreElements()) {
+            FileObject next = (FileObject) en.nextElement();
+            String name = next.getNameExt();
+            if ("CVS".equals(name) || "SCCS".equals(name)) { // NOI18N
+                continue;
+            }
+            count++;
+            count += countFolders(next);  // recursion
+        }
+        return count;
     }
 
     /**
@@ -213,6 +344,12 @@ public final class SuggestionsScanner {
      * methods.
      */
     public interface ScanProgress {
+        /**
+         * Predics how many folders will be scanned.
+         * @param estimatedFolders estimate (-1 for not yet know).
+         */
+        void estimate(int estimatedFolders);
+
         void scanStarted();
 
         void folderEntered(FileObject folder);

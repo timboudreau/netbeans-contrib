@@ -588,7 +588,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             getStop().setVisible(true);
             getStop().setEnabled(false);  // cannot deliver cancel to RP.Task
             getProgress().setIndeterminate(true);
-            getMiniStatus().setText("Estimating complexity...");
+            getMiniStatus().setText("Estimating media searching complexity...");
         } else {
             getProgress().setIndeterminate(false);
             getProgress().setMaximum(estimatedFolders);

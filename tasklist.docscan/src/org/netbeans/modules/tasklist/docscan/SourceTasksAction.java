@@ -80,12 +80,6 @@ public final class SourceTasksAction extends CallableSystemAction {
     }
 
     public static interface ScanProgressMonitor extends SuggestionsScanner.ScanProgress {
-        /**
-         * Predics how many folders will be scanned.
-         * @thread AWT
-         * @param folders estimate (-1 for not yet know).
-         */
-        void estimate(int folders);
 
         /**
          * Returns number of found todos
