@@ -40,8 +40,9 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     public static final String PROPERTY_DATA_REGEX = "data.regex";
     public static final String PROPERTY_ERROR_REGEX = "error.regex";
     public static final String PROPERTY_CHECK_FOR_MODIFICATIONS = "checkForModifications";
-    public static final String PROPERTY_PRECOMMANDS = "preCommands";
-    public static final String PROPERTY_PRECOMMANDS_EXECUTE = "preCommandsExecute";
+    //public static final String PROPERTY_DOES_NOT_FAIL = "doesNotFail";
+    //public static final String PROPERTY_PRECOMMANDS = "preCommands";
+    //public static final String PROPERTY_PRECOMMANDS_EXECUTE = "preCommandsExecute";
     
     public static final String PROPERTY_LIST_INDEX_FILE_NAME = "data.fileName.index";
     public static final String PROPERTY_LIST_INDEX_STATUS = "data.status.index";
@@ -104,16 +105,17 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
      * The text of a confirmation message printed before the command is executed.
      */
     private String confirmationMsg = ""; // the confirmation message which is printed before the command executes
-    /**
+    /*
      * Vector of commands which are supposed to be run before this command.
-     */
+     *
     private Vector preCommands = null;
     
-    /**
+    /*
      * Whether to really execute precommands. If false,
      * empty output will be inserted to the command's exec.
-     */
+     *
     private boolean executePreCommands = true;
+     */
 
     /**
      * Whether to process all files. If false, only important files will be processed.
@@ -172,7 +174,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     //-------------------------------------------
     public UserCommand() {
         // I am JavaBean...
-        preCommands = new Vector();
+        //preCommands = new Vector();
         setPropertiesFromFields();
     }
     
@@ -183,7 +185,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     public UserCommand(String name) {
         this.name = name;
         //this.exec = exec;
-        preCommands = new Vector();
+        //preCommands = new Vector();
         properties = null;
         setPropertiesFromFields();
         //System.out.println("UserCommand("+name+") from filelds = "+getPropertyNames().length);
@@ -237,10 +239,10 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
         }
     }
     
-    /**
+    /*
      * Fill all properties from the given user command.
      * @params uc the user command to copy the properties from
-     */
+     *
     public void copyFrom_old(UserCommand uc) {
         name = uc.name;
         advancedName = uc.advancedName;
@@ -269,8 +271,8 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
         /*
         orderArr = new int[uc.orderArr.length];
         for(int i = 0; i < orderArr.length; i++) orderArr[i] = uc.orderArr[i];
-         */
-        preCommands = new Vector(uc.preCommands);
+         *
+        //preCommands = new Vector(uc.preCommands);
         userParams = uc.userParams;
 
         statusIndex = uc.statusIndex;
@@ -281,6 +283,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
         sizeIndex = uc.sizeIndex;
         fileNameIndex = uc.fileNameIndex;
     }
+     */
     
     /**
      * Compares this command with a specified command for order.
@@ -352,9 +355,9 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     //public void   setNotOnRoot(boolean notOnRoot) { this.notOnRoot = notOnRoot; }
     //public String getConfirmationMsg() { return confirmationMsg; }
     //public void setConfirmationMsg(String confirmationMsg) { this.confirmationMsg = confirmationMsg; }
-    public UserCommand[] getPreCommands() { return (UserCommand[]) preCommands.toArray(new UserCommand[0]); }
-    public void addPreCommand(UserCommand cmd) { this.preCommands.add(cmd); }
-    public void removeAllPreCommands() { this.preCommands = new Vector(); }
+    //public UserCommand[] getPreCommands() { return (UserCommand[]) preCommands.toArray(new UserCommand[0]); }
+    //public void addPreCommand(UserCommand cmd) { this.preCommands.add(cmd); }
+    //public void removeAllPreCommands() { this.preCommands = new Vector(); }
     //public boolean isExecutePreCommands() { return executePreCommands; }
     //public void setExecutePreCommands(boolean executePreCommands) { this.executePreCommands = executePreCommands; }
     //public boolean isProcessAllFiles() { return processAllFiles; }
@@ -397,9 +400,9 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
         }
     }
     
-    /**
+    /*
      * Get the precommands name in a Vector.
-     */
+     *
     public Vector getPreCommandsStr() {
         Vector preCommandsNames = new Vector();
         for(int j = 0; j < preCommands.size(); j++) {
@@ -408,9 +411,9 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
         return preCommandsNames;
     }
     
-    /**
+    /*
      * Set the precommands names from a Vector.
-     */
+     *
     public void setPreCommandsStr(Vector preCommandsNames) {
         if (preCommandsNames != null) {
             for(int i = 0; i < preCommandsNames.size(); i++) {
@@ -420,6 +423,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
             }
         }
     }
+     */
 
     public String getOrderString() {
         return UserCommand.getOrderString(this.orderArr);
@@ -457,7 +461,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
         return children;
     }
      */
-    
+    /*
     private static void assignPreCommands(List commands) {
         for(int i = 0; i < commands.size(); i++) {
             UserCommand uc = (UserCommand) commands.get(i);
@@ -482,6 +486,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
             }
         }
     }
+     */
     
     /**
      * Get the names of all supported properties.
@@ -516,7 +521,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
      * @param cmds the <code>Vector</code> containing all read commands. 
      */
     public static void readFinished(java.util.List cmds) {
-        assignPreCommands(cmds);
+        //assignPreCommands(cmds);
     }
     
     private void setPropertiesFromFields() {
@@ -548,8 +553,8 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
             setProperty(VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS, new Boolean(changingNumRevisions));
             setProperty(VcsCommand.PROPERTY_CHANGING_REVISION, new Boolean(changingRevision));
             setProperty(VcsCommand.PROPERTY_CHANGED_REVISION_VAR_NAME, changedRevisionVariableName);
-            setProperty(UserCommand.PROPERTY_PRECOMMANDS, getPreCommandsStr());
-            setProperty(UserCommand.PROPERTY_PRECOMMANDS_EXECUTE, new Boolean(executePreCommands));
+            //setProperty(UserCommand.PROPERTY_PRECOMMANDS, getPreCommandsStr());
+            //setProperty(UserCommand.PROPERTY_PRECOMMANDS_EXECUTE, new Boolean(executePreCommands));
             if (VcsCommand.NAME_REFRESH.equals(name) || VcsCommand.NAME_REFRESH_RECURSIVELY.equals(name)) {
                 setProperty(UserCommand.PROPERTY_LIST_INDEX_FILE_NAME, new Integer(fileNameIndex));
                 setProperty(UserCommand.PROPERTY_LIST_INDEX_STATUS, new Integer(statusIndex));
