@@ -52,7 +52,7 @@ public class StubAllTogether extends PVCSStub {
     public static Test suite() {
 //        complete.GenericStub.DEBUG = true;
         TestSuite suite = new NbTestSuite();
-        try { if (Runtime.getRuntime().exec(Utilities.isUnix() ? "sh -c \"vlog\"" : "cmd /x /c \"vlog\"").waitFor() != 0) return suite; } catch (Exception e) { e.printStackTrace (); return suite; }
+        try { System.out.println ("vlog return code: " + Runtime.getRuntime().exec("vlog").waitFor()); } catch (Exception e) { e.printStackTrace (); return suite; }
         suite.addTest(new StubAllTogether("configure"));
         suite.addTest(new StubAllTogether("testCreateProject"));
         suite.addTest(new StubAllTogether("testAddSingleFile"));
@@ -391,7 +391,7 @@ public class StubAllTogether extends PVCSStub {
         info.println ("==== A_File 1.0 getText ====");
         info.println (editorContents);
         info.println ("========");
-        assertEquals ("Incorrect version of A_File was opened. - A_File.java 1.0 - not excepted file content", editorContents, "/** This is testing file.\n */\n\n public class Testing_File {\n }\n");
+        assertEquals ("Incorrect version of A_File was opened. - A_File.java 1.0 - not excepted file content", "/** This is testing file.\n */\n\n public class Testing_File {\n }\n", editorContents);
         closeAllVCSWindows();
     }
 
