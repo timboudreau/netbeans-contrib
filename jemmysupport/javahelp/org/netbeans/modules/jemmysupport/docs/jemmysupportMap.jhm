@@ -11,6 +11,7 @@
    <mapID target="jemmysupport_intro" url="jemmysupport_intro.html" />
    <mapID target="jemmysupport_generator" url="jemmysupport_generator.html" />
    <mapID target="jemmysupport_lookup" url="jemmysupport_lookup.html" />	
+   <mapID target="jemmysupport_namelookup" url="jemmysupport_namelookup.html" />	
 
 
    <mapID target="org.netbeans.modules.jemmysupport.generator.GeneratorAction" url="jemmysupport_generator.html" />
@@ -18,5 +19,6 @@
    <mapID target="org.netbeans.modules.jemmysupport.generator.ComponentsEditorPanel" url="jemmysupport_generator.html#editor" />
    <mapID target="org.netbeans.modules.jemmysupport.bundlelookup.BundleLookupAction" url="jemmysupport_lookup.html" />
    <mapID target="org.netbeans.modules.jemmysupport.bundlelookup.BundleLookupPanel" url="jemmysupport_lookup.html" />
+   <mapID target="org.netbeans.modules.jemmysupport.namelookup.NameLookupPanel" url="jemmysupport_namelookup.html" />
 
 </map>

@@ -1,4 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
 <!--
  * 
  *     Copyright 2002 Sun Microsystems, Inc. All rights reserved.
@@ -6,59 +8,63 @@
  *
  *
  -->
-<HTML>
-<HEAD>
-<title>Jemmy Support Module Help</title>
-<link rel="stylesheet" href="../../usersguide/ide.css" type="text/css"></HEAD>
+  <title>Jemmy Support Module Help</title>
+  <link rel="stylesheet" href="../../usersguide/ide.css" type="text/css">
+</head>
 <body>
-
 <h2><img src="GeneratorAction.gif"> Jemmy Component Generator</h2>
-First select destination filesystem and package for generated component sources.
-<p>
-<code><b>Create Screenshot</b></code> checkbox gives you an ability to create screen shots of generated components. 
-Images are stored in the same directory with the same name as generated component and with extension <code>.png</code>.
-<p>
-<code><b>Show Component Editor</b></code> checkbox enables/disables <a href="#editor">Component Editor</a> appearing during process of generation.
-It allows on-line editing of grabbed structure before generated sources are finalized.
-<p>
-<code><b>Merge Conflicts</b></code> checkbox shows Merge Window in case of conflict with already present component source.
-Than you can control process of merging source differences.<br>
-Filenames of newly generated sources are numbered to avoid conflicts when Merge Conflicts checkbox is disabled.  
-<p>  
-<code><b>Start/Stop Component Generator</b></code> button starts/stops thread waiting for some component to be focused and CTRL-F12 key to be pressed.<br>
-This button is enabled only when some package with write access is selected.<br>
-Component Generator is automatically stopped when its dialog is closed. 
-<p>
-When generator is started and you see information message above Stop button you can invoke and select the component to be grabbed.<br>
-Selected components are highlighted by red border.
-Process of generation can be started only by pressing CTRL-F12 key.
-Component Editor dialog or Merger is displayed then in dependency of previous selection.
-<p>
-Do not access selected component till "<code>Please wait, processing...</code>" message is displayed !     
-<p>
-<a name="editor"></a>
+First select destination filesystem and package for generated component
+sources.
+<p> <code><b>Create Screenshot</b></code> checkbox gives you an ability
+to create screen shots of generated components. Images are stored in the
+same directory with the same name as generated component and with
+extension <code>.png</code>. </p>
+<p> <code><b>Show Component Editor</b></code> checkbox enables/disables <a
+ href="#editor">Component Editor</a> appearing during process of
+generation. It allows on-line editing of grabbed structure before
+generated sources are finalized. </p>
+<p> <code><b>Merge Conflicts</b></code> checkbox shows Merge Window in
+case of conflict with already present component source. Than you can
+control process of merging source differences.<br>
+Filenames of newly generated sources are numbered to avoid conflicts
+when Merge Conflicts checkbox is disabled.</p>
+<p> <code><b>Use Component Name</b></code> checkbox enables that names
+of components are used to their identification</p>
+<p> <code><b>Start/Stop Component Generator</b></code> button
+starts/stops thread waiting for some component to be focused and
+CTRL-F12 key to be pressed.<br>
+This button is enabled only when some package with write access is
+selected.<br>
+Component Generator is automatically stopped when its dialog is closed.</p>
+<p> When generator is started and you see information message above Stop
+button you can invoke and select the component to be grabbed.<br>
+Selected components are highlighted by red border. Process of
+generation can be started only by pressing CTRL-F12 key. Component
+Editor dialog or Merger is displayed then in dependency of previous
+selection. </p>
+<p> Do not access selected component till "<code>Please wait,
+processing...</code>" message is displayed ! </p>
+<p> <a name="editor"></a> </p>
 <h3>Component Editor</h3>
-Component Editor displays tree of known visible sub-components under selected component on the left 
-and properties of selected sub-component in property sheet on the right.
-<p>
-Any sub-component node can be deleted from tree by pushing Delete key or by selecting Delete from its popup menu.  
-<p>
-<b>Sub-component properties:</b>
-<p>
-<code><b>interanlLabels</b></code> property is list of text labels found inside sub-component.<br> 
-These labels are used to generate <code>public static final String</code> fields for some operators (JList, JComboBox...).
-<p>
-<code><b>shortName</b></code> property is used mostly for low level method naming in generated source.
-<p>
-<code><b>uniqueName</b></code> property is used for unique sub-component identification, 
-for inner fields and sub-component getters naming in generated source.<br>
-Root nodes uniqueName represents its class and file name without extension. 
-<p>  
-Note: uniqueName property is changed in dependency of shortName property to simplify modifications.
-     
-
-
-<hr>
-<small><a href="credits.html">Legal Notices</a></small>
+Component Editor displays tree of known visible sub-components under
+selected component on the left and properties of selected sub-component
+in property sheet on the right.
+<p> Any sub-component node can be deleted from tree by pushing Delete
+key or by selecting Delete from its popup menu. </p>
+<p> <b>Sub-component properties:</b> </p>
+<p> <code><b>interanlLabels</b></code> property is list of text labels
+found inside sub-component.<br>
+These labels are used to generate <code>public static final String</code>
+fields for some operators (JList, JComboBox...). </p>
+<p> <code><b>shortName</b></code> property is used mostly for low level
+method naming in generated source. </p>
+<p> <code><b>uniqueName</b></code> property is used for unique
+sub-component identification, for inner fields and sub-component getters
+naming in generated source.<br>
+Root nodes uniqueName represents its class and file name without
+extension. </p>
+<p> Note: uniqueName property is changed in dependency of shortName
+property to simplify modifications. </p>
+<hr> <small><a href="credits.html">Legal Notices</a></small>
 </body>
 </html>

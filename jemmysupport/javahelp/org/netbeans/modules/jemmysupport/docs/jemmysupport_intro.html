@@ -1,4 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
 <!--
  * 
  *     Copyright 2002 Sun Microsystems, Inc. All rights reserved.
@@ -6,84 +8,124 @@
  *
  *
  -->
-<HTML>
-<HEAD>
-<title>Jemmy Support Module Help</title>
-<link rel="stylesheet" href="../../usersguide/ide.css" type="text/css"></HEAD>
+  <title>Jemmy Support Module Help</title>
+  <link rel="stylesheet" href="../../usersguide/ide.css" type="text/css">
+</head>
 <body>
 <h2>Jemmy Support Module</h2>
-
-This module provides support for developers to create <a href="http://jemmy.netbeans.org">Jemmy</a> Components for automated GUI testing.<br>
-Latest binary version of module is available on Netbeans Autoupdate Beta server.
-
-
-<h2><img src="GeneratorAction.gif"> <a href="jemmysupport_generator.html">Jemmy Component Generator</a></h2>
+This module provides support for developers to create <a
+ href="http://jemmy.netbeans.org">Jemmy</a> Components for automated GUI
+testing.<br>
+Latest binary version of module is available on Netbeans Update Center
+Alpha.
+<h2><img src="GeneratorAction.gif"> <a
+ href="jemmysupport_generator.html">Jemmy Component Generator</a></h2>
 <h3>What is Jemmy Component ?</h3>
-
 <ul>
-<li>Jemmy Components are connection links between automated tests and tested GUI components (Frames, Dialogs, etc...).</li>
-<li>Each Jemmy Component is reflecting real GUI and offers API for automated tests.</li>
-<li>Jemmy Component transforms API calls into GUI manipulation actions using power of <a href="http://jemmy.netbeans.org">Jemmy</a> library.</li>
-<li>Jemmy Component API contains three levels:
-<ol>
-<li>sub-components definition (public methods returning Jemmy Operators for sub-components)</li>
-<li>low-level operations (methods performing simple operations with subcomponents, like: pushing, setting text, etc...)</li>
-<li>high-level operations (methods performing complex actions with component, like: all sub-component verification, filling form, etc...)</li>
-</ol></li>
+  <li>Jemmy Components are connection links between automated tests and
+tested GUI components (Frames, Dialogs, etc...).</li>
+  <li>Each Jemmy Component is reflecting real GUI and offers API for
+automated tests.</li>
+  <li>Jemmy Component transforms API calls into GUI manipulation
+actions using power of <a href="http://jemmy.netbeans.org">Jemmy</a>
+library.</li>
+  <li>Jemmy Component API contains three levels:
+    <ol>
+      <li>sub-components definition (public methods returning Jemmy
+Operators for sub-components)</li>
+      <li>low-level operations (methods performing simple operations
+with subcomponents, like: pushing, setting text, etc...)</li>
+      <li>high-level operations (methods performing complex actions
+with component, like: all sub-component verification, filling form,
+etc...)</li>
+    </ol>
+  </li>
 </ul>
-
-
 <h3>How Jemmy Component Generator works ?</h3>
-
 <ul>
-<li>It performs analysis of visible GUI component (Frame, Dialog, etc...) and creates skeleton of Jemmy Component.</li>
-<li>Jemmy Component Generator does not need sources of component for analysis.</li>
-<li>Created skeleton is compilable (and executable) code with API reflecting analyzed component GUI.</li>
+  <li>It performs analysis of visible GUI component (Frame, Dialog,
+etc...) and creates skeleton of Jemmy Component.</li>
+  <li>Jemmy Component Generator does not need sources of component for
+analysis.</li>
+  <li>Created skeleton is compilable (and executable) code with API
+reflecting analyzed component GUI.</li>
 </ul>
-
-
 <h3>How can I use Jemmy Component Generator ?</h3>
-
 <ol>
-<li>Open Components Generator dialog from Tools/Components Generator menu.</li>
-<li>Select destination filesystem and package for generated Jemmy Components.</li>
-<li>Start Components Generator</li>
-<li>Open and focus tested component (Window, Dialog, Frame, Internal Frame) or start tested application using IDE Internal Executor.</li>
-<li>Press CTRL-F12 and wait for Components Editor dialog (if requested).</li>
-<li>Optional - delete unwanted subcomponents or modify their names and click OK button.</li>
-<li>Java source code of Jemmy Component and optionally also PNG image with screen shot should be in destination package.</li>  
+  <li>Open Components Generator dialog from Tools/Jemmy Components
+Generator menu.</li>
+  <li>Select destination filesystem and package for generated Jemmy
+Components.</li>
+  <li>Start Components Generator</li>
+  <li>Open and focus tested component (Window, Dialog, Frame, Internal
+Frame) or start tested application using IDE Internal Executor.</li>
+  <li>Press CTRL-F12 and wait for Components Editor dialog (if
+requested).</li>
+  <li>Optional - delete unwanted subcomponents or modify their names
+and click OK button.</li>
+  <li>Java source code of Jemmy Component is opened in Source Editor
+and&nbsp;optionally also PNG image with screen shot should be placed in
+destination package.</li>
 </ol>
-
-
 <h3>Is it possible to affect process of generation ?</h3>
-
-Yes, changing the names of components used in generated code is optional during process of generation.<br>  
+Yes, changing the names of components used in generated code is
+optional during process of generation.<br>
 Any sub-component can be removed or re-named during generation process.
-
-
-<h2><img src="BundleLookupAction.gif"> <a href="jemmysupport_lookup.html">Resource Bundle Lookup</a></h2>
-<h3>What is a difference between I18N Wizard and Resource Bundle Lookup ?</h3>
-
+ <h2><img src="BundleLookupAction.gif"> <a
+ href="jemmysupport_lookup.html">Resource Bundle Lookup</a></h2>
+<h3>What is a difference between I18N Wizard and Resource Bundle Lookup
+?</h3>
 <ul>
-<li>I18N Wizard provides I18N assistance using one known resource bundle.</li>
-<li>Resource Bundle Lookup performs full-text search through all resource bundles in unknown source hierarchy.</li>
+  <li>I18N Wizard provides I18N assistance using one known resource
+bundle.</li>
+  <li>Resource Bundle Lookup performs full-text search through all
+resource bundles in unknown source hierarchy.</li>
 </ul>
-I18N of Jemmy Components and automated tests pointing to the same resources as original has big advantage.
-Jemmy Components and automated tests does not need to be translated more and they ever match the original.
-
-
+I18N of Jemmy Components and automated tests pointing to the same
+resources as original has big advantage. Jemmy Components and automated
+tests does not need to be translated more and they ever match the
+original.
 <h3>How can I use Resource Bundle Lookup ?</h3>
-
 <ol>
-<li>Mount all possible sources into repository.</li>
-<li>Open Resource Bundle Lookup dialog from Tools/Resource Bundle Lookup menu.</li>
-<li>Insert selection criteria and click Select button.</li>
-<li>Choose proper row in result table and copy lookup code to clipboard using pop up menu.</li>
-<li>Paste lookup code into source code instead of hard coded string.</li>
+  <li>Mount all possible sources into repository.</li>
+  <li>Open Resource Bundle Lookup dialog from Tools/Resource Bundle
+Lookup menu.</li>
+  <li>Insert selection criteria and click Select button.</li>
+  <li>Choose proper row in result table and copy lookup code to
+clipboard using pop up menu.</li>
+  <li>Paste lookup code into source code instead of hard coded string</li>
 </ol>
-
-
-<hr>
-<small><a href="credits.html">Legal Notices</a></small>
+<h2><img src="NameLookupAction.gif" title="" alt=""
+ style="width: 16px; height: 16px;"> <a
+ href="jemmysupport_namelookup.html">Component Name Lookup</a></h2>
+Besides identification of components by their title, text or other
+properties, you can identify component by its name. Component's name is
+set by method setName() which all components inherit from
+java.awt.Component class. Component's name can be obtain from an
+instance of component by method getName(). Usage of component's name
+has the same advantage as usage of strings from I18N-ed resource
+bundles. - you don't need to localize test cases. They work for all
+languages. So, if names of components are set by developers, they can
+be used for component identification in jemmy operators:<br>
+<br>
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+new JButtonOperator(containerOperator, new
+NameComponentChooser("btSelect"));</span><br>
+<br>
+Above code finds in specified container JButton instance which
+getName() method returns string equals to "btSelect" (applying current
+comparator to compare strings). &nbsp;Component name lookup can help
+you to find out component names.<br>
+<h3>How can I use Component Name Lookup?</h3>
+<ol>
+  <li>Open Component Name Lookup dialog from Tools|Component Name
+Lookup menu</li>
+  <li>Move mouse over a component for which you want to find out
+component name</li>
+  <li>Read component's name or copy (Ctrl-C) constructor of appropriate
+operator from the dialog </li>
+</ol>
+<br>
+<hr> <small><a href="credits.html">Legal Notices</a></small>
 </body>
 </html>

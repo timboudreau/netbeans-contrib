@@ -20,6 +20,9 @@
    <indexitem><b>-B-</b></indexitem>
       <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
 
+   <indexitem><b>-C-</b></indexitem>
+      <indexitem text="component name lookup" target="jemmysupport_namelookup" />
+
    <indexitem text=" " />
    <indexitem><b>-G-</b></indexitem>
       <indexitem text="generator of Jemmy components" target="jemmysupport_generator" />
@@ -28,12 +31,14 @@
    <indexitem><b>-J-</b></indexitem>
    <indexitem text="Jemmy Support Module" target="jemmysupport_intro">
       <indexitem text="about the module" target="jemmysupport_intro" />
+      <indexitem text="component name lookup" target="jemmysupport_namelookup" />
       <indexitem text="generator of Jemmy components" target="jemmysupport_generator" />
       <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
    </indexitem>
 
    <indexitem text=" " />
    <indexitem><b>-L-</b></indexitem>
+      <indexitem text="component name lookup" target="jemmysupport_namelookup" />
       <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
 
    <indexitem text=" " />
