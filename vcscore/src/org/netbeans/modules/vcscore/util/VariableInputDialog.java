@@ -1023,16 +1023,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
     
     private static void setA11y(javax.swing.JComponent jComponent, String a11yName, String a11yDescription) {
-        if (a11yName == null) {
-            a11yName = org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.noA11Y.a11yName");
+        if (a11yName != null) {
+            jComponent.getAccessibleContext().setAccessibleName(a11yName);
         }
-        jComponent.getAccessibleContext().setAccessibleName(a11yName);
-        if (a11yDescription == null) {
-            a11yDescription = org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.noA11Y.a11yDescription");
-        } else {
+        if (a11yDescription != null) {
+            jComponent.getAccessibleContext().setAccessibleDescription(a11yDescription);
             jComponent.setToolTipText(a11yDescription);
         }
-        jComponent.getAccessibleContext().setAccessibleDescription(a11yDescription);
     }
     
     /** Gets the text that is presented to the user before the pre-command retrieves the value. */
