@@ -40,7 +40,7 @@ public class RefFSTest extends org.netbeans.junit.NbTestCase {
     }
     
     public static Node findSubNode(Node node, String name) {
-        Node[] nodes = node.getChildren().getNodes();
+        Node[] nodes = node.getChildren().getNodes(true);
         for (int a = 0; a < nodes.length; a ++)
             if (nodes [a].getName().startsWith(name))
                 return nodes [a];
