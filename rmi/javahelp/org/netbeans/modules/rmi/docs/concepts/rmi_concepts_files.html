@@ -1,0 +1,116 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="lastupdated" content="29aug2000">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+   <title>The Files You Need for RMI Programs</title>
+<!--       
+ *        Copyright (C) 2000  Sun Microsystems, Inc
+ *                    All rights reserved.
+ *          Notice of copyright on this source code 
+ *          product does not indicate publication. 
+ * 
+ * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
+ * the U.S. Government is subject to restrictions as set forth 
+ * in subparagraph (c)(1)(ii) of the Rights in Technical Data
+ * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
+ * and FAR 52.227-19 (c) (June 1988).
+ *
+ *    Sun Microsystems, Inc., 901 San Antonio Road,
+ *    Palo Alto, California 94303 U.S.A.
+ *
+-->
+</head>
+<body bgcolor="#FFFFFF">
+
+<h2>
+The Files You Need for RMI Programs</h2>
+The RMI module has an RMI wizard and several RMI templates. You can use
+either tool to generate Java source files (.java files) for the different
+parts of RMI programs. The kind of RMI program you are writing determines
+the files you need to generate.
+<h4>
+<b>Remote Interface Files</b></h4>
+This is a Java interface that extends java.rmi.Remote. The remote interface
+defines the interface of an RMI server. It is compiled to create the stub
+and skeleton files that allow client and server to communicate. On the
+server side, you need a remote interface in the package with your implementation
+class.&nbsp; On the client side, you need to know the method signatures
+declared in the remote interface, because your client will be invoking
+these methods.
+<p>The RMI module lets use an existing remote interface or write your own:
+<ul>
+<li>
+If you are writing a client program that will use RMI technology to access
+an RMI server that someone else has already developed and deployed, you
+will begin with a copy of the remote interface that declares the server-side
+methods your client program&nbsp; can invoke.</li>
+
+<li>
+If you are developing an RMI server or a complete RMI application, you
+will probably begin by writing your own remote interface.</li>
+</ul>
+The RMI templates include a template named RemoteInterface that generates
+a remote interface that you complete in the IDE's editing window. The RMI
+wizard provides more support for writing a remote interface; it has buttons
+that add interface elements in correct syntax.
+<h4>
+<b>Client-side Files</b></h4>
+The files you need for a client-side program are:
+<ul>
+<li>
+A client class. You can generate a client class with the template named
+"RMI_Client." After generating a client class, complete its <tt>main()</tt>
+method by adding logic that looks up a reference to the RMI server from
+an RMI registry and uses the reference to invoke server methods.</li>
+
+<li>
+RMI technology makes it possible for the client program to obtain stub
+files at run time, after it performs the registry lookup.</li>
+</ul>
+If you are writing a client program to access an existing RMI server, you
+will need a copy of the remote interface, which contains method signatures
+for the server-side methods your program can invoke.
+<h4>
+<b>Server-side Files</b></h4>
+The files you need for a server-side program are:
+<ul>
+<li>
+An implementation class. This is called the implementation class because
+it contains implementations of the methods declared in the remote interface.
+These comprise the business logic that can be executed by clients.</li>
+
+<br>The RMI module generates implementation classes that include their
+own "startup" code. This means that they create instances of themselves,
+export themselves and register themselves with an RMI registry. You can
+generate an implementation class with either the RMI templates or the RMI
+wizard.
+<br>After generating an implementation class, you need to write the business
+logic. If your business logic is complex, you can supplement the public
+methods declared in the remote interface with private methods that are
+invoked by the declared remote methods.
+<li>
+The skeleton classes. These are generated when you compile the remote interface.</li>
+</ul>
+If you are using the RMI templates to generate you server-side files, you
+should generate and complete a remote interface (or obtain a copy of an
+existing interface) before generating the other server-side files. If you
+are using the RMI Wizard, the wizard can help you write a remote interface.
+<br>
+<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="lastupdated" content="29aug2000">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+   <title>RMI Debugging Settings</title>
+<!--       
+ *        Copyright (C) 2000  Sun Microsystems, Inc
+ *                    All rights reserved.
+ *          Notice of copyright on this source code 
+ *          product does not indicate publication. 
+ * 
+ * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
+ * the U.S. Government is subject to restrictions as set forth 
+ * in subparagraph (c)(1)(ii) of the Rights in Technical Data
+ * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
+ * and FAR 52.227-19 (c) (June 1988).
+ *
+ *    Sun Microsystems, Inc., 901 San Antonio Road,
+ *    Palo Alto, California 94303 U.S.A.
+ *
+-->
+</head>
+<body bgcolor="#FFFFFF">
+
+<h2>
+RMI Debugging Node Settings</h2>
+This node represents an execution mode for debugging RMI programs. When
+you generate a class with the RMI templates or the RMI wizard, this execution
+mode is specified for debugging. You can see the debugging mode that has
+been specified for a class by looking at the class's property sheet. (The
+property sheet's Execution tab has an Debugger property.) When you debug
+an RMI class, its Debugger property is used to start the Java virtual machine
+in which the debugger will run.
+<p>The settings for this node define the execution environment for debugging
+RMI programs.
+<h3>
+Properties Tab</h3>
+
+<h4>
+Classic Switch</h4>
+Specifies whether or not to use the "classic" Java virtual machine.
+<h4>
+External Process</h4>
+A <tt>java</tt> command with parameters appropriate for RMI debugging.
+When you debug a class whose Debugger property is set to RMI Debugging,
+the IDE will use this command will start up the execution environment.
+<h4>
+Hostname</h4>
+The hostname on which the RMI Debugging process will run. Defaults to the
+local host.
+<h4>
+Identifying Name</h4>
+A name for the execution mode defined with these property settings. The
+default value is "RMI Stub Compiler." When this name appears in a class's
+property sheet, the IDE uses the execution mode associated with the name.
+<h4>
+Implementation</h4>
+Specifies which debugger implementation to run when an RMI class is debugged.
+<h3>
+Expert Tab</h3>
+
+<h4>
+Boot Class Path</h4>
+Class path used to locate the java executable for the debugging process.
+<h4>
+Class path</h4>
+The class path supplied to the RMI Debugging process. Includes the project
+directory you are working in and any other filesystems you mounted for
+the project.
+<h4>
+Filesystems IP URL</h4>
+The HTTP address for the IDE's Filesystems node, using local host's IP
+address.
+<h4>
+Filesystems Path</h4>
+Path for all Filesystems nodes, including filesystems that you have mounted.
+<h4>
+Filesystems URL</h4>
+The HTTP address for the IDE's Filesystems node, using local host's name.
+<h4>
+Host IP</h4>
+The IP address of the local host.
+<h4>
+Internal HTTP Port</h4>
+The port used by the IDE's internal HTTP server.
+<h4>
+Library Path</h4>
+Path for libraries available to the IDE, including any that you have mounted.
+<h4>
+Working Directory</h4>
+Working directory for the debugging process. Defaults to "null."
+<br>
+<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="lastupdated" content="29aug2000">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+   <title>Completing Client-side Files</title>
+<!--       
+ *        Copyright (C) 2000  Sun Microsystems, Inc
+ *                    All rights reserved.
+ *          Notice of copyright on this source code 
+ *          product does not indicate publication. 
+ * 
+ * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
+ * the U.S. Government is subject to restrictions as set forth 
+ * in subparagraph (c)(1)(ii) of the Rights in Technical Data
+ * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
+ * and FAR 52.227-19 (c) (June 1988).
+ *
+ *    Sun Microsystems, Inc., 901 San Antonio Road,
+ *    Palo Alto, California 94303 U.S.A.
+ *
+-->
+</head>
+<body bgcolor="#FFFFFF">
+
+<h2>
+Completing Client-side Files</h2>
+The RMI module generates client-side files with main() methods that look
+like the following example:
+<p><tt>public static void main (String[] args) {</tt>
+<br><tt>&nbsp;&nbsp; System.setSecurityManager (new RMISecurityManager());</tt>
+<br><tt>}</tt>
+<p>To complete your client class, you must add a <tt>lookup()</tt> call
+that returns a reference to the correct RMI server. Then you can use the
+reference to invoke server-side methods.
+<p><b>Adding the lookup() Call</b>
+<ol>
+<li>
+The RMI server program should be running. You need to know which RMI registry
+it is registered with. In a large development effort, the server may be
+under control of a system administrator or another developer. If you are
+doing all of the development work you can start the server yourself.</li>
+
+<li>
+Start the RMI Module's Registry Browser, specifying the registry in which
+the RMI server is registered.</li>
+
+<li>
+Open the Registry Browser's <tt>RMI Registry</tt> node. Click through the
+node hierarchy and locate the subnode that represents the RMI server's
+remote interface.</li>
+
+<li>
+Right-click on the remote interface node. This opens a context menu; select
+<tt>Copy
+Client Code</tt>.</li>
+
+<li>
+Return to your client class code in the IDE's editing window.</li>
+
+<li>
+Place the cursor underneath the line with the <tt>setSecurityManager()</tt>
+call. Paste the code from the clipboard. After you paste, the <tt>main()</tt>
+method should resemble the following example:</li>
+
+<ol><tt>public static void main (String[] args) {</tt>
+<br><tt>&nbsp;&nbsp; System.setSecurityManager (new RMISecurityManager());</tt>
+<br><tt>&nbsp;&nbsp; try {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Hello obj = (Hello) Naming.lookup
+("//localhost:1099/Remote");</tt>
+<br><tt>&nbsp;&nbsp; }</tt>
+<br><tt>&nbsp;&nbsp; catch (Exception ex) {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ex.printStackTrace();</tt>
+<br><tt>&nbsp;&nbsp; }</tt>
+<br><tt>}</tt></ol>
+</ol>
+<b>Adding Server Method Invocations</b>
+<ol>
+<li>
+The object returned by the lookup is a proxy for the RMI server. You can
+invoke methods on it.</li>
+
+<li>
+Use code like this:</li>
+
+<ol><tt>obj.sayHello();</tt></ol>
+
+<li>
+Your completed main method will look like this:</li>
+
+<ol><tt>public static void main (String[] args) {</tt>
+<br><tt>&nbsp;&nbsp; System.setSecurityManager (new RMISecurityManager());</tt>
+<br><tt>&nbsp;&nbsp; try{</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Hello obj = (Hello) Naming.lookup
+("//localhost:1099/Remote");</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; obj.sayHello();</tt>
+<br><tt>&nbsp;&nbsp; }</tt>
+<br><tt>&nbsp;&nbsp; catch (Exception ex)</tt>
+<br><tt>&nbsp;&nbsp; {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ex.printStackTrace();</tt>
+<br><tt>&nbsp;&nbsp; }</tt></ol>
+</ol>
+
+<h4>
+Compiling and Running Your Client</h4>
+
+<ol>
+<li>
+The RMI server must be running before you can successfully run your client.</li>
+
+<li>
+In the Explorer Window's Filesystems tab, right-click on your client class
+and open its property sheet. Make sure that the <tt>Executor</tt> property
+is set to <tt>RMI Client Execution</tt>.</li>
+
+<li>
+Right-click on the node for the package that contains your client and choose
+<tt>Compile</tt>
+from the context menu.</li>
+
+<li>
+Right-click again on the node for the client class and choose <tt>Execute</tt>
+from the context menu.</li>
+</ol>
+For more information see:
+<ul>
+<li>
+<a href="../registrybrowser/rmi_registrybrowser.html">The RMI Registry
+Browser</a></li>
+</ul>
+
+<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="lastupdated" content="21nov2000">
+   <title>Generating Server-side Files</title>
+<!--       
+ *        Copyright (C) 2000  Sun Microsystems, Inc
+ *                    All rights reserved.
+ *          Notice of copyright on this source code 
+ *          product does not indicate publication. 
+ * 
+ * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
+ * the U.S. Government is subject to restrictions as set forth 
+ * in subparagraph (c)(1)(ii) of the Rights in Technical Data
+ * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
+ * and FAR 52.227-19 (c) (June 1988).
+ *
+ *    Sun Microsystems, Inc., 901 San Antonio Road,
+ *    Palo Alto, California 94303 U.S.A.
+ *
+-->
+</head>
+<h2> Generating Server-side Files</h2>You can generate server-side files by using 
+either of the following tools: <ul> <li> the RMI Wizard<p></p></li><li> the RMI 
+Templates</li></ul><p><a name="existing"></a><b>To generate server-side files 
+with the RMI Wizard:</b></p><ol> <li> Decide what kind of implementation you want 
+to create.</li><li> From the main window, choose Tools&nbsp;<img src="../images/arrow.gif" height=13 width=6>&nbsp;RMI 
+Wizard to open the first page of the RMI Wizard.</li><li> On the first page, specify 
+the package in which the wizard should place the files it generates.</li><li> 
+On the second page, specify the remote interface you are creating for your server 
+program. This can be either a new remote interface, an extension of an existing 
+remote interface, or a copy of a remote interface that has been made into a template, 
+as follows:</li><ul> <li> Type in the name of the remote interface you are creating. 
+(When you complete the wizard it will generate a file named <code><i>yourName</i>.java</code>, 
+containing a remote interface named <code><i>yourName</i></code>.)</li><li> If 
+you select a template from the Template drop-down, the remote interface will be 
+based on the template.</li><li> If you select the "A new remote interface" radio 
+button, you will be able to code a new interface on the next page of the wizard.</li><li> 
+If you select the "Extends an existing remote interface" button, click the ellipsis 
+(...) button and select the base interface.</li></ul><li> On the third page of 
+the wizard, define your remote interface:</li><ul> <li> If&nbsp; you are creating 
+a remote interface from a template, you do not see the methods of the template 
+interface on this page. Any work you do on this page will add to the definition 
+copied from the template.</li><li> If you are creating a new interface, the work 
+you do on this page will be the complete definition of the&nbsp; interface.</li><li> 
+If you are creating an interface that extends an existing interface, you do not 
+see the methods of&nbsp; the base interface on this page. You can add methods 
+that extend the base interface.</li></ul><li> On the fourth page of the wizard, 
+choose values that describe the kind of implementation class that you want the 
+wizard to create:</li><ul> <li> Review the implementation name. This is the name 
+that will be given to the implementation class. Notice that the default value 
+is based on the name of your remote interface, in the form <code><i>interfaceName</i>Impl</code>. 
+If you accept the default name, the wizard will generate a class named <code><i>interfaceName</i>Impl</code> 
+in a file named <code><i>interfaceName</i>Impl.java</code>.</li><li> Review the 
+template choices. If you choose a template, the wizard will create an implementation 
+class that extends one of the RMI server base classes.</li></ul></ol><p><a name="new"></a><b>To 
+generate server-side files with the RMI templates:</b></p><ol> <li> Decide what 
+kind of implementation you want to create. There are RMI templates for each of 
+the RMI base class types (<code>UnicastRemoteObject</code>, <code>Activatable</code>, 
+<code>RMIIIOP</code>) and for implementation classes that do not extend one of 
+the base classes (<code>ClearObject</code>)&nbsp; </li><li> If you are creating 
+an implementation of an existing remote interface, copy that interface to the 
+package in which you are creating the implementation.</li><li> From the main window, 
+choose File&nbsp;<img src="../images/arrow.gif" height=13 width=6>&nbsp;New to 
+open the Template Chooser.</li><li> To create an implementation of an existing 
+remote interface, select one of these templates:</li><ul><li><code>Activatable_Impl</code></li><li><code>ClearUnicastObject_Impl</code></li><li><code>RMIIIOP_Impl</code></li><li><code>UnicastRemoteRemoteObject_Impl</code></li></ul><li>To 
+create a new remote interface and an implementation for it, select one of these 
+templates:</li><ul><li><code>Activatable Server (Group)</code></li><li><code>ClearObject 
+(Group)</code></li><li><code>IIOP Server (Group)</code></li><li><code>Unicast 
+Server (Group)</code></li></ul><li>Use the fields on the right side of the Template 
+Chooser to specify a name for your server file and the package in which it should 
+be generated. If you are using one of the <code>_Impl</code> templates to implement 
+an existing remote interface, use a name that matches the interface name. For 
+example, if you are implementing an interface named <code>Hello</code>, name your 
+implementation class <code>HelloImpl</code>. The RMI module will declare your 
+class as an implementation of the interface and generate method bodies for methods 
+declared in the remote interface.</li><li> Click the Finish button.</li><li> The 
+RMI module creates an RMI server source file called <i><code>Name_You_Specified</code></i><code>.java</code>.</li><ul> 
+<li> If you used an <code>_Impl</code> template and used a name that matches the 
+interface name, the RMI module will declare your implementation class as an implementation 
+of the interface and generate method bodies for methods declared in the interface.</li><li> 
+If you used a <code>Group</code> template the RMI module also generates a remote 
+interface.</li></ul></ol><table width="100%" border="0" cellpadding="0"><tr valign="TOP"><th colspan="2"><div align="LEFT"><b>For 
+more information, see: </b></div></th></tr><tr><td width="30 pt">&nbsp;</td><td><a href="../registrybrowser/rmi_registrybrowser.html">The 
+RMI Registry Browser</a><br></br><a href="../completing/rmi_completing.html">Completing 
+Generated Files</a></td></tr></table><p></p><hr><font size=-2><a href="../credits.html">Legal 
+Notices</a></font> 
+</body>
+</html>
