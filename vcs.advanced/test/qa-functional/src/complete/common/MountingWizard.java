@@ -53,7 +53,8 @@ public class MountingWizard extends NbTestCase {
         suite.addTest(new MountingWizard("testProfileSelector"));
         suite.addTest(new MountingWizard("testButtons"));
         suite.addTest(new MountingWizard("testAdditionalProfilesLink"));
-        suite.addTest(new MountingWizard("testCheckBoxes"));
+        suite.addTest(new MountingWizard("testAutoLocking"));
+        suite.addTest(new MountingWizard("testAutoEditing"));
         suite.addTest(new MountingWizard("testOSCompatibility"));
         suite.addTest(new MountingWizard("testEnvironmentSetup"));
         suite.addTest(new MountingWizard("testSettingsPropagated"));
@@ -210,16 +211,78 @@ public class MountingWizard extends NbTestCase {
         }
     }
 
-    /** Tests that auto-editing and auto-locking checkboxes work on Advanced panel of the wizard.
+    /** Tests that auto-locking checkbox work on Advanced panel of the wizard.
      * @throws Exception any unexpected exception thrown during test.
      */
-    public void testCheckBoxes() throws Exception {
+    public void testAutoLocking() throws Exception {
         try {
-            System.out.print(".. Testing auto locking/editing checkboxes ..");
+            System.out.print(".. Testing auto locking feature ..");
+            new File(getWorkDirPath()).mkdirs();
+            File file = new File(getWorkDirPath() + File.separator + "A_File.java");
+            file.createNewFile();
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
-            wizardProfile.setProfile(VCSWizardProfile.CVS_UNIX);
+            wizardProfile.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+            wizardProfile.setWorkingDirectory(getWorkDirPath());
+            wizardProfile.next();
+            VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();
+            JCheckBoxOperator checkBox = wizardAdvanced.cbCallLOCKCommand();
+            if (!(checkBox.isEnabled() && !checkBox.isSelected())) throw new Exception("Error: Call LOCK checkbox has incorrect state.");
+            checkBox = wizardAdvanced.cbPromptForLOCK();
+            if (!(!checkBox.isEnabled() && checkBox.isSelected())) throw new Exception("Error: Prompt for LOCK checkbox has incorrect state.");
+            JTextFieldOperator question = wizardAdvanced.txtMessageLOCK();
+            if (!question.getText().equals(""))
+                throw new Exception("Error: LOCK question has incorrect text.");
+            wizardAdvanced.checkCallLOCKCommand(true);
+            if (!checkBox.isEnabled())
+                throw new Exception("Error: Can't enable prompt for EDIT checkbox.");
+            wizardAdvanced.checkPromptForLOCK(false);
+            if (question.isEnabled())
+                throw new Exception("Error: Can't disable LOCK question.");
+            wizardAdvanced.checkPromptForLOCK(true);
+            wizardAdvanced.txtMessageLOCK().enterText("Do you want to lock the file ?");
+            wizardAdvanced.finish();
+            Thread.sleep(2000);
+            Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath());
+            filesystemNode.expand();
+            new OpenAction().perform(new Node(filesystemNode, "A_File"));
+            EditorOperator editor = new EditorOperator("A_File");
+            editor.pressKey(32);
+            long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
+            try { new QuestionDialogOperator("Do you want to lock the file ?").yes(); }
+            catch (org.netbeans.jemmy.TimeoutExpiredException te) { throw new Exception("Error: Auto-locking does not work."); }
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
+            new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|Empty " + getWorkDirPath() + "|Lock");
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath()));
+            System.out.println(". done !");
+        } catch (Exception e) {
+            captureScreen();
+            long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
+            try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
+            try { new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath())); }
+            catch (Exception te) {}
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
+            throw e;
+        }
+    }
+
+    /** Tests that auto-editing checkbox work on Advanced panel of the wizard.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testAutoEditing() throws Exception {
+        try {
+            System.out.print(".. Testing auto editing feature ..");
+            new File(getWorkDirPath()).mkdirs();
+            File file = new File(getWorkDirPath() + File.separator + "A_File.java");
+            file.createNewFile();
+            file.setReadOnly();
+            new ActionNoBlock(MOUNT_MENU, null).perform();
+            VCSWizardProfile wizardProfile = new VCSWizardProfile();
+            wizardProfile.setProfile(Utilities.isUnix() ? VCSWizardProfile.CVS_UNIX : VCSWizardProfile.CVS_WIN_NT);
+            wizardProfile.txtJTextField(VCSWizardProfile.INDEX_TXT_WORKING_DIRECTORY).clearText();
+            wizardProfile.setWorkingDirectory(getWorkDirPath());
             wizardProfile.next();
             VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();
             JCheckBoxOperator checkBox = wizardAdvanced.cbCallEDITCommand();
@@ -235,34 +298,31 @@ public class MountingWizard extends NbTestCase {
             wizardAdvanced.checkCallEDITCommand(false);
             if (checkBox.isEnabled())
                 throw new Exception("Error: Can't disable prompt for EDIT checkbox.");
-            wizardAdvanced.back();
-            wizardProfile.setProfileNoBlock(VCSWizardProfile.PVCS_UNIX);
-            new QuestionDialogOperator().yes();
+            wizardAdvanced.checkCallEDITCommand(true);
+            wizardAdvanced.checkPromptForEDIT(true);
+            wizardAdvanced.txtMessageEDIT().enterText("Do you want to edit the file ?");
+            wizardAdvanced.finish();
+            Thread.sleep(2000);
+            Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), "CVS " + getWorkDirPath());
+            filesystemNode.expand();
+            new OpenAction().perform(new Node(filesystemNode, "A_File [Local]"));
+            EditorOperator editor = new EditorOperator("A_File [Local] [read only]");
+            editor.pressKey(32);
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
-            try { new NbDialogOperator("Exception").ok(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
+            try { new QuestionDialogOperator("Do you want to edit the file ?").yes(); }
+            catch (org.netbeans.jemmy.TimeoutExpiredException te) { throw new Exception("Error: Auto-editing does not work."); }
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
-            wizardProfile.next();
-            checkBox = wizardAdvanced.cbCallLOCKCommand();
-            if (!(checkBox.isEnabled() && !checkBox.isSelected())) throw new Exception("Error: Call LOCK checkbox has incorrect state.");
-            checkBox = wizardAdvanced.cbPromptForLOCK();
-            if (!(!checkBox.isEnabled() && checkBox.isSelected())) throw new Exception("Error: Prompt for LOCK checkbox has incorrect state.");
-            question = wizardAdvanced.txtMessageLOCK();
-            if (!question.getText().equals("Do you want to get the file with a lock?"))
-                throw new Exception("Error: LOCK question has incorrect text.");
-            wizardAdvanced.checkCallLOCKCommand(true);
-            if (!checkBox.isEnabled())
-                throw new Exception("Error: Can't enable prompt for EDIT checkbox.");
-            wizardAdvanced.checkPromptForLOCK(false);
-            if (question.isEnabled())
-                throw new Exception("Error: Can't disable LOCK question.");
-            wizardAdvanced.cancel();
+            new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|CVS " + getWorkDirPath() + "|Edit");
+            new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "CVS " + getWorkDirPath()));
             System.out.println(". done !");
         } catch (Exception e) {
             captureScreen();
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
+            try { new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "CVS " + getWorkDirPath())); }
+            catch (Exception te) {}
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
             throw e;
         }
