@@ -36,6 +36,8 @@ import org.netbeans.modules.vcscore.util.*;
 public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private Debug E=new Debug("ExecuteCommand", true); // NOI18N
     private Debug D=E;
+    
+    private static final String DEFAULT_REGEX = "^(.*$)"; // Match the whole line by default.
 
     private VcsFileSystem fileSystem = null;
     private UserCommand cmd = null;
@@ -301,6 +303,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //D.deb(cmd.getName()+".getInput()='"+cmd.getInput()+"'"); // NOI18N
 
         String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
+        if (dataRegex == null) dataRegex = DEFAULT_REGEX;
         try {
             for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
                 ec.addStdoutRegexListener((CommandDataOutputListener) it.next(), dataRegex);
@@ -323,6 +326,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
 
         String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
+        if (errorRegex == null) errorRegex = DEFAULT_REGEX;
         try {
             for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
                 ec.addStderrRegexListener((CommandDataOutputListener) it.next(), errorRegex);
