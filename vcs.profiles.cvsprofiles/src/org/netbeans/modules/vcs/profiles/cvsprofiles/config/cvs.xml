@@ -2263,7 +2263,19 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
       </command>
       <separator />
-      <command name="LOGIN" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOGIN, ${CVS_SERVER})" unless="BUILT-IN">
+      <command name="LIST_MODULES" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LIST_MODULES)" if="BUILT-IN">
+        <property name="exec">
+          <value>vcs.commands.CvsModuleSelector.class CHECKOUT_MODULES_S_CMD CHECKOUT_MODULES_C_CMD</value>
+          </property>
+        <property name="executionPriority">
+          <value>1</value> <!-- HIGH PRIORITY -->
+        </property>
+        <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>
+      </command>
+      <separator />
+      <command name="LOGIN" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOGIN, ${CVS_SERVER})" >
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOGIN_Mnemonic)</value>
         </property>
@@ -2284,7 +2296,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="runOnMultipleFiles">
           <value>true</value>
         </property>
-      </command>
+      </command>      
       <command name="LOGOUT" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOGOUT, ${CVS_SERVER})" >
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LOGOUT_Mnemonic)</value>
@@ -2298,18 +2310,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="hiddenTestExpression">
           <value>$[? SERVERTYPE-PSERVER_VALUE] [Hide Me] [$[? CVS_SERVER] [] [Hide Me]]</value>
         </property>
-      </command>
-      <command name="LIST_MODULES" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_LIST_MODULES)" if="BUILT-IN">
-        <property name="exec">
-          <value>vcs.commands.CvsModuleSelector.class CHECKOUT_MODULES_S_CMD CHECKOUT_MODULES_C_CMD</value>
-          </property>
-        <property name="executionPriority">
-          <value>1</value> <!-- HIGH PRIORITY -->
-        </property>
-        <property name="runOnMultipleFiles">
-          <value>true</value>
-        </property>
-      </command>
+      </command>      
       <command name="CHECKOUT_CMD">
 	<property name="exec">
           <value>${CDW_EXECUTE} -f update ${RCS_KFLAG} -p $[? REVISION] [-r ${REVISION}] [] ${QFILE} &gt; ${QUOTE}${TEMPDIR}${PS}${FILE}${QUOTE} ${NUR}</value>
@@ -2633,8 +2634,8 @@ Microsystems, Inc. All Rights Reserved.
       </property>
     </command>
     <command name="LOGIN_CHECK">
-      <property name="exec">
-        <value>${RUN} ${CVS_DEF_EXE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}</value>
+      <property name="exec">        
+        <value>${EXECUTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}</value>
       </property>
     </command>
     <command name="CONNECTION_LOGIN">
