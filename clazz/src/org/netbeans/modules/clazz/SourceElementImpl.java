@@ -163,7 +163,15 @@ public final class SourceElementImpl extends MemberElementImpl
   private void addClassElement (Map map, final ClassElement outer) {
     map.put(outer.getName(), outer);
     // recurse on inners
-    ClassElement[] inners = outer.getClasses();
+    ClassElement[] inners = null;
+    try {
+      inners = outer.getClasses();
+    } catch (Throwable exc) {
+      // rethrow only ThreadDeath, ignore otherwise
+      if (exc instanceof ThreadDeath)
+        throw (ThreadDeath)exc;
+      return;
+    }
     for (int i = 0; i < inners.length; i++) {
       addClassElement(map, inners[i]);
     }
@@ -176,6 +184,8 @@ public final class SourceElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  4    src-jtulach1.3         3/26/99  David Simonek   properties, actions 
+*       completed, more robust now
 *  3    src-jtulach1.2         2/17/99  Petr Hamernik   serialization changed.
 *  2    src-jtulach1.1         2/11/99  David Simonek   
 *  1    src-jtulach1.0         1/29/99  David Simonek   

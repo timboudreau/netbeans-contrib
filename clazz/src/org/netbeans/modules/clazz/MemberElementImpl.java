@@ -17,10 +17,12 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.IOException;
 import java.lang.reflect.Member;
+import java.lang.reflect.Modifier;
 
 import com.netbeans.ide.src.MemberElement;
 import com.netbeans.ide.src.SourceException;
 import com.netbeans.ide.src.Identifier;
+import com.netbeans.ide.util.Utilities;
 
 /** Implementation of the MemberElement.Impl for the class objects.
 *
@@ -46,7 +48,8 @@ public abstract class MemberElementImpl extends ElementImpl
   public int getModifiers () {
     if (data instanceof Class) {
       // Class doesn't implement Member interface...
-      return ((Class)data).getModifiers();
+      // and moreover we must throw away "interface" modifier if present
+      return ((Class)data).getModifiers() & (~Modifier.INTERFACE);
     }
     return ((Member)data).getModifiers();
   }
@@ -64,7 +67,8 @@ public abstract class MemberElementImpl extends ElementImpl
     if (name == null) {
       if (data instanceof Class)
         // Class doesn't implement Member interface...
-        name = Identifier.create(((Class)data).getName());
+        name = Identifier.create(
+          Utilities.getShortClassName((Class)data));
       else
         name = Identifier.create(((Member)data).getName());
     }
@@ -88,6 +92,8 @@ public abstract class MemberElementImpl extends ElementImpl
 
 /*
 * Log
+*  4    src-jtulach1.3         3/26/99  David Simonek   properties, actions 
+*       completed, more robust now
 *  3    src-jtulach1.2         2/17/99  Petr Hamernik   serialization changed.
 *  2    src-jtulach1.1         2/3/99   David Simonek   
 *  1    src-jtulach1.0         1/22/99  David Simonek   

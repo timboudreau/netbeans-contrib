@@ -256,7 +256,15 @@ final class ClassElementImpl extends MemberElementImpl
   /** Creates map for fields consisting of identifier - field entries */
   private Map createFieldsMap () {
     // obtain field array
-    Field[] reflFields = ((Class)data).getDeclaredFields();
+    Field[] reflFields = null;
+    try {
+      reflFields = ((Class)data).getDeclaredFields();
+    } catch (Throwable exc) {
+      // rethrow only ThreadDeath, ignore otherwise
+      if (exc instanceof ThreadDeath)
+        throw (ThreadDeath)exc;
+      reflFields = new Field[0];
+    }
     // create map
     FieldElement curFE = null;
     Map result = new HashMap(reflFields.length);
@@ -272,7 +280,15 @@ final class ClassElementImpl extends MemberElementImpl
   * consisting of identifier - class element entries */
   private Map createInnersMap () {
     // obtain array of interfaces and inner classes
-    Class[] reflInners = ((Class)data).getDeclaredClasses();
+    Class[] reflInners = null;
+    try {
+      reflInners = ((Class)data).getDeclaredClasses();
+    } catch (Throwable exc) {
+      // rethrow only ThreadDeath, ignore otherwise
+      if (exc instanceof ThreadDeath)
+        throw (ThreadDeath)exc;
+      reflInners = new Class[0];
+    }
     // create map
     ClassElement curCE = null;
     Map result = new HashMap(reflInners.length);
@@ -288,7 +304,15 @@ final class ClassElementImpl extends MemberElementImpl
   * consisting of constructor key - constructor element entries */
   private Map createConstructorsMap () {
     // obtain constructors array
-    Constructor[] reflCons = ((Class)data).getDeclaredConstructors();
+    Constructor[] reflCons = null;
+    try {
+      reflCons = ((Class)data).getDeclaredConstructors();
+    } catch (Throwable exc) {
+      // rethrow only ThreadDeath, ignore otherwise
+      if (exc instanceof ThreadDeath)
+        throw (ThreadDeath)exc;
+      reflCons = new Constructor[0];
+    }
     // create map
     ConstructorElement curCE = null;
     Map result = new HashMap(reflCons.length);
@@ -304,7 +328,15 @@ final class ClassElementImpl extends MemberElementImpl
   * consisting of method key - method element entries */
   private Map createMethodsMap () {
     // obtain methods array
-    Method[] reflMethods = ((Class)data).getDeclaredMethods();
+    Method[] reflMethods = null;
+    try {
+      reflMethods = ((Class)data).getDeclaredMethods();
+    } catch (Throwable exc) {
+      // rethrow only ThreadDeath, ignore otherwise
+      if (exc instanceof ThreadDeath)
+        throw (ThreadDeath)exc;
+      reflMethods = new Method[0];
+    }
     // create map
     MethodElement curME = null;
     Map result = new HashMap(reflMethods.length);
@@ -324,6 +356,8 @@ final class ClassElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  6    src-jtulach1.5         3/26/99  David Simonek   properties, actions 
+*       completed, more robust now
 *  5    src-jtulach1.4         2/17/99  Petr Hamernik   serialization changed.
 *  4    src-jtulach1.3         2/10/99  David Simonek   
 *  3    src-jtulach1.2         2/3/99   David Simonek   
