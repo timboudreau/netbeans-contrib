@@ -283,6 +283,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         String path = absolutePath;
         String fsRoot = fileSystem.getFile("").getAbsolutePath();
         path = path.substring(fsRoot.length());
+        path = path.replace(File.separatorChar, '/');
         while (path.startsWith("/")) path = path.substring(1);
         return path;
     }
