@@ -34,6 +34,9 @@ public class NOCMetric extends AbstractMetric {
     static final String displayName = 
         MetricsNode.bundle.getString ("LBL_NOCMetric");
 
+    static final String shortDescription = 
+	MetricsNode.bundle.getString ("HINT_NOCMetric");
+
     /** Creates new NOCMetric */
     public NOCMetric(ClassMetrics classMetrics) {
         super(classMetrics);
@@ -48,7 +51,7 @@ public class NOCMetric extends AbstractMetric {
     }
 
     public String getShortDescription() {
-        return MetricsNode.bundle.getString ("HINT_NOCMetric");
+        return shortDescription;
     }
 
     public MetricSettings getSettings() {

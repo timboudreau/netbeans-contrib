@@ -70,6 +70,8 @@ class MetricsPane extends JDialog {
             renderer.setHorizontalAlignment(JLabel.RIGHT);
             MetricDetailsInvoker detailsInvoker = new MetricDetailsInvoker();
             column = new TableColumn(i + 1, METRIC_COL_WIDTH, renderer, detailsInvoker);
+	    column.setHeaderRenderer(
+		createHeaderRenderer(ClassMetrics.columnToolTips[i + 1]));
             table.addColumn(column);
         }
 
@@ -80,5 +82,28 @@ class MetricsPane extends JDialog {
         JScrollPane sp = new JScrollPane();
         sp.getViewport().add(table);
         getContentPane().add(sp, BorderLayout.CENTER);
+    }
+
+    private TableCellRenderer createHeaderRenderer(String tooltip) {
+	DefaultTableCellRenderer label = new DefaultTableCellRenderer() {
+	    public Component getTableCellRendererComponent(JTable table, Object value,
+                         boolean isSelected, boolean hasFocus, int row, int column) {
+	        if (table != null) {
+	            JTableHeader header = table.getTableHeader();
+	            if (header != null) {
+	                setForeground(header.getForeground());
+	                setBackground(header.getBackground());
+	                setFont(header.getFont());
+	            }
+                }
+
+                setText((value == null) ? "" : value.toString());
+		setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+	        return this;
+            }
+	};
+	label.setHorizontalAlignment(JLabel.CENTER);
+	label.setToolTipText(tooltip);
+	return label;
     }
 }

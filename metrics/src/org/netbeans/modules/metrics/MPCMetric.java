@@ -33,6 +33,9 @@ public class MPCMetric extends AbstractMetric {
     static final String displayName = 
         MetricsNode.bundle.getString ("LBL_MPCMetric");
 
+    static final String shortDescription = 
+	MetricsNode.bundle.getString ("HINT_MPCMetric");
+
     /** Creates new MPCMetric */
     public MPCMetric(ClassMetrics classMetrics) {
         super(classMetrics);
@@ -47,7 +50,7 @@ public class MPCMetric extends AbstractMetric {
     }
 
     public String getShortDescription() {
-        return MetricsNode.bundle.getString ("HINT_MPCMetric");
+        return shortDescription;
     }
     
     public MetricSettings getSettings() {

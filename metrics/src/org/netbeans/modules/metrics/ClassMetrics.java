@@ -62,7 +62,6 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
     static final int MAX_METRICS = 7;
 
     static String[] columnTitles = new String[MAX_METRICS + 1];
-
     static {
         columnTitles[0] = MetricsNode.bundle.getString("STR_ClassName");
         columnTitles[1] = WMCMetric.displayName;
@@ -72,6 +71,18 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
         columnTitles[5] = DITMetric.displayName;
         columnTitles[6] = NOCMetric.displayName;
         columnTitles[7] = NTMetric.displayName;
+    };
+    
+    static String[] columnToolTips = new String[MAX_METRICS + 1];
+    static {
+        columnToolTips[0] = MetricsNode.bundle.getString("STR_ClassName");
+        columnToolTips[1] = WMCMetric.shortDescription;
+        columnToolTips[2] = CBOMetric.shortDescription;
+        columnToolTips[3] = RFCMetric.shortDescription;
+        columnToolTips[4] = MPCMetric.shortDescription;
+        columnToolTips[5] = DITMetric.shortDescription;
+        columnToolTips[6] = NOCMetric.shortDescription;
+        columnToolTips[7] = NTMetric.shortDescription;
     };
     
     ClassName className;

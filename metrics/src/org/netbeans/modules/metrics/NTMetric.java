@@ -34,6 +34,9 @@ public class NTMetric extends AbstractMetric {
     static final String displayName = 
         MetricsNode.bundle.getString ("LBL_NTMetric");
 
+    static final String shortDescription = 
+	MetricsNode.bundle.getString ("HINT_NTMetric");
+
     /** Creates new NTMetric */
     public NTMetric(ClassMetrics classMetrics) {
         super(classMetrics);
@@ -48,7 +51,7 @@ public class NTMetric extends AbstractMetric {
     }
 
     public String getShortDescription() {
-        return MetricsNode.bundle.getString ("HINT_NTMetric");
+        return shortDescription;
     }
     
     public MetricSettings getSettings() {

@@ -37,6 +37,9 @@ public class CBOMetric extends AbstractMetric {
     static final String displayName = 
         MetricsNode.bundle.getString ("LBL_CBOMetric");
 
+    static final String shortDescription = 
+	MetricsNode.bundle.getString ("HINT_CBOMetric");
+
     public CBOMetric(ClassMetrics classMetrics) {
         super(classMetrics);
     }
@@ -50,7 +53,7 @@ public class CBOMetric extends AbstractMetric {
     }
 
     public String getShortDescription() {
-        return MetricsNode.bundle.getString ("HINT_CBOMetric");
+        return shortDescription;
     }
 
     public MetricSettings getSettings() {

@@ -42,6 +42,9 @@ public class DITMetric extends AbstractMetric {
     static final String displayName = 
         MetricsNode.bundle.getString ("LBL_DITMetric");
 
+    static final String shortDescription = 
+	MetricsNode.bundle.getString ("HINT_DITMetric");
+
     public DITMetric(ClassMetrics classMetrics) {
         super(classMetrics);
     }
@@ -55,7 +58,7 @@ public class DITMetric extends AbstractMetric {
     }
 
     public String getShortDescription() {
-        return MetricsNode.bundle.getString ("HINT_DITMetric");
+        return shortDescription;
     }
 
     public MetricSettings getSettings() {

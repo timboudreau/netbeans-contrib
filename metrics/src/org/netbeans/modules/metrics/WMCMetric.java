@@ -51,6 +51,9 @@ public class WMCMetric extends AbstractMetric {
     static final String displayName = 
         MetricsNode.bundle.getString ("LBL_WMCMetric");
 
+    static final String shortDescription = 
+	MetricsNode.bundle.getString ("HINT_WMCMetric");
+
     public WMCMetric(ClassMetrics classMetrics) {
         super(classMetrics);
     }
@@ -64,7 +67,7 @@ public class WMCMetric extends AbstractMetric {
     }
 
     public String getShortDescription() {
-        return MetricsNode.bundle.getString ("HINT_WMCMetric");
+        return shortDescription;
     }
 
     public Integer getMetricValue() {

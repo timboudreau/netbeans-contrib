@@ -33,6 +33,9 @@ public class RFCMetric extends AbstractMetric {
     static final String displayName = 
         MetricsNode.bundle.getString ("LBL_RFCMetric");
 
+    static final String shortDescription = 
+	MetricsNode.bundle.getString ("HINT_RFCMetric");
+
     /** Creates new RFCMetric */
     public RFCMetric(ClassMetrics classMetrics) {
         super(classMetrics);
@@ -47,7 +50,7 @@ public class RFCMetric extends AbstractMetric {
     }
 
     public String getShortDescription() {
-        return MetricsNode.bundle.getString ("HINT_RFCMetric");
+        return shortDescription;
     }
     
     public MetricSettings getSettings() {
