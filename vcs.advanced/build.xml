@@ -55,21 +55,19 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="netbeans" depends="jars"/>
 
-<!--
   <target name="nbm" depends="netbeans">
     <makenbm file="vcsgen.nbm"
              topdir="."
 	     manifest="manifest-subst.mf"
-	     homepage="http://applet.netbeans.org/"
-	     distribution="http://www.netbeans.org/download/nbms/40/applet.nbm">
-      <license file="../nbbuild/standard-nbm-license.txt"/>
+	     homepage="http://${homepage.base}/vcsgeneric.html"
+	     distribution="${dist.base}/vcsgen.nbm">
+      <license file="${f4jroot}/core/release/LICENSE.txt"/>
       <description>
-        Vcs generic ...
+        Vcs generic module
       </description>
       <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
     </makenbm>
   </target>
--->
 
   <target name="clean">
     <delete>
