@@ -87,6 +87,7 @@ public abstract class CVSStub extends GenericStub {
 
         wizard.setProfile(profile);
         history.waitCommand("AUTO_FILL_CONFIG", "");
+        sleep (5000);
 
         wizard.setCVSServerName(""); // workaround for issue #37380
         wizard.setCVSUserName(""); // workaround for issue #37380
