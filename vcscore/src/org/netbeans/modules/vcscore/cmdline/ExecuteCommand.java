@@ -155,7 +155,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 if (fo != null) fileSystem.fireRevisionsChanged(whatChanged, fo, changedInfo);
             }
              */
-            doRefresh(exec);
+            //doRefresh(exec);
         }
         /*
         for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
@@ -164,6 +164,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
          */
     }
 
+    /*
     private void doRefresh(String exec) {
         boolean doRefreshCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER);
         boolean doRefreshParent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER);
@@ -183,6 +184,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         if (!(doRefreshCurrent || doRefreshParent)) fileSystem.removeNumDoAutoRefresh((String)vars.get("DIR")); // NOI18N
     }
+     */
     
     /**
      * This method can be used to do some preprocessing of the command which is to be run.
@@ -200,6 +202,13 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     
     public void updateExec(String exec) {
         this.preferredExec = exec;
+    }
+    
+    /**
+     * Get the updated execution string. It may contain user input now.
+     */
+    public String getExec() {
+        return preferredExec;
     }
 
     //-------------------------------------------
@@ -357,7 +366,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             vars.put("ERRORREGEX", errorRegex); // NOI18N
             vars.put("INPUT", (String) cmd.getProperty(UserCommand.PROPERTY_INPUT)); // NOI18N
             //vars.put("TIMEOUT", new Long(cmd.getTimeout())); // NOI18N
-            TopManager.getDefault().setStatusText(g("MSG_Command_name_running", cmd.getName()));
+            //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", cmd.getName()));
             success = execCommand.exec(vars, args, stdoutNoRegexListener, stderrNoRegexListener,
                                        stdoutListener, dataRegex, new RegexListener () {
                                            public void match(String[] elements){
@@ -484,6 +493,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         HashSet set = new HashSet(1);
         set.add(file);
         return set;
+    }
+    
+    /**
+     * Get the path of the processed files.
+     * The path is relative to file system root.
+     */
+    public String getPath() {
+        return (String) vars.get("DIR");
     }
     
     /*
