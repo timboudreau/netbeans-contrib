@@ -399,6 +399,8 @@ public class JellyBranch extends JellyTestCase {
     }
 
     public void testAddTag () {
+        closeAllVersionings ();
+        new CVSFileNode (exp.repositoryTab().tree (), nFile).versioningExplorer();
         VersioningFrameOperator vfo = new VersioningFrameOperator ();
         new CVSVersioningFileNode (vfo.treeVersioningTreeView (), nFile).cVSBranchingAndTaggingAddTag();
         CVSAddTagFileAdvDialog at = new CVSAddTagFileAdvDialog ();
