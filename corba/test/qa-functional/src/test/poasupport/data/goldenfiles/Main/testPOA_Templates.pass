@@ -1,0 +1,339 @@
+--------------------------------------------
+---- ServerMain
+
+/*
+ * GenServer.java  --  server side implementation
+ *
+ * Created on
+ * with Naming Service binding.
+ */
+package data.poasupport.generate;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.ThreadPolicyValue;
+import java.util.Properties;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextHelper;
+import org.omg.CosNaming.NameComponent;
+/**
+ *
+ * @author
+ * @version
+ */
+public class GenServer {
+    
+    /** Creates new GenServer */
+    public GenServer() {
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        
+        try {
+            
+            ORB orb = ORB.init(args, null);
+            POA poa = (POA)orb.resolve_initial_references("RootPOA");
+            // add your creating of object implementation here
+            
+            // the server will use Naming Service
+            org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+            if (ns == null)
+                throw new RuntimeException();
+            NamingContext nc = NamingContextHelper.narrow(ns);
+            if (nc == null)
+                throw new RuntimeException();
+            
+            // create and bind Naming Contexts
+            // paste code retrieved using the Copy Client/Server Code action
+            // (on the corresponding node in the Naming Service Browser) here
+            NameComponent[] nc1Name = new NameComponent[1];
+            NamingContext nc1 = null;
+            for (int i=0; i<hierarchy_of_contexts.length / 2; i++) {
+                nc1Name[0] = new NameComponent();
+                nc1Name[0].id = hierarchy_of_contexts[i*2];
+                nc1Name[0].kind = hierarchy_of_contexts[i*2+1];
+                try {
+                    nc1 = nc.bind_new_context(nc1Name);
+                    nc = nc1;
+                } catch (org.omg.CosNaming.NamingContextPackage.AlreadyBound e) {
+                    org.omg.CORBA.Object o = nc.resolve(nc1Name);
+                    if (o == null)
+                        throw new RuntimeException();
+                    nc1 = NamingContextHelper.narrow(o);
+                    if (nc1 == null)
+                        throw new RuntimeException();
+                    nc = nc1;
+                }
+            }
+            
+            // bind names with the Naming Service
+            NameComponent[] aName = new NameComponent[1];
+            aName[0] = new NameComponent();
+            aName[0].id = name_of_server[0];
+            aName[0].kind = name_of_server[1];
+            nc.bind(aName, poa.servant_to_reference(/*servant_variable*/));
+            poa.the_POAManager().activate();
+            orb.run();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+--------------------------------------------
+---- ClientMain
+
+/*
+ * GenClient.java  --  call-back client implementation
+ *
+ * Created on
+ * with Naming Service binding.
+ */
+package data.poasupport.generate;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.ThreadPolicyValue;
+import java.util.Properties;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextHelper;
+import org.omg.CosNaming.NameComponent;
+/**
+ *
+ * @author
+ * @version
+ */
+public class GenClient implements Runnable {
+    
+    private ORB orb;
+    
+    public void init(ORB _orb) {
+        orb = _orb;
+    }
+    public void run() {
+        try {
+            orb.run();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        
+        try {
+            
+            ORB orb = ORB.init(args, null);
+            // create call-back object
+            POA poa = (POA)orb.resolve_initial_references("RootPOA");
+            // add your creating of object implementation here
+            
+            poa.the_POAManager().activate();
+            // run CORBA request handling asynchronously
+            GenClient handler = new GenClient();
+            handler.init(orb);
+            new Thread(handler).start();
+            
+            // bind to server object
+            
+            // the client will use Naming Service
+            org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+            if (ns == null)
+                throw new RuntimeException();
+            NamingContext nc = NamingContextHelper.narrow(ns);
+            if (nc == null)
+                throw new RuntimeException();
+            
+            // resolve names with the Naming Service
+            // paste code retrieved using the Copy Client/Server Code action
+            // (on the corresponding node in the Naming Service Browser) here
+            NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+            for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+                aName[i] = new NameComponent();
+                aName[i].id = client_name_hierarchy[i*2];
+                aName[i].kind = client_name_hierarchy[i*2+1];
+            }
+            org.omg.CORBA.Object obj = nc.resolve(aName);
+            /*interface_name*/ srv = /*interface_name*/Helper.narrow(obj);
+            if (srv == null)
+                throw new RuntimeException();
+            
+            // add your client code here
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+--------------------------------------------
+---- CallBackClientMain
+
+/*
+ * GenCallBack.java  --  call-back client implementation
+ *
+ * Created on
+ * with Naming Service binding.
+ */
+package data.poasupport.generate;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.ThreadPolicyValue;
+import java.util.Properties;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextHelper;
+import org.omg.CosNaming.NameComponent;
+/**
+ *
+ * @author
+ * @version
+ */
+public class GenCallBack implements Runnable {
+    
+    private ORB orb;
+    
+    public void init(ORB _orb) {
+        orb = _orb;
+    }
+    public void run() {
+        try {
+            orb.run();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        
+        try {
+            
+            ORB orb = ORB.init(args, null);
+            // create call-back object
+            POA poa = (POA)orb.resolve_initial_references("RootPOA");
+            // add your creating of object implementation here
+            
+            poa.the_POAManager().activate();
+            // run CORBA request handling asynchronously
+            GenCallBack handler = new GenCallBack();
+            handler.init(orb);
+            new Thread(handler).start();
+            
+            // bind to server object
+            
+            // the client will use Naming Service
+            org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
+            if (ns == null)
+                throw new RuntimeException();
+            NamingContext nc = NamingContextHelper.narrow(ns);
+            if (nc == null)
+                throw new RuntimeException();
+            
+            // resolve names with the Naming Service
+            // paste code retrieved using the Copy Client/Server Code action
+            // (on the corresponding node in the Naming Service Browser) here
+            NameComponent[] aName = new NameComponent[client_name_hierarchy.length / 2];
+            for (int i=0; i<(client_name_hierarchy.length / 2); i++) {
+                aName[i] = new NameComponent();
+                aName[i].id = client_name_hierarchy[i*2];
+                aName[i].kind = client_name_hierarchy[i*2+1];
+            }
+            org.omg.CORBA.Object obj = nc.resolve(aName);
+            /*interface_name*/ srv = /*interface_name*/Helper.narrow(obj);
+            if (srv == null)
+                throw new RuntimeException();
+            
+            // add your client code here
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+--------------------------------------------
+---- POA|AdapterActivator
+
+//
+// GenAdapter.java
+//
+// Created on
+// by dave
+//
+package data.poasupport.generate;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.AdapterActivatorPOA;
+public class GenAdapter extends org.omg.PortableServer.AdapterActivatorPOA {
+    
+    public boolean unknown_adapter(org.omg.PortableServer.POA parent, String name) {
+    }
+}
+--------------------------------------------
+---- POA|ServantActivator
+
+//
+// GenServant.java
+//
+// Created on
+// by dave
+//
+package data.poasupport.generate;
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.ServantActivatorPOA;
+import org.omg.PortableServer.ForwardRequest;
+public class GenServant extends org.omg.PortableServer.ServantActivatorPOA {
+    
+    public Servant incarnate(byte[] oid, POA adapter)
+    throws org.omg.PortableServer.ForwardRequest {
+    }
+    
+    public void etherealize(byte[] oid, POA adapter, Servant serv, boolean cleanup_in_progress, boolean remaining_activations) {
+    }
+}
+--------------------------------------------
+---- POA|ServantLocator
+
+//
+// GenLocator.java
+//
+// Created on
+// by dave
+//
+package data.poasupport.generate;
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.ServantLocatorPOA;
+import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
+import org.omg.PortableServer.ForwardRequest;
+public class GenLocator extends org.omg.PortableServer.ServantLocatorPOA {
+    
+    public Servant preinvoke(byte[] oid, POA adapter, String operation, CookieHolder the_cookie)
+    throws ForwardRequest {
+    }
+    
+    public void postinvoke(byte[] oid, POA adapter, String operation, Object the_cookie, Servant the_servant) {
+    }
+    
+}
