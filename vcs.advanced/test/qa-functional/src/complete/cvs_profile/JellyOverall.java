@@ -146,6 +146,12 @@ public class JellyOverall extends JellyTestCase {
         assertTrue("CVS File Status is not reached: Expected: " + status + " Got: " + ano, false);
     }
     
+    boolean equalPaths (String p1, String p2) {
+        p1 = p1.replace ('\\', '/');
+        p2 = p2.replace ('\\', '/');
+        return p1.equalsIgnoreCase(p2);
+    }
+    
     protected void setUp() throws Exception {
         exp = new ExplorerOperator();
         sbt = new StatusBarTracer();
@@ -200,7 +206,7 @@ public class JellyOverall extends JellyTestCase {
             while (e.hasMoreElements()) {
                 FileSystem f = (FileSystem) e.nextElement();
                 info.println("Is it: " + f.getDisplayName());
-                if (f.getDisplayName().equalsIgnoreCase(nRoot)) {
+                if (equalPaths (f.getDisplayName(), nRoot)) {
                     info.println("Yes");
                     nRoot = f.getDisplayName();
                     info.println("Working Directory nRoot: " + nRoot);
