@@ -193,7 +193,7 @@ public class Main extends JellyTestCase {
         iss.next ();
         IRDesignIDLStep ir = new IRDesignIDLStep ();
         new org.netbeans.jellytools.nodes.Node (ir.tree (), "").select ();
-        ir.addIR ();
+        ir.btAddIR ().pushNoBlock ();
         AddInterfaceRepositoryDialog addir = new AddInterfaceRepositoryDialog ();
         addir.setName (irname);
         addir.loadIOR(ior);
