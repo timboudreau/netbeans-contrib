@@ -83,7 +83,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   private boolean ready=false;
 
   
-
   //-------------------------------------------
   public void setConfig(String label){
     this.config=label;
@@ -571,7 +570,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
       D.deb("not ready");
       return new String[0];
     }
-
+    
     if( cache.isDir(name) ){
       vcsFiles=cache.getFilesAndSubdirs(name);
       D.deb("vcsFiles="+MiscStuff.arrayToString(vcsFiles));
@@ -820,6 +819,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  28   Gandalf   1.27        6/1/99   Michal Fadljevic 
  *  27   Gandalf   1.26        5/27/99  Michal Fadljevic 
  *  26   Gandalf   1.25        5/27/99  Michal Fadljevic 
  *  25   Gandalf   1.24        5/25/99  Michal Fadljevic 
