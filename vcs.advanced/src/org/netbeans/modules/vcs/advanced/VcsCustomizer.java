@@ -33,7 +33,7 @@ import org.netbeans.modules.vcs.*;
 
 /** Customizer
  *
- * @author Michal Fadljevic
+ * @author Michal Fadljevic, Martin Entlicher
  */
 
 public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
@@ -426,6 +426,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             } catch(IOException e) {
                 E.err("Can not create file '"+selected+"'");
                 return;
+            }
+        } else {
+            if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
+                TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (g("DLG_OverwriteSettings", file.getName()), NotifyDescriptor.Confirmation.YES_NO_OPTION)))) {
+                    return;
             }
         }
         Vector variables=fileSystem.getVariables ();
@@ -1013,7 +1018,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     //-------------------------------------------
     String g(String s) {
         return NbBundle.getBundle
-               ("org.netbeans.modules.vcs.cmdline.Bundle").getString (s);
+               ("org.netbeans.modules.vcs.advanced.Bundle").getString (s);
     }
     String  g(String s, Object obj) {
         return MessageFormat.format (g(s), new Object[] { obj });
