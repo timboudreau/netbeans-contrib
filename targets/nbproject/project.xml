@@ -27,6 +27,16 @@ Microsystems, Inc. All Rights Reserved.
                         <specification-version>4.20</specification-version>
                     </run-dependency>
                 </dependency>
+                
+                <dependency>
+                    <code-name-base>org.netbeans.modules.projectapi</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>0</release-version>
+                    </run-dependency>
+                </dependency>
+                
                 <dependency>
                     <code-name-base>org.apache.tools.ant.module</code-name-base>
                     <build-prerequisite/>
