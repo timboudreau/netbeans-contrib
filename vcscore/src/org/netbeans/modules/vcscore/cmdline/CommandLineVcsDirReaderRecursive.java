@@ -13,7 +13,6 @@
 
 package org.netbeans.modules.vcscore.cmdline;
 
-import java.text.*;
 import java.util.*;
 
 import org.openide.ErrorManager;
@@ -21,11 +20,6 @@ import org.openide.util.*;
 
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.util.*;
-import org.netbeans.modules.vcscore.cache.CacheFile;
-import org.netbeans.modules.vcscore.caching.VcsCacheFile;
-import org.netbeans.modules.vcscore.caching.VcsCacheDir;
-import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
-import org.netbeans.modules.vcscore.cmdline.exec.*;
 import org.netbeans.modules.vcscore.commands.*;
 
 /**

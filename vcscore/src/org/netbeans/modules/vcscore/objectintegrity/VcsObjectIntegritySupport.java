@@ -54,6 +54,8 @@ import org.openide.util.WeakListener;
 
 import org.netbeans.modules.vcscore.FileObjectExistence;
 import org.netbeans.modules.vcscore.VcsAttributes;
+import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.cache.CacheFile;
 import org.netbeans.modules.vcscore.cache.CacheHandler;
@@ -286,12 +288,147 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         }
         analyzerTask.schedule(ANALYZER_SCHEDULE_TIME);
     }
-    
+
+    private void runWithTurbo() {
+
+        Set paths;
+        Set objects;
+        boolean changed = false;
+        synchronized (objectsToAnalyze) {
+            paths = pathsToAnalyze;
+            objects = objectsToAnalyze;
+            pathsToAnalyze = new HashSet();
+            objectsToAnalyze = new HashSet();
+        }
+        if (!paths.isEmpty()) {
+            Enumeration existingEnum = foExistence.getExistingFiles();
+            while(existingEnum.hasMoreElements() && !paths.isEmpty()) {
+                FileObject fo = (FileObject) existingEnum.nextElement();
+                if (paths.remove(fo.getPath())) {
+                    try {
+                        DataObject dobj = DataObject.find(fo);
+                        objects.add(dobj);
+                    } catch (DataObjectNotFoundException donfex) {
+                        // Ignored. If the DO does not exist, it can not be analyzed.
+                    }
+                }
+            }
+        }
+        boolean initialized = false; // Assume, that initialization was not called yet.
+        for (Iterator objIt = objects.iterator(); objIt.hasNext(); ) {
+            DataObject dobj = (DataObject) objIt.next();
+            FileObject primary = dobj.getPrimaryFile();
+            FileSystem fs = (FileSystem) primary.getAttribute(VcsAttributes.VCS_NATIVE_FS);
+            if (primary.isFolder() || !fileSystem.equals(fs)) {
+                //System.out.println("VOIS.run(): ignoring primary = "+primary+" from "+fs);
+                continue;
+            }
+            File primaryFile = FileUtil.toFile(primary);
+            if (primaryFile == null) {
+                // There's no real File underneath
+                continue;
+            }
+            if (!initialized) {
+                initialize(); // Assure, that we're initialized.
+                initialized = true;
+            }
+            //fileSystem.getCacheProvider().
+            FileProperties fprops = Turbo.getCachedMeta(primary);
+            if (fprops == null || fprops.isLocal()) {
+                synchronized (primaryLocalFiles) {
+                    if (filesStorageLocked) {
+                        try {
+                            primaryLocalFiles.wait();
+                        } catch (InterruptedException iex) { /* continue */ }
+                    }
+                    primaryLocalFiles.add(primary.getPath());
+                }
+                changed = true;
+                continue;
+            } else {
+                synchronized (primaryLocalFiles) {
+                    if (filesStorageLocked) {
+                        try {
+                            primaryLocalFiles.wait();
+                        } catch (InterruptedException iex) { /* continue */ }
+                    }
+                    if (primaryLocalFiles.remove(primary.getPath())) {
+                        changed = true;
+                    }
+                }
+            }
+            String primaryFilePath = primary.getPath();
+            //System.out.println("VOIS.run(): have primary: "+primaryFilePath);
+            dobj.addPropertyChangeListener(doFileChangeListener);
+            Set filesToAdd = new HashSet();
+            Set filesToRemove = new HashSet();
+            Set fileSet = dobj.files();
+            for (Iterator fileIt = fileSet.iterator(); fileIt.hasNext(); ) {
+                FileObject fo = (FileObject) fileIt.next();
+                if (primary.equals(fo)) continue;
+                String filePath = fo.getPath();
+                fs = (FileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
+                File file = FileUtil.toFile(fo);
+                if (file == null) {
+                    filesToRemove.add(filePath);
+                    continue;
+                }
+                if (fo.isFolder() || !fileSystem.equals(fs) ||
+                    SharabilityQuery.getSharability(file) == SharabilityQuery.NOT_SHARABLE ||
+                    ignoredSecondaryLocalFiles.contains(filePath)) {
+
+                    filesToRemove.add(filePath);
+                    continue;
+                }
+                FileProperties fprops2 = Turbo.getCachedMeta(fo);
+                //System.out.println("   VOIS.run(): secondary '"+fo+"', cache = "+cFile);
+                if (fprops2 == null || fprops2.isLocal()) {
+                    filesToAdd.add(filePath);
+                } else {
+                    filesToRemove.add(filePath);
+                }
+            }
+            synchronized (objectsWithLocalFiles) {
+                if (filesStorageLocked) {
+                    try {
+                        objectsWithLocalFiles.wait();
+                    } catch (InterruptedException iex) { /* continue */ }
+                }
+                Set localSec = (Set) objectsWithLocalFiles.get(primaryFilePath);
+                if (localSec == null) {
+                    localSec = new HashSet();
+                }
+                localSec.addAll(filesToAdd);
+                for (Iterator fileIt = filesToAdd.iterator(); fileIt.hasNext(); ) {
+                    String secFile = (String) fileIt.next();
+                    filesMap.put(secFile, primaryFilePath);
+                }
+                localSec.removeAll(filesToRemove);
+                filesMap.keySet().removeAll(filesToRemove);
+                if (localSec.size() > 0) {
+                    objectsWithLocalFiles.put(primaryFilePath, localSec);
+                    changed = true;
+                } else {
+                    Object removedObj = objectsWithLocalFiles.remove(primaryFilePath);
+                    if (removedObj != null) changed = true;
+                }
+            }
+        }
+        if (changed) firePropertyChange();
+    }
+
     /**
      * Get the created DataObject from the queue, analyze their files and
      * add the file names into the integrity list if necessary.
      */
     public void run() {
+
+        if (Turbo.implemented()) {
+            runWithTurbo();
+            return;
+        }
+
+        // old implementation
         Set paths;
         Set objects;
         boolean changed = false;
@@ -478,7 +615,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
          }
         return path;
     }
-    
+
+    // TODO do I understand well that here we synchronize filesystens with CacheDir structures
+    // and that this is not needed if all operations touch filesystem fileobjects directly?
+    // Should not it listen on FileObject add/remove on FS directly?
+
     /** is called when a file/dir is added to the cache. The filesystem should
      * generally perform findResource() on the dir the added files is in
      * and do refresh of that directory.

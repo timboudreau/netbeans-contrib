@@ -18,6 +18,7 @@ import java.beans.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+import java.util.List;
 
 import org.openide.execution.NbClassLoader;
 import org.openide.filesystems.FileAttributeEvent;
@@ -725,7 +726,57 @@ public class VcsUtilities {
      */
     
     private static final BundleGetter bundleGetter = new BundleGetter();
-    
+
+    public static String computeRegularExpressionFromIgnoreList(List ignoreList) {
+        StringBuffer unionExp = new StringBuffer();
+        for (int i=0; i< ignoreList.size(); i++) {
+            if (i!=0)
+                unionExp.append("|"); // NOI18N
+            StringBuffer regEntry = new StringBuffer((String) ignoreList.get(i));
+            for (int j=0; j<regEntry.length();j++) {
+                switch (regEntry.charAt(j)) {
+                    case '.':
+                        regEntry = regEntry.replace(j,j+1,"\\.");  //NOI18N
+                        j++;
+                        break;
+                    case '*':
+                        regEntry = regEntry.replace(j,j+1,".*");  //NOI18N
+                        j++;
+                        break;
+                    case '$':
+                        regEntry = regEntry.replace(j,j+1,"\\$"); //NOI18N
+                        j++;
+                        break;
+                    case '\\':
+                        regEntry = regEntry.replace(j,j+1,"\\\\"); //NOI18N
+                        j++;
+                        break;
+                    case '+':
+                        regEntry = regEntry.replace(j,j+1,"\\+"); //NOI18N
+                        j++;
+                        break;
+                    case '?':
+                        regEntry = regEntry.replace(j,j+1,"\\?"); //NOI18N
+                        j++;
+                        break;
+                    case '^':
+                        regEntry = regEntry.replace(j,j+1,"\\^"); //NOI18N
+                        j++;
+                        break;
+                    case '|':
+                        regEntry = regEntry.replace(j,j+1,"\\|"); //NOI18N
+                        j++;
+                        break;
+                    default:
+                }
+            }
+            unionExp.append(regEntry.toString());
+        }
+        unionExp.insert(0, "^("); // NOI18N
+        unionExp.append(")$"); // NOI18N
+        return unionExp.toString();
+    }
+
     private static final class BundleGetter extends Object implements Runnable {
         
         private static final int CLEAN_DELAY = 30000;
@@ -1021,17 +1072,17 @@ public class VcsUtilities {
         return unique;
     }
     
-    public static ArrayList createIgnoreList(final org.netbeans.modules.vcscore.cache.CacheDir dir,
+    public static List createIgnoreList(final org.netbeans.modules.vcscore.cache.CacheDir dir,
                                              final String path,
                                              final org.netbeans.modules.vcscore.VcsFileSystem.IgnoreListSupport ignSupport) {
         org.netbeans.modules.vcscore.cache.CacheDir parent = dir.getParent();
         //System.out.println("createIgnoreList("+dir.getAbsolutePath()+", "+path+"), parent = "+((parent == null) ? "null" : parent.getAbsolutePath()));
-        ArrayList ignoreList = null;
+        List ignoreList = null;
         if (parent == null)
             ignoreList = ignSupport.createIgnoreList(path, ignSupport.createInitialIgnoreList());
         else {
             //CacheDir pd = cache.getDir(parent.getPackageNameExt('/','.'));
-            ArrayList parentIgnoreList;
+            List parentIgnoreList;
             //System.out.println("  parent has ignore list set = "+parent.isIgnoreListSet());
             if (!parent.isIgnoreListSet()) {
                 parentIgnoreList = createIgnoreList(parent, VcsUtilities.getDirNamePart(path), ignSupport);

@@ -1,0 +1,68 @@
+<h2>The VCS File Attributes Implementation</h2>
+
+The implementation speedups VCS operations on
+remote repositories. It caches last know repository
+state. The state is assumed to not change too often.
+
+<p>
+The {@link Turbo} and {@link IgnoreList} implementaions have two main abstract goals:
+<ul>
+<li>reliability (#39817), here achieved by simplicity
+<li>performance and scalability (#41012) similar to local operations
+</ul>
+
+<p>
+They are responsible for:
+<ul>
+<li>STATUS: keeping last known status (up-to-date, localy modified, ....)
+<li>UNKNOWN: model unknown status
+<li>UPDATED_ON: holding retrieval date of last known status
+<li>LEVELS: client can put strategy contraints
+<li>IGNORELIST: keep merged .ignorelists
+<ul>
+
+<h3>Simplifications</h3>
+
+It works over {@link FileSystem} it's exected that we do not need
+to store FilePropeties for non FileObjects. Depending on figuring
+out FileSystem implementors contract memory lyer can use absolute
+path addressing too.
+
+<p>
+Disk layer use FileObject attributes to store data
+instead of custom format. All recent file statuses persist.
+
+<p>
+Memory layer is not hierachical but simple plain map
+FileObject to FilePropeties.
+
+<p>
+Threading - no extra thread is spawned. All operation are
+done synchronously. Clients are warned that some methods
+can hang forever. It may need to be fixed in future by setting
+timeouts (and possibly killing worker threads). However client's
+interface will stay the same.
+
+
+<h3>Status</h3>
+
+WORK IN PROGRESS - SHARING IDEA
+
+<p>
+Existing client code contains new code paths guarded by <code>Turbo.implemented()</code>
+checks. These are not ready to be used right now. There are still missing
+following client code conversions (it obviously excludes cache and caching packages):
+<ul>
+  <li>objectidentity package implements CacheHandlerListener, there is nothing like that in
+     simplified implementation
+  <li>VcsFileSystem.getRealStatus() used in search, it also implements CacheHandlerListener
+     to perform refresh and distribute events to FileStatusListeners to update annotations
+  <li>VcsFileSystem.Info implementation takes String arguments. Why? Can I onvert to fileObject.
+  <li>cvsprofiles.list package STATUS_DEAD management, where should it be defined? Also VcsFilesystem.List.children().
+  <li>vcscore.commans package STATUS_IGNORED namagenet, where should it be defined?
+  <li>VcsFactory.getStatusProvider() and getCacheProvider() replacements not investigated yet
+  <li>RefreshCommandSupport in VCSFileSystem annotation and cvscore.cmdline formatting
+</ul>
+
+<p>
+Documenatation and tests are missing...

@@ -22,7 +22,6 @@ import java.util.regex.PatternSyntaxException;
 
 import org.openide.ErrorManager;
 
-import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
@@ -55,7 +54,7 @@ public class IgnoreAndRelevantListExpressions extends Object implements VcsAddit
                 }
             }
             if (ignoreListPositive.size() > 0) {
-                String unionExp = CacheDir.computeRegularExpressionFromIgnoreList(ignoreListPositive);
+                String unionExp = VcsUtilities.computeRegularExpressionFromIgnoreList(ignoreListPositive);
                 try {
                     regExpPositivePtr[0] = Pattern.compile(unionExp);
                     //System.out.println(" **** GOT positive reg EXP: '"+regExpPositivePtr[0]+"' *********");
@@ -64,7 +63,7 @@ public class IgnoreAndRelevantListExpressions extends Object implements VcsAddit
                 }
             }
             if (ignoreListNegative.size() > 0) {
-                String unionExp = CacheDir.computeRegularExpressionFromIgnoreList(ignoreListNegative);
+                String unionExp = VcsUtilities.computeRegularExpressionFromIgnoreList(ignoreListNegative);
                 try {
                     regExpNegativePtr[0] = Pattern.compile(unionExp);
                     //System.out.println(" **** GOT negative reg EXP: '"+regExpNegativePtr[0]+"' *********");
@@ -122,10 +121,10 @@ public class IgnoreAndRelevantListExpressions extends Object implements VcsAddit
                 }
             }
             if (ignoreListPositive.size() > 0) {
-                relevantList = CacheDir.computeRegularExpressionFromIgnoreList(ignoreListPositive);
+                relevantList = VcsUtilities.computeRegularExpressionFromIgnoreList(ignoreListPositive);
             }
             if (ignoreListNegative.size() > 0) {
-                ignoreList = CacheDir.computeRegularExpressionFromIgnoreList(ignoreListNegative);
+                ignoreList = VcsUtilities.computeRegularExpressionFromIgnoreList(ignoreListNegative);
             }
         }
         if (ignoreList != null || relevantList != null) {

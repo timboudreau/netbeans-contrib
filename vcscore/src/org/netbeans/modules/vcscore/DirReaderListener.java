@@ -15,8 +15,6 @@ package org.netbeans.modules.vcscore;
 
 import java.util.*;
 
-import org.netbeans.modules.vcscore.caching.VcsCacheDir;
-
 /**
  * The listener, that is called from the directory reader to update the files
  * attributes in the given directory.
@@ -30,7 +28,7 @@ public interface DirReaderListener extends EventListener {
      * @param path the path of the read directory relative to the file system root.
      * @param rawData the collection of arrays of elements defined in
      * {@link org.netbeans.modules.vcscore.caching.RefreshCommandSupport} class.
-     * @param whether the reading process succeeded
+     * @param success whether the reading process succeeded
      */
     public void readDirFinished(String path, Collection rawData, boolean success);
 
@@ -40,7 +38,7 @@ public interface DirReaderListener extends EventListener {
      * @param rawData the container of the retrieved directory structure with
      * associated array of elements defined in
      * {@link org.netbeans.modules.vcscore.caching.RefreshCommandSupport} class.
-     * @param whether the reading process succeeded
+     * @param success whether the reading process succeeded
      */
     public void readDirFinishedRecursive(String path, VcsDirContainer rawData, boolean success);
 

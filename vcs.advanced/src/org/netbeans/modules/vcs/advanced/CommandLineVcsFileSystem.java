@@ -44,7 +44,6 @@ import org.netbeans.api.vcs.FileStatusInfo;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.*;
-import org.netbeans.modules.vcscore.cache.CacheReference;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
@@ -238,7 +237,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             org.openide.util.WeakListener.propertyChange(sharedPasswordChangeListener,
                                         SharedPasswords.getInstance()));
     }
-    
+
+    // XXX see super for potentially better code that shares single instance
     public VcsFactory getVcsFactory () {
         return new DefaultVcsFactory(this);//new CommandLineVcsFactory (this);
     }
@@ -1618,7 +1618,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             return initialIgnoreList;
         }
         
-        public ArrayList createIgnoreList(String fileName, ArrayList parentIgnoreList) {
+        public java.util.List createIgnoreList(String fileName, java.util.List parentIgnoreList) {
             VcsCommand cmd = getCommand(CMD_CREATE_FOLDER_IGNORE_LIST);
             if (cmd == null) {
                 return parentIgnoreList;

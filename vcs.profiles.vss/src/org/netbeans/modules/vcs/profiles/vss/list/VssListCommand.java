@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -32,9 +31,7 @@ import org.openide.ErrorManager;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.commands.*;
-import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.util.*;
 
 import org.netbeans.modules.vcs.profiles.list.AbstractListCommand;
@@ -441,7 +438,7 @@ public class VssListCommand extends AbstractListCommand {
                 }
             }
             if (ignoreListPositive.size() > 0) {
-                String unionExp = CacheDir.computeRegularExpressionFromIgnoreList(ignoreListPositive);
+                String unionExp = VcsUtilities.computeRegularExpressionFromIgnoreList(ignoreListPositive);
                 try {
                     regExpPositivePtr[0] = Pattern.compile(unionExp);
                     //System.out.println(" **** GOT positive reg EXP: '"+regExpPositivePtr[0]+"' *********");
@@ -450,7 +447,7 @@ public class VssListCommand extends AbstractListCommand {
                 }
             }
             if (ignoreListNegative.size() > 0) {
-                String unionExp = CacheDir.computeRegularExpressionFromIgnoreList(ignoreListNegative);
+                String unionExp = VcsUtilities.computeRegularExpressionFromIgnoreList(ignoreListNegative);
                 try {
                     regExpNegativePtr[0] = Pattern.compile(unionExp);
                     //System.out.println(" **** GOT negative reg EXP: '"+regExpNegativePtr[0]+"' *********");
