@@ -45,6 +45,7 @@ public class VersioningExplorer {
         //panel.setName(org.openide.util.NbBundle.getBundle(RevisionExplorer.class).getString("CTL_Explorer.title"));
         panel.setName(root.getDisplayName());
         panel.getExplorerManager().setRootContext(root);
+        panel.setIcon (org.openide.util.Utilities.loadImage("/org/netbeans/modules/vcscore/versioning/impl/versioningExplorer.gif"));
         initComponents();
     }
 
@@ -121,6 +122,7 @@ public class VersioningExplorer {
 
         private transient ArrayList closeListeners = new ArrayList();
     
+        static final long serialVersionUID =-264310566346550916L;
         Panel() {
         }
 
@@ -172,14 +174,17 @@ public class VersioningExplorer {
             //setName(getExplorerManager().getRootContext().getDisplayName());
         }
 
-        /**
-         * Disable serialization.
-         * @return null
-         *
-        protected Object writeReplace () throws java.io.ObjectStreamException {
-            closeNotify();
-            return null;
+        /** Writes a resolvable */
+        protected Object writeReplace() {
+            return new Resolvable();
         }
-         */
+
+        static class Resolvable implements java.io.Serializable {
+            
+            static final long serialVersionUID =2445268234090632539L;
+            private Object readResolve() {
+                return getRevisionExplorer();
+            }
+        }
     }
 }
