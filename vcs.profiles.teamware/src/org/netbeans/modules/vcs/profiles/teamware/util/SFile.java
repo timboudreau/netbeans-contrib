@@ -239,7 +239,7 @@ public class SFile {
             int lineNumber = 1;
             int diffIndex = 0;
             int linesToDelete = 0;
-            public void includeLine(String line) {
+            private void checkDiffs() {
                 if (linesToDelete == 0 && diffIndex < diffs.length) {
                     if (diffs[diffIndex].getSecondStart() == lineNumber) {
                         Difference diff = diffs[diffIndex++];
@@ -268,6 +268,9 @@ public class SFile {
                         }
                     }
                 }
+            }
+            public void includeLine(String line) {
+                checkDiffs();
                 sb.append(line);
                 sb.append("\n");
                 if (linesToDelete > 0) {
@@ -285,6 +288,7 @@ public class SFile {
                 sb.append("\n");
             }
             public void controlLine(char type, String sn) {
+                checkDiffs();
                 sb.append("\u0001" + type + " " + sn + "\n");
             }
         };
