@@ -27,6 +27,9 @@ import org.openide.util.actions.NodeAction;
    @author Tor Norbye
 */
 public class RefreshAction extends NodeAction {
+    protected boolean asynchronous() {
+        return false;
+    }
 
     protected boolean enable(Node[] node) {
         return true;

@@ -27,7 +27,6 @@ import java.awt.*;
  * @author Tor Norbye
  */
 public class GoToTaskAction extends NodeAction {
-
     protected boolean asynchronous() {
         return false;
     }

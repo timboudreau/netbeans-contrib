@@ -24,6 +24,9 @@ import org.openide.util.actions.NodeAction;
    @author Tor Norbye
 */
 public class ViewBugAction extends NodeAction {
+    protected boolean asynchronous() {
+        return false;
+    }
 
     protected boolean enable(Node[] node) {
         return ((node != null) &&

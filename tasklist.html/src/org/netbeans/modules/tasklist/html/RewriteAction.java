@@ -53,6 +53,10 @@ import org.w3c.tidy.*;
 public class RewriteAction extends NodeAction 
      implements ErrorReporter  {
 
+     protected boolean asynchronous() {
+         return false;
+     }
+         
     public void reportError(int line, int col, boolean error, String message) {
         //System.err.println("reportError(" + line + ", " + col + ", " + error + ", " + message + ")");
     }

@@ -499,7 +499,6 @@ public abstract class TaskListView extends TopComponent
         ExplorerUtils.activateActions(manager, true);
         RemoveFilterAction removeFilter =
                 (RemoveFilterAction) SystemAction.get(RemoveFilterAction.class);
-        removeFilter.setCurrentView(this);
         removeFilter.enable();
     }
 

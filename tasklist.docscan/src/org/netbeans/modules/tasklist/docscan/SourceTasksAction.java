@@ -38,7 +38,6 @@ import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
  * @author Petr Kuzel
  */
 public class SourceTasksAction extends CallableSystemAction {
-
     protected boolean asynchronous() {
         return false;
     }

@@ -49,7 +49,10 @@ import org.netbeans.modules.tasklist.core.*;
  */
 
 public final class FixAction extends NodeAction {
-
+    protected boolean asynchronous() {
+        return false;
+    }
+    
     protected boolean enable(Node[] node) {
         if ((node == null) || (node.length < 1)) {
             return false;

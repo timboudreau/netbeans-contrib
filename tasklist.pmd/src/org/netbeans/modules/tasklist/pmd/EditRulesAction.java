@@ -37,7 +37,10 @@ import pmd.config.ui.RuleEditor;
  */
 
 public class EditRulesAction extends NodeAction {
-
+    protected boolean asynchronous() {
+        return false;
+    }
+    
     protected boolean enable(Node[] node) {
         if ((node == null) || (node.length != 1)) {
             return false;

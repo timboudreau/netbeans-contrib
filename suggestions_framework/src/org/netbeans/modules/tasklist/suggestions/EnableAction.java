@@ -64,6 +64,10 @@ public class EnableAction extends CallableSystemAction
     public EnableAction() {
     }
 
+    protected boolean asynchronous() {
+        return false;
+    }
+    
     public HelpCtx getHelpCtx () {
         return HelpCtx.DEFAULT_HELP;
     }
