@@ -156,6 +156,13 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
     }
     
     /**
+     * Get the variables used by this command execution.
+     */
+    public Hashtable getVariables() {
+        return vars;
+    }
+
+    /**
      * Get the updated execution string. It may contain user input now.
      */
     public String getExec() {

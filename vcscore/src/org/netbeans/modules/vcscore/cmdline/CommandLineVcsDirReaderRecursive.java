@@ -162,11 +162,15 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         String file = (String) vars.get("FILE");
         String fullPath = ((path.length() > 0) ? path.replace(java.io.File.separatorChar, '/') + "/" : "") + ((file == null) ? "" : file);
         return Collections.singleton(fullPath);
-        //HashSet set = new HashSet(1);
-        //set.add(file);
-        //return set;
     }
     
+    /**
+     * Get the variables used by this command execution.
+     */
+    public Hashtable getVariables() {
+        return vars;
+    }
+
     /*
      * Get the path of the processed files.
      * The path is relative to file system root.
