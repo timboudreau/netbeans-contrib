@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN' 'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd'>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<configuration>
+  <label>Test</label>
+  
+  <os>
+    <compatible>"Windows", "Unix"</compatible>
+    <uncompatible>"Windows 95", "Windows 98", "Windows Me"</uncompatible>
+  </os>
+  
+  <condition var="IS_WINDOWS">
+    <var name="os.name" valueContainsIgnoreCase="WINDOWS"/>
+  </condition>
+  
+  <variables>
+    <variable name="FS_DISPLAY_NAME" basic="false">
+      <value>Test</value>
+    </variable>
+    <variable name="XML_FS" label="XML Filesystem" basic="true" isDir="true">
+      <value></value>
+    </variable>
+    <variable name="CD" basic="false">
+      <value>cd</value>
+    </variable>
+    <variable name="MAX_CMD_LENGTH" basic="false" if="IS_WINDOWS">
+      <value>1000</value>
+    </variable>
+  </variables>
+  
+  <commands>
+    <command name="ROOT" displayName="Test">
+    
+    <command name="LIST" displayName="Refresh">
+
+      <property name="exec">
+	<value>org.netbeans.modules.vcs.profiles.testprofiles.list.ListFromXMLFS.class $[? MODULE] [${MODULE}${PS}][]${DIR}</value>
+      </property>
+      <property name="onRoot">
+	<value>true</value>
+      </property>
+      <property name="data.fileName.index">
+	<value>0</value>
+      </property>
+      <property name="data.status.index">
+	<value>1</value>
+      </property>
+      <property name="data.locker.index">
+	<value>2</value>
+      </property>
+      <property name="data.revision.index">
+	<value>3</value>
+      </property>
+      <property name="data.sticky.index">
+	<value>4</value>
+      </property>
+      <property name="data.size.index">
+	<value>7</value>
+      </property>
+      <property name="data.attr.index">
+	<value>8</value>
+      </property>
+      <property name="data.time.index">
+	<value>5</value>
+      </property>
+      <property name="data.date.index">
+	<value>6</value>
+      </property>
+    </command>
+    <command name="LIST_SUB" displayName="Refresh Recursively">
+      <property name="exec">
+        <!-- echo If this exec is empty, the command uses LIST to recursively obtain the directory structure -->
+	<value></value>
+      </property>
+      <property name="onRoot">
+	<value>true</value>
+      </property>
+    </command>
+    
+    <separator />
+    
+    <command name="CHECKOUT" displayName="Check Out">
+      <property name="exec">
+	<value>org.netbeans.modules.vcs.profiles.testprofiles.commands.CheckOutFromXML.class</value>
+      </property>
+      <property name="refreshParentFolder">
+        <value>true</value>
+      </property>
+      <property name="refreshRecursivelyPatternMatched">
+        <value>CheckOutFromXML</value>
+      </property>
+    </command>
+    
+    </command>
+  </commands>
+</configuration>
+
