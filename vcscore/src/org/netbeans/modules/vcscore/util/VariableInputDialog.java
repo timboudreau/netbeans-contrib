@@ -1199,11 +1199,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 String value = component.getValue();
                 String selected2 = component.getHistoryValue(index);
                 if (selected2 != null) {
-                    int i;
-                    for (i = 0; i < items; i++) {
-                        if (selected2.equals(values[i])) break;
+                    int i2;
+                    for (i2 = 0; i2 < items; i2++) {
+                        if (selected2.equals(values[i2])) break;
                     }
-                    if (i < items) comboBox.setSelectedIndex(i);
+                    if (i2 < items) comboBox.setSelectedIndex(i2);
                 } else comboBox.setSelectedIndex(0);
                 component.setValue(value);
             }
