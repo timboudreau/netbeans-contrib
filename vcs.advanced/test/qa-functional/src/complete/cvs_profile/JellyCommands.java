@@ -25,14 +25,16 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 import org.netbeans.jellytools.NbDialogOperator;
-import org.netbeans.jellytools.modules.vcscore.AnnotateCommandOperator;
-import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
+import org.netbeans.jellytools.modules.javacvs.output.AnnotateOutputOperator;
+import org.netbeans.jellytools.modules.javacvs.output.LogOutputOperator;
+import org.netbeans.jellytools.modules.javacvs.output.StatusOutputOperator;
+import org.netbeans.jellytools.modules.vcscore.VCSCommandsInOutputOperator;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jemmy.operators.JLabelOperator;
 import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.junit.NbTestSuite;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
+import org.netbeans.jellytools.modules.vcsgeneric.cvs_profile.*;
 import util.Filter;
 
 public class JellyCommands extends CVSStub {
@@ -61,12 +63,14 @@ public class JellyCommands extends CVSStub {
         TestRunner.run(suite());
     }
     
+    static String serverDir;
     static String username;
     GenericNode initdir;
     GenericNode statusDir1, statusDir2, statusFile1, statusFile2;
     GenericNode imdir, imfile;
     
     protected void prepareServer(String dir) {
+        serverDir = dir;
         new File(dir + "/initdir").mkdirs();
     }
     
@@ -167,7 +171,6 @@ public class JellyCommands extends CVSStub {
     }
     
     public void testStatus () {
-        VCSCommandsOutputOperator coo;
         CVSStatusFileAdvDialog stat1;
         CVSStatusFolderAdvDialog stat2;
         String str;
@@ -182,11 +185,10 @@ public class JellyCommands extends CVSStub {
         stat1.oK ();
         stat1.waitClosed ();
         statusFile1.waitHistory ("Status");
-        coo = new VCSCommandsOutputOperator ("Status");
-        waitNoEmpty (coo.txtStandardOutput ());
-        str = coo.txtStandardOutput().getText ();
-        info.println (str);
-        filt.filterStringLinesToStream(out, str);
+        StatusOutputOperator soo = new StatusOutputOperator (statusFile1.name());
+        soo.dumpAll(out, serverDir);
+        soo.close();
+//        soo.waitClosed ();
 
         info.println ("File1 - Verbose");
         out.println ("File1 - Verbose");
@@ -197,11 +199,10 @@ public class JellyCommands extends CVSStub {
         stat1.oK ();
         stat1.waitClosed ();
         statusFile1.waitHistory ("Status");
-        coo = new VCSCommandsOutputOperator ("Status");
-        waitNoEmpty (coo.txtStandardOutput ());
-        str = coo.txtStandardOutput().getText ();
-        info.println (str);
-        filt.filterStringLinesToStream(out, str);
+        soo = new StatusOutputOperator (statusFile1.name());
+        soo.dumpAll(out, serverDir);
+        soo.close();
+//        soo.waitClosed ();
 
         info.println ("Dir1 - Recursive - Brief");
         out.println ("Dir1 - Recursive - Brief");
@@ -213,11 +214,10 @@ public class JellyCommands extends CVSStub {
         stat2.oK ();
         stat2.waitClosed ();
         statusDir1.waitHistory ("Status");
-        coo = new VCSCommandsOutputOperator ("Status");
-        waitNoEmpty (coo.txtStandardOutput ());
-        str = coo.txtStandardOutput().getText ();
-        info.println (str);
-        filt.filterStringLinesToStream(out, str);
+        soo = new StatusOutputOperator (true);
+        soo.dumpAll(out, serverDir);
+        soo.close();
+//        soo.waitClosed ();
 
         info.println ("Dir1 - Recursive - Verbose");
         out.println ("Dir1 - Recursive - Verbose");
@@ -229,11 +229,10 @@ public class JellyCommands extends CVSStub {
         stat2.oK ();
         stat2.waitClosed ();
         statusDir1.waitHistory ("Status");
-        coo = new VCSCommandsOutputOperator ("Status");
-        waitNoEmpty (coo.txtStandardOutput ());
-        str = coo.txtStandardOutput().getText ();
-        info.println (str);
-        filt.filterStringLinesToStream(out, str);
+        soo = new StatusOutputOperator (true);
+        soo.dumpAll(out, serverDir);
+        soo.close();
+//        soo.waitClosed ();
 
         info.println ("Dir1 - Brief");
         out.println ("Dir1 - Brief");
@@ -245,11 +244,10 @@ public class JellyCommands extends CVSStub {
         stat2.oK ();
         stat2.waitClosed ();
         statusDir1.waitHistory ("Status");
-        coo = new VCSCommandsOutputOperator ("Status");
-        waitNoEmpty (coo.txtStandardOutput ());
-        str = coo.txtStandardOutput().getText ();
-        info.println (str);
-        filt.filterStringLinesToStream(out, str);
+        soo = new StatusOutputOperator (true);
+        soo.dumpAll(out, serverDir);
+        soo.close();
+//        soo.waitClosed ();
 
         info.println ("Dir1 - Verbose");
         out.println ("Dir1 - Verbose");
@@ -261,17 +259,15 @@ public class JellyCommands extends CVSStub {
         stat2.oK ();
         stat2.waitClosed ();
         statusDir1.waitHistory ("Status");
-        coo = new VCSCommandsOutputOperator ("Status");
-        waitNoEmpty (coo.txtStandardOutput ());
-        str = coo.txtStandardOutput().getText ();
-        info.println (str);
-        filt.filterStringLinesToStream(out, str);
+        soo = new StatusOutputOperator (true);
+        soo.dumpAll(out, serverDir);
+        soo.close();
+//        soo.waitClosed ();
 
         compareReferenceFiles();
     }
     
     public void testDefaultLog () {
-        VCSCommandsOutputOperator coo;
         String str;
         Filter filt = new Filter ();
         filt.addFilterAfter("RCS file: ");
@@ -284,17 +280,16 @@ public class JellyCommands extends CVSStub {
         log.oK ();
         log.waitClosed ();
         statusDir1.waitHistory ("Log");
-        coo = new VCSCommandsOutputOperator ("Log");
-        waitNoEmpty (coo.txtStandardOutput ());
-        str = coo.txtStandardOutput().getText ();
-        info.println (str);
-        filt.filterStringLinesToStream(out, str);
+        LogOutputOperator loo = new LogOutputOperator (true, false, false);
+        loo.dumpAll(out, serverDir);
+        loo.close();
+//        loo.waitClosed ();
         
         compareReferenceFiles ();
     }
     
     public void testCheckOutHistory () {
-        VCSCommandsOutputOperator coo;
+        VCSCommandsInOutputOperator coo;
         String str;
         closeAllVCSOutputs();
 
@@ -303,7 +298,8 @@ public class JellyCommands extends CVSStub {
         hi.ok ();
         hi.waitClosed();
         root.waitHistory("History");
-        coo = new VCSCommandsOutputOperator ("History");
+        coo = new VCSCommandsInOutputOperator ("History - " + ".");
+        
         waitNoEmpty (coo.txtStandardOutput ());
         str = coo.txtStandardOutput ().getText ();
         info.println (str);
@@ -344,21 +340,21 @@ public class JellyCommands extends CVSStub {
         }
     }
     
-    protected void testAnnoVersion (AnnotateCommandOperator aco, String equ) {
+    protected void testAnnoVersion (AnnotateOutputOperator aoo, String equ) {
         out.println ("==== RevisionEquals: " + equ + " ====");
-        aco.selectFilterRevision(equ);
-        out.println ("--- Revision: " + AnnotateCommandOperator.ITEM_NOREVISIONSELECTED);
-        aco.selectSelectRevision(AnnotateCommandOperator.ITEM_NOREVISIONSELECTED);
-        dumpTableColors(aco.tabTableOfFileAnnotations());
+        aoo.selectFilterRevision(equ);
+        out.println ("--- Revision: " + AnnotateOutputOperator.ITEM_NOREVISIONSELECTED);
+        aoo.selectSelectRevision(AnnotateOutputOperator.ITEM_NOREVISIONSELECTED);
+        dumpTableColors(aoo.tabTableOfFileAnnotations());
         out.println ("--- Revision: 1.1");
-        aco.selectSelectRevision("1.1");
-        dumpTableColors(aco.tabTableOfFileAnnotations());
+        aoo.selectSelectRevision("1.1");
+        dumpTableColors(aoo.tabTableOfFileAnnotations());
         out.println ("--- Revision: 1.2");
-        aco.selectSelectRevision("1.2");
-        dumpTableColors(aco.tabTableOfFileAnnotations());
+        aoo.selectSelectRevision("1.2");
+        dumpTableColors(aoo.tabTableOfFileAnnotations());
         out.println ("--- Revision: 1.3");
-        aco.selectSelectRevision("1.3");
-        dumpTableColors(aco.tabTableOfFileAnnotations());
+        aoo.selectSelectRevision("1.3");
+        dumpTableColors(aoo.tabTableOfFileAnnotations());
     }
     
     public void testDefaultAnnotate () {
@@ -383,25 +379,24 @@ public class JellyCommands extends CVSStub {
         anno.oK ();
         anno.waitClosed ();
         annofile.waitHistory ("Annotate");
-        AnnotateCommandOperator aco = new AnnotateCommandOperator (annofile.name ());
+        AnnotateOutputOperator aoo = new AnnotateOutputOperator (annofile.name (), false);
         
-        dumpTable (aco.tabTableOfFileAnnotations ());
-        dumpTableColors (aco.tabTableOfFileAnnotations ());
+        aoo.dumpAll(out, root.name ());
         
-        out.println ("==== Author: " + AnnotateCommandOperator.ITEM_NOAUTHORSELECTED + " ====");
-        aco.selectFilterByAuthor(AnnotateCommandOperator.ITEM_NOAUTHORSELECTED);
-        testAnnoVersion (aco, AnnotateCommandOperator.ITEM_EQUALS);
-        testAnnoVersion (aco, AnnotateCommandOperator.ITEM_NEWERTHAN);
-        testAnnoVersion (aco, AnnotateCommandOperator.ITEM_OLDERTHAN);
+        out.println ("==== Author: " + AnnotateOutputOperator.ITEM_NOAUTHORSELECTED + " ====");
+        aoo.selectFilterByAuthor(AnnotateOutputOperator.ITEM_NOAUTHORSELECTED);
+        testAnnoVersion (aoo, AnnotateOutputOperator.ITEM_EQUALS);
+        testAnnoVersion (aoo, AnnotateOutputOperator.ITEM_NEWERTHAN);
+        testAnnoVersion (aoo, AnnotateOutputOperator.ITEM_OLDERTHAN);
         out.println ("==== Author: <AUTHOR> ====");
-        info.println ("User author: " + aco.cboFilterByAuthor().getItemAt(1));
-        aco.selectFilterByAuthor((String) aco.cboFilterByAuthor().getItemAt(1));
-        testAnnoVersion (aco, AnnotateCommandOperator.ITEM_EQUALS);
-        testAnnoVersion (aco, AnnotateCommandOperator.ITEM_NEWERTHAN);
-        testAnnoVersion (aco, AnnotateCommandOperator.ITEM_OLDERTHAN);
+        info.println ("User author: " + aoo.cboFilterByAuthor().getItemAt(1));
+        aoo.selectFilterByAuthor((String) aoo.cboFilterByAuthor().getItemAt(1));
+        testAnnoVersion (aoo, AnnotateOutputOperator.ITEM_EQUALS);
+        testAnnoVersion (aoo, AnnotateOutputOperator.ITEM_NEWERTHAN);
+        testAnnoVersion (aoo, AnnotateOutputOperator.ITEM_OLDERTHAN);
 
-        aco.close ();
-//        aco.waitClosed ();
+        aoo.close ();
+//        aoo.waitClosed ();
         compareReferenceFiles();
     }
     
@@ -440,7 +435,6 @@ public class JellyCommands extends CVSStub {
         refresh (imdir);
         imfile.waitStatus ("Up-to-date; 1.1.1.1");
         
-        VCSCommandsOutputOperator coo;
         Filter filt = new Filter ();
         filt.addFilterAfter("RCS file: ");
         filt.addFilterBetween("date: ", ";");
@@ -452,11 +446,10 @@ public class JellyCommands extends CVSStub {
         log.oK ();
         log.waitClosed ();
         imfile.waitHistory ("Log");
-        coo = new VCSCommandsOutputOperator ("Log");
-        waitNoEmpty (coo.txtStandardOutput ());
-        str = coo.txtStandardOutput().getText ();
-        info.println (str);
-        filt.filterStringLinesToStream(out, str);
+        LogOutputOperator loo = new LogOutputOperator (imfile.name (), false, false);
+        loo.dumpAll (out, serverDir);
+        loo.close ();
+//        loo.waitClosed ();
         
         compareReferenceFiles ();
     }
