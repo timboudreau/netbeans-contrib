@@ -187,13 +187,17 @@ final public class SuggestionManagerImpl extends SuggestionManager
         return view.isShowing();
     }
 
-
-    private void updateCategoryCount(SuggestionImpl category) {
+    private void updateCategoryCount(SuggestionImpl category, boolean sizeKnown) {
         SuggestionType type = category.getSType();
         int count = category.hasSubtasks() ?
             category.getSubtasks().size() : 0;
-        String summary = type.getLocalizedName() + " (" + // NOI18N
-            Integer.toString(count) + ")"; // NOI18N
+	String summary;
+        if ((count != 0) || sizeKnown) {
+            summary = type.getLocalizedName() + " (" + // NOI18N
+               Integer.toString(count) + ")"; // NOI18N
+        } else {
+            summary = type.getLocalizedName();
+	}
         category.setSummary(summary);
     }
 
@@ -539,7 +543,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 SuggestionImpl s = (SuggestionImpl)it.next();
                 if (s.getSType() != prevType) {
                     if (group != null) {
-                        register(prevType.getName(), group, null);
+                        register(prevType.getName(), group, null, tasklist, true);
                         group.clear();
                     } else {
                         group = new ArrayList(50);
@@ -549,7 +553,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 }
             }
             if ((group != null) && (group.size() > 0)) {
-                register(prevType.getName(), group, null);
+                register(prevType.getName(), group, null, tasklist, true);
             }
         }
         
@@ -874,7 +878,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 List l = ((DocumentSuggestionProvider)provider).scan(doc, f);
                 if (l != null) {
                     // XXX ensure that scan returns a homogeneous list of tasks
-                    register(provider.getTypes()[0], null, l, list);
+                    register(provider.getTypes()[0], l, null, list, true);
                 }
             }
         }
@@ -988,11 +992,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
     public void register(String type, List add, List remove) {
         //System.out.println("register(" + type + ", " + add +
         //  ", " + remove + ")");
-        register(type, add, remove, getList());
+        register(type, add, remove, getList(), !switchingFiles);
     }
 
     public void register(String typeName, List addList, List removeList,
-                         SuggestionList tasklist) {
+                         SuggestionList tasklist, boolean sizeKnown) {
+        //System.err.println("register(" + typeName + ", " + addList +
+        //                   ", " + removeList + "," + tasklist + ", " + sizeKnown + ")");
         // TODO check instanceof Task here, and throw an exception if not?
 
         // Get the first element, and use its type as the type for all.
@@ -1061,9 +1067,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
         // the tasks on the user.
         //tasklist.removeCategory((SuggestionImpl)suggestions.get(0));
 
-        updateCategoryCount(category); // TODO: skip this when filtered
+        updateCategoryCount(category, sizeKnown); // TODO: skip this when filtered
     } 
     
+    /** When true, we're in the process of switching files, so a register
+        removal looks like an "unknown" sized list */
+    private boolean switchingFiles = false;
+
     
     
     /**
@@ -1161,9 +1171,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
     }
     
-    // XXX  Do I need separate changedUpdate, insertUpdate, removeUpdate
-    // methods, or is edited good enough?
-
     /**
      * The given document has been "shown"; it is now visible.
      * <p>
@@ -1436,7 +1443,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	// XXX is this the right thing to do?
         if (document != null) {
 	    document.removeDocumentListener(this);
+            switchingFiles = true;
             docHidden(document, dataobject);
+            switchingFiles = false;
         }
         if (editors != null) {
             removeCaretListeners();
@@ -1714,7 +1723,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	    removePropertyChangeListener(this);
 	*/
 
+        switchingFiles = true;
         docHidden(document, dataobject);
+        switchingFiles = false;
         document = null;
     }
     
