@@ -424,7 +424,7 @@ public final class TLUtils {
         int count = 0;
         while (tasks.hasNext()) {
             Task next = (Task) tasks.next();
-            count += next.getSubtaskCountRecursively();
+            count += next.getSubtaskCountRecursively() + 1;
         }
         return count;
     }
