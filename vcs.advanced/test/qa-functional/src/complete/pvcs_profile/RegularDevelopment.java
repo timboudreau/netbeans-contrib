@@ -131,7 +131,9 @@ public class RegularDevelopment extends NbTestCase {
         String workingPath = getWorkDirPath();
         workingDirectory = workingPath.substring(0, workingPath.indexOf("RegularDevelopment")) + "RepositoryCreation" + File.separator + "testCreateDatabase";
         String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
-        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+        Node filesystemNode = null;
+        try { filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem); }
+        catch (TimeoutExpiredException e) { captureScreen("Error: Can't find " + filesystem + " filesystem node."); }
         Node A_FileNode = null;
         try { A_FileNode = new Node( filesystemNode, "A_File [Current]"); }
         catch (TimeoutExpiredException e) { captureScreen("Error: Can't find A_File [Current] node."); }
