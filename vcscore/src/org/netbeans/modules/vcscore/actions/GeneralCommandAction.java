@@ -98,6 +98,7 @@ public class GeneralCommandAction extends NodeAction {
         while (it.hasNext()) {
             CommandActionSupporter support = (CommandActionSupporter)it.next();
             Set files = (Set)suppMap.get(support);
+//            System.out.println("executing.. files size =" + files.size());
             FileObject[] filesArr = new FileObject[files.size()];
             filesArr = (FileObject[])files.toArray(filesArr);
             support.performAction(this, filesArr);
@@ -257,8 +258,18 @@ public class GeneralCommandAction extends NodeAction {
             createSupporterMap(activatedNodes);
             nodesRef = new WeakReference(activatedNodes);
         } else {
+            Node[] nods = (Node[])array;
+            boolean hasAnyGroups = false;
+            for (int i = 0; i < nods.length; i++) {
+                if (nods[i] != null && nods[i] instanceof VcsGroupNode) {
+//                    System.out.println("has groupos..");
+                    hasAnyGroups = true;
+                    break;
+                }
+            }
             boolean equal = org.openide.util.Utilities.compareObjects(array, activatedNodes);
-            if (!equal) {
+            if (!equal  || hasAnyGroups ) {
+//                System.out.println("recreating..");
                 createSupporterMap(activatedNodes);
                 nodesRef = new WeakReference(activatedNodes);
             }
@@ -296,7 +307,7 @@ public class GeneralCommandAction extends NodeAction {
                 putValue(GROUP_DESCRIPTION_PROP, grNode.getShortDescription());
                 putValue(GROUP_NAME_PROP, grNode.getDisplayName());
                 Enumeration childs = nodes[i].getChildren().nodes();
-//                System.out.println("create supp. map for group..");
+//                System.out.println("create supp. map for group.. count=" + grNode.getChildren().getNodesCount());
                 while (childs.hasMoreElements()) {
                     Node nd = (Node)childs.nextElement();
                     DataObject dobj = (DataObject)nd.getCookie(DataObject.class);
