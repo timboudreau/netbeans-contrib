@@ -48,7 +48,7 @@ public interface TaskListener extends EventListener {
      * @param pt parent task or <code>null</code> if <code>t</code> is root
      * @param t removed task
      */
-    void removedTask(Task pt, Task t);
+    void removedTask(Task pt, Task t, int index);
 
     /**
      * Invoked after the tree has drastically changed structure from a 

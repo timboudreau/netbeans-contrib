@@ -1,4 +1,6 @@
 package org.netbeans.modules.tasklist.usertasks;
+
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -216,6 +218,22 @@ public class UserTasksTreeTable extends NodesTreeTable {
             int row = this.getRowForPath(tp);
             UTUtils.LOGGER.fine("row =" + row + " for task = " + task);
             this.getSelectionModel().setSelectionInterval(row, row);
+        }
+    }
+
+    /**
+     * Makes the specified task visible (scrolls to it)
+     *
+     * @param task a task
+     */
+    public void scrollTo(UserTask task) {
+        TreePath tp = findPath(task);
+        if (tp != null) {
+            TreePath pp = tp.getParentPath();
+            getTree().expandPath(pp);
+            int row = this.getRowForPath(tp);
+            Rectangle r = this.getCellRect(row, 0, true);
+            this.scrollRectToVisible(r);
         }
     }
 }

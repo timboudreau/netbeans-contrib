@@ -231,12 +231,14 @@ public class TaskList implements ObservableList, TaskListener {
     public final void removeTask(Task task) {
         task.removeTaskListener(this);
         boolean removed = false;
+        int index;
         synchronized(tasks) {
+            index = tasks.indexOf(task);
             removed = tasks.remove(task);
             listCopy = null;
         }
         if (removed) {
-            fireRemoved(null, task); // TODO silent update?
+            fireRemoved(null, task, index); // TODO silent update?
         }
     }
 
@@ -355,14 +357,14 @@ public class TaskList implements ObservableList, TaskListener {
     }
 
     /** Fire TaskListener.removedTask */
-    protected void fireRemoved(Task pt, Task task) {
+    protected void fireRemoved(Task pt, Task task, int index) {
         TaskListener[] taskListeners;  // some listeners are self deregistering on this event causing index exception
         synchronized (listeners) {
             taskListeners = new TaskListener[listeners.size()];
             taskListeners = (TaskListener[]) listeners.toArray(taskListeners);
         }
         for (int i = 0; i < taskListeners.length; i++) {
-            taskListeners[i].removedTask(pt, task);
+            taskListeners[i].removedTask(pt, task, index);
         }
 
     }
@@ -452,8 +454,8 @@ public class TaskList implements ObservableList, TaskListener {
     }
 
     /** Internal listener implementtaion. Cumulates event from list members to list level. */
-    public void removedTask(Task pt, Task t) {
-        fireRemoved(pt, t);
+    public void removedTask(Task pt, Task t, int index) {
+        fireRemoved(pt, t, index);
     }
 
     /** Internal listener implementtaion. Cumulates event from list members to list level. */

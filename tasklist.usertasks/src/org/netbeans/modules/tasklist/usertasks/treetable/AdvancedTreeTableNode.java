@@ -91,7 +91,8 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
     }
     
     /**
-     * Gets a filter
+     * Gets a filter. You should not call getFilter().accept(). 
+     * Use AdvancedTreeTableNode.accept() instead
      *
      * @return filter or null
      */
@@ -181,6 +182,65 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
         if (children != null) {
             for (int i = 0; i < children.length; i++) {
                 ((AdvancedTreeTableNode) children[i]).destroy();
+            }
+        }
+    }
+    
+    /**
+     * Fires the appropriate events if a child object was removed
+     *
+     * @param obj one of the child nodes objects
+     */
+    protected void fireChildObjectRemoved(Object obj) {
+        if (children != null) {
+            int ind = getIndexOfObject(obj);
+            if (ind >= 0) {
+                AdvancedTreeTableNode rem = 
+                    (AdvancedTreeTableNode) children[ind];
+                AdvancedTreeTableNode[] newChildren =
+                    new AdvancedTreeTableNode[children.length - 1];
+                System.arraycopy(children, 0, newChildren, 0, ind);
+                System.arraycopy(children, ind + 1, newChildren, 
+                    ind, children.length - ind - 1);
+                rem.destroy();
+                children = newChildren;
+                model.fireTreeNodesRemoved(model, 
+                    getPathToRoot(), 
+                    new int[] {ind}, new Object[] {rem});
+            }
+        }
+    }
+    
+    /**
+     * Fires the appropriate events if the object in this node has changed.
+     */
+    protected void fireObjectChanged() {
+        AdvancedTreeTableNode parent = (AdvancedTreeTableNode) getParent(); 
+        TreeTableNode[] path = parent.getPathToRoot();
+
+        assert parent.getIndex(this) != -1 : "parent=" + parent + " this=" + this + 
+            " parent.getChildCount=" + parent.getChildCount() + 
+            " parent.getChild(0)=" + parent.getChildAt(0);
+        model.fireTreeNodesChanged(model, path, 
+            new int[] {parent.getIndex(this)}, new Object[] {this});
+            
+        parent.childNodeChanged(this);
+    }
+    
+    /**
+     * This method will be called to notify this node that a child node's
+     * object has changed and the node should be probably removed 
+     * according to the current filter
+     *
+     * @param child changed child node
+     */
+    protected void childNodeChanged(AdvancedTreeTableNode child) {
+        if (getFilter() != null) {
+            if (!accept(child.getObject())) {
+                // this call is not really the right one here.
+                // The object was not removed. The current filter just
+                // does not accept it.
+                fireChildObjectRemoved(child.getObject());
             }
         }
     }

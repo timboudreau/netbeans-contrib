@@ -582,7 +582,7 @@ public abstract class TaskListView extends TopComponent
 
         // Remove any task markers we've added to the editor
         if (unshowItem != null) {
-            removedTask(null, unshowItem); // TODO cannot find the parent of unshowItem
+            removedTask(null, unshowItem, 0); // TODO cannot find the parent of unshowItem
         }
 
         // Unregister listeningViews
@@ -1162,7 +1162,7 @@ for (int i = 0; i < columns.length; i++) {
         // Nothing to do?
     }
 
-    public void removedTask(Task pt, Task task) {
+    public void removedTask(Task pt, Task task, int index) {
         if ((task == unshowItem) && (listeningViews != null)) {
             unshowItem = null;
             int n = listeningViews.size();

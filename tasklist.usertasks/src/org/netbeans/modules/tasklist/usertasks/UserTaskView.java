@@ -57,6 +57,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
+import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 /** 
@@ -171,7 +172,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
               isDefault ?
               NbBundle.getMessage(UserTaskView.class,
                     "TaskViewName") : // NOI18N
-              list.getFile().getName(),
+              list.getFile().getNameExt(),
               Utilities.loadImage(
                     "org/netbeans/modules/tasklist/usertasks/taskView.gif"), // NOI18N
               true,
@@ -260,6 +261,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
      * @throws ClassNotFoundException  
      */    
     public void readExternal(ObjectInput objectInput) throws IOException, java.lang.ClassNotFoundException {
+        try {
         super.readExternal(objectInput);
 	int ver = objectInput.read();
 
@@ -286,7 +288,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
                 }
             }
         }
-        
+        } catch (Throwable t) {
+            if (UTUtils.LOGGER.isLoggable(Level.SEVERE))
+                t.printStackTrace();
+        }
     }
 
     /** 
@@ -427,4 +432,21 @@ public class UserTaskView extends TaskListView implements TaskListener {
         
         tt.select((UserTask) task);
     }
+    
+    /**
+     * Makes the specified task visible (scrolls to it)
+     *
+     * @param task a task
+     */
+    public void scrollTo(UserTask task) {
+        if (isShowing() == false)
+            return;
+        
+        tt.scrollTo(task);
+    }
+    
+    public int getPersistenceType() {
+        return TopComponent.PERSISTENCE_ONLY_OPENED;
+    }
+    
 }

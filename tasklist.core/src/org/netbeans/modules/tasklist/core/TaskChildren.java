@@ -146,7 +146,7 @@ public class TaskChildren extends Children.Keys {
             }
         }
 
-        public void removedTask(Task pt, Task t) {
+        public void removedTask(Task pt, Task t, int index) {
             if (t.getParent() == parent) {
                 refreshKeys();
             }

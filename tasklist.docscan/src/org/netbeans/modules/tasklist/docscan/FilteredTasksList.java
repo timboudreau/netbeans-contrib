@@ -165,7 +165,7 @@ final class FilteredTasksList implements ObservableList {
             }
         }
 
-        public void removedTask(Task pt, Task t) {
+        public void removedTask(Task pt, Task t, int index) {
             if (t.getSeed() instanceof SourceTaskProvider) {
                 boolean removed = false;
                 try {
@@ -181,15 +181,17 @@ final class FilteredTasksList implements ObservableList {
                     Iterator it = listeners.iterator();
                     while (it.hasNext()) {
                         TaskListener listener = (TaskListener) it.next();
-                        listener.removedTask(null, t);
+                        listener.removedTask(null, t, index);
                     }
                 }
             } else if (t.hasSubtasks()) {
                 // category nodes
                 Iterator it = t.subtasksIterator();
+                int ind = 0;
                 while (it.hasNext()) {
                     Task task = (Task) it.next();
-                    removedTask(null, task);  // recursion
+                    // TODO: always use 0 here instead of ind++?
+                    removedTask(null, task, ind++);  // recursion
                 }
             }
         }

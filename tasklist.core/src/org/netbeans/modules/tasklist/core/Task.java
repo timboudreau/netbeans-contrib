@@ -91,6 +91,18 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     }
 
     /**
+     * Searches for a task
+     *
+     * @param t task to be found
+     * @return index of the task or -1
+     */
+    public int indexOf(Task t) {
+        if (!hasSubtasks())
+            return -1;
+        return subtasks.indexOf(t);
+    }
+    
+    /**
      * Removes all subtasks.
      */
     public void clear() {
@@ -225,8 +237,9 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      * Fires an removedTask event
      *
      * @param t task that was removed
+     * @param index old index of the task
      */
-    protected final void fireRemovedTask(Task t) {
+    protected final void fireRemovedTask(Task t, int index) {
         if (silentUpdate)
             return;
         
@@ -234,14 +247,14 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         Object[] l = listeners.getListenerList();
         for (int i = l.length - 2; i >= 0; i -= 2) {
             if (l[i] == TaskListener.class) {
-                ((TaskListener) l[i+1]).removedTask(this, t);
+                ((TaskListener) l[i+1]).removedTask(this, t, index);
             }
         }
 //            if (getList() instanceof TaskList) {
 //                ((TaskList) getList()).fireRemoved(this, t);
 //            }
         if (this instanceof TaskListener) {
-            ((TaskListener) this).removedTask(this, t);
+            ((TaskListener) this).removedTask(this, t, index);
         }
     }
     
@@ -420,12 +433,13 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         if (subtasks == null) {
             return;
         }
-        subtasks.remove(subtask);
+        int index = subtasks.indexOf(subtask);
+        subtasks.remove(index);
         if (subtasks.size() == 0) {
             subtasks = null;
         }
         
-        fireRemovedTask(subtask);
+        fireRemovedTask(subtask, index);
     }
 
     /**

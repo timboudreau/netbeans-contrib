@@ -140,7 +140,7 @@ public class TaskListNode extends AbstractNode {
             batchSetKeys();
         }
 
-        public void removedTask(Task pt, Task t) {
+        public void removedTask(Task pt, Task t, int index) {
             batchSetKeys();
         }
 

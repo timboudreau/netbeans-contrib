@@ -121,4 +121,24 @@ TreeTableModel {
             }
         }
     }
+    
+    public void fireTreeNodesRemoved(Object source, Object[] path, 
+    int[] childIndices, Object[] children) {
+        super.fireTreeNodesRemoved(source, path, childIndices, children);
+    }
+    
+    public void fireTreeNodesInserted(Object source, Object[] path, 
+    int[] childIndices, Object[] children) {
+        super.fireTreeNodesInserted(source, path, childIndices, children);
+    }
+    
+    public void fireTreeNodesChanged(Object source, Object[] path, 
+    int[] childIndices, Object[] children) {
+        super.fireTreeNodesChanged(source, path, childIndices, children);
+    }
+    
+    public void fireTreeStructureChanged(Object source, Object[] path, 
+    int[] childIndices, Object[] children) {
+        super.fireTreeStructureChanged(source, path, childIndices, children);
+    }    
 }
