@@ -34,7 +34,12 @@ public interface Command {
     public String getDisplayName();
     
     /**
-     * Set files to act on.
+     * Set files to act on. Only files that are applicable to this command can
+     * be set. Use {@link #getApplicableFiles} method to find out which files
+     * are applicable.
+     * @param files the array of applicable files.
+     * @throws an {@link IllegalArgumentException} when one or more files
+     *         are not applicable.
      */
     public void setFiles(FileObject[] files);
     

@@ -400,6 +400,8 @@ public class VcsAttributes extends Attributes {
         if (cmdSupport == null) throw new java.net.UnknownServiceException(cmdName);
         final Command cmd = cmdSupport.createCommand();
         FileObject[] files = new FileObject[] { fo };
+        files = cmd.getApplicableFiles(files);
+        if (files == null) return ;
         cmd.setFiles(files);
         //final Table files = new Table();
         //files.put(name, fileSystem.findResource(name));

@@ -111,7 +111,8 @@ public class VcsManager extends Object {
      * Create a command of the given name, that will act on the array of files.
      * @param cmdName The name of the command.
      * @param files The array of files to act on.
-     * @return The Command instance or <code>null</code> if no such command exist.
+     * @return The Command instance or <code>null</code> if no such command exist
+     *         or can not be run on provided files.
      */
     public Command createCommand(String cmdName, FileObject[] files) throws IllegalArgumentException {
         if (files.length == 0) return null;
@@ -121,7 +122,12 @@ public class VcsManager extends Object {
             VcsCommandsProvider provider = (VcsCommandsProvider) filesByProviders.keySet().iterator().next();
             cmd = provider.createCommand(cmdName);
             if (cmd != null) {
-                cmd.setFiles(files);
+                files = cmd.getApplicableFiles(files);
+                if (files != null) {
+                    cmd.setFiles(files);
+                } else {
+                    cmd = null; // No such command on these files.
+                }
             }
         } else {
             Set commands = new HashSet();
@@ -129,8 +135,12 @@ public class VcsManager extends Object {
                 VcsCommandsProvider provider = (VcsCommandsProvider) it.next();
                 Command cmd1 = provider.createCommand(cmdName);
                 if (cmd1 != null) {
-                    cmd1.setFiles((FileObject[]) ((ArrayList) filesByProviders.get(provider)).toArray(new FileObject[0]));
-                    commands.add(cmd1);
+                    FileObject[] cmdFiles = (FileObject[]) ((ArrayList) filesByProviders.get(provider)).toArray(new FileObject[0]);
+                    cmdFiles = cmd1.getApplicableFiles(cmdFiles);
+                    if (cmdFiles != null) {
+                        cmd1.setFiles(cmdFiles);
+                        commands.add(cmd1);
+                    }
                 }
             }
             if (commands.size() == 0) {
@@ -149,7 +159,8 @@ public class VcsManager extends Object {
      * @param cmdClass The class type of the command. It has to be a class or
      *        interface extending {@link org.netbeans.api.vcs.commands.Command}.
      * @param files The array of files to act on.
-     * @return The Command instance or <code>null</code> if no such command exist.
+     * @return The Command instance or <code>null</code> if no such command exist
+     *         or can not be run on provided files.
      */
     public Command createCommand(Class cmdClass, FileObject[] files) throws IllegalArgumentException {
         if (files.length == 0) return null;
@@ -159,7 +170,12 @@ public class VcsManager extends Object {
             VcsCommandsProvider provider = (VcsCommandsProvider) filesByProviders.keySet().iterator().next();
             cmd = provider.createCommand(cmdClass);
             if (cmd != null) {
-                cmd.setFiles(files);
+                files = cmd.getApplicableFiles(files);
+                if (files != null) {
+                    cmd.setFiles(files);
+                } else {
+                    cmd = null; // No such command on these files.
+                }
             }
         } else {
             Set commands = new HashSet();
@@ -167,8 +183,12 @@ public class VcsManager extends Object {
                 VcsCommandsProvider provider = (VcsCommandsProvider) it.next();
                 Command cmd1 = provider.createCommand(cmdClass);
                 if (cmd1 != null) {
-                    cmd1.setFiles((FileObject[]) ((ArrayList) filesByProviders.get(provider)).toArray(new FileObject[0]));
-                    commands.add(cmd1);
+                    FileObject[] cmdFiles = (FileObject[]) ((ArrayList) filesByProviders.get(provider)).toArray(new FileObject[0]);
+                    cmdFiles = cmd1.getApplicableFiles(cmdFiles);
+                    if (cmdFiles != null) {
+                        cmd1.setFiles(cmdFiles);
+                        commands.add(cmd1);
+                    }
                 }
             }
             if (commands.size() == 0) {

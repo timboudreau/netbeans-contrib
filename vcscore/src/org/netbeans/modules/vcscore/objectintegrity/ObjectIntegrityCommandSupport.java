@@ -58,6 +58,7 @@ public class ObjectIntegrityCommandSupport extends CommandSupport implements jav
         addCmd.setExpertMode(cmd.isExpertMode());
         addCmd.setGUIMode(cmd.isGUIMode());
         FileObject[] filesToAdd = cmd.getFilesToAdd();
+        if (filesToAdd != null) filesToAdd = addCmd.getApplicableFiles(filesToAdd);
         if (filesToAdd == null) return CommandTask.STATUS_SUCCEEDED;
         addCmd.setFiles(filesToAdd);
         boolean customized = VcsManager.getDefault().showCustomizer(addCmd);

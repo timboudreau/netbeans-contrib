@@ -978,7 +978,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             }
         }
         FileObject[] fos = (FileObject[]) foFiles.toArray(new FileObject[foFiles.size()]);
-        command.setFiles(fos);
+        fos = command.getApplicableFiles(fos);
+        if (fos != null) command.setFiles(fos);
         if (command instanceof VcsDescribedCommand) {
             VcsDescribedCommand dcmd = (VcsDescribedCommand) command;
             if (diskFiles.size() > 0) {

@@ -91,44 +91,18 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         if (cmdSet == null) {
             return false;
         }
+        fileObjects = VcsUtilities.convertFileObjects(fileObjects);
         for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
             CommandSupport cmdSupp = (CommandSupport) it.next();
-            if (isEnabled(cmdSupp, fileObjects)) return true;
+            if (enabledFileObjects(cmdSupp, fileObjects) != null) return true;
         }
         return false;
     }
     
-    private boolean isEnabled(CommandSupport cmdSupp, FileObject[] fileObjects) {
-        //VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        //final VcsCommand cmd = fileSystem.getCommand(cmdName);
-        if (!(cmdSupp instanceof ActionCommandSupport)) return false;
-        fileObjects = VcsUtilities.convertFileObjects(fileObjects);
-        Set foSet = new HashSet();
-        for (int i = 0; i < fileObjects.length; i++) {
-            foSet.add(fileObjects[i]);
-        }
-        return (cmdSupp.getApplicableFiles(fileObjects) != null);
-        /*
-        boolean onRoot = isOnRoot(foSet);
-        boolean onDir = isOnDirectory(foSet);
-        boolean onFile = isOnFile(foSet);
-        Set statuses = getSelectedFileStatusAttributes(foSet);
-        
-        if (    onDir && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_DIR)
-        || onFile && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_FILE)
-        || onRoot && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_ROOT)
-        || VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)) {
-            return false;
-        }
-        boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
-        (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
-        //System.out.println("VcsAction: isSetContainedInQuotedStrings("+(String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS)+
-        //                   ", "+VcsUtilities.arrayToString((String[]) statuses.toArray(new String[0]))+") = "+disabled);
-        if (disabled) {
-            return false;
-        }
-        return true;
-         */
+    /** @return the FileObjects for which the command is enabled or <code>null</code>. */
+    private FileObject[] enabledFileObjects(CommandSupport cmdSupp, FileObject[] fileObjects) {
+        if (!(cmdSupp instanceof ActionCommandSupport)) return null;
+        return cmdSupp.getApplicableFiles(fileObjects);
     }
 
     public void performAction(final GeneralCommandAction action, final FileObject[] fileObjects) {
@@ -145,9 +119,10 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
                 FileObject[] fos = VcsUtilities.convertFileObjects(fileObjects);
                 for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
                     CommandSupport cmdSupport = (CommandSupport) it.next();
-                    if (isEnabled(cmdSupport, fos)) {
+                    FileObject[] applicableFOs = enabledFileObjects(cmdSupport, fos);
+                    if (applicableFOs != null) {
                         Command cmd = cmdSupport.createCommand();
-                        cmd.setFiles(fos);
+                        cmd.setFiles(applicableFOs);
                         if (cmd instanceof MessagingCommand) {
                             String description = (String) action.getValue(GeneralCommandAction.GROUP_DESCRIPTION_PROP);
                             if (description != null) {
@@ -158,13 +133,6 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
                         if (VcsManager.getDefault().showCustomizer(cmd)) {
                             cmd.execute();
                         }
-                        /*
-                        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-                        VcsCommand cmd = fileSystem.getCommand(cmdName);
-                        if (cmd != null) {
-                            VcsAction.performVcsCommand(cmd, fileSystem, Arrays.asList(fileObjects), false);
-                        }
-                         */
                         break;
                     }
                 }

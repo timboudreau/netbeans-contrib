@@ -474,7 +474,8 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
      * @param files The files to act on. It's necessary to pass the files here
      *        rather than set them directly to the command, because the command
      *        can ignore some files, that would then not be considered for addition.
-     * @return The task representing the running command.
+     * @return The task representing the running command or <code>null</code> when
+     *         the command is not executed.
      */
     public static CommandTask executeCommand(Command cmd, FileObject[] files) {
         CommandTask task = null;
@@ -489,10 +490,13 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
             }
         }
         if (customized) {
-            cmd.setFiles(files);
-            customized = VcsManager.getDefault().showCustomizer(cmd);
-            if (customized) {
-                task = cmd.execute();
+            files = cmd.getApplicableFiles(files);
+            if (files != null) {
+                cmd.setFiles(files);
+                customized = VcsManager.getDefault().showCustomizer(cmd);
+                if (customized) {
+                    task = cmd.execute();
+                }
             }
         }
         return task;

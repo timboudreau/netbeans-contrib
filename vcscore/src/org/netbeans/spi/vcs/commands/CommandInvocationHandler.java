@@ -205,7 +205,17 @@ class CommandInvocationHandler extends Object /*CommandSupport.Info*/ implements
                 }
             } else if ("files".equals(propName)) {
                 if (args[0] instanceof FileObject[]) {
-                    files = support.getApplicableFiles((FileObject[]) args[0]);
+                    FileObject[] argFiles = (FileObject[]) args[0];
+                    if (argFiles.length == 0) { // Allow an empty array
+                        files = argFiles;
+                    } else {
+                        files = support.getApplicableFiles(argFiles);
+                    }
+                    if (files == null || files.length != (argFiles.length)) {
+                        throw new IllegalArgumentException("Not all provided files are applicable."+
+                                " Files = "+java.util.Arrays.asList(argFiles)+
+                                " Applicable = "+((files == null) ? "none" : java.util.Arrays.asList(files).toString()));
+                    }
                 } else {
                     throw new IllegalArgumentException("setFiles("+args[0]+"): needs FileObject[] value.");
                 }

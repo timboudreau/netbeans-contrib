@@ -425,7 +425,8 @@ final class StatusInfoPanel extends JPanel {
               File file = statusInfo.getFile();
               Command cmd = cmdProvider.createCommand(COMMAND_GET_TAGS);
               FileObject fo[] = FileUtil.fromFile(file);
-              if (fo.length == 1) {
+              fo = cmd.getApplicableFiles(fo);
+              if (fo != null && fo.length == 1) {
                   cmd.setFiles(fo);
               } else { // there're more then one, or none FileObject. Set simply the file.
                   ((VcsDescribedCommand) cmd).setDiskFiles(new File[] { file });
@@ -474,7 +475,8 @@ final class StatusInfoPanel extends JPanel {
       
               Command cmd = cmdProvider.createCommand(COMMAND_DIFF);
               FileObject fo[] = FileUtil.fromFile(file);
-              if (fo.length == 1) {
+              fo = cmd.getApplicableFiles(fo);
+              if (fo != null && fo.length == 1) {
                   cmd.setFiles(fo);
               } else { // there're more then one, or none FileObject. Set simply the file.
                   ((VcsDescribedCommand) cmd).setDiskFiles(new File[] { file });

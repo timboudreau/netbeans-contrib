@@ -82,7 +82,12 @@ public class AddLocalParents extends Object implements VcsAdditionalCommand {
             if (cmd instanceof VcsDescribedCommand) {
                 ((VcsDescribedCommand) cmd).setAdditionalVariables(vars);
             }
-            cmd.setFiles((FileObject[]) localParents.toArray(new FileObject[0]));
+            FileObject[] parentsArr = (FileObject[]) localParents.toArray(new FileObject[0]);
+            parentsArr = cmd.getApplicableFiles(parentsArr);
+            if (parentsArr == null || parentsArr.length == 0) {
+                return true; // Nothing to run on.
+            }
+            cmd.setFiles(parentsArr);
             CommandTask task = cmd.execute();
             try {
                 task.waitFinished(0);

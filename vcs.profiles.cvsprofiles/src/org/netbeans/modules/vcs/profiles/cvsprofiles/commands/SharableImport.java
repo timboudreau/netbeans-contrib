@@ -123,13 +123,15 @@ public class SharableImport implements VcsAdditionalCommand {
             if (sharability == SharabilityQuery.SHARABLE || file.isFile() && sharability == SharabilityQuery.UNKNOWN) {
                 //if (file.isDirectory()) {
                 CommandTask task = runCommand(cmdSupp, vars, file, name); // the selected file must be a directory
-                try {
-                    task.waitFinished(0);
-                } catch (InterruptedException iex) {
-                    Thread.currentThread().interrupt();
-                }
-                if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
-                    return false;
+                if (task != null) {
+                    try {
+                        task.waitFinished(0);
+                    } catch (InterruptedException iex) {
+                        Thread.currentThread().interrupt();
+                    }
+                    if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
+                        return false;
+                    }
                 }
             } else if (sharability == SharabilityQuery.MIXED || file.isDirectory() && sharability == SharabilityQuery.UNKNOWN) {
                 boolean status = runOnMixedFolders(cmdSupp, vars, file, name, nonSharableFiles);
@@ -184,13 +186,15 @@ public class SharableImport implements VcsAdditionalCommand {
             for (Iterator it = sharableFolders.iterator(); it.hasNext(); ) {
                 String fileName = (String) it.next();
                 CommandTask task = runCommand(cmdSupp, vars, new File(folder, fileName), name + fileName);
-                try {
-                    task.waitFinished(0);
-                } catch (InterruptedException iex) {
-                    Thread.currentThread().interrupt();
-                }
-                if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
-                    return false;
+                if (task != null) {
+                    try {
+                        task.waitFinished(0);
+                    } catch (InterruptedException iex) {
+                        Thread.currentThread().interrupt();
+                    }
+                    if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
+                        return false;
+                    }
                 }
             }
         } else {
@@ -207,13 +211,15 @@ public class SharableImport implements VcsAdditionalCommand {
                 return false;
             }
             CommandTask task = runCommand(cmdSupp, vars, folder, name, ignoredNames);
-            try {
-                task.waitFinished(0);
-            } catch (InterruptedException iex) {
-                Thread.currentThread().interrupt();
-            }
-            if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
-                return false;
+            if (task != null) {
+                try {
+                    task.waitFinished(0);
+                } catch (InterruptedException iex) {
+                    Thread.currentThread().interrupt();
+                }
+                if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
+                    return false;
+                }
             }
             Map sharableSubFolders = new HashMap();
             if (sharableFoldersUnder(folder, name, ignoredNames, sharableSubFolders)) {
@@ -221,13 +227,15 @@ public class SharableImport implements VcsAdditionalCommand {
                     File subFolder = (File) it.next();
                     String filePath = (String) sharableSubFolders.get(subFolder);
                     task = runCommand(cmdSupp, vars, subFolder, filePath);
-                    try {
-                        task.waitFinished(0);
-                    } catch (InterruptedException iex) {
-                        Thread.currentThread().interrupt();
-                    }
-                    if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
-                        return false;
+                    if (task != null) {
+                        try {
+                            task.waitFinished(0);
+                        } catch (InterruptedException iex) {
+                            Thread.currentThread().interrupt();
+                        }
+                        if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -311,7 +319,12 @@ public class SharableImport implements VcsAdditionalCommand {
         if (fileSystem != null) {
             fo = fileSystem.findResource(path);
             if (fo != null) {
-                cmd.setFiles(new FileObject[] { fo });
+                FileObject[] applicableFO = cmd.getApplicableFiles(new FileObject[] { fo });
+                if (applicableFO != null && applicableFO.length == 1) {
+                    cmd.setFiles(applicableFO);
+                } else {
+                    return null;
+                }
             }
         }
         if (fo == null) {

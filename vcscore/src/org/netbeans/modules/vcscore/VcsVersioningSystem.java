@@ -421,7 +421,20 @@ class VcsVersioningSystem extends VersioningFileSystem {
             Hashtable additionalVars = new Hashtable();
             additionalVars.put("REVISION", revision);
             cmd.setAdditionalVariables(additionalVars);
-            FileObject[] files = new FileObject[] { fileSystem.findFileObject(name) };
+
+            FileObject resource = findResource(name);
+            if (resource == null) {
+                throw (java.io.FileNotFoundException)
+                        ErrorManager.getDefault().annotate(new java.io.FileNotFoundException(name),
+                            "Warning: can not find a resource for file '"+name+"' in "+this); // NOI18N
+            }
+            FileObject[] files = new FileObject[] { resource };
+            files = command.getApplicableFiles(files);
+            if (files == null) {
+                throw (java.io.FileNotFoundException)
+                        ErrorManager.getDefault().annotate(new java.io.FileNotFoundException(name),
+                            "Warning: resource '"+name+"' is not applicable to command '"+VcsCommand.NAME_REVISION_OPEN+"'"); // NOI18N
+            }
             cmd.setFiles(files);
             final StringBuffer fileBuffer = new StringBuffer();
             TextOutputListener fileListener = new TextOutputListener() {

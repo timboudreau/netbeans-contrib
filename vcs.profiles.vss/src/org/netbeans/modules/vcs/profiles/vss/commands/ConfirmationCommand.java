@@ -410,7 +410,14 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             }
         }
         if (fileObjects.size() > 0) {
-            command.setFiles((FileObject[]) fileObjects.toArray(new FileObject[0]));
+            FileObject[] fos = (FileObject[]) fileObjects.toArray(new FileObject[0]);
+            fos = command.getApplicableFiles(fos);
+            if (fos != null && fos.length > 0) {
+                command.setFiles(fos);
+                fileObjects = java.util.Arrays.asList(fos);
+            } else {
+                fileObjects.clear();
+            }
         }
         if (files.size() > 0) {
             ((VcsDescribedCommand) command).setDiskFiles((File[]) files.toArray(new File[0]));

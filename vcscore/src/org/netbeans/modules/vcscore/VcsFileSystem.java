@@ -3479,12 +3479,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         Command command = cmd.createCommand();
-        command.setFiles((FileObject[]) files.toArray(new FileObject[files.size()]));
+        FileObject[] fos = (FileObject[]) files.toArray(new FileObject[files.size()]);
+        fos = command.getApplicableFiles(fos);
+        if (fos != null) command.setFiles(fos);
         if (command instanceof VcsDescribedCommand) {
             ((VcsDescribedCommand) command).setDiskFiles((File[]) diskFiles.toArray(new File[diskFiles.size()]));
         }
-        command.setGUIMode(false);
-        command.execute();
+        if (fos != null || diskFiles.size() > 0) {
+            command.setGUIMode(false);
+            command.execute();
+        }
         //VcsAction.doCommand(files, cmd, null, this);
     }
 
@@ -3918,11 +3922,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
             if (!commandExecutors.containsKey(filePath)) {
                 Command command = createCommand(cmdName,  fileName, dialogWrapper);
-                boolean customized = VcsManager.getDefault().showCustomizer(command);
-                if (customized) {
-                    exec = command.execute();
-                    if (exec != null) {
-                        commandExecutors.put(filePath, exec);
+                if (command != null) {
+                    boolean customized = VcsManager.getDefault().showCustomizer(command);
+                    if (customized) {
+                        exec = command.execute();
+                        if (exec != null) {
+                            commandExecutors.put(filePath, exec);
+                        }
                     }
                 }
             } else {
@@ -3948,12 +3954,35 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     /** Create a command of a given name, acting on a given file and associate
-     *  a dialog wrapper with it. */
+     *  a dialog wrapper with it.
+     *  @return the command or <code>null</code>.
+     */
     private Command createCommand(String cmdName, String fileName,
                                   DialogVisualizerWrapper wrapper) {
         CommandSupport cmd = getCommandSupport(cmdName);
+        if (cmd == null) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,
+                    ErrorManager.getDefault().annotate(new IllegalArgumentException(fileName),
+                        "Warning: can not find command '"+cmdName+"'.")); // NOI18N
+            return null;
+        }
         Command command = cmd.createCommand();
-        command.setFiles(new FileObject[] { findResource(fileName) });
+        FileObject resource = findResource(fileName);
+        if (resource == null) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,
+                    ErrorManager.getDefault().annotate(new IllegalArgumentException(fileName),
+                        "Warning: can not find a resource for file '"+fileName+"' in "+this)); // NOI18N
+            return null;
+        }
+        FileObject[] fos = new FileObject[] { resource };
+        fos = command.getApplicableFiles(fos);
+        if (fos == null) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,
+                    ErrorManager.getDefault().annotate(new IllegalArgumentException(fileName),
+                        "Warning: resource '"+fileName+"' is not applicable to command '"+cmdName+"'")); // NOI18N
+            return null;
+        }
+        command.setFiles(fos);
         if (wrapper != null && command instanceof VcsDescribedCommand) {
             ((VcsDescribedCommand) command).setVisualizerWrapper(wrapper);
         }
@@ -3985,12 +4014,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         if(isLockFilesOn ()) {
             FileObject fo = findResource(name);
+            assert fo != null : "No resource for '"+name+"'"; // NOI18N
             FileProperties fprops = Turbo.getCachedMeta(fo);
             if (fprops != null && !fprops.isLocal () && !name.endsWith (".orig")) { // NOI18N
-                CommandSupport cmd = getCommandSupport("UNLOCK");
-                if (cmd != null) {
-                    Command command = cmd.createCommand();
-                    command.setFiles(new FileObject[] { findResource(name) });
+                Command command = createCommand("UNLOCK", name, null);
+                if (command != null) {
                     boolean customized = VcsManager.getDefault().showCustomizer(command);
                     if (customized) {
                         CommandTask exec = command.execute();

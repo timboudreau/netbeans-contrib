@@ -686,6 +686,8 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                     (ObjectIntegrityCommand) integrityCmdSupport.createCommand();
                 integrityCmd.setAddCommand(addCmd);
                 integrityCmd.setObjectIntegritySupport(objectIntegritySupport);
+                cmdFiles = integrityCmd.getApplicableFiles(cmdFiles);
+                if (cmdFiles == null) continue;
                 integrityCmd.setFiles(cmdFiles);
                 integrityCmd.setExpertMode(origCommand.isExpertMode());
                 integrityCmd.setGUIMode(origCommand.isGUIMode());
