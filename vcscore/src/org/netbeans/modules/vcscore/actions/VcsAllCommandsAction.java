@@ -218,7 +218,22 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
                 eMenu.removeAll();
                 for(int j=0; j<items.length; j++){                   
                     eMenu.add(items[j]);
-                }                
+                }
+                // remove old key listeners
+                javax.swing.event.MenuKeyListener[] keyListeners = eMenu.getMenuKeyListeners();
+                for (int k = 0; k < keyListeners.length; k++) {
+                    if (keyListeners[k].getClass().getName().startsWith("org.netbeans")) {
+                        eMenu.removeMenuKeyListener(keyListeners[k]);
+                    }
+                }
+                // transfer the current key listeners
+                keyListeners = mMenu[0].getMenuKeyListeners();
+                for (int k = 0; k < keyListeners.length; k++) {
+                    if (!keyListeners[k].getClass().getName().startsWith("org.netbeans")) continue;
+                    eMenu.addMenuKeyListener(keyListeners[k]);
+                    //System.out.println("  Transfering key listener: "+keyListeners[k]);
+                }
+                
             }
             super.addNotify();
         }
