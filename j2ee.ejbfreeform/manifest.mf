@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.j2ee.ejbfreeform
-OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Specification-Version: 1.1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/j2ee/ejbfreeform/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/j2ee/ejbfreeform/resources/layer.xml
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.ant.freeform > 1.3,
