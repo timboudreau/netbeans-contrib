@@ -1356,8 +1356,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                 fsCache.addCacheHandlerListener((CacheHandlerListener) WeakListener.create(CacheHandlerListener.class, (CacheHandlerListener) versioningSystem, fsCache));
                             }
                         }
+                        VersioningRepository.getRepository().addVersioningFileSystem(versioningSystem);
                     }
-                    VersioningRepository.getRepository().addVersioningFileSystem(versioningSystem);
                 }
             });
         }

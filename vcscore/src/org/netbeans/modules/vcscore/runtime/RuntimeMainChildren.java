@@ -165,6 +165,10 @@ public class RuntimeMainChildren extends Children.Keys  {
     private boolean checkFileSystem(FileSystem fs, BeanDescriptor bd) {
         if (bd == null) return false;
         Boolean is;
+        // hack to fix #17088 - multifilesystems don't get included into the runtime tab nodes..
+        if (fs instanceof MultiFileSystem) {
+           return false;
+        }
         Object vcs = bd.getValue(VcsFileSystem.VCS_PROVIDER_ATTRIBUTE);
         if (vcs instanceof Boolean) is = (Boolean) vcs;
         else is = Boolean.FALSE;
