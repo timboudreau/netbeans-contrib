@@ -41,7 +41,7 @@ public class PropertyNode extends AbstractNode {
     private static ResourceBundle  bundle = NbBundle.getBundle (PropertyNode.class);
     
     /** Name of this Property; null for the root node. */
-    protected String property;
+    protected final String property;
     /** Current value of the property, or null if unset. */
     protected String value;
     /** List of all child properties (may be empty). */
@@ -263,7 +263,8 @@ public class PropertyNode extends AbstractNode {
      * @param nue the new name
      */
     public void setName (String nue) {
-        if (getName () == null) {
+        String old = getName();
+        if (old == null || /* #18421 */ old.equals("")) { // NOI18N
             super.setName (nue);
         } else {
             Properties p = System.getProperties ();
