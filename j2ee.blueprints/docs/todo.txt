@@ -4,29 +4,31 @@ feature freeze: dec 8, 2004
 another feature freeze for 4.1 in 3rd week of jan
 branch for ea 2 won't be done before jan 5
 
+[ ] About / Info tab that shows usingTxt and usingTxt1 from bundle.properties
+    Also points to web site, etc.
 [ ] deploy and test all included apps on 4.1
-    [ ] clientside-state is not picking up base64.lib even if I move 
-        it to WEB-INF/lib
+    [.] clientside-state is not picking up base64.lib even if I move 
+        it to WEB-INF/lib 
+        (disabled this example for now)
     [ ] non-web apps
-[ ] Fix Lukas' bug list
-    [ ] /docoriented
+[.] Fix Lukas' bug list
+    [.] /docoriented
         - i can't run this example due to errors when opening project:
           - cannot find Web Pages folder "<some_path>". Set "web.docbase.dir" property in project.properties file to point to correct folder.
           - description of next exception is really interesting: "A java.lang.NullPointerException exception has occurred. However, the system should continue working without further problems. Click Details for the stack trace."
-    [ ] /clientside-state
+        (disabled for now)
+    [.] /clientside-state
         - additional library (base64) is not automatically on the classpath
         - the rest of this app is OK.
         Greg stated that app bundles base64 jars into the Web-INF/lib of that war file, which is portable solution and should be supported by NB, so no changes needed to application example code.
         STATUS: seems like an NB problem or integration problem? 
+        (disabled for now)
 [ ] Script for our workspace
     [ ] Cases where WAR name does not equal directory name, like 
         clientside-validators
     [ ] Check that it works with non-webapps
         [ ] add code for JMS resource, EJB resource, etc.
     [ ] Handle solutions that contain no examples, e.g. standalone-client
-    [ ] Shorter names in "New Project" dialog
-    [ ] Script to check that there's src/java and give a warning if there isn't.
-        [ ] File bug on NetBeans that src/java must exist.
     [ ] ws-context directory
 [ ] want at least one example with an EJB
 [ ] Printable page - Use print cookie that enables print action in NBs? This 
@@ -34,7 +36,6 @@ branch for ea 2 won't be done before jan 5
 [ ] Sort articles alphabetically
 [ ] Install Example button is a bit misleading.  Rename to something like
     "New Project From This Template".
-[ ] About box that shows usingTxt and usingTxt1 from bundle.properties
 
 Later:
 [ ] Bookmarks

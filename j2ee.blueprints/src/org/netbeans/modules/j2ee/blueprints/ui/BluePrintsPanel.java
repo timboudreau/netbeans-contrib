@@ -50,6 +50,7 @@ import org.netbeans.modules.j2ee.blueprints.catalog.SolutionsCatalog;
 import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Category;
 import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Demo;
 import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Example;
+import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Netbeans;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
@@ -314,19 +315,10 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         String result = null;
         Example example = getSelectedArticle();
         if(example != null) {
-            // Guess the name of the zip from the <path> element
-            // (not always accurate, but this is the best we can do)
-            String[] paths = example.getPath();
-            if(paths.length > 0) {
-                result = paths[0];
-                if(result.indexOf('.') != -1) {
-                    // there's a filename in the path. Strip it.
-                    result = result.substring(0, result.lastIndexOf('/'));
-                }
-                if(result.indexOf('/') != -1) {
-                    // Strip all slashes before the example path
-                    result = result.substring(result.lastIndexOf('/') + 1);
-                }
+            // Get the name of the zip from the <project-name> element
+            Netbeans[] netbeans = example.getNetbeans();
+            if(netbeans.length > 0) {
+                result = netbeans[0].getProjectPath();
             }
         }
         return result;
