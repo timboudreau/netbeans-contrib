@@ -187,6 +187,7 @@ public final class SuggestionsScanner {
         DataObject[] roots = null;
         for (int i = 0; i<views.length; i++) {
             Node[] nodes = views[i].getActivatedNodes();
+            if (nodes == null) continue;  // XXX issue #38383
             for (int n = 0; n<nodes.length; n++) {
                 DataObject dobj = (DataObject) nodes[n].getCookie(DataObject.class);
                 if (dobj != null) {
@@ -335,7 +336,7 @@ public final class SuggestionsScanner {
         if (Thread.currentThread().isInterrupted()) return true;
         Runtime rt = Runtime.getRuntime();
         long total = rt.totalMemory();
-        long max = rt.maxMemory();  // FIXME on linux returns heap&native instead of -Xmx
+        long max = rt.maxMemory();  // XXX on some linux returns heap&native instead of -Xmx
         long required = Math.max(total/13, 4*1024*1024);
         if (total ==  max && rt.freeMemory() < required) {
             lowMemoryWarning = true;
