@@ -21,8 +21,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.openide.ErrorManager;
@@ -79,13 +81,11 @@ public class CvsCommitTemplateGetter implements VcsAdditionalCommand, RegexOutpu
      * @return the path to the file or <code>null</code> when the file can not be
      * created or the path contains spaces. CVS can not handle spaces in the editor executable.
      */
-    private static String createCatExec() {
-        String cat = "";
-        //if (org.openide.util.Utilities.isWindows()) {
+    private static File createCatExec() {        
         FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         FileObject root = fs.getRoot();
         java.io.File rootFile = FileUtil.toFile(root);
-        if (rootFile == null || rootFile.getAbsolutePath().indexOf(' ') >= 0) {
+        if (rootFile == null) {
             // The default FS directory either does not exist or contains spaces.
             // Do not create the shared wincat.bat file in this case, we have to
             // perform a workaround - put wincat.bat into the current folder.
@@ -100,7 +100,7 @@ public class CvsCommitTemplateGetter implements VcsAdditionalCommand, RegexOutpu
                 try {
                     folder = root.createFolder(WIN_CAT_FOLDER);
                 } catch (IOException exc) {
-                    return cat;
+                    return null;
                 }
             }
             winCat = folder.getFileObject(WIN_CAT_NAME, WIN_CAT_EXT);
@@ -108,7 +108,7 @@ public class CvsCommitTemplateGetter implements VcsAdditionalCommand, RegexOutpu
                 try {
                     winCat = folder.createData(WIN_CAT_NAME, WIN_CAT_EXT);
                 } catch (IOException exc) {
-                    return cat;
+                    return null;
                 }
             }
             if (winCat != null) {
@@ -129,14 +129,10 @@ public class CvsCommitTemplateGetter implements VcsAdditionalCommand, RegexOutpu
         }
         if (winCat != null) {
             File catFile = FileUtil.toFile(winCat);
-            if (catFile != null) {
-                cat = catFile.getAbsolutePath();
-            }
-            cat = org.openide.util.Utilities.replaceString(cat, "\\", "\\\\");
-            //System.out.println("cat = "+cat);
-            //cat = getFilePath(fs, winCat);
-        }
-        return cat;
+            return catFile;            
+        } else {
+            return null;
+        }        
     }
     
     private static synchronized String createLocalCatExec(String dir, String relativePath) {
@@ -312,10 +308,19 @@ public class CvsCommitTemplateGetter implements VcsAdditionalCommand, RegexOutpu
         boolean haveLocalCat = false;
         String wincat = null;
         if (org.openide.util.Utilities.isWindows()) {
-            wincat = createCatExec();
-            if (wincat == null) {
+            File wincatFile = createCatExec();
+            if (wincatFile == null) {
                 haveLocalCat = true;
                 wincat = createLocalCatExecs(fsRoot, relativePath);
+            } else {
+                String wincatPath = wincatFile.getAbsolutePath();
+                if (wincatPath.indexOf(' ') > 0) {
+                    wincat = wincatFile.getName();
+                    String path = wincatFile.getParent();
+                    vars.putAll(getEnvWithPath(path, (String) vars.get(VcsFileSystem.VAR_ENVIRONMENT_PREFIX + "PATH")));
+                } else {
+                    wincat = wincatPath;
+                }
             }
             vars.put("WINCAT", wincat);
         }
@@ -381,6 +386,26 @@ public class CvsCommitTemplateGetter implements VcsAdditionalCommand, RegexOutpu
             if (haveLocalCat && wincat != null) removeLocalCatExecs(fsRoot, relativePath, wincat);
         }
         return true;
+    }
+    
+    private Map getEnvWithPath(String path, String varPATH) {
+        Map envMap = new HashMap();
+        envMap.put("DYNAMIC_ENVIRONMENT_VARS", "true");
+        String varName = "PATH";
+        if (varPATH == null) {
+            String[] envVars = fileSystem.getEnvironmentVars();
+            for (int i = 0; i < envVars.length; i++) {
+                int varEnd = envVars[i].indexOf('=');
+                varName = envVars[i].substring(0, varEnd).trim();
+                if (varName.equalsIgnoreCase("PATH")) {
+                    varPATH = envVars[i].substring(varEnd + 1).trim();
+                    break;
+                }
+            }
+        }
+        varPATH = path + ';' + varPATH;
+        envMap.put(VcsFileSystem.VAR_ENVIRONMENT_PREFIX + varName, varPATH);
+        return envMap;
     }
     
     private boolean areSomeFilesRemaining(String fsRoot, String relativePath,
