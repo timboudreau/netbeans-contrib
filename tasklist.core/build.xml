@@ -12,13 +12,14 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<project name="tasklist/suggestions" default="netbeans" basedir=".">
+<project name="tasklist/core" default="netbeans" basedir=".">
 
     <property name="nb_all" value="../.."/>
 
     <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
     <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
     <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+    <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
 
     <property name="nbm_alias" value="nb_ide"/>
     <property name="homepage.base" value="netbeans.org"/>
@@ -27,6 +28,8 @@ Microsystems, Inc. All Rights Reserved.
   
     <target name="compile">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+            <!-- Get rid of this when tasklist/core is available -->
+
             <classpath>
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
                 <fileset dir="${nb_all}/openide/netbeans/lib">
@@ -34,12 +37,7 @@ Microsystems, Inc. All Rights Reserved.
                 </fileset>
                 <!-- tasklist api -->
                 <pathelement path="../api/src"/>
-                <!-- tasklist core -->
-                <pathelement path="../core/src"/>
                 <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
-                <fileset dir="../../core/external">
-                    <include name="xml-apis*.jar"/>
-                </fileset>
             </classpath>
         </javac>
     </target>
@@ -48,7 +46,7 @@ Microsystems, Inc. All Rights Reserved.
         <mkdir dir="netbeans/modules"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/tasklist-suggestions.jar"
+        <locjar jarfile="netbeans/modules/autoload/tasklist-core.jar"
                 manifest="manifest-subst.mf"
                 basedir="src"
 	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
@@ -62,11 +60,11 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="nbm" depends="netbeans">
-        <makenbm file="../tasklist-suggestions.nbm"
+        <makenbm file="../tasklist-core.nbm"
                  topdir="."
-                 module="netbeans/modules/tasklist-suggestions.jar"
+                 module="netbeans/modules/autoload/tasklist-core.jar"
                  homepage="http://tasklist.${homepage.base}/"
-                 distribution="http://${dist.base}/tasklist-suggestions.nbm">
+                 distribution="http://${dist.base}/tasklist-core.nbm">
             <license file="${license.file}"/>
             <notification file="module-updates.txt"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
@@ -80,16 +78,31 @@ Microsystems, Inc. All Rights Reserved.
             </fileset>
         </delete>
         <delete file="manifest-subst.mf"/>
-        <delete file="../tasklist-suggestions.nbm"/>
+        <delete file="../tasklist-core.nbm"/>
         <delete dir="netbeans"/>
         <delete dir="Info"/>
         <delete dir="javadoc"/>
     </target>
 
+
     <target name="release">
     </target>
 
-    <target name="javahelp">
-    </target>
 
+    <target name="javahelp">
+      <mkdir dir="netbeans/modules/autoload/docs"/>
+      <mkdir dir="../javahelp/org/netbeans/modules/tasklist/help/JavaHelpSearch"/>
+      <jhindexer basedir="../javahelp/org/netbeans/modules/tasklist/help"
+                 db="../javahelp/org/netbeans/modules/tasklist/help/JavaHelpSearch"
+                 jhall="${nbroot}/nbbuild/external/jhall-1.1.2_02.jar">
+        <include name="**/*.html"/>
+        <exclude name="JavaHelpSearch/"/>
+      </jhindexer>
+      <mkdir dir="netbeans/modules/docs"/>
+      <zip zipfile="netbeans/modules/autoload/docs/tasklist-manual.zip" compress="true">
+        <fileset dir="../javahelp" excludesfile="../../nbbuild/standard-jar-excludes.txt">
+        </fileset>
+      </zip>
+    </target>
+  
 </project>

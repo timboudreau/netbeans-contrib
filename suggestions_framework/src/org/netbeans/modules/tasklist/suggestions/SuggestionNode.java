@@ -14,11 +14,11 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.util.List;
-import org.netbeans.modules.tasklist.AutoFixAction;
-import org.netbeans.modules.tasklist.ExportAction;
-import org.netbeans.modules.tasklist.FilterAction;
-import org.netbeans.modules.tasklist.TaskListView;
-import org.netbeans.modules.tasklist.TaskNode;
+import org.netbeans.modules.tasklist.core.AutoFixAction;
+import org.netbeans.modules.tasklist.core.ExportAction;
+import org.netbeans.modules.tasklist.core.FilterAction;
+import org.netbeans.modules.tasklist.core.TaskListView;
+import org.netbeans.modules.tasklist.core.TaskNode;
 import org.openide.ErrorManager;
 import org.openide.actions.PropertiesAction;
 import org.openide.nodes.Node;

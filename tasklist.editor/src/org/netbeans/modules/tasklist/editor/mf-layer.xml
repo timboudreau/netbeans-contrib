@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC '-//NetBeans//DTD Filesystem 1.1//EN' 'http://www.netbeans.org/dtds/filesystem-1_1.dtd'>
+
+<filesystem>
+
+    <folder name="Actions">
+	<folder name="View">
+            <file name="org-netbeans-modules-tasklist-editor-ViewScanListAction.instance" />
+        </folder>
+    </folder>        
+            
+    <folder name="Menu">
+        <folder name="View">
+            <file name="org-netbeans-modules-tasklist-editor-ViewScanListAction.instance" />
+            <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-editor-ViewScanListAction.instance" boolvalue="true" />
+            <attr name="org-netbeans-modules-tasklist-editor-ViewScanListAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
+         </folder>
+
+        <folder name="Tools">
+            <file name="org-netbeans-modules-tasklist-editor-ScanTasksAction.instance" />
+         </folder>
+
+     </folder>
+
+     <folder name="Toolbars">  
+         <folder name="Task">
+             <file name="org-netbeans-modules-tasklist-editor-ViewScanListAction.instance" />
+             <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-editor-ViewScanListAction.instance" boolvalue="true" />
+        </folder>
+    </folder>
+
+    <folder name="Editors"> 
+        <folder name="AnnotationTypes"> 
+            <file name="TaskAnnotation.xml" url="TaskAnnotation.xml"/>
+            <folder name="TaskActions">
+                <file name="org-netbeans-modules-tasklist-editor-NewTaskEditorAction.instance"/>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="Services">
+
+	<folder name="TaskList">
+	    <!-- I should register the GoToSource action somewhere here... -->
+
+	    <file name="TaskEditorListener.settings" 
+		  url="TaskEditorListener.settings"/>
+
+	</folder>
+
+	<file name="org-netbeans-modules-tasklist-editor-TaskEdSettings.settings" url="TaskEdSettings.settings">
+	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.editor.Bundle"/>
+	    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/tasklist/core/task.gif"/>
+            <!-- Project specific? attr name="SystemFileSystem.layer"
+               stringvalue="project"/ -->
+	</file>
+    </folder>
+
+    <folder name="UI">
+	<folder name="Services">
+	    <folder name="Editing">
+		<file name="org-netbeans-modules-tasklist-editor-TaskEdSettings.shadow">
+                    <attr name="originalFile" stringvalue="Services/org-netbeans-modules-tasklist-editor-TaskEdSettings.settings"/>
+		</file>
+	    </folder>
+	</folder>
+    </folder>
+
+</filesystem>
+

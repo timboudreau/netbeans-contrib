@@ -62,7 +62,7 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="nbm" depends="netbeans">
-        <makenbm file="tasklist-api.nbm"
+        <makenbm file="../tasklist-api.nbm"
                  topdir="."
                  module="netbeans/modules/autoload/tasklist-api.jar"
                  homepage="http://tasklist.${homepage.base}/"
@@ -79,7 +79,7 @@ Microsystems, Inc. All Rights Reserved.
             </fileset>
         </delete>
         <delete file="manifest-subst.mf"/>
-        <delete file="tasklist-api.nbm"/>
+        <delete file="../tasklist-api.nbm"/>
         <delete dir="netbeans"/>
         <delete dir="Info"/>
         <delete dir="javadoc"/>
@@ -191,6 +191,12 @@ Microsystems, Inc. All Rights Reserved.
 
     <zip zipfile="TasklistAPIs.zip" basedir="TasklistAPIs"/>
   </target>
+
+    <target name="release">
+    </target>
+
+    <target name="javahelp">
+    </target>
 
   
 </project>

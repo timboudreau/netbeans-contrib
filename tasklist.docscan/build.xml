@@ -12,7 +12,7 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<project name="tasklist/suggestions" default="netbeans" basedir=".">
+<project name="tasklist/docscan" default="netbeans" basedir=".">
 
     <property name="nb_all" value="../.."/>
 
@@ -36,10 +36,15 @@ Microsystems, Inc. All Rights Reserved.
                 <pathelement path="../api/src"/>
                 <!-- tasklist core -->
                 <pathelement path="../core/src"/>
+                <!-- usertasks -->
+                <pathelement path="../usertasks/src"/>
+                <pathelement location="../../editor/netbeans/modules/ext/nb-editor.jar"/>
+               <pathelement location="../../editor/netbeans/modules/editor.jar"/>
+               <fileset dir="../../core/external">
+                  <include name="regexp*.jar" />
+                  <include name="xml-apis*.jar"/>
+               </fileset>
                 <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
-                <fileset dir="../../core/external">
-                    <include name="xml-apis*.jar"/>
-                </fileset>
             </classpath>
         </javac>
     </target>
@@ -48,7 +53,7 @@ Microsystems, Inc. All Rights Reserved.
         <mkdir dir="netbeans/modules"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/tasklist-suggestions.jar"
+        <locjar jarfile="netbeans/modules/eager/tasklist-docscan.jar"
                 manifest="manifest-subst.mf"
                 basedir="src"
 	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
@@ -62,11 +67,11 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="nbm" depends="netbeans">
-        <makenbm file="../tasklist-suggestions.nbm"
+        <makenbm file="../tasklist-docscan.nbm"
                  topdir="."
-                 module="netbeans/modules/tasklist-suggestions.jar"
+                 module="netbeans/modules/eager/tasklist-docscan.jar"
                  homepage="http://tasklist.${homepage.base}/"
-                 distribution="http://${dist.base}/tasklist-suggestions.nbm">
+                 distribution="http://${dist.base}/tasklist-docscan.nbm">
             <license file="${license.file}"/>
             <notification file="module-updates.txt"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
@@ -80,7 +85,7 @@ Microsystems, Inc. All Rights Reserved.
             </fileset>
         </delete>
         <delete file="manifest-subst.mf"/>
-        <delete file="../tasklist-suggestions.nbm"/>
+        <delete file="../tasklist-docscan.nbm"/>
         <delete dir="netbeans"/>
         <delete dir="Info"/>
         <delete dir="javadoc"/>

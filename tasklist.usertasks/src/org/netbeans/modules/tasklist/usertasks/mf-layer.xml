@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC '-//NetBeans//DTD Filesystem 1.1//EN' 'http://www.netbeans.org/dtds/filesystem-1_1.dtd'>
+
+<filesystem>
+
+    <folder name="Actions">
+	<folder name="View">
+            <file name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance" />
+        </folder>
+	<folder name="Edit">
+            <file name="org-netbeans-modules-tasklist-usertasks-NewTaskAction.instance" />
+        </folder>
+    </folder>        
+            
+  <folder name="Menu">
+    <folder name="View">
+      <file name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance" />
+      <attr name="org-netbeans-core-actions-EditorViewAction.instance/org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance" boolvalue="true" />
+      <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
+    </folder>
+  </folder>
+
+  <folder name="Toolbars">  
+    <folder name="Task">
+      <file name="org-netbeans-modules-tasklist-usertasks-NewTaskAction.instance" />
+      <file name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance" />
+    </folder>
+  </folder>
+
+  <folder name="Services">
+    <file name="org-netbeans-modules-tasklist-usertasks-Settings.settings" url="Settings.settings">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
+	<attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/tasklist/core/task.gif"/>
+    </file>
+  </folder>
+
+  <folder name="UI">
+    <folder name="Services">
+	 <folder name="Editing">
+	      <file name="org-netbeans-modules-tasklist-usertasks-Settings.shadow">
+                  <attr name="originalFile" stringvalue="Services/org-netbeans-modules-tasklist-usertasks-Settings.settings"/>
+		</file>
+	    </folder>
+	</folder>
+   </folder>
+
+   <folder name="Templates">
+     <attr name="Beans/tasklist" boolvalue="true"/> <!-- Template ordering -->
+     <folder name="tasklist">
+       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
+       <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/tasklist/usertasks/tasklist.html"/>
+       <file name="tasklist.ics" url="tasklist.ics">
+           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
+           <attr name="template" boolvalue="true"/>
+           <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/tasklist/usertasks/emptyicalendar.html" />
+       </file>
+       <file name="tasklist.xcs" url="tasklist.xcs">
+           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
+           <attr name="template" boolvalue="true"/>
+           <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/tasklist/usertasks/emptyxcalendar.html" />
+       </file>
+     </folder>
+   </folder>
+
+</filesystem>
+

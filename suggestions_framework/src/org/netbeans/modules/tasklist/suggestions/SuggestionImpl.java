@@ -14,7 +14,7 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.awt.Image;
-import org.netbeans.modules.tasklist.Task;
+import org.netbeans.modules.tasklist.core.Task;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.text.Line;

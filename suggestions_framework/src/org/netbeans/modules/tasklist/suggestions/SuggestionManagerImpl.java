@@ -13,6 +13,9 @@
 
 package org.netbeans.modules.tasklist.suggestions;
 
+import org.netbeans.modules.tasklist.core.TaskListView;
+import org.netbeans.modules.tasklist.core.TaskList;
+import org.netbeans.modules.tasklist.core.Task;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +23,6 @@ import java.util.ListIterator;
 
 import org.openide.util.Lookup;
 import org.netbeans.api.tasklist.*;
-import org.netbeans.modules.tasklist.*;
 
 /**
  * Actual suggestion manager provided to clients when the Suggestions
