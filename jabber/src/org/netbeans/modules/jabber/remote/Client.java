@@ -46,16 +46,6 @@ import javax.swing.SwingUtilities;
 public class Client {
     
     public static void createSocketClient(String addr, byte[] key) throws Exception {
-System.getProperties().remove("socksProxyHost"); //, "");
-try {
-    Class cls = Socket.class;
-    Field fld = cls.getDeclaredField("factory");
-    fld.setAccessible(true);
-    fld.set(null, null);
-} catch (Exception e) {
-    e.printStackTrace();
-}
-
 
         int off = addr.indexOf(':');
         String serv = addr.substring(0, off);
