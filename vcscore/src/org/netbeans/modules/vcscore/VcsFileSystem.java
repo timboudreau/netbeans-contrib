@@ -42,6 +42,7 @@ import org.netbeans.modules.vcscore.caching.VcsCacheFile;
 import org.netbeans.modules.vcscore.caching.VcsCacheDir;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
+import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 //import org.netbeans.modules.vcscore.revision.RevisionListener;
 
 /** Generic VCS filesystem.
@@ -50,6 +51,7 @@ import org.netbeans.modules.vcscore.commands.*;
  */
 //-------------------------------------------
 public abstract class VcsFileSystem extends AbstractFileSystem implements VariableInputDialog.FilePromptDocumentListener,
+                                                                          VcsSearchTypeFileSystem,
                                                                           AbstractFileSystem.List, AbstractFileSystem.Info,
                                                                           AbstractFileSystem.Change, FileSystem.Status,
                                                                           CacheHandlerListener, Serializable {
