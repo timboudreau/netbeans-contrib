@@ -27,15 +27,17 @@ import org.openide.util.*;
 
 import org.netbeans.modules.vcscore.*;
 /**
- *
- * @author  mkleint
- * @version 
+ * The tree selection of a mount point relative to the working directory.
+ * @author  Milos Kleint, Martin Entlicher
  */
 public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelectionListener {//, javax.swing.event.TreeExpansionListener {
     
     static final long serialVersionUID =-6389940806020132699L;
     //DefaultMutableTreeNode rootNode;
     //String cvsRoot;
+    /** Whether the tree is initially expanded. Since it is a special expansion,
+     * we will ignore tree expansion events while this variable is true. */
+    private volatile boolean initiallyExpanding = true;
     
     public RelativeMountPanel() {
         initComponents ();
@@ -248,6 +250,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
         trRelMount.addTreeSelectionListener(this);
         trRelMount.addTreeWillExpandListener(new TreeWillExpandListener() {
             public void treeWillExpand(TreeExpansionEvent evt) {
+                if (initiallyExpanding) return ;
                 TreePath path = evt.getPath();
                 final MyTreeNode node = (MyTreeNode) path.getLastPathComponent();
                 Runnable treeBuild = new Runnable() {
@@ -384,13 +387,15 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
      * @param rootDir the root directory of the tree
      * @param relMount the initial relative mount point
      */
-    public void initTree(String rootDir, String relMount) {
-        //if (fs != null) {
-            createTree(rootDir);
-            //trRelMount.setSelectionModel(new MySelectionModel()); // because of not allowing to select local dirs
-            trRelMount.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        //}
-        setInitSelect(relMount);
+    public void initTree(String rootDir, final String relMount) {
+        createTree(rootDir);
+        //trRelMount.setSelectionModel(new MySelectionModel()); // because of not allowing to select local dirs
+        trRelMount.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        new Thread(new Runnable() {
+            public void run() {
+                setInitSelect(relMount);
+            }
+        }).start();
         txRelMount.setText(relMount);
     }
     
@@ -406,6 +411,19 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
             while (token.hasMoreTokens()) {
                 directoryName = token.nextToken();
                 try {
+                    //trRelMount.expandPath(path);
+                    folderTreeNodes(parent);
+                    try {
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            public void run() {
+                                // Just wait for AWT to finish its work
+                            }
+                        });
+                    } catch (InterruptedException intrexc) {
+                        // Ignored
+                    } catch (java.lang.reflect.InvocationTargetException itexc) {
+                        // Ignored
+                    }
                     child = (MyTreeNode) parent.getFirstChild();
                     do {
                         if (child == null) break;
@@ -418,9 +436,16 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                         child = (MyTreeNode) parent.getChildAfter(child);
                     } while (true);
                 } catch (NoSuchElementException exc){
+                    // Ignore
                 }
             }
-        trRelMount.setSelectionPath(path);
+        final TreePath selectedPath = path;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                trRelMount.setSelectionPath(selectedPath);
+            }
+        });
+        initiallyExpanding = false;
     }
     
     private static void D(String debug) {
