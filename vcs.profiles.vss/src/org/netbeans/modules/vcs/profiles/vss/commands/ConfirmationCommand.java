@@ -23,8 +23,11 @@ import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
+import org.netbeans.modules.vcscore.commands.RegexErrorListener;
+import org.netbeans.modules.vcscore.commands.RegexOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
@@ -81,6 +84,7 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
     public static final String VAR_TEST_CONFIRMATION = "TEST_CONFIRMATION"; // NOI18N
     
     private VcsFileSystem fileSystem;
+    private CommandExecutionContext executionContext;
     private boolean errorOutput;
     private boolean testOnly;
     private boolean multiFiles;
@@ -93,6 +97,10 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
     
     public void setFileSystem(VcsFileSystem fileSystem) {
         this.fileSystem = fileSystem;
+    }
+    
+    public void setExecutionContext(CommandExecutionContext executionContext) {
+        this.executionContext = executionContext;
     }
     
     /**
@@ -126,7 +134,11 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         testOnly = false;
         multiFiles = false;
         String endOfMessage = null;
-        rootDir = fileSystem.getRootDirectory().getAbsolutePath();
+        if (fileSystem != null) {
+            rootDir = fileSystem.getRootDirectory().getAbsolutePath();
+        } else {
+            rootDir = (String) vars.get("ROOTDIR");
+        }
         boolean moreOptions;
         do {
             moreOptions = false;
@@ -152,8 +164,8 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         defineTestVar = (args.length == 1);
         String testCommandName = args[0];
         String realCommandName = (args.length > 1) ? args[1] : args[0];
-        VcsCommand testCommand = fileSystem.getCommand(testCommandName);
-        VcsCommand realCommand = fileSystem.getCommand(realCommandName);
+        CommandSupport testCommand = executionContext.getCommandSupport(testCommandName);
+        CommandSupport realCommand = executionContext.getCommandSupport(realCommandName);
         //System.out.println("ConfirmationCommand: errorOutput = "+errorOutput+", testOnly = "+testOnly+", multiFiles = "+multiFiles+", EOM = "+endOfMessage+", testCommandName = "+testCommandName+", realCommandName = "+realCommandName);
         
         Hashtable testVars = new Hashtable(vars);
@@ -202,30 +214,32 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
     /**
      * @return null when command failed, the output message otherwise.
      */
-    private String runTestCommand(VcsCommand cmd, Hashtable vars) throws InterruptedException {
-        VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+    private String runTestCommand(CommandSupport cmdSupp, Hashtable vars) throws InterruptedException {
         final StringBuffer messageBuff = new StringBuffer();
-        CommandDataOutputListener dataOutputListener = new CommandDataOutputListener() {
-            public void outputData(String[] elements) {
-                if (elements != null && elements.length > 0) {
+        Command cmd = cmdSupp.createCommand();
+        VcsDescribedCommand vcmd = (VcsDescribedCommand) cmd;
+        vcmd.setAdditionalVariables(vars);
+        RegexErrorListener regexOutputListener = new RegexErrorListener() {
+            public void outputMatchedGroups(String[] elements) {
+		if (elements != null && elements.length > 0) {
                     messageBuff.append(elements[0]);
                 }
             }
         };
         if (errorOutput) {
-            vce.addDataErrorOutputListener(dataOutputListener);
+            vcmd.addRegexErrorListener(regexOutputListener);
         } else {
-            vce.addDataOutputListener(dataOutputListener);
+            vcmd.addRegexOutputListener(regexOutputListener);
         }
-        fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
+        CommandTask task = cmd.execute();
         try {
-            fileSystem.getCommandsPool().waitToFinish(vce);
+            task.waitFinished(0);
         } catch (InterruptedException iexc) {
-            fileSystem.getCommandsPool().kill(vce);
+            task.stop();
             throw iexc;
         }
-        if (vce.getExitStatus() != VcsCommandExecutor.SUCCEEDED &&
-            !VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
+        if (task.getExitStatus() != CommandTask.STATUS_SUCCEEDED &&
+            !VcsCommandIO.getBooleanProperty(vcmd.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL)) {
             //E.err("exec failed "+ec.getExitStatus()); // NOI18N
             return null;
         }
@@ -235,12 +249,14 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
     /**
      * @return null when command failed, the output messages otherwise.
      */
-    private String[] runTestMultiCommand(VcsCommand cmd, Hashtable vars, final String eom) throws InterruptedException {
-        VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+    private String[] runTestMultiCommand(CommandSupport cmdSupp, Hashtable vars, final String eom) throws InterruptedException {
         final List messages = new ArrayList();
         final StringBuffer messageBuff = new StringBuffer();
-        CommandDataOutputListener dataOutputListener = new CommandDataOutputListener() {
-            public void outputData(String[] elements) {
+        Command cmd = cmdSupp.createCommand();
+        VcsDescribedCommand vcmd = (VcsDescribedCommand) cmd;
+        vcmd.setAdditionalVariables(vars);
+        RegexErrorListener regexOutputListener = new RegexErrorListener() {
+            public void outputMatchedGroups(String[] elements) {
                 if (elements != null && elements.length > 0) {
                     messageBuff.append(elements[0]);
                     if (eom == null || elements[0].endsWith(eom)) {
@@ -254,42 +270,44 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             }
         };
         if (errorOutput) {
-            vce.addDataErrorOutputListener(dataOutputListener);
+            vcmd.addRegexErrorListener(regexOutputListener);
         } else {
-            vce.addDataOutputListener(dataOutputListener);
+            vcmd.addRegexOutputListener(regexOutputListener);
         }
-        fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
+        CommandTask task = cmd.execute();
         try {
-            fileSystem.getCommandsPool().waitToFinish(vce);
+            task.waitFinished(0);
         } catch (InterruptedException iexc) {
-            fileSystem.getCommandsPool().kill(vce);
+            task.stop();
             throw iexc;
         }
-        if (vce.getExitStatus() != VcsCommandExecutor.SUCCEEDED &&
-            !VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
+        if (task.getExitStatus() != CommandTask.STATUS_SUCCEEDED &&
+            !VcsCommandIO.getBooleanProperty(vcmd.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL)) {
             //E.err("exec failed "+ec.getExitStatus()); // NOI18N
             return null;
         }
         return (String[]) messages.toArray(new String[0]);
     }
     
-    private boolean runRealCommand(VcsCommand cmd, Hashtable vars) {
-        VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
-        fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
+    private boolean runRealCommand(CommandSupport cmdSupp, Hashtable vars) {
+        Command cmd = cmdSupp.createCommand();
+        VcsDescribedCommand vcmd = (VcsDescribedCommand) cmd;
+        vcmd.setAdditionalVariables(vars);
+        CommandTask task = cmd.execute();
         try {
-            fileSystem.getCommandsPool().waitToFinish(vce);
+            task.waitFinished(0);
         } catch (InterruptedException iexc) {
-            fileSystem.getCommandsPool().kill(vce);
+            task.stop();
             return false;
         }
-        return (vce.getExitStatus() == VcsCommandExecutor.SUCCEEDED) ||
-               VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL);
+        return (task.getExitStatus() == CommandTask.STATUS_SUCCEEDED) ||
+               VcsCommandIO.getBooleanProperty(vcmd.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL);
     }
     
-    private boolean runRealMultiCommand(VcsCommand cmd, Hashtable vars, String[] messages) {
-        CommandSupport cmdSupp = fileSystem.getCommandSupport(cmd.getName());
+    private boolean runRealMultiCommand(CommandSupport cmdSupp, Hashtable vars, String[] messages) {
         Command command = cmdSupp.createCommand();
-        ((VcsDescribedCommand) command).setAdditionalVariables(vars);
+        VcsDescribedCommand vcmd = (VcsDescribedCommand) command;
+        vcmd.setAdditionalVariables(vars);
         boolean haveFiles = setFiles(command, messages);
         if (!haveFiles) return true;
         CommandTask task = command.execute();
@@ -300,7 +318,7 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             return false;
         }
         return (task.getExitStatus() == CommandTask.STATUS_SUCCEEDED) ||
-               VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL);
+               VcsCommandIO.getBooleanProperty(vcmd.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL);
     }
     
     private boolean setFiles(Command command, String[] messages) {
@@ -313,7 +331,7 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
                 String file = retrieveFile(messages[i].substring(begin));
                 String path = file.substring(rdl).replace(File.separatorChar, '/');
                 while (path.startsWith("/")) path = path.substring(1);
-                FileObject fo = fileSystem.findResource(path);
+                FileObject fo = (fileSystem != null) ? fileSystem.findResource(path) : null;
                 if (fo != null) {
                     fileObjects.add(fo);
                 } else {
