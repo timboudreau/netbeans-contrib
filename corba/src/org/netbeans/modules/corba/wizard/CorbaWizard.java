@@ -332,9 +332,13 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
 
 
   protected void fireEvent () {
+    ArrayList list;
+    synchronized (this) {
+        list = (ArrayList) this.listeners.clone();
+    }
     ChangeEvent event = new ChangeEvent (this);
-    for (int i=0; i<listeners.size(); i++)
-        ((ChangeListener)listeners.get (i)).stateChanged (event);
+    for (int i=0; i<list.size(); i++)
+        ((ChangeListener)list.get (i)).stateChanged (event);
   }
 
   

@@ -685,7 +685,7 @@ public class IDLDataObject extends MultiDataObject {
             status = STATUS_ERROR;
             src = null;
         } catch (java.io.FileNotFoundException e) {
-            e.printStackTrace ();
+            // e.printStackTrace (); Do not display exception
         } catch (Exception ex) {
             System.out.println ("IDLParser exception in " + this.getPrimaryFile ());
             ex.printStackTrace ();

@@ -261,7 +261,8 @@ public class IDLDataLoader extends MultiFileLoader {
             System.out.println ("IDLDataLoader.findIdls ()..." + fi_counter);
         FileObject folder = fo.getParent ();
         if (folder == null){
-            System.out.println ("!!!!NULL FOLDER!!!! - for " + fo.getName ());
+            if (DEBUG)
+                System.out.println ("!!!!NULL FOLDER!!!! - for " + fo.getName ());
             /** Changed for the Jaga 1010 bug
              */
             return new Vector();

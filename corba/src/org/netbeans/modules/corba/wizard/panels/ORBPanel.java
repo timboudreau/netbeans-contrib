@@ -18,6 +18,7 @@ import org.netbeans.modules.corba.wizard.CorbaWizardData;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
+import org.netbeans.modules.corba.CORBASupport;
 
 /** 
  *
@@ -58,20 +59,20 @@ public class ORBPanel extends AbstractWizardPanel {
       String value = this.css.getOrb();
       if (value != null)
         this.orbs.setSelectedItem (value);
-      value = this.css.getServerBindingName();
+      this.defaultOrb = value;
+      value = this.css.getServerBinding();
       if (value != null)
         this.bindings.setSelectedItem (value);
+      this.defaultBinding = value;
       this.initialized = true;
     }
     Object value = data.getCORBAImpl();
     if (value != null){
       this.orbs.setSelectedItem (value);
-      this.defaultOrb = value;
     }
     value = data.getBindMethod ();
     if (value != null){
       this.bindings.setSelectedItem (value);
-      this.defaultBinding = value;
     }
     this.filter = false;
   }
@@ -209,8 +210,19 @@ add(jPanel3, gridBagConstraints1);
          }
          this.firstChange = false;
       }
-      this.css.setServerBinding ((String)this.bindings.getSelectedItem());
-      this.css.setClientBinding ((String)this.bindings.getSelectedItem());
+      String serverBind = (String)this.bindings.getSelectedItem();
+      String clientBind = "";
+      
+      this.css.setServerBinding (serverBind);
+      if (serverBind == CORBASupport.SERVER_NS)
+        clientBind = CORBASupport.CLIENT_NS;
+      else if (serverBind == CORBASupport.SERVER_IOR_TO_FILE)
+        clientBind = CORBASupport.CLIENT_IOR_FROM_FILE;
+      else if (serverBind == CORBASupport.SERVER_IOR_TO_OUTPUT)
+        clientBind = CORBASupport.CLIENT_IOR_FROM_INPUT;
+      if (serverBind == CORBASupport.SERVER_BINDER)
+        clientBind = CORBASupport.CLIENT_BINDER;
+      this.css.setClientBinding (clientBind);
   }//GEN-LAST:event_bindingChanged
 
   private void orbChanged (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_orbChanged
@@ -241,10 +253,8 @@ add(jPanel3, gridBagConstraints1);
   }
 
   private void rollBack () {
-     this.filter = true;
-     this.orbs.setSelectedItem (defaultOrb);
-     this.bindings.setSelectedItem (defaultBinding);
-     this.filter = false;
+      ORBPanel.this.orbs.setSelectedItem (defaultOrb);
+      ORBPanel.this.bindings.setSelectedItem (defaultBinding);
   }
 
 // Variables declaration - do not modify//GEN-BEGIN:variables
