@@ -115,10 +115,20 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     private void setMnemonics() {
         prevButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.prevButton.mnemonic").charAt(0));
+        prevButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.prevButton.a11yName"));
+        prevButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.prevButton.a11yDescription"));
         nextButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.nextButton.mnemonic").charAt(0));
+        nextButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.nextButton.a11yName"));
+        nextButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.nextButton.a11yDescription"));
         asDefaultButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.mnemonic").charAt(0));
+        asDefaultButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.a11yName"));
+        asDefaultButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.a11yDescription"));
         getDefaultButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("getDefaultButton.mnemonic").charAt(0));
+        getDefaultButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("getDefaultButton.a11yName"));
+        getDefaultButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("getDefaultButton.a11yDescription"));
         promptEachCheckBox.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.promptEachCheckBox.mnemonic").charAt(0));
+        promptEachCheckBox.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.promptEachCheckBox.a11yName"));
+        promptEachCheckBox.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.promptEachCheckBox.a11yDescription"));
     }
 
     public void setFilePromptDocumentListener(VariableInputDialog.FilePromptDocumentListener docListener) {
