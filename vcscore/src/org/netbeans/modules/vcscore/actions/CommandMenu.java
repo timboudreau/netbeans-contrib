@@ -396,8 +396,8 @@ public class CommandMenu extends JMenuPlus {
                 cmdSupports = null;
                 cmdDisplayName = cmdName;
             }
-            settings = (GeneralVcsSettings)SharedClassObject.findObject(GeneralVcsSettings.class, true);
-            if(!expertMode && settings.isAdvancedNotification()){
+            settings = (GeneralVcsSettings)SharedClassObject.findObject(GeneralVcsSettings.class, true);            
+            if(!expertMode && settings.isAdvancedNotification() && cmdSupports[0].hasExpertMode()){
                 if(showFirstTimerDialog(cmdDisplayName))
                     invokeCommand(cmdSupports, cmdName, changeExpertMode, expertMode);
             }else
