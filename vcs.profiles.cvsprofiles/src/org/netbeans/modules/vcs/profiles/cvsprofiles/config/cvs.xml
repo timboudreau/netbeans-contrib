@@ -236,25 +236,25 @@ Microsystems, Inc. All Rights Reserved.
       <value>cvs</value>
     </variable>
     <variable name="CVS_DEF_EXE" basic="false">
-      <value>${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE}</value>
-      <value if="IS_WIN9X">${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE}</value>
+      <value>${QUOTE}${CVS_EXE}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] []</value>
+      <value if="IS_WIN9X">${QUOTE}${CVS_EXE_\/}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] []</value>
     </variable>
     <variable name="EXECUTE" basic="false">
       <value>${RUN} ${CVS_DEF_EXE} </value>
-      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} </value>
+      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] [] </value>
     </variable>
       <variable name="EXECUTE_NO_CD" basic="false">
         <value>${RUN_NO_CD} ${CVS_DEF_EXE} </value>
-        <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class -d ${QUOTE}${CVSROOT}${QUOTE} </value>
+        <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] [] </value>
       </variable>
 
     <variable name="CDM_EXECUTE" basic="false">
       <value>${RUNCDM} ${CVS_DEF_EXE} </value>
-      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${MODDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} </value>
+      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${MODDIR}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] [] </value>
     </variable>
     <variable name="CDW_EXECUTE" basic="false">
       <value>${RUNCDW} ${CVS_DEF_EXE} </value>
-      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${WORKDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} </value>
+      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${WORKDIR}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] [] </value>
     </variable>
     <variable name="SHELL" basic="true" label="ResourceMsg(Unix_Shell)" labelMnemonic="ResourceMsg(Unix_Shell_Mnemonic)" localFile="true" localDir="false" executable="false" order="6" if="IS_WIN9X">
       <value>sh.exe</value>
@@ -277,7 +277,7 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="GLOBAL_INPUT_DESCRIPTOR" basic="false">
       <value>LABEL(ResourceMsg(CVS_OPTIONS_GLOBAL_Label),
                 ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_Label)))
-             VARIABLE_DEFAULTS(COMPRESSION USER)
+             VARIABLE_DEFAULTS(COMPRESSION USER, CHECKOUT_RO_RW USER, APPLY_CVSROOT USER)
              ASK_FOR(DISK_CHANGE, "ResourceMsg(CVS_OPTIONS_GLOBAL_PREVIEW)","",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_PREVIEW);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_PREVIEW_mnc)))
              ASK_FOR(CHECKOUT_RO_RW, "ResourceMsg(CVS_OPTIONS_GLOBAL_RO)", "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_RO);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_RO_mnc)) ,"-r", "")
              SELECT_COMBO(COMPRESSION, "ResourceMsg(CVS_OPTIONS_GLOBAL_COMPRESSION_Label)", "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_COMPRESSION_Label);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_COMPRESSION_Label_mnc)),
@@ -291,7 +291,12 @@ Microsystems, Inc. All Rights Reserved.
                  ["ResourceMsg(CVS_OPTIONS_GLOBAL_COMPRESSION_Level_7)", "-z 7"],
                  ["ResourceMsg(CVS_OPTIONS_GLOBAL_COMPRESSION_Level_8)", "-z 8"],
                  ["ResourceMsg(CVS_OPTIONS_GLOBAL_COMPRESSION_Level_9)", "-z 9"])
+             ASK_FOR(APPLY_CVSROOT, "ResourceMsg(CVS_APPLY_CVSROOT)", "true", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_APPLY_CVSROOT);;MNEMONIC_ResourceMsg(ACS_CVS_APPLY_CVSROOT_mnc)), ENABLE(CVSROOT_INFO))
+             TEXT(CVSROOT_INFO)
       </value>
+    </variable>
+    <variable name="CVSROOT_INFO" basic="false">
+        <value>CVSROOT = ${CVSROOT}</value>
     </variable>
     <variable name="NOT_USE_CVSRC" basic="false">
         <!-- #52139 ASK_FOR(NOT_USE_CVSRC, "ResourceMsg(CVS_OPTIONS_GLOBAL_NORC)", "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_CVS_OPTIONS_GLOBAL_NORC);;MNEMONIC_ResourceMsg(ACS_CVS_OPTIONS_GLOBAL_NORC_mnc)), "-f", "") -->
