@@ -540,6 +540,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshOnFail">
           <value>2</value>
         </property>
+        <property name="checkForModifications">
+	  <value>true</value>
+	</property>
         <property name="disabledOnStatus">
           <value>&local-statuses;</value>
         </property>
@@ -1210,6 +1213,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="checkForModifications">
 	  <value>true</value>
 	</property>
+        <property name="refreshCurrentFolder">
+          <value>true</value>
+        </property>
       </command>
       <command name="BACKUP_FILE">
 	<property name="exec">
