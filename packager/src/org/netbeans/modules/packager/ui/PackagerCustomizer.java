@@ -19,15 +19,16 @@
 package org.netbeans.modules.packager.ui;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
@@ -51,7 +52,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
     private CustomizerAsWizardPanel panel;
     private PackagerCustomizer() {
         initComponents();
-        included.setModel(new DefaultListModel());
+        included.setModel(new ProjectListModel());
         nameKeyTyped(null);
         included.setCellRenderer(new ProjectRenderer());
     }
@@ -66,7 +67,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         SubprojectProvider prov = (SubprojectProvider) project.getLookup().lookup (SubprojectProvider.class);
         Set subs = prov.getSubProjects();
         for (Iterator i=subs.iterator(); i.hasNext();) {
-            ((DefaultListModel) included.getModel()).addElement(i.next());
+            ((ProjectListModel) included.getModel()).add((Project) i.next());
         }
         name.setText (ProjectUtils.getInformation(project).getDisplayName());
         
@@ -95,6 +96,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         windows = new javax.swing.JCheckBox();
         mac = new javax.swing.JCheckBox();
         unix = new javax.swing.JCheckBox();
+        webstart = new javax.swing.JCheckBox();
         dirlabel = new javax.swing.JLabel();
         dir = new javax.swing.JTextField();
         choosedir = new javax.swing.JButton();
@@ -102,7 +104,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         setLayout(new java.awt.GridBagLayout());
 
         setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(11, 11, 11, 11)));
-        namelabel.setText("Project Name");
+        namelabel.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_ProjectName"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -111,7 +113,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         gridBagConstraints.insets = new java.awt.Insets(3, 0, 3, 3);
         add(namelabel, gridBagConstraints);
 
-        name.setText("newProject");
+        name.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_NewProject"));
         name.addFocusListener(this);
         name.addKeyListener(this);
         name.addPropertyChangeListener(this);
@@ -126,7 +128,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         add(name, gridBagConstraints);
 
-        add.setText("Add");
+        add.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_Add"));
         add.addActionListener(this);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -137,7 +139,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         add(add, gridBagConstraints);
 
-        remove.setText("Remove");
+        remove.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_Remove"));
         remove.addActionListener(this);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -165,34 +167,38 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         add(jScrollPane1, gridBagConstraints);
 
         includedlabel.setLabelFor(included);
-        includedlabel.setText("Included Projects");
+        includedlabel.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_Included"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 3, 3);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 3, 3);
         add(includedlabel, gridBagConstraints);
 
-        platformspanel.setBorder(new javax.swing.border.TitledBorder("Platforms"));
-        windows.setText("Windows");
+        platformspanel.setBorder(new javax.swing.border.TitledBorder(NbBundle.getMessage(PackagerCustomizer.class,"LBL_Platforms")));
+        windows.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_Windows"));
         windows.setEnabled(false);
         windows.addActionListener(this);
 
         platformspanel.add(windows);
 
         mac.setSelected(true);
-        mac.setText("Macintosh");
+        mac.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_Mac"));
         mac.setEnabled(false);
         mac.addActionListener(this);
 
         platformspanel.add(mac);
 
-        unix.setText("Linux/Unix");
+        unix.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_Unix"));
         unix.setEnabled(false);
         unix.addActionListener(this);
 
         platformspanel.add(unix);
+
+        webstart.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_WebStart"));
+        webstart.setEnabled(false);
+        platformspanel.add(webstart);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -205,13 +211,13 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         add(platformspanel, gridBagConstraints);
 
         dirlabel.setLabelFor(dir);
-        dirlabel.setText("Project Directory");
+        dirlabel.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_ProjectDir"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(3, 0, 3, 3);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(3, 0, 3, 3);
         add(dirlabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -224,7 +230,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(dir, gridBagConstraints);
 
-        choosedir.setText("Choose...");
+        choosedir.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_ChooseDir"));
         choosedir.addActionListener(this);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -301,7 +307,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         JFileChooser jfc = new JFileChooser (ProjectChooser.getProjectsFolder());
         jfc.setDialogType(JFileChooser.OPEN_DIALOG);
         jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        if (jfc.showDialog(this, "Select") == jfc.APPROVE_OPTION) {
+        if (jfc.showDialog(this, NbBundle.getMessage(PackagerCustomizer.class, "LBL_SelectDir")) == jfc.APPROVE_OPTION) {
             File f = jfc.getSelectedFile();
             dir.setText(f != null ? f.getPath() : "");
         }
@@ -330,18 +336,34 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
     }//GEN-LAST:event_nameFocusLost
 
     private void nameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nameKeyTyped
-        String s = name.getText();
-        String home = System.getProperty("user.home"); //NOI18N
-        String currdir = dir.getText().trim();
-        if (currdir.indexOf(home) != -1 || currdir.length()==0) {
-            String nue = home + File.separator + s;
-            dir.setText(nue);
-        }
-        fire();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                String s = name.getText();
+                String home = System.getProperty("user.home"); //NOI18N
+                String currdir = dir.getText().trim();
+                if (currdir.indexOf(home) != -1 || currdir.length()==0) {
+                    String nue = home + File.separator + s;
+                    dir.setText(nue);
+                }
+                fire();
+            }
+        });
     }//GEN-LAST:event_nameKeyTyped
 
     private void includedValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_includedValueChanged
-        remove.setEnabled (included.getSelectedIndices() != null && included.getSelectedIndices().length > 0);
+        int[] idxs = included.getSelectedIndices();
+        boolean enable = 
+            idxs != null && 
+            idxs.length > 0;
+        
+        if (enable) {
+            for (int i=0; i < idxs.length; i++) {
+                enable &= !((ProjectListModel) included.getModel()).isDependency(idxs[i]);
+                if (!enable) break;
+            }
+                
+        }
+        remove.setEnabled(enable);
     }//GEN-LAST:event_includedValueChanged
 
     private void removeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeActionPerformed
@@ -350,7 +372,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         if (indices.length > 0) {
             Arrays.sort(indices);
             for (int i=indices.length-1; i >= 0; i--) {
-                ((DefaultListModel)included.getModel()).remove(indices[i]);
+                ((ProjectListModel)included.getModel()).remove(indices[i]);
             }
             included.repaint();
             fire();
@@ -359,12 +381,14 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
 
     private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
         JFileChooser jfc = ProjectChooser.projectChooser();
-        if (jfc.showDialog(this, "Choose a project to package") == jfc.APPROVE_OPTION) {
+        if (jfc.showDialog(this, NbBundle.getMessage(PackagerCustomizer.class, 
+            "LAB_ConfigureProject")) == jfc.APPROVE_OPTION) { //NOI18N
+                
             File f = jfc.getSelectedFile();
             if (f != null) {
                 Project p = FileOwnerQuery.getOwner(f.toURI());
                 if (p != null) {
-                    ((DefaultListModel)included.getModel()).addElement (p);
+                    ((ProjectListModel)included.getModel()).add (p);
                 }
             }
         }
@@ -384,41 +408,61 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
     }
     
     boolean valid( WizardDescriptor wizardDescriptor ) {
-        boolean result = name.getText().length() > 0 && 
-            (windows.isSelected() || mac.isSelected() || unix.isSelected())
-            && included.getModel().getSize() > 0;
-        if (result) {
-            File f = new File (dir.getText());
-            File[] kids = f.listFiles();
-            result &= !( f.exists() && kids != null && kids.length > 0);
+        Project[] p = getChildProjects();
+        if (name.getText().trim().length() == 0) {
+            wizardDescriptor.putProperty( "WizardPanel_errorMessage",
+                NbBundle.getMessage(PackagerCustomizer.class,"MSG_NoProjectName"));
+            return false;
         }
-        if (result) {
-            result &= getChildProjects().length > 0;
+
+        boolean hasPlatform = 
+            windows.isSelected() || mac.isSelected() || unix.isSelected()
+            || webstart.isSelected();
+        if (!hasPlatform) {
+            wizardDescriptor.putProperty( "WizardPanel_errorMessage",
+                NbBundle.getMessage(PackagerCustomizer.class,"MSG_NoPlatform"));
+            return false;
         }
         
-        if (!result) {
-            if (getChildProjects().length == 0) {
-                wizardDescriptor.putProperty( "WizardPanel_errorMessage",
+        File destFolder = new File( dir.getText() );
+        File[] kids = destFolder.listFiles();
+        if (destFolder.exists() && kids != null && kids.length > 0) {
+            wizardDescriptor.putProperty( "WizardPanel_errorMessage",
+                NbBundle.getMessage(PackagerCustomizer.class,"MSG_ProjectFolderExists"));
+            return false;
+        }
+        
+        if (included.getModel().getSize() == 0) {
+            wizardDescriptor.putProperty( "WizardPanel_errorMessage",
                 NbBundle.getMessage(PackagerCustomizer.class,"MSG_NoChildProjects"));
-            } else if ( name.getText().length() == 0 ) {
-                wizardDescriptor.putProperty( "WizardPanel_errorMessage",
-                NbBundle.getMessage(PackagerCustomizer.class,"MSG_IllegalProjectName"));
-                return false; // Display name not specified
-            } else {
-                File destFolder = new File( dir.getText() );
-                File[] kids = destFolder.listFiles();
-                if ( destFolder.exists() && kids != null && kids.length > 0) {
-                    // Folder exists and is not empty
-                    wizardDescriptor.putProperty( "WizardPanel_errorMessage",
-                    NbBundle.getMessage(PackagerCustomizer.class,"MSG_ProjectFolderExists"));
-                    return false;
-                }
-            }
-        } else {
-            wizardDescriptor.putProperty( "WizardPanel_errorMessage", "" );
+            return false;
         }
         
-        return result;
+        if (!((ProjectListModel) included.getModel()).hasExecutableProject()) {
+            wizardDescriptor.putProperty( "WizardPanel_errorMessage",
+                NbBundle.getMessage(PackagerCustomizer.class,"MSG_NoMainClass"));
+
+            return false;
+        }
+        wizardDescriptor.putProperty( "WizardPanel_errorMessage", "" );
+        
+        return true;
+    }
+    
+    public boolean isMac() {
+        return mac.isSelected();
+    }
+    
+    public boolean isWindows() {
+        return windows.isSelected();
+    }
+    
+    public boolean isWebStart() {
+        return webstart.isSelected();
+    }
+    
+    public boolean isUnix() {
+        return unix.isSelected();
     }
     
     public void store( WizardDescriptor d ) {        
@@ -429,7 +473,11 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         
         d.putProperty(KEY_DIR, new File( location )); // NOI18N
         d.putProperty(KEY_NAME, nm ); // NOI18N  
-        d.putProperty(KEY_PROJECTS, getChildProjects());
+        d.putProperty(KEY_PROJECTS, getDependentProjects());
+        d.putProperty(KEY_MAC, isMac() ? Boolean.TRUE : Boolean.FALSE);
+        d.putProperty(KEY_UNIX, isUnix() ? Boolean.TRUE : Boolean.FALSE);
+        d.putProperty(KEY_WINDOWS, isWindows() ? Boolean.TRUE : Boolean.FALSE);
+        d.putProperty(KEY_WEBSTART, isWebStart() ? Boolean.TRUE : Boolean.FALSE);
         
         File projectsDir = new File(location);
         if (projectsDir.isDirectory()) {
@@ -449,17 +497,27 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         }
         if (kids != null) {
             for (int i=0; i < kids.length; i++) {
-                ((DefaultListModel) included.getModel()).addElement(kids[i]);
+                ((ProjectListModel) included.getModel()).add(kids[i]);
             }
         }
+        unix.setSelected (Boolean.TRUE.equals(d.getProperty(KEY_UNIX)));
+        webstart.setSelected (Boolean.TRUE.equals(d.getProperty(KEY_WEBSTART)));
+        mac.setSelected (Boolean.TRUE.equals(d.getProperty(KEY_MAC)));
+        windows.setSelected (Boolean.TRUE.equals(d.getProperty(KEY_WINDOWS)));
+        
+        mac.setSelected (true); //XXX for now
     }
     
     public static final String KEY_NAME = "name"; //NOI18N
     public static final String KEY_DIR = "projdir"; //NOI18N
     public static final String KEY_PROJECTS = "childProjects"; //NOI18N
+    public static final String KEY_MAC = "mac"; //NOI18N
+    public static final String KEY_UNIX = "unix"; //NOI18N
+    public static final String KEY_WINDOWS = "windows"; //NOI18N
+    public static final String KEY_WEBSTART = "webstart"; //NOI18N
     
     public String getName() {
-        return name.getText();
+        return NbBundle.getMessage (PackagerCustomizer.class, "LAB_ConfigureProject"); //NOI18N
     }
     
     public File getDir() {
@@ -471,21 +529,28 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
     }
     
     public Project[] getChildProjects() {
-        int max = included.getModel().getSize();
-        ArrayList results = new ArrayList();
-        for (int i=0; i < max; i++) {
-            results.add ((Project)included.getModel().getElementAt(i));
-        }
-        Project[] result = new Project[results.size()];
-        return (Project[]) results.toArray (result);
+        return ((ProjectListModel) included.getModel()).getProjects();
     }
+    
+    public Project[] getDependentProjects() {
+        return ((ProjectListModel) included.getModel()).getAllProjects();
+    }
+    
     
     private class ProjectRenderer extends DefaultListCellRenderer {
         public Component getListCellRendererComponent(JList list,  Object value,  int index, boolean isSelected,  boolean cellHasFocus) {
             Component c = super.getListCellRendererComponent (list, value, index, isSelected, cellHasFocus);
             Project p = (Project) value;
+            ProjectListModel mdl = (ProjectListModel) list.getModel();
+            
             setText (ProjectUtils.getInformation(p).getDisplayName());
             setIcon (ProjectUtils.getInformation(p).getIcon());
+            if (mdl.isExecutable(p)) {
+                c.setFont(list.getFont().deriveFont(Font.BOLD));
+            } else {
+                c.setFont(list.getFont());
+            }
+            c.setEnabled (!mdl.isDependency(p));
             return c;
         }
     }
@@ -505,6 +570,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
     private javax.swing.JPanel platformspanel;
     private javax.swing.JButton remove;
     private javax.swing.JCheckBox unix;
+    private javax.swing.JCheckBox webstart;
     private javax.swing.JCheckBox windows;
     // End of variables declaration//GEN-END:variables
     

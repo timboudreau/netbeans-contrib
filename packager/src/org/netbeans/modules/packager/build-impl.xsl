@@ -72,6 +72,7 @@ Microsystems, Inc. All Rights Reserved.
                 <copy file="start.sh" todir="dist/{$name}.app/Contents/MacOS">
                     <filterset>
                         <filter token="MAIN-CLASS" value="${{main.class}}"/>
+                        <filter token="APPNAME" value="{$name}"/>
                     </filterset>
                 </copy>
                 <chmod file="dist/{$name}.app/Contents/MacOS/start.sh" perm="ugo+rx"/>
@@ -80,12 +81,16 @@ Microsystems, Inc. All Rights Reserved.
                         <filter token="APPNAME" value="{$name}"/>
                         <filter token="VERSION" value="1.0"/>
                         <filter token="APPVERSION" value="1.0 hey"/>
-<!--                        <filter token="ICONFILENAME" value="1.0 hey"/> -->
+                        <filter token="ICONFILENAME" value="{$name}.icns"/>
                     </filterset>
                 </copy>
+                <copy file="{$name}.icns" tofile="dist/{$name}.app/Contents/Resources/{$name}.icns" failonerror="false"/>
             </target>
             
             <target name="run" depends="build">
+                <exec executable="open">
+                    <arg file="dist"/>
+                </exec>
                 <exec executable="open">
                     <arg file="dist/{$name}.app"/>
                 </exec>

@@ -16,7 +16,9 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="namelabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Project Name"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_ProjectName" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -26,7 +28,9 @@
     </Component>
     <Component class="javax.swing.JTextField" name="name">
       <Properties>
-        <Property name="text" type="java.lang.String" value="newProject"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_NewProject" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
       <Events>
         <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="nameFocusGained"/>
@@ -42,7 +46,9 @@
     </Component>
     <Component class="javax.swing.JButton" name="add">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Add"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_Add" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addActionPerformed"/>
@@ -55,7 +61,9 @@
     </Component>
     <Component class="javax.swing.JButton" name="remove">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Remove"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_Remove" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="removeActionPerformed"/>
@@ -87,7 +95,9 @@
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="included"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Included Projects"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_Included" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -99,7 +109,9 @@
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="Platforms"/>
+            <TitledBorder title="Platforms">
+              <ResourceString PropertyName="titleX" bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_Platforms" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+            </TitledBorder>
           </Border>
         </Property>
       </Properties>
@@ -113,7 +125,9 @@
       <SubComponents>
         <Component class="javax.swing.JCheckBox" name="windows">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Windows"/>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_Windows" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+            </Property>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
@@ -123,7 +137,9 @@
         <Component class="javax.swing.JCheckBox" name="mac">
           <Properties>
             <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" value="Macintosh"/>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_Mac" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+            </Property>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
@@ -132,12 +148,22 @@
         </Component>
         <Component class="javax.swing.JCheckBox" name="unix">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Linux/Unix"/>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_Unix" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+            </Property>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="unixActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="webstart">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_WebStart" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+            </Property>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>
@@ -146,7 +172,9 @@
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="dir"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Project Directory"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_ProjectDir" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -163,7 +191,9 @@
     </Component>
     <Component class="javax.swing.JButton" name="choosedir">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Choose..."/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_ChooseDir" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="choosedirActionPerformed"/>

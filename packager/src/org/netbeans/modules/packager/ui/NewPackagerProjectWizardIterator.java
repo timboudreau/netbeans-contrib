@@ -90,9 +90,9 @@ public class NewPackagerProjectWizardIterator implements WizardDescriptor.Instan
     public Set/*<FileObject>*/ instantiate () throws IOException {
         Set resultSet = new HashSet ();
         
-        File dirF = (File)wiz.getProperty(PackagerCustomizer.KEY_DIR);        //NOI18N
-        String name = (String)wiz.getProperty(PackagerCustomizer.KEY_NAME);        //NOI18N
-        Project[] projects = (Project[])wiz.getProperty(PackagerCustomizer.KEY_PROJECTS);        //NOI18N
+        File dirF = (File)wiz.getProperty(PackagerCustomizer.KEY_DIR);      
+        String name = (String)wiz.getProperty(PackagerCustomizer.KEY_NAME);       
+        Project[] projects = (Project[])wiz.getProperty(PackagerCustomizer.KEY_PROJECTS); 
         
         AntProjectHelper helper = PackagerProject.createProject (dirF, name, projects);
         

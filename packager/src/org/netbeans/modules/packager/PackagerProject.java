@@ -49,8 +49,17 @@ import org.netbeans.api.project.ant.AntArtifactQuery;
 import org.netbeans.spi.project.ant.AntArtifactProvider;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
 import java.io.*;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import org.netbeans.api.project.ProjectUtils;
+import org.openide.filesystems.FileLock;
 
 /**
+ * A project type which takes the build products of other projects and
+ * assembles a platform-specific installation structure from them.
  *
  * @author  Tim Boudreau
  */
@@ -75,12 +84,7 @@ public class PackagerProject implements Project {
           new PackagerCustomizerProvider(this),
           subprojects,
           new PackagerActionProvider (this, helper),
-          new ProjectOpenedHookImpl(),
-//          helper,
-//          genFilesHelper,
-//          eval
-          
-          // ...
+          new ProjectOpenedHookImpl(this),
         });    
         
     }
@@ -109,7 +113,26 @@ public class PackagerProject implements Project {
         final AntProjectHelper h = ProjectGenerator.createProject(dirFO, PackagerProjectType.TYPE, name);
         
         final PackagerProject p = (PackagerProject) ProjectManager.getDefault().findProject(dirFO);
-        final ReferenceHelper refHelper = p.getReferenceHelper();
+        
+        p.setPackagedProjects(projects);
+                
+        return h;
+    } 
+    
+    public void setPackagedProjects (final Project[] projects) {
+        final ReferenceHelper refHelper = getReferenceHelper();
+        Set current = subprojects.getSubProjects();
+        
+        final HashSet subs = new HashSet (Arrays.asList(projects));
+        if (current.equals(subs)) {
+            return;
+        } 
+        
+        final HashSet removed = new HashSet();
+        if (!subs.isEmpty()) {
+            removed.addAll(subs);
+            removed.removeAll(Arrays.asList(projects));
+        }
         
         try {
         ProjectManager.mutex().writeAccess( new Mutex.ExceptionAction () {
@@ -122,29 +145,40 @@ public class PackagerProject implements Project {
                     AntArtifact[] artifacts = AntArtifactQuery.findArtifactsByType(
                         projects[i], JavaProjectConstants.ARTIFACT_TYPE_JAR);
                     for (int j=0; j < artifacts.length; j++) {
-                        refHelper.addReference(artifacts[i]);
+                        refHelper.addReference(artifacts[j]);
                     }
                 }
                 
                 if (mainClass != null) {
-                    EditableProperties ep = h.getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
+                    EditableProperties ep = helper.getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
                     ep.setProperty (PROP_MAIN_CLASS, mainClass);
-                    h.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, ep);
+                    helper.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, ep);
                 }
                 
-                ProjectManager.getDefault().saveProject (p);
+                for (Iterator i=removed.iterator(); i.hasNext();) {
+                    Project rem = (Project) i.next();
+                    
+                    String projname = ProjectUtils.getInformation(rem).getName();
+                    
+                    AntArtifact[] artifacts = AntArtifactQuery.findArtifactsByType(
+                        rem, JavaProjectConstants.ARTIFACT_TYPE_JAR);
+                    for (int j=0; j < artifacts.length; j++) {
+                        FileObject fo = artifacts[j].getArtifactFile();
+                        refHelper.removeReference(fo.getPath());
+//                        refHelper.removeReference(projname, artifacts[j].getID());
+                    }
+                }
                 
-                return h;
+                ProjectManager.getDefault().saveProject (PackagerProject.this);
+                return null;
             }
         });
         } catch (MutexException me ) {
             ErrorManager.getDefault().notify (me);
         }
-                
-        return h;
-    } 
+    }
     
-    private static String findMainClass (Project p) {
+    public static String findMainClass (Project p) {
         FileObject fo = p.getProjectDirectory().getFileObject(AntProjectHelper.PROJECT_PROPERTIES_PATH);
         String result = null;
         if (fo != null) {
@@ -186,6 +220,11 @@ public class PackagerProject implements Project {
     }    
     
     private final class ProjectOpenedHookImpl extends ProjectOpenedHook {
+        private PackagerProject prj;
+        
+        public ProjectOpenedHookImpl (PackagerProject prj) {
+            this.prj = prj;
+        }
         
         protected void projectClosed() {
         }
@@ -195,16 +234,39 @@ public class PackagerProject implements Project {
             URL buildImplXsl = PackagerProject.class.getResource("build-impl.xsl"); //NOI18N
             URL startShXsl = PackagerProject.class.getResource("start.sh.xsl"); //NOI18N
             URL infoPlistXsl = PackagerProject.class.getResource("info.plist.xsl"); //NOI18N
+            
             try {
                 genFilesHelper.refreshBuildScript(GeneratedFilesHelper.BUILD_XML_PATH, buildXsl, true);
                 genFilesHelper.refreshBuildScript(GeneratedFilesHelper.BUILD_IMPL_XML_PATH, buildImplXsl, true);
                 genFilesHelper.refreshBuildScript("start.sh", startShXsl, true); //NOI18N
                 genFilesHelper.refreshBuildScript("Info.plist", infoPlistXsl, true); //NOI18N
+                maybeRefreshIcon();
             } catch (Exception e) {
                 ErrorManager.getDefault().notify(e);
             }
         }
         
+        private void maybeRefreshIcon() throws IOException, URISyntaxException {
+            FileObject root = prj.getProjectDirectory();
+            String expectedName = ProjectUtils.getInformation(prj).getDisplayName() + ".icns"; //NOI18N
+            if (root.getFileObject(expectedName) == null) {
+                URL macIconFile = PackagerProject.class.getResource("generic.icns"); //NOI18N
+                
+                InputStream in = macIconFile.openStream();
+                try {
+                    FileObject iconFile = FileUtil.createData(root, expectedName);
+                    FileLock lock = iconFile.lock();
+                    try {
+                        OutputStream out = iconFile.getOutputStream(lock);
+                        FileUtil.copy(in, out);
+                    } finally {
+                        lock.releaseLock();
+                    }
+                } finally {
+                    in.close();
+                }
+            }
+        }
     }    
      
     

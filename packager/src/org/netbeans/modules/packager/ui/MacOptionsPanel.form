@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.0" type="org.netbeans.modules.form.forminfo.PanelFormInfo">
+  <AuxValues>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,-124,0,0,1,-14"/>
+  </AuxValues>
+
+  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
+  <SubComponents>
+    <Component class="javax.swing.JTextField" name="icon">
+      <Properties>
+        <Property name="horizontalAlignment" type="int" value="2"/>
+      </Properties>
+      <Events>
+        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="iconFocusGained"/>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="iconFocusLost"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="3" gridY="4" gridWidth="1" gridHeight="1" fill="2" ipadX="200" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="11" insetsRight="11" anchor="10" weightX="0.25" weightY="0.5"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JButton" name="iconchoose">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Choose..."/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="iconchooseActionPerformed"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="4" gridY="4" gridWidth="2" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="11" insetsRight="11" anchor="10" weightX="0.0" weightY="0.5"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JLabel" name="iconlabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Icon file (.icns)"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="0" gridY="4" gridWidth="2" gridHeight="1" fill="2" ipadX="69" ipadY="0" insetsTop="0" insetsLeft="11" insetsBottom="11" insetsRight="11" anchor="10" weightX="0.0" weightY="0.5"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JLabel" name="appnamelabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Application Name"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="0" gridY="0" gridWidth="2" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="11" insetsLeft="11" insetsBottom="11" insetsRight="11" anchor="10" weightX="0.0" weightY="0.5"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextField" name="appname">
+      <Events>
+        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="iconFocusGained"/>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="iconFocusLost"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="3" gridY="0" gridWidth="1" gridHeight="1" fill="2" ipadX="200" ipadY="0" insetsTop="11" insetsLeft="0" insetsBottom="11" insetsRight="11" anchor="10" weightX="0.25" weightY="0.5"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextField" name="appversion">
+      <Events>
+        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="iconFocusGained"/>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="iconFocusLost"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="3" gridY="2" gridWidth="1" gridHeight="1" fill="2" ipadX="200" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="11" insetsRight="11" anchor="10" weightX="0.25" weightY="0.5"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JLabel" name="appversionlabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Application Version"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="0" gridY="2" gridWidth="2" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="11" insetsBottom="11" insetsRight="11" anchor="10" weightX="0.0" weightY="0.5"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextArea" name="instructions">
+      <Properties>
+        <Property name="editable" type="boolean" value="false"/>
+        <Property name="lineWrap" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="To configure additional application options, such as localized application names, edit the Info.plist file in the root directory of the project.  See Apple&apos;s documentation of the .plist file format for details at http://developer.apple.com/technotes/tn/tn2013.html"/>
+        <Property name="wrapStyleWord" type="boolean" value="true"/>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder/>
+          </Border>
+        </Property>
+        <Property name="opaque" type="boolean" value="false"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="0" gridY="5" gridWidth="6" gridHeight="1" fill="1" ipadX="0" ipadY="100" insetsTop="11" insetsLeft="11" insetsBottom="11" insetsRight="11" anchor="15" weightX="0.0" weightY="1.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+  </SubComponents>
+</Form>

@@ -89,15 +89,16 @@ public class CustomizerAsWizardPanel implements WizardDescriptor.Panel {
         
         // XXX hack, TemplateWizard in final setTemplateImpl() forces new wizard's title
         // this name is used in NewProjectWizard to modify the title
-        Object substitute = cust().getClientProperty ("NewProjectWizard_Title"); // NOI18N
+/*        Object substitute = cust().getClientProperty ("NewProjectWizard_Title"); // NOI18N
         if (substitute != null) {
             wizardDescriptor.putProperty ("NewProjectWizard_Title", substitute); // NOI18N
         }
+ */
     }
     
     public void storeSettings(Object settings) {
         WizardDescriptor d = (WizardDescriptor)settings;
         cust().store(d);
-        ((WizardDescriptor)d).putProperty ("NewProjectWizard_Title", null); // NOI18N
+//        ((WizardDescriptor)d).putProperty ("NewProjectWizard_Title", null); // NOI18N
     }
 }

@@ -52,60 +52,14 @@ public class PackagerCustomizerProvider implements CustomizerProvider {
         DialogDescriptor dlg = new DialogDescriptor (
             cust, 
             NbBundle.getMessage(PackagerCustomizerProvider.class, "LBL_CustomizeProject")); //NOI18N
+        //XXX should only have close button
         
         Dialog d = DialogDisplayer.getDefault().createDialog(dlg);
         d.setModal(true);
         d.setVisible(true);
         
-        Set s = project.getSubprojectProvider().getSubProjects();
-        Project[] curr = new Project[s.size()];
-        curr = (Project[]) s.toArray(curr);
-        
-        Project[] after = cust.getChildProjects();
-        
-        Set removed = new HashSet (Arrays.asList(curr));
-        removed.removeAll (Arrays.asList(after));
-        
-        Set added = new HashSet (Arrays.asList(after));
-        added.removeAll(Arrays.asList(curr));
-        /*
-        if (!added.isEmpty()) {
-            for (Iterator i=added.iterator(); i.hasNext();) {
-                Project proj = (Project) i.next();
-                AntArtifactProvider prov = (AntArtifactProvider) 
-                    proj.getLookup().lookup(AntArtifactProvider.class);
-                if (prov != null) {
-                    AntArtifact[] artifacts = prov.getBuildArtifacts();
-                    for (int j=0; j < artifacts.length; j++) {
-                        project.getReferenceHelper().addReference(artifacts[j]);
-                    }
-                }
-            //XXX programmatical open the project somehow
-            }
-        }
-        
-        if (!removed.isEmpty()) {
-            for (Iterator i=removed.iterator(); i.hasNext();) {
-                Project proj = (Project) i.next();
-                AntArtifactProvider prov = (AntArtifactProvider) 
-                    proj.getLookup().lookup(AntArtifactProvider.class);
-                if (prov != null) {
-                    AntArtifact[] artifacts = prov.getBuildArtifacts();
-                    for (int j=0; j < artifacts.length; j++) {
-                        project.getReferenceHelper().removeReference(artifacts[j].getArtifactFile().getPath());
-                    }
-                }
-            }
-        }
-        
-        if (!removed.isEmpty() || !added.isEmpty()) {
-            try {
-                ProjectManager.getDefault().saveProject (project);
-            } catch (IOException ioe) {
-                ErrorManager.getDefault().notify(ioe);
-            }
-        }
-         */
+        Project[] after = cust.getDependentProjects();
+        project.setPackagedProjects(after);
         
     }
     
