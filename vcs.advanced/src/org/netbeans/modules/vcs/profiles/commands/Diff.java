@@ -33,6 +33,7 @@ public class Diff extends AbstractDiffCommand {
     private static final String CA_REP = "-REP ";
     private static final String CA_INS = "-INS ";
     private static final String CA_DEL = "-DEL ";
+    private static final String CA_FIRST = "FIRST";
 
     private int lastLine1 = 0;
     private int lastLine2 = 0;
@@ -351,14 +352,19 @@ public class Diff extends AbstractDiffCommand {
         } else if (elements[0].indexOf(CA_INS) == 0) {
             if (lastDiff != 0) addCADiffAction();
             int index = CA_INS.length();
-            try {
-                n1 = Integer.parseInt(elements[0].substring(index));
-            } catch (NumberFormatException e) {
-                if (this.stderrListener != null) {
-                    String[] debugOut = { "NumberFormatException "+e.getMessage() };
-                    stderrListener.outputData(debugOut);
+            String lineStr = elements[0].substring(index);
+            if (CA_FIRST.equals(lineStr)) {
+                n1 = 0;
+            } else {
+                try {
+                    n1 = Integer.parseInt(lineStr);
+                } catch (NumberFormatException e) {
+                    if (this.stderrListener != null) {
+                        String[] debugOut = { "NumberFormatException "+e.getMessage() };
+                        stderrListener.outputData(debugOut);
+                    }
+                    return;
                 }
-                return;
             }
             lastDiff = 2; // Add
             lastLine1 = n1; // lines in the first document
