@@ -39,6 +39,109 @@ public final class DiffTest extends NbTestCase {
         
         return suite;
     }
+    
+    public void testBadJavaDoc () throws Exception {
+        String s1 = "<HTML>\n" +
+        "<HEAD>\n" +
+        "<TABLE border=>\n" +
+        "<TR><TD>Lookup</TD></TR>\n" +
+        "<TR>\n" +
+        "<TD><A HREF='#org.openide.actions'><B>org.openide.actions</B></A></TD>\n" +
+        "<TD>There are a number of standard</TD>\n" +
+        "</TR>\n" +
+        "<TR BGCOLOR='white' CLASS='TableRowColor'>\n" +
+        "<TD><A HREF='#org.openide.loaders'><B>org.openide.loaders</B></A></TD>\n" +
+        "<TD><a href='../../../../org/openide/loaders/doc-files/api.html'><em>Datasystems</em></a>\n" +
+        "\n" +
+        "are the logical layer between a filesystem and the regular\n" +
+        "functions of the IDE.\n" +
+        "\n" +
+        "&nbsp;</TD>\n" +
+        "<TR BGCOLOR='white' CLASS='TableRowColor'>\n" +
+        "<TD><A HREF='#org.openide.nodes'><B>org.openide.nodes</B></A></TD>\n" +
+        "<TD>The IDE uses\n" +
+        "\n" +
+        "<a href='../../../../org/openide/nodes/doc-files/api.html'><em>nodes</em></a>\n" +
+        "\n" +
+        "to represent JavaBeans or other property containers, formed into a\n" +
+        "hierarchical tree.\n" +
+        "\n" +
+        "&nbsp;</TD>\n" +
+        "</TR>\n" +
+        "</BODY>\n" +
+        "</HTML>";
+     
+       String s2 = "<HTML>\n" +
+        "<HEAD>\n" +
+        "<TABLE>\n" +
+        "<TR><TD>Lookup</TD></TR>\n" +
+        "<TR>\n" +
+        "<TD><A HREF='#org.openide.actions'><B>org.openide.actions</B></A></TD>\n" +
+        "<TD>There are a number of standard</TD>\n" +
+        "</TR>\n" +
+        "<TR BGCOLOR='white' CLASS='TableRowColor'>\n" +
+        "<TD><A HREF='#org.openide.nodes'><B>org.openide.nodes</B></A></TD>\n" +
+        "<TD>The IDE uses\n" +
+        "\n" +
+        "<a href='../../../../org/openide/nodes/doc-files/api.html'><em>nodes</em></a>\n" +
+        "\n" +
+        "to represent JavaBeans or other property containers, formed into a\n" +
+        "hierarchical tree.\n" +
+        "\n" +
+        "&nbsp;</TD>\n" +
+        "</TR>\n" +
+        "</BODY>\n" +
+        "</HTML>";
+        
+        //
+        // usual comparition
+        //
+        
+        Reader r1 = new StringReader (s1);
+        Reader r2 = new StringReader (s2);
+        
+        HtmlDiff[] res = HtmlDiff.diff (r1, r2);
+        assertNotNull ("Some result is there", res);
+        
+        StringBuffer b = new StringBuffer ();
+        for (int i = 0; i < res.length; i++) {
+            if (res[i].isDifference()) {
+                b.append (res[i].getOld ());
+            }
+            b.append (res[i].getNew());
+        }
+        
+        String s = b.toString();
+
+        int max = -1;
+        int index = 0;
+        for (;;) {
+            index = s.indexOf ("<TR>", index + 1);
+            if (index == -1) {
+                break;
+            }
+            
+            int end = s.indexOf ("</TR>", index);
+            assertTrue (end > index);
+            
+            int cnt = 0;
+            int pos = index;
+            for (;;) {
+                pos = s.indexOf ("<TD>", pos + 1);
+                if (pos >= end || pos == -1) {
+                    break;
+                }
+                cnt++;
+            }
+            if (cnt > max) {
+                max = cnt;
+            }
+        }
+        
+        assertEquals ("Maximum of TD in one row", 2, max);
+    }
+    
+    
     public void testSpacesAreKeptInPreModeWithTags () throws Exception {
         String vzor = "Is a <pre>   <b>spaces</b>     between</PRE> there?";
         
@@ -93,6 +196,61 @@ public final class DiffTest extends NbTestCase {
         r1.close ();
         r2.close ();
     }
+    
+    public void testBrokenTablesReverted () throws Exception {
+        Reader r1 = new StringReader (
+"    <table><tr><td>Jiri</td><td>Tukach</td></tr></table>"
+        );
+        Reader r2 = new StringReader (
+"    <table><tr><td>Jarda</td><td>Tulach</td></tr></table>"
+        );
+        
+        
+        HtmlDiff[] res = HtmlDiff.diff (r1, r2);
+        assertNotNull ("Some result is there", res);
+        
+        assertEquals ("Split to 5 parts", 5, res.length);
+        
+        
+        
+        for (int i = 0; i < res.length; i++) {
+            if (!res[i].isDifference()) {
+                continue;
+            }
+            
+            int end = res[i].getNew ().indexOf ("</");
+            int beg = res[i].getNew ().indexOf ("<", end);
+            
+            if (end == -1 || beg == -1) continue;
+            
+            if (end > beg) continue;
+            
+            fail ("Tag order reveredted: " + res[i].getNew ());
+        }
+        
+        r1.close ();
+        r2.close ();
+    }
+    
+    public void testBrokenTables3 () throws Exception {
+        Reader r1 = new StringReader (
+"    <table><tr><td>Jiri</td><td>Tulach</td></tr></table>"
+        );
+        Reader r2 = new StringReader (
+"    <table><tr><td>Jarda</td><td></td></tr></table>Tulach"
+        );
+        
+        
+        HtmlDiff[] res = HtmlDiff.diff (r1, r2);
+        assertNotNull ("Some result is there", res);
+        
+        assertEquals ("Split to 3 parts", 3, res.length);
+        
+        r1.close ();
+        r2.close ();
+    }
+    
+    
 
     public void testSpacesAreKeptInPreModeWithNewLines () throws Exception {
         String vzor = "Is a <pre>\n\nNewline\n    spaces     between</PRE> there?";

@@ -113,11 +113,11 @@ public final class HtmlDiff extends Object {
             
             int max = Math.max (oldItems.size (), newItems.size ());
             for (int j = 0; j < max; j++) {
-                oldText = oldItems.size () > j ? (String)oldItems.get (j) : "";
+                oldText = oldItems.size () > j ? (String)oldItems.get (j) : null;
                 newText = newItems.size () > j ? (String)newItems.get (j) : "";
                 
-                if (oldText.equals (newText)) {
-                    res.add (new HtmlDiff (oldText));
+                if (oldText == null || oldText.equals (newText) || oldText.startsWith ("<")) {
+                    res.add (new HtmlDiff (newText));
                 } else {
                     res.add (new HtmlDiff (oldText, newText));
                 }
@@ -226,22 +226,30 @@ public final class HtmlDiff extends Object {
         return arr;
     }
     
+    /** debugging of diff streams */
+    private static int debugStream = -1;
+    
     /** Converts the text into a stream.
      */
     private static Reader toStream (List items) throws IOException {
         StringWriter to = new StringWriter ();
         
-//        System.out.println("begin");
+        PrintWriter pw = null;
+        if (debugStream >= 0) {
+            pw = new PrintWriter (new FileOutputStream (new File ("out-" + debugStream++ + ".txt")));
+        }
         Iterator it = items.iterator();
         int[] counter = { 0 };
-  //          PrintWriter pw = new PrintWriter (System.out);
         while (it.hasNext()) {
             Item i = (Item)it.next ();
-    //        i.printDiff (pw, new int[1]);
+            if (pw != null) {
+                i.printDiff (pw, new int[1]);
+            }
             i.printDiff (to, counter);
         }
-      //  pw.flush ();
-        //System.out.println("konec");
+        if (pw != null) {
+            pw.flush ();
+        }
         
         return new StringReader (to.toString ());
     }
