@@ -21,198 +21,93 @@ import java.util.*;
  *
  * @author  Martin Entlicher
  */
-public class Table extends AbstractMap {
+public class Table extends LinkedHashMap {
 
-    SimpleSet entries = null;
-    /** Creates new Table */
     public Table() {
-        entries = new SimpleSet();
+        super();
     }
-    
+
+    public Table(int initialCapacity) {
+        super(initialCapacity);
+    }
+
+    public synchronized void clear() {
+        super.clear();
+    }
+
+    public synchronized Object clone() {
+        return super.clone();
+    }
+
+    public synchronized boolean containsKey(Object key) {
+        return super.containsKey(key);
+    }
+
+    public synchronized boolean containsValue(Object value) {
+        return super.containsValue(value);
+    }
+
     public synchronized Set entrySet() {
-        return entries;
+        return super.entrySet();
     }
-    
-    public synchronized Object put(Object key, Object value) {
-        boolean set = false;
-        Object old = null;
-        for(Iterator it = entries.iterator(); it.hasNext(); ) {
-            Entry e = (Entry) it.next();
-            if (e.getKey() == key || (key != null && key.equals(e.getKey()))) {
-                old = e.getValue();
-                e.setValue(value);
-                set = true;
-                break;
-            }
-        }
-        if (!set) {
-            Entry entry = new Entry(key, value);
-            entries.add(entry);
-        }
-        return old;
+
+    public synchronized boolean equals(Object o) {
+        return super.equals(o);
     }
-    
-    public synchronized void putFirst(Object key, Object value) {
-        Entry entry = new Entry(key, value);
-        entries.addFirst(entry);
-    }
-    
-    public synchronized Object remove(Object key) {
-        Object old = null;
-        int i = 0;
-        for(Iterator it = entries.iterator(); it.hasNext(); i++) {
-            Entry e = (Entry) it.next();
-            if (e.getKey().equals(key)) {
-                old = e.getValue();
-                entries.remove(i);
-                break;
-            }
-        }
-        return old;
-    }
-    
-    public synchronized Enumeration keys() {
-        return new EnumKeys();
-    }
-    
-    public synchronized Set keySet() {
-        SimpleSet list = new SimpleSet();
-        for (Iterator iterator = entries.iterator(); iterator.hasNext(); ) {
-            Entry entry = (Entry) iterator.next();
-            if (entry == null) list.add(null);
-            else list.add(entry.getKey());
-        }
-        return list;
-    }
-    
+
     public synchronized Object get(Object key) {
-        Object value = null;
-        for(Iterator it = entries.iterator(); it.hasNext(); ) {
-            Entry e = (Entry) it.next();
-            if ((key == null && e.getKey() == null) || (key != null && key.equals(e.getKey()))) {
-                value = e.getValue();
-                break;
-            }
-        }
-        return value;
+        return super.get(key);
     }
-    
+
+    public synchronized int hashCode() {
+        return super.hashCode();
+    }
+
+    public synchronized boolean isEmpty() {
+        return super.isEmpty();
+    }
+
+    public synchronized Set keySet() {
+        return super.keySet();
+    }
+
+    public synchronized Object put(Object key, Object value) {
+        return super.put(key, value);
+    }
+
+    public synchronized void putAll(Map m) {
+        super.putAll(m);
+    }
+
+    public synchronized Object remove(Object key) {
+        return super.remove(key);
+    }
+
+    public synchronized int size() {
+        return super.size();
+    }
+
+    public synchronized String toString() {
+        return super.toString();
+    }
+
     public synchronized Collection values() {
-        ArrayList list = new ArrayList();
-        for (Iterator iterator = entries.iterator(); iterator.hasNext(); ) {
-            Entry entry = (Entry) iterator.next();
-            if (entry == null) list.add(null);
-            else list.add(entry.getValue());
-        }
-        return list;
+        return super.values();
     }
 
-    private static class Entry implements Map.Entry {
-        private Object key;
-        private Object value;
-        
-        public Entry(Object key) {
-            this.key = key;
-            this.value = null;
-        }
-        
-        public Entry(Object key, Object value) {
-            this.key = key;
-            this.value = value;
-        }
-        
-        public boolean equals(Object obj) {
-            return false;
-        }
-        
-        public Object getKey() {
-            return key;
-        }
-        
-        public Object getValue() {
-            return value;
-        }
-        
-        public Object setValue(Object value) {
-            Object old = this.value;
-            this.value = value;
-            return old;
-        }
-    }
-    
-    private static class SimpleSet extends AbstractSet {
-        private LinkedList list = null;
+    /** @deprecated use keyset().iterator() instead */
+    public Enumeration keys() {
+        return new Enumeration() {
 
-        public SimpleSet() {
-            list = new LinkedList();
-        }
-        
-        public Iterator iterator() {
-            return list.iterator();
-        }
-        
-        public boolean add(Object obj) {
-            if (list.contains(obj)) return false;
-            list.add(obj);
-            return true;
-        }
-        
-        public void addFirst(Object obj) {
-            list.addFirst(obj);
-        }
-        
-        // Do NOT use this method, it behaves strange !!
-        public boolean remove(Object o) {
-            System.out.println("Table.SimpleSet.remove("+o+"): list = "+list+"\n, size = "+list.size());
-            System.out.println("o = ("+((Entry) o).getKey()+", "+((Entry) o).getValue()+")");
-            System.out.println("list.get(0) = ("+((Entry) list.get(0)).getKey()+", "+((Entry) list.get(0)).getValue()+")");
-            boolean removed = list.remove(o);
-            System.out.println("Table.SimpleSet.removed = "+removed+", size = "+list.size());
-            return removed;
-        }
-        
-        public Object remove(int i) {
-            return list.remove(i);
-        }
-        
-        public int size() {
-            return list.size();
-        }
-    }
-    
-    private class EnumKeys implements Enumeration {
-        private Iterator iterator;
-        
-        public EnumKeys() {
-            iterator = entries.iterator();
-        }
-        
-        public boolean hasMoreElements() {
-            return iterator.hasNext();
-        }
-        
-        public Object nextElement() {
-            Entry entry = (Entry) iterator.next();
-            if (entry == null) return null;
-            return entry.getKey();
-        }
-    }
+            private Iterator it = keySet().iterator();
 
-    private class EnumValues implements Enumeration {
-        private Iterator iterator;
-        
-        public EnumValues() {
-            iterator = entries.iterator();
-        }
-        
-        public boolean hasMoreElements() {
-            return iterator.hasNext();
-        }
-        
-        public Object nextElement() {
-            Entry entry = (Entry) iterator.next();
-            if (entry == null) return null;
-            return entry.getValue();
-        }
+            public boolean hasMoreElements() {
+                return it.hasNext();
+            }
+
+            public Object nextElement() {
+                return it.next();
+            }
+        };
     }
 }
