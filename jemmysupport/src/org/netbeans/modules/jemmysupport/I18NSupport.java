@@ -35,7 +35,7 @@ import org.openide.util.NbBundle;
  */
 public class I18NSupport {
     
-    boolean i18nActive=Boolean.getBoolean ("org.openide.util.NbBundle.DEBUG"); // NOI18N
+    static boolean i18nActive=Boolean.getBoolean ("org.openide.util.NbBundle.DEBUG"); // NOI18N
     
     String bundles[]=new String[0];
     ClassLoader loader;
@@ -45,6 +45,16 @@ public class I18NSupport {
         if (i18nActive) getBundles();
     }
 
+    public String translatePath(String text) {
+        if (text.length()<6) return hardcoded(text);
+        StringTokenizer st=new StringTokenizer(text, "|");
+        StringBuffer sb=new StringBuffer(translate(st.nextToken()));
+        while (st.hasMoreTokens()) {
+            sb.append("+\"|\"+").append(translate(st.nextToken()));
+        }
+        return sb.toString();
+    }
+    
     public String translate(String text) {
         int i=text.lastIndexOf('(');
         int j=text.lastIndexOf(':');
@@ -70,7 +80,7 @@ public class I18NSupport {
         return hardcoded(text);
     }
         
-    public String escape(String text) {
+    public static String escape(String text) {
         StringBuffer sb = new StringBuffer("\"");
         char c;
         for (int i=0;i<text.length();i++) {
@@ -90,22 +100,25 @@ public class I18NSupport {
         return sb.toString();
     }
 
-    public String filterI18N(String text) {
+    public static String filterI18N(String text) {
         if (text==null || !i18nActive) return text;
         StringBuffer sb=new StringBuffer();
+        boolean wasspace=false;
         for (int i=0; i<text.length(); i++) {
             char c=text.charAt(i);
-            if (c=='(') {
+            if (wasspace && c=='(') {
                 int j=text.indexOf(':', i);
                 int k=text.indexOf(')', i);
                 if (j>i+1 && k>j+1) try {
                     Integer.parseInt(text.substring(i+1, j));
                     Integer.parseInt(text.substring(j+1, k));
                     i=k;
+                    sb.deleteCharAt(sb.length()-1);
                 } catch (NumberFormatException nfe) {
                      sb.append(c);
                 } else sb.append(c);
             } else sb.append(c);
+            wasspace=(c==' ');
         }
         return sb.toString();
     }
@@ -129,7 +142,7 @@ public class I18NSupport {
         } catch (IllegalAccessException iae) {} 
     }
 
-    private String hardcoded(String text) {
+    private static String hardcoded(String text) {
         return filterI18N(escape(text));
     }
 
@@ -174,12 +187,13 @@ public class I18NSupport {
                     res.append(args[maxarg]==null?"":args[maxarg]).append('}');
                 }
                 res.append(')');
-                if (i<text.length()) res.append('+').append(hardcoded(text.substring(i)));
+                if (i<text.length()) {
+                    res.append('+').append(hardcoded(text.substring(i)));
+                }
                 return res.toString();
             }
         } catch (JemmyException je) {
         } catch (MissingResourceException mre) {} 
         return null;
     }
-
 }
