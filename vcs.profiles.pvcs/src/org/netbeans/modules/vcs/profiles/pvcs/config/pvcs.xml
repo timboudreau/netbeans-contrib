@@ -1286,6 +1286,9 @@ Microsystems, Inc. All Rights Reserved.
       <property name="exec">
         <value>vcs.commands.PvcsRevisionListGetter.class REVISION_GETTER</value>
       </property>
+      <property name="disabledOnStatus">
+          <value>"Local", "Ignored"</value>
+      </property>
       <property name="ignoreFail">
 	<value>true</value>
       </property>
