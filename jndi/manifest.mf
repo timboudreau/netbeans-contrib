@@ -1,7 +1,7 @@
 OpenIDE-Module: org.netbeans.modules.jndi/1
 OpenIDE-Module-Name: JNDI
-OpenIDE-Module-Specification-Version: 1.0
-OpenIDE-Module-Implementation-Version: 1.0
+OpenIDE-Module-Specification-Version: 1.1
+OpenIDE-Module-Implementation-Version: 1.1
 OpenIDE-Module-Description: org.netbeans.modules.jndi.docs.HelpSet
 OpenIDE-Module-Install: org/netbeans/modules/jndi/JndiModule.class
 
