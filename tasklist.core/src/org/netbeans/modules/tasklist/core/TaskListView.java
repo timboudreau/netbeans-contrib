@@ -402,6 +402,9 @@ public abstract class TaskListView extends ExplorerPanel
     }
         
     // Workaround - is this no longer necessary?
+    // No, I can fish the JTable out of the TreeTableView - it's
+    // a JScrollPane, so its getViewport().getView() will be the
+    // JTable!
     protected static class MyTreeTable extends TreeTableView {
         MyTreeTable() {
             JTable table = MyTreeTable.this.treeTable;
