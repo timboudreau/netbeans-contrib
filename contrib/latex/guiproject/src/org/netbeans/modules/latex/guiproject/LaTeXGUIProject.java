@@ -198,11 +198,11 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
     public void invokeAction(String command, Lookup context) throws IllegalArgumentException {
 //        System.err.println("invoked: " + command);
         if (COMMAND_BUILD.equals(command)) {
-            ActionsFactory.build(this, "build");
+            ActionsFactory.build(this, /*"build"*/ProjectSettings.getDefault(this).getDefaultBuildCommand());
             return ;
         }
         if (COMMAND_SHOW.equals(command)) {
-            ActionsFactory.build(this, "show");
+            ActionsFactory.build(this, /*"show"*/ProjectSettings.getDefault(this).getDefaultShowCommand());
             return ;
         }
     }

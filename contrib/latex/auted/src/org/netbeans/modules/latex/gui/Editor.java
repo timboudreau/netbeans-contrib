@@ -647,26 +647,20 @@ public class Editor extends JComponent implements PropertyChangeListener {
             
             p.translate((int) -getMinusMove().getWidth(), (int) -getMinusMove().getWidth());
             
-            Node node = storage.findNearestPoint(p);
-            
-            if (node == null)
-                return ;
-            
-            double distance = node.distance(p);
-            
+            //The control points should have absolute priority:
             if (selection.size() == 1 && selection.get(0) instanceof ControllableCurveEdgeNode) {
                 ControllableCurveEdgeNode curve = (ControllableCurveEdgeNode) selection.get(0);
                 double sourceDist = curve.getSourceControlPoint().distance(p);
                 double targetDist = curve.getTargetControlPoint().distance(p);
 
-                System.err.println("distance = " + distance );
+//                System.err.println("distance = " + distance );
                 System.err.println("sourceDist = " + sourceDist );
                 System.err.println("targetDist = " + targetDist );
                 
                 System.err.println("curve.getSourceControlPoint()=" + curve.getSourceControlPoint());
                 System.err.println("curve.getTargetControlPoint()=" + curve.getTargetControlPoint());
                 
-                if ((distance > sourceDist || distance > targetDist) && (sourceDist <= CONTROL_MAGIC_VALUE || targetDist <= CONTROL_MAGIC_VALUE)) {
+                if (/*(distance > sourceDist || distance > targetDist) && */(sourceDist <= CONTROL_MAGIC_VALUE || targetDist <= CONTROL_MAGIC_VALUE)) {
                     dragged = false;
                     currentCurve = curve;
                     if (sourceDist < targetDist) {
@@ -678,6 +672,13 @@ public class Editor extends JComponent implements PropertyChangeListener {
                     return ;
                 }
             }
+            
+            Node node = storage.findNearestPoint(p);
+            
+            if (node == null)
+                return ;
+            
+            double distance = node.distance(p);
             
             if (!(node instanceof PositionNode) || distance > DISTANCE_MAGIC || node == null) {
                 draggingType = DRAGGING_SELECTOR;

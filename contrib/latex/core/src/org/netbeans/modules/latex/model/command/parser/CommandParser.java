@@ -676,10 +676,9 @@ public class CommandParser {
     private BlockNodeImpl parseBlock(ParserInput input, CommandNodeImpl begin) throws IOException {
         NodeImpl lastCommandDefiningNode = currentCommandDefiningNode;
         
-        String beginText = begin.getArgument(0).getText().toString();
-
-        Environment env = findEnvironment(beginText);
-        
+	ArgumentNode  anode = Utilities.getDefault().getArgumentWithAttribute(begin, "#environmentname");
+        String        beginText = anode != null ? anode.getText().toString() : "";
+        Environment   env = findEnvironment(beginText);
         BlockNodeImpl bni = new BlockNodeImpl(begin.getParent(), currentCommandDefiningNode, env);
         
         if (env != null) {

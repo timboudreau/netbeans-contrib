@@ -323,6 +323,10 @@ Contributor(s): Jan Lahoda
                 <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.loaders.TexCloneableEditorCreatorJustForUI" />
 <!--                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.ui.TexCloneableEditor$Creator"/>-->
             </file>
+            <file name="IconsStorage.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.IconsStorageImpl"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.IconsStorage" />
+            </file>
         </folder>
         
         <folder name="AutoupdateType">

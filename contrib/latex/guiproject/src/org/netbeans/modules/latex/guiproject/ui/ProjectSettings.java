@@ -13,25 +13,18 @@
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.guiproject.ui;
-import java.io.IOException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import java.util.Map;
-
 import java.util.WeakHashMap;
-
-
 import org.netbeans.modules.latex.guiproject.EditableProperties;
-
 import org.netbeans.modules.latex.guiproject.LaTeXGUIProject;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
-
-
-
 import org.openide.filesystems.FileObject;
+
 
 /**
  *
@@ -46,6 +39,9 @@ public class ProjectSettings {
     
     private String   bibtexCommand;
     private String[] bibtexArguments;
+    
+    private String   defaultBuildCommand;
+    private String   defaultShowCommand;
     
     private boolean  modified;
     
@@ -85,15 +81,28 @@ public class ProjectSettings {
         
         bibtexCommand = getProperty(p, "bibtex-command", "bibtex");
         bibtexArguments = parseArguments(p.getProperty("bibtex-arguments"));
+        
+        defaultBuildCommand = getProperty(p, "default-build-command", "build");
+        defaultShowCommand  = getProperty(p, "default-show-command", "show");
     }
     
     private void load() {
         FileObject settings = project.getProjectDirectory().getFileObject("build-settings.properties");
         
+        InputStream ins = null;
         try {
-            loadFrom(settings.getInputStream());
+            ins = settings.getInputStream();
+            loadFrom(ins);
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
+        } finally {
+            if (ins != null) {
+                try {
+                    ins.close();
+                } catch (IOException e) {
+                    ErrorManager.getDefault().notify(e);
+                }
+            }
         }
     }
     
@@ -112,10 +121,18 @@ public class ProjectSettings {
         FileObject settings = project.getProjectDirectory().getFileObject("build-settings.properties");
         FileLock lock = null;
         
+        InputStream ins = null;
+        OutputStream outs = null;
         try {
             EditableProperties p = new EditableProperties();
             
-            p.load(settings.getInputStream());
+            ins = settings.getInputStream();
+            
+            p.load(ins);
+            
+            ins.close();
+            
+            ins = null;
             
             p.setProperty("latex-command", latexCommand);
             p.setProperty("latex-use-source-specials", Boolean.toString(useSourceSpecials));
@@ -125,13 +142,38 @@ public class ProjectSettings {
             p.setProperty("bibtex-command", bibtexCommand);
             p.setProperty("bibtex-arguments", toPlainString(bibtexArguments));
             
+            p.setProperty("default-build-command", getDefaultBuildCommand());
+            p.setProperty("default-show-command", getDefaultShowCommand());
+            
             lock = settings.lock();
             
-            p.store(settings.getOutputStream(lock));
+            outs = settings.getOutputStream(lock);
+            
+            p.store(outs);
+            
+            outs.close();
+            
+            outs = null;
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
         } finally {
-            lock.releaseLock();
+            if (ins != null) {
+                try {
+                    ins.close();
+                } catch (IOException e) {
+                    ErrorManager.getDefault().notify(e);
+                }
+            }
+            if (outs != null) {
+                try {
+                    outs.close();
+                } catch (IOException e) {
+                    ErrorManager.getDefault().notify(e);
+                }
+            }
+            
+            if (lock != null)
+                lock.releaseLock();
         }
     }
     
@@ -215,5 +257,21 @@ public class ProjectSettings {
     
     public void rollBack() {
         load();
+    }
+
+    public String getDefaultBuildCommand() {
+        return defaultBuildCommand;
+    }
+
+    public void setDefaultBuildCommand(String defaultBuildCommand) {
+        this.defaultBuildCommand = defaultBuildCommand;
+    }
+
+    public String getDefaultShowCommand() {
+        return defaultShowCommand;
+    }
+
+    public void setDefaultShowCommand(String defaultShowCommand) {
+        this.defaultShowCommand = defaultShowCommand;
     }
 }
