@@ -1,6 +1,6 @@
-Templates/RMISockets/InputStream.java
-Templates/RMISockets/OutputStream.java
-Templates/RMISockets/ServerSocketFactory.java
-Templates/RMISockets/ServerSocket.java
-Templates/RMISockets/ClientSocketFactory.java
-Templates/RMISockets/Socket.java
+Templates/RMI/Sockets/InputStream.java
+Templates/RMI/Sockets/OutputStream.java
+Templates/RMI/Sockets/ServerSocketFactory.java
+Templates/RMI/Sockets/ServerSocket.java
+Templates/RMI/Sockets/ClientSocketFactory.java
+Templates/RMI/Sockets/Socket.java
