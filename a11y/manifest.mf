@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 2.0
-OpenIDE-Module-Implementation-Version: 2.0
+OpenIDE-Module-Specification-Version: 2.1
+OpenIDE-Module-Implementation-Version: 2.1
 OpenIDE-Module-Display-Category: Tools
 OpenIDE-Module: org.netbeans.modules.a11y/1
 OpenIDE-Module-Name: Accessibility

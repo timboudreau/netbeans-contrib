@@ -37,64 +37,50 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
                     <Property name="columns" type="int" value="1"/>
-                    <Property name="rows" type="int" value="13"/>
+                    <Property name="rows" type="int" value="14"/>
                   </Layout>
                   <SubComponents>
                     <Component class="javax.swing.JLabel" name="isLabel">
                       <Properties>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor" preCode="defaultColor = this.getForeground();&#xa;">
-                          <Color blue="0" green="0" id="black" palette="0" red="0" type="palette"/>
-                        </Property>
+                        <Property name="foreground" preCode="defaultColor = this.getForeground();&#xa;"/>
                         <Property name="text" type="java.lang.String" value="Implements Accessible"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="anLabel">
                       <Properties>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="0" green="0" id="black" palette="0" red="0" type="palette"/>
-                        </Property>
                         <Property name="text" type="java.lang.String" value="Accessible Name"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="adLabel">
                       <Properties>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="0" green="0" id="black" palette="0" red="0" type="palette"/>
-                        </Property>
                         <Property name="text" type="java.lang.String" value="Accessible Description"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="componentNameLabel">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Component Name"/>
+                        <Property name="name" type="java.lang.String" value="componentNameLabel"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JSeparator" name="jSeparator11">
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel1211">
                       <Properties>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="0" green="0" id="black" palette="0" red="0" type="palette"/>
-                        </Property>
                         <Property name="text" type="java.lang.String" value=" Layout"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel121">
                       <Properties>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="0" green="0" id="black" palette="0" red="0" type="palette"/>
-                        </Property>
                         <Property name="text" type="java.lang.String" value=" Children"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel13">
                       <Properties>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="0" green="0" id="black" palette="0" red="0" type="palette"/>
-                        </Property>
                         <Property name="text" type="java.lang.String" value=" Mnemonic"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel14">
                       <Properties>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="0" green="0" id="black" palette="0" red="0" type="palette"/>
-                        </Property>
                         <Property name="text" type="java.lang.String" value=" Label for set"/>
                       </Properties>
                     </Component>
@@ -102,33 +88,21 @@
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel15">
                       <Properties>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="0" green="0" id="black" palette="0" red="0" type="palette"/>
-                        </Property>
                         <Property name="text" type="java.lang.String" value=" Enabled"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel151">
                       <Properties>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="0" green="0" id="black" palette="0" red="0" type="palette"/>
-                        </Property>
                         <Property name="text" type="java.lang.String" value=" Visible"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel16">
                       <Properties>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="0" green="0" id="black" palette="0" red="0" type="palette"/>
-                        </Property>
                         <Property name="text" type="java.lang.String" value=" Showing"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel161">
                       <Properties>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="0" green="0" id="black" palette="0" red="0" type="palette"/>
-                        </Property>
                         <Property name="text" type="java.lang.String" value=" Focusable"/>
                       </Properties>
                     </Component>
@@ -138,7 +112,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
                     <Property name="columns" type="int" value="1"/>
-                    <Property name="rows" type="int" value="13"/>
+                    <Property name="rows" type="int" value="14"/>
                   </Layout>
                   <SubComponents>
                     <Component class="javax.swing.JLabel" name="implementAccesssible">
@@ -146,6 +120,11 @@
                     <Component class="javax.swing.JLabel" name="accessibleName">
                     </Component>
                     <Component class="javax.swing.JLabel" name="accessibleDescription">
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="componentName">
+                      <Properties>
+                        <Property name="name" type="java.lang.String" value="componentName"/>
+                      </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel3">
                       <Properties>

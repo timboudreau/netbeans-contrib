@@ -120,7 +120,12 @@ public class TextReport extends AccessibilityTester.ReportGenerator{
 
         out.println("\n Components not reachable with tab traversal :");
         printComponents(getNotTraversable(),out, testSettings.tabTraversal);
-        
+
+        if(Boolean.getBoolean("a11ytest.name")) {
+            out.println("\n No Component name :");
+            printComponents(getNoComponentName(), out, testSettings.test_name);
+        }
+
         if(fileWriter){
             out.println("</PRE>");
             out.println("</BODY>");

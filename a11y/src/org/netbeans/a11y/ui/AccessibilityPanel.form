@@ -194,6 +194,12 @@
                     </Component>
                   </SubComponents>
                 </Container>
+                <Component class="javax.swing.JCheckBox" name="cbTestName">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Test component name"/>
+                    <Property name="name" type="java.lang.String" value="cbTestName"/>
+                  </Properties>
+                </Component>
               </SubComponents>
             </Container>
             <Container class="javax.swing.JPanel" name="jPanel6">

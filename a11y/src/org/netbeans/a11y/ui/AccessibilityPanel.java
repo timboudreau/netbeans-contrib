@@ -54,7 +54,11 @@ public class AccessibilityPanel extends javax.swing.JPanel {
         TestSettings defaultTS = new TestSettings();
         defaultTS.setDefaultSettings();
         setTests(defaultTS);
-        
+
+        if(!Boolean.getBoolean("a11ytest.name")) {
+            cbTestName.setVisible(false);
+            cbTestName.setSelected(false);
+        }
     }
     
     /** This method is called from within the constructor to
@@ -83,6 +87,7 @@ public class AccessibilityPanel extends javax.swing.JPanel {
         traversal = new javax.swing.JCheckBox();
         jPanel511 = new javax.swing.JPanel();
         showingOnly_T = new javax.swing.JCheckBox();
+        cbTestName = new javax.swing.JCheckBox();
         jPanel6 = new javax.swing.JPanel();
         a11yProperties = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
@@ -230,6 +235,10 @@ public class AccessibilityPanel extends javax.swing.JPanel {
         jPanel511.add(showingOnly_T);
 
         jPanel3.add(jPanel511);
+
+        cbTestName.setText("Test component name");
+        cbTestName.setName("cbTestName");
+        jPanel3.add(cbTestName);
 
         tests.add(jPanel3);
 
@@ -414,7 +423,7 @@ public class AccessibilityPanel extends javax.swing.JPanel {
         options.add(removeButton, gridBagConstraints);
 
         excluded.setText("Excluded Classes:");
-        excluded.setDisplayedMnemonic(69);
+        excluded.setDisplayedMnemonic('E');
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -463,8 +472,8 @@ public class AccessibilityPanel extends javax.swing.JPanel {
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 0);
         options.add(jPanel101, gridBagConstraints);
 
         jTabbedPane1.addTab("Test settings", options);
@@ -800,6 +809,7 @@ public class AccessibilityPanel extends javax.swing.JPanel {
         
         settings.storeToXML = getReportTypeXML();
         
+        settings.test_name = cbTestName.isSelected() && cbTestName.isEnabled();
         return settings;
     }
     
@@ -970,72 +980,73 @@ public class AccessibilityPanel extends javax.swing.JPanel {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox isFocusTraversable;
-    private javax.swing.JPanel resultsPane;
-    private javax.swing.JCheckBox lfpt_JTabbedPane;
-    private javax.swing.JRadioButton file;
-    private javax.swing.JTextField propertiesFileName;
-    private javax.swing.JButton browsePropertiesFile;
-    private javax.swing.JPanel jPanel101;
-    private javax.swing.JCheckBox printPosition;
-    private javax.swing.ButtonGroup results;
-    private javax.swing.JTextField cancelTextField;
-    private javax.swing.JCheckBox mnemonics;
-    private javax.swing.JCheckBox labelForSet;
-    private javax.swing.JPanel removePanel;
-    private javax.swing.JPanel jPanel15;
-    private javax.swing.JButton browseButton;
-    private javax.swing.JPanel jPanel10;
-    private javax.swing.JList excludes;
-    private javax.swing.JCheckBox printName;
-    private javax.swing.JCheckBox mnemonicsJLabels;
-    private javax.swing.JPanel jPanel51;
-    private javax.swing.JButton removeButton;
-    private javax.swing.JRadioButton outputWindow;
-    private javax.swing.JCheckBox reportTypeCheckBox;
-    private javax.swing.JCheckBox propertiesFile;
-    private javax.swing.JButton readPropertiesFromFile;
-    private javax.swing.JCheckBox mnemonicsAbstractButtons;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel excluded;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JPanel jPanel9;
-    private javax.swing.JPanel jPanel8;
-    private javax.swing.JCheckBox traversal;
-    private javax.swing.JPanel jPanel6;
-    private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JCheckBox properties;
-    private javax.swing.JButton addButton;
-    private javax.swing.JPanel statusPanel;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JPanel labelForPointsToPanel;
     private javax.swing.JPanel a11yProperties;
-    private javax.swing.JCheckBox model;
-    private javax.swing.JTextField fileName;
-    private javax.swing.JCheckBox showingOnly_T;
-    private javax.swing.JCheckBox implement;
-    private javax.swing.JLabel statusLabel;
-    private javax.swing.JPanel tests;
-    private javax.swing.JPanel options;
-    private javax.swing.JCheckBox showingOnly_AP;
-    private javax.swing.JPanel jPanel511;
-    private javax.swing.JTextField newExclude;
     private javax.swing.JCheckBox accessDesc;
+    private javax.swing.JCheckBox accessName;
+    private javax.swing.JButton addButton;
+    private javax.swing.JButton browseButton;
+    private javax.swing.JButton browsePropertiesFile;
+    private javax.swing.JTextField cancelTextField;
+    private javax.swing.JCheckBox cbTestName;
+    private javax.swing.JLabel excluded;
+    private javax.swing.JList excludes;
+    private javax.swing.JRadioButton file;
+    private javax.swing.JTextField fileName;
+    private javax.swing.JCheckBox implement;
+    private javax.swing.JCheckBox isFocusTraversable;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel101;
+    private javax.swing.JPanel jPanel15;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel51;
+    private javax.swing.JPanel jPanel511;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JCheckBox labelForPointsTo;
-    private javax.swing.JPanel mnemonicsPanel;
-    private javax.swing.JCheckBox mnemonicsDefault;
-    private javax.swing.JCheckBox printDescription;
-    private javax.swing.JCheckBox accessName;
-    private javax.swing.JCheckBox lfpt_JTextComponent;
+    private javax.swing.JPanel labelForPointsToPanel;
+    private javax.swing.JCheckBox labelForSet;
     private javax.swing.JCheckBox lfpt_JList;
-    private javax.swing.JCheckBox lfpt_JTree;
-    private javax.swing.JCheckBox showingOnly_IA;
+    private javax.swing.JCheckBox lfpt_JTabbedPane;
     private javax.swing.JCheckBox lfpt_JTable;
+    private javax.swing.JCheckBox lfpt_JTextComponent;
+    private javax.swing.JCheckBox lfpt_JTree;
+    private javax.swing.JCheckBox mnemonics;
+    private javax.swing.JCheckBox mnemonicsAbstractButtons;
+    private javax.swing.JCheckBox mnemonicsDefault;
+    private javax.swing.JCheckBox mnemonicsJLabels;
+    private javax.swing.JPanel mnemonicsPanel;
+    private javax.swing.JCheckBox model;
+    private javax.swing.JTextField newExclude;
+    private javax.swing.JPanel options;
+    private javax.swing.JRadioButton outputWindow;
+    private javax.swing.JCheckBox printDescription;
+    private javax.swing.JCheckBox printName;
+    private javax.swing.JCheckBox printPosition;
+    private javax.swing.JCheckBox properties;
+    private javax.swing.JCheckBox propertiesFile;
+    private javax.swing.JTextField propertiesFileName;
+    private javax.swing.JButton readPropertiesFromFile;
+    private javax.swing.JButton removeButton;
+    private javax.swing.JPanel removePanel;
     private javax.swing.JButton removeTabButton;
+    private javax.swing.JCheckBox reportTypeCheckBox;
+    private javax.swing.ButtonGroup results;
+    private javax.swing.JPanel resultsPane;
+    private javax.swing.JCheckBox showingOnly_AP;
+    private javax.swing.JCheckBox showingOnly_IA;
+    private javax.swing.JCheckBox showingOnly_T;
+    private javax.swing.JLabel statusLabel;
+    private javax.swing.JPanel statusPanel;
+    private javax.swing.JPanel tests;
+    private javax.swing.JCheckBox traversal;
     // End of variables declaration//GEN-END:variables
     
 }

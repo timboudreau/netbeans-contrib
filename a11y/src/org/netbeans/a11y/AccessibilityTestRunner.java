@@ -88,7 +88,7 @@ public class AccessibilityTestRunner{
     /** Test parent = container.
      */
     public void testContainer(){
-        if (testSettings.accessibleInterface || testSettings.accessibleProperties) {
+        if (testSettings.accessibleInterface || testSettings.accessibleProperties || testSettings.test_name) {
             accPanel.setStatusText("Testing Accessibility properties ...");
             tester.testProperties();
             accPanel.setStatusText("Testing Accessibility properties - finished");
@@ -104,7 +104,6 @@ public class AccessibilityTestRunner{
                 accPanel.setStatusText("Testing Tab traversal - finished");
             
         }
-        
     }
     
     

@@ -94,6 +94,9 @@ public class AccessibilityTester{
     
     private HashSet focused = new HashSet();
     
+    /** Set where to store components which doesn't have name. */
+    private HashSet noComponentName = new HashSet();
+    
     private java.util.Hashtable mnemonicConflict = new java.util.Hashtable();
     
     private boolean merlinTesting = false;
@@ -361,7 +364,6 @@ public class AccessibilityTester{
                 noName.add(comp);
                 noDesc.add(comp);
             }
-            
         }
         
         
@@ -370,6 +372,11 @@ public class AccessibilityTester{
         
         // Test Buttons Mnemonics
         testButtonsMnemonics(comp);
+        
+        // Test Component Name
+        if(testSettings.test_name){
+            testComponentName(comp);
+        }
         
     }
 
@@ -1064,6 +1071,13 @@ public class AccessibilityTester{
             tester.removeTraversedComponents();
             return tester.traversableComponents;
         }
+
+        /** Get a HashSet containing components with no component name.
+         *  @return the components
+         */
+        protected HashSet getNoComponentName(){
+            return tester.noComponentName;
+        }
     }
     
     /** Reset the test results. */
@@ -1085,5 +1099,20 @@ public class AccessibilityTester{
         tabTraversalPerformed = false;
     }
  */
+    
+    /* Check if component has set name, comp.getName() != null */
+    private void testComponentName(Component comp) {
+        String name = comp.getName();
+        System.out.println("COMP="+comp);
+        System.out.println("NAME="+name);
+        
+        // LOG ONLY -/
+        if(debugLog) System.err.println("[org.netbeans.modules.a11y.AccessibilityTester] - <testComponentName()> - componentName="+name);
+        
+        if (testSettings.test_name && (name == null)){
+            noComponentName.add(comp);
+        }
+    }
+
 }
 

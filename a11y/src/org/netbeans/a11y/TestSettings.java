@@ -58,6 +58,9 @@ public class TestSettings {
     public boolean report_description;
     public boolean report_position;
     public boolean storeToXML;
+
+    /** Test if component has name. */
+    public boolean test_name;
     
     /** Creates new TestSettings */
     public TestSettings() {

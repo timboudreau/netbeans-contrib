@@ -46,6 +46,7 @@ public class AccComponent extends Object{
     public String focusable;
     
     private String className;
+    public String componentName;
     
     /** Creates new AccComponent */
     public AccComponent(Component component) {
@@ -112,6 +113,8 @@ public class AccComponent extends Object{
             childrens = " ";
             layout = " ";
         }
+        
+        componentName = component.getName();
     }
     
     private String makeString(int number,boolean is_mnemonic) {

@@ -199,6 +199,8 @@ public class UIAccessibilityTester extends javax.swing.JFrame {
                 System.out.println("Argument :"+args[0]+" isn't correct [-log] - if you want see debug messages.");
         }
         
+        // use to show "Test component name" option
+        //System.setProperty("a11ytest.name", "true");
         new UIAccessibilityTester().show();
     }
     

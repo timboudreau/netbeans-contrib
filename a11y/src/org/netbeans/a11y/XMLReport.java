@@ -91,6 +91,9 @@ public class XMLReport extends AccessibilityTester.ReportGenerator{
         
         
         printComponents(getNotTraversable(), out, "nottraversable", testSettings.tabTraversal);
+        if(Boolean.getBoolean("a11ytest.name")) {
+            printComponents(getNoComponentName(), out, "nocomponentname", testSettings.test_name);
+        }
         
         out.println("</TestResults>");
         
