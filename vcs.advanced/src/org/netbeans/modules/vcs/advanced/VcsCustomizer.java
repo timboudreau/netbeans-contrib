@@ -45,6 +45,9 @@ import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcs.advanced.commands.UserCommandIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
+import org.openide.awt.HtmlBrowser;
 
 /** Customizer
  *
@@ -899,7 +902,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         // Add your handling code here:
         if (!updateConfigurations() && allProfilesCheckBox.isSelected()) {
             NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation(g("DLG_DiscardAndShowCurrentOS"), NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
-            if (NotifyDescriptor.Confirmation.OK_OPTION.equals(TopManager.getDefault().notify(nd))) {
+            if (NotifyDescriptor.Confirmation.OK_OPTION.equals(DialogDisplayer.getDefault().notify(nd))) {
                 fileSystem.setConfig(null);
                 promptForConfigComboChange = false;
                 updateConfigurations();
@@ -962,7 +965,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if (row < 0) return ;
         String name = (String) envTableModel.getValueAt(row, 0);
         NotifyDescriptor nd = new NotifyDescriptor.Confirmation(NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarDeleteConfirm", name));
-        if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(nd))) {
+        if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(nd))) {
             row = envTableModel.getModelRow(row);
             ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).removeRow(row);
             Vector vars = fileSystem.getVariables();
@@ -975,7 +978,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void insertEnvButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertEnvButtonActionPerformed
         // Add your handling code here:
         NotifyDescriptor.InputLine nd = new NotifyDescriptor.InputLine(NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarName"), g ("DLG_EnvVarTitle"));
-        if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(nd))) {
+        if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(nd))) {
             String name = (String) nd.getInputText();
             if (envVariables.containsKey(name)) {
                 selectEnvVar(name);
@@ -1010,9 +1013,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void linkLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_linkLabelMouseReleased
         // Add your handling code here:
         try {
-            TopManager.getDefault().showUrl(new java.net.URL(linkLabel.getText()));
+            HtmlBrowser.URLDisplayer.getDefault().showURL(new java.net.URL(linkLabel.getText()));
         } catch (java.net.MalformedURLException exc) {
-            TopManager.getDefault().notifyException(exc);
+            ErrorManager.getDefault().notify(exc);
         }
     }//GEN-LAST:event_linkLabelMouseReleased
 
@@ -1023,7 +1026,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         UserCommandsPanel advancedPanel = new UserCommandsPanel(commandsEditor);
         DialogDescriptor dd = new DialogDescriptor (advancedPanel, org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("TIT_CommandsEditor"));//, "Advanced Properties Editor");
         dd.setHelpCtx (new HelpCtx ("VCS_CommandEditor"));
-        TopManager.getDefault ().createDialog (dd).setVisible(true);
+        DialogDisplayer.getDefault ().createDialog (dd).setVisible(true);
         commandsEditor.setValue(advancedPanel.getPropertyValue());
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
             fileSystem.setCommands ((CommandsTree) commandsEditor.getValue ());
@@ -1038,7 +1041,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
         DialogDescriptor dd = new DialogDescriptor (variablePanel, org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("TIT_VariablesEditor"));//, "Advanced Properties Editor");
         dd.setHelpCtx (new HelpCtx ("VCS_VariableEditor"));
-        TopManager.getDefault ().createDialog (dd).setVisible(true);
+        DialogDisplayer.getDefault ().createDialog (dd).setVisible(true);
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
             fileSystem.setVariables ((Vector) variablePanel.getPropertyValue());
         }
@@ -1106,7 +1109,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         String dir = work + File.separator + relMountTextField.getText();
         RelativeMountDialog mountDlg = new RelativeMountDialog();
         mountDlg.setDir(work, relMountTextField.getText());
-        java.awt.Dialog dlg = TopManager.getDefault().createDialog(mountDlg);
+        java.awt.Dialog dlg = DialogDisplayer.getDefault().createDialog(mountDlg);
         //VcsUtilities.centerWindow (mountDlg);
         //HelpCtx.setHelpIDString (dlg.getRootPane (), CvsCustomizer.class.getName ());
         dlg.setVisible(true);
@@ -1196,7 +1199,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         // Add your handling code here:
         String label = (String) configCombo.getSelectedItem ();
         NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation (g("DLG_DeleteConfig", label), NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
-        if (!NotifyDescriptor.Confirmation.OK_OPTION.equals (TopManager.getDefault ().notify (nd))) return;
+        if (!NotifyDescriptor.Confirmation.OK_OPTION.equals (DialogDisplayer.getDefault ().notify (nd))) return;
         FileObject file = fileSystem.getConfigRootFO();
         if (file != null) file = file.getFileObject(cache.getProfileName(label));//(String) configNamesByLabel.get (label));
         if (file != null) {
@@ -1245,13 +1248,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             try {
                 file = dir.createData(selected, VariableIO.CONFIG_FILE_EXT);
             } catch(IOException e) {
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(g("MSG_CanNotCreateFile", selected+"."+VariableIO.CONFIG_FILE_EXT)));
+                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(g("MSG_CanNotCreateFile", selected+"."+VariableIO.CONFIG_FILE_EXT)));
                 //E.err("Can not create file '"+selected+"'");
                 return;
             }
         } else {
             if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
-                TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (g("DLG_OverwriteSettings", file.getName()),
+                DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Confirmation (g("DLG_OverwriteSettings", file.getName()),
                                                  NotifyDescriptor.Confirmation.YES_NO_OPTION)))
             ) {
                 return;
@@ -1316,7 +1319,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             if (promptForConfigComboChange) {
                 String msg=g("MSG_Do_you_really_want_to_discard_current_commands",selectedLabel); // NOI18N
                 NotifyDescriptor nd = new NotifyDescriptor.Confirmation (msg, NotifyDescriptor.YES_NO_OPTION );
-                if (TopManager.getDefault().notify( nd ).equals( NotifyDescriptor.YES_OPTION ) ) {
+                if (DialogDisplayer.getDefault().notify( nd ).equals( NotifyDescriptor.YES_OPTION ) ) {
                     change = true;
                 } else {
                     change = false;
@@ -1533,7 +1536,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 public void run() {
                     if (isRootNotSetDlg) {
                         isRootNotSetDlg = false;
-                        TopManager.getDefault().notify(new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD")));
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD")));
                         isRootNotSetDlg = true;
                     }
                 }
@@ -1680,7 +1683,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             try {
                 configInputDescriptor = VariableInputDescriptor.parseItems(configInputDescriptorStr);
             } catch (VariableInputFormatException vifex) {
-                TopManager.getDefault().getErrorManager().notify(vifex);//TopManager.getDefault().getErrorManager().annotate(vifex, "
+                ErrorManager.getDefault().notify(vifex);//TopManager.getDefault().getErrorManager().annotate(vifex, "
             }
         }
         if (configInputDescriptor != null) {
@@ -2260,7 +2263,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 public void run() {
                     if (isRootNotSetDlg) {
                         isRootNotSetDlg = false;
-                        TopManager.getDefault().notify(new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD")));
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD")));
                         isRootNotSetDlg = true;
                     }
                 }
@@ -2276,7 +2279,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 public void run() {
                     if (isRootNotSetDlg) {
                         isRootNotSetDlg = false;
-                        TopManager.getDefault().notify(new NotifyDescriptor.Message(MessageFormat.format(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.cannotSetDirectory"), new Object[] { badDir } )));
+                        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(MessageFormat.format(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.cannotSetDirectory"), new Object[] { badDir } )));
                         isRootNotSetDlg = true;
                     }
                 }
@@ -2347,7 +2350,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             Command command;
             if (supp == null || !((command = supp.createCommand()) instanceof VcsDescribedCommand)) {
                 NotifyDescriptor.Message nd = new NotifyDescriptor.Message (g("DLG_SelectorNotExist", selector.getCustomSelector()), NotifyDescriptor.WARNING_MESSAGE);
-                TopManager.getDefault ().notify (nd);
+                DialogDisplayer.getDefault ().notify (nd);
                 return ;
             }
             if (!VcsManager.getDefault().showCustomizer(command)) return ;

@@ -103,7 +103,7 @@ public class VariableIOCompat extends Object {
         Properties props=new Properties();
         FileObject config = configRoot.getFileObject(name);
         if (config == null) {
-            org.openide.TopManager.getDefault().notifyException(new FileNotFoundException("Problems while reading predefined properties.") {
+            org.openide.ErrorManager.getDefault().notify(new FileNotFoundException("Problems while reading predefined properties.") {
                 public String getLocalizedMessage() {
                     return g("EXC_Problems_while_reading_predefined_properties", name);
                 }
@@ -117,14 +117,14 @@ public class VariableIOCompat extends Object {
             in.close();
         }
         catch(FileNotFoundException e) {
-            org.openide.TopManager.getDefault().notifyException(new FileNotFoundException("Problems while reading predefined properties.") {
+            org.openide.ErrorManager.getDefault().notify(new FileNotFoundException("Problems while reading predefined properties.") {
                 public String getLocalizedMessage() {
                     return g("EXC_Problems_while_reading_predefined_properties", name);
                 }
             });
         }
         catch(IOException e){
-            org.openide.TopManager.getDefault().notifyException(new IOException("Problems while reading predefined properties.") {
+            org.openide.ErrorManager.getDefault().notify(new IOException("Problems while reading predefined properties.") {
                 public String getLocalizedMessage() {
                     return g("EXC_Problems_while_reading_predefined_properties", name);
                 }

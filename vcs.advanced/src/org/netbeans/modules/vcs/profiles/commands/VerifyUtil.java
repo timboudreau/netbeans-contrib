@@ -28,7 +28,6 @@ import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
 import org.openide.DialogDescriptor;
-import org.openide.TopManager;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;

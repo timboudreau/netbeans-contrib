@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
-import org.openide.TopManager;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
@@ -31,6 +30,7 @@ import org.netbeans.modules.vcscore.cmdline.RelativeMountDialog;
 import org.netbeans.modules.vcscore.cmdline.RelativeMountPanel;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.util.Table;
+import org.openide.DialogDisplayer;
 
 /**
  * Selector of a PVCS project.
@@ -95,7 +95,7 @@ public class PvcsProjectSelector extends Object implements VcsAdditionalCommand,
             new RelativeMountDialog(panel, NbBundle.getMessage(PvcsProjectSelector.class,
                                                                "ProjectSelectorTitle"),
                                     new HelpCtx(PvcsProjectSelector.class));
-        if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(dialog))) {
+        if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dialog))) {
             stdoutDataListener.outputData(new String[] { panel.getRelMount() });
         }
         return true;

@@ -179,7 +179,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             refreshTime.setShortDescription   (bundle.getString("HINT_refreshTime"));
 
         } catch (IntrospectionException ex) {
-            org.openide.TopManager.getDefault().notifyException(ex);
+            org.openide.ErrorManager.getDefault().notify(ex);
             desc = null;
         }
         return desc;

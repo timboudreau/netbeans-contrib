@@ -28,6 +28,7 @@ import org.openide.util.actions.ActionPerformer;
 import org.openide.util.datatransfer.NewType;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
+import org.openide.DialogDisplayer;
 
 /**
  *
@@ -436,7 +437,7 @@ public class BasicVariableNode extends AbstractNode {
                 org.openide.util.NbBundle.getBundle(BasicVariableNode.class).getString("CTL_NewVariableTitle")
                 );
             //input.setInputText(org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandLabel"));
-            if (TopManager.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
+            if (DialogDisplayer.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
                 return;
 
             String labelName = input.getInputText();

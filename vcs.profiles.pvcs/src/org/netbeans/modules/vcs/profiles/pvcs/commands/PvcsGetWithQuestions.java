@@ -16,7 +16,6 @@ package org.netbeans.modules.vcs.profiles.pvcs.commands;
 import java.io.File;
 import java.util.Hashtable;
 
-import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
@@ -24,6 +23,7 @@ import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.openide.DialogDisplayer;
 
 /**
  * Find whether a writable copy exists before get command
@@ -88,7 +88,7 @@ public class PvcsGetWithQuestions implements VcsAdditionalCommand {
         File filePath = new File(dir);
         if (filePath.canWrite()) {
             System.out.println("");
-            Object confirmation = TopManager.getDefault().notify(
+            Object confirmation = DialogDisplayer.getDefault().notify(
                 new NotifyDescriptor.Confirmation(org.openide.util.NbBundle.getMessage(
                     PvcsGetWithQuestions.class, "Get_Writable_Confirmation", file)));
             if (!NotifyDescriptor.OK_OPTION.equals(confirmation)) {
@@ -106,7 +106,7 @@ public class PvcsGetWithQuestions implements VcsAdditionalCommand {
             if (statusProvider != null) {
                 String locker = statusProvider.getFileLocker(path);
                 if (locker != null && locker.length() > 0) {
-                    Object confirmation = TopManager.getDefault().notify(
+                    Object confirmation = DialogDisplayer.getDefault().notify(
                         new NotifyDescriptor.Confirmation(org.openide.util.NbBundle.getMessage(
                             PvcsGetWithQuestions.class, "Get_Lock_Confirmation", file, locker)));
                     if (!NotifyDescriptor.OK_OPTION.equals(confirmation)) {

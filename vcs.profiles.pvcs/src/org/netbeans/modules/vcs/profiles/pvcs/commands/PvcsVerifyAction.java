@@ -28,7 +28,6 @@ import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
 import org.openide.DialogDescriptor;
-import org.openide.TopManager;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -51,6 +50,7 @@ import org.netbeans.modules.vcscore.util.Table;
 
 import org.netbeans.modules.vcs.profiles.commands.ToLockFilesPanel;
 import org.netbeans.modules.vcs.profiles.commands.VerifyUtil;
+import org.openide.DialogDisplayer;
 
 /**
  * The verification of PVCS files in a group.
@@ -222,7 +222,7 @@ public class PvcsVerifyAction extends java.lang.Object implements VcsAdditionalC
                 }
             });
         }
-        final Dialog dial = TopManager.getDefault().createDialog(dd);
+        final Dialog dial = DialogDisplayer.getDefault().createDialog(dd);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 dial.show();

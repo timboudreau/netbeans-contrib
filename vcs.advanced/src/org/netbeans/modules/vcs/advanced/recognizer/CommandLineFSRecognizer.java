@@ -74,15 +74,9 @@ public class CommandLineFSRecognizer extends FSRecognizer {
                             try {
                                 execClass =  Class.forName(className, true, VcsUtilities.getSFSClassLoader());
                                                            //org.openide.TopManager.getDefault().currentClassLoader());
-                            } catch (ClassNotFoundException e) {}
-                            if (execClass == null) {
-                                try {
-                                    execClass =  Class.forName(className, true,
-                                                               org.openide.TopManager.getDefault().currentClassLoader());
-                                } catch (ClassNotFoundException e) {
-                                    ErrorManager.getDefault().notify(e);
-                                }
-                            }
+                            } catch (ClassNotFoundException e) {
+                                ErrorManager.getDefault().notify(e);
+                            }                            
                             if (execClass != null) commandsToFillByProfileNames.put(profileName, execClass);
                         }
                         

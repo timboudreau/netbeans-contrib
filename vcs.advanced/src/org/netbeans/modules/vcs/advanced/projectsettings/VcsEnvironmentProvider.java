@@ -15,11 +15,11 @@ package org.netbeans.modules.vcs.advanced.projectsettings;
 
 import java.util.Map;
 import java.util.HashMap;
+import org.openide.ErrorManager;
 
 import org.xml.sax.SAXException;
 import org.w3c.dom.Document;
 
-import org.openide.TopManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -85,15 +85,15 @@ class VcsEnvironmentProvider extends SharedClassObject implements Environment.Pr
         try {
             ic = createInstanceContent(obj);
         } catch (IllegalArgumentException iaExc) {
-            TopManager.getDefault().getErrorManager().notify(iaExc);
+            ErrorManager.getDefault().notify(iaExc);
         } catch (java.io.IOException ioExc) {
-            TopManager.getDefault().getErrorManager().notify(ioExc);
+            ErrorManager.getDefault().notify(ioExc);
         } catch (SAXException sExc) {
-            TopManager.getDefault().getErrorManager().notify(sExc);
+            ErrorManager.getDefault().notify(sExc);
         }
         Lookup lookup = new AbstractLookup(ic);
         if (lookup.lookup(InstanceCookie.class) == null) {
-            TopManager.getDefault().getErrorManager().notify(new IllegalStateException());  // instance cookie required
+            ErrorManager.getDefault().notify(new IllegalStateException());  // instance cookie required
         }
         return lookup;
     }

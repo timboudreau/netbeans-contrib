@@ -189,7 +189,7 @@ public class VariableIO extends Object {
         Document doc = null;
         FileObject config = configRoot.getFileObject(name);
         if (config == null) {
-            org.openide.TopManager.getDefault().notifyException(new FileNotFoundException("Problems while reading predefined properties.") {
+            org.openide.ErrorManager.getDefault().notify(new FileNotFoundException("Problems while reading predefined properties.") {
                 public String getLocalizedMessage() {
                     return g("EXC_Problems_while_reading_predefined_properties", name);
                 }
@@ -206,19 +206,19 @@ public class VariableIO extends Object {
             //props.load(in);
             //in.close();
         } catch(DataObjectNotFoundException e) {
-            org.openide.TopManager.getDefault().notifyException(new DataObjectNotFoundException(config) {
+            org.openide.ErrorManager.getDefault().notify(new DataObjectNotFoundException(config) {
                 public String getLocalizedMessage() {
                     return g("EXC_Problems_while_reading_predefined_properties", name);
                 }
             });
         } catch(IOException e){
-            org.openide.TopManager.getDefault().notifyException(new IOException("Problems while reading predefined properties.") {
+            org.openide.ErrorManager.getDefault().notify(new IOException("Problems while reading predefined properties.") {
                 public String getLocalizedMessage() {
                     return g("EXC_Problems_while_reading_predefined_properties", name);
                 }
             });
         } catch (org.xml.sax.SAXException sexc) {
-            org.openide.TopManager.getDefault().notifyException(new org.xml.sax.SAXException("Problems while reading predefined properties.", sexc) {
+            org.openide.ErrorManager.getDefault().notify(new org.xml.sax.SAXException("Problems while reading predefined properties.", sexc) {
                 public String getLocalizedMessage() {
                     return g("EXC_Problems_while_reading_predefined_properties", name);
                 }
@@ -249,7 +249,7 @@ public class VariableIO extends Object {
         if (config == null) {
             org.openide.util.RequestProcessor.postRequest(new Runnable() {
                 public void run() {
-                    org.openide.TopManager.getDefault().notifyException(new FileNotFoundException("Problems while reading predefined properties.") {
+                    org.openide.ErrorManager.getDefault().notify(new FileNotFoundException("Problems while reading predefined properties.") {
                         public String getLocalizedMessage() {
                             return g("EXC_Problems_while_reading_predefined_properties", name);
                         }
@@ -274,8 +274,8 @@ public class VariableIO extends Object {
         } catch (SAXException exc) {
             //System.out.println("   parsing done. ("+exc.getMessage()+")");
             if (!"End of label.".equals(exc.getMessage())) {
-                org.openide.TopManager.getDefault().notifyException(
-                    org.openide.TopManager.getDefault().getErrorManager().annotate(
+                org.openide.ErrorManager.getDefault().notify(
+                    org.openide.ErrorManager.getDefault().annotate(
                         exc, g("EXC_Problems_while_reading_predefined_properties", name)));
             }
         } catch (java.io.FileNotFoundException fnfExc) {

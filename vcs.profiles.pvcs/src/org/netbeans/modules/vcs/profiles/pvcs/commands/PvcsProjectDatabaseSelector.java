@@ -17,12 +17,12 @@ import java.util.Hashtable;
 
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
-import org.openide.TopManager;
 import org.openide.util.HelpCtx;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
+import org.openide.DialogDisplayer;
 
 /**
  * A selector of a PVCS project database.
@@ -60,7 +60,7 @@ public class PvcsProjectDatabaseSelector extends Object implements VcsAdditional
                         CommandDataOutputListener stdoutListener, String dataRegex,
                         CommandDataOutputListener stderrListener, String errorRegex) {
         PvcsDatabaseSelectorPanel panel = new PvcsDatabaseSelectorPanel(fileSystem, args, (String) vars.get("PROJECT_DB"));
-        if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(
+        if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(
             new DialogDescriptor(panel, panel.getName(), true,
                                  DialogDescriptor.OK_CANCEL_OPTION,
                                  DialogDescriptor.OK_OPTION,

@@ -58,6 +58,7 @@ import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
 import org.netbeans.modules.vcs.advanced.projectsettings.CommandLineVcsFileSystemInstance;
+import org.openide.DialogDisplayer;
 
 /** Generic command line VCS filesystem.
  * 
@@ -359,12 +360,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
 
     private void setConfigFO() {
-        FileSystem dfs = TopManager.getDefault ().getRepository ().getDefaultFileSystem ();
+        FileSystem dfs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem ();
         FileObject fo = dfs.findResource(CONFIG_ROOT);
         if (fo == null) {
             javax.swing.SwingUtilities.invokeLater(new Runnable () {
                 public void run () {
-                    TopManager.getDefault ().notify (new NotifyDescriptor.Message (CommandLineVcsFileSystem.this.clg("DLG_ConfigurationPathNotFound", CONFIG_ROOT)));
+                    DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Message (CommandLineVcsFileSystem.this.clg("DLG_ConfigurationPathNotFound", CONFIG_ROOT)));
                 }
             });
         }
@@ -443,7 +444,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         do {
             cacheId = 10000 * (1 + Math.round (Math.random () * 8)) + Math.round (Math.random () * 1000);
         } while (new File(cacheRoot+File.separator+cacheId).isDirectory ());
-        FileSystem dfs = TopManager.getDefault ().getRepository ().getDefaultFileSystem ();
+        FileSystem dfs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem ();
         FileObject vcs = dfs.findResource("vcs");
         try {
             if (vcs == null) {
@@ -603,7 +604,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                                     line--;
                                 }
                             } catch (javax.swing.text.BadLocationException exc) {
-                                org.openide.TopManager.getDefault().notifyException(exc);
+                                org.openide.ErrorManager.getDefault().notify(exc);
                             }
                         }
                     }
@@ -715,14 +716,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 if (iconResources[i].length() == 0) continue;
                 FileObject resourceFile = defaultFS.findResource(iconResources[i]);
                 if (resourceFile == null) {
-                    TopManager.getDefault().notify(new NotifyDescriptor.Message(
+                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
                         NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_CanNotFindIconResource", iconResources[i])));
                     continue;
                 }
                 try {
                     statusInfos[i].setIcon(new javax.swing.ImageIcon(resourceFile.getURL()).getImage());
                 } catch (FileStateInvalidException exc) {
-                    TopManager.getDefault().notify(new NotifyDescriptor.Message(
+                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
                         NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_InvalidFileIconResource", iconResources[i])));
                     continue;
                 }
@@ -893,7 +894,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 order = Integer.parseInt(removeWhat[1]);
                 order--;
             } catch (NumberFormatException exc) {
-                org.openide.TopManager.getDefault().notifyException(exc);
+                org.openide.ErrorManager.getDefault().notify(exc);
                 continue;
             }
             CommandLineVcsFileSystem.DocCleanupRemoveItem item = new CommandLineVcsFileSystem.DocCleanupRemoveItem(removeWhat[0], order, removeWhat[2]);
@@ -1050,7 +1051,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             try {
                 commands = (CommandsTree) CommandLineVcsAdvancedCustomizer.readConfig (doc, this);
             } catch (org.w3c.dom.DOMException exc) {
-                org.openide.TopManager.getDefault().notifyException(exc);
+                org.openide.ErrorManager.getDefault().notify(exc);
             }
             if (commands == null) {
                 commands = tryToFindDefaultCommands();
@@ -1067,7 +1068,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             try {
                 file = CONFIG_ROOT_FO.createData(TEMPORARY_CONFIG_FILE_NAME + cacheId, VariableIO.CONFIG_FILE_EXT);
             } catch (IOException ioexc) {
-                TopManager.getDefault().notifyException(ioexc);
+                ErrorManager.getDefault().notify(ioexc);
                 return ;
             }
         }
@@ -1099,7 +1100,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             //} catch (org.w3c.dom.DOMException exc) {
             //    org.openide.TopManager.getDefault().notifyException(exc);
             } catch (java.io.IOException ioexc) {
-                org.openide.TopManager.getDefault().notifyException(ioexc);
+                org.openide.ErrorManager.getDefault().notify(ioexc);
             } finally {
                 if (lock != null) lock.releaseLock();
             }

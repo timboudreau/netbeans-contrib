@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import org.openide.TopManager;
 import org.openide.filesystems.*;
 import java.awt.event.*;
 import javax.swing.event.*;

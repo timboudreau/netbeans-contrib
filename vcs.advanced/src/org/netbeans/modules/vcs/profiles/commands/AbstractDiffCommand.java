@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -38,6 +37,7 @@ import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.DialogDisplayer;
 
 /**
  * The abstract diff command, that use a VCS diff command to get the differences.
@@ -215,7 +215,7 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
         }
         if (differences.size() == 0) {
             if (diffStatus == true) {
-                TopManager.getDefault ().notify (new NotifyDescriptor.Message(
+                DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Message(
                     NbBundle.getMessage(AbstractDiffCommand.class, "NoDifferenceInFile", file)));
                 return true;
             } else {

@@ -15,7 +15,6 @@ package org.netbeans.modules.vcs.profiles.commands;
 
 import java.util.Hashtable;
 
-import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 
@@ -24,6 +23,7 @@ import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.util.NotifyDescriptorInputPassword;
+import org.openide.DialogDisplayer;
 
 /**
  * This command sets a new password to the FS password property
@@ -63,7 +63,7 @@ public class SetPasswordCommand extends Object implements VcsAdditionalCommand {
         
         String passwdMsg = NbBundle.getMessage(SetPasswordCommand.class, "MSG_Password"); // NOI18N
         NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (passwdMsg, passwdMsg);
-        if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(nd))) {
+        if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(nd))) {
             fileSystem.setPassword(nd.getInputText());
         }
         return true;

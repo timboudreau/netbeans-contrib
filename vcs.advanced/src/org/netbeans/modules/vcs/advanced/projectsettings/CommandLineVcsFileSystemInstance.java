@@ -37,7 +37,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.w3c.dom.DOMException;
 
-import org.openide.TopManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
@@ -60,6 +59,7 @@ import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 import org.netbeans.modules.vcs.advanced.commands.UserCommandIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
+import org.openide.ErrorManager;
 
 /**
  *
@@ -150,7 +150,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 
             };
         } catch (java.beans.IntrospectionException iexc) {
-            TopManager.getDefault().notifyException(iexc);
+            ErrorManager.getDefault().notify(iexc);
             if (fsProperties == null) {
                 fsProperties = new PropertyDescriptor[0];
             }
@@ -203,16 +203,16 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                         try {
                             doc = dobj.getDocument();
                         } catch (org.xml.sax.SAXException sexc) {
-                            throw (java.io.IOException) TopManager.getDefault().getErrorManager().annotate(new java.io.IOException(), sexc);
+                            throw (java.io.IOException) ErrorManager.getDefault().annotate(new java.io.IOException(), sexc);
                         }
                     } catch (org.openide.loaders.DataObjectNotFoundException donfexc) {
-                        throw (java.io.IOException) TopManager.getDefault().getErrorManager().annotate(new java.io.IOException(), donfexc);
+                        throw (java.io.IOException) ErrorManager.getDefault().annotate(new java.io.IOException(), donfexc);
                     }
                     if (doc == null) return null;
                 }
                 readFSProperties(fs, doc);
             } catch (DOMException dexc) {
-                TopManager.getDefault().notifyException(dexc);
+                ErrorManager.getDefault().notify(dexc);
             }
             fsPropertyChangeListener = new FSPropertyChangeListener(fo);
             fs.addPropertyChangeListener(fsPropertyChangeListener); //WeakListener.propertyChange(fsPropertyChangeListener, fs));
@@ -266,7 +266,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             try {
                 writeFSProperties(fs, doc);
             } catch (org.w3c.dom.DOMException dExc) {
-                TopManager.getDefault().notifyException(dExc);
+                ErrorManager.getDefault().notify(dExc);
             }
             FileLock lock = fo.lock();
             OutputStream out = fo.getOutputStream(lock);
@@ -527,11 +527,11 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                         //System.out.println("realValue = "+realValue+", class = "+realValue.getClass());
                         write.invoke(fs, new Object[] { realValue });
                     } catch (IllegalAccessException iaexc) {
-                        TopManager.getDefault().notifyException(iaexc);
+                        ErrorManager.getDefault().notify(iaexc);
                     } catch (IllegalArgumentException iarexc) {
-                        TopManager.getDefault().notifyException(iarexc);
+                        ErrorManager.getDefault().notify(iarexc);
                     } catch (InvocationTargetException itexc) {
-                        TopManager.getDefault().notifyException(itexc);
+                        ErrorManager.getDefault().notify(itexc);
                     }
                 }
             }
@@ -550,11 +550,11 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 try {
                     value = read.invoke(fs, new Object[0]);
                 } catch (IllegalAccessException iaexc) {
-                    TopManager.getDefault().notifyException(iaexc);
+                    ErrorManager.getDefault().notify(iaexc);
                 } catch (IllegalArgumentException iarexc) {
-                    TopManager.getDefault().notifyException(iarexc);
+                    ErrorManager.getDefault().notify(iarexc);
                 } catch (InvocationTargetException itexc) {
-                    TopManager.getDefault().notifyException(itexc);
+                    ErrorManager.getDefault().notify(itexc);
                 }
                 if (value != null) {
                     String valueStr = getFSPropertyValueStr(value);
@@ -730,7 +730,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                     try {
                         lock = fo.lock();
                     } catch (IOException ioex) {
-                        TopManager.getDefault().getErrorManager().notify(ioex);
+                        ErrorManager.getDefault().notify(ioex);
                     }
                 }
                 if (writeTask == null) {
@@ -779,7 +779,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                         });
                          */
                     } catch (java.io.IOException ioExc) {
-                        TopManager.getDefault().getErrorManager().notify(ioExc);
+                        ErrorManager.getDefault().notify(ioExc);
                     }
                 }
             }, TASK_SCHEDULE_DELAY);

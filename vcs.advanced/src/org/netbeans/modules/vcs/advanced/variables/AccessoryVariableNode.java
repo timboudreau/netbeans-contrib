@@ -35,6 +35,7 @@ import org.netbeans.modules.vcscore.VcsConfigVariable;
 
 import org.netbeans.modules.vcs.advanced.VcsCustomizer;
 import org.netbeans.modules.vcs.advanced.UserVariablesPanel;
+import org.openide.DialogDisplayer;
 
 /**
  *
@@ -290,7 +291,7 @@ public class AccessoryVariableNode extends AbstractNode {
                 org.openide.util.NbBundle.getBundle(AccessoryVariableNode.class).getString("CTL_NewVariableTitle")
                 );
             //input.setInputText(org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandLabel"));
-            if (TopManager.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
+            if (DialogDisplayer.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
                 return;
 
             String labelName = input.getInputText();

@@ -15,15 +15,13 @@ package org.netbeans.modules.vcs.advanced.commands;
 
 import java.util.*;
 
-import org.openide.TopManager;
-//import org.openide.nodes.*;
-
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.ErrorManager;
 
 /**
  * This class provides input of commands from property file for compatibility
@@ -172,7 +170,7 @@ public class UserCommandIOCompat extends Object {
                         int intValue = Integer.parseInt(attrValue);
                         value = new Integer(intValue);
                     } catch (NumberFormatException exc) {
-                        TopManager.getDefault().notifyException(exc);
+                        ErrorManager.getDefault().notify(exc);
                         value = null;
                     }
                 } else {

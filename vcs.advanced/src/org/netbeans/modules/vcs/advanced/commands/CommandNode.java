@@ -39,6 +39,7 @@ import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.util.Table;
+import org.openide.DialogDisplayer;
 
 /**
  * The Node representation of a VCS command.
@@ -741,7 +742,7 @@ public class CommandNode extends AbstractNode {
                 //bundle.getString("CTL_NewCategoryTitle")
                 );
             //input.setInputText(org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandLabel"));
-            if (TopManager.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
+            if (DialogDisplayer.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
                 return;
 
             String labelName = input.getInputText();
@@ -750,7 +751,7 @@ public class CommandNode extends AbstractNode {
                 NotifyDescriptor.Message message = new NotifyDescriptor.Message(
                     org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_CommandNameAlreadyExists")
                 );
-                TopManager.getDefault().notify(message);
+                DialogDisplayer.getDefault().notify(message);
                 return ;
             }
             VcsCommand cmd = new UserCommand();
@@ -820,7 +821,7 @@ public class CommandNode extends AbstractNode {
                 //bundle.getString("CTL_NewCategoryTitle")
                 );
             //input.setInputText(org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandLabel"));
-            if (TopManager.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
+            if (DialogDisplayer.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
                 return;
 
             String labelName = input.getInputText();
@@ -829,7 +830,7 @@ public class CommandNode extends AbstractNode {
                 NotifyDescriptor.Message message = new NotifyDescriptor.Message(
                     org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_CommandNameAlreadyExists")
                 );
-                TopManager.getDefault().notify(message);
+                DialogDisplayer.getDefault().notify(message);
                 return ;
             }
             VcsCommand cmd = new UserCommand();
