@@ -70,7 +70,8 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         }
         org.openide.awt.SplittedPanel split = new org.openide.awt.SplittedPanel();
         split.setSplitType(org.openide.awt.SplittedPanel.HORIZONTAL);
-        split.add(new VariableTreeView(), org.openide.awt.SplittedPanel.ADD_LEFT);
+        //split.add(new VariableTreeView(), org.openide.awt.SplittedPanel.ADD_LEFT);
+        split.add(new org.openide.explorer.view.BeanTreeView(), org.openide.awt.SplittedPanel.ADD_LEFT);
         split.add(propertySheetView, org.openide.awt.SplittedPanel.ADD_RIGHT);
         //JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new CommandTreeView(), propertySheetView);
 
