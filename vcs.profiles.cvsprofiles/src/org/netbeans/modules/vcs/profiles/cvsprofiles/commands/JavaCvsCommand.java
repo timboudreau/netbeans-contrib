@@ -15,11 +15,13 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -123,24 +125,66 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
             stdoutDataListener.outputData(new String[] { "Arg["+i+"] = ", args[i] });
         }
          */
-        PipedOutputStream stdout = new PipedOutputStream();
-        PipedOutputStream stderr = new PipedOutputStream();
-        //stopOutputReading = new boolean[] { false };
-        try {
-            stdin = new PipedInputStream(stdout);
-            errin = new PipedInputStream(stderr);
-        } catch (IOException ioex) {}
-        RequestProcessor.Task task1 = RequestProcessor.getDefault().post(this);
-        RequestProcessor.Task task2 = RequestProcessor.getDefault().post(this);
+        File[] outputFiles = new File[2];
+        boolean[] errorIntoOutput = new boolean[1];
+        args = findOutputRedirection(args, outputFiles, errorIntoOutput);
+        OutputStream stdout = null;
+        OutputStream stderr = null;
+        if (outputFiles[0] != null) {
+            try {
+                outputFiles[0].createNewFile();
+                stdout = new FileOutputStream(outputFiles[0]);
+                stdin = null;
+            } catch (IOException ioex) {
+                stderrListener.outputLine(ioex.getLocalizedMessage());
+            }
+        }
+        if (stdout == null) {
+            PipedOutputStream pstdout = new PipedOutputStream();
+            stdout = pstdout;
+            try {
+                stdin = new PipedInputStream(pstdout);
+            } catch (IOException ioex) {}
+        }
+        if (errorIntoOutput[0]) {
+            stderr = stdout;
+            errin = null;
+        } else {
+            if (outputFiles[1] != null) {
+                try {
+                    outputFiles[1].createNewFile();
+                    stderr = new FileOutputStream(outputFiles[1]);
+                    errin = null;
+                } catch (IOException ioex) {
+                    stderrListener.outputLine(ioex.getLocalizedMessage());
+                }
+            }
+            if (stderr == null) {
+                PipedOutputStream pstderr = new PipedOutputStream();
+                stderr = pstderr;
+                try {
+                    errin = new PipedInputStream(pstderr);
+                } catch (IOException ioex) {}
+            }
+        }
+        RequestProcessor.Task task1 = null;
+        RequestProcessor.Task task2 = null;
+        if (stdin != null || errin != null) {
+            task1 = RequestProcessor.getDefault().post(this);
+            task2 = RequestProcessor.getDefault().post(this);
+        }
         transferEnvironment();
-        boolean success = CVSCommand.processCommand(args, null, localDir, new PrintStream(stdout), new PrintStream(stderr));
+        PrintStream pout = new PrintStream(stdout);
+        PrintStream perr = (stderr == stdout) ? pout : new PrintStream(stderr);
+        boolean success = CVSCommand.processCommand(args, null, localDir, pout, perr);
         try {
             stdout.close();
             stderr.close();
         } catch (IOException ioex) {}
-        //stopOutputReading[0] = true;
-        task1.waitFinished();
-        task2.waitFinished();
+        if (task1 != null && task2 != null) {
+            task1.waitFinished();
+            task2.waitFinished();
+        }
         return success;
     }
     
@@ -183,6 +227,59 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
         if (cvsEditor != null) {
             System.setProperty("cvs.editor", cvsEditor);
         }
+    }
+    
+    /**
+     * Detect the redirection of output to a file.
+     * UNIX-like redirection is detected: '>', '2>' and '2>&1'.<p>
+     * Possible variants are:<br>
+     * args... > file-name&nbsp;&nbsp;-&nbsp;&nbsp;Will redirect standard output into file &lt;file-name&gt;<br>
+     * args... 2> file-name&nbsp;&nbsp;-&nbsp;&nbsp;Will redirect error output into file &lt;file-name&gt;<br>
+     * args... > file-name1 2> file-name2&nbsp;&nbsp;-&nbsp;&nbsp;Will redirect standard output into file &lt;file-name1&gt; and error output into file &lt;file-name2&gt;<br>
+     * args... > file-name 2>&1&nbsp;&nbsp;-&nbsp;&nbsp;Will redirect both standard and error output into file &lt;file-name&gt;<br>
+     * args... 2>&1&nbsp;&nbsp;-&nbsp;&nbsp;Will just redirect error output into standard output
+     *
+     * @param args The list of arguments
+     * @param outputFiles The array of length 2 that will return references to
+     *        output files, if any.
+     * @param errorIntoStandard Will return true, when standard error stream
+     *        should be redirected into standard output stream.
+     * @return The new list of arguments whithout the redirection.
+     */
+    private static String[] findOutputRedirection(String[] args, File[] outputFiles, boolean [] errorIntoOutput) {
+        errorIntoOutput[0] = false;
+        for (int i = args.length - 1; i >= 0; i--) {
+            if ("2>&1".equals(args[i])) {
+                errorIntoOutput[0] = true;
+                args = removeItem(args, i);
+            } else if (">".equals(args[i])) {
+                if (i < (args.length - 1)) {
+                    String fileName = args[i+1];
+                    args = removeItem(args, i+1);
+                    args = removeItem(args, i);
+                    outputFiles[0] = new File(fileName);
+                }
+            } else if ("2>".equals(args[i])) {
+                if (i < (args.length - 1)) {
+                    String fileName = args[i+1];
+                    args = removeItem(args, i+1);
+                    args = removeItem(args, i);
+                    outputFiles[1] = new File(fileName);
+                }
+            }
+        }
+        return args;
+    }
+    
+    private static String[] removeItem(String[] args, int index) {
+        String[] newArgs = new String[args.length - 1];
+        int j = 0;
+        for (int i = 0; i < args.length; i++) {
+            if (i != index) {
+                newArgs[j++] = args[i];
+            }
+        }
+        return newArgs;
     }
     
     /*
@@ -233,6 +330,7 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
     }
     
     private void readStdOut() {
+        if (stdin == null) return ;
         BufferedReader bin = new BufferedReader(new InputStreamReader(stdin));
         String stdLine;
         do {
@@ -256,6 +354,7 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
     }
     
     private void readErrOut() {
+        if (errin == null) return ;
         BufferedReader ber = new BufferedReader(new InputStreamReader(errin));
         String errLine;
         do {
