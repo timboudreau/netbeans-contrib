@@ -31,6 +31,8 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
+import org.openide.awt.StatusDisplayer;
+import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
 //import org.netbeans.modules.vcscore.versioning.VcsFileObject;
@@ -43,6 +45,7 @@ import org.openide.util.RequestProcessor;
 public class VersioningExplorerAction extends GeneralCommandAction {
 
     private static final long serialVersionUID = -4949229720968764504L;
+    protected static boolean nodeFound = false;
     
     /** Creates new VersioningExplorerAction */
     public VersioningExplorerAction() {
@@ -95,7 +98,11 @@ public class VersioningExplorerAction extends GeneralCommandAction {
         public void run(){
             selectVersioningFiles(explorer,filesByFS);
             }
-        });       
+        });
+        if(nodeFound)
+            StatusDisplayer.getDefault().setStatusText("");
+        else
+            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(VersioningExplorerAction.class, "MSG_NodeNotFound"));
         explorer.requestActive();        
     }
  
@@ -165,6 +172,7 @@ public class VersioningExplorerAction extends GeneralCommandAction {
                 //explorer.setActivatedNodes((Node[]) nodes.toArray(new Node[nodes.size()]));
                 try {
                     manager.setSelectedNodes(nodeArray);
+                    nodeFound = true;
                 } catch (java.beans.PropertyVetoException exc) {
                 }
                 explorer.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
