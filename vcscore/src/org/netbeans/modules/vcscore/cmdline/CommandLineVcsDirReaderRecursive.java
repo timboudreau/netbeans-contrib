@@ -382,6 +382,14 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
      */
 
     public void run() {
+        if (exec == null) {
+            String dirName = (((String) vars.get("DIR"))).replace(((String) vars.get("PS")).charAt(0), '/');
+            RetrievingDialog rd = new RetrievingDialog(fileSystem, dirName, new javax.swing.JFrame(), false);
+            VcsUtilities.centerWindow(rd);
+            rd.run();
+            exitStatus = VcsCommandExecutor.SUCCEEDED;
+            return ;
+        }
         //String exec = (String) listSub.getProperty(VcsCommand.PROPERTY_EXEC);
         exec = Variables.expand(vars, exec, false).trim();
         //fileSystem.debug("LIST_SUB: "+exec); // NOI18N
