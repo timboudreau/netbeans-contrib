@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.jabber/1
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jabber/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Layer: org/netbeans/modules/jabber/resources/layer.xml
+Class-Path: ext/smack-all-1.3.0.jar

@@ -1,0 +1,4 @@
+org.netbeans.modules.jabber.ui.UrlExtension
+org.netbeans.modules.jabber.ui.RosterItemExtension
+org.netbeans.modules.jabber.ui.RemoteShowExtension
+org.netbeans.modules.jabber.ui.RemoteHelpExtension

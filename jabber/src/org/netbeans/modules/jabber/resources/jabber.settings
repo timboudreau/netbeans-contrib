@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+                      Sun Public License Notice
+ 
+The contents of this file are subject to the Sun Public License Version
+1.0 (the "License"). You may not use this file except in compliance with 
+the License. A copy of the License is available at http://www.sun.com/
+ 
+The Original Code is the Jabber module.
+The Initial Developer of the Original Code is Petr Nejedly
+Portions created by Petr Nejedly are Copyright (c) 2004.
+All Rights Reserved.
+ 
+Contributor(s): Petr Nejedly
+-->
+
+<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+<settings version="1.0">
+  <module name="org.netbeans.modules.jabber" spec="1.0"/>
+  <instanceof class="java.lang.Object"/>
+  <instanceof class="org.openide.windows.TopComponent"/>
+  <instanceof class="org.netbeans.modules.jabber.ui.NetbeansUI"/>	
+  <instance class="org.netbeans.modules.jabber.ui.NetbeansUI" method="getTopComponent"/>
+</settings>
