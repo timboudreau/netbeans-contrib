@@ -446,8 +446,9 @@ public class StubAllTogether extends PVCSStub {
         PropertySheetTabOperator pst = pso.getPropertySheetTabOperator("Properties");
         new StringProperty(pst, "Description").setStringValue("Checked in from VCS group.");
         sleep (2000); // stabilization
-        pso.close ();
         
+        closeAllVCSWindows();
+        openGroupsFrame();
         new PVCSFileNode (vgf.treeVCSGroupsTreeView(), DEFAULT_GROUP).pVCSPut ();
         PutCommandOperator putCommand = new PutCommandOperator(B_File.filename (0));
         String changeDescription = putCommand.getChangeDescription();
