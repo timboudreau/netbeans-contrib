@@ -13,18 +13,8 @@
 
 package com.netbeans.enterprise.modules.corba;
 
-
-import org.openide.compiler.Compiler;
-import org.openide.compiler.CompilerJob;
-import org.openide.modules.ModuleInstall;
-import org.openide.loaders.DataObject;
-
-import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
-import com.netbeans.developer.modules.loaders.java.settings.ExternalCompilerSettings;
-import org.openide.execution.NbProcessDescriptor;
-
-import org.openide.TopManager;
-import org.openide.filesystems.FileSystem;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 import java.util.Vector;
 import java.util.Properties;
@@ -32,7 +22,25 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.io.*;
 
+import javax.swing.JEditorPane;
+
+import org.openide.compiler.Compiler;
+import org.openide.compiler.CompilerJob;
+import org.openide.modules.ModuleInstall;
+import org.openide.loaders.DataObject;
+import org.openide.execution.NbProcessDescriptor;
+import org.openide.filesystems.FileSystem;
+import org.openide.TopManager;
+
+import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
+import com.netbeans.developer.modules.loaders.java.settings.ExternalCompilerSettings;
+import com.netbeans.developer.modules.text.options.AllOptions;
+import com.netbeans.editor.Settings;
+
 import com.netbeans.enterprise.modules.corba.settings.*;
+import com.netbeans.enterprise.modules.corba.idl.editor.settings.IDLEditorSettings;
+import com.netbeans.enterprise.modules.corba.idl.editor.settings.IDLOptions;
+
 
 /**
 * Module installation class for IDLDataObject.
@@ -41,240 +49,80 @@ import com.netbeans.enterprise.modules.corba.settings.*;
 */
 public class IDLModule extends ModuleInstall {
 
-   private static final boolean DEBUG = false;
-   //private static final boolean DEBUG = true;
+  private static final boolean DEBUG = false;
+  //private static final boolean DEBUG = true;
+
+  /** Module installed for the first time. */
+  public void installed() {
+    if (DEBUG) 
+      System.out.println ("CORBA Support Module installing...");
+    copyImpls ();
+    copyTemplates ();
+
+    restored ();
+    if (DEBUG) 
+      System.out.println ("CORBA Support Module installed :)");
+  }
+
+
+  /** Module installed again. */
+  public void restored() {
+    if (DEBUG) 
+      System.out.println ("CORBA Support Module restoring...");
+    if (DEBUG) 
+      System.out.println ("restoring editor support ...");
+    
+    installColoring ();
+    if (DEBUG)
+      System.out.println ("CORBA Support Module restored...");
+  }
    
-   /** Module installed for the first time. */
-   public void installed() {
-        if (DEBUG) System.err.println ("CORBA Support Module installing...");
-      copyImpls ();
-      copyTemplates ();
-
-      restored ();
-        if (DEBUG) System.err.println ("CORBA Support Module installed :)");
-   }
-
-
-   /** Module installed again. */
-   public void restored() {
-      if (DEBUG) System.out.println ("CORBA Support Module restoring...");
+  private void installColoring () {
+    if (DEBUG)
+      System.out.println ("installColoring()");
+    try {
+      Class settings = Class.forName
+        ("com.netbeans.editor.Settings",
+         false, this.getClass().getClassLoader()); // only test for editor module
       
-      //System.out.println ("setting template map :))");
-/*
-      Compiler.Manager.register (IDLDataObject.class, new Compiler.Manager () {
-	 public void prepareJob (CompilerJob job, Class type, DataObject ido) {
-	    ((IDLDataObject)ido).createCompiler (job, type);
-	 }
-      });
-*/
-
-      /*
-
-      Compiler.Manager.register (IDLDataObject.class,
-				 new Compiler.Manager() {
-	 public void prepareJob(CompilerJob job, Class type, DataObject ido) {
-	    if (DEBUG)
-	       System.out.println ("prepareJob...");
-	    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
-	       (CORBASupportSettings.class, true);	   
-	    ExternalCompiler.ErrorExpression eexpr = new ExternalCompiler.ErrorExpression 
-	       ("blabla", css.getErrorExpression (), css.file (), 
-		css.line (), css.column (), css.message ());
-
-	    //String expression = "^IDL Compiler: ([^ ]+)\n^([0-9]+):(.*): (.*)";
-	    //System.out.println ("manual expr: " + expression);
-	    //ExternalCompiler.ErrorExpression eexpr = new ExternalCompiler.ErrorExpression 
-	    //  ("blabla", expression , CORBASupportSettings.file (), 
-	    //   CORBASupportSettings.line (), CORBASupportSettings.column (), 
-	    //   CORBASupportSettings.message ());
-	    
-	    //if (DEBUG)
-	    //   System.out.println ("expression: " + css.expression () + ", " + css.file () + ", " 
-	    //			   + css.line () + ", " + css.column () + ", " + css.message ());
-	    
-	    //String[] tmps1 = new String[1];
-	    //tmps1[0] = new String ("");
-	    //tmps2[0] = new String ("");
-	    String command = new String ();
-
-	    // for orbs which has idl compiler implemented in java - for correct works
-	    // with classpathsettings from NbProcessDescriptor
-
-	    if (css.getIdl ().getProcessArgs ()[0].equalsIgnoreCase ("java")) {
-	       command = css.getIdl ().getProcessArgs ()[0];
-	       command = command + " " + css.getIdl ().getClasspathSwitch ();
-	       command = command + " " + getClasspath (css.getIdl ().getClasspathItems ());
-	       command = command + " ";
-	       for (int i=0; i<css.getIdl ().getProcessArgs().length-1; i++)
-		  command = command + css.getIdl ().getProcessArgs()[i+1];
-	       command = command + " ";
-	    }
-	    else {
-	       command = command + css.getIdl ().getProcessName () + " ";
-	    }
-	    if (CORBASupportSettings.param () != null)
-	       if (!CORBASupportSettings.param ().equals ("")) {
-		  command = command + CORBASupportSettings.param () + " ";
-	       }
-	    if (css.isTie ()) {
-	       command = command + css.getTieParam () + " ";
-	    }
-	    command = command + css.getPackageParam ();
-	    command = command + ido.getPrimaryFile ().getParent ().getPackageName 
-	       (css.delim ()) + " ";
-	    //command = command + ido.getPrimaryFile ().getParent ().getPackageName 
-	    //    ('/') + " ";
-	    command = command + css.getDirParam ();
-	    
-	    String file = "";
-	    try {
-	       file =  ido.getPrimaryFile ().getFileSystem ().getSystemName();
-	       command = command + file;
-	    } catch (org.openide.filesystems.FileStateInvalidException ex) {
-	       System.out.println (ex);
-	    }
-	    
-	    
-	    if (DEBUG) {
-	       file = file + "/" + ido.getPrimaryFile ();
-	       System.out.println ("command: " + command);
-	       System.out.println ("file: " + file);
-	       System.out.println ("prim: " + ido.getPrimaryFile ());
-	    }
-	    String[] tmps2 = new String[] {NbProcessDescriptor.CP_REPOSITORY};
-	    NbProcessDescriptor desc = new NbProcessDescriptor 
-	       (command , NbProcessDescriptor.NO_SWITCH, tmps2);
-
-
-      */
-
-	    /*
-	    if (DEBUG)
-	       System.out.println ("sub: " + css.getIdl ().getProcessArgs ()[0]);
-	    if (css.getIdl ().getProcessArgs ()[0].equalsIgnoreCase ("java")) {
-	       if (DEBUG)
-		  System.out.println ("java");
-	       if (DEBUG) {
-		  System.out.println ("process: " + css.getIdl ().getProcessName ());
-		  int length = css.getIdl ().getProcessArgs ().length;
-		  String[] params = css.getIdl ().getProcessArgs ();
-		  for (int i=0; i<length; i++)
-		     System.out.println ("param[" + i + "]: " + params[i]);
-	       }
-	       new ExternalCompiler(job, ido.getPrimaryFile(), type, css.getIdl (), eexpr);
-	    }
-	    else
-	    */
-
-      /*
-	       new ExternalCompiler(job, ido.getPrimaryFile(), type, desc, eexpr);
-	 }
-      */
+      Class restore = Class.forName
+        ("com.netbeans.enterprise.modules.corba.idl.editor.settings.RestoreColoring",
+         false, this.getClass().getClassLoader());
+      Method restoreMethod = restore.getMethod ("restore", null);
+      restoreMethod.invoke (restore.newInstance(), null);
       
-      //JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
-      
-      if (DEBUG)
-	 System.err.println ("CORBA Support Module restored...");
-      
-   }
-   
-   private String getClasspath(String[] classpathItems) {
-
-      /*
-
-    StringBuffer buff = new StringBuffer(100);
-    for (int i = 0; i < classpathItems.length; i++) {
-       if (NbProcessDescriptor.CP_REPOSITORY.equals (classpathItems[i])) {
-        Enumeration ee = org.openide.TopManager.getDefault().getRepository ().getFileSystems();
-        FileSystem fs;
-	String path;
-        while (ee.hasMoreElements()) {
-          path = "";
-          //try {
-            fs = (FileSystem) ee.nextElement();
-	    //            if (!fs.getUseInCompiler())
-	    //              continue;
-            //fs.prepareEnvironment(this);
-	    //} catch (EnvironmentNotSupportedException ex) {
-            //continue;
-	    //}
-	    //System.out.println ("fs: " + fs.toString ());
-	    //System.out.println ("fs2:" + fs.getSystemName ());
-	    path = fs.getSystemName ();
-	    buff.append(path);
-	    buff.append(java.io.File.pathSeparatorChar);
-        }
-       } else if (NbProcessDescriptor.CP_SYSTEM.equals (classpathItems[i])) {
-        buff.append(getSystemEntries());
-        buff.append(java.io.File.pathSeparatorChar);
-       } else {
-        buff.append (classpathItems[i]);
-        buff.append(java.io.File.pathSeparatorChar);
-       }
+    } catch (ClassNotFoundException e) {
+    } catch (NoSuchMethodException e) {
+    } catch (InvocationTargetException e) {
+    } catch (IllegalAccessException e) {
+    } catch (InstantiationException e) {
     }
-
-    return buff.toString ();
-
-      */
-      return null;
-
-   }
-
-   private static final String getSystemEntries() {
-
-      /*
-
-      // boot
-    String boot = System.getProperty("sun.boot.class.path");
-    StringBuffer sb = (boot != null ? new StringBuffer(boot) : new StringBuffer());
-    if (boot != null) {
-      sb.append(java.io.File.pathSeparatorChar);
-    }
-
-    // modules & libs
-    final String[] libs = TopManager.getDefault().getCompilationEngine().getLibraries();
-    for (int i = 0; i < libs.length; i++) {
-      sb.append(libs[i]);
-      sb.append(java.io.File.pathSeparatorChar);
-    }
-
-    // classpath
-    sb.append(System.getProperty("java.class.path"));
-
-    // std extensions
-    String extensions = System.getProperty("java.ext.dirs");
-    if (extensions != null) {
-      for (StringTokenizer st = new StringTokenizer(extensions, File.pathSeparator); 
-	   st.hasMoreTokens ();) {
-        String dir = st.nextToken();
-        File file = new File(dir);
-        if (!dir.endsWith(File.separator)) dir += File.separator;
-        if (file.isDirectory()) {
-          String[] files = file.list();
-          for (int i = 0; i < files.length; i++) {
-            String entry = files[i];
-            if (entry.endsWith(".jar"))
-              sb.append(java.io.File.pathSeparatorChar).append(dir).append(entry);
-          }
-        }
+    /*
+      } catch (Exception ex) {
+      ex.printStackTrace ();
       }
-    }
-    return sb.toString();
-
-      */
-      return null;
-   }
+    */
+  }
 
 
-// -----------------------------------------------------------------------------
-// Private methods
+  private String getClasspath(String[] classpathItems) {
+    return null;
+  }
+
+  private static final String getSystemEntries() {
+    return null;
+  }
+
+
+  // -----------------------------------------------------------------------------
+  // Private methods
   
   private void copyTemplates () {
     try {
       org.openide.filesystems.FileUtil.extractJar (
-        org.openide.TopManager.getDefault ().getPlaces ().folders().templates ().getPrimaryFile (),
-        getClass ().getClassLoader ().getResourceAsStream ("com/netbeans/enterprise/modules/corba/resources/templates.jar")
-      );
+						   org.openide.TopManager.getDefault ().getPlaces ().folders().templates ().getPrimaryFile (),
+						   getClass ().getClassLoader ().getResourceAsStream ("com/netbeans/enterprise/modules/corba/resources/templates.jar")
+						   );
     } catch (java.io.IOException e) {
       org.openide.TopManager.getDefault ().notifyException (e);
     }
@@ -283,9 +131,9 @@ public class IDLModule extends ModuleInstall {
   private void copyImpls () {
     try {
       org.openide.filesystems.FileUtil.extractJar (
-        org.openide.TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot (),
-        getClass ().getClassLoader ().getResourceAsStream ("com/netbeans/enterprise/modules/corba/resources/impls.jar")
-      );
+						   org.openide.TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot (),
+						   getClass ().getClassLoader ().getResourceAsStream ("com/netbeans/enterprise/modules/corba/resources/impls.jar")
+						   );
     } catch (java.io.IOException e) {
       org.openide.TopManager.getDefault ().notifyException (e);
     }
@@ -294,6 +142,8 @@ public class IDLModule extends ModuleInstall {
 
 /*
  * <<Log>>
+ *  23   Gandalf   1.22        11/9/99  Karel Gardas    - updated for new IDL 
+ *       Editor Stuff
  *  22   Gandalf   1.21        11/4/99  Karel Gardas    - update from CVS
  *  21   Gandalf   1.20        11/4/99  Karel Gardas    update from CVS
  *  20   Gandalf   1.19        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
