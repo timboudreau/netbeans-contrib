@@ -27,6 +27,7 @@ import org.openide.filesystems.*;
 import org.openide.filesystems.FileSystem; // override java.io.FileSystem
 import java.util.*;
 import java.io.*;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.openide.DialogDisplayer;
 
 public class GroupUtils {
@@ -147,7 +148,9 @@ public class GroupUtils {
         while (it.hasNext()) {
             try {
                 DataObject obj = (DataObject)it.next();
+                //System.out.println("ADDING dataobject to group: "+obj+", primaryFile = "+obj.getPrimaryFile());
                 DataShadow shadow = obj.createShadow(group);
+                //System.out.println("  shadow = "+shadow);
             } catch (java.io.IOException exc) {
                 ErrorManager.getDefault().annotate(exc, NbBundle.getBundle(GroupUtils.class).getString("GroupUtils.Error.CannotAddToGroup"));
             }
@@ -155,12 +158,17 @@ public class GroupUtils {
     }    
     
     /**
-     * the method checks final the specified dataobject is already 
+     * the method checks if the specified dataobject is already 
      * in any of the groups. if so, returns the shadow data object.
      * Otherwise returns null
      */
-    
     public static DataShadow findDOInGroups(DataObject dataObj) {
+        FileObject file = dataObj.getPrimaryFile();
+        FileObject[] originals = new FileObject[] { file };
+        VcsUtilities.convertFileObjects(originals);
+        file = originals[0];
+        //System.out.println("findDOInGroups("+dataObj+")");
+        //System.out.println(" primaryFile = "+dataObj.getPrimaryFile());
         FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         FileObject rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
         Enumeration enum = rootFo.getData(true);
@@ -168,7 +176,8 @@ public class GroupUtils {
             FileObject fo = (FileObject)enum.nextElement();
             try {
                 DataObject dobj = DataObject.find(fo);
-                if (dobj.getClass().equals(DataShadow.class)) {
+                //System.out.println("  dobj = "+dobj+", instanceof DataShadow = "+(dobj instanceof DataShadow));
+                if (dobj instanceof DataShadow) {
                     DataShadow shadow = (DataShadow)dobj;
                     if (!shadow.getOriginal().isValid()) {
 //                        System.out.println("original not valid.. deleting..");
@@ -177,7 +186,14 @@ public class GroupUtils {
                         } catch (java.io.IOException exc) {}
                         continue;
                     }
-                    if (shadow.getOriginal().equals(dataObj)) {
+                    //System.out.println("  original = "+shadow.getOriginal());
+                    //System.out.println("  original's primaryFile = "+shadow.getOriginal().getPrimaryFile());
+                    FileObject origFile = shadow.getOriginal().getPrimaryFile();
+                    originals[0] = origFile;
+                    VcsUtilities.convertFileObjects(originals);
+                    origFile = originals[0];
+                    //System.out.println("  original's original primary file = "+origFile+", equals = "+origFile.equals(file));
+                    if (origFile.equals(file)) {
                         return shadow;
                     }
                 }
@@ -185,6 +201,5 @@ public class GroupUtils {
             }
         }
         return null;
-    }    
-    
+    }
 }
