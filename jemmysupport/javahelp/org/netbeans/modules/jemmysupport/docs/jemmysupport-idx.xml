@@ -1,48 +1,31 @@
 <?xml version='1.0' encoding='ISO-8859-1'  ?>
 <!--
-*     Copyright 2002 Sun Microsystems, Inc. All rights reserved.
-*     Use is subject to license terms.
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
 -->
 
 <!DOCTYPE index 
-  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Index Version 1.0//EN"  
-         "http://java.sun.com/products/javahelp/index_1_0.dtd">  
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Index Version 2.0//EN"  
+         "http://java.sun.com/products/javahelp/index_2_0.dtd">
 
-<index version="1.0">
-
-
-   <indexitem text=" " />
-   <indexitem><b>====================================</b></indexitem>
-   <indexitem><b>JemmySupport</b></indexitem>
-   <indexitem><b>====================================</b></indexitem>
-
-   <indexitem text=" " />
-   <indexitem><b>-B-</b></indexitem>
-      <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
-
-   <indexitem><b>-C-</b></indexitem>
-      <indexitem text="component name lookup" target="jemmysupport_namelookup" />
-
-   <indexitem text=" " />
-   <indexitem><b>-G-</b></indexitem>
-      <indexitem text="generator of Jemmy components" target="jemmysupport_generator" />
+<index version="2.0">
   
-   <indexitem text=" " />
-   <indexitem><b>-J-</b></indexitem>
    <indexitem text="Jemmy Support Module" target="jemmysupport_intro">
       <indexitem text="about the module" target="jemmysupport_intro" />
       <indexitem text="component name lookup" target="jemmysupport_namelookup" />
       <indexitem text="generator of Jemmy components" target="jemmysupport_generator" />
       <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
    </indexitem>
-
-   <indexitem text=" " />
-   <indexitem><b>-L-</b></indexitem>
-      <indexitem text="component name lookup" target="jemmysupport_namelookup" />
-      <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
-
-   <indexitem text=" " />
-   <indexitem><b>-R-</b></indexitem>
-      <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
-  
+   <!-- The following are sorted under appropriate letters. -->
+   <indexitem text="resource bundle lookup" target="jemmysupport_lookup" />
+   <indexitem text="component name lookup" target="jemmysupport_namelookup" />
+   <indexitem text="generator of Jemmy components" target="jemmysupport_generator" />
 </index>
