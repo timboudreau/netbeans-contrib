@@ -1771,12 +1771,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 VcsUtilities.centerWindow(window);
             }
         }
+        VariableInputDialog[] cip = null;
         synchronized (configInputPanelsLock) {
             if (configInputPanels != null) {
-                Hashtable dialogVars = new Hashtable(fsVars);
-                for (int i = 0; i < configInputPanels.length; i++) {
-                    configInputPanels[i].updateVariableValues(dialogVars);
-                }
+                cip = new VariableInputDialog[configInputPanels.length];
+                System.arraycopy(configInputPanels, 0, cip, 0, configInputPanels.length);
+            }
+        }
+        if (cip != null) {
+            Hashtable dialogVars = new Hashtable(fsVars);
+            for (int i = 0; i < cip.length; i++) {
+                cip[i].updateVariableValues(dialogVars);
             }
         }
         if (doAutoFillVars) {
@@ -1982,46 +1987,51 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 }
             }
             Vector variables = fileSystem.getVariables();            
+            VariableInputDialog[] cip = null;
             synchronized (configInputPanelsLock) {
                 if (configInputPanels != null) {
-                    for (Iterator it = adjustedNames.iterator(); it.hasNext(); ) {
-                        String name = (String) it.next();
-                        String value = (String) vars.get(name);
-                        if (value != null) {
-                            value = varAdjust.revertAdjustedVarValue(value);
-                            vars.put(name, value);
-                        }
-                    }
-                    for (int i = 0; i < configInputPanels.length; i++) {
-                        configInputPanels[i].updateVariableValues(vars);
-                    }
-                    for (Iterator it = variables.iterator(); it.hasNext(); ) {
-                        VcsConfigVariable var = (VcsConfigVariable) it.next();
-                        String name = var.getName();
-                        String value = (String) vars.get(name);
-                        if (value != null && !value.equals(varsOrig.get(name))) {
-                            String oldValue = var.getValue();
-                            if (oldValue != null) {
-                                if (oldValue.indexOf("${") >= 0 || oldValue.indexOf("$[?") >= 0) {
-                                    continue; // Skip expandable values, they must not be reset
-                                }
-                            }
-                            var.setValue(value);
-                        }
-                    }
-                    /*
-                    if (varsOrig != null) {
-                        for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
-                            String name = (String) it.next();
-                            if (!varsOrig.containsKey(name)) {
-                                VcsConfigVariable var = new VcsConfigVariable(name, null, (String) vars.get(name), false, false, false, null);
-                                variables.add(var);
-                                System.out.println("  Adding variable \""+name+"\" = '"+vars.get(name)+"' to fileSystem.");
-                            }
-                        }
-                    }
-                     */
+                    cip = new VariableInputDialog[configInputPanels.length];
+                    System.arraycopy(configInputPanels, 0, cip, 0, configInputPanels.length);
                 }
+            }
+            if (cip != null) {
+                for (Iterator it = adjustedNames.iterator(); it.hasNext(); ) {
+                    String name = (String) it.next();
+                    String value = (String) vars.get(name);
+                    if (value != null) {
+                        value = varAdjust.revertAdjustedVarValue(value);
+                        vars.put(name, value);
+                    }
+                }
+                for (int i = 0; i < cip.length; i++) {
+                    cip[i].updateVariableValues(vars);
+                }
+                for (Iterator it = variables.iterator(); it.hasNext(); ) {
+                    VcsConfigVariable var = (VcsConfigVariable) it.next();
+                    String name = var.getName();
+                    String value = (String) vars.get(name);
+                    if (value != null && !value.equals(varsOrig.get(name))) {
+                        String oldValue = var.getValue();
+                        if (oldValue != null) {
+                            if (oldValue.indexOf("${") >= 0 || oldValue.indexOf("$[?") >= 0) {
+                                continue; // Skip expandable values, they must not be reset
+                            }
+                        }
+                        var.setValue(value);
+                    }
+                }
+                /*
+                if (varsOrig != null) {
+                    for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
+                        String name = (String) it.next();
+                        if (!varsOrig.containsKey(name)) {
+                            VcsConfigVariable var = new VcsConfigVariable(name, null, (String) vars.get(name), false, false, false, null);
+                            variables.add(var);
+                            System.out.println("  Adding variable \""+name+"\" = '"+vars.get(name)+"' to fileSystem.");
+                        }
+                    }
+                }
+                 */
             }
             // enable fs to react on change in variables
             fileSystem.setVariables(variables);
