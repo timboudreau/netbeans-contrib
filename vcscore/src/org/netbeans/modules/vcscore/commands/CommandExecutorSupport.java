@@ -792,6 +792,8 @@ public class CommandExecutorSupport extends Object {
                     DialogDescriptor dialogDescriptor = new DialogDescriptor(dlg, title, true, dlg.getActionListener());
                     dialogDescriptor.setClosingOptions(new Object[] { NotifyDescriptor.CANCEL_OPTION });
                     final Dialog dialog = TopManager.getDefault().createDialog(dialogDescriptor);
+                    dialog.getAccessibleContext().setAccessibleName(dlg.getAccessibleContext().getAccessibleName());
+                    dialog.getAccessibleContext().setAccessibleDescription(dlg.getAccessibleContext().getAccessibleDescription());
                     dlg.setCloseListener(new java.awt.event.ActionListener() {
                         public void actionPerformed(java.awt.event.ActionEvent ev) {
                             dialog.dispose();
