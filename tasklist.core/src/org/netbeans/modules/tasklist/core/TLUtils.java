@@ -120,6 +120,41 @@ public final class TLUtils {
                 notify(ErrorManager.INFORMATIONAL, e);
         }
     }
+
+    /** Compute first difference position for two strings */
+    public static int firstDiff(String s1, String s2) {
+        int n1 = s1.length();
+        int n2 = s2.length();
+        int n;
+        if (n1 < n2) {
+            n = n1;
+        } else {
+            n = n2;
+        }
+        for (int i = 0; i < n; i++) {
+            if (s1.charAt(i) != s2.charAt(i)) {
+                return i;
+            }
+        }
+        return n;
+    }
+
+    /** Compute last difference position for two strings. Returns
+        DISTANCE FROM THE END! */
+    public static int lastDiff(String s1, String s2) {
+        int n1 = s1.length()-1;
+        int n2 = s2.length()-1;
+        int i = 0;
+        while ((n2 >= 0) && (n1 >= 0)) {
+            if (s1.charAt(n1) != s2.charAt(n2)) {
+                return i;
+            }
+            --n2;
+            --n1;
+            ++i;
+        }
+        return i;
+    }    
     
 
 }
