@@ -33,12 +33,13 @@ import org.openide.filesystems.FileStatusListener;
 import org.openide.util.actions.SystemAction;
 
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 
 /**
  *
  * @author  Martin Entlicher
  */
-public abstract class VersioningFileSystem extends AbstractFileSystem {
+public abstract class VersioningFileSystem extends AbstractFileSystem implements VcsSearchTypeFileSystem {
 
     private static final SystemAction[] NO_ACTIONS = new SystemAction[0];
     
@@ -102,6 +103,27 @@ public abstract class VersioningFileSystem extends AbstractFileSystem {
         return null;
     }
         
+    /** It should return all possible VCS states in which the files in the filesystem
+     * can reside.
+     */
+    public String[] getPossibleFileStatuses() {
+        return (String[]) getFileStatusProvider().getPossibleFileStatusesTable().values().toArray(new String[0]);
+    }
+
+    /** returns the status for a dataobject. If it matches the status 
+     * the user selected in the find dialog (list of all possible states), then
+     * it's found and displayed.
+     */
+    public String getStatus(org.openide.loaders.DataObject dObject) {
+        if (dObject instanceof org.netbeans.modules.vcscore.versioning.impl.VersioningDataObject) {
+            org.netbeans.modules.vcscore.versioning.impl.VersioningDataObject vdo = 
+                (org.netbeans.modules.vcscore.versioning.impl.VersioningDataObject) dObject;
+            return vdo.getStatus();
+        } else {
+            return "";
+        }
+    }
+
     /**
      * Perform refresh of status information on all children of a directory
      * @param path the directory path
