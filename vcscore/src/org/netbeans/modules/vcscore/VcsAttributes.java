@@ -265,16 +265,20 @@ public class VcsAttributes extends DefaultAttributes {
      * @param recursive if it's value is Boolean.TRUE, a recursive refresh
      * of this folder is performed.
      */
-    private void performRefresh(String name, Object recursive) {
-        boolean rec = Boolean.TRUE.equals(recursive);
-        FileCacheProvider cache = fileSystem.getCacheProvider();
-        if (cache != null) {
-            if (rec) {
-                cache.refreshCacheDirRecursive(name);
-            } else {
-                cache.refreshCacheDir(name);
+    private void performRefresh(final String name, final Object recursive) {
+        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+            boolean rec = Boolean.TRUE.equals(recursive);
+            FileCacheProvider cache = fileSystem.getCacheProvider();
+            if (cache != null) {
+                if (rec) {
+                    cache.refreshCacheDirRecursive(name);
+                } else {
+                    cache.refreshCacheDir(name);
+                }
             }
-        }
+            }
+        });
     }
     
     /**
