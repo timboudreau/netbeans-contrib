@@ -400,7 +400,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
         if (collector != null) {
             CommandOutputVisualizer visualizer = (CommandOutputVisualizer) outputVisualizers.get(removedExecutor.getCommand());
-            if (visualizer != null) {
+            if (visualizer == null) {
                 collector.finalize();
             }
         }
