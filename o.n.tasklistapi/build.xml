@@ -80,14 +80,12 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="javadoc" description="Build Javadoc.">
-        <!-- Ant 1.4 bug workaround: <property refid="..."/> does not work inside <ant> -->
-        <property name="_cp" refid="cp"/>
         <ant dir="${nb_all}/nbbuild/javadoctools" antfile="template.xml" target="javadoc">
             <property name="javadoc.base" location="."/>
             <property name="javadoc.name" value="TasklistAPI"/>
             <property name="javadoc.title" value="Tasklist API"/>
             <property name="javadoc.packages" value="org.netbeans.api.tasklist,org.netbeans.spi.tasklist"/>
-            <property name="javadoc.classpath" value="${_cp}"/>
+            <property name="javadoc.classpath" refid="cp"/>
             <property name="javadoc.overview" value="doc/overview.html"/>
             <property name="javadoc.docfiles" location="doc"/>
             <property name="javadoc.header" value='&lt;font color="red"&gt;This is a preliminary version of APIs.&lt;br&gt;Listed APIs are subject to change.&lt;/font&gt;'/>

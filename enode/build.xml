@@ -94,14 +94,12 @@ All Rights Reserved.
     </path>
     
     <target name="javadoc" description="Build Javadoc.">
-        <!-- Ant 1.4 bug workaround: <property refid="..."/> does not work inside <ant> -->
-        <property name="_cp" refid="cp"/>
         <ant dir="${nb_all}/nbbuild/javadoctools" antfile="template.xml" target="javadoc">
             <property name="javadoc.base" location="."/>
             <property name="javadoc.name" value="EnodeAPI"/>
             <property name="javadoc.title" value="Extensible Node API"/>
             <property name="javadoc.packages" value="org.netbeans.api.enode,org.netbeans.spi.enode"/>
-            <property name="javadoc.classpath" value="${_cp}"/>
+            <property name="javadoc.classpath" refid="cp"/>
         </ant>
     </target>
   
