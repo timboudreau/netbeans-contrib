@@ -57,8 +57,9 @@ public class LineNumberPropertyEditor extends PropertyEditorSupport {
      */
     private int getIntValue() {
         Object v = getValue();
-        if (v == null)
+        if (v == null) {
             return 0;
+        }
         if (v instanceof Line)
             return ((Line) v).getLineNumber() + 1;
         else

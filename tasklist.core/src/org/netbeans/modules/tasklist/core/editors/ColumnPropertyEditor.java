@@ -49,6 +49,10 @@ public class ColumnPropertyEditor extends PropertyEditorSupport {
      * @return value
      */
     private int getIntValue() {
-        return ((Integer) getValue()).intValue();
+        Integer a = ((Integer) getValue());
+        if (a != null)
+            return a.intValue();
+        else
+            return 0;
     }
 }
