@@ -92,7 +92,7 @@ public abstract class PVCSStub extends GenericStub {
 //        history.print ();
 
         JTextFieldOperator txt = new JTextFieldOperator(wizard, VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE);
-        txt.clearText();
+        txt.setText("");
         txt.typeText(serverDirectory);
         txt = new JTextFieldOperator(wizard, VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION);
 //        history.print ();
@@ -101,7 +101,7 @@ public abstract class PVCSStub extends GenericStub {
         waitCommand ("AUTO_FILL_CONFIG", "");
 //        history.print ();
 
-        txt.clearText ();
+        txt.setText ("");
         txt.typeText (clientDirectory);
 
         wizard.next();
