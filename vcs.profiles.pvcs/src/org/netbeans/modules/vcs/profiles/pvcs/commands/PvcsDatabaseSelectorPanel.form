@@ -13,12 +13,12 @@
   <SubComponents>
     <Component class="javax.swing.JRadioButton" name="dbRadioButtonCustom">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/commands/Bundle.properties" key="ACS_LABEL_DatabaseLocationA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
-        </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/commands/Bundle.properties" key="LABEL_DatabaseLocation" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/commands/Bundle.properties" key="ACS_LABEL_DatabaseLocationA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -30,7 +30,7 @@
     <Component class="javax.swing.JTextField" name="customDbTextField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/Bundle.properties" key="ACS_TEXTFIELD_DatabaseLocationA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="" key="ACS_TEXTFIELD_DatabaseLocationA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -41,11 +41,11 @@
     </Component>
     <Component class="javax.swing.JButton" name="customDbBrowseButton">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/Bundle.properties" key="ACS_LABEL_BrowseA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
-        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/commands/Bundle.properties" key="LABEL_Browse" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="" key="ACS_LABEL_BrowseA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -56,11 +56,11 @@
     </Component>
     <Component class="javax.swing.JRadioButton" name="dbRadioButtonGUI">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/Bundle.properties" key="ACS_LABEL_SelectGUIDatabasesA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
-        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/commands/Bundle.properties" key="LABEL_SelectGUIDatabases" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="" key="ACS_LABEL_SelectGUIDatabasesA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -71,11 +71,11 @@
     </Component>
     <Component class="javax.swing.JRadioButton" name="dbRadioButtonSearch">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/Bundle.properties" key="ACS_LABEL_SearchInFolderA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
-        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/commands/Bundle.properties" key="LABEL_SearchInFolder" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="" key="ACS_LABEL_SearchInFolderA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -87,7 +87,7 @@
     <Component class="javax.swing.JTextField" name="dbFolderTextField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/Bundle.properties" key="ACS_TEXTFIELD_SearchInFolderA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="" key="ACS_TEXTFIELD_SearchInFolderA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -98,11 +98,11 @@
     </Component>
     <Component class="javax.swing.JButton" name="dbFolderBrowseButton">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/Bundle.properties" key="ACS_LABEL_BrowseSubfolderA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
-        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/commands/Bundle.properties" key="LABEL_Browse" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/commands/Bundle.properties" key="LABEL_dbFolderBrowse" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="pvcs/src/org/netbeans/modules/vcs/profiles/pvcs/commands/Bundle.properties" key="ACS_LABEL_dbFolderBrowseSubfolderA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -123,7 +123,7 @@
         <Component class="javax.swing.JList" name="dbList">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/vcs/profiles/pvcs/Bundle.properties" key="ACS_LIST_DatabaseListA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="" key="ACS_LIST_DatabaseListA11yDesc" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
