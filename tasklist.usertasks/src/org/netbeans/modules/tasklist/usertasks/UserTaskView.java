@@ -21,6 +21,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
@@ -65,6 +67,8 @@ public class UserTaskView extends TaskListView implements TaskListener {
         LOGGER.setLevel(Level.OFF);
     }
     
+    private static final Timer TIMER = new Timer(true);
+    
     /** Construct a new UserTaskView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
 	system when deserializing windows. Client code should not call
@@ -102,8 +106,21 @@ public class UserTaskView extends TaskListView implements TaskListener {
 	    }
 	    views.add(this);
 	}
+        
+        TIMER.scheduleAtFixedRate(new TimerTask() {
+            public void run() {
+                timer();
+            }
+        }, 0, 1000);
     }
 
+    /**
+     * Executed once per second
+     */
+    private void timer() {
+        // TODO
+    }
+    
     public SystemAction[] getToolBarActions() {
         return new SystemAction[] {
             SystemAction.get(NewTaskAction.class),

@@ -100,4 +100,15 @@ Microsystems, Inc. All Rights Reserved.
        <nbinstaller action="reinstall" module="netbeans/modules/tasklist-usertasks.jar"/>
     </target>
 
+    <target name="parser">
+        <jjtree target="src/org/netbeans/modules/tasklist/usertasks/ics/ics.jjt" 
+            outputdirectory="src/org/netbeans/modules/tasklist/usertasks/ics"
+            javacchome="${javacchome}"
+            static="false"/>
+        <javacc target="src/org/netbeans/modules/tasklist/usertasks/ics/ics.jj" 
+            outputdirectory="src/org/netbeans/modules/tasklist/usertasks/ics"
+            buildparser="true"
+            static="false"
+            javacchome="${javacchome}"/>
+    </target>
 </project>

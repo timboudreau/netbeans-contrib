@@ -47,6 +47,7 @@ Microsystems, Inc. All Rights Reserved.
         <testset dir="unit/src">
             <patternset>
                 <include name="org/netbeans/modules/tasklist/usertasks/*Test.class"/>
+                <include name="org/netbeans/modules/tasklist/usertasks/ics/*Test.class"/>
                 <!--exclude name="org/netbeans/core/ValidateClassLinkageTest.class"/-->
             </patternset>
         </testset>
