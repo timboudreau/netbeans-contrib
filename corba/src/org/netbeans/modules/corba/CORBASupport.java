@@ -151,13 +151,14 @@ public class CORBASupport {
      * no-arg constructor
      */
     CORBASupport() {
-	System.out.println ("CORBASupport");
+//	System.out.println ("CORBASupport");
     }
 
 }
 
 /*
  * <<Log>>
+ *  10   Gandalf   1.9         6/11/99  Jaroslav Tulach System.out commented
  *  9    Gandalf   1.8         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
  *  8    Gandalf   1.7         5/28/99  Karel Gardas    

@@ -19,6 +19,7 @@ import java.awt.datatransfer.Transferable;
 import java.beans.BeanInfo;
 import java.io.IOException;
 
+import org.openide.TopManager;
 import org.openide.util.datatransfer.ExTransferable;
 
 /** Exetends ClassDataNode, overrides one method
@@ -63,10 +64,10 @@ final class SerDataNode extends ClassDataNode {
         setIconBase(SER_BASE);
       }
     } catch (IOException ex) {
-      System.out.println ("IO EXCEPT");
+      TopManager.getDefault ().notifyException (ex);
       setIconBase(SER_ERROR_BASE);
     } catch (ClassNotFoundException ex) {
-      System.out.println ("CNF EXCEPT");
+      TopManager.getDefault ().notifyException (ex);
       setIconBase(SER_ERROR_BASE);
     }
     iconResolved = true;
@@ -76,6 +77,7 @@ final class SerDataNode extends ClassDataNode {
 
 /*
  * Log
+ *  8    src-jtulach1.7         6/11/99  Jaroslav Tulach System.out commented
  *  7    src-jtulach1.6         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
  *  6    src-jtulach1.5         3/22/99  Ian Formanek    Icons location fixed
