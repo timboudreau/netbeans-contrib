@@ -1,0 +1,94 @@
+<html>
+<head>
+<link rel = stylesheet href = "netbeans.css">
+</head>
+<body>
+<h3>Using Java Speech to increase the accessibility of the NetBeans IDE</h3>
+This document describes a small Java Speech application to allow switching between workspaces in NetBeans. In order to run it, a speech engine is required, for instance, IBM ViaVoice. Also, the Java Speech JAR file is required. It can be found at <a href="http://java.sun.com/products/java-media/speech/">http://java.sun.com/products/java-media/speech</a>
+<p>
+To use the Java Speech environment, we need to initialize the <code>Recognizer</code>, give it a grammar to listen for and then start listening for speech that matches that grammar.
+<p>
+The grammar, found in the file 'netbeans.gram', that is used by this example is:
+<pre>
+&lt;action&gt; = (switch | go) to {switch};
+&lt;target&gt; = &lt;workspace&gt; | explorer {explorer};
+&lt;workspace&gt; = (Editing | "GUI Editing" | Browsing | Running | Debugging) {workspace};
+public &lt;command&gt; = &lt;action&gt; [&lt;target&gt;];
+</pre>
+This will accept the following phrases:
+<ul>
+<li>Switch to editing
+<li>Go to editing
+<li>Switch to GUI editing
+<li>Go to GUI editing
+<li>Switch to browsing
+<li>Go to browsing
+<li>Switch to running
+<li>Go to running
+<li>Switch to debugging
+<li>Go to debugging
+</ul>
+To start listening for this grammar:
+<blockquote>
+<pre>
+public static void main(String args[]){
+
+  try{
+
+    // Create a recognizer that supports English.
+    rec = Central.createRecognizer(new EngineModeDesc(Locale.ENGLISH));
+
+    // Start up the recognizer
+    rec.allocate();
+
+    // Load the grammar from a file, and enable it
+    FileReader reader = new FileReader("netbeans.gram");
+    RuleGrammar gram = rec.loadJSGF(reader);
+    gram.setEnabled(true);
+
+    // Add the listener to get results
+    rec.addResultListener(new WorkspaceActivator());
+
+    // Commit the grammar
+    rec.commitChanges();
+
+    // Request focus and start listening
+    rec.requestFocus();
+    rec.resume();
+  }
+  catch (Exception e){
+
+    e.printStackTrace();
+  }
+}
+</pre>
+</blockquote>
+
+We use a <code>ResultListener</code> to respond to any speech which is accepted by the grammar.
+
+<blockquote>
+<pre>
+public void resultAccepted(ResultEvent e){
+
+  ResultToken[] tokens = ((Result)(e.getSource())).getBestTokens();
+  String[] tags = ((FinalRuleResult)(e.getSource())).getTags();
+
+  if ((tags[0].compareTo("switch") == 0) && (tags[1].compareTo("workspace") == 0)){
+
+    String workspaceName = tokens[2].getWrittenText();
+
+    Workspace workspace = TopManager.getDefault().getWindowManager().findWorkspace(workspaceName);
+    if (workspace != null){
+
+      workspace.activate();
+    }
+  }
+}
+</pre>
+</blockquote>
+This example was created to show that using Java Speech to control the IDE is a viable concept.
+<p>
+<h3>Useful links</h3>
+<a href="http://java.sun.com/products/java-media/speech/">Java Speech home</a><br>
+<a href="http://java.sun.com/products/java-media/speech/forDevelopers/jsapi-guide/index.html">Java Speech API Programmer's Guide</a><br>
+<a href="http://www.alphaworks.ibm.com/tech/speech">IBM's Speech for Java</a>

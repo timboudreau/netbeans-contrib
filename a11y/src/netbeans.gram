@@ -1,0 +1,6 @@
+grammar netbeans;
+
+<action> = (switch | go) to {switch};
+<target> = <workspace> | explorer {explorer};
+<workspace> = (Editing | "GUI Editing" | Browsing | Running | Debugging) {workspace};
+public <command> = <action> [<target>];
