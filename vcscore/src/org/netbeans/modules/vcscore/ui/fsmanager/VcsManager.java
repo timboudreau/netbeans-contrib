@@ -121,6 +121,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         editButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
+        explArea = new javax.swing.JTextArea();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -135,7 +136,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 2, 0);
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 2, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         jPanel1.add(tableLabel, gridBagConstraints);
 
@@ -158,7 +159,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(8, 12, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(21, 12, 0, 0);
         jPanel4.add(newButton, gridBagConstraints);
 
         removeButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_VcsManager.btnRemove_mnc").charAt(0));
@@ -196,6 +197,13 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         jPanel4.add(jPanel3, gridBagConstraints);
 
         add(jPanel4, java.awt.BorderLayout.EAST);
+
+        explArea.setEditable(false);
+        explArea.setText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("explArea_txt"));
+        explArea.setOpaque(false);
+        add(explArea, java.awt.BorderLayout.NORTH);
+        explArea.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_explArea"));
+        explArea.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACSD_explArea"));
 
     }//GEN-END:initComponents
     
@@ -357,6 +365,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton editButton;
+    private javax.swing.JTextArea explArea;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
