@@ -1528,24 +1528,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         // TODO: should be called when the last VCS command finished
     }
 
-    //-------------------------------------------
-    private boolean needPromptForPR(String name, String exec, Hashtable vars){
-        //D.deb("needPromptFor('"+name+"','"+exec+"')"); // NOI18N
-        boolean result=false;
-        String oldPassword=(String)vars.get("PASSWORD"); vars.put("PASSWORD",""); // NOI18N
-        String oldReason=(String)vars.get("REASON"); vars.put("REASON",""); // NOI18N
-
-        String test="variable_must_be_prompt_for"; // NOI18N
-        vars.put(name,test);
-        String s = Variables.expand(vars, exec, false);
-        result = (s.indexOf(test) >= 0) ? true : false ;
-
-        if (oldPassword != null) { vars.put("PASSWORD", oldPassword); } // NOI18N
-        if (oldReason != null) { vars.put("REASON", oldReason); } // NOI18N
-
-        return result ;
-    }
-
     /**
      * Allows some cleanup of the document which the user is asked for.
      * doc The Document
