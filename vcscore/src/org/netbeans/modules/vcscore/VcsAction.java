@@ -567,7 +567,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
                     FileObject fo = (FileObject) it.next();
                     String path = fo.getPackageNameExt('/', '.');
-                    if (fileSystem.isImportant(path) || processAll) {
+                    if (processAll || fileSystem.isImportant(path)) {
                         String status = statusProv.getFileStatus(path);
                         if (status != null) statuses.add(status);
                     }
@@ -581,7 +581,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                     for (Iterator it = files.iterator(); it.hasNext(); ) {
                         FileObject fo = (FileObject) it.next();
                         String path = fo.getPackageNameExt('/', '.');
-                        if (fileSystem.isImportant(path) || processAll) {
+                        if (processAll || fileSystem.isImportant(path)) {
                             String status = statusProv.getFileStatus(path);
                             if (status != null) statuses.add(status);
                         }
