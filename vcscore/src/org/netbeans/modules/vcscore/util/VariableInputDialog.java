@@ -106,10 +106,18 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //System.out.println("currentHistory = "+currentHistory);
         prevButton.setEnabled(currentHistory > 0);
         nextButton.setEnabled(false);
+        setMnemonics();
         //initFileLabel(files[0]);
         if (inputDescriptor != null) {
             setA11y(this, inputDescriptor);
         }
+    }
+    
+    private void setMnemonics() {
+        prevButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.prevButton.mnemonic").charAt(0));
+        nextButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.nextButton.mnemonic").charAt(0));
+        asDefaultButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.mnemonic").charAt(0));
+        getDefaultButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("getDefaultButton.mnemonic").charAt(0));
     }
 
     public void setFilePromptDocumentListener(VariableInputDialog.FilePromptDocumentListener docListener) {
