@@ -82,19 +82,14 @@ public class AddIfDefinedAction extends NodeAction {
     }    
     
     public javax.swing.JMenuItem getPopupPresenter() {
-        JInlineMenu inlineMenu = new JInlineMenu();
-        JMenu menu=new JMenuPlus(getName()); // NOI18N
-        JMenuItem item=null;
-        JMenu submenu = null;
+        JMenu menu=new JMenuPlus(getName());
+	
         String[] varArray = AnnotPatternNode.VARIABLES_ARRAY_DISP_NAMES;
         for (int i = 0; i < varArray.length; i++) {
-            item=createItem(varArray[i]); // NOI18N
-            menu.add(item);
+            menu.add(createItem(varArray[i]));
         }
-        JMenuItem[] menus = new JMenuItem[1];
-        menus[0] = menu;
-        inlineMenu.setMenuItems(menus);
-        return inlineMenu;
+	
+	return menu;
     }    
     
 }
