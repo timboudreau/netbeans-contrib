@@ -39,9 +39,9 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  */
 public class VssListRecursive extends VcsListRecursiveCommand implements CommandDataOutputListener {
     
-    private static final String DIFFING_ENG = "Diffing: $/"; // NOI18N
+    private static final String DIFFING_ENG = "Diffing:"; // NOI18N
     private static final String DIFFING_LOC = org.openide.util.NbBundle.getBundle(VssListRecursive.class).getString("VSS_ProjectDiffing"); // NOI18N
-    private static final String AGAINST_ENG = "Against: "; // NOI18N
+    private static final String AGAINST_ENG = "Against:"; // NOI18N
     private static final String AGAINST_LOC = org.openide.util.NbBundle.getBundle(VssListRecursive.class).getString("VSS_ProjectAgainst"); // NOI18N
     
     private String dir = null; // The local dir being refreshed.
@@ -418,6 +418,8 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         }
     }
     
+    private boolean diffingPathFollows = false;
+    
     /** Parse the output of "ss dir -R -F- && ss diff -R" commands
      * ss dir -R -F- gives the subfolders in the given folder
      * ss diff -R gives the differences between the local folders and the repository.
@@ -427,7 +429,7 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         //System.out.println("outputData("+line+")");
         if (line == null) return;
         String file = line.trim();
-        if (file.startsWith(PROJECT_BEGIN)) { // Listing of a folder from "dir" will follow
+        if (!diffingPathFollows && file.startsWith(PROJECT_BEGIN)) { // Listing of a folder from "dir" will follow
             String folder = file.substring(PROJECT_BEGIN.length(), file.length() - 1);
             folder = folder.replace(File.separatorChar, '/');
             if (folder.startsWith(relDir)) {
@@ -442,19 +444,31 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
             folder = (lastFilesCont.getPath().length() > 0) ? (lastFilesCont.getPath() + '/' + folder) : folder;
             VcsDirContainer subDir = lastFilesCont.addSubdir(folder);
             readLocalFiles(folder, subDir);
-        } else if (file.startsWith(DIFFING)) {
+        } else if (file.startsWith(DIFFING) || diffingPathFollows) {
             flushLastFile();
             gettingFolders = false;
-            String folder = file.substring(DIFFING.length());
-            folder = folder.replace(File.separatorChar, '/');
-            if (folder.startsWith(relDir)) {
-                folder = folder.substring(relDir.length());
-                if (folder.startsWith("/")) folder = folder.substring(1);
+            String folder;
+            if (diffingPathFollows) {
+                folder = file;
+                diffingPathFollows = false;
+            } else {
+                folder = file.substring(DIFFING.length());
             }
-            lastFilesCont = getFilesContainer(folder);
-            gettingLocalFiles = false;
-            gettingSourceSafeFiles = false;
-            gettingDifferentFiles = false;
+            if (folder.length() == 0) {
+                diffingPathFollows = true;
+            } else {
+                folder = folder.trim();
+                folder = folder.substring(PROJECT_BEGIN.length()); // remove "/$"
+                folder = folder.replace(File.separatorChar, '/');
+                if (folder.startsWith(relDir)) {
+                    folder = folder.substring(relDir.length());
+                    if (folder.startsWith("/")) folder = folder.substring(1);
+                }
+                lastFilesCont = getFilesContainer(folder);
+                gettingLocalFiles = false;
+                gettingSourceSafeFiles = false;
+                gettingDifferentFiles = false;
+            }
         } else if (LOCAL_FILES.equals(file)) {
             gettingLocalFiles = true;
         } else if (SOURCE_SAFE_FILES.equals(file)) {
