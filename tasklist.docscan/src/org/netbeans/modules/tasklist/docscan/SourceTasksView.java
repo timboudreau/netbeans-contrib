@@ -546,9 +546,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         String prefix = "";
         getMiniStatus().setHorizontalAlignment(SwingConstants.LEFT);
         StringBuffer msg = new StringBuffer(80);
-        if (isFiltered()) {
-            msg.append(Util.getString("filter-flag"));
-        }
         if (job == null && allJob== null && selectedFolder != null) {
             if (msg.length() > 0) prefix = ", "; // NOI18N
             msg.append(prefix + Util.getMessage("ctx-flag", createLabel(selectedFolder)));
@@ -1529,10 +1526,16 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public AccessibleContext getAccessibleContext() {
         AccessibleContext ret = super.getAccessibleContext();
-        if (job == null) {
-            ret.setAccessibleDescription(Util.getMessage("folder_desc11", createLabel(selectedFolder)));
-        } else {
-            ret.setAccessibleDescription(Util.getString("file_desc11"));
+        switch (getMode()) {
+            case CURRENT_FILE_MODE:
+                ret.setAccessibleDescription(Util.getString("file_desc11"));
+                break;
+            case OPENED_FILES_MODE:
+                ret.setAccessibleDescription(Util.getString("opened_desc11"));
+                break;
+            case SELECTED_FOLDER_MODE:
+                ret.setAccessibleDescription(Util.getMessage("folder_desc11", createLabel(selectedFolder)));
+                break;
         }
         return ret;
     }
