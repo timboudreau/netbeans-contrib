@@ -138,9 +138,12 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         }
 
         final String rootDir = Variables.expand(vars, (String) vars.get(args[0]), false);
-        workingFullPath = rootDir; //(rootDir.length() > 0) ?
-                            //(fsRootDir + "/" + rootDir).replace('/', File.separatorChar) :
-                            //fsRootDir.replace('/', File.separatorChar);
+        final String rootDirCutted = (rootDir.endsWith(File.separator)) ?
+                                      rootDir.substring(0, rootDir.length() - 1) :
+                                      rootDir;
+        // The workingFullPath is used just to know where one should cut the file
+        // path to have it relative to working dir (or whatever is specified in args[0])
+        workingFullPath = rootDirCutted;
         relativeWorking = (String) vars.get("COMMON_PARENT"); // NOI18N
         if (relativeWorking == null) relativeWorking = ""; // NOI18N
         final List filesBuff = new ArrayList();
@@ -175,7 +178,7 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
                     }
                     if (!folder.equals(lastFileFolder[0])) {
                         if (lastFileFolder[0] != null) {
-                            sendUpdatedFiles((rootDir + File.separator + lastFileFolder[0]).
+                            sendUpdatedFiles((rootDirCutted + File.separator + lastFileFolder[0]).
                                               replace('/', File.separatorChar),
                                              lastFileFolder[0], filesBuff,
                                              filesStatusBuff, stdoutDataListener,
@@ -202,7 +205,7 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
                     if (".".equals(data[0]) || data[0].length() == 0) { // NOI18N
                         file = rootDir;
                     } else {
-                        file = rootDir + File.separator + data[0];
+                        file = rootDirCutted + File.separator + data[0];
                     }
                     file = file.replace('/', File.separatorChar);
                     if (data.length > 1 && data[1].length() > 0) {
@@ -230,7 +233,7 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         }
         if (doRefresh) {
             if (lastFileFolder[0] != null) {
-                sendUpdatedFiles((rootDir + File.separator + lastFileFolder[0]).
+                sendUpdatedFiles((rootDirCutted + File.separator + lastFileFolder[0]).
                                   replace('/', File.separatorChar),
                                  lastFileFolder[0], filesBuff, filesStatusBuff,
                                  stdoutDataListener, processingFiles);
