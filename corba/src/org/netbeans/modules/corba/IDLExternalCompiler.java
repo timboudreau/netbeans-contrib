@@ -68,9 +68,9 @@ public class IDLExternalCompiler extends ExternalCompiler {
     }
 
     /*
-    public String getFileName() {
-       return getFileObject().getPackageName('.');
-}
+      public String getFileName() {
+      return getFileObject().getPackageName('.');
+      }
     */
 
     /** Find brother of the file object with NAME+suffix and class extension
@@ -78,9 +78,9 @@ public class IDLExternalCompiler extends ExternalCompiler {
      */
 
     /*
-    private static FileObject findBrotherClass(FileObject fo, String suffix) {
+      private static FileObject findBrotherClass(FileObject fo, String suffix) {
       return null;
-}
+      }
     */
 
     /** Checks if stub and skeleton are up to date.
@@ -88,17 +88,17 @@ public class IDLExternalCompiler extends ExternalCompiler {
      */
 
     /*
-    public boolean isUpToDate() {
-     if (type == BUILD) return false;
-     if (type == CLEAN) {
-       // delete skeleton and stub
-       cleanStub(IDLDataLoader.STUB_SUFFIX);
-       cleanStub(IDLDataLoader.SKEL_SUFFIX);
-       return false;
-     }
-     // check  skeleton and stub
-     return isUpToDate(IDLDataLoader.STUB_SUFFIX) && isUpToDate(IDLDataLoader.SKEL_SUFFIX);
-}
+      public boolean isUpToDate() {
+      if (type == BUILD) return false;
+      if (type == CLEAN) {
+      // delete skeleton and stub
+      cleanStub(IDLDataLoader.STUB_SUFFIX);
+      cleanStub(IDLDataLoader.SKEL_SUFFIX);
+      return false;
+      }
+      // check  skeleton and stub
+      return isUpToDate(IDLDataLoader.STUB_SUFFIX) && isUpToDate(IDLDataLoader.SKEL_SUFFIX);
+      }
     */
 
     /** Is up to date file
@@ -106,13 +106,13 @@ public class IDLExternalCompiler extends ExternalCompiler {
      */
 
     /*
-    private boolean isUpToDate(String suffix) {
-     FileObject masterfo = getFileObject(), fo = findBrotherClass(masterfo, suffix);
-     if (fo == null || fo.lastModified ().compareTo (masterfo.lastModified ()) < 0) {
-       return false;
-     }
-     return true;
-}
+      private boolean isUpToDate(String suffix) {
+      FileObject masterfo = getFileObject(), fo = findBrotherClass(masterfo, suffix);
+      if (fo == null || fo.lastModified ().compareTo (masterfo.lastModified ()) < 0) {
+      return false;
+      }
+      return true;
+      }
     */
 
     /** Clean given file object.
@@ -120,24 +120,24 @@ public class IDLExternalCompiler extends ExternalCompiler {
      */
 
     /*
-    private void cleanStub(String suffix) {
-     FileObject masterfo = getFileObject(), fo = findBrotherClass(masterfo, suffix);
-     FileLock lock = null;
+      private void cleanStub(String suffix) {
+      FileObject masterfo = getFileObject(), fo = findBrotherClass(masterfo, suffix);
+      FileLock lock = null;
      
-     if (fo == null) {
-       return;
-     } else {
-       try {
-    lock = fo.lock();
-    fo.delete(lock);
-       } catch (IOException e) {
-       } finally {
-    if (lock != null) {
-    lock.releaseLock();
-}
-       }
-     }
-}
+      if (fo == null) {
+      return;
+      } else {
+      try {
+      lock = fo.lock();
+      fo.delete(lock);
+      } catch (IOException e) {
+      } finally {
+      if (lock != null) {
+      lock.releaseLock();
+      }
+      }
+      }
+      }
     */
 
 

@@ -44,9 +44,13 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
     static {
         try {
             desc = new PropertyDescriptor[] {
-                       new PropertyDescriptor ("skels", CORBASupportSettings.class),
-                       new PropertyDescriptor ("orb", CORBASupportSettings.class),
-                       new PropertyDescriptor ("params", CORBASupportSettings.class,
+		/*
+		  new PropertyDescriptor ("skels", CORBASupportSettings.class),
+		*/
+                       new PropertyDescriptor ("_M_orb_name", CORBASupportSettings.class,
+					       "getOrb", "setOrb"),
+		       /*
+			 new PropertyDescriptor ("params", CORBASupportSettings.class,
                                                "getParams", "setParams"),
                        new PropertyDescriptor ("_client_binding", CORBASupportSettings.class,
                                                "getClientBinding", "setClientBinding"),
@@ -92,93 +96,109 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
                                                "getImplIntPrefix", "setImplIntPrefix"),
                        new PropertyDescriptor ("_impl_int_postfix", CORBASupportSettings.class,
                                                "getImplIntPostfix", "setImplIntPostfix"),
-                       new PropertyDescriptor ("namingChildren", CORBASupportSettings.class,
+		       */
+		       new PropertyDescriptor ("namingChildren", CORBASupportSettings.class,
                                                "getNamingServiceChildren", "setNamingServiceChildren"),
+		       /*
                        new PropertyDescriptor ("_hide_generated_files", CORBASupportSettings.class,
                                                "hideGeneratedFiles", "setHideGeneratedFiles"),
-                       new PropertyDescriptor ("IRChildren", CORBASupportSettings.class,
-                                               "getInterfaceRepositoryChildren",
+		       */
+		       new PropertyDescriptor ("IRChildren", CORBASupportSettings.class,
+					       "getInterfaceRepositoryChildren",
                                                "setInterfaceRepositoryChildren"),
+		       /*
 
                        new PropertyDescriptor ("generation", CORBASupportSettings.class,
                                                "getGeneration", "setGeneration"),
                        new PropertyDescriptor ("synchro", CORBASupportSettings.class,
-                                               "getSynchro", "setSynchro")
+		       "getSynchro", "setSynchro")
+		       */
+		       new PropertyDescriptor ("_M_implementations", CORBASupportSettings.class,
+					       "getBeans", "setBeans")
+	    };
+	    desc[0].setDisplayName (CORBASupport.bundle.getString ("PROP_ORB"));
+	    desc[0].setShortDescription (CORBASupport.bundle.getString ("HINT_ORB"));
+	    desc[0].setPropertyEditorClass (OrbPropertyEditor.class);
 
-                   };
+	    // hidden options for serialization
+	    desc[1].setHidden (true);  // children of persistent NamingService Browser
+	    desc[2].setHidden (true);  // children of persistent IR Browser
+	    desc[3].setHidden (true);  // _M_implementations
 
-            desc[0].setDisplayName (CORBASupport.bundle.getString ("PROP_SKELS"));
-            desc[0].setShortDescription (CORBASupport.bundle.getString ("HINT_SKELS"));
-            desc[0].setPropertyEditorClass (SkelPropertyEditor.class);
-            desc[1].setDisplayName (CORBASupport.bundle.getString ("PROP_ORB"));
-            desc[1].setShortDescription (CORBASupport.bundle.getString ("HINT_ORB"));
-            desc[1].setPropertyEditorClass (OrbPropertyEditor.class);
-            desc[2].setDisplayName (CORBASupport.bundle.getString ("PROP_PARAMS"));
-            desc[2].setShortDescription (CORBASupport.bundle.getString ("HINT_PARAMS"));
-            desc[3].setDisplayName (CORBASupport.bundle.getString ("PROP_CLIENT_BINDING"));
-            desc[3].setShortDescription (CORBASupport.bundle.getString ("HINT_CLIENT_BINDING"));
-            desc[3].setPropertyEditorClass (ClientBindingPropertyEditor.class);
-            desc[4].setDisplayName (CORBASupport.bundle.getString ("PROP_SERVER_BINDING"));
-            desc[4].setShortDescription (CORBASupport.bundle.getString ("HINT_SERVER_BINDING"));
-            desc[4].setPropertyEditorClass (ServerBindingPropertyEditor.class);
-            // advanced settings
+	    /*
+	      desc[0].setDisplayName (CORBASupport.bundle.getString ("PROP_SKELS"));
+	      desc[0].setShortDescription (CORBASupport.bundle.getString ("HINT_SKELS"));
+	      desc[0].setPropertyEditorClass (SkelPropertyEditor.class);
+	      desc[1].setDisplayName (CORBASupport.bundle.getString ("PROP_ORB"));
+	      desc[1].setShortDescription (CORBASupport.bundle.getString ("HINT_ORB"));
+	      desc[1].setPropertyEditorClass (OrbPropertyEditor.class);
+	      desc[2].setDisplayName (CORBASupport.bundle.getString ("PROP_PARAMS"));
+	      desc[2].setShortDescription (CORBASupport.bundle.getString ("HINT_PARAMS"));
+	      desc[3].setDisplayName (CORBASupport.bundle.getString ("PROP_CLIENT_BINDING"));
+	      desc[3].setShortDescription (CORBASupport.bundle.getString ("HINT_CLIENT_BINDING"));
+	      desc[3].setPropertyEditorClass (ClientBindingPropertyEditor.class);
+	      desc[4].setDisplayName (CORBASupport.bundle.getString ("PROP_SERVER_BINDING"));
+	      desc[4].setShortDescription (CORBASupport.bundle.getString ("HINT_SERVER_BINDING"));
+	      desc[4].setPropertyEditorClass (ServerBindingPropertyEditor.class);
+	      // advanced settings
 
-            desc[5].setDisplayName (CORBASupport.bundle.getString ("PROP_PACKAGE_PARAM"));
-            desc[5].setShortDescription (CORBASupport.bundle.getString ("HINT_PACKAGE_PARAM"));
-            desc[5].setExpert (true);
-            desc[6].setDisplayName (CORBASupport.bundle.getString ("PROP_DIR_PARAM"));
-            desc[6].setShortDescription (CORBASupport.bundle.getString ("HINT_DIR_PARAM"));
-            desc[6].setExpert (true);
-            desc[7].setDisplayName ("Package delimiter");
-            desc[7].setExpert (true);
-            desc[8].setDisplayName ("Error Expression");
-            desc[8].setExpert (true);
-            desc[9].setDisplayName ("File Position");
-            desc[9].setExpert (true);
-            desc[10].setDisplayName ("Line Position");
-            desc[10].setExpert (true);
-            desc[11].setDisplayName ("Column Position");
-            desc[11].setExpert (true);
-            desc[12].setDisplayName ("Message Position");
-            desc[12].setExpert (true);
-            desc[13].setDisplayName (CORBASupport.bundle.getString ("PROP_IDL"));
-            desc[13].setShortDescription (CORBASupport.bundle.getString ("HINT_IDL"));
-            desc[13].setPropertyEditorClass (NbProcessDescriptorEditor.class);
-            desc[13].setExpert (true);
-            desc[14].setDisplayName ("Template table");
-            desc[14].setExpert (true);
-            desc[15].setDisplayName ("Tie parameter");
-            desc[15].setExpert (true);
-            desc[16].setDisplayName ("ImplBase Implementation Prefix");
-            desc[16].setExpert (true);
-            desc[17].setDisplayName ("ImplBase Implementation Postfix");
-            desc[17].setExpert (true);
-            desc[18].setDisplayName ("Extended Class Prefix");
-            desc[18].setExpert (true);
-            desc[19].setDisplayName ("Extended Class Postfix");
-            desc[19].setExpert (true);
-            desc[20].setDisplayName ("Tie Implementation Prefix");
-            desc[20].setExpert (true);
-            desc[21].setDisplayName ("Tie Implementation Postfix");
-            desc[21].setExpert (true);
-            desc[22].setDisplayName ("Implemented Interface Prefix");
-            desc[22].setExpert (true);
-            desc[23].setDisplayName ("Implemented Interface Postfix");
-            desc[23].setExpert (true);
-            desc[24].setHidden (true);  // children of persistent NamingService Browser
-
-            desc[25].setDisplayName ("Hide Generated Files");
-            desc[25].setShortDescription ("Hide Generated Files from IDL file");
-
-            desc[26].setHidden (true); // children of persistent Interface Repository Browser
-
-            desc[27].setDisplayName (CORBASupport.bundle.getString ("PROP_GENERATION"));
-            desc[27].setShortDescription (CORBASupport.bundle.getString ("HINT_GENERATION"));
-            desc[27].setPropertyEditorClass (GenerationPropertyEditor.class);
-            desc[28].setDisplayName (CORBASupport.bundle.getString ("PROP_SYNCHRO"));
-            desc[28].setShortDescription (CORBASupport.bundle.getString ("HINT_SYNCHRO"));
-            desc[28].setPropertyEditorClass (SynchronizationPropertyEditor.class);
-        } catch (IntrospectionException ex) {
+	      desc[5].setDisplayName (CORBASupport.bundle.getString ("PROP_PACKAGE_PARAM"));
+	      desc[5].setShortDescription (CORBASupport.bundle.getString ("HINT_PACKAGE_PARAM"));
+	      desc[5].setExpert (true);
+	      desc[6].setDisplayName (CORBASupport.bundle.getString ("PROP_DIR_PARAM"));
+	      desc[6].setShortDescription (CORBASupport.bundle.getString ("HINT_DIR_PARAM"));
+	      desc[6].setExpert (true);
+	      desc[7].setDisplayName ("Package delimiter");
+	      desc[7].setExpert (true);
+	      desc[8].setDisplayName ("Error Expression");
+	      desc[8].setExpert (true);
+	      desc[9].setDisplayName ("File Position");
+	      desc[9].setExpert (true);
+	      desc[10].setDisplayName ("Line Position");
+	      desc[10].setExpert (true);
+	      desc[11].setDisplayName ("Column Position");
+	      desc[11].setExpert (true);
+	      desc[12].setDisplayName ("Message Position");
+	      desc[12].setExpert (true);
+	      desc[13].setDisplayName (CORBASupport.bundle.getString ("PROP_IDL"));
+	      desc[13].setShortDescription (CORBASupport.bundle.getString ("HINT_IDL"));
+	      desc[13].setPropertyEditorClass (NbProcessDescriptorEditor.class);
+	      desc[13].setExpert (true);
+	      desc[14].setDisplayName ("Template table");
+	      desc[14].setExpert (true);
+	      desc[15].setDisplayName ("Tie parameter");
+	      desc[15].setExpert (true);
+	      desc[16].setDisplayName ("ImplBase Implementation Prefix");
+	      desc[16].setExpert (true);
+	      desc[17].setDisplayName ("ImplBase Implementation Postfix");
+	      desc[17].setExpert (true);
+	      desc[18].setDisplayName ("Extended Class Prefix");
+	      desc[18].setExpert (true);
+	      desc[19].setDisplayName ("Extended Class Postfix");
+	      desc[19].setExpert (true);
+	      desc[20].setDisplayName ("Tie Implementation Prefix");
+	      desc[20].setExpert (true);
+	      desc[21].setDisplayName ("Tie Implementation Postfix");
+	      desc[21].setExpert (true);
+	      desc[22].setDisplayName ("Implemented Interface Prefix");
+	      desc[22].setExpert (true);
+	      desc[23].setDisplayName ("Implemented Interface Postfix");
+	      desc[23].setExpert (true);
+	      desc[24].setHidden (true);  // children of persistent NamingService Browser
+	    
+	      desc[25].setDisplayName ("Hide Generated Files");
+	      desc[25].setShortDescription ("Hide Generated Files from IDL file");
+	      
+	      desc[26].setHidden (true); // children of persistent Interface Repository Browser
+	      
+	      desc[27].setDisplayName (CORBASupport.bundle.getString ("PROP_GENERATION"));
+	      desc[27].setShortDescription (CORBASupport.bundle.getString ("HINT_GENERATION"));
+	      desc[27].setPropertyEditorClass (GenerationPropertyEditor.class);
+	      desc[28].setDisplayName (CORBASupport.bundle.getString ("PROP_SYNCHRO"));
+	      desc[28].setShortDescription (CORBASupport.bundle.getString ("HINT_SYNCHRO"));
+	      desc[28].setPropertyEditorClass (SynchronizationPropertyEditor.class);
+	    */
+	} catch (IntrospectionException ex) {
             //throw new InternalError ();
             ex.printStackTrace ();
         }

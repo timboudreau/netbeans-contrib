@@ -27,129 +27,139 @@ import java.util.Properties;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.beans.beancontext.BeanContext;
+import java.beans.beancontext.BeanContextSupport;
+import java.beans.beancontext.BeanContextProxy;
 
 import org.openide.TopManager;
 import org.openide.filesystems.FileObject;
 import org.netbeans.modules.corba.*;
 
-public class CORBASupportSettings extends SystemOption implements PropertyChangeListener {
+public class CORBASupportSettings extends SystemOption implements BeanContextProxy { 
+								  //PropertyChangeListener {
 
     private static final boolean DEBUG = false;
     //private static final boolean DEBUG = true;
 
-    //private static final boolean DYNLOAD = true;
-    private static final boolean DYNLOAD = false;
+    private static final boolean DYNLOAD = true;
+    //private static final boolean DYNLOAD = false;
 
     //private static final boolean PRODUCTION = true;
     private static final boolean PRODUCTION = false;
 
     static final long serialVersionUID = -2809668725556980488L;
+    /*
+      private String[] checkSections = {"CTL_NAME", "IMPORT", "SETTINGS_ORB_PROPERTIES",
+      "ORB_SERVER_INIT", "ORB_CLIENT_INIT", "ORB_SERVER_RUN",
+      "ORB_OBJECT_ACTIVATION", "DIR_PARAM",
+      "PACKAGE_PARAM", "COMPILER", "PACKAGE_DELIMITER",
+      "ERROR_EXPRESSION", "FILE_POSITION", "LINE_POSITION",
+      "COLUMN_POSITION", "MESSAGE_POSITION", "TIE_PARAM",
+      // added for implementation generator
+      "IMPLBASE_IMPL_PREFIX", "IMPLBASE_IMPL_POSTFIX",
+      "EXT_CLASS_PREFIX", "EXT_CLASS_POSTFIX",
+      "TIE_IMPL_PREFIX", "TIE_IMPL_POSTFIX",
+      "IMPL_INT_PREFIX", "IMPL_INT_POSTFIX"};
 
-    private String[] checkSections = {"CTL_NAME", "IMPORT", "SETTINGS_ORB_PROPERTIES",
-                                      "ORB_SERVER_INIT", "ORB_CLIENT_INIT", "ORB_SERVER_RUN",
-                                      "ORB_OBJECT_ACTIVATION", "DIR_PARAM",
-                                      "PACKAGE_PARAM", "COMPILER", "PACKAGE_DELIMITER",
-                                      "ERROR_EXPRESSION", "FILE_POSITION", "LINE_POSITION",
-                                      "COLUMN_POSITION", "MESSAGE_POSITION", "TIE_PARAM",
-                                      // added for implementation generator
-                                      "IMPLBASE_IMPL_PREFIX", "IMPLBASE_IMPL_POSTFIX",
-                                      "EXT_CLASS_PREFIX", "EXT_CLASS_POSTFIX",
-                                      "TIE_IMPL_PREFIX", "TIE_IMPL_POSTFIX",
-                                      "IMPL_INT_PREFIX", "IMPL_INT_POSTFIX"};
+      private String[] cbindings = {"NS", "IOR_FROM_FILE", "IOR_FROM_INPUT", "BINDER"};
+      
+      private String[] sbindings = {"NS", "IOR_TO_FILE", "IOR_TO_OUTPUT", "BINDER"};
+    */
 
-    private String[] cbindings = {"NS", "IOR_FROM_FILE", "IOR_FROM_INPUT", "BINDER"};
+    /*
+      private Vector clientBindings;
+      
+      private Vector serverBindings;
+      
+      private Vector props;
 
-    private String[] sbindings = {"NS", "IOR_TO_FILE", "IOR_TO_OUTPUT", "BINDER"};
+      private Vector names;
+    */
 
+    protected static String _M_orb_name;
 
+    // used in CORBASupportSettings::getActiveSetting ()
+    protected static String _M_orb_name_cache;
+    protected static ORBSettings _M_setting_cache;
 
-    private Vector clientBindings;
+    protected static BeanContextSupport _M_implementations = new BeanContextSupport ();
+    //= new BeanContextSupport ();
+    protected static Vector _M_orb_names;
 
-    private Vector serverBindings;
+    /*
+      public static String skels = CORBASupport.INHER;
 
-    private Vector props;
+      public static String params;
 
-    private Vector names;
+      public static String _server_binding;
 
-    public static String orb;
-
-    public static String skels = CORBASupport.INHER;
-
-    public static String params;
-
-    //public static String _server_binding = CORBASupport.SERVER_NS;
-    public static String _server_binding;
-
-    //public static String _client_binding = CORBASupport.CLIENT_NS;
-    public static String _client_binding;
+      public static String _client_binding;
 
 
-    public static boolean _hide_generated_files = true;
+      public static boolean _hide_generated_files = true;
 
-    public static String generation = CORBASupport.GEN_NOTHING;
-    //public static String generation;
-
-    public static String synchro = CORBASupport.SYNCHRO_ON_UPDATE;
-    //public static String synchro;
-
+      public static String generation = CORBASupport.GEN_NOTHING;
+    
+      public static String synchro = CORBASupport.SYNCHRO_ON_UPDATE;
+    */
     // advanced settings
+    /*
+      public static String _test;
+      
+      public static NbProcessDescriptor idl;
+      
+      public static String _tie_param;
+      
+      public static String _package_param;
+      
+      public static String _dir_param;
+      
+      public static String _orb_class;
+      
+      public static String _orb_singleton;
+      
+      public static String _orb_import;
+      
+      public static String _package_delimiter;
+      
+      public static String _error_expression;
+      
+      public static String _file_position;
+      
+      public static String _line_position;
+      
+      public static String _column_position;
+      
+      public static String _message_position;
+      
+      public static String _impl_prefix;
+      public static String _impl_postfix;
+      public static String _ext_class_prefix;
+      public static String _ext_class_postfix;
+      public static String _tie_prefix;
+      public static String _tie_postfix;
+      public static String _impl_int_prefix;
+      public static String _impl_int_postfix;
+      
+      private boolean _is_tie;
 
-    public static String _test;
-
-    //public static File idl;
-    public static NbProcessDescriptor idl;
-
-    public static String _tie_param;
-
-    public static String _package_param;
-
-    public static String _dir_param;
-
-    public static String _orb_class;
-
-    public static String _orb_singleton;
-
-    public static String _orb_import;
-
-    public static String _package_delimiter;
-
-    public static String _error_expression;
-
-    public static String _file_position;
-
-    public static String _line_position;
-
-    public static String _column_position;
-
-    public static String _message_position;
-
-    public static String _impl_prefix;
-    public static String _impl_postfix;
-    public static String _ext_class_prefix;
-    public static String _ext_class_postfix;
-    public static String _tie_prefix;
-    public static String _tie_postfix;
-    public static String _impl_int_prefix;
-    public static String _impl_int_postfix;
-
-    private boolean _is_tie;
-
-    public static String _table = "USER="+System.getProperty("user.name")+"\n";
-    //      + "VERSION="+System.getProperty ("org.openide.major.version")+"\n";
-
-
-    String addition = "";
+      public static String _table = "USER="+System.getProperty("user.name")+"\n";
+      //      + "VERSION="+System.getProperty ("org.openide.major.version")+"\n";
 
 
-    ORB _ORB;
+      String addition = "";
+    */
+
+    private ORB _M_orb;
 
     public static Vector namingChildren;
 
     public static Vector IRChildren;
-
-
+    
+    private boolean _M_loaded = false;
     //private boolean deserealization;
 
     /** @return human presentable name */
@@ -160,64 +170,96 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
     public CORBASupportSettings () {
         //	setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
         //addOption (getCORBASupportAdvancedSettings ());
-        if (DEBUG)
+        if (DEBUG) 
             System.out.println ("CORBASupportSettings () ...");
-
+	//Thread.dumpStack ();
+	//TopManager.getDefault ().getWindowManager ().addPropertyChangeListener (this);
     }
 
     public void init () {
-
-        //names = new Vector (5);
-        initOrb ();
-        props = new Vector (5);
-        clientBindings = new Vector (5);
-        serverBindings = new Vector (5);
-        namingChildren = new Vector ();
-        IRChildren = new Vector ();
-        //loadImpl ();
-        addPropertyChangeListener (this);
-        //addOption (getCORBASupportAdvancedSettings ());
-        //      setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
-        //this.getCookieSet.add (UpdateCookie.class);
-
+	/*
+	  //names = new Vector (5);
+	  initOrb ();
+	  props = new Vector (5);
+	  clientBindings = new Vector (5);
+	  serverBindings = new Vector (5);
+	  namingChildren = new Vector ();
+	*/
+	IRChildren = new Vector ();
+	//loadImpl ();
+	//addPropertyChangeListener (this);
+	//addOption (getCORBASupportAdvancedSettings ());
+	//      setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
+	//this.getCookieSet.add (UpdateCookie.class);
+	  
         // test for default settings
         //setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
         if (DYNLOAD || !PRODUCTION) {
-            loadImpl ();
-            setOrb ("ORBacus for Java 3.1.x");
-            setClientBinding (CORBASupport.CLIENT_IOR_FROM_FILE);
-            setServerBinding (CORBASupport.SERVER_IOR_TO_FILE);
-            generation = CORBASupport.GEN_EXCEPTION;
+	    setOrb ("ORBacus for Java 3.1.x");
+	    /*
+	      loadImpl ();
+	      setOrb ("ORBacus for Java 3.1.x");
+	      setClientBinding (CORBASupport.CLIENT_IOR_FROM_FILE);
+	      setServerBinding (CORBASupport.SERVER_IOR_TO_FILE);
+	      generation = CORBASupport.GEN_EXCEPTION;
+	    */
         }
 
         if (PRODUCTION) {
-            loadImpl ();
+            //loadImpl ();
             setOrb ("JDK 1.2 ORB");
-            setClientBinding (CORBASupport.CLIENT_NS);
-            setServerBinding (CORBASupport.SERVER_NS);
+            //setClientBinding (CORBASupport.CLIENT_NS);
+            //setServerBinding (CORBASupport.SERVER_NS);
         }
 
     }
-
     /*
-      public void readExternal (ObjectInput in) 
+      public void readExternal (ObjectInput __in) 
       throws java.io.IOException, 
       java.lang.ClassNotFoundException {
-      deserealization = true;
-      super.readExternal (in);
-      deserealization = false;
+      if (DEBUG)
+      System.out.println ("CORBASupportSettings::readExternal (" + __in + ")");
+      //deserealization = true;
+      super.readExternal (__in);
+      //deserealization = false;
+      }
+    */
+
+    public void writeExternal (ObjectOutput __out) throws IOException {
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::writeExternal (" + __out + ")");
+	//_M_implementations.writeExternal (__out);
+	//((BeanContextSupport)_M_implementations).writeObject (__out);
+	super.writeExternal (__out);
+    }
+
+
+    /*
+      private void writeObject (java.io.ObjectOutputStream __out) throws IOException {
+      if (DEBUG)
+      System.out.println ("CORBASupportSettings::writeObject (" + __out + ")");
+      __out.defaultWriteObject ();
+      //__out.writeObject (this.getBeans ());
+      }
+      
+      
+      private void readObject (java.io.ObjectInputStream __in) throws IOException, ClassNotFoundException {
+      if (DEBUG)
+      System.out.println ("CORBASupportSettings::readObject (" + __in + ")");
+      __in.defaultReadObject ();
+      //__in.readObject ();
       }
     */
 
     public boolean isGlobal () {
         return false;
     }
-
-    public void propertyChange (PropertyChangeEvent event) {
-
-        if (DEBUG)
-            System.out.println ("propertyChange: " + event.getPropertyName ());
-
+    /*
+      public void propertyChange (PropertyChangeEvent event) {
+      if (DEBUG)
+      System.out.println ("propertyChange: " + event.getPropertyName ());
+    */
+	/*
         if (event.getPropertyName () != null) {
             if (event.getPropertyName ().equals ("orb"))
                 setAdvancedOrbOptions ((String) event.getNewValue ());
@@ -226,54 +268,66 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
             if (event.getPropertyName ().equals ("_server_binding"))
                 setAdvancedServerBinding ((String) event.getNewValue ());
         }
-    }
+	*/
+    /*
+      }
+    */
 
-    public void setAdvancedClientBinding (String binding) {
-
-        if (DEBUG)
-            System.out.println ("client binding: " + binding);
-        //if (DEBUG)
-        // System.out.println ("ctl_client_binding: " + getCtlClientBindingName ());
-        setJavaTemplateTable ();
-    }
-
-    public void setAdvancedServerBinding (String binding) {
-
-        if (DEBUG)
-            System.out.println ("server binding: " + binding);
-        //if (DEBUG)
-        //	 System.out.println ("ctl_server_binding: " + getCtlServerBindingName ());
-        setJavaTemplateTable ();
-    }
-
-
+    /*    
+	  public void setAdvancedClientBinding (String binding) {
+	  
+	  if (DEBUG)
+	  System.out.println ("client binding: " + binding);
+	  //if (DEBUG)
+	  // System.out.println ("ctl_client_binding: " + getCtlClientBindingName ());
+	  //setJavaTemplateTable ();
+	  }
+    */
+    /*
+      public void setAdvancedServerBinding (String binding) {
+      
+      if (DEBUG)
+      System.out.println ("server binding: " + binding);
+      //if (DEBUG)
+      //	 System.out.println ("ctl_server_binding: " + getCtlServerBindingName ());
+      //setJavaTemplateTable ();
+      }
+    */
+    
     public Vector getNames () {
-
-        if (names == null) {
-            // lazy initialization
-            names = new Vector (5);
-            loadImpl ();
-        }
-
-        return names;
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::getNames ()");
+	/*
+	  if (_M_orb_names == null) {
+	  // lazy initialization
+	  loadImpl ();
+	  }
+	*/
+	return _M_orb_names;
+	/*
+	  Vector __names = new Vector ();
+	  if (_M_implementations == null) {
+	  // lazy initialization
+	  loadImpl ();
+	  }
+	  for (int __i = 0; __i < _M_implementations.size (); __i++) {
+	  __names.add (((ORBSettings)_M_implementations.elementAt (__i)).getOrbName ());
+	  }
+	  return __names;
+	*/
     }
 
     public String getOrb () {
         //loadImpl ();
-        return orb;
+        return _M_orb_name;
     }
 
-    public void setOrb (String s) {
-        String old = "";
-        orb = s;
-        try {
-            //if (!deserealization)
-            firePropertyChange ("orb", old, orb);
-        } catch (Exception e) {
-            e.printStackTrace ();
-        }
-        //setAdvancedOptions ();
-        //loadImpl (); -- it's for template debuging only !!!
+    public void setOrb (String __value) {
+        String __old = _M_orb_name;
+	_M_orb_name = __value;
+	//setJavaTemplateTable ();
+	this.getActiveSetting ().setJavaTemplateTable ();
+	firePropertyChange ("_M_orb_name", __old, _M_orb_name);
     }
 
     /*
@@ -300,8 +354,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
     */
 
-
-    public String getClientBindingName () {
+    /*
+      public String getClientBindingName () {
 
         String name = "";
 
@@ -317,13 +371,13 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
         }
         return name;
     }
-
+    */
     /*
       public String getCtlClientBindingName () {
       return getCtlOrbName () + "CLIENT_" + getClientBindingName ();
       }
     */
-
+    /*
     public String getServerBindingName () {
 
         String name = "";
@@ -340,13 +394,13 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
         }
         return name;
     }
-
+    */
     /*
       public String getCtlServerBindingName () {
       return getCtlOrbName () + "SERVER_" + getServerBindingName ();
       }
     */
-
+    /*
     public String getSkels () {
         return skels;
     }
@@ -885,6 +939,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
             System.out.println ("setAdvancedOptions () - end!");
 
     }
+    */
 
     public void setJavaTemplateTable () {
 
@@ -892,26 +947,31 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
         String tmp_property;
 
+	ORBSettings __setting = this.getActiveSetting ();
+	Properties __setting_properties = __setting.getReplaceableStringsProps ();
+
         if (DEBUG)
             System.out.println ("setJavaTemplateTable");
 
         JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
         Properties p = js.getReplaceableStringsProps ();
 
-        if (orb == null)
+        if (_M_orb_name == null)
             return;
 
         try {
-            if (DEBUG)
-                System.out.println ("orb: " + orb);
-
+            if (DEBUG) {
+                System.out.println ("orb: " + _M_orb_name);
+		System.out.println ("properties: " + __setting_properties);
+	    }
+	    /*
             for (int i = 0; i<getNames ().size (); i++) {
                 if (getNames ().elementAt (i).equals (orb)) {
                     index = i;
                     break;
                 }
             }
-
+	    */
             //if (DEBUG)
             //   System.out.println ("props at position: " + props.elementAt (index));
 
@@ -922,56 +982,57 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
             //if (DEBUG)
             //    System.out.println ("sett: " + ((Properties)props.elementAt (index)).getProperty
             //			("SETTINGS_ORB_PROPERTIES"));
-            if (DEBUG)
-                System.out.println ("cb: " + getClientBindingName ());
-            if (DEBUG)
-                System.out.println ("sb: " + getServerBindingName ());
+            //if (DEBUG)
+            //    System.out.println ("cb: " + getClientBindingName ());
+            //if (DEBUG)
+            //    System.out.println ("sb: " + getServerBindingName ());
 
-            p.setProperty ("ORB_NAME", orb);
+            p.setProperty ("ORB_NAME", getOrb ());
 
-            if (getServerBinding () != null)
-                p.setProperty ("SERVER_BINDING", getServerBinding ());
-            if (getClientBinding () != null)
-                p.setProperty ("CLIENT_BINDING", getClientBinding ());
+            if (__setting.getServerBinding () != null)
+                p.setProperty ("SERVER_BINDING", __setting.getServerBinding ().getValue ());
+            if (__setting.getClientBinding () != null)
+                p.setProperty ("CLIENT_BINDING", __setting.getClientBinding ().getValue ());
 
 
-            p.setProperty ("SETTINGS_ORB_PROPERTIES", ((Properties)props.elementAt (index)).getProperty
+            p.setProperty ("SETTINGS_ORB_PROPERTIES", __setting_properties.getProperty
                            ("SETTINGS_ORB_PROPERTIES"));
-            if (((Properties)props.elementAt (index)).getProperty
-                    ("IMPORT_" + getClientBindingName ()) != null) {
-                p.setProperty ("ORB_IMPORT",((Properties)props.elementAt (index)).getProperty
-                               ("IMPORT_" + getClientBindingName ()));
+            if (__setting_properties.getProperty
+		("IMPORT_" + __setting.getClientBindingName ()) != null) {
+                p.setProperty ("ORB_IMPORT",__setting_properties.getProperty
+                               ("IMPORT_" + __setting.getClientBindingName ()));
             }
             else {
-                if (((Properties)props.elementAt (index)).getProperty
-                        ("IMPORT_" + getServerBindingName ()) != null) {
-                    p.setProperty ("ORB_IMPORT",((Properties)props.elementAt (index)).getProperty
-                                   ("IMPORT_" + getServerBindingName ()));
+                if (__setting_properties.getProperty
+		    ("IMPORT_" + __setting.getServerBindingName ()) != null) {
+                    p.setProperty ("ORB_IMPORT",__setting_properties.getProperty
+                                   ("IMPORT_" + __setting.getServerBindingName ()));
                 }
                 else {
-                    p.setProperty ("ORB_IMPORT", ((Properties)props.elementAt (index)).getProperty
+                    p.setProperty ("ORB_IMPORT", __setting_properties.getProperty
                                    ("IMPORT"));
                 }
             }
 
-            p.setProperty ("ORB_SERVER_INIT", ((Properties)props.elementAt (index)).getProperty
+            p.setProperty ("ORB_SERVER_INIT", __setting_properties.getProperty
                            ("ORB_SERVER_INIT"));
-            p.setProperty ("ORB_CLIENT_INIT", ((Properties)props.elementAt (index)).getProperty
+            p.setProperty ("ORB_CLIENT_INIT", __setting_properties.getProperty
                            ("ORB_CLIENT_INIT"));
-            if (!getClientBindingName ().equals (""))
-                if ((tmp_property = ((Properties)props.elementAt (index)).getProperty
-                                    ("CLIENT_" + getClientBindingName ())) != null)
-                    p.setProperty ("ORB_CLIENT_BINDING", tmp_property);
-
-            if (!getServerBindingName ().equals (""))
-                if ((tmp_property = ((Properties)props.elementAt (index)).getProperty
-                                    ("SERVER_" + getServerBindingName ())) != null)
-                    p.setProperty ("ORB_SERVER_BINDING", tmp_property);
-
-            p.setProperty ("ORB_OBJECT_ACTIVATION", ((Properties)props.elementAt (index)).getProperty
+	    /*
+	      if (!getClientBindingName ().equals (""))
+	      if ((tmp_property = ((Properties)props.elementAt (index)).getProperty
+	      ("CLIENT_" + getClientBindingName ())) != null)
+	      p.setProperty ("ORB_CLIENT_BINDING", tmp_property);
+	      
+	      if (!getServerBindingName ().equals (""))
+	      if ((tmp_property = ((Properties)props.elementAt (index)).getProperty
+	      ("SERVER_" + getServerBindingName ())) != null)
+	      p.setProperty ("ORB_SERVER_BINDING", tmp_property);
+	    */
+            p.setProperty ("ORB_OBJECT_ACTIVATION", __setting_properties.getProperty
                            ("ORB_OBJECT_ACTIVATION"));
 
-            p.setProperty ("ORB_SERVER_RUN", ((Properties)props.elementAt (index)).getProperty
+            p.setProperty ("ORB_SERVER_RUN", __setting_properties.getProperty
                            ("ORB_SERVER_RUN"));
 
             // added for implementation generator
@@ -988,11 +1049,10 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
             p.setProperty ("EXT_CLASS_POSTFIX", ((Properties)props.elementAt (index)).getProperty 
             ("EXT_CLASS_POSTFIX"));
             */
-
         } catch (Exception e) {
             e.printStackTrace ();
         }
-
+	
 
         //js.setReplaceableStringsTable
         ByteArrayOutputStream bs = new ByteArrayOutputStream ();
@@ -1010,99 +1070,104 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
 
     public void loadImpl () {
-
-        names = new Vector (5);
-        props = new Vector (5);
-        clientBindings = new Vector (5);
-        serverBindings = new Vector (5);
-
-
-        if (DEBUG)
-            System.out.println ("loadImpl () ...");
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::loadImpl ()");
+	_M_loaded = true;
+	if (_M_orb_names == null)
+	    _M_orb_names = new Vector (5);
 
         TopManager tm = TopManager.getDefault ();
 
         try {
-            Enumeration folders = tm.getRepository ().getDefaultFileSystem ().getRoot ().getFolders
-                                  (false);
+            Enumeration folders 
+		= tm.getRepository ().getDefaultFileSystem ().getRoot ().getFolders (false);
             CORBASupportSettings settings = (CORBASupportSettings)CORBASupportSettings.findObject
-                                            (CORBASupportSettings.class, true);
-            for (int i=1; folders.hasMoreElements (); ) {
+		(CORBASupportSettings.class, true);
+            while (folders.hasMoreElements ()) {
                 FileObject fo = (FileObject)folders.nextElement ();
                 if (DEBUG)
                     System.out.println (fo.getName ());
                 if (fo.toString ().equals ("CORBA")) {
                     FileObject[] files = fo.getChildren ();
-                    for (i = 0; i<files.length ; i++) {
+                    for (int __i = 0; __i<files.length ; __i++) {
                         if (DEBUG)
-                            System.out.println ("file: " + files[i].toString ());
-                        Properties p = new Properties ();
-                        p.load (files[i].getInputStream ());
+                            System.out.println ("file: " + files[__i].toString ());
 
-                        // checking of important properties fields
-
-                        boolean error = false;
-                        for (int j=0; j<checkSections.length; j++)
-                            if (p.getProperty (checkSections[j]) == null) {
-                                System.out.println ("error in " + files[i].toString () + " missing "
-                                                    + checkSections[j] + " variable.");
-                                error = true;
-                            }
-                        if (error)
-                            continue;
-                        if (DEBUG)
-                            System.out.println ("impl: " + p.getProperty ("CTL_NAME"));
-
-                        getNames ().add (p.getProperty ("CTL_NAME"));
-                        props.add (p);
+			ORBSettings __orb_settings = new ORBSettings ();
+			__orb_settings.loadImpl (files[__i]);
+			_M_implementations.add (__orb_settings);
+			_M_orb_names.add (__orb_settings.getOrbName ());
+			/*
+			  Properties p = new Properties ();
+			  p.load (files[i].getInputStream ());
+			  
+			  // checking of important properties fields
+			  
+			  boolean error = false;
+			  for (int j=0; j<checkSections.length; j++)
+			  if (p.getProperty (checkSections[j]) == null) {
+			  System.out.println ("error in " + files[i].toString () 
+			  + " missing " + checkSections[j] 
+			  + " variable.");
+			  error = true;
+			  }
+			  if (error)
+			  continue;
+			  if (DEBUG)
+			  System.out.println ("impl: " + p.getProperty ("CTL_NAME"));
+			  getNames ().add (__properties.getProperty ("CTL_NAME"));
+			*/
+			
+                        //props.add (p);
 
                         // make client and server bindings
+			/*
+			  Vector tmp_clientBindings = new Vector (5);
+			  for (int j=0; j<cbindings.length; j++)
+			  if (p.getProperty ("CLIENT_" + cbindings[j]) != null) {
+			  if (DEBUG)
+			  System.out.println ("add cb: " + "CTL_CLIENT_" + cbindings[j]);
+			  tmp_clientBindings.add (CORBASupport.bundle.getString
+			  ("CTL_CLIENT_" + cbindings[j]));
+			  }
+			  clientBindings.add (tmp_clientBindings);
 
-                        Vector tmp_clientBindings = new Vector (5);
-                        for (int j=0; j<cbindings.length; j++)
-                            if (p.getProperty ("CLIENT_" + cbindings[j]) != null) {
-                                if (DEBUG)
-                                    System.out.println ("add cb: " + "CTL_CLIENT_" + cbindings[j]);
-                                tmp_clientBindings.add (CORBASupport.bundle.getString
-                                                        ("CTL_CLIENT_" + cbindings[j]));
-                            }
-                        clientBindings.add (tmp_clientBindings);
-
-                        Vector tmp_serverBindings = new Vector (5);
-                        for (int j=0; j<sbindings.length; j++)
-                            if (p.getProperty ("SERVER_" + sbindings[j]) != null) {
-                                if (DEBUG)
-                                    System.out.println ("add sb: " + "CTL_SERVER_" + sbindings[j]);
-                                tmp_serverBindings.add (CORBASupport.bundle.getString
-                                                        ("CTL_SERVER_" + sbindings[j]));
-                            }
-                        serverBindings.add (tmp_serverBindings);
+			  Vector tmp_serverBindings = new Vector (5);
+			  for (int j=0; j<sbindings.length; j++)
+			  if (p.getProperty ("SERVER_" + sbindings[j]) != null) {
+			  if (DEBUG)
+			  System.out.println ("add sb: " + "CTL_SERVER_" + sbindings[j]);
+			  tmp_serverBindings.add (CORBASupport.bundle.getString
+			  ("CTL_SERVER_" + sbindings[j]));
+			  }
+			  serverBindings.add (tmp_serverBindings);
                         //System.out.println ("props: ");
                         //props.list (System.out);
-                    }
-                    if (DEBUG) {
-                        System.out.println ("names: " + getNames ());
-                        System.out.println ("clients bindings: " + clientBindings);
-                        System.out.println ("servers bindings: " + serverBindings);
-                    }
+			*/
+		    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace ();
         }
-
-
+	if (DEBUG) {
+	    System.out.println ("----!!!!");
+	    java.lang.Object[] __beans = this.getBeans ();
+	    for (int __i = 0; __i < __beans.length; __i++) {
+		System.out.println (__i + " : " + __beans[__i]);
+	    }
+	}
     }
 
 
     public ORB getORB () {
-        if (_ORB == null)
+        if (_M_orb == null)
             initOrb ();
-        return _ORB;
+        return _M_orb;
     }
 
     public void initOrb () {
-        _ORB = ORB.init (new String[] {""}, null);
+        _M_orb = ORB.init (new String[] {""}, null);
     }
 
 
@@ -1126,7 +1191,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
         IRChildren = children;
     }
 
-
+    /*
     public String getGeneration () {
         //System.out.println ("getGeneration () -> " + generation);
         return generation;
@@ -1146,9 +1211,97 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
         //System.out.println ("setSynchro (" + value + ");");
         synchro = value;
     }
+    */
 
+    public java.beans.beancontext.BeanContextChild getBeanContextProxy () {
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::getBeanContextProxy ()");
+	if (!_M_loaded)
+	    loadImpl ();
+        return _M_implementations;
+    }
+    
+    public void addBean (java.lang.Object bean) {
+        _M_implementations.add (bean);
+        //__orb_names.add(bean);
+    }
+    
+    public void removeBean (java.lang.Object bean) {
+        _M_implementations.remove (bean);
+        //set.remove(bean);
+    }
+
+    public java.lang.Object[] getBeans () {
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::getBeans () -> " + _M_implementations);
+	return _M_implementations.toArray ();
+    }
+
+    public void setBeans (java.lang.Object[] beans) {
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::setBeans (java.lang.Object[] beans)");
+	_M_implementations = new BeanContextSupport ();
+
+	for(int i = 0; i < beans.length; i++) {
+	    _M_implementations.add (beans[i]);
+	}
+    }
+
+    public ORBSettings getSettingByName (String __name) {
+	if (DEBUG) 
+	    System.out.println ("CORBASupportSettings::getSettingByName (" + __name + ")");
+	//Thread.dumpStack ();
+	if (!_M_loaded)
+	    loadImpl ();
+	java.lang.Object[] __settings = getBeans ();
+	for (int __i = 0; __i < __settings.length; __i++) {
+	    ORBSettings __setting = (ORBSettings)__settings[__i];
+	    if (__setting.getName ().equals (__name)) {
+		return __setting;
+	    }
+	}	
+	return null;
+    }
+
+    public ORBSettings getActiveSetting () {
+	//if (DEBUG) 
+	//System.out.println ("CORBASupportSettings::getActiveSetting ()");
+	//Thread.dumpStack ();
+	if (!_M_loaded)
+	    loadImpl ();
+	if (_M_orb_name_cache != null) {
+	    if (_M_orb_name_cache.equals (this.getOrb ()) && (_M_setting_cache != null)) {
+		System.out.println ("cache hit");
+		return _M_setting_cache;
+	    }
+	}
+
+	_M_orb_name_cache = this.getOrb ();
+
+	System.out.println ("cache wasn't successfull");
+
+	java.lang.Object[] __settings = getBeans ();
+	for (int __i = 0; __i < __settings.length; __i++) {
+	    ORBSettings __setting = (ORBSettings)__settings[__i];
+	    String __name = __setting.getName ();
+	    //if (DEBUG)
+	    //System.out.println (__name + " X " + this.getOrb ());
+	    if (__name.equals (this.getOrb ())) {
+		_M_setting_cache = __setting;
+		return __setting;
+	    }
+	}	
+	return null;
+    }
+    /*
+      public ORBSettings findORBSettingsByListener (PropertyChangeListener __listener) {
+      for (int __i = 0; __i < _M_implementations.size (); __i++) {
+      ORBSettings[] __settings = (ORBSettings[])_M_implementations.toArray ();
+      if (__settings[__i].hasListener (__listener))
+      return __settings[__i];
+      }
+      return null;
+      }
+    */
 }
-
-
-
 

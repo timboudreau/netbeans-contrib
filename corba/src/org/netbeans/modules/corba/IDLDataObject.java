@@ -15,40 +15,70 @@ package org.netbeans.modules.corba;
 
 import java.awt.Image;
 import java.awt.Toolkit;
-//import java.io.*;
+
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
 
+import java.util.Vector;
+import java.util.Hashtable;
+import java.util.Set;
+import java.util.Iterator;
+import java.util.Enumeration;
 
-import org.openide.*;
+import java.io.IOException;
+
+import org.openide.TopManager;
+
 import org.openide.cookies.OpenCookie;
 import org.openide.cookies.CompilerCookie;
 import org.openide.cookies.LineCookie;
-import org.openide.filesystems.*;
-import org.openide.loaders.*;
-import org.openide.windows.*;
+
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileLock;
+import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileRenameEvent;
+
+import org.openide.loaders.MultiFileLoader;
+
 import org.openide.actions.OpenAction;
-import org.openide.text.*;
-import org.openide.util.*;
-import org.openide.util.actions.*;
+
+import org.openide.text.PositionRef;
+import org.openide.text.Line;
+
+import org.openide.util.HelpCtx;
+
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
-//import org.netbeans.modules.editor.EditorBase;
-
-import org.openide.loaders.*;
 import org.openide.nodes.CookieSet;
+
+import org.openide.loaders.MultiDataObject;
+import org.openide.loaders.DataObjectExistsException;
 
 import org.openide.compiler.Compiler;
 import org.openide.compiler.CompilerJob;
 import org.openide.compiler.ExternalCompiler;
+
 import org.openide.execution.NbProcessDescriptor;
 
 import org.netbeans.modules.java.JavaCompilerType;
 import org.netbeans.modules.java.JavaExternalCompilerType;
 
-import org.netbeans.modules.corba.settings.*;
-import org.netbeans.modules.corba.idl.src.*;
-import org.netbeans.modules.corba.idl.generator.*;
+import org.netbeans.modules.corba.settings.CORBASupportSettings;
+import org.netbeans.modules.corba.settings.ORBSettings;
+
+import org.netbeans.modules.corba.idl.src.IDLParser;
+import org.netbeans.modules.corba.idl.src.IDLElement;
+import org.netbeans.modules.corba.idl.src.Identifier;
+import org.netbeans.modules.corba.idl.src.TypeElement;
+import org.netbeans.modules.corba.idl.src.InterfaceElement;
+import org.netbeans.modules.corba.idl.src.ModuleElement;
+import org.netbeans.modules.corba.idl.src.ParseException;
+import org.netbeans.modules.corba.idl.src.TokenMgrError;
+
+import org.netbeans.modules.corba.idl.generator.ImplGenerator;
 
 /** Object that provides main functionality for idl data loader.
 * This class is final only for performance reasons,
@@ -91,6 +121,9 @@ public class IDLDataObject extends MultiDataObject {
     private int _line;
     private int _column;
 
+    private String _M_orb_for_compilation = null;
+    private boolean _M_orb_for_compilation_cache = false;
+
     public IDLDataObject (final FileObject obj, final MultiFileLoader loader)
     throws DataObjectExistsException {
         super(obj, loader);
@@ -109,28 +142,28 @@ public class IDLDataObject extends MultiDataObject {
         cookies.add (new IDLNodeCookie () {
                          public void GenerateImpl (IDLDataObject ido) {
                              ido.generateImplementation ();
-                             /*
-                               CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
-                               (CORBASupportSettings.class, true);
-                               if (css.getOrb () == null) {
-                               new NotSetuped ();
-                               return;
-                               }
+			     /*
+			       CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+			       (CORBASupportSettings.class, true);
+			       if (css.getOrb () == null) {
+			       new NotSetuped ();
+			       return;
+			       }
                                
-                               if (DEBUG)
-                               System.out.println ("generating of idl implemenations...");
-                               generator = new ImplGenerator (ido);
-                               generator.setSources (getSources ());
-                               // genearte method can return JavaDataObject in near future to Open generated file
-                               // in editor
-                               generator.generate ();
-                               
-                               //CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
-                               //(CORBASupportSettings.class, true);
-                               //css.loadImpl ();
-                               //css.setJavaTemplateTable ();
-                             */
-                         }
+			       if (DEBUG)
+			       System.out.println ("generating of idl implemenations...");
+			       generator = new ImplGenerator (ido);
+			       generator.setSources (getSources ());
+			       // genearte method can return JavaDataObject in near future to Open generated file
+			       // in editor
+			       generator.generate ();
+			       
+			       //CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+			       //(CORBASupportSettings.class, true);
+			       //css.loadImpl ();
+			       //css.setJavaTemplateTable ();
+			     */
+			 }
                      });
 
         FileUtil.setMIMEType ("idl", "text/x-idl");
@@ -232,7 +265,7 @@ public class IDLDataObject extends MultiDataObject {
     }
 
 
-    public Compiler createCompiler (CompilerJob job, Class type) {
+    public Compiler createCompiler (CompilerJob __job, Class __type) {
         if (DEBUG)
             System.out.println ("IDLDataObject.java:112:createCompiler");
         CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
@@ -242,48 +275,59 @@ public class IDLDataObject extends MultiDataObject {
             return null;
         }
 
-        ExternalCompiler.ErrorExpression eexpr = new ExternalCompiler.ErrorExpression
-                ("blabla", css.getErrorExpression (), css.file (), css.line (), css.column (),
-                 css.message ());
+	ORBSettings __setting;
+	if (this.getOrbForCompilation () != null) {
+	    __setting = css.getSettingByName (this.getOrbForCompilation ());
+	}
+	else {
+	    __setting = css.getActiveSetting ();
+	}
+	if (DEBUG)
+            System.out.println ("IDLDataObject.java:112:createCompiler: orb for compilation:" 
+				+ __setting.getName ());
+	ExternalCompiler.ErrorExpression __eexpr = new ExternalCompiler.ErrorExpression
+	    ("blabla", __setting.getErrorExpression (), 
+	     __setting.file (), __setting.line (), 
+	     __setting.column (), __setting.message ());
 
+        FileObject __fo = this.getPrimaryFile ();
+	NbProcessDescriptor __nb = __setting.getIdl ();
+	ExternalCompiler __ec 
+	    = new IDLExternalCompiler (this.getPrimaryFile (), __type, __nb, __eexpr);
 
-        FileObject fo = this.getPrimaryFile ();
-        NbProcessDescriptor nb = css.getIdl ();
-        ExternalCompiler ec = new IDLExternalCompiler (this.getPrimaryFile (), type, nb, eexpr);
+	__job.add (__ec);
 
-        job.add (ec);
-
-        Vector gens = getGeneratedFileObjects ();
+        Vector __gens = getGeneratedFileObjects ();
         //JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
         //JavaCompilerType jct = (JavaCompilerType)js.getCompiler ();
-        JavaCompilerType jct = (JavaCompilerType)TopManager.getDefault ().getServices
-                               ().find(JavaExternalCompilerType.class);
+        JavaCompilerType __jct = (JavaCompilerType)TopManager.getDefault ().getServices
+	    ().find(JavaExternalCompilerType.class);
         if (DEBUG)
-            System.out.println ("generated files: " + gens);
-        FileSystem fs = null;
+            System.out.println ("generated files: " + __gens);
+        FileSystem __fs = null;
         try {
-            fs = getPrimaryFile ().getFileSystem ();
-        } catch (FileStateInvalidException ex) {
-            ex.printStackTrace ();
+            __fs = getPrimaryFile ().getFileSystem ();
+        } catch (FileStateInvalidException __ex) {
+            __ex.printStackTrace ();
         }
 
-        String package_name = "";
-        for (int j=0; j<gens.size (); j++) {
+        String __package_name = "";
+        for (int __j = 0; __j < __gens.size (); __j++) {
             if (DEBUG)
                 System.out.println ("add compiler to job for "
-                                    + ((FileObject)gens.elementAt (j)).getName ());
+                                    + ((FileObject)__gens.elementAt (__j)).getName ());
 
-            package_name = ((FileObject)gens.elementAt (j)).getPackageNameExt ('/', '.');
+            __package_name = ((FileObject)__gens.elementAt (__j)).getPackageNameExt ('/', '.');
 
             if (DEBUG)
-                System.out.println ("package name: " + package_name);
+                System.out.println ("package name: " + __package_name);
 
             // future extension: jct.prepareIndirectCompiler
             //                    (type, fs, package_name, "text to status line");
-            job.add (jct.prepareIndirectCompiler (type, fs, package_name));
+            __job.add (__jct.prepareIndirectCompiler (__type, __fs, __package_name));
         }
 
-        return ec;
+	return __ec;
     }
 
     private Vector getIdlConstructs (int style, IDLElement src) {
@@ -525,16 +569,16 @@ public class IDLDataObject extends MultiDataObject {
         String impl_postfix = null;
         CORBASupportSettings css = (CORBASupportSettings)CORBASupportSettings.findObject
                                    (CORBASupportSettings.class, true);
-        if (!css.isTie ()) {
-            // inheritance based skeletons
-            impl_prefix = css.getImplBasePrefix ();
-            impl_postfix = css.getImplBasePostfix ();
-        }
-        else {
-            // tie based skeletons
-            impl_prefix = css.getTiePrefix ();
-            impl_postfix = css.getTiePostfix ();
-        }
+	if (!css.getActiveSetting ().isTie ()) {
+	    // inheritance based skeletons
+	    impl_prefix = css.getActiveSetting ().getImplBasePrefix ();
+	    impl_postfix = css.getActiveSetting ().getImplBasePostfix ();
+	}
+	else {
+	    // tie based skeletons
+	    impl_prefix = css.getActiveSetting ().getTiePrefix ();
+	    impl_postfix = css.getActiveSetting ().getTiePostfix ();
+	}
         Vector int_names = getIdlInterfaces (STYLE_ALL);
         for (int i=0; i<int_names.size (); i++) {
             retval.add (impl_prefix + (String)int_names.elementAt (i) + impl_postfix);
@@ -685,7 +729,7 @@ public class IDLDataObject extends MultiDataObject {
             status = STATUS_ERROR;
             src = null;
         } catch (java.io.FileNotFoundException e) {
-            // e.printStackTrace (); Do not display exception
+            // e.printStackTrace ();
         } catch (Exception ex) {
             System.out.println ("IDLParser exception in " + this.getPrimaryFile ());
             ex.printStackTrace ();
@@ -707,8 +751,8 @@ public class IDLDataObject extends MultiDataObject {
 		IDLDataObject.this.idlNode.update ();
             CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                        (CORBASupportSettings.class, true);
-            if (css.getSynchro () == CORBASupport.SYNCHRO_ON_SAVE)
-                IDLDataObject.this.generateImplementation ();
+	    if (css.getActiveSetting ().getSynchro () == CORBASupport.SYNCHRO_ON_SAVE)
+		IDLDataObject.this.generateImplementation ();
         }
 
         public void fileRenamed (FileRenameEvent e) {
@@ -738,7 +782,6 @@ public class IDLDataObject extends MultiDataObject {
         return result;
     }
 
-
     public void generateImplementation () {
         CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                    (CORBASupportSettings.class, true);
@@ -755,6 +798,22 @@ public class IDLDataObject extends MultiDataObject {
         // in editor
         generator.generate ();
     }
+
+    public void setOrbForCompilation (String __value) throws IOException {
+	_M_orb_for_compilation = __value;
+	FileObject __idl_file = this.getPrimaryFile ();
+	__idl_file.setAttribute ("orb_for_compilation", _M_orb_for_compilation);
+    }
+
+    public String getOrbForCompilation () {
+	FileObject __idl_file = this.getPrimaryFile ();
+	if (!_M_orb_for_compilation_cache) {
+	    _M_orb_for_compilation = (String)__idl_file.getAttribute ("orb_for_compilation");
+	    _M_orb_for_compilation_cache = true;
+	}
+	return _M_orb_for_compilation;
+    }
+   
 
 }
 

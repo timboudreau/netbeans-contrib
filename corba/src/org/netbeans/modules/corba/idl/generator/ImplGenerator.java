@@ -80,15 +80,27 @@ public class ImplGenerator {
         css = (CORBASupportSettings) CORBASupportSettings.findObject
               (CORBASupportSettings.class, true);
 
-        IMPLBASE_IMPL_PREFIX = css.getImplBasePrefix ();
-        IMPLBASE_IMPL_POSTFIX = css.getImplBasePostfix ();
-        EXT_CLASS_PREFIX = css.getExtClassPrefix ();
-        EXT_CLASS_POSTFIX = css.getExtClassPostfix ();
-        TIE_IMPL_PREFIX = css.getTiePrefix ();
-        TIE_IMPL_POSTFIX = css.getTiePostfix ();
-        IMPL_INT_PREFIX = css.getImplIntPrefix ();
-        IMPL_INT_POSTFIX = css.getImplIntPostfix ();
-        TIE = css.isTie ();
+	IMPLBASE_IMPL_PREFIX = css.getActiveSetting ().getImplBasePrefix ();
+	IMPLBASE_IMPL_POSTFIX = css.getActiveSetting ().getImplBasePostfix ();
+	EXT_CLASS_PREFIX = css.getActiveSetting ().getExtClassPrefix ();
+	EXT_CLASS_POSTFIX = css.getActiveSetting ().getExtClassPostfix ();
+	TIE_IMPL_PREFIX = css.getActiveSetting ().getTiePrefix ();
+	TIE_IMPL_POSTFIX = css.getActiveSetting ().getTiePostfix ();
+	IMPL_INT_PREFIX = css.getActiveSetting ().getImplIntPrefix ();
+	IMPL_INT_POSTFIX = css.getActiveSetting ().getImplIntPostfix ();
+	TIE = css.getActiveSetting ().isTie ();
+
+	/*
+	  IMPLBASE_IMPL_PREFIX = "";
+	  IMPLBASE_IMPL_POSTFIX = "Impl";
+	  EXT_CLASS_PREFIX = "_";
+	  EXT_CLASS_POSTFIX = "ImplBase";
+	  TIE_IMPL_PREFIX = "";
+	  TIE_IMPL_POSTFIX = "ImplTIE";
+	  IMPL_INT_PREFIX = "";
+	  IMPL_INT_POSTFIX = "Operations";
+	  TIE = false;
+	*/
     }
 
     public ImplGenerator () {
@@ -1920,7 +1932,7 @@ public class ImplGenerator {
             */
             String name_of_parent = (String)parents.elementAt (i);
             IDLElement parent
-            = findElementByName (name_of_parent, element);
+		= findElementByName (name_of_parent, element);
             //InterfaceElement parent = (InterfaceElement)id.getParent ();
             if (parent == null) {
                 //throw new SymbolNotFound (name_of_parent);
@@ -1947,7 +1959,7 @@ public class ImplGenerator {
     */
 
     public void interface2java (InterfaceElement element)
-    throws SymbolNotFoundException {
+	throws SymbolNotFoundException {
         if (DEBUG)
             System.out.println ("interface2java: " + element.getName ());
         if (DEBUG)
@@ -1958,7 +1970,7 @@ public class ImplGenerator {
         String super_name = "";
         String modules = modules2package (element);
         String _package = ido.getPrimaryFile ().getParent ().getPackageName ('.');
-
+	
         if (DEBUG) {
             System.out.println ("modules:>" + modules + "<");
             System.out.println ("package:>" + _package + "<");
@@ -2053,16 +2065,17 @@ public class ImplGenerator {
                     System.out.println ("new class: " + clazz.toString ());
                 }
 
-                if (css.getSynchro () != CORBASupport.SYNCHRO_DISABLE) {
-                    List changes = new LinkedList ();
-                    JavaConnections.compareMethods (dest, clazz, changes, "Add Method {0}",
-                                                    "Update Method {0}");
-                    if (changes.size () > 0)
+		if (css.getActiveSetting ().getSynchro () != CORBASupport.SYNCHRO_DISABLE) {
+		    List changes = new LinkedList ();
+		    JavaConnections.compareMethods (dest, clazz, changes, "Add Method {0}",
+						    "Update Method {0}");
+		    if (changes.size () > 0)
                         JavaConnections.showChangesDialog (changes, (byte)JavaConnections.TYPE_ALL);
                 }
 		else {
 		    this.showMessage = false;
 		}
+		
             }
             else {
                 if (DEBUG)
@@ -2084,7 +2097,7 @@ public class ImplGenerator {
                                  + " */");
 
                 if (_package.length() > 0) // If it isn't in file system root
-                    printer.println ("\npackage " + _package + ";\n");
+                printer.println ("\npackage " + _package + ";\n");
                 printer.println (clazz.toString ());
                 lock.releaseLock ();
             }
@@ -2127,7 +2140,7 @@ public class ImplGenerator {
         }
 
 	if (this.showMessage) { // Bug Fix, when sync is disabled, don't show the message
-    	    TopManager.getDefault ().setStatusText ("Successfully Generated Implementation Classes for "
+        TopManager.getDefault ().setStatusText ("Successfully Generated Implementation Classes for "
                                                 + ido.getPrimaryFile ().getName () + ".");
 	}
 	else{
@@ -2140,23 +2153,25 @@ public class ImplGenerator {
     public void setBodyOfMethod (MethodElement method) throws SourceException {
         if (DEBUG) {
             System.out.println ("setBodyOfMethod (" + method + ");");
-            System.out.println ("css.getGeneration () : " + css.getGeneration ());
+            //System.out.println ("css.getGeneration () : " + css.getGeneration ());
         }
-        if (css.getGeneration ().equals (CORBASupport.GEN_NOTHING)) {
-            //System.out.println ("CORBASupport.GEN_NOTHING");
-            method.setBody ("\n");
-            return;
-        }
-        if (css.getGeneration ().equals (CORBASupport.GEN_EXCEPTION)) {
-            //System.out.println ("CORBASupport.GEN_EXCEPTION");
-            method.setBody ("\n  throw new UnsupportedOperationException ();\n");
-            return;
-        }
-        if (css.getGeneration ().equals (CORBASupport.GEN_RETURN_NULL)) {
+
+	if (css.getActiveSetting ().getGeneration ().equals (CORBASupport.GEN_NOTHING)) {
+	    //System.out.println ("CORBASupport.GEN_NOTHING");
+	    method.setBody ("\n");
+	    return;
+	}
+	if (css.getActiveSetting ().getGeneration ().equals (CORBASupport.GEN_EXCEPTION)) {
+	    //System.out.println ("CORBASupport.GEN_EXCEPTION");
+	    method.setBody ("\n  throw new UnsupportedOperationException ();\n");
+	    return;
+	}
+	if (css.getActiveSetting ().getGeneration ().equals (CORBASupport.GEN_RETURN_NULL)) {
             //System.out.println ("CORBASupport.GEN_RETURN_NULL");
             method.setBody ("\n  return null;\n");
             return;
-        }
+	}
+
     }
 
 

@@ -16,10 +16,10 @@ package org.netbeans.modules.corba.wizard.panels;
 import java.util.Vector;
 import org.netbeans.modules.corba.wizard.CorbaWizardData;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
+import org.netbeans.modules.corba.settings.ORBSettingsWrapper;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.netbeans.modules.corba.CORBASupport;
-
 /** 
  *
  * @author  tzezula
@@ -52,15 +52,20 @@ public class ORBPanel extends AbstractWizardPanel {
       Vector names = this.css.getNames();
       for (int i=0; i< names.size(); i++)
         this.orbs.addItem (names.get(i));
-      String[] list = this.css.getServerBindingsChoices ();
+      //String[] list = this.css.getActiveSetting ().getServerBindingsChoices ();
+      ORBSettingsWrapper[] list 
+	  = new ORBSettingsWrapper[this.css.getActiveSetting ().getServerBindings ().size ()];
+      list = (ORBSettingsWrapper[])this.css.getActiveSetting ().getServerBindings ().toArray 
+	  (list);
       for (int i=0; i< list.length; i++) {
-        this.bindings.addItem (list[i]);
+        this.bindings.addItem (list[i].getValue ());
       }
       String value = this.css.getOrb();
       if (value != null)
         this.orbs.setSelectedItem (value);
       this.defaultOrb = value;
-      value = this.css.getServerBinding();
+      //value = this.css.getActiveSetting ().getServerBinding();
+      value = this.css.getActiveSetting ().getServerBinding().getValue ();
       if (value != null)
         this.bindings.setSelectedItem (value);
       this.defaultBinding = value;
@@ -213,7 +218,7 @@ add(jPanel3, gridBagConstraints1);
       String serverBind = (String)this.bindings.getSelectedItem();
       String clientBind = "";
       
-      this.css.setServerBinding (serverBind);
+      this.css.getActiveSetting ().setServerBinding (serverBind);
       if (serverBind == CORBASupport.SERVER_NS)
         clientBind = CORBASupport.CLIENT_NS;
       else if (serverBind == CORBASupport.SERVER_IOR_TO_FILE)
@@ -222,7 +227,7 @@ add(jPanel3, gridBagConstraints1);
         clientBind = CORBASupport.CLIENT_IOR_FROM_INPUT;
       if (serverBind == CORBASupport.SERVER_BINDER)
         clientBind = CORBASupport.CLIENT_BINDER;
-      this.css.setClientBinding (clientBind);
+      this.css.getActiveSetting ().setClientBinding (clientBind);
   }//GEN-LAST:event_bindingChanged
 
   private void orbChanged (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_orbChanged
@@ -235,7 +240,9 @@ add(jPanel3, gridBagConstraints1);
        this.firstChange = false;
     }
     this.css.setOrb ((String) this.orbs.getSelectedItem ());
-    String[] list = this.css.getServerBindingsChoices ();
+    ORBSettingsWrapper[] list 
+	= new ORBSettingsWrapper[this.css.getActiveSetting ().getServerBindings ().size ()];
+    list = (ORBSettingsWrapper[])this.css.getActiveSetting ().getServerBindings ().toArray (list);
     this.bindings.removeAllItems();
     for ( int i=0; i< list.length; i++) {
       this.bindings.addItem (list[i]);

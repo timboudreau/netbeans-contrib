@@ -175,16 +175,16 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
             css = (CORBASupportSettings) CORBASupportSettings.findObject
                   (CORBASupportSettings.class, true);
             String params = " ";
-            if (css.getParams () != null)
-                params += css.getParams ();
-            if (css.isTie ())
-                params += css.getTieParam ();
+	    if (css.getActiveSetting ().getParams () != null)
+		params += css.getActiveSetting ().getParams ();
+	    if (css.getActiveSetting ().isTie ())
+		params += css.getActiveSetting ().getTieParam ();
 
             java.util.Map map = getMap ();
 
             map.put (TAG_RTCLASSPATH, getRTClasspath ());
             map.put (TAG_PACKAGEROOT, getPackageRoot (fo));
-            map.put (TAG_OUTPUTDIR_PARAM, css.getDirParam ());
+	    map.put (TAG_OUTPUTDIR_PARAM, css.getActiveSetting ().getDirParam ());
 
             // workaround for compilation of file which is in root of repository
             if (is_in_root) {
@@ -192,8 +192,8 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
                 map.put (TAG_PACKAGE, "");
             }
             else {
-                map.put (TAG_PACKAGE_PARAM, css.getPackageParam ());
-                map.put (TAG_PACKAGE, getPackage (fo));
+		map.put (TAG_PACKAGE_PARAM, css.getActiveSetting ().getPackageParam ());
+		map.put (TAG_PACKAGE, getPackage (fo));
             }
             map.put (TAG_PARAMS, params);
             //map.put (TAG_FILES, getFile (fo));
@@ -236,7 +236,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
         CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                    (CORBASupportSettings.class, true);
 
-        return fo.getParent ().getPackageName (css.delim ());
+        return fo.getParent ().getPackageName (css.getActiveSetting ().delim ());
     }
 
     public static String getPackageRoot(FileObject fo) throws IllegalArgumentException {
