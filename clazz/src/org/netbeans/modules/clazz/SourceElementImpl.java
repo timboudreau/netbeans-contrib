@@ -145,7 +145,10 @@ final class SourceElementImpl extends MemberElementImpl
         checkData();
         if (data == null)
             return NO_CLASSES;
-        return new ClassElement[] { getClassElement() };
+        ClassElement clsElem = getClassElement();
+        if (clsElem == null)
+            return NO_CLASSES;
+        return new ClassElement[] { clsElem };
     }
 
     /** Finds an inner class with given name.
@@ -285,7 +288,10 @@ final class SourceElementImpl extends MemberElementImpl
     */
     private Map createClassesMap () {
         Map result = new HashMap(15);
-        addClassElement(result, getClassElement());
+        ClassElement clsElem = getClassElement();
+        if (clsElem != null) {
+            addClassElement(result, clsElem);
+        }
         return result;
     }
 
