@@ -15,9 +15,9 @@ Microsystems, Inc. All Rights Reserved.
 <project name="pmd-nb-ext" basedir="." default="all">
 
   <property name="nb_root" location="../.."/>
-  <property name="pmdroot" location="../../pmd-netbeans-0.7"/>
+  <property name="pmdroot" location="../../pmd-netbeans-0.9"/>
   <path id="pmdpath">
-    <pathelement location="${pmdroot}/lib/pmd-1.03.jar"/>
+    <pathelement location="${pmdroot}/lib/pmd-1.2.1.jar"/>
     <pathelement location="${pmdroot}/build/pmd.jar"/>
   </path>
 
@@ -27,7 +27,6 @@ Microsystems, Inc. All Rights Reserved.
                deprecation="${build.compiler.deprecation}" 
                debug="${build.compiler.debug}">
             <classpath>
-                <pathelement location="${nb_root}/openide/openide-13javac-workaround.jar"/>
                 <fileset dir="${nb_root}/openide/netbeans/lib">
                   <include name="openide*.jar" />
                 </fileset>

@@ -29,7 +29,6 @@ public class Foo {
 Use corect class in NbBundle.getMessage or NbBundle.getBundle.
     </description>
     <example>
-    <example>
 <![CDATA[
 public class Something {
 
@@ -38,7 +37,6 @@ public class Something {
   }
 }
 ]]>
-    </example>
     </example>
   </rule>
 </ruleset>
