@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Enumeration;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -38,13 +40,14 @@ import org.netbeans.jellytools.properties.PropertySheetTabOperator;
 import org.netbeans.jellytools.properties.StringProperty;
 import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.junit.NbTestSuite;
+import org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardData;
+import org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardIterator;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.util.Utilities;
 import util.Helper;
 import util.History;
-import util.StatusBarTracer;
 
 
 public class JellyBranch extends JellyTestCase {
@@ -79,7 +82,6 @@ public class JellyBranch extends JellyTestCase {
     }
     
     ExplorerOperator exp;
-    StatusBarTracer sbt;
     static String serverDirectory;
     static String clientDirectory;
     static String hRoot = ".", nRoot;
@@ -179,7 +181,6 @@ public class JellyBranch extends JellyTestCase {
     
     protected void setUp() throws Exception {
         exp = new ExplorerOperator();
-        sbt = new StatusBarTracer();
         out = getRef();
         info = getLog();
     }
@@ -216,10 +217,31 @@ public class JellyBranch extends JellyTestCase {
         wizard.verify("");
         wizard.setWorkingDirectory(clientDirectory);
         String profile = Utilities.isUnix() ? VCSWizardProfile.CVS_UNIX : VCSWizardProfile.CVS_WIN_NT;
-        sbt.start();
+            
+        MountWizardIterator mwi = MountWizardIterator.singleton();
+        MountWizardData mwd = mwi.getData();
+        Method m;
+        try {
+            m = MountWizardData.class.getDeclaredMethod("getFileSystem", new Class[0]);
+        } catch (NoSuchMethodException e) {
+            throw new AssertionFailedErrorException (e);
+        }
+        Object o;
+        try {
+            m.setAccessible(true);
+            o = m.invoke(mwd, new Object[0]);
+        } catch (IllegalAccessException e) {
+            throw new AssertionFailedErrorException (e);
+        } catch (InvocationTargetException e) {
+            throw new AssertionFailedErrorException (e);
+        }
+        FileSystem fs = (FileSystem) o;
+        history = new History (fs);
+        history.breakpoint();
+
         wizard.setProfile(profile);
-        sbt.removeText("Command AUTO_FILL_CONFIG finished.");
-        sbt.stop();
+        history.waitCommand("AUTO_FILL_CONFIG", "");
+
         wizard.setCVSServerType("local");
         wizard.setCVSServerName("");
         wizard.setCVSUserName("");

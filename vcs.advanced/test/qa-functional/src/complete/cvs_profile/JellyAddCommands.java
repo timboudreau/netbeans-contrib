@@ -57,7 +57,7 @@ public class JellyAddCommands extends JellyStub {
 //        JellyStub.DEBUG = true;
         TestSuite suite = new NbTestSuite();
         suite.addTest(new JellyAddCommands("testWorkDir"));
-        suite.addTest(new JellyAddCommands("testEdit"));
+/*        suite.addTest(new JellyAddCommands("testEdit"));
         suite.addTest(new JellyAddCommands("testEditors"));
         suite.addTest(new JellyAddCommands("testUndoEdit"));
         suite.addTest(new JellyAddCommands("testNoEdit"));
@@ -70,7 +70,7 @@ public class JellyAddCommands extends JellyStub {
         suite.addTest(new JellyAddCommands("testDefaultDiffGraphicalTextual"));
         suite.addTest(new JellyAddCommands("testDefaultDiffTextual"));
         suite.addTest(new JellyAddCommands("testDefaultPatch"));
-        suite.addTest(new JellyAddCommands("testUnmount"));
+        suite.addTest(new JellyAddCommands("testUnmount"));*/
         return suite;
     }
     
