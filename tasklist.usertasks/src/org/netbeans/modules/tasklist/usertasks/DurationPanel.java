@@ -108,8 +108,8 @@ public class DurationPanel extends javax.swing.JPanel {
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 1;
-    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
     add(jSpinnerDays, gridBagConstraints);
 
     org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(DurationPanel.class, "Hours")); // NOI18N);
@@ -123,8 +123,8 @@ public class DurationPanel extends javax.swing.JPanel {
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 1;
-    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
     add(jSpinnerHours, gridBagConstraints);
 
     org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(DurationPanel.class, "Minutes")); // NOI18N);
@@ -138,8 +138,8 @@ public class DurationPanel extends javax.swing.JPanel {
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 2;
     gridBagConstraints.gridy = 1;
-    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
     add(jSpinnerMinutes, gridBagConstraints);
 
     jPanelPlaceholder.setPreferredSize(new java.awt.Dimension(0, 0));

@@ -29,11 +29,8 @@ import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
-import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.modules.tasklist.core.TaskTransfer;
 import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
@@ -128,7 +125,7 @@ final class UserTaskNode extends AbstractNode {
             null,
             SystemAction.get(StartTaskAction.class),
             SystemAction.get(ShowTaskAction.class),
-            SystemAction.get(GoToTaskAction.class),
+            SystemAction.get(GoToUserTaskAction.class),
             null,
             SystemAction.get(CutAction.class),
             SystemAction.get(CopyAction.class),
@@ -140,7 +137,7 @@ final class UserTaskNode extends AbstractNode {
             null,
             SystemAction.get(FilterAction.class),
             SystemAction.get(PurgeTasksAction.class),
-            SystemAction.get(ExpandAllAction.class),
+            SystemAction.get(ExpandAllUserTasksAction.class),
             null,
             SystemAction.get(ImportAction.class),
             SystemAction.get(ExportAction.class),
@@ -163,7 +160,7 @@ final class UserTaskNode extends AbstractNode {
                 null,
                 SystemAction.get(FilterAction.class),
                 SystemAction.get(PurgeTasksAction.class),
-                SystemAction.get(ExpandAllAction.class),
+                SystemAction.get(ExpandAllUserTasksAction.class),
                 null,
                 SystemAction.get(ImportAction.class),
                 SystemAction.get(ExportAction.class),
@@ -335,7 +332,7 @@ final class UserTaskNode extends AbstractNode {
     }
     
     protected void createPasteTypes(java.awt.datatransfer.Transferable t, List s) {
-        UTUtils.LOGGER.fine("entering");
+        // UTUtils.LOGGER.fine("entering"); // NOI18N
         super.createPasteTypes(t, s);
         PasteType p = createTodoPasteType(this, t);
         if (p != null) {
@@ -359,7 +356,7 @@ final class UserTaskNode extends AbstractNode {
                 final MultiTransferObject mto = (MultiTransferObject)
                     t.getTransferData(ExTransferable.multiFlavor);
                 if (mto.areDataFlavorsSupported(
-                    new DataFlavor[] {TaskTransfer.TODO_FLAVOR})) {
+                    new DataFlavor[] {UserTaskTransfer.TODO_FLAVOR})) {
                     return new UserTaskNode.TodoPaste(target, t);
                 }
             } catch (UnsupportedFlavorException e) {
@@ -369,7 +366,7 @@ final class UserTaskNode extends AbstractNode {
             }
         } 
         
-        if (t.isDataFlavorSupported(TaskTransfer.TODO_FLAVOR)) {
+        if (t.isDataFlavorSupported(UserTaskTransfer.TODO_FLAVOR)) {
             return new TodoPaste(target, t);
         } 
         return null;
@@ -383,7 +380,7 @@ final class UserTaskNode extends AbstractNode {
             } else {
                 return new StartCookie(uitem);
             }
-        } else if (type == Task.class) {
+        } else if (type == UserTask.class) {
             return item;
         } else {
             return super.getCookie(type);
@@ -400,7 +397,7 @@ final class UserTaskNode extends AbstractNode {
     public Transferable clipboardCopy() throws IOException {
         UTUtils.LOGGER.fine("entering");
         final UserTask copy = (UserTask) item.clone();
-        return new ExTransferable.Single(TaskTransfer.TODO_FLAVOR) {
+        return new ExTransferable.Single(UserTaskTransfer.TODO_FLAVOR) {
             protected Object getData() {
                 return copy;
             }
@@ -466,7 +463,7 @@ final class UserTaskNode extends AbstractNode {
         }
         
         public String getName() {
-            return NbBundle.getMessage(TaskTransfer.class, 
+            return NbBundle.getMessage(UserTaskTransfer.class, 
                 "LBL_todo_paste_as_subtask"); // NOI18N
         }
         
@@ -481,21 +478,21 @@ final class UserTaskNode extends AbstractNode {
                     final MultiTransferObject mto = (MultiTransferObject)
                         t.getTransferData(ExTransferable.multiFlavor);
                     if (mto.areDataFlavorsSupported(
-                        new DataFlavor[] {TaskTransfer.TODO_FLAVOR})) {
+                        new DataFlavor[] {UserTaskTransfer.TODO_FLAVOR})) {
                         for (int i = 0; i < mto.getCount(); i++) {
                             UserTask item = (UserTask)
-                                mto.getTransferData(i, TaskTransfer.TODO_FLAVOR);
+                                mto.getTransferData(i, UserTaskTransfer.TODO_FLAVOR);
                             addTask(item);
                         }
                         return null;
                     }
                 } 
                 
-                if (t.isDataFlavorSupported(TaskTransfer.TODO_FLAVOR)) {
+                if (t.isDataFlavorSupported(UserTaskTransfer.TODO_FLAVOR)) {
                     UTUtils.LOGGER.fine(t.getTransferData(
-                        TaskTransfer.TODO_FLAVOR).getClass().getName());
+                        UserTaskTransfer.TODO_FLAVOR).getClass().getName());
                     UserTask item = 
-                        (UserTask) t.getTransferData(TaskTransfer.TODO_FLAVOR);
+                        (UserTask) t.getTransferData(UserTaskTransfer.TODO_FLAVOR);
                     addTask(item);
                 } 
             } catch (UnsupportedFlavorException ufe) {

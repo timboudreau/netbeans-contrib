@@ -89,7 +89,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
                 parsePercents(p);
                 return true;
             } catch (NumberFormatException e) {
-                UTUtils.LOGGER.fine("wrong format");
+                UTUtils.LOGGER.fine("wrong format"); // NOI18N
                 return false;
             }
         }
@@ -360,8 +360,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
                 loadClass("org.netbeans.api.javahelp.Help"); // NOI18N
                 Object o = Lookup.getDefault().lookup(c);
                 if (o != null) {
-                    Method m = c.getMethod("showHelp",
-                    new Class[] {HelpCtx.class}); // NOI18N
+                    Method m = c.getMethod("showHelp", // NOI18N
+                        new Class[] {HelpCtx.class});
                     m.invoke(o, new Object[] {help});
                     return;
                 }

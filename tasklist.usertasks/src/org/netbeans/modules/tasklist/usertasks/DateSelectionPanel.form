@@ -101,9 +101,6 @@
                   <Connection code="new DateSelectionTableModel()" type="code"/>
                 </Property>
                 <Property name="cellSelectionEnabled" type="boolean" value="true"/>
-                <Property name="preferredScrollableViewportSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[450, 150]"/>
-                </Property>
                 <Property name="showHorizontalLines" type="boolean" value="false"/>
                 <Property name="showVerticalLines" type="boolean" value="false"/>
               </Properties>

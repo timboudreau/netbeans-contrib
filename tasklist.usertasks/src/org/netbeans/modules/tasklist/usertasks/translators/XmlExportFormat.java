@@ -160,7 +160,7 @@ public class XmlExportFormat implements ExportImportFormat {
      * @param list task list
      * @return created XML
      */
-    public Document createXml(TaskList list) 
+    public Document createXml(UserTaskList list) 
     throws ParserConfigurationException, SAXException {
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.newDocument();

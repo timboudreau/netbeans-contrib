@@ -49,7 +49,7 @@ public final class TaskListLoader extends UniFileLoader {
     protected static SystemAction[] standardActions;
 
     public TaskListLoader() {
-        super("org.netbeans.modules.tasklist.usertasks.TaskListDataObject");//NOI18N
+        super("org.netbeans.modules.tasklist.usertasks.TaskListDataObject"); // NOI18N
 
 	// These extensions MUST match the ones in the editor kits...
 	ExtensionList extensions = new ExtensionList();

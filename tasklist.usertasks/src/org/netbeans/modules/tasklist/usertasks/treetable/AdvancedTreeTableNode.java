@@ -238,24 +238,34 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
      */
     protected void fireChildObjectAdded(Object obj) {
         if (children != null) {
+            AdvancedTreeTableNode cn = createChildNode(obj);
+            
+            int index;
             if (getComparator() != null) {
-                AdvancedTreeTableNode cn = createChildNode(obj);
-                int index = Arrays.binarySearch(children, cn, getComparator());
+                index = Arrays.binarySearch(children, cn, getComparator());
                 assert index < 0;
                 
                 index = -(index + 1);
-                AdvancedTreeTableNode[] newch = 
-                    new AdvancedTreeTableNode[children.length + 1];
-                System.arraycopy(children, 0, newch, 0, index);
-                newch[index] = cn;
-                System.arraycopy(children, index, newch, index + 1, 
-                    children.length - index);
-                this.children = newch;
-                model.fireTreeNodesInserted(model, getPathToRoot(), 
-                    new int[] {index}, new Object[] {cn});
             } else {
-                refreshChildren();
+                index = -1;
+                Iterator it = getChildrenObjectsIterator();
+                while (it.hasNext()) {
+                    index++;
+                    Object next = it.next();
+                    if (next == obj)
+                        break;
+                }
             }
+            
+            AdvancedTreeTableNode[] newch = 
+                new AdvancedTreeTableNode[children.length + 1];
+            System.arraycopy(children, 0, newch, 0, index);
+            newch[index] = cn;
+            System.arraycopy(children, index, newch, index + 1, 
+                children.length - index);
+            this.children = newch;
+            model.fireTreeNodesInserted(model, getPathToRoot(), 
+                new int[] {index}, new Object[] {cn});
         }
     }
     

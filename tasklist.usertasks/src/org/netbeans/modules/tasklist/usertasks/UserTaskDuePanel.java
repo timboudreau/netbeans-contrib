@@ -64,16 +64,16 @@ public class UserTaskDuePanel extends javax.swing.JPanel {
         */
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
         add(jLabel1, gridBagConstraints);
 
         descriptionFld.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(2, 12, 0, 12);
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 12, 0, 12);
         add(descriptionFld, gridBagConstraints);
 
         jLabel2.setLabelFor(detailsArea);
@@ -82,8 +82,8 @@ public class UserTaskDuePanel extends javax.swing.JPanel {
         */
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
         add(jLabel2, gridBagConstraints);
 
         detailsArea.setPreferredSize(new java.awt.Dimension(400, 200));
@@ -93,9 +93,9 @@ public class UserTaskDuePanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(2, 12, 11, 11);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 12, 11, 11);
         add(jScrollPane1, gridBagConstraints);
 
     }//GEN-END:initComponents
@@ -130,11 +130,11 @@ public class UserTaskDuePanel extends javax.swing.JPanel {
 
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField descriptionFld;
     private javax.swing.JTextArea detailsArea;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
     
 }

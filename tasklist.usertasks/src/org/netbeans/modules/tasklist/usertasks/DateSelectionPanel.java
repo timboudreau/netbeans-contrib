@@ -86,9 +86,9 @@ public class DateSelectionPanel extends javax.swing.JPanel
         calendar = new GregorianCalendar();
         yearFld.setText(Integer.toString(calendar.get(calendar.YEAR)));
         
-        format = new SimpleDateFormat("HH:mm:ss");
+        format = new SimpleDateFormat("HH:mm:ss"); // NOI18N
         timeFld.setText(format.format(date));        
-        format.applyPattern("MMMM");
+        format.applyPattern("MMMM"); // NOI18N
         
         int curr = calendar.get(calendar.MONTH);
         calendar.set(calendar.MONTH,
@@ -118,7 +118,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
     public Date getDate() {
         Date ret;
         try {
-            format.applyPattern("HH:mm:ss");
+            format.applyPattern("HH:mm:ss"); // NOI18N
             calendar.setTime(format.parse(timeFld.getText()));
             calendar.set(calendar.MONTH, monthNameCmb.getSelectedIndex());
             calendar.set(calendar.YEAR, Integer.parseInt(yearFld.getText()));
@@ -156,7 +156,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
         monthNameCmb.setMaximumRowCount(12);
         monthNameCmb.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DateSelectionPanel.this.monthNameCmbActionPerformed(evt);
+                monthNameCmbActionPerformed(evt);
             }
         });
 
@@ -165,7 +165,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
         prevYearBtn.setText("<");
         prevYearBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DateSelectionPanel.this.prevYearBtnActionPerformed(evt);
+                prevYearBtnActionPerformed(evt);
             }
         });
 
@@ -187,7 +187,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
         });
         yearFld.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
-                DateSelectionPanel.this.yearFldFocusLost(evt);
+                yearFldFocusLost(evt);
             }
         });
 
@@ -196,7 +196,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
         nextYearBtn.setText(">");
         nextYearBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DateSelectionPanel.this.nextYearBtnActionPerformed(evt);
+                nextYearBtnActionPerformed(evt);
             }
         });
 
@@ -285,16 +285,16 @@ public class DateSelectionPanel extends javax.swing.JPanel
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable calendarTable;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JTextField timeFld;
-    private javax.swing.JButton prevYearBtn;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JTextField yearFld;
-    private javax.swing.JComboBox monthNameCmb;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JComboBox monthNameCmb;
     private javax.swing.JButton nextYearBtn;
+    private javax.swing.JButton prevYearBtn;
+    private javax.swing.JTextField timeFld;
+    private javax.swing.JTextField yearFld;
     // End of variables declaration//GEN-END:variables
     
     /**
@@ -314,7 +314,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
         public DateSelectionTableModel() {
             columnNames = new Object[7];
             calendar = new GregorianCalendar();
-            SimpleDateFormat format = new SimpleDateFormat("EEEE");
+            SimpleDateFormat format = new SimpleDateFormat("EEEE"); // NOI18N
             
             calendar.set(calendar.DAY_OF_WEEK,             
                          calendar.getFirstDayOfWeek());
@@ -584,7 +584,10 @@ public class DateSelectionPanel extends javax.swing.JPanel
                 c.set(Calendar.DAY_OF_MONTH, panel.tablemodel.days[1][0].intValue());
                 
                 if (c.get(Calendar.DAY_OF_WEEK) != c.getFirstDayOfWeek()) {
-                    System.err.println("The assignment of day of week is incorrect for year: " + c.get(Calendar.YEAR) + " and month: " + c.get(Calendar.MONTH));
+                    System.err.println(
+                        "The assignment of day of week is incorrect for year: " + // NOI18N
+                        c.get(Calendar.YEAR) + 
+                        " and month: " + c.get(Calendar.MONTH)); // NOI18N
                 }
             }
         }

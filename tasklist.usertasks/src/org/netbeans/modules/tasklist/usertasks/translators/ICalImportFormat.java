@@ -415,7 +415,7 @@ public class ICalImportFormat implements ExportImportFormat {
      * @param formatter A date formatter object used to parse dates.
      * @return the complete VTODO entry or null
      */
-    private Task readVTODO(UserTaskList list, UserTask prev, SimpleDateFormat formatter) throws IOException {
+    private UserTask readVTODO(UserTaskList list, UserTask prev, SimpleDateFormat formatter) throws IOException {
         UserTask task = new UserTask("", list); // NOI18N
         task.setSilentUpdate(true, false);
         task.setLastEditedDate(System.currentTimeMillis());
@@ -618,13 +618,13 @@ public class ICalImportFormat implements ExportImportFormat {
         UserTask alreadyExists = list.findItem(list.getTasks().iterator(), task.getUID());
         if (alreadyExists != null) {
             // I should replace alreadyexists with task...
-            Task parent = alreadyExists.getParent();
+            UserTask parent = alreadyExists.getParent();
             parent.removeSubtask(alreadyExists);
             parent.addSubtask(task);
             
             Iterator li = alreadyExists.subtasksIterator();
             while (li.hasNext()) {
-                Task c = (Task)li.next();
+                UserTask c = (UserTask)li.next();
                 alreadyExists.removeSubtask(c);
                 task.addSubtask(c);
             }
@@ -688,7 +688,7 @@ public class ICalImportFormat implements ExportImportFormat {
                 
                 if (value.equals("VTODO")) { // NOI18N
                     // Call a sub-function to process this line!!!
-                    Task task = readVTODO(ulist, prev, formatter);
+                    UserTask task = readVTODO(ulist, prev, formatter);
                     
                     if (task != null) {
                         if (task.getParent() == null) {
