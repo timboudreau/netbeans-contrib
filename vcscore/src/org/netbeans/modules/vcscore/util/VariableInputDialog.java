@@ -118,9 +118,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * fill in VCS configuartion, when it can be obtained from local configuration files.
      */
     public static final String VAR_AUTO_FILL = "AUTO_FILL_VARS";
-    private HashMap autoFillVars = new HashMap();
-    private Vector varTextFields = new Vector ();
-    private Vector varVariables = new Vector ();
+    private HashMap autoFillVars = new HashMap();   
     private volatile org.openide.util.RequestProcessor.Task autoFillTask;
     private volatile String lastCommandName;
     
@@ -996,9 +994,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         final javax.swing.JTextField field = (password) ? 
             new javax.swing.JPasswordField(TEXTFIELD_COLUMNS) :
             new javax.swing.JTextField(TEXTFIELD_COLUMNS);
-        mainComponent_ptr[0] = field;
-        varTextFields.addElement(field);
-        varVariables.addElement(component.getVariable());
+        mainComponent_ptr[0] = field;        
         if (varLabel != null && varLabel.length() > 0) {
             String varLabelExpanded = Variables.expand(vars, varLabel, false);
             javax.swing.JLabel label = new javax.swing.JLabel(varLabelExpanded);
@@ -2049,8 +2045,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             String labelStr = (String) enum.nextElement();
             this.userPromptLabelTexts[i] = labelStr;
             javax.swing.JLabel label = new javax.swing.JLabel(labelStr+":");
-            javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
-            varTextFields.addElement(field);
+            javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);            
             field.setText((String) varLabels.get(labelStr));
             java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
             java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();
@@ -2271,31 +2266,27 @@ public class VariableInputDialog extends javax.swing.JPanel {
             this.cmd = cmd;
         }
         
-        public void run() {           
-            HashMap varsOrig = new HashMap(vars);            
-            cmd.setAdditionalVariables(varsOrig);
-            //set actual values
-            for (int i=0; i < varTextFields.size(); i++){
-                String varName = (String) varVariables.get(i);                
-                JTextField tf = (JTextField)varTextFields.get(i);
-                String actValue = tf.getText();
-                varsOrig.put(varName,actValue);                
-            }                  
+        public void run() {                      
+            Hashtable origVars = vars;
+            try {
+                vars = new Hashtable(origVars);
+                // Apply all actions to the copy of the original variables
+                for (Iterator it = actionList.iterator(); it.hasNext(); ) {
+                    ActionListener listener = (ActionListener) it.next();
+                    listener.actionPerformed(null);
+            }            
+            cmd.setAdditionalVariables(vars);
+            } finally {
+                // We have to reset the variables back!
+                vars = origVars;
+            }           
             CommandTask cmdTask = cmd.execute();
             cmdTask.waitFinished();
             if(cmdTask.getExitStatus() != 0)
-                return;
-            
+                return;            
             VcsDescribedTask descTask = (VcsDescribedTask)cmdTask;            
-            Map varsAfterChange = descTask.getVariables();            
-            for (int i=0; i < varTextFields.size(); i++){
-                String varName = (String) varVariables.get(i);
-                String newValue = (String) varsAfterChange.get(varName);               
-                JTextField tf = (JTextField)varTextFields.get(i);
-                tf.setText(newValue);
-            }
-            
-          
+            Hashtable varsAfterChange = new Hashtable(descTask.getVariables()); 
+            updateVariableValues(varsAfterChange);           
         }
     }
    
