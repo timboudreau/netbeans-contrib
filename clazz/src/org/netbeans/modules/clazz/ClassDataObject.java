@@ -45,6 +45,7 @@ import org.openide.src.nodes.SourceElementFilter;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.WeakListener;
+import org.openide.loaders.DataObjectExistsException;
 
 
 /** This DataObject loads sourceless classes and provides a common framework
@@ -96,6 +97,16 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject
     public ClassDataObject(final FileObject fo,final MultiFileLoader loader) 
         throws org.openide.loaders.DataObjectExistsException {
         super(fo, loader);
+    }
+
+    static ClassDataObject createSerDataObject(FileObject fo, ClassDataLoader dl)
+                throws DataObjectExistsException, IOException {
+        return new SerDataObject(fo, dl);
+    }
+
+    static ClassDataObject createCompiledDataObject(FileObject fo, ClassDataLoader dl)
+                throws DataObjectExistsException, IOException {
+        return new CompiledDataObject(fo, dl);
     }
     
     private class PropL extends FileChangeAdapter implements PropertyChangeListener, Runnable {

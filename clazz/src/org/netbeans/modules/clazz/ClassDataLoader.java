@@ -33,6 +33,8 @@ public final class ClassDataLoader extends MultiFileLoader {
     /** Extension constants */
     private static final String SER_EXT = "ser"; // NOI18N
     private static final String CLASS_EXT = "class"; // NOI18N
+    private static final String REPRESENTATION_CLASS_NAME = 
+        "org.netbeans.modules.clazz.ClassDataObject"; // NOI18N
 
     private static final char INNER_CLASS_DIVIDER = '$';
 
@@ -40,13 +42,14 @@ public final class ClassDataLoader extends MultiFileLoader {
     private static ExtensionList extensions;
 
     static final long serialVersionUID =3149080169747384034L;
+
     /** Creates a new ClassDataLoader */
     public ClassDataLoader () {
-        super (ClassDataObject.class);
+        super(REPRESENTATION_CLASS_NAME);
     }
     
     protected String defaultDisplayName() {
-        return Util.getString("PROP_ClassLoader_Name");
+        return NbBundle.getMessage (ClassDataLoader.class, "PROP_ClassLoader_Name");
     }
     
     protected synchronized SystemAction[] defaultActions() {
@@ -104,11 +107,13 @@ public final class ClassDataLoader extends MultiFileLoader {
     throws DataObjectExistsException, IOException {
         if (SER_EXT.equals(primaryFile.getExt())) {
             // serialized file, return bean data object
-            return new SerDataObject (primaryFile, this);
+            // moved to ClassDataObject class for performance reasons
+            return ClassDataObject.createSerDataObject (primaryFile, this);
         }
         if (CLASS_EXT.equals(primaryFile.getExt())) {
             // class file, return class data object
-            return new CompiledDataObject (primaryFile, this);
+            // moved to ClassDataObject class for performance reasons
+            return ClassDataObject.createCompiledDataObject (primaryFile, this);
         }
         // otherwise
         return null;
