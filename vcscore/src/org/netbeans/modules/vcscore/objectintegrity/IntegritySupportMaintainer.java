@@ -168,7 +168,9 @@ public final class IntegritySupportMaintainer extends Object
                 boolean ok = false;
                 try {
                     oout = new ObjectOutputStream(new FileOutputStream(dbSaveFile));
+                    vois.suspendChanges();
                     oout.writeObject(vois);
+                    vois.resumeChanges();
                 } catch (java.io.IOException ioex) {
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
                 } finally {

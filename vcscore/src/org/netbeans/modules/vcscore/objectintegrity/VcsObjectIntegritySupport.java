@@ -105,6 +105,8 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     private transient PropertyChangeSupport propertyChangeSupport;
     private transient PropertyChangeListener doFileChangeListener;
     
+    private transient boolean filesStorageLocked = false;
+    
     //private List localFileNames = new ArrayList();
     /** A map of set of names of local secondary files by names of primary files. */
     private Map objectsWithLocalFiles = new HashMap();
@@ -143,10 +145,20 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     
     private void copyDataFrom(VcsObjectIntegritySupport vois) {
         synchronized (objectsWithLocalFiles) {
+            if (filesStorageLocked) {
+                try {
+                    objectsWithLocalFiles.wait();
+                } catch (InterruptedException iex) { /* continue */ }
+            }
             objectsWithLocalFiles.putAll(vois.objectsWithLocalFiles);
             filesMap.putAll(vois.filesMap);
         }
         synchronized (primaryLocalFiles) {
+            if (filesStorageLocked) {
+                try {
+                    primaryLocalFiles.wait();
+                } catch (InterruptedException iex) { /* continue */ }
+            }
             primaryLocalFiles.addAll(vois.primaryLocalFiles);
         }
         ignoredSecondaryLocalFiles.addAll(vois.ignoredSecondaryLocalFiles);
@@ -211,6 +223,33 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             activated = false;
         }
         //System.out.println("VOID DEActivated for ("+fsRootPath+"):"+fileSystem);
+    }
+    
+    /**
+     * Suspend the changes in the internal database. This is necessary to be
+     * called e.g. before serialization or any other processes, that access
+     * internal data. The changes are suspended until resumeChanges() is called.
+     */
+    public void suspendChanges() {
+        synchronized (objectsWithLocalFiles) {
+            synchronized (primaryLocalFiles) {
+                filesStorageLocked = true;
+            }
+        }
+    }
+    
+    /**
+     * Resume the changes in the internal database. This must be called after
+     * suspendChanges() and after the access to internal data is finished.
+     */
+    public void resumeChanges() {
+        synchronized (objectsWithLocalFiles) {
+            synchronized (primaryLocalFiles) {
+                filesStorageLocked = false;
+                primaryLocalFiles.notifyAll();
+            }
+            objectsWithLocalFiles.notifyAll();
+        }
     }
     
     public synchronized void addPropertyChangeListener(PropertyChangeListener l) {
@@ -297,12 +336,22 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             CacheFile pcFile = cache.getCacheFile(primaryFile, CacheHandler.STRAT_DISK, null);
             if (pcFile == null || pcFile.isLocal()) {
                 synchronized (primaryLocalFiles) {
+                    if (filesStorageLocked) {
+                        try {
+                            primaryLocalFiles.wait();
+                        } catch (InterruptedException iex) { /* continue */ }
+                    }
                     primaryLocalFiles.add(primary.getPath());
                 }
                 changed = true;
                 continue;
             } else {
                 synchronized (primaryLocalFiles) {
+                    if (filesStorageLocked) {
+                        try {
+                            primaryLocalFiles.wait();
+                        } catch (InterruptedException iex) { /* continue */ }
+                    }
                     if (primaryLocalFiles.remove(primary.getPath())) {
                         changed = true;
                     }
@@ -336,6 +385,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 }
             }
             synchronized (objectsWithLocalFiles) {
+                if (filesStorageLocked) {
+                    try {
+                        objectsWithLocalFiles.wait();
+                    } catch (InterruptedException iex) { /* continue */ }
+                }
                 Set localSec = (Set) objectsWithLocalFiles.get(primaryFilePath);
                 if (localSec == null) {
                     localSec = new HashSet();
@@ -375,6 +429,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         //System.out.println("ignoredSecondaryLocalFiles = "+ignoredSecondaryLocalFiles);
         boolean changed = false;
         synchronized (objectsWithLocalFiles) {
+            if (filesStorageLocked) {
+                try {
+                    objectsWithLocalFiles.wait();
+                } catch (InterruptedException iex) { /* continue */ }
+            }
             for (int i = 0; i < ignoredFilePaths.length; i++) {
                 String primary = (String) filesMap.remove(ignoredFilePaths[i]);
                 if (primary != null) {
@@ -428,6 +487,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             initialize(); // Assure, that we're initialized.
             boolean wasLocal;
             synchronized (primaryLocalFiles) {
+                if (filesStorageLocked && primaryLocalFiles.contains(path)) {
+                    try {
+                        primaryLocalFiles.wait();
+                    } catch (InterruptedException iex) { /* continue */ }
+                }
                 wasLocal = primaryLocalFiles.remove(path);
             }
             if (wasLocal) {
@@ -441,6 +505,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             }
             boolean changed = false;
             synchronized (objectsWithLocalFiles) {
+                if (filesStorageLocked && filesMap.containsKey(path)) {
+                    try {
+                        objectsWithLocalFiles.wait();
+                    } catch (InterruptedException iex) { /* continue */ }
+                }
                 String primary = (String) filesMap.remove(path);
                 if (primary != null) {
                     // It was a local secondary file, so it needs to be removed.
@@ -471,6 +540,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             initialize(); // Assure, that we're initialized.
             boolean changed = false;
             synchronized (objectsWithLocalFiles) {
+                if (filesStorageLocked && objectsWithLocalFiles.containsKey(path)) {
+                    try {
+                        objectsWithLocalFiles.wait();
+                    } catch (InterruptedException iex) { /* continue */ }
+                }
                 // If it was a primary file, remove all local secondary files:
                 Set localSet = (Set) objectsWithLocalFiles.remove(path);
                 if (localSet != null) {
@@ -486,8 +560,6 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     }
     
     /** is called each time the status of a file changes in cache.
-     * The filesystem has to decide wheater it affects him (only in case when
-     * there's not the 1-to-1 relationship between cache and fs.
      */
     public void statusChanged(CacheHandlerEvent event) {
         CacheFile cFile = event.getCacheFile();
@@ -499,6 +571,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             boolean changed = false;
             if (cFile.isLocal()) {
                 synchronized (objectsWithLocalFiles) {
+                    if (filesStorageLocked && objectsWithLocalFiles.containsKey(path)) {
+                        try {
+                            objectsWithLocalFiles.wait();
+                        } catch (InterruptedException iex) { /* continue */ }
+                    }
                     // If it was a primary file, remove all local secondary files:
                     Set localSet = (Set) objectsWithLocalFiles.remove(path);
                     if (localSet != null) {
@@ -508,6 +585,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                             filesMap.remove(secondary);
                         }
                         synchronized (primaryLocalFiles) {
+                            if (filesStorageLocked) {
+                                try {
+                                    primaryLocalFiles.wait();
+                                } catch (InterruptedException iex) { /* continue */ }
+                            }
                             primaryLocalFiles.add(path);
                         }
                         changed = true;
@@ -519,6 +601,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 }
             } else {
                 synchronized (objectsWithLocalFiles) {
+                    if (filesStorageLocked && filesMap.containsKey(path)) {
+                        try {
+                            objectsWithLocalFiles.wait();
+                        } catch (InterruptedException iex) { /* continue */ }
+                    }
                     // If a secondary FileObject becomes non-local, remove it
                     // from the maps.
                     String primary = (String) filesMap.remove(path);
@@ -531,6 +618,11 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                     }
                 }
                 synchronized (primaryLocalFiles) {
+                    if (filesStorageLocked && primaryLocalFiles.contains(path)) {
+                        try {
+                            primaryLocalFiles.wait();
+                        } catch (InterruptedException iex) { /* continue */ }
+                    }
                     // If a primary file becomes non-local, an analysis must be made
                     if (primaryLocalFiles.remove(path)) {
                         // It was a local primary file; now it's not local, we need to
@@ -552,6 +644,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             ignoredSecondaryLocalFiles = Collections.synchronizedSet(new HashSet());
         }
         initializeLock = new Object();
+        filesStorageLocked = false;
     }
     
     /**
