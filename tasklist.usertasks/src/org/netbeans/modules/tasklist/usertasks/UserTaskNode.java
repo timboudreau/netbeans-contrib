@@ -161,6 +161,7 @@ class UserTaskNode extends TaskNode {
             
             p = new Reflection(item, Boolean.TYPE, "isDone", "setDone"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_DONE);
+            p.setPropertyEditorClass(DonePropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Done")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "DoneHint")); // NOI18N
             ss.put(p);
@@ -168,6 +169,7 @@ class UserTaskNode extends TaskNode {
 
             p = new Reflection(item, Integer.TYPE, "getPercentComplete", "setPercentComplete"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_PERCENT);
+            p.setPropertyEditorClass(PercentsPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Percent")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "PercentHint")); // NOI18N
             ss.put(p);
