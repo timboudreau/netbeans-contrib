@@ -77,9 +77,14 @@ public class SetInitializationVariable extends Object implements VcsAdditionalCo
             }
             try {
                 File ssIni = GetInitializationVariable.getSSIniFile(ssDir, usersTxtPtr[0], userName);
-                writeValue(ssIni, varName, value);
-                stdoutListener.outputLine("ss.ini: "+ssIni.getAbsolutePath());
+                stdoutListener.outputLine("ss.ini: "+((ssIni == null) ? null : ssIni.getAbsolutePath()));
                 stdoutListener.outputLine(varName + " = " + value);
+                if (ssIni != null) {
+                    writeValue(ssIni, varName, value);
+                } else {
+                    stderrListener.outputLine("ss.ini file not found for user "+userName);
+                    status = false;
+                }
             } catch (IOException ioex) {
                 stderrListener.outputLine(ioex.getLocalizedMessage());
                 status = false;
@@ -108,7 +113,7 @@ public class SetInitializationVariable extends Object implements VcsAdditionalCo
                     break;
                 }
                 if (line.startsWith(varName)) {
-                    String origValue = GetInitializationVariable.getValueFromLine(varName, line);
+                    String origValue = GetInitializationVariable.getValueFromLine(varName.length(), line);
                     if (value.equals(origValue)) return ;
                     if (origValue != null) {
                         varPos = pos;

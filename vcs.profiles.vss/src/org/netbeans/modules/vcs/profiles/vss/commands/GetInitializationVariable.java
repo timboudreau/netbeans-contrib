@@ -137,6 +137,8 @@ public class GetInitializationVariable extends Object implements VcsAdditionalCo
                 String userValue = readValue(ssIni, varName, null);
                 //System.out.println("Value of '"+varName+"' from '"+ssIni.getAbsolutePath()+"' = '"+userValue+"'");
                 if (userValue != null) value = userValue;
+            } else {
+                throw new IOException("ss.ini file not found for user "+userName);
             }
         }
         return value;
@@ -166,12 +168,12 @@ public class GetInitializationVariable extends Object implements VcsAdditionalCo
                     break;
                 }
                 if (!haveVar && line.startsWith(varName)) {
-                    value = getValueFromLine(varName, line);
+                    value = getValueFromLine(varName.length(), line);
                     if (value == null) continue;
                     haveVar = true;
                 }
                 if (!haveUsersTxt && line.startsWith(USERS_TXT)) {
-                    usersTxtPtr[0] = getValueFromLine(USERS_TXT, line);
+                    usersTxtPtr[0] = getValueFromLine(USERS_TXT.length(), line);
                     if (usersTxtPtr[0] == null) continue;
                     haveUsersTxt = true;
                 }
@@ -196,12 +198,15 @@ public class GetInitializationVariable extends Object implements VcsAdditionalCo
             usersTxtFile = new File(ssDir, usersTxt);
         }
         BufferedReader r = new BufferedReader(new FileReader(usersTxtFile));
+        int userNameLength = userName.length();
         try {
             do {
                 String line = r.readLine();
                 if (line == null) break;
-                if (line.startsWith(userName)) {
-                    String value = getValueFromLine(userName, line);
+                if (line.length() > userNameLength &&
+                    line.substring(0, userNameLength).equalsIgnoreCase(userName)) {
+                    
+                    String value = getValueFromLine(userNameLength, line);
                     if (value == null) continue;
                     File ssIni = new File(value);
                     if (!ssIni.isAbsolute()) {
@@ -222,8 +227,7 @@ public class GetInitializationVariable extends Object implements VcsAdditionalCo
      * @param line The line <code>&lt;var name&gt; = &lt;var value&gt;</code>
      * @return The variable value, or <code>null</code> when the variable of that name was not found.
      */
-    public static String getValueFromLine(String name, String line) {
-        int index = name.length();
+    public static String getValueFromLine(int index, String line) {
         while (Character.isWhitespace(line.charAt(index))) index++;
         if (line.charAt(index++) != '=') return null;
         while (Character.isWhitespace(line.charAt(index))) index++;
