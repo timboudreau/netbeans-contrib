@@ -62,6 +62,11 @@ Microsystems, Inc. All Rights Reserved.
   <target name="release" depends="init,jars">
     <mkdir dir="netbeans"/>
     <unzip src="../../external/jakarta-tomcat-5.0.2.zip" dest="netbeans" />
+    <chmod perm="ugo+x">
+      <fileset dir="netbeans/jakarta-tomcat-5.0.2/bin">
+        <include name="*.sh"/>
+      </fileset>
+    </chmod>
 
     <!-- XXX:compile extension
     <copy file="${tc40_moduleroot}/netbeans/modules/ext/tomcat40-ide.jar" tofile="netbeans/jakarta-tomcat-5.0.2/lib/tomcat40-ide.jar"/>
