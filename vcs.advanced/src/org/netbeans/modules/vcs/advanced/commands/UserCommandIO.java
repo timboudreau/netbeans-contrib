@@ -51,7 +51,7 @@ public class UserCommandIO extends Object {
     private UserCommandIO() {
     }
     
-    private static String convertStringArray2String(String[] array) {
+    public static String convertStringArray2String(String[] array) {
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < array.length; i++) {
             String item;
@@ -66,7 +66,7 @@ public class UserCommandIO extends Object {
         return buf.toString();
     }
     
-    private static String[] convertString2StringArray(String str) {
+    public static String[] convertString2StringArray(String str) {
         ArrayList list = new ArrayList();
         for (int index = 0; index < str.length(); ) {
             int delim;
@@ -121,11 +121,24 @@ public class UserCommandIO extends Object {
     public static org.openide.nodes.Node readCommands(Document doc) throws DOMException {
         Element rootElem = doc.getDocumentElement();
         if (!VariableIO.CONFIG_ROOT_ELEM.equals(rootElem.getNodeName())) return null;
-        VcsCommandNode rootCommandNode = null;
         NodeList labelList = rootElem.getElementsByTagName(VariableIO.LABEL_TAG);
-        String label = "";
+        Node labelNode = null;
         if (labelList.getLength() > 0) {
-            Node labelNode = labelList.item(0);
+            labelNode = labelList.item(0);
+        }
+        NodeList commandsList = rootElem.getElementsByTagName(COMMANDS_TAG);
+        if (commandsList.getLength() > 0) {
+            Node commands = commandsList.item(0);
+            commandsList = commands.getChildNodes();
+            //getCommands(children, commandsList);
+        } else commandsList = null;
+        return readCommands(labelNode, commandsList);
+    }
+    
+    public static org.openide.nodes.Node readCommands(Node labelNode, NodeList commandsList) throws DOMException {
+        VcsCommandNode rootCommandNode = null;
+        String label = "";
+        if (labelNode != null) {
             NodeList textList = labelNode.getChildNodes();
             if (textList.getLength() > 0) {
                 Node subNode = textList.item(0);
@@ -140,12 +153,7 @@ public class UserCommandIO extends Object {
         rootCmd.setDisplayName(label);
         Children children = new Children.Array();
         rootCommandNode = new VcsCommandNode(children, rootCmd);
-        NodeList commandsList = rootElem.getElementsByTagName(COMMANDS_TAG);
-        if (commandsList.getLength() > 0) {
-            Node commands = commandsList.item(0);
-            commandsList = commands.getChildNodes();
-            getCommands(children, commandsList);
-        }
+        if (commandsList != null) getCommands(children, commandsList);
         return rootCommandNode;
     }
     

@@ -303,7 +303,7 @@ public class VariableIO extends Object {
         return vars;
     }
     
-    private static Vector getVariables(NodeList varList) throws DOMException {
+    public static Vector getVariables(NodeList varList) throws DOMException {
         Vector vars = new Vector();
         int n = varList.getLength();
         for (int i = 0; i < n; i++) {
