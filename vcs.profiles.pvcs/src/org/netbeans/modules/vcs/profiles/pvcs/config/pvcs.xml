@@ -1355,7 +1355,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <command name="VERIFY_ACTION">
         <property name="exec">
-            <value>vcs.commands.PvcsVerifyAction.class VERIFY_ACTION_DIFF LOCK_</value>
+            <value>vcs.commands.PvcsVerifyAction.class LOCK_</value>
         </property>
         <property name="runOnMultipleFiles">
           <value>true</value>

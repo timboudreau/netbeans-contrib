@@ -162,12 +162,14 @@ public class PvcsVerifyAction extends java.lang.Object implements VcsAdditionalC
         notLockedFiles = new ArrayList();
         List foList = VerifyUtil.getFOs(fileSystem, vars);
         try {
-            fillFilesByState(foList, (args.length > 0) ? args[0] : null);
+            fillFilesByState(foList, (args.length > 1) ? args[0] : null);
         } catch (InterruptedException iexc) {
             return false;
         }
         if (args.length > 1) {
             lockCommand = args[1];
+        } else if (args.length > 0) {
+            lockCommand = args[0];
         } else {
             lockCommand = "LOCK";
         }
