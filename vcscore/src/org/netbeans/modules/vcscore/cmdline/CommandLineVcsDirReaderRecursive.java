@@ -419,9 +419,11 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
             listener.readDirFinishedRecursive(rawData, !shouldFail);
         }
          */
-        listener.readDirFinishedRecursive(rawData, !shouldFail);
+        String dir = (String) vars.get("DIR"); // NOI18N
+        String path = dir.replace (java.io.File.separatorChar, '/');
+        listener.readDirFinishedRecursive(path, rawData, !shouldFail);
         // After refresh I should ensure, that the next automatic refresh will work if something happens in numbering
-        fileSystem.removeNumDoAutoRefresh((String)vars.get("DIR")); // NOI18N
+        fileSystem.removeNumDoAutoRefresh(dir); // NOI18N
         //D.deb("run(LIST) '"+dir.name+"' finished"); // NOI18N
     }
 

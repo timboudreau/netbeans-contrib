@@ -36,12 +36,13 @@ public interface DirReaderListener {
 
     /**
      * The recursive reading of a directory was finished. The files attributes data are provided.
+     * @param path the path of the read directory relative to the file system root.
      * @param rawData the container of the retrieved directory structure with
      * associated array of elements defined in
      * {@link org.netbeans.modules.vcscore.caching.RefreshCommandSupport} class.
      * @param whether the reading process succeeded
      */
-    public void readDirFinishedRecursive(VcsDirContainer rawData, boolean success);
+    public void readDirFinishedRecursive(String path, VcsDirContainer rawData, boolean success);
 
 }
 
