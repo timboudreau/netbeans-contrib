@@ -145,7 +145,8 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                 }
                 
                 // Open IDL file in editor
-                DataObject idlDataObject = DataObject.find (destination);
+                IDLDataObject idlDataObject = (IDLDataObject) DataObject.find (destination);
+                idlDataObject.setOrbForCompilation (CorbaWizard.this.data.getCORBAImpl());
                 EditorCookie editorCookie = (EditorCookie) idlDataObject.getCookie (EditorCookie.class);
                 editorCookie.open();
                 
