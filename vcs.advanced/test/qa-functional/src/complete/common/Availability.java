@@ -23,10 +23,10 @@ import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.TestOut;
 import org.netbeans.jemmy.util.PNGEncoder;
 import org.netbeans.test.oo.gui.jelly.vcscore.*;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.wizard.*;
 import org.openide.util.Utilities;
 import org.netbeans.jellytools.*;
 import org.netbeans.jellytools.nodes.Node;
+import org.netbeans.jellytools.modules.vcsgeneric.wizard.*;
 
 
 /** XTest / JUnit test class performing availability check of all basic features

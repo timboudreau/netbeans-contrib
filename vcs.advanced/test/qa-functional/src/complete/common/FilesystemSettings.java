@@ -25,12 +25,12 @@ import org.netbeans.jemmy.operators.JTreeOperator;
 import org.netbeans.jemmy.operators.JDialogOperator;
 import org.netbeans.jemmy.TestOut;
 import org.netbeans.test.oo.gui.jelly.vcscore.*;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.wizard.*;
 import org.openide.util.Utilities;
 import org.netbeans.jellytools.*;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jellytools.actions.*;
 import org.netbeans.jellytools.properties.*;
+import org.netbeans.jellytools.modules.vcsgeneric.wizard.*;
 
 /** XTest / JUnit test class performing check of all settings of filesystems mounted
  * using Generic VCS module.
@@ -504,7 +504,7 @@ public class FilesystemSettings extends NbTestCase {
         filesystemNode.tree().expandPath(filesystemNode.getTreePath());
         filesystemNode.select();
         MainFrame.getMainFrame().pushMenu(VERSIONING_MENU+"|Empty|Refresh");
-        Node fileNode = new Node(explorer.getRootNode(), filesystem + "|C_File");
+        Node fileNode = new Node(filesystemNode, "C_File");
         fileNode.select();
         PropertiesAction propertiesAction = new PropertiesAction();
         propertiesAction.perform(filesystemNode);
