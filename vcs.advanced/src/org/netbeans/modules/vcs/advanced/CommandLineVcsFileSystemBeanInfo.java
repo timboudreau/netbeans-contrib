@@ -53,6 +53,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor notification = null;
         PropertyDescriptor hideShadowFiles = null;
         PropertyDescriptor ignoredGarbageFiles = null;
+        PropertyDescriptor rememberPassword = null;
 
         try {
             rootDirectory=new PropertyDescriptor
@@ -104,12 +105,16 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             ignoredGarbageFiles = new PropertyDescriptor
                                 (VcsFileSystem.PROP_IGNORED_GARBAGE_FILES, CommandLineVcsFileSystem.class, "getIgnoredGarbageFiles", "setIgnoredGarbageFiles"); // NOI18N
             ignoredGarbageFiles.setExpert(true);
+            rememberPassword = new PropertyDescriptor
+                                ("rememberPassword", CommandLineVcsFileSystem.class, "isRememberPassword", "setRememberPassword"); // NOI18N
+            rememberPassword.setExpert(true);
 
 
             desc = new PropertyDescriptor[] {
                        rootDirectory, debug, variables, commands, cacheId, config,
                        acceptUserParams, runRefreshCommand, processAllFiles,
-                       annotationPattern, autoRefresh, notification, hideShadowFiles, ignoredGarbageFiles
+                       annotationPattern, autoRefresh, notification, hideShadowFiles,
+                       ignoredGarbageFiles, rememberPassword
                    };
 
             ResourceBundle bundle = NbBundle.getBundle (CommandLineVcsFileSystemBeanInfo.class);
@@ -147,6 +152,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             hideShadowFiles.setShortDescription(bundleSettings.getString("HINT_hideShadowFiles"));
             ignoredGarbageFiles.setDisplayName(bundle.getString("PROP_ignoredGarbageFiles"));
             ignoredGarbageFiles.setShortDescription(bundle.getString("HINT_ignoredGarbageFiles"));
+            rememberPassword.setDisplayName   (bundle.getString("PROP_rememberPassword"));
+            rememberPassword.setShortDescription(bundle.getString("HINT_rememberPassword"));
 
         } catch (IntrospectionException ex) {
             ex.printStackTrace ();
