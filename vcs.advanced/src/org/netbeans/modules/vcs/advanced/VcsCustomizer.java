@@ -96,7 +96,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
       gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
       propsPanel.add (jLabel2, gridBagConstraints2);
   
-      rootDirTextField.setText ("."); // NOI18N
+      rootDirTextField.setText (".");
       rootDirTextField.setNextFocusableComponent (browseButton);
       rootDirTextField.addActionListener (new java.awt.event.ActionListener () {
         public void actionPerformed (java.awt.event.ActionEvent evt) {
@@ -145,7 +145,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
       gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
       propsPanel.add (jLabel4, gridBagConstraints2);
   
-      refreshTextField.setText ("0"); // NOI18N
+      refreshTextField.setText ("0");
       refreshTextField.addActionListener (new java.awt.event.ActionListener () {
         public void actionPerformed (java.awt.event.ActionEvent evt) {
           refreshTextFieldActionPerformed (evt);
@@ -395,6 +395,9 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
   private javax.swing.JButton removeConfigButton;
   // End of variables declaration//GEN-END:variables
 
+  private static final double ADVANCED_DLG_WIDTH_RELATIVE = 0.9;
+  private static final double ADVANCED_DLG_HEIGHT_RELATIVE = 0.6;
+  
   private Vector varLabels = new Vector ();
   private Vector varTextFields = new Vector ();
   private Vector varButtons = new Vector();
@@ -472,6 +475,11 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     
     gridBagConstraints1.gridy = 1;
     panel.add (advancedPanel, gridBagConstraints1);
+    
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); 
+    screenSize.setSize(screenSize.width*ADVANCED_DLG_WIDTH_RELATIVE,
+                        screenSize.height*ADVANCED_DLG_HEIGHT_RELATIVE);
+    panel.setMaximumSize(screenSize);
     
     DialogDescriptor dd = new DialogDescriptor (panel, "Advanced Properties Editor");
     TopManager.getDefault ().createDialog (dd).show ();
@@ -818,6 +826,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  10   Gandalf   1.9         2/9/00   Martin Entlicher Fix of width of Advanced 
+*       Dialog.
 *  9    Gandalf   1.8         1/27/00  Martin Entlicher NOI18N
 *  8    Gandalf   1.7         1/26/00  Martin Entlicher Check whether the module 
 *       directory exists  
