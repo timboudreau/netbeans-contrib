@@ -14,6 +14,7 @@
 package org.netbeans.modules.j2ee.blueprints.ui.projects;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +22,8 @@ import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
+import org.netbeans.spi.project.support.ant.EditableProperties;
+import org.netbeans.spi.project.support.ant.ProjectGenerator;
 import org.openide.filesystems.FileLock;
 
 import org.openide.filesystems.FileObject;
@@ -118,7 +121,10 @@ public class J2eeSampleProjectGenerator {
                         }
                     }
                 }
-                 
+                
+                // Change props in project.properties
+                replaceProperties(prjLoc, name);
+                
             } catch (Exception e) {
                 throw new IOException(e.toString());
             }
@@ -126,6 +132,63 @@ public class J2eeSampleProjectGenerator {
             prjLoc.refresh(false);
         }
         return prjLoc;
+    }
+    
+    private static void replaceProperties(FileObject dir, String prjName) throws IOException {
+        
+        // heuristic hack process for each project type.
+        // should use AntProjectHelper, if possible.
+        final String DIST_JAR = "dist.jar";  // NOI18N
+        final String DIST_DIR = "${dist.dir}/";  // NOI18N
+        final String DIST_EAR_JAR = "dist.ear.jar";  // NOI18N
+        final String WAR_NAME = "war.name";  // NOI18N
+        final String WAR_EAR_NAME = "war.ear.name";  // NOI18N
+        String currentProp;
+        String suffix;
+        
+        EditableProperties props = new EditableProperties();
+        FileObject prjProp = FileUtil.createData(dir, AntProjectHelper.PROJECT_PROPERTIES_PATH);
+        
+        try {
+            InputStream in = prjProp.getInputStream();
+            props.load(in);
+            in.close();
+        } catch (Exception e) {
+            throw new IOException(e.toString());
+        }
+        
+        // 1. for J2SE type : should be "dist.jar=${dist.dir}/PROJECT.jar"
+        if (props.getProperty(DIST_JAR) != null) {
+            props.setProperty(DIST_JAR, DIST_DIR + prjName + ".jar");  // NOI18N
+            //2. for EJB type : should be "dist.ear.jar=${dist.dir}/PROJECT.[jar, ear]"
+            currentProp = props.getProperty(DIST_EAR_JAR);
+            if (currentProp != null) {
+                props.setProperty(DIST_EAR_JAR,
+                        DIST_DIR + prjName + currentProp.substring(currentProp.indexOf(".")));  // NOI18N
+            }
+        // 3. for Web app : should be "war.name=PROJECT.war"
+        } else if (props.getProperty(WAR_NAME) != null) {
+            props.setProperty(WAR_NAME, prjName + ".war");  // NOI18N
+            // Web app should have this as well. Just in case...
+            // this should be "war.ear.name=PROJECT.[war, ear]"
+            currentProp = props.getProperty(WAR_EAR_NAME);
+            if (currentProp != null) {
+                props.setProperty(WAR_EAR_NAME,
+                        prjName + currentProp.substring(currentProp.indexOf("."))); // NOI18N
+            }
+        }
+        //helper.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, props);
+        FileLock lock = prjProp.lock();
+        try {
+            OutputStream os = prjProp.getOutputStream(lock);
+            try {
+                props.store(os);
+            } finally {
+                os.close();
+            }
+        } finally {
+            lock.releaseLock();
+        }
     }
     
     private static void unzip(InputStream source, File targetFolder) throws IOException {
