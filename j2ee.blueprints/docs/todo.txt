@@ -4,13 +4,21 @@ feature freeze: dec 8, 2004
 another feature freeze for 4.1 in 3rd week of jan
 branch for ea 2 won't be done before jan 5
 
-[ ] Refactor:
-    [ ] Each tab should be its own class, that provides
-        getScrollPosition() and setScrollPosition() instead of the if/else
+[ ] deploy and test all included apps on 4.1
+    [ ] clientside-state is not picking up base64.lib even if I move 
+        it to WEB-INF/lib
+    [ ] non-web apps
+[ ] Fix Lukas' bug list
+    [ ] /docoriented
+        - i can't run this example due to errors when opening project:
+          - cannot find Web Pages folder "<some_path>". Set "web.docbase.dir" property in project.properties file to point to correct folder.
+          - description of next exception is really interesting: "A java.lang.NullPointerException exception has occurred. However, the system should continue working without further problems. Click Details for the stack trace."
+    [ ] /clientside-state
+        - additional library (base64) is not automatically on the classpath
+        - the rest of this app is OK.
+        Greg stated that app bundles base64 jars into the Web-INF/lib of that war file, which is portable solution and should be supported by NB, so no changes needed to application example code.
+        STATUS: seems like an NB problem or integration problem? 
 [ ] Script for our workspace
-    [x] Clicking links leads to crashes - remove <a> links
-    [x] Fix spacing problems in HTML
-    [ ] ws-context directory
     [ ] Cases where WAR name does not equal directory name, like 
         clientside-validators
     [ ] Check that it works with non-webapps
@@ -19,16 +27,14 @@ branch for ea 2 won't be done before jan 5
     [ ] Shorter names in "New Project" dialog
     [ ] Script to check that there's src/java and give a warning if there isn't.
         [ ] File bug on NetBeans that src/java must exist.
-
-[x] Implement back and forward buttons
+    [ ] ws-context directory
+[ ] want at least one example with an EJB
 [ ] Printable page - Use print cookie that enables print action in NBs? This 
     is the NB way.
 [ ] Sort articles alphabetically
-
-[ ] deploy and test all included apps on 4.1
-[ ] want at least one example with an EJB
 [ ] Install Example button is a bit misleading.  Rename to something like
     "New Project From This Template".
+[ ] About box that shows usingTxt and usingTxt1 from bundle.properties
 
 Later:
 [ ] Bookmarks
