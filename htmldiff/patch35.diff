@@ -582,8 +582,8 @@ Index: nbbuild/javadoctools/template.xml
 RCS file: /cvs/nbbuild/javadoctools/template.xml,v
 retrieving revision 1.2.2.1
 diff -u -r1.2.2.1 template.xml
---- template.xml	4 Mar 2003 03:48:29 -0000	1.2.2.1
-+++ template.xml	5 Nov 2003 16:02:12 -0000
+--- nbbuild/javadoctools/template.xml	4 Mar 2003 03:48:29 -0000	1.2.2.1
++++ nbbuild/javadoctools/template.xml	5 Nov 2003 16:28:37 -0000
 @@ -24,6 +24,7 @@
  ${javadoc.packages}   list of packages to build, e.g. "org.netbeans.api.foo,org.netbeans.spi.foo"
  ${javadoc.classpath}  classpath for source files (probably same as what you use for <javac>)
@@ -887,13 +887,70 @@ diff -u -r1.2.2.1 template.xml
              </classpath>
          </taskdef>
          <checklinks basedir="${javadoc.out.dir}" checkexternal="${javadoc.check.external.links}">
+Index: nbbuild/antsrc/org/netbeans/nbbuild/CheckHelpSets.java
+===================================================================
+RCS file: /cvs/nbbuild/antsrc/org/netbeans/nbbuild/CheckHelpSets.java,v
+retrieving revision 1.3
+diff -u -r1.3 CheckHelpSets.java
+--- nbbuild/antsrc/org/netbeans/nbbuild/CheckHelpSets.java	20 Dec 2002 19:34:40 -0000	1.3
++++ nbbuild/antsrc/org/netbeans/nbbuild/CheckHelpSets.java	6 Nov 2003 09:21:50 -0000
+@@ -7,7 +7,7 @@
+  * http://www.sun.com/
+  * 
+  * The Original Code is NetBeans. The Initial Developer of the Original
+- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
++ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+  * Microsystems, Inc. All Rights Reserved.
+  */
+ 
+@@ -95,9 +95,9 @@
+         HelpSet.parse(hsfile.toURL(), null, new VerifyHSFactory());
+         log("Checking links from help map and between HTML files...");
+         Enumeration e = map.getAllIDs();
+-        Set okurls = new HashSet(1000); // Set<URL>
+-        Set badurls = new HashSet(1000); // Set<URL>
+-        Set cleanurls = new HashSet(1000); // Set<URL>
++        Set okurls = new HashSet(1000); // Set<URI>
++        Set badurls = new HashSet(1000); // Set<URI>
++        Set cleanurls = new HashSet(1000); // Set<URI>
+         while (e.hasMoreElements()) {
+             javax.help.Map.ID id = (javax.help.Map.ID)e.nextElement();
+             URL u = map.getURLFromID(id);
+@@ -105,7 +105,7 @@
+                 throw new BuildException("Bogus map ID: " + id.id, new Location(hsfile.getAbsolutePath()));
+             }
+             log("Checking ID " + id.id, Project.MSG_VERBOSE);
+-            CheckLinks.scan(this, id.id, u, okurls, badurls, cleanurls, false, 2, Collections.EMPTY_LIST);
++            CheckLinks.scan(this, id.id, "", new URI(u.toExternalForm()), okurls, badurls, cleanurls, false, 2, Collections.EMPTY_LIST);
+         }
+     }
+     
+@@ -186,7 +186,7 @@
+             }
+         }
+         
+-        // Using SAX 1 because Ant does not always ship with SAX 2:
++        // XXX use SAX 2 here
+         private final class Handler extends HandlerBase {
+             
+             private final String map;
+@@ -208,7 +208,8 @@
+             }
+             
+             public InputSource resolveEntity(String pub, String sys) throws SAXException {
+-                if (pub.equals("-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN")) {
++                if (pub.equals("-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN") ||
++                        pub.equals("-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN")) {
+                     // Ignore.
+                     return new InputSource(new ByteArrayInputStream(new byte[0]));
+                 } else {
 Index: nbbuild/antsrc/org/netbeans/nbbuild/CheckLinks.java
 ===================================================================
 RCS file: /cvs/nbbuild/antsrc/org/netbeans/nbbuild/CheckLinks.java,v
 retrieving revision 1.9
 diff -u -r1.9 CheckLinks.java
---- CheckLinks.java	27 Feb 2003 23:39:57 -0000	1.9
-+++ CheckLinks.java	5 Nov 2003 15:28:54 -0000
+--- nbbuild/antsrc/org/netbeans/nbbuild/CheckLinks.java	27 Feb 2003 23:39:57 -0000	1.9
++++ nbbuild/antsrc/org/netbeans/nbbuild/CheckLinks.java	5 Nov 2003 15:28:54 -0000
 @@ -16,6 +16,7 @@
  import java.io.*;
  import java.net.*;
