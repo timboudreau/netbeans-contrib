@@ -120,7 +120,7 @@ public abstract class ManagedRemoteFileSystem extends RemoteFileSystem
                }
                else manager.getClient().connect();
            }
-           if (rootFile == null || (rootFile != null && !rootFile.getPath().equals(startdir))) {
+           if (rootFile == null || (rootFile != null && !rootFile.getName().getFullName().equals(startdir))) {
                 rootFile = manager.getRoot(startdir);
                 if (rootFile == null) {
                       startdirNotFound(startdir,loginfo.displayName());

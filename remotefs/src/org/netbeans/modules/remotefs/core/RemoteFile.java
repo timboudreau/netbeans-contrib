@@ -81,7 +81,7 @@ public class RemoteFile {
          if (client.isConnected()) {
             if (!onserver) {
                // directory doesn't exist on server. Create new.
-               client.mkdir(getPath()); 
+               client.mkdir(getName()); 
                //System.out.println("RemoteFile: creating dir "+getPath()+" on server");
             } 
             // TODO: better upload dir to server, using goOnline
@@ -122,7 +122,7 @@ public class RemoteFile {
                   (attrib.getSize() == file.length() && attrib.getDate().getTime() == file.lastModified()))
                     which = -1;  // both files are equal
               else
-                    which = notify.notifyWhichFile(getPath(),attrib.getDate(),attrib.getSize(),new Date(file.lastModified()),file.length());
+                    which = notify.notifyWhichFile(getName().getFullName(),attrib.getDate(),attrib.getSize(),new Date(file.lastModified()),file.length());
             }
             if (which == 0) {  // file in cache is the right one
                status = CHANGED;
@@ -149,12 +149,12 @@ public class RemoteFile {
    * @return new created root
    */
   public RemoteFile(RemoteClient client,Notify notify, RequestProcessor rp, File file) throws IOException {
-    this(new RemoteFileAttributes(PATH_SEP,true),(RemoteFile)null,client, notify, rp, file,true); 
+    this(new RemoteFileAttributes(client.getRoot(),true),(RemoteFile)null,client, notify, rp, file,true); 
   }
   
   //***************************************************************************
   /** Get root */
-  public RemoteFile getRoot(String startdir) throws IOException {
+/*  public RemoteFile getRoot(String startdir) throws IOException {
     if (startdir == null || startdir.equals("/") || startdir.equals("")) 
        return this;  // default root
     // parent directory of startdir
@@ -174,42 +174,43 @@ public class RemoteFile {
     if (attrs != null && attrs.length > 0) 
       // found relative startdir in list of parent directory
       for (int i=0; i<attrs.length; i++) {
-          if (attrs[i].getName().equals(dir)) {  // found
-              RemoteFile RemoteFile = this;
+          if (attrs[i].getName().getName().equals(dir)) {  // found
+              RemoteFile remoteFile = this;
               RemoteFile newfile = null;
               StringTokenizer st = new StringTokenizer(startdir,"/");
               // create all RemoteFile above found startdir RemoteFile
               while (st.hasMoreTokens()) {
                 String name = st.nextToken();
-                newfile = new RemoteFile(new RemoteFileAttributes(name,true),RemoteFile,client, notify,rp,new File(RemoteFile.file,name),true);
-                RemoteFile.children = new RemoteFile[1];
-                RemoteFile.children[0] = newfile;
-                RemoteFile = newfile;
+                newfile = new RemoteFile(new RemoteFileAttributes(remoteFile.getName().createNew(name),true),remoteFile,client, notify,rp,new File(remoteFile.file,name),true);
+                remoteFile.children = new RemoteFile[1];
+                remoteFile.children[0] = newfile;
+                remoteFile = newfile;
               }
-              return RemoteFile;
+              return remoteFile;
           }
       }   
     return null;    
   }
+ */
   
   //***************************************************************************
   /** Returns whole path 
    * @return path of this file
    */
-  public String getPath() {
+/*  public String getPath() {
       if (isRoot()) return PATH_SEP;
       else return getDirPath()+getName();
   }    
-  
+ */ 
   //***************************************************************************
   /** Returns path of the parent ending with slash.
    * @return path of the parent ending with slash
    */
-  public String getDirPath() {
+/*  public String getDirPath() {
     if (isRoot()) return PATH_SEP;
     else return parent.getPath()+(parent.isRoot()?"":PATH_SEP);
   }    
-  
+*/  
   /***************************************************************************
   /** Get all children of this object
    * @return array of children
@@ -226,7 +227,7 @@ public class RemoteFile {
             catch(IOException e) { notify.notifyException(e); }
             if (childrenchanged) {
                 nextnochildren = true;
-                notify.fileChanged(getPath());
+                notify.fileChanged(getName().getFullName());
             }
         }
     });
@@ -249,7 +250,7 @@ public class RemoteFile {
     else {
         childrenmap = new HashMap();
         for (int i=0; i<children.length; i++)
-            if (children[i] != null) childrenmap.put(children[i].getName(), children[i]);
+            if (children[i] != null) childrenmap.put(children[i].getName().getName(), children[i]);
         // gets set of children names
         childrenset = childrenmap.keySet();
     }
@@ -260,9 +261,9 @@ public class RemoteFile {
     Set serverset;
     //TODO: refresh x always
     if (notify.isRefreshServer() && onserver && client.isConnected()) {
-        RemoteFileAttributes RemoteFiles[] = client.list(getPath());
+        RemoteFileAttributes RemoteFiles[] = client.list(getName());
         for (int i=0; i<RemoteFiles.length; i++) 
-            if (RemoteFiles[i]!=null) servermap.put(RemoteFiles[i].getName(), RemoteFiles[i]);
+            if (RemoteFiles[i]!=null) servermap.put(RemoteFiles[i].getName().getName(), RemoteFiles[i]);
         // gets set of RemoteFiles names
         serverset = servermap.keySet();
     }
@@ -292,7 +293,7 @@ public class RemoteFile {
           Iterator it = set6.iterator();
           while (it.hasNext()) {
              String name = (String)(it.next());
-             RemoteFileAttributes at = new RemoteFileAttributes(name,new File(file,name).isDirectory());
+             RemoteFileAttributes at = new RemoteFileAttributes(getName().createNew(name),new File(file,name).isDirectory());
              childrenvector.addElement(new RemoteFile(at,this,client, notify,rp,new File(file,name),false));
              childrenchanged = true;
           } 
@@ -314,7 +315,7 @@ public class RemoteFile {
           Iterator it = set2_7.iterator();
           while (it.hasNext()) {
              RemoteFileAttributes at = (RemoteFileAttributes)(servermap.get(it.next()));
-             childrenvector.addElement(new RemoteFile(at,this,client, notify,rp,new File(file,at.getName()),true));
+             childrenvector.addElement(new RemoteFile(at,this,client, notify,rp,new File(file,at.getName().getName()),true));
              childrenchanged = true;
           } 
           
@@ -329,7 +330,7 @@ public class RemoteFile {
     Iterator it = set1_3.iterator();
     while (it.hasNext()) {
          RemoteFileAttributes at = (RemoteFileAttributes)(servermap.get(it.next()));
-         ((RemoteFile)(childrenmap.get(at.getName()))).refresh(at);
+         ((RemoteFile)(childrenmap.get(at.getName().getName()))).refresh(at);
     }
     
     // construct set 4+5
@@ -351,7 +352,7 @@ public class RemoteFile {
                    // ???
                    f.status = CHANGED;  
              }
-             f.refresh(new RemoteFileAttributes(name,isDirectory()));
+             f.refresh(new RemoteFileAttributes(f.getName(),isDirectory()));
           } 
         }
     }
@@ -368,14 +369,14 @@ public class RemoteFile {
      //System.out.println("RemoteFile.getFileAttributes: path="+getPath());
      //TODO:
      RemoteFileAttributes at[];
-     at = client.list(getPath()); 
+     at = client.list(getName()); 
      if (at == null || at.length == 0) {
       if (!onserver) return null;
       //System.out.println("TESTING alwaysRefresh");
-      at = client.list(parent.getPath());
+      at = client.list(getParent().getName());
       if (at != null)
         for (int i=0;i<at.length;i++) 
-            if (at[i].getName().equals(attrib.getName())) {
+            if (at[i].getName().getName().equals(attrib.getName().getName())) {
               notify.setAlwaysRefresh(false);
               //System.out.println("TEST: alwaysRefresh not supported. Disabling.");
               return null;
@@ -418,7 +419,7 @@ public class RemoteFile {
                   parent.refresh();
               } 
               else {
-                  if (notify.notifyCacheExtDelete(getPath(),true)) {
+                  if (notify.notifyCacheExtDelete(getName().getFullName(),true)) {
                       deleteFile(); 
                       parent.deleteChild(this);
                   }
@@ -439,7 +440,7 @@ public class RemoteFile {
                   parent.deleteChild(this);
               }
               else {
-                  if (notify.notifyServerExtDelete(getPath(),true)) {
+                  if (notify.notifyServerExtDelete(getName().getFullName(),true)) {
                      //TODO: better delete
                      deleteFile();
                      parent.deleteChild(this);
@@ -511,7 +512,7 @@ public class RemoteFile {
         }    
         if (cachedeleted && !serverdeleted) {
               status = NOT_CACHED; cachelastmodified = 0;
-              if (notify.notifyCacheExtDelete(getPath(),false)) {
+              if (notify.notifyCacheExtDelete(getName().getFullName(),false)) {
                   deleteFile(); 
                   parent.deleteChild(this);
               }
@@ -525,7 +526,7 @@ public class RemoteFile {
               }
               if (status == CACHED) 
                   status = CHANGED;
-              if (notify.notifyServerExtDelete(getPath(),false)) {
+              if (notify.notifyServerExtDelete(getName().getFullName(),false)) {
                  deleteFile();
                  parent.deleteChild(this);
                  return;
@@ -553,7 +554,7 @@ public class RemoteFile {
              switch (status) {
               case NOT_CACHED:  attrib = newattr;
                                 break;
-              case CACHED:      if (notify.notifyServerChanged(getPath(),newattr.getDate(),newattr.getSize(),new Date(file.lastModified()),file.length())) {
+              case CACHED:      if (notify.notifyServerChanged(getName().getFullName(),newattr.getDate(),newattr.getSize(),new Date(file.lastModified()),file.length())) {
                                     attrib = newattr;
                                     status = NOT_CACHED;
                                     file.delete();
@@ -567,7 +568,7 @@ public class RemoteFile {
                                 break;
               case OPEN:        
               case CHANGED:     if (serverchanged && cachechanged) {
-                                     int which = notify.notifyBothFilesChanged(getPath(),newattr.getDate(),newattr.getSize(),new Date(file.lastModified()),file.length());
+                                     int which = notify.notifyBothFilesChanged(getName().getFullName(),newattr.getDate(),newattr.getSize(),new Date(file.lastModified()),file.length());
                                      if (which == 0) {
                                        cachelastmodified = file.lastModified();
                                        status = CHANGED;
@@ -587,7 +588,7 @@ public class RemoteFile {
         }
         //change both on server and in cache
         if (serverchanged && cachechanged) {
-             int which = notify.notifyBothFilesChanged(getPath(),newattr.getDate(),newattr.getSize(),new Date(file.lastModified()),file.length());
+             int which = notify.notifyBothFilesChanged(getName().getFullName(),newattr.getDate(),newattr.getSize(),new Date(file.lastModified()),file.length());
              if (which == 0) {
                cachelastmodified = file.lastModified();
                status = CHANGED;
@@ -620,7 +621,7 @@ public class RemoteFile {
           }
           // if directory doesn't exist on server, create new
           if (client.isConnected() && !onserver) 
-                 client.mkdir(getPath());
+                 client.mkdir(getName());
           // TODO: realy always getchildren? , or only on CACHED?
           String list[] = null;
           if (file.exists()) list = file.list();
@@ -692,7 +693,7 @@ public class RemoteFile {
     getChildren();
     String s[] = new String[children.length];
     for(int i=0;i<children.length;i++)
-         if (children[i] != null) s[i]=children[i].getName();
+         if (children[i] != null) s[i]=children[i].getName().getName();
     return s;
   }
     
@@ -711,7 +712,7 @@ public class RemoteFile {
   public RemoteFile getExistingChild(String name) throws IOException {
     //System.out.println("RemoteFile.getExistingChild: path="+getPath());
     for (int i=0; i<children.length; i++)
-    if (children[i] != null && children[i].getName().equals(name)) return children[i];
+    if (children[i] != null && children[i].getName().getName().equals(name)) return children[i];
     return null;
   }
   
@@ -762,7 +763,7 @@ public class RemoteFile {
   /** Returns name of this file.
    * @return name
    */
-  public String getName() {
+  public RemoteFileName getName() {
     return attrib.getName();
   }
   
@@ -778,7 +779,7 @@ public class RemoteFile {
     else  {
       if (onserver) {
           //System.out.println("Downloading "+getPath()+" from server");
-          client.get(getPath(),file);
+          client.get(getName(),file);
           file.setLastModified(cachelastmodified = attrib.getDate().getTime());
       }    
       status = CACHED;
@@ -799,7 +800,7 @@ public class RemoteFile {
               status = CHANGED;
               if (!client.isConnected()) return;
               //System.out.println("Uploading "+getPath()+" to server");
-              client.put(file,getPath()); 
+              client.put(file,getName()); 
               cachelastmodified = file.lastModified();
               attrib.setSize(file.length());
               RemoteFileAttributes rfa = getFileAttributes();
@@ -889,11 +890,11 @@ public class RemoteFile {
             children = new RemoteFile[0];
             childrenchanged = true;
             childrenvector.removeAllElements();
-            if (onserver && client.isConnected()) client.rmdir(getPath());
+            if (onserver && client.isConnected()) client.rmdir(getName());
         }    
         else 
             if (onserver && client.isConnected())
-                client.delete(getPath());
+                client.delete(getName());
         if (file.exists()) file.delete();
       }  
 
@@ -924,11 +925,13 @@ public class RemoteFile {
    */
   public void rename(String name) throws IOException {
     if (isRoot()) throw new IOException("Cannot rename root of filesystem");
-    if (parent.getChild(name) != null) throw new IOException ("File "+getPath()+PATH_SEP+name+" already exists");
+    if (parent.getChild(name) != null) throw new IOException ("File "+getName().getFullName()+PATH_SEP+name+" already exists");
 
-    if (client.isConnected()) client.rename(getPath(),getDirPath()+name);
-    else onserver = false; // TODO: ???
-    attrib.setName(name);
+    if (client.isConnected()) 
+        client.rename(getName(),name);
+    else  
+        onserver = false; // TODO: ???
+    attrib.getName().setName(name);
     File tmp = new File(file.getParentFile(),name);
     file.renameTo(tmp);
     file = tmp;
@@ -942,8 +945,8 @@ public class RemoteFile {
    */
   public RemoteFile createData(String name) throws IOException {
     // get child to test whether already exists
-    if (getChild(name) != null) throw new IOException ("File "+getPath()+PATH_SEP+name+" already exists");
-    return createFile(new RemoteFileAttributes(name,false),false);
+    if (getChild(name) != null) throw new IOException ("File "+getName().getFullName()+PATH_SEP+name+" already exists");
+    return createFile(new RemoteFileAttributes(getName().createNew(name),false),false);
   }    
    
   //*************************************************************************** 
@@ -954,8 +957,8 @@ public class RemoteFile {
    */
   public RemoteFile createFolder(String name) throws IOException {
     // get child to test whether already exists
-    if (getChild(name) != null) throw new IOException ("Folder "+getPath()+PATH_SEP+name+" already exists");
-    return createFile(new RemoteFileAttributes(name,true),false);
+    if (getChild(name) != null) throw new IOException ("Folder "+getName().getFullName()+PATH_SEP+name+" already exists");
+    return createFile(new RemoteFileAttributes(getName().createNew(name),true),false);
   }    
 
   //***************************************************************************   
@@ -964,7 +967,7 @@ public class RemoteFile {
    * @return created file
    */
   private RemoteFile createFile(RemoteFileAttributes a, boolean onserver) throws IOException {
-    RemoteFile newfile = new RemoteFile(a, this, client, notify,rp,new File(file,a.getName()), onserver);
+    RemoteFile newfile = new RemoteFile(a, this, client, notify,rp,new File(file,a.getName().getName()), onserver);
     childrenvector.addElement(newfile);
     childrenchanged = true;
     children = (RemoteFile[])(childrenvector.toArray(children));

@@ -13,13 +13,13 @@
 
 package org.netbeans.modules.remotefs.core;
 
-/** Interface for storing login information.
+/** Interface for storing login information. Usually username, pasword, etc.
  *
  * @author  Libor Martinek
  * @version 1.0
  */
 public interface LogInfo extends java.io.Serializable{
-  static final long serialVersionUID = -1698365418732665299L;
+
   /** Return human redable description of this LogInfo */
   public String displayName();
   

@@ -16,7 +16,7 @@ package org.netbeans.modules.remotefs.core;
 import java.util.*;
 import java.io.*;
 
-/** RemoteManger holds  static table of created managers, client, 
+/** RemoteManger holds static table of created managers, client, 
  * cache file and  root file.
  *
  * @author  Libor Martinek
@@ -36,11 +36,10 @@ public final class RemoteManager  {
   private RemoteClient client;
   
   /** Creates new FTPManager.
-   * @param host
-   * @param port
-   * @param user
-   * @param password
-   */
+   * @param owner object that uses this manager
+   * @param loginfo log info
+   * @param cache cache file
+ * @throws IOException  */
   protected RemoteManager(RemoteOwner owner, LogInfo loginfo, File cache) throws IOException {
     owners.addElement(owner);
     cacheroot = cache;
@@ -51,11 +50,11 @@ public final class RemoteManager  {
   }
   
   /** Search for usable manager and if none is found, create new.
-   * @param owner
-   * @param cache
-   * @throws IOException
-   * @return
-   */
+   * @return RemoteManager object
+   * @param loginfo log info
+   * @param owner object that uses this manager
+   * @param cache cache file
+ * @throws IOException  */
   public static RemoteManager getRemoteManager(RemoteOwner owner,File cache,LogInfo loginfo)  throws IOException  {
     boolean managerexist = false;
     RemoteManager manager = null;
@@ -89,13 +88,14 @@ public final class RemoteManager  {
       return manager;
   }
   
-  /** Return RemoteClient */
+  /** Return RemoteClient
+ * @return  RemoteClient object*/
   public RemoteClient getClient() {
     return client; 
   }
   
   /** Remove owner from list and  if last owner is removed, disconnect from ftp server.
-   * @param owner
+   * @param owner owner to remove
    */
   public final void remove(RemoteOwner owner) {
     // remove owner from list
@@ -108,7 +108,7 @@ public final class RemoteManager  {
   }
 
   /** Has this manager more than one owner?
-   * @return
+   * @return true if manager has more than one owner
    */
   public final boolean moreOwners() {
     return (owners.size() > 1);
@@ -116,8 +116,8 @@ public final class RemoteManager  {
   }
   
   /** Get root.
-   * @return
-   */
+   * @return root file
+   * @throws IOException  */
   public RemoteFile getRoot() throws IOException {
     if (root == null) root = ((RemoteOwner)(owners.firstElement())).createRootFile(getClient(),cacheroot);
     return root;
@@ -126,10 +126,10 @@ public final class RemoteManager  {
   /** Get root with specified start directory.
    * @param startdir
    * @throws IOException
-   * @return
+   * @return root file
    */
   public RemoteFile getRoot(String startdir) throws IOException {
-    RemoteFile f = getRoot().getRoot(startdir);
+    RemoteFile f = getRoot().find(startdir);
     return f;
   }
   
@@ -138,10 +138,27 @@ public final class RemoteManager  {
   /** Interface that owner of RemoteManager must implement. */
   public interface RemoteOwner {
   
+    /** Create new client with this log info and cache
+     * @param loginfo
+     * @param cache
+     * @throws IOException
+     * @return  created Client */      
     public RemoteClient createClient(LogInfo loginfo, File cache) throws IOException ;
+    
+    /** Create new root file 
+     * @param client
+     * @param cache
+     * @throws IOException
+     * @return  */    
     public RemoteFile createRootFile(RemoteClient client, File cache) throws IOException ;
   
+    /** Notify user that incorrect password was entered
+     */
     public void notifyIncorrectPassword() ;
+    
+    /** Notify user that another cache that existing was entered
+     * @param newcache
+     * @return  */    
     public boolean notifyIncorrectCache(java.io.File newcache);
 
   }

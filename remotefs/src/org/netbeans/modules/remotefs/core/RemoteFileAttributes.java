@@ -15,59 +15,71 @@ package org.netbeans.modules.remotefs.core;
 
 import java.util.*;
 
-/** Remote File attributes.
- * Class for storing file attributes.
+/** Remote File attributes. Class for storing attributes for files from remote server.
  *
  * @author  Libor Martinek
  * @version 1.0
  */ 
 public class RemoteFileAttributes   {
 
-    private String name = null;
+    private RemoteFileName name = null;
     private boolean isdirectory = true;
     private long size = 0;
     private java.util.Date date = new java.util.Date(0);
-    private String accessPath = null;
 
-    /** Creates new RemoteFileAttributes */
-    public RemoteFileAttributes(String name,boolean isdirectory,long size,java.util.Date date, String accessPath) {
+    /** Creates new RemoteFileAttributes
+     * @param name name
+     * @param isdirectory whether it's directory
+     * @param size size of file
+     * @param date last modification date */
+    public RemoteFileAttributes(RemoteFileName name, boolean isdirectory, long size, java.util.Date date) {
         this.name=name;
         this.isdirectory=isdirectory;
         this.size=size;
         this.date=date;
-        this.accessPath=accessPath;
     }
    
     /** Creates empty RemoteFileAttributes */
     public RemoteFileAttributes() {
     }
     
-    /** Creates RemoteFileAttributes specified with name and isdirectory flag */
-    public RemoteFileAttributes(String name, boolean isdirectory) {
+    /** Creates RemoteFileAttributes specified with name and isdirectory flag
+     * @param name name
+     * @param isdirectory whether it's directory */
+    public RemoteFileAttributes(RemoteFileName name, boolean isdirectory) {
     	this.name = name;
         this.isdirectory = isdirectory;
     }	
     
-    /** Set name of file */
-    public void setName(String name) { this.name=name;  }
-    /** Set whether it is directory */
+    /** Set name of file
+     * @param name name */
+    public void setName(RemoteFileName name) { this.name=name;  }
+    
+    /** Set whether it is directory
+     * @param dir true if it's directory */
     public void setIsDirectory(boolean dir) {  this.isdirectory=dir;   }
-    /** Set size of file */
+    
+    /** Set size of file
+     * @param size size of file */
     public void setSize(long size) {  this.size=size;}
-    /** Set date of last modification */
+    
+    /** Set date of last modification
+     * @param date set last modification date */
     public void setDate(Date date) {  this.date=date; }
-    /** Set access path */
-    public void setAccessPath(String path) {this.accessPath=path; }
     
-    /** Tet name of file */
-    public String getName() { return name; }
-    /** Test whether it is directory */
+    /** Tet name of file
+     * @return  name*/
+    public RemoteFileName getName() { return name; }
+    
+    /** Test whether it is directory
+      * @return true if it is directory */
     public boolean isDirectory() { return isdirectory; }
-    /** Get size of file */
-    public long getSize() { return size; }
-    /** Get date of last modification */
-    public Date getDate() { return date; }
-    /** Get access path */
-    public String getAccessPath() { return accessPath; }
     
+    /** Get size of file
+     * @return  size*/
+    public long getSize() { return size; }
+ 
+    /** Get date of last modification
+     * @return  last modification date*/
+    public Date getDate() { return date; }
 }

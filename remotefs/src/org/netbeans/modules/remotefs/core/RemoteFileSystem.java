@@ -60,6 +60,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
   /** is read only */
   protected boolean readOnly;
 
+  /** Request processor */
   protected transient RequestProcessor requestproc;
   
   /** Constructor.
@@ -136,7 +137,8 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
       s.defaultWriteObject();
   }
  
-  /** Return system action for this filesystem */
+  /** Return system action for this filesystem
+   * @return actions */
   public SystemAction[] getActions () {
     SystemAction actions[] = super.getActions();
     SystemAction newactions[] = new SystemAction[actions.length+4];
@@ -150,7 +152,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     return newactions;
   }
   
-   protected void removeClient() {
+  protected void removeClient() {
     if (client != null) {
       client.close();
       client = null;
@@ -158,6 +160,8 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     rootFile = null;
   }
  
+  /** Connect to server on background 
+   * @param b true for connecting, false for disconnecting */  
   public void connectOnBackground(final boolean b) {
        post(new java.lang.Runnable() {
             public void run() {
@@ -168,16 +172,16 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
         );
   }
 
-   /** Whether filesystem is connected to server.
-   * @return Value of property connected.
+  /** Whether filesystem is connected to server.
+   * @return true if fs is connected to server
    */
   public boolean isConnected() {
     if (client==null)  return false;
     return client.isConnected();
   }
   
-  /** Connect to  or disconnect from server.
-   * @param connected New value of property connected.
+  /** Connect to or disconnect from server.
+   * @param connected true for connecting, false for disconnecting
    */
   public void setConnected(boolean connected) {
     // is new state different?
@@ -194,7 +198,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
             client.connect();
             if (rootFile == null) {
                 RemoteFile root = createRootFile(client,cachedir);
-                rootFile = root.getRoot(startdir);
+                rootFile = root.find(startdir);
                 if (rootFile == null) {
                       startdirNotFound(startdir,loginfo.displayName());
                       startdir = "/";
@@ -217,15 +221,25 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
   }
 
 
+    /** Create new client
+     * @param loginfo
+     * @param cache
+     * @throws IOException
+     * @return  */  
   public abstract RemoteClient createClient(LogInfo loginfo, File cache) throws IOException;
 
+    /** Create new root file
+     * @param client
+     * @param cache
+     * @throws IOException
+     * @return  */  
   public RemoteFile createRootFile(RemoteClient client, File cache) throws IOException {
     return new RemoteFile(client,this, this, cache);
   }
   
   
   /** Set whether the file system should be read only.
-   * @param flag <code>true</code> if it should
+   * @param flag true if it should
   */
   public void setReadOnly(boolean flag) {
     if (flag != readOnly) {
@@ -235,7 +249,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
   }
 
   /* Test whether file system is read only.
-   * @return <true> if file system is read only
+   * @return true if file system is read only
    */
   public boolean isReadOnly() {
     return readOnly;
@@ -248,18 +262,21 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     environment.addClassPath(cachedir.toString ());
   }
 
-  /** Test whether filesystem is ready to write. If no, throws exception */
+  /** Test whether filesystem is ready to write. If no, throws exception
+   * @throws IOException if fs isn't ready to write */
   protected abstract void isReadyToModify() throws IOException;
 
-  /** Test whether filesystem is ready to read. If no, throws exception */
+  /** Test whether filesystem is ready to read. If no, throws exception
+   * @throws IOException if fs isn't ready to read */
   protected abstract void isReadyToRead() throws IOException ;
 
-  /** Test whether filesystem is ready. */
+  /** Test whether filesystem is ready.
+   * @return true, if fs is ready  */
   protected abstract boolean isReady() ;
 
   /** Get the RemoteFile for entered name
-   * @param name
-   * @return
+   * @param name of searching file
+   * @return found RemoteFile
    */
   protected RemoteFile getRemoteFile(String name) throws IOException {
     RemoteFile ftpfile = rootFile.find(name);
@@ -271,8 +288,8 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     return ftpfile;
   }
 
-
-  /** Synchronize specified directory */
+  /** Synchronize specified directory
+   * @param name name of directory to synchronize */
   public void synchronize(String name) {
     if (!isReady()) return;
     try {
@@ -293,7 +310,8 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     }
   }
   
-  /** Download directory */
+  /** Download whole directory with subdirectories to cache.
+   * @param name name of directory to download1 */
   public void downloadAll(String name) {
     if (!isReady()) return;
     try {
@@ -314,7 +332,8 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     }
   }
   
-  /** Clean directory in cache.*/
+  /** Clean cache. Remove all files from cache.
+    * @param name name of directory to clean */
   public void cleanCache(String name) {
     if (!isReady()) return;
     try {
@@ -364,10 +383,6 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
   * @param name name of folder
   * @throws IOException if operation fails
   */
-  /**
-   * @param name
-   * @throws IOException
-   */
   public void createFolder(String name) throws java.io.IOException {
     //System.out.println("*** FTPFileSystem.createFolder: name="+name);
     isReadyToModify();
@@ -412,7 +427,6 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
 }
 
   /* Renames a file.
-  *
   * @param oldName old name of the file
   * @param newName new name of the file
   * @throws IOException
@@ -443,8 +457,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
   /* Delete the file. 
   *
   * @param name name of file
-  * @exception IOException if the file could not be deleted
-  * @throws IOException
+  * @throws IOException if the file could not be deleted
   */
   public void delete(String name) throws IOException {
     //System.out.println("*** FTPFileSystem.delete: name="+name);
@@ -464,10 +477,6 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
   * @param name the file to test
   * @return the date
   */
-  /**
-   * @param name
-   * @return
-   */
   public java.util.Date lastModified(String name) {
     //System.out.println("*** FTPFileSystem.lastModified: name="+name);
     java.util.Date date  = new java.util.Date(0);
@@ -505,7 +514,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
   
   /* Test whether this file can be written to or not.
   * @param name the file to test
-  * @return <CODE>true</CODE> if file is read-only
+  * @return true if file is read-only
   */
   public boolean readOnly(String name) {
     //System.out.println("*** FTPFileSystem.readOnly: name="+name);
@@ -623,12 +632,17 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
   public void markUnimportant (String name) {
   }
   
-  /** Informs user that startdir was not found on server. */
+  /** Informs user that startdir was not found on server.
+   * @param startdir 
+   * @param server  */
   protected abstract void startdirNotFound(String startdir, String server);
    
-  /** Informs user that some error occurs during connecting. */
+  /** Informs user that some error occurs during connecting.
+    * @param error  */
   protected abstract void errorConnect(String error);
 
+  /** Run in Request Processor.
+   * @param run  */  
   public void post(Runnable run) {
      if (requestproc == null) requestproc = new RequestProcessor("Remote Filesystem Request Processor for "+loginfo.displayName());
      requestproc.post(run);

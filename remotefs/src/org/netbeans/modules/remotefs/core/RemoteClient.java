@@ -16,7 +16,7 @@ package org.netbeans.modules.remotefs.core;
 import java.io.IOException;
 import java.io.File;
 
-/** Remote Client.
+/** Remote Client. Interface which all new clients must implement.
  * 
  * @author  Libor Martinek
  * @version 1.0
@@ -25,15 +25,23 @@ public interface RemoteClient {
   
   //public void setLogInfo(LogInfo loginfo);
   
-  // Connect to server.
+  /** Returns file name object of the root.
+  * @return  FileName of the root */    
+  public RemoteFileName getRoot();  
+  
+  /** Connect to server.
+  * @throws IOException  */  
   public void connect () throws IOException ;
   
-  // Test whether client is connected to server.
+  /** Test whether client is connected to server.
+  * @return true in case that client is connected to server */  
   public boolean isConnected();
 
-  /** Compare this information
+  /** Compare this information.
+   * @param loginfo login information to compare
    * @return 0 if login information are equal;
    *         1 if login information refer to the same resource but can't be uses to login;
+   *           (e.g. server and username is same but password is different)
    *        -1 if login information are different
    */
   public int compare(LogInfo loginfo);
@@ -41,57 +49,46 @@ public interface RemoteClient {
   /** Get file from server.
    * @param what file on host to receive
    * @param where new file to create
-   */
-  public  void get(String what, File where) throws IOException ;
+   * @throws IOException  */
+  public  void get(RemoteFileName what, File where) throws IOException ;
 
-  /** Get file from server.
-   */
-  public void get(String accesspath, String what, File where) throws IOException;
- 
   /** Put file to server.
    * @param what file to send
    * @param where where to file send
+   * @throws IOException  */
+  public void put(File what, RemoteFileName where) throws IOException ;
+ 
+  /** Return list of files in directory
+   * @param directory 
+   * @throws IOException 
+   * @return  directory to list*/
+  public RemoteFileAttributes[] list(RemoteFileName directory) throws IOException ;
+  
+  /** Rename file 
+   * @param oldname 
+   * @param newname 
+   * @throws IOException 
    */
-  public void put(File what, String where) throws IOException ;
+  public void rename(RemoteFileName oldname, String newname) throws IOException ;
+
+  /** Delete directory
+   * @param name what file to delete
+   * @throws IOException  */
+  public void delete(RemoteFileName name) throws IOException ;
  
-   /** Put file to server */
-  public void  put(File what, String accesspath, String where) throws IOException ;
-
-   /** Return list of files in directory */
-  public RemoteFileAttributes[] list(String directory) throws IOException ;
+  /** Make directory
+   * @param name of the new directory
+   * @throws IOException  */
+  public void mkdir(RemoteFileName name) throws IOException ;
   
-  /** Return list of files in directory */
-  public  RemoteFileAttributes[] list(String accesspath, String dirname) throws IOException;
-
+  /** Remove directory
+   * @param name of the directory to remove
+   * @throws IOException  */
+  public void rmdir(RemoteFileName name) throws IOException ;
   
-  /** Rename file */
-  public void rename(String from, String to) throws IOException ;
-
-  /** Rename file */
-  public  void rename(String fromaccesspath, String fromname, String toaccesspath, String toname) throws IOException ;
-  
-  /** Delete directory */
-  public void delete(String path) throws IOException ;
- 
-  /** Delete directory */
-  public void delete(String accesspath, String name) throws IOException;
-  
-  /** Make directory */
-  public void mkdir(String path) throws IOException ;
-  
-  /** Make directory */
-  public void mkdir(String accesspath, String name) throws IOException ;
-  
-  /** Remove directory */
-  public void rmdir(String path) throws IOException ;
-  
-  /** Remove directory */
-  public void rmdir(String accesspath, String name) throws IOException ;
-  
-  
-  /** Disconnect from server */
+  /** Log out from server and close connection */
   public void disconnect() ;
     
-  /** Close connection with server */
+  /** Immediately close connection with server */
   public void close();
 }
