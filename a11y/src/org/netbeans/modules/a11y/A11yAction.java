@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -34,7 +34,6 @@ import org.netbeans.modules.form.VisualReplicator;
 
 import org.openide.windows.IOProvider;
 import org.openide.windows.OutputWriter;
-import org.openide.windows.Workspace;
 import org.openide.windows.Mode;
 import org.openide.windows.WindowManager;
 
@@ -103,8 +102,7 @@ public class A11yAction extends CookieAction {
         if (!(formComp instanceof RADVisualFormContainer)) return;
         
         A11YTesterTopComponent at = A11YTesterTopComponent.getInstance();
-        Workspace ws = WindowManager.getDefault().getCurrentWorkspace();
-        Mode formMode = ws.findMode("Form");
+        Mode formMode = WindowManager.getDefault().findMode("Form");
         
         /* Hack for our window system, I want open top component docked not in center but now it si impossible;
          * solution => reflection
@@ -129,7 +127,7 @@ public class A11yAction extends CookieAction {
          */
         
         at.open();
-        at.requestFocus();
+        at.requestActive();
         
         
         RADVisualFormContainer formContainer = (RADVisualFormContainer) formComp;

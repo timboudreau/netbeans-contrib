@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -100,13 +100,15 @@ public class AccessibilityTester{
     
     private java.util.Hashtable mnemonicConflict = new java.util.Hashtable();
     
-    private boolean merlinTesting = false;
+    private boolean jdk14_higherTesting = false;
     
     private TestSettings testSettings;
     
-    /** Create a new AccessibilityTester for the specified component to perform the specified tests.
-     *  @param component the component to check
-     *  @param tests the tests to perform  */
+    /**
+     * Create a new AccessibilityTester for the specified component to perform the specified tests.
+     * @param set 
+     * @param component the component to check
+     */
     public AccessibilityTester(Component component, TestSettings set){
         parent = component;
         testSettings = set;
@@ -115,12 +117,10 @@ public class AccessibilityTester{
         // Logs read from arguments
         debugLog = Boolean.getBoolean("a11ytest.log");
         
-        /* hack for Merlin -
-         * if Tester is running on jdk 1.4 , testing approach is another as on 1.3 <= reason of new Focus Management implementation */
+        /* If Tester is running on jdk 1.4 or higner, testing approach is another as on 1.3 <= reason of new Focus Management implementation */
         String javaVersion = System.getProperty("java.version");
-        if(javaVersion.indexOf("1.4") != -1)
-            merlinTesting = true;
-        /* - end hack for Merlin */
+        if(javaVersion.indexOf("1.4") != -1 || javaVersion.indexOf("1.5") != -1)
+            jdk14_higherTesting = true;
         
         TAB_TRAVERSAL_TIME_OUT = 15000;
         try{
@@ -138,15 +138,14 @@ public class AccessibilityTester{
         
         excludedClasses = set.getExcludedClasses();
         
-        /* hack for Merlin -
-         * must be added parent, needed to provide test all tests */
-        if(merlinTesting) {
+        /* must be added parent, needed to provide test all tests */
+        if(jdk14_higherTesting) {
             focused.add(parent);
-            findFocusableContainer_merlin((Container)parent);
+            findFocusableContainer((Container)parent);
             
             //- LOG ONLY
             if(debugLog) {
-                System.err.println(LOG_CAPTION+" - <init> Merlin testing start ");
+                System.err.println(LOG_CAPTION+" - <init> JDK >= 1.4 testing start ");
                 System.err.println(LOG_CAPTION+" - <init> Parent components="+((Container)parent).getComponentCount());
                 
                 Iterator i = focused.iterator();
@@ -157,11 +156,10 @@ public class AccessibilityTester{
                     System.err.println(LOG_CAPTION+" - <init> ["+j+"] = " + fcp);
                 }
                 
-                System.err.println(LOG_CAPTION+" - <init> Merlin testing end ");
+                System.err.println(LOG_CAPTION+" - <init> JDK >= 1.4 testing end ");
             }
             // LOG ONLY -/
         }
-        /* - end hack for Merlin */
         
     }
     
@@ -316,7 +314,7 @@ public class AccessibilityTester{
             Component labelF = label.getLabelFor();
             
             if (labelF != null){
-                // hack for Merlin if((labelF.isFocusTraversable()) && (label.getDisplayedMnemonic() <= 0))
+                // hack for JDK1.4 or higher if((labelF.isFocusTraversable()) && (label.getDisplayedMnemonic() <= 0))
                 if(testFocusability(labelF) && (mnemonic <= 0))
                     noMnemonic.add(comp);
                 
@@ -336,7 +334,7 @@ public class AccessibilityTester{
                 return;
             }
             
-            // hack for Merlin if (testSettings.AP_focusTraversableOnly && !comp.isFocusTraversable()){
+            // hack for JDK 1.4 or higner if (testSettings.AP_focusTraversableOnly && !comp.isFocusTraversable()){
             if (testSettings.AP_focusTraversableOnly && !testFocusability(comp)){
                 if(debugLog) System.err.println(LOG_CAPTION+" - <tests("+comp.getClass().getName()+")> - NOT TESTED - because : testSettings.AP_focusTraversableOnly="+testSettings.AP_focusTraversableOnly+"  && !testFocusability(comp)="+!testFocusability(comp));
                 return;
@@ -563,18 +561,20 @@ public class AccessibilityTester{
         }
     }
     
-    /** Use Tab traversal from the specified component to check which
-     *  components can be reached without the mouse.
-     *  <p>
-     *  A custom focus listener catches the FOCUS_GAINED events and
-     *  adds the focused component to a list. The test terminates when a
-     *  component gains the keyboard focus that is already in the list,
-     *  hence it has already been visited.
-     *  <p>
-     *  This list of components is then removed from the list of traversable
-     *  components. Any components left in the list at this point are not reachable
-     *  by Tab traversal.
-     *  @param comp the component to begin traversal from */
+    /**
+     * Use Tab traversal from the specified component to check which
+     * components can be reached without the mouse.
+     * <p>
+     * A custom focus listener catches the FOCUS_GAINED events and
+     * adds the focused component to a list. The test terminates when a
+     * component gains the keyboard focus that is already in the list,
+     * hence it has already been visited.
+     * <p>
+     * This list of components is then removed from the list of traversable
+     * components. Any components left in the list at this point are not reachable
+     * by Tab traversal.
+     * @return 
+     */
     public boolean testTraversal() {
         if (parent == null){
             return false;
@@ -679,7 +679,7 @@ public class AccessibilityTester{
                     // LOG ONLY -/
                     if(debugLog) System.err.println(LOG_CAPTION+" - <testTraversalComponent(Component)> - --> Focused component="+focusedComponent);
                     
-                    Component reallyFocusedComponent = SwingUtilities.findFocusOwner(parent);
+                    Component reallyFocusedComponent = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
                     
                     // LOG ONLY -/
                     if(debugLog) System.err.println(LOG_CAPTION+" - <testTraversalComponent(Component)> - --> Really Focused component="+reallyFocusedComponent);
@@ -769,7 +769,7 @@ public class AccessibilityTester{
             }
         }
         
-        //hack for Merlin if (!(testSettings.TT_showingOnly && !comp.isShowing()) && comp.isFocusTraversable()){
+        //hack for JDK 1.4 or higher if (!(testSettings.TT_showingOnly && !comp.isShowing()) && comp.isFocusTraversable()){
         if (!(testSettings.TT_showingOnly && !comp.isShowing()) && testFocusability(comp)){
             traversableComponents.add(comp);
         }else{
@@ -805,20 +805,20 @@ public class AccessibilityTester{
      * @return true - of isFocusTraversable/JDK1.3,2; traversable components contains this components/JDK1.4 */    
     private boolean testFocusability(Component aComponent) {
         
-        if(merlinTesting)
+        if(jdk14_higherTesting)
             return focused.contains(aComponent);
         else
-            return aComponent.isFocusTraversable();
+            return aComponent.isFocusable();
         
     }
     
     
-    /** Method for testing focus traversal on Merlin(JDK1.4).
+    /** Method for testing focus traversal on JDK 1.4 or higher.
      * @param cont  tested container */    
-    private void findFocusableContainer_merlin(Container cont){
+    private void findFocusableContainer(Container cont){
         
         // LOG ONLY -/
-        if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableContainer_merlin(Container)> -TTTTTT CONT = " + cont);
+        if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableContainer(Container)> -TTTTTT CONT = " + cont);
         
         FocusTraversalPolicy fp;
         
@@ -826,12 +826,12 @@ public class AccessibilityTester{
             fp = cont.getFocusTraversalPolicy();
             
             // LOG ONLY -/
-            if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableContainer_merlin(Container)>  - GET FocusTraversalPolicy from CONT");
+            if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableContainer(Container)>  - GET FocusTraversalPolicy from CONT");
             
         }else{
             
             // LOG ONLY -/
-            if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableContainer_merlin(Container)>  - GET FocusTraversalPolicy from KeyboardFocusManager.getCurrentKeyboardFocusManager();");
+            if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableContainer(Container)>  - GET FocusTraversalPolicy from KeyboardFocusManager.getCurrentKeyboardFocusManager();");
             
             KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
             fp = kfm.getDefaultFocusTraversalPolicy();
@@ -840,71 +840,71 @@ public class AccessibilityTester{
         Component next = fp.getFirstComponent(cont);
         
         // LOG ONLY -/
-        if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableContainer_merlin(Container)> - next="+next);
+        if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableContainer(Container)> - next="+next);
         
         if(next == cont || focused.contains(next)){
             
             //- LOG ONLY
-            if(debugLog)System.err.println(LOG_CAPTION+" - <findFocusableContainer_merlin(Container)> - next==cont / "+ (next==cont) + " ><  focused.contains() / "+focused.contains(next));
+            if(debugLog)System.err.println(LOG_CAPTION+" - <findFocusableContainer(Container)> - next==cont / "+ (next==cont) + " ><  focused.contains() / "+focused.contains(next));
             
             return;
         }else{
             
             // LOG ONLY -/
-            if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableContainer_merlin(Container)> - ADDED");
+            if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableContainer(Container)> - ADDED");
             
             focused.add(next);
         }
         
         if(next != null)
-            findFocusableComponent_merlin(next, cont, fp);
+            findFocusableComponent(next, cont, fp);
         return;
         
     }
     
     
-    /** Method for testing focus traversal on Merlin(JDK1.4).
+    /** Method for testing focus traversal on JDK1.4 or higher .
      * @param comp tested component
      * @param cont tested container
      * @param fp focus traversal policy */
-    private void findFocusableComponent_merlin(Component comp, Container cont, FocusTraversalPolicy fp) {
+    private void findFocusableComponent(Component comp, Container cont, FocusTraversalPolicy fp) {
         // LOG ONLY -/
-        if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - COMP= " + comp);
+        if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableComponent(Component,Container,FocusTraversalPolicy)> - COMP= " + comp);
         
         if(comp instanceof Container) {
             Container comp_cont = (Container) comp;
             if(comp_cont.isFocusCycleRoot()){
                 
                 // LOG ONLY -/
-                if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - is root");
+                if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableComponent(Component,Container,FocusTraversalPolicy)> - is root");
                 
-                findFocusableContainer_merlin(comp_cont);
+                findFocusableContainer(comp_cont);
             } else {
                 
                 // LOG ONLY -/
-                if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - isn't root");
+                if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableComponent(Component,Container,FocusTraversalPolicy)> - isn't root");
                 
 //                Component next = fp.getComponentAfter(cont,comp);
                 Component next = fp.getComponentAfter(comp.getFocusCycleRootAncestor(),comp);                
                 
                 // LOG ONLY -/
-                if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - COMP next="+next);
+                if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableComponent(Component,Container,FocusTraversalPolicy)> - COMP next="+next);
                 
                 if(next == cont || focused.contains(next)){
                     
                     //- LOG ONLY
-                        if(debugLog)System.err.println(LOG_CAPTION+" - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - next==cont / "+ (next==cont) + " ><  focused.contains() / "+focused.contains(next));
+                        if(debugLog)System.err.println(LOG_CAPTION+" - <findFocusableComponent(Component,Container,FocusTraversalPolicy)> - next==cont / "+ (next==cont) + " ><  focused.contains() / "+focused.contains(next));
                     
                     return;
                 }else{
                     
                     // LOG ONLY -/
-                    if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableComponent_merlin(Component,Container,FocusTraversalPolicy)> - ADDED");
+                    if(debugLog) System.err.println(LOG_CAPTION+" - <findFocusableComponent(Component,Container,FocusTraversalPolicy)> - ADDED");
                     
                     focused.add(next);
                 }
                 
-                findFocusableComponent_merlin(next, cont, fp);
+                findFocusableComponent(next, cont, fp);
             }
         }
     }
@@ -1001,8 +1001,11 @@ public class AccessibilityTester{
             tester = at;
         }
         
-        /** Create a ReportGenerator for an AccessibilityTester.
-         *  @param at the AccesibilityTester */
+        /**
+         * Create a ReportGenerator for an AccessibilityTester.
+         * @param set 
+         * @param at the AccesibilityTester
+         */
         public ReportGenerator(AccessibilityTester at, TestSettings set){
             tester = at;
             testSettings = set;

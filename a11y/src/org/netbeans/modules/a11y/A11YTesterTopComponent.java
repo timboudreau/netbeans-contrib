@@ -7,14 +7,13 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.a11y;
 
 import org.openide.windows.TopComponent;                                                                                                                                        
-import org.openide.windows.Workspace;                                                                                                                                           
 import org.openide.windows.Mode;                                                                                                                                                
 
 import java.awt.Rectangle;                                                                                                                                                      
@@ -70,13 +69,6 @@ public class A11YTesterTopComponent extends TopComponent {
         return instance;
     }
 
-    /** Open top component in Workspace.
-     * @param workspace  workspace where top component to be opened */    
-    public void open(Workspace workspace) {
-        super.open(workspace);
-        setCloseOperation(CLOSE_LAST);                                                                                                                                          
-    }                                                                                                                                                                           
-                                                                                                                                                                                
     /** replaces this in object stream
      * @return  */                                                                                                                                       
     public Object writeReplace() {                                                                                                                                              
