@@ -7,13 +7,14 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
+
 package org.netbeans.modules.vcscore;
 
-import org.openide.modules.ModuleInstall;
 import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.openide.modules.ModuleInstall;
 
 /**
  * Redistributes notifications about module lifetime.
@@ -23,8 +24,6 @@ import org.netbeans.modules.vcscore.turbo.Turbo;
  * @author Petr Kuzel
  */
 public final class VcsModule extends ModuleInstall {
-
-    private static final long serialVersionUID = 0L;
 
     public void close() {
         Turbo.shutdown();
