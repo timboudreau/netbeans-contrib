@@ -21,6 +21,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.beans.*;
 import java.io.*;
 import java.lang.reflect.*;
+import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.openide.util.*;
 import org.openide.cookies.*;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
+import org.openide.execution.Executor;
 import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.nodes.Node;
 import org.openide.nodes.AbstractNode;
@@ -262,5 +264,29 @@ public class CompiledDataObject extends ClassDataObject {
         }
 
     } // the end of SourceSupport inner class
+    
+    private static class ExecSupport extends org.openide.loaders.ExecSupport {
+        ExecSupport(MultiDataObject.Entry en) {
+            super(en);
+        }
+        
+        /**
+         * Iterates through Execution service type, looking for some exec
+         * service from the java module.
+         */
+        protected Executor defaultExecutor() {
+            Enumeration servs = org.openide.TopManager.getDefault().getServices().
+                services(Executor.class);
+            while (servs.hasMoreElements()) {
+                Object o = servs.nextElement();
+                if (o.getClass().getName().startsWith(
+                    "org.netbeans.modules.java.JavaProcessExecutor"
+                    )) {
+                    return (Executor)o;
+                }
+            }
+            return super.defaultExecutor();
+        }
+    }
 }
 
