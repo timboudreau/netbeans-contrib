@@ -197,7 +197,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         BeanDescriptor bd = new BeanDescriptor(CommandLineVcsFileSystem.class,
                                                org.netbeans.modules.vcs.advanced.VcsCustomizer.class);
         bd.setValue(VcsFileSystem.VCS_PROVIDER_ATTRIBUTE, new Boolean(true));
-        bd.setValue(VcsFileSystem.VCS_FILESYSTEM_ICON_BASE, "/org/netbeans/modules/vcs/advanced/vcsGeneric"); // NOI18N
+        bd.setValue(VcsFileSystem.VCS_FILESYSTEM_ICON_BASE, "org/netbeans/modules/vcs/advanced/vcsGeneric"); // NOI18N
         bd.setValue ("helpID", CommandLineVcsFileSystem.class.getName ()); // NOI18N
         
         return bd;
