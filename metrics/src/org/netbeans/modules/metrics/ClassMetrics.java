@@ -25,6 +25,8 @@ import org.openide.src.Identifier;
 import org.openide.src.ClassElement;
 import org.openide.filesystems.*;
 
+import org.netbeans.api.java.classpath.ClassPath;
+
 import java.beans.*;
 import java.io.*;
 import java.util.*;
@@ -154,33 +156,15 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
     }
 
     private InputStream lookupClass() throws IOException {
-        InputStream is = null;
-        String pkg = className.getPackage();
-        String clsName = className.getSimpleName();
-        while (true) {
-            FileObject fo = Repository.getDefault().find(pkg, clsName, "class");
-            is = (fo != null)
-                ? fo.getInputStream() : findClassFile(pkg, clsName);
-            if (is != null)
-                break;
-
-            /* Workaround for NetBeans repository bug, which assumes that
-             * a package name is everything up to the last period -- which
-             * doesn't work for inner classes.  What we do on lookup
-             * failure is to move the last package "chunk" onto the
-             * class name; for example, "org.openide.awt.Actions" doesn't
-             * have a class "Toolbar", but "org.openide.awt" does have
-             * an "Actions.Toolbar" class.  (sigh)
-             */
-            int idx = pkg.lastIndexOf('.');
-            if (idx == -1) // if no more chunks
-                break;
-            String chunk = pkg.substring(idx + 1);
-            pkg = pkg.substring(0, idx);
-            clsName = chunk + '$' + clsName;
-        }
+	InputStream is = null;
+	ClassPath classPath = ClassPath.getClassPath(null, ClassPath.EXECUTE);
+	String resName = className.getInternalName() + ".class";
+	FileObject fo = classPath.findResource(resName);
+	is = (fo != null)
+	    ? fo.getInputStream() 
+	    : getClass().getClassLoader().getResourceAsStream(resName);
         if (is == null)
-            throw new FileNotFoundException(className.getInternalName());
+            throw new FileNotFoundException(resName);
         return is;
     }
     
@@ -497,19 +481,6 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
 	if (changeSupport != null)
 	    // if there are any listeners...
 	    changeSupport.firePropertyChange(propertyName, oldValue, newValue);
-    }
-
-    private static InputStream findClassFile(String pkg, String className) throws IOException {
-        StringBuffer sb = new StringBuffer();
-        if (pkg.length() > 0) {
-            sb.append(pkg.replace('.', '/'));
-            sb.append('/');
-        }
-        sb.append(className.replace('.', '$'));
-        sb.append(".class");
-        String path = sb.toString();
-
-        return ClassLoader.getSystemClassLoader().getResourceAsStream(path);
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
