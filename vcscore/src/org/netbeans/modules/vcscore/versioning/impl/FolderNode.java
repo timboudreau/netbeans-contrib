@@ -22,13 +22,13 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileStatusEvent;
 import org.openide.filesystems.FileStatusListener;
 import org.openide.filesystems.FileSystem;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.PropertySupport;
-import org.openide.nodes.Sheet;
+import org.openide.nodes.*;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
+import org.openide.util.HelpCtx;
+import org.openide.util.lookup.Lookups;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.actions.NodeAction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,10 +45,17 @@ import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
  * actions, cookies, icon, display name and property
  * sheet all based on background file. It does not
  * support any clipboard operations.
+ * <p>
+ * TODO It adds FileObject into associated lookup that
+ * should replace DataObject in cookies. Actions that
+ * are driven by DataObject can work wrongly because
+ * they typically operate over primary file that can differ
+ * from wrapped file (e.g. diff on .form files works over
+ * respective .java files).
  *
  * @author Petr Kuzel
  */
-class FolderNode extends AbstractNode {
+class FolderNode extends AbstractNode implements Node.Cookie {
 
     public static final String PROP_STATUS = "status";
     public static final String PROP_LOCKER = "locker";
@@ -79,7 +86,7 @@ class FolderNode extends AbstractNode {
     }
     
     FolderNode(Children ch, FileObject file) {
-        super(ch);
+        super(ch, Lookups.singleton(file));
         this.file = file;
         init(file);
     }
@@ -105,6 +112,11 @@ class FolderNode extends AbstractNode {
                 // ignore, call super later on
             }
         }
+
+        if (type == FolderNode.class) { // DebugAction requires it
+            return this;
+        }
+
         return super.getCookie(type);
     }
 
@@ -124,19 +136,17 @@ class FolderNode extends AbstractNode {
     }
     
     public String getHtmlDisplayName() {
-        String s;
         try {
             Set target = Collections.singleton(file);
             FileSystem.Status fsStatus = file.getFileSystem().getStatus();
             if (fsStatus instanceof FileSystem.HtmlStatus) {
-                s = ((FileSystem.HtmlStatus) fsStatus).annotateNameHtml(file.getNameExt(), target);
-            } else {
-                s = fsStatus.annotateName(file.getNameExt(), target);
+                return ((FileSystem.HtmlStatus) fsStatus).annotateNameHtml(file.getNameExt(), target);
             }
         } catch (FileStateInvalidException exc) {
-            s = super.getHtmlDisplayName();
+            // null bellow
         }
-        return s;
+        // we cannot provide HTNL status, framework will ask us for plain display name
+        return null;
     }
     
     protected Image getBlankIcon(int type) {
@@ -196,6 +206,7 @@ class FolderNode extends AbstractNode {
 
     public static SystemAction[] getFolderActions() {
         return new SystemAction[] {
+            //SystemAction.get(DebugAction.class),
             SystemAction.get (org.openide.actions.OpenLocalExplorerAction.class),
             SystemAction.get (org.openide.actions.FindAction.class),
             null,
@@ -386,6 +397,26 @@ class FolderNode extends AbstractNode {
                     fireIconChange();
                 }
             }
+        }
+    }
+
+    static class DebugAction extends NodeAction {
+
+        public String getName() {
+            return "Debug Status Cache";  // NOI18N
+        }
+
+        public HelpCtx getHelpCtx() {
+            return null;
+        }
+
+        protected void performAction(Node[] activatedNodes) {
+            FolderNode self = (FolderNode) activatedNodes[0].getCookie(FolderNode.class);
+            self.getHtmlDisplayName(); // put breakpoint here
+        }
+
+        protected boolean enable(Node[] activatedNodes) {
+            return true;
         }
     }
 
