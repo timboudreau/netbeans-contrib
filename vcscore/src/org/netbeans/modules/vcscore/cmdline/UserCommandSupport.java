@@ -98,9 +98,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     public UserCommandSupport(UserCommand cmd, VcsFileSystem fileSystem) {
         super(getClassesForCommand(cmd));
         this.cmd = cmd;
-        //zatial
-        System.err.println("cmd support: cmd: "+cmd.getName());
-        //***
         this.fileSystem = fileSystem;
         this.displayName = getDisplayName(cmd, fileSystem);
     }
