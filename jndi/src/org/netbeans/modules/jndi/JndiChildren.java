@@ -14,9 +14,12 @@
 package com.netbeans.enterprise.modules.jndi;
 
 import java.util.Collection;
-import java.util.Vector;
-import javax.naming.*;
-import javax.naming.directory.*;
+import java.util.ArrayList;
+import javax.naming.CompositeName;
+import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NameClassPair;
+import javax.naming.directory.DirContext;
 
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -32,19 +35,15 @@ final class JndiChildren extends Children.Keys {
   /** Class object for javax.naming.Context */
   private static Class ctxClass;
 
-  private DirContext parentContext;	// Initial Directory context
-  private CompositeName offset;	// Offset in Initial Directory context
+  private final DirContext parentContext;	// Initial Directory context
+  private final CompositeName offset;	// Offset in Initial Directory context
   
   
   //Constructor takes the initial context as its parameter
-  public JndiChildren(DirContext parentContext) {
+  public JndiChildren(DirContext parentContext, CompositeName offset) throws NamingException {
     this.parentContext = parentContext;
-  }
-  
-  //Set actual offset in tree hierrarchy
-  //This method shold be immediatelly called after JndiChildren is created
-  public void setOffset(CompositeName offset) {
     this.offset = offset;
+    prepareKeys();
   }
   
   // Returns actual offset
@@ -56,19 +55,13 @@ final class JndiChildren extends Children.Keys {
   public DirContext getContext() {
     return parentContext;
   }
-  
-  
-  //Set context
-  public void setContext(DirContext context) {
-    parentContext = context;
-  }
-  
+    
   // this method creates keys and set them
   public void prepareKeys() throws NamingException {
 
-    NamingEnumeration ne = parentContext.list(this.offset.toString());
+    NamingEnumeration ne = parentContext.list(offset);
     if (ne == null) return;
-    Vector v = new Vector();
+    ArrayList v = new ArrayList();
     while (ne.hasMore()) {
       v.add(ne.next());
     }
@@ -86,10 +79,13 @@ final class JndiChildren extends Children.Keys {
       }
 
       NameClassPair np = (NameClassPair) key;
+      String objName = np.getName();
+      CompositeName newName = (CompositeName) ((CompositeName) offset.clone()).add(objName);
+      
       if (isContext(np.getClassName())) {
-        return new Node[] {new JndiNode(parentContext, ((CompositeName) offset.clone()), np.getName())};
+        return new Node[] {new JndiNode(parentContext, newName, objName)};
       } else {
-        return new Node[] {new JndiLeafNode(parentContext, ((CompositeName) offset.clone()), np.getName(), np.getClassName())};
+        return new Node[] {new JndiLeafNode(parentContext, newName, objName, np.getClassName())};
       }
     } catch (NamingException ne) {
       return new Node[0];

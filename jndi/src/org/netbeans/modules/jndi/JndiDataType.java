@@ -86,7 +86,6 @@ final class JndiDataType extends NewType {
                     } else {
                       e = ne;
                     }
-                    e.printStackTrace();
                     if (e instanceof JndiException) {
                       TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getString("EXC_Items"), NotifyDescriptor.Message.ERROR_MESSAGE));
                     } else {

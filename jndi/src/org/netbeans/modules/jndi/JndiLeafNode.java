@@ -13,8 +13,6 @@
 
 package com.netbeans.enterprise.modules.jndi;
 
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import javax.naming.NamingException;
 import javax.naming.CompositeName;
@@ -24,72 +22,40 @@ import org.openide.TopManager;
 import org.openide.actions.CopyAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.actions.ToolsAction;
+import org.openide.actions.DeleteAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.actions.SystemAction;
-import org.openide.nodes.Node.Cookie;
 
 /** This class is Leaf Node in JNDI tree eg. File...*/
-final class JndiLeafNode extends AbstractNode implements TemplateCreator, Cookie {
+final class JndiLeafNode extends JndiObjectNode {
 
   protected DirContext ctx;
   protected CompositeName offset;
-  protected SystemAction[] actions;
-
-  /** Set to true only if this node is being destroyed.
-  * If a node with removed set to true is removed then its parent calls refresh.
-  */
-  boolean removed = false;
-  
-  
+    
   public JndiLeafNode(DirContext ctx, CompositeName parentOffset, String name, String classname) throws NamingException {
-    super(Children.LEAF);
-    setName(name);
+    super(Children.LEAF, name);
     this.ctx = ctx;
-    this.offset = (CompositeName) parentOffset.add(name);
+    this.offset = parentOffset;
     setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(classname));
-    getCookieSet().add(this);
   }
   
   // Generates code for accessing object that is represented by this node
   public String createTemplate() throws NamingException {
     return JndiObjectCreator.getCode(ctx, offset);
   }
-  
-  public boolean canCopy() {
-    return true;
-  }
-  
-  public SystemAction[] getActions() {
-    if (actions == null) {
-      actions = createActions();
-    }
-    return actions;
-  }
-  
-  
-  public Transferable clipboardCopy() throws IOException {
-    try {
-      return new StringSelection(this.createTemplate());
-    } catch(NamingException ne) {
-      TopManager.getDefault().notifyException(ne);
-      return null;
-    }
-  }
-  
+     
   public SystemAction[] createActions() {
     return new SystemAction[] {
       SystemAction.get(CopyAction.class),
+      null,
+      SystemAction.get(DeleteAction.class),
       null,
       SystemAction.get(PropertiesAction.class),
     };
   }
 
-  /** @return @link isRoot */
-  public boolean canDestroy() {
-    return true;
-  }
-
+ 
   /** Destroys this node.
   * If this node is root then nothing more is done.
   * If this node is not root then represented Context is destroyed.
@@ -101,7 +67,7 @@ final class JndiLeafNode extends AbstractNode implements TemplateCreator, Cookie
     try {
       // destroy this context first
       ctx.unbind(offset);
-      removed = true;
+      setRemoved();
       super.destroy();
     } catch (NamingException e) {
       JndiRootNode.notifyForeignException(e);
