@@ -693,6 +693,8 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         if(stdDataOutput == null){
             stdDataOutput = new JTextArea();
             stdDataOutput.setEditable(false);
+            java.awt.Font font = stdDataOutput.getFont();
+            stdDataOutput.setFont(new java.awt.Font("Monospaced", font.getStyle(), font.getSize()));
         }
         return stdDataOutput;
     }
@@ -706,6 +708,8 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         if(errDataOutput == null){
             errDataOutput = new JTextArea();
             errDataOutput.setEditable(false);
+            java.awt.Font font = errDataOutput.getFont();
+            errDataOutput.setFont(new java.awt.Font("Monospaced", font.getStyle(), font.getSize()));
         }
         return errDataOutput;
     }

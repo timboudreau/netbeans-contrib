@@ -33,6 +33,8 @@ public class OutputPanel extends AbstractOutputPanel{
             errOutput.setEditable(false);
             errOutput.getAccessibleContext().setAccessibleName(NbBundle.getBundle(OutputPanel.class).getString("ACS_OutputPanel.ErrComponent"));//NOI18N
             errOutput.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(OutputPanel.class).getString("ACSD_OutputPanel.ErrComponent"));//NOI18N
+            java.awt.Font font = errOutput.getFont();
+            errOutput.setFont(new java.awt.Font("Monospaced", font.getStyle(), font.getSize()));
         }
         return errOutput;
     }
@@ -43,6 +45,8 @@ public class OutputPanel extends AbstractOutputPanel{
             stdOutput.setEditable(false);
             stdOutput.getAccessibleContext().setAccessibleName(NbBundle.getBundle(OutputPanel.class).getString("ACS_OutputPanel.StdComponent"));//NOI18N
             stdOutput.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(OutputPanel.class).getString("ACSD_OutputPanel.StdComponent"));//NOI18N
+            java.awt.Font font = stdOutput.getFont();
+            stdOutput.setFont(new java.awt.Font("Monospaced", font.getStyle(), font.getSize()));
         }
         return stdOutput;
     }

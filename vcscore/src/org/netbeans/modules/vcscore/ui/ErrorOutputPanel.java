@@ -39,6 +39,8 @@ public class ErrorOutputPanel extends javax.swing.JPanel {
     /** Creates new form ErrorOutputPanel */
     public ErrorOutputPanel() {
         initComponents();
+        java.awt.Font font = errorArea.getFont();
+        errorArea.setFont(new java.awt.Font("Monospaced", font.getStyle(), font.getSize()));
         initPopupMenu();
         getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(       
             KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.CTRL_DOWN_MASK),

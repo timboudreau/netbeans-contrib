@@ -57,6 +57,8 @@ public class AddInfoPanel extends AbstractOutputPanel{
         if(errOutput == null){
             errOutput = new JTextArea();
             errOutput.setEditable(false);
+            java.awt.Font font = errOutput.getFont();
+            errOutput.setFont(new java.awt.Font("Monospaced", font.getStyle(), font.getSize()));
         }
         return errOutput;
     }

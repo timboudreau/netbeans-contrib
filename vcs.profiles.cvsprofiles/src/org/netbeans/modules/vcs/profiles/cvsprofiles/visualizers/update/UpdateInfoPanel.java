@@ -60,6 +60,8 @@ public class UpdateInfoPanel extends AbstractOutputPanel{
             errOutput.setEditable(false);
             errOutput.getAccessibleContext().setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACS_UpdateInfoPanel.errOutput")); // NOI18N
             errOutput.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.errOutput")); // NOI18N
+            java.awt.Font font = errOutput.getFont();
+            errOutput.setFont(new java.awt.Font("Monospaced", font.getStyle(), font.getSize()));
         }
         return errOutput;
     }

@@ -62,6 +62,8 @@ public class CommitInfoPanel extends AbstractOutputPanel{
             errOutput.setEditable(false);
             errOutput.getAccessibleContext().setAccessibleName(NbBundle.getBundle(CommitInfoPanel.class).getString("ACS_CommitInfoPanel.errOutput")); //NOI18N
             errOutput.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(CommitInfoPanel.class).getString("ACSD_CommitInfoPanel.errOutput")); //NOI18N
+            java.awt.Font font = errOutput.getFont();
+            errOutput.setFont(new java.awt.Font("Monospaced", font.getStyle(), font.getSize()));
         }
         return errOutput;
     }
