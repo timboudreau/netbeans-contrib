@@ -285,8 +285,8 @@ public class Variables {
                     return null;
                 }
                 if (begin == 0) value = svalue;
-                else value = VcsFileSystem.substractRootDir(value, svalue);
-                begin += substr + SUBSTRACT.length();
+                else value = substractVariables(value, svalue);//VcsFileSystem.substractRootDir(value, svalue);
+                begin = substr + SUBSTRACT.length();
             }
             if (begin == 0) value = (String) tab.get(name);
             else {
@@ -294,7 +294,7 @@ public class Variables {
                 if (svalue == null) {
                     return null;
                 }
-                value = VcsFileSystem.substractRootDir(value, svalue);
+                value = substractVariables(value, svalue); //VcsFileSystem.substractRootDir(value, svalue);
             }
         } else {
             value = expand(tab, value, warnUndefVars);
@@ -303,6 +303,13 @@ public class Variables {
             if (value != null) value = value.replace(replC1, replC2);
         }
         return value;
+    }
+    
+    private static String substractVariables(String value1, String value2) {
+        if (value2 == null || value2.length() == 0) return value1;
+        int index = value1.lastIndexOf(value2);
+        if (index < 0) return value1;
+        else return value1.substring(0, index);
     }
     
     private static String expandConditional(Hashtable tab, String cmd, boolean warnUndefVars,
@@ -679,7 +686,7 @@ public class Variables {
                 }
                 if (begin == 0) value = svalue;
                 else value = VcsFileSystem.substractRootDir(value, svalue);
-                begin += substr + SUBSTRACT.length();
+                begin = substr + SUBSTRACT.length();
             }
             if (begin == 0) value = (String) tab.get(name);
             else value = VcsFileSystem.substractRootDir(value, getReplaceVarValue(tab, name.substring(begin).trim()));
