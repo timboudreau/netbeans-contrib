@@ -279,6 +279,10 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
             return TopComponent.PERSISTENCE_NEVER;
         } 
         
+        protected String preferredID(){
+            return "OutputVisualizerOutputTopComponent";    //NOI18N
+        }
+        
         void setOutputPanel(JComponent outputPanel){
             this.outputPanel = outputPanel;
         }
