@@ -1841,8 +1841,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         Vector vars = fileSystem.getVariables();
         //System.out.println("variable changed: "+varName+" = '"+newValue+"'");
         if (var == null) {
-            //var = new VcsConfigVariable(varName, null, newValue, false, false, false, null);
-            //vars.add(var);
+            var = new VcsConfigVariable(varName, null, newValue, false, false, false, null);
+            vars.add(var);
+            fsVarsByName.put(varName, var);
         } else {
             var.setValue(newValue);
         }
