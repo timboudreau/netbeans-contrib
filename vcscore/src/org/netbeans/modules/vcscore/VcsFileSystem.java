@@ -737,6 +737,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     */
 
 
+    /** Creates Reference. In FileSystem, which subclasses AbstractFileSystem, you can overload method
+     * createReference(FileObject fo) to achieve another type of Reference (weak, strong etc.)
+     * @param fo is FileObject. It`s reference yourequire to get.
+     * @return Reference to FileObject
+     */
+    protected java.lang.ref.Reference createReference(FileObject fo) {
+        return cache.createReference(fo);
+    }
+
     /**
      * Get the provider of the cache.
      */
@@ -1643,22 +1652,26 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
 
         Hashtable vars = getVariablesAsHashtable();
-        String module = (String) vars.get("MODULE");
-        if (module == null) module = "";
+        String module = (String) vars.get("MODULE"); // NOI18N
+        if (module == null) module = ""; // NOI18N
         File root = new File(r, module);
         String name = computeSystemName (root);
-        /* Ignoring other filesystems' names => it is possible to mount VCS filesystem with the same name.
+        /* Ignoring other filesystems' names => it is possible to mount VCS filesystem with the same name. */
+        /* Do not ignore this any more, due to the issue #11617. */
         Enumeration en = TopManager.getDefault ().getRepository ().fileSystems ();
         while (en.hasMoreElements ()) {
-          FileSystem fs = (FileSystem) en.nextElement ();
-          if (fs.getSystemName ()==name) {
-            // NotifyDescriptor.Exception nd = new NotifyDescriptor.Exception (
-            throw new PropertyVetoException ("Directory already mounted", // NOI18N
-              new PropertyChangeEvent (this, "RootDirectory", getSystemName (), name)); // NOI18N
-            // TopManager.getDefault ().notify (nd);
-          }
-    }
-        */
+            FileSystem fs = (FileSystem) en.nextElement ();
+            if ((org.openide.util.Utilities.isWindows() && fs.getSystemName().equalsIgnoreCase(name))
+                || (!org.openide.util.Utilities.isWindows() && fs.getSystemName().equals(name))) {
+                // NotifyDescriptor.Exception nd = new NotifyDescriptor.Exception (
+                throw (PropertyVetoException) TopManager.getDefault().getErrorManager().annotate(
+                    new PropertyVetoException (g("EXC_DirectoryMounted"), // NOI18N
+                        new PropertyChangeEvent (this, PROP_ROOT, getSystemName (), name)), // NOI18N
+                    g("EXC_DirectoryMounted")); // NOI18N
+                // TopManager.getDefault ().notify (nd);
+            }
+        }
+        
         D.deb("Setting system name '"+name+"'"); // NOI18N
         setSystemName(name);
 
