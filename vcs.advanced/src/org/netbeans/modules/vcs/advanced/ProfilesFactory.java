@@ -853,11 +853,17 @@ public final class ProfilesFactory extends Object {
         }
         
         public void fileChanged(FileEvent fileEvent) {
-            synchronized (this) {
-                variables = null;
-                commands = null;
-                globalCommands = null;
+            if (!isSaving) {
+                // When we're not saving the profile ourselves, we need to reload
+                // the profile later.
+                synchronized (this) {
+                    conditions = null;
+                    variables = null;
+                    commands = null;
+                    globalCommands = null;
+                }
             }
+            this.firePropertyChange(PROP_CONDITIONS, null, null);
             this.firePropertyChange(PROP_VARIABLES, null, null);
             this.firePropertyChange(PROP_COMMANDS, null, null);
             this.firePropertyChange(PROP_GLOBAL_COMMANDS, null, null);
