@@ -28,6 +28,7 @@ public class ProfilePanel extends AbstractWizardPanel {
     private ProfilePanelUI panelUI;
     private boolean initialized = false;
     private boolean isFinish = true;
+    private java.beans.PropertyChangeListener propL;
     
     MountWizardData data;
     
@@ -53,17 +54,22 @@ public class ProfilePanel extends AbstractWizardPanel {
             initialized = true;
         }
         if (index == 0 && data.isNoneProfileSelected()) {            
-            data.addPropertyChangeListener(new java.beans.PropertyChangeListener() {                
+            propL = new java.beans.PropertyChangeListener() {                
                 public void propertyChange(java.beans.PropertyChangeEvent evt) {                    
                     if(evt.getPropertyName().equals(VcsCustomizer.PROP_PROFILE_SELECTION_CHANGED)){
                         fireChange();
                     }
                 }
-            });
+            };
+            data.addPropertyChangeListener(propL);
         }
     }
 
     protected void storeWizardSettings(MountWizardData data) {
+        if (propL != null) {
+            data.removePropertyChangeListener(propL);
+            propL = null;
+        }
     }
     
     public boolean isValid() {
