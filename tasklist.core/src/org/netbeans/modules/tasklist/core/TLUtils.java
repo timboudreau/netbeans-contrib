@@ -460,6 +460,9 @@ public final class TLUtils {
     public static synchronized Task findNext(Task curr, boolean wrap) {
         currFound = false;
         List tasks = curr.getList().getRoot().getSubtasks();
+        if (tasks == null)
+            return null;
+        
         Task s = findNext(tasks, curr, wrap);
         if ((s == null) && wrap && currFound) {
             // Start search one more time, this time not for
