@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -17,7 +17,6 @@ Microsystems, Inc. All Rights Reserved.
 <project name="vcscore" default="netbeans" basedir=".">
 
   <property name="nbroot" value=".."/>
-  <property name="binroot" location="../../nbextra"/>
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
@@ -36,8 +35,9 @@ Microsystems, Inc. All Rights Reserved.
         <fileset dir="../openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-        <pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
-        <pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar"/>
+        <fileset dir="../core/external">
+          <include name="regexp*.jar" />
+        </fileset>
       </classpath>
     </javac>
   </target>
@@ -102,7 +102,9 @@ Microsystems, Inc. All Rights Reserved.
         <fileset dir="${nbroot}/openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-        <pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
+        <fileset dir="../core/external">
+          <include name="regexp*.jar" />
+        </fileset>
       </classpath>
       <link href="${jdk-docs-location}"
             offline="true"
@@ -156,8 +158,9 @@ Microsystems, Inc. All Rights Reserved.
         <fileset dir="../openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-        <pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
-        <pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar"/>
+        <fileset dir="../core/external">
+          <include name="regexp*.jar" />
+        </fileset>
       </classpath>
     </javadoc>    
   </target>

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='ISO-8859-1' ?>
+<?xml version="1.0" encoding="UTF-8"?> <!-- -*- sgml-indent-step: 2 -*- -->
 <!--
                 Sun Public License Notice
 
@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -16,7 +16,6 @@ Microsystems, Inc. All Rights Reserved.
 <project name="vcsgeneric" default="netbeans" basedir=".">
 
   <property name="nbroot" location=".."/>
-  <property name="binroot" location="../../nbextra"/>
   <property name="nbext" location="${nbroot}/nbbuild"/>
   <property name="nbext_root" location="${nbroot}/nbbuild"/>
   <property name="nbm_alias" value="nb_ide"/>
@@ -49,7 +48,9 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
         <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
-        <pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar"/>
+        <fileset dir="${nbroot}/core/external">
+          <include name="xml-apis*.jar"/>
+        </fileset>
       </classpath>
     </javac>
     <!-- <ant dir="profiles/pvcs" inheritAll="false" target="compile"/> -->
@@ -202,7 +203,9 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
         <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
-        <pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar"/>
+        <fileset dir="${nbroot}/core/external">
+          <include name="xml-apis*.jar"/>
+        </fileset>
       </classpath>
     </javadoc>    
   </target>

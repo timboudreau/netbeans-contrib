@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='ISO-8859-1' ?>
+<?xml version="1.0" encoding="UTF-8"?> <!-- -*- sgml-indent-step: 2 -*- -->
 <!--
                 Sun Public License Notice
 
@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -16,12 +16,11 @@ Microsystems, Inc. All Rights Reserved.
 <project name="corba" default="netbeans" basedir=".">
 
   <property name="nbroot" location=".."/>
-  <property name="binroot" location="../../nbextra"/>
   <property name="nbext" location="../nbbuild"/>
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" location="bcl-license.txt"/>
+  <property name="license.file" location="../nbbuild/standard-nbm-license.txt"/>
 
   <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
@@ -44,7 +43,11 @@ Microsystems, Inc. All Rights Reserved.
     <fail message="No tools.jar found in ${javahome}! Set -Djavahome=... as needed."/>
   </target>
 
-  <target name="compile" depends="setup-jdkhome" >
+  <target name="init">
+    <ant dir="external" target="unscramble"/>
+  </target>
+
+  <target name="compile" depends="init,setup-jdkhome" >
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <exclude name="org/netbeans/modules/corba/idl/editor/"/>
       <exclude name="org/netbeans/modules/corba/idl/compiler/"/>
@@ -58,12 +61,16 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="compiletime/corbanscs.jar"/>
 	<pathelement location="compiletime/sun-tools.jar"/>
 	<pathelement location="compiletime/ibm-tools.jar"/>
-	<pathelement location="${binroot}/corba/release/lib/ext/openorb-1.0.2.jar"/>
+        <fileset dir="external">
+          <include name="openorb*.jar"/>
+        </fileset>
 	<pathelement location="release/lib/ext/idlcompilers.jar"/>
 	<!-- Hopefully set up by nbbuild/build.xml: -->
 	<pathelement location="${jdkhome}/lib/tools.jar"/>
-	<pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
-	<pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar"/>
+        <fileset dir="../core/external">
+          <include name="regexp*.jar"/>
+          <include name="xml-apis*.jar"/>
+        </fileset>
       </classpath>
     </javac>
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
@@ -114,12 +121,18 @@ Microsystems, Inc. All Rights Reserved.
     </jar>
 -->    
   </target>
-  <target name="release">
+
+  <target name="release" depends="init">
     <copy todir="netbeans">
       <fileset dir="release"/>
     </copy>
-    <copy todir="netbeans">
-      <fileset dir="${binroot}/corba/release"/>
+    <mkdir dir="netbeans/bin"/>
+    <copy file="external/openorb.xml" tofile="netbeans/bin/openorb.xml"/>
+    <mkdir dir="netbeans/lib/ext"/>
+    <copy todir="netbeans/lib/ext">
+      <fileset dir="external">
+        <include name="openorb*.jar"/>
+      </fileset>
     </copy>
   </target>
 
@@ -129,7 +142,7 @@ Microsystems, Inc. All Rights Reserved.
     <mkdir dir="javahelp/org/netbeans/modules/corba/docs/JavaHelpSearch2"/>
     <jhindexer basedir="javahelp/org/netbeans/modules/corba/docs/"
                db="javahelp/org/netbeans/modules/corba/docs/JavaHelpSearch2"
-               jhall="${binroot}/nbbuild/lib/jhall.jar">
+               jhall="../nbbuild/external/jhall-1.1.2_02.jar">
       <include name="**/*.html"/>
       <exclude name="JavaHelpSearch2/"/>
       <exclude name="ja/"/>
@@ -139,7 +152,7 @@ Microsystems, Inc. All Rights Reserved.
     <jhindexer basedir="javahelp/org/netbeans/modules/corba/docs/"
                db="javahelp/org/netbeans/modules/corba/docs/ja/JavaHelpSearch2"
                locale="ja"
-               jhall="${binroot}/nbbuild/lib/jhall.jar">
+               jhall="../nbbuild/external/jhall-1.1.2_02.jar">
       <include name="**/*.html"/>
       <exclude name="JavaHelpSearch2/"/>
       <exclude name="ja/JavaHelpSearch2/"/>
@@ -156,18 +169,21 @@ Microsystems, Inc. All Rights Reserved.
     <delete dir="javahelp/org/netbeans/modules/corba/docs/ja/JavaHelpSearch"/>
   </target>
 
-<!-- TODO:-->
   <target name="nbm" depends="netbeans">
     <makenbm file="corba.nbm"
              topdir="."
              module="netbeans/modules/corba.jar"
 	     homepage="http://corba.${homepage.base}/"
 	     distribution="http://${dist.base}/corba.nbm" >
-      <license file="${license.file}" />
+      <license name="corba-license.txt">
+        <text>For the CORBA Support module:</text>
+        <file location="${license.file}" />
+        <text>For OpenORB:</text>
+        <file location="external/openorb-license.txt"/>
+      </license>
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>
-<!-- -->
 
   <target name="clean">
     <delete>

@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -17,7 +17,6 @@ Microsystems, Inc. All Rights Reserved.
 
   <property name="nbroot" value="../../.."/>
   <property name="nbext" value="${nbroot}/nbbuild"/>
-  <property name="binroot" location="${nbroot}/../nbextra"/>
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
@@ -43,8 +42,6 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
 	<pathelement location="${nbroot}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
-        <pathelement location="${binroot}/core/release/lib/ext/xml-apis.jar"/>
-        <pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
       </classpath>
     </javac>
   </target>
