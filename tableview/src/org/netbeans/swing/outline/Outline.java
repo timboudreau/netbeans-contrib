@@ -37,6 +37,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.JViewport;
+import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.event.TableModelEvent;
@@ -312,8 +313,9 @@ public final class Outline extends JTable {
     }    
     
     public void tableChanged(TableModelEvent e) {
-//        System.err.println("Table got tableChanged " + e);
+        System.err.println("Table got tableChanged " + e);
         super.tableChanged(e);
+        System.err.println("row count is " + getRowCount());
     }
     
     public void paint(Graphics g) {

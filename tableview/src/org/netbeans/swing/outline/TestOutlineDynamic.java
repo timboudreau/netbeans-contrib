@@ -31,10 +31,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -79,19 +82,32 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
         outline.setModel (mdl);
         
         JPanel buttons = new JPanel();
-        buttons.setLayout(new FlowLayout());
+        buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
         final JButton add = new JButton ("Add child");
         final JButton remove = new JButton ("Delete child");
         final JButton clear = new JButton("Clear");
+        final JButton addDis = new JButton ("Add discontiguous");
+        final JButton removeDis = new JButton ("Remove discontiguous");
+        
+        removeDis.setToolTipText("To enable, select more than one immediate child node of the same parent node");
+        addDis.setToolTipText("To enable, select a node with more than one child");
+        
         add.addActionListener (this);
         remove.addActionListener(this);
         clear.addActionListener(this);
+        addDis.addActionListener(this);
+        removeDis.addActionListener(this);
         add.setName("add");
         remove.setName("remove");
         clear.setName("clear");
+        addDis.setName("addDis");
+        removeDis.setName("removeDis");
         buttons.add (add);
         buttons.add(remove);
         buttons.add(clear);
+        buttons.add(addDis);
+        buttons.add(removeDis);
+        
         add.setEnabled(false);
         remove.setEnabled(false);
         
@@ -102,6 +118,47 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
                     add.setEnabled(en);
                     remove.setEnabled(en);
                     clear.setEnabled(outline.getRowCount() > 1);
+                    
+                    ListSelectionModel m =  
+                        outline.getSelectionModel();
+                    //en = (m.getMinSelectionIndex() != m.getMaxSelectionIndex());
+                    en = getSelectedNode() != null;
+                    if (en) {
+                        DefaultMutableTreeNode nd = getSelectedNode();
+                        en = nd.getChildCount() > 1;
+                    }
+                    addDis.setEnabled(en);
+                    
+                    en = getSelectedNode() != null;
+                    if (en) {
+                        int[] sels = getSelectedIndices();
+                        en = sels.length > 1;
+                        if (sels.length > outline.getRowCount()) {
+                            en = false;
+                        }
+                        if (en) {
+                            DefaultMutableTreeNode lastParent = null;
+                            for (int i=0; i < sels.length; i++) {
+                                DefaultMutableTreeNode nd = (DefaultMutableTreeNode)
+                                    outline.getValueAt(sels[i], 0);
+                                if (nd == null) {
+                                    en = false;
+                                    break;
+                                }
+                                if (lastParent != null) {
+                                    en &= nd.getParent() == lastParent;
+                                    if (!en) {
+                                        break;
+                                    }
+                                } else {
+                                    lastParent = (DefaultMutableTreeNode) nd.getParent();
+                                }
+                            }
+                        }
+                        
+                    }
+                    
+                    removeDis.setEnabled(en);
                 }
         });
                 
@@ -118,7 +175,7 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
         
         if ("add".equals(b.getName())) {
             Node newNode = new Node();
-            mdl.insertNodeInto(new DefaultMutableTreeNode(newNode, true), n, 0);
+            mdl.insertNodeInto(new DefaultMutableTreeNode(newNode, true), n, n.getChildCount());
             
         } else if ("remove".equals(b.getName())) {
             mdl.removeNodeFromParent(n);
@@ -127,7 +184,55 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
             root.removeAllChildren();
             nodeCount = 1;
             mdl.reload(root);
+        } else if ("addDis".equals(b.getName())) {
+            DefaultMutableTreeNode nd = getSelectedNode();
+            int ch = nd.getChildCount();
+            
+            DefaultMutableTreeNode atStart = new DefaultMutableTreeNode(new Node(), true);
+            DefaultMutableTreeNode atEnd = new DefaultMutableTreeNode(new Node(), true);
+            
+            nd.insert(atEnd, ch);
+            nd.insert(atStart, 0);
+            
+            mdl.nodesWereInserted(nd, new int[] {0, nd.getChildCount()-1});
+            
+            
+        } else if ("removeDis".equals(b.getName())) {
+            int[] sels = getSelectedIndices();
+            //they all have the same parent if the button is enabled
+            DefaultMutableTreeNode aNode = (DefaultMutableTreeNode) 
+                outline.getValueAt(sels[0], 0);
+            DefaultMutableTreeNode parent = (DefaultMutableTreeNode) aNode.getParent();
+            
+            ArrayList nodes = new ArrayList();
+            for (int i=0; i < sels.length; i++) {
+                aNode = (DefaultMutableTreeNode) outline.getValueAt(sels[i], 0);
+                sels[i] = parent.getIndex(aNode);
+                parent.remove(aNode);
+                nodes.add(aNode);
+            }
+            
+            mdl.nodesWereRemoved(parent, sels, nodes.toArray());
+            
         }
+    }
+    
+    private int[] getSelectedIndices() {
+        ListSelectionModel lsm = outline.getSelectionModel();
+        int min = lsm.getMinSelectionIndex();
+        int max = lsm.getMaxSelectionIndex();
+        if (min == max) {
+            return new int[] {min};
+        }
+        ArrayList al = new ArrayList();
+        for (int i=min; i <= max; i++) {
+            if (lsm.isSelectedIndex(i)) {
+                System.err.println(i + " is selected");
+            }
+            al.add (new Integer(i));
+        }
+        Integer[] ints = (Integer[]) al.toArray(new Integer[0]);
+        return (int[]) Utilities.toPrimitiveArray(ints);
     }
     
     public DefaultMutableTreeNode getSelectedNode() {
