@@ -40,6 +40,8 @@ import org.openide.windows.Workspace;
 
 /**
  * The cvs update visualizer.
+ * Reads the output from standard output only, which is merged with the error
+ * output in the correct order.
  *
  * @author  Richard Gregor
  */
@@ -52,7 +54,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
     public static final String MERGED_PATH = "Merged_Response_File_Path"; // NOI18N
     
     public static final String UNKNOWN = "server: nothing known about"; //NOI18N
-    public static final String EXAM_DIR = "server: Updating"; //NOI18N
+    public static final String EXAM_DIR = ": Updating"; //NOI18N
     public static final String TO_ADD = "server: use `cvs add' to create an entry for"; //NOI18N
     public static final String STATES = "U P A R M C ? "; //NOI18N
     public static final String WARNING = "server: warning: "; //NOI18N
@@ -144,6 +146,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
             processUnknownFile(line, line.indexOf(TO_ADD) + TO_ADD.length());
         }
         else if (line.indexOf(EXAM_DIR) >= 0) {
+            filePath = line.substring(line.indexOf(EXAM_DIR) + EXAM_DIR.length()).trim();
             return;
         }
         else if (line.startsWith(MERGING)) {
@@ -194,77 +197,8 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
 
        
     private File createFile(String fileName) {
-        Iterator it = files.iterator();
-        while(it.hasNext()){
-            File file = new  File((String)it.next());
-            if(file.getName().equals(fileName))
-                return file;
-        }
-        //directory name
-        String name = fileName.replace('\\', '/');        
-        //System.out.println("  createFile("+fileName+"), name = "+name);
-        int maxLevel = name.length();
-        File bestMatch = null;
-        String[] paths = new String[files.size()];
-        it = files.iterator();
-        int i = 0;
-        while(it.hasNext()){
-            paths[i++] = ((String)it.next()).replace('\\', '/');            
-        }
-        int start = name.lastIndexOf('/');
-        String part = null;
-        if (start < 0) {
-            part = name;
-        } else {
-            part = name.substring(start + 1);
-        }
-        int end = name.length() - 1;
-        while (start >= 0 || part != null) {
-            boolean wasMatch = false;
-            for (int index = 0; index < paths.length; index++) {
-                //System.out.println("     '"+paths[index]+"' ends with '"+part+"' = "+paths[index].endsWith(part));
-                if (paths[index].endsWith(part)) {
-                    String path = paths[index] + name.substring(end);
-                    if (path.startsWith("/")) path = path.substring(1);
-                    if (path.startsWith("./")) path = path.substring(2);
-                    bestMatch = new File(path);
-                    wasMatch = true;
-                }
-            }
-            if (wasMatch) {
-                break;
-            }
-            end = start;
-            if (start > 0) {
-                start = name.substring(0, end).lastIndexOf('/');
-                if (start < 0) start = -1; // slash is "virtually" at -1 position.
-            } else {
-                break;
-            }
-            //System.out.println("   start = "+start+", end = "+end);
-            part = name.substring(start + 1, end);
-        }
-        //System.out.println("  return '"+bestMatch+"'");
-        if (bestMatch == null) {
-            if (fileInfoContainer != null) {
-                File lastFile = fileInfoContainer.getFile();
-                if (lastFile != null) {
-                    if (name.indexOf('/') > 0) {
-                        bestMatch = new File(name);
-                    } else {
-                        bestMatch = new File(lastFile.getParentFile(), name);
-                    }
-                }
-            }
-            if (bestMatch == null) {
-                if (paths.length > 0 && !".".equals(paths[0])) {
-                    bestMatch = new File(paths[0] + File.separator + fileName);
-                } else {
-                    bestMatch = new File(fileName);
-                }
-            }
-        }
-        return bestMatch;
+        String path = (filePath != null) ? filePath + File.separator + fileName : fileName;
+        return new File(commonParentStr, path);
     }
 
     private void ensureExistingFileInfoContainer() {
@@ -285,13 +219,12 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
     private void processFile(String line) {
         
         String fileName = line.substring(2).trim();
+        
+        int sep = fileName.lastIndexOf('/');
+        if (sep >= 0) fileName = fileName.substring(sep + 1);
 
         if (fileName.startsWith("no file")) { //NOI18N
             fileName = fileName.substring(8);
-        }
-
-        if (fileName.startsWith("./")) { //NOI18N
-            fileName = fileName.substring(2);
         }
 
         File file = createFile(fileName);
