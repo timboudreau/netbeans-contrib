@@ -34,6 +34,7 @@ public class SelectSourcePanel extends AbstractIDLWizardPanel implements javax.s
         this.group.add (this.jRadioButton2);
         this.jRadioButton1.setSelected (true);
         this.jRadioButton1.addChangeListener (this);
+        this.jRadioButton2.addChangeListener (this);
         this.setName(bundle.getString("TXT_CreateImport"));
         putClientProperty(CorbaWizard.PROP_CONTENT_SELECTED_INDEX, new Integer(1));
         this.jRadioButton1.setMnemonic (this.bundle.getString("TXT_NewIDL_MNE").charAt(0));
