@@ -111,8 +111,8 @@ public final class ClassDataLoader extends MultiFileLoader {
   * @param primaryFile primary file recognized by this loader
   * @return primary entry for that file
   */
-  protected MultiDataObject.Entry createPrimaryEntry (FileObject primaryFile) {
-    return new FileEntry(primaryFile);
+  protected MultiDataObject.Entry createPrimaryEntry (MultiDataObject obj, FileObject primaryFile) {
+    return new FileEntry(obj, primaryFile);
   }
 
   /** Creates right secondary entry for given file. The file is said to
@@ -121,8 +121,8 @@ public final class ClassDataLoader extends MultiFileLoader {
   * @param secondaryFile secondary file for which we want to create entry
   * @return the entry
   */
-  protected MultiDataObject.Entry createSecondaryEntry (FileObject secondaryFile) {
-    return new FileEntry.Numb(secondaryFile);
+  protected MultiDataObject.Entry createSecondaryEntry (MultiDataObject obj, FileObject secondaryFile) {
+    return new FileEntry.Numb(obj, secondaryFile);
   }
 
   /** Utility method, finds primary class file for given class file.
@@ -162,6 +162,8 @@ public final class ClassDataLoader extends MultiFileLoader {
 
 /*
  * Log
+ *  5    Gandalf   1.4         3/14/99  Jaroslav Tulach Change of 
+ *       MultiDataObject.Entry.
  *  4    Gandalf   1.3         2/16/99  David Simonek   
  *  3    Gandalf   1.2         1/19/99  David Simonek   
  *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
