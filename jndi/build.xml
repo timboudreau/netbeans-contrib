@@ -94,7 +94,7 @@ Microsystems, Inc. All Rights Reserved.
     <makenbm file="jndi.nbm"
              topdir="."
              module="netbeans/modules/jndi.jar"
-	     homepage="http://http://${homepage.base}/jndi.html"
+	     homepage="http://jndi.netbeans.org/"
 	     distribution="http://${dist.base}/jndi.nbm">
       <license file="${license.file}"/>
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
