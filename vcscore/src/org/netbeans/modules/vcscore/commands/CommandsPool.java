@@ -61,7 +61,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
      */
     public static final int PREPROCESS_DONE = 2;
     
+    /**
+     * The default initial number of commands to collect on the Runtime tab
+     */
     public static final int DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT = 20;
+    
+    /** The maximum number of running commands in the system. This prevents overwhelming
+     * the system with too many commands running concurrently */
+    private static final int MAX_NUM_RUNNING_COMMANDS = 50;
     
     /** Contains instances of VcsCommandExecutor, which are to be run.  */
     private ArrayList commandsToRun;
@@ -577,17 +584,48 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
     
     /**
+     * @param concurrencyWith the pairs of command names and concurrent execution integer value
+     *   <p> i.e.: "ADD 4", "STATUS 1"
+     * @return the map of command names and associated integer values
+     */
+    private HashMap createConcurrencyMap(String concurrencyWith) {
+        HashMap map = new HashMap();
+        if (concurrencyWith != null) {
+            String[] items = VcsUtilities.getQuotedStrings(concurrencyWith);
+            for (int i = 0; i < items.length; i++) {
+                int index = items[i].lastIndexOf(' ');
+                if (index < 0) continue;
+                String cmdName = items[i].substring(0, index);
+                String concStr = items[i].substring(index + 1);
+                int conc;
+                try {
+                    conc = Integer.parseInt(concStr);
+                } catch (NumberFormatException nfexc) {
+                    continue;
+                }
+                map.put(cmdName, new Integer(conc));
+            }
+        }
+        return map;
+    }
+    
+    /**
      * Say whether the command executor can be run now or not. It should be called
      * with a monitor lock on this object.
-     * Check its concurrent property and other running commands.
+     * Check its concurrent property and other running or waiting commands.
      * @return true if the command can be run in the current monitor lock, false otherwise.
      */
     private synchronized boolean canRun(VcsCommandExecutor vce) {
+        // at first check for the maximum number of running commands
+        if (commands.size() >= MAX_NUM_RUNNING_COMMANDS) return false;
         VcsCommand cmd = vce.getCommand();
         Collection files = vce.getFiles();
         int concurrency = VcsCommandIO.getIntegerPropertyAssumeZero(cmd,
                             VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
-        if (concurrency == VcsCommand.EXEC_CONCURRENT_ALL) return true;
+        String concurrencyWith = (String) cmd.getProperty(VcsCommand.PROPERTY_CONCURRENT_EXECUTION_WITH);
+        if (concurrency == VcsCommand.EXEC_CONCURRENT_ALL
+            && concurrencyWith == null) return true;
+        HashMap concurrencyMap = createConcurrencyMap(concurrencyWith);
         String name = cmd.getName();
         boolean haveToWait = false;
         boolean serialOnFile = (concurrency & VcsCommand.EXEC_SERIAL_ON_FILE) != 0;
@@ -598,8 +636,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
         boolean matchOnPackage = false;
         boolean matchWithParent = false;
         boolean matchOfCommand = false;
-        for(Enumeration enum = commands.keys(); enum.hasMoreElements(); ) {
-            VcsCommandExecutor ec = (VcsCommandExecutor) enum.nextElement();
+        ArrayList commandsToTestAgainst = new ArrayList(commands.keySet());
+        commandsToTestAgainst.addAll(commandsToRun);
+        commandsToTestAgainst.addAll(commandsWaitQueue);
+        commandsToTestAgainst.remove(vce);
+        for(Iterator iter = commandsToTestAgainst.iterator(); iter.hasNext(); ) {
+            VcsCommandExecutor ec = (VcsCommandExecutor) iter.next();
             Collection cmdFiles = ec.getFiles();
             VcsCommand uc = ec.getCommand();
             String cmdName = uc.getName();
@@ -629,84 +671,42 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 haveToWait = true;
                 break;
             }
-        }
-        return !haveToWait;
-    }
-    
-    /*
-     * Wait before the command can be run if necessary.
-     * Check its concurrent property and other running commands.
-     *
-    public synchronized void waitToRun(VcsCommand cmd, Collection files) {
-        int concurrency = VcsCommandIO.getIntegerPropertyAssumeZero(cmd,
-                            VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
-        if (concurrency == VcsCommand.EXEC_CONCURRENT_ALL) return ;
-        String name = cmd.getName();
-        boolean haveToWait;
-        boolean serialOnFile = (concurrency & VcsCommand.EXEC_SERIAL_ON_FILE) != 0;
-        boolean serialOnPackage = (concurrency & VcsCommand.EXEC_SERIAL_ON_PACKAGE) != 0;
-        boolean serialWithParent = (concurrency & VcsCommand.EXEC_SERIAL_WITH_PARENT) != 0;
-        boolean serialOfCommand = (concurrency & VcsCommand.EXEC_SERIAL_OF_COMMAND) != 0;
-        do {
-            haveToWait = false;
-            boolean matchOnFile = false;
-            boolean matchOnPackage = false;
-            boolean matchWithParent = false;
-            boolean matchOfCommand = false;
-            for(Enumeration enum = commands.keys(); enum.hasMoreElements(); ) {
-                VcsCommandExecutor ec = (VcsCommandExecutor) enum.nextElement();
-                Collection cmdFiles = ec.getFiles();
-                VcsCommand uc = ec.getCommand();
-                String cmdName = uc.getName();
-                if (serialOnFile) {
-                    for(Iterator it = files.iterator(); it.hasNext(); ) {
-                        String file = (String) it.next();
-                        if (cmdFiles.contains(file)) {
-                            matchOnFile = true;
-                            break;
-                        }
-                    }
-                }
-                if (serialOnPackage) {
-                    if (areFilesInSamePackage(files, cmdFiles)) {
-                        matchOnPackage = true;
-                    }
-                }
-                if (serialWithParent) {
-                    if (isParentFolder(files, cmdFiles)) {
-                        matchWithParent = true;
-                    }
-                }
-                if (serialOfCommand) {
-                    matchOfCommand = name.equals(cmdName);
-                }
-                if (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand) {
+            Integer concurrencyWithNum = (Integer) concurrencyMap.get(cmdName);
+            if (concurrencyWithNum != null) {
+                if (haveToWaitFor(files, cmdFiles, concurrencyWithNum.intValue())) {
                     haveToWait = true;
                     break;
                 }
             }
-            if (haveToWait) {
-                try {
-                    wait();
-                } catch (InterruptedException intrexc) {
-                    // silently ignored
+        }
+        return !haveToWait;
+    }
+    
+    private boolean haveToWaitFor(Collection files, Collection cmdFiles, int concurrency) {
+        boolean serialOnFile = (concurrency & VcsCommand.EXEC_SERIAL_ON_FILE) != 0;
+        boolean serialOnPackage = (concurrency & VcsCommand.EXEC_SERIAL_ON_PACKAGE) != 0;
+        boolean serialWithParent = (concurrency & VcsCommand.EXEC_SERIAL_WITH_PARENT) != 0;
+        if (serialOnFile) {
+            for(Iterator it = files.iterator(); it.hasNext(); ) {
+                String file = (String) it.next();
+                if (cmdFiles.contains(file)) {
+                    return true;
                 }
             }
-        } while (haveToWait);
-    }
-     */
-    
-    /*
-    private synchronized void addExecutorsOfCommandFromIterator(ArrayList executors, VcsCommand cmd, Iterator source) {
-        while (source.hasNext()) {
-            VcsCommandExecutor executor = (VcsCommandExecutor) source.next();
-            if (cmd.getName().equals(executor.getCommand().getName())) {
-                executors.add(executor);
+        }
+        if (serialOnPackage) {
+            if (areFilesInSamePackage(files, cmdFiles)) {
+                return true;
             }
         }
+        if (serialWithParent) {
+            if (isParentFolder(files, cmdFiles)) {
+                return true;
+            }
+        }
+        return false;
     }
-     */
-    
+        
     private synchronized void addExecutorsOfCommand(ArrayList executors, VcsCommand cmd) {
         String name = cmd.getName();
         Iterator it = commandsToRun.iterator();
