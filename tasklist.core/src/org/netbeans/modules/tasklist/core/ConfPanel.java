@@ -46,7 +46,12 @@ public class ConfPanel extends javax.swing.JPanel {
             afterLabel.setVisible(false);
         }
         fileLabel.setText(filename);
-        lineLabel.setText(Integer.toString(line));
+        if (line >= 0) {
+            lineLabel.setText(Integer.toString(line));
+        } else {
+            lineLabel.setVisible(false);
+            jLabel5.setVisible(false);
+        }
         if (bottomPanel != null) {
             addPanel.setLayout(new BorderLayout());
             addPanel.add(bottomPanel, BorderLayout.CENTER);
