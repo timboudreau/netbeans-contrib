@@ -35,7 +35,7 @@ public class ExceptionNode extends SENode {
         String code = new String ();
         String fill = new String ();
         for (int i=0; i < indent; i++) 
-            fill = fill + "    "; // No I18N
+            fill = fill + SPACE; // No I18N
         code = fill + "exception " + this.getName () + " {\n"; // No I18N
         Node[] nodes = this.getChildren().getNodes();
         for (int i=0; i < nodes.length; i++) {

@@ -50,7 +50,7 @@ public class IRRepositoryNode extends IRContainerNode implements Node.Cookie, Re
         public String generateHead (int indent){
             String code ="";
             for (int i=0; i<indent; i++)
-                code =code + "  ";
+                code =code + SPACE;
             return code + "// Repository: " + name + "\n";
         }
     

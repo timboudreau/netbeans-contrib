@@ -38,7 +38,7 @@ public class IREnumDefNode extends IRContainerNode {
         public String generateHead (int indent){
             String code ="";
             for (int i=0; i<indent; i++)
-                code = code + "  ";
+                code = code + SPACE;
             code = code + "enum " + _enum.name()+" { ";
             return code;
         }

@@ -34,7 +34,7 @@ public class AliasNode extends AbstractMutableLeafNode {
     public String generateSelf (int indent) {
         String code = new String ();
         for (int i=0; i<indent; i++)
-            code = code + "    "; // No I18N
+            code = code + SPACE; // No I18N
         AliasKey key = (AliasKey) this.key;
         code = code + "typedef " + key.getType () +" ";
         code = code + this.getName() + " ";

@@ -43,7 +43,7 @@ public class IRPrimitiveNode extends IRLeafNode {
         public String generateSelf (int indent){
             String code = "";
             for (int i=0; i<indent; i++)
-                code =code + "  ";
+                code =code + SPACE;
             StringHolder dimension = new StringHolder();
             code = code + Util.typeCode2TypeString(tc, dimension) + " " + name + ((dimension.value==null)?"":dimension.value)+";\n";
             return code;

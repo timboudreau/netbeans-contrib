@@ -57,7 +57,7 @@ public class ModuleNode extends FMNode {
         String code = new String ();
         String fill = new String ();
         for (int i=0; i< indent; i++)
-            fill = fill + "    ";
+            fill = fill + SPACE;
         code = fill + "module " + this.getName () +" {\n";  // No I18N
         Node[] nodes = this.getChildren().getNodes ();
         for (int i=0; i<nodes.length; i++) {

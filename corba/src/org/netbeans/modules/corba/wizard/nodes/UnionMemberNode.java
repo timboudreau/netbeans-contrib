@@ -44,7 +44,7 @@ public class UnionMemberNode extends AbstractMutableLeafNode {
     public String generateSelf (int indent) {
         String code = new String ();
         for (int i=0; i< indent; i++)
-            code = code + "    ";  // No I18N
+            code = code + SPACE;  // No I18N
         UnionMemberKey key = (UnionMemberKey) this.key;
         if (key.isDefaultValue ()) {
             code = code + "default: " + key.getType() + " " + this.getName (); // No I18N

@@ -40,7 +40,7 @@ public class IRExceptionDefNode extends IRContainerNode {
         public String generateHead (int indent){
             String code = "";
             for (int i=0; i<indent; i++)
-                code = code + "  ";
+                code = code + SPACE;
             code = code + "exception " + _exception.name() + " {\n";
             return code;	
         }
@@ -49,7 +49,7 @@ public class IRExceptionDefNode extends IRContainerNode {
             String code = generateHead(indent);
             String fill = "";
             for (int i=0; i<=indent; i++)
-                fill = fill + "  ";
+                fill = fill + SPACE;
             StructMember[] members = _exception.members();
             StringHolder dimension = new StringHolder();
             for (int i = 0; i < members.length; i++){
@@ -63,7 +63,7 @@ public class IRExceptionDefNode extends IRContainerNode {
         public String generateTail (int indent){
             String code = "";
             for (int i=0; i<indent; i++)
-                code = code + "  ";
+                code = code + SPACE;
             code = code + "}; // Exception " + _exception.name() + "\n\n";
             return code;
         }

@@ -24,7 +24,7 @@ public class IRAttributeDefNode extends IRLeafNode {
 
     private AttributeDef _attribute;
     private static final String ATTRIBUTE_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/attribute";
+        "org/netbeans/modules/corba/idl/node/attribute";  //NOI18N
   
     private static class AttributeCodeGenerator  implements GenerateSupport {
         private AttributeDef _attribute;
@@ -34,28 +34,28 @@ public class IRAttributeDefNode extends IRLeafNode {
         }
     
         public String generateHead (int indent){
-            return "";
+            return "";      //NOI18N
         }
     
         public String generateSelf (int indent){
             String code = "";
             for (int i=0; i<indent; i++)
-                code = code + "  ";
+                code = code + SPACE;
             switch (_attribute.mode().value()){
             case AttributeMode._ATTR_NORMAL:
-                code = code + "attribute ";
+                code = code + "attribute ";         //NOI18N
                 break;
             case AttributeMode._ATTR_READONLY:
-                code = code + "readonly attribute ";
+                code = code + "readonly attribute ";    //NOI18N
                 break;
             }
-            code = code + Util.typeCode2TypeString (_attribute.type())+" ";
-            code = code + _attribute.name() + ";\n";
+            code = code + Util.typeCode2TypeString (_attribute.type())+" ";     //NOI18N
+            code = code + _attribute.name() + ";\n";        //NOI18N
             return code;  
         }
     
         public String generateTail (int indent){
-            return "";
+            return "";      //NOI18N
         }
     
     }

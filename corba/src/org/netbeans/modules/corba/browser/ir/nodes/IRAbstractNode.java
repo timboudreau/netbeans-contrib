@@ -26,6 +26,7 @@ public abstract class IRAbstractNode extends AbstractNode implements GenerateSup
      *  @param Children children
      */
     protected GenerateSupport generator;
+    protected static final String SPACE = "    ";  // NoI18N
 
     public IRAbstractNode(Children children) {
         super(children);

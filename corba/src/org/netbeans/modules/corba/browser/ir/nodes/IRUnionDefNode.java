@@ -41,7 +41,7 @@ public class IRUnionDefNode extends IRContainerNode {
         public String generateHead (int indent){
             String code = "";
             for (int i=0; i<indent; i++)
-                code =code + "  ";
+                code =code + SPACE;
             code = code + "union " + _union.name() + " switch ( " +Util.typeCode2TypeString(_union.discriminator_type())+ " ) {\n";
             return code;
         }
@@ -51,7 +51,7 @@ public class IRUnionDefNode extends IRContainerNode {
             code = code + generateHead(indent);
             String fill = "";
             for (int i=0; i<=indent; i++)
-                fill =fill + "  ";
+                fill =fill + SPACE;
             UnionMember[] members = _union.members();
             StringHolder dimension = new StringHolder();
             for ( int i = 0; i < members.length; i++){
@@ -116,7 +116,7 @@ public class IRUnionDefNode extends IRContainerNode {
         public String generateTail (int indent){
             String code = "";
             for (int i=0; i<indent; i++)
-                code =code + "  ";
+                code =code + SPACE;
             return code + "}; // " + _union.name() +"\n\n";
         }
     

@@ -27,6 +27,7 @@ import org.netbeans.modules.corba.wizard.nodes.keys.NamedKey;
 abstract public class AbstractMutableIDLNode extends AbstractNode {
 
     protected SystemAction[] actions;
+    protected final static String SPACE = "    ";
     protected final NamedKey key;
   
     /** Creates new AbstractMutableIDLNode */

@@ -47,7 +47,7 @@ public class InterfaceNode extends FMNode implements Node.Cookie,
         String code = new String ();
         String fill = new String ();
         for (int i=0; i< indent; i++)
-            fill = fill + "    ";
+            fill = fill + SPACE;
         code = fill + "interface " +  this.getName () + " ";  // No I18N
         if (((InterfaceKey)this.key).getbaseInterfaces().length() > 0) {
             code = code + ": " + ((InterfaceKey)this.key).getbaseInterfaces() + " "; // No I18N

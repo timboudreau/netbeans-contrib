@@ -36,7 +36,7 @@ public class ConstantNode extends AbstractMutableLeafNode {
         String code = new String ();
         String fill = new String ();
         for (int i=0; i<indent; i++)
-            fill = fill + "    "; // No I18N
+            fill = fill + SPACE; // No I18N
         ConstKey key = (ConstKey) this.key;
         code = fill + "const "+ key.getType () + " "+ this.getName()+ " = "+key.getValue()+";\n"; // No I18N
         return code;

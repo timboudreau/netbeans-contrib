@@ -39,7 +39,7 @@ public class IRInterfaceDefNode extends IRContainerNode {
         public String generateHead (int indent){
             String code ="";
             for (int i=0; i<indent; i++)
-                code = code + "  ";
+                code = code + SPACE;
             code = code + "interface " + _interface.name () + " {\n";
             return code;
         }
@@ -48,7 +48,7 @@ public class IRInterfaceDefNode extends IRContainerNode {
             String code = "";
             int dk;
             for (int i=0; i<indent; i++)
-                code = code + "  ";
+                code = code + SPACE;
             code = code + "interface " + _interface.name ();
             InterfaceDef[] base = _interface.base_interfaces();
             if (base.length > 0){
@@ -107,7 +107,7 @@ public class IRInterfaceDefNode extends IRContainerNode {
         public String generateTail (int indent){
             String code = "";
             for (int i=0; i< indent; i++)
-                code = code + "  ";
+                code = code + SPACE;
             return code + "}; // " + _interface.name() + "\n\n";
         }
     

@@ -57,7 +57,7 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
         public String generateSelf (int indent){
             String code ="";
             for (int i=0; i<indent; i++)
-                code = code + "  ";
+                code = code + SPACE;
             code = code + "const ";
             code = code + Util.typeCode2TypeString ( _constant.value().type())+ " ";
             code = code + _constant.name() + " = ";

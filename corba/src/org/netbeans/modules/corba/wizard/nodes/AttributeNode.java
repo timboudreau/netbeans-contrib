@@ -46,7 +46,7 @@ public class AttributeNode extends AbstractMutableLeafNode implements Node.Cooki
         String code = new String ();
         String fill = new String ();
         for (int i=0; i<indent; i++)
-            fill = fill + "    "; // No I18N
+            fill = fill + SPACE; // No I18N
         AttributeKey key = (AttributeKey) this.key;
         if (key.isReadOnly ()) {
             code = fill + "readonly ";  // No I18N

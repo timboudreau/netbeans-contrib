@@ -38,7 +38,7 @@ public class IRModuleDefNode extends IRContainerNode {
         public String generateHead (int indent){
             String code = "";
             for (int i=0; i<indent; i++)
-                code = code + "  ";
+                code = code + SPACE;
             return code + "module " + _module.name() +" {\n";
         }
     
@@ -87,7 +87,7 @@ public class IRModuleDefNode extends IRContainerNode {
         public String generateTail (int indent){
             String code ="";
             for (int i=0; i<indent; i++)
-                code = code + "  ";
+                code = code + SPACE;
             return code + "}; // "+_module.name() + "\n\n";
         }
     } // End of Inner Class

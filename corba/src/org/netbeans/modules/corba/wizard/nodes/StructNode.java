@@ -38,7 +38,7 @@ public class StructNode extends SENode {
         String code = new String ();
         String fill = new String ();
         for ( int i=0; i< indent; i++)
-            fill = fill + "    ";
+            fill = fill + SPACE;
         code = fill + "struct "+this.getName()+" {\n"; // No I18N
         Node[] nodes = this.getChildren().getNodes();
         for (int i=0; i<nodes.length; i++) {

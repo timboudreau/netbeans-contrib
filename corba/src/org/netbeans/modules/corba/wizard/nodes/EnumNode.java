@@ -57,7 +57,7 @@ public class EnumNode extends AbstractMutableContainerNode implements Node.Cooki
     public String generateSelf (int indent) {
         String code = "";
         for (int i=0; i< indent; i++) {
-            code = code + "    ";
+            code = code + SPACE;
         }
         code = code + "enum "+ this.getName() +" { "; // No I18N
         Children cld = this.getChildren();

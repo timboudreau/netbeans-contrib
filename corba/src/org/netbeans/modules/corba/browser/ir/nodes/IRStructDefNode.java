@@ -37,7 +37,7 @@ public class IRStructDefNode extends IRContainerNode {
         public String generateHead (int indent) {
             String code = "";
             for (int i=0; i<indent; i++)
-                code =code + "  ";
+                code =code + SPACE;
             code = code + "struct " + _struct.name() + " {\n";
             return code;
         }
@@ -48,7 +48,7 @@ public class IRStructDefNode extends IRContainerNode {
             code = code + generateHead (indent);
             StructMember[] members = _struct.members();
             for (int i=0; i<= indent; i++)
-                fill = fill + "  ";
+                fill = fill + SPACE;
             for (int i = 0; i < members.length; i++){
                 StringHolder dimension = new StringHolder();
                 code = code + fill + Util.typeCode2TypeString(members[i].type,dimension)+" "+members[i].name+((dimension.value==null)?"":dimension.value)+";\n";
@@ -60,7 +60,7 @@ public class IRStructDefNode extends IRContainerNode {
         public String generateTail (int indent) {
             String code = "";
             for (int i=0; i<indent; i++)
-                code =code + "  ";
+                code =code + SPACE;
             code = code + "}; //" + _struct.name() + "\n\n";
             return code;
         }

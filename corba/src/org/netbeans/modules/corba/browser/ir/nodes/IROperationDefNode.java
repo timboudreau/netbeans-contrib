@@ -40,7 +40,7 @@ public class IROperationDefNode extends IRLeafNode {
         public String generateSelf (int indent){
             String code = "";
             for (int i=0; i<indent; i++)
-                code =code + "  ";
+                code =code + SPACE;
             if (_operation.mode() == OperationMode.OP_ONEWAY)
                 code = code + "oneway ";
             code = code + Util.typeCode2TypeString(_operation.result())+" ";

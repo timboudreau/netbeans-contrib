@@ -46,7 +46,7 @@ public class OperationNode extends AbstractMutableLeafNode implements Node.Cooki
     public String generateSelf (int indent) {
         String code = new String ();
         for (int i=0; i<indent; i++)
-            code = code + "    ";  // No I18N
+            code = code + SPACE;  // No I18N
         OperationKey key = (OperationKey) this.key;
         if (key.isOneway ())
             code = code + "oneway "; // No I18N
