@@ -12,6 +12,10 @@
  */
 package org.netbeans.modules.vcscore.caching;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.VcsFileSystem;
@@ -138,6 +142,7 @@ public final class StatusFormat {
     public static final int[] DEFAULT_MULTI_FILES_ANNOTATION_TYPES = { MULTI_FILES_ANNOTATION_NOT_SYNCH_ATTR, MULTI_FILES_ANNOTATION_LIST, MULTI_FILES_ANNOTATION_EMPTY,
                                                                        MULTI_FILES_ANNOTATION_EMPTY, MULTI_FILES_ANNOTATION_EMPTY, MULTI_FILES_ANNOTATION_EMPTY,
                                                                        MULTI_FILES_ANNOTATION_EMPTY, MULTI_FILES_ANNOTATION_EMPTY, MULTI_FILES_ANNOTATION_EMPTY };
+    public static final String DEFAULT_MULTI_FILES_ANNOTATION_DELIMETER = ", "; // NOI18N
 
     /**
      * Extract the file name from the array of elements.
@@ -287,6 +292,150 @@ public final class StatusFormat {
 
     }
 
+    /**
+     * Get the annotation line for a list of files.
+     * @param name the object file name
+     * @param files the FileObjects to annotate
+     * @param annotationPattern the pattern how the annotation should be displayed
+     * @param multiFilesAnnotationTypes the annotation types for individual attributes.
+     *        Values of this files are <code>MULTI_FILES_ANNOTATION_*<code> constants.
+     * @return the annotation pattern filled up with proper attributes
+     */
+    public static String getStatusAnnotation(String name, Collection files, String pattern,
+                                             int annotationStyle, //Map extraVars,
+                                             Map possibleFileStatusInfoMap,
+                                             int[] multiFilesAnnotationTypes) {
+        Hashtable vars = new Hashtable();
+        //if (extraVars != null) vars.putAll(extraVars);
+        vars.put(StatusFormat.ANNOTATION_PATTERN_FILE_NAME, name);
+
+        List statuses = new ArrayList(files.size());
+        FileProperties[] properties = new FileProperties[files.size()];
+        boolean isModified = (annotationStyle != GeneralVcsSettings.FILE_ANNOTATION_FULL_FOR_MODIFIED_ONLY);
+        int i = 0;
+        for (Iterator it = files.iterator(); it.hasNext(); i++) {
+            FileObject fileObject = (FileObject) it.next();
+            FileProperties fprops = Turbo.getMemoryMeta(fileObject);
+            String status = FileProperties.getStatus(fprops);
+            FileStatusInfo statusInfo = (FileStatusInfo) possibleFileStatusInfoMap.get(status);
+            if (statusInfo != null) {
+                if (!isModified
+                    && !(statusInfo.represents(FileStatusInfo.UP_TO_DATE)
+                       || statusInfo.represents(Statuses.createIgnoredFileInfo())
+                    )) {
+                    isModified = true;
+                }
+                status = statusInfo.getDisplayName();
+            }
+            if (!statuses.contains(status)) statuses.add(status);
+            properties[i] = fprops;
+        }
+        if (annotationStyle == GeneralVcsSettings.FILE_ANNOTATION_FULL_FOR_MODIFIED_ONLY && !isModified) {
+            return name;
+        }
+        String nSynch = (String) possibleFileStatusInfoMap.get("GENERIC_STATUS_NOT_IN_SYNCH"); // NOI18N
+        if (nSynch == null) nSynch = ""; // NOI18N
+        
+        String sharedStatus = mergeAttributes((String[]) statuses.toArray(new String[0]),
+                                              multiFilesAnnotationTypes[StatusFormat.ELEMENT_INDEX_STATUS],
+                                              nSynch);
+        FileProperties sharedProps = mergeProperties(properties, multiFilesAnnotationTypes);
+        
+        return substitute(pattern, sharedStatus, sharedProps, vars);
+    }
+    
+    private static String mergeAttributes(String[] values, int annotationType,
+                                          String nSynch) {
+        if (values.length == 0) return ""; // NOI18N
+        String first = values[0];
+        int n = values.length;
+        int i = 1;
+        for (i = 1; i < n; i++) {
+            if (first == null && values[i] != null || first != null && !first.equals(values[i])) {
+                break;
+            }
+        }
+        boolean differ = i < n;
+        switch (annotationType) {
+            case MULTI_FILES_ANNOTATION_EMPTY:
+                if (differ) return ""; // NOI18N
+                else {
+                    return first;
+                }
+            case MULTI_FILES_ANNOTATION_NOT_SYNCH_ATTR:
+                if (differ) return nSynch;
+                else {
+                    return first;
+                }
+            case MULTI_FILES_ANNOTATION_LIST:
+                if (!differ) return first;
+                StringBuffer buf = new StringBuffer(first);
+                for (int j = 1; j < n; j++) {
+                    if (values[j] != null) {
+                        buf.append(DEFAULT_MULTI_FILES_ANNOTATION_DELIMETER + values[j]);
+                    }
+                }
+                return buf.toString();
+            default: return ""; // NOI18N
+        }
+    }
+    
+    private static FileProperties mergeProperties(FileProperties[] properties,
+                                                  int[] multiFilesAnnotationTypes) {
+        FileProperties fProps = new FileProperties();
+        int n = properties.length;
+        String[] values = new String[n];
+        for (int i = 0; i < n; i++) {
+            if (properties[i] != null) {
+                values[i] = properties[i].getLocker();
+            } else {
+                values[i] = null;
+            }
+        }
+        fProps.setLocker(mergeAttributes(values, multiFilesAnnotationTypes[StatusFormat.ELEMENT_INDEX_LOCKER], ""));
+        for (int i = 0; i < n; i++) {
+            if (properties[i] != null) {
+                values[i] = properties[i].getRevision();
+            } else {
+                values[i] = null;
+            }
+        }
+        fProps.setRevision(mergeAttributes(values, multiFilesAnnotationTypes[StatusFormat.ELEMENT_INDEX_REVISION], ""));
+        for (int i = 0; i < n; i++) {
+            if (properties[i] != null) {
+                values[i] = properties[i].getSticky();
+            } else {
+                values[i] = null;
+            }
+        }
+        fProps.setSticky(mergeAttributes(values, multiFilesAnnotationTypes[StatusFormat.ELEMENT_INDEX_STICKY], ""));
+        for (int i = 0; i < n; i++) {
+            if (properties[i] != null) {
+                values[i] = properties[i].getAttr();
+            } else {
+                values[i] = null;
+            }
+        }
+        fProps.setAttr(mergeAttributes(values, multiFilesAnnotationTypes[StatusFormat.ELEMENT_INDEX_ATTR], ""));
+        for (int i = 0; i < n; i++) {
+            if (properties[i] != null) {
+                values[i] = properties[i].getDate();
+            } else {
+                values[i] = null;
+            }
+        }
+        fProps.setDate(mergeAttributes(values, multiFilesAnnotationTypes[StatusFormat.ELEMENT_INDEX_DATE], ""));
+        for (int i = 0; i < n; i++) {
+            if (properties[i] != null) {
+                values[i] = properties[i].getTime();
+            } else {
+                values[i] = null;
+            }
+        }
+        fProps.setTime(mergeAttributes(values, multiFilesAnnotationTypes[StatusFormat.ELEMENT_INDEX_TIME], ""));
+        return fProps;
+    }
+    
     private static String annotationFontColor;
     private static String getAnnotationFontColor() {
         if (annotationFontColor == null) {
@@ -356,24 +505,96 @@ public final class StatusFormat {
                 }
                 status = statusInfo.getDisplayName();
                 status = escapeSpecialHTMLCharacters(status);
-                if (statusInfo instanceof javax.swing.colorchooser.ColorSelectionModel) {
-                    java.awt.Color c = ((javax.swing.colorchooser.ColorSelectionModel) statusInfo).getSelectedColor();
-                    if (c != null) {
-                        String r = Integer.toHexString(c.getRed());
-                        if (r.length() == 1) r = "0"+r;
-                        String g = Integer.toHexString(c.getGreen());
-                        if (g.length() == 1) g = "0"+g;
-                        String b = Integer.toHexString(c.getBlue());
-                        if (b.length() == 1) b = "0"+b;
-                        status = "<font color=#"+r+g+b+">" + status + "</font>"; //NOI18N
-                    }
-                }
+                status = colorifyStatus(statusInfo, status);
             } else {
                 status = escapeSpecialHTMLCharacters(status);
             }
         }
 
         return substitute(annotationPattern, status, fprops, vars);
+    }
+    
+    private static String colorifyStatus(FileStatusInfo statusInfo, String status) {
+        if (statusInfo instanceof javax.swing.colorchooser.ColorSelectionModel) {
+            java.awt.Color c = ((javax.swing.colorchooser.ColorSelectionModel) statusInfo).getSelectedColor();
+            if (c != null) {
+                String r = Integer.toHexString(c.getRed());
+                if (r.length() == 1) r = "0"+r;
+                String g = Integer.toHexString(c.getGreen());
+                if (g.length() == 1) g = "0"+g;
+                String b = Integer.toHexString(c.getBlue());
+                if (b.length() == 1) b = "0"+b;
+                status = "<font color=#"+r+g+b+">" + status + "</font>"; //NOI18N
+            }
+        }
+        return status;
+    }
+
+    /**
+     * Get the annotation line in a HTML format for a file.
+     * It takes last known status
+     * from memory and if unknown it schedules background fetching
+     *
+     * @param name the name of the node which is annotated
+     * @param fo fileobject to annotate
+     * @param annotationPattern the pattern how the annotation should be displayed
+     * @param annotationStyle defines what varibles values are provided into pattern
+     * input {@link org.netbeans.modules.vcscore.settings.GeneralVcsSettings}
+     * @return the annotation pattern filled up with proper attributes
+     */
+    public static String getHtmlStatusAnnotation(String name, Collection files, String pattern,
+                                                 int annotationStyle,
+                                                 Map possibleFileStatusInfoMap,
+                                                 int[] multiFilesAnnotationTypes) {
+        
+        assert name.indexOf(File.separatorChar) == -1 : "#51577 trap " + name;  // NOI18N
+
+        Hashtable vars = new Hashtable();
+        name = escapeSpecialHTMLCharacters(name);
+        // Special "light gray" color for the file annotation
+        name += getAnnotationFontColor();
+        vars.put(StatusFormat.ANNOTATION_PATTERN_FILE_NAME, name);
+        if ("${fileName}".equals(pattern)) { // NOI18N
+            return Variables.expand(vars, pattern, false);
+        }
+        
+        List statuses = new ArrayList(files.size());
+        FileProperties[] properties = new FileProperties[files.size()];
+        boolean isModified = (annotationStyle != GeneralVcsSettings.FILE_ANNOTATION_FULL_FOR_MODIFIED_ONLY);
+        int i = 0;
+        for (Iterator it = files.iterator(); it.hasNext(); i++) {
+            FileObject fileObject = (FileObject) it.next();
+            FileProperties fprops = Turbo.getMemoryMeta(fileObject);
+            String status = FileProperties.getStatus(fprops);
+            FileStatusInfo statusInfo = (FileStatusInfo) possibleFileStatusInfoMap.get(status);
+            if (statusInfo != null) {
+                if (!isModified
+                    && !(statusInfo.represents(FileStatusInfo.UP_TO_DATE)
+                       || statusInfo.represents(Statuses.createIgnoredFileInfo())
+                    )) {
+                    isModified = true;
+                }
+                status = statusInfo.getDisplayName();
+                status = escapeSpecialHTMLCharacters(status);
+                status = colorifyStatus(statusInfo, status);
+            } else {
+                status = escapeSpecialHTMLCharacters(status);
+            }
+            if (!statuses.contains(status)) statuses.add(status);
+            properties[i] = fprops;
+        }
+        if (annotationStyle == GeneralVcsSettings.FILE_ANNOTATION_FULL_FOR_MODIFIED_ONLY && !isModified) {
+            return name;
+        }
+        String nSynch = (String) possibleFileStatusInfoMap.get("GENERIC_STATUS_NOT_IN_SYNCH"); // NOI18N
+        if (nSynch == null) nSynch = ""; // NOI18N
+        
+        String sharedStatus = mergeAttributes((String[]) statuses.toArray(new String[0]),
+                                              multiFilesAnnotationTypes[StatusFormat.ELEMENT_INDEX_STATUS],
+                                              nSynch);
+        FileProperties sharedProps = mergeProperties(properties, multiFilesAnnotationTypes);
+        
+        return substitute(pattern, sharedStatus, sharedProps, vars);
     }
 
     private static String substitute(String annotationPattern, String s, FileProperties fprops, Map vars) {

@@ -2373,10 +2373,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 FileObject fo = (FileObject) oo[0];
                 result = StatusFormat.getHtmlStatusAnnotation(name, fo, annotationPattern, fileAnnotation, getPossibleFileStatusInfoMap());
             } else {
-                // XXX mix, do not annotate at all
-                // TODO : do either original implementation or something better here
-                FileObject fo = (FileObject) oo[0];
-                result = StatusFormat.getHtmlStatusAnnotation(name, fo, "${fileName}", fileAnnotation, getPossibleFileStatusInfoMap());
+                result = StatusFormat.getHtmlStatusAnnotation(name, files, annotationPattern, fileAnnotation, getPossibleFileStatusInfoMap(), getMultiFileAnnotationTypes());
             }
         }
         return result;
@@ -2433,10 +2430,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 FileObject fo = (FileObject) oo[0];
                 result = StatusFormat.getStatusAnnotation(name, fo, annotationPattern, fileAnnotation, getPossibleFileStatusInfoMap());
             } else {
-                // XXX mix, do not annotate at all
-                // TODO : do either original implementation or something better here
-                FileObject fo = (FileObject) oo[0];
-                result = StatusFormat.getStatusAnnotation(name, fo, "${fileName}", fileAnnotation, getPossibleFileStatusInfoMap());
+                result = StatusFormat.getStatusAnnotation(name, files, annotationPattern, fileAnnotation, getPossibleFileStatusInfoMap(), getMultiFileAnnotationTypes());
             }
         }
         return result;
