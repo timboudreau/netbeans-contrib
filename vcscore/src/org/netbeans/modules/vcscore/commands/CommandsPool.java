@@ -398,7 +398,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
             commandsWrappers.remove(removedExecutor);
             collector =  (CommandOutputCollector) outputContainers.remove(removedExecutor);
         }
-        if (collector != null) collector.finalize();
+        if (collector != null) {
+            CommandOutputVisualizer visualizer = (CommandOutputVisualizer) outputVisualizers.get(removedExecutor.getCommand());
+            if (visualizer != null) {
+                collector.finalize();
+            }
+        }
         if (removedWrapper == null) return ;
         RuntimeCommand runCom = removedWrapper.getRuntimeCommand();
         removedWrapper.setRuntimeCommand(null);
