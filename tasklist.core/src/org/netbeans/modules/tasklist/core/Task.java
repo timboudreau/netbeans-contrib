@@ -24,6 +24,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.tasklist.client.Suggestion;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.providers.SuggestionProvider;
@@ -63,6 +65,12 @@ import org.openide.util.NbBundle;
  * @author Tim Lebedkov
  */
 public class Task extends Suggestion implements Cloneable {
+    private static final Logger LOGGER = TLUtils.getLogger(Task.class);
+    
+    static {
+        LOGGER.setLevel(Level.OFF);
+    }
+    
     /** Keys for the Bundle.properties */
     private static final String[] PRIORITIES_KEYS = {
         "PriorityHigh",
@@ -664,6 +672,8 @@ public class Task extends Suggestion implements Cloneable {
      * @todo Finish the implementation
      * @see generate */
     public static Task parse(Reader r) throws IOException {
+        LOGGER.fine("parsing");
+        
         BufferedReader reader = new BufferedReader(r);
         //List notes = new LinkedList(); // List<Note>
         String line;

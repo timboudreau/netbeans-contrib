@@ -271,7 +271,7 @@ public abstract class TaskListView extends TopComponent
      * @return created component or null
      */
     protected Component createNorthComponent() {
-        return new JLabel();
+        return new JLabel(""); // NOI18N
     }
 
     /**

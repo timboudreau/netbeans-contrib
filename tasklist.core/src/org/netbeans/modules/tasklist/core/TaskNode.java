@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.openide.ErrorManager;
@@ -51,6 +53,11 @@ import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.PasteType;
 
 public class TaskNode extends AbstractNode {
+    private static final Logger LOGGER = TLUtils.getLogger(TaskNode.class);
+    
+    static {
+        LOGGER.setLevel(Level.OFF);
+    }
 
     protected final Task item;
     private Monitor monitor;
@@ -207,11 +214,6 @@ public class TaskNode extends AbstractNode {
     }
     
     protected void createPasteTypes(Transferable t, List s) {
-        super.createPasteTypes(t, s);
-        PasteType p = TaskTransfer.createTodoPasteType(t, item);
-        if (p != null) {
-            s.add(p);
-        }
     }
     
     // Handle copying and cutting specially:
@@ -223,26 +225,11 @@ public class TaskNode extends AbstractNode {
     }
 
     public Transferable clipboardCopy() throws IOException {
-        Transferable deflt = super.clipboardCopy();
-        ExTransferable enriched = ExTransferable.create(deflt);
-        
-        // TODO: remove DataFlavor.stringFlavor
-        // ExClipboard.Convertor doesn't work yet
-        // see http://www.netbeans.org/issues/show_bug.cgi?id=30923
-        // That's why we create DataFlavor.stringFlavor here
-        enriched.put(new ExTransferable.Single(TaskTransfer.TODO_FLAVOR) {
+        return new ExTransferable.Single(TaskTransfer.TODO_FLAVOR) {
             protected Object getData() {
                 return item.clone();
             }
-        });
-        enriched.put(new ExTransferable.Single(DataFlavor.stringFlavor) {
-            protected Object getData() throws IOException {
-                StringWriter wr = new StringWriter();
-                Task.generate(item, wr);
-                return wr.toString();
-            }
-        });
-        return enriched;
+        };
     }
     
     public Transferable clipboardCut() throws IOException {
@@ -439,7 +426,7 @@ public class TaskNode extends AbstractNode {
         public void propertyChange(PropertyChangeEvent evt) {
             // Some aspects of the module may have changed. Redisplay everything.
             updateDisplayStuff();
-            firePropertyChange(null, null, null);
+            firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
         }
 
     }
