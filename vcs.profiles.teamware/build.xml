@@ -18,9 +18,11 @@ Microsystems, Inc. All Rights Reserved.
   <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
   <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="${nb_all}/nbbuild/nbantext.jar"/>
   
+  <property name="teamware.jar" value="org-netbeans-modules-vcs-profiles-teamware.jar"/>
+  
   <target name="init" depends="default.init">
     <patternset id="vcsgeneric/profiles/teamware.files">
-      <include name="${nb.modules.dir}/teamware-profile.jar"/>
+      <include name="${nb.modules.dir}/${teamware.jar}"/>
     </patternset>
     <path id="cp">
       <pathelement location="${diff.dir}/${nb.modules.dir}/org-netbeans-modules-diff.jar"/>
@@ -65,7 +67,7 @@ Microsystems, Inc. All Rights Reserved.
     
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/teamware-profile.jar"
+    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/${teamware.jar}"
          manifest="manifest-subst.mf"
          compress="false">
       <fileset dir="src/" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt">
@@ -74,13 +76,13 @@ Microsystems, Inc. All Rights Reserved.
     </jar>
     <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
       <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
-        <include name="${nb.modules.dir}/teamware-profile.jar"/>
+        <include name="${nb.modules.dir}/${teamware.jar}"/>
       </enabled>
     </createmodulexml>
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/teamware-profile.jar">
+    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/${teamware.jar}">
       <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
         <patternset refID="vcsgeneric/profiles/teamware.files"/>
       </fileset>
@@ -90,7 +92,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="teamware-profile.nbm"
              productdir="${netbeans.dest.dir}/${cluster.dir}"
-             module="${nb.modules.dir}/teamware-profile.jar"
+             module="${nb.modules.dir}/${teamware.jar}"
 	     homepage="http://vcsgeneric.${homepage.base}/"
 	     distribution="http://${dist.base}/teamware-profile.nbm">
       <license file="${license.file}"/>
@@ -99,10 +101,15 @@ Microsystems, Inc. All Rights Reserved.
   </target>
   
   <target name="reload" depends="jars">
-    <mkdir dir="test"/>
-    <copy file="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/teamware-profile.jar"
-        tofile="test/teamware-profile.jar"/>
-    <nbinstaller module="test/teamware-profile.jar" action="reinstall"/>
+    <mkdir dir="module-test"/>
+    <copy file="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/${teamware.jar}"
+        tofile="module-test/${teamware.jar}"/>
+    <nbinstaller module="module-test/${teamware.jar}" action="reinstall"/>
+  </target>
+  
+  <target name="test">
+    <ant dir="test" target="cleanresults"/>
+    <ant dir="test"/>
   </target>
 
   <target name="clean" depends="init">
@@ -115,7 +122,6 @@ Microsystems, Inc. All Rights Reserved.
       <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
         <patternset refID="vcsgeneric/profiles/teamware.files"/>
       </fileset>
-      <fileset dir="test"/>
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="teamware-profile.nbm"/>

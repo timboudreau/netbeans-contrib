@@ -21,22 +21,8 @@ Contributor(s): Daniel Blaukopf.
     <label>Teamware</label>
     
     <variables>
-        <variable basic="true" name="SCCS"
-            label="Path to SCCS executable"
-            localFile="true">
-            <value>sccs</value>
-        </variable>
         <variable basic="false" name="FS_DISPLAY_NAME">
             <value>Teamware</value>
-        </variable>
-        <variable basic="false" name="PS">
-            <value>${path.separator}</value>
-        </variable>
-        <variable basic="false" name="WORKDIR">
-            <value>${ROOTDIR}${PS}${MODULE}${PS}${DIR}</value>
-        </variable>
-        <variable basic="false" name="Q">
-            <value>&quot;</value>
         </variable>
         <variable basic="false" name="POSSIBLE_FILE_STATUSES">
             <value>"Checked in", "Local", "Editing", "Ignored", ""</value>
@@ -98,11 +84,9 @@ Contributor(s): Daniel Blaukopf.
                 </property>
             </command>
             <command displayName="Edit" name="EDIT">
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="edit"/>
-                    <arg value="${FILE}"/>
-                </run>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareEditCommand.class</value>
+                </property>
                 <property name="onDir">
                     <value>false</value>
                 </property>
@@ -121,17 +105,14 @@ Contributor(s): Daniel Blaukopf.
                 <property name="refreshCurrentFolder">
                     <value>true</value>
                 </property>
-            </command>
+            </command>~
             <command displayName="Commit" name="CHECKIN">
                 <property name="inputDescriptor">
                     <value>PROMPT_FOR(COMMENT, "Comment:", "")</value>
                 </property>
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="delget"/>
-                    <arg value="-y${COMMENT}"/>
-                    <arg line="${QFILES}"/>
-                </run>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareCommitCommand.class</value>
+                </property>
                 <property name="onDir">
                     <value>false</value>
                 </property>
@@ -153,6 +134,9 @@ Contributor(s): Daniel Blaukopf.
                 <property name="refreshCurrentFolder">
                     <value>true</value>
                 </property>
+                <property name="changingNumRevisions">
+                    <value>true</value>
+                </property>
             </command>
             <command displayName="Diff" name="DIFF">
                 <property name="exec">
@@ -172,11 +156,9 @@ Contributor(s): Daniel Blaukopf.
                 </property>
             </command>
             <command displayName="Add" name="ADD">
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="create"/>
-                    <arg value="${FILE}"/>
-                </run>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareCreateCommand.class</value>
+                </property>
                 <property name="onDir">
                     <value>false</value>
                 </property>
@@ -189,9 +171,6 @@ Contributor(s): Daniel Blaukopf.
                 <property name="disabledOnStatus">
                     <value>"Editing", "Checked in"</value>
                 </property>
-                <property name="commandsAfterSuccess">
-                    <value>REMOVE_COMMA_FILE</value>
-                </property>
                 <property name="checkForModifications">
                     <value>true</value>
                 </property>
@@ -199,6 +178,9 @@ Contributor(s): Daniel Blaukopf.
                     <value>true</value>
                 </property>
                 <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="changingNumRevisions">
                     <value>true</value>
                 </property>
             </command>
@@ -209,11 +191,9 @@ Contributor(s): Daniel Blaukopf.
 
 You will lose any changes.</value>
                 </property>
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="unedit"/>
-                    <arg value="${FILE}"/>
-                </run>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareUneditCommand.class</value>
+                </property>
                 <property name="onDir">
                     <value>false</value>
                 </property>
@@ -233,15 +213,6 @@ You will lose any changes.</value>
                     <value>true</value>
                 </property>
             </command>
-            <command basic="false" name="FIX_IMPL">
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="fix"/>
-                    <arg value="-r${REVISION}"/>
-                    <arg value="${FILE}"/>
-                </run>
-            </command>
-            
             <command displayName="Fix last delta" name="FIX">
                 <property name="confirmationMsg">
                     <value>Do you want to fix the last delta for ${FILE} ?
@@ -270,14 +241,15 @@ the last check-in, without deleting changes.</value>
                 <property name="refreshCurrentFolder">
                     <value>true</value>
                 </property>
+                <property name="changingNumRevisions">
+                    <value>true</value>
+                </property>
             </command>
             <separator/>
-            <command displayName="Revision History" name="HISTORY">
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="prs"/>
-                    <arg value="${FILE}"/>
-                </run>
+            <command displayName="History" name="HISTORY">
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareHistoryCommand.class</value>
+                </property>
                 <property name="onDir">
                     <value>false</value>
                 </property>
@@ -294,14 +266,13 @@ the last check-in, without deleting changes.</value>
                     <value>org.netbeans.modules.vcscore.actions.HistoryCommandAction</value>
                 </property>
             </command>
-            <command displayName="Line-by-Line History" name="BLAMETOOL">
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="get"/>
-                    <arg value="-m"/>
-                    <arg value="-p"/>
-                    <arg value="${FILE}"/>
-                </run>
+            <command displayName="Annotated History" name="BLAMETOOL">
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareAnnotateCommand.class</value>
+                </property>
+                <property name="visualizer">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.visualizers.annotate.TeamwareAnnotateVisualizer</value>
+                </property>
                 <property name="onDir">
                     <value>false</value>
                 </property>
@@ -311,64 +282,25 @@ the last check-in, without deleting changes.</value>
                 <property name="runOnMultipleFiles">
                     <value>false</value>
                 </property>
-                <property name="display">
-                    <value>true</value>
-                </property>
                 <property name="disabledOnStatus">
                     <value>"Local", "Ignored"</value>
                 </property>
-            </command>
-            <command basic="false" name="REMOVE_COMMA_FILE">
-                <property name="exec">
-                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareDeleteCommaFileCommand.class</value>
-                </property>
-            </command>
-            <command basic="false" name="GET_REVISION">
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="get"/>
-                    <arg value="-G${TMPFILE}"/>
-                    <arg line="${REVARGS}"/>
-                    <arg value="${FILE}"/>
-                </run>
-                <property name="ignoreFail">
-                    <value>true</value>
-                </property>
-            </command>
-            <command basic="false" name="PRS">
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="prs"/>
-                    <arg value="${FILE}"/>
-                </run>
             </command>
             <command name="REVISION_LIST">
                 <property name="exec">
                     <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareRevisionListCommand.class</value>
                 </property>
             </command>
-            <command basic="false" name="REVISION_OPEN_LAST">
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="get"/>
-                    <arg value="-p"/>
-                    <arg value="${FILE}"/>
-                </run>
-            </command>
             <command name="REVISION_OPEN">
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="get"/>
-                    <arg value="-p"/>
-                    <arg value="-r${REVISION}"/>
-                    <arg value="${FILE}"/>
-                </run>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareOpenRevisionCommand.class</value>
+                </property>
                 <property name="numRevisions">
                     <value>1</value>
                 </property>
             </command>
             <separator/>
-            <command displayName="Create Patch" name="CREATE_PATCH">
+            <!--command displayName="Create Patch" name="CREATE_PATCH">
                 <property name="inputDescriptor">
                     <value>
                     ASK_FOR(EDITED_FILES_ONLY, "Include Only Edited Files", "true", ENABLE(), DISABLE(DATE))
@@ -388,7 +320,7 @@ the last check-in, without deleting changes.</value>
                 <property name="disabledOnStatus">
                     <value>"Local", "Ignored"</value>
                 </property>
-            </command>
+            </command-->
         </command>
         <command name="CREATE_INITIAL_IGNORE_LIST">
             <property name="exec">

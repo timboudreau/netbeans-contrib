@@ -20,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import org.netbeans.modules.vcs.profiles.teamware.util.SFile;
 
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 
@@ -63,7 +64,8 @@ class TeamwareRefreshSupport {
                     state = "Local";
                 }
             } else {
-                revision = sFile.getLastRevision();
+                revision = sFile.getRevisions().getActiveRevision()
+                    .getRevision();
                 if (revision == null) {
                     revision = "";
                     stderr.outputLine(file + ": cannot determine revision number");

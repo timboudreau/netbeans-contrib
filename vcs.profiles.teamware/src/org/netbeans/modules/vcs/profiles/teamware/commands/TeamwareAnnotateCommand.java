@@ -19,22 +19,13 @@ package org.netbeans.modules.vcs.profiles.teamware.commands;
 import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
-import org.netbeans.modules.vcs.profiles.teamware.util.SFile;
 
-import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcs.profiles.teamware.util.SFile;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
-import org.netbeans.modules.vcscore.util.VcsUtilities;
-import org.netbeans.modules.vcscore.versioning.RevisionList;
 
-public class TeamwareRevisionListCommand implements VcsAdditionalCommand {
-
-    private VcsFileSystem fileSystem;
-    
-    public void setFileSystem(VcsFileSystem fileSystem) {
-        this.fileSystem = fileSystem;
-    }
+public class TeamwareAnnotateCommand implements VcsAdditionalCommand {
 
     public boolean exec(final Hashtable vars, String[] args,
                         final CommandOutputListener stdout,
@@ -43,16 +34,13 @@ public class TeamwareRevisionListCommand implements VcsAdditionalCommand {
                         final CommandDataOutputListener stderrData, String errorRegex) {
 
         File file = TeamwareSupport.getFile(vars);
-        SFile sFile = new SFile(file);
-        RevisionList list = sFile.getRevisions();
-        String encodedList = null;
         try {
-            encodedList = VcsUtilities.encodeValue(list);
+            new SFile(file).annotate(stdout);
+            return true;
         } catch (IOException e) {
-            // output null
+            stderr.outputLine(e.toString());
+            return false;
         }
-        stdoutData.outputData(new String[] { encodedList });
-        return true;
     }
 
 }

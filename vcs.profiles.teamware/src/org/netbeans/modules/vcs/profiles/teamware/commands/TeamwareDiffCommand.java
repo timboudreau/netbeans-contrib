@@ -24,21 +24,14 @@ import java.io.StringReader;
 import java.util.Hashtable;
 
 import org.netbeans.api.diff.Diff;
-import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcs.profiles.teamware.util.SFile;
+import org.netbeans.modules.vcs.profiles.teamware.util.SRevisionItem;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
-import org.netbeans.modules.vcscore.versioning.RevisionItem;
-import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.openide.windows.TopComponent;
 
 public class TeamwareDiffCommand implements VcsAdditionalCommand {
-
-    private VcsFileSystem fileSystem;
-    
-    public void setFileSystem(VcsFileSystem fileSystem) {
-        this.fileSystem = fileSystem;
-    }
 
     public boolean exec(final Hashtable vars, String[] args,
                         final CommandOutputListener stdout,
@@ -48,21 +41,18 @@ public class TeamwareDiffCommand implements VcsAdditionalCommand {
 
         File file = TeamwareSupport.getFile(vars);
         SFile sFile = new SFile(file);
-        String revision = sFile.getLastRevision();
+        SRevisionItem revision = sFile.getRevisions().getActiveRevision();
         String name1 = file.getName();
         String name2 = name1 + ": " + revision;
         try {
-            String s = TeamwareSupport.getRevision(fileSystem, file, revision);
             Component c = Diff.getDefault().createDiff(
                 name1, name1, new FileReader(file),
-                name2, name2, new StringReader(s), "text/java");
+                name2, name2, new StringReader(sFile.getAsString(revision, true)),
+                "text/java");
             if (c != null) {
                 ((TopComponent) c).open();
             }
             return true;
-        } catch (InterruptedException e) {
-            stderr.outputLine(e.toString());
-            return false;
         } catch (IOException e) {
             stderr.outputLine(e.toString());
             return false;
