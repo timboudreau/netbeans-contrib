@@ -71,6 +71,9 @@ public class AddBookmarkAction extends AbstractAction implements HelpCtx.Provide
     public void actionPerformed(java.awt.event.ActionEvent e) {
         WindowManager wm = WindowManager.getDefault();
         TopComponent tc = wm.getRegistry().getActivated();
+        if (tc == null) {
+            return;
+        }
         BookmarkService bs = BookmarkService.getDefault();
         bs.storeBookmark(bs.createDefaultBookmark(tc));
     }
