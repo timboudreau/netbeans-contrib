@@ -460,9 +460,9 @@ public class CommandExecutorSupport extends Object {
     private static boolean needPromptForPR(String name, String exec, Hashtable vars){
         //D.deb("needPromptFor('"+name+"','"+exec+"')"); // NOI18N
         boolean result=false;
-        String oldPassword= (String) vars.get("PASSWORD");
+        String oldPassword= (String) vars.get("PASSWORD"); // NOI18N
         vars.put("PASSWORD", ""); // NOI18N
-        String oldReason= (String) vars.get("REASON");
+        String oldReason= (String) vars.get("REASON"); // NOI18N
         vars.put("REASON", ""); // NOI18N
 
         String test="variable_must_be_prompt_for"; // NOI18N
@@ -473,12 +473,12 @@ public class CommandExecutorSupport extends Object {
         if (oldPassword != null) {
             vars.put("PASSWORD", oldPassword); // NOI18N
         } else {
-            vars.remove("PASSWORD");
+            vars.remove("PASSWORD"); // NOI18N
         }
         if (oldReason != null) {
             vars.put("REASON", oldReason); // NOI18N
         } else {
-            vars.remove("REASON");
+            vars.remove("REASON"); // NOI18N
         }
 
         return result ;
