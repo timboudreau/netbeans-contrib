@@ -382,7 +382,11 @@ public final class TLUtils {
      * @return logger
      */
     public static Logger getLogger(Class clazz) {
+        // eliminate duplications. There are two console handlers somehow,
+        // the second one publishes also INFO messages
         Logger logger = Logger.getLogger(clazz.getName());
+        logger.setUseParentHandlers(false);
+
         ConsoleHandler ch = new ConsoleHandler();
         ch.setLevel(Level.WARNING);
         logger.addHandler(ch);

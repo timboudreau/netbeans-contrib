@@ -409,6 +409,7 @@ err.log("Couldn't find current nodes...");
         if (current == null) {
             // The last editor-support window in the editor was probably
             // just closed - or was not on top
+            LOGGER.fine("Cannot find active source editor!");   // during startup
             return;
         }
 
@@ -457,7 +458,7 @@ err.log("Couldn't find current nodes...");
         // discover the document
         */
         if (doc == null) {
-            //err.log("No document handle...");
+            LOGGER.fine("No document is loaded in editor!");
             return;
         }
 
@@ -724,9 +725,6 @@ err.log("Couldn't find current nodes...");
     /** The document we're currently tracking (active one) */
     private Document document = null;
 
-    /** Holds last fileobject that has been opened (and therefore should appear in "allOpened". */
-    private FileObject lastOpenedFileObject;
-
     /** The data-object we're currently tracking (active one) */
     private DataObject dataobject = null;
 
@@ -972,8 +970,11 @@ err.log("Couldn't find current nodes...");
 
         /** Reacts to changes */
         public void propertyChange(PropertyChangeEvent ev) {
+
             String prop = ev.getPropertyName();
             if (prop.equals(TopComponent.Registry.PROP_OPENED)) {
+
+                LOGGER.fine("EVENT opened top-components changed");
 
                 if (allOpenedClientsCount > 0) {
                     // determine what components have been closed, window system does not
@@ -1019,6 +1020,9 @@ err.log("Couldn't find current nodes...");
         }
 
         public void componentHidden(ComponentEvent e) {
+
+            LOGGER.fine("EVENT " + e.getComponent() + " has been hidden");
+
             //XXX it does not support both "current file" and "all opened" clients at same time
             if (allOpenedClientsCount == 0) {
                 componentsChanged();
@@ -1062,6 +1066,9 @@ err.log("Couldn't find current nodes...");
                 return;
             }
             */
+
+            LOGGER.fine("EVENT " + e.getSource() + " changed.");
+
             Set mods = DataObject.getRegistry().getModifiedSet();
             boolean wasModified = notSaved;
             notSaved = mods.contains(dataobject);
@@ -1097,6 +1104,9 @@ err.log("Couldn't find current nodes...");
         }
 
         public void insertUpdate(DocumentEvent e) {
+
+            LOGGER.fine("EVENT document changed");
+
             if (ManagerSettings.getDefault().isScanOnEdit()) {
                 scheduleRescan(false, ManagerSettings.getDefault().getEditScanDelay());
             }
@@ -1106,6 +1116,9 @@ err.log("Couldn't find current nodes...");
         }
 
         public void removeUpdate(DocumentEvent e) {
+
+            LOGGER.fine("EVENT document changed");
+
             if (ManagerSettings.getDefault().isScanOnEdit()) {
                 scheduleRescan(false, ManagerSettings.getDefault().getEditScanDelay());
             }
@@ -1117,6 +1130,9 @@ err.log("Couldn't find current nodes...");
         /** Moving the cursor position should cause a delay in document scanning,
          * but not trigger a new update */
         public void caretUpdate(CaretEvent caretEvent) {
+
+            LOGGER.fine("EVENT caret moved");
+
             scheduleRescan(true, ManagerSettings.getDefault().getEditScanDelay());
 
             // Check to see if I have any existing errors on this line - and if so,
