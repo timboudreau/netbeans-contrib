@@ -444,7 +444,12 @@ public class StubAllTogether extends PVCSStub {
         new PVCSFileNode (vgf.treeVCSGroupsTreeView(), DEFAULT_GROUP).properties ();
         PropertySheetOperator pso = new PropertySheetOperator (PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, DEFAULT_GROUP);
         PropertySheetTabOperator pst = pso.getPropertySheetTabOperator("Properties");
-        new StringProperty(pst, "Description").setStringValue("Checked in from VCS group.");
+        new StringProperty(pst, "Description").setValue("Checked in from VCS group.");
+        sleep (2000); // stabilization
+        info.println ("Description property: " + new StringProperty (pst, "Description").getStringValue ());
+        sleep (2000); // stabilization
+        pso.close ();
+        waitIsShowing(pso.getSource ());
         sleep (2000); // stabilization
         
         closeAllVCSWindows();
@@ -463,7 +468,7 @@ public class StubAllTogether extends PVCSStub {
         B_File.pvcsVersioningNode(".java [Current]");
         new RefreshRevisionsAction ().perform (B_File.pvcsVersioningNode ());
         B_File.waitHistory ("REVISION_LIST");
-        B_File.pvcsVersioningNode(".java [Current]|1.1  Checked in from VCS group.").select();
+        B_File.pvcsVersioningNode(".java [Current]|1.1  " + changeDescription).select();
         
         compareReferenceFiles();
     }
