@@ -14,6 +14,7 @@
 package org.netbeans.modules.vcs.advanced.conditioned;
 
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
+import org.openide.util.NbBundle;
 
 /**
  * The editor of pair of conditions.
@@ -50,34 +51,44 @@ public class IfUnlessConditionPanel extends javax.swing.JPanel implements Enhanc
 
         setLayout(new java.awt.GridBagLayout());
 
+        getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_IfUnlessConditonPanel"));
+        getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_IfUnlessConditionPanel"));
         infoLabel.setText(org.openide.util.NbBundle.getMessage(IfUnlessConditionPanel.class, "IfUnlessConditionPanel.title"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 11);
         add(infoLabel, gridBagConstraints);
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
+        ifLabel.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_IfUnlessConditionPanel.ifLabel_mnc").charAt(0));
+        ifLabel.setLabelFor(ifComboBox);
         ifLabel.setText(org.openide.util.NbBundle.getMessage(IfUnlessConditionPanel.class, "IfUnlessConditionPanel.if"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         jPanel1.add(ifLabel, gridBagConstraints);
+        ifLabel.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_IfUnlessConditionPanel.ifLabel"));
 
         ifComboBox.setEditable(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         jPanel1.add(ifComboBox, gridBagConstraints);
+        ifComboBox.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_IfUnlessConditionPanel.ifCB"));
+        ifComboBox.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_IfUnlessConditionPanel.ifCB"));
 
+        unlessLabel.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_IfUnlessConditionPanel.unlessLabel_mnc").charAt(0));
+        unlessLabel.setLabelFor(unlessComboBox);
         unlessLabel.setText(org.openide.util.NbBundle.getMessage(IfUnlessConditionPanel.class, "IfUnlessConditionPanel.ifNot"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         jPanel1.add(unlessLabel, gridBagConstraints);
+        unlessLabel.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_IfUnlessConditionPanel.unlessLabel"));
 
         unlessComboBox.setEditable(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -85,12 +96,14 @@ public class IfUnlessConditionPanel extends javax.swing.JPanel implements Enhanc
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         jPanel1.add(unlessComboBox, gridBagConstraints);
+        unlessComboBox.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_IfUnlessConditionPanel.unlessCB"));
+        unlessComboBox.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_IfUnlessConditionPanel.unlessCB"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         add(jPanel1, gridBagConstraints);
 
     }//GEN-END:initComponents

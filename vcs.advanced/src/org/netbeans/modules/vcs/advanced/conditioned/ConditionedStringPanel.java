@@ -19,6 +19,7 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
+import org.openide.util.NbBundle;
 
 /**
  * Panel that is used for editing of conditioned String value.
@@ -59,6 +60,10 @@ public class ConditionedStringPanel extends javax.swing.JPanel implements Enhanc
 
         setLayout(new java.awt.GridBagLayout());
 
+        getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedStringPanel"));
+        getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel"));
+        infoLabel.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedStringPanel.infoLabel_mnc").charAt(0));
+        infoLabel.setLabelFor(valueTextArea);
         infoLabel.setText("Value");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -66,10 +71,13 @@ public class ConditionedStringPanel extends javax.swing.JPanel implements Enhanc
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 11);
         add(infoLabel, gridBagConstraints);
+        infoLabel.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel.infoLabel"));
 
         valueTextArea.addFocusListener(formListener);
 
         jScrollPane1.setViewportView(valueTextArea);
+        valueTextArea.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedStringPanel.valueTextArea"));
+        valueTextArea.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel.valueTextArea"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
@@ -81,11 +89,13 @@ public class ConditionedStringPanel extends javax.swing.JPanel implements Enhanc
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
+        conditionLabel.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedStringPanel.conditionedLabel_mnc").charAt(0));
         conditionLabel.setText(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.Condition"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         jPanel1.add(conditionLabel, gridBagConstraints);
+        conditionLabel.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel.conditionedLabel"));
 
         conditionComboBox.addActionListener(formListener);
 
@@ -94,25 +104,33 @@ public class ConditionedStringPanel extends javax.swing.JPanel implements Enhanc
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         jPanel1.add(conditionComboBox, gridBagConstraints);
+        conditionComboBox.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedStringPanel.conditionComboBox"));
+        conditionComboBox.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel.conditionComboBox"));
 
+        addButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedStringPanel.addButtonS_mnc").charAt(0));
         addButton.setText(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.addButton"));
         addButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         jPanel1.add(addButton, gridBagConstraints);
+        addButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel.addButton"));
 
+        editButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedStringPanel.editButton_mnc").charAt(0));
         editButton.setText(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.editButton"));
         editButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         jPanel1.add(editButton, gridBagConstraints);
+        editButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel.editButton"));
 
+        removeButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedStringPanel.removeButtonSt_mnc").charAt(0));
         removeButton.setText(org.openide.util.NbBundle.getMessage(ConditionedStringPanel.class, "ConditionedStringPanel.removeButton"));
         removeButton.addActionListener(formListener);
 
         jPanel1.add(removeButton, new java.awt.GridBagConstraints());
+        removeButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel.removeButton"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 2;
