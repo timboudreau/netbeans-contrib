@@ -132,14 +132,16 @@ public class VcsAttributes extends DefaultAttributes {
      * @throws IOException if the attribute cannot be set. If serialization is
      *                     used to store it, this may in fact be a subclass such
      *                     as NotSerializableException.
-     * @throws UnsupportedOperationException if the requested VCS action is not provided.
+     * @throws UnknownServiceException if the requested VCS action is not provided.
+     *                                 A subclass of IOException was chosen, since
+     *                                 FileObject.setAttribute throws IOException.
      */
-    public void writeAttribute(String name, String attrName, Object value) throws IOException, UnsupportedOperationException {
+    public void writeAttribute(String name, String attrName, Object value) throws IOException, java.net.UnknownServiceException {
         if (VCS_ACTION.equals(attrName) && value instanceof FeatureDescriptor) {
             final FeatureDescriptor descriptor = (FeatureDescriptor) value;
             String cmdName = descriptor.getName();
             final VcsCommand cmd = fileSystem.getCommand(cmdName);
-            if (cmd == null) throw new UnsupportedOperationException(cmdName);
+            if (cmd == null) throw new java.net.UnknownServiceException(cmdName);
             final Table files = new Table();
             files.put(name, fileSystem.findResource(name));
             final Hashtable additionalVars = new Hashtable();
