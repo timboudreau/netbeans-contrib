@@ -78,6 +78,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED = "POSSIBLE_FILE_STATUSES_LOCALIZED"; // NOI18N
     public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT = "POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT"; // NOI18N
     public static final String VAR_NOT_MODIFIABLE_FILE_STATUSES = "NOT_MODIFIABLE_FILE_STATUSES"; // NOI18N
+    //public static final String VAR_FILE_STATUS_MODIFIED = "FILE_STATUS_MODIFIED"; // NOI18N
+    public static final String VAR_VCS_FILE_STATUS_MISSING = "VCS_FILE_STATUS_MISSING"; // NOI18N
+    public static final String VAR_VCS_FOLDER_STATUS_MISSING = "VCS_FOLDER_STATUS_MISSING"; // NOI18N
+    public static final String VAR_NOT_MISSINGABLE_FILE_STATUSES = "NOT_MISSINGABLE_FILE_STATUSES"; // NOI18N
+    public static final String VAR_NOT_MISSINGABLE_FOLDER_STATUSES = "NOT_MISSINGABLE_FOLDER_STATUSES"; // NOI18N
     public static final String VAR_ICONS_FOR_FILE_STATUSES = "ICONS_FOR_FILE_STATUSES"; // NOI18N
     
     /**
@@ -569,7 +574,62 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             }
             possibleFileStatusesMap.putAll(additionalPossibleFileStatusesMap);
         }
+        //setModifiedAndMissingStates((VcsConfigVariable) variablesByName.get (VAR_FILE_STATUS_MODIFIED),
+        //                            (VcsConfigVariable) variablesByName.get (VAR_FILE_STATUS_MISSING));
+        setMissingStates((VcsConfigVariable) variablesByName.get (VAR_VCS_FILE_STATUS_MISSING),
+                         (VcsConfigVariable) variablesByName.get (VAR_VCS_FOLDER_STATUS_MISSING),
+                         (VcsConfigVariable) variablesByName.get (VAR_NOT_MISSINGABLE_FILE_STATUSES),
+                         (VcsConfigVariable) variablesByName.get (VAR_NOT_MISSINGABLE_FOLDER_STATUSES));
         firePropertyChange(PROP_ADDITIONAL_POSSIBLE_FILE_STATUSES_MAP, null, additionalPossibleFileStatusesMap);
+    }
+    
+    /*
+    private void setModifiedAndMissingStates(VcsConfigVariable modifiedVar, VcsConfigVariable missingVar) {
+        String modifiedStatus = null;
+        String missingStatus = null;
+        if (modifiedVar != null) modifiedStatus = modifiedVar.getValue();
+        if (missingVar != null) missingStatus = missingVar.getValue();
+        if (modifiedStatus != null || missingStatus != null) {
+            FileCacheProvider cache = getCacheProvider();
+            if (cache instanceof VcsFSCache) {
+                if (modifiedStatus != null) ((VcsFSCache) cache).setStatusStringModified(modifiedStatus);
+                if (missingStatus != null) ((VcsFSCache) cache).setStatusStringMissing(missingStatus);
+            }
+        }
+    }
+     */
+    
+    private void setMissingStates(VcsConfigVariable varStatusFileMissing,
+                                  VcsConfigVariable varStatusFolderMissing,
+                                  VcsConfigVariable varNotMissingableFileStatuses,
+                                  VcsConfigVariable varNotMissingableFolderStatuses) {
+        String statusFileMissing = null;
+        String statusFolderMissing = null;
+        if (varStatusFileMissing != null) statusFileMissing = varStatusFileMissing.getValue();
+        if (varStatusFolderMissing != null) statusFolderMissing = varStatusFolderMissing.getValue();
+        setMissingFileStatus(statusFileMissing);
+        setMissingFolderStatus(statusFolderMissing);
+        if (statusFileMissing != null || statusFolderMissing != null) {
+            if (varNotMissingableFileStatuses != null) {
+                java.util.List statuses = Arrays.asList(VcsUtilities.getQuotedStrings(
+                    varNotMissingableFileStatuses.getValue()));
+                replaceItemsWithMappedValues(statuses, possibleFileStatusesMap);
+                setNotMissingableFileStatuses(statuses);
+            }
+            if (varNotMissingableFolderStatuses != null) {
+                java.util.List statuses = Arrays.asList(VcsUtilities.getQuotedStrings(
+                    varNotMissingableFolderStatuses.getValue()));
+                replaceItemsWithMappedValues(statuses, possibleFileStatusesMap);
+                setNotMissingableFolderStatuses(statuses);
+            }
+        }
+    }
+    
+    private void replaceItemsWithMappedValues(java.util.List list, java.util.Map map) {
+        for (int i = 0; i < list.size(); i++) {
+            Object value = map.get(list.get(i));
+            if (value != null) list.set(i, value);
+        }
     }
     
     private void setBadgeIconsFromVars() {
