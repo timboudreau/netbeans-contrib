@@ -46,8 +46,9 @@ public class InteractiveCommandOutputVisualizer extends CommandOutputVisualizer 
         interactivePanel.setInput(new TextInput() {
             public void sendInput(String text) {
                 executor.sendInput(text);
-                javax.swing.JTextArea area = interactivePanel.getStdOutputArea();
-                appendTextToArea(area, text);
+                immediateOut.outputLine(text);
+                //javax.swing.JTextArea area = interactivePanel.getStdOutputArea();
+                //appendTextToArea(area, text);
             }
         });
     }
@@ -71,18 +72,28 @@ public class InteractiveCommandOutputVisualizer extends CommandOutputVisualizer 
     
     private final class ImmediateOutput extends Object implements TextOutputListener {
         
+        private CommandOutputTextProcessor.TextOutput stdOutput;
+        
         public void outputLine(String text) {
-            javax.swing.JTextArea area = interactivePanel.getStdOutputArea();
-            appendTextToArea(area, text);
+            if (stdOutput == null) {
+                stdOutput = CommandOutputTextProcessor.getDefault().createOutput();
+                stdOutput.setTextArea(interactivePanel.getStdOutputArea());
+            }
+            stdOutput.addText(text);
         }
         
     }
     
     private final class ImmediateError extends Object implements TextOutputListener {
         
+        private CommandOutputTextProcessor.TextOutput errOutput;
+        
         public void outputLine(String text) {
-            javax.swing.JTextArea area = interactivePanel.getErrOutputArea();
-            appendTextToArea(area, text);
+            if (errOutput == null) {
+                errOutput = CommandOutputTextProcessor.getDefault().createOutput();
+                errOutput.setTextArea(interactivePanel.getErrOutputArea());
+            }
+            errOutput.addText(text);
         }
         
     }
