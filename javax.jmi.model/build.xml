@@ -24,13 +24,13 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="unscramble">
-        <ant dir="external" target="unscramble"/>
+        <ant dir="${external.dir}" target="unscramble"/>
     </target>
 
     <target name="release" depends="init,unscramble">
         <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext"/>
         <copy todir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext">
-            <fileset dir="external">
+            <fileset dir="${external.dir}">
                 <include name="mof.jar"/>
             </fileset>
         </copy>
@@ -46,7 +46,7 @@ Microsystems, Inc. All Rights Reserved.
                  homepage="http://${nbm.domain}.${homepage.base}/"
                  distribution="http://${dist.base}/${nbm}"
                  needsrestart="${nbm.needs.restart}">
-            <license file="external/mdr-license.txt"/>
+            <license file="${external.dir}/mdr-license.txt"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
     </target>
