@@ -90,4 +90,23 @@ Microsystems, Inc. All Rights Reserved.
     <delete file="release/lib/ext/j3dfly.jar"/>
   </target>
 
+  <target name="javadoc">
+      <javadoc destdir="www/javadoc"
+	       version="true"
+               author="true"
+	       packagenames="com.sun.j3d.demos.*,org.netbeans.modules.*"
+	       excludepackagenames="com.sun.j3d.demos.utils.scenegraph.io.*,
+				    com.sun.j3d.demos.j3dfly.animation*,
+				    com.sun.j3d.demos.j3dfly.doctools,
+				    com.sun.j3d.demos.j3dfly.pdfdoctools,
+				    com.sun.j3d.demos.utils.vpbehaviors.vehicles"
+	       sourcepath="J3dEditor_2.0/src:J3dFly_2.0/src:src">
+       <group title="J3dFly" packages="com.sun.j3d.demos.j3dfly*"/>
+       <group title="J3dFly Utilities" packages="com.sun.j3d.demos.utils*"/>
+       <group title="J3dEditor" packages="com.sun.j3d.demos.j3dedit*"/>
+       <group title="Java 3D Netbeans Module" packages="org.netbeans.modules.java3d*"/>
+     </javadoc>
+
+  </target>
+
 </project>
