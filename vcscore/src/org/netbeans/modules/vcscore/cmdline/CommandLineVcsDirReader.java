@@ -121,7 +121,9 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
     protected void printDataOutput(String[] data) {
         super.printDataOutput(data);
         if (!classRunning) {
-            // Do not add the data here! They should be passed through filesByName table instead.
+            // Do not add the data here for the class command!
+            // They should be passed through filesByName table instead.
+            // Command-line commands however pass the data through data output
             data = translateElements(data, (UserCommand) getCommand());
             rawData.add(data);
         }
