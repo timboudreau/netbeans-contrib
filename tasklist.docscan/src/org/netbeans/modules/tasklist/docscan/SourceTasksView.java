@@ -979,7 +979,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             int components = parent.getComponentCount();
             int horizont = 0;
             for (int i = 0; i<components; i++) {
-                Component comp = parent.getComponent(i);
+                JComponent comp = (JComponent) parent.getComponent(i);
                 if (comp.isVisible() == false) continue;
                 comp.setLocation(horizont, 0);
                 Dimension pref = comp.getPreferredSize();
@@ -987,7 +987,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 if (comp == getMiniStatus()) {
                     width = label;
                 }
-                comp.setSize(width, getToolbarHeight());
+                comp.setSize(width, getToolbarHeight() - 1);  // 1 verySoftBevel compensation
                 horizont += width;
             }
         }

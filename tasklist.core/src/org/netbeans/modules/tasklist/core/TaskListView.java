@@ -90,7 +90,7 @@ public abstract class TaskListView extends TopComponent
     private transient static Map views = null;
 
     /** Expected border height */
-    private static int TOOLBAR_HEIGHT_ADJUSTMENT = 3;
+    private static int TOOLBAR_HEIGHT_ADJUSTMENT = 4;
 
     /** Cached toolbar height */
     private static int toolbarHeight = -1;
@@ -304,7 +304,6 @@ public abstract class TaskListView extends TopComponent
 
     private JLabel createMiniStatus() {
         JLabel ret =  new JLabel();
-        ret.setBorder(BorderFactory.createEmptyBorder());
         Dimension dim = ret.getPreferredSize();
         dim.height = getToolbarHeight();
         ret.setPreferredSize(dim);
