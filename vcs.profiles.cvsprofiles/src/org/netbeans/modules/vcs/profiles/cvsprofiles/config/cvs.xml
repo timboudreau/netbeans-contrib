@@ -1277,8 +1277,8 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
-        <property name="refreshRecursivelyPatternUnmatched">
-          <value>  -l </value>
+        <property name="refreshRecursivelyPatternMatched">
+          <value>  -R </value>
         </property>
         <property name="runOnMultipleFiles">
           <value>true</value>
