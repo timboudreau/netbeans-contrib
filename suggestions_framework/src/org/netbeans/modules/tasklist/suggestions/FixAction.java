@@ -62,7 +62,12 @@ public class FixAction extends NodeAction {
         boolean fixingStarted = false;
         try {
         boolean skipConfirm = false;
-        TaskListView tlv = TaskListView.getCurrent();
+        SuggestionsView tlv = SuggestionsView.getCurrentView();
+        if (tlv == null) {
+            // INTERNAL ERROR
+            return;
+        }
+
         for (int i = 0; i < node.length; i++) {
             SuggestionImpl item = (SuggestionImpl)TaskNode.getTask(node[i]);
             if (item == null) {

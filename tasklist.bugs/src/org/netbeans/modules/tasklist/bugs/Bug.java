@@ -29,7 +29,6 @@ public final class Bug extends Task {
     // IMPORTANT: If you add additional fields, update copyFrom() as well
     private String id = "";
     private String synopsis = "";
-    private String summary = "";
     private int priority;
     private String type = "";
     private String component = "";
@@ -75,6 +74,8 @@ public final class Bug extends Task {
 	this.status = status;
 	this.target = target;
 	this.votes = votes;
+
+        setSummary(id + ": " + synopsis); // NOI18N
     }
 
     /** Return the priority of the task.
@@ -112,20 +113,6 @@ public final class Bug extends Task {
     public void setSynopsis(String synopsis) {
         this.synopsis = synopsis;
     }
-
-    /** Get the "summary" for the bug. This is just the
-     * combination of the id and the synopsis.
-     */
-    public String getIdAndSynopsis() {
-        if ((summary == null) || (summary == "")) {
-            summary = id + ": " + synopsis; // NOI18N
-        }
-        return summary;
-    }
-
-    // No setter - not really an attribute on its own; it's derived
-    // from id and synopsis
-    
     
     /** Return the bug's component/category */
     public String getComponent() {
@@ -259,7 +246,6 @@ public final class Bug extends Task {
 	engine = from.engine;
 
         id = from.id;
-        summary = from.summary;
         synopsis = from.synopsis;
         priority = from.priority;
 	type = from.type;
@@ -272,14 +258,6 @@ public final class Bug extends Task {
 	status = from.status;
 	target = from.target;
 	votes = from.votes;
-    }
-
-    /** Return the display name of the task, which is identical
-     * to the summary.
-     * @return The description
-     * @todo Decide if this method is necessary/used or not. */    
-    public String getDisplayName() {
-        return getIdAndSynopsis();
     }
 
     /** Get rid of the children/subtasks associated with this task */

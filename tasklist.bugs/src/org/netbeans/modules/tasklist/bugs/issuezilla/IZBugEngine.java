@@ -54,10 +54,13 @@ import org.openide.loaders.XMLDataObject;
 import org.openide.util.NbBundle;
 import org.openide.cookies.InstanceCookie;
 import org.openide.util.RequestProcessor;
+import org.openide.util.Utilities;
 
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import org.openide.xml.*;
+
+import org.netbeans.modules.tasklist.core.TaskListView;
 
 //import org.netbeans.nbbuild.Issuezilla;
 //import org.netbeans.nbbuild.Issue;
@@ -93,6 +96,14 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
     }
 
     public void doRefresh() {
+        TaskListView v = TaskListView.getCurrent();
+        BugsView view = null;
+        if (v instanceof TaskListView) {
+            view = (BugsView)v;
+            view.setCursor(Utilities.createProgressCursor(view));
+        }
+        try {
+            
         // Do a bug query
         String query = null;
         query = System.getProperty("netbeans.tasklist.bugquery");
@@ -178,6 +189,12 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
 	    }
 	    TopManager.getDefault().setStatusText("");
 	}
+
+        } finally {
+            if (view != null) {
+                view.setCursor(null);
+            }
+        } 
     }
 
     /** View a particular bug. */

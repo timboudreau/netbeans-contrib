@@ -51,7 +51,6 @@ public class BugsView extends TaskListView implements TaskListener {
            BugList.getDefault());
     }
 
-    static final String PROP_BUG_SUMMARY = "bugSummary"; // NOI18N
     static final String PROP_BUG_ID = "bugId"; // NOI18N
     static final String PROP_BUG_SYNOPSIS = "bugSynopsis"; // NOI18N
     static final String PROP_BUG_PRIO = "bugPrio"; // NOI18N
@@ -72,7 +71,7 @@ public class BugsView extends TaskListView implements TaskListener {
         // NOTE: Bug.getDisplayName() must also be kept in sync here
         return new ColumnProperty(
 	    0, // UID -- never change (part of serialization
-            PROP_BUG_SUMMARY,
+            PROP_TASK_SUMMARY,
             NbBundle.getMessage(BugsView.class, "Summary"), // NOI18N
 	    true,
             width

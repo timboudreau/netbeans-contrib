@@ -946,8 +946,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
 
     private boolean writeTypeRegistry()  {
-        SuggestionsView view = (SuggestionsView)TaskListView.getCurrent();
-        return writeTypeRegistry(view);
+        SuggestionsView view = SuggestionsView.getCurrentView();
+        if (view != null) {
+            return writeTypeRegistry(view);
+        } else {
+            return writeTypeRegistry(null);
+        }
     }
 
     
@@ -1227,9 +1231,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
             return;
         }
 
-        SuggestionsView view = (SuggestionsView)TaskListView.getCurrent();
-        Node node = view.getEffectiveRoot();
-        highlightNode(view, node, line);
+        SuggestionsView view = SuggestionsView.getCurrentView();
+        if (view != null) {
+            Node node = view.getEffectiveRoot();
+            highlightNode(view, node, line);
+        }
     }
     
     /** Number of tasks we allow before for a type before dropping

@@ -17,6 +17,7 @@ import java.util.List;
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.TaskNode;
+import org.netbeans.modules.tasklist.core.TaskListView;
 import org.openide.ErrorManager;
 import org.openide.actions.PropertiesAction;
 import org.openide.nodes.Node;
@@ -115,7 +116,7 @@ class BugNode extends TaskNode {
         try {
             Property p;
             p = new Reflection(item, String.class, "getSummary", null); // NOI18N
-            p.setName(BugsView.PROP_BUG_SUMMARY);
+            p.setName(TaskListView.PROP_TASK_SUMMARY);
             p.setDisplayName(NbBundle.getMessage(BugNode.class, "Summary")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(BugNode.class, "SummaryHint")); // NOI18N
             ss.put(p);

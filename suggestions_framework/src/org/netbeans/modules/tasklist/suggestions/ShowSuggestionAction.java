@@ -32,7 +32,7 @@ public class ShowSuggestionAction extends NodeAction {
     protected void performAction(Node[] nodes) {
         Task item =
             (Task)TaskNode.getTask(nodes[0]); // safe - see enable check
-        TaskListView tlv = TaskListView.getCurrent();
+        SuggestionsView tlv = SuggestionsView.getCurrentView();
         if (tlv != null) {
             tlv.show(item, new SuggestionAnno(item));
         } else {
