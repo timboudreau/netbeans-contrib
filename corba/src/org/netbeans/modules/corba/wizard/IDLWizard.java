@@ -156,7 +156,7 @@ public class IDLWizard extends Object implements TemplateWizard.Iterator {
     }
 
     public String name () {
-        return ((javax.swing.JPanel)current()).getName();
+        return current().getComponent ().getName();
     }
 
     private void fireChangeEvent () {
@@ -201,10 +201,10 @@ public class IDLWizard extends Object implements TemplateWizard.Iterator {
     private org.openide.WizardDescriptor.Panel getDestinationChooserPanel () {
         if (this.destinationChooserPanel == null) {
             this.destinationChooserPanel = this.data.getWizard().targetChooser();
-            javax.swing.JPanel p = (javax.swing.JPanel) this.destinationChooserPanel;
+            javax.swing.JComponent p = (javax.swing.JComponent) this.destinationChooserPanel.getComponent();
             p.putClientProperty(CorbaWizard.PROP_CONTENT_SELECTED_INDEX, new Integer(0));
             p.putClientProperty(CorbaWizard.PROP_CONTENT_DATA, new String[] {
-                ((javax.swing.JPanel)this.destinationChooserPanel).getName(),
+                p.getName(),
                 getLocalizedString("TXT_CreateImport"),
                 getLocalizedString("TXT_CreateIDL"),
                 getLocalizedString("TXT_Finish")
