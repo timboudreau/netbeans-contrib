@@ -1395,6 +1395,7 @@ Microsystems, Inc. All Rights Reserved.
                  PROMPT_FOR(PROJECT_DB, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Database)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Database);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_GET_Database_Mnemonic)),
                             SELECTOR_DIR)
+                 PROMPT_FOR(USER_NAME, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CUST_UserName)", "", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CUST_UserName);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACS_PVCS_CUST_UserName_mnc)))
                  PROMPT_FOR(PROJECT, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Project)", "/",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_GCOMMAND_Project);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_GET_Project_Mnemonic)))
                  PROMPT_FOR(WORK_PATH, "getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(GCOMMAND_Work)", "",
@@ -1424,6 +1425,20 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="error.regex">
 	  <value>$ ^</value>
 	</property>
+        <property name="commandsAfterSuccess">
+          <value>GLOBAL_REGISTER</value>
+        </property>
+      </command>
+      <command name="GLOBAL_REGISTER">
+        <property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.pvcs.commands.PvcsGlobalRegister.class</value>
+        </property>
+        <property name="executionPriority">
+          <value>1</value> <!-- HIGH PRIORITY -->
+        </property>
+        <property name="ignoreFail">
+          <value>true</value>
+        </property>
       </command>
     </command>
   </globalCommands>
