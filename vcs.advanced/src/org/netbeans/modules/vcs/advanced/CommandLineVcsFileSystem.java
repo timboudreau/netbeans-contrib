@@ -29,6 +29,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
+import org.openide.nodes.Node;
 
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
@@ -577,14 +578,21 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
 
+    /** Get the commands. Overide this method of VcsFileSystem to setup
+     * the commands if necessary.
+     * @return the root command
+     */
+    public Node getCommands() {
+        Node commandRoot = super.getCommands();
+        if (commandRoot == null) {
+            loadCurrentConfig();
+            setBadgeIconsFromVars();
+        }
+        return super.getCommands();
+    }
+
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         in.defaultReadObject();
-        org.openide.util.RequestProcessor.postRequest(new Runnable() {
-            public void run() {
-                loadCurrentConfig();
-                setBadgeIconsFromVars();
-            }
-        });
     }
     
     private void writeObject(ObjectOutputStream out) throws IOException {
