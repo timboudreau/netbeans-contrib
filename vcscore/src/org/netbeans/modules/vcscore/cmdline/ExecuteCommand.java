@@ -756,6 +756,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //ec.setTimeout(cmd.getTimeout());
         ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT),
                     VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_INPUT_REPEAT));
+        boolean mergeStreams = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_MERGE_ERROR_TO_STANDARD_OUTPUT);
+        ec.setMergeOutputStreams(mergeStreams);
         String dynamicEnv = (String) getVariables().get("DYNAMIC_ENVIRONMENT_VARS");
         if (dynamicEnv != null && dynamicEnv.length() > 0) {
             ec.setEnv(getEnvironmentFromVars(getVariables()));

@@ -118,10 +118,9 @@ for more information.<p>List of the main features:</p>
         </question>
 -->
 <answer id="dep-jre">
-    Needs at least JRE 1.3. Different code is executed in
-    org.netbeans.modules.cmdline.RelativeMountPanel on JRE 1.3.x and when Windows
-    look and feel is used. This is a workaround for Windows look and feel bug.
-    See issue #29753 for details.
+    Needs at least JRE 1.4. Different code is executed in
+    org.netbeans.modules.vcscore.cmdline.exec.CommandExecutor on JRE 1.5 and higher.
+    See issue #35999 for details.
 </answer>
 
 

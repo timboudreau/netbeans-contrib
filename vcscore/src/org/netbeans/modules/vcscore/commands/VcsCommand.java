@@ -259,6 +259,14 @@ public interface VcsCommand extends VcsCommandCookie {
      * org.netbeans.modules.vcscore.commands.VcsCommandVisualizer
      */
     public static final String PROPERTY_DISPLAY_VISUALIZER = "visualizer";
+    
+    /**
+     * A Boolean property indicating whether the error stream should be merged with
+     * the standard stream of the command. If true, the error output will be empty.
+     * Supported only when running on JDK 1.5 and newer. <br>
+     * <b>This property is ignored when running on JDK 1.4.x</b>
+     */
+    public static final String PROPERTY_MERGE_ERROR_TO_STANDARD_OUTPUT = "mergeOutputStreams"; // NOI18N
 
     /**
      * Whether to run this command on all files or ignore unimportant.

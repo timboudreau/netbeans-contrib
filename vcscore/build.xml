@@ -8,12 +8,30 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="vcscore" default="netbeans" basedir=".">
     <import file="../nbbuild/templates/projectized.xml"/>
+
+    <target name="check-for-jdk-1.5">
+      <available property="have-jdk-1.5" classname="java.lang.ProcessBuilder"/>
+    </target>
+      
+    <target name="compile" depends="init,check-for-jdk-1.5">
+        <mkdir dir="${build.classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${build.classes.dir}" debug="${build.compiler.debug}" deprecation="${build.compiler.deprecation}" optimize="${build.compiler.optimize}" source="${javac.source}" includeantruntime="false">
+            <classpath refid="cp"/>
+            <exclude name="org/netbeans/modules/vcscore/cmdline/exec/CommandExecutor1_5.java" unless="have-jdk-1.5"/>
+        </javac>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.dir}" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"/>
+            <fileset dir="classes_1_5">
+                 <exclude name="**" if="have-jdk-1.5"/>
+            </fileset>
+        </copy>
+    </target>
 
     <target name="jar-no-module-deps" unless="module.dependencies">
         <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" compress="false" manifest="${manifest.mf}">

@@ -72,6 +72,7 @@ public class ExternalCommand implements TextInput {
     private ArrayList stdImmediateErrListeners = new ArrayList();
     boolean isImmediateOut = false;
     boolean isImmediateErr = false;
+    boolean mergeOutputStreams = false;
     
     private Object outProgressLock = new Object();
     private ArrayList outProgressListeners = null; // Not used that often
@@ -151,6 +152,14 @@ public class ExternalCommand implements TextInput {
     
     public void setEnv(String[] envp) {
         this.envp = envp;
+    }
+    
+    /**
+     * Whether to merge the error output with standard output.
+     * Supported only on JDK 1.5.x and higher.
+     */
+    public void setMergeOutputStreams(boolean mergeOutputStreams) {
+        this.mergeOutputStreams = mergeOutputStreams;
     }
 
 
@@ -323,17 +332,18 @@ public class ExternalCommand implements TextInput {
         try{
             String[] commandArr = null;
             try {
+                CommandExecutor executor = CommandExecutor.getDefault();
                 if (scommand != null) {
                     commandArr = parseParameters(scommand);
                     //System.out.println("exec("+VcsUtilities.array2string(commandArr)+", w = '"+scommand.getWorking()+"')");
-                    proc = Runtime.getRuntime().exec(commandArr, envp, scommand.getWorking());
+                    proc = executor.createProcess(commandArr, envp, scommand.getWorking(), mergeOutputStreams);
                 } else {
                     commandArr = parseParameters(command);
                     if (envp == null) {
-                        proc = Runtime.getRuntime().exec(commandArr);
+                        proc = executor.createProcess(commandArr, null, null, mergeOutputStreams);
                         //System.out.println("exec("+VcsUtilities.array2string(commandArr)+")");
                     } else {
-                        proc = Runtime.getRuntime().exec(commandArr, envp);
+                        proc = executor.createProcess(commandArr, envp, null, mergeOutputStreams);
                         //System.out.println("exec("+VcsUtilities.array2string(commandArr)+", envp = "+envp+")");
                     }
                 }
