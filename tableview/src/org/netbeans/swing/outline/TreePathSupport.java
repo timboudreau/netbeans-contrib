@@ -52,7 +52,22 @@ public final class TreePathSupport {
         this.layout = layout;
     }
     
+    /** Clear all expanded path data.  This is called if the tree model fires
+     * a structural change, and any or all of the nodes it contains may no
+     * longer be present. */
+    public void clear() {
+        expandedPaths.clear();
+    }
+    
+    /** Expand a path.  Notifies the layout cache of the change,
+     * stores the expanded path info (so reexpanding a parent node also reexpands
+     * this path if a parent node containing it is later collapsed).  Fires
+     * TreeWillExpand and TreeExpansion events. */
     public void expandPath (TreePath path) {
+        if (Boolean.TRUE.equals(expandedPaths.get(path))) {
+            //It's already expanded, don't waste cycles firing bogus events
+            return;
+        }
         TreeExpansionEvent e = new TreeExpansionEvent (this, path);
         try {
             fireTreeWillExpand(e, true);
@@ -64,7 +79,15 @@ public final class TreePathSupport {
         }
     }
     
+    /** Collapse a path.  Notifies the layout cache of the change,
+     * stores the expanded path info (so reexpanding a parent node also reexpands
+     * this path if a parent node containing it is later collapsed).  Fires
+     * TreeWillExpand and TreeExpansion events. */
     public void collapsePath (TreePath path) {
+        if (Boolean.FALSE.equals(expandedPaths.get(path))) {
+            //It's already collapsed, don't waste cycles firing bogus events
+            return;
+        }
         TreeExpansionEvent e = new TreeExpansionEvent (this, path);
         try {
             fireTreeWillExpand(e, false);

@@ -41,6 +41,7 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TreeModelEvent;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.tree.AbstractLayoutCache;
 import javax.swing.tree.TreePath;
@@ -77,6 +78,17 @@ public final class Outline extends JTable {
     private void init() {
         initialized = true;
         setDefaultRenderer(Object.class, new DefaultOutlineCellRenderer());
+    }
+    
+    /** Always returns the default renderer for Object.class for the tree column */
+    public TableCellRenderer getCellRenderer(int row, int column) {
+        TableCellRenderer result;
+        if (column == 0) {
+            result = getDefaultRenderer(Object.class);
+        } else {
+            result = super.getCellRenderer(row, column);
+        }
+        return result;
     }
     
     /** Get the RenderDataProvider which is providing text, icons and tooltips
@@ -124,6 +136,11 @@ public final class Outline extends JTable {
         } else {
             return null;
         }
+    }
+    
+    boolean isTreeColumnIndex (int column) {
+        //XXX fixme - this is not true if columns have been dragged
+        return column == 0;
     }
     
     public boolean isVisible (TreePath path) {
@@ -242,8 +259,6 @@ public final class Outline extends JTable {
         //If it was on column 0, it may be a request to expand a tree
         //node - check for that first.
         if (column == 0 && e instanceof MouseEvent) {
-//            takeSnapshot();
-            
             MouseEvent me = (MouseEvent) e;
             TreePath path = getLayoutCache().getPathClosestTo(me.getX(), me.getY());
             int handleWidth = DefaultOutlineCellRenderer.getExpansionHandleWidth();
@@ -254,46 +269,18 @@ public final class Outline extends JTable {
                  me.getClickCount() > 1) {
 
                 boolean expanded = getLayoutCache().isExpanded(path);
-                //System.err.println("Setting expanded for " + row + " to " + !expanded);
                 if (!expanded) {
                     getTreePathSupport().expandPath(path);
                 } else {
                     getTreePathSupport().collapsePath(path);
                 }
-                if (getOutlineModel().isLargeModel()) {
-                    getLayoutCache().invalidateSizes();
-//                    getLayoutCache().invalidateSizes();
-//                    revalidate();
-//                    repaint();
-                }
-//                compareSnapshot();
                 return false;
             }
         }
             
         return super.editCellAt(row, column, e);
     }
-    
-    private List snapshot;
-    private void takeSnapshot() {
-        snapshot = new ArrayList();
-        int max = getRowCount();
-        for (int i=0; i < max; i++) {
-            snapshot.add(getValueAt(i, 0));
-        }
-    }
-    
-    private void compareSnapshot() {
-        List before = snapshot;
-        takeSnapshot();
-        List after = snapshot;
-        System.err.println("Before: " + before.size() + " after:" + after.size());
-        int max = Math.min (before.size(), after.size());
-        for (int i=0; i < max; i++) {
-            System.err.println(" " + i + before.get(i) + " -> " + after.get(i));
-        }
-    }
-    
+
     private boolean needCalcRowHeight = true;
     /** Calculate the height of rows based on the current font.  This is
      *  done when the first paint occurs, to ensure that a valid Graphics

@@ -76,7 +76,7 @@ public class DefaultOutlineModel implements OutlineModel {
             : (AbstractLayoutCache) new VariableHeightLayoutCache();
             
         layout.setRootVisible(true);
-        layout.setModel(treeModel);
+        layout.setModel(this);
         listener = new Listener();
         treePathSupport = new TreePathSupport(this, layout);
         treePathSupport.addTreeExpansionListener(listener);
@@ -138,9 +138,13 @@ public class DefaultOutlineModel implements OutlineModel {
     
     public Object getValueAt(int rowIndex, int columnIndex) {
         Object result;
-        if (columnIndex == 0) {
-            result = getLayout().getPathForRow(rowIndex).getLastPathComponent();
-//            System.err.println("GetValue at " + rowIndex + ": " + result);
+        if (columnIndex == 0) { //XXX need a column ID - columnIndex = 0 depends on the column model
+            TreePath path = getLayout().getPathForRow(rowIndex);
+            if (path != null) {
+                result = path.getLastPathComponent();
+            } else {
+                result = null;
+            }
         } else {
             result = (tableModel.getValueAt(rowIndex, columnIndex -1));
         }
@@ -187,28 +191,40 @@ public class DefaultOutlineModel implements OutlineModel {
     }
     
     private synchronized void fireTreeChange (TreeModelEvent e, int type) {
+        TreeModelEvent nue = new TreeModelEvent (this, e.getPath(), e.getChildIndices(), e.getChildren());
+        
         TreeModelListener[] listeners = new TreeModelListener[treeListeners.size()];
         listeners = (TreeModelListener[]) treeListeners.toArray(listeners);
+
+        //If it's a structural change, we need to dump all our info about the
+        //existing tree structure.
+        if (type == STRUCTURE_CHANGED) {
+            getTreePathSupport().clear();
+//            getLayout().treeStructureChanged(nue);
+        }
+        
+        //Now refire it to any listeners
         for (int i=0; i < listeners.length; i++) {
             switch (type) {
                 case NODES_CHANGED :
-                    listeners[i].treeNodesChanged(e);
+                    listeners[i].treeNodesChanged(nue);
                     break;
                 case NODES_INSERTED :
-                    listeners[i].treeNodesInserted(e);
+                    listeners[i].treeNodesInserted(nue);
                     break;
                 case NODES_REMOVED :
-                    listeners[i].treeNodesRemoved(e);
+                    listeners[i].treeNodesRemoved(nue);
                     break;
                 case STRUCTURE_CHANGED :
-                    listeners[i].treeStructureChanged(e);
+                    listeners[i].treeStructureChanged(nue);
                     break;
                 default :
                     assert false;
             }
         }
-        //Translate the event
-        TableModelEvent tme = translateEvent (e, type);
+        
+        //Now fire the table change
+        TableModelEvent tme = translateEvent (nue, type);
         fireTableChange(tme);
     }
     
@@ -220,7 +236,7 @@ public class DefaultOutlineModel implements OutlineModel {
     
     
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        tableModel.setValueAt (aValue, rowIndex, columnIndex);
+        tableModel.setValueAt (aValue, rowIndex, columnIndex-1);
     }
     
     public void valueForPathChanged(javax.swing.tree.TreePath path, Object newValue) {
@@ -235,6 +251,12 @@ public class DefaultOutlineModel implements OutlineModel {
     private static final int NODES_INSERTED = 1;
     private static final int NODES_REMOVED = 2;
     private static final int STRUCTURE_CHANGED = 3;
+    
+    //XXX deleteme - just for printing strings when debugging:
+    private static final String[] types = new String[] {
+        "nodesChanged", "nodesInserted", "nodesRemoved", "structureChanged"
+    };
+    
     private class Listener implements TableModelListener, TreeModelListener, TreeWillExpandListener, TreeExpansionListener {
         
         public void tableChanged(javax.swing.event.TableModelEvent e) {
@@ -261,6 +283,7 @@ public class DefaultOutlineModel implements OutlineModel {
         
         public void treeNodesRemoved(TreeModelEvent e) {
             getLayout().treeNodesRemoved(e);
+            System.err.println("Refiring Tree nodes removed" + e);
             fireTreeChange (e, NODES_REMOVED);
         }
         

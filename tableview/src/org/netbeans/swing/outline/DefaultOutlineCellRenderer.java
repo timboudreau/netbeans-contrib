@@ -21,6 +21,7 @@ package org.netbeans.swing.outline;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Insets;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.UIManager;
@@ -29,21 +30,32 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.tree.AbstractLayoutCache;
 import javax.swing.tree.TreePath;
 
-/**
+/** An outline-aware TableCellRenderer which knows how to paint expansion
+ * handles and indent child nodes an appropriate amount. 
  *
- * @author  tim
+ * @author  Tim Boudreau
  */
 public class DefaultOutlineCellRenderer extends DefaultTableCellRenderer {
     private boolean expanded = false;
     private boolean leaf = true;
     private boolean showHandle = true;
-    private boolean hasFocus = false;
     private int nestingDepth = 0;
     private static final Border expansionBorder = new ExpansionHandleBorder();
     
     /** Creates a new instance of DefaultOutlineTreeCellRenderer */
     public DefaultOutlineCellRenderer() {
-        setBorder (expansionBorder);
+    }
+    
+    /** Overridden to combine the expansion border (whose insets determine how
+     * much a child tree node is shifted to the right relative to the ancestor
+     * root node) with whatever border is set, as a CompoundBorder.  The expansion
+     * border is also responsible for drawing the expansion icon.  */
+    public final void setBorder (Border b) {
+        if (b == expansionBorder) {
+            super.setBorder(b);
+        } else {
+            super.setBorder(BorderFactory.createCompoundBorder (b, expansionBorder));
+        }
     }
     
     private static Icon getDefaultOpenIcon() {
@@ -94,10 +106,6 @@ public class DefaultOutlineCellRenderer extends DefaultTableCellRenderer {
         showHandle = val;
     }
     
-    private void setHasFocus(boolean val) {
-        hasFocus = val;
-    }
-    
     private boolean isLeaf () {
         return leaf;
     }
@@ -110,27 +118,36 @@ public class DefaultOutlineCellRenderer extends DefaultTableCellRenderer {
         return showHandle;
     }
     
-    private boolean isHasFocus() {
-        return hasFocus;
-    }
-    
+    /** Set the nesting depth - the number of path elements below the root.
+     * This is set in getTableCellEditorComponent(), and retrieved by the
+     * expansion border to determine how far to the right to indent the current
+     * node. */
     private int getNestingDepth() {
         return nestingDepth;
     }
     
+    /** Get a component that can render cells in an Outline.  If 
+     * <code>((Outline) table).isTreeColumnIndex(column)</code> is true,
+     * it will paint as indented and with an expansion handle if the 
+     * Outline's model returns false from <code>isLeaf</code> for the
+     * passed value. 
+     * <p>
+     * If the column is not the tree column, its behavior is the same as
+     * DefaultTableCellRenderer.
+     */
     public Component getTableCellRendererComponent(JTable table, Object value,
                           boolean isSelected, boolean hasFocus, int row, 
                           int column) {
     
         Component c = (DefaultOutlineCellRenderer) super.getTableCellRendererComponent(
               table, value, isSelected, hasFocus, row, column);
-        setHasFocus(hasFocus);
-        if (column == 0) {
-            Outline tbl = (Outline) table;
+        Outline tbl = (Outline) table;
+        if (tbl.isTreeColumnIndex(column)) {
             AbstractLayoutCache layout = tbl.getLayoutCache();
             
             boolean leaf = tbl.getOutlineModel().isLeaf(value);
             setLeaf(leaf);
+            setShowHandle(true);
             TreePath path = layout.getPathForRow(row);
             boolean expanded = !layout.isExpanded(path);
             setExpanded (expanded);
@@ -162,9 +179,9 @@ public class DefaultOutlineCellRenderer extends DefaultTableCellRenderer {
             if (icon == null) {
                 if (!leaf) {
                     if (expanded) {
-                        setIcon (getDefaultOpenIcon());
-                    } else {
                         setIcon (getDefaultClosedIcon());
+                    } else {
+                        setIcon (getDefaultOpenIcon());
                     }
                 } else {
                     setIcon (getDefaultLeafIcon());
@@ -175,7 +192,6 @@ public class DefaultOutlineCellRenderer extends DefaultTableCellRenderer {
             setIcon(null);
             setShowHandle(false);
         }
-        setBorder(expansionBorder);
         return this;
     }
     
@@ -217,13 +233,6 @@ public class DefaultOutlineCellRenderer extends DefaultTableCellRenderer {
                 }
                 icon.paintIcon(c, g, iconX, iconY);
             }
-            if (ren.isHasFocus()) {
-                Color color = g.getColor();
-                g.setColor (UIManager.getColor("controlShadow")); //NOI18N
-                g.drawRect (x, y, width - 1, height - 1);
-                g.setColor (color);
-            }
         }
-        
     }
 }

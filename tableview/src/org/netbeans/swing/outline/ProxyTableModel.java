@@ -102,7 +102,7 @@ final class ProxyTableModel implements TableModel {
     
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         Object node = getNodeForRow(rowIndex);
-        rowmodel.setValueFor (node, columnIndex);
+        rowmodel.setValueFor (node, columnIndex, aValue);
         TableModelEvent e = new TableModelEvent (this, rowIndex, rowIndex, 
             columnIndex);
         fire(e);

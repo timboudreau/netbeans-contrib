@@ -48,7 +48,7 @@ public interface RowModel {
     /** Is the cell in this column editable? */
     public boolean isCellEditable (Object node, int column);
     /** Set the value of the object in this column */
-    public void setValueFor (Object node, int column);
+    public void setValueFor (Object node, int column, Object value);
     /** Get the name of this column */
     public String getColumnName (int column);
 }

@@ -124,7 +124,7 @@ public class TestOutline extends JFrame {
             return false;
         }
         
-        public void setValueFor(Object node, int column) {
+        public void setValueFor(Object node, int column, Object value) {
             //do nothing for now
         }
         
