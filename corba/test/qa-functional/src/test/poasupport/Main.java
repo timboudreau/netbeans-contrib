@@ -13,6 +13,7 @@
 
 package test.poasupport;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.StringTokenizer;
 import javax.swing.ComboBoxModel;
@@ -45,6 +46,8 @@ import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jellytools.properties.ComboBoxProperty;
 import org.netbeans.jellytools.properties.PropertySheetOperator;
 import org.netbeans.jemmy.EventTool;
+import org.netbeans.jemmy.JemmyProperties;
+import org.netbeans.jemmy.Timeouts;
 import org.netbeans.jemmy.operators.Operator;
 import util.Environment;
 import util.Filter;
@@ -76,8 +79,13 @@ public class Main extends JellyTestCase {
     EventTool ev = null;
     PrintStream out = null;
     Filter filter = null;
+    Timeouts time;
 
     public void setUp () {
+        time = JemmyProperties.getCurrentTimeouts ();
+        Timeouts t = new Timeouts ();
+        try { t.loadDebugTimeouts (); } catch (IOException e) {}
+        JemmyProperties.setCurrentTimeouts (t);
         exp = new ExplorerOperator ();
         ev = new EventTool ();
         out = getRef ();
@@ -88,6 +96,10 @@ public class Main extends JellyTestCase {
         filter.addFilterAfter ("by ");
     }
     
+    public void tearDown () {
+        JemmyProperties.setCurrentTimeouts (time);
+    }
+	
     public void dumpFile (String node, String name) {
         new OpenAction ().perform (new Node (exp.repositoryTab ().tree (), node));
         ev.waitNoEvent (1000);
