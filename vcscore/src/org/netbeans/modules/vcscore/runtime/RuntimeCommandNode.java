@@ -33,6 +33,7 @@ class RuntimeCommandNode extends AbstractNode {
     static final int STATE_WAITING = 0;
     static final int STATE_RUNNING = 1;
     static final int STATE_DONE = 2;
+    static final int STATE_CANCELLED = 3;
     
     private VcsCommandExecutor executor;
     private CommandsPool cpool;
