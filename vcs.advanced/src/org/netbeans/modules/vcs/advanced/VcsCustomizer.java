@@ -927,22 +927,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void relMountPointChanged() {
         String module = relMountTextField.getText();
         try {
-            if (module != null && !module.equals (this.fileSystem.getRelativeMountPoint())) {
-                //We have to store files which can go ot of Repository
-                org.openide.loaders.DataObject[] modifiedObjects = org.openide.loaders.DataObject.getRegistry().getModified();
-                try {
-                    for (int i=0; i< modifiedObjects.length; i++) {
-                        try {
-                            if (modifiedObjects[i].getPrimaryFile().getFileSystem() == fileSystem) {
-                                modifiedObjects[i].setValid (false);
-                            }
-                        } catch (org.openide.filesystems.FileStateInvalidException fsie) {/*Ignore it*/}
-                    }
-                } catch (java.beans.PropertyVetoException pve) {
-                    // User pressed Cancel, cancel process
-                    return;
-                }
-            }
             fileSystem.setRelativeMountPoint(module);
         } catch (PropertyVetoException exc) {
             module = null;
@@ -1387,26 +1371,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     }
         */
         try{
-            String oldRoot = null;
-            File f = this.fileSystem.getRootDirectory();
-            if (f != null) 
-                oldRoot = f.getAbsolutePath();
-            if (root != null && oldRoot != null && !root.equals (oldRoot)) {
-                //We have to store files which can go ot of Repository
-                org.openide.loaders.DataObject[] modifiedObjects = org.openide.loaders.DataObject.getRegistry().getModified();
-                try {
-                    for (int i=0; i< modifiedObjects.length; i++) {
-                        try {
-                            if (modifiedObjects[i].getPrimaryFile().getFileSystem() == fileSystem) {
-                                modifiedObjects[i].setValid (false);
-                            }
-                        } catch (org.openide.filesystems.FileStateInvalidException fsie) {/*Ignore it*/}
-                    }
-                } catch (java.beans.PropertyVetoException pve) {
-                    // User pressed Cancel, cancel process
-                    return;
-                }
-            }
             fileSystem.setRootDirectory(root);
             //rootDirTextField.setText(selected);
             String cmd = (String) autoFillVars.get("ROOTDIR");
