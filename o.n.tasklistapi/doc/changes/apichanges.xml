@@ -86,7 +86,9 @@ is the proper place.
           <compatibility deletion="yes"/>
           <description>
               <p>
-                  <code>clear()</code> and <code>rescan()</code> removed.                  
+                  <code>clear()</code> and <code>rescan()</code> abstract methods removed.
+                  These could be called only by framework that does not
+                  need them anymore.
               </p>
           </description>
           <class package="org.netbeans.spi.tasklist" name="DocumentSuggestionProvider"/>
