@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 1.3.0.2.2
+OpenIDE-Module-Specification-Version: 1.3.0.2.3
 OpenIDE-Module-Layer: org/netbeans/modules/latex/guiproject/resources/mf-
  layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/latex/guiproject/B
