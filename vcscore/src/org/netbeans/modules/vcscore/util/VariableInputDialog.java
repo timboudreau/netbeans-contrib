@@ -850,7 +850,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                              javax.swing.JPanel variablePanel, int leftInset) {
         String label = component.getLabel();
         final javax.swing.JCheckBox chbox = new javax.swing.JCheckBox(" "+label);
-        chbox.setBorder(new javax.swing.border.EmptyBorder(1, 0, 1, 0));
+        //chbox.setBorder(new javax.swing.border.EmptyBorder(1, 0, 1, 0));
         String askDefault;
         if (component.needsPreCommandPerform()) {
             askDefault = component.getValue();
