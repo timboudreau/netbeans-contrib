@@ -145,6 +145,13 @@ final class JndiNode extends JndiObjectNode {
     return ((JndiChildren)this.getChildren()).getContext();
   }
   
+  /** Returns the properties of InitialDirContext
+   *  @return Hashtable properties;
+   */
+  public Hashtable getInitialDirContextProperties () throws NamingException {
+    return ( (JndiChildren) this.getChildren () ).getContext () .getEnvironment ();
+  }
+  
 
   /** Returns offset of the node in respect to InitialContext
    *  @return CompositeName the offset
