@@ -13,10 +13,20 @@
 
 package org.netbeans.modules.vcs.advanced.commands;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.w3c.dom.*;
 
+import org.openide.ErrorManager;
 import org.openide.nodes.Children;
 
 import org.netbeans.modules.vcscore.commands.VcsCommandNode;
@@ -239,6 +249,7 @@ public class UserCommandIO extends Object {
                              */
                         }
                     }
+                    propertyValue = translateCommandProperty(propertyName, propertyValue);
                     cmd.setProperty(propertyName, getPropertyValue(propertyName, propertyValue));
                 } else if (COMMAND_TAG.equals(name)) {
                     subcommandsExist = true;
@@ -308,4 +319,153 @@ public class UserCommandIO extends Object {
             commands.appendChild(commandElm);
         }
     }
+    
+    /**
+     * Perform a translation of command's property value. Currently just class names
+     * are translated according to a translation table.
+     */
+    private static String translateCommandProperty(String propertyName, String propertyValue) {
+        if (UserCommand.PROPERTY_EXEC.equals(propertyName)) {
+            int classIndex = propertyValue.indexOf(".class");
+            if (classIndex > 0) {
+                int begin;
+                for (begin = classIndex; begin >= 0; begin--) {
+                    char c = propertyValue.charAt(begin);
+                    if (!Character.isJavaIdentifierPart(c) && c != '.') break;
+                }
+                begin++;
+                if (begin < classIndex) {
+                    String classNameOrig = propertyValue.substring(begin, classIndex);
+                    String classNameNew = translateExecClass(classNameOrig);
+                    if (!classNameOrig.equals(classNameNew)) {
+                        propertyValue = propertyValue.substring(0, begin) + classNameNew + propertyValue.substring(classIndex);
+                    }
+                }
+            }
+        }
+        return propertyValue;
+    }
+    
+    private static Reference translateMapRef = new SoftReference(null);
+    private static final Object MAP_LOCK = new Object();
+    
+    /**
+     * Translates an old class name (starting with "vcs.*") to the new class name
+     * ("org.netbeans.modules.vcs.profiles.*") according to the translation table
+     * at org/netbeans/modules/vcs/advanced/commands/cmdPackageTranslations
+     */
+    public static String translateExecClass(String className) {
+        String[][] map;
+        synchronized (MAP_LOCK) {
+            map = (String[][]) translateMapRef.get();
+            if (map == null) {
+                try {
+                    map = loadTranslateClassMap();
+                } catch (IOException ioex) {
+                    if (ErrorManager.getDefault() != null) {
+                        ErrorManager.getDefault().notify (ErrorManager.INFORMATIONAL, ioex);
+                    } else {
+                        ioex.printStackTrace();
+                    }
+                }
+                translateMapRef = new SoftReference(map);
+            }
+        }
+        // search for "the" name
+        final int mapsize = map.length;
+        for (int i = 0; i < mapsize; i++) {
+            if (className.startsWith(map[i][0])) {
+                String newClassName;
+                //if (arrayPrefix < 0) {
+                    newClassName = map[i][1] + className.substring(map[i][0].length());
+                //} else {
+                //    newClassName = className.substring(0, arrayPrefix) + map[i][1] + name.substring(map[i][0].length());
+                //}
+                className = newClassName;
+            }
+        }/* catch (IOException e) {
+            if (ErrorManager.getDefault() != null) {
+                ErrorManager.getDefault().notify (ErrorManager.INFORMATIONAL, e);
+            } else {
+                e.printStackTrace();
+            }
+        } */
+        // default
+        return className;
+        
+    }
+    
+    private static String[][] loadTranslateClassMap() throws IOException {
+        URL table = UserCommandIO.class.getResource("cmdPackageTranslations.txt"); //NOI18N
+        ArrayList chunks = new ArrayList();
+        loadTranslationFile(table, chunks);
+        // post process
+        Collections.sort(chunks, new StringArrayComparator());
+        final int pairslen = chunks.size();
+        String[][] mapping = new String[pairslen][2];
+        for (int i = 0; i < pairslen; i++) {
+            String[] chunk = (String[]) chunks.get(i);
+            mapping[i][0] = chunk[0];
+            mapping[i][1] = chunk[1];
+        }
+        return mapping;
+    }
+    
+    /**
+     * Load single translation file.
+     * @param resource URL identifiing transaction table
+     * @param chunks output parameter accepting loaded data
+     */
+    private static void loadTranslationFile(URL resource, List chunks) throws IOException {
+        BufferedReader reader =
+            new BufferedReader(new InputStreamReader( resource.openStream(), "UTF8"));  // use explicit encoding  //NOI18N
+
+        for (;;) {
+            String line = reader.readLine();
+            String[] pair = parseLine(line);
+            if (pair == null) { // EOF
+                break;
+            }
+            chunks.add(pair);
+        }
+
+    }
+
+    private static String[] parseLine(final String line) {
+        if (line == null) {
+            return null;
+        }
+        final int slen = line.length();
+        int space = line.indexOf(' ');
+        if (space <= 0 || (space == slen - 1)) {
+            return null;
+        }
+        String[] chunk = new String[] {line.substring(0, space), null};
+
+        space++;
+        int c;
+        while ((space < slen) && (line.charAt(space++) == ' '));
+        if (space == slen) {
+            return null;
+        }
+        String token = line.substring(--space);
+        token = token.trim();
+        chunk[1] = token;
+        return chunk;
+    }
+
+    /** Compares to object by length of String returned by toString(). */
+    private static final class StringArrayComparator implements Comparator {
+        
+        public boolean equals(Object o) {
+            return super.equals(o);
+        }
+
+        public int compare(Object o1, Object o2) {
+            String[] s1 = (String[]) o1;
+            String[] s2 = (String[]) o2;
+            return (s2[0].length() - s1[0].length());
+        }
+    }
+
 }

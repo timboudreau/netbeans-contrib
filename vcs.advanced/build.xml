@@ -18,16 +18,21 @@ Microsystems, Inc. All Rights Reserved.
   <property name="nbroot" value=".."/>
   <property name="binroot" location="../../nbextra"/>
   <property name="nbext" value="${nbroot}/nbbuild"/>
+  <property name="nbext_root" location="${nbroot}/nbbuild"/>
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" value="../nbbuild/standard-nbm-license.txt"/>
 
+  <property name="stdprofiles" value="cvsprofiles, pvcs, vss"/>
+
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../nbbuild/nbantext.jar"/>
+  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext}/nbantext.jar"/>
   <!-- <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/> -->
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbext}/nbantext.jar"/>
+  <taskdef name="for-each" classname="org.netbeans.nbbuild.ForEach" classpath="${nbext_root}/nbantext.jar"/>
+  <taskdef name="nbmerge" classname="org.netbeans.nbbuild.NbMerge" classpath="${nbext}/nbantext.jar"/>
 
   <target name="compile">
     <javac srcdir="src" 
@@ -46,58 +51,29 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${binroot}/core/release/lib/ext/xerces.jar"/>
       </classpath>
     </javac>
-    <javac srcdir="stdprofiles"
-        destdir="stdprofiles"
-        deprecation="${build.compiler.deprecation}" 
-        debug="${build.compiler.debug}">
-      <classpath>        
-	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
-        <!--<pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>-->
-        <fileset dir="${nbroot}/openide/netbeans/lib">
-          <include name="openide*.jar" />
-        </fileset>
-	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
-	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
-        <pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
-        <pathelement location="src"/>
-      </classpath>
-     </javac>
+    <!-- <ant dir="profiles/pvcs" inheritAll="false" target="compile"/> -->
+    <!-- <for-each locations="${stdprofiles}" startdir="profiles"/> -->
   </target>
-
-  <!--
-  <target name="tojar">
-    <tojar srcdir="src" unpackeddir="tojar"/>
-  </target>
-  -->
 
   <target name="jars" depends="compile">
-    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-commands.xml" absolutepath="true">
-       <include name="vcs/commands/*.class"/>
-       <include name="vcs/commands/*.java"/>
-       <include name="vcs/commands/*.form"/>
-       <include name="vcs/commands/*.properties"/>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-commands.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/commands/*.class"/>
+       <include name="org/netbeans/modules/vcs/profiles/commands/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/commands/*.form"/>
+       <include name="org/netbeans/modules/vcs/profiles/commands/*.properties"/>
     </makelayer>
-    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-commands-passwd.xml" absolutepath="true">
-       <include name="vcs/commands/passwd/*.class"/>
-       <include name="vcs/commands/passwd/*.java"/>
-       <include name="vcs/commands/passwd/*.form"/>
-       <include name="vcs/commands/passwd/*.properties"/>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/config/*.*"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/config/*_ja.*"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/config/*_XX.*"/>
     </makelayer>
-    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config.xml" absolutepath="true">
-       <include name="vcs/config/*.*"/>
-       <exclude name="vcs/config/*_ja.*"/>
-       <exclude name="vcs/config/*_XX.*"/>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-list.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/list/*.class"/>
+       <include name="org/netbeans/modules/vcs/profiles/list/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/list/*.properties"/>
     </makelayer>
-    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config_ja.xml" absolutepath="true">
-       <include name="vcs/config/*_ja.*"/>
-    </makelayer>  
-    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-list.xml" absolutepath="true">
-       <include name="vcs/list/*.class"/>
-       <include name="vcs/list/*.java"/>
-       <include name="vcs/list/*.properties"/>
-    </makelayer>
-    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-resources.xml" absolutepath="true">
-       <include name="vcs/resources/*.*"/>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-resources.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/resources/*.*"/>
     </makelayer>
     <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
@@ -109,15 +85,54 @@ Microsystems, Inc. All Rights Reserved.
 	 excludes="org/netbeans/modules/vcs/advanced/config/mf-layer_XX.xml" 
          compress="false">
       <locale name="ja"/>
-      <fileset dir="stdprofiles/" excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt">
-        <include name="**/*"/>
-	<exclude name="vcs/config/*_XX.*"/>
+      <fileset dir="src/" excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt">
+        <include name="org/netbeans/modules/vcs/profiles/**/*"/>
+	<exclude name="org/netbeans/modules/vcs/profiles/config/*_XX.*"/>
       </fileset>
-      <fileset dir="stdprofiles/">
-        <include name="**/*.java"/>
-        <include name="**/*.form"/>
+      <fileset dir="src/">
+        <include name="org/netbeans/modules/vcs/profiles/**/*.java"/>
+        <include name="org/netbeans/modules/vcs/profiles/**/*.form"/>
       </fileset>
     </locjar>
+    <!-- <for-each locations="${stdprofiles}" startdir="profiles"/> -->
+    <nbmerge dest="netbeans" topdir="profiles" modules="${stdprofiles}"/>
+   <!--
+    <patternset id="stdprofilesFolders" includes="${stdprofiles}"/>
+    <copy todir="netbeans/modules" flatten="true" includeEmptyDirs="false">
+      <fileset dir="profiles">
+        <patternset refid="stdprofilesFolders">
+          <include name="**/*.jar"/>
+          <exclude name="**/*_??.jar"/>
+        </patternset>
+      </fileset>
+    </copy>
+   -->
+   <!--
+    <copydir src="profiles" dest="netbeans/modules" flatten="true" includes="${stdprofiles}">
+      <patternset id="stdprofiles.jars">
+        <include name="**/*.jar"/>
+        <exclude name="**/*_??.jar"/>
+      </patternset>
+    </copydir>
+    <copydir src="profiles" dest="netbeans/modules/locale" flatten="true" includes="${stdprofiles}">
+      <patternset id="stdprofiles.jars">
+        <include name="**/*_??.jar"/>
+      </patternset>
+    </copydir>
+  -->
+  </target>
+
+  <target name="all-cvsprofiles">
+    <echo message="Building CVS profiles..."/>
+    <ant dir="profiles/cvsprofiles" target="netbeans"/>
+  </target>
+  <target name="all-pvcs">
+    <echo message="Building PVCS profiles..."/>
+    <ant dir="profiles/pvcs" target="netbeans"/>
+  </target>
+  <target name="all-vss">
+    <echo message="Building VSS profiles..."/>
+    <ant dir="profiles/vss" target="netbeans"/>
   </target>
 
   <target name="netbeans" depends="jars">
@@ -142,15 +157,12 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*.jar"/>
         <include name="org/netbeans/modules/vcs/advanced/config/layer-include*.xml"/>
       </fileset>
-      <fileset dir="stdprofiles">
-        <include name="**/*.class"/>
-        <include name="**/*.jar"/>
-      </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="vcsgen.nbm"/>
     <delete dir="netbeans"/>
     <delete dir="Info"/>
+    <for-each locations="${stdprofiles}" startdir="profiles"/>
   </target>
 
 </project>

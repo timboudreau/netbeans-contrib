@@ -364,6 +364,7 @@ public class VariableIO extends Object {
                 VcsConfigVariable var;
                 Node basicAttr = varAttrs.getNamedItem(VARIABLE_BASIC_ATTR);
                 value = VcsUtilities.getBundleString(value);
+                value = translateVariableValue(name, value);
                 if (basicAttr != null && BOOLEAN_VARIABLE_TRUE.equalsIgnoreCase(basicAttr.getNodeValue())) {
                     var = getBasicVariable(name, value, varNode, varAttrs);
                 } else {
@@ -381,6 +382,29 @@ public class VariableIO extends Object {
             return true;
         }
         return false;
+    }
+    
+    private static String translateVariableValue(String name, String value) {
+        if ("WRAPPER".equals(name)) {
+            int classIndex = value.indexOf(".class");
+            if (classIndex > 0) {
+                int begin;
+                for (begin = classIndex; begin >= 0; begin--) {
+                    char c = value.charAt(begin);
+                    if (!Character.isJavaIdentifierPart(c) && c != '.') break;
+                }
+                begin++;
+                if (begin < classIndex) {
+                    String classNameOrig = value.substring(begin, classIndex);
+                    String classNameNew =
+                        org.netbeans.modules.vcs.advanced.commands.UserCommandIO.translateExecClass(classNameOrig);
+                    if (!classNameOrig.equals(classNameNew)) {
+                        value = value.substring(0, begin) + classNameNew + value.substring(classIndex);
+                    }
+                }
+            }
+        }
+        return value;
     }
     
     private static VcsConfigVariable getBasicVariable(String name, String value, Node varNode, NamedNodeMap varAttrs) throws DOMException {

@@ -1,0 +1,13 @@
+vcs.commands.Diff                           org.netbeans.modules.vcs.profiles.commands.Diff
+vcs.commands.RecursiveFolderCommand         org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand
+vcs.commands.SetPasswordCommand             org.netbeans.modules.vcs.profiles.commands.SetPasswordCommand
+vcs.commands.ToLockFilesPanel               org.netbeans.modules.vcs.profiles.commands.ToLockFilesPanel
+vcs.commands.VCSCustomizerCommand           org.netbeans.modules.vcs.profiles.commands.VCSCustomizerCommand
+vcs.commands.Cvs                            org.netbeans.modules.vcs.profiles.cvsprofiles.commands.Cvs
+vcs.commands.passwd                         org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd
+vcs.commands.Pvcs                           org.netbeans.modules.vcs.profiles.pvcs.commands.Pvcs
+vcs.commands.Vss                            org.netbeans.modules.vcs.profiles.vss.commands.Vss
+vcs.list.AbstractListCommand                org.netbeans.modules.vcs.profiles.list.AbstractListCommand
+vcs.list.Cvs                                org.netbeans.modules.vcs.profiles.cvsprofiles.list.Cvs
+vcs.list.Pvcs                               org.netbeans.modules.vcs.profiles.pvcs.list.Pvcs
+vcs.list.Vss                                org.netbeans.modules.vcs.profiles.vss.list.Vss

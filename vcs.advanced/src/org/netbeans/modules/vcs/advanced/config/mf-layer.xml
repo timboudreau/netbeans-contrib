@@ -20,18 +20,28 @@ Microsystems, Inc. All Rights Reserved.
   <!ENTITY includefiles_resources SYSTEM "layer-includes-resources.xml">
 ]>
 <filesystem>
-  <folder name="vcs">
-    <folder name="commands">
-      &includefiles_commands;
-      <folder name="passwd">
-        &includefiles_commands_passwd;
+  <folder name="org">
+    <folder name="netbeans">
+      <folder name="modules">
+        <folder name="vcs">
+          <folder name="profiles">
+            <folder name="commands">
+              &includefiles_commands;
+            </folder>
+            <folder name="list">
+              &includefiles_list;
+            </folder>
+            <folder name="resources">
+              &includefiles_resources;
+            </folder>
+          </folder>
+        </folder>
       </folder>
     </folder>
+  </folder>
+  <folder name="vcs">
     <folder name="config">
       &includefiles_config;
-    </folder>
-    <folder name="list">
-      &includefiles_list;
     </folder>
     <folder name="resources">
       &includefiles_resources;
