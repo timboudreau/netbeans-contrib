@@ -84,10 +84,7 @@ public class CompiledDataObject extends ClassDataObject {
 
         CookieSet cs = getCookieSet();
         // only JavaBeans should offer `Customize Bean' action
-        if (isJavaBean()) {
-            cs.add(InstanceCookie.Origin.class, this);
-            cs.add(createInstanceSupport());
-        }
+        cs.add(InstanceCookie.Origin.class, this);
         cs.add(ExecSupport.class, this);
     }
     
@@ -101,10 +98,20 @@ public class CompiledDataObject extends ClassDataObject {
         return execSupport;
     }
     
+    protected Node.Cookie createBeanInstanceSupport() {
+	if (isJavaBean()) {
+	    return createInstanceSupport();
+	} else {
+	    return null;
+	}
+    }
+    
     public Node.Cookie createCookie(Class c) {
         if (ExecCookie.class.isAssignableFrom(c)) {
             return createExecSupport();
-        }
+        } else if (InstanceCookie.class.isAssignableFrom(c)) {
+	    return createBeanInstanceSupport();
+	}
         return super.createCookie(c);
     }
 
