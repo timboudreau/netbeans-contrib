@@ -32,18 +32,6 @@ import com.netbeans.ide.filesystems.FileStateInvalidException;
 import com.netbeans.ide.filesystems.AbstractFileSystem;
 import com.netbeans.ide.filesystems.DefaultAttributes;
 
-/* TODO:
- * 
- * - zobrazovat uzivatelske prikazy v popup menu na konci
- * - "Details..." s detaily stavu jednotlivych souboru
- * - kdyz je pouzita promenna, ktera neni definovana, zeptat se na
- * - napoveda
- * - lokalizace
- *
- * - "Customize" tlacitko na upravu konfiguraci
- *
- */
-
 /** Generic command line VCS filesystem.
  * 
  * @author Michal Fadljevic
@@ -91,6 +79,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   private boolean ready=false;
   
+
   //-------------------------------------------
   public void setConfig(String label){
     this.config=label;
@@ -767,6 +756,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  25   Gandalf   1.24        5/25/99  Michal Fadljevic 
  *  24   Gandalf   1.23        5/25/99  Michal Fadljevic 
  *  23   Gandalf   1.22        5/24/99  Michal Fadljevic 
  *  22   Gandalf   1.21        5/24/99  Michal Fadljevic 
