@@ -30,7 +30,6 @@ import org.netbeans.modules.tasklist.core.TaskListener;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.TaskListView.ColumnProperty;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
-import org.openide.TopManager;
 import org.openide.actions.DeleteAction;
 import org.openide.actions.PasteAction;
 import org.openide.filesystems.FileObject;

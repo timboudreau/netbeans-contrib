@@ -307,7 +307,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
     /** Called when the Suggestions View is closed */
     void notifyViewClosed() {
         if (prepared) {
-            if (!running) {
+            if (running) {
                 notifyViewHidden();
             }
             List providers = getProviders();

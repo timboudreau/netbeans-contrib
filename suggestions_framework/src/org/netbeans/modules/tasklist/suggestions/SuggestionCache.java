@@ -83,9 +83,6 @@ Here's how the SuggestionManager uses the cache:
         has a way of detecting these.
 </ul>
 <p>
-  @todo Should I create a CacheEntry class which tracks
-     document reference, editor supports, suggestion list, etc.,
-     instead of relying on cookies to find it?
   @todo What about suggestions derived from Documents which have
      external dependencies? For example, after changing document
      "foo", document Bar may get new scan errors in it - but
@@ -127,7 +124,6 @@ class SuggestionCache implements DocumentListener, PropertyChangeListener {
         doc.removeDocumentListener(this); // prevent double registering
         doc.addDocumentListener(this);
 
-        /* TODO Not yet handled - see issue 31101 & 31558.
         EditorCookie.Observable observable = 
             (EditorCookie.Observable)dobj.getCookie(
                                          EditorCookie.Observable.class);
@@ -135,9 +131,8 @@ class SuggestionCache implements DocumentListener, PropertyChangeListener {
             observable.removePropertyChangeListener(this); // prevent dupes
             observable.addPropertyChangeListener(this);
         }
-        */
-        
-        map.put(doc, suggestions);
+        Entry entry = new Entry(doc, suggestions, observable);
+        map.put(doc, entry);
     }
 
     /** Look up the given document's suggestions list.
@@ -151,7 +146,11 @@ class SuggestionCache implements DocumentListener, PropertyChangeListener {
         if (map == null) {
             return null;
         }
-        return (List)map.get(doc);
+        Entry entry = (Entry)map.get(doc);
+        if (entry == null) {
+            return null;
+        }
+        return entry.list;
     }
 
     /** Remove all items from the cache */
@@ -168,31 +167,24 @@ class SuggestionCache implements DocumentListener, PropertyChangeListener {
           cache
     */
     public void remove(Document doc) {
-        if (map.remove(doc) != null) {
+        Entry entry = (Entry)map.remove(doc);
+        if (entry != null) {
             // Was in the table - gotta remove doc listeners
             doc.removeDocumentListener(this);
-
-            /* TODO Not yet handled - see issue 31101 & 31558
-               EditorCookie.Observable observable = 
-               (EditorCookie.Observable)dobj.getCookie(
-               EditorCookie.Observable.class);
-               if (observable != null) {
-                   observable.removePropertyChangeListener(this);
-               }
-            */
+            if (entry.listener != null) {
+                entry.listener.removePropertyChangeListener(this);
+            }
         }
     }
 
     /** Reacts to changes */
     public void propertyChange(PropertyChangeEvent ev) {
-        /* TODO Not yet implemented - see issue 31101 & 31558
         String prop = ev.getPropertyName();
         if (prop.equals(EditorCookie.Observable.PROP_DOCUMENT)) {
             EditorCookie ec = (EditorCookie)ev.getSource();
             Document doc = ec.getDocument();
             invalidate(doc);
         }
-        */
     }    
 
     /** The given document should be removed from the map */
@@ -211,5 +203,17 @@ class SuggestionCache implements DocumentListener, PropertyChangeListener {
 
     public void removeUpdate(DocumentEvent e) {
         invalidate(e.getDocument());
+    }
+
+    private static class Entry {
+	List list;
+        Document doc;
+        EditorCookie.Observable listener;
+
+        Entry(Document doc, List list, EditorCookie.Observable listener) {
+            this.list = list;
+            this.doc = doc;
+            this.listener = listener;
+        }
     }
 }

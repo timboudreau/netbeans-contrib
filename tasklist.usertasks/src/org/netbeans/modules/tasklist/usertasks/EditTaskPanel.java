@@ -16,8 +16,10 @@ package org.netbeans.modules.tasklist.usertasks;
 import java.awt.Component;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Method;
 import java.beans.PropertyVetoException;
 import java.text.ParseException;
 import java.util.Date;
@@ -40,13 +42,14 @@ import org.openide.awt.Mnemonics;
 import org.openide.DialogDescriptor;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
-import org.openide.TopManager;
+import org.openide.util.Lookup;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerPanel;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.DialogDisplayer;
 
 /**
  * Panel used to enter/edit a user task.
@@ -517,7 +520,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
             d.setModal(true);
             d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
             d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
-            Dialog dlg = TopManager.getDefault().createDialog(d);
+            Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
             dlg.pack();
             dlg.show();
             
@@ -681,7 +684,34 @@ class EditTaskPanel extends JPanel implements ActionListener {
         Object source = actionEvent.getSource();
         if (source == addSourceButton) {
            HelpCtx help = new HelpCtx("NewTask"); // NOI18N
-           TopManager.getDefault().showHelp(help);
+
+           // This copied from openide/deprecated/.../TopManager.showHelp:
+
+           // Awkward but should work.
+           // XXX could instead just make tasklist-usertasks.jar 
+           // depend on javahelp-api.jar.
+           ClassLoader systemClassLoader = (ClassLoader)Lookup.getDefault().
+               lookup(ClassLoader.class);
+
+           try {
+               Class c = systemClassLoader.
+                   loadClass("org.netbeans.api.javahelp.Help"); // NOI18N
+               Object o = Lookup.getDefault().lookup(c);
+               if (o != null) {
+                   Method m = c.getMethod("showHelp", 
+                                     new Class[] {HelpCtx.class}); // NOI18N
+                   m.invoke(o, new Object[] {help});
+                   return;
+               }
+           } catch (ClassNotFoundException cnfe) {
+               // ignore - maybe javahelp module is not installed, not
+               // so strange
+           } catch (Exception e) {
+               // potentially more serious
+               ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+           }
+           // Did not work.
+           Toolkit.getDefaultToolkit().beep();
         }
     }
 

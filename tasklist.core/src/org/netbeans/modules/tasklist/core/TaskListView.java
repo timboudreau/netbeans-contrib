@@ -30,6 +30,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.Method;
 
 import java.awt.Dimension;
 import java.awt.Image;
@@ -75,9 +76,8 @@ import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.Workspace;
 import org.openide.windows.WindowManager;
+import org.openide.util.actions.CallbackSystemAction;
 
-import org.netbeans.core.output.NextOutJumpAction;
-import org.netbeans.core.output.PreviousOutJumpAction;
 import org.openide.util.Utilities;
 
 
@@ -1246,13 +1246,34 @@ public abstract class TaskListView extends ExplorerPanel
     /** Assign the Next/Previous build actions to point to the
      * task window */
     void installJumpActions(boolean install) {
-
         // TODO - only install if the list is non empty (and call
         // this method from SMI when the list becomes non-empty)
+        // In other words, the next action button shouldn't light
+        // up when there are no tasks to move to.
 
         // Make F12 jump to next task
-        NextOutJumpAction nextAction = (NextOutJumpAction)NextOutJumpAction.get(NextOutJumpAction.class);
-        PreviousOutJumpAction previousAction = (PreviousOutJumpAction)PreviousOutJumpAction.get(PreviousOutJumpAction.class);
+        if (nextActionClz == null) {
+            if (lookupAttempted) {
+                return;
+            }
+            lookupAttempted = true;
+            ClassLoader systemClassLoader = (ClassLoader)Lookup.getDefault().
+                lookup(ClassLoader.class);
+            try {
+                nextActionClz = systemClassLoader.
+                    loadClass("org.netbeans.core.output.NextOutJumpAction"); // NOI18N
+                prevActionClz = systemClassLoader.
+                    loadClass("org.netbeans.core.output.PreviousOutJumpAction"); // NOI18N
+            } catch (Exception e) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                return;
+            }
+        }
+
+        CallbackSystemAction nextAction = 
+            (CallbackSystemAction)SystemAction.get(nextActionClz);
+        CallbackSystemAction previousAction = 
+            (CallbackSystemAction)SystemAction.get(prevActionClz);
         if (install) {
             nextAction.setActionPerformer(jumpPerformer);
             previousAction.setActionPerformer(jumpPerformer);        
@@ -1260,10 +1281,12 @@ public abstract class TaskListView extends ExplorerPanel
             nextAction.setActionPerformer(null);
             previousAction.setActionPerformer(null);        
         }
-
     }
 
     private JumpActionPerformer jumpPerformer = new JumpActionPerformer();
+    private Class nextActionClz = null;
+    private Class prevActionClz = null;
+    private boolean lookupAttempted = false;
 
     final class JumpActionPerformer implements ActionPerformer {
 
@@ -1271,10 +1294,10 @@ public abstract class TaskListView extends ExplorerPanel
         public void performAction(final SystemAction action) {            
             invokeLater(new Runnable() {
 		    public void run() {
-			if (action instanceof NextOutJumpAction) {
+                        if (nextActionClz.isInstance(action)) {
 			    // Traditionally bound to F12
                             nextTask();
-			} else if (action instanceof PreviousOutJumpAction) {
+			} else if (prevActionClz.isInstance(action)) {
                             prevTask();
 			}
                         // updateNextPrevActions();
