@@ -1,4 +1,13 @@
-vcscore/src/**/Bundle.properties
+vcscore/src/**/Bundle*.properties
 vcscore/src/**/*.html
-exclude vcscore/src/**/*_??.html
+vcscore/src/**/*.gif
+vcscore/src/**/*.png
+exclude vcscore/src/org/netbeans/modules/vcscore/util/package.html
+exclude vcscore/src/org/netbeans/modules/vcscore/turbo/log/package.html
+exclude vcscore/src/org/netbeans/modules/vcscore/turbo/local/package.html
+exclude vcscore/src/org/netbeans/modules/vcscore/turbo/package.html
+exclude vcscore/src/org/netbeans/modules/vcscore/runtime/package.html
+exclude vcscore/src/org/netbeans/modules/vcscore/commands/package.html
+exclude vcscore/src/org/netbeans/modules/vcscore/actions/package.html
+exclude vcscore/src/org/netbeans/modules/vcscore/resources/templatesVCSFS.html
 exclude vcscore/src/org/netbeans/modules/vcscore/versioning/impl/package.html

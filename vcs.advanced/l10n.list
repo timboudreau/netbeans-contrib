@@ -1,6 +1,7 @@
-vcsgeneric/src/**/Bundle.properties
-vcsgeneric/src/org/netbeans/modules/vcs/advanced/config/templatesGEN_VCS_FS.html
-vcsgeneric/profiles/**/Bundle.properties
-vcsgeneric/profiles/cvsprofiles/src/org/netbeans/modules/vcs/profiles/cvsprofiles/config/BundleGlobal.properties
-vcsgeneric/profiles/pvcs/src/org/netbeans/modules/vcs/profiles/pvcs/config/BundleLocalizedPVCS.properties
-vcsgeneric/profiles/vss/src/org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS.properties
+vcsgeneric/src/**/Bundle*.properties
+vcsgeneric/src/**/*.html
+vcsgeneric/src/**/*.gif
+exclude vcsgeneric/src/**/package.html
+vcsgeneric/profiles/**/Bundle*.properties
+vcsgeneric/profiles/**/*.html
+vcsgeneric/profiles/**/*.gif
