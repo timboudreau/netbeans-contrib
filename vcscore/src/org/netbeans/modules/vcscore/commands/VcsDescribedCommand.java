@@ -94,4 +94,7 @@ public interface VcsDescribedCommand extends Command, TextOutputCommand,
      * @return The array of files to act on.
      */
     public File[] getDiskFiles();
+
+    public Object clone();
+
 }

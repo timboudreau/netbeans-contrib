@@ -571,7 +571,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      * for the old one.
      */
     private VcsDescribedCommand createNextCommand(Table files, VcsDescribedCommand oldCommand) {
-        Command command = createCommand();
+        Command command = (VcsDescribedCommand) oldCommand.clone();//createCommand();
         if (!(command instanceof VcsDescribedCommand)) {
             throw new IllegalArgumentException("Command "+command+" is not an instance of VcsDescribedCommand!");
         }

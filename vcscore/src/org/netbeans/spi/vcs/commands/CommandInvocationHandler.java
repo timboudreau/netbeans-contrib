@@ -138,6 +138,8 @@ class CommandInvocationHandler extends Object /*CommandSupport.Info*/ implements
             }
         } else if ("hashCode".equals(name)) {
             return new Integer(this.hashCode());
+        } else if ("clone".equals(name)) {
+            return support.createCommand((CommandInvocationHandler) this.clone());
         } else if ("execute".equals(name)) {
             CommandTask task = support.createTheTask();
             if (task == null) return null;
