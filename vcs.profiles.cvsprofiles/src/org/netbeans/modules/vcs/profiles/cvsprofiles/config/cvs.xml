@@ -1304,6 +1304,9 @@ Microsystems, Inc. All Rights Reserved.
             <property name="runOnMultipleFilesInFolder">
                 <value>true</value>
             </property>
+            <property name="onNonRecursiveDir">
+                <value>true</value>
+            </property>
             <property name="disabledOnStatus">
                 <!-- "Yet-Unknown"a nd "Ignored" are defined by vcscore: -->
                 <value>&versioned-statuses;, "Yet-Unknown", "Ignored"</value>
