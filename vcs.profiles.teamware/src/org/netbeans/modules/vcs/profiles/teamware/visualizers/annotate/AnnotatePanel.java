@@ -13,6 +13,29 @@
 
 package org.netbeans.modules.vcs.profiles.teamware.visualizers.annotate;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.*;
+
+import org.netbeans.modules.vcscore.util.table.ColumnSortListener;
+import org.netbeans.modules.vcscore.util.table.RevisionComparator;
+import org.netbeans.modules.vcscore.util.table.TableInfoComparator;
+import org.netbeans.modules.vcscore.util.table.TableInfoModel;
+import org.openide.util.NbBundle;
+
 /**
  * Panel that can display the output of cvs annotate command or similar equivalent in other
  * vcs. How to use:
@@ -25,27 +48,15 @@ package org.netbeans.modules.vcs.profiles.teamware.visualizers.annotate;
  * @author  mkleint
  */
 
-import org.openide.util.*;
-import java.util.*;
-import java.io.File;
-import javax.swing.event.*;
-import javax.swing.*;
-import java.awt.GridBagConstraints;
-import javax.swing.table.*;
-import java.awt.event.*;
-import java.awt.Dimension;
-import java.lang.reflect.Method;
-import org.netbeans.modules.vcscore.util.table.*;
-
-public class AnnotatePanel extends javax.swing.JPanel {
+public class AnnotatePanel extends JPanel {
 
     private TableInfoModel modAnnotations = null;
     
     private static final int REVISION_COLUMN = 1;
     private static final int AUTHOR_COLUMN = 2;
-    private static final java.awt.Color colorBoth = new java.awt.Color(255, 160, 180);
-    private static final java.awt.Color colorRev = new java.awt.Color(180, 255, 180);
-    private static final java.awt.Color colorAuth = new java.awt.Color(160, 200, 255);
+    private static final Color colorBoth = new Color(255, 160, 180);
+    private static final Color colorRev = new Color(180, 255, 180);
+    private static final Color colorAuth = new Color(160, 200, 255);
     
     
     /** Creates new form AnnotatenfoPanel */
@@ -58,8 +69,8 @@ public class AnnotatePanel extends javax.swing.JPanel {
     
     public AnnotatePanel() {
         initComponents ();
-        setPreferredSize(new java.awt.Dimension(750, 400));
-        setMinimumSize(new java.awt.Dimension(750, 400));          
+        setPreferredSize(new Dimension(750, 400));
+        setMinimumSize(new Dimension(750, 400));          
         tblAnnotat.setShowGrid(false);
         tblAnnotat.setBorder(null);
         tblAnnotat.setRowSelectionAllowed(true);
@@ -86,11 +97,11 @@ public class AnnotatePanel extends javax.swing.JPanel {
         lblWorkFile.setDisplayedMnemonic(NbBundle.getBundle(AnnotatePanel.class).getString("AnnotateInfoPanel.lblWorkFile.Mnem").charAt(0));
         lblRevision.setDisplayedMnemonic(NbBundle.getBundle(AnnotatePanel.class).getString("AnnotatePanel.lblRevision.Mnem").charAt(0));
         lblAuthor.setDisplayedMnemonic(NbBundle.getBundle(AnnotatePanel.class).getString("AnnotatePanel.lblAuthor.Mnem").charAt(0));
-        txWorkFile.addFocusListener(new java.awt.event.FocusListener() {
-            public void focusGained(java.awt.event.FocusEvent e) {
+        txWorkFile.addFocusListener(new FocusListener() {
+            public void focusGained(FocusEvent e) {
                 txWorkFile.selectAll();
             }
-            public void focusLost(java.awt.event.FocusEvent e) {
+            public void focusLost(FocusEvent e) {
                 txWorkFile.select(1,1);
             }
         }); 
@@ -402,9 +413,9 @@ public class AnnotatePanel extends javax.swing.JPanel {
    */
   
   public void doRepaintAndSort() {
-       java.util.Collections.sort(modAnnotations.getList(), modAnnotations);
+       Collections.sort(modAnnotations.getList(), modAnnotations);
         // find the previsously selected row.
-       java.util.Collections.sort(revSet, new RevisionComparator());
+       Collections.sort(revSet, new RevisionComparator());
        Iterator it = revSet.iterator();
        revModel.removeAllElements();
        revModel.addElement(noRevisionSelected);
@@ -504,7 +515,7 @@ public class AnnotatePanel extends javax.swing.JPanel {
    private class ColoringUpdateRenderer extends DefaultTableCellRenderer {
 
        // a workaround because of bugparade issue : 4336152
-        private java.awt.Color almostWhite = new java.awt.Color(254,254,254);  
+        private Color almostWhite = new Color(254,254,254);  
        
         private static final long serialVersionUID = -8634243127049172822L;
         
@@ -513,12 +524,14 @@ public class AnnotatePanel extends javax.swing.JPanel {
 //            setOpaque(true);
         }
         
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable jTable, java.lang.Object obj, boolean isSelected, boolean hasFocus, int row, int column) {
-            java.awt.Component retValue;
+        public Component getTableCellRendererComponent(JTable jTable, java.lang.Object obj, boolean isSelected, boolean hasFocus, int row, int column) {
+            Component retValue;
             
             retValue = super.getTableCellRendererComponent(jTable, obj, isSelected, hasFocus, row, column);
 
-            if (isSelected) return retValue;
+            if (isSelected) {
+                return retValue;
+            }
             String auth = AnnotatePanel.this.modAnnotations.getValueAt(row, AnnotatePanel.AUTHOR_COLUMN).toString();
             String rev = AnnotatePanel.this.modAnnotations.getValueAt(row, AnnotatePanel.REVISION_COLUMN).toString();
             boolean matchesAuthor = AnnotatePanel.this.matchesAuthor(auth);

@@ -33,7 +33,7 @@ public class UU {
             if ((byteLength % 3) > 0) {
                 length += 1 + byteLength % 3;
             }
-            for (int i = 1, offset = 0; i < length - 1;) {
+            for (int i = 1; i < length - 1;) {
                 while (data[i] >= 96 || data[i] < 32) {
                     i ++;
                 }
@@ -78,7 +78,7 @@ public class UU {
         StringBuffer sb = new StringBuffer();
         StringBuffer line = new StringBuffer();
         int bytesInLine = 0;
-        for (int i = offset, charsInLine = 0; i < offset + length;) {
+        for (int i = offset; i < offset + length;) {
             int byte0 = ((int) data[i++]) & 0xff;
             int byte1 = (i < data.length) ? ((int) data[i++]) & 0xff : 0x100;
             int byte2 = (i < data.length) ?  ((int) data[i++]) & 0xff : 0x100;

@@ -16,21 +16,13 @@ package org.netbeans.modules.vcs.profiles.teamware.visualizers;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Vector;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.awt.Actions;
-import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
@@ -38,7 +30,6 @@ import org.openide.windows.WindowManager;
 import org.openide.windows.Workspace;
 
 import org.netbeans.api.vcs.commands.CommandTask;
-import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.cmdline.UserCommandTask;
 import org.netbeans.modules.vcscore.commands.CommandOutputCollector;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
@@ -46,7 +37,6 @@ import org.netbeans.modules.vcscore.commands.ProvidedCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.VcsCommandVisualizer;
 import org.netbeans.modules.vcscore.commands.VcsDescribedTask;
-import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 import org.openide.util.Task;
@@ -65,9 +55,7 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     private VcsCommandsProvider cmdProvider;    
     protected Collection files;
     protected File rootDir;   
-    private java.awt.event.ActionListener killListener = null;
     private int exit;
-    private Vector vcsTopComponents;
     private boolean opened = false;
     protected String commandName ;
     private CommandOutputCollector outputCollector;
@@ -88,8 +76,9 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
             // This will probably not ever happen.
             // w != null is currently used only for EDIT and LOCK commands.
             outputMap = getOutputPanels();
-            if (outputMap == null)
+            if (outputMap == null) {
                 return;
+            }
             Iterator it = outputMap.keySet().iterator();
             if (outputMap.size() == 1) {
                 String fileName = (String) it.next();
@@ -113,8 +102,9 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     
     public void open() {
         outputMap = getOutputPanels();
-        if (outputMap == null)
+        if (outputMap == null) {
             return;
+        }
         Iterator it = outputMap.keySet().iterator();
         while (it.hasNext()) {
             String fileName = (String)it.next();
@@ -177,7 +167,9 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
             dispName = task.getDisplayName();
             task = CommandProcessor.getInstance().getParentTask(task);
         }
-        if (dispName == null) dispName = this.task.getName();
+        if (dispName == null) {
+            dispName = this.task.getName();
+        }
         return Actions.cutAmpersand(dispName);
     }
         
@@ -225,8 +217,9 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     }
     
     public void setExitStatus(int exit) {
-        if(!finishVisualizer)
+        if (!finishVisualizer) {
             return;
+        }
         this.exit = exit;
     }
     
@@ -311,14 +304,16 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
          * Open the component on the given workspace.
          */
         public void open(Workspace workspace) {    
-            if (exit != 0)
+            if (exit != 0) {
                 return;
+            }
             this.initComponents();
             Mode mode = WindowManager.getDefault().findMode(this);            
             if (mode == null) {
                 mode = WindowManager.getDefault().findMode(getMode()); // NOI18N              
-                if (mode != null)
+                if (mode != null) {
                     mode.dockInto(this);
+                }
             }
             super.open(workspace);
             super.requestActive();

@@ -13,29 +13,17 @@
 
 package org.netbeans.modules.vcs.profiles.teamware.visualizers.annotate;
 
-import java.awt.Dialog;
 import java.io.File;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
+import java.util.Map;
+import javax.swing.JComponent;
 import org.netbeans.modules.vcs.profiles.teamware.visualizers.OutputVisualizer;
-
-import org.openide.windows.*;
-
-import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
-import org.netbeans.modules.vcscore.commands.*;
-import org.netbeans.modules.vcscore.util.table.RevisionComparator;
 import org.netbeans.modules.vcscore.util.table.DateComparator;
 import org.netbeans.modules.vcscore.util.table.IntegerComparator;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
-import org.openide.util.NbBundle;
-import org.openide.windows.WindowManager;
+import org.netbeans.modules.vcscore.util.table.RevisionComparator;
 
 /**
  * The cvs annotate visaulizer.
@@ -44,16 +32,12 @@ import org.openide.windows.WindowManager;
  */
 public class TeamwareAnnotateVisualizer extends OutputVisualizer {
     
-    private static final String UNKNOWN = "server: nothing known about";  //NOI18N
-    private static final String ANNOTATING = "Annotations for ";  //NOI18N
-    private static final String STARS = "***************";  //NOI18N
     
     private ArrayList annotationLines; 
     private int lineNum;
     private String filePath;
     private ArrayList resultList;
-    private HashMap file_infoMap;
-    private HashMap output;
+    private Map output;
     
     /** Creates new CvsAnnotateVisualizer */
     public TeamwareAnnotateVisualizer() {
@@ -77,7 +61,7 @@ public class TeamwareAnnotateVisualizer extends OutputVisualizer {
             return output;
     }
     
-    private javax.swing.JComponent showAnnotations(File file) {
+    private JComponent showAnnotations(File file) {
         debug("showAnn:"+file.getName());
         AnnotatePanel panel = new AnnotatePanel();
         createTableDefinition(panel);
@@ -86,8 +70,9 @@ public class TeamwareAnnotateVisualizer extends OutputVisualizer {
         debug("annotationLines size:"+annotationLines.size());
         for (Iterator it = annotationLines.iterator(); it.hasNext(); ) {
             AnnotateLine line = (AnnotateLine) it.next();
-            if(line != null)
+            if (line != null) {
                 panel.addLine(line);
+            }
         }
         panel.doRepaintAndSort();
         return panel;
@@ -170,18 +155,13 @@ public class TeamwareAnnotateVisualizer extends OutputVisualizer {
     public void errOutputData(final String[] data) {
         debug("errOutputData:"+data);
     }
-    private File createFile(String fileName) {
-        File file = new File(filePath, fileName);
-        debug("file:"+file.getAbsolutePath());
-        return file;
-    }
     
     private static boolean DEBUG = false;
+    
     private static void debug(String msg){
-        if(DEBUG)
-            System.err.println("CvsAnnotateVisualizer: "+msg);
+        if (DEBUG) {
+            System.err.println("CvsAnnotateVisualizer: " + msg);
+        }
     }
-    
-    
     
 }
