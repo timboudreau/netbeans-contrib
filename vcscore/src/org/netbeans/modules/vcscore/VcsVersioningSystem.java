@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -35,7 +37,9 @@ import org.openide.util.actions.SystemAction;
 
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
+import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.caching.VcsCacheDir;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
@@ -66,6 +70,8 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     //private FileStatusListener fileStatus;
     private Hashtable revisionListsByName;
 
+    public static final String PROP_SHOW_DEAD_FILES = "showDeadFiles";
+    
     
     private static final long serialVersionUID = 6349205836150345436L;
 
@@ -76,7 +82,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             setSystemName(fileSystem.getSystemName());
         } catch (java.beans.PropertyVetoException vExc) {}
         //this.status = new VersioningFileStatus();
-        this.list = fileSystem.getVcsList();
+        this.list = new VersioningList();//fileSystem.getVcsList();
         this.info = fileSystem.getVcsInfo();
         this.change = new VersioningFSChange();
         this.attr = new VersioningAttrs();
@@ -95,6 +101,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         };
         fileSystem.addFileStatusListener(WeakListener.fileStatus(fileStatus, fileSystem));
          */
+        addPropertyChangeListener(new FSPropertyChangeListener());
     }
 
     /*
@@ -117,6 +124,15 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     
     public FileStatusProvider getFileStatusProvider() {
         return fileSystem.getStatusProvider();
+    }
+    
+    public boolean isShowDeadFiles() {
+        return fileSystem.isShowDeadFiles();
+    }
+
+    public void setShowDeadFiles(boolean showDeadFiles) {
+        fileSystem.setShowDeadFiles(showDeadFiles);
+        firePropertyChange(PROP_SHOW_DEAD_FILES, new Boolean(!showDeadFiles), new Boolean(showDeadFiles));
     }
     
     public String getDisplayName() {
@@ -177,7 +193,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         }
         return new SystemAction[] { action };
     }
-    
+
     /*
     public void fireRevisionChange(String name) {
         fireRevisionChange(name, null);
@@ -257,6 +273,31 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         
     }
      */
+    
+    private class VersioningList extends Object implements AbstractFileSystem.List {
+        
+        public String[] children(String name) {
+            String[] vcsFiles = null;
+            String[] files = null;
+            FileCacheProvider cache = fileSystem.getCacheProvider();
+            HashMap removedFilesScheduledForRemove = new HashMap();
+            if (cache != null) {// && cache.isDir(name)) {
+                cache.readDirFromDiskCache(name);
+                vcsFiles = cache.getFilesAndSubdirs(name);
+                if (!fileSystem.isShowDeadFiles()) {
+                    vcsFiles = fileSystem.filterDeadFilesOut(name, vcsFiles);
+                }
+            }
+            if (vcsFiles == null) files = fileSystem.getLocalFiles(name);
+            else files = fileSystem.addLocalFiles(name, vcsFiles, removedFilesScheduledForRemove);
+            if (cache != null) {
+                VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
+                if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal()))) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
+            }
+            return files;
+        }
+
+    }
 
     private class VersioningFSChange extends Object implements AbstractFileSystem.Change {
 
@@ -479,6 +520,35 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             else return attrs.get(attrName);
         }
         
+    }
+    
+    private class FSPropertyChangeListener implements PropertyChangeListener {
+        public void propertyChange(final PropertyChangeEvent event) {
+            String propName = event.getPropertyName();
+            Object oldValue = event.getOldValue();
+            Object newValue = event.getNewValue();
+            if (VcsFileSystem.PROP_ANNOTATION_PATTERN.equals(propName)) {
+                FileObject root = findResource("");
+                Set foSet = new HashSet();
+                Enumeration enum = existingFileObjects(root);
+                while (enum.hasMoreElements()) {
+                    foSet.add(enum.nextElement());
+                }
+                fireFileStatusChanged(new FileStatusEvent(VcsVersioningSystem.this, foSet, false, true));
+            }
+            if (PROP_SHOW_DEAD_FILES.equals(propName)) {
+                FileObject root = findResource("");
+                heyDoRefreshFolderRecursive(root);
+            }
+        }
+
+        private void heyDoRefreshFolderRecursive(FileObject fo) {
+            fo.refresh();
+            Enumeration enum = fo.getFolders(true);
+            while(enum.hasMoreElements()) {
+                ((FileObject) enum.nextElement()).refresh();
+            }
+        }
     }
     
     /*
