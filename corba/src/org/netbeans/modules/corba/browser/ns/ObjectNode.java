@@ -120,7 +120,7 @@ public class ObjectNode extends AbstractNode implements Node.Cookie {
                         return name;
                     }
                 });
-        ss.put (new PropertySupport.ReadOnly ("Kind", String.class, NbBundle.getBundle(ContextNode.class).getString("CTL_Kind"), NbBundle.getBundle(ContextNode.class).getString("TIP_ObjectType")) {
+        ss.put (new PropertySupport.ReadOnly ("Kind", String.class, NbBundle.getBundle(ContextNode.class).getString("CTL_Kind"), NbBundle.getBundle(ContextNode.class).getString("TIP_ObjectKind")) {
                     public java.lang.Object getValue () {
                         return getKind ();
                     }
